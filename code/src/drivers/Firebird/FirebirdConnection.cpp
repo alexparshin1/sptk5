@@ -194,12 +194,12 @@ void FirebirdConnection::driverEndTransaction(bool commit)
     array<ISC_STATUS, 20> status_vector;
 
     if (!getInTransaction())
-    throwDatabaseException("Transaction isn't started.")
+        throwDatabaseException("Transaction isn't started.")
 
-    if (commit)
-    {
-        isc_commit_transaction(status_vector.data(), &m_transaction);
-    }
+            if (commit)
+        {
+            isc_commit_transaction(status_vector.data(), &m_transaction);
+        }
     else
     {
         isc_rollback_transaction(status_vector.data(), &m_transaction);
@@ -299,8 +299,8 @@ void FirebirdConnection::queryBindParameters(Query* query)
     try
     {
         if (!statement)
-        throwDatabaseException("Query not prepared")
-        statement->setParameterValues();
+            throwDatabaseException("Query not prepared")
+                statement->setParameterValues();
     }
     catch (const Exception& e)
     {
@@ -314,8 +314,8 @@ void FirebirdConnection::queryExecute(Query* query)
     try
     {
         if (!statement)
-        throwDatabaseException("Query is not prepared")
-        statement->execute(getInTransaction());
+            throwDatabaseException("Query is not prepared")
+                statement->execute(getInTransaction());
     }
     catch (const Exception& e)
     {
@@ -373,9 +373,9 @@ void FirebirdConnection::queryOpen(Query* query)
 void FirebirdConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    throwDatabaseException("Dataset isn't open")
+        throwDatabaseException("Dataset isn't open")
 
-    scoped_lock lock(m_mutex);
+            scoped_lock lock(m_mutex);
 
     try
     {
@@ -430,7 +430,7 @@ void FirebirdConnection::objectList(DatabaseObjectType objectType, Strings& obje
                 "ORDER BY 1";
             break;
         default:
-        throwDatabaseException("Not supported")
+            throwDatabaseException("Not supported")
     }
     Query query(this, objectsSQL);
     query.open();
@@ -450,6 +450,21 @@ String FirebirdConnection::driverDescription() const
 String FirebirdConnection::paramMark(unsigned)
 {
     return "?";
+}
+
+void FirebirdConnection::queryExecDirect(Query* query)
+{
+    queryExecute(query);
+}
+
+void FirebirdConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+{
+    notImplemented("queryColAttributes");
+}
+
+void FirebirdConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+{
+    notImplemented("queryColAttributes");
 }
 
 void* firebird_create_connection(const char* connectionString)

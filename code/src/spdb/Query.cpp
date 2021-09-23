@@ -67,37 +67,6 @@ void QueryStatementManagement::closeQuery(bool releaseStatement)
     }
 }
 
-void QueryStatementManagement::prepare()
-{
-    if (!autoPrepare())
-    {
-        throw DatabaseException("Can't prepare this statement");
-    }
-    if (prepared())
-    {
-        return;
-    }
-    if (database() != nullptr && statement() != nullptr)
-    {
-        database()->queryPrepare((Query*) this);
-        setPrepared(true);
-    }
-}
-
-void QueryStatementManagement::unprepare()
-{
-    if (!prepared())
-    {
-        return;
-    }
-    if (database() != nullptr && statement() != nullptr)
-    {
-        database()->queryUnprepare((Query*) this);
-        setPrepared(false);
-        setActive(false);
-    }
-}
-
 void QueryStatementManagement::notImplemented(const String& functionName) const
 {
     throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, getSQL());
@@ -135,12 +104,14 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-    : QueryStatementManagement(true), m_fields(false)
+    : QueryStatementManagement(true)
+    , m_fields(false)
 {
 }
 
 Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
-    : QueryStatementManagement(autoPrepare), m_fields(false)
+    : QueryStatementManagement(autoPrepare)
+    , m_fields(false)
 {
     if (db)
     {
@@ -151,7 +122,8 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-    : QueryStatementManagement(autoPrepare), m_fields(false)
+    : QueryStatementManagement(autoPrepare)
+    , m_fields(false)
 {
     if (db != nullptr)
     {
@@ -187,7 +159,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     if (paramStart == nullptr)
     {
         return false;
-    }      // No more parameters
+    } // No more parameters
 
     bool rc = false;
     if (*paramStart == '\'')

@@ -1252,6 +1252,16 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     return statements;
 }
 
+void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+{
+    notImplemented("queryColAttributes");
+}
+
+void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+{
+    notImplemented("queryColAttributes");
+}
+
 void* postgresql_create_connection(const char* connectionString)
 {
     auto* connection = new PostgreSQLConnection(connectionString);

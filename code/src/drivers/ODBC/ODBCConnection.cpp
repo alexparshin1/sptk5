@@ -978,7 +978,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         short procedureType = 0;
         if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
         {
-            if (SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr) != SQL_SUCCESS)
+            auto rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
+            if (rc != SQL_SUCCESS)
             {
                 throw DatabaseException("SQLBindCol");
             }
@@ -1127,6 +1128,11 @@ void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnN
     {
         bulkInsertRecords(tableName, columnNames, begin, end);
     }
+}
+
+void ODBCConnection::queryExecDirect(Query* query)
+{
+    queryExecute(query);
 }
 
 void* odbc_create_connection(const char* connectionString)

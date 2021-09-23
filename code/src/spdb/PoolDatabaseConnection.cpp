@@ -49,7 +49,7 @@ void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& co
 
 void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
 {
-    for (const auto&[query, statement]: m_queryList)
+    for (const auto& [query, statement]: m_queryList)
     {
         try
         {
@@ -313,74 +313,9 @@ void PoolDatabaseConnectionQueryMethods::querySetEof(Query* q, bool eof)
     q->setEof(eof);
 }
 
-String PoolDatabaseConnectionQueryMethods::queryError(const Query*) const
-{
-    notImplemented("queryError");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryAllocStmt(Query*)
-{
-    notImplemented("queryAllocStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryFreeStmt(Query*)
-{
-    notImplemented("queryFreeStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryCloseStmt(Query*)
-{
-    notImplemented("queryCloseStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryPrepare(Query*)
-{
-    notImplemented("queryPrepare");
-}
-
 void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query* query)
 {
     queryFreeStmt(query);
-}
-
-void PoolDatabaseConnectionQueryMethods::queryExecute(Query*)
-{
-    notImplemented("queryExecute");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryExecDirect(Query*)
-{
-    notImplemented("queryExecDirect");
-}
-
-int PoolDatabaseConnectionQueryMethods::queryColCount(Query*)
-{
-    notImplemented("queryColCount");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char*, int32_t)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryBindParameters(Query*)
-{
-    notImplemented("queryBindParameters");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryOpen(Query*)
-{
-    notImplemented("queryOpen");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryFetch(Query*)
-{
-    notImplemented("queryFetch");
 }
 
 void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
@@ -414,7 +349,8 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
         escapeSQLString(sourceString, false);
     }
     stopWatch.stop();
-    COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
+    COUT("Escaped " << maxCount << " SQLs "
+                    << " for " << stopWatch.seconds() << " sec, "
                     << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl)
 }
 

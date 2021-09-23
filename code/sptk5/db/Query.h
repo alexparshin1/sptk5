@@ -188,16 +188,6 @@ protected:
     void closeQuery(bool releaseStatement = false);
 
     /**
-     * Prepares query for the fast execution
-     */
-    virtual void prepare();
-
-    /**
-     * Unprepares query releasing previously prepared statement
-     */
-    virtual void unprepare();
-
-    /**
      * Optional diagnostic messages populated after exec() or open()
      */
     Strings& messages()
@@ -328,10 +318,9 @@ public:
      *
      * Currently is NOT implemented.
      */
-    size_t recordCount() const override
+    [[noreturn]] size_t recordCount() const override
     {
         notImplemented("recordCount");
-        return 0;
     }
 
     /**

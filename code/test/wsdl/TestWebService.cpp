@@ -24,13 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "TestWebService.h"
+#include <sptk5/StopWatch.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSListener.h>
-#include <sptk5/StopWatch.h>
-#include <sptk5/db/Query.h>
-#include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/xdoc/Document.h>
-#include "TestWebService.h"
 
 using namespace std;
 using namespace sptk;
@@ -79,9 +79,9 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
-    jwt.set("iat", (int) time(nullptr));                  // JWT issue time
-    jwt.set("iss", "http://test.com");                         // JWT issuer
-    jwt.set("exp", (int) time(nullptr) + secondsInDay);   // JWT expiration time
+    jwt.set("iat", (int) time(nullptr));                // JWT issue time
+    jwt.set("iss", "http://test.com");                  // JWT issuer
+    jwt.set("exp", (int) time(nullptr) + secondsInDay); // JWT expiration time
 
     // Add some description information that we may use later
     const auto& info = jwt.grants.root()->pushNode("info");
@@ -485,6 +485,28 @@ TEST(SPTK_WSGeneratedClasses, LoadJSON)
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
 }
 
+TEST(SPTK_WSGeneratedClasses, LoadFields)
+{
+    FieldList fields(false);
+    fields.push_back(make_shared<Field>("username"));
+    fields.push_back(make_shared<Field>("password"));
+    fields.push_back(make_shared<Field>("servers"));
+    fields.push_back(make_shared<Field>("server_count"));
+
+    fields["username"] = "johnd";
+    fields["password"] = "secret";
+    fields["server_count"] = 2;
+    fields["servers"] = R"(["x1","x2"])";
+
+    CLogin login;
+    login.load(fields);
+
+    EXPECT_STREQ("johnd", login.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login.m_password.asString().c_str());
+    EXPECT_EQ(2, login.m_server_count.asInteger());
+    EXPECT_STREQ("x1", login.m_servers[0].asString().c_str());
+}
+
 TEST(SPTK_WSGeneratedClasses, UnloadXML)
 {
     CLogin login;
@@ -512,6 +534,9 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
 TEST(SPTK_WSGeneratedClasses, UnloadJSON)
 {
     CLogin login;
+
+    EXPECT_THROW(login.throwIfNull(""), SOAPException);
+
     login.m_username = "johnd";
     login.m_password = "secret";
     login.m_servers.push_back(WSString("x1"));
@@ -528,6 +553,9 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     json.exportTo(DataFormat::JSON, buffer, false);
 
     EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
+
+    auto str = login.toString();
+    EXPECT_STREQ(str.c_str(), testJSON.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
@@ -535,15 +563,23 @@ TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    login.m_servers.push_back(WSString("x1"));
+    login.m_servers.push_back(WSString("x2"));
+    login.m_project.m_id = int123;
+    login.m_project.m_expiration = "2020-10-01";
+    login.m_server_count = 2;
+    login.m_type = "abstract";
 
     DatabaseConnectionPool pool("postgresql://localhost/test");
     auto connection = pool.getConnection();
-    Query query(connection, "SELECT * FROM test WHERE username = :username and password = :password");
+    Query query(connection,
+                "SELECT * FROM test WHERE username = :username AND password = :password AND servers = :servers");
 
     login.unload(query.params());
 
     EXPECT_STREQ(query.param("username").asString().c_str(), "johnd");
     EXPECT_STREQ(query.param("password").asString().c_str(), "secret");
+    EXPECT_STREQ(query.param("servers").asString().c_str(), R"(["x1","x2"])");
 }
 
 #endif

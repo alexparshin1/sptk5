@@ -100,6 +100,9 @@ class SP_EXPORT PoolDatabaseConnectionQueryMethods
 
     friend class QueryStatementManagement;
 
+public:
+    virtual ~PoolDatabaseConnectionQueryMethods() = default;
+
 protected:
     /**
      * Sets internal CQuery statement handle
@@ -125,27 +128,27 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual String queryError(const Query* query) const;
+    virtual String queryError(const Query* query) const = 0;
 
     /**
      * Allocates an ODBC statement
      */
-    virtual void queryAllocStmt(Query* query);
+    virtual void queryAllocStmt(Query* query) = 0;
 
     /**
      * Deallocates an ODBC statement
      */
-    virtual void queryFreeStmt(Query* query);
+    virtual void queryFreeStmt(Query* query) = 0;
 
     /**
      * Closes an ODBC statement
      */
-    virtual void queryCloseStmt(Query* query);
+    virtual void queryCloseStmt(Query* query) = 0;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query* query);
+    virtual void queryPrepare(Query* query) = 0;
 
     /**
      * Unprepares a query if supported by database
@@ -155,42 +158,42 @@ protected:
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query* query);
+    virtual void queryExecute(Query* query) = 0;
 
     /**
      * Executes unprepared statement
      */
-    virtual void queryExecDirect(Query* query);
+    virtual void queryExecDirect(Query* query) = 0;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int queryColCount(Query* query);
+    virtual int queryColCount(Query* query) = 0;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) = 0;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) = 0;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query* query);
+    virtual void queryBindParameters(Query* query) = 0;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query* query);
+    virtual void queryOpen(Query* query) = 0;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query* query);
+    virtual void queryFetch(Query* query) = 0;
 
     /**
      * Returns parameter mark

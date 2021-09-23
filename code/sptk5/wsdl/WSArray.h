@@ -29,6 +29,7 @@
 #include <sptk5/Field.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/Node.h>
 
 namespace sptk {
@@ -167,7 +168,12 @@ public:
      */
     String asString() const override
     {
-        throwException("Invalid conversion attempt")
+        xdoc::Document document;
+        Buffer buffer;
+        exportTo(document.root());
+        const auto& arrayNode = document.root()->findFirst(name());
+        arrayNode->exportTo(xdoc::DataFormat::JSON, buffer, false);
+        return (String) buffer;
     }
 
     /**

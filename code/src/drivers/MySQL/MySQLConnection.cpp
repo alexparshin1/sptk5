@@ -465,6 +465,21 @@ String MySQLConnection::paramMark(unsigned)
     return "?";
 }
 
+void MySQLConnection::queryExecDirect(Query* query)
+{
+    queryExecute(query);
+}
+
+void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+{
+    notImplemented("queryColAttributes");
+}
+
+void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+{
+    notImplemented("queryColAttributes");
+}
+
 void* mysql_create_connection(const char* connectionString)
 {
     auto* connection = new MySQLConnection(connectionString);

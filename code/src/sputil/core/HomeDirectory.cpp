@@ -40,10 +40,10 @@ String HomeDirectory::location()
         homeDir = ".";
     homeDir += "/";
 #else
-
-    char *hdrive = getenv("HOMEDRIVE");
-    char *hdir   = getenv("HOMEPATH");
-    if (!hdir && !hdrive) {
+    char* hdrive = getenv("HOMEDRIVE");
+    char* hdir = getenv("HOMEPATH");
+    if (!hdir && !hdrive)
+    {
         const char* wdir = getenv("WINDIR");
         if (wdir == nullptr)
             return "C:\\";

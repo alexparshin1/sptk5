@@ -628,6 +628,21 @@ String SQLite3Connection::driverDescription() const
     return "SQLite3 " SQLITE_VERSION;
 }
 
+void SQLite3Connection::queryExecDirect(Query* query)
+{
+    queryExecute(query);
+}
+
+void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+{
+    notImplemented("queryColAttributes");
+}
+
+void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+{
+    notImplemented("queryColAttributes");
+}
+
 void* sqlite3_create_connection(const char* connectionString)
 {
     auto* connection = new SQLite3Connection(connectionString);

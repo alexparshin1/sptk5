@@ -157,6 +157,11 @@ protected:
     void queryExecute(Query* query) override;
 
     /**
+     * Executes a statement
+     */
+    void queryExecDirect(Query* query) override;
+
+    /**
      * Counts columns of the dataset (if any) returned by query
      */
     int queryColCount(Query* query) override;

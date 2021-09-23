@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/xdoc/Document.h>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -125,7 +125,7 @@ void WSComplexType::load(const SNode& input, bool)
     }
 
     // Load attributes
-    for (const auto&[attr, value]: input->attributes())
+    for (const auto& [attr, value]: input->attributes())
     {
         if (auto* field = m_fields.find(attr);
             field != nullptr)
@@ -148,8 +148,14 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
 
     m_fields.forEach([&input, nullLargeData](WSType* field) {
         const auto& inputField = input.findField(field->name());
+
+        if (inputField == nullptr)
+        {
+            return true;
+        }
+
         if (auto* outputField = dynamic_cast<WSBasicType*>(field);
-            inputField != nullptr && outputField != nullptr)
+            outputField != nullptr)
         {
             if (nullLargeData)
             {
@@ -160,6 +166,21 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
                 outputField->load(*inputField);
             }
         }
+        else
+        {
+            if (nullLargeData)
+            {
+                field->clear();
+            }
+            else
+            {
+                xdoc::Document document;
+                auto json = inputField->asString();
+                document.load(json);
+                field->load(document.root());
+            }
+        }
+
         return true;
     });
 
@@ -194,14 +215,16 @@ void WSComplexType::unload(const SNode& output) const
                 output->attributes().set(field->name(), field->asString());
             }
             return true;
-        }, WSFieldIndex::Group::ATTRIBUTES);
+        },
+                       WSFieldIndex::Group::ATTRIBUTES);
     }
 
     // Unload elements
     fields.forEach([&output](const WSType* field) {
         field->exportTo(output);
         return true;
-    }, WSFieldIndex::Group::ELEMENTS);
+    },
+                   WSFieldIndex::Group::ELEMENTS);
 }
 
 void WSComplexType::unload(QueryParameterList& output) const
@@ -218,6 +241,16 @@ void WSComplexType::unload(QueryParameterList& output) const
         {
             WSComplexType::unload(output, inputField->name().c_str(), inputField);
         }
+        else
+        {
+            auto json = field->asString();
+            auto param = output.find(field->name());
+            if (param)
+            {
+                *param = json;
+            }
+        }
         return true;
-    }, WSFieldIndex::Group::ELEMENTS_AND_ATTRIBUTES);
+    },
+                   WSFieldIndex::Group::ELEMENTS_AND_ATTRIBUTES);
 }
