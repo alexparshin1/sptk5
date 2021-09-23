@@ -63,8 +63,7 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
         DatabaseConnection db = connectionPool.getConnection();
         db->open();
 
-        auto info = db->driverDescription();
-        if (info.length() < 10)
+        if (auto info = db->driverDescription(); info.length() < 10)
         {
             throw DatabaseException("Driver info is empty");
         }
@@ -108,6 +107,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 
 struct Row {
     int id;
+    int64_t ssid;
     string name;
     double price;
     DateTime ts;
@@ -116,11 +116,11 @@ struct Row {
 static const DateTime testDateTime("2015-06-01 11:22:33");
 
 static const vector<Row> rows = {
-    {1, "apple", 1.5, testDateTime},
-    {2, "pear", 3.1, testDateTime},
-    {3, "melon", 1.05, testDateTime},
-    {4, "watermelon", 0.85, testDateTime},
-    {5, "lemon", 5.5, testDateTime}};
+    {1, 1234567, "apple", 1.5, testDateTime},
+    {2, 1234567, "pear", 3.1, testDateTime},
+    {3, 1234567, "melon", 1.05, testDateTime},
+    {4, 1234567, "watermelon", 0.85, testDateTime},
+    {5, 1234567, "lemon", 5.5, testDateTime}};
 
 static const map<String, String> dateTimeFieldTypes = {
     {"mysql", "TIMESTAMP"},
@@ -222,6 +222,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     stringstream createTableSQL;
     createTableSQL << "CREATE TABLE gtest_temp_table( -- Create a test temp table" << endl;
     createTableSQL << "id INT, /* This is the unique id column */";
+    createTableSQL << "ssid INT, ";
     createTableSQL << "name VARCHAR(20), price DECIMAL(10,2), ";
     createTableSQL << "ts " << fieldType("DATETIME", connectionString.driverName()) << " NULL, ";
     createTableSQL << "enabled " << fieldType("BOOL", connectionString.driverName()) << " NULL, ";
@@ -249,10 +250,11 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         clob.append("A text");
     }
 
-    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :name, :price, :ts, :enabled, :txt)");
+    Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :ssid, :name, :price, :ts, :enabled, :txt)");
     for (auto& row: rows)
     {
         insert.param("id") = row.id;
+        insert.param("ssid") = row.ssid;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
         insert.param("ts").setNull(VariantDataType::VAR_DATE_TIME);
@@ -271,6 +273,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
             break;
         }
         EXPECT_EQ(row.id, select["id"].asInteger());
+        EXPECT_EQ(row.ssid, select["ssid"].asInt64());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
         EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
@@ -619,7 +622,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
 
     selectData.open();
     int i = 0;
-    for (; !selectData.eof(); i++)
+    for (; i < 3 && !selectData.eof(); i++)
     {
         Strings row;
         for (size_t column = 0; column < selectData.fieldCount(); ++column)
