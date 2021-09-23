@@ -71,13 +71,6 @@ public:
     static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantDataType timeType);
 
     /**
-     * Translates MySQL time to DateTime
-     * @param timestamp DateTime&, Timestamp
-     * @param mysqlDate const MYSQL_TIME&, MySQL time
-     */
-    static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
-
-    /**
      * Constructor
      * @param connection Connection*, MySQL connection
      * @param sql std::string, SQL statement

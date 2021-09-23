@@ -131,22 +131,6 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timesta
     }
 }
 
-void MySQLStatement::mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate)
-{
-    if (mysqlDate.time_type == MYSQL_TIMESTAMP_DATE)
-    {
-        timestamp = DateTime(
-            (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
-            (short) 0, (short) 0, (short) 0);
-    }
-    else
-    {
-        timestamp = DateTime(
-            (short) mysqlDate.year, (short) mysqlDate.month, (short) mysqlDate.day,
-            (short) mysqlDate.hour, (short) mysqlDate.minute, (short) mysqlDate.second);
-    }
-}
-
 void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement<MySQLConnection, MYSQL_STMT>::enumerateParams(queryParams);
