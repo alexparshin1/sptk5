@@ -613,11 +613,16 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         "INSERT INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
         "INSERT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
 
+    Strings invalidBatchSQL {
+        "REMOVE INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
+        "INVENT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
+
     Strings expectedResults {
         "1,Jonh,CEO,2020-01-02",
         "2,Jane,CFO,2021-02-03",
         "3,William,CIO,2022-03-04"};
 
+    EXPECT_THROW(db->executeBatchSQL(invalidBatchSQL), DatabaseException);
     db->executeBatchSQL(batchSQL);
 
     selectData.open();
