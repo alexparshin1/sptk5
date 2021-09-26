@@ -108,11 +108,11 @@ SField FieldList::findField(const String& fname) const
     return nullptr;
 }
 
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode) const
+void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
 {
     for (const auto& field: *this)
     {
-        field->exportTo(node, compactMode);
+        field->exportTo(node, compactMode, nullLargeData);
     }
 }
 
@@ -226,7 +226,7 @@ TEST(SPTK_FieldList, toXml)
 
     xdoc::Document xml;
     const auto& fieldsElement = xml.root()->pushNode("fields", xdoc::Node::Type::Object);
-    fieldList.exportTo(fieldsElement, false);
+    fieldList.exportTo(fieldsElement, false, false);
 
     Buffer buffer;
     fieldsElement->exportTo(xdoc::DataFormat::XML, buffer, false);

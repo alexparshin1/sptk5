@@ -128,7 +128,7 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo) const
+void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo, bool nullLargeData) const
 {
     String value = asString();
 
@@ -136,7 +136,12 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailed
     {
         xdoc::SNode element;
 
-        if (dataType() == VariantDataType::VAR_TEXT)
+        if (nullLargeData && value.length() > 256)
+        {
+            value = "";
+        }
+
+        if (dataType() == VariantDataType::VAR_TEXT && !value.empty())
         {
             element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
             element->set(value);

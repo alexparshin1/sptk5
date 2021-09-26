@@ -41,13 +41,13 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::exportRowTo(const xdoc::SNode& node, bool compactXmlMode)
+void DataSource::exportRowTo(const xdoc::SNode& node, bool compactXmlMode, bool nullLargeData)
 {
     auto cnt = fieldCount();
     for (size_t i = 0; i < cnt; ++i)
     {
         const Field& field = operator[](i);
-        field.exportTo(node, compactXmlMode);
+        field.exportTo(node, compactXmlMode, nullLargeData);
     }
 }
 
@@ -59,7 +59,7 @@ void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool c
         while (!eof())
         {
             const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
-            exportRowTo(node, compactXmlMode);
+            exportRowTo(node, compactXmlMode, false);
             next();
         }
         close();

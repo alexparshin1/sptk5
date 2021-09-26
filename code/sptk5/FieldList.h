@@ -236,8 +236,9 @@ public:
      * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
      * @param node              XDoc node to store fields into
      * @param compact           Compact XML export flag
+     * @param nullLargeData     Set text fileds to null if data length is 256 bytes or longer
      */
-    void exportTo(const xdoc::SNode& node, bool compactMode = false) const;
+    void exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData = false) const;
 
 private:
     /**
