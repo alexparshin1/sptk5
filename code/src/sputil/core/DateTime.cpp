@@ -67,7 +67,6 @@ int DateTime::_isDaylightSavingsTime;
 constexpr int minutesInHour = 60;
 constexpr int secondsInMinute = 60;
 constexpr int secondsInDay = 86400;
-constexpr int hoursInDay = 24;
 constexpr int tzMultiplier = 100;
 constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
@@ -1042,7 +1041,7 @@ TEST(SPTK_DateTime, ctorDate)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
-    COUT(dateTime1.isoDateTimeString() << endl);
+    COUT(dateTime1.isoDateTimeString() << endl)
 }
 
 TEST(SPTK_DateTime, isoTimeString)

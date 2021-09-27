@@ -25,11 +25,21 @@
 */
 #pragma once
 
-#include <sptk5/String.h>
-#include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <sptk5/String.h>
+#include <sstream>
 
-#define COUT(a) { std::stringstream _printstream; _printstream << a; std::cout << _printstream.str().c_str(); }
-#define CERR(a) { std::stringstream _printstream; _printstream << a; std::cerr << _printstream.str().c_str(); }
+#define COUT(a)                                  \
+    {                                            \
+        std::stringstream _printstream;          \
+        _printstream << a;                       \
+        std::cout << _printstream.str().c_str(); \
+    }
 
+#define CERR(a)                                  \
+    {                                            \
+        std::stringstream _printstream;          \
+        _printstream << a;                       \
+        std::cerr << _printstream.str().c_str(); \
+    }

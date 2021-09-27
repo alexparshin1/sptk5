@@ -227,10 +227,10 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 #ifdef USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
-    COUT(select["ts"].asDateTime().isoDateTimeString() << endl);
+    COUT(select["ts"].asDateTime().isoDateTimeString() << endl)
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
     select.next();
-    COUT(select["ts"].asDateTime().isoDateTimeString() << endl);
+    COUT(select["ts"].asDateTime().isoDateTimeString() << endl)
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
     select.close();
 #endif
@@ -662,6 +662,8 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
             case 2:
                 EXPECT_EQ(2L, select[0].asInteger());
                 EXPECT_STREQ("Jane Doe", select[1].asString().trim().c_str());
+                break;
+            default:
                 break;
         }
         select.next();
