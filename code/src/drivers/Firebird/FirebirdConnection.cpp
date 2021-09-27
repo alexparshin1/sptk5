@@ -271,11 +271,6 @@ void FirebirdConnection::queryPrepare(Query* query)
     }
 }
 
-void FirebirdConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
 int FirebirdConnection::queryColCount(Query* query)
 {
     int colCount = 0;

@@ -61,7 +61,7 @@ Strings DateTime::_monthNames;
 
 bool DateTime::_time24Mode;
 String DateTime::_timeZoneName;
-int DateTime::_timeZoneOffset;
+minutes DateTime::_timeZoneOffset;
 int DateTime::_isDaylightSavingsTime;
 
 constexpr int minutesInHour = 60;
@@ -273,10 +273,10 @@ void DateTimeFormat::init() noexcept
 #endif
     strftime(buf.data(), sizeof(buf), "%z", &ltime);
     int offset = string2int(buf.data());
-    int minutes = offset % tzMultiplier;
-    int hours = offset / tzMultiplier;
+    auto offsetMinutes = minutes(offset % tzMultiplier);
+    auto offsetHours = hours(offset / tzMultiplier);
     DateTime::_isDaylightSavingsTime = ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst;
-    DateTime::_timeZoneOffset = hours * minutesInHour + minutes;
+    DateTime::_timeZoneOffset = offsetHours + offsetMinutes;
 }
 
 static const DateTimeFormat dateTimeFormatInitializer;
@@ -297,7 +297,7 @@ static void decodeDate(const DateTime::time_point& dt, short& year, short& month
     tm time = {};
     if (!gmt)
     {
-        tt += DateTime::timeZoneOffset() * 60;
+        tt += DateTime::timeZoneOffset().count() * secondsInMinute;
     }
     gmtime_r(&tt, &time);
 
@@ -316,7 +316,7 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     tm time = {};
     if (!gmt)
     {
-        tt += DateTime::timeZoneOffset() * 60;
+        tt += DateTime::timeZoneOffset().count() * secondsInMinute;
     }
     gmtime_r(&tt, &time);
 
@@ -460,7 +460,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
             }
             p = strpbrk(p + 1, "Z+-");
         }
-        tzOffsetMin += TimeZone::offset();
+        tzOffsetMin += TimeZone::offset().count();
     }
 
     if (short partNumber = splitTimeString(tim, timePart.data()); partNumber == 0)
@@ -475,10 +475,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
     }
 
     encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
-    if (tzOffsetMin != 0)
-    {
-        dt += minutes(tzOffsetMin);
-    }
+    dt += minutes(tzOffsetMin);
 }
 
 
@@ -740,7 +737,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
 
     if ((printFlags & PF_GMT) == 0)
     {
-        t += DateTime::timeZoneOffset() * minutesInHour;
+        t += DateTime::timeZoneOffset().count() * secondsInMinute;
     }
 
     tm tt {};
@@ -810,24 +807,24 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 
     if ((printFlags & PF_TIMEZONE) != 0)
     {
-        if (_timeZoneOffset == 0 || (printFlags & PF_GMT) != 0)
+        if (_timeZoneOffset.count() == 0 || (printFlags & PF_GMT) != 0)
         {
             str << "Z";
         }
         else
         {
-            int minutes {};
-            if (_timeZoneOffset > 0)
+            minutes offsetMinutes {};
+            if (_timeZoneOffset.count() > 0)
             {
                 str << '+';
-                minutes = _timeZoneOffset;
+                offsetMinutes = _timeZoneOffset;
             }
             else
             {
                 str << '-';
-                minutes = -_timeZoneOffset;
+                offsetMinutes = -_timeZoneOffset;
             }
-            str << setw(2) << minutes / secondsInMinute << ":" << setw(2) << minutes % secondsInMinute;
+            str << setw(2) << offsetMinutes.count() / secondsInMinute << ":" << setw(2) << offsetMinutes.count() % secondsInMinute;
         }
     }
 
@@ -865,16 +862,11 @@ short DateTime::daysInMonth() const
 
 DateTime DateTime::date() const
 {
-    short y = 0;
-    short m = 0;
-    short d = 0;
-    short wd = 0;
-    short yd = 0;
-    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
-
-    time_point tp;
-    sptk::encodeDate(tp, y, m, d);
-    DateTime dt(tp);
+    constexpr int hoursInDay = 24;
+    duration sinceEpoch = m_dateTime.time_since_epoch();
+    long days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
+    time_point tp = time_point() + hours(days * hoursInDay);
+    DateTime dt(tp); // Sets the current date
     return dt;
 }
 
@@ -973,7 +965,7 @@ String TimeZone::name()
     return DateTime::timeZoneName();
 }
 
-int TimeZone::offset()
+minutes TimeZone::offset()
 {
     return DateTime::timeZoneOffset();
 }
@@ -988,7 +980,7 @@ bool DateTime::time24Mode()
     return _time24Mode;
 }
 
-int DateTime::timeZoneOffset()
+minutes DateTime::timeZoneOffset()
 {
     return _timeZoneOffset;
 }
@@ -1139,7 +1131,7 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    int tzOffsetMinutes = DateTime::timeZoneOffset();
+    int tzOffsetMinutes = (int) DateTime::timeZoneOffset().count();
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)
@@ -1190,13 +1182,13 @@ TEST(SPTK_DateTime, tzset)
 {
     TimeZone::set("Australia/Melbourne");
     auto currentTimeZoneOffset = TimeZone::offset();
-    EXPECT_NE(currentTimeZoneOffset, 0);
+    EXPECT_NE(currentTimeZoneOffset.count(), 0);
 
     TimeZone::set("GMT");
-    EXPECT_EQ(0, TimeZone::offset());
+    EXPECT_EQ(0, TimeZone::offset().count());
 
     TimeZone::set("Australia/Melbourne");
-    EXPECT_EQ(currentTimeZoneOffset, TimeZone::offset());
+    EXPECT_EQ(currentTimeZoneOffset.count(), TimeZone::offset().count());
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)

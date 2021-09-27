@@ -29,8 +29,8 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include <sptk5/sptk.h>
 #include <sptk5/String.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -56,9 +56,9 @@ public:
 
     /**
     * Get timezone offset
-    * @return timezone offset, seconds
+    * @return timezone offset, minutes
     */
-    static int offset();
+    static std::chrono::minutes offset();
 
     /**
     * Get timezone offset
@@ -87,7 +87,6 @@ class SP_EXPORT DateTime
     friend class DateTimeFormat;
 
 public:
-
     /**
      * Clock used by DateTime
      */
@@ -289,7 +288,7 @@ public:
      * Returns timezone offset in minutes
      * @return timezone offset in minutes
      */
-    static int timeZoneOffset();
+    static std::chrono::minutes timeZoneOffset();
 
     /**
      * Returns timezone name
@@ -338,21 +337,20 @@ public:
     }
 
 private:
+    time_point m_dateTime; ///< Actual date and time value
 
-    time_point m_dateTime;             ///< Actual date and time value
-
-    static String _dateFormat;            ///< System's date format
-    static String _fullTimeFormat;        ///< System's time format
-    static String _shortTimeFormat;       ///< System's time format
-    static String _datePartsOrder;        ///< System's date parts order
-    static char _dateSeparator;         ///< System's date separator
-    static char _timeSeparator;         ///< System's time separator
-    static Strings _weekDayNames;          ///< The locale-defined weekday names
-    static Strings _monthNames;            ///< The locale-defined weekday names
+    static String _dateFormat;      ///< System's date format
+    static String _fullTimeFormat;  ///< System's time format
+    static String _shortTimeFormat; ///< System's time format
+    static String _datePartsOrder;  ///< System's date parts order
+    static char _dateSeparator;     ///< System's date separator
+    static char _timeSeparator;     ///< System's time separator
+    static Strings _weekDayNames;   ///< The locale-defined weekday names
+    static Strings _monthNames;     ///< The locale-defined weekday names
 
     static bool _time24Mode;
     static String _timeZoneName;
-    static int _timeZoneOffset;
+    static std::chrono::minutes _timeZoneOffset;
     static int _isDaylightSavingsTime;
 };
 
@@ -410,5 +408,4 @@ SP_EXPORT double duration2seconds(const sptk::DateTime::duration& duration);
 /**
  * @}
  */
-}
-
+} // namespace sptk
