@@ -380,11 +380,6 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     querySetPrepared(query, true);
 }
 
-void PostgreSQLConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
 int PostgreSQLConnection::queryColCount(Query* query)
 {
     const auto* statement = (PostgreSQLStatement*) query->statement();

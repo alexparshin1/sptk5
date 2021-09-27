@@ -313,11 +313,6 @@ void PoolDatabaseConnectionQueryMethods::querySetEof(Query* q, bool eof)
     q->setEof(eof);
 }
 
-void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
 void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
 {
     throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");

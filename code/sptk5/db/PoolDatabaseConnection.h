@@ -151,11 +151,6 @@ protected:
     virtual void queryPrepare(Query* query) = 0;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    virtual void queryUnprepare(Query* query);
-
-    /**
      * Executes a statement
      */
     virtual void queryExecute(Query* query) = 0;

@@ -93,6 +93,12 @@ public:
     static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
 
     /**
+     * Test query inserting date
+     * @param connectionString
+     */
+    static void testQueryInsertDateTime(const DatabaseConnectionString& connectionString);
+
+    /**
      * Test parametrized queries
      * @param connectionString Database connection string
      */

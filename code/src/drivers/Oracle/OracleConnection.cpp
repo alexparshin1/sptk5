@@ -255,11 +255,6 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
     }
 }
 
-void OracleConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
 int OracleConnection::queryColCount(Query* query)
 {
     const auto* statement = (OracleStatement*) query->statement();

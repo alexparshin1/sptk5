@@ -220,11 +220,6 @@ void SQLite3Connection::queryPrepare(Query* query)
     querySetPrepared(query, true);
 }
 
-void SQLite3Connection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
 void SQLite3Connection::queryExecute(Query* query)
 {
     scoped_lock lock(m_mutex);

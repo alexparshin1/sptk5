@@ -175,11 +175,6 @@ static inline bool successful(int ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-String ODBCConnection::connectString() const
-{
-    return m_connect->connectString();
-}
-
 String ODBCConnection::queryError(SQLHSTMT stmt) const
 {
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorDescription = {};
@@ -268,14 +263,9 @@ void ODBCConnection::queryPrepare(Query* query)
 
     char* sql = query->sql().empty() ? nullptr : query->sql().data();
     if (!successful(SQLPrepare(query->statement(), (SQLCHAR*) sql, SQL_NTS)))
-        THROW_QUERY_ERROR(query,
-                          queryError(query))
-}
-
-void ODBCConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-    query->fields().clear();
+    {
+        THROW_QUERY_ERROR(query, queryError(query))
+    }
 }
 
 void ODBCConnection::queryExecute(Query* query)
@@ -307,21 +297,21 @@ void ODBCConnection::queryExecute(Query* query)
 
     rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                          &textLength);
-    if (successful(rc))
+
+    Strings errors;
+    SQLSMALLINT recordNumber = 1;
+    while (successful(rc))
     {
-        Strings errors;
-        for (SQLSMALLINT recordNumber = 1; recordNumber <= recordCount; ++recordNumber)
+        rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
+                           text.data(), (SQLSMALLINT) text.size(), &textLength);
+        if (successful(rc))
         {
-            rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
-                               text.data(), (SQLSMALLINT) text.size(), &textLength);
-            if (!successful(rc))
-            {
-                break;
-            }
             errors.push_back(removeDriverIdentification((const char*) text.data()));
         }
-        THROW_QUERY_ERROR(query, errors.join("; "))
     }
+
+    if (!errors.empty())
+        THROW_QUERY_ERROR(query, errors.join("; "))
 
     if (!successful(rc))
         THROW_QUERY_ERROR(query, queryError(query))

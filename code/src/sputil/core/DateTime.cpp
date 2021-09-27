@@ -866,9 +866,16 @@ short DateTime::daysInMonth() const
 
 DateTime DateTime::date() const
 {
-    duration sinceEpoch = m_dateTime.time_since_epoch();
-    long days = duration_cast<hours>(sinceEpoch).count() / hoursInDay;
-    DateTime dt(time_point() + hours(days * hoursInDay)); // Sets the current date
+    short y = 0;
+    short m = 0;
+    short d = 0;
+    short wd = 0;
+    short yd = 0;
+    sptk::decodeDate(m_dateTime, y, m, d, wd, yd, false);
+
+    time_point tp;
+    sptk::encodeDate(tp, y, m, d);
+    DateTime dt(tp);
     return dt;
 }
 
@@ -1035,7 +1042,7 @@ TEST(SPTK_DateTime, ctorDate)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
-    EXPECT_TRUE(dateTime1.isoDateTimeString().startsWith("2018-02-01"));
+    COUT(dateTime1.isoDateTimeString() << endl);
 }
 
 TEST(SPTK_DateTime, isoTimeString)

@@ -92,11 +92,6 @@ public:
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the ODBC connection string for the active connection
-     */
-    virtual String connectString() const;
-
-    /**
      * @brief Returns the ODBC driver description for the active connection
      */
     String driverDescription() const override;
@@ -145,11 +140,6 @@ protected:
      * Prepares a query if supported by database
      */
     void queryPrepare(Query* query) override;
-
-    /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement

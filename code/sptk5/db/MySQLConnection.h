@@ -168,11 +168,6 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
-
-    /**
      * Executes a statement
      */
     void queryExecute(Query* query) override;

@@ -198,12 +198,6 @@ void MySQLConnection::queryPrepare(Query* query)
     }
 }
 
-void MySQLConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-    querySetPrepared(query, false);
-}
-
 int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;

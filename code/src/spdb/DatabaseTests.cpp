@@ -61,7 +61,10 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
     for (int i = 0; i < 2; ++i)
     {
         DatabaseConnection db = connectionPool.getConnection();
+        EXPECT_STREQ(db->connectionString().toString().c_str(), connectionString.toString().c_str());
+
         db->open();
+        EXPECT_TRUE(db->active());
 
         if (auto info = db->driverDescription(); info.length() < 10)
         {
@@ -122,6 +125,13 @@ static const vector<Row> rows = {
     {4, 1234567, "watermelon", 0.85, testDateTime},
     {5, 1234567, "lemon", 5.5, testDateTime}};
 
+static const map<String, String> dateFieldTypes = {
+    {"mysql", "DATE"},
+    {"postgresql", "DATE"},
+    {"mssql", "DATE"},
+    {"oracle", "DATE"},
+    {"sqlite3", "VARCHAR(10)"}};
+
 static const map<String, String> dateTimeFieldTypes = {
     {"mysql", "TIMESTAMP"},
     {"postgresql", "TIMESTAMP"},
@@ -151,6 +161,10 @@ static String fieldType(const String& fieldType, const String& driverName)
     {
         fieldTypes = &dateTimeFieldTypes;
     }
+    else if (fieldType == "DATE")
+    {
+        fieldTypes = &dateFieldTypes;
+    }
     else if (fieldType == "BOOL")
     {
         fieldTypes = &boolFieldTypes;
@@ -169,6 +183,60 @@ static String fieldType(const String& fieldType, const String& driverName)
 }
 
 void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+
+    auto itor = dateFieldTypes.find(connectionString.driverName());
+    if (itor == dateFieldTypes.end())
+    {
+        throw Exception("Date data type mapping is not defined for the test");
+    }
+    String dateTimeType = itor->second;
+
+    stringstream createTableSQL;
+    createTableSQL << "CREATE TABLE gtest_temp_table(ts " << dateTimeType << " NULL)";
+
+    db->open();
+    Query createTable(db, createTableSQL.str());
+    Query dropTable(db, "DROP TABLE gtest_temp_table");
+
+    try
+    {
+        dropTable.exec();
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.what() << endl)
+    }
+
+    createTable.exec();
+
+    String testDate = db->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015"
+                                                                             : "2015-06-01";
+    Query insert1(db, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
+    insert1.exec();
+    Query insert2(db, "INSERT INTO gtest_temp_table VALUES(:dt)");
+
+    DateTime dateTime("2015-06-01");
+    Variant date;
+    date.setDateTime(dateTime, true);
+    insert2.param("dt") = date;
+    insert2.exec();
+
+#ifdef USE_GTEST
+    Query select(db, "SELECT ts FROM gtest_temp_table");
+    select.open();
+    COUT(select["ts"].asDateTime().isoDateTimeString() << endl);
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    select.next();
+    COUT(select["ts"].asDateTime().isoDateTimeString() << endl);
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    select.close();
+#endif
+}
+
+void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
@@ -198,7 +266,9 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     createTable.exec();
 
-    Query insert1(db, "INSERT INTO gtest_temp_table VALUES('2015-06-01T11:22:33')");
+    String testDate = db->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015 11:22:33"
+                                                                             : "2015-06-01T11:22:33";
+    Query insert1(db, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
     insert1.exec();
     Query insert2(db, "INSERT INTO gtest_temp_table VALUES(:dt)");
     insert2.param("dt") = DateTime("2015-06-01T11:22:33");
@@ -305,6 +375,10 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
     deleteRecords.exec();
 
     Transaction transaction(db);
+
+    EXPECT_THROW(transaction.commit(), DatabaseException);
+    EXPECT_THROW(transaction.rollback(), DatabaseException);
+
     transaction.begin();
 
     Query insert(db, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
@@ -342,6 +416,8 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
             throw Exception("count != 0 (after rollback)");
         }
     }
+
+    EXPECT_THROW(transaction.commit(), DatabaseException);
 }
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)

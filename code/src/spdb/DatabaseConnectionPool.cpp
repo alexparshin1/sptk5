@@ -341,7 +341,7 @@ static void testQueryParameters(const String& dbName)
     }
 }
 
-static void testQueryDates(const String& dbName)
+static void testQueryDateAndTimestamp(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
@@ -349,6 +349,7 @@ static void testQueryDates(const String& dbName)
     try
     {
         DatabaseTests::testQueryInsertDate(connectionString);
+        DatabaseTests::testQueryInsertDateTime(connectionString);
     }
     catch (const Exception& e)
     {
@@ -416,7 +417,7 @@ TEST(SPTK_PostgreSQLConnection, queryParameters)
 
 TEST(SPTK_PostgreSQLConnection, dates)
 {
-    testQueryDates("PostgreSQL");
+    testQueryDateAndTimestamp("PostgreSQL");
 }
 
 TEST(SPTK_PostgreSQLConnection, transaction)
@@ -468,7 +469,7 @@ TEST(SPTK_MySQLConnection, queryParameters)
 
 TEST(SPTK_MySQLConnection, dates)
 {
-    testQueryDates("MySQL");
+    testQueryDateAndTimestamp("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, transaction)
@@ -517,6 +518,11 @@ TEST(SPTK_OracleConnection, queryParameters)
     testQueryParameters("Oracle");
 }
 
+TEST(SPTK_OracleConnection, dates)
+{
+    testQueryDateAndTimestamp("Oracle");
+}
+
 TEST(SPTK_OracleConnection, transaction)
 {
     testTransaction("Oracle");
@@ -561,6 +567,11 @@ TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
 TEST(SPTK_MSSQLConnection, queryParameters)
 {
     testQueryParameters("MSSQL");
+}
+
+TEST(SPTK_MSSQLConnection, dates)
+{
+    testQueryDateAndTimestamp("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, transaction)
