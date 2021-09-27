@@ -156,11 +156,6 @@ protected:
     virtual void queryExecute(Query* query) = 0;
 
     /**
-     * Executes unprepared statement
-     */
-    virtual void queryExecDirect(Query* query) = 0;
-
-    /**
      * Counts columns of the dataset (if any) returned by query
      */
     virtual int queryColCount(Query* query) = 0;

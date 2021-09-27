@@ -459,11 +459,6 @@ String MySQLConnection::paramMark(unsigned)
     return "?";
 }
 
-void MySQLConnection::queryExecDirect(Query* query)
-{
-    queryExecute(query);
-}
-
 void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     notImplemented("queryColAttributes");

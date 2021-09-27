@@ -874,10 +874,6 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
         }
     }
 }
-void OracleConnection::queryExecDirect(Query* query)
-{
-    queryExecute(query);
-}
 
 void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {

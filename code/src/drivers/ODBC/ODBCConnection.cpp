@@ -1118,11 +1118,6 @@ void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnN
     }
 }
 
-void ODBCConnection::queryExecDirect(Query* query)
-{
-    queryExecute(query);
-}
-
 void* odbc_create_connection(const char* connectionString)
 {
     auto* connection = new ODBCConnection(connectionString);

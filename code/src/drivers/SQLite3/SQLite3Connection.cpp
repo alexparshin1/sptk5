@@ -622,11 +622,6 @@ String SQLite3Connection::driverDescription() const
     return "SQLite3 " SQLITE_VERSION;
 }
 
-void SQLite3Connection::queryExecDirect(Query* query)
-{
-    queryExecute(query);
-}
-
 void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     notImplemented("queryColAttributes");

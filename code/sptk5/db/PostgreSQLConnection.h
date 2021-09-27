@@ -212,11 +212,6 @@ protected:
     }
 
     /**
-     * Executes unprepared statement
-     */
-    void queryExecDirect(Query* query) override;
-
-    /**
      * Counts columns of the dataset (if any) returned by query
      */
     int queryColCount(Query* query) override;
@@ -253,14 +248,15 @@ protected:
         return m_timestampsFormat;
     }
 
+protected:
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
+    void queryExecDirect(Query* query);
+
 private:
     mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
     PGconn* m_connect {nullptr};                                   ///< PostgreSQL database connection
     TimestampFormat m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
-
-protected:
-    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
-    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
 };
 
 /**
