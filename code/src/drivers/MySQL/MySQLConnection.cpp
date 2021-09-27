@@ -326,7 +326,7 @@ void MySQLConnection::queryFetch(Query* query)
     }
     catch (const Exception& e)
     {
-        Query::throwError("CMySQLConnection::queryFetch", e.what());
+        Query::throwError("MySQLConnection::queryFetch", e.what());
     }
 }
 

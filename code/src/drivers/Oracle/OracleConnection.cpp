@@ -282,6 +282,7 @@ void OracleConnection::queryBindParameters(Query* query)
     {
         throw DatabaseException("Query not prepared");
     }
+
     try
     {
         statement->setParameterValues();

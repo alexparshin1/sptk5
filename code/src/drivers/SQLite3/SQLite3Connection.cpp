@@ -301,11 +301,10 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
                                            nullptr);
                     break;
 
-                case VariantDataType::VAR_DATE:
-                case VariantDataType::VAR_DATE_TIME:
-                    throwException("Date and time types isn't yet supported for SQLite3")
-
-                        default : throw DatabaseException("Unsupported type of parameter " + int2string(paramBindNumber), __FILE__, __LINE__, query->sql());
+                default:
+                    throw DatabaseException(
+                        "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
+                        param->name() + "'");
             }
         }
 

@@ -105,6 +105,12 @@ public:
     static void testInsertQuery(const DatabaseConnectionString& connectionString);
 
     /**
+     * Test InsertQuery returning created value
+     * @param connectionString
+     */
+    static void testInsertQueryDirect(const DatabaseConnectionString& connectionString);
+
+    /**
      * Test transaction
      * @param connectionString Database connection string
      */
@@ -163,9 +169,10 @@ private:
     /**
      * Connect to database and create test table
      * @param db                Database connection
+     * @param autoPrepare       If true then use auto-prepared queries (default)
      * @return
      */
-    static void createTestTable(DatabaseConnection db);
+    static void createTestTable(DatabaseConnection db, bool autoPrepare = true);
 
     /**
      * Connect to database and create test table with serial id

@@ -581,7 +581,8 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreS
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type(" + to_string((int) dataType) + ") for parameter '" + paramName + "'");
+                "Unsupported parameter type(" + to_string((int) dataType) + ") for parameter '" +
+                paramName + "'");
     }
 }
 

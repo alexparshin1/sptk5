@@ -132,7 +132,6 @@ IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
     ADD_DEFINITIONS(-DSPTK_LOCK_DEBUG)
 ENDIF ()
 
-INCLUDE_DIRECTORIES(".")
 
 IF (WIN32)
     SET(WINDIR "$ENV{ProgramW6432}")
@@ -150,9 +149,8 @@ ELSE (WIN32)
 ENDIF (WIN32)
 MESSAGE("Library type:       " ${LIBRARY_TYPE})
 
-
+INCLUDE_DIRECTORIES(".")
 INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
-
 
 SET(ODBC_FLAG "0")
 IF (USE_ODBC)
@@ -343,7 +341,7 @@ IF (WIN32)
     set(PROGRAM_FILES_86 "PROGRAMFILES (X86) ")
     # Windows message resource compiler (included with Windows SDK)
     FIND_PROGRAM(MC_COMPILER mc PATHS
-        " $ENV{ProgramFiles}/Windows Kits/*/bin/x64"
+        "$ENV{ProgramFiles}/Windows Kits/*/bin/x64"
         "$ENV{ProgramW6432}/Windows Kits/*/bin/x64"
         "$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
         "$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64"
@@ -478,6 +476,8 @@ IF (BUILD_TEST_WS)
 ELSE ()
     SET(BUILD_TEST_WS "0")
 ENDIF ()
+
+INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 

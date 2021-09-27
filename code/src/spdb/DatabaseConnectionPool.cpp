@@ -238,6 +238,9 @@ static void testConnect(const String& dbName)
     {
         FAIL() << connectionString.toString() << ": " << e.what();
     }
+
+    auto invalidConnectionStringStr = DatabaseConnectionString(dbName.toLowerCase() + "://localhost:1234/xyz");
+    EXPECT_THROW(DatabaseTests::testConnect(invalidConnectionStringStr), DatabaseException);
 }
 
 static void testDDL(const String& dbName)
@@ -283,6 +286,7 @@ static void testInsertQuery(const String& dbName)
     try
     {
         DatabaseTests::testInsertQuery(connectionString);
+        DatabaseTests::testInsertQueryDirect(connectionString);
     }
     catch (const Exception& e)
     {
@@ -313,7 +317,7 @@ static void testBulkInsertPerformance(const String& dbName)
         FAIL() << dbName << " connection is not defined";
     try
     {
-        constexpr auto recordCount = 4096;
+        constexpr auto recordCount = 1024;
         DatabaseTests::testBulkInsertPerformance(connectionString, recordCount);
     }
     catch (const Exception& e)

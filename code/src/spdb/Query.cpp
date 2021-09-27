@@ -364,6 +364,11 @@ void Query::fetch()
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, sql());
     }
 
+    if (eof())
+    {
+        throw DatabaseException("No more rows to read", __FILE__, __LINE__, sql());
+    }
+
     database()->queryFetch(this);
 }
 

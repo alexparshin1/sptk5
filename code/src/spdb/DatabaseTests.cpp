@@ -263,6 +263,22 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.exec();
     }
 
+    Variant id;
+    id.setImagePtr((const uint8_t*) &id);
+    insert.param("id") = id;
+    try
+    {
+        insert.exec();
+        FAIL() << "Unsupported parameter type not detected";
+    }
+    catch (const DatabaseException& e)
+    {
+        if (String(e.what()).find("Unsupported parameter type") == String::npos)
+        {
+            FAIL() << e.what();
+        }
+    }
+
 #ifdef USE_GTEST
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY id");
     select.open();
@@ -367,7 +383,7 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-void DatabaseTests::createTestTable(DatabaseConnection db)
+void DatabaseTests::createTestTable(DatabaseConnection db, bool autoPrepare)
 {
     auto itor = dateTimeFieldTypes.find(db->connectionString().driverName());
     if (itor == dateTimeFieldTypes.end())
@@ -382,8 +398,9 @@ void DatabaseTests::createTestTable(DatabaseConnection db)
                       "id INTEGER NULL, "
                       "name CHAR(40) NULL, "
                       "position_name CHAR(20) NULL, "
-                      "hire_date CHAR(12) NULL)");
-    Query dropTable(db, "DROP TABLE gtest_temp_table");
+                      "hire_date CHAR(12) NULL)",
+                      autoPrepare);
+    Query dropTable(db, "DROP TABLE gtest_temp_table", autoPrepare);
 
     try
     {
@@ -539,6 +556,43 @@ void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionSt
     createTestTableWithSerial(db);
 }
 
+void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db, false);
+
+    Query insert(db, "INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
+                     "VALUES (1, 'John Doe', 'engineer', '2020-01-02')",
+                 false);
+    insert.exec();
+
+    insert.sql("INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
+               "VALUES (2, 'Jane Doe', 'CFO', '2020-02-03')");
+    insert.exec();
+
+    Query select(db, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
+    select.open();
+    size_t recordCount = 0;
+    while (!select.eof())
+    {
+        ++recordCount;
+        switch (recordCount)
+        {
+            case 1:
+                EXPECT_EQ(1L, select[0].asInteger());
+                EXPECT_STREQ("John Doe", select[1].asString().trim().c_str());
+                break;
+            case 2:
+                EXPECT_EQ(2L, select[0].asInteger());
+                EXPECT_STREQ("Jane Doe", select[1].asString().trim().c_str());
+                break;
+        }
+        select.next();
+    }
+    EXPECT_EQ(2U, recordCount);
+}
+
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
@@ -677,6 +731,8 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         insertData.exec();
     }
 
+    EXPECT_THROW(selectData.next(), DatabaseException);
+
     selectData.open();
     Strings printRows;
     while (!selectData.eof())
@@ -701,6 +757,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         printRows.push_back(row.join("|"));
         selectData.next();
     }
+
+    EXPECT_THROW(selectData.next(), DatabaseException);
+
     selectData.close();
 
     if (printRows.size() > 3)

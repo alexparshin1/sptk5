@@ -245,11 +245,6 @@ void MySQLStatement::setParameterValues()
 
         switch (param->dataType())
         {
-            case VariantDataType::VAR_NONE:
-                m_paramLengths[paramIndex] = 0;
-                param->setNull();
-                break;
-
             case VariantDataType::VAR_BOOL:
                 m_paramLengths[paramIndex] = 0;
                 bind.buffer = (void*) &param->getBool();
@@ -306,7 +301,8 @@ void MySQLStatement::setParameterValues()
         }
         bind.error = nullptr;
     }
-    /// Bind the buffers
+
+    // Bind the buffers
     if (mysql_stmt_bind_param(statement(), &m_paramBuffers[0]) != 0)
     {
         throwMySQLError();

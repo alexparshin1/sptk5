@@ -110,33 +110,22 @@ void OracleStatement::setParameterValues()
     for (const auto& parameterPtr: enumeratedParams())
     {
         QueryParameter& parameter = *parameterPtr;
-        VariantDataType& priorDataType = parameter.binding().m_dataType;
+        VariantDataType& paramDataType = parameter.binding().m_dataType;
 
-        if (priorDataType == VariantDataType::VAR_NONE)
-        {
-            priorDataType = parameter.dataType();
-        }
+        paramDataType = parameter.dataType();
 
         if (!parameter.isOutput() && parameter.isNull())
         {
-            if (priorDataType == VariantDataType::VAR_NONE)
-            {
-                priorDataType = VariantDataType::VAR_STRING;
-            }
             Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
             statement()->setNull(parameterIndex, nativeType);
             ++parameterIndex;
             continue;
         }
 
-        switch (priorDataType)
+        switch (paramDataType)
         {
-
-            case VariantDataType::VAR_NONE: ///< Undefined
-                throwDatabaseException("Parameter " + parameter.name() + " data type is undefined")
-
-                    case VariantDataType::VAR_INT : ///< Integer
-                                                    setIntParamValue(parameterIndex, parameter);
+            case VariantDataType::VAR_INT: ///< Integer
+                setIntParamValue(parameterIndex, parameter);
                 break;
 
             case VariantDataType::VAR_FLOAT: ///< Floating-point (double)
@@ -172,7 +161,9 @@ void OracleStatement::setParameterValues()
                 break;
 
             default:
-                throwDatabaseException("Unsupported data type for parameter " + parameter.name())
+                throw DatabaseException(
+                    "Unsupported parameter type(" + to_string((int) parameter.dataType()) + ") for parameter '" +
+                    parameter.name() + "'");
         }
         ++parameterIndex;
     }

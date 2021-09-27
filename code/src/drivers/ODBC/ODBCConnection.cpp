@@ -135,7 +135,7 @@ void ODBCConnection::driverBeginTransaction()
 
     if (getInTransaction())
     {
-        logAndThrow("CODBCConnection::driverBeginTransaction", "Transaction already started.");
+        logAndThrow("ODBCConnection::driverBeginTransaction", "Transaction already started.");
     }
 
     m_connect->beginTransaction();
@@ -148,11 +148,11 @@ void ODBCConnection::driverEndTransaction(bool commit)
     {
         if (commit)
         {
-            logAndThrow("CODBCConnection::driverEndTransaction", "Can't commit - transaction isn't started.");
+            logAndThrow("ODBCConnection::driverEndTransaction", "Can't commit - transaction isn't started.");
         }
         else
         {
-            logAndThrow("CODBCConnection::driverEndTransaction", "Can't rollback - transaction isn't started.");
+            logAndThrow("ODBCConnection::driverEndTransaction", "Can't rollback - transaction isn't started.");
         }
     }
 
@@ -235,7 +235,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
     {
         String error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
-        logAndThrow("CODBCConnection::queryAllocStmt", error);
+        logAndThrow("ODBCConnection::queryAllocStmt", error);
     }
 
     auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
@@ -479,7 +479,9 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 break;
 
             default:
-                THROW_QUERY_ERROR(query, "Unknown type of parameter '" << param->name() << "'")
+                throw DatabaseException(
+                    "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
+                    param->name() + "'");
         }
         SQLLEN* cbValue = nullptr;
         if (param->isNull())
@@ -646,10 +648,6 @@ void ODBCConnection::queryOpen(Query* query)
     catch (const DatabaseException& e)
     {
         throw DatabaseException(e.what());
-    }
-    catch (const Exception& e)
-    {
-        THROW_QUERY_ERROR(query, e.what())
     }
 
     if (query->autoPrepare() && !query->prepared())
@@ -850,7 +848,7 @@ void ODBCConnection::queryFetch(Query* query)
         }
         catch (const Exception& e)
         {
-            Query::throwError("CODBCConnection::queryFetch",
+            Query::throwError("ODBCConnection::queryFetch",
                               "Can't read field " + field->fieldName() + "\n" + string(e.what()));
         }
     }
@@ -880,11 +878,11 @@ void ODBCConnection::listDataSources(Strings& dsns)
     {
         if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv) != SQL_SUCCESS)
         {
-            throw DatabaseException("CODBCConnection::SQLAllocHandle");
+            throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
         if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER))
         {
-            throw DatabaseException("CODBCConnection::SQLSetEnvAttr");
+            throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }
     }
 
@@ -925,7 +923,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         SQLRETURN rc = 0;
         if (SQLAllocStmt(handle(), &stmt) != SQL_SUCCESS)
         {
-            throw DatabaseException("CODBCConnection::SQLAllocStmt");
+            throw DatabaseException("ODBCConnection::SQLAllocStmt");
         }
 
         switch (objectType)
@@ -978,7 +976,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         short procedureType = 0;
         if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
         {
-            auto rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
+            rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
             if (rc != SQL_SUCCESS)
             {
                 throw DatabaseException("SQLBindCol");
