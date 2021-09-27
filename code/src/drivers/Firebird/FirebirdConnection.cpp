@@ -447,11 +447,6 @@ String FirebirdConnection::paramMark(unsigned)
     return "?";
 }
 
-void FirebirdConnection::queryExecDirect(Query* query)
-{
-    queryExecute(query);
-}
-
 void FirebirdConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     notImplemented("queryColAttributes");
