@@ -110,8 +110,9 @@ public:
      */
     void threadFunction() override
     {
+        DateTime stopTime = DateTime::Now() + chrono::seconds(5);
         Buffer data(2048);
-        while (!terminated())
+        while (!terminated() && DateTime::Now() < stopTime)
         {
             try
             {
