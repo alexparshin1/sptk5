@@ -141,6 +141,13 @@ public:
      */
     static void testBatchSQL(const DatabaseConnectionString& connectionString);
 
+
+    /**
+     * Test BLOB insert and select
+     * @param connectionString  Database connection string
+     */
+    static void testBLOB(const DatabaseConnectionString& connectionString);
+
     /**
 	 * Global database tests collection
 	 */
@@ -176,9 +183,9 @@ private:
      * Connect to database and create test table
      * @param db                Database connection
      * @param autoPrepare       If true then use auto-prepared queries (default)
-     * @return
+     * @param withBlob          If true then add BLOB field 'data' to the table
      */
-    static void createTestTable(DatabaseConnection db, bool autoPrepare = true);
+    static void createTestTable(DatabaseConnection db, bool autoPrepare = true, bool withBlob = false);
 
     /**
      * Connect to database and create test table with serial id

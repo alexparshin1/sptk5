@@ -28,8 +28,8 @@
 #include <sys/stat.h>
 
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/filedefs.h>
 #include <sptk5/Printer.h>
+#include <sptk5/filedefs.h>
 
 #ifndef FL_ALIGN_LEFT
 constexpr int FL_ALIGN_LEFT = 4;
@@ -41,7 +41,8 @@ using namespace filesystem;
 
 String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const
 {
-    struct stat st {};
+    struct stat st {
+    };
 
     stat(file.path().string().c_str(), &st);
 
@@ -93,15 +94,13 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
 
 CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
 {
-    static const map<String, CSmallPixmapType> imageTypes
-        {
-            {"doc",  CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"docx", CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"odt",  CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"txt",  CSmallPixmapType::SXPM_TXT_DOCUMENT},
-            {"xls",  CSmallPixmapType::SXPM_XLS_DOCUMENT},
-            {"csv",  CSmallPixmapType::SXPM_XLS_DOCUMENT}
-        };
+    static const map<String, CSmallPixmapType> imageTypes {
+        {"doc", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"docx", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"odt", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"txt", CSmallPixmapType::SXPM_TXT_DOCUMENT},
+        {"xls", CSmallPixmapType::SXPM_XLS_DOCUMENT},
+        {"csv", CSmallPixmapType::SXPM_XLS_DOCUMENT}};
 
     if (const auto itor = imageTypes.find(ext); itor != imageTypes.end())
     {
@@ -134,7 +133,9 @@ static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpr
 {
     return any_of(matchPatterns.begin(),
                   matchPatterns.end(),
-                  [&fileName](const auto& matchPattern) { return matchPattern->matches(fileName); });
+                  [&fileName](const auto& matchPattern) {
+                      return matchPattern->matches(fileName);
+                  });
 }
 
 bool DirectoryDS::open()
@@ -167,7 +168,7 @@ bool DirectoryDS::open()
         }
     }
 
-    for (const auto& file : directory_iterator(m_directory.c_str()))
+    for (const auto& file: directory_iterator(m_directory.c_str()))
     {
 
         String fileName = file.path().filename().string();
@@ -335,13 +336,9 @@ class TempDirectory
 {
 public:
     explicit TempDirectory(const String& _path)
-        : m_path(shared_ptr<path>(new path(_path.c_str()),
-                                  [](path* ptr) {
-                                      remove_all(*ptr);
-                                      delete ptr;
-                                  }))
+        : m_path(_path.c_str())
     {
-        path dir = *m_path / "dir1";
+        path dir = m_path / "dir1";
         try
         {
             create_directories(dir);
@@ -354,16 +351,23 @@ public:
 
         Buffer buffer;
         buffer.fill('X', 10);
-        buffer.saveToFile((*m_path / "file1").c_str());
-        buffer.saveToFile((*m_path / "file2").c_str());
+        buffer.saveToFile((m_path / "file1").c_str());
+        buffer.saveToFile((m_path / "file2").c_str());
+    }
+
+    TempDirectory(const TempDirectory&) = delete;
+    TempDirectory& operator=(const TempDirectory&) = delete;
+
+    ~TempDirectory()
+    {
+        remove_all(m_path);
     }
 
 private:
-
-    shared_ptr<path> m_path;
+    path m_path;
 };
 
-TEST (SPTK_DirectoryDS, open)
+TEST(SPTK_DirectoryDS, open)
 {
     TempDirectory dir(testTempDirectory + "1");
 
@@ -381,7 +385,7 @@ TEST (SPTK_DirectoryDS, open)
     EXPECT_EQ(10, files["file1"]);
 }
 
-TEST (SPTK_DirectoryDS, patternToRegexp)
+TEST(SPTK_DirectoryDS, patternToRegexp)
 {
     auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
     EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
@@ -393,7 +397,7 @@ TEST (SPTK_DirectoryDS, patternToRegexp)
     EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
 }
 
-TEST (SPTK_DirectoryDS, patterns)
+TEST(SPTK_DirectoryDS, patterns)
 {
     TempDirectory dir(testTempDirectory + "2");
 

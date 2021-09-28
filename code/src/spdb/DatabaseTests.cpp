@@ -154,6 +154,13 @@ static const map<String, String> textFieldTypes = {
     {"oracle", "CLOB"},
     {"sqlite3", "TEXT"}};
 
+static const map<String, String> blobFieldTypes = {
+    {"mysql", "LONGBLOB"},
+    {"postgresql", "BYTEA"},
+    {"mssql", "VARBINARY(MAX)"},
+    {"oracle", "BLOB"},
+    {"sqlite3", "TEXT"}};
+
 static String fieldType(const String& fieldType, const String& driverName)
 {
     const map<String, String>* fieldTypes;
@@ -459,23 +466,27 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-void DatabaseTests::createTestTable(DatabaseConnection db, bool autoPrepare)
+void DatabaseTests::createTestTable(DatabaseConnection db, bool autoPrepare, bool withBlob)
 {
-    auto itor = dateTimeFieldTypes.find(db->connectionString().driverName());
-    if (itor == dateTimeFieldTypes.end())
+    auto itor = blobFieldTypes.find(db->connectionString().driverName());
+    if (itor == blobFieldTypes.end())
     {
-        throw Exception("DateTime data type mapping is not defined for the test");
+        throw Exception("BLOB data type mapping is not defined for the test");
     }
-    String dateTimeType = itor->second;
+    String blobType = itor->second;
+
+    Strings fields {"id INTEGER NULL", "name CHAR(40) NULL", "position_name CHAR(20) NULL", "hire_date CHAR(12) NULL"};
+
+    if (withBlob)
+    {
+        fields.push_back("data1 " + blobType + " NULL");
+        fields.push_back("data2 " + blobType + " NULL");
+    }
+
+    String sql("CREATE TABLE gtest_temp_table(" + fields.join(", ") + ")");
 
     db->open();
-    Query createTable(db,
-                      "CREATE TABLE gtest_temp_table("
-                      "id INTEGER NULL, "
-                      "name CHAR(40) NULL, "
-                      "position_name CHAR(20) NULL, "
-                      "hire_date CHAR(12) NULL)",
-                      autoPrepare);
+    Query createTable(db, sql, autoPrepare);
     Query dropTable(db, "DROP TABLE gtest_temp_table", autoPrepare);
 
     try
@@ -569,7 +580,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
-    createTestTable(db);
+    createTestTable(db, false, false);
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
 
@@ -636,7 +647,7 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
-    createTestTable(db, false);
+    createTestTable(db, false, false);
 
     Query insert(db, "INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
                      "VALUES (1, 'John Doe', 'engineer', '2020-01-02')",
@@ -675,7 +686,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
-    createTestTable(db);
+    createTestTable(db, false, false);
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
@@ -736,7 +747,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
-    createTestTable(db);
+    createTestTable(db, false, false);
 
     Query selectData(db, "SELECT * FROM gtest_temp_table ORDER BY 1");
 
@@ -781,7 +792,7 @@ void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
 void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 {
     DatabaseConnection db = connectionPool.getConnection();
-    createTestTable(db);
+    createTestTable(db, false, false);
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
@@ -861,6 +872,58 @@ size_t DatabaseTests::countRowsInTable(const DatabaseConnection& db, const Strin
     select.close();
 
     return count;
+}
+
+void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnection db = connectionPool.getConnection();
+    createTestTable(db, true, true);
+
+    constexpr size_t blobSize1 = 64 * 1024;
+    constexpr size_t blobSize2 = blobSize1 * 2;
+
+    Buffer testData1(blobSize1);
+    Buffer testDataInv(blobSize1);
+    for (size_t i = 0; i < blobSize1; i++)
+    {
+        testData1[i] = uint8_t(i % 256);
+        testDataInv[i] = uint8_t(256 - uint8_t(i % 256));
+    }
+    testData1.bytes(blobSize1);
+    testDataInv.bytes(blobSize1);
+
+    Buffer testData2(testDataInv);
+    testData2.append(testDataInv);
+
+    Query insertQuery(db, "INSERT INTO gtest_temp_table(id,data1, data2) VALUES(:id, :data1, :data2)");
+    insertQuery.param("id") = 1;
+    insertQuery.param("data1") = testData1;
+    insertQuery.param("data2") = testData2;
+    insertQuery.exec();
+
+    Query selectQuery(db, "SELECT id, data1, data2 FROM gtest_temp_table ORDER BY 1");
+    selectQuery.open();
+
+    auto dataSize1 = selectQuery["data1"].dataSize();
+    EXPECT_EQ(blobSize1, dataSize1);
+
+    auto dataSize2 = selectQuery["data2"].dataSize();
+    EXPECT_EQ(blobSize2, dataSize2);
+
+    const auto* data = selectQuery["data1"].getText();
+    for (size_t i = 0; i < blobSize1; i++)
+    {
+        EXPECT_EQ(char(i % 256), data[i]);
+    }
+
+    data = selectQuery["data2"].getText();
+    for (size_t i = 0; i < blobSize2; i++)
+    {
+        EXPECT_EQ(char(256 - char(i % 256)), data[i]);
+    }
+
+    selectQuery.close();
 }
 
 DatabaseTests::DatabaseTests()

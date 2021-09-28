@@ -948,7 +948,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 {
                     static array<char, 2> emptyString {};
                     field->setExternalBuffer((uint8_t*) emptyString.data(), 0,
-                                             VariantDataType::VAR_STRING); // External string
+                                             dataType); // External string
                 }
             }
             else

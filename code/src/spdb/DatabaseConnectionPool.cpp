@@ -294,6 +294,21 @@ static void testInsertQuery(const String& dbName)
     }
 }
 
+static void testBlobInsertAndSelect(const String& dbName)
+{
+    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+        FAIL() << dbName << " connection is not defined";
+    try
+    {
+        DatabaseTests::testBLOB(connectionString);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << connectionString.toString() << ": " << e.what();
+    }
+}
+
 static void testBulkInsert(const String& dbName)
 {
     DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -436,6 +451,11 @@ TEST(SPTK_PostgreSQLConnection, insertQuery)
     testInsertQuery("PostgreSQL");
 }
 
+TEST(SPTK_PostgreSQLConnection, BLOB)
+{
+    testBlobInsertAndSelect("PostgreSQL");
+}
+
 #endif
 
 //───────────────────────────────── MySQL ────────────────────────────────────────────────
@@ -486,6 +506,11 @@ TEST(SPTK_MySQLConnection, select)
 TEST(SPTK_MySQLConnection, insertQuery)
 {
     testInsertQuery("MySQL");
+}
+
+TEST(SPTK_MySQLConnection, BLOB)
+{
+    testBlobInsertAndSelect("MySQL");
 }
 
 #endif
@@ -539,6 +564,11 @@ TEST(SPTK_OracleConnection, insertQuery)
     testInsertQuery("Oracle");
 }
 
+TEST(SPTK_OracleConnection, BLOB)
+{
+    testBlobInsertAndSelect("Oracle");
+}
+
 #endif
 
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
@@ -588,6 +618,11 @@ TEST(SPTK_MSSQLConnection, select)
 TEST(SPTK_MSSQLConnection, insertQuery)
 {
     testInsertQuery("MSSQL");
+}
+
+TEST(SPTK_MSSQLConnection, BLOB)
+{
+    testBlobInsertAndSelect("MSSQL");
 }
 
 #endif

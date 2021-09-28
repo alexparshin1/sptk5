@@ -33,7 +33,6 @@
 #include <sptk5/db/Query.h>
 
 constexpr size_t MAX_BUF = 1024;
-constexpr size_t MAX_NAME_LEN = 256;
 constexpr size_t MAX_ERROR_LEN = 1024;
 
 using namespace std;
@@ -41,14 +40,14 @@ using namespace sptk;
 
 namespace sptk {
 
-class CODBCField
+class ODBCField
     : public DatabaseField
 {
     friend class ODBCConnection;
 
 public:
-    CODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
-               int fieldScale)
+    ODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
+              int fieldScale)
         : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
@@ -288,6 +287,11 @@ void ODBCConnection::queryExecute(Query* query)
         return;
     }
 
+    if (rc == SQL_NEED_DATA)
+    {
+        THROW_QUERY_ERROR(query, "Invalid data size")
+    }
+
     constexpr int diagRecordSize = 16;
     array<SQLCHAR, diagRecordSize> state = {};
     array<SQLCHAR, MAX_ERROR_LEN> text = {};
@@ -391,8 +395,15 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
         int16_t sqlType = 0;
         int16_t scale = 0;
         void* buff = nullptr;
-        long len = 0;
+        SQLLEN len = 0;
         auto paramNumber = int16_t(param->bindIndex(j) + 1);
+
+        SQLLEN* cbValue = nullptr;
+        if (param->isNull())
+        {
+            cbValue = &cbNullValue;
+            len = 0;
+        }
 
         int16_t parameterMode = SQL_PARAM_INPUT;
         switch (ptype)
@@ -435,13 +446,6 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 buff = (void*) param->getText();
                 break;
 
-            case VariantDataType::VAR_BUFFER:
-                paramType = SQL_C_BINARY;
-                sqlType = SQL_LONGVARBINARY;
-                len = (long) param->dataSize();
-                buff = (void*) param->getText();
-                break;
-
             case VariantDataType::VAR_DATE:
                 paramType = SQL_C_TIMESTAMP;
                 sqlType = SQL_TIMESTAMP;
@@ -468,21 +472,27 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 }
                 break;
 
+            case VariantDataType::VAR_BUFFER:
+                paramType = SQL_C_BINARY;
+                sqlType = SQL_LONGVARBINARY;
+                len = (SQLLEN) param->dataSize();
+                buff = (void*) param->getText();
+                param->callbackLength() = len;
+                cbValue = &param->callbackLength();
+                break;
+
             default:
                 throw DatabaseException(
                     "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
                     param->name() + "'");
         }
-        SQLLEN* cbValue = nullptr;
-        if (param->isNull())
-        {
-            cbValue = &cbNullValue;
-            len = 0;
-        }
 
         rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType,
-                              (SQLULEN) len, scale,
-                              buff, SQLINTEGER(len), cbValue);
+                              len,
+                              scale,
+                              buff,
+                              len,
+                              cbValue);
         if (rc != 0)
         {
             param->binding().reset(false);
@@ -609,7 +619,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnScale = 0;
         }
 
-        auto field = make_shared<CODBCField>(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
+        auto field = make_shared<ODBCField>(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }
@@ -698,9 +708,10 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     auto* buffer = (char*) field->getText();
     auto rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
 
-    SQLLEN offset = readSize - 1;
+    SQLLEN offset = readSize;
     if (dataLength > SQLINTEGER(readSize))
-    { // continue to fetch BLOB data in one go
+    {
+        // continue to fetch BLOB data in one go
         field->checkSize(uint32_t(dataLength + 1));
         buffer = (char*) field->getText();
         readSize = dataLength - readSize + 2;
@@ -708,11 +719,13 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     }
     else if (dataLength == SQL_NO_TOTAL)
     {
+        // continue to fetch BLOB data until there is no more data
         constexpr size_t initialReadSize = 16384;
         size_t bufferSize = field->bufferSize();
         SQLLEN remainingSize = 0;
 
-        dataLength = readSize;
+        --offset; // SQLGetData also includes trailing \x0 into read size
+        dataLength = offset;
         readSize = initialReadSize;
         while (rc != SQL_SUCCESS)
         {
@@ -777,12 +790,12 @@ void ODBCConnection::queryFetch(Query* query)
         return;
     }
 
-    CODBCField* field = nullptr;
+    ODBCField* field = nullptr;
     for (SQLUSMALLINT column = 0; column < (SQLUSMALLINT) fieldCount;)
     {
         try
         {
-            field = (CODBCField*) &(*query)[column];
+            field = (ODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
             auto& data = field->getData();
 
@@ -910,68 +923,12 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try
     {
-        SQLRETURN rc = 0;
-        if (SQLAllocStmt(handle(), &stmt) != SQL_SUCCESS)
-        {
-            throw DatabaseException("ODBCConnection::SQLAllocStmt");
-        }
+        SQLRETURN rc;
+        array<SQLCHAR, MAX_NAME_LEN> objectSchema;
+        array<SQLCHAR, MAX_NAME_LEN> objectName;
+        short procedureType;
 
-        switch (objectType)
-        {
-            case DatabaseObjectType::TABLES:
-                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("TABLE").data(), SQL_NTS) !=
-                    SQL_SUCCESS)
-                {
-                    throw DatabaseException("SQLTables");
-                }
-                break;
-
-            case DatabaseObjectType::VIEWS:
-                if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("VIEW").data(), SQL_NTS) !=
-                    SQL_SUCCESS)
-                {
-                    throw DatabaseException("SQLTables");
-                }
-                break;
-
-            case DatabaseObjectType::PROCEDURES:
-            case DatabaseObjectType::FUNCTIONS:
-                rc = SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
-                                   Buffer("%").data(), SQL_NTS);
-                if (rc != SQL_SUCCESS)
-                {
-                    throw DatabaseException("SQLProcedures");
-                }
-                break;
-
-            default:
-                break;
-        }
-
-        array<SQLCHAR, MAX_NAME_LEN> objectSchema = {};
-        array<SQLCHAR, MAX_NAME_LEN> objectName = {};
-        SQLLEN cbObjectSchema = 0;
-        SQLLEN cbObjectName = 0;
-
-        if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
-        {
-            throw DatabaseException("SQLBindCol");
-        }
-
-        if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size(), &cbObjectName) != SQL_SUCCESS)
-        {
-            throw DatabaseException("SQLBindCol");
-        }
-
-        short procedureType = 0;
-        if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
-        {
-            rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
-            if (rc != SQL_SUCCESS)
-            {
-                throw DatabaseException("SQLBindCol");
-            }
-        }
+        stmt = makeObjectListStatement(objectType, objectSchema, objectName, procedureType);
 
         while (true)
         {
@@ -1016,6 +973,77 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         }
         logAndThrow(e.what(), error);
     }
+}
+
+SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, array<SQLCHAR, MAX_NAME_LEN>& objectSchema, array<SQLCHAR, MAX_NAME_LEN>& objectName, short& procedureType) const
+{
+    objectSchema = {};
+    objectName = {};
+    procedureType = 0;
+    SQLRETURN rc = 0;
+
+    SQLHSTMT stmt = nullptr;
+
+    if (SQLAllocStmt(this->handle(), &stmt) != SQL_SUCCESS)
+    {
+        throw DatabaseException("ODBCConnection::SQLAllocStmt");
+    }
+
+    switch (objectType)
+    {
+        case DatabaseObjectType::TABLES:
+            if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("TABLE").data(), SQL_NTS) !=
+                SQL_SUCCESS)
+            {
+                throw DatabaseException("SQLTables");
+            }
+            break;
+
+        case DatabaseObjectType::VIEWS:
+            if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("VIEW").data(), SQL_NTS) !=
+                SQL_SUCCESS)
+            {
+                throw DatabaseException("SQLTables");
+            }
+            break;
+
+        case DatabaseObjectType::PROCEDURES:
+        case DatabaseObjectType::FUNCTIONS:
+            rc = SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
+                               Buffer("%").data(), SQL_NTS);
+            if (rc != SQL_SUCCESS)
+            {
+                throw DatabaseException("SQLProcedures");
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    SQLLEN cbObjectSchema = 0;
+    SQLLEN cbObjectName = 0;
+
+    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
+    {
+        throw DatabaseException("SQLBindCol");
+    }
+
+    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size(), &cbObjectName) != SQL_SUCCESS)
+    {
+        throw DatabaseException("SQLBindCol");
+    }
+
+    if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
+    {
+        rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
+        if (rc != SQL_SUCCESS)
+        {
+            throw DatabaseException("SQLBindCol");
+        }
+    }
+
+    return stmt;
 }
 
 void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)

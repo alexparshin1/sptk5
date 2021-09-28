@@ -182,9 +182,13 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
-            case VariantDataType::VAR_BUFFER:
                 setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 0,
                                   PostgreSQLDataType::VARCHAR);
+                break;
+
+            case VariantDataType::VAR_BUFFER:
+                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 1,
+                                  PostgreSQLDataType::BYTEA);
                 break;
 
             default:

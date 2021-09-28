@@ -30,6 +30,7 @@
 
 #ifdef HAVE_ODBC
 
+#include <array>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCEnvironment.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -215,6 +216,8 @@ protected:
                      const std::vector<VariantVector>& data) override;
 
 private:
+    static constexpr size_t MAX_NAME_LEN = 256;
+
     /**
      * The ODBC connection object
      */
@@ -260,9 +263,9 @@ private:
                                         SQLLEN& dataLength);
 
     static void queryBindParameter(const Query* query, QueryParameter* parameter);
+
+    SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::array<SQLCHAR, 256>& objectSchema, std::array<SQLCHAR, 256>& objectName, short& procedureType) const;
 };
-
-
 /**
  * @}
  */

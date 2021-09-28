@@ -505,6 +505,10 @@ const uint8_t* BaseVariant::getExternalBuffer() const
 //---------------------------------------------------------------------------
 const char* BaseVariant::getText() const
 {
+    if (isExternalBuffer())
+    {
+        return (const char*) m_data.get<const uint8_t*>();
+    }
     return m_data.get<Buffer>().c_str();
 }
 

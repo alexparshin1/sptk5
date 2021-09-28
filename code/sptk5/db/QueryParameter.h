@@ -75,7 +75,7 @@ public:
     /**
      * An integer reserved to callback parameter data length
      */
-    int32_t& callbackLength()
+    long& callbackLength()
     {
         return m_callbackLength;
     }
@@ -256,7 +256,7 @@ private:
     String m_name;                             ///< Parameter name
     std::vector<uint32_t> m_bindParamIndexes;  ///< The list of SQL query parameter numbers with this name
     std::array<uint8_t, 80> m_timeData {};     ///< Special memory allocated for time structures
-    int32_t m_callbackLength {0};              ///< An integer reserved to callback parameter data length
+    long m_callbackLength {0};                 ///< An integer reserved to callback parameter data length
     QueryParameterList* m_paramList {nullptr}; ///< Parent param list used for notifications
 };
 
