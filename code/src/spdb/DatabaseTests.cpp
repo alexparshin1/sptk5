@@ -794,6 +794,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db, false, false);
 
+    Query emptyQuery(db);
+    EXPECT_THROW(emptyQuery.exec(), DatabaseException);
+
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
 
