@@ -77,14 +77,9 @@ FileLogEngine::FileLogEngine(const fs::path& fileName)
 
 FileLogEngine::~FileLogEngine()
 {
-    sleep_for(chrono::milliseconds(1000));
-    terminate();
-    join();
-    lock_guard lock(m_mutex);
-    if (m_fileStream.is_open())
-    {
-        m_fileStream.close();
-    }
+    Thread::sleep_for(chrono::milliseconds(1000));
+    Thread::terminate();
+    Thread::join();
 }
 
 void FileLogEngine::reset()
@@ -128,7 +123,7 @@ TEST(SPTK_FileLogEngine, create)
     content.loadFromFile(logFileName);
 
     EXPECT_EQ(content.size(), 5U);
-    for (String level : {"critical", "error", "warning", "info", "debug"})
+    for (String level: {"critical", "error", "warning", "info", "debug"})
     {
         const auto messages = content.grep(level.toUpperCase());
         EXPECT_EQ(messages.size(), 1U);

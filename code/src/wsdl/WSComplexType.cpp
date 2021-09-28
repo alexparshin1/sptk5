@@ -243,11 +243,10 @@ void WSComplexType::unload(QueryParameterList& output) const
         }
         else
         {
-            auto json = field->asString();
             auto param = output.find(field->name());
             if (param)
             {
-                *param = json;
+                *param = field->asString();
             }
         }
         return true;

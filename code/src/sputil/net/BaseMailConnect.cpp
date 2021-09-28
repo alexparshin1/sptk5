@@ -162,7 +162,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     constexpr int maxDateBuffer = 128;
     array<char, maxDateBuffer> dateBuffer = {};
     const char* sign = "-";
-    int tzOffset = (int) TimeZone::offset().count();
+    auto tzOffset = (int) TimeZone::offset().count();
     auto offsetHours = TimeZone::offset().count() / 60;
     auto offsetMinutes = TimeZone::offset().count() % 60;
     if (tzOffset >= 0)

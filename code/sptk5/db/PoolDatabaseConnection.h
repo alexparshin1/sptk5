@@ -392,7 +392,7 @@ protected:
 
     PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
-    virtual ~PoolDatabaseConnection();
+    ~PoolDatabaseConnection() override;
 
     /**
      * Opens the database connection.

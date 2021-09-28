@@ -158,7 +158,6 @@ protected:
         m_fldScale = fieldScale;
     }
 
-protected:
     String doubleDataToString() const override;
 
 private:

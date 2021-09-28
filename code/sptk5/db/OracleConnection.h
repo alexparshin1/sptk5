@@ -88,11 +88,6 @@ public:
         return m_connection->createStatement(sql);
     }
 
-    Statement* createStatement()
-    {
-        return m_connection->createStatement();
-    }
-
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The Oracle connection string
