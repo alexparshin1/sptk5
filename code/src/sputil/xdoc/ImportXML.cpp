@@ -511,7 +511,6 @@ TEST(SPTK_XDocument, saveXml2)
     // Export to XML without changing formatting
     Buffer buffer;
     document.exportTo(DataFormat::XML, buffer, false);
-    document.exportTo(DataFormat::XML, cout, false);
 
     // Import while keeping formatting
     document.load(buffer, true);
