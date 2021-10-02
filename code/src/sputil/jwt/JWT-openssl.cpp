@@ -28,8 +28,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
 #include <cerrno>
+#include <cstring>
 
 #include <openssl/bio.h>
 #include <openssl/evp.h>
@@ -46,7 +46,7 @@ using namespace sptk;
  */
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
-static void ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM **ps)
+static void ECDSA_SIG_get0(const ECDSA_SIG* sig, const BIGNUM** pr, const BIGNUM** ps)
 {
     if (pr != NULL)
         *pr = sig->r;
@@ -54,7 +54,7 @@ static void ECDSA_SIG_get0(const ECDSA_SIG *sig, const BIGNUM **pr, const BIGNUM
         *ps = sig->s;
 }
 
-static int ECDSA_SIG_set0(ECDSA_SIG *sig, BIGNUM *r, BIGNUM *s)
+static int ECDSA_SIG_set0(ECDSA_SIG* sig, BIGNUM* r, BIGNUM* s)
 {
     if (r == NULL || s == NULL)
         return 0;
@@ -270,16 +270,22 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
         /* Initialize the DigestSign operation using alg */
         if (EVP_DigestSignInit(mdctx, nullptr, algorithm, nullptr, pkey) != 1)
-        { SIGN_ERROR(EINVAL); }
+        {
+            SIGN_ERROR(EINVAL);
+        }
 
         /* Call update with the message */
         if (EVP_DigestSignUpdate(mdctx, str, strlen(str)) != 1)
-        { SIGN_ERROR(EINVAL); }
+        {
+            SIGN_ERROR(EINVAL);
+        }
 
         /* First, call EVP_DigestSignFinal with a nullptr sig parameter to get length
          * of sig. Length is returned in slen */
         if (EVP_DigestSignFinal(mdctx, nullptr, &slen) != 1)
-        { SIGN_ERROR(EINVAL); }
+        {
+            SIGN_ERROR(EINVAL);
+        }
 
         /* Allocate memory for signature based on returned size */
         sig_buffer.checkSize(slen);
@@ -287,7 +293,9 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
         /* Get the signature */
         if (EVP_DigestSignFinal(mdctx, sig_ptr, &slen) != 1)
-        { SIGN_ERROR(EINVAL); }
+        {
+            SIGN_ERROR(EINVAL);
+        }
 
         if (pkey_type != EVP_PKEY_EC)
         {
@@ -308,7 +316,9 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             /* Get the actual ec_key */
             ec_key = EVP_PKEY_get1_EC_KEY(pkey);
             if (ec_key == nullptr)
-            { SIGN_ERROR(ENOMEM); }
+            {
+                SIGN_ERROR(ENOMEM);
+            }
 
             degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
 
@@ -318,20 +328,26 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             unsigned char* sig = nullptr;
             ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, (long) slen);
             if (ec_sig == nullptr)
-            { SIGN_ERROR(ENOMEM); }
+            {
+                SIGN_ERROR(ENOMEM);
+            }
 
             ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
             r_len = (unsigned) BN_num_bytes(ec_sig_r);
             s_len = (unsigned) BN_num_bytes(ec_sig_s);
             bn_len = (degree + 7) / 8;
             if ((r_len > bn_len) || (s_len > bn_len))
-            { SIGN_ERROR(EINVAL); }
+            {
+                SIGN_ERROR(EINVAL);
+            }
 
             buf_len = 2 * bn_len;
             Buffer raw_buf_buffer(buf_len);
             raw_buf = raw_buf_buffer.data();
             if (raw_buf == nullptr)
-            { SIGN_ERROR(ENOMEM); }
+            {
+                SIGN_ERROR(ENOMEM);
+            }
 
             /* Pad the bignums with leading zeroes. */
             memset(raw_buf, 0, buf_len);
@@ -350,12 +366,17 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
     {
         BIO_free(bufkey);
     }
+
     if (pkey)
     {
         EVP_PKEY_free(pkey);
     }
+
     if (mdctx)
+    {
         EVP_MD_CTX_destroy(mdctx);
+    }
+
     if (ec_sig)
     {
         ECDSA_SIG_free(ec_sig);
@@ -440,18 +461,24 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
     {
         bufkey = BIO_new_mem_buf((void*) key.c_str(), (int) key.length());
         if (bufkey == nullptr)
-        { VERIFY_ERROR(ENOMEM); }
+        {
+            VERIFY_ERROR(ENOMEM);
+        }
 
         /* This uses OpenSSL's default passphrase callback if needed. The
          * library caller can override this in many ways, all of which are
          * outside of the scope of LibJWT and this is documented in jwt.h. */
         pkey = PEM_read_bio_PUBKEY(bufkey, nullptr, nullptr, nullptr);
         if (pkey == nullptr)
-        { VERIFY_ERROR(EINVAL); }
+        {
+            VERIFY_ERROR(EINVAL);
+        }
 
         int pkey_type = EVP_PKEY_id(pkey);
         if (pkey_type != type)
-        { VERIFY_ERROR(EINVAL); }
+        {
+            VERIFY_ERROR(EINVAL);
+        }
 
         /* Convert EC sigs back to ASN1. */
         if (pkey_type == EVP_PKEY_EC)
@@ -463,12 +490,16 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 
             ec_sig = ECDSA_SIG_new();
             if (ec_sig == nullptr)
-            { VERIFY_ERROR(ENOMEM); }
+            {
+                VERIFY_ERROR(ENOMEM);
+            }
 
             /* Get the actual ec_key */
             ec_key = EVP_PKEY_get1_EC_KEY(pkey);
             if (ec_key == nullptr)
-            { VERIFY_ERROR(ENOMEM); }
+            {
+                VERIFY_ERROR(ENOMEM);
+            }
 
             degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
 
@@ -476,12 +507,16 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 
             bn_len = (degree + 7) / 8;
             if ((bn_len * 2) != (unsigned) slen)
-            { VERIFY_ERROR(EINVAL); }
+            {
+                VERIFY_ERROR(EINVAL);
+            }
 
             auto* ec_sig_r = BN_bin2bn(sig_ptr, bn_len, nullptr);
             auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, bn_len, nullptr);
             if (ec_sig_r == nullptr || ec_sig_s == nullptr)
-            { VERIFY_ERROR(EINVAL); }
+            {
+                VERIFY_ERROR(EINVAL);
+            }
 
             ECDSA_SIG_set0(ec_sig, ec_sig_r, ec_sig_s);
 
@@ -493,24 +528,34 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
             slen = i2d_ECDSA_SIG(ec_sig, &p);
 
             if (slen == 0)
-            { VERIFY_ERROR(EINVAL); }
+            {
+                VERIFY_ERROR(EINVAL);
+            }
         }
 
         mdctx = EVP_MD_CTX_create();
         if (mdctx == nullptr)
-        { VERIFY_ERROR(ENOMEM); }
+        {
+            VERIFY_ERROR(ENOMEM);
+        }
 
         /* Initialize the DigestVerify operation using alg */
         if (EVP_DigestVerifyInit(mdctx, nullptr, algorithm, nullptr, pkey) != 1)
-        { VERIFY_ERROR(EINVAL); }
+        {
+            VERIFY_ERROR(EINVAL);
+        }
 
         /* Call update with the message */
         if (EVP_DigestVerifyUpdate(mdctx, head, strlen(head)) != 1)
-        { VERIFY_ERROR(EINVAL); }
+        {
+            VERIFY_ERROR(EINVAL);
+        }
 
         /* Now check the sig for validity. */
         if (EVP_DigestVerifyFinal(mdctx, sig_ptr, (unsigned) slen) != 1)
-        { VERIFY_ERROR(EINVAL); }
+        {
+            VERIFY_ERROR(EINVAL);
+        }
     }
     catch (const Exception& e)
     {
@@ -521,12 +566,17 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
     {
         BIO_free(bufkey);
     }
+
     if (pkey)
     {
         EVP_PKEY_free(pkey);
     }
+
     if (mdctx)
+    {
         EVP_MD_CTX_destroy(mdctx);
+    }
+
     if (ec_sig)
     {
         ECDSA_SIG_free(ec_sig);
@@ -538,4 +588,4 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
     }
 }
 
-}
+} // namespace sptk
