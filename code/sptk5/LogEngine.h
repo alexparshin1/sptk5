@@ -27,9 +27,9 @@
 #pragma once
 
 #include <sptk5/DateTime.h>
-#include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/LogPriority.h>
 #include <sptk5/Logger.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 #include <atomic>
 #include <iostream>
@@ -43,11 +43,11 @@ namespace sptk {
  */
 
 // Log options
-constexpr int LO_STDOUT = 1;    ///< Duplicate messages to stdout
-constexpr int LO_DATE = 2;      ///< Print date for every log message
-constexpr int LO_TIME = 4;      ///< Print time for every log message
-constexpr int LO_PRIORITY = 8;  ///< Print message priority
-constexpr int LO_ENABLE = 16;   ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+constexpr int LO_STDOUT = 1;   ///< Duplicate messages to stdout
+constexpr int LO_DATE = 2;     ///< Print date for every log message
+constexpr int LO_TIME = 4;     ///< Print time for every log message
+constexpr int LO_PRIORITY = 8; ///< Print message priority
+constexpr int LO_ENABLE = 16;  ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
 
 /**
  * Base class for various log engines.
@@ -73,6 +73,11 @@ public:
      * Creates a new log object.
      */
     explicit LogEngine(const String& logEngineName);
+
+    /**
+     * Destructor
+     */
+    ~LogEngine() noexcept override;
 
     /**
      * Restarts the log
@@ -151,7 +156,6 @@ public:
     static LogPriority priorityFromName(const String& prt);
 
 protected:
-
     void threadFunction() override;
 
     /**
@@ -181,10 +185,10 @@ private:
     /**
      * Message queue
      */
-    std::shared_ptr<MessageQueue> m_messages;
+    MessageQueue m_messages;
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
