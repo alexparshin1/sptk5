@@ -33,8 +33,6 @@
 #include <cmath>
 #include <sptk5/db/InsertQuery.h>
 
-#include <gtest/gtest.h>
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -63,10 +61,13 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
     for (int i = 0; i < 2; ++i)
     {
         DatabaseConnection db = connectionPool.getConnection();
+#ifdef USE_GTEST
         EXPECT_STREQ(db->connectionString().toString().c_str(), connectionString.toString().c_str());
-
+#endif
         db->open();
+#ifdef USE_GTEST
         EXPECT_TRUE(db->active());
+#endif
 
         if (auto info = db->driverDescription(); info.length() < 10)
         {
@@ -385,8 +386,10 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
 
     Transaction transaction(db);
 
+#ifdef USE_GTEST
     EXPECT_THROW(transaction.commit(), DatabaseException);
     EXPECT_THROW(transaction.rollback(), DatabaseException);
+#endif
 
     transaction.begin();
 
@@ -426,7 +429,9 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
         }
     }
 
+#ifdef USE_GTEST
     EXPECT_THROW(transaction.commit(), DatabaseException);
+#endif
 }
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
@@ -663,6 +668,7 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
     select.open();
     size_t recordCount = 0;
+#ifdef USE_GTEST
     while (!select.eof())
     {
         ++recordCount;
@@ -682,6 +688,7 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
         select.next();
     }
     EXPECT_EQ(2U, recordCount);
+#endif
 }
 
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
@@ -767,7 +774,10 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         "2,Jane,CFO,2021-02-03",
         "3,William,CIO,2022-03-04"};
 
+#ifdef USE_GTEST
     EXPECT_THROW(db->executeBatchSQL(invalidBatchSQL), DatabaseException);
+#endif
+
     db->executeBatchSQL(batchSQL);
 
     selectData.open();
@@ -779,10 +789,14 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         {
             row.push_back(selectData[column].asString().trim());
         }
+#ifdef USE_GTEST
         EXPECT_STREQ(expectedResults[i].c_str(), row.join(",").c_str());
+#endif
         selectData.next();
     }
+#ifdef USE_GTEST
     EXPECT_EQ(i, 3);
+#endif
 }
 
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
@@ -797,7 +811,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     createTestTable(db, false, false);
 
     Query emptyQuery(db);
+#ifdef USE_GTEST
     EXPECT_THROW(emptyQuery.exec(), DatabaseException);
+#endif
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
@@ -825,7 +841,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         insertData.exec();
     }
 
+#ifdef USE_GTEST
     EXPECT_THROW(selectData.next(), DatabaseException);
+#endif
 
     selectData.open();
     Strings printRows;
@@ -852,7 +870,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         selectData.next();
     }
 
+#ifdef USE_GTEST
     EXPECT_THROW(selectData.next(), DatabaseException);
+#endif
 
     selectData.close();
 
@@ -910,6 +930,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Query selectQuery(db, "SELECT id, data1, data2 FROM gtest_temp_table ORDER BY 1");
     selectQuery.open();
 
+#ifdef USE_GTEST
     auto dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
 
@@ -927,6 +948,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     {
         EXPECT_EQ(char(256 - char(i % 256)), data[i]);
     }
+#endif
 
     selectQuery.close();
 }
