@@ -349,13 +349,17 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     try
     {
         insert.exec();
+#ifdef USE_GTEST
         FAIL() << "Unsupported parameter type not detected";
+#endif
     }
     catch (const DatabaseException& e)
     {
         if (String(e.what()).find("Unsupported parameter type") == String::npos)
         {
+#ifdef USE_GTEST
             FAIL() << e.what();
+#endif
         }
     }
 
