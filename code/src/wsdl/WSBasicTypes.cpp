@@ -601,7 +601,7 @@ TEST(SPTK_WSBasicTypes, exportValue)
     // Optional null value shouldn't export
     WSInteger wsInt("integer", true);
     wsInt.exportTo(root);
-    EXPECT_EQ(root->findFirst("integer"), nullptr);
+    EXPECT_TRUE(root->findFirst("integer") == nullptr);
 
     WSDate date;
 
