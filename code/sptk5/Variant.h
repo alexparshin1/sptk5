@@ -143,6 +143,11 @@ public:
     virtual const char* getString() const;
 
     /**
+     * Direct access to the internal data
+     */
+    virtual Buffer& getInternalBuffer();
+
+    /**
      * Directly reads the internal data
      */
     virtual const uint8_t* getExternalBuffer() const;

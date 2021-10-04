@@ -186,12 +186,8 @@ String OracleConnection::queryError(const Query*) const
 // the previously allocated stmt is released
 void OracleConnection::queryAllocStmt(Query* query)
 {
-    auto* stmt = (StmtHandle) new OracleStatement(this, query->sql());
-    querySetStmt(query, shared_ptr<uint8_t>(stmt,
-                                            [](StmtHandle ptr) {
-                                                auto* ostmt = (OracleStatement*) ptr;
-                                                delete ostmt;
-                                            }));
+    auto stmt = make_shared<OracleStatement>(this, query->sql());
+    querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
 void OracleConnection::queryFreeStmt(Query* query)
@@ -591,25 +587,27 @@ void OracleConnection::queryFetch(Query* query)
 
 void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
+    auto& buffer = field->getInternalBuffer();
     Clob clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
     // Attention: clob stored as widechar
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, const_cast<uint8_t*>((const uint8_t*) field->getText()), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, buffer.data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
-    const_cast<uint8_t*>((const uint8_t*) field->getText())[bytes] = 0;
+    buffer.data()[bytes] = 0;
 }
 
 void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
+    auto& buffer = field->getInternalBuffer();
     Blob blob = resultSet->getBlob(columnIndex);
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, const_cast<uint8_t*>((const uint8_t*) field->getText()), bytes, 1);
+    blob.read(bytes, buffer.data(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }

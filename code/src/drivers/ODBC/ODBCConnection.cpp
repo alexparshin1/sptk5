@@ -53,6 +53,11 @@ public:
     }
 
 protected:
+    Buffer& getInternalBuffer() override
+    {
+        return BaseVariant::getInternalBuffer();
+    }
+
     auto& getData()
     {
         return m_data;
@@ -62,11 +67,7 @@ protected:
 
 ODBCConnection::ODBCConnection(const String& connectionString)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
-    , m_connect(shared_ptr<ODBCConnectionBase>(new ODBCConnectionBase(),
-                                               [this](ODBCConnectionBase* ptr) {
-                                                   close();
-                                                   delete ptr;
-                                               }))
+    , m_connect(make_shared<ODBCConnectionBase>())
 {
 }
 
@@ -699,23 +700,24 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
                                                 int16_t fieldType, SQLLEN& dataLength)
 {
+    auto* field = dynamic_cast<ODBCField*>(dbField);
+
     constexpr size_t initialBlobBufferSize = 128;
     field->checkSize(initialBlobBufferSize);
     auto readSize = (SQLLEN) field->bufferSize();
-    auto* buffer = (char*) field->getText();
-    auto rc = SQLGetData(statement, column, fieldType, buffer, SQLINTEGER(readSize), &dataLength);
+    auto& buffer = field->getInternalBuffer();
+    auto rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(readSize), &dataLength);
 
     SQLLEN offset = readSize;
     if (dataLength > SQLINTEGER(readSize))
     {
         // continue to fetch BLOB data in one go
         field->checkSize(uint32_t(dataLength + 1));
-        buffer = (char*) field->getText();
         readSize = dataLength - readSize + 2;
-        rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), nullptr);
+        rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), nullptr);
     }
     else if (dataLength == SQL_NO_TOTAL)
     {
@@ -731,8 +733,7 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
         {
             bufferSize += readSize;
             field->checkSize(bufferSize);
-            buffer = (char*) field->getText();
-            rc = SQLGetData(statement, column, fieldType, buffer + offset, SQLINTEGER(readSize), &remainingSize);
+            rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
             if (remainingSize > 0)
             {
                 readSize = remainingSize;

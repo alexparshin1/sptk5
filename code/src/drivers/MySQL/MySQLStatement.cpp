@@ -642,7 +642,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
     {
         /// Fetch truncated, enlarge buffer and fetch again
         field->checkSize(dataLength);
-        bind.buffer = const_cast<char*>(field->getText());
+        bind.buffer = field->getInternalBuffer().data();
         bind.buffer_length = ULONG_CAST(field->bufferSize());
         if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
         {

@@ -44,8 +44,9 @@ const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microsecond
 class PostgreSQLStatement
 {
 public:
-    PostgreSQLStatement(bool int64timestamps, bool prepared)
+    PostgreSQLStatement(PGconn* connect, bool int64timestamps, bool prepared)
         : m_paramValues(int64timestamps)
+        , m_connect(connect)
     {
         if (prepared)
         {
@@ -53,6 +54,17 @@ public:
             str << "S" << setfill('0') << setw(4) << index;
             m_stmtName = str.str();
             ++index;
+        }
+    }
+
+    ~PostgreSQLStatement()
+    {
+        if (stmt() != nullptr && !name().empty())
+        {
+            String deallocateCommand =
+                "DEALLOCATE \"" + name() + "\"";
+            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+            PQclear(res);
         }
     }
 
@@ -120,6 +132,7 @@ public:
     }
 
 private:
+    PGconn* m_connect {nullptr};
     shared_ptr<PGresult> m_stmt;
     String m_stmtName;
     static unsigned index;
@@ -308,21 +321,9 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    querySetStmt(query,
-                 shared_ptr<uint8_t>((StmtHandle) new PostgreSQLStatement(m_timestampsFormat == TimestampFormat::INT64,
-                                                                          query->autoPrepare()),
-                                     [this](StmtHandle stmtHandle) {
-                                         auto* statement = (PostgreSQLStatement*) stmtHandle;
-                                         if (statement->stmt() != nullptr && !statement->name().empty())
-                                         {
-                                             String deallocateCommand =
-                                                 "DEALLOCATE \"" + statement->name() + "\"";
-                                             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
-                                             checkError(m_connect, res, "DEALLOCATE");
-                                             PQclear(res);
-                                         }
-                                         delete statement;
-                                     }));
+    auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
+                                                 query->autoPrepare());
+    querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
 void PostgreSQLConnection::queryFreeStmt(Query* query)
@@ -444,7 +445,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     }
 }
 
-void PostgreSQLConnection::queryExecDirect(Query* query)
+void PostgreSQLConnection::queryExecDirect(const Query* query)
 {
     scoped_lock lock(m_mutex);
 

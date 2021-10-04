@@ -141,10 +141,7 @@ String MySQLConnection::queryError(const Query*) const
 void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto stmt = shared_ptr<uint8_t>((StmtHandle) new MySQLStatement(this, query->sql(), query->autoPrepare()),
-                                    [](StmtHandle handle) {
-                                        delete (MySQLStatement*) handle;
-                                    });
+    auto stmt = reinterpret_pointer_cast<uint8_t>(make_shared<MySQLStatement>(this, query->sql(), query->autoPrepare()));
     querySetStmt(query, stmt);
 }
 

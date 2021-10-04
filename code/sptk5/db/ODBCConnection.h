@@ -66,7 +66,10 @@ public:
     /**
      * @brief Destructor
      */
-    ~ODBCConnection() override = default;
+    ~ODBCConnection() override
+    {
+        close();
+    }
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
 

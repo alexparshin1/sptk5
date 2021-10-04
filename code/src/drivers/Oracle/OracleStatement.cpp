@@ -281,7 +281,7 @@ void OracleStatement::setDateParameterValue(unsigned int parameterIndex, const Q
     }
 }
 
-void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
+void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter)
 {
     if (parameter.isOutput())
     {
@@ -290,11 +290,11 @@ void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, const Q
     }
     else
     {
-        setBlobParameter(parameterIndex, const_cast<uint8_t*>((const uint8_t*) parameter.getText()), (unsigned) parameter.dataSize());
+        setBlobParameter(parameterIndex, parameter.getInternalBuffer().data(), (unsigned) parameter.dataSize());
     }
 }
 
-void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter)
+void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter)
 {
     if (parameter.isOutput())
     {
@@ -303,7 +303,7 @@ void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, const Q
     }
     else
     {
-        setClobParameter(parameterIndex, const_cast<uint8_t*>((const uint8_t*) parameter.getText()), (unsigned) parameter.dataSize());
+        setClobParameter(parameterIndex, parameter.getInternalBuffer().data(), (unsigned) parameter.dataSize());
     }
 }
 
@@ -388,7 +388,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, const SDatabase
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, const_cast<uint8_t*>((const uint8_t*) field->getText()), bytes, 1);
+    blob.read(bytes, field->getInternalBuffer().data(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -401,7 +401,7 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabase
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, const_cast<uint8_t*>((const uint8_t*) field->getText()), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, field->getInternalBuffer().data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
 }

@@ -173,14 +173,14 @@ private:
      * @param parameterIndex    Parameter number
      * @param parameter         Query parameter
      */
-    void setCLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+    void setCLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter);
 
     /**
      * Set BLOB parameter value
      * @param parameterIndex    Parameter number
      * @param parameter         Query parameter
      */
-    void setBLOBParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
+    void setBLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter);
 
     /**
      * Set Date parameter value

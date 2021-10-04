@@ -59,6 +59,9 @@ public:
     explicit UniqueInstance(String instanceName);
     ~UniqueInstance();
 
+    UniqueInstance(const UniqueInstance&) = delete;
+    UniqueInstance& operator=(const UniqueInstance&) = delete;
+
 #ifndef _WIN32
     /**
      * Return lock file name

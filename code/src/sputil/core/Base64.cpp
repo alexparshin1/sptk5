@@ -34,8 +34,7 @@ static const array<char, 64> B64Chars = {
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
     't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
-    '8', '9', '+', '/'
-};
+    '8', '9', '+', '/'};
 
 inline uint8_t base64chars(int c)
 {
@@ -68,7 +67,7 @@ void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
         ++output;
 
         len -= 3;
-        current += 3;   /* move pointer 3 characters forward */
+        current += 3; /* move pointer 3 characters forward */
     }
 
     /// Now we should clean up remainder
@@ -109,7 +108,7 @@ void Base64::encode(String& strDest, const Buffer& bufSource)
     Buffer bufOut;
     encode(bufOut, bufSource);
 
-    strDest = string(bufOut.c_str(), bufOut.bytes());
+    strDest = String(bufOut.c_str(), bufOut.bytes());
 }
 
 static const String base64_chars(
@@ -127,8 +126,8 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
     size_t in_len = encoded_string.size();
     int i = 0;
     int in_ = 0;
-    array < uint8_t, 4 > char_array_4 {};
-    array < uint8_t, 3 > char_array_3 {};
+    array<uint8_t, 4> char_array_4 {};
+    array<uint8_t, 3> char_array_3 {};
 
     dest.reset();
 

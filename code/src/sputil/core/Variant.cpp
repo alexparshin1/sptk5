@@ -497,6 +497,12 @@ const char* BaseVariant::getString() const
 }
 
 //---------------------------------------------------------------------------
+Buffer& BaseVariant::getInternalBuffer()
+{
+    return m_data.get<Buffer>();
+}
+
+//---------------------------------------------------------------------------
 const uint8_t* BaseVariant::getExternalBuffer() const
 {
     return m_data.get<const uint8_t*>();

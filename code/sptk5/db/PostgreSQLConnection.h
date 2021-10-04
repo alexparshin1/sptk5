@@ -250,7 +250,7 @@ protected:
 
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
-    void queryExecDirect(Query* query);
+    void queryExecDirect(const Query* query);
 
 private:
     mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
