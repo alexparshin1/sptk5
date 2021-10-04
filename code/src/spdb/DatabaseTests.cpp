@@ -33,6 +33,8 @@
 #include <cmath>
 #include <sptk5/db/InsertQuery.h>
 
+#include <gtest/gtest.h>
+
 using namespace std;
 using namespace sptk;
 using namespace chrono;
