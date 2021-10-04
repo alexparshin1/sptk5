@@ -479,7 +479,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 len = (SQLLEN) param->dataSize();
                 buff = (void*) param->getText();
                 param->callbackLength() = len;
-                cbValue = &param->callbackLength();
+                cbValue = (SQLLEN*) &param->callbackLength();
                 break;
 
             default:

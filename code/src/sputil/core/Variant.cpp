@@ -1280,19 +1280,19 @@ TEST(SPTK_Variant, assigns)
     EXPECT_TRUE((bool) v);
     EXPECT_TRUE(v.getBool());
     EXPECT_DOUBLE_EQ(v.asInteger(), 1);
-    EXPECT_DOUBLE_EQ(v.asInt64(), 1);
+    EXPECT_EQ(v.asInt64(), 1L);
 
     v = false;
     EXPECT_FALSE(v);
     EXPECT_FALSE((bool) v);
     EXPECT_FALSE(v.getBool());
     EXPECT_DOUBLE_EQ(v.asInteger(), 0);
-    EXPECT_DOUBLE_EQ(v.asInt64(), 0);
+    EXPECT_EQ(v.asInt64(), 0L);
 
     v = MoneyData(1234, 2);
     EXPECT_DOUBLE_EQ(v.asFloat(), 12.34);
     EXPECT_DOUBLE_EQ(v.asInteger(), 12);
-    EXPECT_DOUBLE_EQ(v.asInt64(), 12);
+    EXPECT_EQ(v.asInt64(), 12L);
 
     v.setDateTime(testDate, true);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
