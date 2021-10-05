@@ -49,7 +49,7 @@ class DriverLoaders
 public:
     DatabaseDriver* get(const String& driverName)
     {
-        auto itor = drivers.find(driverName);
+        auto itor = drivers.find(driverName.toLowerCase());
         if (itor == drivers.end())
         {
             return nullptr;
@@ -59,13 +59,13 @@ public:
 
     void add(const String& driverName, shared_ptr<DatabaseDriver> driver)
     {
-        drivers[driverName] = driver;
+        drivers[driverName.toLowerCase()] = driver;
     }
 
     static DriverLoaders loadedDrivers;
 
 private:
-    map<string, shared_ptr<DatabaseDriver>, CaseInsensitiveCompare> drivers;
+    map<string, shared_ptr<DatabaseDriver>, std::less<>> drivers;
 };
 
 DriverLoaders DriverLoaders::loadedDrivers;
