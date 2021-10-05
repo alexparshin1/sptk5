@@ -67,7 +67,6 @@ protected:
 
 ODBCConnection::ODBCConnection(const String& connectionString)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
-    , m_connect(make_shared<ODBCConnectionBase>())
 {
 }
 
@@ -479,7 +478,11 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 len = (SQLLEN) param->dataSize();
                 buff = (void*) param->getText();
                 param->callbackLength() = len;
+#ifdef _WIN32
                 cbValue = (SQLLEN*) &param->callbackLength();
+#else
+                cbValue = &param->callbackLength();
+#endif
                 break;
 
             default:
@@ -1147,13 +1150,16 @@ void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnN
     }
 }
 
+map<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
+
 void* odbc_create_connection(const char* connectionString)
 {
-    auto* connection = new ODBCConnection(connectionString);
-    return connection;
+    auto connection = make_shared<ODBCConnection>(connectionString);
+    ODBCConnection::s_odbcConnections[connection.get()] = connection;
+    return connection.get();
 }
 
 void odbc_destroy_connection(void* connection)
 {
-    delete (ODBCConnection*) connection;
+    ODBCConnection::s_odbcConnections.erase((ODBCConnection*) connection);
 }

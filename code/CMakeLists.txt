@@ -30,7 +30,6 @@ IF (UNIX)
 ENDIF ()
 
 OPTION(USE_EPOLL "Build Asynchronous sockets (epoll) support" ON)
-OPTION(USE_FIREBIRD "Build Firebird support library" ON)
 OPTION(USE_FLTK "Build GUI library" ON)
 OPTION(USE_MYSQL "Build MySQL support library" ON)
 OPTION(USE_ODBC "Build ODBC support library" ON)
@@ -196,20 +195,6 @@ IF (USE_POSTGRESQL)
         MESSAGE("PostgreSQL support: don't compile")
     ENDIF (PostgreSQL_FOUND)
 ENDIF (USE_POSTGRESQL)
-
-
-SET(FIREBIRD_FLAG "0")
-SET(FIREBIRD_DEFINE "// Firebird SQL is not used")
-IF (USE_FIREBIRD)
-    FIND_PACKAGE(Firebird QUIET)
-    IF (Firebird_FOUND)
-        MESSAGE("Firebird support:   compile")
-        SET(FIREBIRD_FLAG "1")
-        SET(FIREBIRD_DEFINE "#define HAVE_FIREBIRD")
-    ELSE (Firebird_FOUND)
-        MESSAGE("Firebird support:   don't compile")
-    ENDIF (Firebird_FOUND)
-ENDIF (USE_FIREBIRD)
 
 
 SET(EPOLL_FLAG "0")

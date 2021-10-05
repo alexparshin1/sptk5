@@ -45,8 +45,8 @@ class PostgreSQLStatement
 {
 public:
     PostgreSQLStatement(PGconn* connect, bool int64timestamps, bool prepared)
-        : m_paramValues(int64timestamps)
-        , m_connect(connect)
+        : m_connect(connect)
+        , m_paramValues(int64timestamps)
     {
         if (prepared)
         {
@@ -56,6 +56,8 @@ public:
             ++index;
         }
     }
+
+    PostgreSQLStatement(const PostgreSQLStatement&) = delete;
 
     ~PostgreSQLStatement()
     {
@@ -67,6 +69,8 @@ public:
             PQclear(res);
         }
     }
+
+    PostgreSQLStatement& operator=(const PostgreSQLStatement&) = delete;
 
     void clear()
     {
@@ -1259,13 +1263,16 @@ void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int1
     notImplemented("queryColAttributes");
 }
 
+map<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
+
 void* postgresql_create_connection(const char* connectionString)
 {
-    auto* connection = new PostgreSQLConnection(connectionString);
-    return connection;
+    auto connection = make_shared<PostgreSQLConnection>(connectionString);
+    PostgreSQLConnection::s_postgresqlConnections[connection.get()] = connection;
+    return connection.get();
 }
 
 void postgresql_destroy_connection(void* connection)
 {
-    delete (PostgreSQLConnection*) connection;
+    PostgreSQLConnection::s_postgresqlConnections.erase((PostgreSQLConnection*) connection);
 }

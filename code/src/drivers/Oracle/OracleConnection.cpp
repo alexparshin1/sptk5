@@ -883,13 +883,16 @@ void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t 
     notImplemented("queryColAttributes");
 }
 
+map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
+
 void* oracle_create_connection(const char* connectionString)
 {
-    auto* connection = new OracleConnection(connectionString);
-    return connection;
+    auto connection = make_shared<OracleConnection>(connectionString);
+    OracleConnection::s_oracleConnections[connection.get()] = connection;
+    return connection.get();
 }
 
 void oracle_destroy_connection(void* connection)
 {
-    delete (OracleConnection*) connection;
+    OracleConnection::s_oracleConnections.erase((OracleConnection*) connection);
 }

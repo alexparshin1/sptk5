@@ -162,9 +162,14 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    static Strings extractStatements(const Strings& sqlBatch);
+    /**
+     * @brief All active connections
+     */
+    static std::map<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
 
 protected:
+    static Strings extractStatements(const Strings& sqlBatch);
+
     /**
      * @brief Begins the transaction
      */

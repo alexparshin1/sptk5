@@ -632,15 +632,18 @@ void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t
     notImplemented("queryColAttributes");
 }
 
+map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
+
 void* sqlite3_create_connection(const char* connectionString)
 {
-    auto* connection = new SQLite3Connection(connectionString);
-    return connection;
+    auto connection = make_shared<SQLite3Connection>(connectionString);
+    SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
+    return connection.get();
 }
 
 void sqlite3_destroy_connection(void* connection)
 {
-    delete (SQLite3Connection*) connection;
+    SQLite3Connection::s_sqlite3Connections.erase((SQLite3Connection*) connection);
 }
 
 #endif

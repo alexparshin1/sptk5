@@ -160,6 +160,11 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+    /**
+     * @brief All active connections
+     */
+    static std::map<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
+
 protected:
     /**
      * @brief Begins the transaction

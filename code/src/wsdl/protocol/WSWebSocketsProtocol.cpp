@@ -184,7 +184,6 @@ bool WSWebSocketsMessage::isFinal() const
 WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers)
     : WSProtocol(socket, headers)
 {
-
 }
 
 RequestInfo WSWebSocketsProtocol::process()

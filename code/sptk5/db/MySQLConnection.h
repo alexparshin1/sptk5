@@ -129,6 +129,11 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+    /**
+     * @brief All active connections
+     */
+    static std::map<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
+
 protected:
     /**
      * @brief Begins the transaction

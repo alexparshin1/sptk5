@@ -93,6 +93,11 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+    /**
+     * @brief All active connections
+     */
+    static std::map<SQLite3Connection*, std::shared_ptr<SQLite3Connection>> s_sqlite3Connections;
+
 protected:
     /**
      * @brief Begins the transaction

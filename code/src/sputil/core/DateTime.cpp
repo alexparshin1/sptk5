@@ -203,6 +203,7 @@ void DateTimeFormat::init() noexcept
     // tell me..
     setlocale(LC_TIME, "");
 #endif
+    ::tzset();
 
     // Build local data and time
     array<char, 32> dateBuffer = {};
@@ -247,7 +248,6 @@ void DateTimeFormat::init() noexcept
         strftime(dateBuffer.data(), 32, "%B", &t);
         DateTime::_monthNames.push_back(dateBuffer.data());
     }
-    ::tzset();
 #if defined(__BORLANDC__) || _MSC_VER > 1800
     const char* ptr = _tzname[0];
 #else
@@ -1140,6 +1140,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     }
     else if (tzOffsetMinutes < 0)
     {
+        tzOffsetMinutes = -tzOffsetMinutes;
         tzOffsetStr << "-" << tzOffsetMinutes / minutesInHour << ":" << setw(2) << tzOffsetMinutes % minutesInHour;
     }
     else

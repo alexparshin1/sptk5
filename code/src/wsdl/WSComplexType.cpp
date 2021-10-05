@@ -146,45 +146,50 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input, nullLargeData](WSType* field) {
-        const auto& inputField = input.findField(field->name());
-
-        if (inputField == nullptr)
-        {
-            return true;
-        }
-
-        if (auto* outputField = dynamic_cast<WSBasicType*>(field);
-            outputField != nullptr)
-        {
-            if (nullLargeData)
-            {
-                outputField->setNull();
-            }
-            else
-            {
-                outputField->load(*inputField);
-            }
-        }
-        else
-        {
-            if (nullLargeData)
-            {
-                field->clear();
-            }
-            else
-            {
-                xdoc::Document document;
-                auto json = inputField->asString();
-                document.load(json);
-                field->load(document.root());
-            }
-        }
-
-        return true;
+    m_fields.forEach([this, &input, nullLargeData](WSType* field) {
+        return loadField(input, nullLargeData, field);
     });
 
     checkRestrictions();
+}
+
+bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType* field) const
+{
+    const auto& inputField = input.findField(field->name());
+
+    if (inputField == nullptr)
+    {
+        return true;
+    }
+
+    if (auto* outputField = dynamic_cast<WSBasicType*>(field);
+        outputField != nullptr)
+    {
+        if (nullLargeData)
+        {
+            outputField->setNull();
+        }
+        else
+        {
+            outputField->load(*inputField);
+        }
+    }
+    else
+    {
+        if (nullLargeData)
+        {
+            field->clear();
+        }
+        else
+        {
+            Document document;
+            auto json = inputField->asString();
+            document.load(json);
+            field->load(document.root());
+        }
+    }
+
+    return true;
 }
 
 bool WSComplexType::isNull() const

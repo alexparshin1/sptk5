@@ -31,9 +31,9 @@ using namespace sptk;
 
 ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
                        LogEngine* logEngine)
-    : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager")),
-      m_threadLimit(threadLimit),
-      m_threadIdleTime(threadIdleSeconds)
+    : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager"))
+    , m_threadLimit(threadLimit)
+    , m_threadIdleTime(threadIdleSeconds)
 {
     if (logEngine != nullptr)
     {
@@ -164,7 +164,7 @@ TEST(SPTK_ThreadPool, run)
     /// Thread manager controls tasks execution.
     constexpr uint32_t maxThreads = 16;
     constexpr std::chrono::milliseconds maxThreadIdleTime(60);
-    auto* threadPool = new ThreadPool(maxThreads, maxThreadIdleTime, "test thread pool", nullptr);
+    auto threadPool = make_shared<ThreadPool>(maxThreads, maxThreadIdleTime, "test thread pool", nullptr);
 
     // Creating several tasks
     constexpr unsigned taskCount = 5;
@@ -173,7 +173,7 @@ TEST(SPTK_ThreadPool, run)
         tasks.push_back(make_shared<MyTask>());
     }
 
-    for (const auto& task : tasks)
+    for (const auto& task: tasks)
     {
         threadPool->execute(task);
     }
@@ -196,7 +196,7 @@ TEST(SPTK_ThreadPool, run)
     threadPool->stop();
     EXPECT_EQ(size_t(0), threadPool->size());
 
-    delete threadPool;
+    threadPool.reset();
 
     for (const auto& task: tasks)
     {

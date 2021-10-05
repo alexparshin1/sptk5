@@ -54,6 +54,14 @@ public:
     explicit Transaction(const DatabaseConnection& db);
 
     /**
+     * Destructor
+     */
+    ~Transaction();
+
+    Transaction(const Transaction&) = delete;
+    Transaction& operator=(const Transaction&) = delete;
+
+    /**
      * Begins the transaction
      */
     void begin();
@@ -73,12 +81,12 @@ public:
      */
     bool active() const
     {
-        return *m_active;
+        return m_active;
     }
 
 private:
-    PoolDatabaseConnection* m_db;   ///< Database to work with
-    std::shared_ptr<bool> m_active; ///< Transaction activity
+    PoolDatabaseConnection* m_db; ///< Database to work with
+    bool m_active {false};        ///< Transaction activity
 };
 /**
  * @}

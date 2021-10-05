@@ -466,13 +466,16 @@ void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t d
     notImplemented("queryColAttributes");
 }
 
+map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
+
 void* mysql_create_connection(const char* connectionString)
 {
-    auto* connection = new MySQLConnection(connectionString);
-    return connection;
+    auto connection = make_shared<MySQLConnection>(connectionString);
+    MySQLConnection::s_mysqlConnections[connection.get()] = connection;
+    return connection.get();
 }
 
 void mysql_destroy_connection(void* connection)
 {
-    delete (MySQLConnection*) connection;
+    MySQLConnection::s_mysqlConnections.erase((MySQLConnection*) connection);
 }

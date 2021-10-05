@@ -107,6 +107,11 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
+    /**
+     * @brief All active connections
+     */
+    static std::map<ODBCConnection*, std::shared_ptr<ODBCConnection>> s_odbcConnections;
+
 protected:
     /**
      * @brief Begins the transaction
@@ -224,7 +229,7 @@ private:
     /**
      * The ODBC connection object
      */
-    std::shared_ptr<ODBCConnectionBase> m_connect;
+    std::shared_ptr<ODBCConnectionBase> m_connect {std::make_shared<ODBCConnectionBase>()};
 
     /**
      * @brief Retrieves an error (if any) after statement was executed
