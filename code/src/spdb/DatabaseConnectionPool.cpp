@@ -267,15 +267,11 @@ static void testInvalidQuery(const String& dbName)
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
 
-    vector<String> invalidQueries {
-        "SELECT * FROM x",
-        "UNSELECT * FROM x"};
+    Query query(db, "SELECT * FROM x");
+    EXPECT_THROW(query.exec(), DatabaseException);
 
-    for (const auto& sql: invalidQueries)
-    {
-        Query query(db, sql);
-        EXPECT_THROW(query.exec(), DatabaseException);
-    }
+    query.sql("UNSELECT * FROM x");
+    EXPECT_THROW(query.exec(), DatabaseException);
 }
 
 static void testInsertQuery(const String& dbName)
