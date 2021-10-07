@@ -28,9 +28,9 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/gui/CScrollBar.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
+#include <sptk5/gui/CScrollBar.h>
 
 namespace sptk {
 
@@ -60,29 +60,29 @@ enum CScrollbarMode
  * at the same time.
  */
 class SP_EXPORT CScroll
-    : public ::Fl_Group, public CLayoutManager
+    : public ::Fl_Group
+    , public CLayoutManager
 {
 
     /**
      * Current x-position of the scrolled area
      */
-    int m_xposition;
+    int m_xposition {0};
 
     /**
      * Current y-position of the scrolled area
      */
-    int m_yposition;
+    int m_yposition {0};
 
     /**
      * Former x-position of the scrolled area
      */
-    int m_oldx;
+    int m_oldx {0};
 
     /**
      * Former y-position of the scrolled area
      */
-    int m_oldy;
-
+    int m_oldy {0};
 
     /**
      * @brief Horizontal scrollbar callback
@@ -115,7 +115,6 @@ class SP_EXPORT CScroll
     void bbox(int& X, int& Y, int& W, int& H);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -133,7 +132,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CScroll(int x,int y,int w,int h,const char *label=0L);
+    CScroll(int x, int y, int w, int h, const char* label = 0L);
 #endif
 
     /**
@@ -217,4 +216,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

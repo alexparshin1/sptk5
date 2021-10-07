@@ -587,7 +587,7 @@ void OracleConnection::queryFetch(Query* query)
 
 void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    auto& buffer = field->getInternalBuffer();
+    auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
     // Attention: clob stored as widechar
@@ -602,7 +602,7 @@ void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsi
 
 void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    auto& buffer = field->getInternalBuffer();
+    auto& buffer = field->get<Buffer>();
     Blob blob = resultSet->getBlob(columnIndex);
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();

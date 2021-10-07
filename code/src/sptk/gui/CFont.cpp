@@ -38,7 +38,7 @@ string CFont::id() const
 
 void CFontsMap::clear()
 {
-    for (auto itor: *this)
+    for (const auto& itor: *this)
     {
         delete itor.second;
     }

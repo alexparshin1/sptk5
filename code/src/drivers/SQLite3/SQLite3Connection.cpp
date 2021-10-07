@@ -270,19 +270,19 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
             switch (ptype)
             {
                 case VariantDataType::VAR_BOOL:
-                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->getBool());
+                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->get<bool>());
                     break;
 
                 case VariantDataType::VAR_INT:
-                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->getInteger());
+                    rc = sqlite3_bind_int(stmt, paramBindNumber, param->get<int>());
                     break;
 
                 case VariantDataType::VAR_INT64:
-                    rc = sqlite3_bind_int64(stmt, paramBindNumber, param->getInt64());
+                    rc = sqlite3_bind_int64(stmt, paramBindNumber, param->get<int64_t>());
                     break;
 
                 case VariantDataType::VAR_FLOAT:
-                    rc = sqlite3_bind_double(stmt, paramBindNumber, param->getFloat());
+                    rc = sqlite3_bind_double(stmt, paramBindNumber, param->get<double>());
                     break;
 
                 case VariantDataType::VAR_STRING:
@@ -495,7 +495,7 @@ void SQLite3Connection::queryFetch(Query* query)
                     case SQLITE_TEXT:
                         field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
                                          VariantDataType::VAR_STRING);
-                        dataLength = trimField((char*) field->getInternalBuffer().data(), dataLength);
+                        dataLength = trimField((char*) field->get<Buffer>().data(), dataLength);
                         break;
 
                     case SQLITE_BLOB:

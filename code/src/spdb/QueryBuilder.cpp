@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sstream>
 #include <sptk5/RegularExpression.h>
+#include <sstream>
 
 #include "sptk5/db/QueryBuilder.h"
 
@@ -33,16 +33,18 @@ using namespace std;
 using namespace sptk;
 
 QueryBuilder::Join::Join(const String& tableAlias, const Strings& columns, const String& join)
-    : tableAlias(tableAlias), columns(columns), joinDefinition(join)
+    : tableAlias(tableAlias)
+    , columns(columns)
+    , joinDefinition(join)
 {
 }
 
 QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns,
                            const vector<Join>& joins)
-    : m_tableName(tableName),
-      m_pkColumn(pkColumn),
-      m_columns(columns),
-      m_joins(joins)
+    : m_tableName(tableName)
+    , m_pkColumn(pkColumn)
+    , m_columns(columns)
+    , m_joins(joins)
 {
     m_columns.remove(m_pkColumn);
     for (const auto& join: m_joins)
@@ -55,7 +57,7 @@ QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, cons
 void QueryBuilder::removeUnNeededColumns(const Join& join, const String& tableAlias)
 {
     static const RegularExpression matchExpressionAndAlias(R"(^.*\s(\S+))");
-    for (auto& column: join.columns)
+    for (const auto& column: join.columns)
     {
         auto matches = matchExpressionAndAlias.m(column);
         if (matches)
@@ -88,7 +90,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
 
     query << "  FROM " << m_tableName << " t" << endl;
 
-    for (auto& join: m_joins)
+    for (const auto& join: m_joins)
     {
         query << join.joinDefinition << endl;
     }
@@ -96,7 +98,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     if (!filter.empty())
     {
         bool first = true;
-        for (auto& condition: filter)
+        for (const auto& condition: filter)
         {
             if (condition.trim().empty())
             {
@@ -134,7 +136,7 @@ Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
     }
 
     outputColumns.push_back("t." + m_pkColumn);
-    for (auto& column: m_columns)
+    for (const auto& column: m_columns)
     {
         if (column.find(' ') == string::npos)
         {
@@ -145,9 +147,9 @@ Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
             outputColumns.push_back(column);
         }
     }
-    for (auto& join: m_joins)
+    for (const auto& join: m_joins)
     {
-        for (auto& column: join.columns)
+        for (const auto& column: join.columns)
         {
             if (matchExpression.matches(column))
             {
@@ -175,7 +177,7 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
     }
 
     Strings filteredColumns;
-    for (auto& columnName: *insertColumns)
+    for (const auto& columnName: *insertColumns)
     {
         if (columnName.find(' ') != string::npos)
         {
@@ -185,7 +187,8 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
     }
 
     query << "INSERT INTO " << m_tableName << "(" << filteredColumns.join(", ") << ")" << endl
-          << "VALUES (" << ":" << filteredColumns.join(", :") << ")";
+          << "VALUES ("
+          << ":" << filteredColumns.join(", :") << ")";
 
     String queryStr = query.str();
     if (!pretty)
@@ -210,7 +213,7 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
     }
 
     bool first {true};
-    for (auto& columnName: *updateColumns)
+    for (const auto& columnName: *updateColumns)
     {
         if (columnName.find(' ') != string::npos)
         {

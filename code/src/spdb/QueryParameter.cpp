@@ -174,10 +174,10 @@ TEST(SPTK_QueryParameter, assign)
     EXPECT_STREQ(param1.getString(), "String 1, String 2");
 
     param1 = 123;
-    EXPECT_EQ(param1.getInteger(), 123);
+    EXPECT_EQ(param1.get<int>(), 123);
 
     param1 = 123.0;
-    EXPECT_FLOAT_EQ(param1.getFloat(), 123.0);
+    EXPECT_FLOAT_EQ(param1.get<double>(), 123.0);
 
     param1.setString(nullptr);
     EXPECT_TRUE(param1.isNull());

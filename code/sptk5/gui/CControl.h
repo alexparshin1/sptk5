@@ -46,8 +46,7 @@ namespace sptk {
 /**
  * @brief Control kind is the constant to report the internal SPTK RTTI.
  */
-enum class CControlKind
-    : uint32_t
+enum class CControlKind : uint32_t
 {
     /**
      * Control kind is unknown
@@ -159,8 +158,7 @@ enum class CControlKind
 /**
  * @brief Special control flags (used as bit combination)
  */
-enum class InputEntryFlags
-    : uint32_t
+enum class InputEntryFlags : uint32_t
 {
     /**
      * No flags
@@ -219,7 +217,8 @@ SP_EXPORT bool checkFieldName(const String& fldName);
  * Every CControl has a field name, and it can be a layout client.
  */
 class SP_EXPORT CControl
-    : public ::Fl_Group, public CLayoutClient
+    : public ::Fl_Group
+    , public CLayoutClient
 {
     friend class CInternalComboBoxPanel;
 
@@ -239,16 +238,15 @@ class SP_EXPORT CControl
     void ctor_init(const char*);
 
 protected:
-
     /**
      * Control has the defined min and max values
      */
-    bool m_limited;
+    bool m_limited {false};
 
     /**
      * Control label width (on the left)
      */
-    uint32_t m_labelWidth;
+    uint32_t m_labelWidth {0};
 
     /**
      * Control label color
@@ -268,7 +266,7 @@ protected:
     /**
      * Control text font size
      */
-    uchar m_textSize;
+    uchar m_textSize {0};
 
     /**
      * Field name for the universal data connection
@@ -283,22 +281,22 @@ protected:
     /**
      * The main widget inside the control.
      */
-    Fl_Widget* m_control;
+    Fl_Widget* m_control {nullptr};
 
     /**
      * Control's special data tag
      */
-    int m_tag;
+    int m_tag {0};
 
     /**
      * @brief Control's special flags (a bit combination of InputEntryFlags).
      * @see InputEntryFlags for details.
      */
-    uint32_t m_controlFlags;
+    uint32_t m_controlFlags {0};
     /**
      * Control's menu button - to show right-mouse click menu
      */
-    Fl_Menu_Button* m_menuButton;
+    Fl_Menu_Button* m_menuButton {nullptr};
 
     /**
      * The last SPTK event inside this control.
@@ -308,7 +306,7 @@ protected:
     /**
      * Does the control have focus?
      */
-    bool m_hasFocus;
+    bool m_hasFocus {false};
 
     /**
      * @brief Does the control contain focus?
@@ -346,7 +344,6 @@ protected:
     static void internalCallback(Fl_Widget* internalWidget, void* data);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -364,7 +361,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CControl(int,int,int,int,const char * = 0);
+    CControl(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -416,7 +413,7 @@ public:
     /**
      * @brief Sets the control's text font
      */
-    virtual void textFont(Font *);
+    virtual void textFont(Font*);
 #endif
 
     /**
@@ -943,4 +940,4 @@ void createControls(const xdoc::SNode& xmlControls);
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -29,9 +29,9 @@
 #include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 
-#include <sptk5/gui/CRadioButtons.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CComboBox.h>
+#include <sptk5/gui/CRadioButtons.h>
 
 using namespace sptk;
 
@@ -86,8 +86,6 @@ CControl* sptk::createControl(CControlKind controlKind, const String& label, con
             control = new CCheckButtons(lbl);
             break;
         case CControlKind::COMBO:
-            control = new CComboBox(lbl, size);
-            break;
         case CControlKind::INTVALUECOMBO:
             control = new CComboBox(lbl, size);
             break;

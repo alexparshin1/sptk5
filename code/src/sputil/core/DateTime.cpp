@@ -1149,7 +1149,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     }
     String tzOffset(tzOffsetStr.str());
 
-    DateTime dateTime(("2020-10-02 00:00:00" + tzOffset).c_str());
+    DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
 
     auto t = (time_t) dateTime;
     tm tt {};
@@ -1159,7 +1159,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
 
     EXPECT_STREQ(buffer.data(), dateTime.dateString().c_str());
-    EXPECT_STREQ(("2020-10-02 00:00:00" + tzOffset).c_str(), dateTime.isoDateTimeString().replace("T", " ").c_str());
+    EXPECT_STREQ(("2020-10-10 00:00:00" + tzOffset).c_str(), dateTime.isoDateTimeString().replace("T", " ").c_str());
 }
 
 TEST(SPTK_DateTime, parsePerformance)

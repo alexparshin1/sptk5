@@ -461,30 +461,6 @@ Variant& Variant::operator=(const Buffer& value)
 }
 
 //---------------------------------------------------------------------------
-const bool& BaseVariant::getBool() const
-{
-    return m_data.get<bool>();
-}
-
-//---------------------------------------------------------------------------
-const int32_t& BaseVariant::getInteger() const
-{
-    return m_data.get<int32_t>();
-}
-
-//---------------------------------------------------------------------------
-const int64_t& BaseVariant::getInt64() const
-{
-    return m_data.get<int64_t>();
-}
-
-//---------------------------------------------------------------------------
-const double& BaseVariant::getFloat() const
-{
-    return m_data.get<double>();
-}
-
-//---------------------------------------------------------------------------
 const MoneyData& BaseVariant::getMoney() const
 {
     return m_data.get<MoneyData>();
@@ -494,12 +470,6 @@ const MoneyData& BaseVariant::getMoney() const
 const char* BaseVariant::getString() const
 {
     return m_data.get<Buffer>().c_str();
-}
-
-//---------------------------------------------------------------------------
-Buffer& BaseVariant::getInternalBuffer()
-{
-    return m_data.get<Buffer>();
 }
 
 //---------------------------------------------------------------------------
@@ -1241,18 +1211,18 @@ TEST(SPTK_Variant, assigns)
     EXPECT_EQ(1, (int) v);
     EXPECT_EQ(1, v.asInteger());
     EXPECT_EQ(1, v.asInt64());
-    EXPECT_EQ(1, v.getInteger());
+    EXPECT_EQ(1, v.get<int>());
 
     v = int64_t(1);
     EXPECT_EQ(1, (int64_t) v);
     EXPECT_EQ(1, v.asInt64());
     EXPECT_EQ(1, v.asInteger());
-    EXPECT_EQ(1, v.getInt64());
+    EXPECT_EQ(1, v.get<int64_t>());
 
     v = 2.22;
     EXPECT_DOUBLE_EQ(2.22, (double) v);
     EXPECT_DOUBLE_EQ(2.22, v.asFloat());
-    EXPECT_DOUBLE_EQ(2.22, v.getFloat());
+    EXPECT_DOUBLE_EQ(2.22, v.get<double>());
     EXPECT_EQ(2, v.asInteger());
     EXPECT_EQ(2, v.asInt64());
 
@@ -1278,14 +1248,14 @@ TEST(SPTK_Variant, assigns)
     v = true;
     EXPECT_TRUE(v);
     EXPECT_TRUE((bool) v);
-    EXPECT_TRUE(v.getBool());
+    EXPECT_TRUE(v.get<bool>());
     EXPECT_DOUBLE_EQ(v.asInteger(), 1);
     EXPECT_EQ(v.asInt64(), 1L);
 
     v = false;
     EXPECT_FALSE(v);
     EXPECT_FALSE((bool) v);
-    EXPECT_FALSE(v.getBool());
+    EXPECT_FALSE(v.get<bool>());
     EXPECT_DOUBLE_EQ(v.asInteger(), 0);
     EXPECT_EQ(v.asInt64(), 0L);
 

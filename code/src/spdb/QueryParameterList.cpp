@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/cutils>
 #include <sptk5/db/QueryParameter.h>
+#include <sptk5/db/QueryParameterList.h>
 
 using namespace std;
 using namespace sptk;
@@ -61,9 +61,9 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-    throwException("Invalid parameter name: " << paramName)
+        throwException("Invalid parameter name: " << paramName)
 
-    return *itor->second;
+            return *itor->second;
 }
 
 QueryParameter& QueryParameterList::operator[](size_t index) const
@@ -95,7 +95,7 @@ void QueryParameterList::enumerate(CParamVector& params) const
 
     size_t maxIndex = 0;
 
-    for (auto& param: m_items)
+    for (const auto& param: m_items)
     {
         const auto& bindIndex = param->m_bindParamIndexes;
 

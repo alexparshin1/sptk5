@@ -29,8 +29,8 @@
 #include <sptk5/sptk.h>
 
 #include <FL/Fl_Box.H>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -52,17 +52,17 @@ class SP_EXPORT CBox
     /**
      * X-coordinate when mouse was pushed down
      */
-    int m_xPushed;
+    int m_xPushed {0};
 
     /**
      * Y-coordinate when mouse was pushed down
      */
-    int m_yPushed;
+    int m_yPushed {0};
 
     /**
      * Flag that allows to drag a window, if true
      */
-    bool m_dragable;
+    bool m_dragable {false};
 
 
     /**
@@ -71,7 +71,6 @@ class SP_EXPORT CBox
     void ctor_init(const char* label);
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -89,7 +88,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CBox(int x,int y,int w,int h,const char *label = 0);
+    CBox(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -205,4 +204,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -265,7 +265,7 @@ bool CDialog::buildQueries()
     }
 
     bool first = true;
-    for (auto itor: m_defaultFields)
+    for (const auto& itor: m_defaultFields)
     {
         const CControl* control = itor.second;
         const string& fieldName = control->fieldName();

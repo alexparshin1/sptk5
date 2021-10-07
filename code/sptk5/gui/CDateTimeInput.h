@@ -29,8 +29,8 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/DateTime.h>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -69,21 +69,20 @@ class SP_EXPORT CDateTimeBaseInput
     void ctor_init();
 
 protected:
-
     /**
      * @brief Popup calendar window
      */
-    CPopupCalendar* m_calendarWindow;
+    CPopupCalendar* m_calendarWindow {nullptr};
 
     /**
      * @brief Date input control
      */
-    CDateControl* m_dateInput;
+    CDateControl* m_dateInput {nullptr};
 
     /**
      * @brief Time input control
      */
-    CInput_* m_timeInput;
+    CInput_* m_timeInput {nullptr};
 
     /**
      * @brief Loads data from query
@@ -143,7 +142,7 @@ protected:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateTimeBaseInput(int x,int y,int w,int h,const char * label,bool autoCreate);
+    CDateTimeBaseInput(int x, int y, int w, int h, const char* label, bool autoCreate);
 #endif
 
     /**
@@ -152,7 +151,6 @@ protected:
     bool showCalendar(Fl_Widget* btn);
 
 public:
-
     /**
      * @brief Sets limits for the value inside
      * @param limited bool, true if use the limits
@@ -188,7 +186,6 @@ class SP_EXPORT CDateInput
     void ctor_init();
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -207,7 +204,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateInput(int x,int y,int w,int h,const char * label=0);
+    CDateInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     ~CDateInput() override;
@@ -270,7 +267,6 @@ class SP_EXPORT CTimeInput
     : public CDateTimeBaseInput
 {
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -289,7 +285,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CTimeInput(int x,int y,int w,int h,const char * label=0);
+    CTimeInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -337,7 +333,6 @@ class SP_EXPORT CDateTimeInput
     void ctor_init();
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -356,7 +351,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateTimeInput(int x,int y,int w,int h,const char * label=0);
+    CDateTimeInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -413,4 +408,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

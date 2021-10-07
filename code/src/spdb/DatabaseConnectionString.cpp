@@ -105,7 +105,7 @@ String DatabaseConnectionString::toString() const
     {
         result << "?";
         bool first = true;
-        for (auto& [name, value]: m_parameters)
+        for (const auto& [name, value]: m_parameters)
         {
             if (first)
             {

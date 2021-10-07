@@ -24,15 +24,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <sptk5/Printer.h>
 #include <sptk5/gui/CColumn.h>
+#include <sptk5/sptk.h>
 
 using namespace std;
 using namespace sptk;
 
 CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool cvisible)
-    : m_name(cname), m_type(type), m_visible(cvisible)
+    : m_name(cname)
+    , m_type(type)
+    , m_visible(cvisible)
 {
     if (cwidth < 0)
     {
@@ -83,7 +85,7 @@ int CColumnList::indexOf(const char* colname) const
 void CColumnList::load(const xdoc::SNode& node)
 {
     resize(node->nodes().size());
-    for (auto& columnNode: node->nodes())
+    for (const auto& columnNode: node->nodes())
     {
         try
         {

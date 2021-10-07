@@ -113,24 +113,26 @@ public:
     static VariantDataType nameType(const char* name);
 
     /**
-     * Directly reads the internal data
+     * @brief Direct and fast const access to variant data
+     * @tparam T variant data type
+     * @return const refernce to variant data
      */
-    virtual const bool& getBool() const;
+    template<typename T>
+    const T& get() const
+    {
+        return m_data.get<T>();
+    }
 
     /**
-     * Directly reads the internal data
+     * @brief Direct and fast access to variant data
+     * @tparam T variant data type
+     * @return refernce to variant data
      */
-    virtual const int32_t& getInteger() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const int64_t& getInt64() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const double& getFloat() const;
+    template<typename T>
+    T& get()
+    {
+        return m_data.get<T>();
+    }
 
     /**
      * Directly reads the internal data
@@ -141,11 +143,6 @@ public:
      * Directly reads the internal data
      */
     virtual const char* getString() const;
-
-    /**
-     * Direct access to the internal data
-     */
-    virtual Buffer& getInternalBuffer();
 
     /**
      * Directly reads the internal data

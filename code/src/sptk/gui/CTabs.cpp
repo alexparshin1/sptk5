@@ -27,8 +27,8 @@
 #include <sptk5/sptk.h>
 
 #include <FL/Fl.H>
-#include <FL/fl_draw.H>
 #include <FL/Fl_Button.H>
+#include <FL/fl_draw.H>
 
 #include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CTabs.h>
@@ -45,10 +45,11 @@ class SP_EXPORT CTabButton
 {
     Fl_Group* m_page;
     CTabButtons* m_ownerRow {nullptr};
+
 public:
     explicit CTabButton(Fl_Group* page)
-        : Fl_Button(0, 0, 10, 10, ""),
-          m_page(page)
+        : Fl_Button(0, 0, 10, 10, "")
+        , m_page(page)
     {
     }
 
@@ -66,7 +67,7 @@ public:
         return m_ownerRow;
     }
 
-    bool selected() const;
+    [[nodiscard]] bool selected() const;
 
     Fl_Group* page()
     {
@@ -82,6 +83,7 @@ class CTabButtons
     : public vector<CTabButton*>
 {
     int m_maxHeight;
+
 public:
     CTabButtons()
     {
@@ -90,7 +92,7 @@ public:
 
     virtual ~CTabButtons() = default;
 
-    int height() const
+    [[nodiscard]] int height() const
     {
         return m_maxHeight;
     }
@@ -141,8 +143,8 @@ class CTabGroup
     CTabButtons m_buttons;
     CTabButton* m_activeTabButton;
     CTabRows m_rows;
-protected:
 
+protected:
     static void cb_tabButton(Fl_Widget* btn, void* data);
 
     void activate(CTabButton* button);
@@ -202,7 +204,7 @@ public:
     }
 };
 
-}
+} // namespace sptk
 
 using namespace sptk;
 
@@ -330,8 +332,7 @@ void CTabGroup::remove(Fl_Group* group)
                 m_activeTabButton = nullptr;
             }
             m_buttons.erase(itor);
-            Fl_Group::remove
-                (button);
+            Fl_Group::remove(button);
             delete button;
             break;
         }
@@ -492,11 +493,11 @@ const Fl_Color CTabs::AutoColorTable[16] = {
     fl_rgb_color(0xC0, 0xE0, 0xE0),
     fl_rgb_color(0xE0, 0xC0, 0xE0),
     fl_rgb_color(0xA0, 0xB8, 0xA0),
-    fl_rgb_color(0xB8, 0xC0, 0xE8)
-};
+    fl_rgb_color(0xB8, 0xC0, 0xE8)};
 
 CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
-    : CGroup(label, layoutSize, layoutAlign), m_autoColorIndex(0)
+    : CGroup(label, layoutSize, layoutAlign)
+    , m_autoColorIndex(0)
 {
     box(FL_THIN_UP_BOX);
     layoutSpacing(0);
@@ -504,8 +505,9 @@ CTabs::CTabs(const char* label, int layoutSize, CLayoutAlign layoutAlign)
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CTabs::CTabs(int x, int y, int w, int h, const char *label)
-: CGroup(x, y, w, h, label), m_autoColorIndex(0)
+CTabs::CTabs(int x, int y, int w, int h, const char* label)
+    : CGroup(x, y, w, h, label)
+    , m_autoColorIndex(0)
 {
     box(FL_UP_BOX);
     layoutSpacing(0);
@@ -638,12 +640,9 @@ void CTabs::pageNumber(uint32_t pgNumber)
     m_tabs->pageNumber(pgNumber);
 }
 
-void CTabs::remove
-    (Fl_Group* page)
+void CTabs::remove(Fl_Group* page)
 {
-    m_tabs->remove
-              (page);
-    Fl_Group::remove
-        (page);
+    m_tabs->remove(page);
+    Fl_Group::remove(page);
     delete page;
 }

@@ -126,7 +126,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT:
                 uptrBuffer = (uint32_t*) param->conversionBuffer();
-                *uptrBuffer = htonl((uint32_t) param->getInteger());
+                *uptrBuffer = htonl((uint32_t) param->get<int>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1,
                                   PostgreSQLDataType::INT4);
                 break;
@@ -164,7 +164,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT64:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq((uint64_t) param->getInt64());
+                *uptrBuffer64 = htonq((uint64_t) param->get<int64_t>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::INT8);
                 break;
@@ -175,7 +175,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_FLOAT:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(const uint64_t*) &param->getFloat());
+                *uptrBuffer64 = htonq(*(const uint64_t*) &param->get<double>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::FLOAT8);
                 break;

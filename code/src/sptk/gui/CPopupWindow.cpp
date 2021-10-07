@@ -64,7 +64,7 @@ int CPopupWindow::handle(int event)
 {
     int ex = Fl::event_x();
     int ey = Fl::event_y();
-    int key;
+    int key = 0;
 
     switch (event)
     {

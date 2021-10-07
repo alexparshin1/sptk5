@@ -42,7 +42,7 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (auto& [name, value]: m_connectionStrings)
+    for (const auto& [name, value]: m_connectionStrings)
     {
         connectionStrings.push_back(value);
     }
@@ -166,7 +166,7 @@ static const map<String, String> blobFieldTypes = {
 
 static String fieldType(const String& fieldType, const String& driverName)
 {
-    const map<String, String>* fieldTypes;
+    const map<String, String>* fieldTypes = &textFieldTypes;
     if (fieldType == "DATETIME")
     {
         fieldTypes = &dateTimeFieldTypes;
@@ -178,10 +178,6 @@ static String fieldType(const String& fieldType, const String& driverName)
     else if (fieldType == "BOOL")
     {
         fieldTypes = &boolFieldTypes;
-    }
-    else
-    {
-        fieldTypes = &textFieldTypes;
     }
 
     auto itor = fieldTypes->find(driverName);
@@ -331,7 +327,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     }
 
     Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :ssid, :name, :price, :ts, :enabled, :txt)");
-    for (auto& row: rows)
+    for (const auto& row: rows)
     {
         insert.param("id") = row.id;
         insert.param("ssid") = row.ssid;

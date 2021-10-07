@@ -54,7 +54,7 @@ public:
      * @param sql              SQL query, optional
      * @param idFieldName      Name of auto-incremental field
      */
-    explicit InsertQuery(DatabaseConnection db, const String& sql = "", const String& idFieldName = "id");
+    explicit InsertQuery(const DatabaseConnection& db, const String& sql = "", const String& idFieldName = "id");
 
     /**
      * Return query' SQL

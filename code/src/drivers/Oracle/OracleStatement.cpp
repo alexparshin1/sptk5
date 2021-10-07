@@ -290,7 +290,7 @@ void OracleStatement::setBLOBParameterValue(unsigned int parameterIndex, QueryPa
     }
     else
     {
-        setBlobParameter(parameterIndex, parameter.getInternalBuffer().data(), (unsigned) parameter.dataSize());
+        setBlobParameter(parameterIndex, parameter.get<Buffer>().data(), (unsigned) parameter.dataSize());
     }
 }
 
@@ -303,7 +303,7 @@ void OracleStatement::setCLOBParameterValue(unsigned int parameterIndex, QueryPa
     }
     else
     {
-        setClobParameter(parameterIndex, parameter.getInternalBuffer().data(), (unsigned) parameter.dataSize());
+        setClobParameter(parameterIndex, parameter.get<Buffer>().data(), (unsigned) parameter.dataSize());
     }
 }
 
@@ -388,7 +388,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, const SDatabase
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, field->getInternalBuffer().data(), bytes, 1);
+    blob.read(bytes, field->get<Buffer>().data(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -401,7 +401,7 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabase
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, field->getInternalBuffer().data(), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, field->get<Buffer>().data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
 }

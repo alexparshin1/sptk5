@@ -44,16 +44,17 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
     return sql;
 }
 
-InsertQuery::InsertQuery(DatabaseConnection db, const String& sql, const String& idFieldName)
-    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true), m_idFieldName(idFieldName)
+InsertQuery::InsertQuery(const DatabaseConnection& db, const String& sql, const String& idFieldName)
+    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true)
+    , m_idFieldName(idFieldName)
 {
 }
 
 void InsertQuery::sql(const String& _sql)
 {
     if (!database())
-    throwException("Database connection is not defined yet")
-    Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
+        throwException("Database connection is not defined yet")
+            Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
 }
 
 void InsertQuery::exec()
@@ -97,7 +98,7 @@ void InsertQuery::exec()
             m_lastInsertedId->close();
             break;
         default:
-        throwException ("Unsupported database connection type")
+            throwException("Unsupported database connection type")
     }
 }
 

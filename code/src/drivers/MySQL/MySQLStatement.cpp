@@ -247,22 +247,22 @@ void MySQLStatement::setParameterValues()
         {
             case VariantDataType::VAR_BOOL:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->getBool();
+                bind.buffer = (void*) &param->get<bool>();
                 break;
 
             case VariantDataType::VAR_INT:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->getInteger();
+                bind.buffer = (void*) &param->get<int>();
                 break;
 
             case VariantDataType::VAR_FLOAT:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->getFloat();
+                bind.buffer = (void*) &param->get<double>();
                 break;
 
             case VariantDataType::VAR_INT64:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->getInt64();
+                bind.buffer = (void*) &param->get<int64_t>();
                 break;
 
             case VariantDataType::VAR_STRING:
@@ -404,20 +404,20 @@ void MySQLStatement::bindResult(FieldList& fields)
                 // Fixed length buffer - integers
                 case MYSQL_TYPE_BIT:
                 case MYSQL_TYPE_TINY:
-                    bind.buffer = (void*) &field->getBool();
+                    bind.buffer = (void*) &field->get<bool>();
                     bind.buffer_length = sizeof(bool);
                     break;
 
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_YEAR:
-                    bind.buffer = (void*) &field->getInteger();
+                    bind.buffer = (void*) &field->get<int>();
                     bind.buffer_length = sizeof(int32_t);
                     break;
 
                     // Fixed length buffer - floats
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
-                    bind.buffer = (void*) &field->getFloat();
+                    bind.buffer = (void*) &field->get<double>();
                     bind.buffer_length = sizeof(double);
                     break;
 
@@ -433,7 +433,7 @@ void MySQLStatement::bindResult(FieldList& fields)
                     // Fixed length buffer - long integers
                 case MYSQL_TYPE_LONG:
                 case MYSQL_TYPE_LONGLONG:
-                    bind.buffer = (void*) &field->getInt64();
+                    bind.buffer = (void*) &field->get<int64_t>();
                     bind.buffer_length = sizeof(uint64_t);
                     break;
 
@@ -642,7 +642,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
     {
         /// Fetch truncated, enlarge buffer and fetch again
         field->checkSize(dataLength);
-        bind.buffer = field->getInternalBuffer().data();
+        bind.buffer = field->get<Buffer>().data();
         bind.buffer_length = ULONG_CAST(field->bufferSize());
         if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
         {

@@ -51,17 +51,6 @@ public:
         : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
-
-protected:
-    Buffer& getInternalBuffer() override
-    {
-        return BaseVariant::getInternalBuffer();
-    }
-
-    auto& getData()
-    {
-        return m_data;
-    }
 };
 } // namespace sptk
 
@@ -411,25 +400,25 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
             case VariantDataType::VAR_BOOL:
                 paramType = SQL_C_BIT;
                 sqlType = SQL_BIT;
-                buff = (void*) &param->getBool();
+                buff = (void*) &param->get<bool>();
                 break;
 
             case VariantDataType::VAR_INT:
                 paramType = SQL_C_SLONG;
                 sqlType = SQL_INTEGER;
-                buff = (void*) &param->getInteger();
+                buff = (void*) &param->get<int>();
                 break;
 
             case VariantDataType::VAR_INT64:
                 paramType = SQL_C_SBIGINT;
                 sqlType = SQL_BIGINT;
-                buff = (void*) &param->getInt64();
+                buff = (void*) &param->get<int64_t>();
                 break;
 
             case VariantDataType::VAR_FLOAT:
                 paramType = SQL_C_DOUBLE;
                 sqlType = SQL_DOUBLE;
-                buff = (void*) &param->getFloat();
+                buff = (void*) &param->get<double>();
                 break;
 
             case VariantDataType::VAR_STRING:
@@ -711,7 +700,7 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     constexpr size_t initialBlobBufferSize = 128;
     field->checkSize(initialBlobBufferSize);
     auto readSize = (SQLLEN) field->bufferSize();
-    auto& buffer = field->getInternalBuffer();
+    auto& buffer = field->get<Buffer>();
     auto rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(readSize), &dataLength);
 
     SQLLEN offset = readSize;
@@ -801,7 +790,6 @@ void ODBCConnection::queryFetch(Query* query)
         {
             field = (ODBCField*) &(*query)[column];
             auto fieldType = (int16_t) field->fieldType();
-            auto& data = field->getData();
 
             ++column;
 
@@ -809,11 +797,11 @@ void ODBCConnection::queryFetch(Query* query)
             switch (fieldType)
             {
                 case SQL_C_SLONG:
-                    rc = SQLGetData(statement, column, fieldType, &data.get<int64_t>(), 0, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, &field->get<int64_t>(), 0, &dataLength);
                     break;
 
                 case SQL_C_DOUBLE:
-                    rc = SQLGetData(statement, column, fieldType, &data.get<double>(), 0, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, &field->get<double>(), 0, &dataLength);
                     break;
 
                 case SQL_C_TIMESTAMP:
@@ -826,7 +814,7 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_BIT:
-                    rc = SQLGetData(statement, column, fieldType, &data.get<bool>(), 1, &dataLength);
+                    rc = SQLGetData(statement, column, fieldType, &field->get<bool>(), 1, &dataLength);
                     break;
 
                 default:
@@ -841,7 +829,7 @@ void ODBCConnection::queryFetch(Query* query)
 
             if (fieldType == SQL_C_CHAR && dataLength > 0)
             {
-                dataLength = (SQLINTEGER) trimField((char*) data.get<Buffer>().data(), (uint32_t) dataLength);
+                dataLength = (SQLINTEGER) trimField((char*) field->get<Buffer>().data(), (uint32_t) dataLength);
             }
 
             if (dataLength <= 0)
