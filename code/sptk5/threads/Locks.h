@@ -29,6 +29,7 @@
 #include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
 
+#include <mutex>
 #include <shared_mutex>
 
 namespace sptk {

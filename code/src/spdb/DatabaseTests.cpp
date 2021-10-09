@@ -667,8 +667,8 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
 
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
     select.open();
-    size_t recordCount = 0;
 #ifdef USE_GTEST
+    size_t recordCount = 0;
     while (!select.eof())
     {
         ++recordCount;
@@ -906,7 +906,6 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     createTestTable(db, true, true);
 
     constexpr size_t blobSize1 = 64 * 1024;
-    constexpr size_t blobSize2 = blobSize1 * 2;
 
     Buffer testData1(blobSize1);
     Buffer testDataInv(blobSize1);
@@ -931,6 +930,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     selectQuery.open();
 
 #ifdef USE_GTEST
+    constexpr size_t blobSize2 = blobSize1 * 2;
     auto dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
 
