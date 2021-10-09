@@ -745,7 +745,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     SQLRETURN rc = SQLGetData(statement, column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0)
     {
-        DateTime dt(t.year, t.month, t.day, t.hour, t.minute, t.second);
+        DateTime dt((short) t.year, (short) t.month, (short) t.day, (short) t.hour, (short) t.minute, (short) t.second);
         field->setDateTime(dt, field->dataType() == VariantDataType::VAR_DATE);
     }
     return rc;
@@ -915,10 +915,10 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try
     {
-        SQLRETURN rc;
-        array<SQLCHAR, MAX_NAME_LEN> objectSchema;
-        array<SQLCHAR, MAX_NAME_LEN> objectName;
-        short procedureType;
+        SQLRETURN rc = 0;
+        array<SQLCHAR, MAX_NAME_LEN> objectSchema {};
+        array<SQLCHAR, MAX_NAME_LEN> objectName {};
+        short procedureType = 0;
 
         stmt = makeObjectListStatement(objectType, objectSchema, objectName, procedureType);
 

@@ -262,8 +262,8 @@ private:
 
     static void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet);
 
-    void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                             sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row) const;
+    static void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                                    sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row);
 };
 
 /**

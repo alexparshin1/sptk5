@@ -258,7 +258,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
     for (unsigned j = 0; j < param->bindCount(); ++j)
     {
 
-        int rc;
+        int rc {0};
         auto paramBindNumber = short(param->bindIndex(j) + 1);
 
         if (param->isNull())

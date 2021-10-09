@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <array>
 #include <cstring>
 
 #include <sptk5/db/ODBCEnvironment.h>
@@ -147,7 +148,8 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 
     m_connectString = ConnectionString;
 
-    Buffer buff(2048);
+    constexpr short bufferLength = 2048;
+    array<uint8_t, bufferLength> buff;
     SWORD bufflen = 0;
 
 #ifdef WIN32
@@ -157,7 +159,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 #endif
     char* pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
     SQLRETURN rc = ::SQLDriverConnect(m_hConnection.get(), ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
-                                      buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+                                      buff.data(), bufferLength, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
     if (!Successful(rc))
@@ -166,23 +168,23 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         exception(errorInfo, __LINE__);
     }
 
-    pFinalString = buff.c_str();
+    pFinalString = (const char*) buff.data();
     m_connected = true;
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    Buffer driverDescription(2048);
+    array<uint8_t*, bufferLength> driverDescription;
     SQLSMALLINT descriptionLength = 0;
-    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription = driverDescription.c_str();
+        m_driverDescription = String((const char*) driverDescription.data());
     }
 
-    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription += " " + String(driverDescription.c_str());
+        m_driverDescription += " " + String((const char*) driverDescription.data());
     }
 }
 
@@ -296,7 +298,7 @@ String sptk::removeDriverIdentification(const char* error)
         }
     }
 
-    return String(p, size_t(len));
+    return {p, size_t(len)};
 }
 
 string extract_error(
@@ -305,8 +307,8 @@ string extract_error(
 {
     SQLSMALLINT i = 0;
     SQLINTEGER native = 0;
-    array < SQLCHAR, 7 > state {};
-    array < SQLCHAR, 256 > text {};
+    array<SQLCHAR, 7> state {};
+    array<SQLCHAR, 256> text {};
     SQLSMALLINT len = 0;
 
     string error;

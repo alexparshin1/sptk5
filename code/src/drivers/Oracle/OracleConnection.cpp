@@ -694,8 +694,9 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
         columnTypeSize.length = 0;
         if (columnType.find("LOB") != string::npos)
         {
+            constexpr size_t defaultTextSize = 65536;
             columnTypeSize.type = VariantDataType::VAR_TEXT;
-            columnTypeSize.length = 65536;
+            columnTypeSize.length = defaultTextSize;
         }
         else if (columnType.find("CHAR") != string::npos)
         {
@@ -733,7 +734,7 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
 
 void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
                                            const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row) const
+                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row)
 {
     for (size_t i = 0; i < columnNames.size(); ++i)
     {

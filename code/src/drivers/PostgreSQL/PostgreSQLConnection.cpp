@@ -85,14 +85,14 @@ public:
         m_currentRow = -1;
     }
 
-    void stmt(PGresult* st, unsigned rows, unsigned cols = 99999)
+    void stmt(PGresult* st, unsigned rows, unsigned cols = unsigned(-1))
     {
         m_stmt = shared_ptr<PGresult>(st, [](auto* ptr) {
             PQclear(ptr);
         });
         m_rows = (int) rows;
 
-        if (cols != 99999)
+        if (cols != unsigned(-1))
         {
             m_cols = (int) cols;
         }
@@ -709,7 +709,7 @@ static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 
     void* ptr = &value;
     double seconds = *(double*) ptr;
-    DateTime ts = epochDate + chrono::microseconds((int64_t) seconds * 1000000);
+    DateTime ts = epochDate + chrono::seconds((int) seconds);
     return ts;
 }
 
@@ -1092,9 +1092,9 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    array<char, 16> mark;
+    array<char, 16> mark {};
     snprintf(mark.data(), sizeof(mark), "$%i", paramIndex + 1);
-    return String(mark.data());
+    return {mark.data()};
 }
 
 static void appendTSV(Buffer& dest, const VariantVector& row)
