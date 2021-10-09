@@ -440,7 +440,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->getDateTime(), true))
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->get<DateTime>(), true))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
@@ -453,7 +453,7 @@ void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* para
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->getDateTime(), false))
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->get<DateTime>(), false))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;

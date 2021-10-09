@@ -171,8 +171,8 @@ public:
     }
 
     /**
-     * Set image pointer
-     * @param ptr               Image pointer
+     * Set internal data
+     * @param value             Internal data
      */
     template<typename T>
     void set(const T& value)

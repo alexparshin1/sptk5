@@ -24,18 +24,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/xdoc/ImportXML.h>
-#include <sptk5/xdoc/ExportXML.h>
-#include <sptk5/xdoc/ExportJSON.h>
 #include "XPath.h"
+#include <sptk5/xdoc/ExportJSON.h>
+#include <sptk5/xdoc/ExportXML.h>
+#include <sptk5/xdoc/ImportXML.h>
+#include <sptk5/xdoc/Node.h>
 
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
 Node::Node(const String& nodeName, Type type)
-    : m_name(nodeName), m_type(type)
+    : m_name(nodeName)
+    , m_type(type)
 {
 }
 

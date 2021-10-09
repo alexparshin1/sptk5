@@ -57,7 +57,7 @@ String Field::asString() const
     switch (dataType())
     {
         case VariantDataType::VAR_BOOL:
-            result = m_data.get<bool>() != 0 ? "true" : "false";
+            result = get<bool>() != 0 ? "true" : "false";
             break;
 
         case VariantDataType::VAR_INT:
@@ -68,7 +68,7 @@ String Field::asString() const
 
         case VariantDataType::VAR_INT64:
 #ifndef _WIN32
-            len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.get<int64_t>());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%li", get<int64_t>());
 #else
             len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.get<int64_t>());
 #endif
@@ -88,16 +88,16 @@ String Field::asString() const
         case VariantDataType::VAR_BUFFER:
             if (isExternalBuffer())
             {
-                result = (const char*) m_data.get<const uint8_t*>();
+                result = (const char*) get<const uint8_t*>();
             }
-            else if (const auto& buffer = m_data.get<Buffer>(); !buffer.empty())
+            else if (const auto& buffer = get<Buffer>(); !buffer.empty())
             {
                 result = buffer.c_str();
             }
             break;
 
         case VariantDataType::VAR_DATE:
-            result = DateTime(chrono::microseconds(m_data.get<int64_t>())).dateString();
+            result = DateTime(chrono::microseconds(get<int64_t>())).dateString();
             break;
 
         case VariantDataType::VAR_DATE_TIME:
@@ -105,7 +105,7 @@ String Field::asString() const
             break;
 
         case VariantDataType::VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.get<const uint8_t*>());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) get<const uint8_t*>());
             result.assign(print_buffer.data(), len);
             break;
 
@@ -117,14 +117,14 @@ String Field::asString() const
 
 String Field::epochDataToDateTimeString() const
 {
-    const auto& dt(m_data.get<DateTime>());
+    const auto& dt(get<DateTime>());
     return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision((int) m_view.precision) << m_data.get<double>();
+    output << fixed << setprecision((int) m_view.precision) << get<double>();
     return output.str();
 }
 

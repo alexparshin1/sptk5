@@ -253,7 +253,7 @@ void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, con
         int16_t minute {0};
         int16_t second {0};
         int16_t msecond {0};
-        parameter.getDateTime().decodeTime(&hour, &minute, &second, &msecond);
+        parameter.get<DateTime>().decodeTime(&hour, &minute, &second, &msecond);
         Timestamp timestampValue(connection()->environment(),
                                  year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute,
                                  (unsigned) second);

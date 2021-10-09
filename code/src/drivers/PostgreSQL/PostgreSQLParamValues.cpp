@@ -132,7 +132,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 break;
 
             case VariantDataType::VAR_DATE:
-                days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
+                days = chrono::duration_cast<chrono::hours>(param->get<DateTime>() - epochDate).count() / 24;
                 if (m_int64timestamps)
                 {
                     int64_t dt = days * 86400 * 1000000;
@@ -148,7 +148,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 break;
 
             case VariantDataType::VAR_DATE_TIME:
-                mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
+                mcs = chrono::duration_cast<chrono::microseconds>(param->get<DateTime>() - epochDate).count();
                 if (m_int64timestamps)
                 {
                     htonq_inplace((uint64_t*) &mcs, (uint64_t*) param->conversionBuffer());

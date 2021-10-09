@@ -30,16 +30,16 @@
 #include <FL/fl_draw.H>
 #include <cmath>
 
-#include <sptk5/db/Query.h>
 #include <sptk5/CSmallPixmapIDs.h>
-#include <sptk5/gui/CThemes.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/gui/CListView.h>
+#include <sptk5/gui/CThemes.h>
 
 using namespace std;
 using namespace sptk;
 
 // default header size
-#define HEADER_HEIGHT 20
+constexpr int HEADER_HEIGHT = 20;
 
 void CListView::scrollbar_callback(Fl_Widget* s, void*)
 {
@@ -51,7 +51,8 @@ void CListView::hscrollbar_callback(Fl_Widget* s, void*)
     ((CListView*) (s->parent()))->hposition(((CScrollBar*) s)->value());
 }
 
-int CListView::m_scrollbarWidth = 16;
+constexpr int defaultScrollBarWidth = 16;
+int CListView::m_scrollbarWidth = defaultScrollBarWidth;
 
 void CListView::scrollbar_width(int b)
 {
@@ -69,12 +70,12 @@ void CListView::redraw_line(unsigned l)
 {
     if (!m_redraw1 || m_redraw1 == (int) l)
     {
-        m_redraw1 = l;
+        m_redraw1 = (int) l;
         damage(FL_DAMAGE_EXPOSE);
     }
     else if (!m_redraw2 || m_redraw2 == (int) l)
     {
-        m_redraw2 = l;
+        m_redraw2 = (int) l;
         damage(FL_DAMAGE_EXPOSE);
     }
     else
@@ -141,15 +142,17 @@ void CListView::ctor_init()
 }
 
 CListView::CListView(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    : CControl(label, layoutSize, layoutAlignment), scrollbar(0, 0, 0, 0), hscrollbar(0, 0, 0, 0)
+    : CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init();
 }
 
 #ifdef __COMPATIBILITY_MODE__
 
-CListView::CListView(int x, int y, int w, int h, const char*l)
-: CControl(x, y, w, h, l), scrollbar(0, 0, 0, 0), hscrollbar(0, 0, 0, 0)
+CListView::CListView(int x, int y, int w, int h, const char* l)
+    : CControl(x, y, w, h, l)
+    , scrollbar(0, 0, 0, 0)
+    , hscrollbar(0, 0, 0, 0)
 {
     ctor_init();
 }
@@ -268,10 +271,10 @@ void CListView::draw()
     int full_width_ = fullWidth();
     int full_height_ = fullHeight();
 
-    int X;
-    int Y;
-    int W;
-    int H;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
     bbox(X, Y, W, H);
 
     if (m_top >= m_rows.size())
@@ -550,7 +553,8 @@ int CListView::item_compute_height(CPackedStrings* l)
                 if (column.autoWidth())
                 {
                     if (((int) kind() &
-                         ((int) CControlKind::CHECKBUTTONS | (int) CControlKind::RADIOBUTTONS)) && c == 0)
+                         ((int) CControlKind::CHECKBUTTONS | (int) CControlKind::RADIOBUTTONS)) &&
+                        c == 0)
                     {
                         cw += (m_textSize - 2) / 3 * 3 + 3;
                     }
@@ -760,12 +764,8 @@ void CListView::item_draw(
     {
         switch (focusMode)
         {
-            case -1 :
+            case -1:
                 lcol = FL_FOREGROUND_COLOR;
-                break;
-            case 0:
-                lcol = fl_contrast(lcol, selection_color());
-                boxcol = selection_color();
                 break;
             default: // Selected item for the listview
                 lcol = fl_contrast(lcol, selection_color());
@@ -861,7 +861,7 @@ void CListView::item_draw(
                     if ((int) column.type() &
                         ((int) VariantDataType::VAR_IMAGE_PTR | (int) VariantDataType::VAR_IMAGE_NDX))
                     {
-                        char* endptr;
+                        char* endptr {nullptr};
                         Fl_Image* image = nullptr;
 #ifdef _WIN32
                         uint64_t value = strtol(str, &endptr, 16);
@@ -1129,15 +1129,14 @@ void CListView::data(const Variant& vv)
         case CListViewDataMode::LV_DATA_KEY:
             newSelectedRow = findKey(vv.asInteger());
             break;
-        case CListViewDataMode::LV_DATA_INDEX:
-        {
+        case CListViewDataMode::LV_DATA_INDEX: {
             auto line = (unsigned) intValue;
             if (line < cnt)
             {
                 newSelectedRow = m_rows[line];
             }
         }
-            break;
+        break;
         default: // LV_DATA_CAPTION, LV_DATA_UNDEFINED
             newSelectedRow = findCaption(vv.asString());
             break;
@@ -1642,7 +1641,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                         }
                     }
 
-                    int rowNumber;
+                    int rowNumber {0};
                     if (refreshKind == CRefreshKind::LV_REFRESH_FULL)
                     {
                         rowNumber = recordCount;
@@ -1689,7 +1688,9 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
                     }
 
                     if (m_fillTerminated)
-                    { break; }
+                    {
+                        break;
+                    }
 
                     try
                     {
@@ -1747,8 +1748,7 @@ void CListView::fill(DataSource& ds, const String& keyFieldName, unsigned record
             redraw();
             throw;
         }
-    }
-    while (m_fillTerminated);
+    } while (m_fillTerminated);
 
     fl_cursor(FL_CURSOR_DEFAULT);
     Fl::check();
@@ -1787,7 +1787,7 @@ bool CListView::select_only(unsigned index, bool docallbacks)
 }
 
 // translate the current keystroke into up/down/left/right for navigation:
-#define ctrl(x) ((x)^0x40)
+#define ctrl(x) ((x) ^ 0x40)
 
 static int navkey()
 {
@@ -1815,13 +1815,13 @@ static int navkey()
         default:
             switch (Fl::event_text()[0])
             {
-                case ctrl('N') :
+                case ctrl('N'):
                     return FL_Down;
-                case ctrl('P') :
+                case ctrl('P'):
                     return FL_Up;
-                case ctrl('F') :
+                case ctrl('F'):
                     return FL_Right;
-                case ctrl('B') :
+                case ctrl('B'):
                     return FL_Left;
                 default:
                     break;
@@ -1949,13 +1949,13 @@ int CListView::handle(int event)
         default:
             break;
     }
-    int X;
-    int Y;
-    int W;
-    int H;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
     bbox(X, Y, W, H);
-    int my;
-    unsigned l;
+    int my {0};
+    unsigned l {0};
     static char change;
     switch (event)
     {
@@ -2174,11 +2174,11 @@ bool CListView::select_next_page()
 {
     int row;
     unsigned cnt = size();
-    int X;
-    int Y;
-    int W;
-    int H;
-    int hh = 0;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
+    int hh {0};
     bbox(X, Y, W, H);
     // find the new active row
     unsigned newActiveRow = m_activeRow;
@@ -2214,11 +2214,11 @@ bool CListView::select_next_page()
 bool CListView::select_prior_page()
 {
     int row;
-    int X;
-    int Y;
-    int W;
-    int H;
-    int hh = 0;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
+    int hh {0};
     bbox(X, Y, W, H);
     // find the new active row
     unsigned newActiveRow = m_activeRow;
@@ -2244,10 +2244,10 @@ bool CListView::select_prior_page()
 
 int CListView::find_item(int my)
 {
-    int X;
-    int Y;
-    int W;
-    int H;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
     bbox(X, Y, W, H);
     int yy = Y;
     unsigned maxl = size();
@@ -2271,10 +2271,10 @@ int CListView::find_item(int my)
 
 bool CListView::displayed(unsigned index) const
 {
-    int X;
-    int Y;
-    int W;
-    int H;
+    int X {0};
+    int Y {0};
+    int W {0};
+    int H {0};
     bbox(X, Y, W, H);
     int yy = H;
     unsigned maxl = size();
@@ -2289,7 +2289,7 @@ bool CListView::displayed(unsigned index) const
     return false;
 }
 
-unsigned CListView::fullHeight()
+unsigned CListView::fullHeight() const
 {
     return m_rows.fullHeight() + m_headerHeight + cellBorderWidth() * 2;
 }
@@ -2397,8 +2397,9 @@ CPackedStrings* CListView::selectedRow() const
 
 CColumn& CListView::column(const char* colname)
 {
-    int index = m_columnList.indexOf(colname);
-    if (index >= 0)
+
+    if (int index = m_columnList.indexOf(colname);
+        index >= 0)
     {
         return m_columnList[index];
     }
@@ -2478,8 +2479,9 @@ void CListView::loadList(const xdoc::SNode& node)
                     for (; rtor != rowNode->nodes().end(); ++rtor, ++c)
                     {
                         const auto& cellNode = *rtor;
-                        unsigned index = cellNode->attributes().get("index").toInt();
-                        if (index)
+
+                        if (unsigned index = cellNode->attributes().get("index").toInt();
+                            index)
                         {
                             c = index;
                         }
@@ -2505,7 +2507,7 @@ void CListView::saveList(const xdoc::SNode& node) const
     size_t colCount = m_columnList.size();
     for (unsigned i = 0; i < rowCount; i++)
     {
-        CPackedStrings* row = m_rows[i];
+        const auto* row = m_rows[i];
         const auto& rowNode = rowsNode->pushNode("row");
         if (row->argument())
         {
@@ -2545,7 +2547,8 @@ void CListView::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 void CListView::imageCollection(Strings& iconNames)
 {
     m_iconNames.resize(iconNames.size());
-    for (uint32_t i = 0; i < iconNames.size(); i++)
+    auto sz = iconNames.size();
+    for (size_t i = 0; i < sz; i++)
     {
         m_iconNames[i] = iconNames[i];
     }

@@ -28,17 +28,17 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <sptk5/DataSource.h>
 
-#include <sptk5/sptk.h>
-#include <sptk5/gui/CScrollBar.h>
-#include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CListViewSelection.h>
-#include <sptk5/gui/CListViewRows.h>
 #include <sptk5/PackedStrings.h>
 #include <sptk5/gui/CColumn.h>
+#include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CDataControl.h>
+#include <sptk5/gui/CListViewRows.h>
+#include <sptk5/gui/CListViewSelection.h>
+#include <sptk5/gui/CScrollBar.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -50,8 +50,7 @@ namespace sptk {
 /**
  * @brief The refersh kind
  */
-enum class CRefreshKind
-    : uint8_t
+enum class CRefreshKind : uint8_t
 {
     /**
      * Retrieve the full dataset and replace the existing records completely
@@ -73,8 +72,7 @@ class CDBDropDownList;
  * @brief The data mode for the data() methods.
  */
 
-enum class CListViewDataMode
-    : uint8_t
+enum class CListViewDataMode : uint8_t
 {
     /**
      * data() sets/returns item caption. If the data connection is defined (in CDBListView) - it flips to LV_DATA_KEY mode.
@@ -105,7 +103,8 @@ enum class CListViewDataMode
  * by column, supports type-in incremental search etc.
  */
 class SP_EXPORT CListView
-    : public CControl, public SharedMutex
+    : public CControl
+    , public SharedMutex
 {
     friend class CInternalComboBoxPanel;
 
@@ -119,53 +118,53 @@ class SP_EXPORT CListView
     /**
      * Flag to indicate the current fill() operation
      */
-    bool m_fillInProgress;
+    bool m_fillInProgress {false};
 
     /**
      * Flag to terminate the current fill() operation
      */
-    bool m_fillTerminated;
+    bool m_fillTerminated {false};
 
 protected:
     /**
      * Should the column headers to be capitilized?
      */
-    bool m_capitalizeColumnNames;
+    bool m_capitalizeColumnNames {false};
 
     /**
      * Is multiple selection allowed?
      */
-    bool m_multipleSelection;
+    bool m_multipleSelection {false};
 
     /**
      * The horizontal position - to be
      */
-    int m_horizPosition;
+    int m_horizPosition {0};
 
     /**
      * The horizontal position - existing
      */
-    int m_realHorizPosition;
+    int m_realHorizPosition {0};
 
     /**
      * The maximum required width for the columns
      */
-    int m_maxWidth;
+    int m_maxWidth {0};
 
     /**
      * The minimal update pointer
      */
-    int m_redraw1;
+    int m_redraw1 {0};
 
     /**
      * The minimal update pointer
      */
-    int m_redraw2;
+    int m_redraw2 {0};
 
     /**
      * The scrolling position
      */
-    uint32_t m_top;
+    uint32_t m_top {0};
 
     /**
      * Scrollbar width for this class of object
@@ -175,12 +174,12 @@ protected:
     /**
      * Text font, currently used to draw the list view
      */
-    int m_currentTextFont;
+    int m_currentTextFont {0};
 
     /**
      * Text size, currently used to draw the list view
      */
-    int m_currentTextSize;
+    int m_currentTextSize {0};
 
     /**
      * Icon names that may be referred from items (icon size is 16)
@@ -192,12 +191,12 @@ protected:
      * Defines the kind of data to work through data() method
      * @see CListViewDataMode for more information
      */
-    CListViewDataMode m_dataMode;
+    CListViewDataMode m_dataMode {CListViewDataMode::LV_DATA_UNDEFINED};
 
     /**
      * The mouse pressed position
      */
-    int m_mousePressedX;
+    int m_mousePressedX {0};
 
     /**
      * The list of currently selected items
@@ -212,12 +211,12 @@ protected:
     /**
      * The row where the focus is or should be
      */
-    uint32_t m_activeRow;
+    uint32_t m_activeRow {0};
 
     /**
      * The height of the header area
      */
-    uint32_t m_headerHeight;
+    uint32_t m_headerHeight {0};
 
     /**
      * The list of rows
@@ -232,47 +231,47 @@ protected:
     /**
      * Dragged column
      */
-    int m_draggingColumn;
+    int m_draggingColumn {0};
 
     /**
      * Dragging column started
      */
-    int m_draggingStarted;
+    int m_draggingStarted {0};
 
     /**
      * The text font type
      */
-    Fl_Font m_textFont;
+    Fl_Font m_textFont {0};
 
     /**
      * The text font size
      */
-    uchar m_textSize;
+    uchar m_textSize {0};
 
     /**
      * The text font color
      */
-    Fl_Color m_textColor;
+    Fl_Color m_textColor {0};
 
     /**
      * Show/hide horizontal stripes. Stripes is an alternative to cell grid.
      */
-    bool m_showStripes;
+    bool m_showStripes {false};
 
     /**
      * Show/hide cell grid. Grid is an alternative to stripes.
      */
-    bool m_showGrid;
+    bool m_showGrid {false};
 
     /**
      * Show/hide selection
      */
-    bool m_showSelection;
+    bool m_showSelection {false};
 
     /**
      * Auto row height on/off
      */
-    bool m_autoRowHeight;
+    bool m_autoRowHeight {false};
 
     /**
      * @brief Computes which column contains x-coordinate
@@ -310,12 +309,12 @@ protected:
     /**
      * @brief Vertical scrollback
      */
-    CScrollBar scrollbar;
+    CScrollBar scrollbar {0, 0, 0, 0};
 
     /**
      * @brief Horizontal scrollbar
      */
-    CScrollBar hscrollbar;
+    CScrollBar hscrollbar {0, 0, 0, 0};
 
     /**
      * @brief Returns horizontal position of the scroll
@@ -478,7 +477,6 @@ protected:
     void key_changed(uint32_t index);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -750,7 +748,6 @@ public:
     }
 
 protected:
-
     /**
      * @brief Loads the key value from the query
      */
@@ -1061,12 +1058,12 @@ public:
     /**
      * @brief Returns maximum width of all items including the header row
      */
-    uint32_t fullWidth() const; // current width of all items
+    [[nodiscard]] uint32_t fullWidth() const; // current width of all items
 
     /**
      * @brief Returns summary height of all items including the header row
      */
-    uint32_t fullHeight(); // current height of all items
+    [[nodiscard]] uint32_t fullHeight() const; // current height of all items
 
     /**
      * @brief Finds a string in the sort column of list view defined with sortColumn()
@@ -1224,4 +1221,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

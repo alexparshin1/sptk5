@@ -282,7 +282,7 @@ void MySQLStatement::setParameterValues()
                 }
                 else
                 {
-                    dateTimeToMySQLDate(*(MYSQL_TIME*) bind.buffer, param->getDateTime(), param->dataType());
+                    dateTimeToMySQLDate(*(MYSQL_TIME*) bind.buffer, param->get<DateTime>(), param->dataType());
                 }
                 break;
 

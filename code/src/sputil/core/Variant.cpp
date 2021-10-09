@@ -95,14 +95,14 @@ void BaseVariant::dataType(VariantType dt)
 //---------------------------------------------------------------------------
 Variant::Variant()
 {
-    m_data.type(VariantDataType::VAR_NONE);
+    dataType(VariantDataType::VAR_NONE);
     m_data.set((const void*) nullptr);
 }
 
 //---------------------------------------------------------------------------
 Variant::Variant(bool value)
 {
-    m_data.type(VariantDataType::VAR_BOOL);
+    dataType(VariantDataType::VAR_BOOL);
     m_data.setNull(false);
     m_data.set(value);
 }
@@ -110,7 +110,7 @@ Variant::Variant(bool value)
 //---------------------------------------------------------------------------
 Variant::Variant(int32_t value)
 {
-    m_data.type(VariantDataType::VAR_INT);
+    dataType(VariantDataType::VAR_INT);
     m_data.setNull(false);
     m_data.set(value);
 }
@@ -120,12 +120,12 @@ Variant::Variant(int64_t value, unsigned scale)
 {
     if (scale > 1)
     {
-        m_data.type(VariantDataType::VAR_MONEY);
+        dataType(VariantDataType::VAR_MONEY);
         m_data.set(MoneyData(value, (uint8_t) scale));
     }
     else
     {
-        m_data.type(VariantDataType::VAR_INT64);
+        dataType(VariantDataType::VAR_INT64);
         m_data.set(value);
     }
     m_data.setNull(false);
@@ -134,7 +134,7 @@ Variant::Variant(int64_t value, unsigned scale)
 //---------------------------------------------------------------------------
 Variant::Variant(double value)
 {
-    m_data.type(VariantDataType::VAR_FLOAT);
+    dataType(VariantDataType::VAR_FLOAT);
     m_data.setNull(false);
     m_data.set(value);
 }
@@ -154,7 +154,7 @@ Variant::Variant(const String& v)
 //---------------------------------------------------------------------------
 Variant::Variant(const DateTime& value)
 {
-    m_data.type(VariantDataType::VAR_DATE_TIME);
+    dataType(VariantDataType::VAR_DATE_TIME);
     m_data.setNull(false);
     m_data.set(value);
 }
@@ -168,7 +168,7 @@ Variant::Variant(const uint8_t* value, size_t sz)
 //---------------------------------------------------------------------------
 Variant::Variant(const Buffer& value)
 {
-    m_data.type(VariantDataType::VAR_NONE);
+    dataType(VariantDataType::VAR_NONE);
     Variant::setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
 }
 
@@ -486,18 +486,6 @@ const char* BaseVariant::getText() const
         return (const char*) m_data.get<const uint8_t*>();
     }
     return m_data.get<Buffer>().c_str();
-}
-
-//---------------------------------------------------------------------------
-DateTime BaseVariant::getDateTime() const
-{
-    return m_data.get<DateTime>();
-}
-
-//---------------------------------------------------------------------------
-DateTime BaseVariant::getDate() const
-{
-    return m_data.get<DateTime>().date();
 }
 
 //---------------------------------------------------------------------------
@@ -1268,7 +1256,7 @@ TEST(SPTK_Variant, assigns)
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
                  v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
-                 v.getDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
+                 v.get<DateTime>().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     auto* ptr = (uint8_t*) &v;
     v.setImagePtr(ptr);

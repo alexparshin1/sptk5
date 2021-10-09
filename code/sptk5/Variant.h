@@ -70,17 +70,17 @@ public:
     /**
      * @brief Destructor
      */
-    ~BaseVariant() = default;
+    virtual ~BaseVariant() = default;
 
     /**
      * Returns the data type
      */
-    VariantDataType dataType() const;
+    [[nodiscard]] VariantDataType dataType() const;
 
     /**
      * Returns the data size
      */
-    size_t dataSize() const;
+    [[nodiscard]] size_t dataSize() const;
 
     /**
      * Sets the data size
@@ -91,14 +91,14 @@ public:
     /**
      * Returns the allocated buffer size
      */
-    size_t bufferSize() const;
+    [[nodiscard]] size_t bufferSize() const;
 
     /**
      * Null flag
      *
      * Returns true if the NULL state is set
      */
-    bool isNull() const;
+    [[nodiscard]] bool isNull() const;
 
     /**
      * Returns a name for a particular variant type
@@ -137,32 +137,22 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual const MoneyData& getMoney() const;
+    [[nodiscard]] virtual const MoneyData& getMoney() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const char* getString() const;
+    [[nodiscard]] virtual const char* getString() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const uint8_t* getExternalBuffer() const;
+    [[nodiscard]] virtual const uint8_t* getExternalBuffer() const;
 
     /**
      * Directly reads the internal data
      */
     virtual const char* getText() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDateTime() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDate() const;
 
     /**
      * Directly reads the internal data
@@ -175,8 +165,6 @@ public:
     virtual uint32_t getImageNdx() const;
 
 protected:
-    VariantData m_data; ///< Internal variant data storage
-
     /**
      * Sets the data type
      */
@@ -190,7 +178,7 @@ protected:
     /**
      * @return True if current data type is external buffer
      */
-    bool isExternalBuffer() const
+    [[nodiscard]] bool isExternalBuffer() const
     {
         return m_data.type().isExternalBuffer;
     }
@@ -199,7 +187,9 @@ protected:
      * Return money data as string
      * @return
      */
-    virtual String moneyDataToString() const;
+    [[nodiscard]] virtual String moneyDataToString() const;
+
+    VariantData m_data; ///< Internal variant data storage
 };
 
 /**
@@ -230,7 +220,7 @@ public:
     /**
      * @brief Default destructor
      */
-    virtual ~VariantAdaptors() = default;
+    ~VariantAdaptors() override = default;
 
     /**
      * Assignment method
@@ -307,14 +297,14 @@ public:
      *
      * Converts variant value to double.
      */
-    int asInteger() const;
+    [[nodiscard]] int asInteger() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-    int64_t asInt64() const;
+    [[nodiscard]] int64_t asInt64() const;
 
     /**
      * Conversion to bool
@@ -323,35 +313,35 @@ public:
      * and one of 'N','n','F','f' to false.
      * For the integer and float values, the value <=0 is false, and > 0 is true.
      */
-    bool asBool() const;
+    [[nodiscard]] bool asBool() const;
 
     /**
      * Conversion to double
      *
      * Converts variant value to double.
      */
-    double asFloat() const;
+    [[nodiscard]] double asFloat() const;
 
     /**
      * Conversion to string
      *
      * Converts variant value to string.
      */
-    virtual String asString() const;
+    [[nodiscard]] virtual String asString() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to DateTime. The time part of CDdatetime is empty.
      */
-    DateTime asDate() const;
+    [[nodiscard]] DateTime asDate() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to DateTime.
      */
-    DateTime asDateTime() const;
+    [[nodiscard]] DateTime asDateTime() const;
 
     /**
      * Conversion method
@@ -366,7 +356,7 @@ protected:
      * Copies data from another CVariant
      */
     void setData(const BaseVariant& other);
-    const char* getBufferPtr() const;
+    [[nodiscard]] const char* getBufferPtr() const;
 };
 
 /**

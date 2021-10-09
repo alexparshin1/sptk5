@@ -752,7 +752,7 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
                 }
                 break;
             case VariantDataType::VAR_DATE_TIME:
-                insertQuery.param(i).setDateTime(value.getDateTime());
+                insertQuery.param(i).setDateTime(value.get<DateTime>());
                 break;
             default:
                 insertQuery.param(i).setString(value.asString());
