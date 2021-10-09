@@ -92,7 +92,7 @@ public:
     void forget(const set<Timer::Event>& events)
     {
         scoped_lock lock(m_scheduledMutex);
-        for (auto& event: events)
+        for (const auto& event: events)
         {
             m_scheduledEvents.erase(event->getId());
         }
@@ -404,7 +404,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
             scoped_lock lock(TimerTestData::eventCounterMutex);
-            totalEvents += TimerTestData::eventCounter[eventIndex];
+            totalEvents += (int) TimerTestData::eventCounter[eventIndex];
         }
 
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
@@ -443,7 +443,7 @@ TEST(SPTK_Timer, repeatMultipleTimers)
         scoped_lock lock(TimerTestData::eventCounterMutex);
         for (auto counter: TimerTestData::eventCounter)
         {
-            totalEvents += counter;
+            totalEvents += (int) counter;
         }
     }
 

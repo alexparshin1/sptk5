@@ -522,7 +522,7 @@ TEST(SPTK_BaseSocket, minimal)
 {
     constexpr uint16_t sslPort {443};
     Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address;
+    sockaddr_in address {};
     yahoo.getAddress(address);
 
     BaseSocket socket;
@@ -534,7 +534,7 @@ TEST(SPTK_BaseSocket, option)
 {
     constexpr uint16_t sslPort {443};
     Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address;
+    sockaddr_in address {};
     yahoo.getAddress(address);
 
     BaseSocket socket;

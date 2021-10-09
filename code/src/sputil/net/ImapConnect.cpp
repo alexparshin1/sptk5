@@ -303,7 +303,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
 {
     results.clear();
     bool first = true;
-    for (auto& headerName: required_headers)
+    for (const auto& headerName: required_headers)
     {
         auto fld = make_shared<Field>(lowerCase(headerName).c_str());
         if (first)

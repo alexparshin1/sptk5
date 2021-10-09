@@ -174,7 +174,6 @@ public:
 private:
     const Strings m_testRows;
     Strings::const_iterator m_current;
-    const Strings m_receivedRows;
     Semaphore m_done;
 };
 

@@ -28,7 +28,6 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/xdoc/Attributes.h>
 #include <sptk5/xdoc/Document.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -109,7 +108,6 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     {
         pathElement.elementName = pathElementName.c_str();
     }
-
 }
 
 bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, const XPathElement& pathElement,

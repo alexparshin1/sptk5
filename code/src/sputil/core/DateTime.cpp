@@ -66,7 +66,6 @@ int DateTime::_isDaylightSavingsTime;
 
 constexpr int minutesInHour = 60;
 constexpr int secondsInMinute = 60;
-constexpr int secondsInDay = 86400;
 constexpr int tzMultiplier = 100;
 constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
@@ -460,7 +459,7 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
             }
             p = strpbrk(p + 1, "Z+-");
         }
-        tzOffsetMin += TimeZone::offset().count();
+        tzOffsetMin += (int) TimeZone::offset().count();
     }
 
     if (short partNumber = splitTimeString(tim, timePart.data()); partNumber == 0)
@@ -605,8 +604,6 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
         m_dateTime = time_point();
     }
 }
-
-using days = duration<int, ratio<secondsInDay>>;
 
 DateTime::DateTime(const char* dat) noexcept
 {

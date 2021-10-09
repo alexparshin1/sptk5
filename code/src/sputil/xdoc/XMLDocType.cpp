@@ -83,8 +83,7 @@ XMLDocType::XMLDocType(const char* name, const char* public_id, const char* syst
     }
 }
 
-struct entity
-{
+struct entity {
     const char* name;
     int replacement_len;
     const char* replacement;
@@ -93,12 +92,11 @@ struct entity
 using CEntityMap = map<String, const struct entity*>;
 
 static const vector<struct entity> builtin_ent_xml = {
-    {"amp",  1, "&"},
-    {"lt",   1, "<"},
-    {"gt",   1, ">"},
+    {"amp", 1, "&"},
+    {"lt", 1, "<"},
+    {"gt", 1, ">"},
     {"apos", 1, "'"},
-    {"quot", 1, "\""}
-};
+    {"quot", 1, "\""}};
 
 const char xml_shortcut[] = "&<>'\"";
 
@@ -106,8 +104,8 @@ class XMLEntityCache
 {
     CEntityMap m_hash;
     map<int, CEntityMap> m_replacementMaps;
-public:
 
+public:
     explicit XMLEntityCache(const vector<struct entity>& entities) noexcept
     {
         for (const auto& ent: entities)
@@ -331,7 +329,7 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
 
 bool XMLDocType::hasEntity(const char* name)
 {
-    uint32_t len;
+    uint32_t len {0};
     const char* tmp = getReplacement(name, len);
     return tmp != nullptr;
 }

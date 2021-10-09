@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Exception.h>
 #include <sptk5/Brotli.h>
+#include <sptk5/Exception.h>
 
 #ifdef USE_GTEST
 
@@ -44,21 +44,23 @@ using namespace sptk;
 
 constexpr int DEFAULT_LGWIN = 24;
 constexpr int BROTLI_WINDOW_GAP = 16;
-#define BROTLI_MAX_BACKWARD_LIMIT(W) (((size_t)1 << (W)) - BROTLI_WINDOW_GAP)
+#define BROTLI_MAX_BACKWARD_LIMIT(W) (((size_t) 1 << (W)) - BROTLI_WINDOW_GAP)
 
-static const size_t kBufferSize = 1 << 16;
+static constexpr size_t kBufferSize = 1 << 16;
 
 class Context
 {
 public:
     Context(ReadBuffer& inputBuffer, Buffer& outputBuffer)
-        : inputData(inputBuffer), outputData(outputBuffer), input_file_length(inputBuffer.length())
+        : inputData(inputBuffer)
+        , outputData(outputBuffer)
+        , input_file_length((int64_t) inputBuffer.length())
     {
         available_out = kBufferSize;
         next_out = output;
     }
 
-    BrotliEncoderState* createEncoderInstance() const;
+    [[nodiscard]] BrotliEncoderState* createEncoderInstance() const;
 
     void CompressFile(BrotliEncoderState* s);
 
@@ -66,7 +68,8 @@ public:
 
 private:
     /* Parameters */
-    int quality = 9;
+    static constexpr int highQuality = 9;
+    int quality = highQuality;
 
     array<uint8_t, kBufferSize * 2> buffer {};
 
@@ -75,7 +78,7 @@ private:
     ReadBuffer& inputData;
 
     Buffer& outputData;
-    int64_t input_file_length {0};  /* -1, if impossible to calculate */
+    int64_t input_file_length {0}; /* -1, if impossible to calculate */
     size_t available_in {0};
     const uint8_t* next_in = nullptr;
 
@@ -137,15 +140,16 @@ BrotliEncoderState* Context::createEncoderInstance() const
         {
             ++_lgwin;
             if (_lgwin == BROTLI_MAX_WINDOW_BITS)
-            { break; }
+            {
+                break;
+            }
         }
     }
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_LGWIN, _lgwin);
 
     if (input_file_length > 0)
     {
-        uint32_t size_hint = input_file_length < (1 << 30) ?
-                             (uint32_t) input_file_length : (1U << 30);
+        uint32_t size_hint = input_file_length < (1 << 30) ? (uint32_t) input_file_length : (1U << 30);
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 
@@ -301,9 +305,11 @@ TEST(SPTK_Brotli, performance)
     Brotli::compress(compressed, data);
     stopWatch.stop();
 
+    constexpr double megabyte = double(1024 * 1024);
+
     COUT("Brotli compressor:" << endl)
     COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
-                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)"
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / megabyte << " Mb/s)"
                        << endl)
 
     stopWatch.start();
@@ -311,7 +317,7 @@ TEST(SPTK_Brotli, performance)
     stopWatch.stop();
 
     COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
-                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / megabyte
                          << " Mb/s)" << endl)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());

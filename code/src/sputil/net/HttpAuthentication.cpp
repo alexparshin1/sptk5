@@ -110,9 +110,10 @@ static String makeJWT()
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-    jwt.set("iat", 1594642696);
+    constexpr auto testTimestamp = 1594642696;
+    jwt.set("iat", testTimestamp);
     jwt.set("iss", "https://test.com");
-    jwt.set("exp", 1594642697);
+    jwt.set("exp", testTimestamp + 1);
 
     const auto& info = jwt.grants.root()->pushNode("info");
     info->set("company", "Linotex");

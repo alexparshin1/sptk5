@@ -24,14 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
 #include "sptk5/net/CachedSSLContext.h"
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
-SharedMutex                             CachedSSLContext::m_mutex;
-CachedSSLContext::CachedSSLContextMap   CachedSSLContext::m_contexts;
+SharedMutex CachedSSLContext::m_mutex;
+CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList)
 {
@@ -69,5 +69,5 @@ String CachedSSLContext::makeIdent(const String& keyFileName, const String& cert
     buffer.append(int2string(verifyDepth));
     buffer.append(cipherList);
     buffer.append('~');
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.length()};
 }

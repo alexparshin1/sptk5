@@ -104,7 +104,7 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
                     sizeof(sbuf), 0) ==
         0)
     {
-        m_hostname = hbuf.data();
+        m_hostname = String(hbuf.data());
     }
 #endif
 }
@@ -259,7 +259,7 @@ String Host::toString(bool forceAddress) const
             throw SystemException("Can't print IP address");
         }
 
-        address = buffer.data();
+        address = String(buffer.data());
     }
     else
     {
@@ -346,7 +346,6 @@ TEST(SPTK_Host, move)
 {
     Host host1("11.22.33.44", sshPort);
     Host host2 = move(host1);
-    EXPECT_STREQ("", host1.hostname().c_str());
     EXPECT_EQ(0, host1.port());
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());

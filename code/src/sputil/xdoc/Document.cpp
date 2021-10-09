@@ -24,10 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/StopWatch.h>
 #include <sptk5/Printer.h>
+#include <sptk5/StopWatch.h>
 #include <sptk5/xdoc/Document.h>
-#include "XPath.h"
 
 using namespace std;
 using namespace sptk;
@@ -36,7 +35,7 @@ using namespace sptk::xdoc;
 static DataFormat autoDetectFormat(const char* data)
 {
     switch (auto skip = strspn(data, "\n\r\t ");
-        data[skip])
+            data[skip])
     {
         case '<':
             return DataFormat::XML;
@@ -81,7 +80,9 @@ void verifyDocument(xdoc::Document& document)
     Strings skills;
     skills.resize(arrayData.size());
     transform(arrayData.begin(), arrayData.end(), skills.begin(),
-              [](const xdoc::SNode& skill) { return skill->getString(); });
+              [](const xdoc::SNode& skill) {
+                  return skill->getString();
+              });
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
     const auto ptr = root.findFirst("address");
@@ -137,7 +138,9 @@ TEST(SPTK_XDocument, add)
     Strings skills;
     skills.resize(array.size());
     transform(array.begin(), array.end(), skills.begin(),
-              [](const xdoc::SNode& skill) { return skill->getString(); });
+              [](const xdoc::SNode& skill) {
+                  return skill->getString();
+              });
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
     const auto object = root.findFirst("object");

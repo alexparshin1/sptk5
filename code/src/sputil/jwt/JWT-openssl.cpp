@@ -144,7 +144,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     HMAC(algorithm, key.c_str(), (int) key.length(),
          (const unsigned char*) head, (int) strlen(head), res.data(), &res_len);
 
-    BIO_write(b64, res.data(), res_len);
+    BIO_write(b64, res.data(), (int) res_len);
 
     BIO_flush(b64);
 
@@ -170,9 +170,9 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     }
 }
 
-[[noreturn]] static void SIGN_ERROR(int __err)
+[[noreturn]] static void SIGN_ERROR(int err)
 {
-    if (__err == EINVAL)
+    if (err == EINVAL)
     {
         throw Exception("Invalid value");
     }
@@ -388,9 +388,9 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
     }
 }
 
-[[noreturn]] static void VERIFY_ERROR(int __err)
+[[noreturn]] static void VERIFY_ERROR(int err)
 {
-    if (__err == EINVAL)
+    if (err == EINVAL)
     {
         throw Exception("Invalid value");
     }
@@ -511,8 +511,8 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
                 VERIFY_ERROR(EINVAL);
             }
 
-            auto* ec_sig_r = BN_bin2bn(sig_ptr, bn_len, nullptr);
-            auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, bn_len, nullptr);
+            auto* ec_sig_r = BN_bin2bn(sig_ptr, (int) bn_len, nullptr);
+            auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, (int) bn_len, nullptr);
             if (ec_sig_r == nullptr || ec_sig_s == nullptr)
             {
                 VERIFY_ERROR(EINVAL);

@@ -26,21 +26,21 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <sptk5/cutils>
 #include <sptk5/net/TCPSocket.h>
 #include <thread>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static int   m_socketCount;
-static bool  m_inited(false);
+static int m_socketCount;
+static bool m_inited(false);
 #endif
 
 TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
-    : Buffer(buffer_size),
-      m_socket(socket)
+    : Buffer(buffer_size)
+    , m_socket(socket)
 {
 }
 
@@ -81,7 +81,7 @@ void TCPSocketReader::handleReadFromSocketError(int error)
 int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
 {
     m_readOffset = 0;
-    int error;
+    int error {0};
     do
     {
         error = 0;
@@ -111,8 +111,7 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
         {
             bytes((size_t) receivedBytes);
         }
-    }
-    while (error == EAGAIN);
+    } while (error == EAGAIN);
 
     data()[bytes()] = 0;
 
@@ -289,8 +288,8 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
 // Constructor
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : BaseSocket(domain, type, protocol),
-      m_reader(*this, 16384)
+    : BaseSocket(domain, type, protocol)
+    , m_reader(*this, 16384)
 {
 }
 

@@ -52,7 +52,8 @@ void Thread::threadStart()
 }
 
 Thread::Thread(const String& name, const SThreadManager& threadManager)
-    : m_name(name), m_threadManager(threadManager)
+    : m_name(name)
+    , m_threadManager(threadManager)
 {
 }
 
@@ -84,7 +85,7 @@ Thread::Id Thread::id() const
     {
         return m_thread->get_id();
     }
-    return Id();
+    return {};
 }
 
 void Thread::join()
@@ -129,9 +130,11 @@ class ThreadTestThread
 {
     atomic_int m_counter {0};
     int m_maxCounter;
+
 public:
     explicit ThreadTestThread(const String& threadName, int maxCounter)
-        : Thread(threadName), m_maxCounter(maxCounter)
+        : Thread(threadName)
+        , m_maxCounter(maxCounter)
     {
     }
 

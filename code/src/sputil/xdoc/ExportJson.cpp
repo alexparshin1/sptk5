@@ -25,7 +25,6 @@
 */
 
 #include <iosfwd>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/String.h>
 #include <sptk5/cutils>
 #include <sptk5/xdoc/ExportJSON.h>

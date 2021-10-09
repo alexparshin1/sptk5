@@ -31,7 +31,6 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
 
-static const String emptyString;
 static const String indentsString(1024, ' ');
 
 inline bool isNodeByName(const String& nodeName)

@@ -141,7 +141,7 @@ String JWT::get_js_string(const xdoc::SNode& js, const String& key, bool* found)
         }
         return element->getString();
     }
-    return String();
+    return {};
 }
 
 long JWT::get_js_int(const xdoc::SNode& js, const String& key, bool* found)

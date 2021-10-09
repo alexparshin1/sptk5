@@ -72,7 +72,7 @@ String Url::encode(const String& str)
         }
         ++src;
     }
-    return String(buffer.c_str(), buffer.bytes());
+    return {buffer.c_str(), buffer.bytes()};
 }
 
 String Url::decode(const String& str)
@@ -102,7 +102,7 @@ String Url::decode(const String& str)
                 break;
         }
     }
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.length()};
 }
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)

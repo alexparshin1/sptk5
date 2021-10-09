@@ -143,7 +143,7 @@ String SmtpConnect::unmime(const String& s)
 {
     Buffer dest;
     Base64::decode(dest, s);
-    return String(dest.c_str(), dest.bytes());
+    return {dest.c_str(), dest.bytes()};
 }
 
 void SmtpConnect::cmd_auth(const String& user, const String& password)

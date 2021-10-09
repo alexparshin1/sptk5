@@ -749,7 +749,7 @@ String VariantAdaptors::asString() const
 {
     if (isNull())
     {
-        return String();
+        return {};
     }
 
     switch (dataType())
@@ -796,7 +796,7 @@ String VariantAdaptors::asString() const
             break;
     }
 
-    return String();
+    return {};
 }
 
 String BaseVariant::moneyDataToString() const
@@ -1276,7 +1276,7 @@ TEST(SPTK_Variant, assigns)
     EXPECT_EQ(v.dataSize(), size_t(0));
 
     v.setImageNdx(12);
-    EXPECT_EQ(v.getImageNdx(), 12u);
+    EXPECT_EQ(v.getImageNdx(), 12U);
 }
 
 TEST(SPTK_Variant, move_assigns)

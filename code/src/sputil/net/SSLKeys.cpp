@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
 #include "sptk5/net/SSLKeys.h"
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -33,9 +33,12 @@ using namespace sptk;
 SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
                  String password, String caFileName, int verifyMode,
                  int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
-      m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
-      m_verifyDepth(verifyDepth)
+    : m_privateKeyFileName(std::move(privateKeyFileName))
+    , m_certificateFileName(std::move(certificateFileName))
+    , m_password(std::move(password))
+    , m_caFileName(std::move(caFileName))
+    , m_verifyMode(verifyMode)
+    , m_verifyDepth(verifyDepth)
 {
 }
 
@@ -114,5 +117,5 @@ String SSLKeys::ident() const
     buffer.append(to_string(m_verifyMode));
     buffer.append('~');
     buffer.append(to_string(m_verifyDepth));
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.length()};
 }

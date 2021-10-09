@@ -31,12 +31,11 @@
 
 #ifndef _WIN32
 
-#include <pwd.h>
 #include <grp.h>
-#include <sys/stat.h>
+#include <pwd.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/SystemException.h>
-#include <sptk5/ArchiveFile.h>
+#include <sys/stat.h>
 
 #endif
 
@@ -49,8 +48,7 @@ template<typename TP>
 std::time_t to_time_t(TP tp)
 {
     using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-                                                        + system_clock::now());
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
     return system_clock::to_time_t(sctp);
 }
 
@@ -87,23 +85,26 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
-    struct stat info {};
-    stat(fileName.c_str(), &info);  // Error check omitted
+    struct stat info {
+    };
+    stat(fileName.c_str(), &info); // Error check omitted
 
     constexpr int bufferSize = 128;
     Buffer buff(bufferSize);
-    struct passwd pw {};
-    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    struct passwd pw {
+    };
+    if (struct passwd * pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
 
     m_ownership.uname = pw.pw_name;
-    m_ownership.uid = pw.pw_uid;
-    m_ownership.gid = pw.pw_gid;
+    m_ownership.uid = (int) pw.pw_uid;
+    m_ownership.gid = (int) pw.pw_gid;
 
-    struct group gr {};
-    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    struct group gr {
+    };
+    if (struct group * gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }
@@ -143,9 +144,13 @@ fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& bas
 ArchiveFile::ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
                          ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
                          const fs::path& linkName)
-    : Buffer(content),
-      m_fileName(fileName.string()), m_mode(mode), m_ownership(ownership), m_mtime(mtime),
-      m_type(type), m_linkname(linkName.string())
+    : Buffer(content)
+    , m_fileName(fileName.string())
+    , m_mode(mode)
+    , m_ownership(ownership)
+    , m_mtime(mtime)
+    , m_type(type)
+    , m_linkname(linkName.string())
 {
     makeHeader();
 }

@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/Printer.h>
-#include <sptk5/cthreads>
 #include <sptk5/net/HttpConnect.h>
 
 #include <sptk5/Brotli.h>
@@ -286,7 +285,8 @@ TEST(SPTK_HttpConnect, get)
     HttpConnect http(*socket);
     Buffer output;
 
-    int statusCode {500};
+    constexpr int minStatusCode {500};
+    int statusCode {minStatusCode};
     try
     {
         statusCode = http.cmd_get("/", HttpParams(), output);

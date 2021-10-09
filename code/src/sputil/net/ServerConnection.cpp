@@ -74,7 +74,8 @@ ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in*
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    array<char, 128> address {"127.0.0.1"};
+    constexpr int maxAddressSize {128};
+    array<char, maxAddressSize> address {"127.0.0.1"};
     if (connectionAddress)
     {
         if (connectionAddress->sin_family == AF_INET)
@@ -87,5 +88,5 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
         }
     }
-    m_address = address.data();
+    m_address = String(address.data());
 }
