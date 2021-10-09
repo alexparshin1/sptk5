@@ -28,6 +28,7 @@
 
 #include <sptk5/String.h>
 #include <sptk5/sptk.h>
+#include <strings.h>
 
 namespace sptk {
 /**
