@@ -39,7 +39,7 @@ namespace sptk {
 /**
  * Variant types
  */
-enum class VariantDataType
+enum class VariantDataType : uint16_t
 {
     VAR_NONE = 0,        ///< Undefined
     VAR_INT = 1,         ///< Integer
@@ -57,7 +57,7 @@ enum class VariantDataType
 };
 
 struct VariantType {
-    VariantDataType type : 12;
+    VariantDataType type;
     bool isNull : 1;
     bool isExternalBuffer : 1;
 };
