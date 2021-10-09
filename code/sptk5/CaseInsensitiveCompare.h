@@ -28,7 +28,10 @@
 
 #include <sptk5/String.h>
 #include <sptk5/sptk.h>
+
+#ifndef _WIN32
 #include <strings.h>
+#endif
 
 namespace sptk {
 /**
