@@ -39,7 +39,7 @@ namespace sptk {
 /**
  * Variant types
  */
-enum class VariantDataType : uint16_t
+enum class VariantDataType
 {
     VAR_NONE = 0,        ///< Undefined
     VAR_INT = 1,         ///< Integer
