@@ -42,9 +42,9 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
-    for (const auto& [name, value]: m_connectionStrings)
+    for (const auto& itor: m_connectionStrings)
     {
-        connectionStrings.push_back(value);
+        connectionStrings.push_back(itor.second);
     }
     return connectionStrings;
 }

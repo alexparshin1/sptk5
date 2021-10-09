@@ -89,7 +89,7 @@ void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t v
 
 void QueryParameter::setString(const char* value, size_t maxlen)
 {
-    size_t valueLength;
+    size_t valueLength {0};
     auto dtype = VariantDataType::VAR_STRING;
     if (maxlen != 0)
     {
@@ -100,10 +100,6 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         if (value != nullptr)
         {
             valueLength = (uint32_t) strlen(value);
-        }
-        else
-        {
-            valueLength = 0;
         }
     }
 
