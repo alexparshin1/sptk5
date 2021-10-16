@@ -34,11 +34,6 @@ BufferStorage::BufferStorage(size_t sz)
     allocate(sz);
 }
 
-BufferStorage::BufferStorage(const uint8_t* data, size_t sz)
-{
-    allocate(data, sz);
-}
-
 void BufferStorage::adjustSize(size_t sz)
 {
     sz = (sz / 128 + 1) * 128;
@@ -46,7 +41,7 @@ void BufferStorage::adjustSize(size_t sz)
     m_buffer[sz] = 0;
 }
 
-void BufferStorage::set(const uint8_t* data, size_t sz)
+void BufferStorage::_set(const uint8_t* data, size_t sz)
 {
     checkSize(sz + 1);
     if (data != nullptr && sz > 0)

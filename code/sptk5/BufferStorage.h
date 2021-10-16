@@ -68,7 +68,11 @@ public:
      * @param data              Data buffer
      * @param sz                Data buffer size
      */
-    BufferStorage(const uint8_t* data, size_t sz);
+    template<typename T>
+    BufferStorage(const T* data, size_t sz)
+    {
+        allocate((const uint8_t*) data, sz);
+    }
 
     /**
      * Returns pointer on the data buffer.
@@ -123,7 +127,11 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void set(const uint8_t* data, size_t sz);
+    template<typename T>
+    void set(const T* data, size_t sz)
+    {
+        _set((const uint8_t*) data, sz);
+    }
 
     /**
      * Copies the external data of size sz into the current buffer.
@@ -139,7 +147,7 @@ public:
         }
         else
         {
-            set(data.m_buffer.data(), data.m_bytes);
+            _set(data.m_buffer.data(), data.m_bytes);
         }
     }
 
@@ -151,7 +159,7 @@ public:
      */
     void set(const String& data)
     {
-        set((const uint8_t*) data.c_str(), data.length());
+        _set((const uint8_t*) data.c_str(), data.length());
     }
 
     /**
@@ -316,6 +324,16 @@ protected:
 private:
     std::vector<uint8_t> m_buffer {16}; ///< Actual storage
     size_t m_bytes {0};                 ///< Actual size of the data in buffer
+
+
+    /**
+     * Copies the external data of size sz into the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data              External data buffer
+     * @param sz                Required memory size
+     */
+    void _set(const uint8_t* data, size_t sz);
 };
 
 /**

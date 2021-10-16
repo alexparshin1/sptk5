@@ -156,7 +156,7 @@ bool DirectoryDS::open()
 
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0)
     {
-        for (const String& dirName: {".", ".."})
+        for (const char* dirName: {".", ".."})
         {
             FieldList df(false);
             df.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
