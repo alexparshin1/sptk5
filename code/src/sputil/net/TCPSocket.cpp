@@ -261,7 +261,7 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     while (eol == 0)
     {
         auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        if (bytesToRead <= readBytesLWM)
+        if (bytesToRead <= (int) readBytesLWM)
         {
             destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
             bytesToRead = int(destinationBuffer.capacity() - total - 1);
