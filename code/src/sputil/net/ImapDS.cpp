@@ -87,9 +87,10 @@ bool ImapDS::open()
     }
     else
     {
+        constexpr int allDone = 100;
         if (m_callback != nullptr)
         {
-            m_callback(100, 100);
+            m_callback(allDone, allDone);
         }
     }
 

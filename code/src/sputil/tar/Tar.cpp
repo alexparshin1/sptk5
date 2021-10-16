@@ -24,14 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Tar.h>
 #include <filesystem>
 #include <fstream>
+#include <sptk5/Tar.h>
 
 #ifdef USE_GTEST
 
-#include <sptk5/md5.h>
 #include <sptk5/Printer.h>
+#include <sptk5/md5.h>
 
 #endif
 
@@ -128,9 +128,9 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         contentLength = readOctalNumber(header->size, "size");
     }
 
-    int mode = readOctalNumber(header->mode, "mode");
-    int uid = readOctalNumber(header->uid, "uid");
-    int gid = readOctalNumber(header->gid, "gid");
+    int mode = (int) readOctalNumber(header->mode, "mode");
+    int uid = (int) readOctalNumber(header->uid, "uid");
+    int gid = (int) readOctalNumber(header->gid, "gid");
 
     time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dt = DateTime::convertCTime(mtime);
@@ -168,7 +168,7 @@ void Tar::read(const char* tarFileName)
 void Tar::save(const String& tarFileName) const
 {
     ofstream archive(tarFileName);
-    for (const auto&[fileName, archiveFile]: m_files)
+    for (const auto& [fileName, archiveFile]: m_files)
     {
         const auto& header = *(const TarHeader*) archiveFile->header();
         archive.write((const char*) &header, TAR_BLOCK_SIZE);

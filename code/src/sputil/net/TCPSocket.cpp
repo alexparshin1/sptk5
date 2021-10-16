@@ -118,6 +118,8 @@ int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
     return (int32_t) bytes();
 }
 
+static constexpr size_t readBytesLWM {128};
+
 void TCPSocketReader::readMoreFromSocket(int availableBytes)
 {
     if (m_readOffset != 0)
@@ -128,7 +130,7 @@ void TCPSocketReader::readMoreFromSocket(int availableBytes)
     }
     else
     {
-        checkSize(capacity() + 128);
+        checkSize(capacity() + readBytesLWM);
     }
     size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
     bytes(bytes() + receivedBytes);
@@ -259,9 +261,9 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     while (eol == 0)
     {
         auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        if (bytesToRead <= 128)
+        if (bytesToRead <= readBytesLWM)
         {
-            destinationBuffer.checkSize(destinationBuffer.capacity() + 128);
+            destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
             bytesToRead = int(destinationBuffer.capacity() - total - 1);
         }
 
@@ -286,10 +288,11 @@ size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     return destinationBuffer.bytes();
 }
 
-// Constructor
+static constexpr size_t defaultBufferSize {16384};
+
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
     : BaseSocket(domain, type, protocol)
-    , m_reader(*this, 16384)
+    , m_reader(*this, defaultBufferSize)
 {
 }
 

@@ -1078,7 +1078,7 @@ public:
     /**
      * @brief Returns sort column name
      */
-    std::string sortColumnName() const;
+    String sortColumnName() const;
 
     /**
      * @brief Sets the sort column

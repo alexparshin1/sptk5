@@ -38,6 +38,7 @@ SmtpConnect::SmtpConnect(Logger* log)
 }
 
 constexpr int RSP_BLOCK_SIZE = 1024;
+constexpr int minErrorCode = 433;
 
 int SmtpConnect::getResponse(bool decode)
 {
@@ -46,7 +47,8 @@ int SmtpConnect::getResponse(bool decode)
     bool readCompleted = false;
     int rc = 0;
 
-    if (!readyToRead(chrono::seconds(30)))
+    constexpr chrono::seconds readTimeout {30};
+    if (!readyToRead(readTimeout))
     {
         throw TimeoutException("SMTP server response timeout");
     }
@@ -81,7 +83,7 @@ int SmtpConnect::getResponse(bool decode)
         }
 
         const char* text = longLine.c_str() + 4;
-        if (rc <= 432 && decode)
+        if (rc < minErrorCode && decode)
         {
             longLine = unmime(text);
             m_response.push_back(longLine);
@@ -184,15 +186,15 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
         if (method == "LOGIN")
         {
             rc = command("AUTH LOGIN", false, true);
-            if (rc > 432)
+            if (rc >= minErrorCode)
                 throw Exception(m_response.join("\n"));
 
             rc = command(user, true, true);
-            if (rc > 432)
+            if (rc >= minErrorCode)
                 throw Exception(m_response.join("\n"));
 
             rc = command(password, true, false);
-            if (rc > 432)
+            if (rc >= minErrorCode)
                 throw Exception(m_response.join("\n"));
             return;
         }
@@ -208,7 +210,7 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
 
             String userAndPasswordMimed = mime(userAndPassword);
             rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
-            if (rc > 432)
+            if (rc >= minErrorCode)
                 throw Exception(m_response.join("\n"));
             return;
         }

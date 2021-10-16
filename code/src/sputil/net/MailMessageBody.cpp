@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/MailMessageBody.h>
-#include <sptk5/RegularExpression.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,7 +50,9 @@ void MailMessageBody::text(const string& messageText, bool smtp)
             pos += 3;
         }
     }
-    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS)
+
+    constexpr int searchFirstBytes {100};
+    if (upperCase(messageText.substr(0, searchFirstBytes)).find("<HTML>") == STRING_NPOS)
     {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
         m_plainText = msg;

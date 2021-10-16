@@ -77,6 +77,7 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 #ifdef USE_GTEST
 
 static constexpr uint16_t testPort = 3000;
+static constexpr uint16_t bufferSize = 2048;
 static constexpr auto readTimeout = chrono::milliseconds(200);
 
 class UDPEchoServer
@@ -110,8 +111,9 @@ public:
      */
     void threadFunction() override
     {
-        DateTime stopTime = DateTime::Now() + chrono::seconds(5);
-        Buffer data(2048);
+        constexpr chrono::seconds timeout {5};
+        DateTime stopTime = DateTime::Now() + timeout;
+        Buffer data(bufferSize);
         while (!terminated() && DateTime::Now() < stopTime)
         {
             try
@@ -119,7 +121,7 @@ public:
                 if (socket.readyToRead(readTimeout))
                 {
                     sockaddr_in from {};
-                    size_t sz = socket.read(data.data(), 2048, &from);
+                    size_t sz = socket.read(data.data(), bufferSize, &from);
                     if (sz == 0)
                     {
                         return;
@@ -140,7 +142,7 @@ public:
 
 TEST(SPTK_UDPSocket, minimal)
 {
-    Buffer buffer(4096);
+    Buffer buffer(bufferSize);
 
     UDPEchoServer echoServer;
     echoServer.run();
@@ -165,7 +167,7 @@ TEST(SPTK_UDPSocket, minimal)
         buffer.bytes(0);
         if (socket.readyToRead(readTimeout))
         {
-            auto bytes = socket.read(buffer.data(), 2048);
+            auto bytes = socket.read(buffer.data(), bufferSize);
             if (bytes > 0)
             {
                 buffer.bytes(bytes);

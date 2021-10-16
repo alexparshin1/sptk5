@@ -120,7 +120,8 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
     }
     else
     {
-        while (socket->readyToRead(milliseconds(100)))
+        constexpr milliseconds timeout {100};
+        while (socket->readyToRead(timeout))
         {
             socket->read(buffer, socket->socketBytes());
         }
@@ -269,10 +270,11 @@ TEST(SPTK_HttpProxy, connect)
     String error;
     try
     {
+        constexpr int httpPort {80};
         Host ahost("www.sptk.net:80");
 
         shared_ptr<TCPSocket> socket;
-        if (ahost.port() == 80)
+        if (ahost.port() == httpPort)
         {
             socket = make_shared<TCPSocket>();
         }
@@ -282,7 +284,8 @@ TEST(SPTK_HttpProxy, connect)
         }
 
         socket->setProxy(move(httpProxy));
-        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, seconds(5));
+        constexpr seconds connectTimeout {5};
+        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
 
         HttpConnect http(*socket);
 
