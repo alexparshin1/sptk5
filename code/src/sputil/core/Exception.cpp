@@ -30,14 +30,18 @@
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(const String& text, const String& file, int line, const String& description) DOESNT_THROW
-    : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
+Exception::Exception(const String& text, const fs::path& file, int line, const String& description) DOESNT_THROW
+    : m_file(file)
+    , m_line(line)
+    , m_text(text)
+    , m_description(description)
+    , m_fullMessage(m_text)
 {
     if (m_line != 0 && !m_file.empty())
     {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
         String fname(file);
-        if (auto matches = matchFileName.m(file); !matches.empty())
+        if (auto matches = matchFileName.m(file.c_str()); !matches.empty())
         {
             fname = matches[0].value;
         }
@@ -75,32 +79,33 @@ String Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(const String& text, const String& file, int line,
+TimeoutException::TimeoutException(const String& text, const fs::path& file, int line,
                                    const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-ConnectionException::ConnectionException(const String& text, const String& file, int line,
+ConnectionException::ConnectionException(const String& text, const fs::path& file, int line,
                                          const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-DatabaseException::DatabaseException(const String& text, const String& file, int line,
+DatabaseException::DatabaseException(const String& text, const fs::path& file, int line,
                                      const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-SOAPException::SOAPException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
+SOAPException::SOAPException(const String& text, const fs::path& file, int line, const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-HTTPException::HTTPException(size_t statusCode, const String& text, const String& file, int line,
+HTTPException::HTTPException(size_t statusCode, const String& text, const fs::path& file, int line,
                              const String& description) DOESNT_THROW
-    : Exception(text, file, line, description), m_statusCode(statusCode)
+    : Exception(text, file, line, description)
+    , m_statusCode(statusCode)
 {
     m_statusText = httpResponseStatus(statusCode);
 }
@@ -141,8 +146,7 @@ String HTTPException::httpResponseStatus(size_t statusCode)
         {504, "Gateway Timeout"},
         {505, "HTTP Version Not Supported"},
         {510, "Not Extended"},
-        {511, "Network Authentication Required"}
-    };
+        {511, "Network Authentication Required"}};
 
     auto itor = statusCodeInfo.find(statusCode);
     if (itor == statusCodeInfo.end())

@@ -130,13 +130,14 @@ String Field::doubleDataToString() const
 
 void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo, bool nullLargeData) const
 {
+    constexpr size_t minLargeFieldSize {256};
     String value = asString();
 
     if (!value.empty())
     {
         xdoc::SNode element;
 
-        if (nullLargeData && value.length() > 256)
+        if (nullLargeData && value.length() >= minLargeFieldSize)
         {
             value = "";
         }

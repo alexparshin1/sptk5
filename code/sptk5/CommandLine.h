@@ -26,12 +26,12 @@
 
 #pragma once
 
+#include <iostream>
+#include <list>
 #include <map>
 #include <set>
-#include <list>
-#include <sptk5/cutils>
 #include <sptk5/RegularExpression.h>
-#include <iostream>
+#include <sptk5/cutils>
 
 namespace sptk {
 
@@ -46,7 +46,6 @@ namespace sptk {
 class SP_EXPORT CommandLine
 {
 public:
-
     /**
      * Option visibility for an argument or command.
      *
@@ -57,7 +56,6 @@ public:
     class SP_EXPORT Visibility
     {
     public:
-
         /**
          * Constructor
          * @param pattern       Regular expression to match or do not match command line argument. If empty then it matches any argument.
@@ -76,9 +74,8 @@ public:
         bool matches(const String& command) const;
 
     private:
-
-        bool m_inverted; ///< If true then expression shoul not match
-        std::shared_ptr<RegularExpression> m_regexp;   ///< Regular expression for matching an argument(s)
+        bool m_inverted;                             ///< If true then expression shoul not match
+        std::shared_ptr<RegularExpression> m_regexp; ///< Regular expression for matching an argument(s)
     };
 
     /**
@@ -86,7 +83,7 @@ public:
      * @param ch                Character to print
      * @param count             Number of characters to print
      */
-    void printLine(const String& ch, size_t count) const;
+    static void printLine(const String& ch, size_t count);
 
     /**
      * Print help on commands
@@ -128,7 +125,7 @@ public:
      * @param useForCommands    Element visibility for a command (options only)
      * @param help              Help (description) for the element
      */
-    void defineOption(const String& fullName, const String& shortName, Visibility useForCommands, const String& help);
+    void defineOption(const String& fullName, const String& shortName, const Visibility& useForCommands, const String& help);
 
     /**
      * Defines command line parameter
@@ -142,7 +139,7 @@ public:
      */
     void defineParameter(const String& fullName, const String& shortName, const String& valueName,
                          const String& validateValue,
-                         Visibility useForCommands, const String& defaultValue, const String& help);
+                         const Visibility& useForCommands, const String& defaultValue, const String& help);
 
     /**
      * Defines command line argument/command.
@@ -228,10 +225,10 @@ public:
          */
         enum class Type
         {
-            IS_UNKNOWN,         ///< Type is unknown or undefined
-            IS_COMMAND,         ///< Element is a command, not starting from '-' character
-            IS_OPTION,          ///< Element is an option that doesn't expect value
-            IS_VALUE_OPTION     ///< Element is an option that expects value
+            IS_UNKNOWN,     ///< Type is unknown or undefined
+            IS_COMMAND,     ///< Element is a command, not starting from '-' character
+            IS_OPTION,      ///< Element is an option that doesn't expect value
+            IS_VALUE_OPTION ///< Element is an option that expects value
         };
 
         /**
@@ -401,7 +398,6 @@ public:
         : public CommandLineElement
     {
     public:
-
         /**
          * Constructor
          * @param name          Element name
@@ -437,26 +433,24 @@ public:
         Type type() const override;
 
     private:
-
-        String m_valueInfo;            ///< Value name, for using in help
-        std::shared_ptr<RegularExpression> m_validateValue;        ///< Value validation regular expression
+        String m_valueInfo;                                 ///< Value name, for using in help
+        std::shared_ptr<RegularExpression> m_validateValue; ///< Value validation regular expression
     };
 
 private:
-
-    String m_programVersion;       ///< Program version and copyright message (for help only).
-    String m_description;          ///< Program description (for help only).
-    String m_commandLinePrototype; ///< Command line prototype (for help only).
-    std::map<String, std::shared_ptr<CommandLineElement>> m_optionTemplates;      ///< All the defined options.
+    String m_programVersion;                                                 ///< Program version and copyright message (for help only).
+    String m_description;                                                    ///< Program description (for help only).
+    String m_commandLinePrototype;                                           ///< Command line prototype (for help only).
+    std::map<String, std::shared_ptr<CommandLineElement>> m_optionTemplates; ///< All the defined options.
 
     /**
      * All the defined arguments.
      */
     std::map<String, std::shared_ptr<CommandLineArgument>> m_argumentTemplates;
-    std::map<String, String> m_values; ///< Received option values.
-    Strings m_arguments;               ///< Received arguments.
-    fs::path m_executablePath;         ///< Executable path, from argv[0]
-    std::list<std::shared_ptr<CommandLineElement>> m_allElements;          ///< All defined elements.
+    std::map<String, String> m_values;                            ///< Received option values.
+    Strings m_arguments;                                          ///< Received arguments.
+    fs::path m_executablePath;                                    ///< Executable path, from argv[0]
+    std::list<std::shared_ptr<CommandLineElement>> m_allElements; ///< All defined elements.
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
@@ -466,4 +460,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -39,10 +39,9 @@ using namespace std;
 using namespace sptk;
 using namespace filesystem;
 
-String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const
+String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
-    struct stat st {
-    };
+    struct stat st = {};
 
     stat(file.path().string().c_str(), &st);
 
@@ -349,8 +348,9 @@ public:
             return;
         }
 
+        constexpr size_t charCount {10};
         Buffer buffer;
-        buffer.fill('X', 10);
+        buffer.fill('X', charCount);
         buffer.saveToFile((m_path / "file1").c_str());
         buffer.saveToFile((m_path / "file2").c_str());
     }

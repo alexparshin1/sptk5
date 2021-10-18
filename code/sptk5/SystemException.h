@@ -49,7 +49,7 @@ public:
      * @param file std::string, the file name where exception occurs
      * @param line int, the line number in the file where exception occurs
      */
-    SystemException(const String& context, const String& file="", int line=0) DOESNT_THROW;
+    SystemException(const String& context, const fs::path& file = "", int line = 0) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -65,11 +65,10 @@ public:
     /**
      * @brief Returns OS error
      */
-    static std::string osError();
+    static String osError();
 };
 
 /**
  * @}
  */
-}
-
+} // namespace sptk

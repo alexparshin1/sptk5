@@ -26,17 +26,17 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
-#include <stdexcept>
+#include <sptk5/sptk.h>
 #include <sstream>
+#include <stdexcept>
 
 namespace sptk {
 
 #ifndef _WIN32
-    #define DOESNT_THROW        noexcept
+#define DOESNT_THROW noexcept
 #else
-    #define DOESNT_THROW        throw()
+#define DOESNT_THROW throw()
 #endif
 
 /**
@@ -52,32 +52,32 @@ namespace sptk {
  * just want to catch STL and SPTK exceptions - you can use
  * try {} catch (std::exception& e) {} block.
  */
-class SP_EXPORT Exception: public std::exception
+class SP_EXPORT Exception : public std::exception
 {
     /**
      * The file where exception occurs
      */
-    String      m_file;
+    String m_file;
 
     /**
      * The line number in the file where exception occurs
      */
-    int         m_line;
+    int m_line;
 
     /**
      * The exception text
      */
-    String      m_text;
+    String m_text;
 
     /**
      * The extended error information
      */
-    String      m_description;
+    String m_description;
 
     /**
      * The complete error information combining everything together
      */
-    String      m_fullMessage;
+    String m_fullMessage;
 
 public:
     /**
@@ -87,12 +87,12 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    explicit Exception(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    explicit Exception(const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception
      */
-    const char * what() const DOESNT_THROW override;
+    const char* what() const DOESNT_THROW override;
 
     /**
      * @brief Returns exception message without file name, line number, or description
@@ -120,7 +120,7 @@ public:
  *
  * Thrown when timeout error occurs.
  */
-class SP_EXPORT TimeoutException: public Exception
+class SP_EXPORT TimeoutException : public Exception
 {
 public:
     /**
@@ -130,7 +130,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    TimeoutException(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    TimeoutException(const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -144,7 +144,7 @@ public:
  *
  * Thrown when connection error occurs.
  */
-class SP_EXPORT ConnectionException: public Exception
+class SP_EXPORT ConnectionException : public Exception
 {
 public:
     /**
@@ -154,7 +154,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    ConnectionException(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    ConnectionException(const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -168,7 +168,7 @@ public:
  *
  * Thrown when database operation error occurs.
  */
-class SP_EXPORT DatabaseException: public Exception
+class SP_EXPORT DatabaseException : public Exception
 {
 public:
     /**
@@ -178,7 +178,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    DatabaseException(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    DatabaseException(const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -192,7 +192,7 @@ public:
  *
  * Thrown every time when SOAP fault occurs.
  */
-class SP_EXPORT SOAPException: public Exception
+class SP_EXPORT SOAPException : public Exception
 {
 public:
     /**
@@ -202,7 +202,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    SOAPException(const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    SOAPException(const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -216,10 +216,10 @@ public:
  *
  * Thrown every time when SOAP fault occurs.
  */
-class SP_EXPORT HTTPException: public Exception
+class SP_EXPORT HTTPException : public Exception
 {
-    size_t      m_statusCode;   ///< HTTP status code
-    String      m_statusText;   ///< HTTP status text
+    size_t m_statusCode; ///< HTTP status code
+    String m_statusText; ///< HTTP status text
 public:
     /**
      * Constructor
@@ -229,7 +229,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    HTTPException(size_t statusCode, const String& text, const String& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
+    HTTPException(size_t statusCode, const String& text, const fs::path& file = String(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -241,13 +241,19 @@ public:
      * Get HTTP status code
      * @return HTTP status code
      */
-    size_t statusCode() const { return m_statusCode; }
+    size_t statusCode() const
+    {
+        return m_statusCode;
+    }
 
     /**
      * Get HTTP status text
      * @return HTTP status text
      */
-    String statusText() const { return m_statusText; }
+    String statusText() const
+    {
+        return m_statusText;
+    }
 
     /**
      * Return standard HTTP response status text for status code
@@ -265,29 +271,54 @@ public:
 /**
  * @brief Throws exception with file name and line number
  */
-#define throwException(msg) { std::stringstream err; err << msg; throw sptk::Exception(err.str(),__FILE__,__LINE__); }
+#define throwException(msg)                                   \
+    {                                                         \
+        std::stringstream err;                                \
+        err << msg;                                           \
+        throw sptk::Exception(err.str(), __FILE__, __LINE__); \
+    }
 
 /**
  * @brief Throws timeout exception with file name and line number
  */
-#define throwTimeoutException(msg) { std::stringstream err; err << msg; throw sptk::TimeoutException(err.str(),__FILE__,__LINE__); }
+#define throwTimeoutException(msg)                                   \
+    {                                                                \
+        std::stringstream err;                                       \
+        err << msg;                                                  \
+        throw sptk::TimeoutException(err.str(), __FILE__, __LINE__); \
+    }
 
 /**
  * @brief Throws connection exception with file name and line number
  */
-#define throwConnectionException(msg) { std::stringstream err; err << msg; throw sptk::ConnectionException(err.str(),__FILE__,__LINE__); }
+#define throwConnectionException(msg)                                   \
+    {                                                                   \
+        std::stringstream err;                                          \
+        err << msg;                                                     \
+        throw sptk::ConnectionException(err.str(), __FILE__, __LINE__); \
+    }
 
 /**
  * @brief Throws database exception with file name and line number
  */
-#define throwDatabaseException(msg) { std::stringstream err; err << msg; throw sptk::DatabaseException(err.str(),__FILE__,__LINE__); }
+#define throwDatabaseException(msg)                                   \
+    {                                                                 \
+        std::stringstream err;                                        \
+        err << msg;                                                   \
+        throw sptk::DatabaseException(err.str(), __FILE__, __LINE__); \
+    }
 
 /**
  * @brief Throws SOAP exception with file name and line number
  */
-#define throwSOAPException(msg) { std::stringstream err; err << msg; throw sptk::SOAPException(err.str(),__FILE__,__LINE__); }
+#define throwSOAPException(msg)                                   \
+    {                                                             \
+        std::stringstream err;                                    \
+        err << msg;                                               \
+        throw sptk::SOAPException(err.str(), __FILE__, __LINE__); \
+    }
 
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -36,7 +36,8 @@ BufferStorage::BufferStorage(size_t sz)
 
 void BufferStorage::adjustSize(size_t sz)
 {
-    sz = (sz / 128 + 1) * 128;
+    constexpr size_t sizeGranularity {128};
+    sz = (sz / sizeGranularity + 1) * sizeGranularity;
     reallocate(sz);
     m_buffer[sz] = 0;
 }
@@ -188,8 +189,9 @@ TEST(SPTK_BufferStorage, append)
 
 TEST(SPTK_BufferStorage, erase)
 {
-    BufferStorage testStorage(32);
-    testStorage.fill(0, 32);
+    constexpr size_t bufferSize {32};
+    BufferStorage testStorage(bufferSize);
+    testStorage.fill(0, bufferSize);
     testStorage.set("0123456789ABCDEF");
     EXPECT_EQ(testStorage.length(), size_t(16));
     EXPECT_STREQ(testStorage.c_str(), testString.c_str());
@@ -199,7 +201,8 @@ TEST(SPTK_BufferStorage, erase)
 
 TEST(SPTK_BufferStorage, reset)
 {
-    BufferStorage testStorage(32);
+    constexpr size_t bufferSize {32};
+    BufferStorage testStorage(bufferSize);
     testStorage.set(testString.c_str());
 
     testStorage.reset();

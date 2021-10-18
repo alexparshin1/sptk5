@@ -45,7 +45,7 @@ using namespace sptk;
 constexpr int DEFAULT_LGWIN = 24;
 constexpr int BROTLI_WINDOW_GAP = 16;
 
-static size_t BROTLI_MAX_BACKWARD_LIMIT(int W)
+static size_t BROTLI_MAX_BACKWARD_LIMIT(uint32_t W)
 {
     return (1U << W) - BROTLI_WINDOW_GAP;
 }
@@ -59,9 +59,8 @@ public:
         : inputData(inputBuffer)
         , outputData(outputBuffer)
         , input_file_length((int64_t) inputBuffer.length())
+        , next_out(output)
     {
-        available_out = kBufferSize;
-        next_out = output;
     }
 
     [[nodiscard]] BrotliEncoderState* createEncoderInstance() const;
@@ -84,11 +83,11 @@ private:
     Buffer& outputData;
     int64_t input_file_length {0}; /* -1, if impossible to calculate */
     size_t available_in {0};
-    const uint8_t* next_in = nullptr;
+    const uint8_t* next_in {nullptr};
 
-    size_t available_out;
+    size_t available_out {kBufferSize};
 
-    uint8_t* next_out = nullptr;
+    uint8_t* next_out {nullptr};
 
     [[nodiscard]] BROTLI_BOOL HasMoreInput() const
     {

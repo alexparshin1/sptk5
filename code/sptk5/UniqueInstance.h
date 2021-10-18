@@ -76,8 +76,8 @@ public:
     bool isUnique() const;
 
 private:
-    String m_instanceName; ///< Instance name
-    bool m_lockCreated;    ///< Lock is created
+    String m_instanceName;      ///< Instance name
+    bool m_lockCreated {false}; ///< Lock is created
 #ifdef _WIN32
     HANDLE m_mutex; ///< The named mutex object
 #else

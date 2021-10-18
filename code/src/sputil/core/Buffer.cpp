@@ -24,11 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <filesystem>
+#include <iomanip>
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
 #include <sys/stat.h>
-#include <iomanip>
-#include <filesystem>
 
 using namespace std;
 using namespace sptk;
@@ -119,15 +119,19 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
     size_t offset = 0;
 
+    constexpr int addressWidth {8};
+    constexpr int bytesInHalfRow {8};
+    constexpr int bytesInRow {16};
+
     while (offset < buffer.bytes())
     {
-        stream << hex << setw(8) << offset << "  ";
+        stream << hex << setw(addressWidth) << offset << "  ";
 
         size_t printed = 0;
         size_t rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed)
+        for (; rowOffset < buffer.bytes() && printed < bytesInRow; ++rowOffset, ++printed)
         {
-            if (printed == 8)
+            if (printed == bytesInHalfRow)
             {
                 stream << " ";
             }
@@ -135,7 +139,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
             stream << hex << setw(2) << printChar << " ";
         }
 
-        while (printed < 16)
+        while (printed < bytesInRow)
         {
             stream << "   ";
             ++printed;
@@ -145,14 +149,14 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
         printed = 0;
         rowOffset = offset;
-        for (; rowOffset < buffer.bytes() && printed < 16; ++rowOffset, ++printed)
+        for (; rowOffset < buffer.bytes() && printed < bytesInRow; ++rowOffset, ++printed)
         {
-            if (printed == 8)
+            if (printed == bytesInHalfRow)
             {
                 stream << " ";
             }
             auto testChar = buffer[rowOffset];
-            if (testChar >= 32)
+            if (testChar >= ' ')
             {
                 stream << buffer[rowOffset];
             }
@@ -163,7 +167,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
         }
 
         stream << endl;
-        offset += 16;
+        offset += bytesInRow;
     }
 
     stream.fill(fillChar);
@@ -262,7 +266,8 @@ TEST(SPTK_Buffer, fill)
 {
     Buffer buffer1;
 
-    buffer1.fill('#', 12);
+    constexpr int repeatCharCount = 12;
+    buffer1.fill('#', repeatCharCount);
 
     EXPECT_STREQ("############", buffer1.c_str());
     EXPECT_EQ(size_t(12), buffer1.bytes());
@@ -283,7 +288,8 @@ TEST(SPTK_Buffer, erase)
 {
     Buffer buffer1(testPhrase);
 
-    buffer1.erase(4, 5);
+    constexpr int removeCharCount = 5;
+    buffer1.erase(4, removeCharCount);
 
     EXPECT_STREQ("This test", buffer1.c_str());
 }
@@ -317,8 +323,7 @@ TEST(SPTK_Buffer, hexDump)
 {
     const Strings expected {
         "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
-        "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"
-    };
+        "00000010  69 73 20 69 73 20 61 20  74 65 73 74              is is a  test"};
 
     Buffer buffer(testPhrase);
     buffer.append(testPhrase);

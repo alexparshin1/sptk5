@@ -27,12 +27,12 @@
 #pragma once
 
 #include <memory>
-#include <sys/stat.h>
+#include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/MemoryDS.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
-#include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/sptk-config.h>
+#include <sys/stat.h>
 
 namespace sptk {
 
@@ -44,11 +44,11 @@ namespace sptk {
 /**
  * Directory Show Policies
  */
-static constexpr int DDS_SHOW_ALL = 0;          ///< Show everything
-static constexpr int DDS_HIDE_FILES = 1;        ///< Hide files
-static constexpr int DDS_HIDE_DOT_FILES = 2;    ///< Hide files with the name started with '.' (*nix hidden files,mostly)
-static constexpr int DDS_HIDE_DIRECTORIES = 4;  ///< Hide directories
-static constexpr int DDS_NO_SORT = 8;           ///< Do not sort
+static constexpr int DDS_SHOW_ALL = 0;         ///< Show everything
+static constexpr int DDS_HIDE_FILES = 1;       ///< Hide files
+static constexpr int DDS_HIDE_DOT_FILES = 2;   ///< Hide files with the name started with '.' (*nix hidden files,mostly)
+static constexpr int DDS_HIDE_DIRECTORIES = 4; ///< Hide directories
+static constexpr int DDS_NO_SORT = 8;          ///< Do not sort
 
 /**
  * @brief Directory datasource
@@ -71,7 +71,8 @@ public:
      *
      */
     DirectoryDS(const String& _directory = "", const String& _pattern = "", int _showPolicy = 0)
-        : MemoryDS(), m_showPolicy(_showPolicy)
+        : MemoryDS()
+        , m_showPolicy(_showPolicy)
     {
         if (!_directory.empty())
         {
@@ -146,8 +147,8 @@ protected:
      * @param file              File information
      * @returns the file type name
      */
-    String getFileType(const fs::directory_entry& file, CSmallPixmapType& image,
-                       DateTime& modificationTime) const;
+    static String getFileType(const fs::directory_entry& file, CSmallPixmapType& image,
+                              DateTime& modificationTime);
 
 private:
     /**
@@ -158,7 +159,7 @@ private:
     /**
      * Current file pattern
      */
-    std::vector<std::shared_ptr<RegularExpression> > m_patterns;
+    std::vector<std::shared_ptr<RegularExpression>> m_patterns;
 
     /**
      * Show policy, see CDirectoryDSpolicies for more information
@@ -184,4 +185,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -62,7 +62,7 @@ public:
 
     MatchData(const pcre*, size_t maxMatches)
         : maxMatches(maxMatches + reservedMatches)
-        , matches(maxMatches + reservedMatches * 2)
+        , matches(maxMatches + (size_t) reservedMatches * 2)
     {
     }
 #endif
@@ -71,8 +71,10 @@ public:
 
     MatchData& operator=(const MatchData&) = delete;
 
-    size_t maxMatches {0};
     vector<Match> matches;
+
+private:
+    size_t maxMatches {0};
 };
 
 } // namespace sptk
@@ -151,7 +153,7 @@ void RegularExpression::compile()
     const char* error = nullptr;
     int errorOffset = 0;
 
-    auto* pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
+    auto* pcre = pcre_compile(m_pattern.c_str(), (int) m_options, &error, &errorOffset, nullptr);
     m_pcre = shared_ptr<PCREHandle>(pcre,
                                     [](auto* pcreHandle) {
                                         pcre_free(pcreHandle);
@@ -180,8 +182,8 @@ void RegularExpression::compile()
     m_captureCount = getCaptureCount();
 }
 
-RegularExpression::RegularExpression(String pattern, const String& options)
-    : m_pattern(move(pattern))
+RegularExpression::RegularExpression(const String& pattern, const String& options)
+    : m_pattern(pattern)
 {
     for (auto ch: options)
     {
@@ -498,10 +500,8 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
     {
         return result + text.substr(lastOffset);
     }
-    else
-    {
-        return result;
-    }
+
+    return result;
 }
 
 String RegularExpression::s(const String& text, const std::function<String(const String&)>& replace,

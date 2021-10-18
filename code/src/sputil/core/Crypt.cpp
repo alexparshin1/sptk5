@@ -24,14 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Exception.h>
-#include <sptk5/Crypt.h>
 #include <openssl/evp.h>
+#include <sptk5/Crypt.h>
+#include <sptk5/Exception.h>
 
 #ifdef USE_GTEST
-
 #include <sptk5/Base64.h>
-
 #endif
 
 using namespace std;

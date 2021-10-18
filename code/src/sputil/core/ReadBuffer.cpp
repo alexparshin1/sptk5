@@ -70,7 +70,8 @@ TEST(SPTK_ReadBuffer, read)
     String test1(":test1:");
     buffer.append(test1);
 
-    for (int i = 3; i < 5; ++i)
+    constexpr int dataLength {5};
+    for (int i = 3; i < dataLength; ++i)
     {
         buffer.append(i);
     }
@@ -78,7 +79,7 @@ TEST(SPTK_ReadBuffer, read)
     EXPECT_EQ(size_t(27), buffer.available());
     EXPECT_EQ(size_t(0), buffer.readOffset());
 
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < dataLength; ++i)
     {
         int x = 0;
         buffer.read(x);

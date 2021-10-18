@@ -60,7 +60,10 @@ bool CommandLine::Visibility::matches(const String& command) const
 
 CommandLine::CommandLineElement::CommandLineElement(const String& name, const String& shortName, const String& help,
                                                     const Visibility& useWithCommands)
-    : m_name(name), m_shortName(shortName), m_help(help), m_useWithCommands(useWithCommands)
+    : m_name(name)
+    , m_shortName(shortName)
+    , m_help(help)
+    , m_useWithCommands(useWithCommands)
 {
     if (m_name.empty())
     {
@@ -114,7 +117,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
     formattedText.clear();
 
     String row;
-    for (const String& word : words)
+    for (const String& word: words)
     {
         if (row.empty())
         {
@@ -143,7 +146,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     Strings helpText;
     formatHelp(textWidth, helpText);
     bool firstRow = true;
-    for (const string& helpRow : helpText)
+    for (const string& helpRow: helpText)
     {
         if (firstRow)
         {
@@ -164,7 +167,8 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
         {
             printDefaultValue = "'" + optionDefaultValue + "'";
         }
-        COUT(left << setw((int) nameWidth) << "" << "  The default value is " + printDefaultValue + "." << endl)
+        COUT(left << setw((int) nameWidth) << ""
+                  << "  The default value is " + printDefaultValue + "." << endl)
     }
 }
 //=============================================================================
@@ -216,7 +220,8 @@ CommandLine::CommandLineParameter::CommandLineParameter(const String& name, cons
                                                         const String& valueInfo,
                                                         const String& validateValue, const Visibility& useWithCommands,
                                                         const String& help)
-    : CommandLineElement(name, shortName, help, useWithCommands), m_valueInfo(valueInfo)
+    : CommandLineElement(name, shortName, help, useWithCommands)
+    , m_valueInfo(valueInfo)
 {
     if (!validateValue.empty())
     {
@@ -273,11 +278,13 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 //=============================================================================
 
 CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
-    : m_programVersion(programVersion), m_description(description), m_commandLinePrototype(commandLinePrototype)
+    : m_programVersion(programVersion)
+    , m_description(description)
+    , m_commandLinePrototype(commandLinePrototype)
 {
 }
 
-void CommandLine::defineOption(const String& fullName, const String& shortName, Visibility useForCommands,
+void CommandLine::defineOption(const String& fullName, const String& shortName, const Visibility& useForCommands,
                                const String& help)
 {
     if (fullName.empty() && shortName.empty())
@@ -298,7 +305,7 @@ void CommandLine::defineOption(const String& fullName, const String& shortName, 
 }
 
 void CommandLine::defineParameter(const String& fullName, const String& shortName, const String& valueName,
-                                  const String& validateValue, Visibility useForCommands, const String& defaultValue,
+                                  const String& validateValue, const Visibility& useForCommands, const String& defaultValue,
                                   const String& help)
 {
     if (fullName.empty() && shortName.empty())
@@ -343,7 +350,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
 Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
 {
     Strings args;
-    for (auto* arg: argv)
+    for (const auto* arg: argv)
     {
         if (arg != nullptr)
         {
@@ -355,7 +362,7 @@ Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
     Strings arguments;
     String quote;
     String quotedString;
-    for (auto& arg : args)
+    for (auto& arg: args)
     {
         String digestedArg = preprocessArgument(arg, quote, quotedString);
         if (!digestedArg.empty())
@@ -407,7 +414,7 @@ String CommandLine::preprocessArgument(String& arg, String& quote, String& quote
 Strings CommandLine::rewriteArguments(const Strings& arguments)
 {
     Strings digestedArgs;
-    for (auto& arg : arguments)
+    for (const auto& arg: arguments)
     {
         if (arg.startsWith("--"))
         {
@@ -527,7 +534,7 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& ch, size_t count) const
+void CommandLine::printLine(const String& ch, size_t count)
 {
     stringstream temp;
     for (size_t i = 0; i < count; ++i)
@@ -554,7 +561,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     printLine(doubleLine, screenColumns);
     COUT(m_description << endl)
 
-    COUT(endl << "Syntax:" << endl)
+    COUT(endl
+         << "Syntax:" << endl)
     printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
@@ -565,15 +573,16 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     COUT(commandLinePrototype << endl)
 
     // Find out space needed for command and option names
-    size_t nameColumns = 10;
+    constexpr size_t minimalWidth {10};
+    size_t nameColumns = minimalWidth;
     Strings sortedCommands;
 
-    for (auto&[argumentName, value]: m_argumentTemplates)
+    for (const auto& [argumentName, value]: m_argumentTemplates)
     {
         sortedCommands.push_back(argumentName);
     }
 
-    for (const String& commandName : sortedCommands)
+    for (const String& commandName: sortedCommands)
     {
         if (!onlyForCommand.empty() && commandName != onlyForCommand)
         {
@@ -586,7 +595,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 
     Strings sortedOptions;
-    for (auto&[optionName, value] : m_optionTemplates)
+    for (const auto& [optionName, value]: m_optionTemplates)
     {
         if (optionName.length() > 1)
         {
@@ -594,7 +603,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         }
     }
 
-    for (const String& optionName : sortedOptions)
+    for (const String& optionName: sortedOptions)
     {
         auto itor = m_optionTemplates.find(optionName);
         if (itor == m_optionTemplates.end())
@@ -614,7 +623,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 
     size_t helpTextColumns = screenColumns - (nameColumns + 2);
-    if ((int) helpTextColumns < 10)
+    if (helpTextColumns < minimalWidth)
     {
         CERR("Can't print help information - the screen width is too small" << endl)
         return;
@@ -629,9 +638,10 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
 {
     if (!m_optionTemplates.empty())
     {
-        COUT(endl << "Options:" << endl)
+        COUT(endl
+             << "Options:" << endl)
         printLine(singleLine, screenColumns);
-        for (const String& optionName : sortedOptions)
+        for (const String& optionName: sortedOptions)
         {
             auto itor = m_optionTemplates.find(optionName);
             const auto optionTemplate = itor->second;
@@ -654,9 +664,10 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty())
     {
-        COUT(endl << "Commands:" << endl)
+        COUT(endl
+             << "Commands:" << endl)
         printLine(singleLine, screenColumns);
-        for (const String& commandName : sortedCommands)
+        for (const String& commandName: sortedCommands)
         {
             auto ator = m_argumentTemplates.find(commandName);
             if (!onlyForCommand.empty() && commandName != onlyForCommand)
@@ -679,7 +690,6 @@ void CommandLine::printVersion() const
 class CommandLineTestData
 {
 public:
-
     static vector<const char*> testCommandLineArgs;
     static vector<const char*> testCommandLineArgs2;
     static vector<const char*> testCommandLineArgs3;
@@ -758,8 +768,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
     EXPECT_THROW(
         commandLine->init(CommandLineTestData::testCommandLineArgs2.size(),
                           CommandLineTestData::testCommandLineArgs2.data()),
-        Exception
-    );
+        Exception);
 }
 
 TEST(SPTK_CommandLine, wrongOption)
@@ -769,8 +778,7 @@ TEST(SPTK_CommandLine, wrongOption)
     EXPECT_THROW(
         commandLine->init(CommandLineTestData::testCommandLineArgs3.size(),
                           CommandLineTestData::testCommandLineArgs3.data()),
-        Exception
-    );
+        Exception);
 }
 
 TEST(SPTK_CommandLine, setOption)
@@ -791,7 +799,9 @@ TEST(SPTK_CommandLine, printHelp)
     stringstream output;
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
                       CommandLineTestData::testCommandLineArgs.data());
-    commandLine->printHelp(80);
+
+    constexpr size_t terminalWidth {80};
+    commandLine->printHelp(terminalWidth);
 }
 
 #endif

@@ -24,38 +24,40 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/SystemException.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
 
-SystemException::SystemException(const String& context, const String& file, int line) DOESNT_THROW
+SystemException::SystemException(const String& context, const fs::path& file, int line) DOESNT_THROW
     : Exception(context + ": " + osError(), file, line)
 {
 }
 
-string SystemException::osError()
+String SystemException::osError()
 {
 #ifdef WIN32
     // Get Windows last error
     LPCTSTR lpMsgBuf = NULL;
     DWORD dw = GetLastError();
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR) &lpMsgBuf,
-        0, NULL );
+        0, NULL);
     if (lpMsgBuf)
         return lpMsgBuf;
     else
         return "Unknown system error";
 #else
     // Get Unix errno-based error
-    string osError = strerror(errno);
-    return osError;
+    constexpr size_t maxErrorLength {256};
+    array<char, maxErrorLength> osError;
+    strerror_r(errno, osError.data(), maxErrorLength);
+    return osError.data();
 #endif
 }
 

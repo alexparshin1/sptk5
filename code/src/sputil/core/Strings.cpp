@@ -24,10 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sstream>
-#include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/Strings.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -208,7 +208,7 @@ Strings Strings::grep(const String& pattern) const
 {
     RegularExpression regularExpression(pattern);
     Strings output;
-    for (const String& str : *(this))
+    for (const String& str: *(this))
     {
         if (regularExpression.matches(str))
         {
@@ -265,8 +265,8 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings3.size());
     EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 
-    Strings numbers = {{"one",   3,               1},
-                       {"two",   3,               2},
+    Strings numbers = {{"one", 3, 1},
+                       {"two", 3, 2},
                        {"three", strlen("three"), 3}};
     EXPECT_EQ(size_t(3), numbers.size());
     EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
