@@ -41,7 +41,7 @@ Exception::Exception(const String& text, const fs::path& file, int line, const S
     {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
         String fname(file.string());
-        if (auto matches = matchFileName.m(file.c_str()); !matches.empty())
+        if (auto matches = matchFileName.m(file.string().c_str()); !matches.empty())
         {
             fname = matches[0].value;
         }
