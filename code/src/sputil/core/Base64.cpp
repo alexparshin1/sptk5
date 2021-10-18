@@ -218,7 +218,8 @@ TEST(SPTK_Base64, encodeString)
 TEST(SPTK_Base64, decodeBinary)
 {
     Buffer expectedBinary;
-    for (uint8_t i = 0; i < 255; i++)
+    constexpr size_t dataSize {255};
+    for (uint8_t i = 0; i < dataSize; i++)
     {
         expectedBinary.append(i);
     }
@@ -231,7 +232,8 @@ TEST(SPTK_Base64, decodeBinary)
 TEST(SPTK_Base64, encodeBinary)
 {
     Buffer source;
-    for (uint8_t i = 0; i < 255; i++)
+    constexpr size_t dataSize {255};
+    for (uint8_t i = 0; i < dataSize; i++)
     {
         source.append(i);
     }
