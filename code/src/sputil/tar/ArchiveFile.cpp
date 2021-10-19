@@ -59,7 +59,6 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
     fs::path path(fileName.c_str());
     auto status = fs::status(path);
 
-    m_type = ArchiveFile::Type::REGULAR_FILE;
     if (fs::is_symlink(path))
     {
         m_type = ArchiveFile::Type::SYM_LINK;

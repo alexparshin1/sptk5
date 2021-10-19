@@ -128,9 +128,9 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         contentLength = readOctalNumber(header->size, "size");
     }
 
-    int mode = (int) readOctalNumber(header->mode, "mode");
-    int uid = (int) readOctalNumber(header->uid, "uid");
-    int gid = (int) readOctalNumber(header->gid, "gid");
+    auto mode = (int) readOctalNumber(header->mode, "mode");
+    auto uid = (int) readOctalNumber(header->uid, "uid");
+    auto gid = (int) readOctalNumber(header->gid, "gid");
 
     time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dt = DateTime::convertCTime(mtime);
@@ -252,7 +252,7 @@ TEST_F(SPTK_Tar, read)
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 }
 
-TEST_F(SPTK_Tar, write)
+TEST_F(SPTK_Tar, write) /* NOLINT */
 {
     Tar tar;
 
