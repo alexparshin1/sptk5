@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 Exception::Exception(const String& text, const fs::path& file, int line, const String& description) DOESNT_THROW
-    : m_file(file)
+    : m_file(file.string())
     , m_line(line)
     , m_text(text)
     , m_description(description)
@@ -40,8 +40,8 @@ Exception::Exception(const String& text, const fs::path& file, int line, const S
     if (m_line != 0 && !m_file.empty())
     {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-        String fname(file);
-        if (auto matches = matchFileName.m(file.c_str()); !matches.empty())
+        String fname(file.string());
+        if (auto matches = matchFileName.m(file.string().c_str()); !matches.empty())
         {
             fname = matches[0].value;
         }

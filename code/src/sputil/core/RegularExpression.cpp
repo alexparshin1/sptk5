@@ -42,6 +42,7 @@ struct Match {
 
 class MatchData
 {
+    friend class RegularExpression;
 
 public:
 #ifdef HAVE_PCRE2
@@ -71,9 +72,9 @@ public:
 
     MatchData& operator=(const MatchData&) = delete;
 
+private:
     vector<Match> matches;
 
-private:
     size_t maxMatches {0};
 };
 
@@ -247,10 +248,10 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     return rc >= 0;
 #else
-            int rc = pcre_exec(
-                m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-                (pcre_offset_t*) matchData.matches.data(),
-                (pcre_offset_t) matchData.maxMatches * 2);
+    int rc = pcre_exec(
+        m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
+        (pcre_offset_t*) matchData.matches.data(),
+        (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
