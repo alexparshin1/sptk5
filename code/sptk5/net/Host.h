@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
-#include <sptk5/threads/Locks.h>
 #include <cstring>
 #include <mutex>
+#include <sptk5/Strings.h>
+#include <sptk5/threads/Locks.h>
 #include <sstream>
 
 #ifndef _WIN32
@@ -37,8 +37,8 @@
 #include <netinet/in.h>
 
 #else
-#include <winsock2.h>
 #include <WS2tcpip.h>
+#include <winsock2.h>
 #endif
 
 namespace sptk {
@@ -53,10 +53,10 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
-    String m_hostname;     ///< Host name or IP address
-    uint16_t m_port {0};     ///< Port number
-    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {};   ///< Storage for IPv4 and IPv6 addresses
+    mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
+    String m_hostname;                                      ///< Host name or IP address
+    uint16_t m_port {0};                                    ///< Port number
+    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -124,7 +124,6 @@ class SP_EXPORT Host
     void setPort(uint16_t p);
 
 public:
-
     /**
      * Default constructor
      */
@@ -288,4 +287,4 @@ public:
  * @}
  */
 
-}
+} // namespace sptk

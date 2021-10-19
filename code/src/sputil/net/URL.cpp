@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/URL.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/URL.h>
 
 using namespace std;
 using namespace sptk;
@@ -136,7 +136,7 @@ static const String testURL1 = "/daily/report?action=view&id=1";
 static const String testURL2 = "https://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
 static const String testURL3 = "https://johnd:secret@www.test.com:8080/report?action=view&id=1";
 
-TEST(SPTK_URL, minimal)
+TEST(SPTK_URL, minimal) /* NOLINT */
 {
     URL url(testURL0);
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -150,7 +150,7 @@ TEST(SPTK_URL, minimal)
     EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
 
-TEST(SPTK_URL, local)
+TEST(SPTK_URL, local) /* NOLINT */
 {
     URL url(testURL1);
     EXPECT_STREQ(url.protocol().c_str(), "");
@@ -166,7 +166,7 @@ TEST(SPTK_URL, local)
     EXPECT_STREQ(url.toString().c_str(), testURL1.c_str());
 }
 
-TEST(SPTK_URL, all)
+TEST(SPTK_URL, all) /* NOLINT */
 {
     URL url(testURL2);
     EXPECT_STREQ(url.protocol().c_str(), "https");

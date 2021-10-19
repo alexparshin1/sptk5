@@ -132,7 +132,7 @@ CSSLLibraryLoader CSSLLibraryLoader::m_loader;
 void SSLSocket::throwSSLError(const String& function, int rc) const
 {
     int errorCode = SSL_get_error(m_ssl, rc);
-    string error = getSSLError(function.c_str(), errorCode);
+    auto error = getSSLError(function.c_str(), errorCode);
     throw Exception(error, __FILE__, __LINE__);
 }
 
@@ -220,7 +220,8 @@ bool SSLSocket::tryConnect(const DateTime& timeoutAt)
             }
             return false; // continue attempts
         }
-        else if (errorCode == SSL_ERROR_WANT_WRITE)
+
+        if (errorCode == SSL_ERROR_WANT_WRITE)
         {
             if (!readyToWrite(nextTimeout))
             {
@@ -278,14 +279,15 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
         if (rc <= 0)
         {
             int32_t errorCode = SSL_get_error(m_ssl, rc);
-            string error = getSSLError("SSL_accept", errorCode);
+            auto error = getSSLError("SSL_accept", errorCode);
             throw ConnectionException(error);
         }
     }
 
     if (!accept)
     {
-        openSocketFD(false, seconds(10));
+        constexpr seconds connectionTimeout {10};
+        openSocketFD(false, connectionTimeout);
         return;
     }
 
@@ -293,7 +295,7 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
     if (rc <= 0)
     {
         int32_t errorCode = SSL_get_error(m_ssl, rc);
-        string error = getSSLError("SSL_accept", errorCode);
+        auto error = getSSLError("SSL_accept", errorCode);
 
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
         if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
@@ -306,10 +308,9 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
     }
 }
 
-string SSLSocket::getSSLError(const string& function, int32_t openSSLError) const
+String SSLSocket::getSSLError(const string& function, int32_t openSSLError) const
 {
-    string error("ERROR " + function + ": ");
-    unsigned long unknownError;
+    String error("ERROR " + function + ": ");
 
     switch (openSSLError)
     {
@@ -327,11 +328,13 @@ string SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
         case SSL_ERROR_WANT_ACCEPT:
             return error + "Accept failed";
         default:
-            unknownError = ERR_get_error();
-            if (unknownError == 0)
-            {
-                return error + "System call or protocol error";
-            }
+            break;
+    }
+
+    auto unknownError = ERR_get_error();
+    if (unknownError == 0)
+    {
+        return error + "System call or protocol error";
     }
 
     return error + ERR_func_error_string(unknownError) + string(": ") + ERR_reason_error_string(unknownError);
@@ -345,8 +348,8 @@ size_t SSLSocket::socketBytes()
     }
     if (m_ssl != nullptr)
     {
-        array<char, 8> dummy {};
-        SSL_read(m_ssl, dummy.data(), 0);
+        int64_t dummy = 0;
+        SSL_read(m_ssl, &dummy, 0);
         return (uint32_t) SSL_pending(m_ssl);
     }
     return 0;
@@ -354,14 +357,14 @@ size_t SSLSocket::socketBytes()
 
 size_t SSLSocket::recv(uint8_t* buffer, size_t len)
 {
-    int rc;
     for (;;)
     {
-        rc = SSL_read(m_ssl, buffer, (int) len);
+        int rc = SSL_read(m_ssl, buffer, (int) len);
         if (rc >= 0)
         {
-            break;
+            return rc;
         }
+
         int error = SSL_get_error(m_ssl, rc);
         switch (error)
         {
@@ -373,7 +376,8 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
                 throwSSLError("SSL_read", rc);
         }
     }
-    return (size_t) rc;
+
+    return (size_t) 0;
 }
 
 static constexpr int WRITE_BLOCK = 16384;

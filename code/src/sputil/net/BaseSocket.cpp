@@ -46,19 +46,21 @@ static bool m_inited(false);
 void sptk::throwSocketError(const String& operation, const char* file, int line)
 {
     string errorStr;
+    constexpr int maxMessageSize {256};
+    array<char, maxMessageSize> buffer {};
 #ifdef _WIN32
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
     if (dw != 0)
     {
         FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
-        if (lpMsgBuf)
-            errorStr = lpMsgBuf;
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) buffer.data(), maxMessageSize, nullptr);
+        errorStr = buffer.data();
     }
 #else
-    errorStr = strerror(errno);
+    strerror_r(errno, buffer.data(), maxMessageSize);
+    errorStr = buffer.data();
 #endif
     if (!errorStr.empty())
     {

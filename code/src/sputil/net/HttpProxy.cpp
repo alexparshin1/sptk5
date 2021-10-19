@@ -54,7 +54,9 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
             sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
-            if (socket->readyToRead(seconds(10)))
+
+            if (constexpr seconds readTimeout(10);
+                socket->readyToRead(readTimeout))
             {
                 proxyConnected = readResponse(socket);
             }
@@ -76,7 +78,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     return handle;
 }
 
-bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
+bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket)
 {
     bool proxyConnected {false};
     Buffer buffer;
@@ -220,6 +222,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     {
         proxyEnv = getenv("HTTP_PROXY");
     }
+
     if (proxyEnv == nullptr)
     {
         return false;

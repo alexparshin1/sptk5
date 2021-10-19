@@ -24,52 +24,46 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/RequestInfo.h>
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/cnet>
+#include <sptk5/net/RequestInfo.h>
 
 using namespace std;
 using namespace sptk;
 
 void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
+    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
     constexpr int initialBufferSize = 128;
     m_content.reset(initialBufferSize);
     m_compressedLength = content.length();
     m_contentEncoding = contentEncoding;
 
-    if (contentEncoding.empty())
+    switch (knowContentEncodings.indexOf(contentEncoding))
     {
-        m_content = content;
-    }
-    else
+        case 0:
+            m_content = content;
+            break;
 
 #ifdef HAVE_BROTLI
-    if (contentEncoding == "br")
-    {
-        Brotli::decompress(m_content, content);
-    }
-    else
+        case 1:
+            Brotli::decompress(m_content, content);
+            break;
 #endif
 
 #ifdef HAVE_ZLIB
-    if (contentEncoding == "gzip")
-    {
-        ZLib::decompress(m_content, content);
-    }
-    else
+        case 2:
+            ZLib::decompress(m_content, content);
+            break;
 #endif
 
-    if (contentEncoding == "x-www-form-urlencoded")
-    {
-        m_content = Url::decode(content.c_str());
-        return;
-    }
-    else
-    {
+        case 3:
+            m_content = Url::decode(content.c_str());
+            break;
 
-        throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
+        default:
+            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
     }
 }
 

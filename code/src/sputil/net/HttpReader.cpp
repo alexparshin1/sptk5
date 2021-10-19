@@ -25,11 +25,12 @@
 */
 
 #include <sptk5/sptk.h>
-#include <sptk5/net/TCPSocket.h>
-#include <sptk5/ZLib.h>
-#include <thread>
-#include <sptk5/Brotli.h>
+
 #include "sptk5/net/HttpReader.h"
+#include <sptk5/Brotli.h>
+#include <sptk5/ZLib.h>
+#include <sptk5/net/TCPSocket.h>
+#include <thread>
 
 using namespace std;
 using namespace sptk;
@@ -38,9 +39,9 @@ static constexpr int oneKb(1024);
 static constexpr chrono::seconds thirtySeconds(30);
 
 HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
-    : m_socket(socket),
-      m_readMode(readMode),
-      m_output(output)
+    : m_socket(socket)
+    , m_readMode(readMode)
+    , m_output(output)
 {
     output.reset(oneKb);
 }

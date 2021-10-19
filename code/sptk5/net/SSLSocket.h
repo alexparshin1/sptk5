@@ -163,7 +163,7 @@ protected:
      * @param SSLError          Error code returned by SSL_get_error() result
      * @return Error description
      */
-    virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
+    virtual String getSSLError(const std::string& function, int32_t SSLError) const;
 
 private:
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context

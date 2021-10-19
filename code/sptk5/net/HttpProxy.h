@@ -43,7 +43,7 @@ public:
 
     void sendRequest(const Host& destination, const std::shared_ptr<TCPSocket>& socket, const String& method) const;
 
-    bool readResponse(const std::shared_ptr<TCPSocket>& socket) const;
+    static bool readResponse(const std::shared_ptr<TCPSocket>& socket);
 };
 
 } // namespace sptk
