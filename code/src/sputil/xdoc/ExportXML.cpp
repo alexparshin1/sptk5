@@ -181,7 +181,7 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     }
 }
 
-void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent) const
+void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent)
 {
     // output indendation spaces
     if (indent > 0)

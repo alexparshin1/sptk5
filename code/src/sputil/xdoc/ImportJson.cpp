@@ -153,19 +153,16 @@ String readJsonString(const char* json, const char*& readPosition)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
         }
-        else
+        char ch = *pos;
+        if (ch == '"')
         {
-            char ch = *pos;
-            if (ch == '"')
-            {
-                break;
-            }
-            if (ch == '\\')
-            {
-                ++pos;
-            }
+            break;
+        }
+        if (ch == '\\')
+        {
             ++pos;
         }
+        ++pos;
     }
     String str = decode(string(readPosition + 1, pos - readPosition - 1));
 

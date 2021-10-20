@@ -138,7 +138,7 @@ private:
     static char* readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
                                   Mode formatting);
 
-    char* readXMLDocType(char* tokenEnd);
+    static char* readXMLDocType(char* tokenEnd);
 
     static const RegularExpression parseAttributes;
 

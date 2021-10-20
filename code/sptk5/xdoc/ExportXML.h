@@ -1,10 +1,10 @@
 #pragma once
 
-#include <sptk5/String.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/String.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/Node.h>
 #include <sptk5/xdoc/XMLDocType.h>
-#include <sptk5/xdoc/Document.h>
 
 namespace sptk::xdoc {
 
@@ -20,7 +20,7 @@ public:
 
     void appendSubNodes(const Node* node, Buffer& buffer, int indent);
 
-    void appendClosingTag(const Node* node, Buffer& buffer, int indent) const;
+    static void appendClosingTag(const Node* node, Buffer& buffer, int indent);
 
     void saveAttributes(const Node* node, Buffer& buffer);
 
@@ -35,4 +35,4 @@ private:
     void appendNodeEnd(const Node* node, const String& nodeName, Buffer& buffer, bool isNode);
 };
 
-}
+} // namespace sptk::xdoc

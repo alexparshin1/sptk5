@@ -115,11 +115,9 @@ private:
         {
             return DateTime::Now() + seconds(1);
         }
-        else
-        {
-            auto itor = m_scheduledEvents.begin();
-            return itor->first.when;
-        }
+
+        auto itor = m_scheduledEvents.begin();
+        return itor->first.when;
     }
 
     bool popFrontEvent(Timer::Event& event)
@@ -129,13 +127,11 @@ private:
         {
             return false;
         }
-        else
-        {
-            auto itor = m_scheduledEvents.begin();
-            event = itor->second;
-            m_scheduledEvents.erase(itor);
-            return true;
-        }
+
+        auto itor = m_scheduledEvents.begin();
+        event = itor->second;
+        m_scheduledEvents.erase(itor);
+        return true;
     }
 };
 
@@ -286,7 +282,7 @@ void Timer::cancel()
     set<Timer::Event> events = moveOutEvents();
 
     // Unregister and destroy events
-    for (auto event: events)
+    for (const auto& event: events)
     {
         timerThread->forget(event);
     }
@@ -294,7 +290,7 @@ void Timer::cancel()
 
 #ifdef USE_GTEST
 
-TEST(SPTK_Timer, repeat)
+TEST(SPTK_Timer, repeat) /* NOLINT */
 {
     if (DateTime::Now() > DateTime()) // always true
     {
@@ -302,12 +298,15 @@ TEST(SPTK_Timer, repeat)
 
         int eventSet(0);
 
-        Timer::Event handle = timer.repeat(milliseconds(20),
+        constexpr milliseconds repeatInterval {20};
+        constexpr milliseconds sleepInterval {105};
+
+        Timer::Event handle = timer.repeat(repeatInterval,
                                            [&eventSet]() {
                                                ++eventSet;
                                            });
 
-        this_thread::sleep_for(milliseconds(105));
+        this_thread::sleep_for(sleepInterval);
         timer.cancel(handle);
 
         EXPECT_NEAR(5, eventSet, 2);
@@ -336,61 +335,65 @@ static void gtestTimerCallback2(const uint8_t* theEventData)
     ++TimerTestData::eventCounter[eventIndex];
 }
 
-TEST(SPTK_Timer, fireOnce)
+TEST(SPTK_Timer, fireOnce) /* NOLINT */
 {
     mutex counterMutex;
     size_t counter = 1;
     Timer timer;
 
+    constexpr milliseconds delayInterval {10};
     timer.fireAt(
-        DateTime::Now() + milliseconds(10),
+        DateTime::Now() + delayInterval,
         [&counter, &counterMutex]() {
             scoped_lock lock(counterMutex);
             ++counter;
         });
 
-    this_thread::sleep_for(milliseconds(20));
+    this_thread::sleep_for(delayInterval * 2);
 
     scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
-TEST(SPTK_Timer, repeatTwice)
+TEST(SPTK_Timer, repeatTwice) /* NOLINT */
 {
     mutex counterMutex;
     size_t counter = 0;
     Timer timer;
 
+    constexpr milliseconds repeatInterval {10};
     timer.repeat(
-        milliseconds(10),
+        repeatInterval,
         [&counter, &counterMutex]() {
             scoped_lock lock(counterMutex);
             ++counter;
         },
         2);
 
-    this_thread::sleep_for(milliseconds(40));
+    this_thread::sleep_for(repeatInterval * 4);
 
     scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
-TEST(SPTK_Timer, repeatMultipleEvents)
+TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 {
     if (DateTime::Now() > DateTime()) // always true
     {
         Timer timer;
 
         vector<Timer::Event> createdEvents;
+        constexpr milliseconds repeatInterval {20};
+        constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
             TimerTestData::eventData[eventIndex] = eventIndex;
             function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
-            Timer::Event event = timer.repeat(milliseconds(20), callback);
+            Timer::Event event = timer.repeat(repeatInterval, callback);
             createdEvents.push_back(event);
         }
 
-        this_thread::sleep_for(milliseconds(110));
+        this_thread::sleep_for(testInterval);
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
@@ -398,7 +401,7 @@ TEST(SPTK_Timer, repeatMultipleEvents)
             timer.cancel(event);
         }
 
-        this_thread::sleep_for(milliseconds(20));
+        this_thread::sleep_for(repeatInterval);
 
         int totalEvents(0);
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
@@ -411,9 +414,10 @@ TEST(SPTK_Timer, repeatMultipleEvents)
     }
 }
 
-TEST(SPTK_Timer, repeatMultipleTimers)
+TEST(SPTK_Timer, repeatMultipleTimers) /* NOLINT */
 {
-    int repeatCount = 10;
+    constexpr int repeatCount {10};
+    constexpr milliseconds repeatInterval {10};
     vector<Timer> timers(MAX_TIMERS);
 
     if (!timers.empty())
@@ -429,13 +433,13 @@ TEST(SPTK_Timer, repeatMultipleTimers)
         {
             function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
             timer.repeat(
-                milliseconds(10),
+                repeatInterval,
                 callback,
                 repeatCount);
         }
     }
 
-    this_thread::sleep_for(milliseconds(300));
+    this_thread::sleep_for(repeatInterval * 30);
 
     int totalEvents(0);
     if (!timers.empty())
@@ -469,30 +473,33 @@ public:
     }
 };
 
-TEST(SPTK_Timer, notifyObjects)
+TEST(SPTK_Timer, notifyObjects) /* NOLINT */
 {
     NotifyObject object1;
     NotifyObject object2;
     Timer timer;
 
+    constexpr milliseconds delay {10};
+    constexpr milliseconds interval {30};
+
     function<void()> object1function = bind(&NotifyObject::setValue, &object1, 1);
     function<void()> object2function = bind(&NotifyObject::setValue, &object2, -1);
 
     timer.fireAt(
-        DateTime::Now() + milliseconds(10),
+        DateTime::Now() + delay,
         object1function);
     timer.fireAt(
-        DateTime::Now() + milliseconds(10),
+        DateTime::Now() + delay,
         object2function);
-    this_thread::sleep_for(milliseconds(30));
+    this_thread::sleep_for(interval);
     EXPECT_EQ(object1.getValue(), 1);
     EXPECT_EQ(object2.getValue(), -1);
 }
 
-TEST(SPTK_Timer, scheduleEventsPerformance)
+TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 {
     Timer timer;
-    size_t maxEvents = 100000;
+    constexpr size_t maxEvents = 100000;
     vector<Timer::Event> createdEvents;
 
     StopWatch stopwatch;

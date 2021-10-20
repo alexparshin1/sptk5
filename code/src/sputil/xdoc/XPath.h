@@ -16,7 +16,7 @@
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
 │   General Public License for more details.                                   │
 │                                                                              │
-│   You should have received a copy of the GNU Library General Public License  │
+│   You should have received a copy of the GNU Library General10 Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
 │   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
 │                                                                              │
@@ -33,8 +33,7 @@ namespace sptk::xdoc {
 /**
  * XPath Axis enum
  */
-enum class XPathAxis
-    : uint8_t
+enum class XPathAxis : uint8_t
 {
     CHILD,      ///< Child axis
     DESCENDANT, ///< Descendant axis
@@ -47,13 +46,13 @@ enum class XPathAxis
 class SP_EXPORT XPathElement
 {
 public:
-    String elementName;                   ///< Node name, or '*'
-    String criteria;                      ///< Criteria
-    XPathAxis axis {XPathAxis::CHILD};       ///< Axis
-    String attributeName;                 ///< Attribute name (optional)
-    String attributeValue;                ///< Attribute value (optional)
+    String elementName;                 ///< Node name, or '*'
+    String criteria;                    ///< Criteria
+    XPathAxis axis {XPathAxis::CHILD};  ///< Axis
+    String attributeName;               ///< Attribute name (optional)
+    String attributeValue;              ///< Attribute value (optional)
     bool attributeValueDefined {false}; ///< true if attribute value was defined
-    int nodePosition {0};              ///< 0 (not required), -1 (last), or node position
+    int nodePosition {0};               ///< 0 (not required), -1 (last), or node position
 };
 
 /**
@@ -97,4 +96,4 @@ private:
                                           const String& starPointer);
 };
 
-}
+} // namespace sptk::xdoc

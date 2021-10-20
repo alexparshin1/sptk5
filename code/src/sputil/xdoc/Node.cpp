@@ -143,15 +143,14 @@ String Node::getString(const String& name) const
     if (node->is(Type::Number))
     {
         auto dvalue = node->m_value.asFloat();
-        auto ivalue = node->m_value.asInt64();
-        if (dvalue == double(ivalue))
+
+        if (auto ivalue = node->m_value.asInt64();
+            dvalue == double(ivalue))
         {
             return int2string(ivalue);
         }
-        else
-        {
-            return double2string(dvalue);
-        }
+
+        return double2string(dvalue);
     }
 
     return node->m_value.asString();
@@ -177,7 +176,7 @@ String Node::getText(const String& name) const
         const auto found = findFirst(name);
         if (!found)
         {
-            return String();
+            return {};
         }
         node = found.get();
     }

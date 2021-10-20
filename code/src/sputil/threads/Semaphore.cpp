@@ -24,14 +24,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Semaphore.h>
 #include <mutex>
+#include <sptk5/threads/Semaphore.h>
 
 using namespace std;
 using namespace sptk;
 
 Semaphore::Semaphore(size_t startingValue, size_t maxValue)
-    : m_value(startingValue), m_maxValue(maxValue)
+    : m_value(startingValue)
+    , m_maxValue(maxValue)
 {
 }
 
@@ -41,8 +42,7 @@ Semaphore::~Semaphore()
     do
     {
         post();
-    }
-    while (waiters() > 0);
+    } while (waiters() > 0);
 }
 
 void Semaphore::terminate()
@@ -94,7 +94,9 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
     {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
-                                    [this]() { return m_value > 0; }))
+                                    [this]() {
+                                        return m_value > 0;
+                                    }))
         {
             if (timeoutAt < DateTime::Now())
             {

@@ -95,7 +95,7 @@ unsigned readOctalNumber(Field& field, const String& fieldName)
 {
     constexpr int octal = 8;
     errno = 0;
-    auto value = (unsigned) strtoul(field.data(), nullptr, octal);
+    auto value = (unsigned) strtoul(data(field), nullptr, octal);
     if (errno != 0)
     {
         throw Exception("Invalid octal number for " + fieldName);
@@ -176,8 +176,8 @@ void Tar::save(const String& tarFileName) const
         {
             size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->length() % TAR_BLOCK_SIZE;
             Buffer padding(paddingLength);
-            archive.write(archiveFile->c_str(), archiveFile->length());
-            archive.write(padding.c_str(), paddingLength);
+            archive.write(archiveFile->c_str(), (int) archiveFile->length());
+            archive.write(padding.c_str(), (int) paddingLength);
         }
     }
     archive.close();
@@ -240,7 +240,7 @@ TEST_F(SPTK_Tar, relativePath)
     EXPECT_STREQ(relPath.string().c_str(), "/tmp/mydir1/myfile.txt");
 }
 
-TEST_F(SPTK_Tar, read)
+TEST_F(SPTK_Tar, read) /* NOLINT */
 {
     Tar tar;
 

@@ -296,7 +296,8 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
 
         if (isdigit(*ptr) != 0)
         {
-            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, 10);
+            constexpr int decimal {10};
+            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, decimal);
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer.data();

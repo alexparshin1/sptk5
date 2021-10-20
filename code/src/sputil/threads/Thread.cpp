@@ -140,6 +140,7 @@ public:
 
     void threadFunction() override
     {
+        constexpr chrono::milliseconds timeout(5);
         m_counter = 0;
         while (!terminated())
         {
@@ -148,7 +149,7 @@ public:
             {
                 break;
             }
-            sleep_for(chrono::milliseconds(5));
+            sleep_for(timeout);
         }
     }
 
@@ -161,25 +162,28 @@ public:
 // Test thread start and join
 TEST(SPTK_Thread, run)
 {
-    ThreadTestThread testThread("Test Thread", 5);
-    testThread.run();
+    constexpr int testCounter {5};
     constexpr chrono::milliseconds interval(60);
+    ThreadTestThread testThread("Test Thread", testCounter);
+    testThread.run();
     this_thread::sleep_for(interval);
     testThread.terminate();
     testThread.join();
-    EXPECT_EQ(5, testThread.counter());
+    EXPECT_EQ(testCounter, testThread.counter());
 }
 
 // Test thread re-start after join
-TEST(SPTK_Thread, runAgain)
+TEST(SPTK_Thread, runAgain) /* NOLINT */
 {
-    ThreadTestThread testThread("Test Thread", 5);
+    constexpr int testCounter {5};
+    constexpr chrono::milliseconds sleepInterval {60};
+    ThreadTestThread testThread("Test Thread", testCounter);
 
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(60));
+    this_thread::sleep_for(chrono::milliseconds(sleepInterval));
     testThread.terminate();
     testThread.join();
-    EXPECT_EQ(5, testThread.counter());
+    EXPECT_EQ(testCounter, testThread.counter());
 
     testThread.run();
     this_thread::sleep_for(chrono::milliseconds(50));
