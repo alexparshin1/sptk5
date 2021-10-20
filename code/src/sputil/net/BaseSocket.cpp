@@ -46,9 +46,10 @@ static bool m_inited(false);
 void sptk::throwSocketError(const String& operation, const char* file, int line)
 {
     string errorStr;
+#ifdef _WIN32
     constexpr int maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
-#ifdef _WIN32
+
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
     if (dw != 0)
@@ -59,8 +60,8 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
         errorStr = buffer.data();
     }
 #else
-    strerror_r(errno, buffer.data(), maxMessageSize);
-    errorStr = buffer.data();
+    // strerror_r() doesn't work here
+    errorStr = strerror(errno);
 #endif
     if (!errorStr.empty())
     {
