@@ -367,7 +367,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
             currentNode->type(nodeType);
         }
 
-        if (formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+        if (nodeType != Node::Type::Number && formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
         {
             currentNode->pushNode("#text", nodeType)
                 ->set(decodedText);
@@ -403,6 +403,13 @@ static const String testREST(
     R"(</ns1:GetRequests>)"
     R"(</soap:Body>)"
     R"(</soap:Envelope>)");
+
+static const String testOO(
+    R"(<text:p text:style-name="Figure_20_Header"><text:bookmark text:name="F_6_1_2"/>Fig.)"
+    R"( PE <text:span text:style-name="T94">6</text:span>.<text:span text:style-name="T94">1.2)"
+    R"(</text:span> Import)"
+    R"(<text:span text:style-name="T94">Audio File</text:span>)"
+    R"(</text:p>)");
 
 static void verifyDocument(Document& document)
 {
@@ -604,6 +611,14 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer output;
     document.exportTo(DataFormat::XML, output, false);
     output.saveToFile("data/content2_exp.xml");
+}
+
+TEST(SPTK_XDocument, getText)
+{
+    Document document;
+    document.load(testOO, true);
+    auto text = document.root()->getText();
+    EXPECT_STREQ(text.c_str(), "Fig. PE 6.1.2 ImportAudio File");
 }
 
 #endif

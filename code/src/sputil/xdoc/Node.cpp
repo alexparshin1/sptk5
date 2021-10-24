@@ -434,7 +434,7 @@ bool sptk::xdoc::isInteger(const String& str)
 
 bool sptk::xdoc::isFloat(const String& str)
 {
-    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d*(e[\+\-]?\d+)?$)", "i");
+    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d+(e[\+\-]?\d+)?$)", "i");
 
     return isNumber.matches(str);
 }
