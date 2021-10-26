@@ -270,15 +270,20 @@ SNode& xdoc::Node::pushValue(const Variant& value, Node::Type type)
 
 bool Node::remove(const String& name)
 {
-    for (auto node = m_nodes.begin(); node != m_nodes.end(); ++node)
+    bool found = false;
+    for (auto node = m_nodes.begin(); node != m_nodes.end();)
     {
         if ((*node)->name() == name)
         {
-            m_nodes.erase(node);
-            return true;
+            node = m_nodes.erase(node);
+            found = true;
+        }
+        else
+        {
+            ++node;
         }
     }
-    return false;
+    return found;
 }
 
 bool Node::remove(const SNode& _node)

@@ -146,14 +146,14 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([this, &input, nullLargeData](WSType* field) {
+    m_fields.forEach([&input, nullLargeData](WSType* field) {
         return loadField(input, nullLargeData, field);
     });
 
     checkRestrictions();
 }
 
-bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType* field) const
+bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType* field)
 {
     const auto& inputField = input.findField(field->name());
 

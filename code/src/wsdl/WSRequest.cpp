@@ -25,15 +25,16 @@
 */
 
 #include <sptk5/RegularExpression.h>
-#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/WSRequest.h>
+
 
 using namespace std;
 using namespace sptk;
 
 static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
 {
-    for (const auto&[attr, value]: node->attributes())
+    for (const auto& [attr, value]: node->attributes())
     {
         if (!attr.startsWith("xmlns:"))
         {

@@ -105,7 +105,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
         auto* dest = m_payload.data();
-        array<char, 2> statusCodeBuffer = {};
+        array<uint8_t, 2> statusCodeBuffer = {};
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i)
         {

@@ -25,10 +25,9 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
-#include <sptk5/wsdl/protocol/BaseWebServiceProtocol.h>
-#include <sptk5/xdoc/Document.h>
-#include <sptk5/ZLib.h>
 #include <sptk5/Brotli.h>
+#include <sptk5/ZLib.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,9 +39,9 @@ constexpr int httpInvalidContentErrorCode = 406;
 
 BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers,
                                                sptk::WSServices& services, const URL& url)
-    : WSProtocol(socket, headers),
-      m_services(services),
-      m_url(url)
+    : WSProtocol(socket, headers)
+    , m_services(services)
+    , m_url(url)
 {
 }
 
@@ -52,8 +51,7 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
     {
         bool isElement = !(
             node->is(xdoc::Node::Type::ProcessingInstruction) ||
-            node->is(xdoc::Node::Type::Comment)
-        );
+            node->is(xdoc::Node::Type::Comment));
         if (isElement)
         {
             return node;
@@ -62,7 +60,7 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
     return nullptr;
 }
 
-xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, const String& messageType) const
+xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, const String& messageType)
 {
     String ns = "soap";
     for (const auto& node: message->nodes())
@@ -101,7 +99,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
     jsonContent.root()->load(xdoc::DataFormat::JSON, startOfMessage);
     auto& jsonRoot = *jsonContent.root();
-    for (const auto&[name, value]: url.params())
+    for (const auto& [name, value]: url.params())
     {
         jsonRoot.set(name, value);
     }
@@ -123,7 +121,7 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
     }
 
     auto xmlRequest = findRequestNode(xmlContent, "API request");
-    for (const auto&[name, param]: m_url.params())
+    for (const auto& [name, param]: m_url.params())
     {
         xmlRequest->set(name, param);
     }
@@ -202,7 +200,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
         }
 
         jsonContent->set("rest_method_name", method);
-        for (const auto&[name, value]: m_url.params())
+        for (const auto& [name, value]: m_url.params())
         {
             jsonContent->set(name, value);
         }

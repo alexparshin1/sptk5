@@ -247,7 +247,7 @@ private:
     bool m_exportable {true}; ///< Is this object exportable?
     WSFieldIndex m_fields;    ///< All fields
 
-    bool loadField(const FieldList& input, bool nullLargeData, WSType* field) const;
+    static bool loadField(const FieldList& input, bool nullLargeData, WSType* field);
 };
 
 /**

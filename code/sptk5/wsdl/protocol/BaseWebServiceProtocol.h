@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/cnet>
-#include <sptk5/net/URL.h>
-#include <sptk5/net/HttpResponseStatus.h>
-#include <sptk5/wsdl/WSServices.h>
 #include "WSProtocol.h"
 #include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
+#include <sptk5/cnet>
+#include <sptk5/net/HttpResponseStatus.h>
+#include <sptk5/net/URL.h>
+#include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
 
@@ -54,7 +54,7 @@ protected:
 
     static void RESTtoSOAP(const URL& url, const char* startOfMessage, const xdoc::SNode& message);
 
-    xdoc::SNode findRequestNode(const xdoc::SNode& message, const String& messageType) const;
+    static xdoc::SNode findRequestNode(const xdoc::SNode& message, const String& messageType);
 
     xdoc::SNode processXmlContent(const char* startOfMessage, const xdoc::SNode& xmlContent) const;
 
@@ -62,7 +62,7 @@ protected:
                             RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
                             String& contentType) const;
 
-/**
+    /**
  * Process request message, and store response to output
  * @param output                Output buffer
  * @param xmlContent            Input message
@@ -76,4 +76,4 @@ protected:
                           HttpResponseStatus& httpResponseStatus, String& contentType) const;
 };
 
-}
+} // namespace sptk
