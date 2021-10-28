@@ -25,9 +25,10 @@
 */
 
 #include <sptk5/cutils>
+
+#include <sptk5/Printer.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
-#include <sptk5/Printer.h>
 
 #include "EchoServer.h"
 
@@ -41,14 +42,13 @@ using namespace std;
 using namespace sptk;
 
 const map<String, LogDetails::MessageDetail> LogDetails::detailNames {
-    {"serial_id",        MessageDetail::SERIAL_ID},
-    {"source_ip",        MessageDetail::SOURCE_IP},
-    {"request_name",     MessageDetail::REQUEST_NAME},
+    {"serial_id", MessageDetail::SERIAL_ID},
+    {"source_ip", MessageDetail::SOURCE_IP},
+    {"request_name", MessageDetail::REQUEST_NAME},
     {"request_duration", MessageDetail::REQUEST_DURATION},
-    {"request_data",     MessageDetail::REQUEST_DATA},
-    {"response_data",    MessageDetail::RESPONSE_DATA},
-    {"thread_pooling",   MessageDetail::THREAD_POOLING}
-};
+    {"request_data", MessageDetail::REQUEST_DATA},
+    {"response_data", MessageDetail::RESPONSE_DATA},
+    {"thread_pooling", MessageDetail::THREAD_POOLING}};
 
 LogDetails::LogDetails(const Strings& details)
 {
@@ -66,7 +66,7 @@ LogDetails::LogDetails(const Strings& details)
 String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
-    for (const auto&[name, value]: detailNames)
+    for (const auto& [name, value]: detailNames)
     {
         if (m_details.find(value) != m_details.end())
         {
@@ -80,8 +80,8 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
     : ThreadPool((uint32_t) threadLimit,
                  chrono::minutes(1),
                  listenerName,
-                 logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr),
-      m_logDetails(logDetails)
+                 logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr)
+    , m_logDetails(logDetails)
 {
     if (logEngine != nullptr)
     {
@@ -177,7 +177,8 @@ TEST(SPTK_TCPServer, minimal)
         Strings rows("Hello, World!\n"
                      "This is a test of TCPServer class.\n"
                      "Using simple echo server to verify data flow.\n"
-                     "The session is terminated when this row is received", "\n");
+                     "The session is terminated when this row is received",
+                     "\n");
 
         int rowCount = 0;
         for (const auto& row: rows)

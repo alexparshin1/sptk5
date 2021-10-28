@@ -62,8 +62,8 @@ public:
     static constexpr int reservedMatches = 4;
 
     MatchData(const pcre*, size_t maxMatches)
-        : maxMatches(maxMatches + reservedMatches)
-        , matches(maxMatches + (size_t) reservedMatches * 2)
+        : matches(maxMatches + (size_t) reservedMatches * 2)
+        , maxMatches(maxMatches + reservedMatches)
     {
     }
 #endif
@@ -74,7 +74,6 @@ public:
 
 private:
     vector<Match> matches;
-
     size_t maxMatches {0};
 };
 
@@ -248,10 +247,10 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     return rc >= 0;
 #else
-    int rc = pcre_exec(
-        m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-        (pcre_offset_t*) matchData.matches.data(),
-        (pcre_offset_t) matchData.maxMatches * 2);
+            int rc = pcre_exec(
+                m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
+                (pcre_offset_t*) matchData.matches.data(),
+                (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
@@ -299,7 +298,6 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
     Groups matchedStrings;
 
     MatchData matchData(m_pcre.get(), m_captureCount);
-    size_t totalMatches = 0;
 
     bool first {true};
     do
@@ -309,7 +307,6 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
         { // No matches
             break;
         }
-        totalMatches += matchCount;
 
         matchedStrings.grow(matchCount);
 
@@ -740,7 +737,6 @@ TEST(SPTK_RegularExpression, match_performance)
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     RegularExpression match("((\\w+)=(#\\w+))");
     constexpr size_t maxIterations = 100000;
-    size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; ++i)
@@ -749,13 +745,14 @@ TEST(SPTK_RegularExpression, match_performance)
         while (auto matches = match.m(s))
         {
             s = s.substr(matches[0].value.length());
-            groupCount += matches.groups().size();
+            auto groupCount = matches.groups().size();
+            EXPECT_EQ(groupCount, 3U);
         }
     }
     stopWatch.stop();
-    constexpr double oneMillion = 1E6;
-    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                       << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
+    constexpr double oneThousand = 1000;
+    COUT("SPTK: " << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+                  << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, std_match_performance)
@@ -763,7 +760,6 @@ TEST(SPTK_RegularExpression, std_match_performance)
     String data("red=#FF0000, green=#00FF00, blue=#0000FF");
     std::regex match("(\\w+)=(#\\w+)");
     constexpr size_t maxIterations = 100000;
-    size_t groupCount = 0;
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; ++i)
@@ -773,13 +769,14 @@ TEST(SPTK_RegularExpression, std_match_performance)
         while (std::regex_search(s, color_matches, match))
         {
             s = color_matches.suffix().str();
-            groupCount += color_matches.size();
+            auto groupCount = color_matches.size();
+            EXPECT_EQ(groupCount, 3U);
         }
     }
     stopWatch.stop();
-    constexpr double oneMillion = 1E6;
-    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                       << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
+    constexpr double oneThousand = 1000;
+    COUT("STD: " << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
+                 << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl)
 }
 
 TEST(SPTK_RegularExpression, asyncExec)

@@ -67,7 +67,8 @@ void HttpAuthentication::parse()
         }
         else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
         {
-            Buffer encoded(m_authenticationHeader.substr(6));
+            constexpr int basicLength = 6;
+            Buffer encoded(m_authenticationHeader.substr(basicLength));
             Buffer decoded;
             Base64::decode(decoded, encoded);
             Strings usernameAndPassword(decoded.c_str(), ":");
@@ -83,11 +84,12 @@ void HttpAuthentication::parse()
         }
         else
         {
-            String authMethod = m_authenticationHeader.substr(0, 6);
+            constexpr int bearerLength = 6;
+            String authMethod = m_authenticationHeader.substr(0, bearerLength);
             if (authMethod.toLowerCase() == "bearer")
             {
                 auto xjwtData = make_shared<JWT>();
-                xjwtData->decode(m_authenticationHeader.substr(7).c_str());
+                xjwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
                 m_jwtData = xjwtData;
                 m_type = Type::BEARER;
             }
