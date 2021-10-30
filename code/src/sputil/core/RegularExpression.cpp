@@ -53,8 +53,8 @@ public:
                                                   [](auto* ptr) {
                                                       pcre2_match_data_free(ptr);
                                                   }))
-        , maxMatches(maxMatches + 2)
         , matches(maxMatches + 2)
+        , maxMatches(maxMatches + 2)
     {
     }
 
