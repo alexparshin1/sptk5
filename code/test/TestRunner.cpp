@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <googletest/include/gtest/gtest.h>
+#include <gtest/gtest.h>
 #include <sptk5/Base64.h>
 #include <sptk5/CommandLine.h>
 #include <sptk5/Crypt.h>
