@@ -18,12 +18,13 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
@@ -40,12 +41,13 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
@@ -62,12 +64,13 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
@@ -84,12 +87,13 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.a" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
-				<Option type="2"/>
+				<Option type="3"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>

@@ -29,6 +29,7 @@ IF (UNIX)
     OPTION(USE_NEW_ABI "Use new GCC ABI" OFF)
 ENDIF ()
 
+OPTION(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." ON)
 OPTION(USE_EPOLL "Build Asynchronous sockets (epoll) support" ON)
 OPTION(USE_FLTK "Build GUI library" ON)
 OPTION(USE_MYSQL "Build MySQL support library" ON)
