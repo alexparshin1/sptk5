@@ -298,6 +298,10 @@ void WSInteger::load(const SNode& attr, bool)
     }
     else
     {
+        if (!attr->is(Node::Type::Number))
+        {
+            throw Exception(attr->name() + " is not a number");
+        }
         value().setInt64((int64_t) attr->getNumber());
     }
 }
@@ -519,6 +523,9 @@ TEST(SPTK_WSBasicTypes, loadInteger)
     field.setInteger(testIntegerValue);
     integer.load(field);
     EXPECT_EQ(integer.asInteger(), testIntegerValue);
+
+    auto textNode = root->set("text", "xxx");
+    EXPECT_THROW(integer.load(textNode, false), Exception);
 }
 
 TEST(SPTK_WSBasicTypes, loadDateTime)
