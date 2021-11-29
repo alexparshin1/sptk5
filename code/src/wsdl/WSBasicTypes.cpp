@@ -33,6 +33,9 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
+static const RegularExpression StringIsInteger(R"(^[+\-]?(0|[1-9]\d*)$)");
+static const RegularExpression StringIsFloat(R"(^[+\-]?(0|[1-9]\d*)(\.\d*)?(e[+\-]\d+)?$)");
+
 void WSBasicType::exportTo(const SNode& parent, const char* _name) const
 {
     String elementName = _name == nullptr ? name() : _name;
@@ -262,6 +265,18 @@ void WSDouble::load(const SNode& attr, bool)
     }
     else
     {
+        if (attr->is(Node::Type::Number))
+        {
+            value().setFloat(attr->getNumber());
+        }
+        else if (attr->is(Node::Type::Text) && (StringIsInteger.m(attr->getText()) || StringIsFloat.m(attr->getText())))
+        {
+            value().setFloat(attr->getNumber());
+        }
+        else
+        {
+            throw Exception(attr->name() + " is not a float number");
+        }
         value().setFloat(attr->getNumber());
     }
 }
@@ -274,7 +289,11 @@ void WSDouble::load(const String& attr)
     }
     else
     {
-        value().setFloat(strtod(attr.c_str(), nullptr));
+        if (StringIsInteger.m(attr) || StringIsFloat.m(attr))
+        {
+            value().setFloat(strtod(attr.c_str(), nullptr));
+        }
+        throw Exception("Value is not a float number");
     }
 }
 
@@ -298,11 +317,18 @@ void WSInteger::load(const SNode& attr, bool)
     }
     else
     {
-        if (!attr->is(Node::Type::Number))
+        if (attr->is(Node::Type::Number))
         {
-            throw Exception(attr->name() + " is not a number");
+            value().setInt64((int64_t) attr->getNumber());
         }
-        value().setInt64((int64_t) attr->getNumber());
+        else if (attr->is(Node::Type::Text) && StringIsInteger.m(attr->getText()))
+        {
+            value().setInt64((int64_t) attr->getNumber());
+        }
+        else
+        {
+            throw Exception(attr->name() + " is not an integer number");
+        }
     }
 }
 
@@ -314,6 +340,11 @@ void WSInteger::load(const String& attr)
     }
     else
     {
+        if (!StringIsInteger.m(attr))
+        {
+            throw Exception("Value is not an integer number");
+        }
+
         constexpr int decimal = 10;
         value().setInt64(strtol(attr.c_str(), nullptr, decimal));
     }
@@ -555,6 +586,9 @@ TEST(SPTK_WSBasicTypes, loadDateTime)
 TEST(SPTK_WSBasicTypes, loadDouble)
 {
     constexpr double testDoubleValue = 1234.567;
+    constexpr int testIntValue = 1234;
+    const String testIntegerValueStr("1234");
+    const String testDoubleValueStr("1234.567");
 
     xdoc::Document document;
     const auto& root = document.root();
@@ -567,6 +601,17 @@ TEST(SPTK_WSBasicTypes, loadDouble)
     EXPECT_TRUE(wsDouble.isNull());
 
     wsDouble.load(root->findFirst("double"), true);
+    EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
+
+    auto textNode = root->set("text", "xxx");
+    EXPECT_THROW(wsDouble.load(textNode, false), Exception);
+
+    auto textNode2 = root->set("integerText", testIntegerValueStr);
+    wsDouble.load(textNode2, false);
+    EXPECT_EQ(wsDouble.asFloat(), double(testIntValue));
+
+    auto textNode3 = root->set("doubleText", testDoubleValueStr);
+    wsDouble.load(textNode3, false);
     EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
 }
 
