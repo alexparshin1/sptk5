@@ -27,7 +27,6 @@
 #include <array>
 #include <iomanip>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
 #include <sptk5/db/Query.h>
@@ -745,7 +744,7 @@ SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* 
     SQLRETURN rc = SQLGetData(statement, column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
     if (dataLength > 0)
     {
-        DateTime dt((short) t.year, (short) t.month, (short) t.day, (short) t.hour, (short) t.minute, (short) t.second);
+        DateTime dt(t.year, (short) t.month, (short) t.day, (short) t.hour, (short) t.minute, (short) t.second);
         field->setDateTime(dt, field->dataType() == VariantDataType::VAR_DATE);
     }
     return rc;
@@ -1016,19 +1015,20 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     SQLLEN cbObjectSchema = 0;
     SQLLEN cbObjectName = 0;
 
-    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), (SQLLEN) objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }
 
-    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size(), &cbObjectName) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), (SQLLEN) objectName.size(), &cbObjectName) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }
 
     if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
     {
-        rc = SQLBindCol(stmt, 8, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
+        constexpr SQLSMALLINT procedureTypeColumn = 8;
+        rc = SQLBindCol(stmt, procedureTypeColumn, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
         if (rc != SQL_SUCCESS)
         {
             throw DatabaseException("SQLBindCol");
