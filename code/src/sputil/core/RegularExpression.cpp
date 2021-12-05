@@ -72,7 +72,6 @@ public:
 
     MatchData& operator=(const MatchData&) = delete;
 
-private:
     vector<Match> matches;
     size_t maxMatches {0};
 };

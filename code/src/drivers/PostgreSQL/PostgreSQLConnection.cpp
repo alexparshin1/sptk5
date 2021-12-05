@@ -68,28 +68,37 @@ public:
             PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
             PQclear(res);
         }
+
+        clear();
     }
 
     PostgreSQLStatement& operator=(const PostgreSQLStatement&) = delete;
 
     void clear()
     {
+        if (m_stmt)
+        {
+            PQclear(m_stmt);
+            m_stmt = nullptr;
+        }
         clearRows();
         m_cols = 0;
     }
 
     void clearRows()
     {
-        m_stmt.reset();
         m_rows = 0;
         m_currentRow = -1;
     }
 
     void stmt(PGresult* st, unsigned rows, unsigned cols = unsigned(-1))
     {
-        m_stmt = shared_ptr<PGresult>(st, [](auto* ptr) {
-            PQclear(ptr);
-        });
+        if (m_stmt)
+        {
+            PQclear(m_stmt);
+        }
+        m_stmt = st;
+
         m_rows = (int) rows;
 
         if (cols != unsigned(-1))
@@ -102,7 +111,7 @@ public:
 
     [[nodiscard]] const PGresult* stmt() const
     {
-        return m_stmt.get();
+        return m_stmt;
     }
 
     [[nodiscard]] String name() const
@@ -137,7 +146,7 @@ public:
 
 private:
     PGconn* m_connect {nullptr};
-    shared_ptr<PGresult> m_stmt;
+    PGresult* m_stmt {nullptr};
     String m_stmtName;
     static unsigned index;
     int m_rows {0};
@@ -443,7 +452,6 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 
     if (!error.empty())
     {
-        PQclear(stmt);
         statement->clear();
         THROW_QUERY_ERROR(query, error)
     }
@@ -494,7 +502,6 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 
     if (!error.empty())
     {
-        PQclear(stmt);
         statement->clear();
         THROW_QUERY_ERROR(query, error)
     }
