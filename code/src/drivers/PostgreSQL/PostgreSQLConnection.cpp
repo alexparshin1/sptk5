@@ -35,8 +35,9 @@ using namespace sptk;
 
 namespace sptk {
 
+constexpr int hoursPerDay = 24;
 const DateTime epochDate(2000, 1, 1);
-const long daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / 24;
+const long daysSinceEpoch = chrono::duration_cast<chrono::hours>(epochDate.timePoint().time_since_epoch()).count() / hoursPerDay;
 const int64_t microsecondsSinceEpoch = chrono::duration_cast<chrono::microseconds>(
                                            epochDate.timePoint().time_since_epoch())
                                            .count();
@@ -701,7 +702,7 @@ static inline double readFloat8(const char* data)
 static inline DateTime readDate(const char* data)
 {
     auto dt = (int32_t) ntohl(*(const uint32_t*) data);
-    return epochDate + chrono::hours(dt * 24);
+    return epochDate + chrono::hours(dt * hoursPerDay);
 }
 
 static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
@@ -942,7 +943,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
             if (dataLength == 0)
             {
-                VariantDataType dataType;
+                VariantDataType dataType {VariantDataType::VAR_NONE};
                 PostgreTypeToCType(fieldType, dataType);
 
                 bool isNull = true;
