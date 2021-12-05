@@ -76,6 +76,14 @@ public:
         return *this;
     }
 
+    /**
+     * Return true if value is optional
+     * @return true if value is optional
+     */
+    bool optional() const
+    {
+        return m_optional;
+    }
 
     /**
      * Sets optionality flag

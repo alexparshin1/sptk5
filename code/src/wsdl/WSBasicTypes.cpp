@@ -268,16 +268,26 @@ void WSDouble::load(const SNode& attr, bool)
         if (attr->is(Node::Type::Number))
         {
             value().setFloat(attr->getNumber());
+            return;
         }
-        else if (attr->is(Node::Type::Text) && (StringIsInteger.m(attr->getText()) || StringIsFloat.m(attr->getText())))
+
+        if (attr->is(Node::Type::Text))
         {
-            value().setFloat(attr->getNumber());
+            String textValue = attr->getText();
+            if (optional() && textValue.empty())
+            {
+                setNull(VariantDataType::VAR_FLOAT);
+                return;
+            }
+
+            if (StringIsInteger.m(textValue) || StringIsFloat.m(textValue))
+            {
+                value().setFloat(attr->getNumber());
+                return;
+            }
         }
-        else
-        {
-            throw Exception(attr->name() + " is not a float number");
-        }
-        value().setFloat(attr->getNumber());
+
+        throw Exception(attr->name() + " is not a float number");
     }
 }
 
@@ -320,15 +330,27 @@ void WSInteger::load(const SNode& attr, bool)
         if (attr->is(Node::Type::Number))
         {
             value().setInt64((int64_t) attr->getNumber());
+            return;
         }
-        else if (attr->is(Node::Type::Text) && StringIsInteger.m(attr->getText()))
+
+        if (attr->is(Node::Type::Text))
         {
-            value().setInt64((int64_t) attr->getNumber());
+            auto textValue = attr->getText();
+
+            if (optional() && textValue.empty())
+            {
+                setNull(VariantDataType::VAR_INT64);
+                return;
+            }
+
+            if (StringIsInteger.m(textValue))
+            {
+                value().setInt64((int64_t) attr->getNumber());
+                return;
+            }
         }
-        else
-        {
-            throw Exception(attr->name() + " is not an integer number");
-        }
+
+        throw Exception(attr->name() + " is not an integer number");
     }
 }
 
