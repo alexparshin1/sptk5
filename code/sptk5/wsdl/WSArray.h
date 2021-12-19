@@ -143,6 +143,11 @@ public:
         m_array.emplace_back(value);
     }
 
+    void resize(size_t sz)
+    {
+        m_array.resize(sz);
+    }
+
     auto erase(const iterator& pos)
     {
         return m_array.erase(pos);
