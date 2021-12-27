@@ -93,6 +93,18 @@ int String::toInt() const
     return string2int(*this, 0);
 }
 
+bool String::in(std::initializer_list<String> list) const
+{
+    for (const auto& value: list)
+    {
+        if (value == *this)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 #ifdef USE_GTEST
 
 static const String testString("This is a test");
@@ -106,6 +118,12 @@ TEST(SPTK_String, caseOps)
 {
     EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
     EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
+}
+
+TEST(SPTK_String, in)
+{
+    EXPECT_TRUE(String("true").in({"true", "false"}));
+    EXPECT_FALSE(String("yes").in({"true", "false"}));
 }
 
 TEST(SPTK_String, split)
