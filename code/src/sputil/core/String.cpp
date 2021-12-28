@@ -95,14 +95,9 @@ int String::toInt() const
 
 bool String::in(std::initializer_list<String> list) const
 {
-    for (const auto& value: list)
-    {
-        if (value == *this)
-        {
-            return true;
-        }
-    }
-    return false;
+    return any_of(list.begin(), list.end(), [this](const String& value) {
+        return value == *this;
+    });
 }
 
 #ifdef USE_GTEST
