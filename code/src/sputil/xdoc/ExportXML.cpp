@@ -46,6 +46,10 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
 
     if (isNode)
     {
+        if (indent) {
+            buffer.append(indentsString.substr(0, indent));
+        }
+
         appendNodeNameAndAttributes(node, nodeName, buffer);
     }
 
