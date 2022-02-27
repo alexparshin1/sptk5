@@ -11,21 +11,26 @@ namespace sptk::xdoc {
 class SP_EXPORT ExportXML
 {
 public:
-    explicit ExportXML(int indentSPaces = 2)
-        : m_indentSpaces(indentSPaces)
+    explicit ExportXML(int indentSpaces = 2)
+        : m_indentSpaces(indentSpaces)
     {
     }
 
-    void saveElement(const Node* node, const String& nodeName, Buffer& buffer, int indent);
+    void saveElement(const Node* node, const String& nodeName, Buffer& buffer, bool formatted, int indent);
 
-    void appendSubNodes(const Node* node, Buffer& buffer, int indent);
+    void appendSubNodes(const Node* node, Buffer& buffer, bool formatted, int indent);
 
-    static void appendClosingTag(const Node* node, Buffer& buffer, int indent);
+    static void appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent);
 
     void saveAttributes(const Node* node, Buffer& buffer);
 
+    int indentSpaces() const
+    {
+        return m_indentSpaces;
+    }
+
 private:
-    int m_indentSpaces;
+    int m_indentSpaces {2};
     XMLDocType m_docType;
 
     Buffer& appendNodeContent(const Node* node, Buffer& buffer);

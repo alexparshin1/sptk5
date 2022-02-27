@@ -38,7 +38,7 @@ inline bool isNodeByName(const String& nodeName)
     return !(nodeName[0] == '#' && (nodeName == "#text" || nodeName == "#cdata"));
 }
 
-void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& buffer, int indent)
+void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& buffer, bool formatted, int indent)
 {
     String nodeName = _nodeName.empty() ? "item" : _nodeName;
 
@@ -46,7 +46,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
 
     if (isNode)
     {
-        if (indent > 0)
+        if (formatted && indent > 0)
         {
             buffer.append(indentsString.c_str(), size_t(indent));
         }
@@ -60,23 +60,23 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
             buffer.append('>');
         }
 
-        if (indent)
+        if (formatted)
         {
             buffer.append('\n');
         }
 
-        appendSubNodes(node, buffer, indent);
+        appendSubNodes(node, buffer, formatted, indent);
 
         if (isNode)
         {
-            appendClosingTag(node, buffer, indent);
+            appendClosingTag(node, buffer, formatted, indent);
         }
     }
     else
     {
         appendNodeEnd(node, nodeName, buffer, isNode);
 
-        if (indent)
+        if (formatted)
         {
             buffer.append('\n');
         }
@@ -138,17 +138,12 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
     return buffer;
 }
 
-void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, int indent)
+void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
     for (const auto& np: node->nodes())
     {
-        int newIndent = 0;
-        if (indent)
-        {
-            newIndent = indent + m_indentSpaces;
-        }
-        saveElement(np.get(), np->name(), buffer, newIndent);
-        if (indent && buffer.data()[buffer.bytes() - 1] != '\n')
+        saveElement(np.get(), np->name(), buffer, formatted, indent + m_indentSpaces);
+        if (formatted && buffer.data()[buffer.bytes() - 1] != '\n')
         {
             buffer.append('\n');
         }
@@ -185,10 +180,10 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     }
 }
 
-void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent)
+void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
     // output indendation spaces
-    if (indent > 0)
+    if (formatted && indent > 0)
     {
         buffer.append(indentsString.c_str(), size_t(indent));
     }
@@ -197,7 +192,7 @@ void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, int indent)
     buffer.append("</", 2);
     buffer.append(node->name());
     buffer.append('>');
-    if (indent)
+    if (formatted)
     {
         buffer.append('\n');
     }

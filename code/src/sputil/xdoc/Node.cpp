@@ -349,14 +349,14 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         if (m_parent != nullptr)
         {
             // Exporting single node
-            exporter.saveElement(this, name(), data, formatted ? 2 : 0);
+            exporter.saveElement(this, name(), data, formatted, 0);
         }
         else
         {
             // Exporting root node of the document
             for (const auto& node: m_nodes)
             {
-                exporter.saveElement(node.get(), node->name(), data, formatted ? 2 : 0);
+                exporter.saveElement(node.get(), node->name(), data, formatted, 0);
             }
         }
     }
