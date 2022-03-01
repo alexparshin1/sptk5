@@ -38,7 +38,6 @@ void atesting()
     values.emplace_back("xxx");
 }
 
-
 int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
