@@ -26,20 +26,18 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Attributes.h>
 #include <sptk5/Variant.h>
+#include <sptk5/xdoc/Attributes.h>
 
 namespace sptk::xdoc {
 
-enum class DataFormat
-    : uint8_t
+enum class DataFormat : uint8_t
 {
     JSON,
     XML
 };
 
-enum class SearchMode
-    : uint8_t
+enum class SearchMode : uint8_t
 {
     ImmediateChild,
     Recursive
@@ -49,15 +47,13 @@ class SP_EXPORT Node
     : public std::enable_shared_from_this<Node>
 {
 public:
-
     using SNode = std::shared_ptr<Node>;
     using Nodes = std::vector<SNode>;
     using Vector = std::vector<SNode>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
         DocumentRoot,
         Null,
@@ -190,8 +186,14 @@ public:
 
     void select(Node::Vector& selectedNodes, const String& xpath);
 
-private:
+    /**
+     * @brief Perform a deep copy of the source to destination
+     * @param destination       Destination node
+     * @param source            Source node
+     */
+    static void clone(const SNode& destination, const SNode& source);
 
+private:
     SNode m_parent {nullptr};
     String m_name;
     Type m_type {Type::Null};
@@ -200,7 +202,6 @@ private:
     Nodes m_nodes;
 
     static Type variantTypeToType(VariantDataType type);
-
 };
 
 using Element = Node;
@@ -224,4 +225,4 @@ bool isInteger(const String& str);
  */
 bool isBoolean(const String& str);
 
-}
+} // namespace sptk::xdoc

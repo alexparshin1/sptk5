@@ -47,7 +47,7 @@ double readJsonNumber(const char* json, const char*& readPosition);
 
 void readArrayData(const SNode& parent, const char* json, const char*& readPosition);
 
-void readObjectData(const SNode& parent, const char* json, const char*& readPosition);
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes);
 
 String decode(const String& text);
 } // namespace sptk::xdoc
@@ -108,7 +108,7 @@ void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
     {
         case '{':
             jsonElement->type(Node::Type::Object);
-            readObjectData(jsonElement, json, pos);
+            readObjectData(jsonElement, json, pos, false);
             break;
         case '[':
             jsonElement->type(Node::Type::Array);
@@ -274,7 +274,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
                 break;
 
             case '{':
-                xdoc::readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false);
                 break;
 
             case '0':
@@ -312,7 +312,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
     ++readPosition;
 }
 
-void readObjectData(const SNode& parent, const char* json, const char*& readPosition)
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
 {
     if (*readPosition != '{')
     {
@@ -337,6 +337,8 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
 
         String elementName = readJsonName(json, readPosition);
 
+        bool elementIsAttributes = elementName == "attributes";
+
         char firstChar = *readPosition;
         if (isdigit(firstChar))
         {
@@ -355,30 +357,55 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
                 break;
 
             case '{':
-                xdoc::readObjectData(parent->pushNode(elementName, Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(elementIsAttributes ? parent : parent->pushNode(elementName, Node::Type::Object),
+                                     json, readPosition, elementIsAttributes);
                 break;
 
             case '0':
             case '-':
                 // Number
-                parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
+                if (objectIsAttributes)
+                {
+                    parent->attributes().set(elementName, to_string(readJsonNumber(json, readPosition)));
+                }
+                else
+                {
+                    parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
+                }
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
+                if (objectIsAttributes)
+                {
+                    parent->attributes().set(elementName, readJsonBoolean(json, readPosition) ? "true" : "false");
+                }
+                else
+                {
+                    parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
+                }
                 break;
 
             case 'n':
                 // Null
-                readJsonNull(json, readPosition);
-                parent->pushValue(elementName, Variant(), Node::Type::Null);
+                if (!objectIsAttributes)
+                {
+                    readJsonNull(json, readPosition);
+                    parent->pushValue(elementName, Variant(), Node::Type::Null);
+                }
                 break;
 
             case '"':
                 // String
-                parent->pushValue(elementName, readJsonString(json, readPosition), Node::Type::Text);
+                if (objectIsAttributes)
+                {
+                    parent->attributes().set(elementName, readJsonString(json, readPosition));
+                }
+                else
+                {
+                    parent->pushValue(elementName, readJsonString(json, readPosition), Node::Type::Text);
+                }
                 break;
 
             default:
@@ -388,37 +415,37 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
     ++readPosition;
 }
 
-static String codePointToUTF8(unsigned cp)
+static String codePointToUTF8(unsigned codePoint)
 {
     String result;
 
     // based on description from http://en.wikipedia.org/wiki/UTF-8
 
-    if (cp <= 0x7f)
+    if (codePoint <= 0x7f)
     {
         result.resize(1);
-        result[0] = static_cast<char>(cp);
+        result[0] = static_cast<char>(codePoint);
     }
-    else if (cp <= 0x7FF)
+    else if (codePoint <= 0x7FF)
     {
         result.resize(2);
-        result[1] = static_cast<char>(0x80 | (0x3f & cp));
-        result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
+        result[1] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[0] = static_cast<char>(0xC0 | (0x1f & (codePoint >> 6)));
     }
-    else if (cp <= 0xFFFF)
+    else if (codePoint <= 0xFFFF)
     {
         result.resize(3);
-        result[2] = static_cast<char>(0x80 | (0x3f & cp));
-        result[1] = char(0x80 | static_cast<char>((0x3f & (cp >> 6))));
-        result[0] = char(0xE0 | static_cast<char>((0xf & (cp >> 12))));
+        result[2] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[1] = char(0x80 | static_cast<char>((0x3f & (codePoint >> 6))));
+        result[0] = char(0xE0 | static_cast<char>((0xf & (codePoint >> 12))));
     }
-    else if (cp <= 0x10FFFF)
+    else if (codePoint <= 0x10FFFF)
     {
         result.resize(4);
-        result[3] = static_cast<char>(0x80 | (0x3f & cp));
-        result[2] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
-        result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 12)));
-        result[0] = static_cast<char>(0xF0 | (0x7 & (cp >> 18)));
+        result[3] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[2] = static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
+        result[1] = static_cast<char>(0x80 | (0x3f & (codePoint >> 12)));
+        result[0] = static_cast<char>(0xF0 | (0x7 & (codePoint >> 18)));
     }
 
     return result;
@@ -429,7 +456,7 @@ String decode(const String& text)
     String result;
     size_t length = text.length();
     size_t position = 0;
-    unsigned ucharCode;
+    unsigned ucharCode = 0;
 
     while (position < length)
     {

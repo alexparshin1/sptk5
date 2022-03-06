@@ -423,6 +423,13 @@ Node::Type Node::variantTypeToType(VariantDataType type)
     return Type::Null;
 }
 
+void Node::clone(const SNode& destination, const SNode& source)
+{
+    Buffer content;
+    source->exportTo(DataFormat::JSON, content, false);
+    destination->load(DataFormat::JSON, content, false);
+}
+
 bool sptk::xdoc::isBoolean(const String& str)
 {
     static const RegularExpression isInteger(R"(^(true|false)$)");

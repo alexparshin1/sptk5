@@ -101,6 +101,41 @@ TEST(SPTK_XDocument, load)
     verifyDocument(document);
 }
 
+static const String testXmlDocument(
+    "<xml encoding=\"utf-8\">"
+    "<name>John</name>"
+    "<address><city>Walhalla</city><street>17 Elm Street</street></address>"
+    "</xml>");
+
+
+TEST(SPTK_XDocument, clone)
+{
+    Buffer input(testXmlDocument);
+    xdoc::Document document;
+    document.load(input);
+
+    xdoc::Document document2;
+    xdoc::Node::clone(document2.root(), document.root());
+
+    Buffer output;
+    document2.exportTo(DataFormat::XML, output, false);
+
+    EXPECT_STREQ(testXmlDocument.c_str(), output.c_str());
+}
+
+TEST(SPTK_XDocument, clone2)
+{
+    Buffer input(testJSON);
+    xdoc::Document document;
+    document.load(input);
+
+    xdoc::Document document2;
+
+    xdoc::Node::clone(document2.root(), document.root());
+
+    verifyDocument(document);
+}
+
 TEST(SPTK_XDocument, add)
 {
     Buffer input(testJSON);
