@@ -395,4 +395,14 @@ TEST(SPTK_XDocument, performance)
     COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl)
 }
 
+TEST(SPTK_XDocument, exportText)
+{
+    xdoc::Document document;
+    auto testNode = document.root()->pushNode("test");
+    auto textNode = testNode->set("#text", "ttt");
+
+    Buffer output;
+    document.exportTo(DataFormat::XML, cout, true);
+}
+
 #endif

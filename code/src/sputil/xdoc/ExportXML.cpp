@@ -53,16 +53,22 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
         appendNodeNameAndAttributes(node, nodeName, buffer);
     }
 
-    if (!node->nodes().empty())
+    const auto& subNodes = node->nodes();
+    if (!subNodes.empty())
     {
         if (isNode)
         {
             buffer.append('>');
         }
 
+        bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
+
         if (formatted)
         {
-            buffer.append('\n');
+            if (!firstSubNodeIsText)
+            {
+                buffer.append('\n');
+            }
         }
 
         appendSubNodes(node, buffer, formatted, indent);
@@ -76,7 +82,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
     {
         appendNodeEnd(node, nodeName, buffer, isNode);
 
-        if (formatted)
+        if (formatted && isNode)
         {
             buffer.append('\n');
         }
@@ -143,10 +149,6 @@ void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, bool formatted,
     for (const auto& np: node->nodes())
     {
         saveElement(np.get(), np->name(), buffer, formatted, indent + m_indentSpaces);
-        if (formatted && buffer.data()[buffer.bytes() - 1] != '\n')
-        {
-            buffer.append('\n');
-        }
     }
 }
 
@@ -182,8 +184,10 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
 
 void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
+    bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
+
     // output indendation spaces
-    if (formatted && indent > 0)
+    if (formatted && indent > 0 && !lastSubNodeIsText)
     {
         buffer.append(indentsString.c_str(), size_t(indent));
     }
