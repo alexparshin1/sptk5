@@ -69,7 +69,7 @@ public:
 
     Node(const String& nodeName = "", Type type = Type::Null);
 
-    ~Node() = default;
+    virtual ~Node() = default;
 
     virtual void clear();
 

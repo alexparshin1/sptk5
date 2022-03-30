@@ -108,6 +108,11 @@ public:
     Strings(const String& src, const char* delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
 
     /**
+     * Destructor
+     */
+    virtual ~Strings() = default;
+
+    /**
      * Assigns strings from a string with elements separated by a delimiter string
      * @param src               Source string
      * @param delimiter         Delimiter string

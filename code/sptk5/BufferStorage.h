@@ -51,6 +51,11 @@ public:
     BufferStorage() = default;
 
     /**
+     * Destructor
+     */
+    virtual ~BufferStorage() = default;
+
+    /**
      * Constructor
      *
      * Creates an empty buffer.

@@ -43,6 +43,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
     String nodeName = _nodeName.empty() ? "item" : _nodeName;
 
     bool isNode = isNodeByName(nodeName);
+    size_t parentSubnodesCount = node->parent() ? node->parent()->nodes().size() : 0;
 
     if (isNode)
     {
@@ -51,6 +52,13 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
             buffer.append(indentsString.c_str(), size_t(indent));
         }
         appendNodeNameAndAttributes(node, nodeName, buffer);
+    }
+    else
+    {
+        if (formatted && parentSubnodesCount > 1)
+        {
+            buffer.append(indentsString.c_str(), size_t(indent));
+        }
     }
 
     const auto& subNodes = node->nodes();
@@ -63,12 +71,9 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
 
         bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
 
-        if (formatted)
+        if (formatted && (!firstSubNodeIsText || subNodes.size() > 1))
         {
-            if (!firstSubNodeIsText)
-            {
-                buffer.append('\n');
-            }
+            buffer.append('\n');
         }
 
         appendSubNodes(node, buffer, formatted, indent);
@@ -149,6 +154,10 @@ void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, bool formatted,
     for (const auto& np: node->nodes())
     {
         saveElement(np.get(), np->name(), buffer, formatted, indent + m_indentSpaces);
+        if (formatted && node->nodes().size() > 1 && np->name()[0] == '#')
+        {
+            buffer.append('\n');
+        }
     }
 }
 
@@ -184,10 +193,9 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
 
 void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
-    bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
-
     // output indendation spaces
-    if (formatted && indent > 0 && !lastSubNodeIsText)
+    if (bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
+        formatted && indent > 0 && !lastSubNodeIsText)
     {
         buffer.append(indentsString.c_str(), size_t(indent));
     }

@@ -32,6 +32,13 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
+namespace sptk {
+static void Oracle_readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+} // namespace sptk
+
 OracleConnection::OracleConnection(const String& connectionString)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE)
 {
@@ -448,7 +455,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
     }
 }
 
-void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -463,7 +470,7 @@ void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field,
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -551,22 +558,22 @@ void OracleConnection::queryFetch(Query* query)
 
                 case Type(SQLT_DAT):
                 case Type(SQLT_DATE):
-                    readDate(resultSet, field, columnIndex);
+                    Oracle_readDate(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_TIME):
                 case Type(SQLT_TIME_TZ):
                 case Type(SQLT_TIMESTAMP):
                 case Type(SQLT_TIMESTAMP_TZ):
-                    readTimestamp(resultSet, field, columnIndex);
+                    Oracle_readTimestamp(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_BLOB):
-                    readBLOB(resultSet, field, columnIndex);
+                    Oracle_readBLOB(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_CLOB):
-                    readCLOB(resultSet, field, columnIndex);
+                    Oracle_readCLOB(resultSet, field, columnIndex);
                     break;
 
                 default:
@@ -585,7 +592,7 @@ void OracleConnection::queryFetch(Query* query)
     }
 }
 
-void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
@@ -600,7 +607,7 @@ void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsi
     buffer.data()[bytes] = 0;
 }
 
-void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void sptk::Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Blob blob = resultSet->getBlob(columnIndex);

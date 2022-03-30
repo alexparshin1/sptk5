@@ -51,6 +51,11 @@ public:
     {
     }
 };
+
+static SQLRETURN ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
+static SQLRETURN ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
+static void ODBC_queryBindParameter(const Query* query, QueryParameter* parameter);
+
 } // namespace sptk
 
 ODBCConnection::ODBCConnection(const String& connectionString)
@@ -371,7 +376,7 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
     return false;
 }
 
-void ODBCConnection::queryBindParameter(const Query* query, QueryParameter* param)
+void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
     int rc = 0;
@@ -500,7 +505,7 @@ void ODBCConnection::queryBindParameters(Query* query)
     for (uint32_t i = 0; i < query->paramCount(); ++i)
     {
         QueryParameter* param = &query->param(i);
-        queryBindParameter(query, param);
+        ODBC_queryBindParameter(query, param);
     }
 }
 
@@ -691,8 +696,8 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
-                                                int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
+                                           int16_t fieldType, SQLLEN& dataLength)
 {
     auto* field = dynamic_cast<ODBCField*>(dbField);
 
@@ -737,8 +742,8 @@ SQLRETURN ODBCConnection::readStringOrBlobField(SQLHSTMT statement, DatabaseFiel
     return rc;
 }
 
-SQLRETURN ODBCConnection::readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                             int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+                                        int16_t fieldType, SQLLEN& dataLength)
 {
     TIMESTAMP_STRUCT t = {};
     SQLRETURN rc = SQLGetData(statement, column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
@@ -804,12 +809,12 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_C_TIMESTAMP:
-                    rc = readTimestampField(statement, field, column, fieldType, dataLength);
+                    rc = ODBC_readTimestampField(statement, field, column, fieldType, dataLength);
                     break;
 
                 case SQL_C_BINARY:
                 case SQL_C_CHAR:
-                    rc = readStringOrBlobField(statement, field, column, fieldType, dataLength);
+                    rc = ODBC_readStringOrBlobField(statement, field, column, fieldType, dataLength);
                     break;
 
                 case SQL_BIT:

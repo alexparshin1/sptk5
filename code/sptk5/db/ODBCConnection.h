@@ -244,34 +244,6 @@ private:
      */
     void parseColumns(Query* query, int count);
 
-    /**
-     * Read string or blob field
-     * @param statement         Statement
-     * @param field             Query field
-     * @param column            Column number
-     * @param fieldType         Field type
-     * @param dataLength        Output data length
-     * @return operation result
-     */
-    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                           int16_t fieldType,
-                                           SQLLEN& dataLength);
-
-    /**
-     * Read timestamp field
-     * @param statement         Statement
-     * @param field             Query field
-     * @param column            Column number
-     * @param fieldType         Field type
-     * @param rc
-     * @param dataLength        Output data length
-     */
-    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                        int16_t fieldType,
-                                        SQLLEN& dataLength);
-
-    static void queryBindParameter(const Query* query, QueryParameter* parameter);
-
     SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::array<SQLCHAR, 256>& objectSchema, std::array<SQLCHAR, 256>& objectName, short& procedureType) const;
 };
 /**

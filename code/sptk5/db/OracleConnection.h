@@ -249,14 +249,6 @@ private:
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
-    static void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-
-    static void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-
-    static void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-
-    static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-
     static void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
                                  const QueryColumnTypeSizeMap& columnTypeSizes);
 

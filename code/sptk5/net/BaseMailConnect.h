@@ -52,6 +52,11 @@ public:
     BaseMailConnect() = default;
 
     /**
+     * Destructor
+     */
+    virtual ~BaseMailConnect() = default;
+
+    /**
      * Method from() returns the current value of 'FROM:' field of e-mail message.
      * @returns a single e-mail address.
      */
