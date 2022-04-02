@@ -233,10 +233,8 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 #ifdef USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
-    COUT(select["ts"].asDateTime().isoDateTimeString() << endl)
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
     select.next();
-    COUT(select["ts"].asDateTime().isoDateTimeString() << endl)
     EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
     select.close();
 #endif
@@ -333,7 +331,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.param("ssid") = row.ssid;
         insert.param("name") = row.name;
         insert.param("price") = row.price;
-        insert.param("ts").setNull(VariantDataType::VAR_DATE_TIME);
+        insert.param("ts") = DateTime::Now();
         insert.param("enabled").setBool(true);
         insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.length(), VariantDataType::VAR_TEXT);
         insert.exec();
@@ -701,9 +699,9 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
 
     vector<VariantVector> data;
-    VariantVector arow;
     for (size_t i = 1; i <= recordCount; ++i)
     {
+        VariantVector arow;
         arow.emplace_back(int(i));
         arow.emplace_back("Alex,'Doe'");
         arow.emplace_back("Programmer");

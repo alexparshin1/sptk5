@@ -113,8 +113,8 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
 
 
-    if (constexpr int magicLength = 6;
-        memcmp(header->magic.data(), "ustar ", magicLength) != 0)
+    if (constexpr int magicLength = 5;
+        memcmp(header->magic.data(), "ustar", magicLength) != 0)
     {
         throw Exception("Unsupported TAR format: Expecting ustar.");
     }
@@ -234,10 +234,10 @@ TEST_F(SPTK_Tar, relativePath)
     EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/mydir2/myfile.txt", "/tmp/mydir1");
-    EXPECT_STREQ(relPath.string().c_str(), "mydir2/myfile.txt");
+    EXPECT_EQ(relPath, fs::path("mydir2/myfile.txt"));
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/myfile.txt", "/tmp/mydir");
-    EXPECT_STREQ(relPath.string().c_str(), "/tmp/mydir1/myfile.txt");
+    EXPECT_EQ(relPath, fs::path("/tmp/mydir1/myfile.txt"));
 }
 
 TEST_F(SPTK_Tar, read) /* NOLINT */

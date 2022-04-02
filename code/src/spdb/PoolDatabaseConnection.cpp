@@ -255,6 +255,7 @@ void PoolDatabaseConnection::bulkInsertRecords(
         }
         sql << ")";
     }
+    sql << ";" << endl;
     Query insertRows(this, sql.str(), false);
     insertRows.exec();
 }

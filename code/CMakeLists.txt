@@ -324,18 +324,18 @@ ENDIF ()
 
 
 IF (WIN32)
-    set(PROGRAM_FILES_86 "PROGRAMFILES (X86) ")
     # Windows message resource compiler (included with Windows SDK)
+    SET (ProgramFiles "$ENV{ProgramFiles}")
+    SET (ProgramFilesX86 "${ProgramFiles} (x86)")
     FIND_PROGRAM(MC_COMPILER mc PATHS
-        "$ENV{ProgramFiles}/Windows Kits/*/bin/x64"
-        "$ENV{ProgramW6432}/Windows Kits/*/bin/x64"
-        "$ENV{ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
-        "$ENV{ProgramW6432}/Microsoft SDKs/Windows/*/Bin/x64"
-        "$ENV{ProgramFiles}/Windows Kits/*/bin/*/x64"
-        "$ENV{ProgramW6432}/Windows Kits/*/bin/*/x64"
-        "$ENV{ProgramFiles}/Windows Kits/10/bin/10.0.15063.0/x64"
-        "$ENV{${PROGRAM_FILES_86}}/Windows Kits/*/bin/*/x64"
-        "$ENV{${PROGRAM_FILES_86}}/Windows Kits/*/bin/*/x86"
+        "${ProgramFiles}/Windows Kits/*/bin/x64"
+        "${ProgramFilesX86}/Windows Kits/*/bin/x64"
+        "${ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
+        "${ProgramFilesX86}/Microsoft SDKs/Windows/*/Bin/x64"
+        "${ProgramFiles}/Windows Kits/*/bin/*/x64"
+        "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
+        "${ProgramFiles}/Windows Kits/10/bin/*/x64"
+        "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
         )
     IF (MC_COMPILER)
         MESSAGE("Windows SDK mc: found")

@@ -271,8 +271,11 @@ void ODBCConnection::queryExecute(Query* query)
     }
     else
     {
-        char* sql = query->sql().empty() ? nullptr : &query->sql()[0];
-        rc = SQLExecDirect(query->statement(), (SQLCHAR*) sql, SQL_NTS);
+        if (query->sql().empty())
+        {
+            return;
+        }
+        rc = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().data(), SQL_NTS);
     }
 
     if (successful(rc))
@@ -370,7 +373,7 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
         {
             dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
         }
-        t->fraction = 0;
+        t->fraction = ms * 1000;
         return true;
     }
     return false;
@@ -455,7 +458,8 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
             case VariantDataType::VAR_DATE_TIME:
                 paramType = SQL_C_TIMESTAMP;
                 sqlType = SQL_TIMESTAMP;
-                len = sizeof(TIMESTAMP_STRUCT);
+                //len = sizeof(TIMESTAMP_STRUCT);
+                len = 19;
                 buff = param->conversionBuffer();
                 if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->get<DateTime>(), false))
                 {
@@ -544,6 +548,7 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantDa
         case SQL_TIMESTAMP:
         case SQL_TYPE_TIME:
         case SQL_TYPE_TIMESTAMP:
+        case -9:
             cType = SQL_C_TIMESTAMP;
             dataType = VariantDataType::VAR_DATE_TIME;
             break;
@@ -701,42 +706,50 @@ SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* db
 {
     auto* field = dynamic_cast<ODBCField*>(dbField);
 
-    constexpr size_t initialBlobBufferSize = 128;
-    field->checkSize(initialBlobBufferSize);
-    auto readSize = (SQLLEN) field->bufferSize();
     auto& buffer = field->get<Buffer>();
-    auto rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(readSize), &dataLength);
 
-    SQLLEN offset = readSize;
-    if (dataLength > SQLINTEGER(readSize))
+    // Get data length
+    auto rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(0), &dataLength);
+    if (!successful(rc))
     {
-        // continue to fetch BLOB data in one go
-        field->checkSize(uint32_t(dataLength + 1));
-        readSize = dataLength - readSize + 2;
-        rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), nullptr);
+        return rc;
     }
-    else if (dataLength == SQL_NO_TOTAL)
-    {
-        // continue to fetch BLOB data until there is no more data
-        constexpr size_t initialReadSize = 16384;
-        size_t bufferSize = field->bufferSize();
-        SQLLEN remainingSize = 0;
 
-        --offset; // SQLGetData also includes trailing \x0 into read size
-        dataLength = offset;
-        readSize = initialReadSize;
-        while (rc != SQL_SUCCESS)
+    if (dataLength == 0 || (dataLength < 0 && dataLength != SQL_NO_TOTAL))
+    {
+        return SQL_SUCCESS;
+    }
+
+    if (dataLength != SQL_NO_TOTAL)
+    {
+        field->checkSize(uint32_t(dataLength + 1));
+
+        // Read data
+        rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(dataLength + 1), &dataLength);
+        return rc;
+    }
+
+    // Fetch BLOB data until there is no more data
+    constexpr size_t initialReadSize = 16384;
+    field->checkSize(initialReadSize);
+
+    size_t bufferSize = field->bufferSize();
+    SQLLEN remainingSize = 0;
+
+    SQLLEN offset = 0;
+    dataLength = 0;
+    SQLLEN readSize = initialReadSize;
+    while (successful(rc))
+    {
+        bufferSize += readSize;
+        field->checkSize(bufferSize);
+        rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
+        if (remainingSize > 0)
         {
-            bufferSize += readSize;
-            field->checkSize(bufferSize);
-            rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
-            if (remainingSize > 0)
-            {
-                readSize = remainingSize;
-            } // Last chunk received
-            offset += readSize - 1;
-            dataLength += readSize - 1;
-        }
+            readSize = remainingSize;
+        } // Last chunk received
+        offset += readSize - 1;
+        dataLength += readSize - 1;
     }
 
     return rc;
@@ -920,8 +933,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     try
     {
         SQLRETURN rc = 0;
-        array<SQLCHAR, MAX_NAME_LEN> objectSchema {};
-        array<SQLCHAR, MAX_NAME_LEN> objectName {};
+        Buffer objectSchema(MAX_NAME_LEN);
+        Buffer objectName(MAX_NAME_LEN);
         short procedureType = 0;
 
         stmt = makeObjectListStatement(objectType, objectSchema, objectName, procedureType);
@@ -971,10 +984,8 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, array<SQLCHAR, MAX_NAME_LEN>& objectSchema, array<SQLCHAR, MAX_NAME_LEN>& objectName, short& procedureType) const
+SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, Buffer& objectSchema, Buffer& objectName, short& procedureType) const
 {
-    objectSchema = {};
-    objectName = {};
     procedureType = 0;
     SQLRETURN rc = 0;
 
@@ -1020,12 +1031,12 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     SQLLEN cbObjectSchema = 0;
     SQLLEN cbObjectName = 0;
 
-    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), (SQLLEN) objectSchema.size(), &cbObjectSchema) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), (SQLLEN) objectSchema.capacity() / 2, &cbObjectSchema) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }
 
-    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), (SQLLEN) objectName.size(), &cbObjectName) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), (SQLLEN) objectName.capacity() / 2, &cbObjectName) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }
@@ -1125,7 +1136,7 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
 void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const vector<VariantVector>& data)
 {
-    constexpr int recordsInBatch = 16;
+    constexpr int recordsInBatch = 64;
     auto begin = data.begin();
     auto end = data.begin();
     for (; end != data.end(); ++end)

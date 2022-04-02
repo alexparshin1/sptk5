@@ -267,10 +267,10 @@ static void testInvalidQuery(const String& dbName)
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
 
-    Query query(db, "SELECT * FROM x");
+    Query query(db, "SELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 
-    query.sql("UNSELECT * FROM x");
+    query.sql("UNSELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 }
 
