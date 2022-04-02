@@ -548,7 +548,6 @@ void ODBCConnection::ODBCtypeToCType(int32_t odbcType, int32_t& cType, VariantDa
         case SQL_TIMESTAMP:
         case SQL_TYPE_TIME:
         case SQL_TYPE_TIMESTAMP:
-        case -9:
             cType = SQL_C_TIMESTAMP;
             dataType = VariantDataType::VAR_DATE_TIME;
             break;
@@ -752,7 +751,7 @@ SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* db
         dataLength += readSize - 1;
     }
 
-    return rc;
+    return rc == SQL_NO_DATA ? SQL_SUCCESS : rc;
 }
 
 SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,

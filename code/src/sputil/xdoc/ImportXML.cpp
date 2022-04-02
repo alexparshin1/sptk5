@@ -343,7 +343,11 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
             {
                 if (isInteger(decodedText))
                 {
+#ifdef _WIN32
                     auto value = std::stoll(decodedText);
+#else
+                    auto value = std::stol(decodedText);
+#endif
                     currentNode->set(value);
                     currentNode->type(Node::Type::Number);
                     nodeType = Node::Type::Number;
