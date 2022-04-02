@@ -285,6 +285,14 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
                     rc = sqlite3_bind_double(stmt, paramBindNumber, param->get<double>());
                     break;
 
+                case VariantDataType::VAR_DATE_TIME: {
+                    auto dt = param->get<DateTime>();
+                    param->setString(dt.isoDateTimeString());
+                    rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
+                                           nullptr);
+                }
+                break;
+
                 case VariantDataType::VAR_STRING:
                 case VariantDataType::VAR_TEXT:
                     rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),

@@ -329,6 +329,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
             clob.append('\n');
         }
     }
+    clob.append("END");
 
     Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :ssid, :name, :price, :ts, :enabled, :txt)");
     for (const auto& row: rows)
