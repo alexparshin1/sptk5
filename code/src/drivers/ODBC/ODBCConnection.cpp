@@ -40,7 +40,8 @@ using namespace sptk;
 namespace sptk {
 
 class ODBCField
-    : public DatabaseField {
+    : public DatabaseField
+{
     friend class ODBCConnection;
 
 public:
@@ -333,8 +334,8 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result = 0;
 
     if (!successful(
-        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
-                         &result)))
+            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
+                             &result)))
     {
         THROW_QUERY_ERROR(query, queryError(query))
     }
@@ -351,8 +352,8 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     scoped_lock lock(*m_connect);
 
     if (!successful(
-        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
-                         &available, nullptr)))
+            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
+                             &available, nullptr)))
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
@@ -445,8 +446,8 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()), 
-                    param->get<DateTime>(), true))
+                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()),
+                                         param->get<DateTime>(), true))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
@@ -460,8 +461,8 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 //len = sizeof(TIMESTAMP_STRUCT);
                 len = 19;
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()), 
-                    param->get<DateTime>(), false))
+                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()),
+                                         param->get<DateTime>(), false))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
@@ -737,15 +738,26 @@ SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* db
     SQLLEN offset = 0;
     dataLength = 0;
     SQLLEN readSize = initialReadSize;
-    while (successful(rc))
+    rc = SQL_SUCCESS;
+    while (rc != SQL_NO_DATA)
     {
         bufferSize += readSize;
         field->checkSize(bufferSize);
-        rc = SQLGetData(statement, column, fieldType, buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
-        if (remainingSize > 0)
+        rc = SQLGetData(statement, column, fieldType,
+                        buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
+
+        if (rc == SQL_NO_DATA)
         {
-            readSize = remainingSize;
-        } // Last chunk received
+            break;
+        }
+
+        if (remainingSize >= 0 && remainingSize < readSize)
+        {
+            // Last chunk received
+            dataLength += remainingSize;
+            break;
+        }
+
         offset += readSize - 1;
         dataLength += readSize - 1;
     }

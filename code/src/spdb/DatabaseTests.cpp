@@ -318,9 +318,16 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     createTable.exec();
 
     Buffer clob;
+    size_t counter = 0;
     while (clob.length() < 65536)
     { // A size of the CLOB that is bigger than 64K
-        clob.append("A text");
+        clob.append("A text ");
+        counter += 7;
+        if (counter > 72)
+        {
+            counter = 0;
+            clob.append('\n');
+        }
     }
 
     Query insert(db, "INSERT INTO gtest_temp_table VALUES(:id, :ssid, :name, :price, :ts, :enabled, :txt)");
@@ -368,8 +375,15 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         EXPECT_EQ(row.id, select["id"].asInteger());
         EXPECT_EQ(row.ssid, select["ssid"].asInt64());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
-        EXPECT_DOUBLE_EQ(row.price, select["price"].asFloat());
+        EXPECT_FLOAT_EQ((float) row.price, (float) select["price"].asFloat());
+        EXPECT_EQ(clob.length(), select["txt"].asString().length());
+
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
+        clob.saveToFile("/tmp/clob.txt");
+
+        Buffer clob2(select["txt"].asString());
+        clob2.saveToFile("/tmp/clob2.txt");
+
         select.next();
     }
     select.close();
