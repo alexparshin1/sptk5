@@ -30,7 +30,6 @@
 #include <sptk5/db/Query.h>
 #include <sptk5/db/Transaction.h>
 
-#include <cmath>
 #include <sptk5/db/InsertQuery.h>
 
 using namespace std;
@@ -319,7 +318,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     createTable.exec();
 
     Buffer clob;
-    while (clob.length() < 65 * 1024)
+    while (clob.length() < 65536)
     { // A size of the CLOB that is bigger than 64K
         clob.append("A text");
     }
@@ -369,7 +368,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         EXPECT_EQ(row.id, select["id"].asInteger());
         EXPECT_EQ(row.ssid, select["ssid"].asInt64());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
-        EXPECT_FLOAT_EQ(row.price, select["price"].asFloat());
+        EXPECT_DOUBLE_EQ(row.price, select["price"].asFloat());
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
         select.next();
     }
@@ -534,7 +533,10 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
         case DatabaseConnectionType::ORACLE:
             idDefinition = "id int";
             break;
-        default:
+        case DatabaseConnectionType::FIREBIRD:
+        case DatabaseConnectionType::SQLITE3:
+        case DatabaseConnectionType::GENERIC_ODBC:
+        case DatabaseConnectionType::UNKNOWN:
             throw DatabaseException("InsertQuery doesn't support " + db->driverDescription());
     }
 
@@ -597,19 +599,21 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     arow.emplace_back("Alex,'Doe'");
     arow.emplace_back("Programmer");
     arow.emplace_back("01-JAN-2014");
-    data.push_back(move(arow));
+    data.push_back(arow);
 
+    arow.clear();
     arow.emplace_back(2);
     arow.emplace_back("David");
     arow.emplace_back("CEO");
     arow.emplace_back("01-JAN-2015");
-    data.push_back(move(arow));
+    data.push_back(arow);
 
+    arow.clear();
     arow.emplace_back(3);
     arow.emplace_back("Roger");
     arow.emplace_back("Bunny");
     arow.emplace_back("01-JAN-2016");
-    data.push_back(move(arow));
+    data.push_back(arow);
 
     Strings columnNames("id,name,position_name,hire_date", ",");
     db->bulkInsert("gtest_temp_table", columnNames, data);
@@ -739,15 +743,15 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     transaction.commit();
     DateTime ended2("now");
 
-    auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
+    auto durationMS2 = static_cast<double>(duration_cast<milliseconds>(ended2 - started2).count());
     COUT(left << setw(25) << connectionString.driverName() + " insert:"
               << right << setw(4) << durationMS2 << " ms, "
-              << setprecision(1) << fixed << setw(8) << data.size() * 1000.0 / durationMS2 << " rec/sec" << endl)
+              << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * 1000.0 / durationMS2 << " rec/sec" << endl)
 
-    auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
+    auto durationMS1 = static_cast<double>(duration_cast<milliseconds>(ended1 - started1).count());
     COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
               << right << setw(4) << durationMS1 << " ms, "
-              << setprecision(1) << fixed << setw(8) << data.size() * 1000.0 / durationMS1 << " rec/sec" << endl)
+              << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * 1000.0 / durationMS1 << " rec/sec" << endl)
 }
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)
@@ -903,14 +907,14 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db, true, true);
 
-    constexpr size_t blobSize1 = 64 * 1024;
+    constexpr size_t blobSize1 = 65536;
 
     Buffer testData1(blobSize1);
     Buffer testDataInv(blobSize1);
     for (size_t i = 0; i < blobSize1; i++)
     {
-        testData1[i] = uint8_t(i % 256);
-        testDataInv[i] = uint8_t(256 - uint8_t(i % 256));
+        testData1[i] = static_cast<uint8_t>(i % 256);
+        testDataInv[i] = static_cast<uint8_t>(256 - i % 256);
     }
     testData1.bytes(blobSize1);
     testDataInv.bytes(blobSize1);

@@ -40,8 +40,7 @@ using namespace sptk;
 namespace sptk {
 
 class ODBCField
-    : public DatabaseField
-{
+    : public DatabaseField {
     friend class ODBCConnection;
 
 public:
@@ -334,8 +333,8 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     SQLLEN result = 0;
 
     if (!successful(
-            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
-                             &result)))
+        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, nullptr, 0, nullptr,
+                         &result)))
     {
         THROW_QUERY_ERROR(query, queryError(query))
     }
@@ -352,8 +351,8 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     scoped_lock lock(*m_connect);
 
     if (!successful(
-            SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
-                             &available, nullptr)))
+        SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
+                         &available, nullptr)))
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
@@ -382,7 +381,6 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
 void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 {
     static SQLLEN cbNullValue = SQL_NULL_DATA;
-    int rc = 0;
 
     VariantDataType ptype = param->dataType();
     for (unsigned j = 0; j < param->bindCount(); ++j)
@@ -390,7 +388,7 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
         int16_t paramType = 0;
         int16_t sqlType = 0;
         int16_t scale = 0;
-        void* buff = nullptr;
+        void* buff;
         SQLLEN len = 0;
         auto paramNumber = int16_t(param->bindIndex(j) + 1);
 
@@ -447,7 +445,8 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->get<DateTime>(), true))
+                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()), 
+                    param->get<DateTime>(), true))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
@@ -461,18 +460,19 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 //len = sizeof(TIMESTAMP_STRUCT);
                 len = 19;
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(), param->get<DateTime>(), false))
+                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()), 
+                    param->get<DateTime>(), false))
                 {
                     paramType = SQL_C_CHAR;
                     sqlType = SQL_CHAR;
-                    *(char*) buff = 0;
+                    *static_cast<char*>(buff) = 0;
                 }
                 break;
 
             case VariantDataType::VAR_BUFFER:
                 paramType = SQL_C_BINARY;
                 sqlType = SQL_LONGVARBINARY;
-                len = (SQLLEN) param->dataSize();
+                len = static_cast<SQLLEN>(param->dataSize());
                 buff = (void*) param->getText();
                 param->callbackLength() = len;
 #ifdef _WIN32
@@ -482,19 +482,18 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 #endif
                 break;
 
-            default:
+            case VariantDataType::VAR_IMAGE_NDX:
+            case VariantDataType::VAR_IMAGE_PTR:
+            case VariantDataType::VAR_MONEY:
+            case VariantDataType::VAR_NONE:
                 throw DatabaseException(
                     "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
                     param->name() + "'");
         }
 
-        rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType,
-                              len,
-                              scale,
-                              buff,
-                              len,
-                              cbValue);
-        if (rc != 0)
+        const auto rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType,
+                                         len, scale, buff, len, cbValue);
+        if (rc != SQL_SUCCESS)
         {
             param->binding().reset(false);
             THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber)
@@ -881,7 +880,6 @@ void ODBCConnection::listDataSources(Strings& dsns)
     array<SQLCHAR, MAX_BUF> descrip = {0};
     SQLSMALLINT rdsrc = 0;
     SQLSMALLINT rdesc = 0;
-    SQLRETURN ret = 0;
 
     SQLHENV hEnv = ODBCConnectionBase::getEnvironment().handle();
     bool offline = hEnv == nullptr;
@@ -900,7 +898,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
     SQLUSMALLINT direction = SQL_FETCH_FIRST;
     while (true)
     {
-        ret = SQLDataSources(
+        const SQLRETURN ret = SQLDataSources(
             hEnv, direction,
             datasrc.data(), (SQLSMALLINT) datasrc.size(), &rdsrc,
             descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
@@ -931,7 +929,6 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try
     {
-        SQLRETURN rc = 0;
         Buffer objectSchema(MAX_NAME_LEN);
         Buffer objectName(MAX_NAME_LEN);
         short procedureType = 0;
@@ -942,7 +939,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
         {
             objectSchema[0] = 0;
             objectName[0] = 0;
-            rc = SQLFetch(stmt);
+            SQLRETURN rc = SQLFetch(stmt);
 
             if (rc == SQL_NO_DATA_FOUND)
             {
@@ -986,7 +983,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, Buffer& objectSchema, Buffer& objectName, short& procedureType) const
 {
     procedureType = 0;
-    SQLRETURN rc = 0;
+    SQLRETURN rc;
 
     SQLHSTMT stmt = nullptr;
 
@@ -1023,7 +1020,8 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
             }
             break;
 
-        default:
+        case DatabaseObjectType::DATABASES:
+        case DatabaseObjectType::UNDEFINED:
             break;
     }
 

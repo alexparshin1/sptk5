@@ -292,7 +292,7 @@ static void testInsertQuery(const String& dbName)
 
 static void testBlobInsertAndSelect(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try

@@ -105,7 +105,7 @@ unsigned readOctalNumber(Field& field, const String& fieldName)
 
 bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 {
-    const auto* header = (const TarHeader*) (buffer.data() + offset);
+    const auto* header = reinterpret_cast<const TarHeader*>(buffer.data() + offset);
     if (header->magic[0] == 0)
     {
         // empty block at the end of file
@@ -222,9 +222,9 @@ protected:
     void TearDown() override
     {
         filesystem::remove_all(gtestTempDirectory.c_str());
-        unlink(testTar1.c_str());
-        unlink(testTar2.c_str());
-        unlink("test.lst");
+        filesystem::remove(testTar1.c_str());
+        filesystem::remove(testTar2.c_str());
+        filesystem::remove("test.lst");
     }
 };
 
