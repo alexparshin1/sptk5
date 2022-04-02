@@ -54,8 +54,7 @@ public:
     /**
      * Sort order enumeration
      */
-    enum class SortOrder
-        : uint8_t
+    enum class SortOrder : uint8_t
     {
         UNSORTED,
         ASCENDING,
@@ -65,8 +64,7 @@ public:
     /**
      * String split mode
      */
-    enum class SplitMode
-        : uint8_t
+    enum class SplitMode : uint8_t
     {
         /**
          * Split by the whole delimiter
@@ -124,10 +122,10 @@ public:
      * Returns an index of the string in strings, or -1 if not found.
      * If strings were sorted prior to calling this method, and not modified
      * since that, then binary search is used.
-     * @param s                 String to find
+     * @param needle            String to find
      * @returns                 String index, or -1
      */
-    virtual int indexOf(const String& s) const;
+    virtual int indexOf(const String& needle) const;
 
     /**
      * Saves strings to file. String ids are discarded.
@@ -242,7 +240,7 @@ public:
      * Emplace back a string
      */
     template<typename... Args>
-    void emplace_back(Args&& ... args)
+    void emplace_back(Args&&... args)
     {
         m_sorted = SortOrder::UNSORTED;
         StringVector::emplace_back(args...);
@@ -270,7 +268,6 @@ public:
     }
 
 private:
-
     using StringVector = std::vector<String>;
 
     /**
@@ -287,4 +284,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

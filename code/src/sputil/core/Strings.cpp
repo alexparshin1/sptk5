@@ -116,7 +116,7 @@ void Strings::fromString(const String& src, const char* delimitter, SplitMode mo
     }
 }
 
-int Strings::indexOf(const String& s) const
+int Strings::indexOf(const String& needle) const
 {
     int result = -1;
     const_iterator itor;
@@ -125,22 +125,22 @@ int Strings::indexOf(const String& s) const
     switch (m_sorted)
     {
         case SortOrder::DESCENDING:
-            xtor = lower_bound(rbegin(), rend(), s);
-            if (xtor != rend() && *xtor == s)
+            xtor = lower_bound(rbegin(), rend(), needle);
+            if (xtor != rend() && *xtor == needle)
             {
                 result = (int) distance(rbegin(), xtor);
             }
             break;
         case SortOrder::ASCENDING:
-            itor = lower_bound(begin(), end(), s);
-            if (itor != end() && *itor == s)
+            itor = lower_bound(begin(), end(), needle);
+            if (itor != end() && *itor == needle)
             {
                 result = (int) distance(begin(), itor);
             }
             break;
         default:
-            itor = find(begin(), end(), s);
-            if (itor != end() && *itor == s)
+            itor = find(begin(), end(), needle);
+            if (itor != end() && *itor == needle)
             {
                 result = (int) distance(begin(), itor);
             }
