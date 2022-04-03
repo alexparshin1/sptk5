@@ -45,7 +45,7 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
         return;
     }
 
-    if (!parent->is(Node::Type::Array))
+    if (parent->type() != Node::Type::Array)
     {
         if (elementName.empty())
         {
@@ -104,7 +104,7 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 void WSString::load(const SNode& attr, bool nullLargeData)
 {
     constexpr size_t longStringLength = 256;
-    if (attr->is(Node::Type::Null) || (nullLargeData && attr->getString().length() > longStringLength))
+    if (attr->type() == Node::Type::Null || (nullLargeData && attr->getString().length() > longStringLength))
     {
         setNull(VariantDataType::VAR_STRING);
     }
@@ -129,7 +129,7 @@ void WSString::load(const Field& field)
 
 void WSBool::load(const SNode& attr, bool)
 {
-    if (attr->is(Node::Type::Null))
+    if (attr->type() == Node::Type::Null)
     {
         setNull(VariantDataType::VAR_BOOL);
     }
@@ -177,7 +177,7 @@ void WSBool::load(const Field& field)
 void WSDate::load(const SNode& attr, bool)
 {
     String text = attr->getString();
-    if (attr->is(Node::Type::Null) || text.empty())
+    if (attr->type() == Node::Type::Null || text.empty())
     {
         setNull(VariantDataType::VAR_DATE);
     }
@@ -259,19 +259,19 @@ String WSDateTime::asString() const
 
 void WSDouble::load(const SNode& attr, bool)
 {
-    if (attr->is(Node::Type::Null))
+    if (attr->type() == Node::Type::Null)
     {
         setNull(VariantDataType::VAR_FLOAT);
     }
     else
     {
-        if (attr->is(Node::Type::Number))
+        if (attr->type() == Node::Type::Number)
         {
             value().setFloat(attr->getNumber());
             return;
         }
 
-        if (attr->is(Node::Type::Text))
+        if (attr->type() == Node::Type::Text)
         {
             String textValue = attr->getText();
             if (optional() && textValue.empty())
@@ -321,19 +321,19 @@ void WSDouble::load(const Field& field)
 
 void WSInteger::load(const SNode& attr, bool)
 {
-    if (attr->is(Node::Type::Null))
+    if (attr->type() == Node::Type::Null)
     {
         setNull(VariantDataType::VAR_INT64);
     }
     else
     {
-        if (attr->is(Node::Type::Number))
+        if (attr->type() == Node::Type::Number)
         {
             value().setInt64((int64_t) attr->getNumber());
             return;
         }
 
-        if (attr->is(Node::Type::Text))
+        if (attr->type() == Node::Type::Text)
         {
             auto textValue = attr->getText();
 

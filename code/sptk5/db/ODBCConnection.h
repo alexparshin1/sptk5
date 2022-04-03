@@ -253,6 +253,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void odbc_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* odbc_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT [[maybe_unused]] void odbc_destroy_connection(void* connection);
 }

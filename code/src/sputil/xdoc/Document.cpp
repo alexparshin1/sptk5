@@ -210,7 +210,7 @@ TEST(SPTK_XDocument, clear)
 
     document.root()->clear();
     const auto& root = *document.root();
-    EXPECT_TRUE(root.is(Node::Type::Object));
+    EXPECT_TRUE(root.type() == Node::Type::Object);
     EXPECT_FALSE(root.findFirst("address"));
     EXPECT_EQ(root.nodes().size(), size_t(0));
 }

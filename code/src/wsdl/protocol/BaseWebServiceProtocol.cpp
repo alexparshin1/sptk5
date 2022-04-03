@@ -49,9 +49,9 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
 {
     for (const auto& node: element->nodes())
     {
-        bool isElement = !(
-            node->is(xdoc::Node::Type::ProcessingInstruction) ||
-            node->is(xdoc::Node::Type::Comment));
+        bool isElement =
+            node->type() != xdoc::Node::Type::ProcessingInstruction &&
+            node->type() != xdoc::Node::Type::Comment;
         if (isElement)
         {
             return node;

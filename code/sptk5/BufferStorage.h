@@ -51,11 +51,6 @@ public:
     BufferStorage() = default;
 
     /**
-     * Destructor
-     */
-    virtual ~BufferStorage() = default;
-
-    /**
      * Constructor
      *
      * Creates an empty buffer.
@@ -63,6 +58,26 @@ public:
      * @param sz                Buffer size to be pre-allocated
      */
     explicit BufferStorage(size_t sz);
+
+    /**
+     * Copy constructor
+     * @param bufferStorage     Other object
+     */
+    BufferStorage(const BufferStorage& bufferStorage) noexcept = default;
+
+    /**
+     * Move constructor
+     * @param bufferStorage     Other object
+     */
+    BufferStorage(BufferStorage&& bufferStorage) noexcept = default;
+
+    /**
+     * Destructor
+     */
+    virtual ~BufferStorage() = default;
+
+    BufferStorage& operator=(const BufferStorage& bufferStorage) = default;
+    BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept = default;
 
     /**
      * Constructor

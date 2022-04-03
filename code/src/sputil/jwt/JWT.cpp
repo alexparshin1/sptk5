@@ -118,7 +118,7 @@ JWT::Algorithm JWT::str_alg(const char* alg)
 
 xdoc::SNode JWT::find_grant(const xdoc::SNode& js, const String& key)
 {
-    if (js->is(xdoc::Node::Type::Object))
+    if (js->type() == xdoc::Node::Type::Object)
     {
         return js->findFirst(key);
     }
@@ -133,7 +133,7 @@ String JWT::get_js_string(const xdoc::SNode& js, const String& key, bool* found)
     }
 
     if (const auto& element = find_grant(js, key);
-        element != nullptr && element->is(xdoc::Node::Type::Text))
+        element != nullptr && element->type() == xdoc::Node::Type::Text)
     {
         if (found)
         {
@@ -152,7 +152,7 @@ long JWT::get_js_int(const xdoc::SNode& js, const String& key, bool* found)
     }
 
     if (const auto& element = find_grant(js, key);
-        element != nullptr && element->is(xdoc::Node::Type::Number))
+        element != nullptr && element->type() == xdoc::Node::Type::Number)
     {
         if (found)
         {
@@ -171,7 +171,7 @@ bool JWT::get_js_bool(const xdoc::SNode& js, const String& key, bool* found)
     }
 
     if (const auto& element = find_grant(js, key);
-        element != nullptr && element->is(xdoc::Node::Type::Boolean))
+        element != nullptr && element->type() == xdoc::Node::Type::Boolean)
     {
         if (found)
         {

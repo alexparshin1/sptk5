@@ -548,10 +548,7 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
         case DatabaseConnectionType::ORACLE:
             idDefinition = "id int";
             break;
-        case DatabaseConnectionType::FIREBIRD:
-        case DatabaseConnectionType::SQLITE3:
-        case DatabaseConnectionType::GENERIC_ODBC:
-        case DatabaseConnectionType::UNKNOWN:
+        default:
             throw DatabaseException("InsertQuery doesn't support " + db->driverDescription());
     }
 

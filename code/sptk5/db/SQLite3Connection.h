@@ -200,6 +200,7 @@ private:
     void bindParameter(const Query* query, uint32_t paramNumber) const;
 
     void closeAndClean();
+    int transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber) const;
 };
 
 /**

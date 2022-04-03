@@ -64,7 +64,7 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         }
         String elementName = name == nullptr ? this->name().c_str() : name;
         xdoc::SNode element;
-        if (parent->is(Node::Type::Array))
+        if (parent->type() == Node::Type::Array)
         {
             element = parent->pushNode(elementName);
         }
@@ -109,7 +109,7 @@ void WSComplexType::load(const SNode& input, bool)
 {
     _clear();
     setLoaded(true);
-    if (!input->is(Node::Type::Object))
+    if (input->type() != Node::Type::Object)
     {
         return;
     }

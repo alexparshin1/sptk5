@@ -285,13 +285,9 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
                     rc = sqlite3_bind_double(stmt, paramBindNumber, param->get<double>());
                     break;
 
-                case VariantDataType::VAR_DATE_TIME: {
-                    auto dt = param->get<DateTime>();
-                    param->setString(dt.isoDateTimeString());
-                    rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
-                                           nullptr);
-                }
-                break;
+                case VariantDataType::VAR_DATE_TIME:
+                    rc = transformDateTimeParameter(stmt, param, paramBindNumber);
+                    break;
 
                 case VariantDataType::VAR_STRING:
                 case VariantDataType::VAR_TEXT:
@@ -319,6 +315,15 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
                 query->sql());
         }
     }
+}
+int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber) const
+{
+    int rc;
+    auto dt = param->get<DateTime>();
+    param->setString(dt.isoDateTimeString());
+    rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
+                           nullptr);
+    return rc;
 }
 
 void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantDataType& dataType)

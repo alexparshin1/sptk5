@@ -455,7 +455,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
     }
 }
 
-void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -470,7 +470,7 @@ void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsi
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -592,7 +592,7 @@ void OracleConnection::queryFetch(Query* query)
     }
 }
 
-void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
@@ -607,7 +607,7 @@ void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned 
     buffer.data()[bytes] = 0;
 }
 
-void sptk::Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Blob blob = resultSet->getBlob(columnIndex);

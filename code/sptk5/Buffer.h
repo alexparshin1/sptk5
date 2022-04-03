@@ -30,10 +30,10 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <string>
+#include <filesystem>
 #include <iostream>
 #include <memory>
-#include <filesystem>
+#include <string>
 
 namespace sptk {
 
@@ -52,7 +52,6 @@ class SP_EXPORT Buffer
 {
 
 public:
-
     using BufferStorage::BufferStorage;
 
     /**
@@ -84,7 +83,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer() noexcept = default;
+    ~Buffer() noexcept override = default;
 
     /**
      * Moves buffer from another buffer
@@ -257,4 +256,4 @@ SP_EXPORT std::ostream& operator<<(std::ostream&, const Buffer& buffer);
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -373,14 +373,16 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
         {
             dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
         }
-        t->fraction = ms * 1000;
+        const int msInSecond = 1000;
+        t->fraction = ms * msInSecond;
         return true;
     }
     return false;
 }
 
-void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
+static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 {
+    static const int dateAccuracy = 19;
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
     VariantDataType ptype = param->dataType();
@@ -389,7 +391,7 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
         int16_t paramType = 0;
         int16_t sqlType = 0;
         int16_t scale = 0;
-        void* buff;
+        void* buff = nullptr;
         SQLLEN len = 0;
         auto paramNumber = int16_t(param->bindIndex(j) + 1);
 
@@ -446,7 +448,7 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 sqlType = SQL_TIMESTAMP;
                 len = sizeof(TIMESTAMP_STRUCT);
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()),
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(),
                                          param->get<DateTime>(), true))
                 {
                     paramType = SQL_C_CHAR;
@@ -458,10 +460,9 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
             case VariantDataType::VAR_DATE_TIME:
                 paramType = SQL_C_TIMESTAMP;
                 sqlType = SQL_TIMESTAMP;
-                //len = sizeof(TIMESTAMP_STRUCT);
-                len = 19;
+                len = dateAccuracy;
                 buff = param->conversionBuffer();
-                if (!dateTimeToTimestamp(reinterpret_cast<TIMESTAMP_STRUCT*>(param->conversionBuffer()),
+                if (!dateTimeToTimestamp((TIMESTAMP_STRUCT*) param->conversionBuffer(),
                                          param->get<DateTime>(), false))
                 {
                     paramType = SQL_C_CHAR;
@@ -483,10 +484,7 @@ void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 #endif
                 break;
 
-            case VariantDataType::VAR_IMAGE_NDX:
-            case VariantDataType::VAR_IMAGE_PTR:
-            case VariantDataType::VAR_MONEY:
-            case VariantDataType::VAR_NONE:
+            default:
                 throw DatabaseException(
                     "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
                     param->name() + "'");
@@ -700,8 +698,8 @@ static uint32_t trimField(char* s, uint32_t sz)
     return uint32_t(p - s);
 }
 
-SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
-                                           int16_t fieldType, SQLLEN& dataLength)
+static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
+                                                  int16_t fieldType, SQLLEN& dataLength)
 {
     auto* field = dynamic_cast<ODBCField*>(dbField);
 
@@ -748,7 +746,7 @@ SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* db
 
         if (rc == SQL_NO_DATA)
         {
-            break;
+            return SQL_SUCCESS;
         }
 
         if (remainingSize >= 0 && remainingSize < readSize)
@@ -762,11 +760,11 @@ SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* db
         dataLength += readSize - 1;
     }
 
-    return rc == SQL_NO_DATA ? SQL_SUCCESS : rc;
+    return rc;
 }
 
-SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                        int16_t fieldType, SQLLEN& dataLength)
+static SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+                                               int16_t fieldType, SQLLEN& dataLength)
 {
     TIMESTAMP_STRUCT t = {};
     SQLRETURN rc = SQLGetData(statement, column, fieldType, (SQLPOINTER) &t, 0, &dataLength);
@@ -910,11 +908,10 @@ void ODBCConnection::listDataSources(Strings& dsns)
     SQLUSMALLINT direction = SQL_FETCH_FIRST;
     while (true)
     {
-        const SQLRETURN ret = SQLDataSources(
-            hEnv, direction,
-            datasrc.data(), (SQLSMALLINT) datasrc.size(), &rdsrc,
-            descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
-        if (ret == SQL_NO_DATA)
+        if (const SQLRETURN ret = SQLDataSources(hEnv, direction,
+                                                 datasrc.data(), (SQLSMALLINT) datasrc.size(), &rdsrc,
+                                                 descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
+            ret == SQL_NO_DATA)
         {
             break;
         }
@@ -995,7 +992,6 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, Buffer& objectSchema, Buffer& objectName, short& procedureType) const
 {
     procedureType = 0;
-    SQLRETURN rc;
 
     SQLHSTMT stmt = nullptr;
 
@@ -1024,16 +1020,14 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
         case DatabaseObjectType::PROCEDURES:
         case DatabaseObjectType::FUNCTIONS:
-            rc = SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
-                               Buffer("%").data(), SQL_NTS);
-            if (rc != SQL_SUCCESS)
+            if (SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
+                              Buffer("%").data(), SQL_NTS) != SQL_SUCCESS)
             {
                 throw DatabaseException("SQLProcedures");
             }
             break;
 
-        case DatabaseObjectType::DATABASES:
-        case DatabaseObjectType::UNDEFINED:
+        default:
             break;
     }
 
@@ -1053,8 +1047,7 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     if (objectType == DatabaseObjectType::FUNCTIONS || objectType == DatabaseObjectType::PROCEDURES)
     {
         constexpr SQLSMALLINT procedureTypeColumn = 8;
-        rc = SQLBindCol(stmt, procedureTypeColumn, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr);
-        if (rc != SQL_SUCCESS)
+        if (SQLBindCol(stmt, procedureTypeColumn, SQL_C_SHORT, &procedureType, sizeof(procedureType), nullptr) != SQL_SUCCESS)
         {
             throw DatabaseException("SQLBindCol");
         }
@@ -1165,14 +1158,14 @@ void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnN
 
 map<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
 
-void* odbc_create_connection(const char* connectionString)
+[[maybe_unused]] void* odbc_create_connection(const char* connectionString)
 {
     auto connection = make_shared<ODBCConnection>(connectionString);
     ODBCConnection::s_odbcConnections[connection.get()] = connection;
     return connection.get();
 }
 
-void odbc_destroy_connection(void* connection)
+[[maybe_unused]] void odbc_destroy_connection(void* connection)
 {
     ODBCConnection::s_odbcConnections.erase((ODBCConnection*) connection);
 }

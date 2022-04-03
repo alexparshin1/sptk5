@@ -34,6 +34,38 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
+Node::Type Node::variantTypeToNodeType(VariantDataType type)
+{
+    switch (type)
+    {
+        case VariantDataType::VAR_NONE:
+            return Node::Type::Null;
+
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_FLOAT:
+        case VariantDataType::VAR_IMAGE_NDX:
+        case VariantDataType::VAR_INT64:
+            return Node::Type::Number;
+
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
+        case VariantDataType::VAR_IMAGE_PTR:
+            return Node::Type::Text;
+
+        case VariantDataType::VAR_BOOL:
+            return Node::Type::Boolean;
+
+        default:
+            break;
+    }
+
+    return Node::Type::Null;
+}
+
 Node::Node(const String& nodeName, Type type)
     : m_name(nodeName)
     , m_type(type)
@@ -62,7 +94,7 @@ SNode& Node::findOrCreate(const String& name)
         m_type = Type::Object;
     }
 
-    if (!is(Type::Object))
+    if (type() != Type::Object)
     {
         throw Exception("This element is not an Object");
     }
@@ -83,7 +115,7 @@ SNode& Node::findOrCreate(const String& name)
 
 SNode Node::findFirst(const String& name, SearchMode searchMode) const
 {
-    if (!is(Type::Object))
+    if (type() != Type::Object)
     {
         return nullptr;
     }
@@ -140,7 +172,7 @@ String Node::getString(const String& name) const
         return {};
     }
 
-    if (node->is(Type::Number))
+    if (node->type() == Type::Number)
     {
         auto dvalue = node->m_value.asFloat();
 
@@ -158,7 +190,7 @@ String Node::getString(const String& name) const
 
 static void getTextRecursively(const Node* node, Buffer& output)
 {
-    if (!node->is(Node::Type::Comment))
+    if (node->type() != Node::Type::Comment)
     {
         output.append(node->getString());
         for (const auto& child: node->nodes())
@@ -229,7 +261,7 @@ const Node::Nodes& Node::nodes(const String& name) const
     }
 
     if (const auto& node = findFirst(name);
-        node && node->is(Type::Array))
+        node && node->type() == Type::Array)
     {
         return node->m_nodes;
     }
@@ -249,7 +281,7 @@ SNode& xdoc::Node::pushValue(const String& name, const Variant& value, Node::Typ
     Node::Type actualType(type);
     if (type == Node::Type::Null && !value.isNull())
     {
-        actualType = variantTypeToType(value.dataType());
+        actualType = variantTypeToNodeType(value.dataType());
     }
     auto& node = pushNode(name, actualType);
     node->m_value = value;
@@ -261,7 +293,7 @@ SNode& xdoc::Node::pushValue(const Variant& value, Node::Type type)
     Node::Type actualType(type);
     if (type == Node::Type::Null && !value.isNull())
     {
-        actualType = variantTypeToType(value.dataType());
+        actualType = variantTypeToNodeType(value.dataType());
     }
     auto& node = pushNode("", actualType);
     node->m_value = value;
@@ -369,16 +401,6 @@ void Node::exportTo(DataFormat dataFormat, ostream& stream, bool formatted) cons
     stream << output.c_str();
 }
 
-SNode& Node::parent()
-{
-    return m_parent;
-}
-
-const SNode& Node::parent() const
-{
-    return m_parent;
-}
-
 void Node::clearChildren()
 {
     m_nodes.clear();
@@ -389,38 +411,6 @@ void Node::select(Node::Vector& selectedNodes, const String& xpath)
     selectedNodes.clear();
     auto node = shared_from_this();
     NodeSearchAlgorithms::select(selectedNodes, node, xpath);
-}
-
-Node::Type Node::variantTypeToType(VariantDataType type)
-{
-    switch (type)
-    {
-        case VariantDataType::VAR_NONE:
-            return Type::Null;
-
-        case VariantDataType::VAR_INT:
-        case VariantDataType::VAR_FLOAT:
-        case VariantDataType::VAR_IMAGE_NDX:
-        case VariantDataType::VAR_INT64:
-            return Type::Number;
-
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-        case VariantDataType::VAR_IMAGE_PTR:
-            return Type::Text;
-
-        case VariantDataType::VAR_BOOL:
-            return Type::Boolean;
-
-        default:
-            break;
-    }
-
-    return Type::Null;
 }
 
 void Node::clone(const SNode& destination, const SNode& source)

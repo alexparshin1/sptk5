@@ -229,7 +229,7 @@ char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char*
 
 SNode ImportXML::detectArray(const SNode& _node)
 {
-    if (!_node->is(Node::Type::Object) || _node->nodes().size() < 2)
+    if (_node->type() != Node::Type::Object || _node->nodes().size() < 2)
     {
         return _node;
     }
@@ -446,7 +446,7 @@ static void verifyDocument(Document& document)
 
     for (const auto& cdataNode: dataNode->nodes())
     {
-        EXPECT_TRUE(cdataNode->is(Node::Node::Type::CData));
+        EXPECT_TRUE(cdataNode->type() == Node::Node::Type::CData);
         EXPECT_STREQ("hello, /\\>", cdataNode->getString().c_str());
     }
 }
@@ -549,7 +549,7 @@ TEST(SPTK_XDocument, parseXML)
     SNode methodElement = nullptr;
     for (const auto& node: bodyElement->nodes())
     {
-        if (node->is(Node::Node::Type::Object))
+        if (node->type() == Node::Node::Type::Object)
         {
             methodElement = node;
             break;

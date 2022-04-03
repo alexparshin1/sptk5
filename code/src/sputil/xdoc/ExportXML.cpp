@@ -69,9 +69,8 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
             buffer.append('>');
         }
 
-        bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
-
-        if (formatted && (!firstSubNodeIsText || subNodes.size() > 1))
+        if (bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
+            formatted && (!firstSubNodeIsText || subNodes.size() > 1))
         {
             buffer.append('\n');
         }
@@ -119,7 +118,7 @@ void ExportXML::appendNodeNameAndAttributes(const Node* node, const String& node
 
 Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
 {
-    if (node->is(Node::Type::Number))
+    if (node->type() == Node::Type::Number)
     {
         auto dvalue = node->getValue().asFloat();
         auto lvalue = long(dvalue);
@@ -134,7 +133,7 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
     }
     else
     {
-        if (node->is(Node::Type::CData))
+        if (node->type() == Node::Type::CData)
         {
             constexpr int cdataTagLength = 9;
             buffer.append("<![CDATA[", cdataTagLength);
@@ -171,7 +170,7 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
     {
         buffer.append("-->", 3);
     }
-    else if (!node->is(Node::Type::Null))
+    else if (node->type() != Node::Type::Null)
     {
         if (isNode)
         {

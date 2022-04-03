@@ -85,11 +85,6 @@ public:
         m_name = name;
     }
 
-    bool is(Type type) const
-    {
-        return m_type == type;
-    }
-
     Type type() const
     {
         return m_type;
@@ -151,7 +146,7 @@ public:
     {
         auto& node = findOrCreate(name);
         node->m_value = value;
-        node->type(variantTypeToType(node->m_value.dataType()));
+        node->type(variantTypeToNodeType(node->m_value.dataType()));
 
         return node;
     }
@@ -163,6 +158,16 @@ public:
     SNode& findOrCreate(const String& name);
 
     SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
+
+    SNode& parent()
+    {
+        return m_parent;
+    }
+
+    const SNode& parent() const
+    {
+        return m_parent;
+    }
 
     /**
      * Parse JSON text
@@ -179,10 +184,6 @@ public:
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
     void exportTo(DataFormat dataFormat, std::ostream& stream, bool formatted) const;
-
-    SNode& parent();
-
-    const SNode& parent() const;
 
     void select(Node::Vector& selectedNodes, const String& xpath);
 
@@ -201,7 +202,7 @@ private:
     Attributes m_attributes;
     Nodes m_nodes;
 
-    static Type variantTypeToType(VariantDataType type);
+    static Type variantTypeToNodeType(VariantDataType type);
 };
 
 using Element = Node;
