@@ -37,8 +37,16 @@ LogEngine::LogEngine(const String& logEngineName)
 
 LogEngine::~LogEngine() noexcept
 {
-    Thread::terminate();
-    Thread::join();
+    shutdown();
+}
+
+void LogEngine::shutdown() noexcept
+{
+    if (!terminated())
+    {
+        Thread::terminate();
+        Thread::join();
+    }
 }
 
 void LogEngine::option(int option, bool flag)

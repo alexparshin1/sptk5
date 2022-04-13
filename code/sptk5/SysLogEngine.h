@@ -84,9 +84,7 @@ public:
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
-#ifdef _WIN32
     ~SysLogEngine() override;
-#endif
 
     /**
      * Get log engine options
@@ -97,17 +95,16 @@ public:
     void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
 
 private:
-
 #ifdef _WIN32
-    std::atomic<HANDLE>     m_logHandle {0};        ///< The handle of the log file
-    static bool             m_registrySet;          ///< Is registry set?
+    std::atomic<HANDLE> m_logHandle {0}; ///< The handle of the log file
+    static bool m_registrySet;           ///< Is registry set?
 #endif
 
     static SharedMutex syslogMutex;
     static std::atomic_bool m_logOpened;
 
-    uint32_t m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
-    String m_programName;              ///< Application name
+    uint32_t m_facilities; ///< List of facilities allows to define one or more system logs where messages would be sent
+    String m_programName;  ///< Application name
 
     void programName(const String& progName);
 
@@ -116,4 +113,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

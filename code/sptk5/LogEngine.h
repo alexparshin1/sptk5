@@ -164,6 +164,11 @@ protected:
      */
     void log(Logger::UMessage& message);
 
+    /**
+     * Shutdown log worker thread
+     */
+    void shutdown() noexcept;
+
 private:
     /**
      * Mutex that protects internal data access
@@ -181,7 +186,6 @@ private:
     std::atomic<uint32_t> m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
-
     /**
      * Message queue
      */

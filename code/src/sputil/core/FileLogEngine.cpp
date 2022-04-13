@@ -77,9 +77,7 @@ FileLogEngine::FileLogEngine(const fs::path& fileName)
 
 FileLogEngine::~FileLogEngine()
 {
-    Thread::sleep_for(chrono::seconds(1));
-    Thread::terminate();
-    Thread::join();
+    shutdown();
 }
 
 void FileLogEngine::reset()

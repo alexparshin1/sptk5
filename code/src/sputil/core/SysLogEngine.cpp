@@ -125,13 +125,14 @@ void SysLogEngine::getOptions(uint32_t& options, String& programName, uint32_t& 
     facilities = m_facilities;
 }
 
-#ifdef _WIN32
 SysLogEngine::~SysLogEngine()
 {
+#ifdef _WIN32
     if (m_logHandle)
         CloseEventLog(m_logHandle);
-}
 #endif
+    shutdown();
+}
 
 void SysLogEngine::setupEventSource() const
 {
