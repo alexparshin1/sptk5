@@ -185,7 +185,12 @@ public:
 
     void exportTo(DataFormat dataFormat, std::ostream& stream, bool formatted) const;
 
-    void select(Node::Vector& selectedNodes, const String& xpath);
+    /**
+     * @brief Select a list of sub-nodes matching xpath
+     * @param xpath             XPath
+     * @return                  List of matching sub-nodes
+     */
+    [[nodiscard]] Node::Vector select(const String& xpath);
 
     /**
      * @brief Perform a deep copy of the source to destination

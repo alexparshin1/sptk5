@@ -137,15 +137,13 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
 
 void WSParser::parseOperation(const xdoc::SNode& operationNode)
 {
-    xdoc::Node::Vector messageNodes;
-
     auto document = operationNode;
     while (document->parent())
     {
         document = document->parent();
     }
 
-    document->select(messageNodes, "//wsdl:message");
+    xdoc::Node::Vector messageNodes = document->select("//wsdl:message");
 
     map<String, String> messageToElementMap;
     for (const auto& message: messageNodes)
@@ -195,8 +193,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
 void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    xdoc::Node::Vector simpleTypeNodes;
-    schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
+    auto simpleTypeNodes = schemaElement->select("//xsd:simpleType");
 
     for (const auto& element: simpleTypeNodes)
     {
@@ -206,8 +203,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
         }
     }
 
-    xdoc::Node::Vector complexTypeNodes;
-    schemaElement->select(complexTypeNodes, "//xsd:complexType");
+    auto complexTypeNodes = schemaElement->select("//xsd:complexType");
 
     for (auto& element: complexTypeNodes)
     {

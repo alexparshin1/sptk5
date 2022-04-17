@@ -27,8 +27,8 @@
 #include <sptk5/sptk.h>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CThemeScrollBar.h>
 #include <cmath>
+#include <sptk5/gui/CThemeScrollBar.h>
 
 using namespace std;
 using namespace sptk;
@@ -173,8 +173,7 @@ void CThemeScrollBar::loadGtkScrollbarSliders(xdoc::Document& xml)
 
 void CThemeScrollBar::loadGtkScrollbars(xdoc::Document& xml)
 {
-    xdoc::Node::Vector scrollBarDefaults;
-    xml.root()->select(scrollBarDefaults, "/styles/style/GtkRange");
+    auto scrollBarDefaults = xml.root()->select("/styles/style/GtkRange");
     if (!scrollBarDefaults.empty())
     {
         const auto& node = scrollBarDefaults[0];

@@ -406,11 +406,15 @@ void Node::clearChildren()
     m_nodes.clear();
 }
 
-void Node::select(Node::Vector& selectedNodes, const String& xpath)
+Node::Vector Node::select(const String& xpath)
 {
+    Node::Vector selectedNodes;
+
     selectedNodes.clear();
     auto node = shared_from_this();
     NodeSearchAlgorithms::select(selectedNodes, node, xpath);
+
+    return selectedNodes;
 }
 
 void Node::clone(const SNode& destination, const SNode& source)

@@ -118,7 +118,9 @@ string CThemeImageCollection::gtkFullFileName(string fileName)
         return fileName;
     }
     if (fileName[0] == '/')
-    { fileName = fileName.substr(1, 255); }
+    {
+        fileName = fileName.substr(1, 255);
+    }
     return CThemes::themeFolder() + fileName;
 }
 
@@ -128,13 +130,11 @@ void CThemeImageCollection::loadFromGtkTheme(
 {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT", "|");
 
-    xdoc::Node::Vector images;
-
-    gtkTheme.root()->select(images, imagesXPath);
+    auto images = gtkTheme.root()->select(imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (auto imageNode : images)
+    for (auto imageNode: images)
     {
         if (!attribute.empty() && (String) imageNode->attributes().get(attribute) != attributeValue)
         {

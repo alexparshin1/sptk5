@@ -77,9 +77,9 @@ public:
         return m_root->findFirst(name, searchMode);
     }
 
-    void select(Node::Vector& selectedNodes, const String& xpath) const
+    [[nodiscard]] Node::Vector select(const String& xpath) const
     {
-        m_root->select(selectedNodes, xpath);
+        return m_root->select(xpath);
     }
 
 private:
@@ -88,4 +88,4 @@ private:
 
 using SDocument = std::shared_ptr<Document>;
 
-}
+} // namespace sptk::xdoc

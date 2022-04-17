@@ -26,16 +26,16 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/gui/CThemeImageCollection.h>
-#include <sptk5/cgui>
 #include <map>
+#include <sptk5/cgui>
+#include <sptk5/gui/CThemeImageCollection.h>
 
-#include "ThemeUtils.h"
 #include "CGtkThemeLoader.h"
+#include "ThemeUtils.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 using namespace std;
@@ -61,7 +61,9 @@ void CThemes::loadGtkButton(const xdoc::SNode& imageNode, std::map<CThemeImageSt
         return;
     }
     if (fileName[0] == '/')
-    { fileName = fileName.substr(1, 255); }
+    {
+        fileName = fileName.substr(1, 255);
+    }
     int buttonState = buttonStates.indexOf(state);
     if (defaultFrame)
     {
@@ -80,11 +82,9 @@ void CThemes::loadGtkButton(const xdoc::SNode& imageNode, std::map<CThemeImageSt
 void CThemes::loadGtkButtonFileNames(
     xdoc::Document& xml, string XPath, std::map<CThemeImageState, std::string>& buttonFileNames, string orientation)
 {
-    xdoc::Node::Vector buttonImages;
-
     buttonFileNames.clear();
-    xml.root()->select(buttonImages, XPath);
-    for (auto imageNode : buttonImages)
+    auto buttonImages = xml.root()->select(XPath);
+    for (auto imageNode: buttonImages)
     {
         if (!orientation.empty() && (String) imageNode->attributes().get("arrow_direction") != orientation)
         {
@@ -142,7 +142,8 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
         buffer.saveToFile("/svn/sptk5/trunk/" + testThemeName + ".xml");
     }
     catch (...)
-    {}
+    {
+    }
 
     xdoc::Document& xml = gtkThemeLoader.xml();
 
@@ -163,8 +164,7 @@ void CThemes::loadGtkTheme(const String& gtkThemeName)
                                       "/styles/style[@name='progressbar']/engine[@name='pixmap']/image[@detail='bar']",
                                       "orientation", "HORIZONTAL");
 
-    xdoc::Node::Vector bgImageNodes;
-    xml.root()->select(bgImageNodes, "/styles/style/bg_pixmap");
+    auto bgImageNodes = xml.root()->select("/styles/style/bg_pixmap");
     if (!bgImageNodes.empty())
     {
         String fileName = CThemeImageCollection::gtkFullFileName((String) bgImageNodes[0]->attributes().get("NORMAL"));

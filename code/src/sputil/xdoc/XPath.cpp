@@ -275,18 +275,17 @@ static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="0
 
 TEST(SPTK_XDocument, select)
 {
-    Node::Vector elementSet;
     Document document;
 
     document.load(testXML1);
 
-    document.root()->select(elementSet, "/AAA");
+    auto elementSet = document.root()->select("/AAA");
     EXPECT_EQ(size_t(1), elementSet.size());
 
-    document.root()->select(elementSet, "/AAA/CCC");
+    elementSet = document.root()->select("/AAA/CCC");
     EXPECT_EQ(size_t(2), elementSet.size());
 
-    document.root()->select(elementSet, "/AAA/DDD/BBB");
+    elementSet = document.root()->select("/AAA/DDD/BBB");
     EXPECT_EQ(size_t(1), elementSet.size());
 }
 
@@ -307,21 +306,19 @@ TEST(SPTK_XDocument, parent)
 
 TEST(SPTK_XDocument, select2)
 {
-    Node::Vector elementSet;
     Document document;
 
     document.load(testXML2);
 
-    document.root()->select(elementSet, "//BBB");
+    auto elementSet = document.root()->select("//BBB");
     EXPECT_EQ(size_t(5), elementSet.size());
 
-    document.root()->select(elementSet, "//DDD/BBB");
+    elementSet = document.root()->select("//DDD/BBB");
     EXPECT_EQ(size_t(3), elementSet.size());
 }
 
 TEST(SPTK_XDocument, select3)
 {
-    Node::Vector elementSet;
     Document document;
 
     document.load(testXML3);
@@ -329,43 +326,41 @@ TEST(SPTK_XDocument, select3)
     Buffer buff;
     document.exportTo(DataFormat::XML, buff, false);
 
-    document.root()->select(elementSet, "/AAA/CCC/DDD/*");
+    auto elementSet = document.root()->select("/AAA/CCC/DDD/*");
     EXPECT_EQ(size_t(4), elementSet.size());
 
-    document.root()->select(elementSet, "//*");
+    elementSet = document.root()->select("//*");
     EXPECT_EQ(size_t(17), elementSet.size());
 }
 
 TEST(SPTK_XDocument, select4)
 {
-    Node::Vector elementSet;
     Document document;
 
     document.load(testXML4);
 
-    document.root()->select(elementSet, "/AAA/BBB[1]");
+    auto elementSet = document.root()->select("/AAA/BBB[1]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("1", elementSet[0]->getString().c_str());
 
-    document.root()->select(elementSet, "/AAA/BBB[last()]");
+    elementSet = document.root()->select("/AAA/BBB[last()]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("4", elementSet[0]->getString().c_str());
 }
 
 TEST(SPTK_XDocument, select5)
 {
-    Node::Vector elementSet;
     Document document;
 
     document.load(testXML5);
 
-    document.root()->select(elementSet, "//BBB[@id=002]");
+    auto elementSet = document.root()->select("//BBB[@id=002]");
     EXPECT_EQ(size_t(1), elementSet.size());
     EXPECT_STREQ("2", elementSet[0]->getString().c_str());
 
-    document.root()->select(elementSet, "//BBB[@id=003]");
-    EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("3", elementSet[0]->getString().c_str());
+    auto elementSet2 = document.root()->select("//BBB[@id=003]");
+    EXPECT_EQ(size_t(1), elementSet2.size());
+    EXPECT_STREQ("3", elementSet2[0]->getString().c_str());
 }
 
 #endif

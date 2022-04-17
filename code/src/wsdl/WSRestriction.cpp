@@ -33,8 +33,7 @@ using namespace sptk;
 WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(typeName)
 {
-    xdoc::Node::Vector enumerationNodes;
-    simpleTypeElement->select(enumerationNodes, "xsd:restriction/xsd:enumeration");
+    auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
     for (const auto& enumerationNode: enumerationNodes)
     {
         if (enumerationNode != nullptr)
@@ -49,8 +48,7 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
     }
     else
     {
-        xdoc::Node::Vector patternNodes;
-        simpleTypeElement->select(patternNodes, "xsd:restriction/xsd:pattern");
+        auto patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
         for (const auto& patternNode: patternNodes)
         {
             String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
@@ -64,7 +62,8 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
 }
 
 WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPatterns)
-    : m_type(type), m_wsdlTypeName(wsdlTypeName)
+    : m_type(type)
+    , m_wsdlTypeName(wsdlTypeName)
 {
     if (enumerationsOrPatterns.empty())
     {
@@ -155,8 +154,7 @@ static const String coloursXML {
     "<xsd:enumeration value=\"Blue\"/>"
     "</xsd:restriction>"
     "</xsd:simpleType>"
-    "</xsd:element>"
-};
+    "</xsd:element>"};
 
 static const String initialsXML {
     "<xsd:element name=\"Initials\">"
@@ -165,8 +163,7 @@ static const String initialsXML {
     "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
     "</xsd:restriction>"
     "</xsd:simpleType>"
-    "</xsd:element>"
-};
+    "</xsd:element>"};
 
 TEST(SPTK_WSRestriction, parseEnumeration)
 {
