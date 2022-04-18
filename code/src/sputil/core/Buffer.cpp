@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <filesystem>
 #include <iomanip>
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
@@ -38,7 +37,7 @@ Buffer::Buffer(const String& str)
 {
 }
 
-void Buffer::loadFromFile(const filesystem::path& fileName)
+void Buffer::loadFromFile(const fs::path& fileName)
 {
     FILE* f = fopen(fileName.string().c_str(), "rb");
 

@@ -27,7 +27,6 @@
 #include "sptk5/ArchiveFile.h"
 #include "sptk5/Tar.h"
 #include <chrono>
-#include <filesystem>
 
 #ifndef _WIN32
 
@@ -41,8 +40,6 @@
 
 using namespace std;
 using namespace sptk;
-
-namespace fs = filesystem;
 
 template<typename TP>
 std::time_t to_time_t(TP tp)

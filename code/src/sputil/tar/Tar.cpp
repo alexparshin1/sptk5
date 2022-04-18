@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <filesystem>
 #include <fstream>
 #include <sptk5/Tar.h>
 
@@ -198,7 +197,7 @@ protected:
     void SetUp() override
     {
 
-        filesystem::create_directories(gtestTempDirectory.c_str());
+        fs::create_directories(gtestTempDirectory.c_str());
 
         constexpr int TestFileBytes = 1000;
 
@@ -221,10 +220,10 @@ protected:
 
     void TearDown() override
     {
-        filesystem::remove_all(gtestTempDirectory.c_str());
-        filesystem::remove(testTar1.c_str());
-        filesystem::remove(testTar2.c_str());
-        filesystem::remove("test.lst");
+        fs::remove_all(gtestTempDirectory.c_str());
+        fs::remove(testTar1.c_str());
+        fs::remove(testTar2.c_str());
+        fs::remove("test.lst");
     }
 };
 

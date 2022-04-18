@@ -37,7 +37,7 @@ constexpr int FL_ALIGN_LEFT = 4;
 
 using namespace std;
 using namespace sptk;
-using namespace filesystem;
+using namespace fs;
 
 String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
