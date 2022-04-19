@@ -24,10 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/CommandLine.h>
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
-#include <sptk5/CommandLine.h>
-#include <filesystem>
 
 #ifdef _WIN32
 #include <io.h>
@@ -38,10 +37,13 @@ using namespace sptk;
 
 void help()
 {
-    COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl << endl)
+    COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl
+                                                                      << endl)
     COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl)
-    COUT("Usage:" << endl << endl)
-    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl << endl)
+    COUT("Usage:" << endl
+                  << endl)
+    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl
+                                                                   << endl)
     COUT("Parameters:" << endl)
     COUT("WSDL file         WSDL file that defines Web Service" << endl)
     COUT("output directory  Directory where generated files will be stored" << endl)
@@ -123,9 +125,9 @@ static bool createDirectory(const String& directory)
 {
     try
     {
-        filesystem::create_directory(directory.c_str());
+        fs::create_directory(directory.c_str());
     }
-    catch (const filesystem::filesystem_error& e)
+    catch (const fs::filesystem_error& e)
     {
         CERR("Can't create output directory '" << directory << "': " << e.what() << endl)
         return false;
@@ -180,7 +182,7 @@ int main(int argc, const char* argv[])
             COUT("Input WSDL file:             " << wsdlFile << endl)
             COUT("Generate files to directory: " << wsdlFile << endl)
             if (!headerFile.empty())
-            COUT("Using C++ header file:       " << headerFile << endl)
+                COUT("Using C++ header file:       " << headerFile << endl)
         }
 
         OpenApiGenerator::Options options;

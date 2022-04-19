@@ -27,22 +27,23 @@
 */
 
 #include <FL/Fl.H>
-#include <sptk5/cutils>
 #include <sptk5/cnet>
-#include <filesystem>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    filesystem::remove_all("/tmp/logs");
-    filesystem::create_directories("/tmp/logs");
+    fs::remove_all("/tmp/logs");
+    fs::create_directories("/tmp/logs");
 
     DateTime totalStarted = DateTime::Now();
 
-    for (int i = 0; i < 10; i++) {
-        try {
+    for (int i = 0; i < 10; i++)
+    {
+        try
+        {
             DateTime started = DateTime::Now();
 
             auto* socket = new TCPSocket;
@@ -59,12 +60,14 @@ int main()
             httpFields["enddate"] = "2017-08-23T21:59:59.999Z";
 
             Buffer data;
-            try {
+            try
+            {
                 auto statusCode = sock.cmd_get("/event/api/0.1/events", httpFields, data, nullptr, chrono::seconds(30));
                 if (statusCode >= 400)
                     throw Exception(sock.statusText());
             }
-            catch (const Exception& e) {
+            catch (const Exception& e)
+            {
                 CERR(e.what() << endl)
                 CERR(data.c_str() << endl)
             }
@@ -74,18 +77,21 @@ int main()
             DateTime finished = DateTime::Now();
             long durationMS = chrono::duration_cast<chrono::milliseconds>(finished - started).count();
 
-            COUT("Elapsed " << durationMS << " ms " << endl << endl)
+            COUT("Elapsed " << durationMS << " ms " << endl
+                            << endl)
 
             delete socket;
-
-        } catch (const Exception& e) {
+        }
+        catch (const Exception& e)
+        {
             CERR(e.what() << endl)
             return 1;
         }
     }
 
     long totalMS = chrono::duration_cast<chrono::milliseconds>(DateTime::Now() - totalStarted).count();
-    COUT("Total Elapsed " << totalMS << " ms " << endl << endl)
+    COUT("Total Elapsed " << totalMS << " ms " << endl
+                          << endl)
 
     return 0;
 }
