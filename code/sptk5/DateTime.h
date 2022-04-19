@@ -167,7 +167,7 @@ public:
     * @param s                  Second
     * @param ms                 Millisecond
     */
-    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0) noexcept;
+    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0);
 
     /**
      * Constructor
@@ -179,6 +179,11 @@ public:
      * Copy constructor
      */
     DateTime(const DateTime& dt) = default;
+
+    /**
+     * Move constructor
+     */
+    DateTime(DateTime&& dt) = default;
 
     /**
      * Constructor

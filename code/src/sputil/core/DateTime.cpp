@@ -592,7 +592,7 @@ void DateTime::time24Mode(bool t24mode)
 // Constructors
 //----------------------------------------------------------------
 DateTime::DateTime(short year, short month, short day, short hour, short minute, short second,
-                   short millisecond) noexcept
+                   short millisecond)
 {
     try
     {
