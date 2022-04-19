@@ -173,24 +173,24 @@ public:
      * Constructor
      * @param dateStr           Date string
      */
-    explicit DateTime(const char* dateStr = nullptr) noexcept;
+    explicit DateTime(const char* dateStr = nullptr);
 
     /**
      * Copy constructor
      */
-    DateTime(const DateTime& dt) noexcept = default;
+    DateTime(const DateTime& dt) = default;
 
     /**
      * Constructor
      * @param dt                Time point
      */
-    explicit DateTime(const time_point& dt) noexcept;
+    explicit DateTime(const time_point& dt);
 
     /**
      * Constructor
      * @param dt                Duration since epoch
      */
-    explicit DateTime(const duration& dt) noexcept;
+    explicit DateTime(const duration& dt);
 
     /**
      * Returns time_point presentation of the date and time

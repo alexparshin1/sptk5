@@ -605,7 +605,7 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
     }
 }
 
-DateTime::DateTime(const char* dat) noexcept
+DateTime::DateTime(const char* dat)
 {
     if (dat == nullptr || *dat == char(0))
     {
@@ -657,12 +657,12 @@ DateTime::DateTime(const char* dat) noexcept
     }
 }
 
-DateTime::DateTime(const time_point& dt) noexcept
+DateTime::DateTime(const time_point& dt)
     : m_dateTime(dt)
 {
 }
 
-DateTime::DateTime(const duration& dt) noexcept
+DateTime::DateTime(const duration& dt)
     : m_dateTime(dt)
 {
 }
