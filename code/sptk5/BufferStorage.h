@@ -63,7 +63,7 @@ public:
      * Copy constructor
      * @param bufferStorage     Other object
      */
-    BufferStorage(const BufferStorage& bufferStorage) noexcept = default;
+    BufferStorage(const BufferStorage& bufferStorage) = default;
 
     /**
      * Move constructor
