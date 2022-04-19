@@ -24,17 +24,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <FL/fl_ask.H>
+#include <filesystem>
+#include <sptk5/HomeDirectory.h>
 #include <sptk5/gui/CFileDialog.h>
 #include <sptk5/sptk.h>
 #include <sys/stat.h>
-#include <FL/fl_ask.H>
-#include <sptk5/HomeDirectory.h>
-#include <filesystem>
 
 #ifdef WIN32
 
 #include <direct.h>
-const char sptk::CFileDialog::slashChar  = '\\';
+const char sptk::CFileDialog::slashChar = '\\';
 const char sptk::CFileDialog::slashStr[] = "\\";
 #else
 const char sptk::CFileDialog::slashChar = '/';
@@ -118,8 +118,7 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 
             break;
 
-        case CEvent::MOUSE_DOUBLE_CLICK:
-        {
+        case CEvent::MOUSE_DOUBLE_CLICK: {
             if (directoryClicked)
             {
                 String fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
@@ -132,10 +131,9 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
                 fileDialog->m_okButton->do_callback();
             }
         }
-            break;
+        break;
 
-        default
-            :
+        default:
             break;
     }
 }
@@ -246,11 +244,11 @@ void CFileDialog::createFolder()
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
         try
         {
-            filesystem::create_directories(folderName.c_str());
+            fs::create_directories(folderName.c_str());
             directory(folderName);
             refreshDirectory();
         }
-        catch (const filesystem::filesystem_error& e)
+        catch (const fs::filesystem_error& e)
         {
             fl_alert("%s", ("Can't create directory " + folderName + ": " + String(e.what())).c_str());
         }
@@ -284,7 +282,8 @@ void CFileDialog::directory(const String& p)
     Strings driveList;
     makeDriveList(driveList);
 
-    for (unsigned d = 0; d < driveList.size(); d++) {
+    for (unsigned d = 0; d < driveList.size(); d++)
+    {
         pseudoID++;
         m_lookInCombo->addRow(pseudoID, Strings(driveList[d], "|"));
     }
@@ -390,7 +389,7 @@ String CFileDialog::fullFileName() const
     String fileNamesStr = m_fileNameInput->data().asString();
     Strings fileNames(fileNamesStr, ";");
 
-    for (auto& fileName : fileNames)
+    for (auto& fileName: fileNames)
     {
         String fname = m_directory.directory() + slashStr + fileName;
         fileName = trim(fname.replace("[\\/\\\\]{2}", slashStr));
