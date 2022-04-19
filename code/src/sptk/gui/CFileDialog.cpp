@@ -25,11 +25,9 @@
 */
 
 #include <FL/fl_ask.H>
-#include <filesystem>
 #include <sptk5/HomeDirectory.h>
 #include <sptk5/gui/CFileDialog.h>
 #include <sptk5/sptk.h>
-#include <sys/stat.h>
 
 #ifdef WIN32
 
