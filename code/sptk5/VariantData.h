@@ -136,7 +136,7 @@ public:
     {
     }
 
-    virtual ~VariantData() noexcept = default;
+    virtual ~VariantData() = default;
 
     /**
      * Copy assigment
