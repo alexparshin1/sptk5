@@ -2,6 +2,7 @@
 
 OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
 OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
+PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')
 
 echo $OS_NAME $OS_VERSION
 echo
@@ -13,6 +14,10 @@ PACKAGE_NAME="SPTK-$VERSION"
 case $OS_NAME in
     ubuntu)
         OS_TYPE="ubuntu-$OS_VERSION"
+        ;;
+
+    ol)
+        OS_TYPE="$PLATFORM"
         ;;
 
     centos)
@@ -27,6 +32,9 @@ case $OS_NAME in
         OS_TYPE="$OS_NAME-$OS_VERSION"
         ;;
 esac
+
+echo OS_NAME:  $OS_NAME
+echo PLATFORM: $PLATFORM
 
 cd /build/$PACKAGE_NAME
 
