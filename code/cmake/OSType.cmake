@@ -8,7 +8,7 @@ IF (UNIX)
     ENDIF ()
 
     EXEC_PROGRAM(grep ARGS -E "^ID=" /etc/os-release OUTPUT_VARIABLE OS_NAME)
-    STRING(REGEX MATCH "(debian|centos|ubuntu|fedora|redhat)" OS_FLAVOUR "${OS_NAME}")
+    STRING(REGEX MATCH "(debian|centos|ubuntu|fedora|redhat|ol)" OS_FLAVOUR "${OS_NAME}")
 
     EXEC_PROGRAM(grep ARGS -E "^VERSION=" /etc/os-release OUTPUT_VARIABLE OS_VERS)
     MESSAGE("#### ${OS_VERS}")
