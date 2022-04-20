@@ -251,7 +251,8 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
             }
             else
             {
-                stmt->setMaxParamSize(paramIndex, 32);
+                const auto maxParamDataSize = 32;
+                stmt->setMaxParamSize(paramIndex, maxParamDataSize);
             }
         }
         ++paramIndex;
@@ -438,13 +439,15 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
-            array<char, 32> alias {};
+            const auto maxColumnNameLenght = 31;
+            array<char, maxColumnNameLenght> alias {};
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
         {
-            resultSet->setMaxColumnSize(columnIndex + 1, 16384);
+            const auto maxColumnSize = 16384;
+            resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
         }
         VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
         auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
@@ -777,7 +780,8 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    array<char, 16> mark {};
+    const auto maxParamMarkLength = 16;
+    array<char, maxParamMarkLength> mark {};
     snprintf(mark.data(), sizeof(mark) - 1, ":%i", paramIndex + 1);
     return string(mark.data());
 }
@@ -893,14 +897,14 @@ void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t 
 
 map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
 
-void* oracle_create_connection(const char* connectionString)
+[[maybe_unused]] void* oracle_create_connection(const char* connectionString)
 {
     auto connection = make_shared<OracleConnection>(connectionString);
     OracleConnection::s_oracleConnections[connection.get()] = connection;
     return connection.get();
 }
 
-void oracle_destroy_connection(void* connection)
+[[maybe_unused]] void oracle_destroy_connection(void* connection)
 {
     OracleConnection::s_oracleConnections.erase((OracleConnection*) connection);
 }

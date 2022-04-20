@@ -171,11 +171,6 @@ protected:
     }
 
     /**
-     * @brief Converts datatype from SQLite type to SPTK VariantType
-     */
-    static void SQLITEtypeToCType(int sqliteType, VariantDataType& dataType);
-
-    /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The SQLite3 connection string
      */
@@ -211,6 +206,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void sqlite3_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3_destroy_connection(void* connection);
 }

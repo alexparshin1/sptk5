@@ -326,34 +326,6 @@ int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParam
     return rc;
 }
 
-void SQLite3Connection::SQLITEtypeToCType(int sqliteType, VariantDataType& dataType)
-{
-    switch (sqliteType)
-    {
-
-        case SQLITE_INTEGER:
-            dataType = VariantDataType::VAR_INT64;
-            break;
-
-        case SQLITE_FLOAT:
-            dataType = VariantDataType::VAR_FLOAT;
-            break;
-
-        case 0:
-        case SQLITE_TEXT:
-            dataType = VariantDataType::VAR_STRING;
-            break;
-
-        case SQLITE_BLOB:
-            dataType = VariantDataType::VAR_BUFFER;
-            break;
-
-        default:
-            dataType = VariantDataType::VAR_NONE;
-            break;
-    }
-}
-
 void SQLite3Connection::queryOpen(Query* query)
 {
     if (!active())
@@ -647,14 +619,14 @@ void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t
 
 map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
 
-void* sqlite3_create_connection(const char* connectionString)
+[[maybe_unused]] void* sqlite3_create_connection(const char* connectionString)
 {
     auto connection = make_shared<SQLite3Connection>(connectionString);
     SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
     return connection.get();
 }
 
-void sqlite3_destroy_connection(void* connection)
+[[maybe_unused]] void sqlite3_destroy_connection(void* connection)
 {
     SQLite3Connection::s_sqlite3Connections.erase((SQLite3Connection*) connection);
 }

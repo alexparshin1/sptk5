@@ -35,31 +35,31 @@
 #endif
 
 #ifndef __UNIX_COMPILER__
-#  if defined(SP_DLL) && defined(WIN32)
-#    ifdef SP_LIBRARY
-#      define SP_EXPORT   __declspec(dllexport)
-#    else
-#      define SP_EXPORT   __declspec(dllimport)
-#    endif
-#  else
-#    define SP_EXPORT
-#  endif
+#if defined(SP_DLL) && defined(WIN32)
+#ifdef SP_LIBRARY
+#define SP_EXPORT __declspec(dllexport)
 #else
-#  define SP_EXPORT     ///< DLL/SO classes load attributes
+#define SP_EXPORT __declspec(dllimport)
+#endif
+#else
+#define SP_EXPORT
+#endif
+#else
+#define SP_EXPORT ///< DLL/SO classes load attributes
 #endif
 
 #ifndef __UNIX_COMPILER__
-#  if defined(WIN32)
-#    ifdef SP_DRIVER_LIBRARY
-#      define SP_DRIVER_EXPORT   __declspec(dllexport)
-#    else
-#      define SP_DRIVER_EXPORT   __declspec(dllimport)
-#    endif
-#  else
-#    define SP_DRIVER_EXPORT
-#  endif
+#if defined(WIN32)
+#ifdef SP_DRIVER_LIBRARY
+#define SP_DRIVER_EXPORT __declspec(dllexport)
 #else
-#  define SP_DRIVER_EXPORT  ///< DLL/SO driver classes load attributes
+#define SP_DRIVER_EXPORT __declspec(dllimport)
+#endif
+#else
+#define SP_DRIVER_EXPORT
+#endif
+#else
+#define SP_DRIVER_EXPORT ///< DLL/SO driver classes load attributes
 #endif
 
 #include <sptk5/sptk-config.h>
@@ -67,20 +67,20 @@
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #include <winsock2.h>
 
-#include <windows.h>
 #include <process.h>
-#pragma warning (disable: 4251)
-#pragma warning (disable: 4290)
-#pragma warning (disable: 4355)
-#pragma warning (disable: 4786)
-#pragma warning (disable: 4996)
+#include <windows.h>
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4290)
+#pragma warning(disable : 4355)
+#pragma warning(disable : 4786)
+#pragma warning(disable : 4996)
 #if defined(_MSC_VER)
 #define STRING_NPOS -1
 #endif
 #else
 
-#include <unistd.h>
 #include <cerrno>
+#include <unistd.h>
 
 #endif
 
@@ -98,10 +98,10 @@
 
 #endif
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
-#include <array>
 
 #ifdef __UNIX_COMPILER__
 
@@ -109,22 +109,22 @@
 #include <cstdint>
 
 #elif __BORLANDC__
-#include <stdint.h>
 #include <ctype.h>
+#include <stdint.h>
 
 #elif defined(_MSC_VER)
 #if _MSC_VER >= 1800
 // Visual Studio 2013 and up
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdint.h>
 #else
 // Visual Studio 2012 and before
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdint.h>
 #endif
 #else
-#include <stdint.h>
 #include <inttypes.h>
+#include <stdint.h>
 
 #endif
 
@@ -148,6 +148,6 @@ namespace fs = std::experimental::filesystem;
 #endif
 #endif
 
-constexpr int ALIGN_LEFT = 1;
-constexpr int ALIGN_RIGHT = 2;
-constexpr int ALIGN_CENTER = 3;
+[[maybe_unused]] constexpr int ALIGN_LEFT = 1;
+[[maybe_unused]] constexpr int ALIGN_RIGHT = 2;
+[[maybe_unused]] constexpr int ALIGN_CENTER = 3;

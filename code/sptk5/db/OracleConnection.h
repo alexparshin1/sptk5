@@ -64,8 +64,6 @@ public:
     using Connection = oracle::occi::Connection;
     using Statement = oracle::occi::Statement;
     using Type = oracle::occi::Type;
-    using Clob = oracle::occi::Clob;
-    using Blob = oracle::occi::Blob;
 
     /**
      * @brief Returns the Oracle connection object
@@ -286,6 +284,6 @@ OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
+[[maybe_unused]] SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
+[[maybe_unused]] SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
 }

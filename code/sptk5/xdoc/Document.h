@@ -43,12 +43,12 @@ public:
         m_root->clear();
     }
 
-    SNode& root()
+    [[nodiscard]] SNode& root()
     {
         return m_root;
     }
 
-    const SNode& root() const
+    [[nodiscard]] const SNode& root() const
     {
         return m_root;
     }
@@ -67,12 +67,12 @@ public:
         m_root->exportTo(dataFormat, data, formatted);
     }
 
-    SNode& findOrCreate(const String& name)
+    [[maybe_unused]] [[nodiscard]] SNode& findOrCreate(const String& name)
     {
         return m_root->findOrCreate(name);
     }
 
-    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const
+    [[nodiscard]] SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const
     {
         return m_root->findFirst(name, searchMode);
     }
