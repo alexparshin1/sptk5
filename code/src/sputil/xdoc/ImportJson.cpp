@@ -153,12 +153,12 @@ String readJsonString(const char* json, const char*& readPosition)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
         }
-        char ch = *pos;
-        if (ch == '"')
+        char character = *pos;
+        if (character == '"')
         {
             break;
         }
-        if (ch == '\\')
+        if (character == '\\')
         {
             ++pos;
         }
@@ -312,6 +312,8 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
     ++readPosition;
 }
 
+const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
+const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
 void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
 {
     if (*readPosition != '{')
@@ -364,27 +366,13 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
             case '0':
             case '-':
                 // Number
-                if (objectIsAttributes)
-                {
-                    parent->attributes().set(elementName, to_string(readJsonNumber(json, readPosition)));
-                }
-                else
-                {
-                    parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
-                }
+                readPosition = readNumber(parent, json, readPosition, objectIsAttributes, elementName);
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                if (objectIsAttributes)
-                {
-                    parent->attributes().set(elementName, readJsonBoolean(json, readPosition) ? "true" : "false");
-                }
-                else
-                {
-                    parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
-                }
+                readPosition = readBoolean(parent, json, readPosition, objectIsAttributes, elementName);
                 break;
 
             case 'n':
@@ -413,6 +401,32 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
         }
     }
     ++readPosition;
+}
+
+const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+{
+    if (objectIsAttributes)
+    {
+        parent->attributes().set(elementName, to_string(readJsonNumber(json, readPosition)));
+    }
+    else
+    {
+        parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
+    }
+    return readPosition;
+}
+
+const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+{
+    if (objectIsAttributes)
+    {
+        parent->attributes().set(elementName, readJsonBoolean(json, readPosition) ? "true" : "false");
+    }
+    else
+    {
+        parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
+    }
+    return readPosition;
 }
 
 static String codePointToUTF8(unsigned codePoint)

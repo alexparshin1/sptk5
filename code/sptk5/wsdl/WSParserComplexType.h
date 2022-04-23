@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Document.h>
-#include <sptk5/wsdl/WSBasicTypes.h>
+#include "WSRestriction.h"
 #include <iostream>
 #include <list>
 #include <set>
-#include "WSRestriction.h"
+#include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -43,8 +43,7 @@ namespace sptk {
 /**
  * Multiplicity flag
  */
-enum class WSMultiplicity
-    : uint8_t
+enum class WSMultiplicity : uint8_t
 {
     REQUIRED = 1,     ///< Element is required
     ZERO_OR_ONE = 2,  ///< Element is optional
@@ -101,10 +100,9 @@ public:
     }
 
 private:
-
-    String m_name;         ///< Attribute name
-    String m_wsTypeName;   ///< Attribute type name
-    String m_cxxTypeName;  ///< C++ type name
+    String m_name;        ///< Attribute name
+    String m_wsTypeName;  ///< Attribute type name
+    String m_cxxTypeName; ///< C++ type name
 };
 
 class WSParserComplexType;
@@ -206,7 +204,6 @@ public:
     static xdoc::SNode findSimpleType(const String& typeName);
 
 protected:
-
     /**
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
@@ -224,7 +221,6 @@ protected:
                                 const String& serviceNamespace) const;
 
 private:
-
     class Initializer
     {
     public:
@@ -245,12 +241,6 @@ private:
         size_t restrictionNumber {0};
 
         void print(std::ostream& output) const;
-
-        void printImplementationLoadArray(const SWSParserComplexType& complexType);
-
-        String appendRestrictionIfDefined(const SWSParserComplexType& complexType);
-
-        void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType);
     };
 
     /**
@@ -258,14 +248,14 @@ private:
      */
     using AttributeMap = std::map<std::string, SWSParserAttribute, std::less<>>;
 
-    String m_name;                             ///< Element name
-    String m_typeName;                         ///< WSDL type name
-    xdoc::SNode m_element;                     ///< XML element for that WSDL element
-    AttributeMap m_attributes;                 ///< Element attributes
-    WSParserComplexTypeList m_sequence;        ///< Child element sequence
-    WSMultiplicity m_multiplicity;             ///< Multiplicity flag
-    SWSRestriction m_restriction;              ///< Element restriction (if any) or NULL
-    String m_documentation;                    ///< Optional documentation
+    String m_name;                      ///< Element name
+    String m_typeName;                  ///< WSDL type name
+    xdoc::SNode m_element;              ///< XML element for that WSDL element
+    AttributeMap m_attributes;          ///< Element attributes
+    WSParserComplexTypeList m_sequence; ///< Child element sequence
+    WSMultiplicity m_multiplicity;      ///< Multiplicity flag
+    SWSRestriction m_restriction;       ///< Element restriction (if any) or NULL
+    String m_documentation;             ///< Optional documentation
 
     /**
      * Generate includes for C++ class
@@ -299,8 +289,6 @@ private:
 
     static void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
                                       const Strings& attributeNames);
-
-    static String jsonAttributeOutputMethod(const String& wsTypeName);
 };
 
 /**
@@ -316,4 +304,4 @@ using WSComplexTypeMap = std::map<String, SWSParserComplexType>;
 /**
  * @}
  */
-}
+} // namespace sptk

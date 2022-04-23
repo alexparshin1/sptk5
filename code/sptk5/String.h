@@ -84,7 +84,7 @@ public:
      * @param str                Source string
      * @param len                Optional string id
      */
-    String(const char* str) noexcept
+    String(const char* str)
         : std::string(str)
         , m_id(0)
     {
@@ -96,7 +96,7 @@ public:
      * @param len                String length
      * @param id                 String id
      */
-    String(const char* str, size_t len, int64_t id = 0) noexcept
+    String(const char* str, size_t len, int64_t id = 0)
         : std::string(str, len)
         , m_id(id)
     {
@@ -108,7 +108,7 @@ public:
      * @param ch                Fill character
      * @param id                Optional string id
      */
-    String(size_t len, char ch, int64_t id = 0) noexcept
+    String(size_t len, char ch, int64_t id = 0)
         : std::string(len, ch)
         , m_id(id)
     {
@@ -135,6 +135,15 @@ public:
      * @param other             Source string
      */
     String& operator=(const String& other) = default;
+    /**
+     * Copy assignment operator
+     * @param other             Source string
+     */
+    /**
+     * Move assignment operator
+     * @param other             Source string
+     */
+    String& operator=(String&& other) = default;
 
     /**
      * Assignment operator
