@@ -155,7 +155,6 @@ private:
                   Mode formatting);
 
     char* parseEntity(char* start);
-
     static SNode detectArray(const SNode& node);
 };
 

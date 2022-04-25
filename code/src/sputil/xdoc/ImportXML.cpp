@@ -308,6 +308,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 
         char* nodeName = nameStart;
         char* nodeEnd = nameStart;
+        bool autoClosed = false;
         switch (*nameStart)
         {
             case '!':
@@ -326,6 +327,12 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 
             default:
                 readOpenningTag(currentNode, nodeName, nameEnd, nodeEnd);
+                // For HTML, autoclose 'meta' tags
+                if (strcmp(nodeName, "meta") == 0 && currentNode->parent()->name().in({"html", "head"}))
+                {
+                    autoClosed = true;
+                    currentNode = currentNode->parent();
+                }
                 break;
         }
 
@@ -349,7 +356,8 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
                 textStart += skipSpaces;
             }
 
-            readText(currentNode, doctype, nodeStart, textStart, formatting);
+            if (!autoClosed)
+                readText(currentNode, doctype, nodeStart, textStart, formatting);
         }
     }
 }
@@ -671,6 +679,35 @@ TEST(SPTK_XDocument, unquotedXmlAttributes)
     auto lastName = document.root()->findFirst("last_name");
     EXPECT_TRUE(lastName != nullptr);
     EXPECT_STREQ("Doe", lastName->attributes().get("value").c_str());
+}
+
+TEST(SPTK_XDocument, htmlAutoCloseTags)
+{
+    const Buffer htmlAutoCloseTagsHtml(String(
+        R"(<head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Free Web tutorials">
+        </head>)"));
+
+    Document document;
+    document.load(htmlAutoCloseTagsHtml, true);
+
+    auto head = document.root()->findFirst("head");
+    for (auto meta: head->nodes())
+    {
+        if (meta->name() == "meta")
+        {
+            if (meta->attributes().have("charset"))
+            {
+                EXPECT_STREQ("UTF-8", meta->attributes().get("charset").c_str());
+            }
+            else
+            {
+                EXPECT_STREQ("description", meta->attributes().get("name").c_str());
+                EXPECT_STREQ("Free Web tutorials", meta->attributes().get("content").c_str());
+            }
+        }
+    }
 }
 
 #endif
