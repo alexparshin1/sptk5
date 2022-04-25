@@ -78,6 +78,13 @@ FileLogEngine::FileLogEngine(const fs::path& fileName)
 FileLogEngine::~FileLogEngine()
 {
     shutdown();
+
+    scoped_lock lock(m_mutex);
+    if (m_fileStream.is_open())
+    {
+        m_fileStream.flush();
+        m_fileStream.close();
+    }
 }
 
 void FileLogEngine::reset()
@@ -113,8 +120,10 @@ TEST(SPTK_FileLogEngine, create)
     logger->error("Error message");
     logger->warning("Warning message");
     logger->info("Test completed");
-    logger.reset();
 
+    this_thread::sleep_for(chrono::milliseconds(1));
+
+    logger.reset();
     logEngine.reset();
 
     Strings content;

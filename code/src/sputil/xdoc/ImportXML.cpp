@@ -37,7 +37,7 @@ using namespace xdoc;
 
 namespace sptk::xdoc {
 
-const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)\s*=\s*['"]([^'"]+)['"])", "g"};
+const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)(\s*=\s*))", "g"};
 
 void ImportXML::processAttributes(Node& node, const char* ptr)
 {
@@ -45,14 +45,47 @@ void ImportXML::processAttributes(Node& node, const char* ptr)
 
     for (auto itor = matches.groups().begin(); itor != matches.groups().end(); itor += 2)
     {
-        const auto& attributeName = itor->value;
         auto vtor = itor + 1;
         if (vtor == matches.groups().end())
         {
-            break;
+            throw Exception("Invalid attribute format for " + node.name() + " tag");
         }
+
+        const auto& attributeName = itor->value;
+        const char* attributeStart = ptr + vtor->end;
+        const char* attributeEnd = nullptr;
+
+        auto expectedChar = *attributeStart;
+
+        switch (expectedChar)
+        {
+            case '\'':
+            case '"':
+                ++attributeStart;
+                attributeEnd = strchr(attributeStart, expectedChar);
+                break;
+            default:
+                expectedChar = ' ';
+                attributeEnd = strpbrk(attributeStart, " ");
+                break;
+        }
+
+        size_t attributeLength;
+        if (attributeEnd == nullptr)
+        {
+            attributeLength = strlen(attributeStart);
+        }
+        else
+        {
+            if (*attributeEnd != expectedChar)
+            {
+                throw Exception("Invalid attribute format for " + node.name() + " tag");
+            }
+            attributeLength = attributeEnd - attributeStart;
+        }
+
         m_encodeBuffer.bytes(0);
-        m_doctype.decodeEntities(vtor->value.c_str(), (uint32_t) vtor->value.length(), m_encodeBuffer);
+        m_doctype.decodeEntities(attributeStart, attributeLength, m_encodeBuffer);
         node.attributes().set(attributeName, m_encodeBuffer.c_str());
     }
 }
@@ -121,7 +154,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd, formatting);
     }
-    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>')
+    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>' && *tokenEnd)
     {
         tokenEnd = readXMLDocType(tokenEnd);
     }
@@ -623,6 +656,21 @@ TEST(SPTK_XDocument, getText)
     document.load(testOO, true);
     auto text = document.root()->getText();
     EXPECT_STREQ(text.c_str(), "Fig. PE 6.1.2 ImportAudio File");
+}
+
+TEST(SPTK_XDocument, unquotedXmlAttributes)
+{
+    const Buffer unquotedAttributesXml(String("<data><name value=Alex type=first /><last_name value=Doe type=last/></data>"));
+    Document document;
+    document.load(unquotedAttributesXml, true);
+
+    auto firstName = document.root()->findFirst("name");
+    EXPECT_TRUE(firstName != nullptr);
+    EXPECT_STREQ("Alex", firstName->attributes().get("value").c_str());
+
+    auto lastName = document.root()->findFirst("last_name");
+    EXPECT_TRUE(lastName != nullptr);
+    EXPECT_STREQ("Doe", lastName->attributes().get("value").c_str());
 }
 
 #endif
