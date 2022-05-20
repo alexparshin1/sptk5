@@ -58,8 +58,9 @@ void Entity::parse(const String& entityTag)
         }
         else if (typeAndId.startsWith(" PUBLIC "))
         {
+            const int lengthOfPublicWithSpaces = 8;
             type = Type::PUBLIC;
-            id = typeAndId.substr(8);
+            id = typeAndId.substr(lengthOfPublicWithSpaces);
         }
 
         resource = matches["resource"].value;
@@ -96,7 +97,10 @@ static const vector<struct entity> builtin_ent_xml = {
     {"lt", 1, "<"},
     {"gt", 1, ">"},
     {"apos", 1, "'"},
-    {"quot", 1, "\""}};
+    {"quot", 1, "\""},
+    {"euro", 1, "€"},
+    {"pound", 1, "£"},
+};
 
 const char xml_shortcut[] = "&<>'\"";
 
@@ -326,13 +330,6 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
     }
 
     return result;
-}
-
-bool XMLDocType::hasEntity(const char* name)
-{
-    uint32_t len {0};
-    const char* tmp = getReplacement(name, len);
-    return tmp != nullptr;
 }
 
 #ifdef USE_GTEST

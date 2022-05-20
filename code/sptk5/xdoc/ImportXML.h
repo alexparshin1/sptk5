@@ -72,29 +72,12 @@ public:
     }
 
     /**
-     * Return doctype of document.
-     */
-    const XMLDocType& docType() const
-    {
-        return m_doctype;
-    }
-
-    /**
-     * Return indentation in save
-     */
-    int indentSpaces() const
-    {
-        return m_indentSpaces;
-    }
-
-    /**
      * Set indentation in save, defaults to 2
      *
      * @param i                 New indent spaces
      */
-    void indentSpaces(int i)
+    [[maybe_unused]] void indentSpaces(int i)
     {
-        m_indentSpaces = i;
     }
 
     /**
@@ -103,30 +86,10 @@ public:
      */
     void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
-protected:
-    /**
-     * Extract entities
-     * @param docTypeSection    XMLDocument type section
-     */
-    void extractEntities(char* docTypeSection);
-
-    static unsigned char* skipSpaces(unsigned char* start);
-
 private:
-    XMLDocType m_doctype;   ///< XMLDocument type
-    int m_indentSpaces {2}; ///< Indent spaces
-    Buffer m_encodeBuffer;  ///< Buffer to encode entities
-    Buffer m_decodeBuffer;  ///< Decode and encode buffer
-
-    /**
-     * Internal entities parser
-     */
-    void parseEntities(char* entitiesSection);
-
-    /**
-     * Internal doctype parser
-     */
-    void parseXMLDocType(char* docTypeSection);
+    XMLDocType m_doctype;  ///< XMLDocument type
+    Buffer m_encodeBuffer; ///< Buffer to encode entities
+    Buffer m_decodeBuffer; ///< Decode and encode buffer
 
     /**
      * Internal attributes parser
@@ -142,7 +105,7 @@ private:
 
     static const RegularExpression parseAttributes;
 
-    char* readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
+    static char* readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
 
     char* readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
@@ -154,7 +117,6 @@ private:
     void readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                   Mode formatting);
 
-    char* parseEntity(char* start);
     static SNode detectArray(const SNode& node);
 };
 

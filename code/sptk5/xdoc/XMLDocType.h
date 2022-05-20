@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/xdoc/XMLEntities.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/xdoc/XMLEntities.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace sptk::xdoc {
 
@@ -51,7 +51,6 @@ class SP_EXPORT XMLDocType
     friend class ImportXML;
 
 public:
-
     /**
      * Default constructor
      */
@@ -131,14 +130,6 @@ public:
     void decodeEntities(const char* str, size_t sz, Buffer& ret);
 
     /**
-     * Searches for entity with given name
-     *
-     * @param name              Entity to search
-     * @returns true, if attribute is found.
-     */
-    bool hasEntity(const char* name);
-
-    /**
      * Removes named entity from entity map
      * @param name              Entity to remove
      */
@@ -170,7 +161,6 @@ public:
     }
 
 private:
-
     std::array<char, 16> m_replacementBuffer {}; ///< The buffer used to return replacement literals
     std::array<Buffer, 2> m_encodeBuffers;       ///< Encode buffers
     Entities m_entities;                         ///< List of entities
@@ -184,4 +174,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk::xdoc

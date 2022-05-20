@@ -693,7 +693,7 @@ TEST(SPTK_XDocument, htmlAutoCloseTags)
     document.load(htmlAutoCloseTagsHtml, true);
 
     auto head = document.root()->findFirst("head");
-    for (auto meta: head->nodes())
+    for (const auto& meta: head->nodes())
     {
         if (meta->name() == "meta")
         {
