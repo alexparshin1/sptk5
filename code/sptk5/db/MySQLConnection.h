@@ -90,7 +90,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The MySQL connection string
      */
-    explicit MySQLConnection(const String& connectionString = "");
+    explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     MySQLConnection(const MySQLConnection&) = delete;
 
@@ -231,6 +231,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 SP_DRIVER_EXPORT void mysql_destroy_connection(void* connection);
 }

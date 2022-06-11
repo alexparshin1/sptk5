@@ -31,8 +31,9 @@
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType, chrono::seconds connectTimeout)
     : m_connType(connectionType)
+    , m_connectionTimeout(connectTimeout)
 {
     connectionString(DatabaseConnectionString(_connectionString));
 }

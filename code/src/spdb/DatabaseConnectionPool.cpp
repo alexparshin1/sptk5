@@ -70,12 +70,13 @@ private:
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections)
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::seconds connectionTimeout)
     : DatabaseConnectionString(connectionString)
     , m_driver(nullptr)
     , m_createConnection(nullptr)
     , m_destroyConnection(nullptr)
     , m_maxConnections(maxConnections)
+    , m_connectionTimeout(connectionTimeout)
 {
 }
 
@@ -132,7 +133,7 @@ void DatabaseConnectionPool::load()
     void* ptr = dlsym(handle, create_connectionFunctionName.c_str());
     auto* createConnection = (CreateDriverInstance*) ptr;
 
-    DestroyDriverInstance* destroyConnection;
+    DestroyDriverInstance* destroyConnection = nullptr;
     const char* dlsym_error = dlerror();
     if (dlsym_error == nullptr)
     {
@@ -175,7 +176,7 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
     SPoolDatabaseConnection connection;
     if (m_connections.size() < m_maxConnections && m_pool.empty())
     {
-        connection = SPoolDatabaseConnection(m_createConnection(toString().c_str()),
+        connection = SPoolDatabaseConnection(m_createConnection(toString().c_str(), m_connectionTimeout.count()),
                                              [this](PoolDatabaseConnection* conn) {
                                                  try
                                                  {

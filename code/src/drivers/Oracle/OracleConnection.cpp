@@ -39,8 +39,8 @@ static void Oracle_readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* f
 static void Oracle_readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
 } // namespace sptk
 
-OracleConnection::OracleConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE)
+OracleConnection::OracleConnection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE, connectTimeout)
 {
 }
 
@@ -897,9 +897,9 @@ void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t 
 
 map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
 
-[[maybe_unused]] void* oracle_create_connection(const char* connectionString)
+[[maybe_unused]] void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<OracleConnection>(connectionString);
+    auto connection = make_shared<OracleConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleConnection::s_oracleConnections[connection.get()] = connection;
     return connection.get();
 }

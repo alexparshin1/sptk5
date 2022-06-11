@@ -18,7 +18,7 @@ const sptk::Strings& CAccountBalanceResponse::fieldNames(WSFieldIndex::Group gro
     return _fieldNames;
 }
 
-CAccountBalanceResponse::CAccountBalanceResponse(const char* elementName, bool optional) noexcept
+CAccountBalanceResponse::CAccountBalanceResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_account_balance});

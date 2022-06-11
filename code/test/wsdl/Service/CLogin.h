@@ -41,7 +41,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLogin(const char* elementName="login", bool optional=false) noexcept;
+   explicit CLogin(const char* elementName="login", bool optional=false);
 
    /**
     * Copy constructor

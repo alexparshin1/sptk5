@@ -18,7 +18,7 @@ const sptk::Strings& CHello::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CHello::CHello(const char* elementName, bool optional) noexcept
+CHello::CHello(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});

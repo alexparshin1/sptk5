@@ -18,7 +18,7 @@ const sptk::Strings& CLoginResponse::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CLoginResponse::CLoginResponse(const char* elementName, bool optional) noexcept
+CLoginResponse::CLoginResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_jwt});

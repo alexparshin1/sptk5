@@ -54,7 +54,7 @@ public:
      * @brief Constructor
      * @param connectionString  The SQLite3 connection string
      */
-    explicit SQLite3Connection(const String& connectionString = "");
+    explicit SQLite3Connection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
      * @brief Destructor
@@ -206,6 +206,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3_destroy_connection(void* connection);
 }

@@ -52,8 +52,8 @@ public:
 using namespace std;
 using namespace sptk;
 
-SQLite3Connection::SQLite3Connection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::SQLITE3)
+SQLite3Connection::SQLite3Connection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::SQLITE3, connectTimeout)
 {
 }
 
@@ -619,9 +619,9 @@ void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t
 
 map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
 
-[[maybe_unused]] void* sqlite3_create_connection(const char* connectionString)
+[[maybe_unused]] void* sqlite3_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<SQLite3Connection>(connectionString);
+    auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
     return connection.get();
 }

@@ -160,8 +160,8 @@ unsigned PostgreSQLStatement::index;
 
 } // namespace sptk
 
-PostgreSQLConnection::PostgreSQLConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::POSTGRES)
+PostgreSQLConnection::PostgreSQLConnection(const String& connectionString, std::chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::POSTGRES, connectTimeout)
 {
 }
 
@@ -1273,9 +1273,9 @@ void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int1
 
 map<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
 
-void* postgresql_create_connection(const char* connectionString)
+void* postgresql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<PostgreSQLConnection>(connectionString);
+    auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     PostgreSQLConnection::s_postgresqlConnections[connection.get()] = connection;
     return connection.get();
 }

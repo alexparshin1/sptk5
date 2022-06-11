@@ -119,7 +119,7 @@ public:
      * @brief Constructor
      * @param connectionString  The Oracle connection string
      */
-    explicit OracleConnection(const String& connectionString = "");
+    explicit OracleConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
      * @brief Destructor
@@ -284,6 +284,6 @@ OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 #endif
 
 extern "C" {
-[[maybe_unused]] SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
+[[maybe_unused]] SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 [[maybe_unused]] SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
 }

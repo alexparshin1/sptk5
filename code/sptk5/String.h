@@ -143,7 +143,7 @@ public:
      * Move assignment operator
      * @param other             Source string
      */
-    String& operator=(String&& other) = default;
+    String& operator=(String&& other) noexcept = default;
 
     /**
      * Assignment operator

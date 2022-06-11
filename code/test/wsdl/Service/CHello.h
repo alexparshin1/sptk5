@@ -36,7 +36,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHello(const char* elementName="hello", bool optional=false) noexcept;
+   explicit CHello(const char* elementName="hello", bool optional=false);
 
    /**
     * Copy constructor

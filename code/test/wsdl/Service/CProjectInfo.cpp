@@ -18,7 +18,7 @@ const sptk::Strings& CProjectInfo::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CProjectInfo::CProjectInfo(const char* elementName, bool optional) noexcept
+CProjectInfo::CProjectInfo(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_id, &m_expiration});

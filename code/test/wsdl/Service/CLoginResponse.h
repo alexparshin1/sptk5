@@ -34,7 +34,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept;
+   explicit CLoginResponse(const char* elementName="login_response", bool optional=false);
 
    /**
     * Copy constructor

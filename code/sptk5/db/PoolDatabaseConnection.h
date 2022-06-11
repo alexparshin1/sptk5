@@ -382,7 +382,7 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
+    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, std::chrono::seconds connectTimeout);
 
     PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
 
@@ -485,11 +485,21 @@ protected:
                            const std::vector<VariantVector>::const_iterator& begin,
                            const std::vector<VariantVector>::const_iterator& end);
 
+    /**
+     * Return connection timeout
+     * @return connection timeout
+     */
+    std::chrono::seconds connectTimout() const
+    {
+        return m_connectionTimeout;
+    }
+
 private:
-    DatabaseConnectionString m_connString; ///< The connection string
-    DatabaseConnectionType m_connType;     ///< The connection type
-    String m_driverDescription;            ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};          ///< The in-transaction flag
+    DatabaseConnectionString m_connString;    ///< The connection string
+    DatabaseConnectionType m_connType;        ///< The connection type
+    String m_driverDescription;               ///< Driver description is filled by the particular driver.
+    bool m_inTransaction {false};             ///< The in-transaction flag
+    std::chrono::seconds m_connectionTimeout; ///< Connection timeout
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;

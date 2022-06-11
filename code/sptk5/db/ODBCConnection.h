@@ -57,7 +57,7 @@ public:
      * @brief Constructor
      * @param connectionString  The ODBC connection string
      */
-    explicit ODBCConnection(const String& connectionString = "");
+    explicit ODBCConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     ODBCConnection(const ODBCConnection&) = delete;
 
@@ -253,6 +253,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* odbc_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT [[maybe_unused]] void* odbc_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 SP_DRIVER_EXPORT [[maybe_unused]] void odbc_destroy_connection(void* connection);
 }

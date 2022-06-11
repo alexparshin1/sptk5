@@ -31,8 +31,8 @@
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL)
+MySQLConnection::MySQLConnection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
 {
 }
 
@@ -51,6 +51,8 @@ void MySQLConnection::initConnection()
     }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
+    size_t connectionTimeoutSeconds = connectTimout().count();
+    mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 
 void MySQLConnection::_openDatabase(const String& newConnectionString)
@@ -468,9 +470,9 @@ void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t d
 
 map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
 
-void* mysql_create_connection(const char* connectionString)
+void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<MySQLConnection>(connectionString);
+    auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     MySQLConnection::s_mysqlConnections[connection.get()] = connection;
     return connection.get();
 }

@@ -1,8 +1,6 @@
 // Web Service Test definition
 
-#ifndef __CTESTSERVICEBASE__
-#define __CTESTSERVICEBASE__
-
+#pragma once
 #include "CTestWSDL.h"
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/net/HttpAuthentication.h>
@@ -24,7 +22,7 @@ namespace test_service {
  * Web Service application derives its service class from this class
  * by overriding abstract methods
  */
-class SP_EXPORT CTestServiceBase : public sptk::WSRequest
+class CTestServiceBase : public sptk::WSRequest
 {
 public:
     /**
@@ -105,5 +103,3 @@ private:
 using STestServiceBase = std::shared_ptr<CTestServiceBase>;
 
 }
-
-#endif

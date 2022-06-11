@@ -39,7 +39,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept;
+   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false);
 
    /**
     * Copy constructor

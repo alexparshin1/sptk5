@@ -18,7 +18,7 @@ const sptk::Strings& CHelloResponse::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CHelloResponse::CHelloResponse(const char* elementName, bool optional) noexcept
+CHelloResponse::CHelloResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});

@@ -115,7 +115,7 @@ SNode& Node::findOrCreate(const String& name)
 
 SNode Node::findFirst(const String& name, SearchMode searchMode) const
 {
-    if (type() != Type::Object)
+    if (type() != Type::Object && type() != Type::Array)
     {
         return nullptr;
     }

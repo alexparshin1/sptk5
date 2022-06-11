@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * Create driver instance function type
  */
-using CreateDriverInstance = PoolDatabaseConnection*(const char*);
+using CreateDriverInstance = PoolDatabaseConnection*(const char* connectString, size_t connectTimeoutSeconds);
 
 /**
  * Destroy driver instance function type
@@ -105,9 +105,14 @@ public:
      * @param connectionString  Database connection string
      * @param maxConnections    Maximum number of connections in the pool
      */
-    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
+    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100, std::chrono::seconds connectionTimeout = std::chrono::seconds(60));
 
     [[nodiscard]] DatabaseConnection getConnection();
+
+    std::chrono::seconds connectionTimeout() const
+    {
+        return m_connectionTimeout;
+    }
 
 protected:
     /**
@@ -150,6 +155,7 @@ private:
     size_t m_maxConnections;
     SynchronizedQueue<SPoolDatabaseConnection> m_pool;       ///< Available connections
     SynchronizedList<SPoolDatabaseConnection> m_connections; ///< All connections
+    std::chrono::seconds m_connectionTimeout;                ///< Connection timeout
 };
 
 /**

@@ -18,7 +18,7 @@ const sptk::Strings& CLogin::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CLogin::CLogin(const char* elementName, bool optional) noexcept
+CLogin::CLogin(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_username, &m_password, &m_servers, &m_project});

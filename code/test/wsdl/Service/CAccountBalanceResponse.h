@@ -34,7 +34,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false) noexcept;
+   explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false);
 
    /**
     * Copy constructor

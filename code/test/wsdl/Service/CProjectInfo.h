@@ -35,7 +35,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CProjectInfo(const char* elementName="project_info", bool optional=false) noexcept;
+   explicit CProjectInfo(const char* elementName="project_info", bool optional=false);
 
    /**
     * Copy constructor

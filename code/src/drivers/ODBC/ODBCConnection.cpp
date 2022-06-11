@@ -58,8 +58,8 @@ static void ODBC_queryBindParameter(const Query* query, QueryParameter* paramete
 
 } // namespace sptk
 
-ODBCConnection::ODBCConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC)
+ODBCConnection::ODBCConnection(const String& connectionString, std::chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC, connectTimeout)
 {
 }
 
@@ -1158,9 +1158,9 @@ void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnN
 
 map<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
 
-[[maybe_unused]] void* odbc_create_connection(const char* connectionString)
+[[maybe_unused]] void* odbc_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<ODBCConnection>(connectionString);
+    auto connection = make_shared<ODBCConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     ODBCConnection::s_odbcConnections[connection.get()] = connection;
     return connection.get();
 }
