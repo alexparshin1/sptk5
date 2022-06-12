@@ -491,7 +491,14 @@ void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImp
                         << "{" << endl;
     stringstream checks;
     printImplementationRestrictions(classImplementation, checks);
-    classImplementation << checks.str();
+    if (checks.str().empty())
+    {
+        classImplementation << "    // There are no checks for restrictions" << endl;
+    }
+    else
+    {
+        classImplementation << checks.str();
+    }
     classImplementation << "}" << endl
                         << endl;
 }
