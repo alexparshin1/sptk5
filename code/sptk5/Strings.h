@@ -89,6 +89,16 @@ public:
     Strings() = default;
 
     /**
+     * Copy constructor
+     */
+    Strings(const Strings& other) = default;
+
+    /**
+     * Move constructor
+     */
+    Strings(Strings&& other) = default;
+
+    /**
      * Initializer list constructor
      * @param list              Initializer list
      */
@@ -177,6 +187,9 @@ public:
         }
         return end();
     }
+
+    Strings& operator=(const Strings& other) = default;
+    Strings& operator=(Strings&& other) = default;
 
     /**
      * Returns concatenated string

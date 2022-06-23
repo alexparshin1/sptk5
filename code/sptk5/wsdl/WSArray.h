@@ -138,7 +138,17 @@ public:
         m_array.push_back(value);
     }
 
+    void push_back(T&& value)
+    {
+        m_array.push_back(value);
+    }
+
     void emplace_back(const T& value)
+    {
+        m_array.emplace_back(value);
+    }
+
+    void emplace_back(T&& value)
     {
         m_array.emplace_back(value);
     }
