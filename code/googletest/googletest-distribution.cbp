@@ -11,74 +11,10 @@
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="gmock_main">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock_main"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="gmock_main/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
-					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock_main/fast"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gmock">
@@ -98,19 +34,12 @@
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gmock/fast">
@@ -130,24 +59,17 @@
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock/fast"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="gtest_main">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+			<Target title="gmock_main">
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="gcc"/>
@@ -158,26 +80,21 @@
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock_main"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="gtest_main/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+			<Target title="gmock_main/fast">
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
 				<Option compiler="gcc"/>
@@ -188,21 +105,16 @@
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main/fast"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 gmock_main/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googlemock/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest">
@@ -220,19 +132,12 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest/fast">
@@ -250,19 +155,58 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/11"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
-					<Add directory="/usr/include/c++/11/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest/fast"/>
-					<CompileFile command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j8 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest_main">
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DSPTK_LOCK_DEBUG"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
+					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="gtest_main/fast">
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-DSPTK_LOCK_DEBUG"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
+					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
+					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
@@ -300,9 +244,6 @@
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindOracle.cmake">
-			<Option virtualFolder="CMake Files\cmake\"/>
-		</Unit>
-		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindPCRE.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindPCRE2.cmake">

@@ -211,7 +211,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    virtual void save(const xdoc::SNode& node) const
+    void save(const xdoc::SNode& node) const override
     {
         save(node, CLayoutXMLmode::DATA);
     }

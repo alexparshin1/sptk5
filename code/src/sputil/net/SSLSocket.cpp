@@ -78,7 +78,7 @@ class CSSLLibraryLoader
     {
         m_locks = new mutex[CRYPTO_num_locks()];
         CRYPTO_set_id_callback(thread_id);
-        CRYPTO_set_locking_callback((void(*)(int, int, const char*, int)) lock_callback);
+        CRYPTO_set_locking_callback((void (*)(int, int, const char*, int)) lock_callback);
     }
 
     static void kill_locks()
@@ -337,7 +337,7 @@ String SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
         return error + "System call or protocol error";
     }
 
-    return error + ERR_func_error_string(unknownError) + string(": ") + ERR_reason_error_string(unknownError);
+    return error + ERR_error_string(unknownError, nullptr) + string(": ") + ERR_reason_error_string(unknownError);
 }
 
 size_t SSLSocket::socketBytes()

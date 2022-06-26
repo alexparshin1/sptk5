@@ -58,8 +58,9 @@ CTreeView::CTreeView(const char* label, int layoutSize, CLayoutAlign layoutAlign
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CTreeView::CTreeView(int x,int y,int w,int h,const char *label)
-        : CControl(x,y,w,h,label) {
+CTreeView::CTreeView(int x, int y, int w, int h, const char* label)
+    : CControl(x, y, w, h, label)
+{
     ctor_init();
 }
 #endif
@@ -83,8 +84,7 @@ String CTreeView::selectedPath() const
     {
         result = "/" + std::string(node->label()) + result;
         node = node->parentItem();
-    }
-    while (node != nullptr && node->parentItem() != nullptr);
+    } while (node != nullptr && node->parentItem() != nullptr);
     return result;
 }
 
@@ -106,7 +106,9 @@ void CTreeView::resize(int x, int y, int w, int h)
 void CTreeView::load(Query* loadQuery)
 {
     if (m_fieldName.empty())
-    { return; }
+    {
+        return;
+    }
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data(*(Variant*) &fld);
 }
@@ -114,26 +116,30 @@ void CTreeView::load(Query* loadQuery)
 void CTreeView::save(Query* updateQuery)
 {
     if (m_fieldName.empty())
-    { return; }
+    {
+        return;
+    }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }
 
 void CTreeView::load(const xdoc::SNode& node)
 {
-    m_treeControl->load(node);
+    m_treeControl->load(node, CLayoutXMLmode::DATA);
 }
 
 void CTreeView::save(const xdoc::SNode& node) const
 {
-    m_treeControl->save(node);
+    m_treeControl->save(node, CLayoutXMLmode::DATA);
 }
 
 Variant CTreeView::data() const
 {
     CTreeItem* node = m_treeControl->selected();
     if (node != nullptr)
-    { return (int32_t) (uint64_t) node->user_data(); }
+    {
+        return (int32_t) (uint64_t) node->user_data();
+    }
     return int32_t(0);
 }
 

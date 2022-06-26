@@ -32,10 +32,10 @@
 #endif
 
 #include <FL/Fl_Double_Window.H>
-#include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/Strings.h>
-#include <sptk5/gui/CWindowShape.h>
 #include <sptk5/cutils>
+#include <sptk5/gui/CLayoutManager.h>
+#include <sptk5/gui/CWindowShape.h>
 
 namespace sptk {
 
@@ -51,10 +51,11 @@ namespace sptk {
  * CLayoutManager capabilities
  */
 class SP_EXPORT CWindow
-    : public Fl_Double_Window, public CLayoutManager, public CWindowShape
+    : public Fl_Double_Window
+    , public CLayoutManager
+    , public CWindowShape
 {
 public:
-
     /**
      * @brief Constructor
      * @param w int, window width
@@ -62,7 +63,9 @@ public:
      * @param label int, window label
      */
     CWindow(int w, int h, const char* label = 0L)
-        : Fl_Double_Window(w, h, label), CLayoutManager(this, 10, CLayoutAlign::NONE), CWindowShape(this)
+        : Fl_Double_Window(w, h, label)
+        , CLayoutManager(this, 10, CLayoutAlign::NONE)
+        , CWindowShape(this)
     {
     }
 
@@ -75,7 +78,9 @@ public:
      * @param label int, window label
      */
     CWindow(int x, int y, int w, int h, const char* label = 0L)
-        : Fl_Double_Window(x, y, w, h), CLayoutManager(this, 10, CLayoutAlign::NONE), CWindowShape(this)
+        : Fl_Double_Window(x, y, w, h)
+        , CLayoutManager(this, 10, CLayoutAlign::NONE)
+        , CWindowShape(this)
     {
     }
 
@@ -153,14 +158,14 @@ public:
      * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void load(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode);
+    void load(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Loads window coordinates and widgets from XML node
      *
      * @param node const xml::Node*, node to load data from
      */
-    virtual void load(const std::shared_ptr<xdoc::Node>& node)
+    void load(const std::shared_ptr<xdoc::Node>& node) override
     {
         load(node, CLayoutXMLmode::DATA);
     }
@@ -171,7 +176,7 @@ public:
      * @param node xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const;
+    void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Saves window coordinates and widgets into XML node
@@ -218,4 +223,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

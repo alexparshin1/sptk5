@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <FL/Fl_Widget.H>
 #include <FL/Fl_Pixmap.H>
+#include <FL/Fl_Widget.H>
+#include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CScroll.h>
-#include <sptk5/gui/CGroup.h>
 
 #include <string>
 #include <vector>
@@ -53,7 +53,7 @@ class CTreeControl;
  * By default (if that callback isn't redefined, SPTK creates CBox widget.
  * @param item CTreeItem*, a tree item that would be a parent for the new item
  */
-using CTreeItemCreator = CLayoutClient* (*)(CTreeItem* item);
+using CTreeItemCreator = CLayoutClient* (*) (CTreeItem* item);
 
 /**
  * @brief Tree widget item.
@@ -110,8 +110,6 @@ class SP_EXPORT CTreeItem
     CTreeControl* m_tree {nullptr};
 
 protected:
-
-
     /** Adds a child item to the item using the path. The required path items are created automatically.
      * This method is used internally only.
      * @param pathFolders       The path to the new child item relatively to the item
@@ -151,7 +149,6 @@ protected:
     static const Fl_Image* document;
 
 public:
-
     /** Constructor. If the closedImage parameter is omitted the openedImage is used instead.
      * @param label             The item label
      * @param openedImage       The image for the opened state
@@ -487,8 +484,6 @@ class SP_EXPORT CTreeControl
     CTreeItemCreator m_itemCreator;
 
 protected:
-
-
     /**
      * @brief The default tree item creator
      *
@@ -631,14 +626,14 @@ public:
      * @param node              Node to load data from
      * @param autoCreate        Ignored
      */
-    virtual void load(const xdoc::SNode& node, bool autoCreate = false);
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves group controls data into XML node
      *
      * @param node              Node to save data into
      */
-    virtual void save(const xdoc::SNode& node) const;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
@@ -651,4 +646,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

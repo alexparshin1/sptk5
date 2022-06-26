@@ -43,15 +43,16 @@ namespace sptk {
  * Added the CLayoutClient interface and preferred size computations.
  */
 class SP_EXPORT CMenuBar
-    : public Fl_Menu_Bar, public CLayoutClient
+    : public Fl_Menu_Bar
+    , public CLayoutClient
 {
 public:
-
     /**
      * Default constructor
      */
     CMenuBar()
-        : Fl_Menu_Bar(0, 0, 10, 10), CLayoutClient(this, 10, CLayoutAlign::TOP)
+        : Fl_Menu_Bar(0, 0, 10, 10)
+        , CLayoutClient(this, 10, CLayoutAlign::TOP)
     {
         box(FL_THIN_UP_BOX);
     }
@@ -81,7 +82,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    virtual String className() const
+    String className() const override
     {
         return "menu";
     }
@@ -89,4 +90,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk
