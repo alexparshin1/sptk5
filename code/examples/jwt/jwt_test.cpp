@@ -4,7 +4,7 @@
 ║                       jwt_test.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Monday Feb 12 2017                                     ║
-║  copyright            (C) 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            (C) 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐

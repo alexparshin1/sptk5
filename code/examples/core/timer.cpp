@@ -4,7 +4,7 @@
 ║                       datetime.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include "sptk5/threads/Timer.h"
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +39,8 @@ void timerCallback(const char* eventData)
 
 int main()
 {
-    try {
+    try
+    {
         Timer timer;
 
         COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " scheduled." << endl)
@@ -61,7 +62,9 @@ int main()
         this_thread::sleep_for(chrono::seconds(5));
 
         COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Done" << endl)
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

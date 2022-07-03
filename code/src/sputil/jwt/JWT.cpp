@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            (C) 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            (C) 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,6 +30,10 @@
 
 #include <sptk5/Base64.h>
 #include <sptk5/JWT.h>
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -116,23 +120,23 @@ JWT::Algorithm JWT::str_alg(const char* alg)
     return itor->second;
 }
 
-xdoc::SNode JWT::find_grant(const xdoc::SNode& js, const String& key)
+xdoc::SNode JWT::find_grant(const xdoc::SNode& node, const String& key)
 {
-    if (js->type() == xdoc::Node::Type::Object)
+    if (node->type() == xdoc::Node::Type::Object)
     {
-        return js->findFirst(key);
+        return node->findFirst(key);
     }
     return nullptr;
 }
 
-String JWT::get_js_string(const xdoc::SNode& js, const String& key, bool* found)
+String JWT::get_js_string(const xdoc::SNode& node, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const auto& element = find_grant(js, key);
+    if (const auto& element = find_grant(node, key);
         element != nullptr && element->type() == xdoc::Node::Type::Text)
     {
         if (found)
@@ -144,14 +148,14 @@ String JWT::get_js_string(const xdoc::SNode& js, const String& key, bool* found)
     return {};
 }
 
-long JWT::get_js_int(const xdoc::SNode& js, const String& key, bool* found)
+long JWT::get_js_int(const xdoc::SNode& node, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const auto& element = find_grant(js, key);
+    if (const auto& element = find_grant(node, key);
         element != nullptr && element->type() == xdoc::Node::Type::Number)
     {
         if (found)
@@ -163,14 +167,14 @@ long JWT::get_js_int(const xdoc::SNode& js, const String& key, bool* found)
     return 0;
 }
 
-bool JWT::get_js_bool(const xdoc::SNode& js, const String& key, bool* found)
+bool JWT::get_js_bool(const xdoc::SNode& node, const String& key, bool* found)
 {
     if (found)
     {
         *found = false;
     }
 
-    if (const auto& element = find_grant(js, key);
+    if (const auto& element = find_grant(node, key);
         element != nullptr && element->type() == xdoc::Node::Type::Boolean)
     {
         if (found)
@@ -440,9 +444,9 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 {
     xdoc::Document jsdoc;
     jwt_b64_decode_json(jsdoc, head);
-    const auto& js = jsdoc.root();
+    const auto& node = jsdoc.root();
 
-    String val = JWT::get_js_string(js, "alg");
+    String val = JWT::get_js_string(node, "alg");
     jwt->alg = JWT::str_alg(val.c_str());
     if (jwt->alg == JWT::Algorithm::INVAL)
     {
@@ -452,7 +456,7 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
     if (jwt->alg != JWT::Algorithm::NONE)
     {
         /* If alg is not NONE, there may be a typ. */
-        val = JWT::get_js_string(js, "typ");
+        val = JWT::get_js_string(node, "typ");
         if (val != "JWT")
         {
             throw Exception("Invalid algorithm name");

@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -37,7 +37,8 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
     TCPSocket new_sock;
     new_sock.attach(clientSocketFD, false);
 
-    try {
+    try
+    {
         String data;
 
         COUT("Sending: Test SPTK server 1.00\n")
@@ -45,7 +46,8 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 
         COUT("Receving (strings): ")
 
-        do {
+        do
+        {
             new_sock.readLine(data);
             COUT(data.c_str() << "\n")
         } while (data != "EOD");
@@ -58,20 +60,23 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 
         server.close();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 }
 
 int main()
 {
-    try {
+    try
+    {
         // Create the socket
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
         SOCKET clientSocketFD;
-        struct sockaddr_in clientInfo{};
+        struct sockaddr_in clientInfo {
+        };
 
         server.listen();
 
@@ -81,7 +86,8 @@ int main()
 
         processConnection(server, clientSocketFD);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         COUT("Exception was caught: " << e.what() << "\nExiting.\n")
     }
     COUT("Server session closed\n")

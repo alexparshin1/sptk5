@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,7 +45,8 @@ namespace sptk {
  * It also allocates the text buffer in constructor and destroys it in destructor.
  */
 class SP_EXPORT CEditor
-    : public Fl_Text_Editor, public CLayoutClient
+    : public Fl_Text_Editor
+    , public CLayoutClient
 {
 
     /**
@@ -64,7 +65,6 @@ class SP_EXPORT CEditor
     bool m_wrapMode;
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param layoutSize int, widget align in layout
@@ -81,7 +81,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CEditor(int x, int y, int w, int h, const char *label);
+    CEditor(int x, int y, int w, int h, const char* label);
 #endif
 
     /**
@@ -141,4 +141,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

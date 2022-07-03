@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,17 +28,14 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 
 #ifndef WIN32
-
 #include <dlfcn.h>
-
 #endif
 
 #ifdef USE_GTEST
-
 #include <future>
+#include <gtest/gtest.h>
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/Query.h>
-
 #endif
 
 using namespace std;

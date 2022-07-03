@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,6 +27,10 @@
 #include <future>
 #include <regex>
 #include <sptk5/cutils>
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 

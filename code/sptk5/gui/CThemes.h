@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,16 +27,16 @@
 #pragma once
 
 #include <FL/Fl.H>
-#include <sptk5/gui/CFrame.h>
-#include <sptk5/gui/CRect.h>
-#include <sptk5/gui/CFont.h>
-#include <sptk5/gui/CIcon.h>
-#include <sptk5/gui/CTabImage.h>
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/gui/CThemeImageCollection.h>
-#include <sptk5/gui/CThemeColorCollection.h>
-#include <sptk5/gui/CThemeScrollBar.h>
 #include <map>
+#include <sptk5/gui/CFont.h>
+#include <sptk5/gui/CFrame.h>
+#include <sptk5/gui/CIcon.h>
+#include <sptk5/gui/CRect.h>
+#include <sptk5/gui/CTabImage.h>
+#include <sptk5/gui/CThemeColorCollection.h>
+#include <sptk5/gui/CThemeImageCollection.h>
+#include <sptk5/gui/CThemeScrollBar.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -65,8 +65,7 @@ enum CThemeButtonType
  * The class allows to load a set of routines to draw the particular elements of the interface, and the images for these routines.
  */
 class SP_EXPORT CThemes
-    :
-        public CThemeScrollBar
+    : public CThemeScrollBar
 {
     friend class CBaseButton;
 
@@ -324,7 +323,6 @@ protected:
     static void loadGtkTheme(const String& gtkThemeName);
 
 public:
-
     /**
      * Default constructor
      */
@@ -538,4 +536,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

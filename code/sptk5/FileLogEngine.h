@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/LogEngine.h>
 #include <fstream>
+#include <sptk5/LogEngine.h>
 
 namespace sptk {
 
@@ -47,7 +47,6 @@ class SP_EXPORT FileLogEngine
     : public sptk::LogEngine
 {
 public:
-
     /**
      * Constructor
      *
@@ -76,10 +75,9 @@ public:
     void reset() override;
 
 private:
-
-    mutable std::mutex m_mutex;                    ///< Mutex that protects internal data
-    fs::path m_fileName;                            ///< Log file name
-    std::ofstream m_fileStream;                     ///< Log file stream
+    mutable std::mutex m_mutex; ///< Mutex that protects internal data
+    fs::path m_fileName;        ///< Log file name
+    std::ofstream m_fileStream; ///< Log file stream
 };
 /**
  * @}

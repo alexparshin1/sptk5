@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,17 +26,18 @@
 
 #pragma once
 
-#include <sptk5/Exception.h>
 #include <list>
 #include <mutex>
+#include <sptk5/Exception.h>
 
-template <class T> class Loop
+template<class T>
+class Loop
 {
-    mutable std::mutex              m_mutex;
-    std::list<T>                    m_list;
+    mutable std::mutex m_mutex;
+    std::list<T> m_list;
     typename std::list<T>::iterator m_position;
-public:
 
+public:
     Loop()
     {
         m_position = m_list.end();
@@ -82,4 +83,3 @@ public:
         return m_list.size();
     }
 };
-

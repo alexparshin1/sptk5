@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/Buffer.h>
 #include <iostream>
+#include <sptk5/Buffer.h>
+#include <sptk5/sptk.h>
 #include <sstream>
 
 namespace sptk {
@@ -73,11 +73,10 @@ public:
     void writeOutputFiles();
 
 private:
-
-    String m_name;                 ///< Module name
-    String m_path;                 ///< Module path
-    std::stringstream m_header;    ///< Module .h file content
-    std::stringstream m_source;    ///< Module cpp file content
+    String m_name;              ///< Module name
+    String m_path;              ///< Module path
+    std::stringstream m_header; ///< Module .h file content
+    std::stringstream m_source; ///< Module cpp file content
 
     /**
      * Write data to file if it doesn't exist, or if file content is different from data
@@ -91,4 +90,4 @@ private:
  * @}
  */
 
-}
+} // namespace sptk

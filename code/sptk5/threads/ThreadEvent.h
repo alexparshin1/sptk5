@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Runable.h>
+#include <sptk5/threads/Thread.h>
 
 namespace sptk {
 
@@ -45,14 +45,13 @@ public:
     /**
      * @brief Thread event type
      */
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
-        THREAD_STARTED,     ///< Thread started event
-        THREAD_FINISHED,    ///< Thread finished event
-        RUNABLE_STARTED,    ///< Runable started
-        RUNABLE_FINISHED,   ///< Runable finished
-        IDLE_TIMEOUT        ///< Thread was idle longer than defined idle timeout
+        THREAD_STARTED,   ///< Thread started event
+        THREAD_FINISHED,  ///< Thread finished event
+        RUNABLE_STARTED,  ///< Runable started
+        RUNABLE_FINISHED, ///< Runable finished
+        IDLE_TIMEOUT      ///< Thread was idle longer than defined idle timeout
     };
 
     /**
@@ -75,4 +74,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

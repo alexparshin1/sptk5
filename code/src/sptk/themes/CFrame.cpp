@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,10 +42,9 @@ void CFrames::clear()
     m_fltkFrames.clear();
 }
 
-const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
-const std::array<Fl_Boxtype, 4>  CFrames::frameTypes = {
-    FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
-};
+const Strings CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
+const std::array<Fl_Boxtype, 4> CFrames::frameTypes = {
+    FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME};
 
 void CFrames::load(Tar& tar, const xdoc::SNode& framesNode)
 {

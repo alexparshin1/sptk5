@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +27,8 @@
 #pragma once
 
 #include <sptk5/Exception.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/threads/Thread.h>
 
 #include <functional>
 #include <map>
@@ -37,10 +37,10 @@
 #ifdef _WIN32
 
 // Windows
-#include <wepoll.h>
 #include <WS2tcpip.h>
 #include <WinSock2.h>
 #include <Windows.h>
+#include <wepoll.h>
 using SocketEvent = epoll_event;
 
 #else
@@ -64,12 +64,11 @@ namespace sptk {
 /**
  * Socket event types
  */
-enum class SocketEventType
-    : uint8_t
+enum class SocketEventType : uint8_t
 {
-    UNKNOWN,             ///< Event is unknown or undefined
-    HAS_DATA,            ///< Socket has data available to read
-    CONNECTION_CLOSED    ///< Peer closed connection
+    UNKNOWN,          ///< Event is unknown or undefined
+    HAS_DATA,         ///< Socket has data available to read
+    CONNECTION_CLOSED ///< Peer closed connection
 };
 
 /**
@@ -151,12 +150,11 @@ public:
     [[nodiscard]] bool active() const;
 
 private:
-
     /**
      * Socket that controls other sockets events
      */
 #ifdef _WIN32
-    HANDLE                      m_pool { INVALID_EPOLL };
+    HANDLE m_pool {INVALID_EPOLL};
 #else
     SOCKET m_pool {INVALID_EPOLL};
 #endif // _WIN32
@@ -172,4 +170,4 @@ private:
     std::map<BaseSocket*, std::shared_ptr<SocketEvent>> m_socketData;
 };
 
-}
+} // namespace sptk

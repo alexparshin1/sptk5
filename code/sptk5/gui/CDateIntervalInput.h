@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,8 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/DateTime.h>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -85,7 +85,6 @@ class SP_EXPORT CDateIntervalInput
     static void intervalCalendarButtonPressed(Fl_Widget* btn, void* data);
 
 protected:
-
     /**
      * @brief Shows drop-down calendar for the particular date input that owns the button btn
      * @param btn Fl_Widget *, button of the date input widget
@@ -93,7 +92,6 @@ protected:
     void showCalendar(Fl_Widget* btn);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -112,7 +110,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateIntervalInput(int x,int y,int w,int h,const char *label=0);
+    CDateIntervalInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -201,4 +199,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

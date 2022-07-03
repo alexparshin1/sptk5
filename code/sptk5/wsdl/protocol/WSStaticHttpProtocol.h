@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -40,10 +40,9 @@ namespace sptk {
 /// Session disconnects as soon as file is served.
 class SP_EXPORT WSStaticHttpProtocol : public WSProtocol
 {
-    URL     m_url;                      ///< File URL
-    String  m_staticFilesDirectory;     ///< Directory where static files reside on the server
+    URL m_url;                     ///< File URL
+    String m_staticFilesDirectory; ///< Directory where static files reside on the server
 public:
-
     /// @brief Constructor
     /// @param socket           Connection socket
     /// @param url              Resource URL
@@ -60,4 +59,3 @@ public:
 /// @}
 
 } // namespace sptk
-

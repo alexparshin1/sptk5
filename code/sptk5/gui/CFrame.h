@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/Tar.h>
+#include <sptk5/gui/CPngImage.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -51,8 +51,7 @@ public:
      * @brief An expected usage of the frame
      */
 
-    enum class CFrameKind
-        : uint8_t
+    enum class CFrameKind : uint8_t
     {
         /**
          * The frame should be used to draw standard FLTK frames
@@ -64,6 +63,7 @@ public:
          */
         USER_EXTENDED
     };
+
 protected:
     /**
      * Frame width, to keep widgets inside the frame w/o overlaping
@@ -98,8 +98,11 @@ public:
     CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone,
            CPatternDrawMode drawMode = CPngImage::CPatternDrawMode::PDM_STRETCH,
            CFrameKind kind = CFrameKind::USER_EXTENDED)
-        : CPngImage(imageData), m_frameWidth(frameWidth), m_cornerZone(cornerZone),
-          m_drawMode(drawMode), m_kind(kind)
+        : CPngImage(imageData)
+        , m_frameWidth(frameWidth)
+        , m_cornerZone(cornerZone)
+        , m_drawMode(drawMode)
+        , m_kind(kind)
     {
     }
 
@@ -230,4 +233,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

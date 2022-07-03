@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,6 +28,10 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
 #include <sys/stat.h>
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 using namespace std;
 using namespace sptk;

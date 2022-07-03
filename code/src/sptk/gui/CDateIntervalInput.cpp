@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,10 +28,10 @@
 
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CDateIntervalInput.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>
 #include <sptk5/gui/CDateControl.h>
+#include <sptk5/gui/CDateIntervalInput.h>
 
 using namespace std;
 using namespace sptk;
@@ -72,8 +72,9 @@ CDateIntervalInput::CDateIntervalInput(const char* label, int layoutSize, CLayou
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label,false) {
+CDateIntervalInput::CDateIntervalInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label, false)
+{
     ctor_init();
 }
 #endif

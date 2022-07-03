@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,6 +25,10 @@
 */
 
 #include <sptk5/MemoryDS.h>
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -218,18 +222,15 @@ bool MemoryDS::empty() const
 
 #ifdef USE_GTEST
 
-struct Person
-{
+struct Person {
     String name;
     int age {0};
 };
 
-static const vector<Person> people
-    {
-        {"John", 30},
-        {"Jane", 28},
-        {"Bob",  6}
-    };
+static const vector<Person> people {
+    {"John", 30},
+    {"Jane", 28},
+    {"Bob", 6}};
 
 TEST(SPTK_MemoryDS, createAndVerify)
 {

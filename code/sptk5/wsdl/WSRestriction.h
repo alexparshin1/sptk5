@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <sptk5/RegularExpression.h>
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Node.h>
-#include <sptk5/RegularExpression.h>
 
 namespace sptk {
 
@@ -38,9 +38,7 @@ namespace sptk {
 class SP_EXPORT WSRestriction
 {
 public:
-
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
         Unknown,
         Enumeration,
@@ -102,12 +100,11 @@ public:
     }
 
 private:
-
-    Type m_type {Type::Unknown}; ///< Restriction type
-    String m_wsdlTypeName;           ///< WSDL type name
-    Strings m_enumeration;            ///< List of enumerations if any
-    std::vector<RegularExpression> m_patterns;               ///< Patterns
+    Type m_type {Type::Unknown};               ///< Restriction type
+    String m_wsdlTypeName;                     ///< WSDL type name
+    Strings m_enumeration;                     ///< List of enumerations if any
+    std::vector<RegularExpression> m_patterns; ///< Patterns
 };
 
 using SWSRestriction = std::shared_ptr<WSRestriction>;
-}
+} // namespace sptk

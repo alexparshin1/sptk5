@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,8 +30,8 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CRadioButtons.h>
+#include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CThemes.h>
 
 using namespace std;
@@ -40,7 +40,8 @@ using namespace sptk;
 namespace sptk {
 
 class CRadioButton
-    : public Fl_Round_Button, public CLayoutClient
+    : public Fl_Round_Button
+    , public CLayoutClient
 {
 protected:
     void draw() override;
@@ -53,10 +54,11 @@ public:
     bool preferredSize(int& w, int& h) override;
 };
 
-}
+} // namespace sptk
 
 CRadioButton::CRadioButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    : Fl_Round_Button(0, 0, layoutSize, layoutSize, label), CLayoutClient(this, layoutSize, layoutAlignment)
+    : Fl_Round_Button(0, 0, layoutSize, layoutSize, label)
+    , CLayoutClient(this, layoutSize, layoutAlignment)
 {
 }
 
@@ -115,10 +117,10 @@ int CRadioButton::handle(int event)
     switch (event)
     {
         case FL_FOCUS:
-            control = dynamic_cast<CControl*> (parent());
+            control = dynamic_cast<CControl*>(parent());
             if (!control && parent())
             {
-                control = dynamic_cast<CControl*> (parent()->parent());
+                control = dynamic_cast<CControl*>(parent()->parent());
             }
             if (control)
             {
@@ -152,8 +154,10 @@ CRadioButtons::CRadioButtons(const char* label, int layoutSize, CLayoutAlign lay
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CRadioButtons::CRadioButtons(int x,int y,int w,int h,const char *l)
-        : CButtonGroup (x,y,w,h,l) {}
+CRadioButtons::CRadioButtons(int x, int y, int w, int h, const char* l)
+    : CButtonGroup(x, y, w, h, l)
+{
+}
 #endif
 
 CLayoutClient* CRadioButtons::creator(const xdoc::SNode& node)

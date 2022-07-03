@@ -4,7 +4,7 @@
 ║                       zlib_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Sunday June 24 2018                                    ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,15 +28,16 @@
 
 // This example shows how to compress and uncompress data using ZLib library.
 
-#include <sptk5/cutils>
 #include <sptk5/ZLib.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    try {
+    try
+    {
         Buffer testData("============================ 1234567890 1234567890 test data 1234567890 1234567890 ============================");
         COUT("Test data:              " << testData.bytes() << " bytes." << endl)
 
@@ -51,7 +52,8 @@ int main()
 
         COUT(testData << endl)
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

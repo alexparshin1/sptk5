@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/threads/Thread.h>
-#include <sptk5/threads/ThreadEvent.h>
+#include "ThreadManager.h"
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/SynchronizedQueue.h>
-#include "ThreadManager.h"
+#include <sptk5/threads/Thread.h>
+#include <sptk5/threads/ThreadEvent.h>
 
 namespace sptk {
 
@@ -85,7 +85,6 @@ public:
     void terminate() override;
 
 protected:
-
     /**
      * Thread function
      */
@@ -120,4 +119,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

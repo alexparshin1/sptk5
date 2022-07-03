@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,8 +31,8 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CCheckButtons.h>
-#include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CScroll.h>
+#include <sptk5/gui/CThemes.h>
 
 using namespace std;
 using namespace sptk;
@@ -91,10 +91,10 @@ int CCheckButton::handle(int event)
     switch (event)
     {
         case FL_FOCUS:
-            control = dynamic_cast<CControl*> (parent());
+            control = dynamic_cast<CControl*>(parent());
             if (!control && parent())
             {
-                control = dynamic_cast<CControl*> (parent()->parent());
+                control = dynamic_cast<CControl*>(parent()->parent());
             }
             if (control)
             {
@@ -127,8 +127,9 @@ CCheckButtons::CCheckButtons(const char* label, int layoutSize, CLayoutAlign lay
 
 #ifdef __COMPATIBILITY_MODE__
 
-CCheckButtons::CCheckButtons(int x, int y, int w, int h, const char *l)
-: CRadioButtons(x, y, w, h, l) {
+CCheckButtons::CCheckButtons(int x, int y, int w, int h, const char* l)
+    : CRadioButtons(x, y, w, h, l)
+{
 }
 #endif
 
@@ -146,7 +147,7 @@ Variant CCheckButtons::data() const
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++)
     {
-        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
         {
             continue;
@@ -210,7 +211,7 @@ void CCheckButtons::getSelections(vector<uint64_t>& selection) const
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++)
     {
-        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
         {
             continue;
@@ -230,7 +231,7 @@ void CCheckButtons::setSelections(const vector<uint64_t>& selection)
     auto cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++)
     {
-        auto* b = dynamic_cast<Fl_Button*> (group->child(i));
+        auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
         {
             continue;

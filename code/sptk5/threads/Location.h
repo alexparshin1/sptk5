@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
+#include <mutex>
+#include <sptk5/Strings.h>
 #include <sptk5/sptk.h>
 #include <sptk5/string_ext.h>
-#include <sptk5/Strings.h>
-#include <mutex>
 
 namespace sptk {
 
@@ -48,17 +48,17 @@ class SP_EXPORT CLocation
     /**
      * Mutex to protect internal data
      */
-    mutable std::mutex  m_mutex;
-    
+    mutable std::mutex m_mutex;
+
     /**
      * File name
      */
-    const char*         m_file;
+    const char* m_file;
 
     /**
      * Line number
      */
-    int                 m_line;
+    int m_line;
 
 
 public:
@@ -67,9 +67,11 @@ public:
      * @param file const char*, File name
      * @param line int, Line number
      */
-    CLocation(const char* file, int line) 
-    : m_file(file), m_line(line)
-    {}
+    CLocation(const char* file, int line)
+        : m_file(file)
+        , m_line(line)
+    {
+    }
 
     /**
      * @brief Modifies location
@@ -78,7 +80,7 @@ public:
      */
     void set(const char* file, int line)
     {
-        std::scoped_lock> lock(m_mutex);
+        std::scoped_lock > lock(m_mutex);
         m_file = file;
         m_line = line;
     }
@@ -123,5 +125,4 @@ public:
 /**
  * @}
  */
-}
-
+} // namespace sptk

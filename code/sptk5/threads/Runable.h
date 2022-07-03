@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <sptk5/Strings.h>
 
-#include <mutex>
 #include <list>
+#include <mutex>
 
 namespace sptk {
 
@@ -47,7 +47,6 @@ namespace sptk {
 class SP_EXPORT Runable
 {
 public:
-
     /**
      * Default Constructor
      */
@@ -85,7 +84,6 @@ public:
     }
 
 protected:
-
     /**
      * Method that is executed by worker thread
      *
@@ -94,13 +92,12 @@ protected:
     virtual void run() = 0;
 
 private:
-
     using SRunable = std::shared_ptr<Runable>;
 
-    mutable std::mutex m_dataMutex;            ///< Synchronized object that protects internal data
-    bool m_terminated {false};   ///< Flag indicating if task is terminated
-    const String m_name;                 ///< Runable object name
-    std::list<SRunable>::iterator m_position;             ///< Runable position in the queue
+    mutable std::mutex m_dataMutex;           ///< Synchronized object that protects internal data
+    bool m_terminated {false};                ///< Flag indicating if task is terminated
+    const String m_name;                      ///< Runable object name
+    std::list<SRunable>::iterator m_position; ///< Runable position in the queue
 
     /**
      * Set runable to terminated
@@ -114,7 +111,6 @@ using SRunable = std::shared_ptr<Runable>;
 class RunableQueue
 {
 public:
-
     void push(const SRunable& runable);
 
 private:
@@ -125,4 +121,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

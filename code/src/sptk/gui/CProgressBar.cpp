@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,10 +28,10 @@
 
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
+#include <cmath>
 #include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CProgressBar.h>
 #include <sptk5/gui/CThemes.h>
-#include <cmath>
 
 using namespace std;
 using namespace sptk;
@@ -71,12 +71,16 @@ void CProgressBox::draw()
 
     int fontHeight = 12;
     if (fontHeight >= h() - 4)
-    { fontHeight = h() - 4; }
+    {
+        fontHeight = h() - 4;
+    }
 
     fl_push_clip(x(), y(), w(), h() + 1);
     float percent = m_value * 100 / delta;
     if (percent < 0)
-    { percent = -percent; }
+    {
+        percent = -percent;
+    }
 
     if (!CThemes::drawProgressBar(x(), y(), w(), percent))
     {
@@ -117,9 +121,10 @@ CProgressBar::CProgressBar(const char* label, int layoutSize, CLayoutAlign layou
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CProgressBar::CProgressBar(int x,int y,int w,int h,const char *label)
-: CInput(x,y,w,h,"",false) {
-   ctor_init(label);
+CProgressBar::CProgressBar(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, "", false)
+{
+    ctor_init(label);
 }
 #endif
 
@@ -148,13 +153,17 @@ bool CProgressBar::preferredSize(int& w, int& h)
     {
         auto* pb = (CProgressBox*) m_control;
         if (w < 20)
-        { w = 20; }
+        {
+            w = 20;
+        }
         if (pb->m_showText)
         {
             h = m_textSize + 6;
         }
         else if (h < 6)
-        { h = 6; }
+        {
+            h = 6;
+        }
     }
     return false;
 }

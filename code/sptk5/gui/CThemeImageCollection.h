@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Document.h>
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CThemeImageState.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -142,4 +142,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

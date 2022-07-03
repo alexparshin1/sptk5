@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,8 +41,9 @@ CIntegerInput::CIntegerInput(const char* label, int layoutSize, CLayoutAlign lay
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CIntegerInput::CIntegerInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label) {
+CIntegerInput::CIntegerInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label)
+{
     controlType(FL_INT_INPUT);
     m_minValue = m_maxValue = 0;
 }

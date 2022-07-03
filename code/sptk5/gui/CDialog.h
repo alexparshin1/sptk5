@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,13 +29,13 @@
 #include <sptk5/xdoc/Node.h>
 
 #include <sptk5/Strings.h>
-#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CTabs.h>
+#include <sptk5/gui/CControlList.h>
+#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CScroll.h>
+#include <sptk5/gui/CTabs.h>
 #include <sptk5/gui/CWindow.h>
-#include <sptk5/gui/CControlList.h>
 
 class Fl_Group;
 
@@ -63,8 +63,7 @@ class CDlgControls;
  * If the Ok button was pressed, it would return DMR_OK.
  * For Cancel button it would return DMR_CANCEL. And, for user buttons, it would be DMR_USER.
  */
-enum class CDialogModalResult
-    : uint8_t
+enum class CDialogModalResult : uint8_t
 {
     /**
      * Modal result undefined
@@ -104,13 +103,11 @@ protected:
     void prepareNewPage(Fl_Group* page, bool autoColor) override;
 
 public:
-
     /**
      * @brief Default constructor
      */
     CDialogTabs()
-        :
-        CTabs("", 10, CLayoutAlign::CLIENT)
+        : CTabs("", 10, CLayoutAlign::CLIENT)
     {
     }
 };
@@ -285,7 +282,6 @@ protected:
     virtual bool save();
 
 public:
-
     /**
      * Constructor
      * @param w                 Dialog width
@@ -473,4 +469,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

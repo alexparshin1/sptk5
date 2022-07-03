@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,8 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CSplitter.h>
 #include <sptk5/gui/CGroup.h>
+#include <sptk5/gui/CSplitter.h>
 
 using namespace std;
 using namespace sptk;

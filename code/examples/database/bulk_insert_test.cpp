@@ -4,7 +4,7 @@
 ║                       bulk_insert_test.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,16 +31,15 @@
 #pragma hdrstop
 #endif
 
-#include <sptk5/cutils>
 #include <sptk5/cdatabase>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 void createTable(DatabaseConnection db, const String& tableName)
 {
-    Query step1Query(db, "CREATE TABLE " + tableName +
-                         "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true);
+    Query step1Query(db, "CREATE TABLE " + tableName + "(id INT,name CHAR(40),position_name CHAR(20),hire_date TIMESTAMP)", true);
     try
     {
         step1Query.exec();

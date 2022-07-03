@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <string>
 #include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Node.h>
+#include <string>
 
 namespace sptk {
 
@@ -69,7 +69,6 @@ class SP_EXPORT CColumn
     bool m_autoWidth;
 
 public:
-
     /**
      * @brief Constructor
      * @param cname             Column name
@@ -178,7 +177,6 @@ class SP_EXPORT CColumnList
     : public std::vector<CColumn>
 {
 public:
-
     /**
      * @brief Default constructor
      */

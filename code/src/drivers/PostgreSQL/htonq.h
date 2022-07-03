@@ -4,7 +4,7 @@
 ║                       htonq.h - description                                  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -36,9 +36,9 @@
 #endif
 
 namespace sptk {
-    uint64_t htonq(uint64_t val);
-    uint64_t ntohq(uint64_t val);
-    void htonq_inplace(uint64_t* in,uint64_t* out);
+uint64_t htonq(uint64_t val);
+uint64_t ntohq(uint64_t val);
+void htonq_inplace(uint64_t* in, uint64_t* out);
 } // namespace sptk
 
 #endif

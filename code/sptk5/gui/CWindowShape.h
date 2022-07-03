@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <vector>
-#include <sptk5/gui/sptk_fltk_version.h>
 #include <sptk5/gui/CShapePoint.h>
+#include <sptk5/gui/sptk_fltk_version.h>
+#include <vector>
 
 namespace sptk {
 
@@ -64,7 +64,6 @@ class SP_EXPORT CWindowShape
     int m_lastH {0};
 
 protected:
-
     /**
      * Resizing mouse zone where mouse was pushed
      */
@@ -88,22 +87,22 @@ protected:
     /**
      * Is the shape size changed?
      */
-    bool m_shapeChanged{true};
+    bool m_shapeChanged {true};
 
     /**
      * Shape border width, the default is 6
      */
-    int m_borderWidth{6};
+    int m_borderWidth {6};
 
     /**
      * Is no border flag set for the window?
      */
-    bool m_borderCleared{false};
+    bool m_borderCleared {false};
 
     /**
      * Is the shape extension activated?
      */
-    bool m_shapeExtension{false};
+    bool m_shapeExtension {false};
 
     /**
      * @brief Computes mouse zone from window coordinates
@@ -138,7 +137,8 @@ public:
      * @brief Destructor
      */
     virtual ~CWindowShape()
-    {}
+    {
+    }
 
     /**
      * @brief Returns true if the window is resizing as a result of border drag
@@ -151,7 +151,6 @@ public:
     }
 
 protected:
-
     /**
      * @brief Initializes shape extension
      *
@@ -164,7 +163,9 @@ protected:
      * @brief Returns true if border was cleared for the shape
      */
     bool borderCleared() const
-    { return m_borderCleared; }
+    {
+        return m_borderCleared;
+    }
 
     /**
      * @brief Sets the shape to the window during window->draw()
@@ -198,5 +199,4 @@ protected:
 /**
  * @}
  */
-}
-
+} // namespace sptk

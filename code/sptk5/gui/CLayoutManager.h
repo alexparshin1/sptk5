@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <string>
 #include <map>
-#include <sptk5/xdoc/Node.h>
+#include <sptk5/Exception.h>
 #include <sptk5/gui/CFrame.h>
 #include <sptk5/gui/CLayoutClient.h>
-#include <sptk5/Exception.h>
+#include <sptk5/xdoc/Node.h>
+#include <string>
 
 class Fl_Image;
 
@@ -47,7 +47,7 @@ namespace sptk {
  *
  * The information (layout,style,etc) is provided by the XML node
  */
-using createControlCallback = CLayoutClient* (*)(const xdoc::SNode& node);
+using createControlCallback = CLayoutClient* (*) (const xdoc::SNode& node);
 
 /**
  * @brief A callback map that stores type names and control create functions
@@ -65,8 +65,7 @@ using CWidgetNamesMap = std::map<std::string, Fl_Widget*>;
  * Allows or disables the layout to
  * grow in horizontal and/or vertical direction
  */
-enum class CLayoutGrowMode
-    : uint8_t
+enum class CLayoutGrowMode : uint8_t
 {
     /**
      * Don't allow layout to grow
@@ -164,7 +163,6 @@ protected:
     virtual void paintBackground();
 
 public:
-
     /**
      * Constructor
      * @param group Fl_Group*, a group widget to manage (CGroup, CScroll, or CWindow)
@@ -318,4 +316,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

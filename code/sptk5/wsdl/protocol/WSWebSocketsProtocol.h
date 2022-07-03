@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,12 +42,12 @@ class SP_EXPORT WSWebSocketsMessage
 public:
     enum class OpCode : uint8_t
     {
-        CONTINUATION     = 0,
-        TEXT             = 1,
-        BINARY           = 2,
+        CONTINUATION = 0,
+        TEXT = 1,
+        BINARY = 2,
         CONNECTION_CLOSE = 8,
-        PING1            = 9,
-        PING2            = 10
+        PING1 = 9,
+        PING2 = 10
     };
 
     /// Default constructor
@@ -80,10 +80,10 @@ public:
     bool isFinal() const;
 
 private:
-    OpCode      m_opcode {0};
-    uint32_t    m_status {0};
-    Buffer      m_payload;              ///< Message payload
-    bool        m_finalMessage {true};
+    OpCode m_opcode {0};
+    uint32_t m_status {0};
+    Buffer m_payload; ///< Message payload
+    bool m_finalMessage {true};
 };
 
 /// WebSockets connection handler
@@ -110,8 +110,8 @@ public:
 class WSNotification
 {
 public:
-    const std::map<String,String>   m_headers;
-    String                          m_data;
+    const std::map<String, String> m_headers;
+    String m_data;
 };
 
 class WSNotificationManager
@@ -120,8 +120,7 @@ public:
     WSNotificationManager() = default;
 
 private:
-    Strings  m_queues;
+    Strings m_queues;
 };
 
 } // namespace sptk
-

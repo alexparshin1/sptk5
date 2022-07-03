@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,9 +35,9 @@ namespace sptk {
  * @{
  */
 
-#define CLV_SELECTED       1    ///< List view item is selected
-#define CLV_CHECKED        2    ///< List view item is checked
-#define CLV_NOTDISPLAYED   4    ///< List view item is hidden
+#define CLV_SELECTED 1     ///< List view item is selected
+#define CLV_CHECKED 2      ///< List view item is checked
+#define CLV_NOTDISPLAYED 4 ///< List view item is hidden
 
 /**
  * @brief List view & friend items selection
@@ -48,7 +48,7 @@ namespace sptk {
 
 class SP_EXPORT CSelection
 {
-    using PPackedStrings = CPackedStrings *;
+    using PPackedStrings = CPackedStrings*;
     using CPSVector = std::vector<PPackedStrings>;
 
     /**
@@ -58,7 +58,6 @@ class SP_EXPORT CSelection
 
 
 public:
-
     /**
      * Default constructor
      */
@@ -79,18 +78,17 @@ public:
     /**
      * Selects a row and adds it to the selection list
      */
-    void select(CPackedStrings *row);
+    void select(CPackedStrings* row);
 
     /**
      * Deselects a row and removes it from the selection list
      */
-    void deselect(CPackedStrings *row);
+    void deselect(CPackedStrings* row);
 
     /**
      * Removes the row from the selection list
      */
-    void remove
-    (CPackedStrings *row);
+    void remove(CPackedStrings* row);
 
     /**
      * Deselects all the rows in the selection list and empties the list
@@ -108,14 +106,14 @@ public:
 
     uint32_t size() const
     {
-        return(uint32_t) m_selectedRows.size();
+        return (uint32_t) m_selectedRows.size();
     }
 
     /**
      * Element access to the selection, const version only
      * @param index int, index in the selection list
      */
-    CPackedStrings& operator[] (int index) const
+    CPackedStrings& operator[](int index) const
     {
         return *m_selectedRows[size_t(index)];
     }
@@ -124,15 +122,15 @@ public:
      * Finds an item with a particular key value. Returns NULL if not found.
      * @param keyValue int, key value
      */
-    CPackedStrings *findKey(int keyValue) const;
+    CPackedStrings* findKey(int keyValue) const;
 
     /**
      * Finds an item with a particular caption. Returns NULL if not found.
      * @param caption CString, item caption (a string in the first column)
      */
-    CPackedStrings *findCaption(const String& caption) const;
+    CPackedStrings* findCaption(const String& caption) const;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

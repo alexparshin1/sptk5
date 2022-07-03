@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,10 +35,9 @@ namespace sptk {
  */
 class SP_EXPORT StopWatch
 {
-    DateTime m_started {"now"};    ///< Start time
-    DateTime m_ended;                    ///< Stop time
+    DateTime m_started {"now"}; ///< Start time
+    DateTime m_ended;           ///< Stop time
 public:
-
     /**
      * Set stopwatch start time
      */
@@ -62,4 +61,4 @@ public:
     double milliseconds() const;
 };
 
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,11 +29,10 @@
 #include <sptk5/ZLib.h>
 
 #ifdef USE_GTEST
-
+#include <gtest/gtest.h>
 #include <sptk5/Base64.h>
 #include <sptk5/StopWatch.h>
 #include <sptk5/cutils>
-
 #endif
 
 using namespace std;

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,16 @@
 
 #include <sptk5/xdoc/Attributes.h>
 
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
+
 using namespace sptk;
 using namespace xdoc;
 
 String Attributes::get(const String& name, const String& defaultValue) const
 {
-    for (const auto&[attr, value]: m_items)
+    for (const auto& [attr, value]: m_items)
     {
         if (attr == name)
         {
@@ -51,7 +55,7 @@ bool Attributes::have(const String& name) const
 
 Attributes& Attributes::set(const String& name, const String& value)
 {
-    for (auto&[attr, val]: m_items)
+    for (auto& [attr, val]: m_items)
     {
         if (attr == name)
         {

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,9 +28,9 @@
 
 #include <FL/fl_draw.H>
 
+#include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/gui/CButton.h>
 
 using namespace std;
 using namespace sptk;
@@ -79,7 +79,9 @@ void CDateControl::preferredHeight(int& hh)
     {
         hh = parentControl->textSize() + 8;
         if (hh < bh)
-        { hh = bh; }
+        {
+            hh = bh;
+        }
     }
     hh += dh;
 }

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,8 +38,9 @@ CPasswordInput::CPasswordInput(const char* label, int layoutSize, CLayoutAlign l
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CPasswordInput::CPasswordInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label) {
+CPasswordInput::CPasswordInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label)
+{
     controlType(FL_SECRET_INPUT);
 }
 #endif

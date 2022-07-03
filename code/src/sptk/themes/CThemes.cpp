@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,21 +28,21 @@
 
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CThemeColorCollection.h>
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CTreeControl.h>
 #include <sptk5/HomeDirectory.h>
+#include <sptk5/gui/CButton.h>
+#include <sptk5/gui/CThemeColorCollection.h>
+#include <sptk5/gui/CTreeControl.h>
 
-#include <sptk5/gui/default_icons.h>
 #include <cmath>
+#include <sptk5/gui/default_icons.h>
 
 #include "ThemeUtils.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
 #include <io.h>
+#include <windows.h>
+#include <winsock2.h>
 #define X_OK 0
 #endif
 
@@ -103,7 +103,7 @@ CThemes::CThemes()
     m_desaturateInactiveButtons = false;
     m_buttonFocusRadius = 0;
 
-    for (auto& i : m_background)
+    for (auto& i: m_background)
     {
         i = nullptr;
     }
@@ -361,8 +361,7 @@ void CThemes::set(string theThemeName)
                                         fontInfo->attributes().get("size", "10").toInt(),
                                         fontInfo->attributes().get("color", "0").toInt(),
                                         screenFont->index(),
-                                        screenFont->attributes()
-                );
+                                        screenFont->attributes());
                 m_fonts[object] = font;
             }
             auto ftor = m_fonts.find("default");
@@ -374,7 +373,6 @@ void CThemes::set(string theThemeName)
 
             auto framesNode = m_registry->root()->findOrCreate("frames");
             m_frames.load(m_tar, framesNode);
-
         }
         catch (...)
         {
@@ -403,7 +401,7 @@ void CThemes::set(string theThemeName)
         CTreeItem::setFolderOpened(
             getIconImage("folder_opened", CIconSize::IS_SMALL_ICON)); ///< Default image of the opened floder
         CTreeItem::setFolderClosed(
-            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON)); ///< Default image of the closed floder
+            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON));               ///< Default image of the closed floder
         CTreeItem::setDocument(getIconImage("document", CIconSize::IS_SMALL_ICON)); ///< Default image of the document
         if (!CTreeItem::getFolderOpened())
         {
@@ -747,7 +745,7 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
         percent = 0;
     }
 
-    CPngImage* partImage[2];  // 0 - trough, 1 - bar
+    CPngImage* partImage[2]; // 0 - trough, 1 - bar
     int border[2] = {0, 0};
     CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::CPatternDrawMode::PDM_TILE,
                                                CPngImage::CPatternDrawMode::PDM_TILE};
@@ -787,7 +785,7 @@ Strings CThemes::availableThemes()
     themes.push_back("Default");
     //themes.push_back("GTK");
     const Strings& dirs = searchDirectories();
-    for (const auto& adir : dirs)
+    for (const auto& adir: dirs)
     {
         try
         {

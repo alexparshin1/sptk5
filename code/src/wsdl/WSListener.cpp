@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,10 +32,10 @@ using namespace sptk;
 
 WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                        const WSConnection::Options& options)
-    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails),
-      m_services(services),
-      m_logger(logger),
-      m_options(options)
+    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
+    , m_services(services)
+    , m_logger(logger)
+    , m_options(options)
 {
     if (!hostname.empty())
     {

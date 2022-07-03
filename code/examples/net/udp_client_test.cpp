@@ -4,7 +4,7 @@
 ║                       udp_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,22 +26,24 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    try {
+    try
+    {
         UDPSocket client;
         client.host(Host("localhost", 3000));
 
         string data;
 
-        struct sockaddr_in serv {};
-        memset (&serv, 0, sizeof (serv));
+        struct sockaddr_in serv {
+        };
+        memset(&serv, 0, sizeof(serv));
         serv.sin_family = AF_INET;
         serv.sin_port = htons(client.host().port());
         serv.sin_addr.s_addr = inet_addr(client.host().hostname().c_str());
@@ -51,8 +53,11 @@ int main()
 
         data = "EOD";
         client.write(data, &serv);
-    } catch (const Exception& e) {
-        CERR("Exception was caught:" << e.what() << endl << "Exiting." << endl)
+    }
+    catch (const Exception& e)
+    {
+        CERR("Exception was caught:" << e.what() << endl
+                                     << "Exiting." << endl)
         return 1;
     }
 

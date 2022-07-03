@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/FieldList.h>
+#include <list>
+#include <mutex>
 #include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
-#include <mutex>
-#include <list>
+#include <sptk5/FieldList.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -67,7 +67,8 @@ public:
      * @param other             Other object
      */
     MemoryDS(MemoryDS&& other) noexcept
-        : m_list(std::move(other.m_list)), m_current(std::move(other.m_current))
+        : m_list(std::move(other.m_list))
+        , m_current(std::move(other.m_current))
     {
     }
 
@@ -212,12 +213,11 @@ public:
     void push_back(FieldList&& fieldList);
 
 private:
-
     mutable std::mutex m_mutex;
-    std::list<FieldList> m_list;               // List of the dataset records
-    std::list<FieldList>::iterator m_current;  // DS iterator
+    std::list<FieldList> m_list;              // List of the dataset records
+    std::list<FieldList>::iterator m_current; // DS iterator
 };
 /**
  * @}
  */
-}
+} // namespace sptk

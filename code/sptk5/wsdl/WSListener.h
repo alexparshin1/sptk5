@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/cutils>
-#include <sptk5/cnet>
-#include <sptk5/wsdl/WSRequest.h>
-#include <sptk5/wsdl/WSConnection.h>
 #include "WSServices.h"
+#include <sptk5/cnet>
+#include <sptk5/cutils>
+#include <sptk5/wsdl/WSConnection.h>
+#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
@@ -75,14 +75,14 @@ protected:
     SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
 
 private:
-    mutable SharedMutex m_mutex;                ///< Mutex that protects internal data
-    WSServices m_services;             ///< Web Service request processor
-    Logger m_logger;               ///< Logger object
-    WSConnection::Options m_options;              ///< Client connection options
+    mutable SharedMutex m_mutex;     ///< Mutex that protects internal data
+    WSServices m_services;           ///< Web Service request processor
+    Logger m_logger;                 ///< Logger object
+    WSConnection::Options m_options; ///< Client connection options
 };
 
 /**
  * @}
  */
 
-}
+} // namespace sptk

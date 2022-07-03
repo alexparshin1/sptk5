@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,23 +29,30 @@
 #ifdef DEBUG
 #include <stdio.h>
 
-#define DEBUG_MESSAGE(str) printf("%s",str); fflush(stdout);
-#define DEBUG_MESSAGE_LN(str) printf("%s\n",str);
-#define DEBUG_MESSAGE_FLN(str) printf("%s (%i): %s\n",__FILE__,__LINE__,str);
-#define DEBUG_STRING(name,str) printf("%s: %s",name,str); fflush(stdout);
-#define DEBUG_STRING_LN(name,str) printf("%s: %s\n",name,str);
-#define DEBUG_INTEGER(name,value) printf("%s: %i",name,value); fflush(stdout);
-#define DEBUG_INTEGER_LN(name,value) printf(" %s: %i\n",name,value);
-#define DEBUG_DOUBLE(name,str) printf("%s: %0.2f",name,double(value)); fflush(stdout);
-#define DEBUG_DOUBLE_LN(name,value) printf("%s: %0.2f\n",name,double(value));
+#define DEBUG_MESSAGE(str) \
+    printf("%s", str);     \
+    fflush(stdout);
+#define DEBUG_MESSAGE_LN(str) printf("%s\n", str);
+#define DEBUG_MESSAGE_FLN(str) printf("%s (%i): %s\n", __FILE__, __LINE__, str);
+#define DEBUG_STRING(name, str)  \
+    printf("%s: %s", name, str); \
+    fflush(stdout);
+#define DEBUG_STRING_LN(name, str) printf("%s: %s\n", name, str);
+#define DEBUG_INTEGER(name, value) \
+    printf("%s: %i", name, value); \
+    fflush(stdout);
+#define DEBUG_INTEGER_LN(name, value) printf(" %s: %i\n", name, value);
+#define DEBUG_DOUBLE(name, str)               \
+    printf("%s: %0.2f", name, double(value)); \
+    fflush(stdout);
+#define DEBUG_DOUBLE_LN(name, value) printf("%s: %0.2f\n", name, double(value));
 #else
 #define DEBUG_MESSAGE(str) ;
 #define DEBUG_MESSAGE_LN(str) ;
-#define DEBUG_STRING(name,str) ;
-#define DEBUG_STRING_LN(name,str) ;
-#define DEBUG_INTEGER(name,value) ;
-#define DEBUG_INTEGER_LN(name,value) ;
-#define DEBUG_DOUBLE(name,str) ;
-#define DEBUG_DOUBLE_LN(name,value) ;
+#define DEBUG_STRING(name, str) ;
+#define DEBUG_STRING_LN(name, str) ;
+#define DEBUG_INTEGER(name, value) ;
+#define DEBUG_INTEGER_LN(name, value) ;
+#define DEBUG_DOUBLE(name, str) ;
+#define DEBUG_DOUBLE_LN(name, value) ;
 #endif
-

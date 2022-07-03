@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -60,13 +60,17 @@ void LoadBalance::destinationEventCallback(uint8_t* userData, SocketEventType ev
 }
 
 LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
-    : Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces)
+    : Thread("load balance")
+    , m_listenerPort(listenerPort)
+    , m_destinations(destinations)
+    , m_interfaces(interfaces)
 {
 }
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr {};
+    struct sockaddr_in addr {
+    };
 
     m_sourceEvents.run();
     m_destinationEvents.run();

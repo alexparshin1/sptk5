@@ -4,7 +4,7 @@
 ║                       command_line.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/CommandLine.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -35,20 +35,22 @@ using namespace sptk;
 int main(int argc, const char* argv[])
 {
     CommandLine commandLine(
-                "Command Line Arguments demo v.1.00",
-                "Demonstrates basic command line support.",
-                "command_line <command> [options]");
+        "Command Line Arguments demo v.1.00",
+        "Demonstrates basic command line support.",
+        "command_line <command> [options]");
 
-    try {
+    try
+    {
         commandLine.defineOption("help", "h", CommandLine::Visibility(""), "Prints this help.");
-        commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy",  "Archive mode may be one of {copy,zip,bzip2,xz}.");
+        commandLine.defineParameter("archive-mode", "a", "mode", "^(copy|zip|bzip2|xz)$", CommandLine::Visibility("archive"), "copy", "Archive mode may be one of {copy,zip,bzip2,xz}.");
         commandLine.defineParameter("archive-date", "d", "date", "^\\d{4}-\\d\\d-\\d\\d$", CommandLine::Visibility(""), "", "Date in the format 'YYYY-MM-DD'.");
         commandLine.defineArgument("archive", "Archive data (does nothing)");
         commandLine.defineArgument("restore", "Restore data (does nothing)");
 
         commandLine.init(argc, argv);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR("Error in command line arguments:" << endl)
         CERR(e.what() << endl)
         COUT(endl)
@@ -56,28 +58,34 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    try {
+    try
+    {
         String command;
         if (!commandLine.arguments().empty())
             command = commandLine.arguments()[0];
 
-        if (command == "help") {
+        if (command == "help")
+        {
             // Print full help
             commandLine.printHelp(80);
             return 0;
         }
 
-        if (commandLine.hasOption("help")) {
+        if (commandLine.hasOption("help"))
+        {
             // Print help on command (if any) or full help
             commandLine.printHelp(command, 80);
-        } else {
+        }
+        else
+        {
             COUT("Archive mode: " << commandLine.getOptionValue("archive-mode") << endl)
             COUT("Archive date: " << commandLine.getOptionValue("archive-date") << endl)
         }
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

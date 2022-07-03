@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/gui/CControl.h>
-#include <sptk5/CaseInsensitiveCompare.h>
 #include <map>
+#include <sptk5/CaseInsensitiveCompare.h>
+#include <sptk5/gui/CControl.h>
 
 namespace sptk {
 
@@ -51,14 +51,12 @@ class SP_EXPORT CControlList
     : public CStringControlMap
 {
 protected:
-
     /**
      * @brief Scan group to find all CControl objects inside, including children groups
      */
     void scanControls(const Fl_Group* group);
 
 public:
-
     /**
      * @brief Constructor
      */
@@ -162,4 +160,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

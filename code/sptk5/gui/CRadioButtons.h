@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CButtonGroup.h>
+#include <sptk5/sptk.h>
 #include <string>
 
 namespace sptk {
@@ -77,7 +77,7 @@ public:
      * @param h int, widget height
      * @param label int, optional widget label
      */
-    CRadioButtons(int,int,int,int,const char * = 0);
+    CRadioButtons(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -115,4 +115,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

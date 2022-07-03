@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +27,12 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CIcon.h>
+#include <sptk5/gui/CPngImage.h>
 
 #ifdef _WIN32
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 using namespace std;

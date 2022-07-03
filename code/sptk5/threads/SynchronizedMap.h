@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <map>
 #include <functional>
+#include <map>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -57,7 +57,6 @@ class SynchronizedMap
     Map m_map;
 
 public:
-
     /**
      * Map callback function used in each() method.
      *
@@ -171,4 +170,4 @@ public:
  * @}
  */
 
-}
+} // namespace sptk

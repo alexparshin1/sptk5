@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CButton.h>
+#include <sptk5/gui/CGroup.h>
 
 namespace sptk {
 
@@ -51,7 +51,6 @@ class SP_EXPORT CToolBar
     bool m_colapsed;
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param layoutAlign CLayoutAlign, widget align in layout
@@ -66,7 +65,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    CToolBar(int x,int y,int w,int h);
+    CToolBar(int x, int y, int w, int h);
 #endif
 
     /**
@@ -132,4 +131,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

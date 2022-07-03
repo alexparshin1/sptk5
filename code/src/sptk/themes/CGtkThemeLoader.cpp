@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -52,8 +52,7 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
 
         switch (row[pos])
         {
-            case ':':
-            {
+            case ':': {
                 if (row[pos + 1] != ':')
                 {
                     throw Exception("single ':' found");
@@ -68,8 +67,7 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
                 pos = pos2 + 1;
                 break;
             }
-            case '[':
-            {
+            case '[': {
                 pos++;
                 size_t pos2 = row.find_first_of("]", pos);
                 if (pos2 == STRING_NPOS)
@@ -80,8 +78,7 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
                 pos = pos2 + 1;
                 break;
             }
-            case '\"':
-            {
+            case '\"': {
                 pos++;
                 size_t pos2 = row.find_first_of("\"", pos);
                 if (pos2 == STRING_NPOS)
@@ -381,4 +378,4 @@ void CGtkThemeParser::load(const string& themeName)
     parse(gtkrc);
 }
 
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,18 +44,17 @@ namespace sptk {
  * its size requirements, and can be a layout client.
  */
 class SP_EXPORT CCheckButton
-    : public Fl_Check_Button, public CLayoutClient
+    : public Fl_Check_Button
+    , public CLayoutClient
 {
 
 protected:
-
     /**
      * Draws the check button
      */
     void draw() override;
 
 public:
-
     /**
      * SPTK-style constructor
      * @param label const char *, the widget label
@@ -63,7 +62,8 @@ public:
      * @param layoutAlignment CLayoutAlign, widget align in the layout
      */
     CCheckButton(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-        : Fl_Check_Button(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
+        : Fl_Check_Button(0, 0, 10, 10, label)
+        , CLayoutClient(this, layoutSize, layoutAlignment)
     {
     }
 
@@ -99,7 +99,6 @@ protected:
                             CLayoutAlign layoutAlignment = CLayoutAlign::TOP) override;
 
 public:
-
     /**
      * SPTK-style constructor
      * @param label const char *, the widget label
@@ -118,7 +117,7 @@ public:
      * @param h int, widget height
      * @param label int, optional widget label
      */
-    CCheckButtons(int,int,int,int,const char * = 0);
+    CCheckButtons(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -167,4 +166,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -4,7 +4,7 @@
 ║                       ssl_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,33 +27,37 @@
 */
 
 #include <iostream>
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main(int, const char**)
 {
-    try {
+    try
+    {
         SSLSocket client;
-        SSLKeys   keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+        SSLKeys keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
         client.loadKeys(keys);
         Buffer buffer;
 
-        for (unsigned i = 0; i < 10; i++) {
+        for (unsigned i = 0; i < 10; i++)
+        {
             client.open(Host("localhost", 443));
 
-            client.write((const uint8_t*) "GET /\n",6);
+            client.write((const uint8_t*) "GET /\n", 6);
             client.readLine(buffer, '\n');
             COUT("Receiving: ");
             COUT(buffer.data() << endl);
             client.close();
             this_thread::sleep_for(chrono::milliseconds(3000));
         }
-
-    } catch (const Exception& e) {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl);
+    }
+    catch (const Exception& e)
+    {
+        CERR("Exception was caught: " << e.what() << endl
+                                      << "Exiting." << endl);
         return 1;
     }
 

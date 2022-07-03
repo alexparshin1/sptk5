@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <condition_variable>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -48,7 +48,7 @@ class SP_EXPORT Semaphore
     /**
      * Mutex object
      */
-    mutable std::mutex      m_lockMutex;
+    mutable std::mutex m_lockMutex;
 
     /**
      * Mutex condition object
@@ -58,22 +58,22 @@ class SP_EXPORT Semaphore
     /**
      * Semaphore value
      */
-    size_t                  m_value {0};
+    size_t m_value {0};
 
     /**
      * Semaphore max value
      */
-    size_t                  m_maxValue {0};
+    size_t m_maxValue {0};
 
     /**
      * Number of waiters
      */
-    size_t                  m_waiters {0};
+    size_t m_waiters {0};
 
     /**
      * Terminated flag
      */
-    bool                    m_terminated {false};
+    bool m_terminated {false};
 
     void terminate();
 
@@ -83,7 +83,6 @@ class SP_EXPORT Semaphore
     size_t waiters() const;
 
 public:
-
     /**
      * @brief Constructor
      *
@@ -91,7 +90,7 @@ public:
      * @param startingValue     Starting semaphore value
      * @param maxValue          Maximum semaphore value, or 0 if unlimited
      */
-    explicit Semaphore(size_t startingValue=0, size_t maxValue=0);
+    explicit Semaphore(size_t startingValue = 0, size_t maxValue = 0);
 
     /**
      * @brief Destructor
@@ -132,4 +131,3 @@ public:
  * @}
  */
 }
-

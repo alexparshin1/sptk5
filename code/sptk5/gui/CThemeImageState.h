@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,7 +25,7 @@
 */
 
 #ifndef __CTHEMEIMAGESTATE_H__
-#define	__CTHEMEIMAGESTATE_H__
+#define __CTHEMEIMAGESTATE_H__
 
 namespace sptk {
 
@@ -41,19 +41,20 @@ namespace sptk {
 /**
  * @brief Theme button type - defines which routine to use for which FLTK button type
  */
-enum CThemeImageState { 
-    THM_IMAGE_NORMAL = THMF_NORMAL, 
-    THM_IMAGE_ACTIVE = THMF_ACTIVE, 
-    THM_IMAGE_NORMAL_HIGHLITED = THMF_NORMAL | THMF_HIGHLIGHTED, 
-    THM_IMAGE_ACTIVE_HIGHLITED = THMF_ACTIVE | THMF_HIGHLIGHTED, 
-    THM_DEFAULT_FRAME = ((THMF_ACTIVE | THMF_HIGHLIGHTED) + 1) };
+enum CThemeImageState
+{
+    THM_IMAGE_NORMAL = THMF_NORMAL,
+    THM_IMAGE_ACTIVE = THMF_ACTIVE,
+    THM_IMAGE_NORMAL_HIGHLITED = THMF_NORMAL | THMF_HIGHLIGHTED,
+    THM_IMAGE_ACTIVE_HIGHLITED = THMF_ACTIVE | THMF_HIGHLIGHTED,
+    THM_DEFAULT_FRAME = ((THMF_ACTIVE | THMF_HIGHLIGHTED) + 1)
+};
 
 #define MAX_IMAGE_STATES 5
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
-#endif	/* _CTHEMEIMAGESTATE_H */
-
+#endif /* _CTHEMEIMAGESTATE_H */

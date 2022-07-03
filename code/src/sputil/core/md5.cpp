@@ -34,6 +34,10 @@ documentation and/or software.
 #include <sptk5/cutils>
 #include <sptk5/md5.h>
 
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
+
 using namespace std;
 using namespace sptk;
 

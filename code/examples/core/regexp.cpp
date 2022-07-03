@@ -4,7 +4,7 @@
 ║                       regexp.cpp - description                               ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,41 +34,54 @@ using namespace chrono;
 
 int main()
 {
-    try {
+    try
+    {
         String text;
 
         text = "This text contains number: ABCDEF";
 
         COUT("Test: does '" << text << "' contain number? ")
         RegularExpression regexp("\\d+");
-        if (regexp.matches(text)) {
+        if (regexp.matches(text))
+        {
             COUT("yes" << endl)
-        } else {
+        }
+        else
+        {
             COUT("no" << endl)
         }
 
         text = "This text contains number: 12345";
         COUT("Test: does '" << text << "' contain number? ")
-        if (regexp.matches(text)) {
+        if (regexp.matches(text))
+        {
             COUT("yes" << endl)
-        } else {
+        }
+        else
+        {
             COUT("no" << endl)
         }
 
         text = "This text contains phone number: (415)-123-4567";
         COUT("Test: does '" << text << "' contain valid phone number? ")
         RegularExpression phoneRegexp("\\(\\d{3}\\)-\\d{3}-\\d{4}");
-        if (phoneRegexp.matches(text)) {
+        if (phoneRegexp.matches(text))
+        {
             COUT("yes" << endl)
-        } else {
+        }
+        else
+        {
             COUT("no" << endl)
         }
 
         text = "This text contains phone number: 415/123/4567";
         COUT("Test: does '" << text << "' contain valid phone number? ")
-        if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text)) {
+        if (RegularExpression("\\(\\d{3}\\)-\\d{3}-\\d{4}").matches(text))
+        {
             COUT("no" << endl)
-        } else {
+        }
+        else
+        {
             COUT("yes" << endl)
         }
 
@@ -77,21 +90,25 @@ int main()
         RegularExpression connectionParser("(user|password|host)='([\\S]+)'", "g");
         RegularExpression parameterParser("(\\S+)=['\"]([\\S]+)['\"]");
         auto matches = connectionParser.m(text);
-        if (matches) {
-            for (unsigned i = 0; i < matches.groups().size(); i++) {
+        if (matches)
+        {
+            for (unsigned i = 0; i < matches.groups().size(); i++)
+            {
                 COUT(matches[i].value << " : ")
                 i++;
                 COUT(matches[i].value << endl)
             }
             COUT(endl)
-        } else
+        }
+        else
             CERR("ERROR: Didn't match connectionParser" << endl)
 
         text = "Area code: 415 Phone: 123-4567";
         COUT("\nParsing the text: " << text << endl)
         RegularExpression phoneStringParser("^Area code: (\\d{3}) Phone: (\\d{3})-(\\d{4})$");
         String phoneNumber = phoneStringParser.s(text, "(\\1)-\\2-\\3");
-        COUT("Reformatted phone number: " << phoneNumber << endl << endl)
+        COUT("Reformatted phone number: " << phoneNumber << endl
+                                          << endl)
 
         DateTime started = DateTime::Now();
 
@@ -106,13 +123,15 @@ int main()
         bool replaced;
         phoneNumber = phoneTranslate.replaceAll(text, substitutions, replaced);
         COUT("\nSubstituting text '" << text << "' to digits." << endl)
-        COUT("The result is '" << phoneNumber << "'." << endl << endl)
+        COUT("The result is '" << phoneNumber << "'." << endl
+                               << endl)
 
         text = "This text contains phone number: (415)-123-4567";
 
         unsigned counter = 0;
         unsigned tests = 1000000;
-        for (unsigned i = 0; i < tests; i++) {
+        for (unsigned i = 0; i < tests; i++)
+        {
             if (RegularExpression(R"(\(\d{3}\)-\d{3}-\d{4})").matches(text))
                 counter++;
         }
@@ -123,7 +142,8 @@ int main()
 
         started = DateTime::Now();
         counter = 0;
-        for (unsigned i = 0; i < tests; i++) {
+        for (unsigned i = 0; i < tests; i++)
+        {
             if (phoneRegexp.matches(text))
                 counter++;
         }
@@ -134,7 +154,8 @@ int main()
 
         return 0;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

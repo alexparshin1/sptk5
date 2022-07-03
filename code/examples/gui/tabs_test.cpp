@@ -4,7 +4,7 @@
 ║                       tabs_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,8 +30,8 @@
 #include <FL/Fl_Button.H>
 #include <FL/fl_ask.H>
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -61,22 +61,20 @@ public:
 
         end();
     }
-
 };
 
 CDataDialog* dataDialog;
 
-struct CCompanyInfo
-{
+struct CCompanyInfo {
     int id;
     const char* name;
     int number;
 };
 
-CCompanyInfo companies[] = {{1, "Red Hat",      1000},
+CCompanyInfo companies[] = {{1, "Red Hat", 1000},
                             {2, "MandrakeSoft", 2000},
-                            {3, "Oracle",       30000},
-                            {4, "Microsoft",    300000}};
+                            {3, "Oracle", 30000},
+                            {4, "Microsoft", 300000}};
 
 CListView* eventsListView;
 
@@ -185,7 +183,7 @@ void buttonDemo(CTabs* tabs)
 }
 
 void widgetDemo(CTabs* tabs)
-{   // It will be many widgets on this page, so creating a scroll
+{ // It will be many widgets on this page, so creating a scroll
     Fl_Group* t = tabs->newScroll(" Data controls 1 ", true);
     t->labeltype(FL_ENGRAVED_LABEL);
 
@@ -257,7 +255,7 @@ void widgetDemo(CTabs* tabs)
 
 void scrollDemo(const Strings& sl1, const Strings& sl2, const Strings& sl3, const Strings& sl4, const Strings& sl5,
                 const Strings& sl6, CTabs* tabs)
-{   // It will be many widgets on this page, so creating a scroll
+{ // It will be many widgets on this page, so creating a scroll
     Fl_Group* t = tabs->newScroll(" Data controls 2 ", true);
     t->labeltype(FL_ENGRAVED_LABEL);
 

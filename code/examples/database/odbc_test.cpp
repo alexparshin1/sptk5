@@ -4,7 +4,7 @@
 ║                       odbc_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
-#include <sptk5/cdatabase>
-#include <sptk5/cthreads>
 #include <sptk5/Printer.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/cdatabase>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +40,8 @@ using namespace sptk;
 int testPerformance(DatabaseConnection db, const string& tableName, bool rollback)
 {
     COUT("Testing performance on INSERTs")
-    try {
+    try
+    {
         Query deleteQuery(db, "DELETE FROM " + tableName);
         Query insertQuery(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
 
@@ -54,25 +55,31 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
         transaction.begin();
 
         size_t count = 1000;
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i++)
+        {
             insertQuery.param((std::size_t) 0) = int(i);
             insertQuery.param("person_name") = "John Doe";
             insertQuery.param("position_name") = "lead engineer";
             insertQuery.exec();
         }
 
-        if (rollback){
-            transaction.rollback();}
-        else{
-            transaction.commit();}
+        if (rollback)
+        {
+            transaction.rollback();
+        }
+        else
+        {
+            transaction.commit();
+        }
 
         DateTime ended("now");
 
         double durationSec = duration2seconds(ended - started);
 
         COUT("\nPerformance Test: " << count / durationSec << " TPS" << endl)
-
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR("Error: " << e.what() << endl)
     }
 
@@ -81,7 +88,8 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
 int testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
 {
-    try {
+    try
+    {
         Query step5Query(db, "DELETE FROM " + tableName);
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
@@ -95,10 +103,13 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
         step6Query.close();
         COUT("\n        The table now has " << counter << " records ..")
 
-        if (rollback) {
+        if (rollback)
+        {
             COUT("\n        Rolling back the transaction ..")
             db->rollbackTransaction();
-        } else {
+        }
+        else
+        {
             COUT("\n        Commiting the transaction ..")
             db->commitTransaction();
         }
@@ -106,7 +117,9 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records..")
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR("Error: " << e.what() << endl)
     }
 
@@ -117,12 +130,16 @@ void createTestTable(DatabaseConnection db, String tableName)
 {
     Query query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(20) NULL, position CHAR(20) NULL)");
     COUT("Ok.\nStep 1: Creating the test table.. ")
-    try {
+    try
+    {
         query.exec();
     }
-    catch (const Exception& e) {
-        if (strstr(e.what(), " already ") == nullptr){
-            throw;}
+    catch (const Exception& e)
+    {
+        if (strstr(e.what(), " already ") == nullptr)
+        {
+            throw;
+        }
         COUT("Table already exists, ")
     }
 }
@@ -130,17 +147,26 @@ void createTestTable(DatabaseConnection db, String tableName)
 int main(int argc, const char* argv[])
 {
     String connectString;
-    if (argc == 1){
-        connectString = "mssql://gtest:test#123@dsn_mssql/gtest";}
-    else{
-        connectString = argv[1];}
+    if (argc == 1)
+    {
+        connectString = "mssql://gtest:test#123@dsn_mssql/gtest";
+    }
+    else
+    {
+        connectString = argv[1];
+    }
 
-    try {
-        if (!RegularExpression("^(mssql|odbc)://").matches(connectString)) {
-            COUT("Syntax:" << endl << endl)
-            COUT("odbc_test [connection string]" << endl << endl)
+    try
+    {
+        if (!RegularExpression("^(mssql|odbc)://").matches(connectString))
+        {
+            COUT("Syntax:" << endl
+                           << endl)
+            COUT("odbc_test [connection string]" << endl
+                                                 << endl)
             COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl)
-            COUT("for instance:" << endl << endl)
+            COUT("for instance:" << endl
+                                 << endl)
             COUT("  odbc://alex:secret@mydsn" << endl)
             return 1;
         }
@@ -159,7 +185,8 @@ int main(int argc, const char* argv[])
         DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS, DatabaseObjectType::PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
-        for (unsigned i = 0; i < 3; i++) {
+        for (unsigned i = 0; i < 3; i++)
+        {
             COUT("-------------------------------------------------" << endl)
             COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl)
             Strings objectList;
@@ -217,7 +244,8 @@ int main(int argc, const char* argv[])
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             // getting data from the query by the field name
             int id = step3Query["id"].asInteger();
@@ -241,7 +269,8 @@ int main(int argc, const char* argv[])
         Field& nameField = step3Query["name"];
         Field& positionField = step3Query["position"];
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             auto id = idField.asInteger();
             auto name = nameField.asString();
@@ -265,7 +294,9 @@ int main(int argc, const char* argv[])
         COUT("Ok.\nStep 5: Closing the database.. ")
         db->close();
         COUT("Ok." << endl)
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR("\nError: " << e.what() << endl)
         CERR("\nSorry, you have to fix your database connection." << endl)
         CERR("Please, read the README.txt for more information." << endl)

@@ -4,7 +4,7 @@
 ║                       udp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,18 +26,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    try {
+    try
+    {
         // Create the socket
         UDPSocket server;
-        server.host(Host("localhost",3000));
+        server.host(Host("localhost", 3000));
 
         struct sockaddr_in clientInfo = {};
 
@@ -47,22 +48,28 @@ int main()
 
         Buffer readBuffer(1024);
 
-        for (;;) {
-            if (server.readyToRead(chrono::seconds(1))) {
+        for (;;)
+        {
+            if (server.readyToRead(chrono::seconds(1)))
+            {
                 size_t bytes = server.read(readBuffer, 1024, &clientInfo);
 
                 String data(readBuffer.c_str(), bytes);
                 COUT("Received data: " << data << endl)
 
-                if (data.find("EOD") == 0) {
+                if (data.find("EOD") == 0)
+                {
                     server.close();
                     COUT("Server session closed" << endl)
                     break;
                 }
             }
         }
-    } catch (const Exception& e) {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
+    }
+    catch (const Exception& e)
+    {
+        CERR("Exception was caught: " << e.what() << endl
+                                      << "Exiting." << endl)
         return 1;
     }
 

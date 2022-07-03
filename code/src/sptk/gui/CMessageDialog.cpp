@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,7 +39,9 @@ CAskDialog::CAskDialog(const char* label, int w)
 {
     auto textSize = std::round(Fl::h() / 64.0);
     if (textSize < 14)
-    { textSize = 14; }
+    {
+        textSize = 14;
+    }
 
     auto* grp = new CGroup("", 65, CLayoutAlign::LEFT);
     m_imageBox = new Fl_Box(8, 8, 50, 50);

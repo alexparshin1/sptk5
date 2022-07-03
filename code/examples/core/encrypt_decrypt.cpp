@@ -4,7 +4,7 @@
 ║                     encrypt_decrypt.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Tuesday July 18 2017                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/Crypt.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -42,13 +42,15 @@ int main()
     Buffer outtext;
 
     COUT("Encrypt text (" << text.length() << " bytes)." << endl)
-    try {
+    try
+    {
         Crypt::encrypt(outtext, intext, key, iv);
         COUT(outtext << endl)
         Crypt::decrypt(intext, outtext, key, iv);
         COUT(intext << endl)
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 

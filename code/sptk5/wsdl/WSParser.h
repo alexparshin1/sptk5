@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/wsdl/WSParserComplexType.h>
-#include <sptk5/wsdl/WSOperation.h>
 #include <sptk5/wsdl/OpenApiGenerator.h>
+#include <sptk5/wsdl/WSOperation.h>
+#include <sptk5/wsdl/WSParserComplexType.h>
 
 namespace sptk {
 
@@ -104,9 +104,8 @@ public:
         }
 
     private:
-
-        ElementMap m_elements;         ///< Map of all elements
-        WSComplexTypeMap m_complexTypes;     ///< Map of all parsed complex types
+        ElementMap m_elements;           ///< Map of all elements
+        WSComplexTypeMap m_complexTypes; ///< Map of all parsed complex types
     };
 
     /**
@@ -224,14 +223,13 @@ protected:
     void generateImplementation(std::ostream& output) const;
 
 private:
-
-    String m_serviceName;      ///< Service name, defining service class name and source file names
-    String m_serviceNamespace; ///< Service classes namespace
-    String m_description;      ///< Service description
-    String m_location;         ///< Service location
-    String m_wsdlFile;         ///< WSDL source file name
+    String m_serviceName;                ///< Service name, defining service class name and source file names
+    String m_serviceNamespace;           ///< Service classes namespace
+    String m_description;                ///< Service description
+    String m_location;                   ///< Service location
+    String m_wsdlFile;                   ///< WSDL source file name
     ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap m_operations;       ///< Map of all operations
+    WSOperationMap m_operations;         ///< Map of all operations
     DocumentationMap m_documentation;    ///< Map of documentation
 };
 
@@ -239,4 +237,4 @@ private:
  * @}
  */
 
-}
+} // namespace sptk

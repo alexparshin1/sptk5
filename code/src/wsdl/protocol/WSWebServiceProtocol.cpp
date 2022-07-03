@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,12 +35,12 @@ using namespace sptk;
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
                                            const Host& host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
-    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url),
-      m_httpReader(httpReader),
-      m_host(host),
-      m_allowCORS(allowCORS),
-      m_keepAlive(keepAlive),
-      m_suppressHttpStatus(suppressHttpStatus)
+    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url)
+    , m_httpReader(httpReader)
+    , m_host(host)
+    , m_allowCORS(allowCORS)
+    , m_keepAlive(keepAlive)
+    , m_suppressHttpStatus(suppressHttpStatus)
 {
 }
 

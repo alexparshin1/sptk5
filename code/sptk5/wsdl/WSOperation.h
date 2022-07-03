@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,28 +38,25 @@ namespace sptk {
 /**
  * WSDL operation
  */
-struct WSOperation
-{
+struct WSOperation {
     /**
      * WSDL operation input
      */
-    SWSParserComplexType   m_input;
+    SWSParserComplexType m_input;
 
     /**
      * WSDL operation output
      */
-    SWSParserComplexType   m_output;
-
+    SWSParserComplexType m_output;
 };
 
 /**
  * Map of operation names to operation objects
  */
-using WSOperationMap = std::map<String,WSOperation>;
+using WSOperationMap = std::map<String, WSOperation>;
 
 /**
  * @}
  */
 
-}
-
+} // namespace sptk

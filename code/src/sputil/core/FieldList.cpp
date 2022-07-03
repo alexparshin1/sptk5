@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,6 +29,10 @@
 #include <sptk5/Exception.h>
 #include <sptk5/FieldList.h>
 #include <sptk5/xdoc/Document.h>
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 using namespace std;
 using namespace sptk;

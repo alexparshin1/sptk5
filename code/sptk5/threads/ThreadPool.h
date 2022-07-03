@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <sptk5/threads/ThreadManager.h>
-#include <sptk5/threads/ThreadEvent.h>
-#include <sptk5/threads/Runable.h>
-#include <sptk5/threads/SynchronizedQueue.h>
-#include <sptk5/threads/SynchronizedList.h>
-#include <sptk5/threads/WorkerThread.h>
 #include <sptk5/LogEngine.h>
+#include <sptk5/threads/Runable.h>
+#include <sptk5/threads/SynchronizedList.h>
+#include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/threads/ThreadEvent.h>
+#include <sptk5/threads/ThreadManager.h>
+#include <sptk5/threads/WorkerThread.h>
 
 namespace sptk {
 
@@ -50,10 +50,10 @@ namespace sptk {
  * it's automatically terminated.
  */
 class SP_EXPORT ThreadPool
-    : public ThreadEvent, public std::mutex
+    : public ThreadEvent
+    , public std::mutex
 {
 public:
-
     /**
      * Constructor
      * @param threadLimit       Maximum number of threads in this pool
@@ -92,13 +92,12 @@ public:
     size_t size() const;
 
 private:
-
-    SThreadManager m_threadManager;    ///< Pool's thread manager
-    size_t m_threadLimit;      ///< Maximum number of threads in this pool
-    SynchronizedQueue<SRunable> m_taskQueue;        ///< Shared task queue
-    Semaphore m_availableThreads; ///< Semaphore indicating available threads
-    std::chrono::milliseconds m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
-    SLogger m_logger;           ///< Optional logger
+    SThreadManager m_threadManager;             ///< Pool's thread manager
+    size_t m_threadLimit;                       ///< Maximum number of threads in this pool
+    SynchronizedQueue<SRunable> m_taskQueue;    ///< Shared task queue
+    Semaphore m_availableThreads;               ///< Semaphore indicating available threads
+    std::chrono::milliseconds m_threadIdleTime; ///< Maximum thread idle time before thread in this pool is terminated
+    SLogger m_logger;                           ///< Optional logger
 
     std::atomic_bool m_shutdown {false}; ///< Flag: true during pool shutdown
 
@@ -120,4 +119,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

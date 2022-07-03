@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -72,7 +72,8 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << endl << "Exiting." << endl)
+        CERR("Exception was caught: " << e.what() << endl
+                                      << "Exiting." << endl)
         return 1;
     }
     COUT("Server session closed" << endl)

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,14 +42,14 @@ namespace sptk {
 class SP_EXPORT WSNameSpace
 {
 public:
-
     /**
      * Constructor
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
     WSNameSpace(const String& alias = "", const String& location = "")
-        : m_alias(alias), m_location(location)
+        : m_alias(alias)
+        , m_location(location)
     {
     }
 
@@ -58,7 +58,8 @@ public:
      * @param other             Other namespace
      */
     WSNameSpace(const WSNameSpace& other)
-        : m_alias(other.m_alias), m_location(other.m_location)
+        : m_alias(other.m_alias)
+        , m_location(other.m_location)
     {
     }
 
@@ -104,10 +105,9 @@ public:
     }
 
 private:
-
-    mutable std::mutex m_mutex;        ///< Mutex to protect internal data
-    String m_alias;        ///< Namespace alias
-    String m_location;     ///< Namespace location
+    mutable std::mutex m_mutex; ///< Mutex to protect internal data
+    String m_alias;             ///< Namespace alias
+    String m_location;          ///< Namespace location
 };
 
 /**
@@ -178,7 +178,6 @@ public:
     }
 
 protected:
-
     using RequestMethod = std::function<void(const sptk::xdoc::SNode&, const sptk::xdoc::SNode&,
                                              sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
 
@@ -227,11 +226,10 @@ protected:
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
-
-    sptk::LogEngine* m_logEngine;                            ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
+    sptk::LogEngine* m_logEngine;                           ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods; ///< Map of requset names to methods
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;
 
-}
+} // namespace sptk

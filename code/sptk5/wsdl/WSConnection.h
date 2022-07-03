@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include "WSServices.h"
+#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
-#include <sptk5/wsdl/WSRequest.h>
-#include "WSServices.h"
 
 namespace sptk {
 
@@ -46,17 +46,16 @@ public:
         String staticFilesDirectory;
 
         Paths(String htmlIndexPage, String wsRequestPage, String staticFilesDirectory)
-            : htmlIndexPage(std::move(htmlIndexPage)),
-              wsRequestPage(std::move(wsRequestPage)),
-              staticFilesDirectory(std::move(staticFilesDirectory))
+            : htmlIndexPage(std::move(htmlIndexPage))
+            , wsRequestPage(std::move(wsRequestPage))
+            , staticFilesDirectory(std::move(staticFilesDirectory))
         {
         }
 
         Paths(const Paths& other) = default;
     };
 
-    struct Options
-    {
+    struct Options {
         Paths paths;
         bool encrypted {false};
         bool allowCors {false};
@@ -65,7 +64,8 @@ public:
         LogDetails logDetails;
 
         Options(const Paths& paths, bool encrypted = false)
-            : paths(paths), encrypted(encrypted)
+            : paths(paths)
+            , encrypted(encrypted)
         {
         }
     };
@@ -92,7 +92,6 @@ public:
     void run() override;
 
 private:
-
     WSServices& m_services;
     Logger m_logger;
     Options m_options;
@@ -134,4 +133,4 @@ public:
     ~WSSSLConnection() override = default;
 };
 
-}
+} // namespace sptk

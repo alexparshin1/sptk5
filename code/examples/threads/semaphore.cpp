@@ -4,7 +4,7 @@
 ║                       semaphore.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,33 +26,41 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-    Semaphore  semaphore;
-    try {
+    Semaphore semaphore;
+    try
+    {
         semaphore.post();
 
         COUT("Semaphore posted       (Ok)" << endl)
 
-        if (semaphore.sleep_for(chrono::seconds(1))) {
+        if (semaphore.sleep_for(chrono::seconds(1)))
+        {
             COUT("Semaphore was posted   (Ok)" << endl)
-        } else {
+        }
+        else
+        {
             COUT("Semaphore wait timeout (Error)" << endl)
         }
 
-        if (semaphore.sleep_for(chrono::seconds(1))) {
+        if (semaphore.sleep_for(chrono::seconds(1)))
+        {
             COUT("Semaphore was posted   (Error)" << endl)
-        } else {
+        }
+        else
+        {
             COUT("Semaphore wait timeout (Ok)" << endl)
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
         return 1;
     }

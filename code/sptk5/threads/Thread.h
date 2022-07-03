@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,10 +28,10 @@
 
 #include <sptk5/threads/Locks.h>
 
-#include <thread>
+#include "Semaphore.h"
 #include <atomic>
 #include <mutex>
-#include "Semaphore.h"
+#include <thread>
 
 namespace sptk {
 /**
@@ -49,12 +49,12 @@ class ThreadManager;
  */
 class SP_EXPORT Thread
 {
-    SharedMutex m_mutex;                ///< Thread synchronization object
-    String m_name;                 ///< Thread name
-    std::shared_ptr<std::thread> m_thread;               ///< Thread object
-    bool m_terminated {false};   ///< Flag: is the thread terminated?
-    Semaphore m_pause;                ///< Pause object
-    std::shared_ptr<ThreadManager> m_threadManager;        ///< Optional thread manager
+    SharedMutex m_mutex;                            ///< Thread synchronization object
+    String m_name;                                  ///< Thread name
+    std::shared_ptr<std::thread> m_thread;          ///< Thread object
+    bool m_terminated {false};                      ///< Flag: is the thread terminated?
+    Semaphore m_pause;                              ///< Pause object
+    std::shared_ptr<ThreadManager> m_threadManager; ///< Optional thread manager
 
     /**
      * Thread function wrapper
@@ -62,7 +62,6 @@ class SP_EXPORT Thread
     void threadStart();
 
 public:
-
     /**
      * Thread ID type
      */
@@ -161,4 +160,4 @@ using UThread = std::unique_ptr<Thread>;
 /**
  * @}
  */
-}
+} // namespace sptk

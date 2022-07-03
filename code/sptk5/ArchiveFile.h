@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,15 +32,14 @@
 
 namespace sptk {
 
-constexpr int TAR_BLOCK_SIZE = 512;     ///< Tar archive block size
+constexpr int TAR_BLOCK_SIZE = 512; ///< Tar archive block size
 
 #pragma pack(push, 1)
 
 /**
  * Tar header as it's stored in file
  */
-struct TarHeader
-{
+struct TarHeader {
     std::array<char, 100> filename;
     std::array<char, 8> mode;
     std::array<char, 8> uid;
@@ -69,26 +68,23 @@ class SP_EXPORT ArchiveFile
     : public Buffer
 {
 public:
-
     /**
      * @brief File type for file inside tar archive
      */
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
-        REGULAR_FILE = '0',    ///< Regular file (preferred code).
-        REGULAR_FILE2 = '\0',  ///< Regular file (alternate code).
-        HARD_LINK = '1',       ///< Hard link.
-        SYM_LINK = '2',        ///< Symbolic link (hard if not supported).
-        CHARACTER = '3',       ///< Character special.
-        BLOCK = '4',           ///< Block special.
-        DIRECTORY = '5',       ///< Directory.
-        FIFO = '6',            ///< Named pipe.
-        CONTTYPE = '7'         ///< Contiguous file (regular file if not supported).
+        REGULAR_FILE = '0',   ///< Regular file (preferred code).
+        REGULAR_FILE2 = '\0', ///< Regular file (alternate code).
+        HARD_LINK = '1',      ///< Hard link.
+        SYM_LINK = '2',       ///< Symbolic link (hard if not supported).
+        CHARACTER = '3',      ///< Character special.
+        BLOCK = '4',          ///< Block special.
+        DIRECTORY = '5',      ///< Directory.
+        FIFO = '6',           ///< Named pipe.
+        CONTTYPE = '7'        ///< Contiguous file (regular file if not supported).
     };
 
-    struct Ownership
-    {
+    struct Ownership {
         int uid {0};
         int gid {0};
         String uname;
@@ -159,7 +155,6 @@ public:
     static fs::path relativePath(const fs::path& fileName, const fs::path& baseDirectory);
 
 private:
-
     String m_fileName;
     unsigned m_mode {777};
     Ownership m_ownership {};
@@ -175,6 +170,6 @@ private:
 
 using SArchiveFile = std::shared_ptr<ArchiveFile>;
 
-}
+} // namespace sptk
 
 #endif

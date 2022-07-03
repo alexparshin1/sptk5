@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,44 +26,52 @@
 
 #pragma once
 
-#include <sptk5/net/TCPSocket.h>
-#include <sptk5/net/SocketEvents.h>
 #include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
 
 class Channel
 {
-    std::mutex      m_mutex;
-    TCPSocket       m_source;
-    TCPSocket       m_destination;
+    std::mutex m_mutex;
+    TCPSocket m_source;
+    TCPSocket m_destination;
 
-    SocketEvents&   m_sourceEvents;
-    SocketEvents&   m_destinationEvents;
+    SocketEvents& m_sourceEvents;
+    SocketEvents& m_destinationEvents;
 
 public:
-
     Channel(SocketEvents& sourceEvents, SocketEvents& destinationEvents)
-    : m_sourceEvents(sourceEvents), m_destinationEvents(destinationEvents)
-    {}
+        : m_sourceEvents(sourceEvents)
+        , m_destinationEvents(destinationEvents)
+    {
+    }
 
     ~Channel()
     {
-        try {
+        try
+        {
             close();
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             CERR(e.what() << std::endl)
         }
     }
 
     void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);
-    int  copyData(const TCPSocket& source, const TCPSocket& destination);
+    int copyData(const TCPSocket& source, const TCPSocket& destination);
     void close();
 
-    TCPSocket& source()      { return m_source; }
-    TCPSocket& destination() { return m_destination; }
+    TCPSocket& source()
+    {
+        return m_source;
+    }
+    TCPSocket& destination()
+    {
+        return m_destination;
+    }
 };
 
-}
-
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/sptk.h>
 #include <sptk5/cgui>
+#include <sptk5/sptk.h>
 
 #include <map>
 
@@ -46,257 +46,258 @@ namespace sptk {
 /**
  * CSpellOption represents an option of Aspell config.
  */
-    class CSpellOption
-    {
-    public:
-        /**
+class CSpellOption
+{
+public:
+    /**
          * Option name
          */
-        String m_name;
+    String m_name;
 
-        /**
+    /**
          * Option value
          */
-        String m_value;
+    String m_value;
 
-        /**
+    /**
          * Constructor
          */
-        CSpellOption(const String& name, const String& value);
+    CSpellOption(const String& name, const String& value);
 
-        /**
+    /**
          * Copy constructor
          */
-        CSpellOption(const CSpellOption& co)
-        {
-            m_name = co.m_name;
-            m_value = co.m_value;
-        }
+    CSpellOption(const CSpellOption& co)
+    {
+        m_name = co.m_name;
+        m_value = co.m_value;
+    }
 
-        /**
+    /**
          * Assigns a new value to the option
          */
-        CSpellOption& operator=(const char* value);
+    CSpellOption& operator=(const char* value);
 
-        /**
+    /**
          * Assigns a new value to the option
          */
-        CSpellOption& operator=(const String& value);
-    };
+    CSpellOption& operator=(const String& value);
+};
 
 /**
  * CSpellOptions is a map of CSpellOption.
  */
-    class CSpellOptions : public std::map<String, CSpellOption>
-    {
+class CSpellOptions : public std::map<String, CSpellOption>
+{
 
-    public:
-        /**
+public:
+    /**
          * Default constructor
          */
-        CSpellOptions()
-        {}
-    };
+    CSpellOptions()
+    {
+    }
+};
 
 /**
  * CSpellChecker is a base class for Aspell interface.
  */
-    class CSpellChecker : public CSpellOptions, public CDialog
-    {
-        /**
+class CSpellChecker : public CSpellOptions
+    , public CDialog
+{
+    /**
          * Input widget to show the misspelled word
          */
-        CInput* m_wordInput;
+    CInput* m_wordInput;
 
-        /**
+    /**
          * Input widget to show the replacement word
          */
-        CInput* m_replaceToInput;
+    CInput* m_replaceToInput;
 
-        /**
+    /**
          * List view widget to show the list of suggestions
          */
-        CListView* m_suggestionListView;
+    CListView* m_suggestionListView;
 
-        /**
+    /**
          * Pointer to the Aspell spell checker
          */
-        AspellSpeller* m_spellChecker;
+    AspellSpeller* m_spellChecker;
 
 #ifdef _WIN32
 
-        /**
+    /**
          * Full path to personal directory on Windows
          */
-        std::string    m_personalDirectory;
+    std::string m_personalDirectory;
 
 #endif
 
-        /**
+    /**
          * Loads all Aspell config options into list of options
          * @param aconfig AspellConfig *, Aspell config structure
          * @param options CSpellOptions &, config options (output)
          */
-        static void getConfigStrings(AspellConfig* aconfig, CSpellOptions& options);
+    static void getConfigStrings(AspellConfig* aconfig, CSpellOptions& options);
 
-        /**
+    /**
          * Saves changed (local) Aspell config options from internal list of options
          * @param aconfig AspellConfig *, Aspell config structure
          */
-        void setLocalOptions(AspellConfig* aconfig);
+    void setLocalOptions(AspellConfig* aconfig);
 
-    protected:
-        /**
+protected:
+    /**
          * Callback for the add word button
          */
-        static void cb_learn(Fl_Widget*, void*);
+    static void cb_learn(Fl_Widget*, void*);
 
-        /**
+    /**
          * Callback for the ignore word button
          */
-        static void cb_ignore(Fl_Widget*, void*);
+    static void cb_ignore(Fl_Widget*, void*);
 
-        /**
+    /**
          * Callback for the suggestion list click
          */
-        static void cb_suggest(Fl_Widget*, void*);
+    static void cb_suggest(Fl_Widget*, void*);
 
-        /**
+    /**
          * Callback for the replace word button
          */
-        static void cb_replaceword(Fl_Widget*, void*);
+    static void cb_replaceword(Fl_Widget*, void*);
 
 
-        /**
+    /**
          * Adds a word to personal dictionary and hides window to continue spelling
          */
-        void learnAndClose();
+    void learnAndClose();
 
-        /**
+    /**
          * Adds a word to ignore list and hides window to continue spelling
          */
-        void ignoreAndClose();
+    void ignoreAndClose();
 
-        /**
+    /**
          * Checks for error after the operation and throws CException if error is detected
          */
-        void checkForError();
+    void checkForError();
 
-    public:
-
-        /**
+public:
+    /**
          * Default constructor
          */
-        CSpellChecker();
+    CSpellChecker();
 
-        /**
+    /**
          * Destructor
          */
-        virtual ~CSpellChecker()
-        {}
+    virtual ~CSpellChecker()
+    {
+    }
 
-        /**
+    /**
          * Downloads the list of installed dictionaries
          */
-        void getDictionaries(Strings& dictionaries);
+    void getDictionaries(Strings& dictionaries);
 
-        /**
+    /**
          * Downloads the Aspell options
          */
-        void getOptions(CSpellOptions& options);
+    void getOptions(CSpellOptions& options);
 
-        /**
+    /**
          * Resets the spell check position. Purely virtual, should be implemented in the derived class.
          */
-        virtual void textStart()=0;
+    virtual void textStart() = 0;
 
-        /**
+    /**
          * Gets the next word and advances the spell check position. Purely virtual, should be implemented in the derived class.
          */
-        virtual bool getNextWord(String& w, int& wordStart, int& wordEnd)
-        {
-            return false;
-        }
+    virtual bool getNextWord(String& w, int& wordStart, int& wordEnd)
+    {
+        return false;
+    }
 
-        /**
+    /**
          * Replaces the word and advances the spell check position. Purely virtual, should be implemented in the derived class.
          */
-        virtual bool replaceWord(const String& w, int wordStart, int wordEnd)
-        {
-            return false;
-        }
+    virtual bool replaceWord(const String& w, int wordStart, int wordEnd)
+    {
+        return false;
+    }
 
-        /**
+    /**
          * Spell checks the text. Uses textStart(), getNextWord(), and replaceWord() to go through the text.
          */
-        bool spellCheck();
+    bool spellCheck();
 
-        /**
+    /**
          * Access (read and write) to the particular Aspell option.
          */
-        CSpellOption& operator[](const String& optionName);
+    CSpellOption& operator[](const String& optionName);
 
 #ifdef _WIN32
-        /**
+    /**
          * Sets full path to personal directory on Windows
          */
-        void personalDirectory(const String& dir)
-        {
-            m_personalDirectory = dir;
-        }
+    void personalDirectory(const String& dir)
+    {
+        m_personalDirectory = dir;
+    }
 
-        /**
+    /**
          * Returns full path to personal directory on Windows
          */
-        String personalDirectory() const
-        {
-            return  m_personalDirectory;
-        }
+    String personalDirectory() const
+    {
+        return m_personalDirectory;
+    }
 #endif
-
-    };
+};
 
 /**
  * Specialized spell checker to use with CEditor class.
  */
-    class CEditorSpellChecker : public CSpellChecker
-    {
-        /**
+class CEditorSpellChecker : public CSpellChecker
+{
+    /**
          * CEditor widget containing the spelling text
          */
-        CEditor* m_editor;
+    CEditor* m_editor;
 
-        /**
+    /**
          * Current spell checking word buffer position
          */
-        uint32_t m_bufferPosition {0};
+    uint32_t m_bufferPosition {0};
 
-    public:
-        /**
+public:
+    /**
          * Constructor
          * @param editor CEditor *, widget to work with
          */
-        explicit CEditorSpellChecker(CEditor* editor)
+    explicit CEditorSpellChecker(CEditor* editor)
         : m_editor(editor)
-        {
-        }
+    {
+    }
 
-        /**
+    /**
          * Resets the spell check position
          */
-        virtual void textStart();
+    virtual void textStart();
 
-        /**
+    /**
          * Gets the next word and advances the spell check position
          */
-        virtual bool getNextWord(String& w, int& wordStart, int& wordEnd);
+    virtual bool getNextWord(String& w, int& wordStart, int& wordEnd);
 
-        /**
+    /**
          * Replaces the word and advances the spell check position
          */
-        virtual bool replaceWord(const String& w, int wordStart, int wordEnd);
-    };
+    virtual bool replaceWord(const String& w, int wordStart, int wordEnd);
+};
 /**
  * @}
  */
-}
+} // namespace sptk

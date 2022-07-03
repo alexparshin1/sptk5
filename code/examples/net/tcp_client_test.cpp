@@ -4,7 +4,7 @@
 ║                       tcp_client_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,45 +26,49 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cnet>
 #include <sptk5/Printer.h>
+#include <sptk5/cnet>
 
 using namespace sptk;
 
-int main() {
-   try {
-      TCPSocket client;
-      client.host(Host("localhost",3000));
+int main()
+{
+    try
+    {
+        TCPSocket client;
+        client.host(Host("localhost", 3000));
 
-       client.open();
+        client.open();
 
-      COUT("Connected\n")
+        COUT("Connected\n")
 
-      String data;
+        String data;
 
-      client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n")
+        client.readLine(data);
+        COUT("Receiving: " << data.c_str() << "\n")
 
-      data = "Several copies of a single string";
-      COUT("Sending: test data\n")
-      client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
+        data = "Several copies of a single string";
+        COUT("Sending: test data\n")
+        client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
-      COUT("Sending: end data\n")
-      client.write("EOD\n");
+        COUT("Sending: end data\n")
+        client.write("EOD\n");
 
-      client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n")
+        client.readLine(data);
+        COUT("Receiving: " << data.c_str() << "\n")
 
-      COUT("Sending: end session\n")
-      client.write("EOS\n");
+        COUT("Sending: end session\n")
+        client.write("EOS\n");
 
-      client.readLine(data);
-      COUT("Receiving: " << data.c_str() << "\n")
-   } catch (const Exception& e) {
-      CERR("Exception was caught:" << e.what() << "\nExiting.\n")
-   }
+        client.readLine(data);
+        COUT("Receiving: " << data.c_str() << "\n")
+    }
+    catch (const Exception& e)
+    {
+        CERR("Exception was caught:" << e.what() << "\nExiting.\n")
+    }
 
-   COUT("Exiting\n")
+    COUT("Exiting\n")
 
-   return 0;
+    return 0;
 }

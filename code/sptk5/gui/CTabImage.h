@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/Tar.h>
+#include <sptk5/gui/CPngImage.h>
 #include <sptk5/xdoc/Node.h>
 
 namespace sptk {
@@ -101,7 +101,9 @@ public:
     ~CTabImage()
     {
         if (m_image)
-        { delete m_image; }
+        {
+            delete m_image;
+        }
     }
 
     /**
@@ -161,4 +163,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,12 +30,12 @@
 #include <io.h>
 #endif
 
-#include <sys/stat.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
+#include <sptk5/SystemException.h>
 #include <sptk5/gui/CFileSaveDialog.h>
 #include <sptk5/gui/CMessageDialog.h>
-#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;

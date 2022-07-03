@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,8 +32,11 @@ using namespace sptk;
 
 WorkerThread::WorkerThread(const SThreadManager& threadManager, SynchronizedQueue<SRunable>& queue,
                            ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
-    : Thread("worker", threadManager), m_queue(queue), m_threadEvent(threadEvent), m_maxIdleSeconds(
-    maxIdleTime)
+    : Thread("worker", threadManager)
+    , m_queue(queue)
+    , m_threadEvent(threadEvent)
+    , m_maxIdleSeconds(
+          maxIdleTime)
 {
 }
 

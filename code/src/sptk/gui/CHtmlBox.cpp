@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -56,8 +56,9 @@ CHtmlBox::CHtmlBox(const char* label, int layoutSize, CLayoutAlign layoutAlignme
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CHtmlBox::CHtmlBox(int x,int y,int w,int h,const char *label)
-        : CInput(x,y,w,h,"",false) {
+CHtmlBox::CHtmlBox(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, "", false)
+{
     ctor_init(label);
 }
 #endif

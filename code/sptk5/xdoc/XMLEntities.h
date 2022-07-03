@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <string>
 #include <map>
 #include <sptk5/RegularExpression.h>
+#include <string>
 
 namespace sptk::xdoc {
 
@@ -43,8 +43,7 @@ namespace sptk::xdoc {
 class SP_EXPORT Entity
 {
 public:
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
         SYSTEM,
         PUBLIC
@@ -66,7 +65,6 @@ class Entities
     : public std::map<String, String>
 {
 public:
-
     /**
      * Constructor
      */
@@ -96,4 +94,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk::xdoc

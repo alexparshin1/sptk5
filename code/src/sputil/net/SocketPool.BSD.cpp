@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,18 +25,19 @@
 */
 
 #include "sptk5/net/SocketPool.h"
+#include "sptk5/SystemException.h"
 #include <errno.h>
+#include <iostream>
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <iostream>
-#include "sptk5/SystemException.h"
 
 using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-    : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
+    : m_pool(INVALID_SOCKET)
+    , m_eventsCallback(eventsCallback)
 {
     open();
 }

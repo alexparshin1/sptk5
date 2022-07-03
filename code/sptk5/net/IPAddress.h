@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,14 +29,14 @@
 #include <sptk5/sptk.h>
 
 #ifndef _WIN32
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <unistd.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/in.h>
 #include <sptk5/Strings.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
 
 /**
  * A socket handle is an integer
@@ -57,12 +57,11 @@ using socklen_t = int;
 #include <winsock2.h>
 
 #include <windows.h>
-    using socklen_t = int;
-    using SOCKET_ADDRESS_FAMILY = unsigned short;
+using socklen_t = int;
+using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup network Network Classes
@@ -77,15 +76,16 @@ class SP_EXPORT IPAddress
     /**
      * Shared storage for IPv4 and IPv6 addresses
      */
-    union {
-        sockaddr_in     ipv4;
-        sockaddr_in6    ipv6;
-        sockaddr        generic;
+    union
+    {
+        sockaddr_in ipv4;
+        sockaddr_in6 ipv6;
+        sockaddr generic;
     } m_address;
 
-    String  m_addressStr;
-public:
+    String m_addressStr;
 
+public:
     /**
      * @brief Default constructor
      */
@@ -151,4 +151,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

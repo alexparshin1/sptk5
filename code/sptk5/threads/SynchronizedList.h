@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/threads/Semaphore.h>
+#include <functional>
 #include <list>
 #include <mutex>
-#include <functional>
+#include <sptk5/sptk.h>
+#include <sptk5/threads/Semaphore.h>
 
 namespace sptk {
 
@@ -48,7 +48,6 @@ template<class T>
 class SynchronizedList
 {
 public:
-
     /**
      * List callback function used in each() method.
      *
@@ -216,10 +215,9 @@ public:
     }
 
 private:
-
-    mutable std::mutex m_mutex;   ///< Lock to synchronize list operations
-    Semaphore m_semaphore;        ///< Semaphore to waiting for an item if list is empty
-    std::list<T> m_list;          ///< List
+    mutable std::mutex m_mutex; ///< Lock to synchronize list operations
+    Semaphore m_semaphore;      ///< Semaphore to waiting for an item if list is empty
+    std::list<T> m_list;        ///< List
 };
 
 /**

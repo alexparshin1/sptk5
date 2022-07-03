@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,24 +27,24 @@
 #pragma once
 
 #include <chrono>
+#include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
-#include <sptk5/net/Host.h>
 #include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
+#include <sptk5/net/Host.h>
 
 #ifndef _WIN32
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
 
 /**
  * A socket handle is an integer
@@ -89,12 +89,11 @@ public:
     /**
     * A mode to open a socket, one of
     */
-    enum class OpenMode
-        : uint8_t
+    enum class OpenMode : uint8_t
     {
-        CREATE,     ///< Only create (Typical UDP connectionless socket)
-        CONNECT,    ///< Connect (Typical TCP connection socket)
-        BIND        ///< Bind (TCP listener)
+        CREATE,  ///< Only create (Typical UDP connectionless socket)
+        CONNECT, ///< Connect (Typical TCP connection socket)
+        BIND     ///< Bind (TCP listener)
     };
 
     /**
@@ -347,7 +346,6 @@ public:
     [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
 
 protected:
-
     /**
      * Set socket internal (OS) handle
      */
@@ -415,12 +413,11 @@ protected:
     }
 
 private:
-
-    SOCKET m_sockfd {INVALID_SOCKET};   ///< Socket internal (OS) handle
-    int32_t m_domain;                   ///< Socket domain type
-    int32_t m_type;                     ///< Socket type
-    int32_t m_protocol;                 ///< Socket protocol
-    Host m_host;                        ///< Host
+    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t m_domain;                 ///< Socket domain type
+    int32_t m_type;                   ///< Socket type
+    int32_t m_protocol;               ///< Socket protocol
+    Host m_host;                      ///< Host
 };
 
 /**
@@ -431,9 +428,9 @@ private:
  */
 void throwSocketError(const String& message, const char* file, int line);
 
-#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg,__FILE__,__LINE__)
+#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg, __FILE__, __LINE__)
 
 /**
  * @}
  */
-}
+} // namespace sptk

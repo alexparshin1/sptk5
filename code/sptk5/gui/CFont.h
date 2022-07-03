@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
 #include <map>
+#include <sptk5/String.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -78,8 +78,11 @@ public:
      */
     explicit CFont(const String& name = "arial", uint32_t size = 10, uint32_t color = 0, uint32_t index = 0,
                    uint32_t attributes = 0)
-        : m_name(name), m_size(size), m_color(color),
-          m_index(index), m_attributes(attributes)
+        : m_name(name)
+        , m_size(size)
+        , m_color(color)
+        , m_index(index)
+        , m_attributes(attributes)
     {
     }
 
@@ -88,8 +91,11 @@ public:
      * @param font const CFont&, font to copy from
      */
     CFont(const CFont& font)
-        : m_name(font.m_name), m_size(font.m_size), m_color(font.m_color),
-          m_index(font.m_index), m_attributes(font.m_attributes)
+        : m_name(font.m_name)
+        , m_size(font.m_size)
+        , m_color(font.m_color)
+        , m_index(font.m_index)
+        , m_attributes(font.m_attributes)
     {
     }
 
@@ -246,4 +252,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk
