@@ -17,6 +17,6 @@ do
 done
 
 if [ -d lib ]; then
-  rm lib/*
+  rm -rf lib/*
 fi
 
