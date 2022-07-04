@@ -6,7 +6,7 @@ git pull
 
 cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
 
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\Tools\VsDevCmd.bat" 2>&1 >> build.log
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" 2>&1 >> build.log
 if errorlevel 1 (
     type build.log
     exit /b %errorlevel%
@@ -23,7 +23,7 @@ if errorlevel 1 (
 )
 
 echo "Configuring project"
-cmake -G "Visual Studio 16 2019" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
+cmake -G "Visual Studio 17 2022" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
     exit /b %errorlevel%
