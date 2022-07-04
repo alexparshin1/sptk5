@@ -43,7 +43,7 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (const auto&[name, value]: m_options.operationsAuth)
+    for (const auto&[name, [[maybe_unused]] value]: m_options.operationsAuth)
     {
         if (operations.find(name) == operations.end())
         {
