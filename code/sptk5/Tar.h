@@ -92,10 +92,10 @@ public:
     /**
      * returns a list of files in tar archive
      */
-    Strings fileList() const
+    [[maybe_unused]] Strings fileList() const
     {
         Strings fileNames;
-        for (const auto& [fileName, [[maybe_unused]] data]: m_files)
+        for (const auto& [fileName, data]: m_files)
         {
             fileNames.push_back(fileName);
         }

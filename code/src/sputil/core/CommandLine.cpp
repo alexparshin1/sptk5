@@ -581,7 +581,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     size_t nameColumns = minimalWidth;
     Strings sortedCommands;
 
-    for (const auto& [argumentName, [[maybe_unused]] value]: m_argumentTemplates)
+    for (const auto& [argumentName, value]: m_argumentTemplates)
     {
         sortedCommands.push_back(argumentName);
     }

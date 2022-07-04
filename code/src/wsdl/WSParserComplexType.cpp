@@ -250,7 +250,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    }" << endl
                      << endl;
 
-    for (const auto& [name, [[maybe_unused]] value]: m_attributes)
+    for (const auto& [name, value]: m_attributes)
     {
         attributeNames.push_back(name);
     }
@@ -394,7 +394,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     if (!m_attributes.empty())
     {
         classDeclaration << "   // Attributes" << endl;
-        for (const auto& [ [[maybe_unused]] name, attr]: m_attributes)
+        for (const auto& [name, attr]: m_attributes)
         {
             classDeclaration << "   " << attr->generate(true) << ";" << endl;
             initializer.copyCtor.push_back("m_" + attr->name() + "(other.m_" + attr->name() + ")");

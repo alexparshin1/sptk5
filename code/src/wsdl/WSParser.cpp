@@ -380,7 +380,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
 
     serviceDefinition << "private:" << endl
                       << endl;
-    for (const auto& [ [[maybe_unused]] name, operation]: m_operations)
+    for (const auto& [name, operation]: m_operations)
     {
         auto requestName = strip_namespace(operation.m_input->name());
         serviceDefinition << "    /**" << endl;
@@ -409,7 +409,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (const auto& [ [[maybe_unused]] name, operation]: m_operations)
+    for (const auto& [name, operation]: m_operations)
     {
         String requestName = strip_namespace(operation.m_input->name());
         serviceOperations.push_back(requestName);
@@ -434,7 +434,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << ": WSRequest(logEngine)" << endl;
     serviceImplementation << "{" << endl;
     serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
-    for (const auto& [ [[maybe_unused]] name, operation]: m_operations)
+    for (const auto& [name, operation]: m_operations)
     {
         auto requestName = strip_namespace(operation.m_input->name());
         serviceImplementation << "        {\"" << requestName << "\", "
@@ -568,7 +568,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (const auto& [ [[maybe_unused]] name, complexType]: m_complexTypeIndex.complexTypes())
+    for (const auto& [name, complexType]: m_complexTypeIndex.complexTypes())
     {
         SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
         sourceModule.open();

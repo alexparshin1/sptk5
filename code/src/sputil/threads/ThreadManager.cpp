@@ -95,7 +95,7 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     scoped_lock lock(m_mutex);
-    for (const auto& [ [[maybe_unused]] thread, threadSPtr]: m_runningThreads)
+    for (const auto& [thread, threadSPtr]: m_runningThreads)
     {
         m_joiner->push(threadSPtr);
         threadSPtr->terminate();
