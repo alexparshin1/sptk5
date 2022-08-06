@@ -51,19 +51,19 @@ Semaphore::~Semaphore()
 
 void Semaphore::terminate()
 {
-    scoped_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Semaphore::waiters() const
 {
-    scoped_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     return m_waiters;
 }
 
 void Semaphore::post()
 {
-    scoped_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     if (m_maxValue == 0 || m_value < m_maxValue)
     {
         ++m_value;
@@ -73,7 +73,7 @@ void Semaphore::post()
 
 void Semaphore::set(size_t value)
 {
-    scoped_lock lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
     if (m_value != value && (m_maxValue == 0 || value < m_maxValue))
     {
         m_value = value;
@@ -83,8 +83,32 @@ void Semaphore::set(size_t value)
 
 bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
-    auto timeoutAt = DateTime::Now() + timeout;
-    return sleep_until(timeoutAt);
+    unique_lock lock(m_lockMutex);
+
+    ++m_waiters;
+
+    // Wait until semaphore value is greater than 0
+    while (!m_terminated)
+    {
+        if (!m_condition.wait_for(lock,
+                                  timeout,
+                                  [this] {
+                                      return m_value > 0;
+                                  }))
+        {
+            --m_waiters;
+            return false;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    --m_value;
+    --m_waiters;
+
+    return true;
 }
 
 bool Semaphore::sleep_until(DateTime timeoutAt)
