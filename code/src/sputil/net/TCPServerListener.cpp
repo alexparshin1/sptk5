@@ -83,6 +83,10 @@ void TCPServerListener::threadFunction()
             scoped_lock lock(*this);
             if (m_listenerSocket.readyToRead(readTimeout))
             {
+                if (!m_listenerSocket.active())
+                {
+                    break;
+                }
                 acceptConnection();
             }
         }
