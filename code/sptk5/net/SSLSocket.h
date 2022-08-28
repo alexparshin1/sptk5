@@ -55,9 +55,9 @@ public:
     /**
      * Throws SSL error based on SSL function return code
      * @param function          SSL function name
-     * @param rc                SSL function return code
+     * @param resultCode        SSL function return code
      */
-    [[noreturn]] void throwSSLError(const String& function, int rc) const;
+    [[noreturn]] void throwSSLError(const String& function, int resultCode) const;
 
     /**
      * Constructor

@@ -279,10 +279,21 @@ public:
      * Reads data from the socket
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
-     * @param from              Optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from);
+
+    /**
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size)
+    {
+        return read(buffer, size, nullptr);
+    }
 
     /**
      * Reads data from the socket into memory buffer
@@ -290,10 +301,23 @@ public:
      * Buffer bytes() is set to number of bytes read
      * @param buffer            The output buffer
      * @param size              The number of bytes to read
-     * @param from              An optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from);
+
+    /**
+     * Reads data from the socket into memory buffer
+     *
+     * Buffer bytes() is set to number of bytes read
+     * @param buffer            The output buffer
+     * @param size              The number of bytes to read
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size)
+    {
+        return read(buffer, size, nullptr);
+    }
 
     /**
      * Reads data from the socket into memory buffer
@@ -301,10 +325,23 @@ public:
      * Buffer bytes() is set to number of bytes read
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
-     * @param from              Optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from);
+
+    /**
+     * Reads data from the socket into memory buffer
+     *
+     * Buffer bytes() is set to number of bytes read
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] size_t read(String& buffer, size_t size)
+    {
+        return read(buffer, size, nullptr);
+    }
 
     /**
      * Writes data to the socket
@@ -312,26 +349,59 @@ public:
      * If size is omited then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
-     * @param peer              Optional peer information
+     * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const uint8_t* buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
+    virtual size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer);
+
+    /**
+     * Writes data to the socket
+     *
+     * If size is omited then buffer is treated as zero-terminated string
+     * @param buffer            The memory buffer
+     * @param size              The memory buffer size
+     * @returns the number of bytes written to the socket
+     */
+    size_t write(const uint8_t* buffer, size_t size)
+    {
+        return write(buffer, size, nullptr);
+    }
 
     /**
      * Writes data to the socket
      * @param buffer            The memory buffer
-     * @param peer              Optional peer information
+     * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer);
 
     /**
      * Writes data to the socket
      * @param buffer            The memory buffer
-     * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
+    size_t write(const Buffer& buffer)
+    {
+        return write(buffer, nullptr);
+    }
+
+    /**
+     * Writes data to the socket
+     * @param buffer            The memory buffer
+     * @param peer              The peer information
+     * @returns the number of bytes written to the socket
+     */
+    virtual size_t write(const String& buffer, const sockaddr_in* peer);
+
+    /**
+     * Writes data to the socket
+     * @param buffer            The memory buffer
+     * @returns the number of bytes written to the socket
+     */
+    size_t write(const String& buffer)
+    {
+        return write(buffer, nullptr);
+    }
 
     /**
      * Reports true if socket is ready for reading from it
@@ -349,9 +419,9 @@ protected:
     /**
      * Set socket internal (OS) handle
      */
-    void setSocketFD(SOCKET fd)
+    void setSocketFD(SOCKET socket)
     {
-        m_sockfd = fd;
+        m_sockfd = socket;
     }
 
     /**

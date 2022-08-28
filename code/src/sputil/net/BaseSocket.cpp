@@ -113,7 +113,7 @@ void BaseSocket::blockingMode(bool blocking) const
     uint32_t arg = blocking ? 0 : 1;
     control(FIONBIO, &arg);
     u_long arg2 = arg;
-    const int rc = ioctlsocket(m_sockfd, FIONBIO, &arg2);
+    const int result = ioctlsocket(m_sockfd, FIONBIO, &arg2);
 #else
     int flags = fcntl(m_sockfd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
@@ -124,9 +124,9 @@ void BaseSocket::blockingMode(bool blocking) const
     {
         flags |= O_NONBLOCK;
     }
-    int rc = fcntl(m_sockfd, F_SETFL, flags);
+    int result = fcntl(m_sockfd, F_SETFL, flags);
 #endif
-    if (rc != 0)
+    if (result != 0)
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
 }
 
@@ -135,11 +135,11 @@ size_t BaseSocket::socketBytes()
     uint32_t bytes = 0;
     if (
 #ifdef _WIN32
-        int32_t rc = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+        int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
 #else
-        int32_t rc = ioctl(m_sockfd, FIONREAD, &bytes);
+        int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
-        rc < 0)
+        result < 0)
         THROW_SOCKET_ERROR("Can't get socket bytes");
 
     return bytes;
@@ -184,7 +184,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
     if (m_sockfd == INVALID_SOCKET)
         THROW_SOCKET_ERROR("Can't create socket");
 
-    int rc = 0;
+    int result = 0;
     string currentOperation;
 
     switch (openMode)
@@ -194,8 +194,8 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             if (timeoutMS != 0)
             {
                 blockingMode(false);
-                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-                switch (rc)
+                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+                switch (result)
                 {
                     case ENETUNREACH:
                         throw Exception("Network unreachable");
@@ -216,12 +216,12 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
                     close();
                     throw;
                 }
-                rc = 0;
+                result = 0;
                 blockingMode(true);
             }
             else
             {
-                rc = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
             }
             break;
 
@@ -235,10 +235,10 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
 #endif
             }
             currentOperation = "bind";
-            rc = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-            if (rc == 0 && m_type != SOCK_DGRAM)
+            result = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+            if (result == 0 && m_type != SOCK_DGRAM)
             {
-                rc = ::listen(m_sockfd, SOMAXCONN);
+                result = ::listen(m_sockfd, SOMAXCONN);
                 currentOperation = "listen";
             }
             break;
@@ -247,7 +247,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             break;
     }
 
-    if (rc != 0)
+    if (result != 0)
     {
         stringstream error;
         error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
@@ -324,7 +324,10 @@ void BaseSocket::close() noexcept
 
 void BaseSocket::attach(SOCKET socketHandle, bool)
 {
-    close();
+    if (active())
+    {
+        close();
+    }
     m_sockfd = socketHandle;
 }
 
@@ -377,7 +380,7 @@ size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
 {
     int bytes;
-    const auto* p = buffer;
+    const auto* ptr = buffer;
 
     if ((int) size == -1)
     {
@@ -390,17 +393,17 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     {
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_sockfd, (const char*) p, (int32_t) size, 0, (const sockaddr*) peer,
+            bytes = (int) sendto(m_sockfd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
                                  sizeof(sockaddr_in));
         }
         else
         {
-            bytes = (int) send(p, (int32_t) size);
+            bytes = (int) send(ptr, (int32_t) size);
         }
         if (bytes == -1)
             THROW_SOCKET_ERROR("Can't write to socket");
         remaining -= bytes;
-        p += bytes;
+        ptr += bytes;
     }
     return total;
 }
@@ -432,8 +435,8 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     WSAPOLLFD fdarray {};
     fdarray.fd = m_sockfd;
     fdarray.events = POLLRDNORM;
-    int rc = WSAPoll(&fdarray, 1, timeoutMS);
-    switch (rc)
+    int result = WSAPoll(&fdarray, 1, timeoutMS);
+    switch (result)
     {
         case 0:
             return false;
@@ -453,14 +456,14 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 
     pfd.fd = m_sockfd;
     pfd.events = POLLIN;
-    int rc = poll(&pfd, 1, timeoutMS);
-    if (rc < 0)
+    int result = poll(&pfd, 1, timeoutMS);
+    if (result < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
+    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
     {
         throw ConnectionException("Connection closed");
     }
-    return rc != 0;
+    return result != 0;
 #endif
 }
 
@@ -490,14 +493,14 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     struct pollfd pfd = {};
     pfd.fd = m_sockfd;
     pfd.events = POLLOUT;
-    int rc = poll(&pfd, 1, timeoutMS);
-    if (rc < 0)
+    int result = poll(&pfd, 1, timeoutMS);
+    if (result < 0)
         THROW_SOCKET_ERROR("Can't read from socket");
-    if (rc == 1 && (pfd.revents & CONNCLOSED) != 0)
+    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
     {
         throw Exception("Connection closed");
     }
-    return rc != 0;
+    return result != 0;
 #endif
 }
 

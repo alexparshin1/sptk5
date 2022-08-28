@@ -51,7 +51,9 @@ class CSSLLibraryLoader
     static void load_library()
     {
         OpenSSL_add_all_algorithms();
+#if OPENSSL_API_LEVEL < 20000
         ERR_load_BIO_strings();
+#endif
         ERR_load_crypto_strings();
         SSL_load_error_strings();
 
@@ -133,9 +135,9 @@ mutex* CSSLLibraryLoader::m_locks;
 
 CSSLLibraryLoader CSSLLibraryLoader::m_loader;
 
-void SSLSocket::throwSSLError(const String& function, int rc) const
+void SSLSocket::throwSSLError(const String& function, int resultCode) const
 {
-    int errorCode = SSL_get_error(m_ssl, rc);
+    int errorCode = SSL_get_error(m_ssl, resultCode);
     auto error = getSSLError(function.c_str(), errorCode);
     throw Exception(error, __FILE__, __LINE__);
 }
@@ -180,10 +182,10 @@ void SSLSocket::initContextAndSocket()
 
     if (!m_sniHostName.empty())
     {
-        if (auto rc = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
-            !rc)
+        if (auto result = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
+            !result)
         {
-            throwSSLError("SSL_set_tlsext_host_name", rc);
+            throwSSLError("SSL_set_tlsext_host_name", result);
         }
     }
 }
@@ -207,15 +209,15 @@ void SSLSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool
 
 bool SSLSocket::tryConnect(const DateTime& timeoutAt)
 {
-    int rc = SSL_connect(m_ssl);
-    if (rc == 1)
+    int result = SSL_connect(m_ssl);
+    if (result == 1)
     {
         return true;
     } // connected
-    if (rc <= 0)
+    if (result <= 0)
     {
         chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-        int errorCode = SSL_get_error(m_ssl, rc);
+        int errorCode = SSL_get_error(m_ssl, result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToRead(nextTimeout))
@@ -234,7 +236,7 @@ bool SSLSocket::tryConnect(const DateTime& timeoutAt)
             return false; // continue attempts
         }
     }
-    throwSSLError("SSL_connect", rc);
+    throwSSLError("SSL_connect", result);
 }
 
 void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& timeout)
@@ -246,11 +248,11 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
 
     if (timeout == chrono::milliseconds(0))
     {
-        if (int rc = SSL_connect(m_ssl);
-            rc <= 0)
+        if (int result = SSL_connect(m_ssl);
+            result <= 0)
         {
             close();
-            throwSSLError("SSL_connect", rc);
+            throwSSLError("SSL_connect", result);
         }
         return;
     }
@@ -279,10 +281,10 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
     if (fd() != socketHandle)
     {
         TCPSocket::attach(socketHandle, false);
-        int rc = SSL_set_fd(m_ssl, socketHandle);
-        if (rc <= 0)
+        int result = SSL_set_fd(m_ssl, socketHandle);
+        if (result <= 0)
         {
-            int32_t errorCode = SSL_get_error(m_ssl, rc);
+            int32_t errorCode = SSL_get_error(m_ssl, result);
             auto error = getSSLError("SSL_accept", errorCode);
             throw ConnectionException(error);
         }
@@ -295,10 +297,10 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
         return;
     }
 
-    int rc = SSL_accept(m_ssl);
-    if (rc <= 0)
+    int result = SSL_accept(m_ssl);
+    if (result <= 0)
     {
-        int32_t errorCode = SSL_get_error(m_ssl, rc);
+        int32_t errorCode = SSL_get_error(m_ssl, result);
         auto error = getSSLError("SSL_accept", errorCode);
 
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
@@ -363,13 +365,13 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
 {
     for (;;)
     {
-        int rc = SSL_read(m_ssl, buffer, (int) len);
-        if (rc >= 0)
+        int result = SSL_read(m_ssl, buffer, (int) len);
+        if (result >= 0)
         {
-            return rc;
+            return result;
         }
 
-        int error = SSL_get_error(m_ssl, rc);
+        int error = SSL_get_error(m_ssl, result);
         switch (error)
         {
             case SSL_ERROR_WANT_READ:
@@ -377,7 +379,7 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
                 break;
             default:
                 close();
-                throwSSLError("SSL_read", rc);
+                throwSSLError("SSL_read", result);
         }
     }
 
@@ -402,11 +404,11 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
         {
             writeLen = WRITE_BLOCK;
         }
-        int rc = SSL_write(m_ssl, ptr, (int) writeLen);
-        if (rc > 0)
+        int result = SSL_write(m_ssl, ptr, (int) writeLen);
+        if (result > 0)
         {
-            ptr += rc;
-            totalLen -= rc;
+            ptr += result;
+            totalLen -= result;
             if (totalLen == 0)
             {
                 return len;
@@ -414,7 +416,7 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
             continue;
         }
 
-        if (int32_t errorCode = SSL_get_error(m_ssl, rc);
+        if (int32_t errorCode = SSL_get_error(m_ssl, result);
             errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
         {
             throw Exception(getSSLError("writing to SSL connection", errorCode));
