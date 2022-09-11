@@ -24,11 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <mutex>
 #include <sptk5/threads/Semaphore.h>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
+#include <thread>
 #endif
 
 using namespace std;
@@ -55,7 +55,7 @@ void Semaphore::terminate()
     m_terminated = true;
 }
 
-size_t Semaphore::waiters() const
+size_t Semaphore::waiters()
 {
     lock_guard lock(m_lockMutex);
     return m_waiters;
@@ -73,7 +73,7 @@ void Semaphore::post()
 
 void Semaphore::set(size_t value)
 {
-    unique_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     if (m_value != value && (m_maxValue == 0 || value < m_maxValue))
     {
         m_value = value;
@@ -92,7 +92,7 @@ bool Semaphore::sleep_for(chrono::milliseconds timeout)
     {
         if (!m_condition.wait_for(lock,
                                   timeout,
-                                  [this] {
+                                  [this]() {
                                       return m_value > 0;
                                   }))
         {
@@ -159,6 +159,19 @@ TEST(SPTK_Semaphore, waitAndPost)
     started = ended;
     ended = DateTime::Now();
     EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+}
+
+TEST(SPTK_Semaphore, threads)
+{
+    Semaphore semaphore;
+
+    auto poster = thread([&semaphore]() {
+        //this_thread::sleep_for(chrono::milliseconds(10));
+        semaphore.post();
+    });
+    bool posted = semaphore.sleep_for(chrono::milliseconds(100));
+    EXPECT_TRUE(posted);
+    poster.join();
 }
 
 #endif

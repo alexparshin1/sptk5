@@ -48,7 +48,7 @@ class SP_EXPORT Semaphore
     /**
      * Mutex object
      */
-    mutable std::mutex m_lockMutex;
+    std::mutex m_lockMutex;
 
     /**
      * Mutex condition object
@@ -80,7 +80,7 @@ class SP_EXPORT Semaphore
     /**
      * Current number of waiters
      */
-    size_t waiters() const;
+    size_t waiters();
 
 public:
     /**
@@ -130,4 +130,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

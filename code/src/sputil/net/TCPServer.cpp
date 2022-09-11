@@ -133,6 +133,7 @@ void TCPServer::stop()
 {
     UniqueLock(m_mutex);
     ThreadPool::stop();
+    m_listenerThread->stop();
     m_listenerThread.reset();
 }
 
