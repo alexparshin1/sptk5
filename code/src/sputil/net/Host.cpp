@@ -28,6 +28,8 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
+#include <utility>
+
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
 #endif
