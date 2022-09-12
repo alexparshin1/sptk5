@@ -28,6 +28,7 @@
 
 #include <sptk5/sptk.h>
 #include <variant>
+#include <utility>
 
 namespace sptk {
 
