@@ -32,6 +32,8 @@
 #include <sptk5/VariantData.h>
 #include <sptk5/sptk.h>
 
+#include <utility>
+
 namespace sptk {
 
 namespace xdoc {
