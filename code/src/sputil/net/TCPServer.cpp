@@ -133,8 +133,11 @@ void TCPServer::stop()
 {
     UniqueLock(m_mutex);
     ThreadPool::stop();
-    m_listenerThread->stop();
-    m_listenerThread.reset();
+    if (m_listenerThread)
+    {
+        m_listenerThread->stop();
+        m_listenerThread.reset();
+    }
 }
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)

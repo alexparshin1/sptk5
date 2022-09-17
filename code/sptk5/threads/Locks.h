@@ -173,11 +173,11 @@ public:
     CompareLockInt(SharedMutex& lock1, SharedMutex& lock2);
 };
 
-#define UniqueLock(amutex) UniqueLockInt lock(amutex)
-#define TimedUniqueLock(amutex, timeout) UniqueLockInt lock(amutex, timeout, __FILE__, __LINE__)
-#define SharedLock(amutex) SharedLockInt lock(amutex)
-#define TimedSharedLock(amutex, timeout) SharedLockInt lock(amutex, timeout, __FILE__, __LINE__)
-#define CompareLock(mutex1, mutex2) CompareLockInt lock(mutex1, mutex2)
-#define CopyLock(destinationMutex, sourceMutex) CopyLockInt lock(destinationMutex, sourceMutex)
+#define UniqueLock(amutex) sptk::UniqueLockInt lock(amutex)
+#define TimedUniqueLock(amutex, timeout) sptk::UniqueLockInt lock(amutex, timeout, __FILE__, __LINE__)
+#define SharedLock(amutex) sptk::SharedLockInt lock(amutex)
+#define TimedSharedLock(amutex, timeout) sptk::SharedLockInt lock(amutex, timeout, __FILE__, __LINE__)
+#define CompareLock(mutex1, mutex2) sptk::CompareLockInt lock(mutex1, mutex2)
+#define CopyLock(destinationMutex, sourceMutex) sptk::CopyLockInt lock(destinationMutex, sourceMutex)
 
 } // namespace sptk

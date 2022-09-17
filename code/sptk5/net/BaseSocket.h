@@ -260,7 +260,7 @@ public:
     void getOption(int level, int option, int& value) const;
 
     /**
-     * Reads data from the socket in regular or TLS mode
+     * Reads data from the socket in regular or SSL mode
      * @param buffer            The destination buffer
      * @param len              The destination buffer size
      * @returns the number of bytes read from the socket

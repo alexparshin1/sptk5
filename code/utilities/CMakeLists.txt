@@ -1,22 +1,24 @@
-INCLUDE_DIRECTORIES (${SPTK_SOURCE_DIR})
-INCLUDE_DIRECTORIES (/usr/local/include)
+INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
+INCLUDE_DIRECTORIES(/usr/local/include)
 
-LINK_DIRECTORIES (${SPTK_BINARY_DIR})
+LINK_DIRECTORIES(${SPTK_BINARY_DIR})
 
 IF (UNIX)
-    LINK_LIBRARIES (pthread rt)
+    LINK_LIBRARIES(pthread rt)
 ENDIF (UNIX)
 
-ADD_EXECUTABLE (wsdl2cxx wsdl2cxx.cpp)
-TARGET_LINK_LIBRARIES (wsdl2cxx sputil5 spwsdl5 spdb5)
+ADD_EXECUTABLE(wsdl2cxx wsdl2cxx.cpp)
+TARGET_LINK_LIBRARIES(wsdl2cxx sputil5 spwsdl5 spdb5)
 
-FILE (GLOB utilities "${CMAKE_SOURCE_DIR}/utilities/wsdl2cxx")
+ADD_EXECUTABLE(xml2json xml2json.cpp)
+TARGET_LINK_LIBRARIES(xml2json sputil5)
+
+FILE(GLOB utilities "${CMAKE_SOURCE_DIR}/utilities/wsdl2cxx")
 INSTALL(
     TARGETS wsdl2cxx
     RUNTIME DESTINATION bin COMPONENT core
     LIBRARY DESTINATION lib COMPONENT core
     ARCHIVE DESTINATION lib COMPONENT core
-  )
+)
 
-ADD_SUBDIRECTORY (load_balance)
-
+ADD_SUBDIRECTORY(load_balance)
