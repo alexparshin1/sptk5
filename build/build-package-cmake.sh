@@ -42,8 +42,8 @@ CWD=`pwd`
 ./distclean.sh
 
 src_name="/build/output/${VERSION}/sptk_${VERSION}"
-[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst *
-[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst'
+[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
+[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j4 package || exit 1
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
