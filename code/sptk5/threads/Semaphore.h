@@ -45,63 +45,7 @@ namespace sptk {
  */
 class SP_EXPORT Semaphore
 {
-    /**
-     * Mutex object
-     */
-    std::mutex m_lockMutex;
-
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
-
-    /**
-     * Semaphore value
-     */
-    size_t m_value {0};
-
-    /**
-     * Semaphore max value
-     */
-    size_t m_maxValue {0};
-
-    /**
-     * Number of waiters
-     */
-    size_t m_waiters {0};
-
-    /**
-     * Terminated flag
-     */
-    bool m_terminated {false};
-
-    void terminate();
-
-    /**
-     * Current number of waiters
-     */
-    size_t waiters();
-
 public:
-    /**
-     * @brief Constructor
-     *
-     * Creates semaphore with starting value (default 0)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
-     */
-    explicit Semaphore(size_t startingValue = 0, size_t maxValue = 0);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~Semaphore();
-
-    /**
-     * @brief Set the semaphore value
-     */
-    void set(size_t value);
-
     /**
      * @brief Post the semaphore
      *
@@ -126,6 +70,26 @@ public:
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
     bool sleep_until(DateTime timeout);
+
+private:
+#if CXX_VERSION < 20
+    /**
+     * Mutex object
+     */
+    std::mutex m_lockMutex;
+
+    /**
+     * Mutex condition object
+     */
+    std::condition_variable m_condition;
+
+    /**
+     * Semaphore value
+     */
+    size_t m_value {0};
+#else
+    std::counting_semaphore<0x7FFFFFFF> m_value {0};
+#endif
 };
 /**
  * @}

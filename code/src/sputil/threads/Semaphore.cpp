@@ -34,114 +34,64 @@
 using namespace std;
 using namespace sptk;
 
-Semaphore::Semaphore(size_t startingValue, size_t maxValue)
-    : m_value(startingValue)
-    , m_maxValue(maxValue)
-{
-}
-
-Semaphore::~Semaphore()
-{
-    terminate();
-    do
-    {
-        post();
-    } while (waiters() > 0);
-}
-
-void Semaphore::terminate()
-{
-    lock_guard lock(m_lockMutex);
-    m_terminated = true;
-}
-
-size_t Semaphore::waiters()
-{
-    lock_guard lock(m_lockMutex);
-    return m_waiters;
-}
-
 void Semaphore::post()
 {
-    lock_guard lock(m_lockMutex);
-    if (m_maxValue == 0 || m_value < m_maxValue)
-    {
-        ++m_value;
-        m_condition.notify_one();
-    }
-}
-
-void Semaphore::set(size_t value)
-{
-    lock_guard lock(m_lockMutex);
-    if (m_value != value && (m_maxValue == 0 || value < m_maxValue))
-    {
-        m_value = value;
-        m_condition.notify_one();
-    }
+#if CXX_VERSION < 20
+    unique_lock lock(m_lockMutex);
+    ++m_value;
+    lock.unlock();
+    m_condition.notify_one();
+#else
+    m_value.release();
+#endif
 }
 
 bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
+#if CXX_VERSION < 20
     unique_lock lock(m_lockMutex);
 
-    ++m_waiters;
-
     // Wait until semaphore value is greater than 0
-    while (!m_terminated)
+    if (!m_condition.wait_for(lock,
+                              timeout,
+                              [this]() {
+                                  return m_value > 0;
+                              }))
     {
-        if (!m_condition.wait_for(lock,
-                                  timeout,
-                                  [this]() {
-                                      return m_value > 0;
-                                  }))
-        {
-            --m_waiters;
-            return false;
-        }
-        else
-        {
-            break;
-        }
+        return false;
     }
 
     --m_value;
-    --m_waiters;
 
     return true;
+#else
+    return m_value.try_acquire_for(timeout);
+#endif
 }
 
 bool Semaphore::sleep_until(DateTime timeoutAt)
 {
+#if CXX_VERSION < 20
     unique_lock lock(m_lockMutex);
 
-    ++m_waiters;
-
-    // Wait until semaphore value is greater than 0
-    while (!m_terminated)
+    if (!m_condition.wait_until(lock,
+                                timeoutAt.timePoint(),
+                                [this]() {
+                                    return m_value > 0;
+                                }))
     {
-        if (!m_condition.wait_until(lock,
-                                    timeoutAt.timePoint(),
-                                    [this]() {
-                                        return m_value > 0;
-                                    }))
+        if (timeoutAt < DateTime::Now())
         {
-            if (timeoutAt < DateTime::Now())
-            {
-                --m_waiters;
-                return false;
-            }
-        }
-        else
-        {
-            break;
+            return false;
         }
     }
 
     --m_value;
-    --m_waiters;
 
     return true;
+#else
+    return m_value.try_acquire_until(timeoutAt.timePoint());
+#endif
 }
 
 #ifdef USE_GTEST

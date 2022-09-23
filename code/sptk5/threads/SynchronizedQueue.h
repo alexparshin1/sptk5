@@ -69,8 +69,9 @@ public:
      */
     void push(T&& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue->push(std::move(data));
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -83,8 +84,9 @@ public:
      */
     void push(const T& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue->push(data);
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -209,4 +211,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -29,8 +29,7 @@
 constexpr const char* VERSION = "@VERSION@";
 constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
 
-/// @addtogroup utility Utility Classes
-/// @{
+@CXX_VERSION_DEFINE@
 
 @FLTK_DEFINE@
 @ODBC_DEFINE@
@@ -57,5 +56,3 @@ constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
 constexpr const char* TEST_DIRECTORY = "@TEST_DIRECTORY@";    ///< Directory that contains data, used in unit tests
 
 @BUILD_TEST_WS_DEFINE@
-
-/// @}
