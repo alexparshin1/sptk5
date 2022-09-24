@@ -268,6 +268,12 @@ public:
      */
     size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
 
+    template<typename T>
+    size_t read(T& value, sockaddr_in* from = nullptr)
+    {
+        return read((uint8_t*) &value, sizeof(T), from);
+    }
+
 protected:
     /**
      * Access to internal socket reader for derived classes
