@@ -27,6 +27,7 @@
 #include <sptk5/threads/Semaphore.h>
 
 #ifdef USE_GTEST
+#include <future>
 #include <gtest/gtest.h>
 #include <thread>
 #endif
@@ -115,13 +116,13 @@ TEST(SPTK_Semaphore, threads)
 {
     Semaphore semaphore;
 
-    auto poster = thread([&semaphore]() {
-        //this_thread::sleep_for(chrono::milliseconds(10));
+    auto poster = async([&semaphore]() {
         semaphore.post();
     });
-    bool posted = semaphore.sleep_for(chrono::milliseconds(100));
+    constexpr chrono::milliseconds timeout(100);
+    bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
     EXPECT_TRUE(posted);
-    poster.join();
+    poster.wait();
 }
 
 #endif
