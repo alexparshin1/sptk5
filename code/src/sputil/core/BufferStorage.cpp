@@ -40,7 +40,7 @@ BufferStorage::BufferStorage(size_t sz)
 
 void BufferStorage::adjustSize(size_t sz)
 {
-    constexpr size_t sizeGranularity {128};
+    constexpr size_t sizeGranularity {32};
     sz = (sz / sizeGranularity + 1) * sizeGranularity;
     reallocate(sz);
     m_buffer[sz] = 0;

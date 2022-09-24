@@ -26,9 +26,14 @@
 
 #pragma once
 
-#include <atomic>
 #include <chrono>
+
+#if CXX_VERSION < 20
 #include <condition_variable>
+#else
+#include <semaphore>
+#endif
+
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>

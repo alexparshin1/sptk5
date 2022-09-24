@@ -26,12 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
+#include <chrono>
+#include <condition_variable>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
-#include <condition_variable>
-#include <atomic>
-#include <chrono>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -41,18 +40,16 @@ namespace sptk {
  */
 
 /**
- * Generic unnamed semaphore class
+ * Generic flag class
  */
 class SP_EXPORT Flag
 {
 public:
-
     /**
      * Constructor
      *
      * Creates flag with starting value (default false)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
+     * @param startingValue     Starting flag value
      */
     explicit Flag(bool startingValue = false);
 
@@ -91,7 +88,7 @@ public:
     }
 
     /**
-     * Waits until the flag has the value
+     * Wait until the flag has the value
      * @param value             Value to wait for
      * @param timeout           Wait timeout
      * @return true if flag received the value, or false if timeout occurs
@@ -99,7 +96,7 @@ public:
     bool wait_for(bool value, std::chrono::milliseconds timeout);
 
     /**
-     * Waits until the flag has the value
+     * Wait until the flag has the value
      * @param value             Value to wait for
      * @param timeout           Wait timeout
      * @return true if flag received the value, or false if timeout occurs
@@ -107,7 +104,6 @@ public:
     bool wait_until(bool value, DateTime timeout);
 
 private:
-
     /**
      * Mutex object
      */
@@ -146,4 +142,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -29,7 +29,6 @@
 #ifdef USE_GTEST
 #include <future>
 #include <gtest/gtest.h>
-#include <thread>
 #endif
 
 using namespace std;
