@@ -33,11 +33,6 @@
 using namespace std;
 using namespace sptk;
 
-BufferStorage::BufferStorage(size_t sz)
-{
-    allocate(sz);
-}
-
 void BufferStorage::adjustSize(size_t sz)
 {
     constexpr size_t sizeGranularity {32};

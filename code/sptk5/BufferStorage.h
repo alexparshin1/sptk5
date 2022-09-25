@@ -48,7 +48,10 @@ public:
      *
      * Creates an empty buffer.
      */
-    BufferStorage() = default;
+    BufferStorage()
+        : m_buffer(16)
+    {
+    }
 
     /**
      * Constructor
@@ -57,7 +60,10 @@ public:
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit BufferStorage(size_t sz);
+    explicit BufferStorage(size_t sz)
+        : m_buffer(sz + 1)
+    {
+    }
 
     /**
      * Copy constructor
@@ -342,8 +348,8 @@ protected:
     }
 
 private:
-    std::vector<uint8_t> m_buffer {16}; ///< Actual storage
-    size_t m_bytes {0};                 ///< Actual size of the data in buffer
+    std::vector<uint8_t> m_buffer; ///< Actual storage
+    size_t m_bytes {0};            ///< Actual size of the data in buffer
 
 
     /**
