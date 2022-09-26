@@ -42,7 +42,7 @@ int main(int argc, const char* argv[])
     {
         documentData.loadFromFile(argv[1]);
         document.load(documentData);
-        fs::path outputFileName;
+        String outputFileName;
         if (extension == "xml")
         {
             document.exportTo(xdoc::DataFormat::JSON, documentData, true);
@@ -53,7 +53,7 @@ int main(int argc, const char* argv[])
             document.exportTo(xdoc::DataFormat::XML, documentData, true);
             outputFileName = matchExtension.s(argv[1], R"(\1.xml)");
         }
-        documentData.saveToFile(outputFileName);
+        documentData.saveToFile(outputFileName.c_str());
     }
     catch (const Exception& e)
     {
