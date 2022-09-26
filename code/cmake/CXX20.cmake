@@ -15,6 +15,6 @@ endmacro()
 # Sets the appropriate flag to enable C++20 support
 macro(enable_cxx20)
     if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
+        set(CMAKE_CXX_STANDARD 20)
     endif ()
 endmacro()
