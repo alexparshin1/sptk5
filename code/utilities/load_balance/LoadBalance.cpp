@@ -76,16 +76,21 @@ void LoadBalance::threadFunction()
     m_destinationEvents.run();
     m_listener.listen(m_listenerPort);
 
+    constexpr chrono::milliseconds acceptTimeout {500};
+
     while (!terminated())
     {
-        SOCKET sourceFD;
-        m_listener.accept(sourceFD, addr);
-        auto* channel = new Channel(m_sourceEvents, m_destinationEvents);
-        const Host& destination = m_destinations.loop();
-        const String& interfaceAddress = m_interfaces.loop();
+        Channel* channel {nullptr};
         try
         {
-            channel->open(sourceFD, interfaceAddress, destination);
+            SOCKET sourceFD;
+            if (m_listener.accept(sourceFD, addr, acceptTimeout))
+            {
+                channel = new Channel(m_sourceEvents, m_destinationEvents);
+                const Host& destination = m_destinations.loop();
+                const String& interfaceAddress = m_interfaces.loop();
+                channel->open(sourceFD, interfaceAddress, destination);
+            }
         }
         catch (const Exception& e)
         {

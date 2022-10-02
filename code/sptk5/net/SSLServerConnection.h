@@ -26,7 +26,9 @@
 
 #pragma once
 
+#include "SSLSocket.h"
 #include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/TCPServer.h>
 
 namespace sptk {
 /**
@@ -48,19 +50,19 @@ public:
      * @param server             TCP server
      * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
      */
-    SSLServerConnection(TCPServer& server, SOCKET connectionSocket)
-        : ServerConnection(server, connectionSocket, "SSLServerConnection")
+    SSLServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+        : ServerConnection(server, connectionSocket, ServerConnection::Type::SSL, connectionAddress, "SSLServerConnection", connectionFunction)
     {
-        setSocket(new SSLSocket);
-        socket().attach(connectionSocket);
+        auto sslSocket = std::make_shared<SSLSocket>();
+        setSocket(sslSocket);
+        sslSocket->loadKeys(server.getSSLKeys());
+        sslSocket->attach(connectionSocket, true);
     }
 
     /**
      * @brief Destructor
      */
-    virtual ~SSLServerConnection()
-    {
-    }
+    ~SSLServerConnection() override = default;
 };
 
 /**

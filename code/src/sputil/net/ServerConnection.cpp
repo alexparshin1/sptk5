@@ -63,11 +63,13 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress,
-                                   const String& taskName)
+ServerConnection::ServerConnection(TCPServer& server, SOCKET, Type type, const sockaddr_in* connectionAddress,
+                                   const String& taskName, const ServerConnection::Function& connectionFunction)
     : Runable(taskName)
     , m_server(server)
     , m_serial(nextSerial())
+    , m_type(type)
+    , m_connectionFunction(connectionFunction)
 {
     parseAddress(connectionAddress);
 }

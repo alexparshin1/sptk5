@@ -24,18 +24,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/URL.h>
 #include "sptk5/wsdl/WSConnection.h"
+#include <sptk5/net/URL.h>
 
 using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
                            WSServices& services, LogEngine& logEngine, const Options& options)
-    : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
-      m_services(services),
-      m_logger(logEngine, "(" + to_string(serial()) + ") "),
-      m_options(options)
+    : ServerConnection(server, connectionSocket, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
+    , m_services(services)
+    , m_logger(logEngine, "(" + to_string(serial()) + ") ")
+    , m_options(options)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
     {
@@ -74,8 +74,8 @@ void WSConnection::processSingleConnection(bool& done)
     m_logger.debug("Processing connection");
 
     if (constexpr chrono::seconds readTimeout30sec(30);
-        !socket().readyToRead(readTimeout30sec)                 // Client communication timeout
-        || socket().socketBytes() == 0)                         // Client closed connection
+        !socket().readyToRead(readTimeout30sec) // Client communication timeout
+        || socket().socketBytes() == 0)         // Client closed connection
     {
         socket().close();
         done = true;

@@ -375,8 +375,19 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
         switch (error)
         {
             case SSL_ERROR_WANT_READ:
-            case SSL_ERROR_WANT_WRITE:
+                // No data available yet
+                readyToRead(chrono::seconds(1));
                 break;
+            case SSL_ERROR_WANT_WRITE:
+                // The socket is busy
+                readyToWrite(chrono::seconds(1));
+                break;
+            case SSL_ERROR_NONE:
+                // No error, just retry
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+                // peer disconnected
+                return 0;
             default:
                 close();
                 throwSSLError("SSL_read", result);
@@ -417,7 +428,7 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
         }
 
         if (int32_t errorCode = SSL_get_error(m_ssl, result);
-            errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE)
+            errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE && errorCode != SSL_ERROR_NONE)
         {
             throw Exception(getSSLError("writing to SSL connection", errorCode));
         }

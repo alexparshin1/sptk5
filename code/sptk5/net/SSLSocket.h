@@ -113,6 +113,22 @@ public:
         return m_ssl;
     }
 
+    /**
+     * Reads data from SSL socket
+     * @param buffer            Destination buffer
+     * @param size              Destination buffer size
+     * @return the number of bytes read from the socket
+     */
+    size_t recv(uint8_t* buffer, size_t size) override;
+
+    /**
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
+     * @return the number of bytes sent the socket
+     */
+    size_t send(const uint8_t* buffer, size_t len) override;
+
 protected:
     /**
      * Initialize SSL context and socket structures
@@ -139,23 +155,6 @@ protected:
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
     void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
-
-    /**
-     * Reads data from SSL socket
-     * @param buffer            Destination buffer
-     * @param size              Destination buffer size
-     * @return the number of bytes read from the socket
-     */
-    size_t recv(uint8_t* buffer, size_t size) override;
-
-    /**
-     * Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
-     */
-
-    size_t send(const uint8_t* buffer, size_t len) override;
 
     /**
      * Get error description for SSL error code

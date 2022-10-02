@@ -26,44 +26,99 @@
 
 #pragma once
 
+#include "sptk5/net/SSLServerConnection.h"
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
 
 namespace sptk {
 
 /**
- * Not encrypted connection to echo server
+ * Not encrypted connection that echoes anything sent to it
  */
 class EchoConnection
     : public TCPServerConnection
 {
 public:
-    EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress);
+    EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+        : TCPServerConnection(server, connectionSocket, connectionAddress, connectionFunction)
+    {
+    }
 
     ~EchoConnection() override = default;
 
-    /**
-     * Terminate connection thread
-     */
-    void terminate() override;
-
-    /**
-     * Connection thread function
-     */
-    void run() override;
+    static void connectionFunction(Runable& task, TCPSocket& socket, const String& address);
 };
 
 /**
- * @brief Echo server used in unit tests
+ * Not encrypted connection that pushes data as fast as possible
  */
-class EchoServer
+class PushConnection
+    : public TCPServerConnection
+{
+public:
+    PushConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+        : TCPServerConnection(server, connectionSocket, connectionAddress, connectionFunction)
+    {
+        socket().blockingMode(false);
+    }
+
+    ~PushConnection() override = default;
+
+    static void connectionFunction(Runable& task, TCPSocket& socket, const String& address);
+};
+
+/**
+ * Encrypted connection that echoes anything sent to it
+ */
+class EchoSslConnection
+    : public SSLServerConnection
+{
+public:
+    EchoSslConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+        : SSLServerConnection(server, connectionSocket, connectionAddress, connectionFunction)
+    {
+    }
+
+    ~EchoSslConnection() override = default;
+
+    static void connectionFunction(Runable& task, TCPSocket& socket, const String& address);
+};
+
+/**
+ * Encrypted connection that pushes data as fast as possible
+ */
+class PushSslConnection
+    : public SSLServerConnection
+{
+public:
+    PushSslConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
+        : SSLServerConnection(server, connectionSocket, connectionAddress, connectionFunction)
+    {
+    }
+
+    ~PushSslConnection() override = default;
+
+    static void connectionFunction(Runable& task, TCPSocket& socket, const String& address);
+};
+
+/**
+ * @brief Test server used in unit tests
+ */
+template<typename ConnectionThreadType>
+class TestServer
     : public TCPServer
 {
 public:
-    EchoServer();
+    TestServer()
+        : TCPServer("TestServer", ServerConnection::Type::TCP)
+    {
+    }
 
 protected:
-    SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override
+    {
+        return make_shared<ConnectionThreadType>(*this, connectionSocket, peer);
+    }
 };
 
 } // namespace sptk

@@ -56,14 +56,23 @@ class SP_EXPORT ServerConnection
     friend class TCPServer;
 
 public:
+    enum class Type
+    {
+        TCP,
+        SSL
+    };
+
+    using Function = std::function<void(Runable& task, TCPSocket& socket, const String& address)>;
+
     /**
      * Constructor
      * @param server            Server that created this connection
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
+     * @param connectionFunction Connection function processing this connection
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
-                     const String& taskName);
+    ServerConnection(TCPServer& server, SOCKET connectionSocket, Type type, const sockaddr_in* connectionAddress,
+                     const String& taskName, const ServerConnection::Function& connectionFunction = {});
 
     /**
      * Access to internal socket for derived classes
@@ -104,18 +113,30 @@ protected:
 
     void parseAddress(const sockaddr_in* connectionAddress);
 
+protected:
+    void run() override
+    {
+        if (m_connectionFunction)
+        {
+            m_connectionFunction(*this, socket(), address());
+        }
+    }
+
 private:
     mutable std::mutex m_mutex;
     TCPServer& m_server; ///< Parent server object
     STCPSocket m_socket; ///< Connection socket
     String m_address;    ///< Incoming connection IP address
     size_t m_serial {0}; ///< Connection serial number
+    Type m_type;         ///< Connection type (TCP or SSL)
 
     /**
      * Create next connection serial number
      * @return
      */
     static size_t nextSerial();
+
+    ServerConnection::Function m_connectionFunction;
 };
 
 using SServerConnection = std::shared_ptr<ServerConnection>;

@@ -194,8 +194,10 @@ public:
      * When incoming connection is made, exits returning the connection info
      * @param clientSocketFD    Connected client socket FD
      * @param clientInfo        Connected client info
+     * @param timeout           Accept operation timeout
+     * @returns                 True if accepted a connection
      */
-    virtual void accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo);
+    [[nodiscard]] virtual bool accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
 
     /**
      * Returns number of bytes available in socket

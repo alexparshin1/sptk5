@@ -107,7 +107,7 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-void BaseSocket::blockingMode(bool blocking) const
+void BaseSocket::blockingMode(bool blocking)
 {
 #ifdef _WIN32
     uint32_t arg = blocking ? 0 : 1;
@@ -128,6 +128,8 @@ void BaseSocket::blockingMode(bool blocking) const
 #endif
     if (result != 0)
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
+
+    m_blockingMode = blocking;
 }
 
 size_t BaseSocket::socketBytes()
@@ -147,12 +149,31 @@ size_t BaseSocket::socketBytes()
 
 size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 {
-    return (size_t)::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
+    if (result == -1)
+    {
+        constexpr chrono::seconds timeout(30);
+        if (readyToRead(timeout))
+        {
+            result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+        }
+    }
+    return (size_t) result;
 }
 
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
-    return (size_t)::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+    auto res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, MSG_DONTWAIT);
+    if (res < 0)
+    {
+        constexpr chrono::seconds timeout {30};
+
+        if (readyToWrite(timeout))
+        {
+            res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+        }
+    }
+    return res;
 }
 
 int32_t BaseSocket::control(int flag, const uint32_t* check) const

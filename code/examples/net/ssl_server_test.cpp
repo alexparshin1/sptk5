@@ -26,27 +26,29 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 void readAndReply(SSLSocket& socket)
 {
-    array<char,1024>    buffer;
-    array<char,1024>    reply;
-    size_t      bytes;
+    array<char, 1024> buffer;
+    array<char, 1024> reply;
+    size_t bytes;
 
-    const char* HTMLecho="<html><body><pre>%s</pre></body></html>\n\n";
+    const char* HTMLecho = "<html><body><pre>%s</pre></body></html>\n\n";
 
-    if (!socket.readyToRead(chrono::seconds(3))) {
+    if (!socket.readyToRead(chrono::seconds(3)))
+    {
         CERR("Read timeout" << endl)
         return;
     }
 
     bytes = socket.socketBytes();
-    if (bytes == 0) {
+    if (bytes == 0)
+    {
         COUT("Connection is closed by client" << endl)
         return;
     }
@@ -64,45 +66,54 @@ void readAndReply(SSLSocket& socket)
 void processConnection(SOCKET clientSocketFD)
 {
     SSLSocket connection;
-    SSLKeys   keys("key.pem", "cert.pem", "");
+    SSLKeys keys("key.pem", "cert.pem", "");
     connection.loadKeys(keys);
-    try {
+    try
+    {
         connection.attach(clientSocketFD, false);
-                readAndReply(connection);         /* service connection */
-                connection.close();
-            }
-            catch (const Exception& e) {
-                CERR(e.what() << endl)
-            }
+        readAndReply(connection); /* service connection */
+        connection.close();
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.what() << endl)
+    }
 }
 
-int main(int argc, const char *argv[])
+int main(int argc, const char* argv[])
 {
     int port = string2int(argv[1]);
 
-    if (argc != 2 || port == 0) {
+    if (argc != 2 || port == 0)
+    {
         COUT("Usage: " << argv[0] << "<portnum>" << endl)
         return 1;
     }
 
-    try {
+    try
+    {
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
         server.listen();
+
+        constexpr chrono::milliseconds acceptTimeout {500};
 
         while (true)
         {
             SOCKET clientSocketFD;
             struct sockaddr_in clientInfo = {};
 
-            server.accept(clientSocketFD, clientInfo);
-            COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port))
+            if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
+            {
+                COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port))
 
-            processConnection(clientSocketFD);
+                processConnection(clientSocketFD);
+            }
         }
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl)
     }
 }

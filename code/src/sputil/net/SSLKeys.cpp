@@ -119,3 +119,8 @@ String SSLKeys::ident() const
     buffer.append(to_string(m_verifyDepth));
     return {buffer.c_str(), buffer.length()};
 }
+
+bool SSLKeys::empty() const
+{
+    return m_certificateFileName.empty();
+}

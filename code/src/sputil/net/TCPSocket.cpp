@@ -211,11 +211,6 @@ size_t TCPSocketReader::read(uint8_t* destination, size_t sz, char delimiter, bo
     int total = 0;
     int eol = 0;
 
-    if (m_socket.fd() <= 0)
-    {
-        throw Exception("Can't read from closed socket", __FILE__, __LINE__);
-    }
-
     while (eol == 0)
     {
         int bytesToRead = int(sz) - total;
@@ -307,6 +302,7 @@ void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, 
     {
         host(_host);
     }
+
     if (host().hostname().empty())
     {
         throw Exception("Please, define the host name", __FILE__, __LINE__);
@@ -344,12 +340,32 @@ void TCPSocket::close() noexcept
     BaseSocket::close();
 }
 
-void TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo)
+bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
 {
     socklen_t len = sizeof(clientInfo);
-    clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
-    if (clientSocketFD == INVALID_SOCKET)
-        THROW_SOCKET_ERROR("Error on accept(). ");
+    if (!blockingMode())
+    {
+        clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
+        if (clientSocketFD > 0)
+        {
+            return true;
+        }
+        if (clientSocketFD == INVALID_SOCKET)
+        {
+            THROW_SOCKET_ERROR("Error on accept(). ");
+        }
+    }
+    if (readyToRead(timeout))
+    {
+        clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
+        if (clientSocketFD > 0)
+        {
+            return true;
+        }
+        if (clientSocketFD == INVALID_SOCKET)
+            THROW_SOCKET_ERROR("Error on accept(). ");
+    }
+    return false;
 }
 
 size_t TCPSocket::socketBytes()

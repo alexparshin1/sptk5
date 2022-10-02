@@ -154,7 +154,7 @@ public:
      * Set blocking mode
      * @param blocking          Socket blocking mode flag
      */
-    void blockingMode(bool blocking) const;
+    void blockingMode(bool blocking);
 
     /**
      * Returns number of bytes available in socket
@@ -415,6 +415,15 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
 
+    /**
+     * @brief Return current blocking mode state
+     * @return Current blocking mode state
+     */
+    [[nodiscard]] bool blockingMode() const
+    {
+        return m_blockingMode;
+    }
+
 protected:
     /**
      * Set socket internal (OS) handle
@@ -488,6 +497,7 @@ private:
     int32_t m_type;                   ///< Socket type
     int32_t m_protocol;               ///< Socket protocol
     Host m_host;                      ///< Host
+    bool m_blockingMode {false};      ///< Blocking mode flag
 };
 
 /**

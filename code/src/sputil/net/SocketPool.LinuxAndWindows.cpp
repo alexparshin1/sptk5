@@ -130,17 +130,22 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
     int eventCount = epoll_wait(m_pool, events.data(), MAXEVENTS, (int) timeout.count());
     if (eventCount < 0)
     {
+        if (m_pool == INVALID_EPOLL)
+        {
+            throw Exception("Attempt to use closed epoll");
+        }
+
         return;
     }
 
-    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i)
+    for (int i = 0; i < eventCount; ++i)
     {
         epoll_event& event = events[i];
-        if ((event.events & EPOLLIN) != 0)
+        if (event.events & EPOLLIN)
         {
             m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::HAS_DATA);
         }
-        else if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
+        else if (event.events & (EPOLLHUP | EPOLLRDHUP))
         {
             m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::CONNECTION_CLOSED);
         }

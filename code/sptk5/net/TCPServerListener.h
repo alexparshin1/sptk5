@@ -104,7 +104,7 @@ private:
     TCPSocket m_listenerSocket;          ///< Listener socket
     String m_error;                      ///< Last socket error
 
-    void acceptConnection(); ///< Accept connection
+    void acceptConnection(std::chrono::milliseconds timeout); ///< Accept connection
 };
 
 /**

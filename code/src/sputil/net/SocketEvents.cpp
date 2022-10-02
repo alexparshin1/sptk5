@@ -28,7 +28,7 @@
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
 
-#include "EchoServer.h"
+#include "TestServer.h"
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
@@ -205,7 +205,7 @@ TEST(SPTK_SocketEvents, minimal)
 
     try
     {
-        EchoServer echoServer;
+        TestServer<EchoConnection> echoServer;
         echoServer.listen(testEchoServerPort);
 
         Strings testRows({"Hello, World!",

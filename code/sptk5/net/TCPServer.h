@@ -142,8 +142,8 @@ public:
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
      */
-    explicit TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
-                       const LogDetails& logDetails = LogDetails());
+    TCPServer(const String& listenerName, ServerConnection::Type connectionType, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
+              const LogDetails& logDetails = LogDetails());
 
     /**
      * Destructor
@@ -230,7 +230,16 @@ protected:
      * @param connectionSocket  Already accepted incoming connection socket
      * @param peer              Incoming connection information
      */
-    virtual SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) = 0;
+    virtual SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer);
+
+    /**
+     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param function          User-defined function that is called upon client connection to server
+     */
+    virtual void onConnection(const ServerConnection::Function& function);
 
     /**
      * Thread event callback function
@@ -249,6 +258,8 @@ private:
     std::shared_ptr<SSLKeys> m_sslKeys;                  ///< Optional SSL keys. Only used for SSL server.
     Host m_host;                                         ///< This host
     LogDetails m_logDetails;                             ///< Log details
+    ServerConnection::Type m_connectionType;             ///< Connection type (TCP or SSL)
+    ServerConnection::Function m_connectionFunction;     ///< User-defined function that is called upon client connection to server
 };
 
 /**

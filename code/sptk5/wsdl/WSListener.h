@@ -72,7 +72,7 @@ protected:
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    SServerConnection createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override;
 
 private:
     mutable SharedMutex m_mutex;     ///< Mutex that protects internal data

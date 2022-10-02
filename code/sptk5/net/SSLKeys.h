@@ -36,20 +36,6 @@ namespace sptk {
 
 class SP_EXPORT SSLKeys
 {
-    mutable SharedMutex m_mutex;
-    String m_privateKeyFileName;
-    String m_certificateFileName;
-    String m_password;
-    String m_caFileName;
-    int m_verifyMode {SSL_VERIFY_NONE};
-    int m_verifyDepth {0};
-
-    /**
-     * Assign keys from another object
-     * @param other
-     */
-    void assign(const SSLKeys& other);
-
 public:
     /**
      * Default constructor
@@ -125,6 +111,23 @@ public:
      * @return number of certificates to verify
      */
     int verifyDepth() const;
+
+    bool empty() const;
+
+private:
+    mutable SharedMutex m_mutex;
+    String m_privateKeyFileName;
+    String m_certificateFileName;
+    String m_password;
+    String m_caFileName;
+    int m_verifyMode {SSL_VERIFY_NONE};
+    int m_verifyDepth {0};
+
+    /**
+     * Assign keys from another object
+     * @param other
+     */
+    void assign(const SSLKeys& other);
 };
 
 } // namespace sptk

@@ -32,7 +32,7 @@ using namespace sptk;
 
 WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                        const WSConnection::Options& options)
-    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
+    : TCPServer(services.get("").title(), ServerConnection::Type::SSL, threadCount, &logger, options.logDetails)
     , m_services(services)
     , m_logger(logger)
     , m_options(options)
@@ -52,7 +52,7 @@ WSListener::WSListener(const WSServices& services, LogEngine& logger, const Stri
     }
 }
 
-SServerConnection WSListener::createConnection(SOCKET connectionSocket, sockaddr_in* peer)
+SServerConnection WSListener::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
 {
     return make_shared<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
 }

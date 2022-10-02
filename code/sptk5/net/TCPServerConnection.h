@@ -50,12 +50,23 @@ public:
      * @param server            TCP server
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param connectionAddress Incoming connection address
+     * @param connectionFunction Connection function executed for each new client connection to server
      */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-        : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
+    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+        : ServerConnection(server, connectionSocket, ServerConnection::Type::TCP, connectionAddress,
+                           "TCPServerConnection", connectionFunction)
     {
         setSocket(std::make_shared<TCPSocket>());
         socket().attach(connectionSocket, false);
+    }
+
+    /**
+     * Terminate connection thread
+     */
+    void terminate() override
+    {
+        socket().close();
+        ServerConnection::terminate();
     }
 };
 

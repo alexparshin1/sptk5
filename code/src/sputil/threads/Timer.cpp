@@ -63,6 +63,11 @@ public:
     {
     }
 
+    ~TimerThread() override
+    {
+        m_semaphore.post();
+    }
+
     void schedule(Timer::Event& event)
     {
         scoped_lock lock(m_scheduledMutex);

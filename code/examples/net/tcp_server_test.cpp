@@ -82,13 +82,19 @@ int main()
 
         COUT("Listening on port 3000\n")
 
-        server.accept(clientSocketFD, clientInfo);
-
-        processConnection(server, clientSocketFD);
+        constexpr chrono::milliseconds acceptTimeout {3000};
+        if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
+        {
+            processConnection(server, clientSocketFD);
+        }
+        else
+        {
+            CERR("Timeout waiting for connection to test server" << endl)
+        }
     }
     catch (const Exception& e)
     {
-        COUT("Exception was caught: " << e.what() << "\nExiting.\n")
+        CERR("Exception was caught: " << e.what() << "\nExiting.\n")
     }
     COUT("Server session closed\n")
     return 0;
