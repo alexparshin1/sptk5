@@ -27,10 +27,10 @@
 #include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
-
-#include "TestServer.h"
+#include <sptk5/net/TCPSocket.h>
 
 #ifdef USE_GTEST
+#include "sptk5/net/TCPServer.h"
 #include <gtest/gtest.h>
 #endif
 
@@ -130,66 +130,48 @@ size_t SocketEvents::size() const
 
 static constexpr uint16_t testEchoServerPort = 5001;
 
-class Reader
-    : public TCPSocket
+static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
-public:
-    explicit Reader(const Strings& testRows)
-        : m_testRows(testRows)
-        , m_current(m_testRows.begin())
+    Buffer data;
+    while (!task.terminated())
     {
-    }
-
-    void start()
-    {
-        write(*m_current + "\n");
-    }
-
-    void receive()
-    {
-        Buffer buffer;
-        auto bytes = socketBytes();
-        TCPSocket::read(buffer, bytes);
-        auto received = String(buffer).trim();
-        COUT(received << endl)
-        if (*m_current != received)
+        try
         {
-            m_done.post();
-        }
-        else
-        {
-            m_current++;
-            if (m_current == m_testRows.end())
+            if (socket.readyToRead(chrono::seconds(1)))
             {
-                m_done.post();
+                if (socket.readLine(data) == 0)
+                {
+                    return;
+                }
+                string str(data.c_str());
+                str += "\n";
+                socket.write(str);
             }
             else
             {
-                write(*m_current + "\n");
+                break;
             }
         }
+        catch (const Exception& e)
+        {
+            CERR(e.what() << endl)
+        }
     }
-
-    bool wait()
-    {
-        return m_done.sleep_for(chrono::seconds(10));
-    }
-
-private:
-    const Strings m_testRows;
-    Strings::const_iterator m_current;
-    Semaphore m_done;
-};
+    socket.close();
+}
 
 TEST(SPTK_SocketEvents, minimal)
 {
-    auto eventsCallback = [](uint8_t* userData, SocketEventType eventType) {
-        auto* reader = (Reader*) userData;
+    Semaphore eventReceived;
+    auto eventsCallback = [&eventReceived](uint8_t* userData, SocketEventType eventType) {
+        auto* reader = (TCPSocket*) userData;
+        String line;
         switch (eventType)
         {
             case SocketEventType::HAS_DATA:
-                COUT("Socket has data: ")
-                reader->receive();
+                reader->readLine(line);
+                COUT("Socket has data: " << line << endl)
+                eventReceived.post();
                 break;
             case SocketEventType::CONNECTION_CLOSED:
                 COUT("Socket closed" << endl)
@@ -205,7 +187,8 @@ TEST(SPTK_SocketEvents, minimal)
 
     try
     {
-        TestServer<EchoConnection> echoServer;
+        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        echoServer.onConnection(echoTestFunction);
         echoServer.listen(testEchoServerPort);
 
         Strings testRows({"Hello, World!",
@@ -214,16 +197,22 @@ TEST(SPTK_SocketEvents, minimal)
                           "The session is terminated when this row is received",
                           ""});
 
-        Reader socket(testRows);
+        TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        Semaphore semaphore1;
         socketEvents.add(socket, (uint8_t*) &socket);
 
-        socket.start();
-        socket.wait();
+        size_t receivedEventCount {0};
+        String hello("Hello, World!\n");
+        auto sentBytes = socket.send((const uint8_t*) hello.c_str(), hello.length());
+        if (eventReceived.sleep_for(chrono::milliseconds(10)))
+        {
+            receivedEventCount++;
+        }
         socketEvents.remove(socket);
         socket.close();
+        EXPECT_EQ(1u, receivedEventCount);
+        EXPECT_EQ(hello.length(), sentBytes);
     }
     catch (const Exception& e)
     {

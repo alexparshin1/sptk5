@@ -62,7 +62,7 @@ public:
         SSL
     };
 
-    using Function = std::function<void(Runable& task, TCPSocket& socket, const String& address)>;
+    using Function = std::function<void(const Runable& task, TCPSocket& socket, const String& address)>;
 
     /**
      * Constructor
@@ -113,7 +113,6 @@ protected:
 
     void parseAddress(const sockaddr_in* connectionAddress);
 
-protected:
     void run() override
     {
         if (m_connectionFunction)
@@ -124,19 +123,18 @@ protected:
 
 private:
     mutable std::mutex m_mutex;
-    TCPServer& m_server; ///< Parent server object
-    STCPSocket m_socket; ///< Connection socket
-    String m_address;    ///< Incoming connection IP address
-    size_t m_serial {0}; ///< Connection serial number
-    Type m_type;         ///< Connection type (TCP or SSL)
+    TCPServer& m_server;                             ///< Parent server object
+    STCPSocket m_socket;                             ///< Connection socket
+    String m_address;                                ///< Incoming connection IP address
+    size_t m_serial {0};                             ///< Connection serial number
+    Type m_type;                                     ///< Connection type (TCP or SSL)
+    ServerConnection::Function m_connectionFunction; ///< Function that is executed for each client connection
 
     /**
      * Create next connection serial number
      * @return
      */
     static size_t nextSerial();
-
-    ServerConnection::Function m_connectionFunction;
 };
 
 using SServerConnection = std::shared_ptr<ServerConnection>;

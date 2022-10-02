@@ -205,6 +205,15 @@ public:
      */
     const SSLKeys& getSSLKeys() const;
 
+    /**
+     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
+     *
+     * Application should override this method to create concrete connection object.
+     * Created connection object is maintained by CTCPServer.
+     * @param function          User-defined function that is called upon client connection to server
+     */
+    virtual void onConnection(const ServerConnection::Function& function);
+
 protected:
     /**
      * Modify server host.
@@ -231,15 +240,6 @@ protected:
      * @param peer              Incoming connection information
      */
     virtual SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer);
-
-    /**
-     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
-     *
-     * Application should override this method to create concrete connection object.
-     * Created connection object is maintained by CTCPServer.
-     * @param function          User-defined function that is called upon client connection to server
-     */
-    virtual void onConnection(const ServerConnection::Function& function);
 
     /**
      * Thread event callback function
