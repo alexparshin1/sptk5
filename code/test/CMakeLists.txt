@@ -8,6 +8,8 @@ IF (GTEST_FLAG)
     ADD_EXECUTABLE(unit_tests unit_tests.cpp)
     TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 spwsdl5 sptest gtest)
 
+    INSTALL(TARGETS unit_tests RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+
     IF (BUILD_TEST_WS)
         TARGET_LINK_LIBRARIES(unit_tests WebServiceUnitTests)
     ENDIF ()

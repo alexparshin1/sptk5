@@ -2,7 +2,7 @@
 
 OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
 OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
-PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')
+PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')  #'
 
 echo $OS_NAME $OS_VERSION
 echo
@@ -45,7 +45,8 @@ src_name="/build/output/${VERSION}/sptk_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
-cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j4 package || exit 1
+#cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j4 package || exit 1
+cmake . -DCMAKE_INSTALL_PREFIX=/usr/local -DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j4 package install || exit 1
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
 for fname in *.rpm *.deb
@@ -55,5 +56,9 @@ do
 done
 
 ./distclean.sh
+
+export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+cd test && /usr/local/bin/unit_tests
+ls -l /usr/local/lib
 
 exit 0
