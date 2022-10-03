@@ -80,7 +80,7 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
-        switch (message->priority)
+        switch ((int)message->priority)
         {
             case LOG_EMERG:
             case LOG_ALERT:

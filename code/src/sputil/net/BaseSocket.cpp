@@ -149,7 +149,11 @@ size_t BaseSocket::socketBytes()
 
 size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 {
+#ifdef _WIN32
+    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+#else
     auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
+#endif
     if (result == -1)
     {
         constexpr chrono::seconds timeout(30);
@@ -163,7 +167,11 @@ size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
+#ifdef _WIN32
+    auto res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+#else
     auto res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, MSG_DONTWAIT);
+#endif
     if (res < 0)
     {
         constexpr chrono::seconds timeout {30};
