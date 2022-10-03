@@ -202,17 +202,12 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
 {
     try
     {
-        COUT("Start" << endl)
         TCPServer pushTcpServer("Performance Test Server", ServerConnection::Type::TCP);
         pushTcpServer.onConnection(performanceTestFunction);
         pushTcpServer.listen(testTcpEchoServerPort);
 
-        COUT("Client connecting" << endl)
-
         TCPSocket socket;
         socket.open(Host("localhost", testTcpEchoServerPort));
-
-        COUT("Client connected" << endl)
 
         constexpr size_t readSize {50};
         auto readBuffer = make_shared<Buffer>(readSize);
@@ -222,7 +217,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         StopWatch stopWatch;
         stopWatch.start();
 
-        while (true)
+        while (packetCount < packetsInTest)
         {
             if (auto rc = socket.recv(readBuffer->data(), readSize);
                 rc == 0)
@@ -255,34 +250,20 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
     auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
     pushSslServer.setSSLKeys(keys);
 
-    try
-    {
-        pushSslServer.listen(testSslEchoServerPort);
-    }
-    catch (const exception& e)
-    {
-        FAIL() << "Can't listen: " << e.what();
-    }
-
-    SSLSocket socket;
-    try
-    {
-        socket.open(Host("localhost", testSslEchoServerPort));
-        socket.blockingMode(false);
-    }
-    catch (const exception& e)
-    {
-        FAIL() << "Can't connect to server: " << e.what();
-    }
-
     size_t packetCount = 0;
 
     constexpr size_t readSize {50};
     StopWatch stopWatch;
     String failReason;
-        
+
     try
     {
+        pushSslServer.listen(testSslEchoServerPort);
+
+        SSLSocket socket;
+        socket.open(Host("localhost", testSslEchoServerPort));
+        socket.blockingMode(false);
+
         auto readBuffer = make_shared<Buffer>(readSize);
 
         stopWatch.start();
@@ -294,7 +275,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
             {
                 break;
             }
-            if (rc != readSize) 
+            if (rc != readSize)
             {
                 throw Exception("Incomplete read");
             }
@@ -313,7 +294,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
     COUT("Received " << packetCount << " packets for " << fixed << setprecision(2) << stopWatch.seconds() << " sec, at the rate " << packetCount / stopWatch.seconds() << "/s, or "
                      << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
 
-    if (!failReason.empty()) 
+    if (!failReason.empty())
     {
         FAIL() << failReason;
     }
