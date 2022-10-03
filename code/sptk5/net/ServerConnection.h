@@ -29,6 +29,7 @@
 #include <sptk5/net/TCPSocket.h>
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/Thread.h>
+#include <functional>
 
 #ifndef _WIN32
 

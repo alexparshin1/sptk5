@@ -506,7 +506,7 @@ private:
  * @param file              Source file name
  * @param line              Source file line number
  */
-void throwSocketError(const String& message, const char* file, int line);
+SP_EXPORT void throwSocketError(const String& message, const char* file, int line);
 
 #define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg, __FILE__, __LINE__)
 

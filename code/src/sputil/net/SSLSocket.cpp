@@ -46,7 +46,7 @@ class CSSLLibraryLoader
     static std::mutex* m_locks;
 #endif
 
-    static CSSLLibraryLoader m_loader;
+    [[maybe_unused]] static CSSLLibraryLoader m_loader;
 
     static void load_library()
     {
@@ -133,7 +133,7 @@ public:
 mutex* CSSLLibraryLoader::m_locks;
 #endif
 
-CSSLLibraryLoader CSSLLibraryLoader::m_loader;
+[[maybe_unused]] CSSLLibraryLoader CSSLLibraryLoader::m_loader;
 
 void SSLSocket::throwSSLError(const String& function, int resultCode) const
 {
@@ -363,6 +363,8 @@ size_t SSLSocket::socketBytes()
 
 size_t SSLSocket::recv(uint8_t* buffer, size_t len)
 {
+    static const chrono::seconds readTimeout(30);
+
     for (;;)
     {
         int result = SSL_read(m_ssl, buffer, (int) len);
@@ -376,11 +378,17 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
         {
             case SSL_ERROR_WANT_READ:
                 // No data available yet
-                readyToRead(chrono::seconds(1));
+                if (!readyToRead(readTimeout))
+                {
+                    throw Exception("SSL read timeout");
+                }
                 break;
             case SSL_ERROR_WANT_WRITE:
                 // The socket is busy
-                readyToWrite(chrono::seconds(1));
+                if (!readyToWrite(readTimeout))
+                {
+                    throw Exception("SSL write timeout");
+                }
                 break;
             case SSL_ERROR_NONE:
                 // No error, just retry

@@ -71,22 +71,24 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
     socket.close();
 }
 
+static const size_t packetsInTest = 100000;
+
 static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
-    const size_t packetCount = 100000;
     const size_t packetSize = 50;
+    const uint8_t eightBits = 255;
     Buffer data(packetSize);
 
     for (size_t i = 0; i < packetSize; ++i)
     {
-        data[i] = uint8_t(i % 255);
+        data[i] = uint8_t(i % eightBits);
     }
     data.bytes(packetSize);
 
     StopWatch stopWatch;
     stopWatch.start();
 
-    for (size_t packetNumber = 0; packetNumber < packetCount; ++packetNumber)
+    for (size_t packetNumber = 0; packetNumber < packetsInTest; ++packetNumber)
     {
         try
         {
@@ -103,9 +105,11 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     }
     stopWatch.stop();
 
-    COUT("Sent " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                 << packetCount * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+    COUT("Sent " << packetsInTest << " packets at the rate " << fixed << setprecision(2) << packetsInTest / stopWatch.seconds() << "/s, or "
+                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
 
+    const chrono::seconds tenSeconds(10);
+    socket.readyToRead(tenSeconds);
     socket.close();
 }
 
@@ -153,6 +157,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
 TEST(SPTK_TCPServer, sslMinimal)
 {
     Buffer buffer;
+    const chrono::milliseconds smallDelay(100);
 
     try
     {
@@ -163,7 +168,7 @@ TEST(SPTK_TCPServer, sslMinimal)
         echoServer.setSSLKeys(keys);
 
         echoServer.listen(testSslEchoServerPort);
-        this_thread::sleep_for(chrono::milliseconds(100));
+        this_thread::sleep_for(smallDelay);
 
         SSLSocket socket;
         socket.open(Host("localhost", testSslEchoServerPort));
@@ -215,7 +220,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         StopWatch stopWatch;
         stopWatch.start();
 
-        while (true)
+        while (packetCount < packetsInTest)
         {
             if (auto result = socket.recv(readBuffer->data(), readSize);
                 result == 0)
@@ -242,50 +247,59 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
 
 TEST(SPTK_TCPServer, sslTransferPerformance)
 {
+    TCPServer pushSslServer("Performance Test Server", ServerConnection::Type::SSL);
+    pushSslServer.onConnection(performanceTestFunction);
+
+    auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+    pushSslServer.setSSLKeys(keys);
+
+    size_t packetCount = 0;
+
+    constexpr size_t readSize {50};
+    StopWatch stopWatch;
+    String failReason;
+
     try
     {
-        TCPServer pushSslServer("Performance Test Server", ServerConnection::Type::SSL);
-        pushSslServer.onConnection(performanceTestFunction);
-
-        auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
-        pushSslServer.setSSLKeys(keys);
-
         pushSslServer.listen(testSslEchoServerPort);
 
         SSLSocket socket;
         socket.open(Host("localhost", testSslEchoServerPort));
         socket.blockingMode(false);
 
-        constexpr size_t readSize {50};
         auto readBuffer = make_shared<Buffer>(readSize);
 
-        size_t packetCount = 0;
-
-        StopWatch stopWatch;
         stopWatch.start();
 
-        while (true)
+        while (packetCount < packetsInTest)
         {
-            if (auto result = socket.recv(readBuffer->data(), readSize);
-                result == 0)
+            auto result = socket.recv(readBuffer->data(), readSize);
+            if (result == 0)
             {
                 break;
             }
+            if (result != readSize)
+            {
+                throw Exception("Incomplete read");
+            }
             ++packetCount;
         }
-
-        readBuffer.reset();
-
         stopWatch.stop();
-
-        COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
 
         socket.close();
     }
     catch (const Exception& e)
     {
-        FAIL() << e.what();
+        stopWatch.stop();
+        failReason = e.what();
+    }
+
+    COUT("Received " << packetCount << " packets for " << fixed << setprecision(2) << stopWatch.seconds() << " sec, at the rate " << packetCount / stopWatch.seconds() << "/s, or "
+                     << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+
+    if (!failReason.empty())
+    {
+        FAIL() << failReason;
     }
 }
 
