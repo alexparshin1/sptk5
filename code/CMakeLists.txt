@@ -100,7 +100,12 @@ ELSE ()
             #-fprofile-arcs -ftest-coverage
         )
     ELSE ()
-        ADD_DEFINITIONS(-Wall -pedantic -Wno-long-long -fPIC --coverage)
+        ADD_DEFINITIONS(
+            -fPIC
+            -Wall -pedantic
+            -Wno-long-long
+            #--coverage
+        )
     ENDIF ()
 
     IF (USE_NEW_ABI)
@@ -123,7 +128,8 @@ ELSE ()
     ENDIF ()
 
     IF (UNIX)
-        LINK_LIBRARIES(pthread rt dl gcov stdc++fs)
+        LINK_LIBRARIES(pthread rt dl stdc++fs)
+        #LINK_LIBRARIES(gcov)
     ELSE ()
         LINK_LIBRARIES(pthread rt)
     ENDIF ()

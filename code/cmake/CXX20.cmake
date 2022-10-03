@@ -1,7 +1,6 @@
 # Determines whether or not the compiler supports C++20
 macro(check_for_cxx20_compiler _VAR)
-    #message(STATUS "Checking for C++20 compiler")
-    message(STATUS "Compiler version is ${CMAKE_CXX_COMPILER_VERSION}")
+    #message(STATUS "Compiler version is ${CMAKE_CXX_COMPILER_VERSION}")
     set(${_VAR})
     if ((MSVC AND (MSVC12 OR MSVC13 OR MSVC14 OR MSVC15 OR MSVC16)) OR
     (CMAKE_COMPILER_IS_GNUCXX AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 11.0) OR
@@ -16,7 +15,6 @@ endmacro()
 # Sets the appropriate flag to enable C++20 support
 macro(enable_cxx20)
     check_for_cxx20_compiler(IS_20)
-    message("CXX IS 20: ${IS_20}")
     if (IS_20 STREQUAL "1")
         set(CMAKE_CXX_STANDARD 20)
     endif ()
