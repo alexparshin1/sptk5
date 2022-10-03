@@ -90,7 +90,7 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     {
         try
         {
-            int res = (int) socket.send(data.data(), packetSize);
+            auto res = (int) socket.send(data.data(), packetSize);
             if (res < 0)
             {
                 throwSocketError("Error writing to socket", __FILE__, __LINE__);
@@ -217,8 +217,8 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
 
         while (true)
         {
-            if (auto rc = socket.recv(readBuffer->data(), readSize);
-                rc == 0)
+            if (auto result = socket.recv(readBuffer->data(), readSize);
+                result == 0)
             {
                 break;
             }
@@ -266,8 +266,8 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
 
         while (true)
         {
-            if (auto rc = socket.recv(readBuffer->data(), readSize);
-                rc == 0)
+            if (auto result = socket.recv(readBuffer->data(), readSize);
+                result == 0)
             {
                 break;
             }
