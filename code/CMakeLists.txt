@@ -445,7 +445,7 @@ ELSE (CXX20_COMPILER)
         MESSAGE("C++ compiler:       17")
         SET(CXX_VERSION_DEFINE "#define CXX_VERSION 17")
     ELSE (CXX17_COMPILER)
-        MESSAGE(FATAL_ERROR "C++ compiler 17 or above is not available")
+        MESSAGE(FATAL_ERROR "C++ compiler 17 or above isn't available")
     ENDIF (CXX17_COMPILER)
 ENDIF (CXX20_COMPILER)
 
