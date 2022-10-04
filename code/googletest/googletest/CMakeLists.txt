@@ -98,7 +98,6 @@ set(cmake_package_name GTest CACHE INTERNAL "")
 
 # Create the CMake package file descriptors.
 if (INSTALL_GTEST)
-  message("#### Will install GTest ####")
   include(CMakePackageConfigHelpers)
   set(targets_export_name ${cmake_package_name}Targets CACHE INTERNAL "")
   set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated" CACHE INTERNAL "")
