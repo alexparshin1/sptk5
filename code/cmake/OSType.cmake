@@ -11,7 +11,6 @@ IF (UNIX)
     STRING(REGEX MATCH "(debian|centos|ubuntu|fedora|redhat|ol|linuxmint)" OS_FLAVOUR "${OS_NAME}")
 
     EXEC_PROGRAM(grep ARGS -E "^VERSION=" /etc/os-release OUTPUT_VARIABLE OS_VERS)
-    MESSAGE("#### ${OS_VERS}")
     STRING(REGEX MATCH "[0-9]+" OS_VERSION "${OS_VERS}")
 ELSE ()
     SET(OS_TYPE "Windows")
