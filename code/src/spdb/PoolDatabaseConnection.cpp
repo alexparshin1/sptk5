@@ -49,11 +49,6 @@ PoolDatabaseConnection::~PoolDatabaseConnection()
 
 void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionString databaseConnectionString(connectionString);
-    if (databaseConnectionString.portNumber() > 0)
-    {
-        throw DatabaseException("Invalid connection string");
-    }
     m_connString = DatabaseConnectionString(connectionString);
 }
 

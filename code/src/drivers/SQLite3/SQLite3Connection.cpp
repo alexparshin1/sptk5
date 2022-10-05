@@ -75,6 +75,11 @@ void SQLite3Connection::closeAndClean()
 
 String SQLite3Connection::nativeConnectionString() const
 {
+    if (connectionString().portNumber() > 0)
+    {
+        throw DatabaseException("Invalid connection string");
+    }
+
     return "/" + connectionString().databaseName() + "/" + connectionString().schema();
 }
 
