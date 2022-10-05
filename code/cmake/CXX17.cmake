@@ -3,7 +3,7 @@ macro(check_for_cxx17_compiler _VAR)
     #message(STATUS "Checking for C++17 compiler")
     set(${_VAR})
     if((MSVC AND (MSVC12 OR MSVC13 OR MSVC14 OR MSVC15 OR MSVC16)) OR
-       (CMAKE_COMPILER_IS_GNUCXX AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 8.0) OR
+       (CMAKE_COMPILER_IS_GNUCXX AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0) OR
        (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND NOT ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 8.0))
         set(${_VAR} 1)
         #message(STATUS "Checking for C++17 compiler - available")
