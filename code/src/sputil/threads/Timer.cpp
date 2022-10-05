@@ -463,48 +463,6 @@ TEST(SPTK_Timer, repeatMultipleTimers) /* NOLINT */
     EXPECT_EQ(MAX_TIMERS * MAX_EVENT_COUNTER * repeatCount, totalEvents);
 }
 
-class NotifyObject
-{
-    mutable mutex m_mutex;
-    int m_value {0};
-
-public:
-    int getValue() const
-    {
-        scoped_lock lock(m_mutex);
-        return m_value;
-    }
-
-    void setValue(int v)
-    {
-        scoped_lock lock(m_mutex);
-        m_value = v;
-    }
-};
-
-TEST(SPTK_Timer, notifyObjects) /* NOLINT */
-{
-    NotifyObject object1;
-    NotifyObject object2;
-    Timer timer;
-
-    constexpr milliseconds delay {10};
-    constexpr milliseconds interval {30};
-
-    function<void()> object1function = bind(&NotifyObject::setValue, &object1, 1);
-    function<void()> object2function = bind(&NotifyObject::setValue, &object2, -1);
-
-    timer.fireAt(
-        DateTime::Now() + delay,
-        object1function);
-    timer.fireAt(
-        DateTime::Now() + delay,
-        object2function);
-    this_thread::sleep_for(interval);
-    EXPECT_EQ(object1.getValue(), 1);
-    EXPECT_EQ(object2.getValue(), -1);
-}
-
 TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 {
     Timer timer;
