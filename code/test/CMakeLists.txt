@@ -1,5 +1,7 @@
 IF (GTEST_FLAG)
-    ADD_LIBRARY(sptest ${LIBRARY_TYPE} TestRunner.cpp TcpSslServerTests.cpp)
+    FILE(GLOB TEST_SOURCE_FILES tests/*.cpp)
+
+    ADD_LIBRARY(sptest ${LIBRARY_TYPE} TestRunner.cpp ${TEST_SOURCE_FILES})
     SET_TARGET_PROPERTIES(sptest PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES(sptest sputil5 spdb5 spwsdl5 gtest)
 
