@@ -27,13 +27,6 @@
 #include <sptk5/Brotli.h>
 #include <sptk5/Exception.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/Base64.h>
-#include <sptk5/StopWatch.h>
-#include <sptk5/cutils>
-#endif
-
 #include <brotli/decode.h>
 #include <brotli/encode.h>
 #include <sptk5/ReadBuffer.h>
@@ -261,69 +254,3 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
         throw;
     }
 }
-
-#ifdef USE_GTEST
-
-static const String originalTestString = "This is a test of compression using Brotli algorithm";
-
-#ifdef _WIN32
-static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
-#else
-static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6OOGyMnS2IO2hX4F/C9cYbegYltUixcXITXgA=";
-#endif
-
-TEST(SPTK_Brotli, compress)
-{
-    Buffer compressed;
-    String compressedBase64;
-    Brotli::compress(compressed, Buffer(originalTestString));
-    Base64::encode(compressedBase64, compressed);
-
-    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
-}
-
-TEST(SPTK_Brotli, decompress)
-{
-    Buffer compressed;
-    Buffer decompressed;
-
-    Base64::decode(compressed, originalTestStringBase64);
-    Brotli::decompress(decompressed, compressed);
-
-    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
-}
-
-TEST(SPTK_Brotli, performance)
-{
-    Buffer data;
-    Buffer compressed;
-    Buffer decompressed;
-
-    // Using uncompressed mplayer manual as test data
-    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
-    EXPECT_EQ(data.bytes(), size_t(345517));
-
-    StopWatch stopWatch;
-    stopWatch.start();
-    Brotli::compress(compressed, data);
-    stopWatch.stop();
-
-    constexpr auto megabyte = double(1024 * 1024);
-
-    COUT("Brotli compressor:" << endl)
-    COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
-                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / megabyte << " Mb/s)"
-                       << endl)
-
-    stopWatch.start();
-    Brotli::decompress(decompressed, compressed);
-    stopWatch.stop();
-
-    COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
-                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / megabyte
-                         << " Mb/s)" << endl)
-
-    EXPECT_STREQ(data.c_str(), decompressed.c_str());
-}
-
-#endif

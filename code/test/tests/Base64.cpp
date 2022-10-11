@@ -24,114 +24,62 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
+#include <sptk5/Base64.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::adjustSize(size_t sz)
+static const String testPhrase("This is a test");
+static const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");
+
+static const String encodedBinary("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4"
+                                  "OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3Bx"
+                                  "cnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmq"
+                                  "q6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj"
+                                  "5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+");
+
+TEST(SPTK_Base64, decodeString)
 {
-    constexpr size_t sizeGranularity {32};
-    sz = (sz / sizeGranularity + 1) * sizeGranularity;
-    reallocate(sz);
-    m_buffer[sz] = 0;
+    Buffer decoded;
+    Base64::decode(decoded, testPhraseBase64);
+    EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
 }
 
-void BufferStorage::_set(const uint8_t* data, size_t sz)
+TEST(SPTK_Base64, encodeString)
 {
-    checkSize(sz + 1);
-    if (data != nullptr && sz > 0)
-    {
-        memcpy(m_buffer.data(), data, sz);
-        m_bytes = sz;
-    }
-    else
-    {
-        m_bytes = 0;
-    }
-    m_buffer[sz] = 0;
+    String encoded;
+    Base64::encode(encoded, Buffer(testPhrase));
+    EXPECT_STREQ(testPhraseBase64.c_str(), encoded.c_str());
 }
 
-void BufferStorage::append(char ch)
+TEST(SPTK_Base64, decodeBinary)
 {
-    checkSize(m_bytes + 2);
-    m_buffer[m_bytes] = ch;
-    ++m_bytes;
-    m_buffer[m_bytes] = 0;
+    Buffer expectedBinary;
+    constexpr size_t dataSize {255};
+    for (uint8_t i = 0; i < dataSize; i++)
+    {
+        expectedBinary.append(i);
+    }
+
+    Buffer decoded;
+    Base64::decode(decoded, encodedBinary);
+    EXPECT_STREQ(expectedBinary.c_str(), decoded.c_str());
 }
 
-void BufferStorage::append(const char* data, size_t sz)
+TEST(SPTK_Base64, encodeBinary)
 {
-    if (sz == 0)
+    Buffer source;
+    constexpr size_t dataSize {255};
+    for (uint8_t i = 0; i < dataSize; i++)
     {
-        sz = strlen(data);
+        source.append(i);
     }
 
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
-}
+    source.saveToFile("/tmp/source");
 
-void BufferStorage::append(const uint8_t* data, size_t sz)
-{
-    if (sz == 0)
-    {
-        return;
-    }
-
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
-}
-
-void BufferStorage::reset(size_t sz)
-{
-    checkSize(sz + 1);
-    m_buffer[0] = 0;
-    m_bytes = 0;
-}
-
-void BufferStorage::fill(char c, size_t count)
-{
-    checkSize(count + 1);
-    memset(m_buffer.data(), c, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
-}
-
-void BufferStorage::erase(size_t offset, size_t length)
-{
-    if (offset + length >= m_bytes)
-    {
-        m_bytes = offset;
-    }
-
-    if (length == 0)
-    {
-        return;
-    } // Nothing to do
-
-    size_t moveOffset = offset + length;
-    size_t moveLength = m_bytes - moveOffset;
-
-    if (offset + length > m_bytes)
-    {
-        length = m_bytes - offset;
-    }
-
-    if (length > 0)
-    {
-        memmove(m_buffer.data() + offset, m_buffer.data() + offset + length, moveLength);
-    }
-
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
+    String encoded;
+    Base64::encode(encoded, source);
+    EXPECT_STREQ(encodedBinary.c_str(), encoded.c_str());
 }

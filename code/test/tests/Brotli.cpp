@@ -24,114 +24,75 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
+#include <sptk5/Brotli.h>
+#include <sptk5/Exception.h>
+
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::adjustSize(size_t sz)
+static const String originalTestString = "This is a test of compression using Brotli algorithm";
+
+#ifdef _WIN32
+static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+#else
+static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6OOGyMnS2IO2hX4F/C9cYbegYltUixcXITXgA=";
+#endif
+
+TEST(SPTK_Brotli, compress)
 {
-    constexpr size_t sizeGranularity {32};
-    sz = (sz / sizeGranularity + 1) * sizeGranularity;
-    reallocate(sz);
-    m_buffer[sz] = 0;
+    Buffer compressed;
+    String compressedBase64;
+    Brotli::compress(compressed, Buffer(originalTestString));
+    Base64::encode(compressedBase64, compressed);
+
+    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
 }
 
-void BufferStorage::_set(const uint8_t* data, size_t sz)
+TEST(SPTK_Brotli, decompress)
 {
-    checkSize(sz + 1);
-    if (data != nullptr && sz > 0)
-    {
-        memcpy(m_buffer.data(), data, sz);
-        m_bytes = sz;
-    }
-    else
-    {
-        m_bytes = 0;
-    }
-    m_buffer[sz] = 0;
+    Buffer compressed;
+    Buffer decompressed;
+
+    Base64::decode(compressed, originalTestStringBase64);
+    Brotli::decompress(decompressed, compressed);
+
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
-void BufferStorage::append(char ch)
+TEST(SPTK_Brotli, performance)
 {
-    checkSize(m_bytes + 2);
-    m_buffer[m_bytes] = ch;
-    ++m_bytes;
-    m_buffer[m_bytes] = 0;
-}
+    Buffer data;
+    Buffer compressed;
+    Buffer decompressed;
 
-void BufferStorage::append(const char* data, size_t sz)
-{
-    if (sz == 0)
-    {
-        sz = strlen(data);
-    }
+    // Using uncompressed mplayer manual as test data
+    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
+    EXPECT_EQ(data.bytes(), size_t(345517));
 
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
-}
+    StopWatch stopWatch;
+    stopWatch.start();
+    Brotli::compress(compressed, data);
+    stopWatch.stop();
 
-void BufferStorage::append(const uint8_t* data, size_t sz)
-{
-    if (sz == 0)
-    {
-        return;
-    }
+    constexpr auto megabyte = double(1024 * 1024);
 
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
-}
+    COUT("Brotli compressor:" << endl)
+    COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / megabyte << " Mb/s)"
+                       << endl)
 
-void BufferStorage::reset(size_t sz)
-{
-    checkSize(sz + 1);
-    m_buffer[0] = 0;
-    m_bytes = 0;
-}
+    stopWatch.start();
+    Brotli::decompress(decompressed, compressed);
+    stopWatch.stop();
 
-void BufferStorage::fill(char c, size_t count)
-{
-    checkSize(count + 1);
-    memset(m_buffer.data(), c, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
-}
+    COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / megabyte
+                         << " Mb/s)" << endl)
 
-void BufferStorage::erase(size_t offset, size_t length)
-{
-    if (offset + length >= m_bytes)
-    {
-        m_bytes = offset;
-    }
-
-    if (length == 0)
-    {
-        return;
-    } // Nothing to do
-
-    size_t moveOffset = offset + length;
-    size_t moveLength = m_bytes - moveOffset;
-
-    if (offset + length > m_bytes)
-    {
-        length = m_bytes - offset;
-    }
-
-    if (length > 0)
-    {
-        memmove(m_buffer.data() + offset, m_buffer.data() + offset + length, moveLength);
-    }
-
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
+    EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }

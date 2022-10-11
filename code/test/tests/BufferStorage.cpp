@@ -26,112 +26,78 @@
 
 #include <sptk5/Buffer.h>
 
+#include <gtest/gtest.h>
+
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::adjustSize(size_t sz)
+static const String testString("0123456789ABCDEF");
+
+TEST(SPTK_BufferStorage, constructors)
 {
-    constexpr size_t sizeGranularity {32};
-    sz = (sz / sizeGranularity + 1) * sizeGranularity;
-    reallocate(sz);
-    m_buffer[sz] = 0;
+    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
+
+    BufferStorage testStorage2(testStorage1);
+    EXPECT_EQ(testStorage2.length(), 16U);
+    EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
+
+    BufferStorage testStorage3(move(testStorage1));
+    EXPECT_EQ(testStorage3.length(), 16U);
+    EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
-void BufferStorage::_set(const uint8_t* data, size_t sz)
+TEST(SPTK_BufferStorage, assignments)
 {
-    checkSize(sz + 1);
-    if (data != nullptr && sz > 0)
-    {
-        memcpy(m_buffer.data(), data, sz);
-        m_bytes = sz;
-    }
-    else
-    {
-        m_bytes = 0;
-    }
-    m_buffer[sz] = 0;
+    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
+
+    BufferStorage testStorage2;
+    testStorage2 = testStorage1;
+    EXPECT_EQ(testStorage2.length(), size_t(16));
+    EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
+
+    BufferStorage testStorage3;
+    testStorage3 = move(testStorage1);
+    EXPECT_EQ(testStorage3.length(), size_t(16));
+    EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
-void BufferStorage::append(char ch)
+TEST(SPTK_BufferStorage, append)
 {
-    checkSize(m_bytes + 2);
-    m_buffer[m_bytes] = ch;
-    ++m_bytes;
-    m_buffer[m_bytes] = 0;
+    BufferStorage testStorage;
+
+    for (auto ch: testString)
+    {
+        testStorage.append(ch);
+    }
+    testStorage.append(testString.c_str(), testString.length());
+
+    EXPECT_EQ(testStorage.length(), size_t(32));
+    EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF0123456789ABCDEF");
 }
 
-void BufferStorage::append(const char* data, size_t sz)
+TEST(SPTK_BufferStorage, erase)
 {
-    if (sz == 0)
-    {
-        sz = strlen(data);
-    }
-
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
+    constexpr size_t bufferSize {32};
+    BufferStorage testStorage(bufferSize);
+    testStorage.fill(0, bufferSize);
+    testStorage.set("0123456789ABCDEF");
+    EXPECT_EQ(testStorage.length(), size_t(16));
+    EXPECT_STREQ(testStorage.c_str(), testString.c_str());
+    testStorage.erase(0, 4);
+    EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
 }
 
-void BufferStorage::append(const uint8_t* data, size_t sz)
+TEST(SPTK_BufferStorage, reset)
 {
-    if (sz == 0)
-    {
-        return;
-    }
+    constexpr size_t bufferSize {32};
+    BufferStorage testStorage(bufferSize);
+    testStorage.set(testString.c_str());
 
-    checkSize(m_bytes + sz + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
-        m_buffer[m_bytes] = 0;
-    }
-}
+    testStorage.reset();
+    EXPECT_EQ(testStorage.length(), size_t(0));
 
-void BufferStorage::reset(size_t sz)
-{
-    checkSize(sz + 1);
-    m_buffer[0] = 0;
-    m_bytes = 0;
-}
+    testStorage.append(testString.c_str(), testString.length());
 
-void BufferStorage::fill(char c, size_t count)
-{
-    checkSize(count + 1);
-    memset(m_buffer.data(), c, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
-}
-
-void BufferStorage::erase(size_t offset, size_t length)
-{
-    if (offset + length >= m_bytes)
-    {
-        m_bytes = offset;
-    }
-
-    if (length == 0)
-    {
-        return;
-    } // Nothing to do
-
-    size_t moveOffset = offset + length;
-    size_t moveLength = m_bytes - moveOffset;
-
-    if (offset + length > m_bytes)
-    {
-        length = m_bytes - offset;
-    }
-
-    if (length > 0)
-    {
-        memmove(m_buffer.data() + offset, m_buffer.data() + offset + length, moveLength);
-    }
-
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
+    EXPECT_EQ(testStorage.length(), testString.length());
+    EXPECT_STREQ(testStorage.c_str(), testString.c_str());
 }

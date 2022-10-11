@@ -26,10 +26,6 @@
 
 #include <sptk5/Base64.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -194,59 +190,3 @@ size_t Base64::decode(Buffer& bufDest, const String& strSource)
     return internal_decode(bufDest, strSource);
 }
 
-#ifdef USE_GTEST
-
-static const String testPhrase("This is a test");
-static const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");
-
-static const String encodedBinary("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4"
-                                  "OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3Bx"
-                                  "cnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmq"
-                                  "q6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj"
-                                  "5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+");
-
-TEST(SPTK_Base64, decodeString)
-{
-    Buffer decoded;
-    Base64::decode(decoded, testPhraseBase64);
-    EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
-}
-
-TEST(SPTK_Base64, encodeString)
-{
-    String encoded;
-    Base64::encode(encoded, Buffer(testPhrase));
-    EXPECT_STREQ(testPhraseBase64.c_str(), encoded.c_str());
-}
-
-TEST(SPTK_Base64, decodeBinary)
-{
-    Buffer expectedBinary;
-    constexpr size_t dataSize {255};
-    for (uint8_t i = 0; i < dataSize; i++)
-    {
-        expectedBinary.append(i);
-    }
-
-    Buffer decoded;
-    Base64::decode(decoded, encodedBinary);
-    EXPECT_STREQ(expectedBinary.c_str(), decoded.c_str());
-}
-
-TEST(SPTK_Base64, encodeBinary)
-{
-    Buffer source;
-    constexpr size_t dataSize {255};
-    for (uint8_t i = 0; i < dataSize; i++)
-    {
-        source.append(i);
-    }
-
-    source.saveToFile("/tmp/source");
-
-    String encoded;
-    Base64::encode(encoded, source);
-    EXPECT_STREQ(encodedBinary.c_str(), encoded.c_str());
-}
-
-#endif
