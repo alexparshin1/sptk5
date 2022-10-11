@@ -35,10 +35,6 @@
 constexpr int FL_ALIGN_LEFT = 4;
 #endif
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace fs;
@@ -326,97 +322,3 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     regexpStr += "$";
     return make_shared<RegularExpression>(regexpStr);
 }
-
-#ifdef USE_GTEST
-
-#ifdef _WIN32
-const String testTempDirectory = "C:\\gtest_temp_dir";
-#else
-const String testTempDirectory = "/tmp/gtest_temp_dir";
-#endif
-
-class TempDirectory
-{
-public:
-    explicit TempDirectory(const String& _path)
-        : m_path(_path.c_str())
-    {
-        path dir = m_path / "dir1";
-        try
-        {
-            create_directories(dir);
-        }
-        catch (const filesystem_error& e)
-        {
-            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl)
-            return;
-        }
-
-        constexpr size_t charCount {10};
-        Buffer buffer;
-        buffer.fill('X', charCount);
-        buffer.saveToFile((m_path / "file1").c_str());
-        buffer.saveToFile((m_path / "file2").c_str());
-    }
-
-    TempDirectory(const TempDirectory&) = delete;
-    TempDirectory& operator=(const TempDirectory&) = delete;
-
-    ~TempDirectory()
-    {
-        remove_all(m_path);
-    }
-
-private:
-    path m_path;
-};
-
-TEST(SPTK_DirectoryDS, open)
-{
-    TempDirectory dir(testTempDirectory + "1");
-
-    DirectoryDS directoryDS(testTempDirectory + "1");
-    directoryDS.open();
-    map<String, int> files;
-    while (!directoryDS.eof())
-    {
-        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
-        directoryDS.next();
-    }
-    directoryDS.close();
-
-    EXPECT_EQ(size_t(5), files.size());
-    EXPECT_EQ(10, files["file1"]);
-}
-
-TEST(SPTK_DirectoryDS, patternToRegexp)
-{
-    auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
-    EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
-
-    regexp = DirectoryDS::wildcardToRegexp("[!a-f][c-z].doc");
-    EXPECT_STREQ("^[^a-f][c-z]\\.doc$", regexp->pattern().c_str());
-
-    regexp = DirectoryDS::wildcardToRegexp("{full,short}.*");
-    EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
-}
-
-TEST(SPTK_DirectoryDS, patterns)
-{
-    TempDirectory dir(testTempDirectory + "2");
-
-    DirectoryDS directoryDS(testTempDirectory + "2", "file1;dir*", DDS_HIDE_DOT_FILES);
-    directoryDS.open();
-    map<String, int> files;
-    while (!directoryDS.eof())
-    {
-        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
-        directoryDS.next();
-    }
-    directoryDS.close();
-
-    EXPECT_EQ(size_t(2), files.size());
-    EXPECT_EQ(10, files["file1"]);
-}
-
-#endif

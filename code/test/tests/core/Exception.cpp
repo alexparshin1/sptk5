@@ -24,94 +24,71 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
-
 #include <sptk5/Exception.h>
-#include <sptk5/FieldList.h>
-#include <sptk5/xdoc/Document.h>
+#include <sptk5/RegularExpression.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-FieldList::FieldList(bool indexed)
+TEST(SPTK_Exception, throwException)
 {
-    if (indexed)
+    try
     {
-        m_index = make_shared<Map>();
+        throw Exception("Test exception");
+    }
+    catch (const Exception& e)
+    {
+        EXPECT_STREQ("Test exception", e.what());
+    }
+
+    constexpr int testLineNumber = 1234;
+    try
+    {
+        throw Exception("Test exception", __FILE__, testLineNumber, "This happens sometimes");
+    }
+    catch (const Exception& e)
+    {
+#ifdef _WIN32
+        EXPECT_STREQ("Test exception in core\\Exception.cpp(1234). This happens sometimes.", e.what());
+#else
+        EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#endif
+        EXPECT_STREQ("Test exception", e.message().c_str());
+        EXPECT_STREQ(__FILE__, e.file().c_str());
+        EXPECT_EQ(testLineNumber, e.line());
     }
 }
 
-void FieldList::clear()
+TEST(SPTK_HttpException, throw)
 {
-    m_list.clear();
-    if (m_index)
+    constexpr size_t firstErrorCode = 400;
+    constexpr size_t maxErrorCode = 512;
+    constexpr int testLineNumber = 1234;
+    for (size_t code = firstErrorCode; code < maxErrorCode; ++code)
     {
-        m_index->clear();
-    }
-}
-
-Field& FieldList::push_back(const String& fname, bool checkDuplicates)
-{
-    if (checkDuplicates)
-    {
-        auto pfld = findField(fname);
-        if (pfld)
+        auto expectedStatus = HTTPException::httpResponseStatus(code);
+        if (expectedStatus.empty())
         {
-            throw Exception("Attempt to duplicate field name");
+            continue;
         }
-    }
-
-    auto field = make_shared<Field>(fname);
-
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[fname] = field;
-    }
-
-    return *field;
-}
-
-Field& FieldList::push_back(const SField& field)
-{
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[field->m_name] = field;
-    }
-
-    return *field;
-}
-
-SField FieldList::findField(const String& fname) const
-{
-    if (m_index)
-    {
-        auto itor = m_index->find(fname);
-        if (itor != m_index->end())
+        try
         {
-            return itor->second;
+            throw HTTPException(code, "Something happened", __FILE__, testLineNumber, "This happens sometimes");
         }
-    }
-    else
-    {
-        for (const auto& field: *this)
+        catch (const HTTPException& e)
         {
-            if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
-            {
-                return field;
-            }
+#ifdef _WIN32
+            EXPECT_STREQ("Something happened in core\\Exception.cpp(1234). This happens sometimes.", e.what());
+#else
+            EXPECT_STREQ("Something happened in core/Exception.cpp(1234). This happens sometimes.", e.what());
+#endif
+            EXPECT_STREQ("Something happened", e.message().c_str());
+            EXPECT_STREQ(__FILE__, e.file().c_str());
+            EXPECT_EQ(1234, e.line());
+            EXPECT_EQ(size_t(code), e.statusCode());
+            EXPECT_EQ(expectedStatus, e.statusText());
         }
-    }
-    return nullptr;
-}
-
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
-{
-    for (const auto& field: *this)
-    {
-        field->exportTo(node, compactMode, nullLargeData);
     }
 }

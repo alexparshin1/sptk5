@@ -24,94 +24,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
-
+#include <openssl/evp.h>
+#include <sptk5/Crypt.h>
 #include <sptk5/Exception.h>
-#include <sptk5/FieldList.h>
-#include <sptk5/xdoc/Document.h>
+
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+
 
 using namespace std;
 using namespace sptk;
 
-FieldList::FieldList(bool indexed)
+static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+static const String testKey("01234567890123456789012345678901");
+static const String testIV("0123456789012345");
+static const String encryptedB64(
+    "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
+
+TEST(SPTK_Crypt, encrypt)
 {
-    if (indexed)
-    {
-        m_index = make_shared<Map>();
-    }
+    Buffer encrypted;
+    String encryptedStr;
+
+    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), "xxx", testIV), Exception);
+    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), testKey, "xxx"), Exception);
+
+    Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
+    Base64::encode(encryptedStr, encrypted);
+
+    EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
 }
 
-void FieldList::clear()
+TEST(SPTK_Crypt, decrypt)
 {
-    m_list.clear();
-    if (m_index)
-    {
-        m_index->clear();
-    }
-}
+    Buffer encrypted;
+    Buffer decrypted;
 
-Field& FieldList::push_back(const String& fname, bool checkDuplicates)
-{
-    if (checkDuplicates)
-    {
-        auto pfld = findField(fname);
-        if (pfld)
-        {
-            throw Exception("Attempt to duplicate field name");
-        }
-    }
+    Base64::decode(encrypted, encryptedB64);
+    Crypt::decrypt(decrypted, encrypted, testKey, testIV);
 
-    auto field = make_shared<Field>(fname);
-
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[fname] = field;
-    }
-
-    return *field;
-}
-
-Field& FieldList::push_back(const SField& field)
-{
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[field->m_name] = field;
-    }
-
-    return *field;
-}
-
-SField FieldList::findField(const String& fname) const
-{
-    if (m_index)
-    {
-        auto itor = m_index->find(fname);
-        if (itor != m_index->end())
-        {
-            return itor->second;
-        }
-    }
-    else
-    {
-        for (const auto& field: *this)
-        {
-            if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
-            {
-                return field;
-            }
-        }
-    }
-    return nullptr;
-}
-
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
-{
-    for (const auto& field: *this)
-    {
-        field->exportTo(node, compactMode, nullLargeData);
-    }
+    EXPECT_STREQ(testText.c_str(), decrypted.c_str());
 }

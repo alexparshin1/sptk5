@@ -24,94 +24,105 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
+#include <string>
+#include <sys/stat.h>
 
-#include <sptk5/Exception.h>
-#include <sptk5/FieldList.h>
-#include <sptk5/xdoc/Document.h>
+#include <sptk5/DirectoryDS.h>
+#include <sptk5/Printer.h>
+#include <sptk5/filedefs.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
+using namespace fs;
 
-FieldList::FieldList(bool indexed)
-{
-    if (indexed)
-    {
-        m_index = make_shared<Map>();
-    }
-}
+#ifdef _WIN32
+const String testTempDirectory = "C:\\gtest_temp_dir";
+#else
+const String testTempDirectory = "/tmp/gtest_temp_dir";
+#endif
 
-void FieldList::clear()
+class TempDirectory
 {
-    m_list.clear();
-    if (m_index)
+public:
+    explicit TempDirectory(const String& _path)
+        : m_path(_path.c_str())
     {
-        m_index->clear();
-    }
-}
-
-Field& FieldList::push_back(const String& fname, bool checkDuplicates)
-{
-    if (checkDuplicates)
-    {
-        auto pfld = findField(fname);
-        if (pfld)
+        path dir = m_path / "dir1";
+        try
         {
-            throw Exception("Attempt to duplicate field name");
+            create_directories(dir);
         }
-    }
-
-    auto field = make_shared<Field>(fname);
-
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[fname] = field;
-    }
-
-    return *field;
-}
-
-Field& FieldList::push_back(const SField& field)
-{
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[field->m_name] = field;
-    }
-
-    return *field;
-}
-
-SField FieldList::findField(const String& fname) const
-{
-    if (m_index)
-    {
-        auto itor = m_index->find(fname);
-        if (itor != m_index->end())
+        catch (const filesystem_error& e)
         {
-            return itor->second;
+            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl)
+            return;
         }
+
+        constexpr size_t charCount {10};
+        Buffer buffer;
+        buffer.fill('X', charCount);
+        buffer.saveToFile((m_path / "file1").c_str());
+        buffer.saveToFile((m_path / "file2").c_str());
     }
-    else
+
+    TempDirectory(const TempDirectory&) = delete;
+    TempDirectory& operator=(const TempDirectory&) = delete;
+
+    ~TempDirectory()
     {
-        for (const auto& field: *this)
-        {
-            if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
-            {
-                return field;
-            }
-        }
+        remove_all(m_path);
     }
-    return nullptr;
+
+private:
+    path m_path;
+};
+
+TEST(SPTK_DirectoryDS, open)
+{
+    TempDirectory dir(testTempDirectory + "1");
+
+    DirectoryDS directoryDS(testTempDirectory + "1");
+    directoryDS.open();
+    map<String, int> files;
+    while (!directoryDS.eof())
+    {
+        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
+        directoryDS.next();
+    }
+    directoryDS.close();
+
+    EXPECT_EQ(size_t(5), files.size());
+    EXPECT_EQ(10, files["file1"]);
 }
 
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
+TEST(SPTK_DirectoryDS, patternToRegexp)
 {
-    for (const auto& field: *this)
+    auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
+    EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
+
+    regexp = DirectoryDS::wildcardToRegexp("[!a-f][c-z].doc");
+    EXPECT_STREQ("^[^a-f][c-z]\\.doc$", regexp->pattern().c_str());
+
+    regexp = DirectoryDS::wildcardToRegexp("{full,short}.*");
+    EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
+}
+
+TEST(SPTK_DirectoryDS, patterns)
+{
+    TempDirectory dir(testTempDirectory + "2");
+
+    DirectoryDS directoryDS(testTempDirectory + "2", "file1;dir*", DDS_HIDE_DOT_FILES);
+    directoryDS.open();
+    map<String, int> files;
+    while (!directoryDS.eof())
     {
-        field->exportTo(node, compactMode, nullLargeData);
+        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
+        directoryDS.next();
     }
+    directoryDS.close();
+
+    EXPECT_EQ(size_t(2), files.size());
+    EXPECT_EQ(10, files["file1"]);
 }

@@ -27,10 +27,6 @@
 #include <iomanip>
 #include <sptk5/Field.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -170,52 +166,3 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailed
         }
     }
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_Field, move_ctor_assign)
-{
-    constexpr int testInteger = 10;
-    Field field1("f1");
-    field1 = testInteger;
-
-    Field field2(move(field1));
-    EXPECT_EQ(field2.asInteger(), testInteger);
-
-    Field field3("f3");
-    field3 = move(field2);
-    EXPECT_EQ(field3.asInteger(), testInteger);
-}
-
-TEST(SPTK_Field, double)
-{
-    Field field1("f1");
-
-    constexpr double testDouble = 12345678.123456;
-    field1 = testDouble;
-    field1.view().precision = 3;
-
-    EXPECT_DOUBLE_EQ(field1.asFloat(), testDouble);
-    EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
-}
-
-TEST(SPTK_Field, money)
-{
-    constexpr int64_t testLong = 1234567890123456789L;
-    constexpr int64_t testInt64 = 12345678901;
-    constexpr int scaleDigits = 8;
-
-    MoneyData money1(testLong, scaleDigits);
-    MoneyData money2(-testLong, scaleDigits);
-    Field field1("f1");
-
-    field1.setMoney(money1);
-    EXPECT_EQ(field1.asInt64(), testInt64);
-    EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
-
-    field1.setMoney(money2);
-    EXPECT_EQ(field1.asInt64(), -testInt64);
-    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
-}
-
-#endif

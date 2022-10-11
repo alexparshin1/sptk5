@@ -27,10 +27,6 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -159,68 +155,3 @@ String HTTPException::httpResponseStatus(size_t statusCode)
     }
     return itor->second;
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_Exception, throwException)
-{
-    try
-    {
-        throw Exception("Test exception");
-    }
-    catch (const Exception& e)
-    {
-        EXPECT_STREQ("Test exception", e.what());
-    }
-
-    constexpr int testLineNumber = 1234;
-    try
-    {
-        throw Exception("Test exception", __FILE__, testLineNumber, "This happens sometimes");
-    }
-    catch (const Exception& e)
-    {
-#ifdef _WIN32
-        EXPECT_STREQ("Test exception in core\\Exception.cpp(1234). This happens sometimes.", e.what());
-#else
-        EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
-#endif
-        EXPECT_STREQ("Test exception", e.message().c_str());
-        EXPECT_STREQ(__FILE__, e.file().c_str());
-        EXPECT_EQ(testLineNumber, e.line());
-    }
-}
-
-TEST(SPTK_HttpException, throw)
-{
-    constexpr size_t firstErrorCode = 400;
-    constexpr size_t maxErrorCode = 512;
-    constexpr int testLineNumber = 1234;
-    for (size_t code = firstErrorCode; code < maxErrorCode; ++code)
-    {
-        auto expectedStatus = HTTPException::httpResponseStatus(code);
-        if (expectedStatus.empty())
-        {
-            continue;
-        }
-        try
-        {
-            throw HTTPException(code, "Something happened", __FILE__, testLineNumber, "This happens sometimes");
-        }
-        catch (const HTTPException& e)
-        {
-#ifdef _WIN32
-            EXPECT_STREQ("Something happened in core\\Exception.cpp(1234). This happens sometimes.", e.what());
-#else
-            EXPECT_STREQ("Something happened in core/Exception.cpp(1234). This happens sometimes.", e.what());
-#endif
-            EXPECT_STREQ("Something happened", e.message().c_str());
-            EXPECT_STREQ(__FILE__, e.file().c_str());
-            EXPECT_EQ(1234, e.line());
-            EXPECT_EQ(size_t(code), e.statusCode());
-            EXPECT_EQ(expectedStatus, e.statusText());
-        }
-    }
-}
-
-#endif

@@ -28,12 +28,6 @@
 #include <sptk5/Crypt.h>
 #include <sptk5/Exception.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/Base64.h>
-#endif
-
-
 using namespace std;
 using namespace sptk;
 
@@ -148,38 +142,3 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
     // Clean up
     EVP_CIPHER_CTX_free(ctx);
 }
-
-#ifdef USE_GTEST
-
-static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-static const String testKey("01234567890123456789012345678901");
-static const String testIV("0123456789012345");
-static const String encryptedB64(
-    "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
-
-TEST(SPTK_Crypt, encrypt)
-{
-    Buffer encrypted;
-    String encryptedStr;
-
-    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), "xxx", testIV), Exception);
-    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), testKey, "xxx"), Exception);
-
-    Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
-    Base64::encode(encryptedStr, encrypted);
-
-    EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
-}
-
-TEST(SPTK_Crypt, decrypt)
-{
-    Buffer encrypted;
-    Buffer decrypted;
-
-    Base64::decode(encrypted, encryptedB64);
-    Crypt::decrypt(decrypted, encrypted, testKey, testIV);
-
-    EXPECT_STREQ(testText.c_str(), decrypted.c_str());
-}
-
-#endif

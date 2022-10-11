@@ -24,94 +24,55 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
+#include <iomanip>
+#include <sptk5/Field.h>
 
-#include <sptk5/Exception.h>
-#include <sptk5/FieldList.h>
-#include <sptk5/xdoc/Document.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-FieldList::FieldList(bool indexed)
+TEST(SPTK_Field, move_ctor_assign)
 {
-    if (indexed)
-    {
-        m_index = make_shared<Map>();
-    }
+    constexpr int testInteger = 10;
+    Field field1("f1");
+    field1 = testInteger;
+
+    Field field2(move(field1));
+    EXPECT_EQ(field2.asInteger(), testInteger);
+
+    Field field3("f3");
+    field3 = move(field2);
+    EXPECT_EQ(field3.asInteger(), testInteger);
 }
 
-void FieldList::clear()
+TEST(SPTK_Field, double)
 {
-    m_list.clear();
-    if (m_index)
-    {
-        m_index->clear();
-    }
+    Field field1("f1");
+
+    constexpr double testDouble = 12345678.123456;
+    field1 = testDouble;
+    field1.view().precision = 3;
+
+    EXPECT_DOUBLE_EQ(field1.asFloat(), testDouble);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
 }
 
-Field& FieldList::push_back(const String& fname, bool checkDuplicates)
+TEST(SPTK_Field, money)
 {
-    if (checkDuplicates)
-    {
-        auto pfld = findField(fname);
-        if (pfld)
-        {
-            throw Exception("Attempt to duplicate field name");
-        }
-    }
+    constexpr int64_t testLong = 1234567890123456789L;
+    constexpr int64_t testInt64 = 12345678901;
+    constexpr int scaleDigits = 8;
 
-    auto field = make_shared<Field>(fname);
+    MoneyData money1(testLong, scaleDigits);
+    MoneyData money2(-testLong, scaleDigits);
+    Field field1("f1");
 
-    m_list.push_back(field);
+    field1.setMoney(money1);
+    EXPECT_EQ(field1.asInt64(), testInt64);
+    EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
 
-    if (m_index)
-    {
-        (*m_index)[fname] = field;
-    }
-
-    return *field;
-}
-
-Field& FieldList::push_back(const SField& field)
-{
-    m_list.push_back(field);
-
-    if (m_index)
-    {
-        (*m_index)[field->m_name] = field;
-    }
-
-    return *field;
-}
-
-SField FieldList::findField(const String& fname) const
-{
-    if (m_index)
-    {
-        auto itor = m_index->find(fname);
-        if (itor != m_index->end())
-        {
-            return itor->second;
-        }
-    }
-    else
-    {
-        for (const auto& field: *this)
-        {
-            if (strcasecmp(field->m_name.c_str(), fname.c_str()) == 0)
-            {
-                return field;
-            }
-        }
-    }
-    return nullptr;
-}
-
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
-{
-    for (const auto& field: *this)
-    {
-        field->exportTo(node, compactMode, nullLargeData);
-    }
+    field1.setMoney(money2);
+    EXPECT_EQ(field1.asInt64(), -testInt64);
+    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
 }
