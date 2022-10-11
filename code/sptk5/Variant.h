@@ -86,9 +86,9 @@ public:
 
     /**
      * Sets the data size
-     * @param ds                Data size (in bytes).
+     * @param newDataSize                Data size (in bytes).
      */
-    void dataSize(size_t ds);
+    void dataSize(size_t newDataSize);
 
     /**
      * Returns the allocated buffer size
@@ -106,13 +106,13 @@ public:
      * Returns a name for a particular variant type
      * @param type              Variant type
      */
-    static String typeName(VariantDataType type);
+    [[nodiscard]] static String typeName(VariantDataType type);
 
     /**
      * Returns a type for a particular variant type name
      * @param name              Variant type name
      */
-    static VariantDataType nameType(const char* name);
+    [[nodiscard]] static VariantDataType nameType(const char* name);
 
     /**
      * @brief Direct and fast const access to variant data
@@ -154,28 +154,28 @@ public:
     /**
      * Directly reads the internal data
      */
-    virtual const char* getText() const;
+    [[nodiscard]] virtual const char* getText() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const uint8_t* getImagePtr() const;
+    [[nodiscard]] virtual const uint8_t* getImagePtr() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual uint32_t getImageNdx() const;
+    [[nodiscard]] virtual uint32_t getImageNdx() const;
 
 protected:
     /**
      * Sets the data type
      */
-    void dataType(VariantType dt);
+    void dataType(VariantType newDataType);
 
     /**
      * Sets the data type
      */
-    void dataType(VariantDataType dt);
+    void dataType(VariantDataType newDataType);
 
     /**
      * @return True if current data type is external buffer
@@ -257,12 +257,12 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type = VariantDataType::VAR_BUFFER);
 
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setExternalBuffer(uint8_t* value, size_t valueSize, VariantDataType type = VariantDataType::VAR_BUFFER);
 
     /**
      * Assignment method

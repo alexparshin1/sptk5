@@ -65,14 +65,14 @@ MoneyData::operator bool() const
 }
 
 //---------------------------------------------------------------------------
-void BaseVariant::dataSize(size_t ds)
+void BaseVariant::dataSize(size_t newDataSize)
 {
     if (((int) dataType() & BUFFER_TYPES) && !isExternalBuffer())
     {
-        m_data.get<Buffer>().bytes(ds);
+        m_data.get<Buffer>().bytes(newDataSize);
     }
 
-    m_data.size(ds);
+    m_data.size(newDataSize);
 
     if (m_data.size() > 0)
     {
@@ -81,15 +81,15 @@ void BaseVariant::dataSize(size_t ds)
 }
 
 //---------------------------------------------------------------------------
-void BaseVariant::dataType(VariantDataType dt)
+void BaseVariant::dataType(VariantDataType newDataType)
 {
-    m_data.type(dt);
+    m_data.type(newDataType);
 }
 
 //---------------------------------------------------------------------------
-void BaseVariant::dataType(VariantType dt)
+void BaseVariant::dataType(VariantType newDataType)
 {
-    m_data.type(dt);
+    m_data.type(newDataType);
 }
 
 //---------------------------------------------------------------------------
@@ -257,7 +257,7 @@ void VariantAdaptors::setString(const String& value)
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantDataType type)
+void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type)
 {
     if (((int) type & BUFFER_TYPES) == 0)
     {
@@ -271,15 +271,15 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantDataType
         if ((int) dataType() & BUFFER_TYPES)
         {
             auto& buffer = m_data.get<Buffer>();
-            buffer.set(value, sz);
+            buffer.set(value, valueSize);
         }
         else
         {
-            m_data.set(Buffer(value, sz));
+            m_data.set(Buffer(value, valueSize));
         }
 
         dataType(vtype);
-        dataSize(sz);
+        dataSize(valueSize);
     }
     else
     {
@@ -291,19 +291,19 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t sz, VariantDataType
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t sz, VariantDataType type)
+void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t valueSize, VariantDataType type)
 {
     if (((int) type & BUFFER_TYPES) == 0)
     {
         throw Exception("Invalid buffer type");
     }
 
-    if (value != nullptr || sz != 0)
+    if (value != nullptr || valueSize != 0)
     {
         m_data.set<const uint8_t*>(value);
         VariantType vtype {type, false, true};
         dataType(vtype);
-        dataSize(sz);
+        dataSize(valueSize);
     }
     else
     {
@@ -1100,4 +1100,3 @@ void Variant::save(const SNode& node) const
         }
     }
 }
-
