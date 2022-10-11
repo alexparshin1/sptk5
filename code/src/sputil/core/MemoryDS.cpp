@@ -26,10 +26,6 @@
 
 #include <sptk5/MemoryDS.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -219,72 +215,3 @@ bool MemoryDS::empty() const
     scoped_lock lock(m_mutex);
     return m_list.empty();
 }
-
-#ifdef USE_GTEST
-
-struct Person {
-    String name;
-    int age {0};
-};
-
-static const vector<Person> people {
-    {"John", 30},
-    {"Jane", 28},
-    {"Bob", 6}};
-
-TEST(SPTK_MemoryDS, createAndVerify)
-{
-    MemoryDS ds;
-
-    EXPECT_TRUE(ds.empty());
-
-    for (const auto& person: people)
-    {
-        FieldList row(false);
-
-        auto name = make_shared<Field>("name");
-        *name = person.name;
-        row.push_back(name);
-
-        auto age = make_shared<Field>("age");
-        *age = person.age;
-        row.push_back(age);
-
-        ds.push_back(move(row));
-    }
-
-    EXPECT_EQ(ds.recordCount(), size_t(3));
-
-    ds.open();
-
-    int i = 0;
-    while (!ds.eof())
-    {
-        EXPECT_EQ(ds.fieldCount(), size_t(2));
-        EXPECT_STREQ(ds["name"].asString().c_str(), people[i].name.c_str());
-        EXPECT_EQ(ds["age"].asInteger(), people[i].age);
-        ++i;
-        ds.next();
-    }
-
-    EXPECT_FALSE(ds.find("age", 31));
-    EXPECT_TRUE(ds.find("age", 28));
-    EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
-    EXPECT_EQ(ds[1].asInteger(), 28);
-
-    ds.prior();
-    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
-
-    ds.last();
-    EXPECT_STREQ(ds["name"].asString().c_str(), "Bob");
-
-    ds.first();
-    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
-
-    ds.close();
-
-    ds.clear();
-    EXPECT_TRUE(ds.empty());
-}
-
-#endif

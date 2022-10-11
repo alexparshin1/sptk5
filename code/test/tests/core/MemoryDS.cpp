@@ -24,83 +24,74 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/FileLogEngine.h>
+#include <sptk5/MemoryDS.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void FileLogEngine::saveMessage(const Logger::UMessage& message)
+struct Person {
+    String name;
+    int age {0};
+};
+
+static const vector<Person> people {
+    {"John", 30},
+    {"Jane", 28},
+    {"Bob", 6}};
+
+TEST(SPTK_MemoryDS, createAndVerify)
 {
-    lock_guard lock(m_mutex);
+    MemoryDS ds;
 
-    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
+    EXPECT_TRUE(ds.empty());
+
+    for (const auto& person: people)
     {
-        if (!m_fileStream.is_open())
-        {
-            m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
-            if (!m_fileStream.is_open())
-            {
-                throw Exception("Can't append or create log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
-            }
-        }
+        FieldList row(false);
 
-        if ((_options & LO_DATE) == LO_DATE)
-        {
-            m_fileStream << message->timestamp.dateString() << " ";
-        }
+        auto name = make_shared<Field>("name");
+        *name = person.name;
+        row.push_back(name);
 
-        if ((_options & LO_TIME) == LO_TIME)
-        {
-            m_fileStream << message->timestamp.timeString(true) << " ";
-        }
+        auto age = make_shared<Field>("age");
+        *age = person.age;
+        row.push_back(age);
 
-        if ((_options & LO_PRIORITY) == LO_PRIORITY)
-        {
-            m_fileStream << "[" << priorityName(message->priority) << "] ";
-        }
-
-        m_fileStream << message->message << endl;
+        ds.push_back(move(row));
     }
 
-    if (m_fileStream.bad())
-    {
-        throw Exception("Can't write to log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
-    }
-}
+    EXPECT_EQ(ds.recordCount(), size_t(3));
 
-FileLogEngine::FileLogEngine(const fs::path& fileName)
-    : LogEngine("FileLogEngine")
-    , m_fileName(fileName)
-    , m_fileStream(fileName.c_str())
-{
-}
+    ds.open();
 
-FileLogEngine::~FileLogEngine()
-{
-    shutdown();
+    int i = 0;
+    while (!ds.eof())
+    {
+        EXPECT_EQ(ds.fieldCount(), size_t(2));
+        EXPECT_STREQ(ds["name"].asString().c_str(), people[i].name.c_str());
+        EXPECT_EQ(ds["age"].asInteger(), people[i].age);
+        ++i;
+        ds.next();
+    }
 
-    scoped_lock lock(m_mutex);
-    if (m_fileStream.is_open())
-    {
-        m_fileStream.flush();
-        m_fileStream.close();
-    }
-}
+    EXPECT_FALSE(ds.find("age", 31));
+    EXPECT_TRUE(ds.find("age", 28));
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
+    EXPECT_EQ(ds[1].asInteger(), 28);
 
-void FileLogEngine::reset()
-{
-    lock_guard lock(m_mutex);
-    if (m_fileStream.is_open())
-    {
-        m_fileStream.close();
-    }
-    if (m_fileName.empty())
-    {
-        throw Exception("File name isn't defined", __FILE__, __LINE__);
-    }
-    m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
-    if (!m_fileStream.is_open())
-    {
-        throw Exception("Can't open log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
-    }
+    ds.prior();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
+
+    ds.last();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Bob");
+
+    ds.first();
+    EXPECT_STREQ(ds["name"].asString().c_str(), "John");
+
+    ds.close();
+
+    ds.clear();
+    EXPECT_TRUE(ds.empty());
 }
