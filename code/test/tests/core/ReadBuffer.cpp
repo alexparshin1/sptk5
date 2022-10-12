@@ -26,32 +26,44 @@
 
 #include "sptk5/ReadBuffer.h"
 
+#include <gtest/gtest.h>
+
 using namespace std;
 using namespace sptk;
 
-bool ReadBuffer::read(uint8_t* data, size_t length)
+TEST(SPTK_ReadBuffer, read)
 {
-    if (bytes() - m_readOffset < length)
-    {
-        return false;
-    }
-    if (data != nullptr)
-    {
-        memcpy(data, c_str() + m_readOffset, length);
-    }
-    m_readOffset += length;
-    compact();
-    return true;
-}
+    ReadBuffer buffer;
 
-bool ReadBuffer::read(String& data, size_t length)
-{
-    data.resize(length);
-    return read((uint8_t*) &data[0], length);
-}
+    for (int i = 0; i < 3; ++i)
+    {
+        buffer.append(i);
+    }
 
-bool ReadBuffer::read(Buffer& data, size_t length)
-{
-    data.checkSize(length);
-    return read(data.data(), length);
+    String test1(":test1:");
+    buffer.append(test1);
+
+    constexpr int dataLength {5};
+    for (int i = 3; i < dataLength; ++i)
+    {
+        buffer.append(i);
+    }
+
+    EXPECT_EQ(size_t(27), buffer.available());
+    EXPECT_EQ(size_t(0), buffer.readOffset());
+
+    for (int i = 0; i < dataLength; ++i)
+    {
+        int x = 0;
+        buffer.read(x);
+        EXPECT_EQ(i, x);
+        if (i == 2)
+        {
+            String test;
+            buffer.read(test, test1.length());
+        }
+    }
+
+    EXPECT_EQ(size_t(0), buffer.available());
+    EXPECT_EQ(size_t(0), buffer.readOffset());
 }

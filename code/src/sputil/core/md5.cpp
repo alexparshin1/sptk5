@@ -34,10 +34,6 @@ documentation and/or software.
 #include <sptk5/cutils>
 #include <sptk5/md5.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -398,43 +394,3 @@ String sptk::md5(const String& data)
 
     return md5.hexdigest();
 }
-
-#ifdef USE_GTEST
-
-static const String testPhrase("This is a test text to verify MD5 algorithm");
-
-static const String testSQL(
-    "SELECT * FROM schema1.employee "
-    "JOIN schema1.department ON employee.department_id = department.id "
-    "JOIN schema1.city ON employee.city_id = city_id "
-    "WHERE employee.id in (1,2,3,4) "
-    "AND employee.name LIKE 'John%' "
-    "AND department.name = 'Information Technologies' "
-    "LIMIT 1024");
-
-TEST(SPTK_MD5, md5)
-{
-    String testMD5 = md5(testPhrase);
-    EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
-
-    testMD5 = md5(Buffer(testPhrase));
-    EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
-}
-
-TEST(SPTK_MD5, performance)
-{
-    StopWatch stopWatch;
-    size_t iterations = 200000;
-
-    stopWatch.start();
-    for (size_t i = 0; i < iterations; ++i)
-    {
-        auto testMD5 = md5(Buffer(testSQL));
-    }
-    stopWatch.stop();
-
-    COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, "
-                     << iterations / stopWatch.seconds() << " per second" << endl)
-}
-
-#endif
