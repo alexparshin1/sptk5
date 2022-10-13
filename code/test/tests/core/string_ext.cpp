@@ -24,77 +24,24 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <fstream>
+#include <sptk5/Buffer.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+TEST(SPTK_string_ext, to_string)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
-
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
-
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    EXPECT_EQ(222, string2int("222"));
+    EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
+    EXPECT_STREQ("2.22", double2string(2.22).c_str());
+    EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_string_ext, capitalizeWords)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
-
-    m_compressedLength = m_content.length();
-
-    return m_content;
+    auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
+    EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
 }

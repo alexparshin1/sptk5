@@ -24,77 +24,89 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
+#include "zlib.h"
+#include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+static const String originalTestString = "This is a test of compression using GZip algorithm";
+
+// Note: ZLib under Windows produces slightly different result,
+// due old Windows port version.
+#ifdef _WIN32
+static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+#else
+static const String originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
+#endif
+
+TEST(SPTK_ZLib, compressDecompress)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    Buffer compressed;
+    Buffer decompressed;
+    ZLib::compress(compressed, Buffer(originalTestString));
+    ZLib::decompress(decompressed, compressed);
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
-
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_ZLib, compress)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
+    Buffer compressed;
+    String compressedBase64;
+    ZLib::compress(compressed, Buffer(originalTestString));
+    Base64::encode(compressedBase64, compressed);
 
-    m_compressedLength = m_content.length();
+    compressed.saveToFile("/tmp/00.gz");
 
-    return m_content;
+    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
+}
+
+TEST(SPTK_ZLib, decompress)
+{
+    Buffer compressed;
+    Buffer decompressed;
+
+    Base64::decode(compressed, originalTestStringBase64);
+    ZLib::decompress(decompressed, compressed);
+
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
+}
+
+TEST(SPTK_ZLib, performance)
+{
+    Buffer data;
+    Buffer compressed;
+    Buffer decompressed;
+
+    // Using uncompressed mplayer manual as test data
+    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
+    EXPECT_EQ(data.bytes(), size_t(345517));
+
+    StopWatch stopWatch;
+    stopWatch.start();
+    ZLib::compress(compressed, data);
+    stopWatch.stop();
+
+    constexpr auto bytesInMB = 1E6;
+    COUT("ZLib compressor:" << endl)
+    COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
+                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / bytesInMB << " Mb/s)"
+                       << endl)
+
+    stopWatch.start();
+    ZLib::decompress(decompressed, compressed);
+    stopWatch.stop();
+
+    COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
+                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / bytesInMB
+                         << " Mb/s)" << endl)
+
+    EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }

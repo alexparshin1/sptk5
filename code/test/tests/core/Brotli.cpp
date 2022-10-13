@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/Brotli.h>
-#include <sptk5/Exception.h>
 
 #include <gtest/gtest.h>
 #include <sptk5/Base64.h>

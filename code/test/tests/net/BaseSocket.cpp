@@ -24,77 +24,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <sptk5/SystemException.h>
+#include <sptk5/net/BaseSocket.h>
 
-using namespace std;
+#include <gtest/gtest.h>
+
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+TEST(SPTK_BaseSocket, minimal)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    constexpr uint16_t sslPort {443};
+    Host yahoo("www.yahoo.com", sslPort);
+    sockaddr_in address {};
+    yahoo.getAddress(address);
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
-
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    BaseSocket socket;
+    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
+    socket.close();
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_BaseSocket, option)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
+    constexpr uint16_t sslPort {443};
+    Host yahoo("www.yahoo.com", sslPort);
+    sockaddr_in address {};
+    yahoo.getAddress(address);
+
+    BaseSocket socket;
+    int value = 0;
+    try
     {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
+        socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
+        FAIL() << "Shouldn't get socket option for closed socket";
+    }
+    catch (const Exception&)
+    {
+        SUCCEED() << "Can't get socket option for closed socket";
     }
 
-    m_compressedLength = m_content.length();
+    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
 
-    return m_content;
+    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
+    EXPECT_EQ(value, 0);
+
+    socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
+    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
+    EXPECT_EQ(value, 1);
 }

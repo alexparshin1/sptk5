@@ -27,10 +27,6 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/SystemException.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -64,22 +60,3 @@ String SystemException::osError()
     return osError.data();
 #endif
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_SystemException, openFile)
-{
-    Buffer buffer;
-    try
-    {
-        buffer.loadFromFile("/xx.xx");
-        FAIL() << "MUST FAIL";
-    }
-    catch (const Exception& e)
-    {
-        if (String(e.what()).find("xx.xx") == string::npos)
-            FAIL() << e.what();
-    }
-}
-
-#endif

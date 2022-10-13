@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/CommandLine.h>
-#include <sptk5/Printer.h>
 
 #include <gtest/gtest.h>
 

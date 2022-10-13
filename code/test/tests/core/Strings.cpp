@@ -24,77 +24,80 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <sptk5/Buffer.h>
+#include <sptk5/RegularExpression.h>
+#include <sstream>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+static const String testString("This is a test\ntext that contains several\nexample rows");
+static const String resultString("This is a test\rtext that contains several\rexample rows");
+
+TEST(SPTK_Strings, ctor)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+    EXPECT_EQ(size_t(3), strings.size());
+    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
+    Strings strings2(strings);
+    EXPECT_EQ(size_t(3), strings2.size());
+    EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
+    strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
+    EXPECT_EQ(size_t(3), strings.size());
+    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
+    Strings strings3({"1", "2", "3"});
+    EXPECT_EQ(size_t(3), strings3.size());
+    EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    Strings numbers = {{"one", 3, 1},
+                       {"two", 3, 2},
+                       {"three", strlen("three"), 3}};
+    EXPECT_EQ(size_t(3), numbers.size());
+    EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
+    EXPECT_EQ(2, numbers[1].ident());
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_Strings, sort)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+    strings.sort();
+    EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
+}
 
-    m_compressedLength = m_content.length();
+TEST(SPTK_Strings, remove)
+{
+    Strings strings({"1", "2", "3"});
+    strings.remove("2");
+    EXPECT_STREQ("1,3", strings.join(",").c_str());
+}
 
-    return m_content;
+TEST(SPTK_Strings, indexOf)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+    EXPECT_EQ(1, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that contains"));
+
+    strings.sort();
+    EXPECT_EQ(2, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
+
+    strings.sort(false);
+    EXPECT_EQ(2, strings.indexOf("text that contains several"));
+    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
+}
+
+TEST(SPTK_Strings, grep)
+{
+    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+
+    Strings group1 = strings.grep("text");
+    EXPECT_EQ(size_t(1), group1.size());
+
+    Strings group2 = strings.grep("text|rows");
+    EXPECT_EQ(size_t(2), group2.size());
 }

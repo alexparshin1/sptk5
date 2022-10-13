@@ -24,77 +24,54 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+
+#include <sptk5/Exception.h>
+#include <sptk5/UniqueInstance.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+#ifndef _WIN32
+
+TEST(SPTK_UniqueInstance, create)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    UniqueInstance uniqueInstance("unit_tests");
+    EXPECT_TRUE(uniqueInstance.isUnique());
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
+    // Simulate lock file with non-existing process
+    ofstream lockFile(uniqueInstance.lockFileName());
+    constexpr int testPID = 123456;
+    lockFile << testPID;
+    lockFile.close();
+
+    UniqueInstance uniqueInstance2("unit_tests");
+    EXPECT_TRUE(uniqueInstance2.isUnique());
+
+    // Get pid of existing process
+    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
     {
-        case 0:
-            m_content = content;
-            break;
-
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
+        constexpr int bufferSize = 64;
+        array<char, bufferSize> buffer {};
+        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
+        {
+            int pid = string2int(data);
+            if (pid > 0)
+            {
+                lockFile.open(uniqueInstance.lockFileName());
+                lockFile << pid;
+                lockFile.close();
+                UniqueInstance uniqueInstance3("unit_tests");
+                EXPECT_FALSE(uniqueInstance3.isUnique());
+            }
+        }
+        pclose(pipe1);
     }
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
-{
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
 #endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
-
-    m_compressedLength = m_content.length();
-
-    return m_content;
-}

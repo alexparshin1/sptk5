@@ -24,16 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
-#include <sptk5/net/HttpConnect.h>
-
 #include <sptk5/Brotli.h>
+#include <sptk5/Printer.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/md5.h>
-
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
+#include <sptk5/net/HttpConnect.h>
 
 using namespace std;
 using namespace sptk;
@@ -274,36 +269,3 @@ HttpConnect::Authorization::Authorization(const String& method, const String& us
     , m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_HttpConnect, get)
-{
-    Host google("www.google.com:80");
-
-    auto socket = make_shared<TCPSocket>();
-
-    EXPECT_NO_THROW(socket->open(google));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(*socket);
-    Buffer output;
-
-    constexpr int minStatusCode {500};
-    int statusCode {minStatusCode};
-    try
-    {
-        statusCode = http.cmd_get("/", HttpParams(), output);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_EQ(200, statusCode);
-    EXPECT_STREQ("OK", http.statusText().c_str());
-
-    String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
-}
-
-#endif

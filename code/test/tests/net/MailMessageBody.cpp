@@ -24,77 +24,22 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/MailMessageBody.h>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+TEST(SPTK_MailMessageBody, minimal)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    MailMessageBody message;
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
+    message.text("<html><b>Hello,</b><i>World!</i></html>", false);
+    EXPECT_EQ(message.text(), "Hello, World!");
 
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
-}
-
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
-{
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
-
-    m_compressedLength = m_content.length();
-
-    return m_content;
+    message.text("<html><b>Hello,</b><i>World!</i></html>\n.\n", true);
+    EXPECT_EQ(message.text(), "Hello, World!");
 }

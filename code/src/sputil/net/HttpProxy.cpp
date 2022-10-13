@@ -29,11 +29,6 @@
 #include <sptk5/cutils>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/HttpProxy.h>
-#include <sptk5/net/SSLSocket.h>
-
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
 
 #ifdef _WIN32
 #include <winhttp.h>
@@ -243,97 +238,3 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     return false;
 #endif
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_HttpProxy, connect)
-{
-    // Check if proxy is defined in environment variable.
-    // It's typical for Linux, and rare for Windows.
-    // If proxy is not defined or defined in wrong format, this test is exiting.
-    const char* proxy = getenv("HTTP_PROXY");
-    if (proxy == nullptr)
-    {
-        proxy = getenv("http_proxy");
-    }
-    if (proxy == nullptr)
-    {
-        return;
-    } // No proxy defined, don't test
-
-    RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
-    auto matches = matchProxy.m(proxy);
-    if (!matches)
-    {
-        CERR("Can't parse proxy from environment variable" << endl)
-        return;
-    }
-
-    String proxyUser(matches[1].value);
-    String proxyPassword(matches[2].value);
-    Host proxyHost(matches[3].value);
-
-    auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
-    String error;
-    try
-    {
-        constexpr int httpPort {80};
-        Host ahost("www.sptk.net:80");
-
-        shared_ptr<TCPSocket> socket;
-        if (ahost.port() == httpPort)
-        {
-            socket = make_shared<TCPSocket>();
-        }
-        else
-        {
-            socket = make_shared<SSLSocket>();
-        }
-
-        socket->setProxy(move(httpProxy));
-        constexpr seconds connectTimeout {5};
-        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
-
-        HttpConnect http(*socket);
-
-        Buffer output;
-        constexpr int minimalHttpError = 400;
-
-        if (auto statusCode = http.cmd_get("/", HttpParams(), output);
-            statusCode >= minimalHttpError)
-        {
-            throw Exception(http.statusText());
-        }
-
-        COUT(output.c_str() << endl)
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(SPTK_HttpProxy, getDefaultProxy)
-{
-    Host proxyHost;
-    String proxyUser;
-    String proxyPassword;
-
-#ifdef _WIN32
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-#else
-    setenv("HTTP_PROXY", "127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
-    EXPECT_STREQ(proxyUser.c_str(), "");
-    EXPECT_STREQ(proxyPassword.c_str(), "");
-
-    setenv("HTTP_PROXY", "http://Domain\\user:password@127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
-    EXPECT_STREQ(proxyUser.c_str(), "Domain\\user");
-    EXPECT_STREQ(proxyPassword.c_str(), "password");
-#endif
-}
-
-#endif

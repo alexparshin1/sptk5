@@ -26,12 +26,6 @@
 
 #include <fstream>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/String.h>
-#include <sptk5/Strings.h>
-
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
 
 using namespace std;
 using namespace sptk;
@@ -103,53 +97,3 @@ bool String::in(std::initializer_list<String> list) const
         return value == *this;
     });
 }
-
-#ifdef USE_GTEST
-
-static const String testString("This is a test");
-
-TEST(SPTK_String, matches)
-{
-    EXPECT_TRUE(testString.matches("is a "));
-}
-
-TEST(SPTK_String, caseOps)
-{
-    EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
-    EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
-}
-
-TEST(SPTK_String, in)
-{
-    EXPECT_TRUE(String("true").in({"true", "false"}));
-    EXPECT_FALSE(String("yes").in({"true", "false"}));
-}
-
-TEST(SPTK_String, split)
-{
-    Strings words(testString.split("[\\s]+"));
-    EXPECT_EQ(size_t(4), words.size());
-    EXPECT_STREQ("This", words[0].c_str());
-    EXPECT_STREQ("test", words[3].c_str());
-}
-
-TEST(SPTK_String, startsEnds)
-{
-    EXPECT_TRUE(testString.startsWith("This "));
-    EXPECT_FALSE(testString.startsWith("this "));
-    EXPECT_TRUE(testString.endsWith(" test"));
-    EXPECT_FALSE(testString.endsWith(" tesT"));
-}
-
-TEST(SPTK_String, replace)
-{
-    EXPECT_STREQ("This is a Test", testString.replace(" t", " T").c_str());
-}
-
-TEST(SPTK_String, trim)
-{
-    String testString2(" \n\r\t" + testString + "\n\r\t ");
-    EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
-}
-
-#endif

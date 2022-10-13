@@ -27,10 +27,6 @@
 #include <sptk5/Base64.h>
 #include <sptk5/net/HttpAuthentication.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -106,50 +102,3 @@ HttpAuthentication::Type HttpAuthentication::type()
     parse();
     return m_type;
 }
-
-#ifdef USE_GTEST
-
-static String makeJWT()
-{
-    String key256("012345678901234567890123456789XY");
-
-    JWT jwt;
-    jwt.set_alg(JWT::Algorithm::HS256, key256);
-
-    constexpr auto testTimestamp = 1594642696;
-    jwt.set("iat", testTimestamp);
-    jwt.set("iss", "https://test.com");
-    jwt.set("exp", testTimestamp + 1);
-
-    const auto& info = jwt.grants.root()->pushNode("info");
-    info->set("company", "Linotex");
-    info->set("city", "Melbourne");
-
-    stringstream originalToken;
-    jwt.encode(originalToken);
-
-    return originalToken.str();
-}
-
-TEST(SPTK_HttpAuthentication, basic)
-{
-    HttpAuthentication test("Basic QWxhZGRpbjpPcGVuU2VzYW1l");
-    const auto& auth = test.getData();
-    EXPECT_STREQ(auth->getString("username").c_str(), "Aladdin");
-    EXPECT_STREQ(auth->getString("password").c_str(), "OpenSesame");
-    EXPECT_EQ(test.type(), HttpAuthentication::Type::BASIC);
-}
-
-TEST(SPTK_HttpAuthentication, bearer)
-{
-    auto token = makeJWT();
-    HttpAuthentication test("Bearer " + token);
-    const auto& auth = test.getData();
-
-    EXPECT_STREQ(auth->getString("iat").c_str(), "1594642696");
-    EXPECT_STREQ(auth->getString("iss").c_str(), "https://test.com");
-    EXPECT_STREQ(auth->getString("exp").c_str(), "1594642697");
-    EXPECT_EQ(test.type(), HttpAuthentication::Type::BEARER);
-}
-
-#endif

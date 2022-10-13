@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/LogEngine.h>
-#include <sptk5/Logger.h>
 
 #include <gtest/gtest.h>
 

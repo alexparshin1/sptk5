@@ -24,144 +24,104 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Strings.h>
-#include <sptk5/net/HttpParams.h>
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/cutils>
+#include <sptk5/net/HttpConnect.h>
+#include <sptk5/net/HttpProxy.h>
+#include <sptk5/net/SSLSocket.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-int hexCharToInt(unsigned char ch)
+TEST(SPTK_HttpProxy, connect)
 {
-    if (ch > '@')
+    // Check if proxy is defined in environment variable.
+    // It's typical for Linux, and rare for Windows.
+    // If proxy is not defined or defined in wrong format, this test is exiting.
+    const char* proxy = getenv("HTTP_PROXY");
+    if (proxy == nullptr)
     {
-        return ch - 'A' + 10;
+        proxy = getenv("http_proxy");
     }
-    return ch - '0';
-}
-
-String Url::encode(const String& str)
-{
-    auto cnt = (uint32_t) str.length();
-    const char* src = str.c_str();
-    array<char, 5> hexBuffer {};
-    Buffer buffer(cnt * 3 + 1);
-    buffer.data();
-    int len {0};
-    while (*src != 0)
+    if (proxy == nullptr)
     {
-        if (isalnum(*src) != 0)
+        return;
+    } // No proxy defined, don't test
+
+    RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
+    auto matches = matchProxy.m(proxy);
+    if (!matches)
+    {
+        CERR("Can't parse proxy from environment variable" << endl)
+        return;
+    }
+
+    String proxyUser(matches[1].value);
+    String proxyPassword(matches[2].value);
+    Host proxyHost(matches[3].value);
+
+    auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
+    String error;
+    try
+    {
+        constexpr int httpPort {80};
+        Host ahost("www.sptk.net:80");
+
+        shared_ptr<TCPSocket> socket;
+        if (ahost.port() == httpPort)
         {
-            buffer.append(*src);
+            socket = make_shared<TCPSocket>();
         }
         else
         {
-            switch (*src)
-            {
-                case ' ':
-                    buffer.append('+');
-                    break;
-                case '.':
-                case '-':
-                    buffer.append(*src);
-                    break;
-                default:
-                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", (unsigned char) *src);
-                    buffer.append(hexBuffer.data(), (size_t) len);
-                    break;
-            }
+            socket = make_shared<SSLSocket>();
         }
-        ++src;
-    }
-    return {buffer.c_str(), buffer.bytes()};
-}
 
-String Url::decode(const String& str)
-{
-    const char* src = str.c_str();
-    char dest {0};
-    Buffer buffer;
-    while (*src != 0)
-    {
-        switch (*src)
+        socket->setProxy(move(httpProxy));
+        constexpr seconds connectTimeout {5};
+        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
+
+        HttpConnect http(*socket);
+
+        Buffer output;
+        constexpr int minimalHttpError = 400;
+
+        if (auto statusCode = http.cmd_get("/", HttpParams(), output);
+            statusCode >= minimalHttpError)
         {
-            case '+':
-                buffer.append(' ');
-                ++src;
-                break;
-
-            case '%':
-                ++src;
-                dest = char(hexCharToInt((unsigned char) *src) * 16 + hexCharToInt((unsigned char) src[1]));
-                buffer.append(dest);
-                src += 2;
-                break;
-
-            default:
-                buffer.append(*src);
-                ++src;
-                break;
+            throw Exception(http.statusText());
         }
-    }
-    return {buffer.c_str(), buffer.length()};
-}
 
-HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
-{
-    for (const auto& [name, value]: lst)
+        COUT(output.c_str() << endl)
+    }
+    catch (const Exception& e)
     {
-        operator[](name) = value;
+        FAIL() << e.what();
     }
 }
 
-void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
+TEST(SPTK_HttpProxy, getDefaultProxy)
 {
-    clear();
+    Host proxyHost;
+    String proxyUser;
+    String proxyPassword;
 
-    Strings sl(cb.c_str(), "&");
-    for (const auto& s: sl)
-    {
-        size_t pos = s.find('=');
-        if (pos != string::npos)
-        {
-            string key = s.substr(0, pos);
-            string value = s.substr(pos + 1);
-            (*this)[key] = Url::decode(value);
-        }
-        else
-        {
-            (*this)[s] = "";
-        }
-    }
-}
+#ifdef _WIN32
+    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
+#else
+    setenv("HTTP_PROXY", "127.0.0.1:3128", 1);
+    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
+    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
+    EXPECT_STREQ(proxyUser.c_str(), "");
+    EXPECT_STREQ(proxyPassword.c_str(), "");
 
-void HttpParams::encode(Buffer& result) const
-{
-    unsigned cnt = 0;
-    for (const auto& [name, value]: *this)
-    {
-        String param;
-        param = name + "=" + Url::encode(value);
-        if (cnt != 0)
-        {
-            result.append('&');
-        }
-        result.append(param);
-        ++cnt;
-    }
-}
-
-String HttpParams::get(const String& paramName) const
-{
-    auto itor = find(paramName);
-    if (itor == end())
-    {
-        return "";
-    }
-    return itor->second;
-}
-
-bool HttpParams::has(const String& paramName) const
-{
-    auto itor = find(paramName);
-    return itor != end();
+    setenv("HTTP_PROXY", "http://Domain\\user:password@127.0.0.1:3128", 1);
+    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
+    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
+    EXPECT_STREQ(proxyUser.c_str(), "Domain\\user");
+    EXPECT_STREQ(proxyPassword.c_str(), "password");
+#endif
 }

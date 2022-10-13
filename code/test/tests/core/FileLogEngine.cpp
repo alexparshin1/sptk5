@@ -24,9 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/FileLogEngine.h>
-
 #include <gtest/gtest.h>
+#include <sptk5/FileLogEngine.h>
 
 using namespace std;
 using namespace sptk;

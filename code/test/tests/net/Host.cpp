@@ -24,77 +24,99 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/SystemException.h>
+#include <sptk5/net/BaseSocket.h>
+
+#include <utility>
+
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+static constexpr uint16_t sshPort = 22;
+static constexpr uint16_t telnetPort = 23;
+static constexpr uint16_t httpPort = 80;
+static const String testHost("www.google.com:80");
+
+TEST(SPTK_Host, ctorHostname)
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    Host google1(testHost);
+    EXPECT_STREQ(testHost.c_str(), google1.toString(false).c_str());
+    EXPECT_STREQ("www.google.com", google1.hostname().c_str());
+    EXPECT_EQ(httpPort, google1.port());
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
-
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
-
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
-
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
-
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    Host google(google1.toString(true));
+    EXPECT_TRUE(google1 == google);
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_Host, ctorAddress)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
+    Host host("11.22.33.44", sshPort);
+    EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
+    EXPECT_EQ(sshPort, host.port());
+}
 
-    m_compressedLength = m_content.length();
+TEST(SPTK_Host, ctorAddressStruct)
+{
+    String testHostAndPort {"bitbucket.com:80"};
+    Host host1(testHostAndPort);
 
-    return m_content;
+    sockaddr_in address {};
+    host1.getAddress(address);
+    Host host2(&address);
+
+    EXPECT_STREQ(host1.toString(true).c_str(), host2.toString(true).c_str());
+    EXPECT_STREQ(testHostAndPort.c_str(), host2.toString(false).c_str());
+    EXPECT_EQ(host1.port(), host2.port());
+}
+
+TEST(SPTK_Host, ctorCopy)
+{
+    Host host1("11.22.33.44", sshPort);
+    Host host2(host1);
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(sshPort, host2.port());
+}
+
+TEST(SPTK_Host, ctorMove)
+{
+    Host host1("11.22.33.44", sshPort);
+    Host host2(move(host1));
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(sshPort, host2.port());
+}
+
+TEST(SPTK_Host, assign)
+{
+    Host host1("11.22.33.44", sshPort);
+    Host host2 = host1;
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(sshPort, host2.port());
+}
+
+TEST(SPTK_Host, move)
+{
+    Host host1("11.22.33.44", sshPort);
+    Host host2 = move(host1);
+    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
+    EXPECT_EQ(sshPort, host2.port());
+}
+
+TEST(SPTK_Host, compare)
+{
+    Host host1("11.22.33.44", sshPort);
+    Host host2(host1);
+    Host host3("11.22.33.45", sshPort);
+    Host host4("11.22.33.44", telnetPort);
+
+    EXPECT_TRUE(host1 == host2);
+    EXPECT_FALSE(host1 != host2);
+
+    EXPECT_FALSE(host1 == host3);
+    EXPECT_TRUE(host1 != host3);
+
+    EXPECT_FALSE(host1 == host4);
+    EXPECT_TRUE(host1 != host4);
 }

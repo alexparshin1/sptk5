@@ -28,10 +28,6 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 #ifndef _WIN32
 #include <sys/poll.h>
 #endif
@@ -539,48 +535,3 @@ void BaseSocket::getOption(int level, int option, int& value) const
     if (getsockopt(m_sockfd, level, option, VALUE_TYPE(&value), &len) != 0)
         THROW_SOCKET_ERROR("Can't get socket option");
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_BaseSocket, minimal)
-{
-    constexpr uint16_t sslPort {443};
-    Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
-
-    BaseSocket socket;
-    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
-    socket.close();
-}
-
-TEST(SPTK_BaseSocket, option)
-{
-    constexpr uint16_t sslPort {443};
-    Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
-
-    BaseSocket socket;
-    int value = 0;
-    try
-    {
-        socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-        FAIL() << "Shouldn't get socket option for closed socket";
-    }
-    catch (const Exception&)
-    {
-        SUCCEED() << "Can't get socket option for closed socket";
-    }
-
-    socket.open_addr(sptk::BaseSocket::OpenMode::CONNECT, &address);
-
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 0);
-
-    socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 1);
-}
-
-#endif

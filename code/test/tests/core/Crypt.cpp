@@ -24,13 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <openssl/evp.h>
-#include <sptk5/Crypt.h>
-#include <sptk5/Exception.h>
-
 #include <gtest/gtest.h>
 #include <sptk5/Base64.h>
-
+#include <sptk5/Crypt.h>
 
 using namespace std;
 using namespace sptk;

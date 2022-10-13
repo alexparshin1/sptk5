@@ -25,12 +25,7 @@
 */
 
 #include <sptk5/RegularExpression.h>
-#include <sptk5/Strings.h>
 #include <sptk5/net/MailMessageBody.h>
-
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
 
 using namespace std;
 using namespace sptk;
@@ -69,18 +64,3 @@ void MailMessageBody::text(const string& messageText, bool smtp)
         m_htmlText = msg;
     }
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_MailMessageBody, minimal)
-{
-    MailMessageBody message;
-
-    message.text("<html><b>Hello,</b><i>World!</i></html>", false);
-    EXPECT_EQ(message.text(), "Hello, World!");
-
-    message.text("<html><b>Hello,</b><i>World!</i></html>\n.\n", true);
-    EXPECT_EQ(message.text(), "Hello, World!");
-}
-
-#endif

@@ -25,7 +25,6 @@
 */
 
 #include <string>
-#include <sys/stat.h>
 
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/Printer.h>

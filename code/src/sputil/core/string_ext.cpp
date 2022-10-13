@@ -27,15 +27,8 @@
 #include <cstdlib>
 #include <fstream>
 #include <sptk5/Buffer.h>
-#include <sptk5/Exception.h>
-#include <sptk5/sptk.h>
-
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
 
 using namespace std;
-
 using namespace sptk;
 
 String sptk::upperCase(const String& str)
@@ -294,21 +287,3 @@ String sptk::capitalizeWords(const String& s)
 
     return {buffer.c_str(), buffer.length()};
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_string_ext, to_string)
-{
-    EXPECT_EQ(222, string2int("222"));
-    EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
-    EXPECT_STREQ("2.22", double2string(2.22).c_str());
-    EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
-}
-
-TEST(SPTK_string_ext, capitalizeWords)
-{
-    auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
-    EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
-}
-
-#endif

@@ -24,77 +24,52 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include <sptk5/cnet>
-#include <sptk5/net/RequestInfo.h>
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+#include <sptk5/net/HttpAuthentication.h>
 
 using namespace std;
 using namespace sptk;
 
-void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
+static String makeJWT()
 {
-    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int initialBufferSize = 128;
-    m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
-    m_contentEncoding = contentEncoding;
+    String key256("012345678901234567890123456789XY");
 
-    switch (knowContentEncodings.indexOf(contentEncoding))
-    {
-        case 0:
-            m_content = content;
-            break;
+    JWT jwt;
+    jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-#ifdef HAVE_BROTLI
-        case 1:
-            Brotli::decompress(m_content, content);
-            break;
-#endif
+    constexpr auto testTimestamp = 1594642696;
+    jwt.set("iat", testTimestamp);
+    jwt.set("iss", "https://test.com");
+    jwt.set("exp", testTimestamp + 1);
 
-#ifdef HAVE_ZLIB
-        case 2:
-            ZLib::decompress(m_content, content);
-            break;
-#endif
+    const auto& info = jwt.grants.root()->pushNode("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
 
-        case 3:
-            m_content = Url::decode(content.c_str());
-            break;
+    stringstream originalToken;
+    jwt.encode(originalToken);
 
-        default:
-            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
-    }
+    return originalToken.str();
 }
 
-Buffer RequestInfo::Message::output(const Strings& contentEncodings)
+TEST(SPTK_HttpAuthentication, basic)
 {
-    constexpr int minimumSizeForCompression = 64;
-    m_contentEncoding = "";
-    if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
-    {
-        Buffer outputData;
-#ifdef HAVE_BROTLI
-        if (contentEncodings.indexOf("br") >= 0)
-        {
-            m_contentEncoding = "br";
-            Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-#ifdef HAVE_ZLIB
-        if (contentEncodings.indexOf("gzip") >= 0)
-        {
-            m_contentEncoding = "gzip";
-            ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
-            return outputData;
-        }
-#endif
-    }
+    HttpAuthentication test("Basic QWxhZGRpbjpPcGVuU2VzYW1l");
+    const auto& auth = test.getData();
+    EXPECT_STREQ(auth->getString("username").c_str(), "Aladdin");
+    EXPECT_STREQ(auth->getString("password").c_str(), "OpenSesame");
+    EXPECT_EQ(test.type(), HttpAuthentication::Type::BASIC);
+}
 
-    m_compressedLength = m_content.length();
+TEST(SPTK_HttpAuthentication, bearer)
+{
+    auto token = makeJWT();
+    HttpAuthentication test("Bearer " + token);
+    const auto& auth = test.getData();
 
-    return m_content;
+    EXPECT_STREQ(auth->getString("iat").c_str(), "1594642696");
+    EXPECT_STREQ(auth->getString("iss").c_str(), "https://test.com");
+    EXPECT_STREQ(auth->getString("exp").c_str(), "1594642697");
+    EXPECT_EQ(test.type(), HttpAuthentication::Type::BEARER);
 }

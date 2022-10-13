@@ -26,8 +26,6 @@
 
 #include <iomanip>
 #include <sptk5/Buffer.h>
-#include <sptk5/SystemException.h>
-#include <sys/stat.h>
 
 #include <gtest/gtest.h>
 

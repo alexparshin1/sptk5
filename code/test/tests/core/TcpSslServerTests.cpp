@@ -25,13 +25,10 @@
 */
 
 #include <sptk5/cutils>
-
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerListener.h>
 
-#ifdef USE_GTEST
 #include <gtest/gtest.h>
-#endif
 
 using namespace std;
 using namespace sptk;

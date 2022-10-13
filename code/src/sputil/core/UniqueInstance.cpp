@@ -32,10 +32,6 @@
 #include <sptk5/Exception.h>
 #include <sptk5/UniqueInstance.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 #ifndef _WIN32
 #ifndef __USE_XOPEN_EXTENDED
 #define __USE_XOPEN_EXTENDED
@@ -131,45 +127,3 @@ bool UniqueInstance::isUnique() const
 {
     return m_lockCreated;
 }
-
-#ifdef USE_GTEST
-
-#ifndef _WIN32
-
-TEST(SPTK_UniqueInstance, create)
-{
-    UniqueInstance uniqueInstance("unit_tests");
-    EXPECT_TRUE(uniqueInstance.isUnique());
-
-    // Simulate lock file with non-existing process
-    ofstream lockFile(uniqueInstance.lockFileName());
-    constexpr int testPID = 123456;
-    lockFile << testPID;
-    lockFile.close();
-
-    UniqueInstance uniqueInstance2("unit_tests");
-    EXPECT_TRUE(uniqueInstance2.isUnique());
-
-    // Get pid of existing process
-    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
-    {
-        constexpr int bufferSize = 64;
-        array<char, bufferSize> buffer {};
-        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
-        {
-            int pid = string2int(data);
-            if (pid > 0)
-            {
-                lockFile.open(uniqueInstance.lockFileName());
-                lockFile << pid;
-                lockFile.close();
-                UniqueInstance uniqueInstance3("unit_tests");
-                EXPECT_FALSE(uniqueInstance3.isUnique());
-            }
-        }
-        pclose(pipe1);
-    }
-}
-
-#endif
-#endif
