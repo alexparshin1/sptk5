@@ -28,11 +28,6 @@
 #include <sptk5/Printer.h>
 #include <sptk5/threads/Locks.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#include <sptk5/threads/Thread.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -95,52 +90,3 @@ CompareLockInt::CompareLockInt(SharedMutex& mutex1, SharedMutex& mutex2)
     lock(lock1, lock2);
 }
 
-#ifdef USE_GTEST
-
-class LockTestThread
-    : public Thread
-{
-public:
-    static SharedMutex amutex;
-
-    LockTestThread()
-        : Thread("test")
-    {
-    }
-
-    void threadFunction() override
-    {
-        try
-        {
-            TimedUniqueLock(amutex, chrono::milliseconds(100));
-            aresult = "locked";
-        }
-        catch (const Exception& e)
-        {
-            aresult = "lock timeout: " + String(e.what());
-        }
-    }
-
-    String result() const
-    {
-        return aresult;
-    }
-
-private:
-    String aresult;
-};
-
-SharedMutex LockTestThread::amutex;
-
-TEST(SPTK_Locks, writeLockAndWait)
-{
-    UniqueLock(LockTestThread::amutex);
-    LockTestThread th;
-    th.run();
-    constexpr auto smallDelay = chrono::milliseconds(200);
-    this_thread::sleep_for(smallDelay);
-    th.join();
-    EXPECT_TRUE(th.result().startsWith("lock timeout"));
-}
-
-#endif

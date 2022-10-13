@@ -29,10 +29,6 @@
 #include <sptk5/cutils>
 #include <sptk5/xdoc/ExportJSON.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
@@ -281,19 +277,3 @@ void ExportJSON::exportToJSON(const Node* node, sptk::Buffer& json, bool formatt
     json.set(stream.str());
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_XDocument, xmlToJson)
-{
-    xdoc::Document document;
-    Buffer buffer;
-
-    buffer.loadFromFile("data/menu.xml");
-
-    document.load(buffer, false);
-    document.exportTo(xdoc::DataFormat::JSON, buffer, true);
-
-    //COUT(buffer << endl)
-}
-
-#endif

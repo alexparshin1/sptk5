@@ -26,10 +26,6 @@
 
 #include <sptk5/xdoc/XMLDocType.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
@@ -336,48 +332,3 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
     return result;
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_XmlXMLDocType, parseEntity)
-{
-    Entity entity;
-
-    entity.parse(R"(<!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>)");
-    EXPECT_STREQ(entity.name.c_str(), "file_pic");
-    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
-    EXPECT_STREQ(entity.resource.c_str(), "file.jpg");
-
-    entity.parse(R"(<!ENTITY % lists "ul | ol")");
-    EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
-    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
-
-    entity.parse(R"(<!ENTITY % lists PUBLIC list_id "ul | ol")");
-    EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::Type::PUBLIC);
-    EXPECT_STREQ(entity.id.c_str(), "list_id");
-    EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
-}
-
-TEST(SPTK_XmlXMLDocType, decodeEncodeEntities)
-{
-    String testString1("<'test1'> value");
-    String testString2(R"(<v a='test1'>value</v>)");
-
-    Buffer encoded;
-    Buffer decoded;
-    xdoc::XMLDocType docType("x");
-
-    docType.encodeEntities(testString1.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
-    EXPECT_STREQ(testString1.c_str(), decoded.c_str());
-
-    encoded.reset();
-    decoded.reset();
-
-    docType.encodeEntities(testString2.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
-    EXPECT_STREQ(testString2.c_str(), decoded.c_str());
-}
-
-#endif

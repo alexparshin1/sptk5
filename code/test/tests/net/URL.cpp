@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,73 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
+#include <gtest/gtest.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/net/URL.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+static const String testURL0 = "https://www.test.com:8080/daily/report";
+static const String testURL1 = "/daily/report?action=view&id=1";
+static const String testURL2 = "https://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
+static const String testURL3 = "https://johnd:secret@www.test.com:8080/report?action=view&id=1";
+
+TEST(SPTK_URL, minimal) /* NOLINT */
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    URL url(testURL0);
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.username().c_str(), "");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
 
-    URL url(m_connectionString);
+    EXPECT_EQ(url.params().size(), size_t(0));
 
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
-    {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
-    }
-
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
-    {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
+    EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
 
-String DatabaseConnectionString::toString() const
+TEST(SPTK_URL, local) /* NOLINT */
 {
-    stringstream result;
+    URL url(testURL1);
+    EXPECT_STREQ(url.protocol().c_str(), "");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "");
+    EXPECT_STREQ(url.username().c_str(), "");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
 
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
-        {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
+    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_STREQ(url.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
-        }
-    }
-
-    return result.str();
+    EXPECT_STREQ(url.toString().c_str(), testURL1.c_str());
 }
 
-String DatabaseConnectionString::parameter(const String& name) const
+TEST(SPTK_URL, all) /* NOLINT */
 {
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
+    URL url(testURL2);
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.username().c_str(), "johnd");
+    EXPECT_STREQ(url.password().c_str(), "secret");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
+    EXPECT_STREQ(url.location().c_str(), "/daily");
+
+    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_STREQ(url.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url.params().get("id").c_str(), "1");
+
+    EXPECT_STREQ(url.toString().c_str(), testURL2.c_str());
+
+    URL url3(testURL3);
+    EXPECT_STREQ(url3.location().c_str(), "");
+}
+
+TEST(SPTK_URL, loop)
+{
+    constexpr size_t numIterations = 100;
+    for (size_t i = 0; i < numIterations; ++i)
     {
-        return "";
+        URL url(testURL0);
     }
-    return itor->second;
 }
-
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
-

@@ -31,10 +31,6 @@
 #include <openssl/err.h>
 #include <sptk5/net/CachedSSLContext.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -445,24 +441,3 @@ size_t SSLSocket::send(const uint8_t* buffer, size_t len)
         this_thread::sleep_for(smallDelay);
     }
 }
-
-#ifdef USE_GTEST
-
-TEST(SPTK_SSLSocket, connect)
-{
-    SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
-    SSLSocket sslSocket;
-
-    try
-    {
-        sslSocket.loadKeys(keys); // Optional step - not required for Google connect
-        sslSocket.open(Host("www.google.com:443"));
-        sslSocket.close();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-#endif

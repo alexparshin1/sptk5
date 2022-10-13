@@ -28,10 +28,6 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -329,30 +325,3 @@ String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
     return String("?");
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_BulkInsert, escapeSqlString)
-{
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    String escapedString = escapeSQLString(sourceString, false);
-    EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
-}
-
-TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
-{
-    constexpr auto maxCount = 100000;
-    constexpr auto mcsInSecond = 1E6;
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    StopWatch stopWatch;
-    stopWatch.start();
-    for (size_t i = 0; i < maxCount; ++i)
-    {
-        escapeSQLString(sourceString, false);
-    }
-    stopWatch.stop();
-    COUT("Escaped " << maxCount << " SQLs "
-                    << " for " << stopWatch.seconds() << " sec, "
-                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl)
-}
-
-#endif

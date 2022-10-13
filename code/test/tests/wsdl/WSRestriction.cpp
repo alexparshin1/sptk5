@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,87 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <sptk5/wsdl/WSRestriction.h>
+#include <sptk5/xdoc/Document.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+static const String coloursXML {
+    "<xsd:element name=\"Colours\">"
+    "<xsd:simpleType>"
+    "<xsd:restriction base=\"xsd:string\">"
+    "<xsd:enumeration value=\"Red\"/>"
+    "<xsd:enumeration value=\"Green\"/>"
+    "<xsd:enumeration value=\"Blue\"/>"
+    "</xsd:restriction>"
+    "</xsd:simpleType>"
+    "</xsd:element>"};
+
+static const String initialsXML {
+    "<xsd:element name=\"Initials\">"
+    "<xsd:simpleType>"
+    "<xsd:restriction base=\"xsd:string\">"
+    "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
+    "</xsd:restriction>"
+    "</xsd:simpleType>"
+    "</xsd:element>"};
+
+TEST(SPTK_WSRestriction, parseEnumeration)
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    xdoc::Document document;
+    document.load(coloursXML);
 
-    URL url(m_connectionString);
+    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    WSRestriction restrictions("Colours", simpleTypeElement);
+
+    try
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
+        restrictions.check("Colour", "Green");
+    }
+    catch (const Exception&)
+    {
+        FAIL() << "Green is allowed colour!";
     }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    try
     {
-        m_driverName = "postgresql";
+        restrictions.check("Colour", "Yellow");
+        FAIL() << "Yellow is not allowed colour!";
     }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
+    catch (const Exception&)
     {
-        hostAndPort.push_back("");
+        SUCCEED() << "Correctly detected not allowed colour";
     }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
 }
 
-String DatabaseConnectionString::toString() const
+TEST(SPTK_WSRestriction, parseInitials)
 {
-    stringstream result;
+    xdoc::Document document;
+    document.load(initialsXML);
 
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
+    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
+
+    WSRestriction restrictions("Initials", simpleTypeElement);
+
+    try
     {
-        result << m_userName;
-        if (!m_password.empty())
-        {
-            result << ":" << m_password;
-        }
-        result << "@";
+        restrictions.check("Initials", "AL");
+    }
+    catch (const Exception&)
+    {
+        FAIL() << "AL is correct initials!";
     }
 
-    result << m_hostName;
-    if (m_portNumber != 0)
+    try
     {
-        result << ":" << m_portNumber;
+        restrictions.check("Initials", "xY");
+        FAIL() << "xY is incorrect initials!";
     }
-
-    if (!m_databaseName.empty())
+    catch (const Exception&)
     {
-        result << "/" << m_databaseName;
+        SUCCEED() << "Correctly detected incorrect initials";
     }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
-        }
-    }
-
-    return result.str();
 }
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
-    {
-        return "";
-    }
-    return itor->second;
-}
-
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
-

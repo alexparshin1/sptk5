@@ -27,10 +27,6 @@
 #include <sptk5/cutils>
 #include <sptk5/threads/ThreadManager.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -127,73 +123,3 @@ bool Thread::running() const
     return m_thread && m_thread->joinable();
 }
 
-#ifdef USE_GTEST
-
-class ThreadTestThread
-    : public Thread
-{
-    atomic_int m_counter {0};
-    int m_maxCounter;
-
-public:
-    explicit ThreadTestThread(const String& threadName, int maxCounter)
-        : Thread(threadName)
-        , m_maxCounter(maxCounter)
-    {
-    }
-
-    void threadFunction() override
-    {
-        constexpr chrono::milliseconds timeout(5);
-        m_counter = 0;
-        while (!terminated())
-        {
-            ++m_counter;
-            if (m_counter == m_maxCounter)
-            {
-                break;
-            }
-            sleep_for(timeout);
-        }
-    }
-
-    int counter() const
-    {
-        return m_counter;
-    }
-};
-
-// Test thread start and join
-TEST(SPTK_Thread, run)
-{
-    constexpr int testCounter {5};
-    constexpr chrono::milliseconds interval(60);
-    ThreadTestThread testThread("Test Thread", testCounter);
-    testThread.run();
-    this_thread::sleep_for(interval);
-    testThread.terminate();
-    testThread.join();
-    EXPECT_EQ(testCounter, testThread.counter());
-}
-
-// Test thread re-start after join
-TEST(SPTK_Thread, runAgain) /* NOLINT */
-{
-    constexpr int testCounter {5};
-    constexpr chrono::milliseconds sleepInterval {60};
-    ThreadTestThread testThread("Test Thread", testCounter);
-
-    testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(sleepInterval));
-    testThread.terminate();
-    testThread.join();
-    EXPECT_EQ(testCounter, testThread.counter());
-
-    testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(50));
-    testThread.terminate();
-    testThread.join();
-    EXPECT_EQ(5, testThread.counter());
-}
-
-#endif

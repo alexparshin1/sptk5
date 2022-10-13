@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,76 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <sptk5/cutils>
+#include <sptk5/threads/ThreadManager.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+class ThreadTestThread
+    : public Thread
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    atomic_int m_counter {0};
+    int m_maxCounter;
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+public:
+    explicit ThreadTestThread(const String& threadName, int maxCounter)
+        : Thread(threadName)
+        , m_maxCounter(maxCounter)
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
     }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    void threadFunction() override
     {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
-}
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
+        constexpr chrono::milliseconds timeout(5);
+        m_counter = 0;
+        while (!terminated())
         {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
-
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
+            ++m_counter;
+            if (m_counter == m_maxCounter)
             {
-                first = false;
+                break;
             }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
+            sleep_for(timeout);
         }
     }
 
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
+    int counter() const
     {
-        return "";
+        return m_counter;
     }
-    return itor->second;
-}
+};
 
-bool DatabaseConnectionString::empty() const
+// Test thread start and join
+TEST(SPTK_Thread, run)
 {
-    return m_hostName.empty();
+    constexpr int testCounter {5};
+    constexpr chrono::milliseconds interval(60);
+    ThreadTestThread testThread("Test Thread", testCounter);
+    testThread.run();
+    this_thread::sleep_for(interval);
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(testCounter, testThread.counter());
 }
 
+// Test thread re-start after join
+TEST(SPTK_Thread, runAgain) /* NOLINT */
+{
+    constexpr int testCounter {5};
+    constexpr chrono::milliseconds sleepInterval {60};
+    ThreadTestThread testThread("Test Thread", testCounter);
+
+    testThread.run();
+    this_thread::sleep_for(chrono::milliseconds(sleepInterval));
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(testCounter, testThread.counter());
+
+    testThread.run();
+    this_thread::sleep_for(chrono::milliseconds(50));
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(5, testThread.counter());
+}

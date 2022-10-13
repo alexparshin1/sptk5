@@ -26,10 +26,6 @@
 
 #include "sptk5/threads/ThreadManager.h"
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -142,56 +138,3 @@ bool ThreadManager::running() const
     return m_joiner->running();
 }
 
-#ifdef USE_GTEST
-
-class ThreadManagerTestThread
-    : public Thread
-{
-public:
-    static atomic<size_t> taskCounter;
-    static atomic<size_t> joinCounter;
-
-    ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager>& threadManager)
-        : Thread(name, threadManager)
-    {
-    }
-
-    void join() override
-    {
-        ++joinCounter;
-    }
-
-protected:
-    void threadFunction() override
-    {
-        constexpr auto tenMilliseconds = milliseconds(10);
-        ++taskCounter;
-        sleep_for(tenMilliseconds);
-    }
-};
-
-atomic<size_t> ThreadManagerTestThread::taskCounter;
-atomic<size_t> ThreadManagerTestThread::joinCounter;
-
-TEST(SPTK_ThreadManager, minimal)
-{
-    constexpr size_t maxThreads = 10;
-    auto threadManager = make_shared<ThreadManager>("Test Manager");
-
-    threadManager->start();
-
-    for (size_t i = 0; i < maxThreads; ++i)
-    {
-        auto* thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
-        thread->run();
-    }
-
-    constexpr auto smallDelay = milliseconds(200);
-    this_thread::sleep_for(smallDelay);
-    threadManager->stop();
-
-    EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);
-    EXPECT_EQ(maxThreads, ThreadManagerTestThread::joinCounter);
-}
-
-#endif

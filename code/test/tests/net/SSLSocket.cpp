@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,27 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <gtest/gtest.h>
+#include <sptk5/net/SSLSocket.h>
+#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-void DatabaseConnectionString::parse()
+TEST(SPTK_SSLSocket, connect)
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
+    SSLSocket sslSocket;
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    try
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
+        sslSocket.loadKeys(keys); // Optional step - not required for Google connect
+        sslSocket.open(Host("www.google.com:443"));
+        sslSocket.close();
     }
-
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    catch (const Exception& e)
     {
-        m_driverName = "postgresql";
+        FAIL() << e.what();
     }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
 }
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
-        {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
-
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
-        }
-    }
-
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
-    {
-        return "";
-    }
-    return itor->second;
-}
-
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
-

@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <mutex>
+#include <sptk5/Printer.h>
+#include <sptk5/threads/Locks.h>
+#include <gtest/gtest.h>
+#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+class LockTestThread
+    : public Thread
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+public:
+    static SharedMutex amutex;
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    LockTestThread()
+        : Thread("test")
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
     }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    void threadFunction() override
     {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
-}
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
+        try
         {
-            result << ":" << m_password;
+            TimedUniqueLock(amutex, chrono::milliseconds(100));
+            aresult = "locked";
         }
-        result << "@";
-    }
-
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
+        catch (const Exception& e)
         {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
+            aresult = "lock timeout: " + String(e.what());
         }
     }
 
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
+    String result() const
     {
-        return "";
+        return aresult;
     }
-    return itor->second;
-}
 
-bool DatabaseConnectionString::empty() const
+private:
+    String aresult;
+};
+
+SharedMutex LockTestThread::amutex;
+
+TEST(SPTK_Locks, writeLockAndWait)
 {
-    return m_hostName.empty();
+    UniqueLock(LockTestThread::amutex);
+    LockTestThread th;
+    th.run();
+    constexpr auto smallDelay = chrono::milliseconds(200);
+    this_thread::sleep_for(smallDelay);
+    th.join();
+    EXPECT_TRUE(th.result().startsWith("lock timeout"));
 }
-

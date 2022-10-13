@@ -27,10 +27,6 @@
 #include <mutex>
 #include <sptk5/threads/Flag.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -116,49 +112,3 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
     return true;
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_Flag, ctor)
-{
-    Flag flag;
-    EXPECT_EQ(flag.get(), false);
-}
-
-TEST(SPTK_Flag, waitFor)
-{
-    Flag flag;
-
-    constexpr milliseconds timeout(10);
-    bool result = flag.wait_for(true, timeout);
-    EXPECT_EQ(flag.get(), false);
-    EXPECT_EQ(result, false);
-
-    result = flag.wait_for(false, timeout);
-    EXPECT_EQ(flag.get(), false);
-    EXPECT_EQ(result, true);
-}
-
-TEST(SPTK_Flag, setWaitFor)
-{
-    Flag flag;
-
-    flag.set(true);
-    constexpr milliseconds timeout(10);
-    bool result = flag.wait_for(true, timeout);
-    EXPECT_EQ(flag.get(), true);
-    EXPECT_EQ(result, true);
-}
-
-TEST(SPTK_Flag, adaptorAndAssignment)
-{
-    Flag flag;
-
-    flag = true;
-    EXPECT_EQ((bool) flag, true);
-
-    flag = false;
-    EXPECT_EQ((bool) flag, false);
-}
-
-
-#endif

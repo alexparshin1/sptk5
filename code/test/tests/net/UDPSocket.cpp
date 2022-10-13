@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,118 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <gtest/gtest.h>
+#include <sptk5/cutils>
+#include <sptk5/net/UDPSocket.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+static constexpr uint16_t testPort = 3000;
+static constexpr uint16_t bufferSize = 2048;
+static constexpr auto readTimeout = chrono::milliseconds(200);
+
+class UDPEchoServer
+    : public UDPSocket
+    , public Thread
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    UDPSocket socket;
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+public:
+    UDPEchoServer()
+        : Thread("UDP server")
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
+        socket.bind(nullptr, testPort);
     }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    void getAddress(sockaddr_in& addr) const
     {
-        m_driverName = "postgresql";
+        return socket.host().getAddress(addr);
     }
 
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
+    /**
+     * Terminate connection thread
+     */
+    void terminate() override
     {
-        hostAndPort.push_back("");
+        socket.close();
     }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
 
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
+    /**
+     * Session thread function
+     */
+    void threadFunction() override
     {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
-}
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
+        constexpr chrono::seconds timeout {5};
+        DateTime stopTime = DateTime::Now() + timeout;
+        Buffer data(bufferSize);
+        while (!terminated() && DateTime::Now() < stopTime)
         {
-            result << ":" << m_password;
+            try
+            {
+                if (socket.readyToRead(readTimeout))
+                {
+                    sockaddr_in from {};
+                    size_t sz = socket.read(data.data(), bufferSize, &from);
+                    if (sz == 0)
+                    {
+                        return;
+                    }
+                    data.bytes(sz);
+                    socket.write((const uint8_t*) data.c_str(), sz, &from);
+                }
+            }
+            catch (const Exception& e)
+            {
+                COUT("Server: " << e.what() << endl)
+                break;
+            }
         }
-        result << "@";
+        socket.close();
     }
+};
 
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
+TEST(SPTK_UDPSocket, minimal)
+{
+    Buffer buffer(bufferSize);
 
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
+    UDPEchoServer echoServer;
+    echoServer.run();
 
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
+    sockaddr_in serverAddr {};
+    Host serverHost("127.0.0.1", testPort);
+    serverHost.getAddress(serverAddr);
 
-    if (!m_parameters.empty())
+    Strings rows("Hello, World!\n"
+                 "This is a test of TCPServer class.\n"
+                 "Using simple echo server to verify data flow.\n"
+                 "The session is terminated when this row is received",
+                 "\n");
+
+
+    UDPSocket socket;
+
+    int rowCount = 0;
+    for (const auto& row: rows)
     {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
+        socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
+        buffer.bytes(0);
+        if (socket.readyToRead(readTimeout))
         {
-            if (first)
+            auto bytes = socket.read(buffer.data(), bufferSize);
+            if (bytes > 0)
             {
-                first = false;
+                buffer.bytes(bytes);
             }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
+            COUT("received " << bytes << " bytes: " << buffer.c_str() << endl)
         }
+        EXPECT_STREQ(row.c_str(), buffer.c_str());
+        ++rowCount;
     }
+    EXPECT_EQ(4, rowCount);
 
-    return result.str();
+    echoServer.terminate();
+    echoServer.join();
+
+    socket.close();
 }
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
-    {
-        return "";
-    }
-    return itor->second;
-}
-
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
-

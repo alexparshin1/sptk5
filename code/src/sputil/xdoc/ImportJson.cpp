@@ -28,10 +28,6 @@
 #include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/ExportJSON.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
@@ -537,61 +533,3 @@ String decode(const String& text)
 
 } // namespace sptk::xdoc
 
-#ifdef USE_GTEST
-
-static const String testJson(
-    R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"
-    R"("skills":["C++","Java","Motorbike"],)"
-    R"("location":null,)"
-    R"("description":"Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",)"
-    R"("value":"\\0x05",)"
-    R"("title":"\"Mouse\"",)"
-    R"("name":"Юстас",)"
-    R"("address":{"married":true,"employed":false}})");
-
-static const String testFormattedJson(R"({
-  "name": "John",
-  "age": 33,
-  "temperature": 33.6,
-  "timestamp": 1519005758000,
-  "skills": [
-    "C++",
-    "Java",
-    "Motorbike"
-  ],
-  "location": null,
-  "description": "Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",
-  "value": "\\0x05",
-  "title": "\"Mouse\"",
-  "name": "Юстас",
-  "address": {
-    "married": true,
-    "employed": false
-  }
-})");
-
-TEST(SPTK_XDocument, formatJSON)
-{
-    Buffer input(testJson);
-    xdoc::Document document;
-    const auto& root = document.root();
-    Node::importJson(root, input);
-
-    Buffer output;
-    ExportJSON::exportToJSON(root.get(), output, false);
-
-    EXPECT_STREQ(testJson.c_str(), output.c_str());
-
-    ExportJSON::exportToJSON(root.get(), output, true);
-    EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
-}
-
-TEST(SPTK_XDocument, importJsonExceptions)
-{
-    Buffer input("<?xml?>");
-    xdoc::Document document;
-    const auto& root = document.root();
-    EXPECT_THROW(Node::importJson(root, input), Exception);
-}
-
-#endif

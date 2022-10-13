@@ -26,11 +26,6 @@
 
 #include <sptk5/threads/Semaphore.h>
 
-#ifdef USE_GTEST
-#include <future>
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -94,34 +89,3 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 #endif
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_Semaphore, waitAndPost)
-{
-    Semaphore semaphore;
-
-    DateTime started = DateTime::Now();
-    constexpr chrono::milliseconds interval(100);
-    semaphore.sleep_for(interval);
-    DateTime ended = DateTime::Now();
-    EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
-    semaphore.post();
-    started = ended;
-    ended = DateTime::Now();
-    EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
-}
-
-TEST(SPTK_Semaphore, threads)
-{
-    Semaphore semaphore;
-
-    auto poster = async([&semaphore]() {
-        semaphore.post();
-    });
-    constexpr chrono::milliseconds timeout(100);
-    bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
-    EXPECT_TRUE(posted);
-    poster.wait();
-}
-
-#endif

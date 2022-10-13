@@ -481,7 +481,6 @@ IF (USE_GTEST)
     IF (WIN32)
         TARGET_COMPILE_OPTIONS(gtest PUBLIC "/W2")
     ENDIF ()
-    LINK_LIBRARIES(gtest)
 ENDIF ()
 
 

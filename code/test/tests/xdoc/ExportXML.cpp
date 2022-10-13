@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,32 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <sptk5/Printer.h>
+#include <sptk5/xdoc/ExportXML.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+static const String textXML(
+    R"(<?xml encoding="UTF-8" version="1.0"?>)"
+    "<!-- test comment -->"
+    "<info>"
+    "<sometext>"
+    "Row 1\n\r"
+    "Row 2\n\r"
+    "Row 3\n\r"
+    "</sometext>"
+    "<data><![CDATA[xxx]]></data>"
+    "</info>");
+
+TEST(SPTK_XDocument, exportXMLTypes)
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    xdoc::Document document;
+    Buffer buffer;
 
-    URL url(m_connectionString);
+    document.load(textXML, true);
+    document.exportTo(xdoc::DataFormat::XML, buffer);
 
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
-    {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
-    }
-
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
-    {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
+    EXPECT_STREQ(buffer.c_str(), textXML.c_str());
 }
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
-        {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
-
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
-        }
-    }
-
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
-    {
-        return "";
-    }
-    return itor->second;
-}
-
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
-

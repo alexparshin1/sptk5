@@ -26,10 +26,6 @@
 
 #include <sptk5/db/QueryParameter.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -131,61 +127,3 @@ void QueryParameter::setString(const char* value, size_t maxlen)
     dataType(dtype);
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_QueryParameter, minimal)
-{
-    QueryParameter param1("param1");
-
-    EXPECT_STREQ(param1.name().c_str(), "param1");
-}
-
-TEST(SPTK_QueryParameter, setString)
-{
-    QueryParameter param1("param1");
-
-    param1.setString("String 1");
-    EXPECT_STREQ(param1.getString(), "String 1");
-
-    param1.setString("String 1", 3);
-    EXPECT_STREQ(param1.getString(), "Str");
-
-    param1.setString("String 1 + String 2");
-    EXPECT_STREQ(param1.getString(), "String 1 + String 2");
-
-    param1.setString("String 1");
-    EXPECT_STREQ(param1.getString(), "String 1");
-
-    param1.setString("String 1 + String 2 + String 3", 22);
-    EXPECT_STREQ(param1.getString(), "String 1 + String 2 + ");
-
-    param1.setString(nullptr);
-    EXPECT_TRUE(param1.isNull());
-}
-
-TEST(SPTK_QueryParameter, assign)
-{
-    QueryParameter param1("param1");
-
-    param1 = "String 1";
-    EXPECT_STREQ(param1.getString(), "String 1");
-
-    param1 = "String 1, String 2";
-    EXPECT_STREQ(param1.getString(), "String 1, String 2");
-
-    param1 = 123;
-    EXPECT_EQ(param1.get<int>(), 123);
-
-    param1 = 123.0;
-    EXPECT_FLOAT_EQ(param1.get<double>(), 123.0);
-
-    param1.setString(nullptr);
-    EXPECT_TRUE(param1.isNull());
-
-    DateTime dt("2020-03-01 10:11:12");
-    Variant v1(dt);
-    param1 = v1;
-    EXPECT_TRUE(param1.asDateTime() == dt);
-}
-
-#endif

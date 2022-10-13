@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,88 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <fstream>
+#include <gtest/gtest.h>
+#include <sptk5/Printer.h>
+#include <sptk5/Tar.h>
+#include <sptk5/md5.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+static const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
+static const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
+static const String gtestTempDirectory {"gtest_temp_directory3"};
+static const String testTar1 {"gtest_temp1.tar"};
+static const String testTar2 {"gtest_temp2.tar"};
+
+class SPTK_Tar
+    : public ::testing::Test
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
-
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+protected:
+    void SetUp() override
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
-    }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
-    {
-        m_driverName = "postgresql";
-    }
+        fs::create_directories(gtestTempDirectory.c_str());
 
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
+        constexpr int TestFileBytes = 1000;
 
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
-}
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
+        Buffer file1;
+        for (int i = 0; i < TestFileBytes; ++i)
         {
-            result << ":" << m_password;
+            file1.append((const char*) &i, sizeof(i));
         }
-        result << "@";
-    }
+        file1.saveToFile(gtestTempDirectory + "/file1.txt");
 
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
+        Buffer file2;
+        for (int i = 0; i < TestFileBytes; ++i)
         {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
+            file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
         }
+        file2.saveToFile(gtestTempDirectory + "/file2.txt");
+
+        ASSERT_EQ(0, system(("tar cf " + testTar1 + " " + gtestTempDirectory).c_str()));
     }
 
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
+    void TearDown() override
     {
-        return "";
+        fs::remove_all(gtestTempDirectory.c_str());
+        fs::remove(testTar1.c_str());
+        fs::remove(testTar2.c_str());
+        fs::remove("test.lst");
     }
-    return itor->second;
-}
+};
 
-bool DatabaseConnectionString::empty() const
+TEST_F(SPTK_Tar, relativePath)
 {
-    return m_hostName.empty();
+    auto relPath = ArchiveFile::relativePath("/tmp/mydir/myfile.txt", "/tmp/mydir");
+    EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
+
+    relPath = ArchiveFile::relativePath("/tmp/mydir1/mydir2/myfile.txt", "/tmp/mydir1");
+    EXPECT_EQ(relPath, fs::path("mydir2/myfile.txt"));
+
+    relPath = ArchiveFile::relativePath("/tmp/mydir1/myfile.txt", "/tmp/mydir");
+    EXPECT_EQ(relPath, fs::path("/tmp/mydir1/myfile.txt"));
 }
 
+TEST_F(SPTK_Tar, read) /* NOLINT */
+{
+    Tar tar;
+
+    EXPECT_NO_THROW(tar.read(testTar1));
+
+    const auto& outfile1 = tar.file(gtestTempDirectory + "/file1.txt");
+    const auto& outfile2 = tar.file(gtestTempDirectory + "/file2.txt");
+    EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
+    EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
+}
+
+TEST_F(SPTK_Tar, write) /* NOLINT */
+{
+    Tar tar;
+
+    EXPECT_NO_THROW(tar.read(testTar1));
+    EXPECT_NO_THROW(tar.save(testTar2));
+
+    ASSERT_EQ(0, system(("tar tf " + testTar1 + " > test.lst").c_str()));
+}

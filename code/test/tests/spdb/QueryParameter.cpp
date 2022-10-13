@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,63 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <sptk5/db/QueryParameter.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+TEST(SPTK_QueryParameter, minimal)
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+    QueryParameter param1("param1");
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
-    {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
-    }
-
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
-    {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
+    EXPECT_STREQ(param1.name().c_str(), "param1");
 }
 
-String DatabaseConnectionString::toString() const
+TEST(SPTK_QueryParameter, setString)
 {
-    stringstream result;
+    QueryParameter param1("param1");
 
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
-        {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
 
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
+    param1.setString("String 1", 3);
+    EXPECT_STREQ(param1.getString(), "Str");
 
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
+    param1.setString("String 1 + String 2");
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2");
 
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
+    param1.setString("String 1");
+    EXPECT_STREQ(param1.getString(), "String 1");
 
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
-            {
-                first = false;
-            }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
-        }
-    }
+    param1.setString("String 1 + String 2 + String 3", 22);
+    EXPECT_STREQ(param1.getString(), "String 1 + String 2 + ");
 
-    return result.str();
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
 }
 
-String DatabaseConnectionString::parameter(const String& name) const
+TEST(SPTK_QueryParameter, assign)
 {
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
-    {
-        return "";
-    }
-    return itor->second;
-}
+    QueryParameter param1("param1");
 
-bool DatabaseConnectionString::empty() const
-{
-    return m_hostName.empty();
-}
+    param1 = "String 1";
+    EXPECT_STREQ(param1.getString(), "String 1");
 
+    param1 = "String 1, String 2";
+    EXPECT_STREQ(param1.getString(), "String 1, String 2");
+
+    param1 = 123;
+    EXPECT_EQ(param1.get<int>(), 123);
+
+    param1 = 123.0;
+    EXPECT_FLOAT_EQ(param1.get<double>(), 123.0);
+
+    param1.setString(nullptr);
+    EXPECT_TRUE(param1.isNull());
+
+    DateTime dt("2020-03-01 10:11:12");
+    Variant v1(dt);
+    param1 = v1;
+    EXPECT_TRUE(param1.asDateTime() == dt);
+}

@@ -14,7 +14,7 @@
 │   This library is distributed in the hope that it will be useful, but        │
 │   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
-│   General Public License for more details.  OpenAPI generation development                                 │
+│   General Public License for more details.                                   │
 │                                                                              │
 │   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
@@ -24,116 +24,93 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <set> // Fedora
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/net/URL.h>
+#include <sptk5/threads/ThreadPool.h>
+#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-void DatabaseConnectionString::parse()
+class MyTask
+    : public Runable
 {
-    static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
-                                                       "firebird", "odbc", "mssql"};
+public:
+    static SynchronizedQueue<int> intQueue;
 
-    URL url(m_connectionString);
-
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    MyTask()
+        : Runable("MyTask")
     {
-        throw DatabaseException("Unsupported driver: " + url.protocol());
     }
 
-    m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    void run() override
     {
-        m_driverName = "postgresql";
-    }
-
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
-    m_userName = url.username();
-    m_password = url.password();
-
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
-    {
-        databaseAndSchema.push_back("");
-    }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
-
-    m_parameters = url.params();
-}
-
-String DatabaseConnectionString::toString() const
-{
-    stringstream result;
-
-    result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
-    if (!m_userName.empty())
-    {
-        result << m_userName;
-        if (!m_password.empty())
+        constexpr std::chrono::milliseconds tenMilliseconds(10);
+        while (!terminated())
         {
-            result << ":" << m_password;
-        }
-        result << "@";
-    }
-
-    result << m_hostName;
-    if (m_portNumber != 0)
-    {
-        result << ":" << m_portNumber;
-    }
-
-    if (!m_databaseName.empty())
-    {
-        result << "/" << m_databaseName;
-    }
-
-    if (!m_schema.empty())
-    {
-        result << "/" << m_schema;
-    }
-
-    if (!m_parameters.empty())
-    {
-        result << "?";
-        bool first = true;
-        for (const auto& [name, value]: m_parameters)
-        {
-            if (first)
+            if (int item = 0;
+                intQueue.pop(item, tenMilliseconds))
             {
-                first = false;
+                ++m_count;
             }
-            else
-            {
-                result << "&";
-            }
-            result << name << "=" << value;
+            this_thread::sleep_for(chrono::milliseconds(1));
         }
     }
 
-    return result.str();
-}
-
-String DatabaseConnectionString::parameter(const String& name) const
-{
-    auto itor = m_parameters.find(name);
-    if (itor == m_parameters.end())
+    int count() const
     {
-        return "";
+        return m_count;
     }
-    return itor->second;
-}
 
-bool DatabaseConnectionString::empty() const
+private:
+    atomic_int m_count {0};
+};
+
+SynchronizedQueue<int> MyTask::intQueue;
+
+TEST(SPTK_ThreadPool, run)
 {
-    return m_hostName.empty();
-}
+    vector<shared_ptr<MyTask>> tasks;
 
+    /// Thread manager controls tasks execution.
+    constexpr uint32_t maxThreads = 16;
+    constexpr std::chrono::milliseconds maxThreadIdleTime(60);
+    auto threadPool = make_shared<ThreadPool>(maxThreads, maxThreadIdleTime, "test thread pool", nullptr);
+
+    // Creating several tasks
+    constexpr unsigned taskCount = 5;
+    for (unsigned i = 0; i < taskCount; ++i)
+    {
+        tasks.push_back(make_shared<MyTask>());
+    }
+
+    for (const auto& task: tasks)
+    {
+        threadPool->execute(task);
+    }
+
+    constexpr int maxValues = 100;
+    for (int value = 0; value < maxValues; ++value)
+    {
+        MyTask::intQueue.push(value);
+    }
+
+    constexpr chrono::milliseconds sleepInterval(300);
+    this_thread::sleep_for(sleepInterval);
+
+    EXPECT_EQ(size_t(5), tasks.size());
+    for (const auto& task: tasks)
+        EXPECT_NEAR(20, task->count(), 10);
+
+    EXPECT_EQ(size_t(5), threadPool->size());
+
+    threadPool->stop();
+    EXPECT_EQ(size_t(0), threadPool->size());
+
+    threadPool.reset();
+
+    for (const auto& task: tasks)
+    {
+        task->terminate();
+    }
+
+    tasks.clear();
+}

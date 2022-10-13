@@ -24,107 +24,105 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/RegularExpression.h>
-#include <sptk5/net/URL.h>
+#include "sptk5/net/TCPServer.h"
+#include <gtest/gtest.h>
+#include <sptk5/Printer.h>
+#include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-static bool nextToken(const String& url, size_t& start, size_t end, const String& delimiter, String& value)
+static constexpr uint16_t testEchoServerPort = 5001;
+
+static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
-    value = "";
-    end = url.find(delimiter, start);
-    if (end != string::npos)
+    Buffer data;
+    while (!task.terminated())
     {
-        value = url.substr(start, end - start);
-        start = end + delimiter.length();
-        return true;
+        try
+        {
+            if (socket.readyToRead(chrono::seconds(1)))
+            {
+                if (socket.readLine(data) == 0)
+                {
+                    return;
+                }
+                string str(data.c_str());
+                str += "\n";
+                socket.write(str);
+            }
+            else
+            {
+                break;
+            }
+        }
+        catch (const Exception& e)
+        {
+            CERR(e.what() << endl)
+        }
     }
-    return false;
+    socket.close();
 }
 
-URL::URL(const String& url)
+TEST(SPTK_SocketEvents, minimal)
 {
-    size_t start = 0;
-    size_t end = 0;
-    nextToken(url, start, end, "://", m_protocol);
+    Semaphore eventReceived;
+    auto eventsCallback = [&eventReceived](uint8_t* userData, SocketEventType eventType) {
+        auto* reader = (TCPSocket*) userData;
+        String line;
+        switch (eventType)
+        {
+            case SocketEventType::HAS_DATA:
+                reader->readLine(line);
+                COUT("Socket has data: " << line << endl)
+                eventReceived.post();
+                break;
+            case SocketEventType::CONNECTION_CLOSED:
+                COUT("Socket closed" << endl)
+                break;
+            default:
+                break;
+        }
+    };
 
-    String credentials;
-    nextToken(url, start, end, "@", credentials);
-    if (!credentials.empty())
-    {
-        auto pos = credentials.find(":");
-        if (pos == string::npos)
-        {
-            m_username = credentials;
-        }
-        else
-        {
-            m_username = credentials.substr(0, pos);
-            m_password = credentials.substr(pos + 1);
-        }
-    }
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
 
     Buffer buffer;
-    if (!nextToken(url, start, end, "/", m_hostAndPort))
+
+    try
     {
-        m_hostAndPort = url.substr(start);
-    }
-    else
-    {
-        --start;
-        if (nextToken(url, start, end, "?", m_path))
+        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        echoServer.onConnection(echoTestFunction);
+        echoServer.listen(testEchoServerPort);
+
+        Strings testRows({"Hello, World!",
+                          "This is a test of SocketEvents class.",
+                          "Using simple echo server to support data flow.",
+                          "The session is terminated when this row is received",
+                          ""});
+
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
+
+        socketEvents.add(socket, (uint8_t*) &socket);
+
+        size_t receivedEventCount {0};
+        String hello("Hello, World!\n");
+        auto sentBytes = socket.send((const uint8_t*) hello.c_str(), hello.length());
+        if (eventReceived.sleep_for(chrono::milliseconds(10)))
         {
-            buffer.set(url.substr(start));
-            m_params.decode(buffer);
+            receivedEventCount++;
         }
-        else
-        {
-            m_path = url.substr(start);
-        }
+        socketEvents.remove(socket);
+        socket.close();
+        EXPECT_EQ(1u, receivedEventCount);
+        EXPECT_EQ(hello.length(), sentBytes);
     }
-}
-
-String URL::toString() const
-{
-    stringstream str;
-
-    if (!m_protocol.empty())
+    catch (const Exception& e)
     {
-        str << m_protocol << "://";
+        FAIL() << e.what();
     }
-
-    if (!m_username.empty())
-    {
-        str << m_username << ":" << m_password << "@";
-    }
-
-    str << m_hostAndPort;
-
-    if (!m_path.empty())
-    {
-        str << m_path;
-    }
-
-    if (!m_params.empty())
-    {
-        Buffer buffer;
-        m_params.encode(buffer);
-        str << "?" << buffer.c_str();
-    }
-
-    return str.str();
-}
-
-String URL::location() const
-{
-    static const RegularExpression matchLocation(R"(^(.+)\/[^/]+$)");
-
-    auto matches = matchLocation.m(m_path);
-    if (!matches)
-    {
-        return "";
-    }
-
-    return matches[0].value;
 }

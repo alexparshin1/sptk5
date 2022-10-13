@@ -27,10 +27,6 @@
 #include <sptk5/Printer.h>
 #include <sptk5/xdoc/ExportXML.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
@@ -238,29 +234,3 @@ void ExportXML::saveAttributes(const Node* node, Buffer& buffer)
     }
 }
 
-#ifdef USE_GTEST
-
-static const String textXML(
-    R"(<?xml encoding="UTF-8" version="1.0"?>)"
-    "<!-- test comment -->"
-    "<info>"
-    "<sometext>"
-    "Row 1\n\r"
-    "Row 2\n\r"
-    "Row 3\n\r"
-    "</sometext>"
-    "<data><![CDATA[xxx]]></data>"
-    "</info>");
-
-TEST(SPTK_XDocument, exportXMLTypes)
-{
-    xdoc::Document document;
-    Buffer buffer;
-
-    document.load(textXML, true);
-    document.exportTo(xdoc::DataFormat::XML, buffer);
-
-    EXPECT_STREQ(buffer.c_str(), textXML.c_str());
-}
-
-#endif

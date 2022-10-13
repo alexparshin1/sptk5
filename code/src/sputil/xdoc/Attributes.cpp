@@ -26,10 +26,6 @@
 
 #include <sptk5/xdoc/Attributes.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace sptk;
 using namespace xdoc;
 
@@ -67,22 +63,3 @@ Attributes& Attributes::set(const String& name, const String& value)
     return *this;
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_XDocument, getSetAttributes)
-{
-    Attributes attributes;
-
-    attributes.set("name", "John");
-    attributes.set("position", "engineer");
-
-    EXPECT_TRUE(attributes.have("name"));
-    EXPECT_STREQ("John", attributes.get("name").c_str());
-    EXPECT_STREQ("engineer", attributes.get("position").c_str());
-
-    attributes.set("position", "janitor");
-    EXPECT_STREQ("janitor", attributes.get("position").c_str());
-    EXPECT_EQ(attributes.size(), 2U);
-}
-
-#endif

@@ -27,10 +27,6 @@
 #include <sptk5/wsdl/WSRestriction.h>
 #include <sptk5/xdoc/Document.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 
@@ -147,84 +143,3 @@ WSRestriction::Type WSRestriction::type() const
     return m_type;
 }
 
-#ifdef USE_GTEST
-
-static const String coloursXML {
-    "<xsd:element name=\"Colours\">"
-    "<xsd:simpleType>"
-    "<xsd:restriction base=\"xsd:string\">"
-    "<xsd:enumeration value=\"Red\"/>"
-    "<xsd:enumeration value=\"Green\"/>"
-    "<xsd:enumeration value=\"Blue\"/>"
-    "</xsd:restriction>"
-    "</xsd:simpleType>"
-    "</xsd:element>"};
-
-static const String initialsXML {
-    "<xsd:element name=\"Initials\">"
-    "<xsd:simpleType>"
-    "<xsd:restriction base=\"xsd:string\">"
-    "<xsd:pattern value=\"[A-Z][A-Z]\"/>"
-    "</xsd:restriction>"
-    "</xsd:simpleType>"
-    "</xsd:element>"};
-
-TEST(SPTK_WSRestriction, parseEnumeration)
-{
-    xdoc::Document document;
-    document.load(coloursXML);
-
-    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
-
-    WSRestriction restrictions("Colours", simpleTypeElement);
-
-    try
-    {
-        restrictions.check("Colour", "Green");
-    }
-    catch (const Exception&)
-    {
-        FAIL() << "Green is allowed colour!";
-    }
-
-    try
-    {
-        restrictions.check("Colour", "Yellow");
-        FAIL() << "Yellow is not allowed colour!";
-    }
-    catch (const Exception&)
-    {
-        SUCCEED() << "Correctly detected not allowed colour";
-    }
-}
-
-TEST(SPTK_WSRestriction, parseInitials)
-{
-    xdoc::Document document;
-    document.load(initialsXML);
-
-    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
-
-    WSRestriction restrictions("Initials", simpleTypeElement);
-
-    try
-    {
-        restrictions.check("Initials", "AL");
-    }
-    catch (const Exception&)
-    {
-        FAIL() << "AL is correct initials!";
-    }
-
-    try
-    {
-        restrictions.check("Initials", "xY");
-        FAIL() << "xY is incorrect initials!";
-    }
-    catch (const Exception&)
-    {
-        SUCCEED() << "Correctly detected incorrect initials";
-    }
-}
-
-#endif

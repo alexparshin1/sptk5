@@ -30,10 +30,6 @@
 #include <sptk5/xdoc/ImportXML.h>
 #include <sptk5/xdoc/Node.h>
 
-#ifdef USE_GTEST
-#include <gtest/gtest.h>
-#endif
-
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
@@ -449,25 +445,3 @@ bool sptk::xdoc::isFloat(const String& str)
     return isNumber.matches(str);
 }
 
-#ifdef USE_GTEST
-
-TEST(SPTK_XDocument, typeRegexp)
-{
-    EXPECT_TRUE(isInteger("0"));
-    EXPECT_TRUE(isInteger("+1"));
-    EXPECT_TRUE(isInteger("+100"));
-    EXPECT_TRUE(isInteger("-1234"));
-    EXPECT_FALSE(isInteger("01234"));
-    EXPECT_FALSE(isInteger("1234-11"));
-
-    EXPECT_TRUE(isFloat("0.1"));
-    EXPECT_TRUE(isFloat("+0.123"));
-    EXPECT_TRUE(isFloat("-0.123"));
-    EXPECT_TRUE(isFloat("-0.123e4"));
-    EXPECT_TRUE(isFloat("-10.123e43"));
-    EXPECT_FALSE(isFloat("00.123e43"));
-    EXPECT_FALSE(isFloat("127.0.0.1"));
-    EXPECT_FALSE(isFloat("127"));
-}
-
-#endif
