@@ -56,7 +56,9 @@ String SystemException::osError()
     // Get Unix errno-based error
     constexpr size_t maxErrorLength {256};
     array<char, maxErrorLength> osError {};
-    strerror_r(errno, osError.data(), maxErrorLength);
+    const char* error = strerror_r(errno, osError.data(), maxErrorLength);
+    if (error != nullptr)
+        return error;
     return osError.data();
 #endif
 }
