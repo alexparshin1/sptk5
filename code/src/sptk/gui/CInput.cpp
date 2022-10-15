@@ -42,8 +42,6 @@ using namespace sptk;
 // define it as 1 to prevent cursor movement from going to next field:
 #define NORMAL_INPUT_MOVE 0
 
-#define ctrl(x) ((x) ^ 0x40)
-
 static const char phoneMask[] = "(999)-999-9999";
 
 static const char maskControlCharacters[] = "@0123456789AaLlZz#Tt";

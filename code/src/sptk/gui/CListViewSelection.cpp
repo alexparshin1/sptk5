@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/gui/CListViewSelection.h>
-#include <sptk5/sptk.h>
 
 using namespace sptk;
 

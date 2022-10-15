@@ -31,7 +31,6 @@
 
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CComboBox.h>
-#include <sptk5/gui/CRadioButtons.h>
 
 using namespace sptk;
 
