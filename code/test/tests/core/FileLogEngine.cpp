@@ -44,7 +44,7 @@ TEST(SPTK_FileLogEngine, create)
     logger->warning("Warning message");
     logger->info("Test completed");
 
-    this_thread::sleep_for(chrono::milliseconds(1));
+    this_thread::sleep_for(chrono::milliseconds(10));
 
     logger.reset();
     logEngine.reset();
