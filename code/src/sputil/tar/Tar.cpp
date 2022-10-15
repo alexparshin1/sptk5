@@ -125,7 +125,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     auto gid = (int) readOctalNumber(header->gid, "gid");
 
     time_t mtime = readOctalNumber(header->mtime, "mtime");
-    auto dt = DateTime::convertCTime(mtime);
+    auto dateTime = DateTime::convertCTime(mtime);
 
     const Buffer content(buffer.data() + offset, contentLength);
 
@@ -141,7 +141,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
 
     ArchiveFile::Ownership ownership {uid, gid, uname, gname};
-    auto file = make_shared<ArchiveFile>(fname, content, mode, dt, type, ownership, linkName);
+    auto file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
 
     m_files[fname.string()] = file;
 

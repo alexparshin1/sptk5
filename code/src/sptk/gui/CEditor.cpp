@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/gui/CEditor.h>
-#include <sptk5/sptk.h>
 
 using namespace sptk;
 

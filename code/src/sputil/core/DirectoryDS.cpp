@@ -28,7 +28,6 @@
 #include <sys/stat.h>
 
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/Printer.h>
 #include <sptk5/filedefs.h>
 
 #ifndef FL_ALIGN_LEFT

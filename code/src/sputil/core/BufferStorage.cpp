@@ -29,80 +29,80 @@
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::adjustSize(size_t sz)
+void BufferStorage::adjustSize(size_t size)
 {
     constexpr size_t sizeGranularity {32};
-    sz = (sz / sizeGranularity + 1) * sizeGranularity;
-    reallocate(sz);
-    m_buffer[sz] = 0;
+    size = (size / sizeGranularity + 1) * sizeGranularity;
+    reallocate(size);
+    m_buffer[size] = 0;
 }
 
-void BufferStorage::_set(const uint8_t* data, size_t sz)
+void BufferStorage::_set(const uint8_t* data, size_t size)
 {
-    checkSize(sz + 1);
-    if (data != nullptr && sz > 0)
+    checkSize(size + 1);
+    if (data != nullptr && size > 0)
     {
-        memcpy(m_buffer.data(), data, sz);
-        m_bytes = sz;
+        memcpy(m_buffer.data(), data, size);
+        m_bytes = size;
     }
     else
     {
         m_bytes = 0;
     }
-    m_buffer[sz] = 0;
+    m_buffer[size] = 0;
 }
 
-void BufferStorage::append(char ch)
+void BufferStorage::append(char chr)
 {
     checkSize(m_bytes + 2);
-    m_buffer[m_bytes] = ch;
+    m_buffer[m_bytes] = chr;
     ++m_bytes;
     m_buffer[m_bytes] = 0;
 }
 
-void BufferStorage::append(const char* data, size_t sz)
+void BufferStorage::append(const char* data, size_t size)
 {
-    if (sz == 0)
+    if (size == 0)
     {
-        sz = strlen(data);
+        size = strlen(data);
     }
 
-    checkSize(m_bytes + sz + 1);
+    checkSize(m_bytes + size + 1);
     if (data != nullptr)
     {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
+        memcpy(m_buffer.data() + m_bytes, data, size);
+        m_bytes += size;
         m_buffer[m_bytes] = 0;
     }
 }
 
-void BufferStorage::append(const uint8_t* data, size_t sz)
+void BufferStorage::append(const uint8_t* data, size_t size)
 {
-    if (sz == 0)
+    if (size == 0)
     {
         return;
     }
 
-    checkSize(m_bytes + sz + 1);
+    checkSize(m_bytes + size + 1);
     if (data != nullptr)
     {
-        memcpy(m_buffer.data() + m_bytes, data, sz);
-        m_bytes += sz;
+        memcpy(m_buffer.data() + m_bytes, data, size);
+        m_bytes += size;
         m_buffer[m_bytes] = 0;
     }
 }
 
-void BufferStorage::reset(size_t sz)
+void BufferStorage::reset(size_t size)
 {
-    checkSize(sz + 1);
+    checkSize(size + 1);
     m_buffer[0] = 0;
     m_bytes = 0;
 }
 
-void BufferStorage::fill(char c, size_t count)
+void BufferStorage::fill(char chr, size_t count)
 {
     checkSize(count + 1);
-    memset(m_buffer.data(), c, count);
+    memset(m_buffer.data(), chr, count);
     m_bytes = count;
     m_buffer[m_bytes] = 0;
 }

@@ -27,7 +27,6 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSArray.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;

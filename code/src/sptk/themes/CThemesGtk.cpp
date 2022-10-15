@@ -28,7 +28,6 @@
 
 #include <map>
 #include <sptk5/cgui>
-#include <sptk5/gui/CThemeImageCollection.h>
 
 #include "CGtkThemeLoader.h"
 #include "ThemeUtils.h"

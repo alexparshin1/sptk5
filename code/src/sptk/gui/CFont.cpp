@@ -24,8 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
-
 #include <sptk5/gui/CFont.h>
 
 using namespace std;

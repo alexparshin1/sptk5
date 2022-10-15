@@ -26,7 +26,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/UDPSocket.h>
-#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;

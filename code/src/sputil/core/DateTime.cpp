@@ -75,18 +75,18 @@ constexpr size_t maxDateTimeStringLength = 128;
 // "[+-]HH24:MM - TZ offset
 static int decodeTZOffset(const char* tzOffset)
 {
-    const char* p = tzOffset;
+    const char* ptr = tzOffset;
     int sign = 1;
-    switch (*p)
+    switch (*ptr)
     {
         case 'Z':
         case 'z':
             return 0;
         case '+':
-            ++p;
+            ++ptr;
             break;
         case '-':
-            ++p;
+            ++ptr;
             sign = -1;
             break;
         default:
@@ -95,24 +95,24 @@ static int decodeTZOffset(const char* tzOffset)
 
     int minutes = 0;
     int hours = 0;
-    if (strlen(p) > 2)
+    if (strlen(ptr) > 2)
     {
-        const char* p1 = strchr(p, ':');
-        if (p1 != nullptr)
+        const char* ptr1 = strchr(ptr, ':');
+        if (ptr1 != nullptr)
         {
-            minutes = string2int(p1 + 1);
-            hours = string2int(p);
+            minutes = string2int(ptr1 + 1);
+            hours = string2int(ptr);
         }
         else
         {
-            auto hoursAndMinutes = string2int(p);
+            auto hoursAndMinutes = string2int(ptr);
             hours = hoursAndMinutes / 100;
             minutes = hoursAndMinutes % 100;
         }
     }
     else
     {
-        hours = string2int(p);
+        hours = string2int(ptr);
     }
 
     return sign * (hours * minutesInHour + minutes);
@@ -187,14 +187,14 @@ DateTimeFormat::DateTimeFormat() noexcept
 void DateTimeFormat::init() noexcept
 {
     // make a special date and time - today :)
-    struct tm t = {};
-    t.tm_year = 100; // since 1900, -> 2000
-    t.tm_mon = 5;    // June (January=0)
-    t.tm_mday = 17;
-    t.tm_hour = 22;
-    t.tm_min = 48;
-    t.tm_sec = 59;
-    t.tm_wday = 0; // Sunday
+    struct tm atime = {};
+    atime.tm_year = 100; // since 1900, -> 2000
+    atime.tm_mon = 5;    // June (January=0)
+    atime.tm_mday = 17;
+    atime.tm_hour = 22;
+    atime.tm_min = 48;
+    atime.tm_sec = 59;
+    atime.tm_wday = 0; // Sunday
 
 #ifdef __linux__
     // For unknown reason this call of setlocale() under Windows makes
@@ -207,8 +207,8 @@ void DateTimeFormat::init() noexcept
     // Build local data and time
     array<char, 32> dateBuffer = {};
     array<char, 32> timeBuffer = {};
-    strftime(timeBuffer.data(), 31, "%X", &t);
-    strftime(dateBuffer.data(), 31, "%x", &t);
+    strftime(timeBuffer.data(), 31, "%X", &atime);
+    strftime(dateBuffer.data(), 31, "%x", &atime);
 
     // Build local date and time formats
     DateTime::_datePartsOrder[0] = 0;
@@ -217,34 +217,35 @@ void DateTimeFormat::init() noexcept
 
     // Filling up the week day names, as defined in locale.
     // This date should be Monday:
-    t.tm_year = 103; // since 1900, -> 2003
-    t.tm_mon = 9;
-    t.tm_mday = 21;
-    t.tm_hour = 0;
-    t.tm_min = 0;
-    t.tm_sec = 0;
+    atime.tm_year = 103; // since 1900, -> 2003
+    atime.tm_mon = 9;
+    atime.tm_mday = 21;
+    atime.tm_hour = 0;
+    atime.tm_min = 0;
+    atime.tm_sec = 0;
     DateTime::_weekDayNames.clear();
-    for (int wday = 0; wday < 7; ++wday)
+    const int daysInWeek = 7;
+    for (int wday = 0; wday < daysInWeek; ++wday)
     {
-        t.tm_wday = wday;
-        strftime(dateBuffer.data(), 32, "%A", &t);
+        atime.tm_wday = wday;
+        strftime(dateBuffer.data(), 32, "%A", &atime);
         DateTime::_weekDayNames.push_back(dateBuffer.data());
     }
 
     // Filling up the month names, as defined in locale.
     // This date should be January 1st:
-    t.tm_year = 103; // since 1900, -> 2003
-    t.tm_mon = 1;
-    t.tm_mday = 1;
-    t.tm_hour = 0;
-    t.tm_min = 0;
-    t.tm_sec = 0;
-    t.tm_wday = 3;
+    atime.tm_year = 103; // since 1900, -> 2003
+    atime.tm_mon = 1;
+    atime.tm_mday = 1;
+    atime.tm_hour = 0;
+    atime.tm_min = 0;
+    atime.tm_sec = 0;
+    atime.tm_wday = 3;
     DateTime::_monthNames.clear();
     for (int month = 0; month < 12; ++month)
     {
-        t.tm_mon = month;
-        strftime(dateBuffer.data(), 32, "%B", &t);
+        atime.tm_mon = month;
+        strftime(dateBuffer.data(), 32, "%B", &atime);
         DateTime::_monthNames.push_back(dateBuffer.data());
     }
 #if defined(__BORLANDC__) || _MSC_VER > 1800
@@ -254,9 +255,9 @@ void DateTimeFormat::init() noexcept
 #endif
     auto len = (int) strlen(ptr);
 
-    if (const char* p1 = strchr(ptr, ' '); p1 != nullptr)
+    if (const char* ptr1 = strchr(ptr, ' '); ptr1 != nullptr)
     {
-        len = int(p1 - ptr);
+        len = int(ptr1 - ptr);
     }
 
     DateTime::_timeZoneName = String(ptr, (unsigned) len);
@@ -287,18 +288,18 @@ namespace sptk {
 #define localtime_r(a, b) localtime_s(b, a)
 #endif
 
-static void decodeDate(const DateTime::time_point& dt, short& year, short& month, short& day, short& dayOfWeek,
+static void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
                        short& dayOfYear,
                        bool gmt)
 {
-    time_t tt = DateTime::clock::to_time_t(dt);
+    time_t atime = DateTime::clock::to_time_t(timePoint);
 
     tm time = {};
     if (!gmt)
     {
-        tt += DateTime::timeZoneOffset().count() * secondsInMinute;
+        atime += DateTime::timeZoneOffset().count() * secondsInMinute;
     }
-    gmtime_r(&tt, &time);
+    gmtime_r(&atime, &time);
 
     year = (short) (time.tm_year + 1900);
     month = (short) (time.tm_mon + 1);
@@ -308,9 +309,9 @@ static void decodeDate(const DateTime::time_point& dt, short& year, short& month
 }
 
 
-static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short& s, short& ms, bool gmt)
+static void decodeTime(const DateTime::time_point& timePoint, short& h, short& m, short& s, short& ms, bool gmt)
 {
-    time_t tt = DateTime::clock::to_time_t(dt);
+    time_t tt = DateTime::clock::to_time_t(timePoint);
 
     tm time = {};
     if (!gmt)
@@ -323,14 +324,14 @@ static void decodeTime(const DateTime::time_point& dt, short& h, short& m, short
     m = (short) time.tm_min;
     s = (short) time.tm_sec;
 
-    milliseconds dur = duration_cast<milliseconds>(dt.time_since_epoch());
-    seconds sec = duration_cast<seconds>(dt.time_since_epoch());
-    milliseconds msec = duration_cast<milliseconds>(dur - sec);
+    auto dur = duration_cast<milliseconds>(timePoint.time_since_epoch());
+    auto sec = duration_cast<seconds>(timePoint.time_since_epoch());
+    auto msec = duration_cast<milliseconds>(dur - sec);
     ms = (short) msec.count();
 }
 
 
-static void encodeDate(DateTime::time_point& dt, short year, short month, short day)
+static void encodeDate(DateTime::time_point& timePoint, short year, short month, short day)
 {
     tm time = {};
     time.tm_year = year - 1900;
@@ -338,8 +339,8 @@ static void encodeDate(DateTime::time_point& dt, short year, short month, short 
     time.tm_mday = day;
     time.tm_isdst = TimeZone::isDaylightSavingsTime();
 
-    time_t t = mktime(&time);
-    dt = DateTime::clock::from_time_t(t);
+    time_t atime = mktime(&time);
+    timePoint = DateTime::clock::from_time_t(atime);
 }
 
 static short splitDateString(const char* bdat, short* datePart, char& actualDateSeparator)
@@ -424,9 +425,9 @@ static short correctTwoDigitYear(short year)
 }
 
 
-static void encodeTime(DateTime::time_point& dt, short h, short m, short s, short ms)
+static void encodeTime(DateTime::time_point& timePoint, short h, short m, short s, short ms)
 {
-    dt += hours(h) + minutes(m) + seconds(s) + milliseconds(ms);
+    timePoint += hours(h) + minutes(m) + seconds(s) + milliseconds(ms);
 }
 
 

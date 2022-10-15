@@ -27,7 +27,6 @@
 #include <FL/fl_ask.H>
 #include <sptk5/HomeDirectory.h>
 #include <sptk5/gui/CFileDialog.h>
-#include <sptk5/sptk.h>
 
 #ifdef WIN32
 

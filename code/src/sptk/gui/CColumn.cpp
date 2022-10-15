@@ -26,7 +26,6 @@
 
 #include <sptk5/Printer.h>
 #include <sptk5/gui/CColumn.h>
-#include <sptk5/sptk.h>
 
 using namespace std;
 using namespace sptk;

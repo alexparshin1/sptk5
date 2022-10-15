@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/Brotli.h>
-#include <sptk5/Printer.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/md5.h>
 #include <sptk5/net/HttpConnect.h>

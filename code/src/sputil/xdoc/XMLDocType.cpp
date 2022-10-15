@@ -43,9 +43,9 @@ void Entity::parse(const String& entityTag)
     auto matches = matchEntity.m(entityTag);
     if (matches)
     {
-        auto pc = matches["percent"].value;
+        auto percents = matches["percent"].value;
         name = matches["name"].value;
-        if (!pc.empty())
+        if (!percents.empty())
         {
             name = "%" + name;
         }
@@ -151,9 +151,9 @@ const struct entity* XMLEntityCache::encode(const char* str) const
 
 static const XMLEntityCache xml_entities(builtin_ent_xml);
 
-void XMLDocType::decodeEntities(const char* str, size_t sz, Buffer& ret)
+void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
 {
-    Buffer buffer((const uint8_t*) str, sz);
+    Buffer buffer((const uint8_t*) str, size);
     ret.bytes(0);
 
     auto* start = (char*) buffer.data();
@@ -248,17 +248,17 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
 
     if (!m_entities.empty())
     {
-        auto it = m_entities.begin();
-        for (; it != m_entities.end(); ++it)
+        auto itor = m_entities.begin();
+        for (; itor != m_entities.end(); ++itor)
         {
-            const String& val = it->second;
+            const String& val = itor->second;
             auto len = (uint32_t) val.length();
             const char* pos = strstr(ptr, val.c_str());
             while (pos != nullptr)
             {
                 dst->append(ptr, uint32_t(pos - ptr));
                 dst->append('&');
-                dst->append(it->first);
+                dst->append(itor->first);
                 dst->append(';');
                 replaced = true;
                 ptr = pos + len;
@@ -331,4 +331,3 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
 
     return result;
 }
-

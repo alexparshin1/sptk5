@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/gui/CWindow.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;

@@ -26,7 +26,6 @@
 
 #include <sptk5/Printer.h>
 #include <sptk5/xdoc/Document.h>
-#include <sptk5/xdoc/ExportJSON.h>
 
 using namespace std;
 using namespace sptk;
@@ -532,4 +531,3 @@ String decode(const String& text)
 }
 
 } // namespace sptk::xdoc
-

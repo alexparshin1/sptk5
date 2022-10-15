@@ -28,7 +28,6 @@
 #include <sptk5/xdoc/ExportJSON.h>
 #include <sptk5/xdoc/ExportXML.h>
 #include <sptk5/xdoc/ImportXML.h>
-#include <sptk5/xdoc/Node.h>
 
 using namespace std;
 using namespace sptk;
@@ -444,4 +443,3 @@ bool sptk::xdoc::isFloat(const String& str)
 
     return isNumber.matches(str);
 }
-

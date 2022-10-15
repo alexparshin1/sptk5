@@ -39,38 +39,38 @@ Buffer::Buffer(const String& str)
 
 void Buffer::loadFromFile(const fs::path& fileName)
 {
-    FILE* f = fopen(fileName.string().c_str(), "rb");
+    FILE* file = fopen(fileName.string().c_str(), "rb");
 
-    if (f == nullptr)
+    if (file == nullptr)
     {
         throw SystemException("Can't open file " + fileName.string() + " for reading");
     }
 
-    struct stat st = {};
-    if (fstat(fileno(f), &st) != 0)
+    struct stat fileStat = {};
+    if (fstat(fileno(file), &fileStat) != 0)
     {
-        fclose(f);
+        fclose(file);
         throw Exception("Can't get file size for '" + fileName.string() + "'");
     }
 
-    auto size = (size_t) st.st_size;
+    auto size = (size_t) fileStat.st_size;
 
     reset(size + 1);
-    bytes(fread(data(), 1, size, f));
-    fclose(f);
+    bytes(fread(data(), 1, size, file));
+    fclose(file);
 }
 
 void Buffer::saveToFile(const fs::path& fileName) const
 {
-    FILE* f = fopen(fileName.string().c_str(), "wb");
+    FILE* file = fopen(fileName.string().c_str(), "wb");
 
-    if (f == nullptr)
+    if (file == nullptr)
     {
         throw SystemException("Can't open file " + fileName.string() + " for writing");
     }
 
-    fwrite(data(), bytes(), 1, f);
-    fclose(f);
+    fwrite(data(), bytes(), 1, file);
+    fclose(file);
 }
 
 Buffer& Buffer::operator=(const String& other)

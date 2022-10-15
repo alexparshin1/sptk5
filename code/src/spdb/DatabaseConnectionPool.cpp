@@ -47,7 +47,7 @@ public:
         return itor->second.get();
     }
 
-    void add(const String& driverName, shared_ptr<DatabaseDriver> driver)
+    void add(const String& driverName, const shared_ptr<DatabaseDriver>& driver)
     {
         drivers[driverName.toLowerCase()] = driver;
     }
@@ -189,4 +189,3 @@ void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& co
 {
     m_pool.push(connection);
 }
-

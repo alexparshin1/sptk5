@@ -26,7 +26,6 @@
 
 #include <openssl/evp.h>
 #include <sptk5/Crypt.h>
-#include <sptk5/Exception.h>
 
 using namespace std;
 using namespace sptk;

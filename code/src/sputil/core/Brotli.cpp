@@ -24,11 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
-#include <sptk5/Exception.h>
-
 #include <brotli/decode.h>
 #include <brotli/encode.h>
+#include <sptk5/Brotli.h>
 #include <sptk5/ReadBuffer.h>
 
 using namespace std;

@@ -26,7 +26,6 @@
 
 #include <sptk5/Printer.h>
 #include <sptk5/wsdl/WSComplexType.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;

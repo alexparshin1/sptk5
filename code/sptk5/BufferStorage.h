@@ -240,42 +240,42 @@ public:
      * Appends a single char to the current buffer.
      *
      * Allocates memory if needed.
-     * @param ch                Single character
+     * @param chr                Single character
      */
-    virtual void append(char ch);
+    virtual void append(char chr);
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    virtual void append(const char* data, size_t sz = 0);
+    virtual void append(const char* data, size_t size);
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    virtual void append(const uint8_t* data, size_t sz);
+    virtual void append(const uint8_t* data, size_t size);
 
     /**
-     * Truncates the current buffer to the size sz.
+     * Truncates the current buffer to the size size.
      *
      * Deallocates unused memory if needed.
-     * @param sz                Required data size in bytes
+     * @param size                Required data size in bytes
      */
-    void reset(size_t sz = 0);
+    void reset(size_t size = 0);
 
     /**
-     * Fills the bytes() characters in buffer with character ch.
-     * @param ch                The character to fill the buffer
+     * Fills the bytes() characters in buffer with character chr.
+     * @param chr                The character to fill the buffer
      * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
      */
-    void fill(char ch, size_t count);
+    void fill(char chr, size_t count);
 
     /**
      * Remove fragment from buffer's content
@@ -287,9 +287,9 @@ public:
 protected:
     /**
      * Resizes current buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    void adjustSize(size_t sz);
+    void adjustSize(size_t size);
 
     /**
      * Allocate memory
@@ -353,13 +353,13 @@ private:
 
 
     /**
-     * Copies the external data of size sz into the current buffer.
+     * Copies the external data of size size into the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    void _set(const uint8_t* data, size_t sz);
+    void _set(const uint8_t* data, size_t size);
 };
 
 /**

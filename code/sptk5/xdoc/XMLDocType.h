@@ -124,10 +124,10 @@ public:
      *
      * Converts "&lt;test&gt;" to "<test>"
      * @param str               Text to convert
-     * @param sz                Text length
+     * @param size                Text length
      * @param ret               Converted text is stored here
      */
-    void decodeEntities(const char* str, size_t sz, Buffer& ret);
+    void decodeEntities(const char* str, size_t size, Buffer& ret);
 
     /**
      * Removes named entity from entity map

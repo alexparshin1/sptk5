@@ -26,7 +26,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/db/OracleConnection.h>
-#include <sptk5/db/Transaction.h>
 
 using namespace std;
 using namespace sptk;

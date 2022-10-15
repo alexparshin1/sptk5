@@ -26,7 +26,6 @@
 
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
-#include <sptk5/db/QueryParameter.h>
 
 using namespace std;
 using namespace sptk;

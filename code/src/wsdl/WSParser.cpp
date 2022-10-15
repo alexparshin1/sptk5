@@ -31,7 +31,6 @@
 #include <sptk5/wsdl/WSParser.h>
 
 #include <fstream>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;

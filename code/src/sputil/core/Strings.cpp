@@ -26,7 +26,6 @@
 
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/Strings.h>
 #include <sstream>
 
 using namespace std;

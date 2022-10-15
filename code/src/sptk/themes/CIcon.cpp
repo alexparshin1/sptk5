@@ -28,7 +28,6 @@
 
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CIcon.h>
-#include <sptk5/gui/CPngImage.h>
 
 #ifdef _WIN32
 #include <windows.h>
