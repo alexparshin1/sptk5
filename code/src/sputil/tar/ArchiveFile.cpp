@@ -156,7 +156,7 @@ void ArchiveFile::makeHeader()
     m_header = make_shared<TarHeader>();
     memset(m_header.get(), 0, sizeof(TarHeader));
 
-    strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename));
+    strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename) - 1);
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
     snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_ownership.uid);
     snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_ownership.gid);
@@ -167,7 +167,7 @@ void ArchiveFile::makeHeader()
 
     if (m_type == ArchiveFile::Type::SYM_LINK)
     {
-        strncpy(m_header->linkname.data(), m_linkname.c_str(), sizeof(m_header->linkname));
+        strncpy(m_header->linkname.data(), m_linkname.c_str(), sizeof(m_header->linkname) - 1);
     }
 
     memcpy(m_header->magic.data(), "ustar ", sizeof(m_header->magic));
