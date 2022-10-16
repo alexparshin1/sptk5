@@ -283,10 +283,10 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
             testDateStr = "01-JUN-2015 11:22:33";
             break;
         case DatabaseConnectionType::POSTGRES:
-            testDateStr = "01-JUN-2015 11:22:33" + timezone;
+            testDateStr = "2015-06-01 11:22:33" + timezone;
             break;
         default:
-            testDateStr = "01-JUN-2015 11:22:33";
+            testDateStr = "2015-06-01 11:22:33";
             break;
     }
 
