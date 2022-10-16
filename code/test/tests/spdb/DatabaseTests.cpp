@@ -273,9 +273,24 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     createTable.exec();
 
-    String testDate = db->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015 11:22:33"
-                                                                             : "2015-06-01T11:22:33";
-    Query insert1(db, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
+    DateTime testDate(2000, 01, 01);
+    auto timezone = testDate.isoDateTimeString().substr(19);
+
+    String testDateStr;
+    switch (db->connectionType())
+    {
+        case DatabaseConnectionType::ORACLE:
+            testDateStr = "01-JUN-2015 11:22:33";
+            break;
+        case DatabaseConnectionType::POSTGRES:
+            testDateStr = "01-JUN-2015 11:22:33" + timezone;
+            break;
+        default:
+            testDateStr = "01-JUN-2015 11:22:33";
+            break;
+    }
+
+    Query insert1(db, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
     insert1.exec();
     Query insert2(db, "INSERT INTO gtest_temp_table VALUES(:dt)");
     insert2.param("dt") = DateTime("2015-06-01T11:22:33");
@@ -285,7 +300,6 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     select.open();
 
     auto dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
-    auto timezone = dateTimeStr.substr(19);
 
     DateTime testDateTime(("2015-06-01T11:22:33" + timezone).c_str());
     auto testDateTimeStr = testDateTime.isoDateTimeString();
