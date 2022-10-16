@@ -281,16 +281,27 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     insert2.param("dt") = DateTime("2015-06-01T11:22:33");
     insert2.exec();
 
-#ifdef USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
-    auto dateTime = select["ts"].asDateTime().isoDateTimeString().substr(0, 19);
-    EXPECT_STREQ("2015-06-01T11:22:33", dateTime.c_str());
-    select.next();
-    dateTime = select["ts"].asDateTime().isoDateTimeString().substr(0, 19);
-    EXPECT_STREQ("2015-06-01T11:22:33", dateTime.c_str());
-    select.close();
-#endif
+
+    auto dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
+    auto timezone = dateTimeStr.substr(19);
+
+    DateTime testDateTime(("2015-06-01T11:22:33" + timezone).c_str());
+    auto testDateTimeStr = testDateTime.isoDateTimeString();
+    EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
+    auto result = select.next();
+    if (!result)
+    {
+        FAIL() << "Expect two records in record set";
+    }
+    else
+    {
+        dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
+        testDateTime = DateTime(("2015-06-01T11:22:33" + timezone).c_str());
+        EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
+        select.close();
+    }
 }
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -356,21 +367,16 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     try
     {
         insert.exec();
-#ifdef USE_GTEST
         FAIL() << "Unsupported parameter type not detected";
-#endif
     }
     catch (const DatabaseException& e)
     {
         if (String(e.what()).find("Unsupported parameter type") == String::npos)
         {
-#ifdef USE_GTEST
             FAIL() << e.what();
-#endif
         }
     }
 
-#ifdef USE_GTEST
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY id");
     select.open();
     for (const auto& row: rows)
@@ -394,7 +400,6 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         select.next();
     }
     select.close();
-#endif
 }
 
 void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
@@ -404,10 +409,8 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
 
     Transaction transaction(db);
 
-#ifdef USE_GTEST
     EXPECT_THROW(transaction.commit(), DatabaseException);
     EXPECT_THROW(transaction.rollback(), DatabaseException);
-#endif
 
     transaction.begin();
 
@@ -447,9 +450,7 @@ void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
         }
     }
 
-#ifdef USE_GTEST
     EXPECT_THROW(transaction.commit(), DatabaseException);
-#endif
 }
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
@@ -585,17 +586,13 @@ void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
 
     query.param("name") = "Alex";
     query.exec();
-#ifdef USE_GTEST
     auto id = query.id();
     EXPECT_EQ(id, uint64_t(1));
-#endif
 
     query.param("name") = "David";
     query.exec();
-#ifdef USE_GTEST
     id = query.id();
     EXPECT_EQ(id, uint64_t(2));
-#endif
 }
 
 static const string expectedBulkInsertResult(
@@ -687,7 +684,6 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
 
     Query select(db, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
     select.open();
-#ifdef USE_GTEST
     size_t recordCount = 0;
     while (!select.eof())
     {
@@ -708,7 +704,6 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
         select.next();
     }
     EXPECT_EQ(2U, recordCount);
-#endif
 }
 
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
@@ -794,9 +789,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         "2,Jane,CFO,2021-02-03",
         "3,William,CIO,2022-03-04"};
 
-#ifdef USE_GTEST
     EXPECT_THROW(db->executeBatchSQL(invalidBatchSQL), DatabaseException);
-#endif
 
     db->executeBatchSQL(batchSQL);
 
@@ -809,14 +802,10 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         {
             row.push_back(selectData[column].asString().trim());
         }
-#ifdef USE_GTEST
         EXPECT_STREQ(expectedResults[i].c_str(), row.join(",").c_str());
-#endif
         selectData.next();
     }
-#ifdef USE_GTEST
     EXPECT_EQ(i, 3);
-#endif
 }
 
 void DatabaseTests::testSelect(const DatabaseConnectionString& connectionString)
@@ -831,9 +820,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     createTestTable(db, false, false);
 
     Query emptyQuery(db);
-#ifdef USE_GTEST
     EXPECT_THROW(emptyQuery.exec(), DatabaseException);
-#endif
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
@@ -861,9 +848,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         insertData.exec();
     }
 
-#ifdef USE_GTEST
     EXPECT_THROW(selectData.next(), DatabaseException);
-#endif
 
     selectData.open();
     Strings printRows;
@@ -890,9 +875,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         selectData.next();
     }
 
-#ifdef USE_GTEST
     EXPECT_THROW(selectData.next(), DatabaseException);
-#endif
 
     selectData.close();
 
@@ -949,7 +932,6 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Query selectQuery(db, "SELECT id, data1, data2 FROM gtest_temp_table ORDER BY 1");
     selectQuery.open();
 
-#ifdef USE_GTEST
     constexpr size_t blobSize2 = blobSize1 * 2;
     auto dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
@@ -968,7 +950,6 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     {
         EXPECT_EQ(char(256 - char(i % 256)), data[i]);
     }
-#endif
 
     selectQuery.close();
 }
