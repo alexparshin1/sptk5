@@ -284,9 +284,11 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 #ifdef USE_GTEST
     Query select(db, "SELECT ts FROM gtest_temp_table");
     select.open();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01T11:22:33"));
+    auto dateTime = select["ts"].asDateTime().isoDateTimeString().substr(0, 19);
+    EXPECT_STREQ("2015-06-01T11:22:33", dateTime.c_str());
     select.next();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01T11:22:33"));
+    dateTime = select["ts"].asDateTime().isoDateTimeString().substr(0, 19);
+    EXPECT_STREQ("2015-06-01T11:22:33", dateTime.c_str());
     select.close();
 #endif
 }
