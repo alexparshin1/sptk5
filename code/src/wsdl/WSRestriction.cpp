@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/wsdl/WSRestriction.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -142,4 +141,3 @@ WSRestriction::Type WSRestriction::type() const
 {
     return m_type;
 }
-

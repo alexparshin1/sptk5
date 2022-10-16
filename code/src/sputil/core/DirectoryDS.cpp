@@ -40,14 +40,14 @@ using namespace fs;
 
 String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
-    struct stat st = {};
+    struct stat fileStat = {};
 
-    stat(file.path().string().c_str(), &st);
+    stat(file.path().string().c_str(), &fileStat);
 
     String ext = file.path().extension().string();
-    modificationTime = DateTime::convertCTime(st.st_mtime);
+    modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
-    bool executable = S_ISEXEC(st.st_mode);
+    bool executable = S_ISEXEC(fileStat.st_mode);
 #else
     ext = ext.toLowerCase();
     bool executable = ext == "exe" || ext == "bat";
@@ -63,7 +63,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
         executable = false;
         image = CSmallPixmapType::SXPM_FOLDER;
     }
-    else if (S_ISREG(st.st_mode))
+    else if (S_ISREG(fileStat.st_mode))
     {
         if (executable)
         {
@@ -117,14 +117,13 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
 
 String DirectoryDS::absolutePath(const String& _path)
 {
-    path p = _path.c_str();
-    String fullPath = absolute(p).string();
+    String fullPath = absolute(_path.c_str()).string();
     return fullPath;
 }
 
-void DirectoryDS::directory(const String& d)
+void DirectoryDS::directory(const String& dirName)
 {
-    m_directory = absolutePath(d);
+    m_directory = absolutePath(dirName);
 }
 
 static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
@@ -156,12 +155,12 @@ bool DirectoryDS::open()
     {
         for (const char* dirName: {".", ".."})
         {
-            FieldList df(false);
-            df.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
-            df.push_back("Name", false) = dirName;
-            df.push_back("Size", false) = "";
-            df.push_back("Type", false) = "Directory";
-            push_back(move(df));
+            FieldList fields(false);
+            fields.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
+            fields.push_back("Name", false) = dirName;
+            fields.push_back("Size", false) = "";
+            fields.push_back("Type", false) = "Directory";
+            push_back(move(fields));
             ++index;
         }
     }
@@ -215,30 +214,30 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
         modeName += " symlink";
     }
 
-    FieldList df(false);
-    df.push_back(" ", false).setImageNdx((uint32_t) pixmapType);
-    df.push_back("Name", false) = file.path().filename().string();
+    FieldList fields(false);
+    fields.push_back(" ", false).setImageNdx((uint32_t) pixmapType);
+    fields.push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
     {
-        df.push_back("Size", false) = "";
+        fields.push_back("Size", false) = "";
     }
     else
     {
-        df.push_back("Size", false) = (int64_t) file_size(file.path());
+        fields.push_back("Size", false) = (int64_t) file_size(file.path());
     }
-    df.push_back("Type", false) = modeName;
+    fields.push_back("Type", false) = modeName;
 
-    df.push_back("Modified", false) = modificationTime;
-    df.push_back("", false) = (int32_t) index; // Fake key value
+    fields.push_back("Modified", false) = modificationTime;
+    fields.push_back("", false) = (int32_t) index; // Fake key value
     ++index;
 
     if (access(file.path().filename().string().c_str(), R_OK) != 0)
     {
-        df[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
-        df[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
+        fields[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
+        fields[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
     }
 
-    return df;
+    return fields;
 }
 
 std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
@@ -250,14 +249,14 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     size_t pos = 0;
     while (pos < wildcard.length())
     {
-        char ch = wildcard[pos];
+        char chr = wildcard[pos];
 
         if (charClassStarted)
         {
-            switch (ch)
+            switch (chr)
             {
                 case '!':
-                    ch = '^';
+                    chr = '^';
                     break;
                 case ']':
                     charClassStarted = false;
@@ -265,32 +264,32 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 default:
                     break;
             }
-            regexpStr += ch;
+            regexpStr += chr;
             ++pos;
             continue;
         }
 
-        switch (ch)
+        switch (chr)
         {
             case '{':
                 groupStarted = true;
-                ch = '(';
+                chr = '(';
                 break;
             case ',':
                 if (groupStarted)
                 {
-                    ch = '|';
+                    chr = '|';
                 }
                 break;
             case '}':
                 if (groupStarted)
                 {
                     groupStarted = false;
-                    ch = ')';
+                    chr = ')';
                 }
                 break;
             case '\\':
-                regexpStr += ch;
+                regexpStr += chr;
                 ++pos;
                 if (pos < wildcard.length())
                 {
@@ -298,7 +297,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 }
                 break;
             case '?':
-                ch = '.';
+                chr = '.';
                 break;
             case '*':
                 regexpStr += ".";
@@ -315,7 +314,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
             default:
                 break;
         }
-        regexpStr += ch;
+        regexpStr += chr;
         ++pos;
     }
     regexpStr += "$";

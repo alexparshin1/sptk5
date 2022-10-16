@@ -142,13 +142,13 @@ private:
      *
      * Data is read from the opened socket into a character buffer of limited size
      * @param destination       Destination buffer
-     * @param sz                Size of the destination buffer
+     * @param size                Size of the destination buffer
      * @param delimiter         Line delimiter
      * @param read_line          True if we want to read one line (ended with CRLF) only
      * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t sz, char delimiter, bool read_line,
+    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
                                        struct sockaddr_in* from = nullptr);
 
     void handleReadFromSocketError(int error);
@@ -233,11 +233,11 @@ public:
 
     /**
      * Reads one line (terminated with CRLF) from the socket into string
-     * @param s                 The destination string
+     * @param str                 The destination string
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    size_t readLine(String& s, char delimiter = '\n');
+    size_t readLine(String& str, char delimiter = '\n');
 
     /**
      * Reads data from the socket

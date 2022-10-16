@@ -25,9 +25,7 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
-#include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;

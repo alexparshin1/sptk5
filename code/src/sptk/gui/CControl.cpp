@@ -30,7 +30,6 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CEvent.h>
 
 using namespace std;
 using namespace sptk;
@@ -104,7 +103,6 @@ CControlKindIndex::CControlKindIndex() noexcept
 
 CControlKindIndex::CTypeNameMap CControlKindIndex::m_typeNameMap;
 CControlKindIndex::CNameTypeMap CControlKindIndex::m_nameTypeMap;
-static CControlKindIndex controlKindIndex;
 
 void CControlKindIndex::registerType(CControlKind type, const char* name)
 {

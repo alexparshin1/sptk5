@@ -26,7 +26,6 @@
 
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
-#include <sptk5/wsdl/OpenApiGenerator.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,7 +33,11 @@ using namespace xdoc;
 
 OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
                                    const Strings& servers, const Options& options)
-    : m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
+    : m_title(title)
+    , m_description(description)
+    , m_version(version)
+    , m_servers(servers)
+    , m_options(options)
 {
 }
 
@@ -43,7 +46,7 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (const auto&[name, value]: m_options.operationsAuth)
+    for (const auto& [name, value]: m_options.operationsAuth)
     {
         if (operations.find(name) == operations.end())
         {
@@ -91,7 +94,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
     // Create paths object
     const auto& paths = document.root()->pushNode("paths");
-    for (const auto&[operationName, operation]: operations)
+    for (const auto& [operationName, operation]: operations)
     {
         const auto& operationElement = paths->pushNode("/" + operation.m_input->name(), Node::Type::Object);
         const auto& postElement = operationElement->pushNode("post");
@@ -131,7 +134,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         schema->set("$ref", ref);
 
         const auto& responsesElement = postElement->pushNode("responses", Node::Type::Object);
-        for (const auto&[name, description]: possibleResponses)
+        for (const auto& [name, description]: possibleResponses)
         {
             const auto& response = responsesElement->pushNode(name, Node::Type::Object);
             response->set("description", description);
@@ -141,24 +144,22 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
 void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeMap& complexTypes) const
 {
-    struct OpenApiType
-    {
+    struct OpenApiType {
         String type;
         String format;
     };
 
     static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
-        {"string",   {"string",  ""}},
-        {"datetime", {"string",  "date-time"}},
-        {"bool",     {"boolean", ""}},
-        {"integer",  {"integer", "int64"}},
-        {"double",   {"number",  "double"}}
-    };
+        {"string", {"string", ""}},
+        {"datetime", {"string", "date-time"}},
+        {"bool", {"boolean", ""}},
+        {"integer", {"integer", "int64"}},
+        {"double", {"number", "double"}}};
 
     // Create components object
     const auto& components = document.root()->pushNode("components", Node::Type::Object);
     const auto& schemas = components->pushNode("schemas", Node::Type::Object);
-    for (const auto&[complexTypeName, complexTypeInfo]: complexTypes)
+    for (const auto& [complexTypeName, complexTypeInfo]: complexTypes)
     {
         const auto& complexType = schemas->pushNode(complexTypeInfo->name(), Node::Type::Object);
         complexType->set("type", "object");
@@ -202,19 +203,17 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
 
 void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, const SNode& property) const
 {
-    struct OpenApiType
-    {
+    struct OpenApiType {
         String type;
         String format;
     };
 
     static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
-        {"string",   {"string",  ""}},
-        {"datetime", {"string",  "date-time"}},
-        {"bool",     {"boolean", ""}},
-        {"integer",  {"integer", "int64"}},
-        {"double",   {"number",  "double"}}
-    };
+        {"string", {"string", ""}},
+        {"datetime", {"string", "date-time"}},
+        {"bool", {"boolean", ""}},
+        {"integer", {"integer", "int64"}},
+        {"double", {"number", "double"}}};
 
     auto className = ctypeProperty->className();
     if (className.startsWith("sptk::WS"))

@@ -70,7 +70,8 @@ void HttpConnect::sendCommand(const String& cmd)
         throw Exception("Socket isn't open");
     }
 
-    if (!m_socket.readyToWrite(chrono::seconds(30)))
+    const chrono::seconds readTimeout(30);
+    if (!m_socket.readyToWrite(readTimeout))
     {
         throw Exception("Server is busy");
     }

@@ -104,7 +104,7 @@ public:
     /**
      * Sets current directory
      */
-    void directory(const String& d);
+    void directory(const String& dirName);
 
     /**
      * Returns current directory

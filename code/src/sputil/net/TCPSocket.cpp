@@ -136,11 +136,11 @@ void TCPSocketReader::readMoreFromSocket(int availableBytes)
     bytes(bytes() + receivedBytes);
 }
 
-int32_t TCPSocketReader::bufferedRead(uint8_t* destination, size_t sz, char delimiter, bool read_line,
+int32_t TCPSocketReader::bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
                                       sockaddr_in* from)
 {
     auto availableBytes = int(bytes() - m_readOffset);
-    auto bytesToRead = (int) sz;
+    auto bytesToRead = (int) size;
     bool eol = false;
 
     if (availableBytes == 0)
@@ -179,7 +179,7 @@ int32_t TCPSocketReader::bufferedRead(uint8_t* destination, size_t sz, char deli
                 return 0;
             }
         }
-        if (len < sz)
+        if (len < size)
         {
             eol = true;
             bytesToRead = (int) len;
@@ -197,7 +197,7 @@ int32_t TCPSocketReader::bufferedRead(uint8_t* destination, size_t sz, char deli
     // copy data to destination, advance the read offset
     memcpy(destination, readPosition, size_t(bytesToRead));
 
-    if (read_line || bytesToRead < int(sz))
+    if (read_line || bytesToRead < int(size))
     {
         destination[bytesToRead] = 0;
     }
@@ -392,16 +392,16 @@ size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
     return m_reader.readLine(buffer, delimiter);
 }
 
-size_t TCPSocket::readLine(String& s, char delimiter)
+size_t TCPSocket::readLine(String& str, char delimiter)
 {
     m_reader.readLine(m_stringBuffer, delimiter);
     if (m_stringBuffer.empty())
     {
-        s = "";
+        str = "";
     }
     else
     {
-        s.assign(m_stringBuffer.c_str(), m_stringBuffer.bytes() - 1);
+        str.assign(m_stringBuffer.c_str(), m_stringBuffer.bytes() - 1);
     }
     return m_stringBuffer.bytes();
 }
@@ -414,17 +414,17 @@ size_t TCPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
-    size_t rc = m_reader.read(buffer.data(), size, 0, false, from);
-    buffer.bytes(rc);
-    return rc;
+    size_t bytes = m_reader.read(buffer.data(), size, 0, false, from);
+    buffer.bytes(bytes);
+    return bytes;
 }
 
 size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
-    size_t rc = m_reader.read((uint8_t*) buffer.data(), size, 0, false, from);
-    buffer.resize(rc);
-    return rc;
+    size_t bytes = m_reader.read((uint8_t*) buffer.data(), size, 0, false, from);
+    buffer.resize(bytes);
+    return bytes;
 }
 
 void TCPSocket::setProxy(shared_ptr<Proxy> proxy)

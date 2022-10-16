@@ -32,7 +32,6 @@
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/gui/CThemes.h>
 
 using namespace sptk;
 using namespace std;

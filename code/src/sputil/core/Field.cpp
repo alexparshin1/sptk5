@@ -117,8 +117,8 @@ String Field::asString() const
 
 String Field::epochDataToDateTimeString() const
 {
-    const auto& dt(get<DateTime>());
-    return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
+    const auto& dateTime(get<DateTime>());
+    return dateTime.dateString() + " " + dateTime.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
 String Field::doubleDataToString() const

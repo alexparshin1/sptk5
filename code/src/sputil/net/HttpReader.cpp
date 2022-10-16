@@ -29,7 +29,6 @@
 #include "sptk5/net/HttpReader.h"
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
-#include <sptk5/net/TCPSocket.h>
 #include <thread>
 
 using namespace std;

@@ -25,14 +25,12 @@
 */
 
 #include "sptk5/ArchiveFile.h"
-#include "sptk5/Tar.h"
 #include <chrono>
 
 #ifndef _WIN32
 
 #include <grp.h>
 #include <pwd.h>
-#include <sptk5/DateTime.h>
 #include <sptk5/SystemException.h>
 #include <sys/stat.h>
 

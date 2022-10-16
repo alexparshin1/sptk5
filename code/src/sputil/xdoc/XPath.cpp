@@ -26,8 +26,6 @@
 
 #include "XPath.h"
 #include <sptk5/RegularExpression.h>
-#include <sptk5/xdoc/Attributes.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -263,4 +261,3 @@ void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, Strin
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(start, nodes, pathElements, -1, starPointer);
 }
-

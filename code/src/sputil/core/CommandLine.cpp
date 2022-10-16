@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/CommandLine.h>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
