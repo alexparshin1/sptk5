@@ -208,7 +208,7 @@ TEST(SPTK_DateTime, parsePerformance)
     COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl)
 }
 
-TEST(SPTK_DateTime, tzset)
+TEST(SPTK_DateTime, tzset1)
 {
     TimeZone::set("Australia/Melbourne");
     auto currentTimeZoneOffset = TimeZone::offset();
@@ -219,6 +219,28 @@ TEST(SPTK_DateTime, tzset)
 
     TimeZone::set("Australia/Melbourne");
     EXPECT_EQ(currentTimeZoneOffset.count(), TimeZone::offset().count());
+}
+
+TEST(SPTK_DateTime, tzset2)
+{
+    //TimeZone::set("Australia/Melbourne");
+
+    // 2022-01-01 11:22:33
+    struct tm stime {};
+    stime.tm_year = 2022 - 1900;
+    stime.tm_mon = 0;
+    stime.tm_mday = 1;
+    stime.tm_hour = 11;
+    stime.tm_min = 22;
+    stime.tm_sec = 33;
+
+    array<char,30> buffer;
+    strftime(buffer.data(), 29, "%Y-%m-%d %H:%M:%S", &stime);
+    String ascTime(buffer.data());
+
+    auto atime = mktime(&stime);
+
+    EXPECT_STREQ("2022-01-01 11:22:33", ascTime.c_str());
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)
