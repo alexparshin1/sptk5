@@ -316,9 +316,13 @@ static void decodeTime(const DateTime::time_point& timePoint, short& h, short& m
     tm time = {};
     if (!gmt)
     {
-        tt += DateTime::timeZoneOffset().count() * secondsInMinute;
+        localtime_r(&tt, &time);
+        //tt += DateTime::timeZoneOffset().count() * secondsInMinute;
     }
-    gmtime_r(&tt, &time);
+    else
+    {
+        gmtime_r(&tt, &time);
+    }
 
     h = (short) time.tm_hour;
     m = (short) time.tm_min;

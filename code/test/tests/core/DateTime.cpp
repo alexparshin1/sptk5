@@ -224,23 +224,32 @@ TEST(SPTK_DateTime, tzset1)
 TEST(SPTK_DateTime, tzset2)
 {
     //TimeZone::set("Australia/Melbourne");
+    //TimeZone::set("GMT");
 
     // 2022-01-01 11:22:33
-    struct tm stime {};
+    struct tm stime {
+    };
     stime.tm_year = 2022 - 1900;
     stime.tm_mon = 0;
     stime.tm_mday = 1;
     stime.tm_hour = 11;
     stime.tm_min = 22;
     stime.tm_sec = 33;
+    stime.tm_isdst = DateTime::isDaylightSavingsTime() ? 1 : 0;
 
-    array<char,30> buffer;
+    array<char, 30> buffer;
     strftime(buffer.data(), 29, "%Y-%m-%d %H:%M:%S", &stime);
     String ascTime(buffer.data());
 
     auto atime = mktime(&stime);
 
+    auto gt = gmtime(&atime);
+    auto gtime = mktime(gt);
+
     EXPECT_STREQ("2022-01-01 11:22:33", ascTime.c_str());
+
+    DateTime dateTime(DateTime::convertCTime(atime));
+    COUT(dateTime.timeString() << endl)
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)
