@@ -221,11 +221,8 @@ TEST(SPTK_DateTime, tzset1)
     EXPECT_EQ(currentTimeZoneOffset.count(), TimeZone::offset().count());
 }
 
-TEST(SPTK_DateTime, tzset2)
+static void testDecodingEncoding()
 {
-    //TimeZone::set("Australia/Melbourne");
-    //TimeZone::set("GMT");
-
     // 2022-01-01 11:22:33
     struct tm stime {
     };
@@ -243,13 +240,21 @@ TEST(SPTK_DateTime, tzset2)
 
     auto atime = mktime(&stime);
 
-    auto gt = gmtime(&atime);
-    auto gtime = mktime(gt);
-
     EXPECT_STREQ("2022-01-01 11:22:33", ascTime.c_str());
 
     DateTime dateTime(DateTime::convertCTime(atime));
-    COUT(dateTime.timeString() << endl)
+    EXPECT_STREQ("2022-01-01T11:22:33", dateTime.isoDateTimeString().substr(0, 19).c_str());
+
+    DateTime dateTime2("2022-01-01 11:22:33");
+    EXPECT_STREQ("2022-01-01T11:22:33", dateTime2.isoDateTimeString().substr(0, 19).c_str());
+}
+
+TEST(SPTK_DateTime, tzset2)
+{
+    TimeZone::set("GMT");
+    testDecodingEncoding();
+    TimeZone::set("Australia/Melbourne");
+    testDecodingEncoding();
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)
