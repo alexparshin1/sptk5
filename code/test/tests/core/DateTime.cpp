@@ -208,55 +208,6 @@ TEST(SPTK_DateTime, parsePerformance)
     COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl)
 }
 
-TEST(SPTK_DateTime, tzset1)
-{
-    TimeZone::set("Australia/Melbourne");
-    auto currentTimeZoneOffset = TimeZone::offset();
-    EXPECT_NE(currentTimeZoneOffset.count(), 0);
-
-    TimeZone::set("GMT");
-    EXPECT_EQ(0, TimeZone::offset().count());
-
-    TimeZone::set("Australia/Melbourne");
-    EXPECT_EQ(currentTimeZoneOffset.count(), TimeZone::offset().count());
-}
-
-static void testDecodingEncoding()
-{
-    // 2022-01-01 11:22:33
-    struct tm stime {
-    };
-    stime.tm_year = 2022 - 1900;
-    stime.tm_mon = 0;
-    stime.tm_mday = 1;
-    stime.tm_hour = 11;
-    stime.tm_min = 22;
-    stime.tm_sec = 33;
-    stime.tm_isdst = DateTime::isDaylightSavingsTime() ? 1 : 0;
-
-    array<char, 30> buffer;
-    strftime(buffer.data(), 29, "%Y-%m-%d %H:%M:%S", &stime);
-    String ascTime(buffer.data());
-
-    auto atime = mktime(&stime);
-
-    EXPECT_STREQ("2022-01-01 11:22:33", ascTime.c_str());
-
-    DateTime dateTime(DateTime::convertCTime(atime));
-    EXPECT_STREQ("2022-01-01T11:22:33", dateTime.isoDateTimeString().substr(0, 19).c_str());
-
-    DateTime dateTime2("2022-01-01 11:22:33");
-    EXPECT_STREQ("2022-01-01T11:22:33", dateTime2.isoDateTimeString().substr(0, 19).c_str());
-}
-
-TEST(SPTK_DateTime, tzset2)
-{
-    TimeZone::set("GMT");
-    testDecodingEncoding();
-    TimeZone::set("Australia/Melbourne");
-    testDecodingEncoding();
-}
-
 TEST(SPTK_DateTime, timezoneFormats1)
 {
     DateTime dt1("2021-02-03T01:02:03+10");

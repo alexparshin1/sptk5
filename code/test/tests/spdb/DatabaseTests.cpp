@@ -245,8 +245,6 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
 void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& connectionString)
 {
-    TimeZone::set("GMT");
-
     DatabaseConnectionPool connectionPool(connectionString.toString());
     DatabaseConnection db = connectionPool.getConnection();
 
