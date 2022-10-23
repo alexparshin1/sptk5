@@ -240,7 +240,7 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     DateTime started = DateTime::Now();
     DateTime timeoutAt(started + timeout);
 
-    SSL_set_fd(m_ssl, fd());
+    SSL_set_fd(m_ssl, (int) fd());
 
     if (timeout == chrono::milliseconds(0))
     {
@@ -277,7 +277,7 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
     if (fd() != socketHandle)
     {
         TCPSocket::attach(socketHandle, false);
-        int result = SSL_set_fd(m_ssl, socketHandle);
+        int result = SSL_set_fd(m_ssl, (int) socketHandle);
         if (result <= 0)
         {
             int32_t errorCode = SSL_get_error(m_ssl, result);
