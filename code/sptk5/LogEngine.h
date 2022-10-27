@@ -43,11 +43,12 @@ namespace sptk {
  */
 
 // Log options
-constexpr int LO_STDOUT = 1;   ///< Duplicate messages to stdout
-constexpr int LO_DATE = 2;     ///< Print date for every log message
-constexpr int LO_TIME = 4;     ///< Print time for every log message
-constexpr int LO_PRIORITY = 8; ///< Print message priority
-constexpr int LO_ENABLE = 16;  ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+constexpr int LO_STDOUT = 1;        ///< Duplicate messages to stdout
+constexpr int LO_DATE = 2;          ///< Print date for every log message
+constexpr int LO_TIME = 4;          ///< Print time for every log message
+constexpr int LO_PRIORITY = 8;      ///< Print message priority
+constexpr int LO_ENABLE = 16;       ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+constexpr int LO_MILLISECONDS = 32; ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
 
 /**
  * Base class for various log engines.

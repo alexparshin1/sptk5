@@ -149,7 +149,8 @@ void LogEngine::threadFunction()
 
             if (m_options & LO_TIME)
             {
-                messagePrefix += message->timestamp.timeString(true) + " ";
+                auto printAccuracy = m_options & LO_MILLISECONDS ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+                messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
             }
 
             if (m_options & LO_PRIORITY)

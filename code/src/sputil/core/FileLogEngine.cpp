@@ -51,7 +51,8 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 
         if ((_options & LO_TIME) == LO_TIME)
         {
-            m_fileStream << message->timestamp.timeString(true) << " ";
+            auto printAccuracy = _options & LO_MILLISECONDS ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+            m_fileStream << message->timestamp.timeString(true, printAccuracy) << " ";
         }
 
         if ((_options & LO_PRIORITY) == LO_PRIORITY)
