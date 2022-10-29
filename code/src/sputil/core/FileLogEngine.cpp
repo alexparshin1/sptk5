@@ -33,7 +33,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
     lock_guard lock(m_mutex);
 
-    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
+    if (option(Option::ENABLE))
     {
         if (!m_fileStream.is_open())
         {
@@ -44,18 +44,18 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
             }
         }
 
-        if ((_options & LO_DATE) == LO_DATE)
+        if (option(Option::DATE))
         {
             m_fileStream << message->timestamp.dateString() << " ";
         }
 
-        if ((_options & LO_TIME) == LO_TIME)
+        if (option(Option::TIME))
         {
-            auto printAccuracy = _options & LO_MILLISECONDS ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+            auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
             m_fileStream << message->timestamp.timeString(true, printAccuracy) << " ";
         }
 
-        if ((_options & LO_PRIORITY) == LO_PRIORITY)
+        if (option(Option::PRIORITY))
         {
             m_fileStream << "[" << priorityName(message->priority) << "] ";
         }

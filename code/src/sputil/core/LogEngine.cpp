@@ -48,16 +48,21 @@ void LogEngine::shutdown() noexcept
     }
 }
 
-void LogEngine::option(int option, bool flag)
+void LogEngine::option(Option option, bool flag)
 {
     if (flag)
     {
-        m_options |= option;
+        m_options.insert(option);
     }
     else
     {
-        m_options &= ~option;
+        m_options.erase(option);
     }
+}
+
+bool LogEngine::option(Option option)
+{
+    return m_options.find(option) != m_options.end();
 }
 
 String LogEngine::priorityName(LogPriority prt)
@@ -139,21 +144,21 @@ void LogEngine::threadFunction()
 
         saveMessage(message);
 
-        if (m_options & LO_STDOUT)
+        if (option(Option::STDOUT))
         {
             string messagePrefix;
-            if (m_options & LO_DATE)
+            if (option(Option::DATE))
             {
                 messagePrefix += message->timestamp.dateString() + " ";
             }
 
-            if (m_options & LO_TIME)
+            if (option(Option::TIME))
             {
-                auto printAccuracy = m_options & LO_MILLISECONDS ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+                auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
                 messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
             }
 
-            if (m_options & LO_PRIORITY)
+            if (option(Option::PRIORITY))
             {
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
             }

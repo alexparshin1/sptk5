@@ -92,7 +92,7 @@ public:
      * @param programName       Log engine program name
      * @param facilities        Log engine facilities
      */
-    void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
+    void getOptions(std::set<Option>& options, String& programName, uint32_t& facilities) const;
 
 private:
 #ifdef _WIN32

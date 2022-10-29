@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     try
     {
         FileLogEngine logEngine("smtp.log");
-        logEngine.option(LO_STDOUT, true);
+        logEngine.option(LogEngine::Option::STDOUT, true);
 
         Logger logger(logEngine);
 
@@ -80,7 +80,8 @@ int main(int argc, char* argv[])
         {
             COUT("Please provide server hostname/port, user credentials, ad destination email address." << endl)
             COUT("You can also use command line arguments:" << endl)
-            COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl << endl)
+            COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl
+                                                                                          << endl)
 
             COUT("SMTP server name: ")
             cin >> host;
@@ -103,7 +104,9 @@ int main(int argc, char* argv[])
 
         auto port = (uint16_t) string2int(portStr);
         if (port < 1)
-        { port = 25; }
+        {
+            port = 25;
+        }
 
         COUT("\nTrying to connect to SMTP server.." << endl)
 
@@ -111,7 +114,7 @@ int main(int argc, char* argv[])
         if (!user.empty() && !password.empty())
         {
             SMTP.cmd_auth(user, password);
-        }  // Supported methods are login and plain
+        } // Supported methods are login and plain
 
         COUT(SMTP.response().join("\n") << endl)
 
@@ -130,7 +133,8 @@ int main(int argc, char* argv[])
         SMTP.cmd_quit();
         COUT(SMTP.response().join("\n") << endl)
 
-        COUT(endl << "Message sent. Please, check your mail in " << email << endl)
+        COUT(endl
+             << "Message sent. Please, check your mail in " << email << endl)
 
         return 0;
     }

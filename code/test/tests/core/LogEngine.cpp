@@ -54,13 +54,11 @@ TEST(SPTK_LogEngine, options)
 {
     TestLogEngine logEngine;
 
-    EXPECT_EQ((int) logEngine.options(), LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY);
+    EXPECT_TRUE(logEngine.option(LogEngine::Option::ENABLE));
+    EXPECT_FALSE(logEngine.option(LogEngine::Option::STDOUT));
 
-    logEngine.option(LO_STDOUT, true);
-    EXPECT_EQ((int) logEngine.options() & LO_STDOUT, LO_STDOUT);
-
-    logEngine.option(LO_STDOUT, false);
-    EXPECT_EQ((int) logEngine.options() & LO_STDOUT, 0);
+    logEngine.option(LogEngine::Option::STDOUT, true);
+    EXPECT_TRUE(logEngine.option(LogEngine::Option::STDOUT));
 }
 
 TEST(SPTK_LogEngine, priorities)
@@ -87,7 +85,7 @@ TEST(SPTK_LogEngine, priorities)
 TEST(SPTK_LogEngine, message)
 {
     auto logEngine = make_shared<TestLogEngine>();
-    logEngine->option(LO_STDOUT, true);
+    logEngine->option(LogEngine::Option::STDOUT, true);
 
     Logger logger(*logEngine);
 

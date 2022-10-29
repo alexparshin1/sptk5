@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -37,7 +37,6 @@ class CMyThread
 {
     Logger m_log; /// Thread proxy log
 public:
-
     // Constructor
     CMyThread(const string& threadName, FileLogEngine& sharedLog);
 
@@ -46,8 +45,8 @@ public:
 };
 
 CMyThread::CMyThread(const string& threadName, FileLogEngine& sharedLog)
-    :
-    Thread(threadName), m_log(sharedLog)
+    : Thread(threadName)
+    , m_log(sharedLog)
 {
     // Put anything you need here to define your actual thread
     m_log.info(name() + " is created");
@@ -87,7 +86,7 @@ int main()
         sharedLog.reset();
 
         /// Adding 'duplicate messages to stdout' option to log options
-        sharedLog.options(sharedLog.options() | LO_STDOUT);
+        sharedLog.option(LogEngine::Option::STDOUT, true);
 
         // Creating several threads
         for (i = 0; i < 5; i++)

@@ -49,13 +49,13 @@ SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
 
 void SysLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    uint32_t options {0};
+    set<Option> options;
     String programName;
     uint32_t facilities {0};
 
     getOptions(options, programName, facilities);
 
-    if (options & LO_ENABLE)
+    if (options.find(Option::ENABLE) != options.end())
     {
 #ifndef _WIN32
         UniqueLock(syslogMutex);
@@ -80,7 +80,7 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
-        switch ((int)message->priority)
+        switch ((int) message->priority)
         {
             case LOG_EMERG:
             case LOG_ALERT:
@@ -117,10 +117,10 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
     }
 }
 
-void SysLogEngine::getOptions(uint32_t& options, String& programName, uint32_t& facilities) const
+void SysLogEngine::getOptions(set<Option>& options, String& programName, uint32_t& facilities) const
 {
     SharedLock(syslogMutex);
-    options = (uint32_t) this->options();
+    options = this->options();
     programName = m_programName;
     facilities = m_facilities;
 }

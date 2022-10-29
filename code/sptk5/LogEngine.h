@@ -33,6 +33,7 @@
 
 #include <atomic>
 #include <iostream>
+#include <set>
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
@@ -41,14 +42,6 @@ namespace sptk {
  * @addtogroup log Log Classes
  * @{
  */
-
-// Log options
-constexpr int LO_STDOUT = 1;        ///< Duplicate messages to stdout
-constexpr int LO_DATE = 2;          ///< Print date for every log message
-constexpr int LO_TIME = 4;          ///< Print time for every log message
-constexpr int LO_PRIORITY = 8;      ///< Print message priority
-constexpr int LO_ENABLE = 16;       ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
-constexpr int LO_MILLISECONDS = 32; ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
 
 /**
  * Base class for various log engines.
@@ -62,6 +55,17 @@ class SP_EXPORT LogEngine
     friend class Logger;
 
 public:
+    // Log options
+    enum class Option : uint8_t
+    {
+        STDOUT,      ///< Duplicate messages to stdout
+        DATE,        ///< Print date for every log message
+        TIME,        ///< Print time for every log message
+        PRIORITY,    ///< Print message priority
+        ENABLE,      ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+        MILLISECONDS ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+    };
+
     /**
      * Stores or sends log message to actual destination
      * @param message           Log message
@@ -93,18 +97,18 @@ public:
 
     /**
      * Sets log options
-     * @param ops int, a bit combination of Option
+     * @param ops               Log options
      */
-    void options(int ops)
+    void options(const std::set<Option>& ops)
     {
         m_options = ops;
     }
 
     /**
      * Returns log options
-     * @returns a bit combination of Option
+     * @returns log options
      */
-    size_t options() const
+    std::set<Option> options() const
     {
         return m_options;
     }
@@ -114,7 +118,14 @@ public:
      * @param option            Log option, one or more of LO_* constants
      * @param flag              Set option on or off?
      */
-    void option(int options, bool flag);
+    void option(Option option, bool flag);
+
+    /**
+     * Gets an option value
+     * @param option            Log option, one or more of LO_* constants
+     * @returns Option value
+     */
+    bool option(Option option);
 
     /**
      * Sets current message priority
@@ -184,7 +195,7 @@ private:
     /**
      * Log options, a bit combination of Option
      */
-    std::atomic<uint32_t> m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
+    std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

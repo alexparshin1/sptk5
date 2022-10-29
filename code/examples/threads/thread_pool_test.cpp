@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -37,11 +37,11 @@ SynchronizedQueue<int> intQueue;
 class CMyTask
     : public Runable
 {
-    Logger m_log;  /// Task proxy log
+    Logger m_log; /// Task proxy log
 
     static uint32_t taskCount;
-public:
 
+public:
     // Constructor
     explicit CMyTask(SysLogEngine& sharedLog);
 
@@ -52,8 +52,8 @@ public:
 uint32_t CMyTask::taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-    : Runable("Task " + int2string(taskCount)),
-      m_log(sharedLog)
+    : Runable("Task " + int2string(taskCount))
+    , m_log(sharedLog)
 {
     taskCount++;
 }
@@ -88,7 +88,7 @@ int main()
         /// Threads send messages through their own Logger objects.
         /// Multiple Logger objects can share same log object thread-safely.
         SysLogEngine logEngine("thread_pool_test");
-        logEngine.options(logEngine.options() | LO_STDOUT);
+        logEngine.option(LogEngine::Option::STDOUT, true);
 
         Logger sharedLog(logEngine);
 
