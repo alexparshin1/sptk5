@@ -111,7 +111,7 @@ Host::Host(const Host& other)
     : m_hostname(other.m_hostname)
     , m_port(other.m_port)
 {
-    SharedLock(other.m_mutex);
+    scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -119,7 +119,7 @@ Host::Host(Host&& other) noexcept
     : m_hostname(exchange(other.m_hostname, ""))
     , m_port(exchange(other.m_port, 0))
 {
-    SharedLock(other.m_mutex);
+    scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -127,8 +127,7 @@ Host& Host::operator=(const Host& other)
 {
     if (&other != this)
     {
-        SharedLockInt lock1(other.m_mutex);
-        UniqueLockInt lock2(m_mutex);
+        scoped_lock lock(m_mutex, other.m_mutex);
         m_hostname = other.m_hostname;
         m_port = other.m_port;
         memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -138,7 +137,7 @@ Host& Host::operator=(const Host& other)
 
 Host& Host::operator=(Host&& other) noexcept
 {
-    CopyLock(m_mutex, other.m_mutex);
+    scoped_lock lock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -157,7 +156,7 @@ bool Host::operator!=(const Host& other) const
 
 void Host::setPort(uint16_t p)
 {
-    UniqueLock(m_mutex);
+    scoped_lock lock(m_mutex);
     m_port = p;
     switch (any().sa_family)
     {
@@ -170,28 +169,6 @@ void Host::setPort(uint16_t p)
         default:
             break;
     }
-}
-
-
-static struct addrinfo* safeGetAddrInfo(const String& hostname)
-{
-    static SharedMutex getaddrinfoMutex;
-
-    struct addrinfo hints = {};
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;       // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM; // Socket type
-    hints.ai_protocol = 0;
-
-    UniqueLock(getaddrinfoMutex);
-
-    struct addrinfo* result = nullptr;
-    if (int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result); rc != 0)
-    {
-        throw Exception(gai_strerror(rc));
-    }
-
-    return result;
 }
 
 void Host::getHostAddress()
@@ -215,9 +192,20 @@ void Host::getHostAddress()
             break;
     }
 #else
-    struct addrinfo* result = safeGetAddrInfo(m_hostname);
+    scoped_lock lock(m_mutex);
 
-    UniqueLock(m_mutex);
+    struct addrinfo hints = {};
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;       // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM; // Socket type
+    hints.ai_protocol = 0;
+
+    struct addrinfo* result = nullptr;
+    if (int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result); rc != 0)
+    {
+        throw Exception(gai_strerror(rc));
+    }
+
     memset(&m_address, 0, sizeof(m_address));
     memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
 
@@ -227,7 +215,7 @@ void Host::getHostAddress()
 
 String Host::toString(bool forceAddress) const
 {
-    SharedLock(m_mutex);
+    scoped_lock lock(m_mutex);
     std::stringstream str;
 
     if (m_hostname.empty())

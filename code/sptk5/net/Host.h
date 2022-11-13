@@ -53,7 +53,7 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable SharedMutex m_mutex;                            ///< Mutex to protect internal class data
+    mutable std::mutex m_mutex;                             ///< Mutex to protect internal class data
     String m_hostname;                                      ///< Host name or IP address
     uint16_t m_port {0};                                    ///< Port number
     std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
@@ -204,7 +204,7 @@ public:
      */
     const String& hostname() const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_hostname;
     }
 
@@ -223,7 +223,7 @@ public:
      */
     uint16_t port() const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_port;
     }
 
@@ -240,7 +240,7 @@ public:
      */
     void getAddress(sockaddr_in& address) const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         memcpy(&address, &m_address, sizeof(address));
     }
 
@@ -249,7 +249,7 @@ public:
      */
     void getAddress(sockaddr_in6& address) const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         memcpy(&address, &m_address, sizeof(address));
     }
 
