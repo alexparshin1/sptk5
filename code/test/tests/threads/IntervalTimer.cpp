@@ -43,7 +43,7 @@ TEST(SPTK_IntervalTimer, repeat) /* NOLINT */
 
         int eventSet(0);
 
-        IntervalTimer::Event event = timer.repeat(
+        auto event = timer.repeat(
             [&eventSet]() {
                 ++eventSet;
             });
@@ -126,13 +126,13 @@ TEST(SPTK_IntervalTimer, repeatMultipleEvents) /* NOLINT */
         constexpr milliseconds repeatInterval {20};
         IntervalTimer timer(repeatInterval);
 
-        vector<IntervalTimer::Event> createdEvents;
+        vector<STimerEvent> createdEvents;
         constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
             IntervalTimerTestData::eventData[eventIndex] = eventIndex;
             function<void()> callback = bind(gtestIntervalTimerCallback2, (uint8_t*) eventIndex);
-            IntervalTimer::Event event = timer.repeat(callback);
+            auto event = timer.repeat(callback);
             createdEvents.push_back(event);
         }
 
@@ -140,7 +140,7 @@ TEST(SPTK_IntervalTimer, repeatMultipleEvents) /* NOLINT */
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            IntervalTimer::Event event = createdEvents[eventIndex];
+            auto event = createdEvents[eventIndex];
             event->cancel();
         }
 
@@ -204,7 +204,7 @@ TEST(SPTK_IntervalTimer, scheduleEventsPerformance) /* NOLINT */
 {
     IntervalTimer timer(hours(1));
     constexpr size_t maxEvents = 100000;
-    vector<IntervalTimer::Event> createdEvents;
+    vector<STimerEvent> createdEvents;
 
     StopWatch stopwatch;
 
@@ -212,7 +212,7 @@ TEST(SPTK_IntervalTimer, scheduleEventsPerformance) /* NOLINT */
     for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex)
     {
         function<void()> callback = bind(gtestIntervalTimerCallback2, (uint8_t*) eventIndex);
-        IntervalTimer::Event event = timer.repeat(callback, 1);
+        auto event = timer.repeat(callback, 1);
         createdEvents.push_back(event);
     }
     stopwatch.stop();

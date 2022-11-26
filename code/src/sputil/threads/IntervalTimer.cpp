@@ -48,16 +48,16 @@ public:
         m_semaphore.post();
     }
 
-    void schedule(const IntervalTimer::Event& event)
+    void schedule(const STimerEvent& event)
     {
         scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.emplace(event);
         m_semaphore.post();
     }
 
-    IntervalTimer::Event waitForEvent()
+    STimerEvent waitForEvent()
     {
-        IntervalTimer::Event event = nextEvent();
+        STimerEvent event = nextEvent();
         if (!event)
         {
             return nullptr;
@@ -81,7 +81,7 @@ private:
     Semaphore m_semaphore;
     const chrono::milliseconds m_repeatInterval;
 
-    IntervalTimer::Event nextEvent()
+    STimerEvent nextEvent()
     {
         scoped_lock lock(m_scheduledMutex);
 
@@ -100,7 +100,7 @@ private:
 
     void popFrontEvent()
     {
-        IntervalTimer::Event event;
+        STimerEvent event;
 
         scoped_lock lock(m_scheduledMutex);
         if (m_scheduledEvents.empty())
@@ -111,43 +111,6 @@ private:
         m_scheduledEvents.pop();
     }
 };
-
-IntervalTimer::EventData::EventData(const DateTime& timestamp, const Callback& eventCallback, int repeatCount)
-    : m_when(timestamp)
-    , m_callback(eventCallback)
-    , m_repeatCount(repeatCount)
-{
-}
-
-bool IntervalTimer::EventData::fire(chrono::milliseconds repeatInterval)
-{
-    try
-    {
-        m_callback();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what())
-    }
-
-    if (m_repeatCount == 0)
-    {
-        return false;
-    }
-
-    if (m_repeatCount > 0)
-    {
-        --m_repeatCount;
-        if (m_repeatCount == 0)
-        {
-            return false;
-        }
-    }
-
-    m_when = m_when + repeatInterval;
-
-    return true;
-}
 
 void IntervalTimerThread::threadFunction()
 {
@@ -179,9 +142,9 @@ IntervalTimer::~IntervalTimer()
     cancel();
 }
 
-IntervalTimer::Event IntervalTimer::repeat(const EventData::Callback& eventCallback, int repeatCount)
+STimerEvent IntervalTimer::repeat(const TimerEvent::Callback& eventCallback, int repeatCount)
 {
-    auto event = make_shared<EventData>(DateTime::Now() + m_repeatInterval, eventCallback, repeatCount);
+    auto event = make_shared<TimerEvent>(DateTime::Now() + m_repeatInterval, eventCallback, repeatCount);
     m_timerThread->schedule(event);
 
     return event;
