@@ -44,19 +44,6 @@ class SP_EXPORT IntervalTimer
 {
 public:
     /**
-     * IntervalTimer Event Id
-     */
-    struct EventId {
-        uint64_t serial {++Timer::nextSerial}; ///< Serial number
-        DateTime when;                         ///< Execution date and time
-        /**
-         * Constructor
-         * @param when      Event execution time
-         */
-        explicit EventId(const DateTime& when);
-    };
-
-    /**
      * IntervalTimer event class.
      * Stores event data, including references to parent IntervalTimer
      * and events map.
@@ -79,11 +66,6 @@ public:
         EventData(const EventData& other) = delete;
 
         /**
-         * @return Bookmark of event entry in events map.
-         */
-        const EventId& getId() const;
-
-        /**
          * Disabled event assignment
          * @param other                 Other event
          */
@@ -93,7 +75,6 @@ public:
          * Constructor
          * @param timestamp             Fire at timestamp
          * @param eventCallback         Event callback function
-         * @param repeatEvery           Event repeate interval
          * @param repeatCount           Repeat count, -1 means no limit
          */
         EventData(const DateTime& timestamp, const Callback& eventCallback, int repeatCount = -1);
@@ -101,9 +82,9 @@ public:
         /**
          * @return event fire at timestamp
          */
-        const DateTime& getWhen() const
+        const DateTime& when() const
         {
-            return m_id.when;
+            return m_when;
         }
 
         /**
@@ -117,7 +98,7 @@ public:
                 return false;
             }
 
-            m_id.when = m_id.when + interval;
+            m_when = m_when + interval;
             if (m_repeatCount > 0)
             {
                 --m_repeatCount;
@@ -139,12 +120,22 @@ public:
         /**
          * Fire event by calling its callback function..
          */
-        bool fire();
+        bool fire(std::chrono::milliseconds repeatInterval);
+
+        void cancel()
+        {
+            m_cancelled = true;
+        }
+        bool cancelled() const
+        {
+            return m_cancelled;
+        }
 
     private:
-        EventId m_id;                               ///< Event serial and when the event has to fire next time.
-        Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
-        int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
+        DateTime m_when;          ///< Event serial and when the event has to fire next time.
+        Callback m_callback;      ///< Event callback function, defined when event is scheduled.
+        int m_repeatCount {0};    ///< Number of event repeats, -1 means no limit.
+        bool m_cancelled {false}; ///< True if event is cancelled
     };
 
     /**
@@ -152,13 +143,12 @@ public:
      */
     using Event = std::shared_ptr<EventData>;
 
+    using EventQueue = std::queue<Event>;
+
     /**
      * Constructor
      */
-    IntervalTimer(std::chrono::milliseconds repeatInterval)
-    : m_repeatIntercal(repeatInterval)
-    {
-    }
+    IntervalTimer(std::chrono::milliseconds repeatInterval);
 
     /**
      * Copy constructor
@@ -170,14 +160,7 @@ public:
      * Destructor.
      * Cancel all events scheduled by this timer.
      */
-    virtual ~Timer();
-
-    /**
-     * Schedule single event to fire in the interval defined in the constructor.
-     * @param eventCallback             Event callback.
-     * @return event handle, that may be used to cancel this event.
-     */
-    Event once(const DateTime& timestamp, const EventData::Callback& eventCallback);
+    virtual ~IntervalTimer();
 
     /**
      * Schedule repeatable event  to fire in the interval defined in the constructor.
@@ -189,31 +172,16 @@ public:
     Event repeat(const EventData::Callback& eventCallback, int repeatCount = -1);
 
     /**
-     * Cancel event
-     * @param event                     Event handle, returned by event scheduling method.
-     */
-    void cancel(const Event& event);
-
-    /**
      * Cancel all events
      */
     void cancel();
 
-protected:
-    void unlink(const Event& event); ///< Remove event from this timer
-
 private:
-    mutable std::mutex m_mutex; ///< Mutex protecting events set
-    std::chrono::milliseconds m_repeatInterval; ///< Repeat interval
-    std::set<Event> m_events;   ///< Events scheduled by this timer
-
-    static std::atomic<uint64_t> nextSerial; ///< Event id serial
-    static std::mutex timerThreadMutex; ///< IntervalTimer thread mutex
-    static std::shared_ptr<TimerThread> timerThread; ///< IntervalTimer thread
-
-    std::set<Timer::Event> moveOutEvents();
-
-    static void checkTimerThreadRunning();
+    mutable std::mutex m_mutex;                         ///< Mutex protecting events set
+    std::chrono::milliseconds m_repeatInterval;         ///< Repeat interval
+    EventQueue m_events;                                ///< Events scheduled by this timer
+    std::mutex m_timerThreadMutex;                      ///< IntervalTimer thread mutex
+    std::shared_ptr<IntervalTimerThread> m_timerThread; ///< IntervalTimer thread
 };
 
 } // namespace sptk
