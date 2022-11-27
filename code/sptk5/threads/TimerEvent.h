@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
+#include <mutex>
 #include <sptk5/DateTime.h>
 
 namespace sptk {
@@ -39,7 +41,7 @@ public:
          * @param eventCallback         Event callback function
          * @param repeatCount           Repeat count, -1 means no limit
          */
-    TimerEvent(const DateTime& timestamp, const Callback& eventCallback, int repeatCount = -1);
+    TimerEvent(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount = -1);
 
     /**
          * @return event fire at timestamp
@@ -55,6 +57,8 @@ public:
          */
     bool shift(std::chrono::milliseconds interval)
     {
+        std::scoped_lock lock(m_mutex);
+
         if (m_repeatCount == 0)
         {
             return false;
@@ -76,28 +80,34 @@ public:
          */
     int getRepeatCount() const
     {
+        std::scoped_lock lock(m_mutex);
         return m_repeatCount;
     }
 
     /**
          * Fire event by calling its callback function..
          */
-    bool fire(std::chrono::milliseconds repeatInterval);
+    bool fire();
 
     void cancel()
     {
+        std::scoped_lock lock(m_mutex);
         m_cancelled = true;
     }
+
     bool cancelled() const
     {
+        std::scoped_lock lock(m_mutex);
         return m_cancelled;
     }
 
 private:
-    DateTime m_when;          ///< Event serial and when the event has to fire next time.
-    Callback m_callback;      ///< Event callback function, defined when event is scheduled.
-    int m_repeatCount {0};    ///< Number of event repeats, -1 means no limit.
-    bool m_cancelled {false}; ///< True if event is cancelled
+    mutable std::mutex m_mutex;
+    DateTime m_when;                            ///< Event serial and when the event has to fire next time.
+    std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval
+    Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
+    int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
+    bool m_cancelled {false};                   ///< True if event is cancelled
 };
 
 /**

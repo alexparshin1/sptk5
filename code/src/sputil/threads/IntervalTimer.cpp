@@ -117,7 +117,7 @@ void IntervalTimerThread::threadFunction()
     while (!terminated())
     {
         auto event = waitForEvent();
-        if (event && event->fire(m_repeatInterval))
+        if (event && event->fire())
         {
             schedule(event);
         }
@@ -139,12 +139,13 @@ IntervalTimer::IntervalTimer(std::chrono::milliseconds repeatInterval)
 
 IntervalTimer::~IntervalTimer()
 {
-    cancel();
+    m_timerThread->terminate();
+    m_timerThread->join();
 }
 
 STimerEvent IntervalTimer::repeat(const TimerEvent::Callback& eventCallback, int repeatCount)
 {
-    auto event = make_shared<TimerEvent>(DateTime::Now() + m_repeatInterval, eventCallback, repeatCount);
+    auto event = make_shared<TimerEvent>(DateTime::Now() + m_repeatInterval, eventCallback, m_repeatInterval, repeatCount);
     m_timerThread->schedule(event);
 
     return event;

@@ -5,14 +5,15 @@
 using namespace std;
 using namespace sptk;
 
-TimerEvent::TimerEvent(const DateTime& timestamp, const Callback& eventCallback, int repeatCount)
+TimerEvent::TimerEvent(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
     : m_when(timestamp)
+    , m_repeatInterval(repeatInterval)
     , m_callback(eventCallback)
     , m_repeatCount(repeatCount)
 {
 }
 
-bool TimerEvent::fire(chrono::milliseconds repeatInterval)
+bool TimerEvent::fire()
 {
     try
     {
@@ -37,7 +38,7 @@ bool TimerEvent::fire(chrono::milliseconds repeatInterval)
         }
     }
 
-    m_when = m_when + repeatInterval;
+    m_when = m_when + m_repeatInterval;
 
     return true;
 }
