@@ -64,7 +64,7 @@ public:
 
         if (!event)
         {
-            m_semaphore.sleep_for(chrono::milliseconds(500));
+            m_semaphore.sleep_for(chrono::seconds(1));
             return nullptr;
         }
 

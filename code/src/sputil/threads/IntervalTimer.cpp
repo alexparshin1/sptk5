@@ -37,9 +37,8 @@ class sptk::IntervalTimerThread
 public:
     void terminate() override;
 
-    IntervalTimerThread(chrono::milliseconds repeatInterval)
+    IntervalTimerThread()
         : Thread("IntervalTimer thread")
-        , m_repeatInterval(repeatInterval)
     {
     }
 
@@ -63,7 +62,7 @@ public:
         STimerEvent event = nextEvent();
         if (!event)
         {
-            m_semaphore.sleep_for(chrono::milliseconds(500));
+            m_semaphore.sleep_for(chrono::seconds(1));
             return nullptr;
         }
 
@@ -83,7 +82,7 @@ private:
     mutex m_scheduledMutex;
     IntervalTimer::EventQueue m_scheduledEvents;
     Semaphore m_semaphore;
-    const chrono::milliseconds m_repeatInterval;
+    //const chrono::milliseconds m_repeatInterval;
 
     STimerEvent nextEvent()
     {
@@ -91,8 +90,8 @@ private:
 
         while (!m_scheduledEvents.empty())
         {
-            auto& event = m_scheduledEvents.front();
-            if (!event->cancelled())
+            if (auto& event = m_scheduledEvents.front();
+                !event->cancelled())
             {
                 return event;
             }
@@ -137,7 +136,7 @@ void IntervalTimerThread::terminate()
 IntervalTimer::IntervalTimer(std::chrono::milliseconds repeatInterval)
     : m_repeatInterval(repeatInterval)
 {
-    m_timerThread = std::make_shared<IntervalTimerThread>(m_repeatInterval);
+    m_timerThread = std::make_shared<IntervalTimerThread>();
     m_timerThread->run();
 }
 
