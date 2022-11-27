@@ -28,6 +28,7 @@
 
 #include "Semaphore.h"
 #include "Thread.h"
+#include "TimerEvent.h"
 
 #include <functional>
 #include <set>
@@ -43,95 +44,7 @@ class TimerThread;
 class SP_EXPORT Timer
 {
 public:
-    /**
-     * Timer event class.
-     * Stores event data, including references to parent Timer
-     * and events map.
-     */
-    class EventData
-    {
-        friend class Timer;
-
-    public:
-        /**
-         * Event callback definition.
-         * Events call that function when there is time for them to fire.
-         */
-        using Callback = std::function<void()>;
-
-        /**
-         * Disabled event copy constructor
-         * @param other                 Other event
-         */
-        EventData(const EventData& other) = delete;
-
-        /**
-         * Disabled event assignment
-         * @param other                 Other event
-         */
-        EventData& operator=(const EventData& other) = delete;
-
-        /**
-         * Constructor
-         * @param timestamp             Fire at timestamp
-         * @param eventCallback         Event callback function
-         * @param repeatEvery           Event repeate interval
-         * @param repeatCount           Repeat count, -1 means no limit
-         */
-        EventData(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatEvery,
-                  int repeatCount = -1);
-
-        /**
-         * @return event fire at timestamp
-         */
-        const DateTime& when() const
-        {
-            return m_when;
-        }
-
-        /**
-         * Add interval to event fire at timestamp
-         * @param interval              Shift interval
-         */
-        bool shift(std::chrono::milliseconds interval)
-        {
-            if (m_repeatCount == 0)
-            {
-                return false;
-            }
-
-            if (m_repeatCount > 0)
-            {
-                --m_repeatCount;
-            }
-
-            // Repeat count < 0 - infinite repeats
-            m_when = m_when + interval;
-            return true;
-        }
-
-        /**
-         * Fire event by calling its callback function..
-         */
-        bool fire();
-
-        bool cancelled() const
-        {
-            return m_cancelled;
-        }
-
-        void cancel()
-        {
-            m_cancelled = true;
-        }
-
-    private:
-        DateTime m_when;                            ///< When the event has to fire next time.
-        Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
-        std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval.
-        int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
-        bool m_cancelled {false};
-    };
+    using EventData = TimerEvent;
 
     /**
      * Type definition for timer event

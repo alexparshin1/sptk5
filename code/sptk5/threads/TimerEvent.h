@@ -12,7 +12,7 @@ namespace sptk {
  * Stores event data, including references to parent IntervalTimer
  * and events map.
  */
-class TimerEvent
+class SP_EXPORT TimerEvent
 {
     friend class IntervalTimer;
 
@@ -41,7 +41,8 @@ public:
          * @param eventCallback         Event callback function
          * @param repeatCount           Repeat count, -1 means no limit
          */
-    TimerEvent(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount = -1);
+    TimerEvent(const DateTime& timestamp, const Callback& eventCallback,
+               std::chrono::milliseconds repeatInterval, int repeatCount = -1);
 
     /**
          * @return event fire at timestamp
@@ -52,41 +53,8 @@ public:
     }
 
     /**
-         * Add interval to event fire at timestamp
-         * @param interval              Shift interval
-         */
-    bool shift(std::chrono::milliseconds interval)
-    {
-        std::scoped_lock lock(m_mutex);
-
-        if (m_repeatCount == 0)
-        {
-            return false;
-        }
-
-        m_when = m_when + interval;
-        if (m_repeatCount > 0)
-        {
-            --m_repeatCount;
-            return true;
-        }
-
-        // Repeat count < 0 - infinite repeats
-        return true;
-    }
-
-    /**
-         * @return event repeat count
-         */
-    int getRepeatCount() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_repeatCount;
-    }
-
-    /**
-         * Fire event by calling its callback function..
-         */
+     * Fire event by calling its callback function..
+     */
     bool fire();
 
     void cancel()

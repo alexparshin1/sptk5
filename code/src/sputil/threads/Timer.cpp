@@ -121,45 +121,6 @@ private:
     }
 };
 
-Timer::EventData::EventData(const DateTime& timestamp, const Callback& eventCallback, milliseconds repeatEvery,
-                            int repeatCount)
-    : m_when(timestamp)
-    , m_callback(eventCallback)
-    , m_repeatInterval(repeatEvery)
-    , m_repeatCount(repeatCount)
-{
-}
-
-bool Timer::EventData::fire()
-{
-    try
-    {
-        m_callback();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what())
-    }
-
-    if (m_repeatCount == 0)
-    {
-        return false;
-    }
-
-    if (m_repeatCount > 0)
-    {
-        --m_repeatCount;
-        if (m_repeatCount == 0)
-        {
-            return false;
-        }
-    }
-
-    m_when = m_when + m_repeatInterval;
-
-    return true;
-}
-
 void TimerThread::threadFunction()
 {
     while (!terminated())
