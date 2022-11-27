@@ -43,13 +43,13 @@ TEST(SPTK_Timer, repeat) /* NOLINT */
         constexpr milliseconds repeatInterval {20};
         constexpr milliseconds sleepInterval {105};
 
-        Timer::Event handle = timer.repeat(repeatInterval,
-                                           [&eventSet]() {
-                                               ++eventSet;
-                                           });
+        auto event = timer.repeat(repeatInterval,
+                                  [&eventSet]() {
+                                      ++eventSet;
+                                  });
 
         this_thread::sleep_for(sleepInterval);
-        timer.cancel(handle);
+        event->cancel();
 
         EXPECT_NEAR(5, eventSet, 2);
     }
@@ -139,8 +139,8 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            Timer::Event event = createdEvents[eventIndex];
-            timer.cancel(event);
+            auto event = createdEvents[eventIndex];
+            event->cancel();
         }
 
         this_thread::sleep_for(repeatInterval);
@@ -216,14 +216,14 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     }
     stopwatch.stop();
 
-    COUT(maxEvents << " events scheduled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
+    COUT(maxEvents << fixed << setprecision(1) << " events scheduled, " << maxEvents / 10000 / stopwatch.seconds() << "K events/s" << endl)
 
     stopwatch.start();
     for (const auto& event: createdEvents)
     {
-        timer.cancel(event);
+        event->cancel();
     }
     stopwatch.stop();
 
-    COUT(maxEvents << " events canceled, " << maxEvents / stopwatch.seconds() << " events/s" << endl)
+    COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / 1000 / stopwatch.seconds() << "K events/s" << endl)
 }

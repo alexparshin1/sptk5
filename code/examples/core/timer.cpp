@@ -57,7 +57,7 @@ int main()
         this_thread::sleep_for(chrono::seconds(5));
 
         // Cancelling event
-        timer.cancel(every3seconds);
+        every3seconds->cancel();
 
         this_thread::sleep_for(chrono::seconds(5));
 

@@ -102,7 +102,7 @@ public:
         /**
          * @return event fire at timestamp
          */
-        const DateTime& getWhen() const
+        const DateTime& when() const
         {
             return m_id.when;
         }
@@ -151,11 +151,22 @@ public:
          */
         bool fire();
 
+        bool cancelled() const
+        {
+            return m_cancelled;
+        }
+
+        void cancel()
+        {
+            m_cancelled = true;
+        }
+
     private:
         EventId m_id;                               ///< Event serial and when the event has to fire next time.
         Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
         std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval.
         int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
+        bool m_cancelled {false};
     };
 
     /**
@@ -166,7 +177,7 @@ public:
     /**
      * Constructor
      */
-    Timer() = default;
+    Timer();
 
     /**
      * Copy constructor
@@ -199,28 +210,16 @@ public:
     Event repeat(std::chrono::milliseconds interval, const EventData::Callback& eventCallback, int repeatCount = -1);
 
     /**
-     * Cancel event
-     * @param event                     Event handle, returned by event scheduling method.
-     */
-    void cancel(const Event& event);
-
-    /**
      * Cancel all events
      */
     void cancel();
 
-protected:
-    void unlink(const Event& event); ///< Remove event from this timer
+    ///< Remove event from this timer
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex protecting events set
-    std::set<Event> m_events;   ///< Events scheduled by this timer
+    std::shared_ptr<TimerThread> m_timerThread; ///< Event processing thread
 
     static std::atomic<uint64_t> nextSerial; ///< Event id serial
-    static std::mutex timerThreadMutex;
-    static std::shared_ptr<TimerThread> timerThread;
-
-    std::set<Timer::Event> moveOutEvents();
 
     static void checkTimerThreadRunning();
 };

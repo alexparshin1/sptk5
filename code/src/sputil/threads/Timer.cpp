@@ -67,19 +67,28 @@ public:
     void schedule(Timer::Event& event)
     {
         scoped_lock lock(m_scheduledMutex);
-        m_scheduledEvents.try_emplace(event->getId(), event);
+        m_scheduledEvents.emplace(event->getId(), event);
         m_semaphore.post();
     }
 
-    bool waitForEvent(Timer::Event& event)
+    Timer::Event waitForEvent()
     {
-        if (DateTime when = nextWakeUp();
-            m_semaphore.sleep_until(when))
+        auto event = nextWakeUp();
+
+        if (!event)
         {
-            return false; // Wait interrupted
+            m_semaphore.sleep_for(chrono::milliseconds(500));
+            return nullptr;
         }
 
-        return popFrontEvent(event);
+        if (m_semaphore.sleep_until(event->when()))
+        {
+            return nullptr; // Wait interrupted
+        }
+
+        popFrontEvent();
+
+        return event;
     }
 
     void clear()
@@ -107,41 +116,38 @@ protected:
     void threadFunction() override;
 
 private:
-    using EventMap = map<Timer::EventId, Timer::Event, EventIdComparator>;
+    using EventMap = multimap<Timer::EventId, Timer::Event, EventIdComparator>;
 
     mutex m_scheduledMutex;
     EventMap m_scheduledEvents;
     Semaphore m_semaphore;
 
-    DateTime nextWakeUp()
+    Timer::Event nextWakeUp()
     {
         scoped_lock lock(m_scheduledMutex);
-        if (m_scheduledEvents.empty())
+        while (!m_scheduledEvents.empty())
         {
-            return DateTime::Now() + seconds(1);
+            auto itor = m_scheduledEvents.begin();
+            if (!itor->second->cancelled())
+            {
+                return itor->second;
+            }
+            m_scheduledEvents.erase(itor);
         }
 
-        auto itor = m_scheduledEvents.begin();
-        return itor->first.when;
+        return nullptr;
     }
 
-    bool popFrontEvent(Timer::Event& event)
+    void popFrontEvent()
     {
         scoped_lock lock(m_scheduledMutex);
-        if (m_scheduledEvents.empty())
+        if (!m_scheduledEvents.empty())
         {
-            return false;
+            auto itor = m_scheduledEvents.begin();
+            m_scheduledEvents.erase(itor);
         }
-
-        auto itor = m_scheduledEvents.begin();
-        event = itor->second;
-        m_scheduledEvents.erase(itor);
-        return true;
     }
 };
-
-mutex Timer::timerThreadMutex;
-shared_ptr<TimerThread> Timer::timerThread;
 
 atomic<uint64_t> Timer::nextSerial;
 
@@ -199,8 +205,8 @@ void TimerThread::threadFunction()
 {
     while (!terminated())
     {
-        Timer::Event event;
-        if (waitForEvent(event) && event->fire())
+        auto event = waitForEvent();
+        if (event && event->fire())
         {
             schedule(event);
         }
@@ -214,25 +220,19 @@ void TimerThread::terminate()
     Thread::terminate();
 }
 
+Timer::Timer()
+    : m_timerThread(make_shared<TimerThread>())
+{
+    m_timerThread->run();
+}
+
 Timer::~Timer()
 {
     cancel();
 }
 
-void Timer::unlink(const Event& event)
-{
-    scoped_lock lock(m_mutex);
-    m_events.erase(event);
-}
-
 void Timer::checkTimerThreadRunning()
 {
-    scoped_lock lock(timerThreadMutex);
-    if (timerThread == nullptr)
-    {
-        timerThread = make_shared<TimerThread>();
-        timerThread->run();
-    }
 }
 
 Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback)
@@ -240,10 +240,7 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback&
     checkTimerThreadRunning();
 
     auto event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
-    timerThread->schedule(event);
-
-    scoped_lock lock(m_mutex);
-    m_events.insert(event);
+    m_timerThread->schedule(event);
 
     return event;
 }
@@ -253,43 +250,12 @@ Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eve
     checkTimerThreadRunning();
 
     auto event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
-    timerThread->schedule(event);
-
-    scoped_lock lock(m_mutex);
-    m_events.insert(event);
+    m_timerThread->schedule(event);
 
     return event;
 }
 
-void Timer::cancel(const Event& event)
-{
-    scoped_lock lock(m_mutex);
-    if (event)
-    {
-        timerThread->forget(event);
-        m_events.erase(event);
-    }
-}
-
-set<Timer::Event> Timer::moveOutEvents()
-{
-    set<Timer::Event> events;
-
-    // Cancel all events in this timer
-    scoped_lock lock(m_mutex);
-    events = move(m_events);
-
-    return events;
-}
-
 void Timer::cancel()
 {
-    set<Timer::Event> events = moveOutEvents();
-
-    // Unregister and destroy events
-    for (const auto& event: events)
-    {
-        timerThread->forget(event);
-    }
+    m_timerThread->clear();
 }
-
