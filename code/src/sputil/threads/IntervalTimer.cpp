@@ -52,7 +52,10 @@ public:
     {
         scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.emplace(event);
-        m_semaphore.post();
+        if (m_scheduledEvents.size() == 1)
+        {
+            m_semaphore.post();
+        }
     }
 
     STimerEvent waitForEvent()
@@ -60,10 +63,11 @@ public:
         STimerEvent event = nextEvent();
         if (!event)
         {
+            m_semaphore.sleep_for(chrono::milliseconds(500));
             return nullptr;
         }
-        if (event = nextEvent();
-            m_semaphore.sleep_until(event->when()))
+
+        if (m_semaphore.sleep_until(event->when()))
         {
             return nullptr; // Wait interrupted
         }
