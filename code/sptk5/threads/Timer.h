@@ -44,19 +44,6 @@ class SP_EXPORT Timer
 {
 public:
     /**
-     * Timer Event Id
-     */
-    struct EventId {
-        uint64_t serial {++Timer::nextSerial}; ///< Serial number
-        DateTime when;                         ///< Execution date and time
-        /**
-         * Constructor
-         * @param when      Event execution time
-         */
-        explicit EventId(const DateTime& when);
-    };
-
-    /**
      * Timer event class.
      * Stores event data, including references to parent Timer
      * and events map.
@@ -79,11 +66,6 @@ public:
         EventData(const EventData& other) = delete;
 
         /**
-         * @return Bookmark of event entry in events map.
-         */
-        const EventId& getId() const;
-
-        /**
          * Disabled event assignment
          * @param other                 Other event
          */
@@ -104,7 +86,7 @@ public:
          */
         const DateTime& when() const
         {
-            return m_id.when;
+            return m_when;
         }
 
         /**
@@ -120,30 +102,12 @@ public:
 
             if (m_repeatCount > 0)
             {
-                m_id.when = m_id.when + interval;
                 --m_repeatCount;
-                return true;
             }
 
             // Repeat count < 0 - infinite repeats
-            m_id.when = m_id.when + interval;
+            m_when = m_when + interval;
             return true;
-        }
-
-        /**
-         * @return event repeat interval
-         */
-        const std::chrono::milliseconds& getInterval() const
-        {
-            return m_repeatInterval;
-        }
-
-        /**
-         * @return event repeat count
-         */
-        int getRepeatCount() const
-        {
-            return m_repeatCount;
         }
 
         /**
@@ -162,7 +126,7 @@ public:
         }
 
     private:
-        EventId m_id;                               ///< Event serial and when the event has to fire next time.
+        DateTime m_when;                            ///< When the event has to fire next time.
         Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
         std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval.
         int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
@@ -214,14 +178,8 @@ public:
      */
     void cancel();
 
-    ///< Remove event from this timer
-
 private:
     std::shared_ptr<TimerThread> m_timerThread; ///< Event processing thread
-
-    static std::atomic<uint64_t> nextSerial; ///< Event id serial
-
-    static void checkTimerThreadRunning();
 };
 
 } // namespace sptk

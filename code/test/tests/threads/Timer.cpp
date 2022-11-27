@@ -225,5 +225,6 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     }
     stopwatch.stop();
 
+    auto seconds = stopwatch.seconds();
     COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / 1000 / stopwatch.seconds() << "K events/s" << endl)
 }

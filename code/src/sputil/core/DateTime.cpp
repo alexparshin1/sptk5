@@ -1003,5 +1003,6 @@ bool DateTime::isDaylightSavingsTime()
 
 double sptk::duration2seconds(const DateTime::duration& duration)
 {
-    return double(chrono::duration_cast<milliseconds>(duration).count()) / millisecondsInSecond;
+    auto ms = chrono::duration_cast<microseconds>(duration).count() / 1000.0;
+    return ms / millisecondsInSecond;
 }

@@ -31,23 +31,6 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-class EventIdComparator
-{
-public:
-    bool operator()(const Timer::EventId& a, const Timer::EventId& b) const
-    {
-        if (a.when < b.when)
-        {
-            return true;
-        }
-        if (a.when > b.when)
-        {
-            return false;
-        }
-        return a.serial < b.serial;
-    }
-};
-
 class sptk::TimerThread
     : public Thread
 {
@@ -67,8 +50,12 @@ public:
     void schedule(Timer::Event& event)
     {
         scoped_lock lock(m_scheduledMutex);
-        m_scheduledEvents.emplace(event->getId(), event);
-        m_semaphore.post();
+        auto ticks = event->when().timePoint().time_since_epoch().count();
+        auto itor = m_scheduledEvents.emplace(ticks, event);
+        if (itor == m_scheduledEvents.begin())
+        {
+            m_semaphore.post();
+        }
     }
 
     Timer::Event waitForEvent()
@@ -97,26 +84,11 @@ public:
         m_scheduledEvents.clear();
     }
 
-    void forget(const Timer::Event& event)
-    {
-        scoped_lock lock(m_scheduledMutex);
-        m_scheduledEvents.erase(event->getId());
-    }
-
-    void forget(const set<Timer::Event>& events)
-    {
-        scoped_lock lock(m_scheduledMutex);
-        for (const auto& event: events)
-        {
-            m_scheduledEvents.erase(event->getId());
-        }
-    }
-
 protected:
     void threadFunction() override;
 
 private:
-    using EventMap = multimap<Timer::EventId, Timer::Event, EventIdComparator>;
+    using EventMap = multimap<long, Timer::Event>;
 
     mutex m_scheduledMutex;
     EventMap m_scheduledEvents;
@@ -149,26 +121,13 @@ private:
     }
 };
 
-atomic<uint64_t> Timer::nextSerial;
-
-Timer::EventId::EventId(const DateTime& when)
-    : serial(++nextSerial)
-    , when(when)
-{
-}
-
 Timer::EventData::EventData(const DateTime& timestamp, const Callback& eventCallback, milliseconds repeatEvery,
                             int repeatCount)
-    : m_id(timestamp)
+    : m_when(timestamp)
     , m_callback(eventCallback)
     , m_repeatInterval(repeatEvery)
     , m_repeatCount(repeatCount)
 {
-}
-
-const Timer::EventId& Timer::EventData::getId() const
-{
-    return m_id;
 }
 
 bool Timer::EventData::fire()
@@ -196,7 +155,7 @@ bool Timer::EventData::fire()
         }
     }
 
-    m_id.when = m_id.when + m_repeatInterval;
+    m_when = m_when + m_repeatInterval;
 
     return true;
 }
@@ -231,14 +190,8 @@ Timer::~Timer()
     cancel();
 }
 
-void Timer::checkTimerThreadRunning()
-{
-}
-
 Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback)
 {
-    checkTimerThreadRunning();
-
     auto event = make_shared<EventData>(timestamp, eventCallback, milliseconds(), 0);
     m_timerThread->schedule(event);
 
@@ -247,8 +200,6 @@ Timer::Event Timer::fireAt(const DateTime& timestamp, const EventData::Callback&
 
 Timer::Event Timer::repeat(milliseconds interval, const EventData::Callback& eventCallback, int repeatCount)
 {
-    checkTimerThreadRunning();
-
     auto event = make_shared<EventData>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
     m_timerThread->schedule(event);
 
