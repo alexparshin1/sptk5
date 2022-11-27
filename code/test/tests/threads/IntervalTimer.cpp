@@ -125,14 +125,17 @@ TEST(SPTK_IntervalTimer, repeatMultipleEvents) /* NOLINT */
     {
         constexpr milliseconds repeatInterval {20};
         IntervalTimer timer(repeatInterval);
+        int totalEvents(0);
+        mutex counterMutex;
 
         vector<STimerEvent> createdEvents;
         constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            IntervalTimerTestData::eventData[eventIndex] = eventIndex;
-            function<void()> callback = bind(gtestIntervalTimerCallback2, (uint8_t*) eventIndex);
-            auto event = timer.repeat(callback);
+            auto event = timer.repeat([&totalEvents, &counterMutex]{
+                                          scoped_lock lock(counterMutex);
+                                          ++totalEvents;
+                                      });
             createdEvents.push_back(event);
         }
 
@@ -146,58 +149,8 @@ TEST(SPTK_IntervalTimer, repeatMultipleEvents) /* NOLINT */
 
         this_thread::sleep_for(repeatInterval);
 
-        int totalEvents(0);
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
-            scoped_lock lock(IntervalTimerTestData::eventCounterMutex);
-            totalEvents += (int) IntervalTimerTestData::eventCounter[eventIndex];
-        }
-
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
     }
-}
-
-TEST(SPTK_IntervalTimer, repeatMultipleIntervalTimers) /* NOLINT */
-{
-    constexpr int repeatCount {10};
-    constexpr milliseconds repeatInterval {10};
-    vector<shared_ptr<IntervalTimer>> timers;
-    for (size_t i = 0; i < MAX_TIMERS; ++i)
-    {
-        timers.emplace_back(make_shared<IntervalTimer>(repeatInterval));
-    }
-
-    if (!timers.empty())
-    {
-        scoped_lock lock(IntervalTimerTestData::eventCounterMutex);
-        IntervalTimerTestData::eventCounter.clear();
-        IntervalTimerTestData::eventCounter.resize(MAX_EVENT_COUNTER);
-    }
-
-    for (auto& timer: timers)
-    {
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
-            function<void()> callback = bind(gtestIntervalTimerCallback2, (uint8_t*) eventIndex);
-            timer->repeat(
-                callback,
-                repeatCount);
-        }
-    }
-
-    this_thread::sleep_for(repeatInterval * 30);
-
-    int totalEvents(0);
-    if (!timers.empty())
-    {
-        scoped_lock lock(IntervalTimerTestData::eventCounterMutex);
-        for (auto counter: IntervalTimerTestData::eventCounter)
-        {
-            totalEvents += (int) counter;
-        }
-    }
-
-    EXPECT_EQ(MAX_TIMERS * MAX_EVENT_COUNTER * repeatCount, totalEvents);
 }
 
 TEST(SPTK_IntervalTimer, scheduleEventsPerformance) /* NOLINT */

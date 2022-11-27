@@ -44,13 +44,6 @@ class TimerThread;
 class SP_EXPORT Timer
 {
 public:
-    using EventData = TimerEvent;
-
-    /**
-     * Type definition for timer event
-     */
-    using Event = std::shared_ptr<EventData>;
-
     /**
      * Constructor
      */
@@ -74,7 +67,7 @@ public:
      * @param eventCallback             Event callback.
      * @return event handle, that may be used to cancel this event.
      */
-    Event fireAt(const DateTime& timestamp, const EventData::Callback& eventCallback);
+    STimerEvent fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback);
 
     /**
      * Schedule repeatable event.
@@ -84,7 +77,7 @@ public:
      * @param repeatCount               Repeat count, -1 means no limit
      * @return event handle, that may be used to cancel this event.
      */
-    Event repeat(std::chrono::milliseconds interval, const EventData::Callback& eventCallback, int repeatCount = -1);
+    STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1);
 
     /**
      * Cancel all events

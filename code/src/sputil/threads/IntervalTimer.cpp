@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/cutils>
+#include "BaseTimerThread.h"
 #include <sptk5/threads/IntervalTimer.h>
 
 using namespace std;
@@ -32,59 +33,32 @@ using namespace sptk;
 using namespace chrono;
 
 class sptk::IntervalTimerThread
-    : public Thread
+    : public BaseTimerThread
 {
 public:
-    void terminate() override;
-
     IntervalTimerThread()
-        : Thread("IntervalTimer thread")
+        : BaseTimerThread("IntervalTimer thread")
     {
     }
 
-    ~IntervalTimerThread() override
-    {
-        m_semaphore.post();
-    }
+    ~IntervalTimerThread() override = default;
 
-    void schedule(const STimerEvent& event)
+    void schedule(const STimerEvent& event) override
     {
         scoped_lock lock(m_scheduledMutex);
         m_scheduledEvents.emplace(event);
         if (m_scheduledEvents.size() == 1)
         {
-            m_semaphore.post();
+            wakeUp();
         }
     }
-
-    STimerEvent waitForEvent()
-    {
-        STimerEvent event = nextEvent();
-        if (!event)
-        {
-            m_semaphore.sleep_for(chrono::seconds(1));
-            return nullptr;
-        }
-
-        if (m_semaphore.sleep_until(event->when()))
-        {
-            return nullptr; // Wait interrupted
-        }
-
-        popFrontEvent();
-        return event;
-    }
-
-protected:
-    void threadFunction() override;
 
 private:
+
     mutex m_scheduledMutex;
     IntervalTimer::EventQueue m_scheduledEvents;
-    Semaphore m_semaphore;
-    //const chrono::milliseconds m_repeatInterval;
 
-    STimerEvent nextEvent()
+    STimerEvent nextEvent() override
     {
         scoped_lock lock(m_scheduledMutex);
 
@@ -101,7 +75,7 @@ private:
         return nullptr;
     }
 
-    void popFrontEvent()
+    void popFrontEvent() override
     {
         STimerEvent event;
 
@@ -114,24 +88,6 @@ private:
         m_scheduledEvents.pop();
     }
 };
-
-void IntervalTimerThread::threadFunction()
-{
-    while (!terminated())
-    {
-        auto event = waitForEvent();
-        if (event && event->fire())
-        {
-            schedule(event);
-        }
-    }
-}
-
-void IntervalTimerThread::terminate()
-{
-    m_semaphore.post();
-    Thread::terminate();
-}
 
 IntervalTimer::IntervalTimer(std::chrono::milliseconds repeatInterval)
     : m_repeatInterval(repeatInterval)

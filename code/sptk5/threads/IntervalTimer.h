@@ -39,7 +39,7 @@ class IntervalTimerThread;
 
 /**
  * Interval timer class.
- * Fires one time or repeatable events in a defined interval
+ * Fires one time or repeatable events in a defined interval.
  */
 class SP_EXPORT IntervalTimer
 {

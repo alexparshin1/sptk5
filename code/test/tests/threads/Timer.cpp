@@ -127,18 +127,19 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
     {
         Timer timer;
 
-        vector<Timer::Event> createdEvents;
+        vector<STimerEvent> createdEvents;
         constexpr milliseconds repeatInterval {20};
         constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
             TimerTestData::eventData[eventIndex] = eventIndex;
             function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
-            Timer::Event event = timer.repeat(repeatInterval,
-                                              [&eventCounter, &eventCounterMutex, eventIndex] {
-                                                  scoped_lock lock(eventCounterMutex);
-                                                  eventCounter[eventIndex]++;
-                                              });
+            auto event = timer.repeat(repeatInterval,
+                                      [&eventCounter, &eventCounterMutex, eventIndex]
+                                      {
+                                          scoped_lock lock(eventCounterMutex);
+                                          eventCounter[eventIndex]++;
+                                      });
             createdEvents.push_back(event);
         }
 
@@ -163,51 +164,11 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
     }
 }
 
-TEST(SPTK_Timer, repeatMultipleTimers) /* NOLINT */
-{
-    constexpr int repeatCount {10};
-    constexpr milliseconds repeatInterval {10};
-    vector<Timer> timers(MAX_TIMERS);
-
-    if (!timers.empty())
-    {
-        scoped_lock lock(TimerTestData::eventCounterMutex);
-        TimerTestData::eventCounter.clear();
-        TimerTestData::eventCounter.resize(MAX_EVENT_COUNTER);
-    }
-
-    for (auto& timer: timers)
-    {
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
-            function<void()> callback = bind(gtestTimerCallback2, (uint8_t*) eventIndex);
-            timer.repeat(
-                repeatInterval,
-                callback,
-                repeatCount);
-        }
-    }
-
-    this_thread::sleep_for(repeatInterval * 30);
-
-    int totalEvents(0);
-    if (!timers.empty())
-    {
-        scoped_lock lock(TimerTestData::eventCounterMutex);
-        for (auto counter: TimerTestData::eventCounter)
-        {
-            totalEvents += (int) counter;
-        }
-    }
-
-    EXPECT_EQ(MAX_TIMERS * MAX_EVENT_COUNTER * repeatCount, totalEvents);
-}
-
 TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 {
     Timer timer;
     constexpr size_t maxEvents = 100000;
-    vector<Timer::Event> createdEvents;
+    vector<STimerEvent> createdEvents;
 
     StopWatch stopwatch;
 
@@ -217,9 +178,9 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     stopwatch.start();
     for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex)
     {
-        Timer::Event event = timer.fireAt(when,
-                                          [] {
-                                          });
+        auto event = timer.fireAt(when,
+                                  [] {
+                                  });
         createdEvents.push_back(event);
     }
     stopwatch.stop();

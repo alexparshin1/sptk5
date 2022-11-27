@@ -52,7 +52,7 @@ int main()
         timer.repeat(chrono::seconds(1), bind(timerCallback, "every second"));
 
         // Schedule repeatable event, using event handle to cancel it later
-        Timer::Event every3seconds = timer.repeat(chrono::seconds(3), bind(timerCallback, "every 3 seconds"));
+        STimerEvent every3seconds = timer.repeat(chrono::seconds(3), bind(timerCallback, "every 3 seconds"));
 
         this_thread::sleep_for(chrono::seconds(5));
 
