@@ -56,26 +56,6 @@ TEST(SPTK_IntervalTimer, repeat) /* NOLINT */
 }
 
 const int MAX_EVENT_COUNTER = 10;
-const int MAX_TIMERS = 10;
-
-class IntervalTimerTestData
-{
-public:
-    static mutex eventCounterMutex;
-    static vector<size_t> eventCounter;
-    static vector<size_t> eventData;
-};
-
-mutex IntervalTimerTestData::eventCounterMutex;
-vector<size_t> IntervalTimerTestData::eventCounter(MAX_EVENT_COUNTER);
-vector<size_t> IntervalTimerTestData::eventData(MAX_EVENT_COUNTER);
-
-static void gtestIntervalTimerCallback2(const uint8_t* theEventData)
-{
-    scoped_lock lock(IntervalTimerTestData::eventCounterMutex);
-    auto eventIndex = size_t(theEventData);
-    ++IntervalTimerTestData::eventCounter[eventIndex];
-}
 
 TEST(SPTK_IntervalTimer, fireOnce) /* NOLINT */
 {
@@ -132,10 +112,10 @@ TEST(SPTK_IntervalTimer, repeatMultipleEvents) /* NOLINT */
         constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            auto event = timer.repeat([&totalEvents, &counterMutex]{
-                                          scoped_lock lock(counterMutex);
-                                          ++totalEvents;
-                                      });
+            auto event = timer.repeat([&totalEvents, &counterMutex] {
+                scoped_lock lock(counterMutex);
+                ++totalEvents;
+            });
             createdEvents.push_back(event);
         }
 
@@ -164,13 +144,17 @@ TEST(SPTK_IntervalTimer, scheduleEventsPerformance) /* NOLINT */
     stopwatch.start();
     for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex)
     {
-        function<void()> callback = bind(gtestIntervalTimerCallback2, (uint8_t*) eventIndex);
-        auto event = timer.repeat(callback, 1);
+        auto event = timer.repeat(
+            [] {
+                // Empty callback method
+            },
+            1);
         createdEvents.push_back(event);
     }
     stopwatch.stop();
 
-    COUT(maxEvents << fixed << setprecision(1) << " events scheduled, " << maxEvents / 1000 / stopwatch.seconds() << "K events/s" << endl)
+    const auto OneThousand = 1000.0;
+    COUT(maxEvents << fixed << setprecision(1) << " events scheduled, " << maxEvents / OneThousand / stopwatch.seconds() << "K events/s" << endl)
 
     stopwatch.start();
     for (const auto& event: createdEvents)
@@ -179,5 +163,5 @@ TEST(SPTK_IntervalTimer, scheduleEventsPerformance) /* NOLINT */
     }
     stopwatch.stop();
 
-    COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / 1000 / stopwatch.seconds() << "K events/s" << endl)
+    COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / OneThousand / stopwatch.seconds() << "K events/s" << endl)
 }
