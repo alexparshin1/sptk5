@@ -37,7 +37,14 @@ ThreadManager::ThreadManager(const String& name)
 
 ThreadManager::~ThreadManager()
 {
-    stop();
+    try
+    {
+        stop();
+    }
+    catch (const Exception&)
+    {
+        // suppress any exceptions
+    }
     m_joiner->stop();
 }
 
@@ -137,4 +144,3 @@ bool ThreadManager::running() const
     scoped_lock lock(m_mutex);
     return m_joiner->running();
 }
-

@@ -140,7 +140,7 @@ public:
 
     void push_back(T&& value)
     {
-        m_array.push_back(value);
+        m_array.push_back(std::move(value));
     }
 
     void emplace_back(const T& value)
@@ -150,7 +150,7 @@ public:
 
     void emplace_back(T&& value)
     {
-        m_array.emplace_back(value);
+        m_array.emplace_back(std::move(value));
     }
 
     void resize(size_t sz)

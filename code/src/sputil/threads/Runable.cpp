@@ -30,7 +30,7 @@ using namespace std;
 using namespace sptk;
 
 Runable::Runable(const String& name)
-: m_terminated(false), m_name(name)
+    : m_name(name)
 {
 }
 

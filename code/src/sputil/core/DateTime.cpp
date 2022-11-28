@@ -698,11 +698,6 @@ bool operator==(const DateTime& dt1, const DateTime& dt2)
     return (dt1.timePoint() == dt2.timePoint());
 }
 
-bool operator!=(const DateTime& dt1, const DateTime& dt2)
-{
-    return (dt1.timePoint() != dt2.timePoint());
-}
-
 DateTime operator+(const DateTime& dt, const sptk::DateTime::duration& duration)
 {
     return DateTime(dt.timePoint() + duration);
@@ -1003,6 +998,6 @@ bool DateTime::isDaylightSavingsTime()
 
 double sptk::duration2seconds(const DateTime::duration& duration)
 {
-    auto ms = chrono::duration_cast<microseconds>(duration).count() / 1000.0;
+    auto ms = (double) chrono::duration_cast<microseconds>(duration).count() / 1000.0;
     return ms / millisecondsInSecond;
 }

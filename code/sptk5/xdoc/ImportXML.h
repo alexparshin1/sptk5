@@ -76,7 +76,7 @@ public:
      *
      * @param i                 New indent spaces
      */
-    [[maybe_unused]] void indentSpaces(int i)
+    [[maybe_unused]] void indentSpaces(int)
     {
     }
 

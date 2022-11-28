@@ -489,7 +489,7 @@ protected:
      * Return connection timeout
      * @return connection timeout
      */
-    std::chrono::seconds connectTimout() const
+    std::chrono::seconds connectTimeout() const
     {
         return m_connectionTimeout;
     }

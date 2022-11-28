@@ -6,15 +6,17 @@ using namespace sptk;
 
 void printHelp(const String& progName, const String& error = "")
 {
-    cout << "Convertor of XML to JSON and back" << endl
-         << endl;
-    cout << "Syntax:" << endl;
-    cout << progName << " <filename>" << endl
-         << endl;
+    COUT("Convertor of XML to JSON and back"
+         << endl
+         << endl
+         << "Syntax:" << endl
+         << progName << " <filename>" << endl
+         << endl)
     if (!error.empty())
     {
-        cerr << "Error: " << error << endl
-             << endl;
+        COUT("Error: "
+             << error << endl
+             << endl)
     }
 }
 

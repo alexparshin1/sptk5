@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "BaseTimerThread.h"
 #include <sptk5/cutils>
 #include <sptk5/threads/Timer.h>
-#include "BaseTimerThread.h"
 
 using namespace std;
 using namespace sptk;
@@ -104,7 +104,7 @@ Timer::~Timer()
     cancel();
 }
 
-STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback)
+STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const
 {
     auto event = make_shared<TimerEvent>(timestamp, eventCallback, milliseconds(), 0);
     m_timerThread->schedule(event);
@@ -112,7 +112,7 @@ STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback&
     return event;
 }
 
-STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount)
+STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount) const
 {
     auto event = make_shared<TimerEvent>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
     m_timerThread->schedule(event);
@@ -120,7 +120,7 @@ STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eve
     return event;
 }
 
-void Timer::cancel()
+void Timer::cancel() const
 {
     m_timerThread->clear();
 }

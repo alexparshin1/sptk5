@@ -51,7 +51,7 @@ void MySQLConnection::initConnection()
     }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
-    size_t connectionTimeoutSeconds = connectTimout().count();
+    size_t connectionTimeoutSeconds = connectTimeout().count();
     mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 

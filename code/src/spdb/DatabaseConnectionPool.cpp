@@ -62,9 +62,6 @@ DriverLoaders DriverLoaders::loadedDrivers;
 
 DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::seconds connectionTimeout)
     : DatabaseConnectionString(connectionString)
-    , m_driver(nullptr)
-    , m_createConnection(nullptr)
-    , m_destroyConnection(nullptr)
     , m_maxConnections(maxConnections)
     , m_connectionTimeout(connectionTimeout)
 {

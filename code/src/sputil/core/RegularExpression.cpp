@@ -281,13 +281,6 @@ bool RegularExpression::operator==(const String& text) const
     return nextMatch(text, offset, matchData) > 0;
 }
 
-bool RegularExpression::operator!=(const String& text) const
-{
-    size_t offset = 0;
-    MatchData matchData(m_pcre.get(), m_captureCount);
-    return nextMatch(text, offset, matchData) == 0;
-}
-
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;

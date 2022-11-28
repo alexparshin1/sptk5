@@ -149,11 +149,6 @@ bool Host::operator==(const Host& other) const
     return toString(true) == other.toString(true);
 }
 
-bool Host::operator!=(const Host& other) const
-{
-    return toString(true) != other.toString(true);
-}
-
 void Host::setPort(uint16_t p)
 {
     scoped_lock lock(m_mutex);

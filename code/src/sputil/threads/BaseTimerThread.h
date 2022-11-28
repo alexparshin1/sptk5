@@ -30,27 +30,61 @@
 
 namespace sptk {
 
+/**
+ * @brief Base class for Timer and IntervalTimer internal threads
+ */
 class BaseTimerThread
     : public Thread
 {
 public:
-    BaseTimerThread(const String& threadName);
+    /**
+     * @brief Constructor
+     * @param threadName        Thread name
+     */
+    explicit BaseTimerThread(const String& threadName);
     ~BaseTimerThread() override;
 
+    /**
+     * @brief Schedule an event
+     * @param event             Event
+     */
     virtual void schedule(const STimerEvent& event) = 0;
 
+    /**
+     * @brief Terminate thread
+     */
     void terminate() override;
 
 protected:
+    /**
+     * @brief Wake up (signal) semaphore
+     */
     void wakeUp();
+
+    /**
+     * @brief Wait for the next event in the queue
+     * @return
+     */
     STimerEvent waitForEvent();
+
+    /**
+     * @brief Thread function
+     */
     void threadFunction() override;
 
 private:
-    Semaphore m_semaphore;
+    Semaphore m_semaphore; ///< Semaphore to wait for events
 
+    /**
+     * @brief Get next scheduled event
+     * @return Event
+     */
     virtual STimerEvent nextEvent() = 0;
+
+    /**
+     * @brief Remove next scheduled event
+     */
     virtual void popFrontEvent() = 0;
 };
 
-}
+} // namespace sptk

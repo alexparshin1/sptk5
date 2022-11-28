@@ -67,7 +67,7 @@ public:
      * @param eventCallback             Event callback.
      * @return event handle, that may be used to cancel this event.
      */
-    STimerEvent fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback);
+    STimerEvent fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const;
 
     /**
      * Schedule repeatable event.
@@ -77,12 +77,12 @@ public:
      * @param repeatCount               Repeat count, -1 means no limit
      * @return event handle, that may be used to cancel this event.
      */
-    STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1);
+    STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
 
     /**
      * Cancel all events
      */
-    void cancel();
+    void cancel() const;
 
 private:
     std::shared_ptr<TimerThread> m_timerThread; ///< Event processing thread
