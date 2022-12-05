@@ -45,7 +45,8 @@ String WSParserAttribute::generate(bool initialize) const
 {
     constexpr int fieldNameWidth = 40;
     stringstream str;
-    str << left << setw(fieldNameWidth) << m_cxxTypeName << " m_" << m_name;
+    str << left << setw(fieldNameWidth) << "sptk::WSString"
+        << " m_" << m_name;
     if (initialize)
     {
         str << " {\"" << m_name << "\", true}";
