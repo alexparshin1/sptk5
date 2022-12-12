@@ -192,6 +192,13 @@ public:
     bool operator==(const Host& other) const;
 
     /**
+     * Compare to another host
+     * @param other             The other object
+     * @return true if objects don't have equal data
+     */
+    bool operator!=(const Host& other) const;
+
+    /**
      * Get host name
      * @return host name
      */
