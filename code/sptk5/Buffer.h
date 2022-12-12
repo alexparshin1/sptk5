@@ -204,6 +204,13 @@ public:
     bool operator==(const Buffer& other) const;
 
     /**
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are not identical
+     */
+    bool operator!=(const Buffer& other) const;
+
+    /**
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file
      */
