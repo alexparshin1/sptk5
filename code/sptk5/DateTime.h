@@ -386,6 +386,11 @@ SP_EXPORT bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
+ * Compares DateTime values
+ */
+SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+
+/**
  * Adds two DateTime values
  */
 SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);

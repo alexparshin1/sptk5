@@ -698,6 +698,11 @@ bool operator==(const DateTime& dt1, const DateTime& dt2)
     return (dt1.timePoint() == dt2.timePoint());
 }
 
+bool operator!=(const DateTime& dt1, const DateTime& dt2)
+{
+    return (dt1.timePoint() != dt2.timePoint());
+}
+
 DateTime operator+(const DateTime& dt, const sptk::DateTime::duration& duration)
 {
     return DateTime(dt.timePoint() + duration);
