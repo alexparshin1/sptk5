@@ -25,40 +25,101 @@
 */
 
 #include "TimerThread.h"
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-Timer::Timer()
-    : m_timerThread(make_shared<TimerThread>())
+TimerThread::TimerThread()
+    : Thread("TimerThread")
 {
-    m_timerThread->run();
 }
 
-Timer::~Timer()
+TimerThread::~TimerThread()
 {
-    cancel();
+    m_semaphore.post();
 }
 
-STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const
+STimerEvent TimerThread::waitForEvent()
 {
-    auto event = make_shared<TimerEvent>(timestamp, eventCallback, milliseconds(), 0);
-    m_timerThread->schedule(event);
+    STimerEvent event = nextEvent();
+    if (!event)
+    {
+        m_semaphore.sleep_for(chrono::seconds(1));
+        return nullptr;
+    }
 
+    if (m_semaphore.sleep_until(event->when()))
+    {
+        return nullptr; // Wait interrupted
+    }
+
+    popFrontEvent();
     return event;
 }
 
-STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount) const
+void TimerThread::threadFunction()
 {
-    auto event = make_shared<TimerEvent>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
-    m_timerThread->schedule(event);
-
-    return event;
+    while (!terminated())
+    {
+        auto event = waitForEvent();
+        if (event && event->fire())
+        {
+            schedule(event);
+        }
+    }
 }
 
-void Timer::cancel() const
+void TimerThread::terminate()
 {
-    m_timerThread->clear();
+    m_semaphore.post();
+    Thread::terminate();
+}
+
+void TimerThread::wakeUp()
+{
+    m_semaphore.post();
+}
+
+void TimerThread::schedule(const STimerEvent& event)
+{
+    scoped_lock lock(m_scheduledMutex);
+    auto ticks = event->when().timePoint().time_since_epoch().count();
+    auto itor = m_scheduledEvents.emplace(ticks, event);
+    if (itor == m_scheduledEvents.begin())
+    {
+        wakeUp();
+    }
+}
+
+void TimerThread::clear()
+{
+    scoped_lock lock(m_scheduledMutex);
+    m_scheduledEvents.clear();
+}
+
+STimerEvent TimerThread::nextEvent()
+{
+    scoped_lock lock(m_scheduledMutex);
+    while (!m_scheduledEvents.empty())
+    {
+        auto itor = m_scheduledEvents.begin();
+        if (!itor->second->cancelled())
+        {
+            return itor->second;
+        }
+        m_scheduledEvents.erase(itor);
+    }
+
+    return nullptr;
+}
+
+void TimerThread::popFrontEvent()
+{
+    scoped_lock lock(m_scheduledMutex);
+    if (!m_scheduledEvents.empty())
+    {
+        auto itor = m_scheduledEvents.begin();
+        m_scheduledEvents.erase(itor);
+    }
 }

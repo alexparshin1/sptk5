@@ -24,70 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "IntervalTimerThread.h"
 #include <sptk5/cutils>
-#include "BaseTimerThread.h"
 #include <sptk5/threads/IntervalTimer.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
-
-class sptk::IntervalTimerThread
-    : public BaseTimerThread
-{
-public:
-    IntervalTimerThread()
-        : BaseTimerThread("IntervalTimer thread")
-    {
-    }
-
-    ~IntervalTimerThread() override = default;
-
-    void schedule(const STimerEvent& event) override
-    {
-        scoped_lock lock(m_scheduledMutex);
-        m_scheduledEvents.emplace(event);
-        if (m_scheduledEvents.size() == 1)
-        {
-            wakeUp();
-        }
-    }
-
-private:
-
-    mutex m_scheduledMutex;
-    IntervalTimer::EventQueue m_scheduledEvents;
-
-    STimerEvent nextEvent() override
-    {
-        scoped_lock lock(m_scheduledMutex);
-
-        while (!m_scheduledEvents.empty())
-        {
-            if (auto& event = m_scheduledEvents.front();
-                !event->cancelled())
-            {
-                return event;
-            }
-            m_scheduledEvents.pop();
-        }
-
-        return nullptr;
-    }
-
-    void popFrontEvent() override
-    {
-        STimerEvent event;
-
-        scoped_lock lock(m_scheduledMutex);
-        if (m_scheduledEvents.empty())
-        {
-            return;
-        }
-
-        m_scheduledEvents.pop();
-    }
-};
 
 IntervalTimer::IntervalTimer(std::chrono::milliseconds repeatInterval)
     : m_repeatInterval(repeatInterval)

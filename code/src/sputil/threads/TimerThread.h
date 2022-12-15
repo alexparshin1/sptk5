@@ -24,59 +24,73 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "BaseTimerThread.h"
+#pragma once
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <sptk5/cthreads>
 
-BaseTimerThread::BaseTimerThread(const String& threadName)
-   : Thread(threadName)
+namespace sptk {
+
+/**
+ * @brief Base class for Timer and IntervalTimer internal threads
+ */
+class TimerThread
+    : public Thread
 {
-}
+public:
+    /**
+     * @brief Constructor
+     * @param threadName        Thread name
+     */
+    TimerThread();
+    ~TimerThread() override;
 
-BaseTimerThread::~BaseTimerThread()
-{
-    m_semaphore.post();
-}
+    /**
+     * @brief Schedule an event
+     * @param event             Event
+     */
+    void schedule(const STimerEvent& event);
 
-STimerEvent BaseTimerThread::waitForEvent()
-{
-    STimerEvent event = nextEvent();
-    if (!event)
-    {
-        m_semaphore.sleep_for(chrono::seconds(1));
-        return nullptr;
-    }
+    void clear();
 
-    if (m_semaphore.sleep_until(event->when()))
-    {
-        return nullptr; // Wait interrupted
-    }
+    /**
+     * @brief Terminate thread
+     */
+    void terminate() override;
 
-    popFrontEvent();
-    return event;
-}
+protected:
+    /**
+     * @brief Wake up (signal) semaphore
+     */
+    void wakeUp();
 
-void BaseTimerThread::threadFunction()
-{
-    while (!terminated())
-    {
-        auto event = waitForEvent();
-        if (event && event->fire())
-        {
-            schedule(event);
-        }
-    }
-}
+    /**
+     * @brief Wait for the next event in the queue
+     * @return
+     */
+    STimerEvent waitForEvent();
 
-void BaseTimerThread::terminate()
-{
-    m_semaphore.post();
-    Thread::terminate();
-}
+    /**
+     * @brief Thread function
+     */
+    void threadFunction() override;
 
-void BaseTimerThread::wakeUp()
-{
-    m_semaphore.post();
-}
+private:
+    using EventMap = std::multimap<long, STimerEvent>;
+
+    Semaphore m_semaphore; ///< Semaphore to wait for events
+    std::mutex m_scheduledMutex;
+    EventMap m_scheduledEvents;
+
+    /**
+     * @brief Get next scheduled event
+     * @return Event
+     */
+    STimerEvent nextEvent();
+
+    /**
+     * @brief Remove next scheduled event
+     */
+    void popFrontEvent();
+};
+
+} // namespace sptk

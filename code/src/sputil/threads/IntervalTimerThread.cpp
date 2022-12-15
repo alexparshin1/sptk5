@@ -24,67 +24,99 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "IntervalTimerThread.h"
 
-#include <sptk5/cthreads>
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-namespace sptk {
-
-/**
- * @brief Base class for Timer and IntervalTimer internal threads
- */
-class BaseTimerThread
-    : public Thread
+IntervalTimerThread::IntervalTimerThread()
+    : Thread("IntervalTimerThread")
 {
-public:
-    /**
-     * @brief Constructor
-     * @param threadName        Thread name
-     */
-    explicit BaseTimerThread(const String& threadName);
-    ~BaseTimerThread() override;
+}
 
-    /**
-     * @brief Schedule an event
-     * @param event             Event
-     */
-    virtual void schedule(const STimerEvent& event) = 0;
+IntervalTimerThread::~IntervalTimerThread()
+{
+    m_semaphore.post();
+}
 
-    /**
-     * @brief Terminate thread
-     */
-    void terminate() override;
+STimerEvent IntervalTimerThread::waitForEvent()
+{
+    STimerEvent event = nextEvent();
+    if (!event)
+    {
+        m_semaphore.sleep_for(chrono::seconds(1));
+        return nullptr;
+    }
 
-protected:
-    /**
-     * @brief Wake up (signal) semaphore
-     */
-    void wakeUp();
+    if (m_semaphore.sleep_until(event->when()))
+    {
+        return nullptr; // Wait interrupted
+    }
 
-    /**
-     * @brief Wait for the next event in the queue
-     * @return
-     */
-    STimerEvent waitForEvent();
+    popFrontEvent();
+    return event;
+}
 
-    /**
-     * @brief Thread function
-     */
-    void threadFunction() override;
+void IntervalTimerThread::threadFunction()
+{
+    while (!terminated())
+    {
+        auto event = waitForEvent();
+        if (event && event->fire())
+        {
+            schedule(event);
+        }
+    }
+}
 
-private:
-    Semaphore m_semaphore; ///< Semaphore to wait for events
+void IntervalTimerThread::terminate()
+{
+    m_semaphore.post();
+    Thread::terminate();
+}
 
-    /**
-     * @brief Get next scheduled event
-     * @return Event
-     */
-    virtual STimerEvent nextEvent() = 0;
+void IntervalTimerThread::wakeUp()
+{
+    m_semaphore.post();
+}
 
-    /**
-     * @brief Remove next scheduled event
-     */
-    virtual void popFrontEvent() = 0;
-};
+void IntervalTimerThread::schedule(const STimerEvent& event)
+{
+    scoped_lock lock(m_scheduledMutex);
+    m_scheduledEvents.emplace(event);
+    if (m_scheduledEvents.size() == 1)
+    {
+        wakeUp();
+    }
+}
 
-} // namespace sptk
+STimerEvent IntervalTimerThread::nextEvent()
+{
+    scoped_lock lock(m_scheduledMutex);
+
+    while (!m_scheduledEvents.empty())
+    {
+        if (auto& event = m_scheduledEvents.front();
+            !event->cancelled())
+        {
+            return event;
+        }
+        m_scheduledEvents.pop();
+    }
+
+    return nullptr;
+}
+
+void IntervalTimerThread::popFrontEvent()
+{
+    STimerEvent event;
+
+    scoped_lock lock(m_scheduledMutex);
+    if (m_scheduledEvents.empty())
+    {
+        return;
+    }
+
+    m_scheduledEvents.pop();
+}

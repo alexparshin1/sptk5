@@ -24,41 +24,70 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "TimerThread.h"
-#include <sptk5/cutils>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <sptk5/cthreads>
 
-Timer::Timer()
-    : m_timerThread(make_shared<TimerThread>())
+namespace sptk {
+
+/**
+ * @brief Base class for Timer and IntervalTimer internal threads
+ */
+class IntervalTimerThread
+    : public Thread
 {
-    m_timerThread->run();
-}
+public:
+    /**
+     * @brief Constructor
+     * @param threadName        Thread name
+     */
+    IntervalTimerThread();
+    ~IntervalTimerThread() override;
 
-Timer::~Timer()
-{
-    cancel();
-}
+    /**
+     * @brief Schedule an event
+     * @param event             Event
+     */
+    void schedule(const STimerEvent& event);
 
-STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const
-{
-    auto event = make_shared<TimerEvent>(timestamp, eventCallback, milliseconds(), 0);
-    m_timerThread->schedule(event);
+    /**
+     * @brief Terminate thread
+     */
+    void terminate() override;
 
-    return event;
-}
+protected:
+    /**
+     * @brief Wake up (signal) semaphore
+     */
+    void wakeUp();
 
-STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount) const
-{
-    auto event = make_shared<TimerEvent>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
-    m_timerThread->schedule(event);
+    /**
+     * @brief Wait for the next event in the queue
+     * @return
+     */
+    STimerEvent waitForEvent();
 
-    return event;
-}
+    /**
+     * @brief Thread function
+     */
+    void threadFunction() override;
 
-void Timer::cancel() const
-{
-    m_timerThread->clear();
-}
+private:
+    using EventQueue = std::queue<STimerEvent>;
+    Semaphore m_semaphore; ///< Semaphore to wait for events
+    std::mutex m_scheduledMutex;
+    EventQueue m_scheduledEvents;
+
+    /**
+     * @brief Get next scheduled event
+     * @return Event
+     */
+    STimerEvent nextEvent();
+
+    /**
+     * @brief Remove next scheduled event
+     */
+    void popFrontEvent();
+};
+
+} // namespace sptk
