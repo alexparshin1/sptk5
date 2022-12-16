@@ -100,9 +100,9 @@ bool Buffer::operator!=(const Buffer& other) const
 {
     if (bytes() == other.bytes())
     {
-        return false;
+        return memcmp(data(), other.data(), bytes()) != 0;
     }
-    return memcmp(data(), other.data(), bytes()) != 0;
+    return true;
 }
 
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
