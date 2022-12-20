@@ -71,10 +71,19 @@ public:
      * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Timeout moment
+     * @param timeoutAt           Timeout moment
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool sleep_until(DateTime timeout);
+    bool sleep_until(const DateTime& timeoutAt);
+
+    /**
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool sleep_until(const DateTime::time_point& timeoutAt);
 
 private:
 #if CXX_VERSION < 20

@@ -17,7 +17,10 @@ bool TimerEvent::fire()
 {
     try
     {
-        m_callback();
+        if (m_callback)
+        {
+            m_callback();
+        }
     }
     catch (const Exception& e)
     {

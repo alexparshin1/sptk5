@@ -60,13 +60,13 @@ public:
     void cancel()
     {
         std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
+        m_callback = nullptr;
     }
 
     bool cancelled() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_cancelled;
+        return m_callback == nullptr;
     }
 
 private:
@@ -75,7 +75,6 @@ private:
     std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval
     Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
     int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
-    bool m_cancelled {false};                   ///< True if event is cancelled
 };
 
 /**

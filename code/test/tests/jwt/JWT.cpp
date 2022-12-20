@@ -243,3 +243,60 @@ TEST(SPTK_JWT, encode_hs256_decode)
     EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str())
         << "Decoded JSON payload doesn't match the original";
 }
+/*
+TEST(SPTK_JWT, encode_es256_decode)
+{
+    String ecdsa256 = R"(MIIEpQIBAAKCAQEAykLgj7EOD2XVQf9TRJd3C1IKR01SbfD0ngXAAnOyShFZzYZv
+pjw8mBfvongxQYgy9pW4TvXwf3GYFALWFD+GaR8ZhZZVds74/59yozA6xqLMOcZT
+uwpRGRc/GQ0UvBMnHm/auxC3z0TJ1ZoTuL0gvd1jnuI195pAiL9pzQ167QZbBZM8
+cpLAec44mOykTVhaq7XYJJu6aNZnjb8sUTHDDpvYsv7XEexFAtvI0AckWVHzhpgW
+XNiodJsB7fTKMHMimlGHaEST2Toe+QCe2/MWvqdRVpbEmbqiE/Ffpjen9me3Bzmp
+RJoecQVcd2AsARbG+GylhZplBr0Yw3japy+6AwIDAQABAoIBAQCy8q55kx2sc91V
+Mc/7DMMvSdt8MCXwzVGvicjSoogoTeeVFg8sFXlK20qSBSMXJqhoUBisC55HMzpo
+4gWEDpwd330WGubsYbwddXXYebBW0+w6ZYTpI/ySZWXXBSLGL2/Z1v6/qM/nWqX0
+DQjL1tDkCr678MnskhXspuW1nOqYTwajnNGWBSqm5zKWqUtf2LpbBtQdVR+40EAu
+nwtIz5+IHhofcOpUH+E9ZA2nVd15CBnRcvsXs9x7xfhEUfqM25X74KmmoTNOdJtT
+UkwQw+vTrV5w48iEQlyIZKwq+KFt6tjbiFjXZEV44d46M2DYxRw/kGw0/Am49h+j
+3HEJpdyZAoGBAPNhFU1JplzOmwSeh4qG1HYrrU+ploGFJlyKj4R4pUt1UxBgEdfi
+/DdoUnFvs3yHvL8Lx57QmPGxe2CQmkRlYctqzaHyNxp+XZzhcs2hxjBzifloEKYk
+xU7z+VHzw5vouoCuByhE+97cncZYQrz4bTs6VH3CVGh98UHjLHYc0T5tAoGBANS/
+8WNLhojjO4g6OE4X9tssEP8IpGCGH44NhDa8haqbf3U4g7l4DPYmRvFPnQa8FC3d
+D0qRfoSIiswtLfPxCXFTRkpQTeY2/3xHFGMvcmCP7EKsBLlmVgigMykDyfeiuWzo
+jMKHREzmO3vOrIAAF8FUdL2fTpe/KzGaE3pxf9QvAoGBAKl7Y+Asd6ONZLo0w2Ke
+PfoEtG4TRPHxDSPIgeTYNxNzImL247YZJVZYWYERLkZ8J95Kj7pyvO8ijy5RxHv4
+tb94Irax+9mBQiNrhAzaqS84Zk6+P0nTtWsjzu1Y+VDrImVVyzopv9QUgfKLp/38
+aeSi3A+vciRJ/+XIE0A1FSmJAoGAd0ibRgoNh2ioc0v5T8fd76r4aJXm2/u3a4Um
+kS4IX8zJnOav7GhkFAsIEbqKl0ESq1hbf3quDg8kiy/1qOWHXtPLAFWgJ6jEfGC6
+DJaIsZ1gYU1jZLP9Ht77cE6gicjh4C9O5K7E27zmsxcA3s+uggYhYkQU474asLfr
+neZPPp8CgYEAn2Mh3Ai4+cip/D/zUZ9mLv3cvbJeid5LwQx4XwnY0gzs91dAupAB
+hiT4xmcA7Uk77imAclhErGeHrMgecC8T7H/7lhYLLTm/SpllssFCBCZjyP1MSITl
+GgVdND75fjS0xr6YLOBi6nSgNHI5/hP4HA7GBX2kUqONxb6gKaiQx4M=)";
+
+    JWT jwt;
+    jwt.set_alg(JWT::Algorithm::ES256, ecdsa256);
+
+    constexpr int secondsInDay = 86400;
+    jwt.set("iat", (int) time(nullptr));
+    jwt.set("iss", "https://test.com");
+    jwt.set("exp", (int) time(nullptr) + secondsInDay);
+
+    const auto& info = jwt.grants.root()->pushNode("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
+
+    stringstream originalToken;
+    jwt.encode(originalToken);
+
+    stringstream originalJSON;
+    jwt.exportTo(originalJSON, false);
+
+    JWT jwt2;
+    jwt2.decode(originalToken.str().c_str(), ecdsa256);
+
+    stringstream copiedJSON;
+    jwt2.exportTo(copiedJSON, false);
+
+    EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str())
+        << "Decoded JSON payload doesn't match the original";
+}
+*/

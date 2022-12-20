@@ -64,13 +64,18 @@ bool Semaphore::sleep_for(chrono::milliseconds timeout)
 #endif
 }
 
-bool Semaphore::sleep_until(DateTime timeoutAt)
+bool Semaphore::sleep_until(const DateTime& timeoutAt)
+{
+    return sleep_until(timeoutAt.timePoint());
+}
+
+bool Semaphore::sleep_until(const DateTime::time_point& timeoutAt)
 {
 #if CXX_VERSION < 20
     unique_lock lock(m_lockMutex);
 
     if (!m_condition.wait_until(lock,
-                                timeoutAt.timePoint(),
+                                timeoutAt,
                                 [this]() {
                                     return m_value > 0;
                                 }))
@@ -85,7 +90,6 @@ bool Semaphore::sleep_until(DateTime timeoutAt)
 
     return true;
 #else
-    return m_value.try_acquire_until(timeoutAt.timePoint());
+    return m_value.try_acquire_until(timeoutAt);
 #endif
 }
-
