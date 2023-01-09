@@ -38,12 +38,14 @@ SocketReader::SocketReader(BaseSocket& socket, size_t buffer_size)
 
 void SocketReader::open()
 {
+    scoped_lock lock(m_mutex);
     m_readOffset = 0;
     bytes(0);
 }
 
 void SocketReader::close() noexcept
 {
+    scoped_lock lock(m_mutex);
     try
     {
         m_readOffset = 0;
@@ -70,7 +72,7 @@ void SocketReader::handleReadFromSocketError(int error)
     }
 }
 
-int32_t SocketReader::readFromSocket(sockaddr_in* from)
+int32_t SocketReader::readFromSocket()
 {
     if (!m_socket.active())
     {
@@ -82,21 +84,7 @@ int32_t SocketReader::readFromSocket(sockaddr_in* from)
     do
     {
         error = 0;
-        int receivedBytes;
-        if (from != nullptr)
-        {
-#ifdef _WIN32
-            int flen = sizeof(sockaddr_in);
-#else
-            socklen_t flen = sizeof(sockaddr_in);
-#endif
-            receivedBytes = (int) recvfrom(m_socket.fd(), (char*) data(), (int) capacity() - 2, 0, (sockaddr*) from,
-                                           &flen);
-        }
-        else
-        {
-            receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
-        }
+        auto receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
 
         if (receivedBytes == -1)
         {
@@ -133,8 +121,7 @@ void SocketReader::readMoreFromSocket(int availableBytes)
     bytes(bytes() + receivedBytes);
 }
 
-int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
-                                      sockaddr_in* from)
+int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line)
 {
     auto availableBytes = int(bytes() - m_readOffset);
     auto bytesToRead = (int) size;
@@ -147,7 +134,7 @@ int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delim
             return 0;
         }
 
-        availableBytes = readFromSocket(from);
+        availableBytes = readFromSocket();
         if (empty())
         {
             return 0;
@@ -208,7 +195,7 @@ int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delim
     return eol ? -bytesToRead : bytesToRead;
 }
 
-size_t SocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
+size_t SocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool read_line)
 {
     int total = 0;
     int eol = 0;
@@ -221,7 +208,7 @@ size_t SocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool 
             return sz;
         }
 
-        int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, read_line, from);
+        int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, read_line);
 
         if (bytes == 0)
         { // No more data
@@ -242,11 +229,39 @@ size_t SocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool 
 
 size_t SocketReader::availableBytes() const
 {
-    return bytes() - m_readOffset;
+    scoped_lock lock(m_mutex);
+    return bytes() - m_readOffset + m_socket.socketBytes();
+}
+
+bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
+{
+    scoped_lock lock(m_mutex);
+    if (availableBytes() > 0)
+    {
+        return true;
+    }
+
+    return m_socket.readyToRead(timeout);
+}
+
+size_t SocketReader::read(Buffer& destinationBuffer, size_t size)
+{
+    scoped_lock lock(m_mutex);
+    destinationBuffer.checkSize(size);
+    auto bytes = read(destinationBuffer.data(), size, '\0', false);
+    destinationBuffer.bytes(bytes);
+    return bytes;
+}
+
+size_t SocketReader::read(uint8_t* destinationBuffer, size_t size)
+{
+    scoped_lock lock(m_mutex);
+    return read(destinationBuffer, size, '\0', false);
 }
 
 size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 {
+    scoped_lock lock(m_mutex);
     size_t total = 0;
     int eol = 0;
 

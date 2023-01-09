@@ -29,6 +29,7 @@
 #include <sptk5/cutils>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/HttpProxy.h>
+#include <sptk5/net/SocketReader.h>
 
 #ifdef _WIN32
 #include <winhttp.h>
@@ -77,11 +78,13 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     return handle;
 }
 
-bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket)
+bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 {
     bool proxyConnected {false};
+    SocketReader socketReader(*proxySocket);
+
     Buffer buffer;
-    socket->readLine(buffer);
+    socketReader.readLine(buffer);
 
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
@@ -99,7 +102,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket)
     int contentLength = -1;
     while (buffer.bytes() > 1)
     {
-        socket->readLine(buffer);
+        socketReader.readLine(buffer);
         auto matches = matchResponseHeader.m(buffer.c_str());
         if (matches)
         {
@@ -117,14 +120,14 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket)
     // Read response body (if any)
     if (contentLength > 0)
     {
-        socket->read(buffer, (size_t) contentLength);
+        socketReader.read(buffer, (size_t) contentLength);
     }
     else
     {
         constexpr milliseconds timeout {100};
-        while (socket->readyToRead(timeout))
+        while (socketReader.readyToRead(timeout))
         {
-            socket->read(buffer, socket->socketBytes());
+            socketReader.read(buffer, socketReader.availableBytes());
         }
     }
 

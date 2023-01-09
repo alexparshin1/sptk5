@@ -39,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * Buffered Socket reader.
+ * Thread-safe socket reader.
  */
 class SP_EXPORT SocketReader
     : public Buffer
@@ -64,14 +64,19 @@ public:
 
     /**
      * Performs the buffered read
-     * @param destination              Destination buffer
+     * @param destination       Destination buffer
      * @param sz                Size of the destination buffer
-     * @param delimiter         Line delimiter
-     * @param read_line          True if we want to read one line (ended with CRLF) only
-     * @param from              An optional structure for source address
      * @returns bytes read from the internal buffer
      */
-    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
+    size_t read(uint8_t* destination, size_t sz);
+
+    /**
+     * Performs the buffered read
+     * @param destination       Destination buffer
+     * @param sz                Size of the destination buffer
+     * @returns bytes read from the internal buffer
+     */
+    size_t read(Buffer& destination, size_t sz);
 
     /**
      * Performs the buffered read of LF-terminated string
@@ -79,7 +84,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns bytes read from the internal buffer
      */
-    size_t readLine(Buffer& dest, char delimiter);
+    size_t readLine(Buffer& dest, char delimiter = '\n');
 
     /**
      * Returns number of bytes available to read
@@ -87,23 +92,28 @@ public:
     [[nodiscard]] size_t availableBytes() const;
 
     /**
-     * Read more (as much as we can) from socket into buffer
-     * @param availableBytes    Number of bytes already available in buffer
+     * Returns true if there are bytes available to read
+     * @param dest              Timeout waiting for data ready to read
      */
-    void readMoreFromSocket(int availableBytes);
+    [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout) const;
 
 private:
-    /**
-     * Socket to read from
-     */
-    BaseSocket& m_socket;
+
+    mutable std::mutex m_mutex; ///< Mutex protecting read operations
+    BaseSocket& m_socket;       ///< Socket to read from
+    uint32_t m_readOffset {0};  ///< Current offset in the read buffer
 
     /**
-     * Current offset in the read buffer
+     * Performs the buffered read
+     * @param destination              Destination buffer
+     * @param sz                Size of the destination buffer
+     * @param delimiter         Line delimiter
+     * @param read_line          True if we want to read one line (ended with CRLF) only
+     * @returns bytes read from the internal buffer
      */
-    uint32_t m_readOffset {0};
+    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line);
 
-    [[nodiscard]] int32_t readFromSocket(sockaddr_in* from);
+    [[nodiscard]] int32_t readFromSocket();
 
     /**
      * Performs buffered read
@@ -113,11 +123,15 @@ private:
      * @param size                Size of the destination buffer
      * @param delimiter         Line delimiter
      * @param read_line          True if we want to read one line (ended with CRLF) only
-     * @param from              An optional structure for source address
      * @returns number of bytes read
      */
-    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
-                                       struct sockaddr_in* from = nullptr);
+    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line);
+
+    /**
+     * Read more (as much as we can) from socket into buffer
+     * @param availableBytes    Number of bytes already available in buffer
+     */
+    void readMoreFromSocket(int availableBytes);
 
     void handleReadFromSocketError(int error);
 };

@@ -219,6 +219,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
+    [[deprecated("Use SocketReader instead")]]
     size_t readLine(char* buffer, size_t size, char delimiter = '\n');
 
     /**
@@ -229,6 +230,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
+    [[deprecated("Use SocketReader instead")]]
     size_t readLine(Buffer& buffer, char delimiter = '\n');
 
     /**
@@ -237,6 +239,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
+    [[deprecated("Use SocketReader instead")]]
     size_t readLine(String& str, char delimiter = '\n');
 
     /**
