@@ -46,12 +46,18 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         {
             if (socket.readyToRead(chrono::seconds(1)))
             {
+                size_t hasBytes = socket.socketBytes();
+                if (hasBytes == 0)
+                {
+                    break;
+                }
                 if (socket.readLine(data) == 0)
                 {
-                    return;
+                    continue;
                 }
                 string str(data.c_str());
                 str += "\n";
+                COUT("Server received: " << str)
                 socket.write(str);
             }
             else
@@ -77,13 +83,14 @@ TEST(SPTK_SocketEvents, minimal)
         {
             case SocketEventType::HAS_DATA:
                 reader->readLine(line);
-                COUT("Socket has data: " << line << endl)
+                COUT("Client received: " << line << endl)
                 eventReceived.post();
                 break;
             case SocketEventType::CONNECTION_CLOSED:
                 COUT("Socket closed" << endl)
                 break;
             default:
+                COUT("Unknown event" << endl)
                 break;
         }
     };
@@ -101,8 +108,7 @@ TEST(SPTK_SocketEvents, minimal)
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",
                           "Using simple echo server to support data flow.",
-                          "The session is terminated when this row is received",
-                          ""});
+                          "The session is terminated when this row is received"});
 
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
@@ -110,16 +116,25 @@ TEST(SPTK_SocketEvents, minimal)
         socketEvents.add(socket, (uint8_t*) &socket);
 
         size_t receivedEventCount {0};
-        String hello("Hello, World!\n");
-        auto sentBytes = socket.send((const uint8_t*) hello.c_str(), hello.length());
-        if (eventReceived.sleep_for(chrono::milliseconds(10)))
+        for (const auto& row: testRows)
         {
-            receivedEventCount++;
+            auto bytes = socket.send((const uint8_t*) row.c_str(), row.length());
+            auto bytes2 = socket.send((const uint8_t*) "\n", 1);
+            if (bytes != row.length() || bytes2 != 1)
+            {
+                FAIL() << "Client can't send data";
+            }
+
+            if (eventReceived.sleep_for(chrono::milliseconds(100)))
+            {
+                receivedEventCount++;
+            }
         }
+
         socketEvents.remove(socket);
         socket.close();
-        EXPECT_EQ(1u, receivedEventCount);
-        EXPECT_EQ(hello.length(), sentBytes);
+
+        EXPECT_EQ(4u, receivedEventCount);
     }
     catch (const Exception& e)
     {
