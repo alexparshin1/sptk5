@@ -82,9 +82,11 @@ TEST(SPTK_SocketEvents, minimal)
         switch (eventType)
         {
             case SocketEventType::HAS_DATA:
-                reader->readLine(line);
-                COUT("Client received: " << line << endl)
-                eventReceived.post();
+                if (reader->readLine(line))
+                {
+                    COUT("Client received: " << line << endl)
+                    eventReceived.post();
+                }
                 break;
             case SocketEventType::CONNECTION_CLOSED:
                 COUT("Socket closed" << endl)
@@ -124,11 +126,11 @@ TEST(SPTK_SocketEvents, minimal)
             {
                 FAIL() << "Client can't send data";
             }
+        }
 
-            if (eventReceived.sleep_for(chrono::milliseconds(100)))
-            {
-                receivedEventCount++;
-            }
+        while (eventReceived.sleep_for(chrono::milliseconds(100)))
+        {
+            receivedEventCount++;
         }
 
         socketEvents.remove(socket);
