@@ -26,34 +26,103 @@
 
 #pragma once
 
-#include "TCPSocket.h"
+#include <sptk5/Buffer.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/BaseSocket.h>
 
 namespace sptk {
 
-class SocketReader
+/**
+ * @addtogroup utility Utility Classes
+ * @{
+ */
+
+/**
+ * Buffered Socket reader.
+ */
+class SP_EXPORT SocketReader
+    : public Buffer
 {
 public:
     /**
-     * @brief Constructor
+     * Constructor
+     * @param socket            Socket to work with
+     * @param bufferSize        The desirable size of the internal buffer
      */
-    SocketReader(TCPSocket& socket);
+    explicit SocketReader(BaseSocket& socket, size_t bufferSize = 16384);
+
     /**
-     * @brief Destructor
+     * Connects the reader to the socket handle
      */
-    virtual ~SocketReader() = default;
+    void open();
 
-    TCPSocket& socket();
+    /**
+     * Disconnects the reader from the socket handle, and compacts allocated memory
+     */
+    void close() noexcept;
 
-    size_t availableBytes();
+    /**
+     * Performs the buffered read
+     * @param destination              Destination buffer
+     * @param sz                Size of the destination buffer
+     * @param delimiter         Line delimiter
+     * @param read_line          True if we want to read one line (ended with CRLF) only
+     * @param from              An optional structure for source address
+     * @returns bytes read from the internal buffer
+     */
+    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
 
-    size_t read(Buffer& destination, size_t size);
-    size_t readLine(Buffer& destination, char delimiter);
-    size_t readLine(String& destination, char delimiter);
+    /**
+     * Performs the buffered read of LF-terminated string
+     * @param dest              Destination buffer
+     * @param delimiter         Line delimiter
+     * @returns bytes read from the internal buffer
+     */
+    size_t readLine(Buffer& dest, char delimiter);
+
+    /**
+     * Returns number of bytes available to read
+     */
+    [[nodiscard]] size_t availableBytes() const;
+
+    /**
+     * Read more (as much as we can) from socket into buffer
+     * @param availableBytes    Number of bytes already available in buffer
+     */
+    void readMoreFromSocket(int availableBytes);
 
 private:
-    TCPSocket& m_socket;
-    Buffer m_buffer {16384};
-    size_t m_offset {0};
+    /**
+     * Socket to read from
+     */
+    BaseSocket& m_socket;
+
+    /**
+     * Current offset in the read buffer
+     */
+    uint32_t m_readOffset {0};
+
+    [[nodiscard]] int32_t readFromSocket(sockaddr_in* from);
+
+    /**
+     * Performs buffered read
+     *
+     * Data is read from the opened socket into a character buffer of limited size
+     * @param destination       Destination buffer
+     * @param size                Size of the destination buffer
+     * @param delimiter         Line delimiter
+     * @param read_line          True if we want to read one line (ended with CRLF) only
+     * @param from              An optional structure for source address
+     * @returns number of bytes read
+     */
+    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
+                                       struct sockaddr_in* from = nullptr);
+
+    void handleReadFromSocketError(int error);
 };
 
+/**
+ * @}
+ */
 } // namespace sptk
