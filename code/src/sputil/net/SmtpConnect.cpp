@@ -28,6 +28,7 @@
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/SmtpConnect.h>
+#include <sptk5/net/SocketReader.h>
 
 using namespace std;
 using namespace sptk;
@@ -42,11 +43,12 @@ constexpr int minErrorCode = 433;
 
 int SmtpConnect::getResponse(bool decode)
 {
-    array<char, RSP_BLOCK_SIZE + 1> readBuffer {};
+    Buffer readBuffer(RSP_BLOCK_SIZE);
     String longLine;
     bool readCompleted = false;
     int rc = 0;
 
+    SocketReader socketReader(*this);
 
     if (constexpr chrono::seconds readTimeout {30};
         !readyToRead(readTimeout))
@@ -56,16 +58,8 @@ int SmtpConnect::getResponse(bool decode)
 
     while (!readCompleted)
     {
-        size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-        longLine = readBuffer.data();
-        if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n')
-        {
-            do
-            {
-                len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-                longLine += readBuffer.data();
-            } while (len == RSP_BLOCK_SIZE);
-        }
+        socketReader.readLine(readBuffer);
+        longLine = readBuffer.c_str();
 
         if (longLine[3] == ' ')
         {

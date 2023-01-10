@@ -29,6 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/SocketReader.h>
 #include <sptk5/net/TCPSocket.h>
 
 #include <mutex>
@@ -45,7 +46,7 @@ using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
  *
  * Designed to be able accepting asynchronous data
  */
-class SP_EXPORT HttpReader
+class SP_EXPORT HttpReader : public SocketReader
 {
 public:
     /**
@@ -93,12 +94,6 @@ public:
     HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode);
 
     /**
-     * Get read socket
-     * @return socket to read from
-     */
-    TCPSocket& socket();
-
-    /**
      * Get output buffer
      * @return output buffer
      */
@@ -142,10 +137,7 @@ public:
     String getRequestType() const;
     String getRequestURL() const;
 
-    void close();
-
 private:
-    TCPSocket& m_socket;                                                                    ///< Socket to read from
     ReadMode m_readMode;                                                                    ///< Read mode
     State m_readerState {State::READY};                                                     ///< State of the reader
     mutable std::mutex m_mutex;                                                             ///< Mutex that protects internal data
@@ -164,7 +156,7 @@ private:
     /**
      * Clear reader state
      */
-    void reset();
+    void reset() override;
 
     /**
      * Read HTTP status

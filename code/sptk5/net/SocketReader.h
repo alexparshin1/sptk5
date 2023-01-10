@@ -53,14 +53,14 @@ public:
     explicit SocketReader(BaseSocket& socket, size_t bufferSize = 16384);
 
     /**
-     * Connects the reader to the socket handle
+     * Resets reader buffer position
      */
-    void open();
+    virtual void reset();
 
     /**
-     * Disconnects the reader from the socket handle, and compacts allocated memory
+     * Closes socket
      */
-    void close() noexcept;
+    virtual void close();
 
     /**
      * Performs the buffered read
@@ -85,6 +85,14 @@ public:
      * @returns bytes read from the internal buffer
      */
     size_t readLine(Buffer& dest, char delimiter = '\n');
+
+    /**
+     * Performs the buffered read of LF-terminated string
+     * @param dest              Destination buffer
+     * @param delimiter         Line delimiter
+     * @returns bytes read from the internal buffer
+     */
+    size_t readLine(String& dest, char delimiter = '\n');
 
     /**
      * Returns number of bytes available to read

@@ -26,6 +26,7 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/ImapConnect.h>
+#include <sptk5/net/SocketReader.h>
 
 using namespace std;
 using namespace sptk;
@@ -37,20 +38,14 @@ static constexpr int RSP_BLOCK_SIZE = 1024;
 
 bool ImapConnect::getResponse(const String& ident)
 {
-    array<char, RSP_BLOCK_SIZE + 1> readBuffer {};
+    Buffer readBuffer(RSP_BLOCK_SIZE);
+
+    SocketReader socketReader(*this);
 
     for (;;)
     {
-        size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-        String longLine = readBuffer.data();
-        if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n')
-        {
-            do
-            {
-                len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-                longLine += readBuffer.data();
-            } while (len == RSP_BLOCK_SIZE);
-        }
+        socketReader.readLine(readBuffer);
+        String longLine = readBuffer.c_str();
         m_response.push_back(longLine);
         if (ident[0] == 0)
         {

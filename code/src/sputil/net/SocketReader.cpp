@@ -36,20 +36,21 @@ SocketReader::SocketReader(BaseSocket& socket, size_t buffer_size)
 {
 }
 
-void SocketReader::open()
+void SocketReader::reset()
 {
     scoped_lock lock(m_mutex);
     m_readOffset = 0;
     bytes(0);
 }
 
-void SocketReader::close() noexcept
+void SocketReader::close()
 {
     scoped_lock lock(m_mutex);
     try
     {
         m_readOffset = 0;
         bytes(0);
+        m_socket.close();
     }
     catch (const Exception& e)
     {
@@ -303,4 +304,12 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     destinationBuffer.data()[total] = 0;
     destinationBuffer.bytes(total);
     return destinationBuffer.bytes();
+}
+
+size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
+{
+    Buffer buffer;
+    auto bytes = readLine(buffer, delimiter);
+    destinationBuffer.assign(buffer.c_str(), bytes);
+    return bytes;
 }
