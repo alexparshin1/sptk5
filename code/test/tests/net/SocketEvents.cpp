@@ -29,8 +29,8 @@
 #include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
-#include <sptk5/net/TCPSocket.h>
 #include <sptk5/net/SocketReader.h>
+#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,19 +40,20 @@ static constexpr uint16_t testEchoServerPort = 5001;
 
 static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
+    SocketReader socketReader(socket);
     Buffer data;
     while (!task.terminated())
     {
         try
         {
-            if (socket.readyToRead(chrono::seconds(1)))
+            if (socketReader.readyToRead(chrono::seconds(1)))
             {
-                size_t hasBytes = socket.socketBytes();
+                size_t hasBytes = socketReader.availableBytes();
                 if (hasBytes == 0)
                 {
                     break;
                 }
-                if (socket.readLine(data) == 0)
+                if (socketReader.readLine(data) == 0)
                 {
                     continue;
                 }
@@ -75,77 +76,6 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
 }
 
 TEST(SPTK_SocketEvents, minimal)
-{
-    Semaphore eventReceived;
-    auto eventsCallback = [&eventReceived](uint8_t* userData, SocketEventType eventType) {
-        auto* reader = (TCPSocket*) userData;
-        String line;
-        switch (eventType)
-        {
-            case SocketEventType::HAS_DATA:
-                while (reader->socketBytes() > 0 && reader->readLine(line) != 0)
-                {
-                    COUT("Client received: " << line << endl)
-                    eventReceived.post();
-                }
-                break;
-            case SocketEventType::CONNECTION_CLOSED:
-                COUT("Socket closed" << endl)
-                break;
-            default:
-                COUT("Unknown event" << endl)
-                break;
-        }
-    };
-
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
-
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
-        echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testEchoServerPort);
-
-        Strings testRows({"Hello, World!",
-                          "This is a test of SocketEvents class.",
-                          "Using simple echo server to support data flow.",
-                          "The session is terminated when this row is received"});
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        socketEvents.add(socket, (uint8_t*) &socket);
-
-        size_t receivedEventCount {0};
-        for (const auto& row: testRows)
-        {
-            auto bytes = socket.send((const uint8_t*) row.c_str(), row.length());
-            auto bytes2 = socket.send((const uint8_t*) "\n", 1);
-            if (bytes != row.length() || bytes2 != 1)
-            {
-                FAIL() << "Client can't send data";
-            }
-        }
-
-        while (eventReceived.sleep_for(chrono::milliseconds(100)))
-        {
-            receivedEventCount++;
-        }
-
-        socketEvents.remove(socket);
-        socket.close();
-
-        EXPECT_EQ(4u, receivedEventCount);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(SPTK_SocketEvents, minimalReader)
 {
     Semaphore eventReceived;
     shared_ptr<SocketReader> socketReader;

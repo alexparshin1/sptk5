@@ -89,8 +89,11 @@ int32_t SocketReader::readFromSocket()
         if (receivedBytes == -1)
         {
             bytes(0);
-            error = errno;
-            handleReadFromSocketError(error);
+            if (m_socket.active())
+            {
+                error = errno;
+                handleReadFromSocketError(error);
+            }
         }
         else
         {
@@ -236,7 +239,9 @@ size_t SocketReader::availableBytes() const
 bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
 {
     scoped_lock lock(m_mutex);
-    if (availableBytes() > 0)
+
+    auto availableBytes = bytes() - m_readOffset + m_socket.socketBytes();
+    if (availableBytes > 0)
     {
         return true;
     }
