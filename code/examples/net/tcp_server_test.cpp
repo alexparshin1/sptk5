@@ -37,6 +37,8 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
     TCPSocket new_sock;
     new_sock.attach(clientSocketFD, false);
 
+    SocketReader socketReader(new_sock);
+
     try
     {
         String data;
@@ -48,15 +50,21 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
 
         do
         {
-            new_sock.readLine(data);
-            COUT(data.c_str() << "\n")
+            if (socketReader.readyToRead(chrono::seconds(1)))
+            {
+                if (socketReader.readLine(data) == 0)
+                {
+                    break;
+                }
+                COUT("[" << data.c_str() << "]\n")
+            }
         } while (data != "EOD");
 
         COUT("Sending: confirmation\n")
         new_sock.write("Data accepted\n");
 
         // End of session
-        new_sock.readLine(data);
+        socketReader.readLine(data);
 
         server.close();
     }

@@ -36,15 +36,16 @@ int main()
     try
     {
         TCPSocket client;
-        client.host(Host("localhost", 3000));
+        SocketReader clientReader(client);
 
+        client.host(Host("localhost", 3000));
         client.open();
 
         COUT("Connected\n")
 
         String data;
 
-        client.readLine(data);
+        clientReader.readLine(data);
         COUT("Receiving: " << data.c_str() << "\n")
 
         data = "Several copies of a single string";
@@ -54,13 +55,13 @@ int main()
         COUT("Sending: end data\n")
         client.write("EOD\n");
 
-        client.readLine(data);
+        clientReader.readLine(data);
         COUT("Receiving: " << data.c_str() << "\n")
 
         COUT("Sending: end session\n")
         client.write("EOS\n");
 
-        client.readLine(data);
+        clientReader.readLine(data);
         COUT("Receiving: " << data.c_str() << "\n")
     }
     catch (const Exception& e)

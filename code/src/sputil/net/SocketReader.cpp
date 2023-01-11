@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-SocketReader::SocketReader(BaseSocket& socket, size_t buffer_size)
+SocketReader::SocketReader(TCPSocket& socket, size_t buffer_size)
     : Buffer(buffer_size)
     , m_socket(socket)
 {
@@ -312,4 +312,9 @@ size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
     auto bytes = readLine(buffer, delimiter);
     destinationBuffer.assign(buffer.c_str(), bytes);
     return bytes;
+}
+
+TCPSocket& SocketReader::socket()
+{
+    return m_socket;
 }

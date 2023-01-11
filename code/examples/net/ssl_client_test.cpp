@@ -38,6 +38,8 @@ int main(int, const char**)
     try
     {
         SSLSocket client;
+        SocketReader clientReader(client);
+
         SSLKeys keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
         client.loadKeys(keys);
         Buffer buffer;
@@ -47,7 +49,7 @@ int main(int, const char**)
             client.open(Host("localhost", 443));
 
             client.write((const uint8_t*) "GET /\n", 6);
-            client.readLine(buffer, '\n');
+            clientReader.readLine(buffer, '\n');
             COUT("Receiving: ");
             COUT(buffer.data() << endl);
             client.close();

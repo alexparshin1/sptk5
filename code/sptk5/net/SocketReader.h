@@ -29,7 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
 
@@ -50,7 +50,7 @@ public:
      * @param socket            Socket to work with
      * @param bufferSize        The desirable size of the internal buffer
      */
-    explicit SocketReader(BaseSocket& socket, size_t bufferSize = 16384);
+    explicit SocketReader(TCPSocket& socket, size_t bufferSize = 16384);
 
     /**
      * Resets reader buffer position
@@ -105,10 +105,15 @@ public:
      */
     [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout) const;
 
+    /**
+     * Returns reader's socket
+     */
+    [[nodiscard]] TCPSocket& socket();
+
 private:
 
     mutable std::mutex m_mutex; ///< Mutex protecting read operations
-    BaseSocket& m_socket;       ///< Socket to read from
+    TCPSocket& m_socket;        ///< Socket to read from
     uint32_t m_readOffset {0};  ///< Current offset in the read buffer
 
     /**
