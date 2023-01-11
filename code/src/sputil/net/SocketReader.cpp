@@ -310,7 +310,14 @@ size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
 {
     Buffer buffer;
     auto bytes = readLine(buffer, delimiter);
-    destinationBuffer.assign(buffer.c_str(), bytes);
+    if (bytes > 0)
+    {
+        destinationBuffer.assign(buffer.c_str(), bytes - 1);
+    }
+    else
+    {
+        destinationBuffer.clear();
+    }
     return bytes;
 }
 

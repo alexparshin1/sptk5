@@ -29,6 +29,7 @@
 #include <sptk5/Printer.h>
 #include <sptk5/cnet>
 
+using namespace std;
 using namespace sptk;
 
 int main()
@@ -49,20 +50,17 @@ int main()
         COUT("Receiving: " << data.c_str() << "\n")
 
         data = "Several copies of a single string";
-        COUT("Sending: test data\n")
+        COUT("Sending:   test data\n")
         client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
-        COUT("Sending: end data\n")
+        COUT("Sending:   EOD\n")
         client.write("EOD\n");
 
         clientReader.readLine(data);
         COUT("Receiving: " << data.c_str() << "\n")
 
-        COUT("Sending: end session\n")
+        COUT("Sending:   EOS\n")
         client.write("EOS\n");
-
-        clientReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << "\n")
     }
     catch (const Exception& e)
     {

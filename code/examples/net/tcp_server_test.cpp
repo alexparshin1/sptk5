@@ -43,10 +43,8 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
     {
         String data;
 
-        COUT("Sending: Test SPTK server 1.00\n")
+        COUT("Sending:   Test SPTK server 1.00\n")
         new_sock.write("Test SPTK server 1.00\n");
-
-        COUT("Receving (strings): ")
 
         do
         {
@@ -56,15 +54,16 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
                 {
                     break;
                 }
-                COUT("[" << data.c_str() << "]\n")
+                COUT("Receiving: " << data.c_str() << endl)
             }
         } while (data != "EOD");
 
-        COUT("Sending: confirmation\n")
+        COUT("Sending:   confirmation\n")
         new_sock.write("Data accepted\n");
 
         // End of session
         socketReader.readLine(data);
+        COUT("Receiving: " << data.c_str() << endl)
 
         server.close();
     }
@@ -83,8 +82,7 @@ int main()
         server.host(Host("localhost", 3000));
 
         SOCKET clientSocketFD;
-        struct sockaddr_in clientInfo {
-        };
+        sockaddr_in clientInfo {};
 
         server.listen();
 
