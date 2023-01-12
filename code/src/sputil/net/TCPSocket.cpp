@@ -38,36 +38,11 @@ static int m_socketCount;
 static bool m_inited(false);
 #endif
 
-TCPSocketReader::TCPSocketReader(BaseSocket& socket, size_t buffer_size)
-    : Buffer(buffer_size)
-    , m_socket(socket)
-{
-}
-
-void TCPSocketReader::open()
-{
-    m_readOffset = 0;
-    bytes(0);
-}
-
-void TCPSocketReader::close() noexcept
-{
-    try
-    {
-        m_readOffset = 0;
-        bytes(0);
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << endl)
-    }
-}
-
-void TCPSocketReader::handleReadFromSocketError(int error)
+void TCPSocket::handleReadFromSocketError(int error)
 {
     if (error == EAGAIN)
     {
-        if (!m_socket.readyToRead(chrono::seconds(1)))
+        if (!readyToRead(chrono::seconds(1)))
         {
             throw TimeoutException("Can't read from socket: timeout");
         }
@@ -78,216 +53,8 @@ void TCPSocketReader::handleReadFromSocketError(int error)
     }
 }
 
-int32_t TCPSocketReader::readFromSocket(sockaddr_in* from)
-{
-    m_readOffset = 0;
-    int error {0};
-    do
-    {
-        error = 0;
-        int receivedBytes;
-        if (from != nullptr)
-        {
-#ifdef _WIN32
-            int flen = sizeof(sockaddr_in);
-#else
-            socklen_t flen = sizeof(sockaddr_in);
-#endif
-            receivedBytes = (int) recvfrom(m_socket.fd(), (char*) data(), (int) capacity() - 2, 0, (sockaddr*) from,
-                                           &flen);
-        }
-        else
-        {
-            receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
-        }
-
-        if (receivedBytes == -1)
-        {
-            bytes(0);
-            error = errno;
-            handleReadFromSocketError(error);
-        }
-        else
-        {
-            bytes((size_t) receivedBytes);
-        }
-    } while (error == EAGAIN);
-
-    data()[bytes()] = 0;
-
-    return (int32_t) bytes();
-}
-
-static constexpr size_t readBytesLWM {128};
-
-void TCPSocketReader::readMoreFromSocket(int availableBytes)
-{
-    if (m_readOffset != 0)
-    {
-        memmove(data(), data() + m_readOffset, (size_t) availableBytes);
-        m_readOffset = 0;
-        bytes((size_t) availableBytes);
-    }
-    else
-    {
-        checkSize(capacity() + readBytesLWM);
-    }
-    size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
-    bytes(bytes() + receivedBytes);
-}
-
-int32_t TCPSocketReader::bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
-                                      sockaddr_in* from)
-{
-    auto availableBytes = int(bytes() - m_readOffset);
-    auto bytesToRead = (int) size;
-    bool eol = false;
-
-    if (availableBytes == 0)
-    {
-        availableBytes = readFromSocket(from);
-        if (empty())
-        {
-            return 0;
-        }
-    }
-
-    char* readPosition = (char*) data() + m_readOffset;
-    if (availableBytes < bytesToRead)
-    {
-        bytesToRead = availableBytes;
-    }
-
-    char* cr = nullptr;
-    if (read_line)
-    {
-        size_t len;
-        if (delimiter == 0)
-        {
-            len = strlen(readPosition);
-        }
-        else
-        {
-            cr = strchr(readPosition, delimiter);
-            if (cr != nullptr)
-            {
-                len = cr - readPosition + 1;
-            }
-            else
-            {
-                readMoreFromSocket(availableBytes);
-                return 0;
-            }
-        }
-        if (len < size)
-        {
-            eol = true;
-            bytesToRead = (int) len;
-            if (delimiter == 0)
-            {
-                ++bytesToRead;
-            }
-            if (cr != nullptr)
-            {
-                *cr = 0;
-            }
-        }
-    }
-
-    // copy data to destination, advance the read offset
-    memcpy(destination, readPosition, size_t(bytesToRead));
-
-    if (read_line || bytesToRead < int(size))
-    {
-        destination[bytesToRead] = 0;
-    }
-
-    m_readOffset += uint32_t(bytesToRead);
-    return eol ? -bytesToRead : bytesToRead;
-}
-
-size_t TCPSocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool read_line, sockaddr_in* from)
-{
-    int total = 0;
-    int eol = 0;
-
-    while (eol == 0)
-    {
-        int bytesToRead = int(sz) - total;
-        if (bytesToRead <= 0)
-        {
-            return sz;
-        }
-
-        int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, read_line, from);
-
-        if (bytes == 0)
-        { // No more data
-            break;
-        }
-
-        if (bytes < 0)
-        { // Received the complete string
-            eol = 1;
-            bytes = -bytes;
-        }
-
-        total += bytes;
-        destination += bytes;
-    }
-    return size_t(total - eol);
-}
-
-size_t TCPSocketReader::availableBytes() const
-{
-    return bytes() - m_readOffset;
-}
-
-size_t TCPSocketReader::readLine(Buffer& destinationBuffer, char delimiter)
-{
-    size_t total = 0;
-    int eol = 0;
-
-    if (m_socket.fd() <= 0)
-    {
-        throw Exception("Can't read from closed socket", __FILE__, __LINE__);
-    }
-
-    while (eol == 0)
-    {
-        auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        if (bytesToRead <= (int) readBytesLWM)
-        {
-            destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
-            bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        }
-
-        auto* destination = destinationBuffer.data() + total;
-
-        int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, true);
-        if (bytes == 0)
-        { // No more data
-            break;
-        }
-
-        if (bytes < 0)
-        { // Received the complete string
-            eol = 1;
-            bytes = -bytes;
-        }
-
-        total += size_t(bytes);
-    }
-    destinationBuffer.data()[total] = 0;
-    destinationBuffer.bytes(total);
-    return destinationBuffer.bytes();
-}
-
-static constexpr size_t defaultBufferSize {16384};
-
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
     : BaseSocket(domain, type, protocol)
-    , m_reader(*this, defaultBufferSize)
 {
 }
 
@@ -326,18 +93,11 @@ void TCPSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool
                       chrono::milliseconds timeoutMS)
 {
     open_addr(openMode, &address, timeoutMS);
-    m_reader.open();
 
     if (!_blockingMode)
     {
         blockingMode(false);
     }
-}
-
-void TCPSocket::close() noexcept
-{
-    m_reader.close();
-    BaseSocket::close();
 }
 
 bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
@@ -355,6 +115,7 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
             THROW_SOCKET_ERROR("Error on accept(). ");
         }
     }
+
     if (readyToRead(timeout))
     {
         clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
@@ -365,32 +126,57 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
         if (clientSocketFD == INVALID_SOCKET)
             THROW_SOCKET_ERROR("Error on accept(). ");
     }
+
     return false;
 }
 
 size_t TCPSocket::socketBytes()
 {
-    if (m_reader.availableBytes() > 0)
-    {
-        return m_reader.availableBytes();
-    }
     return BaseSocket::socketBytes();
 }
 
 bool TCPSocket::readyToRead(chrono::milliseconds timeout)
 {
-    return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
+    return BaseSocket::readyToRead(timeout);
 }
 
-size_t TCPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
+size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
 {
-    return m_reader.read(buffer, size, 0, false, from);
+    int receivedBytes;
+    int error {0};
+    do
+    {
+        error = 0;
+        if (from != nullptr)
+        {
+#ifdef _WIN32
+            int flen = sizeof(sockaddr_in);
+#else
+            socklen_t flen = sizeof(sockaddr_in);
+#endif
+            receivedBytes = (int) recvfrom(fd(), (char*) destination, (int) size, 0, (sockaddr*) from,
+                                           &flen);
+        }
+        else
+        {
+            receivedBytes = (int) recv(destination, size);
+        }
+
+        if (receivedBytes == -1)
+        {
+            receivedBytes = 0;
+            error = errno;
+            handleReadFromSocketError(error);
+        }
+    } while (error == EAGAIN);
+
+    return (int32_t) receivedBytes;
 }
 
 size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
-    size_t bytes = m_reader.read(buffer.data(), size, 0, false, from);
+    size_t bytes = read(buffer.data(), size, from);
     buffer.bytes(bytes);
     return bytes;
 }
@@ -398,7 +184,7 @@ size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
-    size_t bytes = m_reader.read((uint8_t*) buffer.data(), size, 0, false, from);
+    size_t bytes = read((uint8_t*) buffer.data(), size, from);
     buffer.resize(bytes);
     return bytes;
 }

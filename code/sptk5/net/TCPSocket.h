@@ -71,90 +71,6 @@ namespace sptk {
  */
 
 /**
- * Buffered Socket reader.
- */
-class SP_EXPORT TCPSocketReader
-    : public Buffer
-{
-public:
-    /**
-     * Constructor
-     * @param socket            Socket to work with
-     * @param bufferSize        The desirable size of the internal buffer
-     */
-    explicit TCPSocketReader(BaseSocket& socket, size_t bufferSize = 16384);
-
-    /**
-     * Connects the reader to the socket handle
-     */
-    void open();
-
-    /**
-     * Disconnects the reader from the socket handle, and compacts allocated memory
-     */
-    void close() noexcept;
-
-    /**
-     * Performs the buffered read
-     * @param destination              Destination buffer
-     * @param sz                Size of the destination buffer
-     * @param delimiter         Line delimiter
-     * @param read_line          True if we want to read one line (ended with CRLF) only
-     * @param from              An optional structure for source address
-     * @returns bytes read from the internal buffer
-     */
-    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line, struct sockaddr_in* from = nullptr);
-
-    /**
-     * Performs the buffered read of LF-terminated string
-     * @param dest              Destination buffer
-     * @param delimiter         Line delimiter
-     * @returns bytes read from the internal buffer
-     */
-    size_t readLine(Buffer& dest, char delimiter);
-
-    /**
-     * Returns number of bytes available to read
-     */
-    [[nodiscard]] size_t availableBytes() const;
-
-    /**
-     * Read more (as much as we can) from socket into buffer
-     * @param availableBytes    Number of bytes already available in buffer
-     */
-    void readMoreFromSocket(int availableBytes);
-
-private:
-    /**
-     * Socket to read from
-     */
-    BaseSocket& m_socket;
-
-    /**
-     * Current offset in the read buffer
-     */
-    uint32_t m_readOffset {0};
-
-    [[nodiscard]] int32_t readFromSocket(sockaddr_in* from);
-
-    /**
-     * Performs buffered read
-     *
-     * Data is read from the opened socket into a character buffer of limited size
-     * @param destination       Destination buffer
-     * @param size                Size of the destination buffer
-     * @param delimiter         Line delimiter
-     * @param read_line          True if we want to read one line (ended with CRLF) only
-     * @param from              An optional structure for source address
-     * @returns number of bytes read
-     */
-    [[nodiscard]] int32_t bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line,
-                                       struct sockaddr_in* from = nullptr);
-
-    void handleReadFromSocketError(int error);
-};
-
-/**
  * Generic TCP socket.
  *
  * Allows to establish a network connection
@@ -182,11 +98,6 @@ public:
      * @param proxy             Proxy.
      */
     void setProxy(std::shared_ptr<Proxy> proxy);
-
-    /**
-     * Close socket connection
-     */
-    void close() noexcept override;
 
     /**
      * In server mode, waits for the incoming connection.
@@ -249,15 +160,6 @@ public:
 
 protected:
     /**
-     * Access to internal socket reader for derived classes
-     * @return internal socket reader
-     */
-    TCPSocketReader& reader()
-    {
-        return m_reader;
-    }
-
-    /**
      * Opens the client socket connection by host and port
      * @param host              The host
      * @param openMode          Socket open mode
@@ -286,9 +188,10 @@ protected:
     }
 
 private:
-    TCPSocketReader m_reader;       ///< Buffered socket reader
     std::shared_ptr<Proxy> m_proxy; ///< Optional proxy
     Buffer m_stringBuffer;          ///< Buffer to read a line
+
+    void handleReadFromSocketError(int error);
 };
 
 using STCPSocket = std::shared_ptr<TCPSocket>;

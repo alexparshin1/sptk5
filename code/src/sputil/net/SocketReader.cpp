@@ -234,14 +234,19 @@ size_t SocketReader::read(uint8_t* destination, size_t sz, char delimiter, bool 
 size_t SocketReader::availableBytes() const
 {
     scoped_lock lock(m_mutex);
-    return bytes() - m_readOffset + m_socket.socketBytes();
+    auto available = bytes() - m_readOffset;
+    if (available == 0 && readyToRead(chrono::milliseconds(0)))
+    {
+        available = m_socket.socketBytes();
+    }
+    return available;
 }
 
 bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
 {
     scoped_lock lock(m_mutex);
 
-    auto availableBytes = bytes() - m_readOffset + m_socket.socketBytes();
+    auto availableBytes = bytes() - m_readOffset;
     if (availableBytes > 0)
     {
         return true;

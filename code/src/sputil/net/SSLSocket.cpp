@@ -344,10 +344,6 @@ String SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
 
 size_t SSLSocket::socketBytes()
 {
-    if (reader().availableBytes() > 0)
-    {
-        return reader().availableBytes();
-    }
     if (m_ssl != nullptr)
     {
         int64_t dummy = 0;

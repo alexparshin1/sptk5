@@ -48,11 +48,13 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         {
             if (socketReader.readyToRead(chrono::seconds(1)))
             {
+                /*
                 size_t hasBytes = socketReader.availableBytes();
                 if (hasBytes == 0)
                 {
                     break;
                 }
+                */
                 if (socketReader.readLine(data) == 0)
                 {
                     continue;
@@ -132,6 +134,8 @@ TEST(SPTK_SocketEvents, minimal)
                 FAIL() << "Client can't send data";
             }
         }
+
+        //this_thread::sleep_for(chrono::milliseconds(100));
 
         while (eventReceived.sleep_for(chrono::milliseconds(100)))
         {

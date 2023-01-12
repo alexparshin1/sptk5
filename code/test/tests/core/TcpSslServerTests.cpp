@@ -88,11 +88,12 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     StopWatch stopWatch;
     stopWatch.start();
 
+    const auto* dataPtr = data.data();
     for (size_t packetNumber = 0; packetNumber < packetsInTest; ++packetNumber)
     {
         try
         {
-            auto res = (int) socket.send(data.data(), packetSize);
+            auto res = (int) socket.send(dataPtr, packetSize);
             if (res < 0)
             {
                 throwSocketError("Error writing to socket", __FILE__, __LINE__);
@@ -224,9 +225,10 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         StopWatch stopWatch;
         stopWatch.start();
 
+        auto* readBufferPtr = readBuffer->data();
         while (packetCount < packetsInTest)
         {
-            if (auto result = socket.recv(readBuffer->data(), readSize);
+            if (auto result = socket.recv(readBufferPtr, readSize);
                 result == 0)
             {
                 break;
