@@ -58,16 +58,6 @@ public:
     explicit SmtpConnect(Logger* log = nullptr);
 
     /**
-     * Sends command using SMTP protocol and retrieve the server response.
-     * The response can be read then with response() method.
-     * The CRLF characters after the command are added automatically.
-     * @param cmd               SMTP protocol command
-     * @param encodeCommand     Encode the comand argument to Base64 or not
-     * @param decodeResponse    Decode the response from Base64 or not
-     */
-    int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
-
-    /**
      * @brief The response from the server - makes sence after calling any command
      */
     Strings& response()
@@ -95,15 +85,17 @@ public:
      */
     void cmd_quit();
 
-    /**
-     * @brief Sends the message
-     *
-     * The message based on the information defined by the methods from
-     * CBaseMailConnect, and retrieves the server output.
-     */
-    void sendMessage() override;
-
 protected:
+    /**
+     * Sends command using SMTP protocol and retrieve the server response.
+     * The response can be read then with response() method.
+     * The CRLF characters after the command are added automatically.
+     * @param cmd               SMTP protocol command
+     * @param encodeCommand     Encode the comand argument to Base64 or not
+     * @param decodeResponse    Decode the response from Base64 or not
+     */
+    int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
+
     /**
      * @brief Sends command using SMTP protocol
      *
@@ -112,6 +104,14 @@ protected:
      * @param encode            Encode the arguments to Base64 or not
      */
     void sendCommand(String cmd, bool encode = false);
+
+    /**
+     * @brief Sends the message
+     *
+     * The message based on the information defined by the methods from
+     * CBaseMailConnect, and retrieves the server output.
+     */
+    void sendMessage() override;
 
     /**
      * @brief Retrieves the server response after the command into internal Strings buffer
