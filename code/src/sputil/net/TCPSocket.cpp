@@ -382,30 +382,6 @@ bool TCPSocket::readyToRead(chrono::milliseconds timeout)
     return m_reader.availableBytes() > 0 || BaseSocket::readyToRead(timeout);
 }
 
-size_t TCPSocket::readLine(char* buffer, size_t size, char delimiter)
-{
-    return m_reader.read((uint8_t*) buffer, size, delimiter, true);
-}
-
-size_t TCPSocket::readLine(Buffer& buffer, char delimiter)
-{
-    return m_reader.readLine(buffer, delimiter);
-}
-
-size_t TCPSocket::readLine(String& str, char delimiter)
-{
-    m_reader.readLine(m_stringBuffer, delimiter);
-    if (m_stringBuffer.empty())
-    {
-        str = "";
-    }
-    else
-    {
-        str.assign(m_stringBuffer.c_str(), m_stringBuffer.bytes() - 1);
-    }
-    return m_stringBuffer.bytes();
-}
-
 size_t TCPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     return m_reader.read(buffer, size, 0, false, from);

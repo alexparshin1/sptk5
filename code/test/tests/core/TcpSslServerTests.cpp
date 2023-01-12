@@ -28,6 +28,7 @@
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerListener.h>
 
+#include "sptk5/net/SocketReader.h"
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -40,14 +41,16 @@ static constexpr uint16_t testSslEchoServerPort = 3002;
 
 static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
+    SocketReader reader(socket);
+
     Buffer data;
     while (!task.terminated())
     {
         try
         {
-            if (socket.readyToRead(chrono::seconds(1)))
+            if (reader.readyToRead(chrono::seconds(1)))
             {
-                if (socket.readLine(data) == 0)
+                if (reader.readLine(data) == 0)
                 {
                     return;
                 }
@@ -121,6 +124,8 @@ TEST(SPTK_TCPServer, tcpMinimal)
         echoServer.listen(testTcpEchoServerPort);
 
         TCPSocket socket;
+        SocketReader socketReader(socket);
+
         socket.open(Host("localhost", testTcpEchoServerPort));
 
         Strings rows("Hello, World!\n"
@@ -134,9 +139,9 @@ TEST(SPTK_TCPServer, tcpMinimal)
         {
             socket.write(row + "\n");
             buffer.bytes(0);
-            if (socket.readyToRead(chrono::seconds(3)))
+            if (socketReader.readyToRead(chrono::seconds(3)))
             {
-                socket.readLine(buffer);
+                socketReader.readLine(buffer);
             }
             EXPECT_STREQ(row.c_str(), buffer.c_str());
             ++rowCount;
@@ -168,6 +173,8 @@ TEST(SPTK_TCPServer, sslMinimal)
         this_thread::sleep_for(smallDelay);
 
         SSLSocket socket;
+        SocketReader socketReader(socket);
+
         socket.open(Host("localhost", testSslEchoServerPort));
 
         Strings rows("Hello, World!\n"
@@ -181,9 +188,9 @@ TEST(SPTK_TCPServer, sslMinimal)
         {
             socket.write(row + "\n");
             buffer.bytes(0);
-            if (socket.readyToRead(chrono::seconds(3)))
+            if (socketReader.readyToRead(chrono::seconds(3)))
             {
-                socket.readLine(buffer);
+                socketReader.readLine(buffer);
             }
             EXPECT_STREQ(row.c_str(), buffer.c_str());
             ++rowCount;

@@ -211,35 +211,6 @@ public:
     bool readyToRead(std::chrono::milliseconds timeout) override;
 
     /**
-     * Reads one line from the socket into existing memory buffer
-     *
-     * The output string should fit the buffer or it will be returned incomplete.
-     * @param buffer            The destination buffer
-     * @param size              The destination buffer size
-     * @param delimiter         Line delimiter
-     * @returns the number of bytes read from the socket
-     */
-    [[deprecated("Use SocketReader instead")]] size_t readLine(char* buffer, size_t size, char delimiter = '\n');
-
-    /**
-     * Reads one line (terminated with CRLF) from the socket into existing memory buffer
-     *
-     * The memory buffer is extended automatically to fit the string.
-     * @param buffer            The destination buffer
-     * @param delimiter         Line delimiter
-     * @returns the number of bytes read from the socket
-     */
-    [[deprecated("Use SocketReader instead")]] size_t readLine(Buffer& buffer, char delimiter = '\n');
-
-    /**
-     * Reads one line (terminated with CRLF) from the socket into string
-     * @param str                 The destination string
-     * @param delimiter         Line delimiter
-     * @returns the number of bytes read from the socket
-     */
-    [[deprecated("Use SocketReader instead")]] size_t readLine(String& str, char delimiter = '\n');
-
-    /**
      * Reads data from the socket
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
