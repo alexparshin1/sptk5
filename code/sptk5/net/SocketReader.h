@@ -79,7 +79,7 @@ public:
     size_t read(Buffer& destination, size_t sz);
 
     /**
-     * Performs the buffered read of LF-terminated string
+     * Performs the buffered read of LF-terminated data
      * @param dest              Destination buffer
      * @param delimiter         Line delimiter
      * @returns bytes read from the internal buffer
@@ -111,7 +111,6 @@ public:
     [[nodiscard]] TCPSocket& socket();
 
 private:
-
     mutable std::mutex m_mutex; ///< Mutex protecting read operations
     TCPSocket& m_socket;        ///< Socket to read from
     uint32_t m_readOffset {0};  ///< Current offset in the read buffer
