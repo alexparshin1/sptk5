@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,21 +38,21 @@ namespace sptk {
  */
 class ReadBuffer : public Buffer
 {
-    size_t  m_readOffset {0};   ///< read offset
+    size_t m_readOffset {0}; ///< read offset
 
     /**
      * Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size
      */
     void compact()
     {
-        if (m_readOffset >= bytes() * 3 / 4) {
+        if (m_readOffset >= bytes() * 3 / 4)
+        {
             erase(0, m_readOffset);
             m_readOffset = 0;
         }
     }
 
 public:
-
     using Buffer::Buffer;
 
     /**
@@ -60,7 +60,7 @@ public:
      * @param data              Data
      * @return true if read was successful
      */
-    template <typename T>
+    template<typename T>
     bool read(T& data)
     {
         return read((uint8_t*) &data, sizeof(T));
@@ -126,4 +126,4 @@ public:
     }
 };
 
-}
+} // namespace sptk

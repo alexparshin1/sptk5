@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -97,7 +97,6 @@ class SP_EXPORT CBaseListBox
     static void comboButtonPressed(Fl_Widget* btn, void* data);
 
 protected:
-
     /**
      * Drop down window - CComboBox only
      */
@@ -176,7 +175,7 @@ protected:
      * @param label, const char * label
      * @param mode int, IS_COMBO_BOX or IS_LIST_BOX - internal
      */
-    CBaseListBox(int x,int y,int w,int h,const char *label,int mode);
+    CBaseListBox(int x, int y, int w, int h, const char* label, int mode);
 #endif
 
     /**
@@ -190,7 +189,6 @@ protected:
     virtual void button_handle(uint32_t theButtonKind);
 
 public:
-
     /**
      * Clears the list view inside
      */
@@ -477,7 +475,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CComboBox(int x,int y,int w,int h,const char *label = 0);
+    CComboBox(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -535,7 +533,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CListBox(int,int,int,int,const char * = 0);
+    CListBox(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -560,4 +558,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

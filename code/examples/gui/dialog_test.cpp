@@ -4,7 +4,7 @@
 ║                       dialog_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -54,6 +54,7 @@ class CExampleDialog
 {
     xdoc::Document m_state;
     String m_stateFileName {"dialog_test.xml"};
+
 public:
     CExampleDialog()
         : CDialog(300, 260, "Example Dialog")
@@ -171,10 +172,7 @@ void dialog_cb(Fl_Widget*, void*)
     if (dialog.showModal())
     {
         COUT(
-            (String) dialog["company_name"] << ", has " <<
-                                            (int) dialog["company_size"] << " employees (" <<
-                                            (String) dialog["business_type"] << "), established " <<
-                                            (String) dialog["established"] << endl)
+            (String) dialog["company_name"] << ", has " << (int) dialog["company_size"] << " employees (" << (String) dialog["business_type"] << "), established " << (String) dialog["established"] << endl)
     }
 
     /// This saves the last known state of the dialog

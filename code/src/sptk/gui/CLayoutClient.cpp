@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,17 @@
 
 #include <sptk5/sptk.h>
 
+#include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
-#include <sptk5/gui/CControl.h>
 
 using namespace std;
 using namespace sptk;
 
 CLayoutClient::CLayoutClient(Fl_Widget* widget, int layoutSize, CLayoutAlign ca)
-    : m_layoutSize(layoutSize), m_widget(widget), m_layoutAlign(ca)
+    : m_layoutSize(layoutSize)
+    , m_widget(widget)
+    , m_layoutAlign(ca)
 {
     if (widget->label())
     {

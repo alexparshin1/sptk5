@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,10 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <gtest/gtest.h>
 #include <mutex>
 #include <sptk5/Printer.h>
 #include <sptk5/threads/Locks.h>
-#include <gtest/gtest.h>
 #include <sptk5/threads/Thread.h>
 
 using namespace std;

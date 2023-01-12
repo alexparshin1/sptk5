@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +31,9 @@ using namespace sptk;
 
 WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers,
                                            const String& staticFilesDirectory)
-    : WSProtocol(socket, headers), m_url(url), m_staticFilesDirectory(staticFilesDirectory)
+    : WSProtocol(socket, headers)
+    , m_url(url)
+    , m_staticFilesDirectory(staticFilesDirectory)
 {
 }
 

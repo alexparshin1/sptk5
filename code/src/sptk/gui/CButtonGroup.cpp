@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -51,10 +51,10 @@ CButtonGroup::CButtonGroup(const char* label, int layoutSize, CLayoutAlign layou
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CButtonGroup::CButtonGroup(int x,int y,int w,int h,const char *l)
-: CControl (x,y,w,h,l)
+CButtonGroup::CButtonGroup(int x, int y, int w, int h, const char* l)
+    : CControl(x, y, w, h, l)
 {
-   ctor_init();
+    ctor_init();
 }
 #endif
 
@@ -90,7 +90,9 @@ void CButtonGroup::buttons(const Strings& sl)
         if (si == "*")
         {
             if (otherLabel)
-            { continue; }  // Only one free entry is allowed
+            {
+                continue;
+            } // Only one free entry is allowed
             otherLabel = &m_buttonLabels[i];
         }
         else
@@ -121,7 +123,9 @@ Variant CButtonGroup::data() const
         Fl_Widget* w = group->child(i);
         auto* b = dynamic_cast<Fl_Button*>(w);
         if (!b)
-        { continue; }
+        {
+            continue;
+        }
         if (b->value())
         {
             if (b == m_otherButton)
@@ -145,7 +149,9 @@ int CButtonGroup::buttonIndex(const char* buttonLabel)
     {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
-        { continue; }
+        {
+            continue;
+        }
         if (strcmp(b->label(), buttonLabel) == 0)
         {
             return i;
@@ -162,7 +168,9 @@ void CButtonGroup::deselectAllButtons()
     {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
-        { continue; }
+        {
+            continue;
+        }
         b->value(0);
     }
 }
@@ -196,14 +204,18 @@ bool CButtonGroup::preferredSize(int& w, int& h)
     w += labelWidth();
     int hh = labelHeight();
     if (h < hh)
-    { h = hh; }
+    {
+        h = hh;
+    }
     return rc;
 }
 
 void CButtonGroup::load(Query* loadQuery)
 {
     if (!m_fieldName.length())
-    { return; }
+    {
+        return;
+    }
     Field& fld = (*loadQuery)[m_fieldName.c_str()];
     data(fld.asString());
 }
@@ -211,7 +223,9 @@ void CButtonGroup::load(Query* loadQuery)
 void CButtonGroup::save(Query* updateQuery)
 {
     if (!m_fieldName.length())
-    { return; }
+    {
+        return;
+    }
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
     param = data();
 }

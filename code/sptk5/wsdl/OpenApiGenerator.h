@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,23 +37,20 @@ namespace sptk {
 class SP_EXPORT OpenApiGenerator
 {
 public:
-
     /**
      * Authentication method
      */
-    enum class AuthMethod
-        : uint8_t
+    enum class AuthMethod : uint8_t
     {
-        NONE,        ///< No authentication
-        BASIC,       ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
-        BEARER       ///< Authorization: Bearer <token>
+        NONE,  ///< No authentication
+        BASIC, ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
+        BEARER ///< Authorization: Bearer <token>
     };
 
     /**
      * Generation options
      */
-    struct Options
-    {
+    struct Options {
         /**
          * Default authentication method, used by most operations
          */
@@ -96,7 +93,6 @@ public:
     static String authMethodName(AuthMethod auth);
 
 private:
-
     /**
      * Create component object of OpenAPI service description
      * @param document          Output JSON
@@ -119,11 +115,11 @@ private:
      */
     void createServers(xdoc::Document& document) const;
 
-    const String m_title;          ///< Service title
-    const String m_description;    ///< Service description
-    const String m_version;        ///< Service version
-    const Strings m_servers;        ///< Service servers
-    const Options m_options;        ///< Service options
+    const String m_title;       ///< Service title
+    const String m_description; ///< Service description
+    const String m_version;     ///< Service version
+    const Strings m_servers;    ///< Service servers
+    const Options m_options;    ///< Service options
 
     void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
 
@@ -132,4 +128,4 @@ private:
     void parseRestrictionPatterns(const xdoc::SNode& property, const SWSRestriction& restriction) const;
 };
 
-}
+} // namespace sptk

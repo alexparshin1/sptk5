@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <FL/Fl.H>
 #include <FL/Enumerations.H>
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/gui/CThemeImageCollection.h>
+#include <FL/Fl.H>
 #include <map>
+#include <sptk5/gui/CThemeImageCollection.h>
+#include <sptk5/xdoc/Node.h>
 #include <string>
 
 namespace sptk {
@@ -57,7 +57,6 @@ enum CThemeScrollBarType
 class SP_EXPORT CScrollBarImages
 {
 public:
-
     /**
      * @brief Type of the scroll bar image
      */
@@ -198,4 +197,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

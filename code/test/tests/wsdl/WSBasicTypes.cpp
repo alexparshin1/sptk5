@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,11 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <gtest/gtest.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSArray.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/xdoc/Document.h>
-#include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <vector>
 #include <sptk5/Loop.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/TCPSocket.h>
+#include <vector>
 
 namespace sptk {
 
@@ -56,4 +56,4 @@ public:
     ~LoadBalance() override = default;
 };
 
-}
+} // namespace sptk

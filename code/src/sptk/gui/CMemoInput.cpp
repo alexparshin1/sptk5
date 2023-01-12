@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/gui/CMemoInput.h>
 #include <sptk5/gui/CEditor.h>
+#include <sptk5/gui/CMemoInput.h>
 
 using namespace sptk;
 
@@ -52,8 +52,9 @@ CMemoInput::CMemoInput(const char* label, int layoutSize, CLayoutAlign layoutAli
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CMemoInput::CMemoInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label,false) {
+CMemoInput::CMemoInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label, false)
+{
     ctor_init();
 }
 #endif

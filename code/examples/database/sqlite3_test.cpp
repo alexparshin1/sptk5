@@ -4,7 +4,7 @@
 ║                       sqlite3_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/cdatabase>
 #include <sptk5/db/SQLite3Connection.h>
-#include <sptk5/Printer.h>
 
 #include <iomanip>
 
@@ -37,32 +37,44 @@ using namespace sptk;
 
 int testTransactions(DatabaseConnection db, const String& tableName, bool rollback)
 {
-    try {
+    try
+    {
         Query step5Query(db, "DELETE FROM " + tableName);
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
-        COUT(endl << "        Begining the transaction ..")
+        COUT(endl
+             << "        Begining the transaction ..")
         db->beginTransaction();
-        COUT(endl << "        Deleting everything from the temp table ..")
+        COUT(endl
+             << "        Deleting everything from the temp table ..")
         step5Query.exec();
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT(endl << "        The temp table now has " << counter << " records ..")
+        COUT(endl
+             << "        The temp table now has " << counter << " records ..")
 
-        if (rollback) {
-            COUT(endl << "        Rolling back the transaction ..")
+        if (rollback)
+        {
+            COUT(endl
+                 << "        Rolling back the transaction ..")
             db->rollbackTransaction();
-        } else {
-            COUT(endl << "        Commiting the transaction ..")
+        }
+        else
+        {
+            COUT(endl
+                 << "        Commiting the transaction ..")
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT(endl << "        The temp table now has " << counter << " records.." << endl)
-    } catch (const Exception& e) {
+        COUT(endl
+             << "        The temp table now has " << counter << " records.." << endl)
+    }
+    catch (const Exception& e)
+    {
         CERR("Error: " << e.what() << endl)
     }
 
@@ -74,7 +86,8 @@ int main()
     DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
     DatabaseConnection db = connectionPool.getConnection();
 
-    try {
+    try
+    {
         COUT("Openning the database.. ")
         db->open();
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
@@ -132,7 +145,8 @@ int main()
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             // getting data from the query by the field name
             int64_t id = step3Query["id"].asInt64();
@@ -157,7 +171,8 @@ int main()
         Field& nameField = step3Query["name"];
         Field& positionField = step3Query["position"];
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             int id = idField.asInteger();
             string name = nameField.asString();
@@ -179,7 +194,9 @@ int main()
         COUT("Ok.\nStep 6: Closing the database.. ")
         db->close();
         COUT("Ok." << endl)
-    } catch (const Exception& e) {
+    }
+    catch (const Exception& e)
+    {
         CERR("\nError: " << e.what() << endl)
         CERR("Sorry, you have to fix your database or database connection." << endl)
         CERR("Please, read the README.txt for more information." << endl)

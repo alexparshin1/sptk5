@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +27,8 @@
 #pragma once
 
 #include <FL/Fl_Scrollbar.H>
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CLayoutClient.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -41,7 +41,8 @@ namespace sptk {
  * Extended version of Scroll Bar - to add theme support
  */
 class SP_EXPORT CScrollBar
-    : public Fl_Scrollbar, public CLayoutClient
+    : public Fl_Scrollbar
+    , public CLayoutClient
 {
     /**
      * flag to detect pushed button
@@ -49,7 +50,6 @@ class SP_EXPORT CScrollBar
     int m_pushed {0};
 
 protected:
-
     /**
      * Custom draw method to support SPTK themes
      */
@@ -62,7 +62,8 @@ public:
      * @param layoutAlign CLayoutAlign, widget align in layout
      */
     CScrollBar(int layoutSize = 16, CLayoutAlign layoutAlign = CLayoutAlign::RIGHT)
-        : Fl_Scrollbar(0, 0, 10, 10), CLayoutClient(this, layoutSize, layoutAlign)
+        : Fl_Scrollbar(0, 0, 10, 10)
+        , CLayoutClient(this, layoutSize, layoutAlign)
     {
     }
 
@@ -74,7 +75,8 @@ public:
      * @param h int, height
      */
     CScrollBar(int x, int y, int w, int h)
-        : Fl_Scrollbar(x, y, w, h), CLayoutClient(this, 10, CLayoutAlign::NONE)
+        : Fl_Scrollbar(x, y, w, h)
+        , CLayoutClient(this, 10, CLayoutAlign::NONE)
     {
     }
 
@@ -102,4 +104,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

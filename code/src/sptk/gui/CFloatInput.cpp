@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,8 +41,9 @@ CFloatInput::CFloatInput(const char* label, int layoutSize, CLayoutAlign layoutA
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CFloatInput::CFloatInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label) {
+CFloatInput::CFloatInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label)
+{
     controlType(FL_FLOAT_INPUT);
     m_minValue = m_maxValue = 0;
     m_decimalPlaces = 4;

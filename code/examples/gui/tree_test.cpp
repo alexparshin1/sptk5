@@ -4,7 +4,7 @@
 ║                       tree_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,10 +33,10 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/db/CSQLite3Connection.h>
+#include <math.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cgui>
-#include <math.h>
+#include <sptk5/db/CSQLite3Connection.h>
 
 using namespace std;
 using namespace sptk;
@@ -73,6 +73,7 @@ protected:
     CTreeItem* m_treeItem;
     CBox* m_title;
     CGroup* m_titleGroup;
+
 public:
     static CLayoutClient* itemCreator(CTreeItem* item);
 
@@ -106,6 +107,7 @@ class CFileListTreeItem
     CSmallButton* m_cancel;
     CBox* m_publishDateBox;
     DateTime m_publishDate;
+
 public:
     static CLayoutClient* itemCreator(CTreeItem* item);
 
@@ -209,6 +211,7 @@ class CFileManager
 {
     CFileListTreeHeader* m_header;
     CFileManagerTree* m_tree;
+
 public:
     CFileManager(const char* label = "", int layoutSize = 50, CLayoutAlign layoutAlign = CLayoutAlign::CLIENT)
         : CGroup(label, layoutSize, layoutAlign)
@@ -419,8 +422,7 @@ void theme_cb(Fl_Widget* w, void*)
         {
             std::string themeName = themesCombo->data();
 
-            CThemes::set
-                (themeName);
+            CThemes::set(themeName);
 
             CWindow* window = (CWindow*) w->window();
             window->relayout();
@@ -455,8 +457,7 @@ int CFileManagerTree::compareFileItems(const void* ti1, const void* ti2)
             case 0:
                 rc = strcmp(fileItem1->title().c_str(), fileItem2->title().c_str());
                 break;
-            case 1:
-            {
+            case 1: {
                 int64_t rcl = fileItem1->fileSize() - fileItem2->fileSize();
                 if (rcl > 0)
                 {
@@ -471,12 +472,11 @@ int CFileManagerTree::compareFileItems(const void* ti1, const void* ti2)
                     rc = 0;
                 }
             }
-                break;
+            break;
             case 2:
                 rc = strcmp(fileItem1->publisher().c_str(), fileItem2->publisher().c_str());
                 break;
-            case 3:
-            {
+            case 3: {
                 double rcd = fileItem1->publishDate() - fileItem2->publishDate();
                 if (rcd > 0)
                 {
@@ -491,14 +491,15 @@ int CFileManagerTree::compareFileItems(const void* ti1, const void* ti2)
                     rc = 0;
                 }
             }
-                break;
+            break;
             case 4:
                 rc = fileItem1->progress() - fileItem2->progress();
                 break;
         }
     }
     catch (...)
-    {}
+    {
+    }
     if (compareSortInverse)
     {
         return -rc;
@@ -530,7 +531,8 @@ void CFileManagerTree::sortFiles(CTreeItem* parentItem, unsigned column)
 }
 
 CFileManagerTree::CFileManagerTree(CFileListTreeHeader* header)
-    : CTreeControl("", 10, CLayoutAlign::CLIENT), m_db("local.db")
+    : CTreeControl("", 10, CLayoutAlign::CLIENT)
+    , m_db("local.db")
 {
     m_header = header;
     end();
@@ -630,7 +632,8 @@ void stripeFileItems(CTreeItem* treeItem)
             index++;
         }
         catch (...)
-        {}
+        {
+        }
     }
 }
 
@@ -674,7 +677,8 @@ void CFileManagerTree::sortFiles(unsigned column)
             }
         }
         catch (...)
-        {}
+        {
+        }
 
         if (file->isFolder())
         {

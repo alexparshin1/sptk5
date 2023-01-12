@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Box.H>
-#include <sptk5/gui/CPopupWindow.h>
+#include <FL/Fl_Double_Window.H>
 #include <sptk5/gui/CDBListView.h>
+#include <sptk5/gui/CPopupWindow.h>
 
 namespace sptk {
 
@@ -50,7 +50,6 @@ class SP_EXPORT CDBDropDownListView : public CDBListView
 {
 
 protected:
-
     /**
      * Internal mouse click callback
      */
@@ -62,7 +61,6 @@ protected:
     void onExit() override;
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label             Label
@@ -70,8 +68,9 @@ public:
      * @param layoutAlign       Widget align in layout
      */
     CDBDropDownListView(const char* label, int layoutSize, CLayoutAlign layoutAlign)
-            : CDBListView(label, layoutSize, layoutAlign)
-    {}
+        : CDBListView(label, layoutSize, layoutAlign)
+    {
+    }
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -81,9 +80,11 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    CDBDropDownListView(int x,int y,int w,int h) : CDBListView(x,y,w,h) {}
+    CDBDropDownListView(int x, int y, int w, int h)
+        : CDBListView(x, y, w, h)
+    {
+    }
 #endif
-
 };
 
 /**
@@ -136,4 +137,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

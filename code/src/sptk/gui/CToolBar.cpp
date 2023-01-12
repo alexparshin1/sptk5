@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,8 +44,9 @@ CToolBar::CToolBar(CLayoutAlign layoutAlignment)
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CToolBar::CToolBar(int x,int y,int w,int h)
-        : CGroup(x, y, w, h) {
+CToolBar::CToolBar(int x, int y, int w, int h)
+    : CGroup(x, y, w, h)
+{
     m_colapsed = false;
     layoutSpacing(3);
     box(FL_UP_BOX);

@@ -4,7 +4,7 @@
 ║                       combo_test.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -61,7 +61,7 @@ void exit_cb(Fl_Widget* w, void*)
 
 void combo_cb(Fl_Widget* w, void*)
 {
-    auto* control = dynamic_cast<CControl*> (w);
+    auto* control = dynamic_cast<CControl*>(w);
     if (!control)
     {
         return;
@@ -69,31 +69,31 @@ void combo_cb(Fl_Widget* w, void*)
     switch (control->eventType())
     {
         case CEvent::FOCUS:
-        COUT("Got focus" << endl)
+            COUT("Got focus" << endl)
             break;
         case CEvent::UNFOCUS:
-        COUT("Lost focus" << endl)
+            COUT("Lost focus" << endl)
             break;
         case CEvent::DATA_CHANGED:
-        COUT("Data Changed" << endl)
+            COUT("Data Changed" << endl)
             break;
         case CEvent::ADD_ITEM:
-        COUT("Add Item Command" << endl)
+            COUT("Add Item Command" << endl)
             break;
         case CEvent::EDIT_ITEM:
-        COUT("Edit Item Command" << endl)
+            COUT("Edit Item Command" << endl)
             break;
         case CEvent::DELETE_ITEM:
-        COUT("Delete Item Command" << endl)
+            COUT("Delete Item Command" << endl)
             break;
         case CEvent::MOUSE_CLICK:
-        COUT("Mouse Click" << endl)
+            COUT("Mouse Click" << endl)
             break;
         case CEvent::MOUSE_DOUBLE_CLICK:
-        COUT("Mouse Double Click" << endl)
+            COUT("Mouse Double Click" << endl)
             break;
         case CEvent::KEYBOARD:
-        COUT("Keyboard Key Pressed" << endl)
+            COUT("Keyboard Key Pressed" << endl)
             break;
         default:
             break;

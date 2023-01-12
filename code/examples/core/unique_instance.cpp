@@ -4,7 +4,7 @@
 ║                       unique_instance.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,31 +29,34 @@
 // This example shows how to create "unique instance" application.
 // Such application may only have one process running simultaneously on the same computer.
 
-#include <sptk5/cutils>
 #include <sptk5/UniqueInstance.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
 int main()
 {
-   // Define the unique-instance name
-   UniqueInstance instance("mytest");
+    // Define the unique-instance name
+    UniqueInstance instance("mytest");
 
-   if (instance.isUnique()) {
-      COUT("-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl)
-      COUT("To test it, try to start another copy of application while" << endl)
-      COUT("the first copy is still running. Type 'end' to exit test." << endl)
+    if (instance.isUnique())
+    {
+        COUT("-------- Test for UNIQUE APPLICATION INSTANCE ------------" << endl)
+        COUT("To test it, try to start another copy of application while" << endl)
+        COUT("the first copy is still running. Type 'end' to exit test." << endl)
 
-      // Unique instance, wait here
-      char buffer[128];
-      do {
-         cin.getline(buffer, sizeof(buffer) - 2);
-         if (strstr(buffer, "end") != nullptr)
-            break;
-      } while (strstr(buffer, "end") == nullptr);
-   } else
-      COUT("Another instance of the program is running. Exiting." << endl)
+        // Unique instance, wait here
+        char buffer[128];
+        do
+        {
+            cin.getline(buffer, sizeof(buffer) - 2);
+            if (strstr(buffer, "end") != nullptr)
+                break;
+        } while (strstr(buffer, "end") == nullptr);
+    }
+    else
+        COUT("Another instance of the program is running. Exiting." << endl)
 
-   return 0;
+    return 0;
 }

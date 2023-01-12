@@ -4,7 +4,7 @@
 ║                       jwt_test.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Monday Feb 12 2017                                     ║
-║  copyright            (C) 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            (C) 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,8 +32,8 @@
 
 #include <ctime>
 
-#include <sptk5/cutils>
 #include <sptk5/JWT.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -383,25 +383,37 @@ bool test_encode_hs256_decode()
     return true;
 }
 
-#define run_test(test_name) { cout << setw(40) << left << string(#test_name) + ": "; try { test_name(); cout << "Ok" << endl; } catch (const Exception& e) { cout << e.what() << endl; } }
+#define run_test(test_name)                                    \
+    {                                                          \
+        cout << setw(40) << left << string(#test_name) + ": "; \
+        try                                                    \
+        {                                                      \
+            test_name();                                       \
+            cout << "Ok" << endl;                              \
+        }                                                      \
+        catch (const Exception& e)                             \
+        {                                                      \
+            cout << e.what() << endl;                          \
+        }                                                      \
+    }
 
 int main()
 {
     try
     {
         run_test(test_dup)
-        run_test(test_dup_signed)
-        run_test(test_decode)
-        run_test(test_decode_invalid_alg)
-        run_test(test_decode_invalid_typ)
-        run_test(test_decode_invalid_head)
-        run_test(test_decode_alg_none_with_key)
-        run_test(test_decode_invalid_body)
-        run_test(test_decode_invalid_final_dot)
-        run_test(test_decode_hs256)
-        run_test(test_decode_hs384)
-        run_test(test_decode_hs512)
-        run_test(test_encode_hs256_decode)
+            run_test(test_dup_signed)
+                run_test(test_decode)
+                    run_test(test_decode_invalid_alg)
+                        run_test(test_decode_invalid_typ)
+                            run_test(test_decode_invalid_head)
+                                run_test(test_decode_alg_none_with_key)
+                                    run_test(test_decode_invalid_body)
+                                        run_test(test_decode_invalid_final_dot)
+                                            run_test(test_decode_hs256)
+                                                run_test(test_decode_hs384)
+                                                    run_test(test_decode_hs512)
+                                                        run_test(test_encode_hs256_decode)
     }
     catch (const Exception& e)
     {

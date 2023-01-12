@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -219,8 +219,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    [[deprecated("Use SocketReader instead")]]
-    size_t readLine(char* buffer, size_t size, char delimiter = '\n');
+    [[deprecated("Use SocketReader instead")]] size_t readLine(char* buffer, size_t size, char delimiter = '\n');
 
     /**
      * Reads one line (terminated with CRLF) from the socket into existing memory buffer
@@ -230,8 +229,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    [[deprecated("Use SocketReader instead")]]
-    size_t readLine(Buffer& buffer, char delimiter = '\n');
+    [[deprecated("Use SocketReader instead")]] size_t readLine(Buffer& buffer, char delimiter = '\n');
 
     /**
      * Reads one line (terminated with CRLF) from the socket into string
@@ -239,8 +237,7 @@ public:
      * @param delimiter         Line delimiter
      * @returns the number of bytes read from the socket
      */
-    [[deprecated("Use SocketReader instead")]]
-    size_t readLine(String& str, char delimiter = '\n');
+    [[deprecated("Use SocketReader instead")]] size_t readLine(String& str, char delimiter = '\n');
 
     /**
      * Reads data from the socket

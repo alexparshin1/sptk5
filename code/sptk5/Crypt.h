@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,7 @@
 
 #include <sptk5/Buffer.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * Simple wrapper for OpenSSL encryption functions
@@ -56,4 +55,4 @@ public:
     static void decrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv);
 };
 
-}
+} // namespace sptk

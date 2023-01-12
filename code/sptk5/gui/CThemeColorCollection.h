@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <FL/Fl.H>
 #include <FL/Enumerations.H>
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/gui/CThemeImageState.h>
+#include <FL/Fl.H>
 #include <map>
-#include <string>
+#include <sptk5/gui/CThemeImageState.h>
 #include <sptk5/xdoc/Document.h>
+#include <sptk5/xdoc/Node.h>
+#include <string>
 
 namespace sptk {
 
@@ -193,4 +193,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

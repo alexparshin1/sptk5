@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2022 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/gui/CWindow.h>
 #include <FL/fl_draw.H>
+#include <sptk5/gui/CWindow.h>
 
 #ifndef _WIN32
 
@@ -36,10 +36,10 @@
 using namespace std;
 using namespace sptk;
 
-#define TOP_EDGE    1
+#define TOP_EDGE 1
 #define BOTTOM_EDGE 2
-#define LEFT_EDGE   4
-#define RIGHT_EDGE  8
+#define LEFT_EDGE 4
+#define RIGHT_EDGE 8
 
 CWindowShape::CWindowShape(CWindow* window)
     : m_window(window)
@@ -65,9 +65,10 @@ void CWindowShape::shapeApply()
     {
         CShapePoint* array = &m_shapePoints[0];
 #ifdef _WIN32
-        HRGN region = CreatePolygonRgn((CONST POINT*)array, (int) m_shapePoints.size(), WINDING);
+        HRGN region = CreatePolygonRgn((CONST POINT*) array, (int) m_shapePoints.size(), WINDING);
         SetWindowRgn(fl_xid(m_window), region, TRUE);
-        if (!m_borderCleared) {
+        if (!m_borderCleared)
+        {
             //ShowWindow(fl_xid(m_window),SW_HIDE);
             LONG style = GetWindowLong(fl_xid(m_window), GWL_EXSTYLE);
             style |= WS_EX_APPWINDOW;
@@ -98,7 +99,6 @@ void CWindowShape::shapeApply()
             XDestroyRegion(region);
         }
 #endif
-
     }
     m_shapeChanged = false;
 }
