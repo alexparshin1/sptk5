@@ -75,11 +75,6 @@ void SocketReader::handleReadFromSocketError(int error)
 
 int32_t SocketReader::readFromSocket()
 {
-    if (!m_socket.active())
-    {
-        return 0;
-    }
-
     m_readOffset = 0;
     int error {0};
     do

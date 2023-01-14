@@ -72,10 +72,10 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
 }
 
 static const size_t packetsInTest = 100000;
+static const size_t packetSize = 50;
 
 static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
-    const size_t packetSize = 50;
     const uint8_t eightBits = 255;
     Buffer data(packetSize);
 
@@ -129,11 +129,11 @@ TEST(SPTK_TCPServer, tcpMinimal)
 
         socket.open(Host("localhost", testTcpEchoServerPort));
 
-        Strings rows("Hello, World!\n"
-                     "This is a test of TCPServer class.\n"
-                     "Using simple echo server to verify data flow.\n"
-                     "The session is terminated when this row is received",
-                     "\n");
+        const Strings rows("Hello, World!\n"
+                           "This is a test of TCPServer class.\n"
+                           "Using simple echo server to verify data flow.\n"
+                           "The session is terminated when this row is received",
+                           "\n");
 
         int rowCount = 0;
         for (const auto& row: rows)
@@ -178,11 +178,11 @@ TEST(SPTK_TCPServer, sslMinimal)
 
         socket.open(Host("localhost", testSslEchoServerPort));
 
-        Strings rows("Hello, World!\n"
-                     "This is a test of TCPServer class.\n"
-                     "Using simple echo server to verify data flow.\n"
-                     "The session is terminated when this row is received",
-                     "\n");
+        const Strings rows("Hello, World!\n"
+                           "This is a test of TCPServer class.\n"
+                           "Using simple echo server to verify data flow.\n"
+                           "The session is terminated when this row is received",
+                           "\n");
 
         int rowCount = 0;
         for (const auto& row: rows)
@@ -217,7 +217,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         TCPSocket socket;
         socket.open(Host("localhost", testTcpEchoServerPort));
 
-        constexpr size_t readSize {50};
+        constexpr size_t readSize {packetSize};
         auto readBuffer = make_shared<Buffer>(readSize);
 
         size_t packetCount = 0;
@@ -261,7 +261,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
 
     size_t packetCount = 0;
 
-    constexpr size_t readSize {50};
+    constexpr size_t readSize {packetSize};
     StopWatch stopWatch;
     String failReason;
 
@@ -306,6 +306,63 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
     if (!failReason.empty())
     {
         FAIL() << failReason;
+    }
+}
+
+TEST(SPTK_TCPServer, tcpTransferReaderPerformance)
+{
+    try
+    {
+        TCPServer pushTcpServer("Performance Test Server", ServerConnection::Type::TCP);
+        pushTcpServer.onConnection(performanceTestFunction);
+        pushTcpServer.listen(testTcpEchoServerPort);
+
+        TCPSocket socket;
+        const size_t readerBufferSize = 1024;
+        SocketReader socketReader(socket, readerBufferSize);
+        socket.open(Host("localhost", testTcpEchoServerPort));
+
+        constexpr size_t readSize {packetSize};
+        auto readBuffer = make_shared<Buffer>(readSize);
+
+        size_t packetCount = 0;
+
+        StopWatch stopWatch;
+        stopWatch.start();
+
+        auto* readBufferPtr = readBuffer->data();
+        while (packetCount < packetsInTest)
+        {
+            if (socketReader.read(readBufferPtr, 1) != 1)
+            {
+                COUT("Incomplete read" << endl)
+                break;
+            }
+            if (socketReader.read(readBufferPtr, 3) != 3)
+            {
+                COUT("Incomplete read" << endl)
+                break;
+            }
+            if (socketReader.read(readBufferPtr, readSize - 4) != readSize - 4)
+            {
+                COUT("Incomplete read" << endl)
+                break;
+            }
+            ++packetCount;
+        }
+
+        readBuffer.reset();
+
+        stopWatch.stop();
+
+        COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
+                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+
+        socket.close();
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
     }
 }
 
