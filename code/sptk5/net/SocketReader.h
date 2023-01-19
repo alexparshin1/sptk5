@@ -79,6 +79,18 @@ public:
     size_t read(Buffer& destination, size_t sz);
 
     /**
+     * Performs the buffered read
+     * @param destination       Destination buffer
+     * @param sz                Size of the destination buffer
+     * @returns bytes read from the internal buffer
+     */
+    template<typename T>
+    size_t read(T& destination)
+    {
+        return read(&destination, sizeof(T));
+    }
+
+    /**
      * Performs the buffered read of LF-terminated data
      * @param dest              Destination buffer
      * @param delimiter         Line delimiter
