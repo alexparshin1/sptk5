@@ -403,12 +403,6 @@ public:
         return write(buffer, nullptr);
     }
 
-    template<typename T>
-    size_t write(T& value)
-    {
-        return write((uint8_t*) &value, sizeof(T));
-    }
-
     /**
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
