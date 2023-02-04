@@ -109,8 +109,9 @@ protected:
     /**
      * Assign new socket
      * @param socket            Socket to assign
+     * @return previous socket
      */
-    void setSocket(const STCPSocket& socket);
+    STCPSocket setSocket(const STCPSocket& socket);
 
     void parseAddress(const sockaddr_in* connectionAddress);
 

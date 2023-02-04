@@ -50,10 +50,12 @@ TCPSocket& ServerConnection::socket() const
     return *m_socket;
 }
 
-void ServerConnection::setSocket(const STCPSocket& socket)
+STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 {
     scoped_lock lock(m_mutex);
+    auto priorSocket = m_socket;
     m_socket = socket;
+    return priorSocket;
 }
 
 TCPServer& ServerConnection::server() const
