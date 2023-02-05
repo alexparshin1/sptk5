@@ -30,24 +30,43 @@
 
 namespace sptk {
 
+/**
+ * @brief Simple binary semaphore used to control threads
+ */
 class CancellationToken
 {
 public:
+    /**
+     * @brief Reset state to not cancelled
+     */
+    void reset()
+    {
+        std::scoped_lock lock(m_mutex);
+        m_cancelled = false;
+    }
+
+    /**
+     * @brief Set state to cancelled
+     */
     void cancel()
     {
         std::scoped_lock lock(m_mutex);
-        m_value = false;
+        m_cancelled = true;
     }
 
+    /**
+     * @brief Check state
+     * @return true if cancelled
+     */
     bool isCancelled() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_value;
+        return m_cancelled;
     }
 
 private:
-    mutable std::mutex m_mutex;
-    bool m_value {false};
+    mutable std::mutex m_mutex; ///< Mutex that protects state
+    bool m_cancelled {false};
 };
 
 } // namespace sptk

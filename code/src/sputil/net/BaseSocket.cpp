@@ -196,7 +196,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
         THROW_SOCKET_ERROR("Can't create socket");
 
     int result = 0;
-    string currentOperation;
+    const char* currentOperation = "open socket";
 
     switch (openMode)
     {

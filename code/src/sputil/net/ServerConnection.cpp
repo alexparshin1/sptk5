@@ -64,7 +64,7 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, Type type, const sockaddr_in* connectionAddress,
+ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
                                    const String& taskName, const ServerConnection::Function& connectionFunction)
     : Runable(taskName)
     , m_server(server)

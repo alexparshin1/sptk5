@@ -68,12 +68,11 @@ public:
     /**
      * Constructor
      * @param server            Server that created this connection
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
      * @param connectionFunction Connection function processing this connection
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, Type type, const sockaddr_in* connectionAddress,
-                     const String& taskName, const ServerConnection::Function& connectionFunction = {});
+    ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
+                     const String& taskName = "ServerConnection", const ServerConnection::Function& connectionFunction = {});
 
     /**
      * Access to internal socket for derived classes

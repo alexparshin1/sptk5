@@ -29,9 +29,8 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
-                           WSServices& services, LogEngine& logEngine, const Options& options)
-    : ServerConnection(server, connectionSocket, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
+WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, const Options& options)
+    : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
     , m_services(services)
     , m_logger(logEngine, "(" + to_string(serial()) + ") ")
     , m_options(options)
@@ -320,7 +319,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr,
                                  WSServices& services,
                                  LogEngine& logEngine, const Options& options)
-    : WSConnection(server, connectionSocket, addr, services, logEngine, options)
+    : WSConnection(server, addr, services, logEngine, options)
 {
     if (options.encrypted)
     {

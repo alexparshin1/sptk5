@@ -51,7 +51,7 @@ public:
      * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
      */
     SSLServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
-        : ServerConnection(server, connectionSocket, ServerConnection::Type::SSL, connectionAddress, "SSLServerConnection", connectionFunction)
+        : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "SSLServerConnection", connectionFunction)
     {
         auto sslSocket = std::make_shared<SSLSocket>();
         setSocket(sslSocket);
