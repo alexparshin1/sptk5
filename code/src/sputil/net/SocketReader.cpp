@@ -76,12 +76,11 @@ void SocketReader::handleReadFromSocketError(int error)
 int32_t SocketReader::readFromSocket()
 {
     m_readOffset = 0;
-    int error {0};
+    int error;
     do
     {
         error = 0;
         auto receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
-
         if (receivedBytes == -1)
         {
             bytes(0);
@@ -230,7 +229,7 @@ size_t SocketReader::availableBytes() const
 {
     scoped_lock lock(m_mutex);
     auto available = bytes() - m_readOffset;
-    if (available == 0 && readyToRead(chrono::milliseconds(0)))
+    if (available == 0) // && readyToRead(chrono::milliseconds(0)))
     {
         available = m_socket.socketBytes();
     }
