@@ -165,6 +165,10 @@ size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
         if (receivedBytes == -1)
         {
             receivedBytes = 0;
+            if (!active())
+            {
+                break;
+            }
             error = errno;
             handleReadFromSocketError(error);
         }

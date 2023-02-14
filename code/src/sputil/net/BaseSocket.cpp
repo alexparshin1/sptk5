@@ -442,6 +442,12 @@ constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
 bool BaseSocket::readyToRead(chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
+
+    if (m_sockfd == INVALID_SOCKET)
+    {
+        return false;
+    }
+
 #ifdef _WIN32
     WSAPOLLFD fdarray {};
     fdarray.fd = m_sockfd;
