@@ -77,7 +77,7 @@ void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, 
 
     if (proxy() != nullptr)
     {
-        SOCKET fd = proxy()->connect(host(), _blockingMode, timeout);
+        const SOCKET fd = proxy()->connect(host(), _blockingMode, timeout);
         attach(fd, false);
     }
     else
@@ -128,16 +128,6 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
     }
 
     return false;
-}
-
-size_t TCPSocket::socketBytes()
-{
-    return BaseSocket::socketBytes();
-}
-
-bool TCPSocket::readyToRead(chrono::milliseconds timeout)
-{
-    return BaseSocket::readyToRead(timeout);
 }
 
 size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
@@ -195,5 +185,5 @@ size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
 
 void TCPSocket::setProxy(shared_ptr<Proxy> proxy)
 {
-    m_proxy = move(proxy);
+    m_proxy = std::move(proxy);
 }

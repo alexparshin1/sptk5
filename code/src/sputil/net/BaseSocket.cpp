@@ -119,7 +119,7 @@ void BaseSocket::blockingMode(bool blocking)
     {
         flags |= O_NONBLOCK;
     }
-    int result = fcntl(m_sockfd, F_SETFL, flags);
+    const int result = fcntl(m_sockfd, F_SETFL, flags);
 #endif
     if (result != 0)
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
@@ -132,9 +132,9 @@ size_t BaseSocket::socketBytes()
     uint32_t bytes = 0;
     if (
 #ifdef _WIN32
-        int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+        const int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
 #else
-        int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
+        const int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
         result < 0)
         THROW_SOCKET_ERROR("Can't get socket bytes");
@@ -372,7 +372,7 @@ size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
-    size_t bytes = read(buffer.data(), size, from);
+    const size_t bytes = read(buffer.data(), size, from);
     if (bytes != size)
     {
         buffer.bytes(bytes);
@@ -383,7 +383,7 @@ size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     Buffer buff(size);
-    size_t bytes = read(buff.data(), size, from);
+    const size_t bytes = read(buff.data(), size, from);
     buffer.assign(buff.c_str(), bytes);
     return bytes;
 }

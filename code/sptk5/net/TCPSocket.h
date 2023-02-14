@@ -111,17 +111,6 @@ public:
     [[nodiscard]] virtual bool accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
 
     /**
-     * Returns number of bytes available in socket
-     */
-    size_t socketBytes() override;
-
-    /**
-     * Reports true if socket is ready for reading from it
-     * @param timeout           Read timeout
-     */
-    bool readyToRead(std::chrono::milliseconds timeout) override;
-
-    /**
      * Reads data from the socket
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
