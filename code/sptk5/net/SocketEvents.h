@@ -77,6 +77,12 @@ public:
     void remove(BaseSocket& socket);
 
     /**
+     * Check if socket is already being monitored
+     * @param socket	            Socket to check
+     */
+    bool has(BaseSocket& socket);
+
+    /**
      * Stop socket events manager and wait until it joins.
      */
     void stop();

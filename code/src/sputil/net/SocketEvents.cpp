@@ -83,6 +83,11 @@ void SocketEvents::remove(BaseSocket& socket)
     m_socketPool.forgetSocket(socket);
 }
 
+bool SocketEvents::has(BaseSocket& socket)
+{
+    return m_socketPool.hasSocket(socket);
+}
+
 void SocketEvents::threadFunction()
 {
     m_socketPool.open();

@@ -121,6 +121,14 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     }
 }
 
+bool SocketPool::hasSocket(BaseSocket& socket)
+{
+    scoped_lock lock(*this);
+
+    auto itor = m_socketData.find(&socket);
+    return itor != m_socketData.end();
+}
+
 constexpr int MAXEVENTS = 16;
 
 void SocketPool::waitForEvents(chrono::milliseconds timeout) const

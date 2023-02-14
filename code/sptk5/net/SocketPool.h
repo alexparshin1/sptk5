@@ -145,6 +145,12 @@ public:
     void forgetSocket(BaseSocket& socket);
 
     /**
+     * Check if socket is already being monitored
+     * @param socket            Socket
+     */
+    bool hasSocket(BaseSocket& socket);
+
+    /**
      * @return true if socket pool is active
      */
     [[nodiscard]] bool active() const;
