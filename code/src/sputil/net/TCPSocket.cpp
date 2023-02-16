@@ -133,7 +133,7 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
 size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
 {
     int receivedBytes;
-    int error {0};
+    int error;
     do
     {
         error = 0;

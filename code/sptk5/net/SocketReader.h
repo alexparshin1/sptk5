@@ -130,12 +130,12 @@ private:
     /**
      * Performs the buffered read
      * @param destination              Destination buffer
-     * @param sz                Size of the destination buffer
+     * @param size                Size of the destination buffer
      * @param delimiter         Line delimiter
      * @param read_line          True if we want to read one line (ended with CRLF) only
      * @returns bytes read from the internal buffer
      */
-    size_t read(uint8_t* destination, size_t sz, char delimiter, bool read_line);
+    size_t read(uint8_t* destination, size_t size, char delimiter, bool read_line);
 
     [[nodiscard]] int32_t readFromSocket();
 
