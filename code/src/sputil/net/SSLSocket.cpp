@@ -27,7 +27,7 @@
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/threads/Thread.h>
 
-// These two includes must be after SSLContext.h, or it breaks Windows compilation
+// These two #includes must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
 #include <sptk5/net/CachedSSLContext.h>
 

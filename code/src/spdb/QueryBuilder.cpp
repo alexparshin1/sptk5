@@ -119,7 +119,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
     String queryStr = query.str();
     if (!pretty)
     {
-        queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+        queryStr = queryStr.replace(R"([\n\r\s]+)", " ").trim();
     }
 
     return queryStr;

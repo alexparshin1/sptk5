@@ -125,21 +125,21 @@ void RegularExpression::Groups::grow(size_t groupCount)
 void RegularExpression::compile()
 {
 #ifdef HAVE_PCRE2
-    int errornumber {0};
-    PCRE2_SIZE erroroffset {0};
+    int errorNumber {0};
+    PCRE2_SIZE errorOffset {0};
 
     auto* pcre = pcre2_compile(
         (PCRE2_SPTR) m_pattern.c_str(), // the pattern
         PCRE2_ZERO_TERMINATED,          // indicates pattern is zero-terminated
         m_options,                      // options
-        &errornumber,                   // for error number
-        &erroroffset,                   // for error offset
+        &errorNumber,                   // for error number
+        &errorOffset,                   // for error offset
         nullptr);                       // use default compile context
 
     if (pcre == nullptr)
     {
         array<PCRE2_UCHAR, 256> buffer {};
-        pcre2_get_error_message(errornumber, buffer.data(), sizeof(buffer));
+        pcre2_get_error_message(errorNumber, buffer.data(), sizeof(buffer));
         throw Exception((const char*) buffer.data());
     }
 
@@ -244,7 +244,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         ++offset; /* Advance one code unit */
     }
 
-    return rc >= 0;
+    return false;
 #else
             int rc = pcre_exec(
                 m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,

@@ -69,31 +69,13 @@ QueryParameter& QueryParameter::operator=(const Variant& param)
     return *this;
 }
 
-void QueryParameter::reallocateBuffer(const char* value, size_t maxlen, size_t valueLength)
-{
-    m_data.size(maxlen > 0 ? min(valueLength, maxlen) : valueLength);
-
-    auto& buffer = m_data.get<Buffer>();
-    buffer.checkSize(m_data.size() + 1);
-    auto* data = buffer.data();
-    if (value == nullptr)
-    {
-        memset(data, 0, m_data.size());
-    }
-    else
-    {
-        memcpy(data, value, m_data.size());
-    }
-    data[m_data.size()] = 0;
-}
-
-void QueryParameter::setString(const char* value, size_t maxlen)
+void QueryParameter::setString(const char* value, size_t maxLength)
 {
     size_t valueLength {0};
-    auto dtype = VariantDataType::VAR_STRING;
-    if (maxlen != 0)
+    auto aDataType = VariantDataType::VAR_STRING;
+    if (maxLength != 0)
     {
-        valueLength = (uint32_t) maxlen;
+        valueLength = (uint32_t) maxLength;
     }
     else
     {
@@ -103,9 +85,9 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         }
     }
 
-    if (dataType() != dtype)
+    if (dataType() != aDataType)
     {
-        m_data.set(Buffer((const uint8_t*) value, valueLength));
+        m_data.set(Buffer(reinterpret_cast<const uint8_t*>(value), valueLength));
         dataSize(valueLength);
     }
     else
@@ -113,7 +95,7 @@ void QueryParameter::setString(const char* value, size_t maxlen)
         auto& buffer = m_data.get<Buffer>();
         if (value != nullptr)
         {
-            buffer.set((const uint8_t*) value, valueLength);
+            buffer.set(reinterpret_cast<const uint8_t*>(value), valueLength);
             dataSize(valueLength);
         }
         else
@@ -124,5 +106,5 @@ void QueryParameter::setString(const char* value, size_t maxlen)
 
     m_data.setNull(value == nullptr);
 
-    dataType(dtype);
+    dataType(aDataType);
 }

@@ -129,13 +129,13 @@ bool SocketPool::hasSocket(BaseSocket& socket)
     return itor != m_socketData.end();
 }
 
-constexpr int MAXEVENTS = 16;
+constexpr int maxEvents = 16;
 
 void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
-    array<epoll_event, MAXEVENTS> events {};
+    array<epoll_event, maxEvents> events {};
 
-    int eventCount = epoll_wait(m_pool, events.data(), MAXEVENTS, (int) timeout.count());
+    int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
         if (m_pool == INVALID_EPOLL)

@@ -37,10 +37,10 @@ using namespace sptk;
 
 size_t ServerConnection::nextSerial()
 {
-    static mutex amutex;
+    static mutex aMutex;
     static size_t serial = 0;
 
-    scoped_lock lock(amutex);
+    scoped_lock lock(aMutex);
     return ++serial;
 }
 

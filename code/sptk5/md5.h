@@ -32,167 +32,165 @@ documentation and/or software.
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
-#include <iostream>
 #include "Buffer.h"
+#include <iostream>
+#include <sptk5/String.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
-    /**
+/**
      * Calculates MD5 hashes of strings or byte arrays
      *
      * usage: 1) feed it blocks of uchars with update()
      *        2) finalize()
-     *        3) get hexdigest() string
+     *        3) get hexDigest() string
      *            or
-     *        MD5(std::string).hexdigest()
+     *        MD5(std::string).hexDigest()
      *
      * assumes that char is 8 bit and int is 32 bit
      */
-    class SP_EXPORT MD5
-    {
-    public:
-        /**
+class SP_EXPORT MD5
+{
+public:
+    /**
          * Defines integer type
          */
-        using size_type = unsigned int; // must be 32bit
+    using size_type = unsigned int; // must be 32bit
 
-        /**
+    /**
          * Default constructor
          */
-        MD5();
+    MD5();
 
-        /**
+    /**
          * Shortcut constructor
          *
          * Immediately processes text.
-         * The result can be read with hexdigest().
+         * The result can be read with hexDigest().
          * @param data          Text to MD5
          */
-        explicit MD5(const Buffer& data);
+    explicit MD5(const Buffer& data);
 
-        /**
+    /**
          * Adds data portion to MD5
          * @param buffer        Input data
          * @param length        Size of input data
          */
-        void update(const unsigned char* buffer, size_type length);
+    void update(const unsigned char* buffer, size_type length);
 
-        /**
+    /**
          * Adds data portion to MD5
          * @param buffer        Input data
          * @param length        Size of input data
          */
-        void update(const char* buffer, size_type length);
+    void update(const char* buffer, size_type length);
 
-        /**
+    /**
          * Finalizes MD5 sum
          */
-        MD5& finalize();
+    MD5& finalize();
 
-        /**
+    /**
          * Returns hexadecimal presentation of MD5 sum
          */
-        String hexdigest() const;
+    String hexDigest() const;
 
-        /**
+    /**
          * Prints MD5 sum to stream
          */
-        friend std::ostream& operator<<(std::ostream&, MD5 md5);
+    friend std::ostream& operator<<(std::ostream&, MD5 md5);
 
-    private:
-
-        /**
+private:
+    /**
          * Initializes decoding state
          */
-        void init();
+    void init();
 
-        /**
+    /**
          * 8bit unsigned integer
          */
-        using uint1 = uint8_t;
+    using uint1 = uint8_t;
 
-        /**
+    /**
          * 32bit unsigned integer
          */
-        using uint4 = uint32_t;
+    using uint4 = uint32_t;
 
-        /**
+    /**
          * Blocksize const
          */
-        static constexpr int blocksize = 64;
+    static constexpr int blockSize = 64;
 
-        /**
+    /**
          * Internal transformation
          */
-        void transform(const uint1* block);
+    void transform(const uint1* block);
 
-        /**
+    /**
          * Internal decode
          */
-        static void decode(uint4* output, const uint1* input, size_type len);
+    static void decode(uint4* output, const uint1* input, size_type len);
 
-        /**
+    /**
          * Internal encode
          */
-        static void encode(uint1* output, const uint4* input, size_type len);
+    static void encode(uint1* output, const uint4* input, size_type len);
 
-        /**
+    /**
          * MD5 finalized flag
          */
-		bool finalized {false};
+    bool finalized {false};
 
-        /**
+    /**
          * bytes that didn't fit in last 64 byte chunk
          */
-		std::array<uint1, blocksize> buffer {};
+    std::array<uint1, blockSize> buffer {};
 
-        /**
+    /**
          * 64bit counter for number of bits (lo, hi)
          */
-		std::array<uint4, 2> count {};
+    std::array<uint4, 2> count {};
 
-        /**
+    /**
          * digest so far
          */
-		std::array<uint4, 4> state {};
+    std::array<uint4, 4> state {};
 
-        /**
+    /**
          * the result
          */
-		std::array<uint1, 16> digest {};
+    std::array<uint1, 16> digest {};
 
 
-        // low level logic operations
-        static inline uint4 F(uint4 x, uint4 y, uint4 z);
+    // low level logic operations
+    static inline uint4 F(uint4 x, uint4 y, uint4 z);
 
-        static inline uint4 G(uint4 x, uint4 y, uint4 z);
+    static inline uint4 G(uint4 x, uint4 y, uint4 z);
 
-        static inline uint4 H(uint4 x, uint4 y, uint4 z);
+    static inline uint4 H(uint4 x, uint4 y, uint4 z);
 
-        static inline uint4 I(uint4 x, uint4 y, uint4 z);
+    static inline uint4 I(uint4 x, uint4 y, uint4 z);
 
-        static inline uint4 rotate_left(uint4 x, int n);
+    static inline uint4 rotate_left(uint4 x, int n);
 
-        static inline void FF(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void FF(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
 
-        static inline void GG(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void GG(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
 
-        static inline void HH(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void HH(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
 
-        static inline void II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
-    };
+    static inline void II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+};
 
-    /**
+/**
      * Single data-to-MD5 function
      */
-	SP_EXPORT String md5(const Buffer& data);
+SP_EXPORT String md5(const Buffer& data);
 
-    /**
+/**
      * Single data-to-MD5 function
      */
-	SP_EXPORT String md5(const String& data);
+SP_EXPORT String md5(const String& data);
 
-}
-
+} // namespace sptk

@@ -216,9 +216,9 @@ public:
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
      * @param value const char*, string to assign
-     * @param maxlen size_t, maximum length of the assigned string
+     * @param maxLength size_t, maximum length of the assigned string
      */
-    virtual void setString(const char* value, size_t maxlen);
+    virtual void setString(const char* value, size_t maxLength);
 
     /**
      * String assignment method
@@ -248,8 +248,6 @@ public:
     {
         return m_binding;
     }
-
-    void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
 
 private:
     QueryParameterBinding m_binding;           ///< The last successfull binding information

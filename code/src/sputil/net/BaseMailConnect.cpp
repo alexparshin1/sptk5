@@ -122,7 +122,6 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
     static const char* boundary = "--MESSAGE-MIME-BOUNDARY--";
-    static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
     stringstream message;
 
     if (!m_from.empty())
@@ -206,6 +205,8 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     }
     else
     {
+        static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
+
         message << "Content-Type: multipart/alternative;  boundary=\"" << boundary2 << "\"" << endl
                 << endl;
 

@@ -5,7 +5,7 @@
    based on:
 
    md5.h and md5.c
-   reference implemantion of RFC 1321
+   reference implementation of RFC 1321
 
    Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
 rights reserved.
@@ -107,7 +107,7 @@ inline void MD5::II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4
 
 //////////////////////////////////////////////
 
-// default ctor, just initailize
+// default ctor, just initailise
 MD5::MD5()
 {
     init();
@@ -181,7 +181,7 @@ void MD5::transform(const uint1* block)
     uint4 d = state[3];
     array<uint4, 16> x {};
 
-    decode(x.data(), block, blocksize);
+    decode(x.data(), block, blockSize);
 
     /* Round 1 */
     FF(a, b, c, d, x[0], S11, 0xd76aa478);  /* 1 */
@@ -268,7 +268,7 @@ void MD5::transform(const uint1* block)
 void MD5::update(const unsigned char input[], size_type length)
 {
     // compute number of bytes mod 64
-    size_type index = count[0] / 8 % blocksize;
+    size_type index = count[0] / 8 % blockSize;
 
     // Update number of bits
     if ((count[0] += (length << 3)) < (length << 3))
@@ -278,19 +278,19 @@ void MD5::update(const unsigned char input[], size_type length)
     count[1] += (length >> 29);
 
     // number of bytes we need to fill in buffer
-    size_type firstpart = 64 - index;
+    size_type firstPart = 64 - index;
 
     size_type i {0};
 
     // transform as many times as possible.
-    if (length >= firstpart)
+    if (length >= firstPart)
     {
         // fill buffer first, transform
-        memcpy(&buffer[index], input, firstpart);
+        memcpy(&buffer[index], input, firstPart);
         transform(buffer.data());
 
-        // transform chunks of blocksize (64 bytes)
-        for (i = firstpart; i + blocksize <= length; i += blocksize)
+        // transform chunks of blockSize (64 bytes)
+        for (i = firstPart; i + blockSize <= length; i += blockSize)
         {
             transform(&input[i]);
         }
@@ -308,7 +308,7 @@ void MD5::update(const unsigned char input[], size_type length)
 
 //////////////////////////////
 
-// for convenience provide a verson with signed char
+// for convenience provide a version with signed char
 void MD5::update(const char input[], size_type length)
 {
     update((const unsigned char*) input, length);
@@ -316,8 +316,8 @@ void MD5::update(const char input[], size_type length)
 
 //////////////////////////////
 
-// MD5 finalization. Ends an MD5 message-digest operation, writing the
-// the message digest and zeroizing the context.
+// MD5 finalization. Ends an MD5 message-digest operation, writing
+// the message digest and zeroing the context.
 MD5& MD5::finalize()
 {
     if (!finalized)
@@ -329,7 +329,7 @@ MD5& MD5::finalize()
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         // Save number of bits
-        array<unsigned char, 8> bits;
+        array<unsigned char, 8> bits {};
         encode(bits.data(), count.data(), 8);
 
         // pad out to 56 mod 64.
@@ -343,7 +343,7 @@ MD5& MD5::finalize()
         // Store state in digest
         encode(digest.data(), state.data(), 16);
 
-        // Zeroize sensitive information.
+        // Zero sensitive information.
         memset(buffer.data(), 0, sizeof buffer);
         memset(count.data(), 0, sizeof count);
 
@@ -356,7 +356,7 @@ MD5& MD5::finalize()
 //////////////////////////////
 
 // return hex representation of digest as string
-sptk::String MD5::hexdigest() const
+sptk::String MD5::hexDigest() const
 {
     if (!finalized)
     {
@@ -383,7 +383,7 @@ String sptk::md5(const Buffer& data)
 {
     auto md5 = MD5(data);
 
-    return md5.hexdigest();
+    return md5.hexDigest();
 }
 
 String sptk::md5(const String& data)
@@ -391,5 +391,5 @@ String sptk::md5(const String& data)
     Buffer buffer(data);
     auto md5 = MD5(buffer);
 
-    return md5.hexdigest();
+    return md5.hexDigest();
 }

@@ -42,7 +42,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
      * and IV size appropriate for your cipher
-     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+     * In this example we are using 256-bit AES (i.e. a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
     if (const int minimalKeyLength = 32;

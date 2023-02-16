@@ -37,7 +37,7 @@ bool ImapDS::open()
     // Connect to the server
     m_imap.cmd_login(m_user, m_password);
 
-    // Select the mail box
+    // Select the mailbox
     int32_t total_messages {0};
     int32_t first_message {1};
 

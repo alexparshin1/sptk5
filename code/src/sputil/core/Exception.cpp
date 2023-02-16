@@ -40,12 +40,12 @@ Exception::Exception(const String& text, const fs::path& file, int line, const S
     if (m_line != 0 && !m_file.empty())
     {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-        String fname(file.string());
+        String fileName(file.string());
         if (auto matches = matchFileName.m(file.string().c_str()); !matches.empty())
         {
-            fname = matches[0].value;
+            fileName = matches[0].value;
         }
-        m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
+        m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_line)) + ")";
     }
 
     if (!m_description.empty())

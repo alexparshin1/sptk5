@@ -244,7 +244,7 @@ void HttpReader::readDataChunk(bool& done)
         bytesToRead = availableBytes();
     }
 
-    int readBytes = 0;
+    int readBytes;
     if (!m_contentIsChunked)
     {
         readBytes = (int) readAndAppend(*this, m_output, bytesToRead);

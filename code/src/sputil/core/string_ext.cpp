@@ -69,15 +69,15 @@ String sptk::trim(const String& str)
     }
 
     const auto* s = (const unsigned char*) str.c_str();
-    auto endpos = int(len - 1);
+    auto endPosition = int(len - 1);
     bool found = false;
 
     unsigned char space = ' ';
-    for (int i = endpos; i >= 0; --i)
+    for (int i = endPosition; i >= 0; --i)
     {
         if (s[i] > space)
         {
-            endpos = i;
+            endPosition = i;
             found = true;
             break;
         }
@@ -88,17 +88,17 @@ String sptk::trim(const String& str)
         return "";
     }
 
-    int startpos = 0;
-    for (int i = 0; i <= endpos; ++i)
+    int startPosition = 0;
+    for (int i = 0; i <= endPosition; ++i)
     {
         if (s[i] > space)
         {
-            startpos = i;
+            startPosition = i;
             break;
         }
     }
 
-    return str.substr(size_t(startpos), size_t(long(endpos - startpos + 1)));
+    return str.substr(size_t(startPosition), size_t(long(endPosition - startPosition + 1)));
 }
 
 String sptk::int2string(int32_t value)
@@ -143,9 +143,9 @@ String sptk::int2string(uint64_t value)
 
 int sptk::string2int(const String& str, int defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = (int) strtol(str.c_str(), &endptr, 10);
+    auto result = (int) strtol(str.c_str(), &endPointer, 10);
 
     if (errno)
     {
@@ -157,9 +157,9 @@ int sptk::string2int(const String& str, int defaultValue)
 
 int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
+    auto result = (int64_t) strtoll(str.c_str(), &endPointer, 10);
 
     if (errno)
     {
@@ -189,14 +189,14 @@ String sptk::double2string(double value)
             break;
         }
     }
-    return String(buffer.data(), size_t(len), 0);
+    return {buffer.data(), size_t(len), 0};
 }
 
 double sptk::string2double(const String& str)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = strtod(str.c_str(), &endptr);
+    auto result = strtod(str.c_str(), &endPointer);
 
     if (errno)
     {
@@ -208,9 +208,9 @@ double sptk::string2double(const String& str)
 
 double sptk::string2double(const String& str, double defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = strtod(str.c_str(), &endptr);
+    auto result = strtod(str.c_str(), &endPointer);
 
     if (errno)
     {

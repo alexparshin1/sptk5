@@ -73,7 +73,7 @@ namespace sptk {
 
 void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 {
-    const EVP_MD* algorithm = nullptr;
+    const EVP_MD* algorithm;
 
     switch (this->alg)
     {
@@ -249,7 +249,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
         /* This uses OpenSSL's default passphrase callback if needed. The
          * library caller can override this in many ways, all of which are
-         * outside of the scope of LibJWT and this is documented in jwt.h. */
+         * out of the scope of LibJWT and this is documented in jwt.h. */
         pkey = PEM_read_bio_PrivateKey(bufkey, nullptr, nullptr, nullptr);
         if (pkey == nullptr)
         {

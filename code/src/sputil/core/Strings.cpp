@@ -31,18 +31,18 @@
 using namespace std;
 using namespace sptk;
 
-static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
+static void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     const auto* pos = src.c_str();
-    size_t delimitterLength = strlen(delimitter);
+    size_t delimiterLength = strlen(delimiter);
     while (true)
     {
-        const auto* end = strstr(pos, delimitter);
+        const auto* end = strstr(pos, delimiter);
         if (end != nullptr)
         {
             dest.emplace_back(pos, size_t(end - pos));
-            pos = end + delimitterLength;
+            pos = end + delimiterLength;
         }
         else
         {
@@ -55,17 +55,17 @@ static void splitByDelimiter(Strings& dest, const String& src, const char* delim
     }
 }
 
-static void splitByAnyChar(Strings& dest, const String& src, const char* delimitter)
+static void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     size_t pos = 0;
     while (pos != string::npos)
     {
-        size_t end = src.find_first_of(delimitter, pos);
+        size_t end = src.find_first_of(delimiter, pos);
         if (end != string::npos)
         {
             dest.emplace_back(src.substr(pos, end - pos));
-            pos = src.find_first_not_of(delimitter, end + 1);
+            pos = src.find_first_not_of(delimiter, end + 1);
         }
         else
         {
@@ -98,19 +98,19 @@ Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexc
     }
 }
 
-void Strings::fromString(const String& src, const char* delimitter, SplitMode mode)
+void Strings::fromString(const String& src, const char* delimiter, SplitMode mode)
 {
     clear();
     switch (mode)
     {
         case SplitMode::ANYCHAR:
-            splitByAnyChar(*this, src, delimitter);
+            splitByAnyChar(*this, src, delimiter);
             break;
         case SplitMode::REGEXP:
-            splitByRegExp(*this, src, delimitter);
+            splitByRegExp(*this, src, delimiter);
             break;
         default:
-            splitByDelimiter(*this, src, delimitter);
+            splitByDelimiter(*this, src, delimiter);
             break;
     }
 }
@@ -184,7 +184,7 @@ void Strings::loadFromFile(const fs::path& fileName)
     splitByDelimiter(*this, text, delimiter.c_str());
 }
 
-String Strings::join(const String& delimitter) const
+String Strings::join(const String& delimiter) const
 {
     stringstream result;
     bool first = true;
@@ -197,7 +197,7 @@ String Strings::join(const String& delimitter) const
         }
         else
         {
-            result << delimitter << str;
+            result << delimiter << str;
         }
     }
     return result.str();

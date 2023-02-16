@@ -173,15 +173,15 @@ String Node::getString(const String& name) const
 
     if (node->type() == Type::Number)
     {
-        auto dvalue = node->m_value.asFloat();
+        auto doubleValue = node->m_value.asFloat();
 
-        if (auto ivalue = node->m_value.asInt64();
-            dvalue == double(ivalue))
+        if (auto intValue = node->m_value.asInt64();
+            doubleValue == double(intValue))
         {
-            return int2string(ivalue);
+            return int2string(intValue);
         }
 
-        return double2string(dvalue);
+        return double2string(doubleValue);
     }
 
     return node->m_value.asString();

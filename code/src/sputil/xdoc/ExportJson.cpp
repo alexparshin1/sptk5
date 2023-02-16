@@ -116,8 +116,8 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
 
     auto saveFlags = stream.flags();
 
-    double dNumber {0};
-    int64_t iNumber {0};
+    double dNumber;
+    int64_t iNumber;
     switch (node->type())
     {
         case Node::Type::Number:
@@ -226,12 +226,12 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
 
 void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
 {
-    bool first1 = true;
     String spacing = formatted ? " " : "";
     if (!node->attributes().empty())
     {
         stream << firstElement << "\"attributes\":" << spacing << "{";
 
+        bool first1 = true;
         for (const auto& [name, value]: node->attributes())
         {
             if (first1)

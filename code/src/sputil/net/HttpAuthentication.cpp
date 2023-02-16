@@ -76,10 +76,10 @@ void HttpAuthentication::parse()
             {
                 throw Exception("Invalid or unsupported 'Authentication' header format");
             }
-            auto xuserData = make_shared<xdoc::Document>();
-            xuserData->root()->set("username", usernameAndPassword[0]);
-            xuserData->root()->set("password", usernameAndPassword[1]);
-            m_userData = xuserData;
+            auto aUserData = make_shared<xdoc::Document>();
+            aUserData->root()->set("username", usernameAndPassword[0]);
+            aUserData->root()->set("password", usernameAndPassword[1]);
+            m_userData = aUserData;
             m_type = Type::BASIC;
         }
         else
@@ -88,9 +88,9 @@ void HttpAuthentication::parse()
             String authMethod = m_authenticationHeader.substr(0, bearerLength);
             if (authMethod.toLowerCase() == "bearer")
             {
-                auto xjwtData = make_shared<JWT>();
-                xjwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
-                m_jwtData = xjwtData;
+                auto aJwtData = make_shared<JWT>();
+                aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
+                m_jwtData = aJwtData;
                 m_type = Type::BEARER;
             }
         }

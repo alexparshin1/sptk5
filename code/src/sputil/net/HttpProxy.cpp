@@ -26,10 +26,8 @@
 
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/cutils>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/HttpProxy.h>
-#include <sptk5/net/SocketReader.h>
 
 #ifdef _WIN32
 #include <winhttp.h>

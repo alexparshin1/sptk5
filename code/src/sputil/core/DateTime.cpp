@@ -199,7 +199,7 @@ void DateTimeFormat::init() noexcept
 #ifdef __linux__
     // For unknown reason this call of setlocale() under Windows makes
     // calls of sprintf to produce access violations. If you know why please
-    // tell me..
+    // tell me.
     setlocale(LC_TIME, "");
 #endif
     ::tzset();
@@ -382,7 +382,7 @@ static short splitDateString(const char* bdat, short* datePart, char& actualDate
 
 static short splitTimeString(const char* bdat, short* timePart)
 {
-    static const RegularExpression matchTime("^([0-2]?\\d):([0-5]\\d):([0-5]\\d)(\\.\\d+)?");
+    static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d+)?)");
     auto matches = matchTime.m(bdat);
     if (!matches)
     {

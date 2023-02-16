@@ -28,7 +28,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/net/SSLContext.h>
 
-// This include must be after SSLContext.h, or it breaks Windows compilation
+// This #include statement must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
 
 using namespace std;

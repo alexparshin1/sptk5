@@ -147,7 +147,7 @@ bool NodeSearchAlgorithms::matchPathElement(const SNode& thisNode, const XPathEl
         return false;
     }
 
-    // Node criteria is attribute
+    // Node criteria is an attribute
     if (!pathElement.attributeName.empty())
     {
         return matchPathElementAttribute(thisNode, pathElement, starPointer);

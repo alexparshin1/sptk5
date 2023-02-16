@@ -322,5 +322,5 @@ void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName
 
 String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
 {
-    return String("?");
+    return {"?"};
 }

@@ -249,18 +249,18 @@ void SmtpConnect::sendMessage()
 
     String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
-    Strings recepients(rcpts, ";");
-    auto cnt = (uint32_t) recepients.size();
+    Strings recipients(rcpts, ";");
+    auto cnt = (uint32_t) recipients.size();
     for (uint32_t i = 0; i < cnt; ++i)
     {
-        if (trim(recepients[i]).empty())
+        if (trim(recipients[i]).empty())
         {
             continue;
         }
-        rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
+        rc = command("RCPT TO:<" + parseAddress(recipients[i]) + ">");
         if (rc >= minSendErrorCode)
         {
-            throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.join("\n"));
+            throw Exception("Recipient " + recipients[i] + " is not accepted.\n" + m_response.join("\n"));
         }
     }
 

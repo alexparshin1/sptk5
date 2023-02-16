@@ -273,7 +273,7 @@ void Query::sql(const String& _sql)
     }
 }
 
-const char* Query::readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
+const char* Query::readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
 {
     for (;; ++paramEnd)
     {
@@ -322,7 +322,7 @@ String Query::parseParameters(const String& _sql)
             continue;
         }
 
-        paramEnd = readParamater(sql, paramNumber, paramStart, paramEnd);
+        paramEnd = readParameter(sql, paramNumber, paramStart, paramEnd);
     }
 
     if (paramEnd != nullptr)

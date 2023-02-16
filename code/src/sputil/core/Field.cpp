@@ -47,7 +47,7 @@ String Field::asString() const
 
     String result;
     array<char, maxPrintLength + 1> print_buffer {};
-    int len = 0;
+    int len;
 
     if (isNull())
     {
