@@ -42,7 +42,7 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -59,7 +59,7 @@ void SocketPool::open()
 
 void SocketPool::close()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
     {

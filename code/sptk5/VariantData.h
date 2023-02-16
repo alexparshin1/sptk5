@@ -72,9 +72,9 @@ struct VariantType {
 class SP_EXPORT MoneyData
 {
 public:
-    static std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
-    int64_t quantity;                        ///< Integer value
-    uint8_t scale;                           ///< Scale
+    static const std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
+    int64_t quantity;                              ///< Integer value
+    uint8_t scale;                                 ///< Scale
 
     /**
      * Constructor

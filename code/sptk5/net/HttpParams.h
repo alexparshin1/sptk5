@@ -91,10 +91,10 @@ public:
 
     /**
      * Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param paramString       Parameters string from HTTP server
+     * @param buffer       Parameters string from HTTP server
      * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
-    void decode(const Buffer& paramString, bool lowerCaseNames = false);
+    void decode(const Buffer& buffer, bool lowerCaseNames = false);
 
     /**
      * Returns parameter value, or empty string if not found

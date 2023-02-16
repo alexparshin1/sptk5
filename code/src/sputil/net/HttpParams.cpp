@@ -30,20 +30,22 @@
 using namespace std;
 using namespace sptk;
 
-int hexCharToInt(unsigned char ch)
+int hexCharToInt(unsigned char character)
 {
-    if (ch > '@')
+    if (character > '@')
     {
-        return ch - 'A' + 10;
+        return character - 'A' + 10;
     }
-    return ch - '0';
+    return character - '0';
 }
 
 String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char* src = str.c_str();
-    array<char, 5> hexBuffer {};
+
+    constexpr int bufferSize = 5;
+    array<char, bufferSize> hexBuffer {};
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
     int len {0};
@@ -113,23 +115,23 @@ HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
     }
 }
 
-void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
+void HttpParams::decode(const Buffer& buffer, bool /*lowerCaseNames*/)
 {
     clear();
 
-    Strings sl(cb.c_str(), "&");
-    for (const auto& s: sl)
+    const Strings params(buffer.c_str(), "&");
+    for (const auto& param: params)
     {
-        size_t pos = s.find('=');
+        const size_t pos = param.find('=');
         if (pos != string::npos)
         {
-            string key = s.substr(0, pos);
-            string value = s.substr(pos + 1);
+            const String key = param.substr(0, pos);
+            const String value = param.substr(pos + 1);
             (*this)[key] = Url::decode(value);
         }
         else
         {
-            (*this)[s] = "";
+            (*this)[param] = "";
         }
     }
 }

@@ -90,7 +90,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
     bufSource.loadFromFile(fileName.c_str());
 
-    String ctype = ContentTypes::type(trim(fileName));
+    const String ctype = ContentTypes::type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;
@@ -102,7 +102,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Base64::encode(strDest, bufSource);
 
     // Split encoded data to lines
-    size_t dataLen = strDest.length();
+    const size_t dataLen = strDest.length();
     buffer.checkSize(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
@@ -145,18 +145,18 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     const DateTime date = DateTime::Now();
-    short dy {0};
-    short dm {0};
-    short dd {0};
-    short wd {0};
-    short yd {0};
-    short th {0};
-    short tm {0};
-    short ts {0};
-    short tms {0};
+    short year {0};
+    short month {0};
+    short day {0};
+    short weekDay {0};
+    short yearDay {0};
+    short hour {0};
+    short minute {0};
+    short second {0};
+    short millisecond {0};
 
-    date.decodeDate(&dy, &dm, &dd, &wd, &yd);
-    date.decodeTime(&th, &tm, &ts, &tms);
+    date.decodeDate(&year, &month, &day, &weekDay, &yearDay);
+    date.decodeTime(&hour, &minute, &second, &millisecond);
 
     constexpr int maxDateBuffer = 128;
     constexpr int sixtySeconds = 60;
@@ -174,16 +174,16 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
         offsetHours = -offsetHours;
     }
 
-    int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
-                       "Date: %s, %i %s %04i %02i:%02i:%02i %s%02i%02i (%s)",
-                       date.dayOfWeekName().substr(0, 3).c_str(),
-                       dd,
-                       DateTime::format(DateTime::Format::MONTH_NAME, size_t(dm) - 1).substr(0, 3).c_str(),
-                       dy,
-                       th, tm, ts,
-                       sign,
-                       (int) offsetHours, (int) offsetMinutes,
-                       TimeZone::name().c_str());
+    const int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
+                             "Date: %s, %i %s %04i %02i:%02i:%02i %s%02i%02i (%s)",
+                             date.dayOfWeekName().substr(0, 3).c_str(),
+                             day,
+                             DateTime::format(DateTime::Format::MONTH_NAME, size_t(month) - 1).substr(0, 3).c_str(),
+                             year,
+                             hour, minute, second,
+                             sign,
+                             (int) offsetHours, (int) offsetMinutes,
+                             TimeZone::name().c_str());
 
     message << String(dateBuffer.data(), (size_t) len) << endl;
 
@@ -233,8 +233,8 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
                 << "--" << boundary2 << "--" << endl;
     }
 
-    Strings sl(m_attachments, ";");
-    for (const auto& attachment: sl)
+    const Strings strings(m_attachments, ";");
+    for (const auto& attachment: strings)
     {
         String attachmentAlias(attachment);
         const char* separator = "\\";

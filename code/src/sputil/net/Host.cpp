@@ -52,7 +52,7 @@ Host::Host(const String& hostname, uint16_t port)
 
 Host::Host(const String& hostAndPort)
 {
-    RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
+    const RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
     auto matches = matchHost.m(hostAndPort);
     if (matches)
     {
@@ -72,7 +72,7 @@ Host::Host(const String& hostAndPort)
 
 Host::Host(const sockaddr_in* addressAndPort)
 {
-    socklen_t addressLen = sizeof(sockaddr_in);
+    constexpr socklen_t addressLen = sizeof(sockaddr_in);
     memcpy(m_address.data(), addressAndPort, addressLen);
     m_port = htons(ip_v4().sin_port);
 
@@ -81,7 +81,7 @@ Host::Host(const sockaddr_in* addressAndPort)
 
 Host::Host(const sockaddr_in6* addressAndPort)
 {
-    socklen_t addressLen = sizeof(sockaddr_in6);
+    constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
     memcpy((sockaddr_in6*) m_address.data(), addressAndPort6, addressLen);
@@ -111,7 +111,7 @@ Host::Host(const Host& other)
     : m_hostname(other.m_hostname)
     , m_port(other.m_port)
 {
-    scoped_lock lock(other.m_mutex);
+    const scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -119,7 +119,7 @@ Host::Host(Host&& other) noexcept
     : m_hostname(exchange(other.m_hostname, ""))
     , m_port(exchange(other.m_port, 0))
 {
-    scoped_lock lock(other.m_mutex);
+    const scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -127,7 +127,7 @@ Host& Host::operator=(const Host& other)
 {
     if (&other != this)
     {
-        scoped_lock lock(m_mutex, other.m_mutex);
+        const scoped_lock lock(m_mutex, other.m_mutex);
         m_hostname = other.m_hostname;
         m_port = other.m_port;
         memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -137,7 +137,7 @@ Host& Host::operator=(const Host& other)
 
 Host& Host::operator=(Host&& other) noexcept
 {
-    scoped_lock lock(m_mutex, other.m_mutex);
+    const scoped_lock lock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -154,10 +154,10 @@ bool Host::operator!=(const Host& other) const
     return toString(true) != other.toString(true);
 }
 
-void Host::setPort(uint16_t p)
+void Host::setPort(uint16_t port)
 {
-    scoped_lock lock(m_mutex);
-    m_port = p;
+    const scoped_lock lock(m_mutex);
+    m_port = port;
     switch (any().sa_family)
     {
         case AF_INET:
@@ -192,7 +192,7 @@ void Host::getHostAddress()
             break;
     }
 #else
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     struct addrinfo hints = {};
     memset(&hints, 0, sizeof(struct addrinfo));
@@ -201,9 +201,10 @@ void Host::getHostAddress()
     hints.ai_protocol = 0;
 
     struct addrinfo* result = nullptr;
-    if (int rc = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result); rc != 0)
+    if (const int exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
+        exitCode != 0)
     {
-        throw Exception(gai_strerror(rc));
+        throw Exception(gai_strerror(exitCode));
     }
 
     memset(&m_address, 0, sizeof(m_address));
@@ -215,7 +216,7 @@ void Host::getHostAddress()
 
 String Host::toString(bool forceAddress) const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     std::stringstream str;
 
     if (m_hostname.empty())

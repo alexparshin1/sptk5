@@ -32,7 +32,7 @@ using namespace sptk;
 
 bool String::matches(const String& pattern, const String& options) const
 {
-    RegularExpression regexp(pattern, options);
+    const RegularExpression regexp(pattern, options);
     return regexp.matches(*this);
 }
 
@@ -58,19 +58,19 @@ bool String::startsWith(const String& subject) const
 
 bool String::endsWith(const String& subject) const
 {
-    size_t pos = rfind(subject);
+    const size_t pos = rfind(subject);
     return pos != string::npos && pos == length() - subject.length();
 }
 
 bool String::contains(const String& subject) const
 {
-    size_t pos = find(subject);
+    const size_t pos = find(subject);
     return pos != string::npos;
 }
 
 String String::replace(const String& pattern, const String& replacement) const
 {
-    RegularExpression regexp(pattern);
+    const RegularExpression regexp(pattern);
     bool replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
 }
@@ -82,7 +82,7 @@ String String::trim() const
     {
         return {};
     }
-    size_t endPos = find_last_not_of(" \n\r\t\b");
+    const size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
 }
 

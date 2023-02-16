@@ -44,13 +44,13 @@ SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
 
 SSLKeys::SSLKeys(const SSLKeys& other)
 {
-    SharedLock(other.m_mutex);
+    const SharedLock(other.m_mutex);
     assign(other);
 }
 
 SSLKeys& SSLKeys::operator=(const SSLKeys& other)
 {
-    CopyLock(m_mutex, other.m_mutex);
+    const CopyLock(m_mutex, other.m_mutex);
     if (&other == this)
     {
         return *this;
@@ -71,37 +71,37 @@ void SSLKeys::assign(const SSLKeys& other)
 
 String SSLKeys::privateKeyFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_privateKeyFileName;
 }
 
 String SSLKeys::certificateFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_certificateFileName;
 }
 
 String SSLKeys::password() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_password;
 }
 
 String SSLKeys::caFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_caFileName;
 }
 
 int SSLKeys::verifyMode() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_verifyMode;
 }
 
 int SSLKeys::verifyDepth() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_verifyDepth;
 }
 

@@ -55,9 +55,9 @@ public:
 
     [[nodiscard]] BrotliEncoderState* createEncoderInstance() const;
 
-    void CompressFile(BrotliEncoderState* s);
+    void CompressFile(BrotliEncoderState* state);
 
-    void DecompressFile(BrotliDecoderState* s);
+    void DecompressFile(BrotliDecoderState* state);
 
 private:
     /* Parameters */
@@ -143,14 +143,14 @@ BrotliEncoderState* Context::createEncoderInstance() const
     if (input_file_length > 0)
     {
         constexpr uint32_t maxHintSize = uint32_t(-1) / 2;
-        uint32_t size_hint = input_file_length < maxHintSize ? (uint32_t) input_file_length : maxHintSize;
+        const uint32_t size_hint = input_file_length < maxHintSize ? (uint32_t) input_file_length : maxHintSize;
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 
     return instance;
 }
 
-void Context::CompressFile(BrotliEncoderState* s)
+void Context::CompressFile(BrotliEncoderState* state)
 {
     BROTLI_BOOL is_eof = BROTLI_FALSE;
     for (;;)
@@ -161,7 +161,7 @@ void Context::CompressFile(BrotliEncoderState* s)
             is_eof = !HasMoreInput();
         }
 
-        if (!BrotliEncoderCompressStream(s,
+        if (!BrotliEncoderCompressStream(state,
                                          is_eof ? BROTLI_OPERATION_FINISH : BROTLI_OPERATION_PROCESS,
                                          &available_in, &next_in,
                                          &available_out, &next_out, nullptr))
@@ -174,7 +174,7 @@ void Context::CompressFile(BrotliEncoderState* s)
             ProvideOutput();
         }
 
-        if (BrotliEncoderIsFinished(s))
+        if (BrotliEncoderIsFinished(state))
         {
             FlushOutput();
             return;
@@ -182,7 +182,7 @@ void Context::CompressFile(BrotliEncoderState* s)
     }
 }
 
-void Context::DecompressFile(BrotliDecoderState* s)
+void Context::DecompressFile(BrotliDecoderState* state)
 {
     BrotliDecoderResult result = BROTLI_DECODER_RESULT_NEEDS_MORE_INPUT;
     for (;;)
@@ -213,7 +213,7 @@ void Context::DecompressFile(BrotliDecoderState* s)
             throw Exception("corrupt input data");
         }
 
-        result = BrotliDecoderDecompressStream(s, &available_in,
+        result = BrotliDecoderDecompressStream(state, &available_in,
                                                &next_in, &available_out, &next_out, nullptr);
     }
 }
@@ -223,10 +223,10 @@ void Brotli::compress(Buffer& dest, const Buffer& src)
     ReadBuffer input(src.data(), src.bytes());
     auto context = make_shared<Context>(input, dest);
 
-    auto* s = context->createEncoderInstance();
+    auto* state = context->createEncoderInstance();
 
-    context->CompressFile(s);
-    BrotliEncoderDestroyInstance(s);
+    context->CompressFile(state);
+    BrotliEncoderDestroyInstance(state);
 }
 
 void Brotli::decompress(Buffer& dest, const Buffer& src)
@@ -234,21 +234,21 @@ void Brotli::decompress(Buffer& dest, const Buffer& src)
     ReadBuffer input(src.data(), src.bytes());
     auto context = make_shared<Context>(input, dest);
 
-    BrotliDecoderState* s = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
-    if (!s)
+    BrotliDecoderState* state = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
+    if (!state)
     {
         throw Exception("out of memory");
     }
 
-    BrotliDecoderSetParameter(s, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1U);
+    BrotliDecoderSetParameter(state, BROTLI_DECODER_PARAM_LARGE_WINDOW, 1U);
     try
     {
-        context->DecompressFile(s);
-        BrotliDecoderDestroyInstance(s);
+        context->DecompressFile(state);
+        BrotliDecoderDestroyInstance(state);
     }
     catch (const Exception&)
     {
-        BrotliDecoderDestroyInstance(s);
+        BrotliDecoderDestroyInstance(state);
         throw;
     }
 }

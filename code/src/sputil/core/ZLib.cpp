@@ -36,8 +36,8 @@ constexpr size_t CHUNK = 16384;
 void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 {
     z_stream strm = {};
-    Buffer in(CHUNK);
-    Buffer out(CHUNK);
+    Buffer inputBuffer(CHUNK);
+    Buffer outputBuffer(CHUNK);
 
     // allocate deflate state
     strm.zalloc = Z_NULL;
@@ -68,28 +68,28 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
         {
             eof = true;
         }
-        memcpy(in.data(), src.c_str() + readPosition, bytesToRead);
+        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
-        int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
-        strm.next_in = in.data();
+        const int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
+        strm.next_in = inputBuffer.data();
 
         // Run deflate() on input until output buffer not full, finish
-        // compression if all of the source has been read in
+        // compression if all of the source has been read inputBuffer
         do
         {
             strm.avail_out = CHUNK;
-            strm.next_out = out.data();
+            strm.next_out = outputBuffer.data();
             ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
             { // state not clobbered
                 throw Exception("compressed data error");
             }
-            size_t have = CHUNK - strm.avail_out;
-            dest.append(out.data(), have);
+            const size_t have = CHUNK - strm.avail_out;
+            dest.append(outputBuffer.data(), have);
         } while (strm.avail_out == 0);
 
-        // Done when last data in file processed
+        // Done when last data inputBuffer file processed
     } while (!eof);
 
     // Clean up and return
@@ -99,10 +99,10 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 void ZLib::decompress(Buffer& dest, const Buffer& src)
 {
     z_stream strm = {};
-    Buffer in(CHUNK);
-    Buffer out(CHUNK);
+    Buffer inputBuffer(CHUNK);
+    Buffer outputBuffer(CHUNK);
 
-    /* allocate inflate state */
+    // allocate inflate state
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -123,23 +123,23 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
         {
             bytesToRead = CHUNK;
         }
-        memcpy(in.data(), src.c_str() + readPosition, bytesToRead);
+        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
         if (strm.avail_in == 0)
         {
             break;
         }
-        strm.next_in = in.data();
+        strm.next_in = inputBuffer.data();
 
         // Run inflate() on input until output buffer not full
         do
         {
             strm.avail_out = CHUNK;
-            strm.next_out = out.data();
+            strm.next_out = outputBuffer.data();
             ret = inflate(&strm, Z_NO_FLUSH);
             if (ret == Z_STREAM_ERROR)
-            { // state not clobbered
+            {
                 throw Exception("compressed data error");
             }
             switch (ret)
@@ -152,8 +152,8 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
                 default:
                     break;
             }
-            unsigned have = CHUNK - strm.avail_out;
-            dest.append(out.data(), have);
+            const unsigned have = CHUNK - strm.avail_out;
+            dest.append(outputBuffer.data(), have);
         } while (strm.avail_out == 0);
 
         // Done when inflate() says it's done

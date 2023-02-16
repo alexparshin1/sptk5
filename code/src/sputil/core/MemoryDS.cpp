@@ -203,7 +203,7 @@ void MemoryDS::push_back(FieldList&& fieldList)
 {
     scoped_lock lock(m_mutex);
 
-    m_list.push_back(move(fieldList));
+    m_list.push_back(std::move(fieldList));
     if (m_list.size() == 1)
     {
         m_current = m_list.begin();

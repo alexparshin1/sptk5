@@ -40,19 +40,19 @@ size_t ServerConnection::nextSerial()
     static mutex aMutex;
     static size_t serial = 0;
 
-    scoped_lock lock(aMutex);
+    const scoped_lock lock(aMutex);
     return ++serial;
 }
 
 TCPSocket& ServerConnection::socket() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return *m_socket;
 }
 
 STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     auto priorSocket = m_socket;
     m_socket = socket;
     return priorSocket;
@@ -60,7 +60,7 @@ STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 
 TCPServer& ServerConnection::server() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_server;
 }
 

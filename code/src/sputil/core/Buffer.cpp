@@ -57,7 +57,11 @@ void Buffer::loadFromFile(const fs::path& fileName)
 
     reset(size + 1);
     bytes(fread(data(), 1, size, file));
-    fclose(file);
+    auto result = fclose(file);
+    if (result != 0)
+    {
+        throw SystemException("Can't close file " + fileName.string());
+    }
 }
 
 void Buffer::saveToFile(const fs::path& fileName) const
@@ -69,8 +73,12 @@ void Buffer::saveToFile(const fs::path& fileName) const
         throw SystemException("Can't open file " + fileName.string() + " for writing");
     }
 
-    fwrite(data(), bytes(), 1, file);
-    fclose(file);
+    auto rc1 = fwrite(data(), bytes(), 1, file);
+    auto rc2 = fclose(file);
+    if (rc1 != 1 || rc2 != 0)
+    {
+        throw SystemException("Can't close file " + fileName.string());
+    }
 }
 
 Buffer& Buffer::operator=(const String& other)
@@ -113,7 +121,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
         return stream;
     }
 
-    char fillChar = stream.fill('0');
+    const char fillChar = stream.fill('0');
     auto old_settings = stream.flags();
 
     size_t offset = 0;
@@ -134,7 +142,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
             {
                 stream << " ";
             }
-            unsigned printChar = buffer[rowOffset];
+            const unsigned printChar = buffer[rowOffset];
             stream << hex << setw(2) << printChar << " ";
         }
 

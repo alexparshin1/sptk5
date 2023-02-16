@@ -42,7 +42,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 {
     auto socket = make_shared<TCPSocket>();
 
-    Strings methods("CONNECT|GET", "|");
+    const Strings methods({"CONNECT", "GET"});
     bool proxyConnected = false;
     for (const auto& method: methods)
     {

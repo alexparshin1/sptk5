@@ -127,7 +127,7 @@ void LogEngine::log(Logger::UMessage& message)
         run();
     }
 
-    m_messages.push(move(message));
+    m_messages.push(std::move(message));
 }
 
 void LogEngine::threadFunction()

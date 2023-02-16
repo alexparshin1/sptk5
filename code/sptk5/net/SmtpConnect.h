@@ -130,17 +130,17 @@ protected:
 
     /**
      * @brief Mime-encodes the string
-     * @param s                 Source data
+     * @param str                 Source data
      * @return MIME-encoded data
      */
-    static String mime(const String& s);
+    static String mime(const String& str);
 
     /**
      * @brief Mime-decodes the string
-     * @param s                 Source data
+     * @param str                 Source data
      * @return Decoded data
      */
-    static String unmime(const String& s);
+    static String unmime(const String& str);
 
 private:
     Logger* m_log;

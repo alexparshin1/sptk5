@@ -27,13 +27,10 @@
 #pragma once
 
 #ifndef _WIN32
-
 #include <syslog.h>
-
 #else
-#include <winsock2.h>
-
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 #include <sptk5/LogEngine.h>
@@ -100,7 +97,7 @@ private:
     static bool m_registrySet;           ///< Is registry set?
 #endif
 
-    static SharedMutex syslogMutex;
+    static std::mutex m_syslogMutex;
     static std::atomic_bool m_logOpened;
 
     uint32_t m_facilities; ///< List of facilities allows to define one or more system logs where messages would be sent

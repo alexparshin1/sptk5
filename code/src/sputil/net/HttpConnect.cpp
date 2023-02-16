@@ -70,8 +70,8 @@ void HttpConnect::sendCommand(const String& cmd)
         throw Exception("Socket isn't open");
     }
 
-    const chrono::seconds readTimeout(30);
-    if (!m_socket.readyToWrite(readTimeout))
+    if (const chrono::seconds readTimeout(30);
+        !m_socket.readyToWrite(readTimeout))
     {
         throw Exception("Server is busy");
     }
@@ -122,9 +122,9 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
                          const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
+    const Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
+    const String command = headers.join("\r\n") + "\r\n\r\n";
 
-    string command = headers.join("\r\n") + "\r\n\r\n";
     sendCommand(command);
 
     return getResponse(output, timeout);
@@ -245,8 +245,8 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
                             const Authorization* authorization, chrono::milliseconds timeout)
 {
-    Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
-    string command = headers.join("\r\n") + "\r\n\r\n";
+    const Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
+    const String command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 

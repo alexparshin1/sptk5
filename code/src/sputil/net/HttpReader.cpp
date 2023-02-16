@@ -87,7 +87,7 @@ bool HttpReader::readHttpRequest()
         return false;
     }
 
-    RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
+    const RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
     if (auto matches = parseProtocol.m(request); matches)
     {
         m_requestType = matches[0].value.toUpperCase();
@@ -120,7 +120,6 @@ void HttpReader::readHttpHeaders()
     }
 
     /// Reading HTTP headers
-    Strings matches;
     for (;;)
     {
         String header;
@@ -133,7 +132,8 @@ void HttpReader::readHttpHeaders()
         }
 
 
-        if (size_t pos = header.find(':'); pos != string::npos)
+        if (const size_t pos = header.find(':');
+            pos != string::npos)
         {
             m_httpHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
             continue;
@@ -244,10 +244,9 @@ void HttpReader::readDataChunk(bool& done)
         bytesToRead = availableBytes();
     }
 
-    int readBytes;
     if (!m_contentIsChunked)
     {
-        readBytes = (int) readAndAppend(*this, m_output, bytesToRead);
+        const auto readBytes = (int) readAndAppend(*this, m_output, bytesToRead);
         m_contentReceivedLength += readBytes;
         if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength)
         { // No more data
@@ -256,18 +255,18 @@ void HttpReader::readDataChunk(bool& done)
     }
     else
     {
-        size_t chunkSize = readChunk(*this, m_output);
+        const size_t chunkSize = readChunk(*this, m_output);
         m_contentReceivedLength += chunkSize;
         done = (chunkSize == 0); // 0 means last chunk
     }
 
     if (!done)
     {
-        readBytes = (int) availableBytes();
+        const auto readBytes = (int) availableBytes();
         if (readBytes == 0 && m_output.bytes() > 13)
         {
-            size_t tailOffset = m_output.bytes() - 13;
-            String tail(m_output.c_str() + tailOffset);
+            const size_t tailOffset = m_output.bytes() - 13;
+            const String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
             {
                 done = true;
@@ -295,7 +294,7 @@ void HttpReader::read()
     constexpr int httpErrorResponseCode(400);
     constexpr int serverErrorResponseCode(500);
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     if (m_readerState == State::READY)
     {
@@ -316,7 +315,7 @@ void HttpReader::read()
 #ifdef HAVE_ZLIB
             Buffer unzipBuffer;
             ZLib::decompress(unzipBuffer, m_output);
-            m_output = move(unzipBuffer);
+            m_output = std::move(unzipBuffer);
             itor->second = "";
 #else
             throw Exception("Content-Encoding is 'gzip', but zlib support is not enabled in SPTK");
@@ -327,7 +326,7 @@ void HttpReader::read()
 #ifdef HAVE_BROTLI
             Buffer unzipBuffer;
             Brotli::decompress(unzipBuffer, m_output);
-            m_output = move(unzipBuffer);
+            m_output = std::move(unzipBuffer);
             itor->second = "";
 #else
             throw Exception("Content-Encoding is 'br', but libbrotli support is not enabled in SPTK");
@@ -358,31 +357,31 @@ void HttpReader::read()
 
 HttpHeaders& HttpReader::getHttpHeaders()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_httpHeaders;
 }
 
 HttpReader::State HttpReader::getReaderState() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_readerState;
 }
 
 int HttpReader::getStatusCode() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_statusCode;
 }
 
 const String& HttpReader::getStatusText() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_statusText;
 }
 
 String HttpReader::httpHeader(const String& headerName) const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto itor = m_httpHeaders.find(lowerCase(headerName));
     if (itor == m_httpHeaders.end())

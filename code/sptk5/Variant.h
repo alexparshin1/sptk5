@@ -404,7 +404,7 @@ public:
     /**
      * Constructor
      */
-    Variant(const String& v);
+    Variant(const String& value);
 
     /**
      * Constructor
@@ -414,9 +414,9 @@ public:
     /**
      * Constructor
      * @param value             Buffer to copy from
-     * @param sz                Buffer size
+     * @param valueSize                Buffer size
      */
-    Variant(const uint8_t* value, size_t sz);
+    Variant(const uint8_t* value, size_t valueSize);
 
     /**
      * Constructor

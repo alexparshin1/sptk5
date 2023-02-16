@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-SharedMutex SysLogEngine::syslogMutex;
+std::mutex SysLogEngine::m_syslogMutex;
 atomic_bool SysLogEngine::m_logOpened(false);
 
 #ifdef _WIN32
@@ -58,7 +58,7 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
     if (options.find(Option::ENABLE) != options.end())
     {
 #ifndef _WIN32
-        UniqueLock(syslogMutex);
+        const scoped_lock lock(m_syslogMutex);
         if (!m_logOpened)
         {
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
@@ -119,7 +119,7 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
 
 void SysLogEngine::getOptions(set<Option>& options, String& programName, uint32_t& facilities) const
 {
-    SharedLock(syslogMutex);
+    const scoped_lock lock(m_syslogMutex);
     options = this->options();
     programName = m_programName;
     facilities = m_facilities;
@@ -136,7 +136,7 @@ SysLogEngine::~SysLogEngine()
 
 void SysLogEngine::setupEventSource() const
 {
-    UniqueLock(syslogMutex);
+    const scoped_lock lock(m_syslogMutex);
 #ifndef _WIN32
     m_logOpened = false;
     closelog();

@@ -33,13 +33,14 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-constexpr int BUFFER_TYPES =
+static constexpr int BUFFER_TYPES =
     (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER;
 
-array<int64_t, 16> MoneyData::dividers = {1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
-                                          1000000000LL,
-                                          10000000000LL, 100000000000LL,
-                                          1000000000000LL, 10000000000000LL, 100000000000000LL, 1000000000000000LL};
+static constexpr int numberOfDividers = 16;
+const array<int64_t, numberOfDividers> MoneyData::dividers = {
+    1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
+    1000000000LL, 10000000000LL, 100000000000LL, 1000000000000LL,
+    10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
 MoneyData::operator double() const
 {
@@ -143,9 +144,9 @@ Variant::Variant(const char* value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const String& v)
+Variant::Variant(const String& value)
 {
-    Variant::setBuffer((const uint8_t*) v.c_str(), v.length(), VariantDataType::VAR_STRING);
+    Variant::setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
 }
 
 //---------------------------------------------------------------------------
@@ -157,9 +158,9 @@ Variant::Variant(const DateTime& value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const uint8_t* value, size_t sz)
+Variant::Variant(const uint8_t* value, size_t valueSize)
 {
-    Variant::setBuffer(value, sz, VariantDataType::VAR_BUFFER);
+    Variant::setBuffer(value, valueSize, VariantDataType::VAR_BUFFER);
 }
 
 //---------------------------------------------------------------------------
@@ -177,7 +178,7 @@ void VariantAdaptors::setBool(bool value)
 {
     if (m_data.type().type != VariantDataType::VAR_BOOL)
     {
-        VariantType vtype {VariantDataType::VAR_BOOL, false, false};
+        const VariantType vtype {VariantDataType::VAR_BOOL, false, false};
         m_data.type(vtype);
 
         m_data.size(sizeof(value));
@@ -192,7 +193,7 @@ void VariantAdaptors::setInteger(int32_t value)
 {
     if (m_data.type().type != VariantDataType::VAR_INT)
     {
-        VariantType vtype {VariantDataType::VAR_INT, false, false};
+        const VariantType vtype {VariantDataType::VAR_INT, false, false};
         m_data.type(vtype);
 
         m_data.size(sizeof(value));
@@ -207,7 +208,7 @@ void VariantAdaptors::setInt64(int64_t value)
 {
     if (m_data.type().type != VariantDataType::VAR_INT64)
     {
-        VariantType vtype {VariantDataType::VAR_INT64, false, false};
+        const VariantType vtype {VariantDataType::VAR_INT64, false, false};
         m_data.type(vtype);
 
         m_data.size(sizeof(value));
@@ -222,7 +223,7 @@ void VariantAdaptors::setFloat(double value)
 {
     if (m_data.type().type != VariantDataType::VAR_FLOAT)
     {
-        VariantType vtype {VariantDataType::VAR_FLOAT, false, false};
+        const VariantType vtype {VariantDataType::VAR_FLOAT, false, false};
         m_data.type(vtype);
 
         m_data.size(sizeof(value));
@@ -237,7 +238,7 @@ void VariantAdaptors::setMoney(int64_t value, unsigned scale)
 {
     if (m_data.type().type != VariantDataType::VAR_MONEY)
     {
-        VariantType vtype {VariantDataType::VAR_MONEY, false, false};
+        const VariantType vtype {VariantDataType::VAR_MONEY, false, false};
         m_data.type(vtype);
 
         m_data.size(sizeof(MoneyData));
@@ -261,7 +262,7 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantD
         throw Exception("Invalid buffer type");
     }
 
-    VariantType vtype {type, false, false};
+    const VariantType vtype {type, false, false};
 
     if (value != nullptr)
     {
@@ -298,7 +299,7 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t valueSize, Varian
     if (value != nullptr || valueSize != 0)
     {
         m_data.set<const uint8_t*>(value);
-        VariantType vtype {type, false, true};
+        const VariantType vtype {type, false, true};
         dataType(vtype);
         dataSize(valueSize);
     }
@@ -313,13 +314,13 @@ void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 {
     if (dateOnly)
     {
-        VariantType vtype {VariantDataType::VAR_DATE, false, false};
+        const VariantType vtype {VariantDataType::VAR_DATE, false, false};
         m_data.type(vtype);
         m_data.set(value.date());
     }
     else
     {
-        VariantType vtype {VariantDataType::VAR_DATE_TIME, false, false};
+        const VariantType vtype {VariantDataType::VAR_DATE_TIME, false, false};
         m_data.type(vtype);
         m_data.set(value);
     }
@@ -329,7 +330,7 @@ void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImagePtr(const uint8_t* value)
 {
-    VariantType vtype {VariantDataType::VAR_IMAGE_PTR, false, true};
+    const VariantType vtype {VariantDataType::VAR_IMAGE_PTR, false, true};
     dataType(vtype);
     dataSize(sizeof(value));
 
@@ -340,7 +341,7 @@ void VariantAdaptors::setImagePtr(const uint8_t* value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(uint32_t value)
 {
-    VariantType vtype {VariantDataType::VAR_IMAGE_NDX, false, false};
+    const VariantType vtype {VariantDataType::VAR_IMAGE_NDX, false, false};
     dataType(vtype);
     dataSize(sizeof(value));
     m_data.set((int32_t) value);
@@ -383,7 +384,7 @@ Variant& Variant::operator=(Variant&& other) noexcept
     {
         return *this;
     }
-    m_data = move(other.m_data);
+    m_data = std::move(other.m_data);
     return *this;
 }
 
@@ -647,8 +648,6 @@ int64_t VariantAdaptors::asInt64() const
 
 bool VariantAdaptors::asBool() const
 {
-    char ch = 0;
-
     if (isNull())
     {
         return false;
@@ -674,8 +673,7 @@ bool VariantAdaptors::asBool() const
         case VariantDataType::VAR_STRING:
         case VariantDataType::VAR_TEXT:
         case VariantDataType::VAR_BUFFER:
-            ch = getBufferPtr()[0];
-            return (strchr("YyTt1", ch) != nullptr);
+            return (strchr("YyTt1", getBufferPtr()[0]) != nullptr);
 
         case VariantDataType::VAR_DATE:
         case VariantDataType::VAR_DATE_TIME:
@@ -943,7 +941,7 @@ void VariantAdaptors::setNull(VariantDataType vtype)
             break;
     }
 
-    VariantType type {vtype, true, false};
+    const VariantType type {vtype, true, false};
     m_data.type(type);
 }
 
@@ -1061,7 +1059,7 @@ void Variant::load(const SNode& element)
 
 void Variant::save(const SNode& node) const
 {
-    String stringValue(asString());
+    const String stringValue(asString());
 
     node->clear();
     node->attributes().set("type", typeName(dataType()));

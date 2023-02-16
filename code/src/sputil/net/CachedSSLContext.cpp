@@ -35,9 +35,9 @@ CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList)
 {
-    String ident = keys.ident();
+    const String ident = keys.ident();
 
-    UniqueLock(m_mutex);
+    const UniqueLock(m_mutex);
 
     SharedSSLContext context = m_contexts[ident];
     if (!context)

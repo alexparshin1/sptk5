@@ -42,10 +42,10 @@ using namespace sptk;
 
 // Constructor
 UniqueInstance::UniqueInstance(String instanceName)
-    : m_instanceName(move(instanceName))
+    : m_instanceName(std::move(instanceName))
 {
 #ifndef _WIN32
-    String home = getenv("HOME");
+    String const home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
     {
@@ -97,8 +97,11 @@ int UniqueInstance::read_pid() const
         return 0;
     } // Lock file exists, but there is no process id int
 
-    if (int rc = getsid(pid); rc < 0 || rc == ESRCH)
+    if (int const result = getsid(pid);
+        result < 0 || result == ESRCH)
+    {
         return 0; // No such process - stale lock file.
+    }
 
     return pid;
 }
@@ -106,7 +109,7 @@ int UniqueInstance::read_pid() const
 int UniqueInstance::write_pid()
 {
     ofstream lockfile(m_fileName.c_str());
-    int pid = getpid();
+    int const pid = getpid();
     lockfile << pid;
     lockfile.close();
 

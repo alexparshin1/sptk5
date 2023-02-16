@@ -71,12 +71,6 @@ public:
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
-    String getHeader() const;
-
-    /**
-     * Get decoded authentication data (username and password, or JWT)
-     * @return authentication data
-     */
     const xdoc::SNode& getData();
 
     /**

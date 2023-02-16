@@ -119,9 +119,9 @@ class SP_EXPORT Host
 
     /**
      * Set port number
-     * @param p                 Port number
+     * @param port                 Port number
      */
-    void setPort(uint16_t p);
+    void setPort(uint16_t port);
 
 public:
     /**

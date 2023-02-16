@@ -114,6 +114,4 @@ private:
     bool m_shutdown {false}; ///< Is watching shutdown?
 };
 
-using SharedSocketEvents = std::shared_ptr<SocketEvents>;
-
 } // namespace sptk

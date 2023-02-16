@@ -122,7 +122,9 @@ void BaseSocket::blockingMode(bool blocking)
     const int result = fcntl(m_sockfd, F_SETFL, flags);
 #endif
     if (result != 0)
+    {
         THROW_SOCKET_ERROR("Can't set socket blocking mode");
+    }
 
     m_blockingMode = blocking;
 }

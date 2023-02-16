@@ -32,7 +32,7 @@ using namespace sptk;
 String HomeDirectory::location()
 {
 #ifndef _WIN32
-    const char* hdir = getenv("HOME");
+    const char* hdir = std::getenv("HOME");
     if (hdir == nullptr)
         hdir = ".";
     String homeDir = trim(hdir);

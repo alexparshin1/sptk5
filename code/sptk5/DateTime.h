@@ -187,15 +187,15 @@ public:
 
     /**
      * Constructor
-     * @param dt                Time point
+     * @param timePoint                Time point
      */
-    explicit DateTime(const time_point& dt);
+    explicit DateTime(const time_point& timePoint);
 
     /**
      * Constructor
-     * @param dt                Duration since epoch
+     * @param interval                Duration since epoch
      */
-    explicit DateTime(const duration& dt);
+    explicit DateTime(const duration& interval);
 
     /**
      * Returns time_point presentation of the date and time
@@ -240,9 +240,9 @@ public:
 
     /**
      * Converts C time into DateTime
-     * @param tt                C time to convert
+     * @param timestamp                C time to convert
      */
-    static DateTime convertCTime(const time_t tt);
+    static DateTime convertCTime(const time_t timestamp);
 
     /**
      * Reports the number of days in the month in this date (1..31)
@@ -329,9 +329,9 @@ public:
     void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const;
 
     /**
-     * Decodes time into h,m,s,ms
+     * Decodes time into hour,minute,second,millisecond
      */
-    void decodeTime(short* h, short* m, short* s, short* ms, bool gmt = false) const;
+    void decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt = false) const;
 
     /**
      * Return true if date and time are at epoch
@@ -393,17 +393,17 @@ SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 /**
  * Adds two DateTime values
  */
-SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
 
 /**
  * Adds two DateTime values
  */
-SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
 
 /**
  * Subtracts two DateTime values
  */
-SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dateTime, const sptk::DateTime& dt2);
 
 /**
  * Convert duration into seconds, with 1 msec accuracy

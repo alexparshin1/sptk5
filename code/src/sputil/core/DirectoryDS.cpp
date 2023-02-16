@@ -160,7 +160,7 @@ bool DirectoryDS::open()
             fields.push_back("Name", false) = dirName;
             fields.push_back("Size", false) = "";
             fields.push_back("Type", false) = "Directory";
-            push_back(move(fields));
+            push_back(std::move(fields));
             ++index;
         }
     }
@@ -195,7 +195,7 @@ bool DirectoryDS::open()
         }
 
         auto entry = makeFileListEntry(file, index);
-        push_back(move(entry));
+        push_back(std::move(entry));
     }
 
     first();
