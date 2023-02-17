@@ -82,7 +82,7 @@ TEST(SPTK_SocketEvents, minimal)
     Semaphore eventReceived;
     shared_ptr<SocketReader> socketReader;
 
-    auto eventsCallback = [&eventReceived, &socketReader](uint8_t* userData, SocketEventType eventType) {
+    auto eventsCallback = [&eventReceived, &socketReader](const uint8_t* userData, SocketEventType eventType) {
         Buffer line;
         switch (eventType)
         {

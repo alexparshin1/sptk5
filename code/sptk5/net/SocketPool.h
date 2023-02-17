@@ -74,7 +74,7 @@ enum class SocketEventType : uint8_t
 /**
  * Type definition of socket event callback function
  */
-using SocketEventCallback = std::function<void(uint8_t* userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
@@ -136,7 +136,7 @@ public:
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
      */
-    void watchSocket(BaseSocket& socket, uint8_t* userData);
+    void watchSocket(BaseSocket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from monitored pool

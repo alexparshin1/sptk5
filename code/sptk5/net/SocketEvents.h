@@ -68,7 +68,7 @@ public:
      * @param socket	            Socket to monitor
      * @param userData	            User data to pass into callback function
      */
-    void add(BaseSocket& socket, uint8_t* userData);
+    void add(BaseSocket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from collection and stop monitoring its events

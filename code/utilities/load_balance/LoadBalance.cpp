@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(uint8_t* userData, SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
@@ -45,7 +45,7 @@ void LoadBalance::sourceEventCallback(uint8_t* userData, SocketEventType eventTy
     channel->copyData(channel->source(), channel->destination());
 }
 
-void LoadBalance::destinationEventCallback(uint8_t* userData, SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 

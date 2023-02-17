@@ -63,7 +63,7 @@ void SocketEvents::stop()
     }
 }
 
-void SocketEvents::add(BaseSocket& socket, uint8_t* userData)
+void SocketEvents::add(BaseSocket& socket, const uint8_t* userData)
 {
     if (!running())
     {

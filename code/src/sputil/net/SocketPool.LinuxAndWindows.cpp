@@ -74,14 +74,14 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, uint8_t* userData)
+void SocketPool::watchSocket(BaseSocket& socket, const uint8_t* userData)
 {
     if (!socket.active())
     {
         throw Exception("Socket is closed");
     }
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (m_pool == INVALID_EPOLL)
     {
@@ -91,7 +91,7 @@ void SocketPool::watchSocket(BaseSocket& socket, uint8_t* userData)
     auto socketFD = socket.fd();
 
     auto event = make_shared<epoll_event>();
-    event->data.ptr = userData;
+    event->data.ptr = (void*) userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event.get()) == -1)
