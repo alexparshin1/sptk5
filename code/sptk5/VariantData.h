@@ -110,8 +110,6 @@ public:
 
 class SP_EXPORT VariantData
 {
-    friend class Variant_SetMethods;
-
 public:
     using Storage = std::variant<bool, int32_t, int64_t, double, const uint8_t*, const void*, DateTime, Buffer, MoneyData>;
 

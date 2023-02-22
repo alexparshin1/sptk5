@@ -52,7 +52,7 @@ MoneyData::operator int64_t() const
     return quantity / dividers[scale];
 }
 
-MoneyData::operator int() const
+MoneyData::operator int32_t() const
 {
     return int(quantity / dividers[scale]);
 }

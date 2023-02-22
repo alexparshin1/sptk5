@@ -66,7 +66,6 @@ namespace sptk {
  */
 enum class SocketEventType : uint8_t
 {
-    UNKNOWN,          ///< Event is unknown or undefined
     HAS_DATA,         ///< Socket has data available to read
     CONNECTION_CLOSED ///< Peer closed connection
 };

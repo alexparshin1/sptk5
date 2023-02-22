@@ -34,7 +34,8 @@ int hexCharToInt(unsigned char character)
 {
     if (character > '@')
     {
-        return character - 'A' + 10;
+        constexpr int digitsOffset = 10;
+        return character - 'A' + digitsOffset;
     }
     return character - '0';
 }
@@ -79,6 +80,7 @@ String Url::encode(const String& str)
 
 String Url::decode(const String& str)
 {
+    constexpr int base16 = 16;
     const char* src = str.c_str();
     char dest {0};
     Buffer buffer;
@@ -93,7 +95,7 @@ String Url::decode(const String& str)
 
             case '%':
                 ++src;
-                dest = char(hexCharToInt((unsigned char) *src) * 16 + hexCharToInt((unsigned char) src[1]));
+                dest = char(hexCharToInt((unsigned char) *src) * base16 + hexCharToInt((unsigned char) src[1]));
                 buffer.append(dest);
                 src += 2;
                 break;
