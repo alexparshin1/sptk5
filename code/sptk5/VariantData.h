@@ -194,7 +194,7 @@ public:
         m_dataType.isNull = isNull;
     }
 
-    VariantType type() const
+    [[nodiscard]] VariantType type() const
     {
         return m_dataType;
     }
@@ -204,7 +204,7 @@ public:
         m_dataSize = dataSize;
     }
 
-    size_t size() const
+    [[nodiscard]] size_t size() const
     {
         return m_dataSize;
     }
