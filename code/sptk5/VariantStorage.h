@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "DateTime.h"
 #include <sptk5/Buffer.h>
 
 namespace sptk {
@@ -43,7 +44,8 @@ public:
         Null,
         Integer,
         Double,
-        Buffer
+        Buffer,
+        DateTime
     };
 
     /**
@@ -52,10 +54,12 @@ public:
     VariantStorage() = default;
 
     VariantStorage(const VariantStorage& other);
+    VariantStorage(VariantStorage&& other);
     VariantStorage(int value);
     VariantStorage(int64_t value);
     VariantStorage(double value);
     VariantStorage(const Buffer& value);
+    VariantStorage(const DateTime& value);
 
     /**
      * @brief Destructor
@@ -68,14 +72,17 @@ public:
     explicit operator int64_t() const;
     explicit operator double() const;
     explicit operator const Buffer&() const;
+    explicit operator const DateTime&() const;
 
     void reset();
 
     VariantStorage& operator=(const VariantStorage& other);
+    VariantStorage& operator=(VariantStorage&& other);
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);
     VariantStorage& operator=(const Buffer& value);
+    VariantStorage& operator=(const DateTime& value);
 
 private:
     union VariantValue
@@ -83,6 +90,7 @@ private:
         int64_t asInteger;
         double asDouble;
         Buffer* asBuffer;
+        DateTime* asDateTime;
     };
 
     VariantValue m_value {};

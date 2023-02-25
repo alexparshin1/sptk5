@@ -6,13 +6,17 @@ using namespace sptk;
 VariantStorage::VariantStorage(const VariantStorage& other)
     : m_type(other.m_type)
 {
-    if (m_type == Type::Buffer)
+    switch (m_type)
     {
-        m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
-    }
-    else
-    {
-        m_value.asInteger = other.m_value.asInteger;
+        case Type::Buffer:
+            m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
+            break;
+        case Type::DateTime:
+            m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
+            break;
+        default:
+            m_value.asInteger = other.m_value.asInteger;
+            break;
     }
 }
 
@@ -38,6 +42,12 @@ VariantStorage::VariantStorage(const Buffer& value)
     : m_type(Type::Buffer)
 {
     m_value.asBuffer = new Buffer(value);
+}
+
+VariantStorage::VariantStorage(const DateTime& value)
+    : m_type(Type::DateTime)
+{
+    m_value.asDateTime = new DateTime(value);
 }
 
 VariantStorage::~VariantStorage()
@@ -90,17 +100,34 @@ VariantStorage::operator const Buffer&() const
     }
 }
 
+VariantStorage::operator const DateTime&() const
+{
+    static const DateTime empty;
+    switch (m_type)
+    {
+        case Type::DateTime:
+            return *m_value.asDateTime;
+        case Type::Null:
+            return empty;
+        default:
+            throw std::runtime_error("Invalid type");
+    }
+}
+
 void VariantStorage::reset()
 {
-    if (m_type == Type::Buffer)
+    switch (m_type)
     {
-        delete m_value.asBuffer;
-        m_value.asBuffer = nullptr;
+        case Type::Buffer:
+            delete m_value.asBuffer;
+            break;
+        case Type::DateTime:
+            delete m_value.asDateTime;
+            break;
+        default:
+            break;
     }
-    else
-    {
-        m_value.asInteger = 0;
-    }
+    m_value.asInteger = 0;
     m_type = Type::Null;
 }
 
@@ -118,13 +145,17 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
 
     m_type = other.m_type;
 
-    if (m_type == Type::Buffer)
+    switch (m_type)
     {
-        m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
-    }
-    else
-    {
-        m_value.asInteger = other.m_value.asInteger;
+        case Type::Buffer:
+            m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
+            break;
+        case Type::DateTime:
+            m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
+            break;
+        default:
+            m_value.asInteger = other.m_value.asInteger;
+            break;
     }
 
     return *this;
@@ -173,7 +204,46 @@ VariantStorage& VariantStorage::operator=(const Buffer& value)
     return *this;
 }
 
+VariantStorage& VariantStorage::operator=(const DateTime& value)
+{
+    switch (m_type)
+    {
+        case Type::Buffer:
+            reset();
+            m_value.asDateTime = new DateTime(value);
+            break;
+        case Type::DateTime:
+            *m_value.asDateTime = value;
+            break;
+        default:
+            m_value.asDateTime = new DateTime(value);
+            break;
+    }
+    m_type = Type::DateTime;
+    return *this;
+}
+
 VariantStorage::Type VariantStorage::type() const
 {
     return m_type;
+}
+
+VariantStorage::VariantStorage(VariantStorage&& other)
+    : m_value(other.m_value)
+    , m_type(other.m_type)
+{
+    other.m_type = Type::Null;
+    other.m_value.asInteger = 0;
+}
+
+VariantStorage& VariantStorage::operator=(VariantStorage&& other)
+{
+    if (this != &other)
+    {
+        m_value = other.m_value;
+        m_type = other.m_type;
+        other.m_type = Type::Null;
+        other.m_value.asInteger = 0;
+    }
+    return *this;
 }

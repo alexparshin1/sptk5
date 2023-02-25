@@ -54,6 +54,11 @@ TEST(SPTK_VariantStorage, ctors)
     VariantStorage variantStorage4(testBuffer);
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage4.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage4).c_str());
+
+    DateTime testDateTime(2023, 2, 25);
+    VariantStorage variantStorage5(testDateTime);
+    EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage5.type());
+    EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage5).dateString().c_str());
 }
 
 TEST(SPTK_VariantStorage, copy_ctor)
@@ -63,6 +68,12 @@ TEST(SPTK_VariantStorage, copy_ctor)
     VariantStorage variantStorage2(variantStorage);
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage2.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage2).c_str());
+
+    DateTime testDateTime(2023, 2, 25);
+    VariantStorage variantStorage1(testDateTime);
+    VariantStorage variantStorage3(variantStorage1);
+    EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
+    EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
 }
 
 TEST(SPTK_VariantStorage, move_ctor)
@@ -72,6 +83,12 @@ TEST(SPTK_VariantStorage, move_ctor)
     VariantStorage variantStorage2(std::move(variantStorage));
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage2.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage2).c_str());
+
+    DateTime testDateTime(2023, 2, 25);
+    VariantStorage variantStorage1(testDateTime);
+    VariantStorage variantStorage3(std::move(variantStorage1));
+    EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
+    EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
 }
 
 TEST(SPTK_VariantStorage, assigns)
@@ -92,6 +109,20 @@ TEST(SPTK_VariantStorage, assigns)
 
     Buffer testBuffer("Test buffer");
     variantStorage = testBuffer;
+    EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
+    EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
+
+    DateTime testDateTime(2023, 2, 25);
+    variantStorage = testDateTime;
+    EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage.type());
+    EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage).dateString().c_str());
+
+    VariantStorage variantStorage2(testBuffer);
+    variantStorage = variantStorage2;
+    EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
+    EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
+
+    variantStorage = std::move(variantStorage2);
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
 }
