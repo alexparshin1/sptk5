@@ -649,9 +649,9 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
                 continue;
             }
             String defaultValue;
-            if (auto vtor = m_values.find(optionTemplate->name()); vtor != m_values.end())
+            if (auto valueIterator = m_values.find(optionTemplate->name()); valueIterator != m_values.end())
             {
-                defaultValue = vtor->second;
+                defaultValue = valueIterator->second;
             }
             optionTemplate->printHelp(nameColumns, helpTextColumns, defaultValue);
         }
@@ -668,12 +668,12 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
         printLine(singleLine, screenColumns);
         for (const String& commandName: sortedCommands)
         {
-            auto ator = m_argumentTemplates.find(commandName);
+            auto argumentIterator = m_argumentTemplates.find(commandName);
             if (!onlyForCommand.empty() && commandName != onlyForCommand)
             {
                 continue;
             }
-            const auto commandTemplate = ator->second;
+            const auto commandTemplate = argumentIterator->second;
             commandTemplate->printHelp(nameColumns, helpTextColumns, "");
         }
     }

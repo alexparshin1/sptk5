@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
+#include <sptk5/MoneyData.h>
 #include <utility>
 #include <variant>
 
@@ -61,51 +61,6 @@ struct VariantType {
     VariantDataType type;
     bool isNull : 1;
     bool isExternalBuffer : 1;
-};
-
-/**
- * Money data (internal).
- *
- * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
- * A money value is quantity / 10^(scale)
- */
-class SP_EXPORT MoneyData
-{
-public:
-    static const std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
-    int64_t quantity;                              ///< Integer value
-    uint8_t scale;                                 ///< Scale
-
-    /**
-     * Constructor
-     * @param quantity          Money value
-     * @param scale             Money value scale (signs after decimal point)
-     */
-    MoneyData(int64_t quantity, uint8_t scale)
-        : quantity(quantity)
-        , scale(scale)
-    {
-    }
-
-    /**
-     * Convert to double value
-     */
-    explicit operator double() const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator int64_t() const;
-
-    /**
-     * Convert to integer value
-     */
-    explicit operator int32_t() const;
-
-    /**
-     * Convert to bool value
-     */
-    explicit operator bool() const;
 };
 
 class SP_EXPORT VariantData

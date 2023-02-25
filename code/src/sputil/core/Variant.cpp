@@ -36,32 +36,6 @@ using namespace xdoc;
 static constexpr int BUFFER_TYPES =
     (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER;
 
-static constexpr int numberOfDividers = 16;
-const array<int64_t, numberOfDividers> MoneyData::dividers = {
-    1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
-    1000000000LL, 10000000000LL, 100000000000LL, 1000000000000LL,
-    10000000000000LL, 100000000000000LL, 1000000000000000LL};
-
-MoneyData::operator double() const
-{
-    return double(quantity) / double(dividers[scale]);
-}
-
-MoneyData::operator int64_t() const
-{
-    return quantity / dividers[scale];
-}
-
-MoneyData::operator int32_t() const
-{
-    return int(quantity / dividers[scale]);
-}
-
-MoneyData::operator bool() const
-{
-    return quantity != 0;
-}
-
 //---------------------------------------------------------------------------
 void BaseVariant::dataSize(size_t newDataSize)
 {

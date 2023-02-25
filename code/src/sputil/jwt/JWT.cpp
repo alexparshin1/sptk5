@@ -278,9 +278,9 @@ void JWT::encode(ostream& out) const
     stringstream header;
     write_head(header, false);
 
-    String data(header.str());
+    Buffer data(header.str());
     Buffer encodedHead;
-    Base64::encode(encodedHead, (const uint8_t*) data.c_str(), data.length());
+    Base64::encode(encodedHead, data.data(), data.bytes());
 
     /* Now the body. */
     stringstream body;
@@ -288,7 +288,7 @@ void JWT::encode(ostream& out) const
 
     data = body.str();
     Buffer encodedBody;
-    Base64::encode(encodedBody, (const uint8_t*) data.c_str(), data.length());
+    Base64::encode(encodedBody, data.data(), data.bytes());
 
     jwt_base64uri_encode(encodedHead);
     jwt_base64uri_encode(encodedBody);
@@ -326,7 +326,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     /* Decode based on RFC-4648 URI safe encoding. */
     auto len = strlen(src);
     Buffer newData_buffer(len + 4);
-    auto* newData = (char*) newData_buffer.data();
+    auto* newData = reinterpret_cast<char*>(newData_buffer.data());
 
     size_t i = 0;
     for (; i < len; ++i)
@@ -369,7 +369,7 @@ static void jwt_b64_decode_json(const xdoc::Document& dest, const Buffer& src)
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
-    auto* str = (char*) buffer.data();
+    auto* str = reinterpret_cast<char*>(buffer.data());
     size_t len = strlen(str);
     size_t t = 0;
 
@@ -499,9 +499,9 @@ void JWT::decode(const char* token, const String& _key)
         throw Exception("Invalid JWT data");
     }
 
-    Buffer head((const uint8_t*) parts[0].data, parts[0].length);
-    Buffer body((const uint8_t*) parts[1].data, parts[1].length);
-    Buffer sig((const uint8_t*) parts[2].data, parts[2].length);
+    Buffer head(reinterpret_cast<const uint8_t*>(parts[0].data), parts[0].length);
+    Buffer body(reinterpret_cast<const uint8_t*>(parts[1].data), parts[1].length);
+    Buffer sig(reinterpret_cast<const uint8_t*>(parts[2].data), parts[2].length);
 
     // Now that we have everything split up, let's check out the header.
 

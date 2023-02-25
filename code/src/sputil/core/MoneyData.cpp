@@ -24,94 +24,33 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "sptk5/MoneyData.h"
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/MoneyData.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
+static constexpr int numberOfDividers = 16;
+const array<int64_t, numberOfDividers> MoneyData::dividers = {
+    1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
+    1000000000LL, 10000000000LL, 100000000000LL, 1000000000000LL,
+    10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
-/// @brief Compact variant data storage
-///
-/// Unlike std::variant that uses combined space for all variant types,
-/// this class shares the space for included data types, taking just 16 bytes of memory
-/// (dynamically allocated memory for Buffer or DateTime is not included)
-class VariantStorage
+MoneyData::operator double() const
 {
-public:
-    enum class Type
-    {
-        Null,
-        Integer,
-        Double,
-        Buffer,
-        DateTime,
-        Money,
-        BytePointer,
-        CharPointer
-    };
+    return double(quantity) / double(dividers[scale]);
+}
 
-    /**
-     * @brief Constructor
-     */
-    VariantStorage() = default;
+MoneyData::operator int64_t() const
+{
+    return quantity / dividers[scale];
+}
 
-    VariantStorage(const VariantStorage& other);
-    VariantStorage(VariantStorage&& other);
+MoneyData::operator int32_t() const
+{
+    return int(quantity / dividers[scale]);
+}
 
-    explicit VariantStorage(int value);
-    explicit VariantStorage(int64_t value);
-    explicit VariantStorage(double value);
-    explicit VariantStorage(const Buffer& value);
-    explicit VariantStorage(const DateTime& value);
-    explicit VariantStorage(const MoneyData& value);
-    explicit VariantStorage(const uint8_t* value);
-    explicit VariantStorage(const char* value);
-
-    /**
-     * @brief Destructor
-     */
-    ~VariantStorage();
-
-    Type type() const;
-
-    explicit operator int() const;
-    explicit operator int64_t() const;
-    explicit operator double() const;
-    explicit operator const Buffer&() const;
-    explicit operator const DateTime&() const;
-    explicit operator const MoneyData&() const;
-    explicit operator const uint8_t*() const;
-    explicit operator const char*() const;
-
-    void reset();
-
-    VariantStorage& operator=(const VariantStorage& other);
-    VariantStorage& operator=(VariantStorage&& other);
-    VariantStorage& operator=(int value);
-    VariantStorage& operator=(int64_t value);
-    VariantStorage& operator=(double value);
-    VariantStorage& operator=(const Buffer& value);
-    VariantStorage& operator=(const DateTime& value);
-    VariantStorage& operator=(const MoneyData& value);
-    VariantStorage& operator=(const uint8_t* value);
-    VariantStorage& operator=(const char* value);
-
-private:
-    union VariantValue
-    {
-        int64_t asInteger;
-        double asDouble;
-        Buffer* asBuffer;
-        DateTime* asDateTime;
-        MoneyData* asMoneyData;
-        const uint8_t* asBytePointer;
-        const char* asCharPointer;
-    };
-
-    VariantValue m_value {};
-    Type m_type {Type::Null};
-};
-
-} // namespace sptk
+MoneyData::operator bool() const
+{
+    return quantity != 0;
+}

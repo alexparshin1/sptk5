@@ -14,6 +14,9 @@ VariantStorage::VariantStorage(const VariantStorage& other)
         case Type::DateTime:
             m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
             break;
+        case Type::Money:
+            m_value.asMoneyData = new MoneyData(*other.m_value.asMoneyData);
+            break;
         default:
             m_value.asInteger = other.m_value.asInteger;
             break;
@@ -48,6 +51,24 @@ VariantStorage::VariantStorage(const DateTime& value)
     : m_type(Type::DateTime)
 {
     m_value.asDateTime = new DateTime(value);
+}
+
+VariantStorage::VariantStorage(const MoneyData& value)
+    : m_type(Type::Money)
+{
+    m_value.asMoneyData = new MoneyData(value);
+}
+
+VariantStorage::VariantStorage(const uint8_t* value)
+    : m_type(Type::Money)
+{
+    m_value.asBytePointer = value;
+}
+
+VariantStorage::VariantStorage(const char* value)
+    : m_type(Type::Money)
+{
+    m_value.asCharPointer = value;
 }
 
 VariantStorage::~VariantStorage()
@@ -114,6 +135,46 @@ VariantStorage::operator const DateTime&() const
     }
 }
 
+VariantStorage::operator const MoneyData&() const
+{
+    static const MoneyData empty;
+    switch (m_type)
+    {
+        case Type::Money:
+            return *m_value.asMoneyData;
+        case Type::Null:
+            return empty;
+        default:
+            throw std::runtime_error("Invalid type");
+    }
+}
+
+VariantStorage::operator const uint8_t*() const
+{
+    switch (m_type)
+    {
+        case Type::BytePointer:
+            return m_value.asBytePointer;
+        case Type::Null:
+            return nullptr;
+        default:
+            throw std::runtime_error("Invalid type");
+    }
+}
+
+VariantStorage::operator const char*() const
+{
+    switch (m_type)
+    {
+        case Type::BytePointer:
+            return m_value.asCharPointer;
+        case Type::Null:
+            return nullptr;
+        default:
+            throw std::runtime_error("Invalid type");
+    }
+}
+
 void VariantStorage::reset()
 {
     switch (m_type)
@@ -123,6 +184,9 @@ void VariantStorage::reset()
             break;
         case Type::DateTime:
             delete m_value.asDateTime;
+            break;
+        case Type::Money:
+            delete m_value.asMoneyData;
             break;
         default:
             break;
@@ -152,6 +216,9 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
             break;
         case Type::DateTime:
             m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
+            break;
+        case Type::Money:
+            m_value.asMoneyData = new MoneyData(*other.m_value.asMoneyData);
             break;
         default:
             m_value.asInteger = other.m_value.asInteger;
@@ -209,6 +276,7 @@ VariantStorage& VariantStorage::operator=(const DateTime& value)
     switch (m_type)
     {
         case Type::Buffer:
+        case Type::Money:
             reset();
             m_value.asDateTime = new DateTime(value);
             break;
@@ -220,6 +288,60 @@ VariantStorage& VariantStorage::operator=(const DateTime& value)
             break;
     }
     m_type = Type::DateTime;
+    return *this;
+}
+
+VariantStorage& VariantStorage::operator=(const MoneyData& value)
+{
+    switch (m_type)
+    {
+        case Type::Buffer:
+        case Type::DateTime:
+            reset();
+            m_value.asMoneyData = new MoneyData(value);
+            break;
+        case Type::Money:
+            *m_value.asMoneyData = value;
+            break;
+        default:
+            m_value.asMoneyData = new MoneyData(value);
+            break;
+    }
+    m_type = Type::Money;
+    return *this;
+}
+
+VariantStorage& VariantStorage::operator=(const uint8_t* value)
+{
+    switch (m_type)
+    {
+        case Type::Buffer:
+        case Type::DateTime:
+        case Type::Money:
+            reset();
+            break;
+        default:
+            break;
+    }
+    m_type = Type::BytePointer;
+    m_value.asBytePointer = value;
+    return *this;
+}
+
+VariantStorage& VariantStorage::operator=(const char* value)
+{
+    switch (m_type)
+    {
+        case Type::Buffer:
+        case Type::DateTime:
+        case Type::Money:
+            reset();
+            break;
+        default:
+            break;
+    }
+    m_type = Type::CharPointer;
+    m_value.asCharPointer = value;
     return *this;
 }
 

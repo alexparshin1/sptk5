@@ -47,12 +47,12 @@ void QueryStatementManagement::closeStmt(bool freeStatement)
     {
         if (freeStatement)
         {
-            database()->queryFreeStmt((Query*) this);
+            database()->queryFreeStmt(static_cast<Query*>(this));
             setPrepared(false);
         }
         else
         {
-            database()->queryCloseStmt((Query*) this);
+            database()->queryCloseStmt(static_cast<Query*>(this));
         }
         setActive(false);
     }
@@ -80,7 +80,7 @@ void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
     }
     disconnect();
     setDatabase(_db);
-    database()->linkQuery((Query*) this);
+    database()->linkQuery(static_cast<Query*>(this));
 }
 
 void QueryStatementManagement::disconnect()
@@ -88,7 +88,7 @@ void QueryStatementManagement::disconnect()
     closeQuery(true);
     if (database() != nullptr)
     {
-        database()->unlinkQuery((Query*) this);
+        database()->unlinkQuery(static_cast<Query*>(this));
     }
     setDatabase(nullptr);
 }
@@ -152,10 +152,10 @@ Query::~Query()
 bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql)
 {
     // Looking up for SQL parameters
-    const char* delimitters = "':-/";
+    const char* delimiters = "':-/";
 
     // Find param start
-    paramStart = strpbrk(paramEnd, delimitters);
+    paramStart = strpbrk(paramEnd, delimiters);
     if (paramStart == nullptr)
     {
         return false;

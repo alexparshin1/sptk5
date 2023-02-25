@@ -59,6 +59,16 @@ TEST(SPTK_VariantStorage, ctors)
     VariantStorage variantStorage5(testDateTime);
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage5.type());
     EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage5).dateString().c_str());
+
+    MoneyData testMoneyData(123456, 2);
+    VariantStorage variantStorage6(testMoneyData);
+    EXPECT_EQ(VariantStorage::Type::Money, variantStorage6.type());
+    EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage6));
+
+    const char* testText = "Test text";
+    VariantStorage variantStorage7(testText);
+    EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage7.type());
+    EXPECT_STREQ(testText, (const char*) variantStorage7);
 }
 
 TEST(SPTK_VariantStorage, copy_ctor)
@@ -74,6 +84,18 @@ TEST(SPTK_VariantStorage, copy_ctor)
     VariantStorage variantStorage3(variantStorage1);
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
     EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
+
+    MoneyData testMoneyData(123456, 2);
+    VariantStorage variantStorage4(testMoneyData);
+    VariantStorage variantStorage5(variantStorage4);
+    EXPECT_EQ(VariantStorage::Type::Money, variantStorage5.type());
+    EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage5));
+
+    const char* testText = "Test text";
+    VariantStorage variantStorage6(testText);
+    VariantStorage variantStorage7(variantStorage6);
+    EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage7.type());
+    EXPECT_STREQ(testText, (const char*) variantStorage7);
 }
 
 TEST(SPTK_VariantStorage, move_ctor)
@@ -89,6 +111,18 @@ TEST(SPTK_VariantStorage, move_ctor)
     VariantStorage variantStorage3(std::move(variantStorage1));
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
     EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
+
+    MoneyData testMoneyData(123456, 2);
+    VariantStorage variantStorage4(testMoneyData);
+    VariantStorage variantStorage5(std::move(variantStorage4));
+    EXPECT_EQ(VariantStorage::Type::Money, variantStorage5.type());
+    EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage5));
+
+    const char* testText = "Test text";
+    VariantStorage variantStorage6(testText);
+    VariantStorage variantStorage7(std::move(variantStorage6));
+    EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage7.type());
+    EXPECT_STREQ(testText, (const char*) variantStorage7);
 }
 
 TEST(SPTK_VariantStorage, assigns)
@@ -116,6 +150,16 @@ TEST(SPTK_VariantStorage, assigns)
     variantStorage = testDateTime;
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage.type());
     EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage).dateString().c_str());
+
+    MoneyData testMoneyData(123456, 2);
+    variantStorage = testMoneyData;
+    EXPECT_EQ(VariantStorage::Type::Money, variantStorage.type());
+    EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage));
+
+    const char* testText = "Test text";
+    variantStorage = testText;
+    EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage.type());
+    EXPECT_STREQ(testText, (const char*) variantStorage);
 
     VariantStorage variantStorage2(testBuffer);
     variantStorage = variantStorage2;
