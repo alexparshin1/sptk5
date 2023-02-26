@@ -11,6 +11,9 @@ VariantStorage::VariantStorage(const VariantStorage& other)
         case Type::Buffer:
             m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
             break;
+        case Type::String:
+            m_value.asString = new String(*other.m_value.asString);
+            break;
         case Type::DateTime:
             m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
             break;
@@ -45,6 +48,18 @@ VariantStorage::VariantStorage(const Buffer& value)
     : m_type(Type::Buffer)
 {
     m_value.asBuffer = new Buffer(value);
+}
+
+VariantStorage::VariantStorage(Buffer&& value)
+    : m_type(Type::Buffer)
+{
+    (*m_value.asBuffer) = std::move(value);
+}
+
+VariantStorage::VariantStorage(const String& value)
+    : m_type(Type::String)
+{
+    m_value.asString = new String(value);
 }
 
 VariantStorage::VariantStorage(const DateTime& value)
@@ -108,6 +123,15 @@ VariantStorage::operator const Buffer&() const
     throw invalid_argument("Invalid type");
 }
 
+VariantStorage::operator const String&() const
+{
+    if (m_type == Type::String)
+    {
+        return *m_value.asString;
+    }
+    throw invalid_argument("Invalid type");
+}
+
 VariantStorage::operator const DateTime&() const
 {
     if (m_type == Type::DateTime)
@@ -151,6 +175,9 @@ void VariantStorage::reset()
         case Type::Buffer:
             delete m_value.asBuffer;
             break;
+        case Type::String:
+            delete m_value.asString;
+            break;
         case Type::DateTime:
             delete m_value.asDateTime;
             break;
@@ -182,6 +209,9 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     {
         case Type::Buffer:
             m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
+            break;
+        case Type::String:
+            m_value.asString = new String(*other.m_value.asString);
             break;
         case Type::DateTime:
             m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
@@ -240,11 +270,27 @@ VariantStorage& VariantStorage::operator=(const Buffer& value)
     return *this;
 }
 
+VariantStorage& VariantStorage::operator=(const String& value)
+{
+    if (m_type != Type::String)
+    {
+        reset();
+        m_value.asString = new String(value);
+        m_type = Type::String;
+    }
+    else
+    {
+        *m_value.asString = value;
+    }
+    return *this;
+}
+
 VariantStorage& VariantStorage::operator=(const DateTime& value)
 {
     switch (m_type)
     {
         case Type::Buffer:
+        case Type::String:
         case Type::Money:
             reset();
             m_value.asDateTime = new DateTime(value);
@@ -265,6 +311,7 @@ VariantStorage& VariantStorage::operator=(const MoneyData& value)
     switch (m_type)
     {
         case Type::Buffer:
+        case Type::String:
         case Type::DateTime:
             reset();
             m_value.asMoneyData = new MoneyData(value);
@@ -285,6 +332,7 @@ VariantStorage& VariantStorage::operator=(const uint8_t* value)
     switch (m_type)
     {
         case Type::Buffer:
+        case Type::String:
         case Type::DateTime:
         case Type::Money:
             reset();
@@ -302,6 +350,7 @@ VariantStorage& VariantStorage::operator=(const char* value)
     switch (m_type)
     {
         case Type::Buffer:
+        case Type::String:
         case Type::DateTime:
         case Type::Money:
             reset();

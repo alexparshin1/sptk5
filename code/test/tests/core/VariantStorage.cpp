@@ -54,6 +54,11 @@ TEST(SPTK_VariantStorage, ctor)
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage4.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage4).c_str());
 
+    const String testString("Test string");
+    const VariantStorage variantStorage41(testString);
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage41.type());
+    EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage41).c_str());
+
     const DateTime testDateTime(2023, 2, 25);
     const VariantStorage variantStorage5(testDateTime);
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage5.type());
@@ -77,6 +82,12 @@ TEST(SPTK_VariantStorage, copy_ctor)
     const VariantStorage variantStorage2(variantStorage);
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage2.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage2).c_str());
+
+    const String testString("Test string");
+    const VariantStorage variantStorage21(testString);
+    const VariantStorage variantStorage22(variantStorage21);
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage22.type());
+    EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage22).c_str());
 
     const DateTime testDateTime(2023, 2, 25);
     const VariantStorage variantStorage1(testDateTime);
@@ -104,6 +115,12 @@ TEST(SPTK_VariantStorage, move_ctor)
     const VariantStorage variantStorage2(std::move(variantStorage));
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage2.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage2).c_str());
+
+    const String testString("Test string");
+    VariantStorage variantStorage21(testString);
+    const VariantStorage variantStorage22(std::move(variantStorage));
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage22.type());
+    EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage22).c_str());
 
     const DateTime testDateTime(2023, 2, 25);
     VariantStorage variantStorage1(testDateTime);
@@ -158,6 +175,16 @@ TEST(SPTK_VariantStorage, assign)
     variantStorage = testBuffer2;
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
     EXPECT_STREQ(testBuffer2.c_str(), ((const Buffer&) variantStorage).c_str());
+
+    const String testString("Test string");
+    const String testString2("Test string 2");
+    variantStorage = testString;
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage.type());
+    EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage).c_str());
+
+    variantStorage = testString2;
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage.type());
+    EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage).c_str());
 
     const DateTime testDateTime(2023, 2, 21);
     const DateTime testDateTime2(2023, 2, 25);
@@ -239,11 +266,17 @@ TEST(SPTK_VariantStorage, copyAssign)
     EXPECT_EQ(VariantStorage::Type::Double, variantStorage2.type());
     EXPECT_DOUBLE_EQ(testDouble, (double) variantStorage2);
 
-    const Buffer testBuffer("Test buffer");
+    const Buffer testBuffer("Test string");
     variantStorage = testBuffer;
     variantStorage2 = variantStorage;
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage2.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage2).c_str());
+
+    const String testString("Test buffer");
+    variantStorage = testString;
+    variantStorage2 = variantStorage;
+    EXPECT_EQ(VariantStorage::Type::String, variantStorage2.type());
+    EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage2).c_str());
 
     const DateTime testDateTime(2023, 2, 21);
     variantStorage = testDateTime;
@@ -281,6 +314,7 @@ TEST(SPTK_VariantStorage, getInvalidType)
     EXPECT_THROW(((const MoneyData&) variantStorage).quantity, invalid_argument);
     EXPECT_THROW((const uint8_t*) variantStorage, invalid_argument);
     EXPECT_THROW((const char*) variantStorage, invalid_argument);
+    EXPECT_THROW((const String&) variantStorage, invalid_argument);
 
     variantStorage = (int64_t) 2;
     EXPECT_THROW((double) variantStorage, invalid_argument);

@@ -49,7 +49,8 @@ public:
         DateTime = 8,
         Money = 16,
         BytePointer = 32,
-        CharPointer = 64
+        CharPointer = 64,
+        String = 128
     };
 
     /**
@@ -64,10 +65,13 @@ public:
     explicit VariantStorage(int64_t value);
     explicit VariantStorage(double value);
     explicit VariantStorage(const Buffer& value);
+    explicit VariantStorage(const String& value);
     explicit VariantStorage(const DateTime& value);
     explicit VariantStorage(const MoneyData& value);
     explicit VariantStorage(const uint8_t* value);
     explicit VariantStorage(const char* value);
+
+    explicit VariantStorage(Buffer&& value);
 
     /**
      * @brief Destructor
@@ -80,6 +84,7 @@ public:
     explicit operator int64_t() const;
     explicit operator double() const;
     explicit operator const Buffer&() const;
+    explicit operator const String&() const;
     explicit operator const DateTime&() const;
     explicit operator const MoneyData&() const;
     explicit operator const uint8_t*() const;
@@ -93,6 +98,7 @@ public:
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);
     VariantStorage& operator=(const Buffer& value);
+    VariantStorage& operator=(const String& value);
     VariantStorage& operator=(const DateTime& value);
     VariantStorage& operator=(const MoneyData& value);
     VariantStorage& operator=(const uint8_t* value);
@@ -104,6 +110,7 @@ private:
         int64_t asInteger;
         double asDouble;
         Buffer* asBuffer;
+        String* asString;
         DateTime* asDateTime;
         MoneyData* asMoneyData;
         const uint8_t* asBytePointer;
