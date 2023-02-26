@@ -26,6 +26,12 @@ VariantStorage::VariantStorage(const VariantStorage& other)
     }
 }
 
+VariantStorage::VariantStorage(bool value)
+    : m_type(Type::Bool)
+{
+    m_value.asInteger = value != 0 ? 1 : 0;
+}
+
 VariantStorage::VariantStorage(int value)
     : m_type(Type::Integer)
 {
@@ -53,7 +59,7 @@ VariantStorage::VariantStorage(const Buffer& value)
 VariantStorage::VariantStorage(Buffer&& value)
     : m_type(Type::Buffer)
 {
-    (*m_value.asBuffer) = std::move(value);
+    m_value.asBuffer = new Buffer(std::move(value));
 }
 
 VariantStorage::VariantStorage(const String& value)
@@ -89,6 +95,15 @@ VariantStorage::VariantStorage(const char* value)
 VariantStorage::~VariantStorage()
 {
     reset();
+}
+
+VariantStorage::operator bool() const
+{
+    if (m_type == Type::Bool)
+    {
+        return (bool) m_value.asInteger;
+    }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator int() const
@@ -198,10 +213,7 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
         return *this;
     }
 
-    if (m_type != other.m_type)
-    {
-        reset();
-    }
+    reset();
 
     m_type = other.m_type;
 
@@ -224,6 +236,17 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
             break;
     }
 
+    return *this;
+}
+
+VariantStorage& VariantStorage::operator=(bool value)
+{
+    if (m_type != Type::Integer)
+    {
+        reset();
+    }
+    m_type = Type::Bool;
+    m_value.asInteger = value != 0 ? 1 : 0;
     return *this;
 }
 

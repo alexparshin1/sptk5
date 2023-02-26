@@ -50,7 +50,8 @@ public:
         Money = 16,
         BytePointer = 32,
         CharPointer = 64,
-        String = 128
+        String = 128,
+        Bool = 256
     };
 
     /**
@@ -61,6 +62,7 @@ public:
     VariantStorage(const VariantStorage& other);
     VariantStorage(VariantStorage&& other) noexcept;
 
+    explicit VariantStorage(bool value);
     explicit VariantStorage(int value);
     explicit VariantStorage(int64_t value);
     explicit VariantStorage(double value);
@@ -80,6 +82,7 @@ public:
 
     [[nodiscard]] Type type() const;
 
+    explicit operator bool() const;
     explicit operator int() const;
     explicit operator int64_t() const;
     explicit operator double() const;
@@ -94,6 +97,7 @@ public:
 
     VariantStorage& operator=(const VariantStorage& other);
     VariantStorage& operator=(VariantStorage&& other) noexcept;
+    VariantStorage& operator=(bool value);
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);

@@ -89,7 +89,7 @@ public:
      * @param other             Buffer to move from
      * @returns this object
      */
-    Buffer& operator=(Buffer&& other) DOESNT_THROW = default;
+    Buffer& operator=(Buffer&& other) noexcept = default;
 
     /**
      * Assigns from Buffer
