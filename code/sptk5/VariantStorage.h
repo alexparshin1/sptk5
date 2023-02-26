@@ -42,14 +42,14 @@ class VariantStorage
 public:
     enum class Type
     {
-        Null,
-        Integer,
-        Double,
-        Buffer,
-        DateTime,
-        Money,
-        BytePointer,
-        CharPointer
+        Null = 0,
+        Integer = 1,
+        Double = 2,
+        Buffer = 4,
+        DateTime = 8,
+        Money = 16,
+        BytePointer = 32,
+        CharPointer = 64
     };
 
     /**
@@ -58,7 +58,7 @@ public:
     VariantStorage() = default;
 
     VariantStorage(const VariantStorage& other);
-    VariantStorage(VariantStorage&& other);
+    VariantStorage(VariantStorage&& other) noexcept;
 
     explicit VariantStorage(int value);
     explicit VariantStorage(int64_t value);
@@ -74,7 +74,7 @@ public:
      */
     ~VariantStorage();
 
-    Type type() const;
+    [[nodiscard]] Type type() const;
 
     explicit operator int() const;
     explicit operator int64_t() const;
@@ -88,7 +88,7 @@ public:
     void reset();
 
     VariantStorage& operator=(const VariantStorage& other);
-    VariantStorage& operator=(VariantStorage&& other);
+    VariantStorage& operator=(VariantStorage&& other) noexcept;
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);

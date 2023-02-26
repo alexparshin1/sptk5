@@ -73,6 +73,7 @@ OPTION(BUILD_PACKAGE "Build OS package" ON)
 
 IF (NOT WIN32)
     OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
+    OPTION(BUILD_WITH_COVERAGE "Build with coverage" ON)
 ENDIF ()
 
 INCLUDE(${CMAKE_ROOT}/Modules/FindASPELL.cmake)
@@ -121,15 +122,19 @@ ELSE ()
             -Wno-shadow
             -Wno-switch-enum
             -Wno-unused-parameter
-            #-fprofile-arcs -ftest-coverage
         )
+        IF (BUILD_WITH_COVERAGE)
+            ADD_DEFINITIONS(-fprofile-arcs -ftest-coverage)
+        ENDIF ()
     ELSE ()
         ADD_DEFINITIONS(
             -fPIC
             -Wall -pedantic
             -Wno-long-long
-            #--coverage
         )
+        IF (BUILD_WITH_COVERAGE)
+            ADD_DEFINITIONS(--coverage)
+        ENDIF ()
     ENDIF ()
 
     IF (USE_NEW_ABI)
@@ -153,7 +158,7 @@ ELSE ()
 
     IF (UNIX)
         LINK_LIBRARIES(pthread rt dl stdc++fs)
-        #LINK_LIBRARIES(gcov)
+        LINK_LIBRARIES(gcov)
     ELSE ()
         LINK_LIBRARIES(pthread rt)
     ENDIF ()

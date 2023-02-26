@@ -60,13 +60,13 @@ VariantStorage::VariantStorage(const MoneyData& value)
 }
 
 VariantStorage::VariantStorage(const uint8_t* value)
-    : m_type(Type::Money)
+    : m_type(Type::BytePointer)
 {
     m_value.asBytePointer = value;
 }
 
 VariantStorage::VariantStorage(const char* value)
-    : m_type(Type::Money)
+    : m_type(Type::CharPointer)
 {
     m_value.asCharPointer = value;
 }
@@ -83,96 +83,65 @@ VariantStorage::operator int() const
 
 VariantStorage::operator int64_t() const
 {
-    switch (m_type)
+    if (m_type == Type::Integer)
     {
-        case Type::Integer:
-            return m_value.asInteger;
-        case Type::Null:
-            return 0;
-        default:
-            throw std::runtime_error("Invalid type");
+        return m_value.asInteger;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator double() const
 {
-    switch (m_type)
+    if (m_type == Type::Double)
     {
-        case Type::Double:
-            return m_value.asDouble;
-        case Type::Null:
-            return 0;
-        default:
-            throw std::runtime_error("Invalid type");
+        return m_value.asDouble;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const Buffer&() const
 {
-    static const Buffer empty;
-    switch (m_type)
+    if (m_type == Type::Buffer)
     {
-        case Type::Buffer:
-            return *m_value.asBuffer;
-        case Type::Null:
-            return empty;
-        default:
-            throw std::runtime_error("Invalid type");
+        return *m_value.asBuffer;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const DateTime&() const
 {
-    static const DateTime empty;
-    switch (m_type)
+    if (m_type == Type::DateTime)
     {
-        case Type::DateTime:
-            return *m_value.asDateTime;
-        case Type::Null:
-            return empty;
-        default:
-            throw std::runtime_error("Invalid type");
+        return *m_value.asDateTime;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const MoneyData&() const
 {
-    static const MoneyData empty;
-    switch (m_type)
+    if (m_type == Type::Money)
     {
-        case Type::Money:
-            return *m_value.asMoneyData;
-        case Type::Null:
-            return empty;
-        default:
-            throw std::runtime_error("Invalid type");
+        return *m_value.asMoneyData;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const uint8_t*() const
 {
-    switch (m_type)
+    if (m_type == Type::BytePointer)
     {
-        case Type::BytePointer:
-            return m_value.asBytePointer;
-        case Type::Null:
-            return nullptr;
-        default:
-            throw std::runtime_error("Invalid type");
+        return m_value.asBytePointer;
     }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const char*() const
 {
-    switch (m_type)
+    if (m_type == Type::CharPointer)
     {
-        case Type::BytePointer:
-            return m_value.asCharPointer;
-        case Type::Null:
-            return nullptr;
-        default:
-            throw std::runtime_error("Invalid type");
+        return m_value.asCharPointer;
     }
+    throw invalid_argument("Invalid type");
 }
 
 void VariantStorage::reset()
@@ -350,7 +319,7 @@ VariantStorage::Type VariantStorage::type() const
     return m_type;
 }
 
-VariantStorage::VariantStorage(VariantStorage&& other)
+VariantStorage::VariantStorage(VariantStorage&& other) noexcept
     : m_value(other.m_value)
     , m_type(other.m_type)
 {
@@ -358,10 +327,11 @@ VariantStorage::VariantStorage(VariantStorage&& other)
     other.m_value.asInteger = 0;
 }
 
-VariantStorage& VariantStorage::operator=(VariantStorage&& other)
+VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
 {
     if (this != &other)
     {
+        reset();
         m_value = other.m_value;
         m_type = other.m_type;
         other.m_type = Type::Null;
