@@ -266,7 +266,7 @@ VariantStorage& VariantStorage::operator=(double value)
 
 VariantStorage& VariantStorage::operator=(const Buffer& value)
 {
-    if (m_type != Type::Buffer)
+    if (m_type != Type::Buffer || !m_class)
     {
         m_class = make_shared<Buffer>(value);
         m_type = Type::Buffer;
@@ -281,7 +281,7 @@ VariantStorage& VariantStorage::operator=(const Buffer& value)
 
 VariantStorage& VariantStorage::operator=(const String& value)
 {
-    if (m_type != Type::String)
+    if (m_type != Type::String || !m_class)
     {
         m_class = make_shared<String>(value);
         m_type = Type::String;
@@ -296,7 +296,7 @@ VariantStorage& VariantStorage::operator=(const String& value)
 
 VariantStorage& VariantStorage::operator=(const DateTime& value)
 {
-    if (m_type != Type::DateTime)
+    if (m_type != Type::DateTime || !m_class)
     {
         m_class = make_shared<DateTime>(value);
         m_type = Type::DateTime;
@@ -309,7 +309,7 @@ VariantStorage& VariantStorage::operator=(const DateTime& value)
 
 VariantStorage& VariantStorage::operator=(const MoneyData& value)
 {
-    if (m_type != Type::Money)
+    if (m_type != Type::Money || !m_class)
     {
         m_class = make_shared<MoneyData>(value);
         m_type = Type::Money;

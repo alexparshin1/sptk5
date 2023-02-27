@@ -173,18 +173,11 @@ TEST(SPTK_VariantStorage, Buffer)
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
     EXPECT_STREQ(testBuffer2.c_str(), ((const Buffer&) variantStorage).c_str());
 
-    cout << "Here" << endl;
-
     variantStorage.setNull();
-    cout << "Here 1" << endl;
     variantStorage = testBuffer;
-    cout << "Here 2" << endl;
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
-    cout << "Here 3" << endl;
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
-    cout << "Here 4" << endl;
     EXPECT_FALSE(variantStorage.isNull());
-    cout << "Done" << endl;
 }
 
 TEST(SPTK_VariantStorage, String)
