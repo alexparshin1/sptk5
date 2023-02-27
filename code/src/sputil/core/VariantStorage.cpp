@@ -61,6 +61,7 @@ VariantStorage::VariantStorage(Buffer&& value)
 {
     auto buffer = make_shared<Buffer>();
     *buffer = std::move(value);
+    m_class = buffer;
 }
 
 VariantStorage::VariantStorage(const String& value)
@@ -215,16 +216,16 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     switch (m_type)
     {
         case Type::Buffer:
-            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(m_class));
+            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
             break;
         case Type::String:
-            m_class = make_shared<String>(*dynamic_pointer_cast<String>(m_class));
+            m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
             break;
         case Type::DateTime:
-            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(m_class));
+            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
             break;
         case Type::Money:
-            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(m_class));
+            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
             break;
         default:
             m_value.asInteger = other.m_value.asInteger;
@@ -347,16 +348,9 @@ VariantStorage& VariantStorage::operator=(const MoneyData& value)
 
 VariantStorage& VariantStorage::operator=(const uint8_t* value)
 {
-    switch (m_type)
+    if (m_class)
     {
-        case Type::Buffer:
-        case Type::String:
-        case Type::DateTime:
-        case Type::Money:
-            reset();
-            break;
-        default:
-            break;
+        m_class.reset();
     }
     m_type = Type::BytePointer;
     m_value.asBytePointer = value;
@@ -365,16 +359,9 @@ VariantStorage& VariantStorage::operator=(const uint8_t* value)
 
 VariantStorage& VariantStorage::operator=(const char* value)
 {
-    switch (m_type)
+    if (m_class)
     {
-        case Type::Buffer:
-        case Type::String:
-        case Type::DateTime:
-        case Type::Money:
-            reset();
-            break;
-        default:
-            break;
+        reset();
     }
     m_type = Type::CharPointer;
     m_value.asCharPointer = value;
@@ -388,21 +375,24 @@ VariantStorage::Type VariantStorage::type() const
 
 VariantStorage::VariantStorage(VariantStorage&& other) noexcept
     : m_value(other.m_value)
+    , m_class(other.m_class)
     , m_type(other.m_type)
 {
-    other.m_type = Type::Null;
+    other.m_class.reset();
     other.m_value.asInteger = 0;
+    other.m_type = Type::Null;
 }
 
 VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
 {
     if (this != &other)
     {
-        reset();
         m_value = other.m_value;
+        m_class = other.m_class;
         m_type = other.m_type;
-        other.m_type = Type::Null;
         other.m_value.asInteger = 0;
+        other.m_class.reset();
+        other.m_type = Type::Null;
     }
     return *this;
 }
