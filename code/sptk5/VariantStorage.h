@@ -44,7 +44,7 @@ class SP_EXPORT VariantStorage
 public:
     enum class Type
     {
-        Null = 0,
+        Undefined = 0,
         Integer = 1,
         Double = 2,
         Buffer = 4,
@@ -80,9 +80,12 @@ public:
     /**
      * @brief Destructor
      */
-    ~VariantStorage();
+    ~VariantStorage() = default;
 
-    [[nodiscard]] Type type() const;
+    [[nodiscard]] Type type() const {return m_type;}
+    [[nodiscard]] bool isNull() const {return m_null;}
+
+    void setNull();
 
     explicit operator bool() const;
     explicit operator int() const;
@@ -94,8 +97,6 @@ public:
     explicit operator const MoneyData&() const;
     explicit operator const uint8_t*() const;
     explicit operator const char*() const;
-
-    void reset();
 
     VariantStorage& operator=(const VariantStorage& other);
     VariantStorage& operator=(VariantStorage&& other) noexcept;
@@ -121,7 +122,8 @@ private:
 
     VariantValue m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    Type m_type {Type::Null};
+    Type m_type {Type::Undefined};
+    bool m_null {true};
 };
 
 } // namespace sptk

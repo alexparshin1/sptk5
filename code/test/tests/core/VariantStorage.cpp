@@ -34,7 +34,8 @@ using namespace sptk;
 TEST(SPTK_VariantStorage, null)
 {
     const VariantStorage variantStorage;
-    EXPECT_EQ(VariantStorage::Type::Null, variantStorage.type());
+    EXPECT_EQ(VariantStorage::Type::Undefined, variantStorage.type());
+    EXPECT_TRUE(variantStorage.isNull());
     EXPECT_EQ(32, sizeof(variantStorage));
 }
 
@@ -43,16 +44,29 @@ TEST(SPTK_VariantStorage, bool)
     VariantStorage variantStorage(true);
     EXPECT_EQ(VariantStorage::Type::Bool, variantStorage.type());
     EXPECT_EQ(true, (bool) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
     variantStorage = false;
     EXPECT_EQ(VariantStorage::Type::Bool, variantStorage.type());
     EXPECT_EQ(false, (bool) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = String("");
     variantStorage = true;
     EXPECT_EQ(VariantStorage::Type::Bool, variantStorage.type());
     EXPECT_EQ(true, (bool) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
+
+    variantStorage.setNull();
+    EXPECT_EQ(VariantStorage::Type::Bool, variantStorage.type());
+    EXPECT_EQ(false, (bool) variantStorage);
+    EXPECT_TRUE(variantStorage.isNull());
+
+    variantStorage = false;
+    EXPECT_EQ(VariantStorage::Type::Bool, variantStorage.type());
+    EXPECT_EQ(false, (bool) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 }
 
 TEST(SPTK_VariantStorage, integer)
@@ -60,6 +74,7 @@ TEST(SPTK_VariantStorage, integer)
     VariantStorage variantStorage1(1);
     EXPECT_EQ(VariantStorage::Type::Integer, variantStorage1.type());
     EXPECT_EQ(1, (int) variantStorage1);
+    EXPECT_FALSE(variantStorage1.isNull());
 
     variantStorage1 = variantStorage1;
 
@@ -67,19 +82,29 @@ TEST(SPTK_VariantStorage, integer)
     variantStorage1 = 2;
     EXPECT_EQ(VariantStorage::Type::Integer, variantStorage1.type());
     EXPECT_EQ(2, (int) variantStorage1);
+    EXPECT_FALSE(variantStorage1.isNull());
 
     VariantStorage variantStorage2((int64_t) 3);
     EXPECT_EQ(VariantStorage::Type::Integer, variantStorage2.type());
     EXPECT_EQ(3, (int64_t) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
 
     variantStorage2 = variantStorage1;
     EXPECT_EQ(VariantStorage::Type::Integer, variantStorage2.type());
     EXPECT_EQ(2, (int) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
 
     variantStorage2 = 0.1;
     variantStorage2 = 4;
     EXPECT_EQ(VariantStorage::Type::Integer, variantStorage1.type());
     EXPECT_EQ(4, (int) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
+
+    variantStorage2.setNull();
+    variantStorage2 = 3;
+    EXPECT_EQ(VariantStorage::Type::Integer, variantStorage1.type());
+    EXPECT_EQ(3, (int) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
 }
 
 TEST(SPTK_VariantStorage, double)
@@ -88,16 +113,24 @@ TEST(SPTK_VariantStorage, double)
     VariantStorage variantStorage(testValue);
     EXPECT_EQ(VariantStorage::Type::Double, variantStorage.type());
     EXPECT_DOUBLE_EQ(testValue, (double) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
     variantStorage = testValue + 1;
     EXPECT_EQ(VariantStorage::Type::Double, variantStorage.type());
     EXPECT_DOUBLE_EQ(testValue + 1, (double) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     VariantStorage variantStorage2;
     variantStorage2 = variantStorage;
     EXPECT_EQ(VariantStorage::Type::Double, variantStorage2.type());
     EXPECT_DOUBLE_EQ(testValue + 1, (double) variantStorage2);
+
+    variantStorage.setNull();
+    variantStorage = testValue;
+    EXPECT_EQ(VariantStorage::Type::Double, variantStorage.type());
+    EXPECT_EQ(testValue, (double) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 }
 
 TEST(SPTK_VariantStorage, Buffer)
@@ -108,6 +141,7 @@ TEST(SPTK_VariantStorage, Buffer)
     VariantStorage variantStorage(testBuffer);
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
     EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = variantStorage;
 
@@ -138,6 +172,19 @@ TEST(SPTK_VariantStorage, Buffer)
     variantStorage = variantStorage4;
     EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
     EXPECT_STREQ(testBuffer2.c_str(), ((const Buffer&) variantStorage).c_str());
+
+    cout << "Here" << endl;
+
+    variantStorage.setNull();
+    cout << "Here 1" << endl;
+    variantStorage = testBuffer;
+    cout << "Here 2" << endl;
+    EXPECT_EQ(VariantStorage::Type::Buffer, variantStorage.type());
+    cout << "Here 3" << endl;
+    EXPECT_STREQ(testBuffer.c_str(), ((const Buffer&) variantStorage).c_str());
+    cout << "Here 4" << endl;
+    EXPECT_FALSE(variantStorage.isNull());
+    cout << "Done" << endl;
 }
 
 TEST(SPTK_VariantStorage, String)
@@ -148,6 +195,7 @@ TEST(SPTK_VariantStorage, String)
     VariantStorage variantStorage(testString);
     EXPECT_EQ(VariantStorage::Type::String, variantStorage.type());
     EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage).c_str());
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = Buffer("test");
     variantStorage = testString2;
@@ -167,9 +215,11 @@ TEST(SPTK_VariantStorage, String)
     EXPECT_EQ(VariantStorage::Type::String, variantStorage4.type());
     EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage4).c_str());
 
+    variantStorage2.setNull();
     variantStorage2 = testString;
     EXPECT_EQ(VariantStorage::Type::String, variantStorage2.type());
     EXPECT_STREQ(testString.c_str(), ((const String&) variantStorage2).c_str());
+    EXPECT_FALSE(variantStorage2.isNull());
 }
 
 TEST(SPTK_VariantStorage, DateTime)
@@ -180,6 +230,7 @@ TEST(SPTK_VariantStorage, DateTime)
     VariantStorage variantStorage(testDateTime);
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage.type());
     EXPECT_STREQ(testDateTime.dateString().c_str(), ((const DateTime&) variantStorage).dateString().c_str());
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = Buffer("test");
     variantStorage = testDateTime2;
@@ -203,6 +254,12 @@ TEST(SPTK_VariantStorage, DateTime)
     variantStorage3 = testDateTime2;
     EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
     EXPECT_STREQ(testDateTime2.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
+
+    variantStorage3.setNull();
+    variantStorage3 = testDateTime2;
+    EXPECT_EQ(VariantStorage::Type::DateTime, variantStorage3.type());
+    EXPECT_STREQ(testDateTime2.dateString().c_str(), ((const DateTime&) variantStorage3).dateString().c_str());
+    EXPECT_FALSE(variantStorage3.isNull());
 }
 
 TEST(SPTK_VariantStorage, MoneyData)
@@ -213,6 +270,7 @@ TEST(SPTK_VariantStorage, MoneyData)
     VariantStorage variantStorage(testMoneyData);
     EXPECT_EQ(VariantStorage::Type::Money, variantStorage.type());
     EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage));
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = DateTime(2023, 1, 1);
     variantStorage = testMoneyData2;
@@ -235,6 +293,13 @@ TEST(SPTK_VariantStorage, MoneyData)
     variantStorage2 = testMoneyData;
     EXPECT_EQ(VariantStorage::Type::Money, variantStorage2.type());
     EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage2));
+    EXPECT_FALSE(variantStorage2.isNull());
+
+    variantStorage2.setNull();
+    variantStorage2 = testMoneyData;
+    EXPECT_EQ(VariantStorage::Type::Money, variantStorage2.type());
+    EXPECT_DOUBLE_EQ((double) testMoneyData, (double) ((const MoneyData&) variantStorage2));
+    EXPECT_FALSE(variantStorage2.isNull());
 }
 
 TEST(SPTK_VariantStorage, CharPointer)
@@ -245,6 +310,7 @@ TEST(SPTK_VariantStorage, CharPointer)
     VariantStorage variantStorage(testText);
     EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage.type());
     EXPECT_STREQ(testText, (const char*) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
     variantStorage = testText2;
@@ -263,6 +329,12 @@ TEST(SPTK_VariantStorage, CharPointer)
     variantStorage2 = variantStorage;
     EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage2.type());
     EXPECT_EQ(testText2, (const char*) variantStorage2);
+
+    variantStorage2.setNull();
+    variantStorage2 = variantStorage;
+    EXPECT_EQ(VariantStorage::Type::CharPointer, variantStorage2.type());
+    EXPECT_EQ(testText2, (const char*) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
 }
 
 TEST(SPTK_VariantStorage, BytePointer)
@@ -273,6 +345,7 @@ TEST(SPTK_VariantStorage, BytePointer)
     VariantStorage variantStorage(testBytes.data());
     EXPECT_EQ(VariantStorage::Type::BytePointer, variantStorage.type());
     EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage);
+    EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
     variantStorage = testBytes2.data();
@@ -300,6 +373,12 @@ TEST(SPTK_VariantStorage, BytePointer)
     variantStorage2 = testBytes.data();
     EXPECT_EQ(VariantStorage::Type::BytePointer, variantStorage2.type());
     EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage2);
+
+    variantStorage2.setNull();
+    variantStorage2 = testBytes.data();
+    EXPECT_EQ(VariantStorage::Type::BytePointer, variantStorage2.type());
+    EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage2);
+    EXPECT_FALSE(variantStorage2.isNull());
 }
 
 TEST(SPTK_VariantStorage, moveAssignment)
