@@ -26,102 +26,26 @@
 
 #pragma once
 
-#include <sptk5/Buffer.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/MoneyData.h>
-
-#include <memory>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
-/// @brief Compact variant data storage
+/// @brief Variant data storage client
 ///
-/// Unlike std::variant that uses combined space for all variant types,
-/// this class shares the space for included data types, taking just 16 bytes of memory
-/// (dynamically allocated memory for Buffer or DateTime is not included)
-class SP_EXPORT VariantStorage
+/// Used for storing derived classes into VariantStorage
+class SP_EXPORT VariantStorageClient
 {
 public:
-    enum class Type
-    {
-        Null = 0,
-        Integer = 1,
-        Double = 2,
-        Buffer = 4,
-        DateTime = 8,
-        Money = 16,
-        BytePointer = 32,
-        CharPointer = 64,
-        String = 128,
-        Bool = 256
-    };
 
     /**
      * @brief Constructor
      */
-    VariantStorage() = default;
-
-    VariantStorage(const VariantStorage& other);
-    VariantStorage(VariantStorage&& other) noexcept;
-
-    explicit VariantStorage(bool value);
-    explicit VariantStorage(int value);
-    explicit VariantStorage(int64_t value);
-    explicit VariantStorage(double value);
-    explicit VariantStorage(const Buffer& value);
-    explicit VariantStorage(const String& value);
-    explicit VariantStorage(const DateTime& value);
-    explicit VariantStorage(const MoneyData& value);
-    explicit VariantStorage(const uint8_t* value);
-    explicit VariantStorage(const char* value);
-
-    explicit VariantStorage(Buffer&& value);
+    VariantStorageClient() = default;
 
     /**
      * @brief Destructor
      */
-    ~VariantStorage();
-
-    [[nodiscard]] Type type() const;
-
-    explicit operator bool() const;
-    explicit operator int() const;
-    explicit operator int64_t() const;
-    explicit operator double() const;
-    explicit operator const Buffer&() const;
-    explicit operator const String&() const;
-    explicit operator const DateTime&() const;
-    explicit operator const MoneyData&() const;
-    explicit operator const uint8_t*() const;
-    explicit operator const char*() const;
-
-    void reset();
-
-    VariantStorage& operator=(const VariantStorage& other);
-    VariantStorage& operator=(VariantStorage&& other) noexcept;
-    VariantStorage& operator=(bool value);
-    VariantStorage& operator=(int value);
-    VariantStorage& operator=(int64_t value);
-    VariantStorage& operator=(double value);
-    VariantStorage& operator=(const Buffer& value);
-    VariantStorage& operator=(const String& value);
-    VariantStorage& operator=(const DateTime& value);
-    VariantStorage& operator=(const MoneyData& value);
-    VariantStorage& operator=(const uint8_t* value);
-    VariantStorage& operator=(const char* value);
-
-private:
-    union VariantValue
-    {
-        int64_t asInteger;
-        double asDouble;
-        const uint8_t* asBytePointer;
-        const char* asCharPointer;
-    };
-
-    VariantValue m_value {};
-    std::shared_ptr<VariantStorageClient> m_class;
-    Type m_type {Type::Null};
+    virtual ~VariantStorageClient() = default;
 };
 
 } // namespace sptk

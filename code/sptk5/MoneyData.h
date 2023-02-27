@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
+#include <sptk5/VariantStorageClient.h>
 
 namespace sptk {
 
@@ -36,7 +36,7 @@ namespace sptk {
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
  * A money value is quantity / 10^(scale)
  */
-class SP_EXPORT MoneyData
+class SP_EXPORT MoneyData : public VariantStorageClient
 {
 public:
     static const std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data

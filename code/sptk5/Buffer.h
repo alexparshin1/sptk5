@@ -27,6 +27,7 @@
 #pragma once
 
 #include <sptk5/BufferStorage.h>
+#include <sptk5/VariantStorageClient.h>
 
 #include <cstdlib>
 #include <cstring>
@@ -47,7 +48,7 @@ namespace sptk {
  * Generic buffer with a special memory-allocation strategy for effective append() operation
  */
 class SP_EXPORT Buffer
-    : public BufferStorage
+    : public BufferStorage, public VariantStorageClient
 {
 
 public:

@@ -26,8 +26,9 @@
 
 #pragma once
 
-#include "sptk.h"
-#include "string_ext.h"
+#include <sptk5/VariantStorageClient.h>
+#include <sptk5/string_ext.h>
+
 #include <algorithm>
 #include <string>
 
@@ -45,7 +46,7 @@ class Strings;
  * Extended version of std::string that supports an integer string ID
  */
 class SP_EXPORT String
-    : public std::string
+    : public std::string, public VariantStorageClient
 {
 public:
     /**

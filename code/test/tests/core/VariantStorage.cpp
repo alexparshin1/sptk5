@@ -35,7 +35,7 @@ TEST(SPTK_VariantStorage, null)
 {
     const VariantStorage variantStorage;
     EXPECT_EQ(VariantStorage::Type::Null, variantStorage.type());
-    EXPECT_EQ(16, sizeof(variantStorage));
+    EXPECT_EQ(32, sizeof(variantStorage));
 }
 
 TEST(SPTK_VariantStorage, bool)

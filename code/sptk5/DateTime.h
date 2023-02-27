@@ -26,11 +26,12 @@
 
 #pragma once
 
+#include <sptk5/String.h>
+#include <sptk5/VariantStorageClient.h>
+
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include <sptk5/String.h>
-#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -82,7 +83,7 @@ public:
  * with the external date/time, without affecting the local host
  * system time.
  */
-class SP_EXPORT DateTime
+class SP_EXPORT DateTime : public VariantStorageClient
 {
     friend class DateTimeFormat;
 

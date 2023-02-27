@@ -9,16 +9,16 @@ VariantStorage::VariantStorage(const VariantStorage& other)
     switch (m_type)
     {
         case Type::Buffer:
-            m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
+            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
             break;
         case Type::String:
-            m_value.asString = new String(*other.m_value.asString);
+            m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
             break;
         case Type::DateTime:
-            m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
+            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
             break;
         case Type::Money:
-            m_value.asMoneyData = new MoneyData(*other.m_value.asMoneyData);
+            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
             break;
         default:
             m_value.asInteger = other.m_value.asInteger;
@@ -53,31 +53,32 @@ VariantStorage::VariantStorage(double value)
 VariantStorage::VariantStorage(const Buffer& value)
     : m_type(Type::Buffer)
 {
-    m_value.asBuffer = new Buffer(value);
+    m_class = make_shared<Buffer>(value);
 }
 
 VariantStorage::VariantStorage(Buffer&& value)
     : m_type(Type::Buffer)
 {
-    m_value.asBuffer = new Buffer(std::move(value));
+    auto buffer = make_shared<Buffer>();
+    *buffer = std::move(value);
 }
 
 VariantStorage::VariantStorage(const String& value)
     : m_type(Type::String)
 {
-    m_value.asString = new String(value);
+    m_class = make_shared<String>(value);
 }
 
 VariantStorage::VariantStorage(const DateTime& value)
     : m_type(Type::DateTime)
 {
-    m_value.asDateTime = new DateTime(value);
+    m_class = make_shared<DateTime>(value);
 }
 
 VariantStorage::VariantStorage(const MoneyData& value)
     : m_type(Type::Money)
 {
-    m_value.asMoneyData = new MoneyData(value);
+    m_class = make_shared<MoneyData>(value);
 }
 
 VariantStorage::VariantStorage(const uint8_t* value)
@@ -133,7 +134,7 @@ VariantStorage::operator const Buffer&() const
 {
     if (m_type == Type::Buffer)
     {
-        return *m_value.asBuffer;
+        return *dynamic_pointer_cast<Buffer>(m_class);
     }
     throw invalid_argument("Invalid type");
 }
@@ -142,7 +143,7 @@ VariantStorage::operator const String&() const
 {
     if (m_type == Type::String)
     {
-        return *m_value.asString;
+        return *dynamic_pointer_cast<String>(m_class);
     }
     throw invalid_argument("Invalid type");
 }
@@ -151,7 +152,7 @@ VariantStorage::operator const DateTime&() const
 {
     if (m_type == Type::DateTime)
     {
-        return *m_value.asDateTime;
+        return *dynamic_pointer_cast<DateTime>(m_class);
     }
     throw invalid_argument("Invalid type");
 }
@@ -160,7 +161,7 @@ VariantStorage::operator const MoneyData&() const
 {
     if (m_type == Type::Money)
     {
-        return *m_value.asMoneyData;
+        return *dynamic_pointer_cast<MoneyData>(m_class);
     }
     throw invalid_argument("Invalid type");
 }
@@ -188,16 +189,10 @@ void VariantStorage::reset()
     switch (m_type)
     {
         case Type::Buffer:
-            delete m_value.asBuffer;
-            break;
         case Type::String:
-            delete m_value.asString;
-            break;
         case Type::DateTime:
-            delete m_value.asDateTime;
-            break;
         case Type::Money:
-            delete m_value.asMoneyData;
+            m_class.reset();
             break;
         default:
             break;
@@ -220,16 +215,16 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     switch (m_type)
     {
         case Type::Buffer:
-            m_value.asBuffer = new Buffer(*other.m_value.asBuffer);
+            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(m_class));
             break;
         case Type::String:
-            m_value.asString = new String(*other.m_value.asString);
+            m_class = make_shared<String>(*dynamic_pointer_cast<String>(m_class));
             break;
         case Type::DateTime:
-            m_value.asDateTime = new DateTime(*other.m_value.asDateTime);
+            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(m_class));
             break;
         case Type::Money:
-            m_value.asMoneyData = new MoneyData(*other.m_value.asMoneyData);
+            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(m_class));
             break;
         default:
             m_value.asInteger = other.m_value.asInteger;
@@ -283,12 +278,12 @@ VariantStorage& VariantStorage::operator=(const Buffer& value)
     if (m_type != Type::Buffer)
     {
         reset();
-        m_value.asBuffer = new Buffer(value);
+        m_class = make_shared<Buffer>(value);
         m_type = Type::Buffer;
     }
     else
     {
-        *m_value.asBuffer = value;
+        *dynamic_pointer_cast<Buffer>(m_class) = value;
     }
     return *this;
 }
@@ -298,12 +293,12 @@ VariantStorage& VariantStorage::operator=(const String& value)
     if (m_type != Type::String)
     {
         reset();
-        m_value.asString = new String(value);
+        m_class = make_shared<String>(value);
         m_type = Type::String;
     }
     else
     {
-        *m_value.asString = value;
+        *dynamic_pointer_cast<String>(m_class) = value;
     }
     return *this;
 }
@@ -316,13 +311,13 @@ VariantStorage& VariantStorage::operator=(const DateTime& value)
         case Type::String:
         case Type::Money:
             reset();
-            m_value.asDateTime = new DateTime(value);
+            m_class = make_shared<DateTime>(value);
             break;
         case Type::DateTime:
-            *m_value.asDateTime = value;
+            *dynamic_pointer_cast<DateTime>(m_class) = value;
             break;
         default:
-            m_value.asDateTime = new DateTime(value);
+            m_class = make_shared<DateTime>(value);
             break;
     }
     m_type = Type::DateTime;
@@ -337,13 +332,13 @@ VariantStorage& VariantStorage::operator=(const MoneyData& value)
         case Type::String:
         case Type::DateTime:
             reset();
-            m_value.asMoneyData = new MoneyData(value);
+            m_class = make_shared<MoneyData>(value);
             break;
         case Type::Money:
-            *m_value.asMoneyData = value;
+            *dynamic_pointer_cast<MoneyData>(m_class) = value;
             break;
         default:
-            m_value.asMoneyData = new MoneyData(value);
+            m_class = make_shared<MoneyData>(value);
             break;
     }
     m_type = Type::Money;
