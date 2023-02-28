@@ -26,117 +26,32 @@
 
 #pragma once
 
-#include "LogPriority.h"
-#include <sptk5/DateTime.h>
-#include <sptk5/sptk.h>
-
 namespace sptk {
 
-class LogEngine;
-
 /**
- * @addtogroup log Log Classes
+ * @addtogroup utility Utility Classes
  * @{
  */
 
 /**
- * @brief A log that sends all the log messages into another log.
- *
- * The destination log is locked for a message adding period.
- * Multiple Logger objects may send messages from different threads
- * into the same destination log.
- * The log options defining message format and min priority are used
- * from destination log.
- * @see CBaseLog for more information about basic log abilities.
+ * Variant types
  */
-class SP_EXPORT Logger
+enum class VariantDataType : uint16_t
 {
-public:
-    /**
-     * Log message
-     */
-    struct Message {
-        DateTime timestamp {"now"}; ///< Message timestamp
-        LogPriority priority;                 ///< Message priority
-        String message;                       ///< Message text
-
-        /**
-         * Constructor
-         * @param priority       Message priority
-         * @param message        Message text
-         */
-        Message(LogPriority priority, String message);
-    };
-
-    using UMessage = std::shared_ptr<Message>;
-
-    /**
-     * @brief Constructor
-     * @param destination       Destination logger
-     * @param prefix            Optional log message prefix
-     */
-    Logger(LogEngine& destination, String prefix = "");
-
-    /**
-     * @brief Returns log engine (destination logger)
-     */
-    LogEngine& destination()
-    {
-        return m_destination;
-    }
-
-    /**
-     * Log message with any priority
-     * @param priority          Message priority
-     * @param message           Message text
-     */
-    void log(LogPriority priority, const String& message);
-
-    /**
-     * Log message with debug priority
-     * @param message           Message text
-     */
-    void debug(const String& message);
-
-    /**
-     * Log message with info priority
-     * @param message           Message text
-     */
-    void info(const String& message);
-
-    /**
-     * Log message with notice priority
-     * @param message           Message text
-     */
-    void notice(const String& message);
-
-    /**
-     * Log message with warning priority
-     * @param message           Message text
-     */
-    void warning(const String& message);
-
-    /**
-     * Log message with error priority
-     * @param message           Message text
-     */
-    void error(const String& message);
-
-    /**
-     * Log message with critical priority
-     * @param message           Message text
-     */
-    void critical(const String& message);
-
-private:
-    /**
-     * The actual log to store messages to (destination log)
-     */
-    LogEngine& m_destination;
-    String m_prefix;
+    VAR_NONE = 0,        ///< Undefined
+    VAR_INT = 1,         ///< Integer
+    VAR_FLOAT = 2,       ///< Floating-point (double)
+    VAR_MONEY = 4,       ///< Special (integer quantity and scale) money
+    VAR_STRING = 8,      ///< String pointer
+    VAR_TEXT = 16,       ///< String pointer, corresponding to BLOBS in database
+    VAR_BUFFER = 32,     ///< Data pointer, corresponding to BLOBS in database
+    VAR_DATE = 64,       ///< DateTime (double)
+    VAR_DATE_TIME = 128, ///< DateTime (double)
+    VAR_IMAGE_PTR = 256, ///< Image pointer
+    VAR_IMAGE_NDX = 512, ///< Image index in object-specific table of image pointers
+    VAR_INT64 = 1024,    ///< 64bit integer
+    VAR_BOOL = 2048      ///< Boolean
 };
-
-using SLogger = std::shared_ptr<Logger>;
 
 /**
  * @}

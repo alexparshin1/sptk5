@@ -44,16 +44,17 @@ class SP_EXPORT VariantStorage
 public:
     enum class Type
     {
-        Undefined = 0,
-        Integer = 1,
-        Double = 2,
-        Buffer = 4,
-        DateTime = 8,
-        Money = 16,
-        BytePointer = 32,
-        CharPointer = 64,
-        String = 128,
-        Bool = 256
+        VAR_NONE = 0,
+        VAR_INT = 1,
+        VAR_FLOAT = 2,
+        VAR_BUFFER = 4,
+        VAR_DATE_TIME = 8,
+        VAR_MONEY = 16,
+        VAR_BYTE_POINTER = 32,
+        VAR_CHAR_POINTER = 64,
+        VAR_STRING = 128,
+        VAR_BOOL = 256,
+        VAR_INT64 = 512
     };
 
     /**
@@ -122,7 +123,7 @@ private:
 
     VariantValue m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    Type m_type {Type::Undefined};
+    Type m_type {Type::VAR_NONE};
     bool m_null {true};
 };
 
