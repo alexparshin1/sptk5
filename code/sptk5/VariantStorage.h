@@ -29,6 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/MoneyData.h>
+#include <sptk5/VariantDataType.h>
 
 #include <memory>
 
@@ -42,21 +43,6 @@ namespace sptk {
 class SP_EXPORT VariantStorage
 {
 public:
-    enum class Type
-    {
-        VAR_NONE = 0,
-        VAR_INT = 1,
-        VAR_FLOAT = 2,
-        VAR_BUFFER = 4,
-        VAR_DATE_TIME = 8,
-        VAR_MONEY = 16,
-        VAR_BYTE_POINTER = 32,
-        VAR_CHAR_POINTER = 64,
-        VAR_STRING = 128,
-        VAR_BOOL = 256,
-        VAR_INT64 = 512
-    };
-
     /**
      * @brief Constructor
      */
@@ -83,8 +69,14 @@ public:
      */
     ~VariantStorage() = default;
 
-    [[nodiscard]] Type type() const {return m_type;}
-    [[nodiscard]] bool isNull() const {return m_null;}
+    [[nodiscard]] VariantDataType type() const
+    {
+        return m_type;
+    }
+    [[nodiscard]] bool isNull() const
+    {
+        return m_null;
+    }
 
     void setNull();
 
@@ -123,7 +115,7 @@ private:
 
     VariantValue m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    Type m_type {Type::VAR_NONE};
+    VariantDataType m_type {VariantDataType::VAR_NONE};
     bool m_null {true};
 };
 
