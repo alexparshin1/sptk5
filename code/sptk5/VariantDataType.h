@@ -38,19 +38,21 @@ namespace sptk {
  */
 enum class VariantDataType : uint16_t
 {
-    VAR_NONE = 0,        ///< Undefined
-    VAR_INT = 1,         ///< Integer
-    VAR_FLOAT = 2,       ///< Floating-point (double)
-    VAR_MONEY = 4,       ///< Special (integer quantity and scale) money
-    VAR_STRING = 8,      ///< String pointer
-    VAR_TEXT = 16,       ///< String pointer, corresponding to BLOBS in database
-    VAR_BUFFER = 32,     ///< Data pointer, corresponding to BLOBS in database
-    VAR_DATE = 64,       ///< DateTime (double)
-    VAR_DATE_TIME = 128, ///< DateTime (double)
-    VAR_IMAGE_PTR = 256, ///< Image pointer
-    VAR_IMAGE_NDX = 512, ///< Image index in object-specific table of image pointers
-    VAR_INT64 = 1024,    ///< 64bit integer
-    VAR_BOOL = 2048      ///< Boolean
+    VAR_NONE = 0,           ///< Undefined
+    VAR_INT = 1,            ///< Integer
+    VAR_FLOAT = 2,          ///< Floating-point (double)
+    VAR_MONEY = 4,          ///< Special (integer quantity and scale) money
+    VAR_STRING = 8,         ///< String pointer
+    VAR_TEXT = 16,          ///< String pointer, corresponding to BLOBS in database
+    VAR_BUFFER = 32,        ///< Data pointer, corresponding to BLOBS in database
+    VAR_DATE = 64,          ///< DateTime (double)
+    VAR_DATE_TIME = 128,    ///< DateTime (double)
+    VAR_IMAGE_PTR = 256,    ///< Image pointer
+    VAR_IMAGE_NDX = 512,    ///< Image index in object-specific table of image pointers
+    VAR_INT64 = 1024,       ///< 64bit integer
+    VAR_BOOL = 2048,        ///< Boolean
+    VAR_BYTE_POINTER = 256, ///< Byte pointer
+    VAR_CHAR_POINTER = 4096 ///< Char pointer
 };
 
 /**

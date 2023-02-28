@@ -29,6 +29,7 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/MoneyData.h>
+#include <sptk5/VariantDataType.h>
 
 #include <memory>
 
@@ -42,21 +43,6 @@ namespace sptk {
 class SP_EXPORT VariantStorage
 {
 public:
-    enum class Type
-    {
-        VAR_NONE = 0,
-        VAR_INT = 1,
-        VAR_FLOAT = 2,
-        VAR_BUFFER = 4,
-        VAR_DATE_TIME = 8,
-        VAR_MONEY = 16,
-        VAR_BYTE_POINTER = 32,
-        VAR_CHAR_POINTER = 64,
-        VAR_STRING = 128,
-        VAR_BOOL = 256,
-        VAR_INT64 = 512
-    };
-
     /**
      * @brief Constructor
      */
@@ -83,8 +69,14 @@ public:
      */
     ~VariantStorage() = default;
 
-    [[nodiscard]] Type type() const {return m_type;}
-    [[nodiscard]] bool isNull() const {return m_null;}
+    [[nodiscard]] VariantDataType type() const
+    {
+        return m_type;
+    }
+    [[nodiscard]] bool isNull() const
+    {
+        return m_null;
+    }
 
     void setNull();
 
@@ -99,6 +91,33 @@ public:
     explicit operator const uint8_t*() const;
     explicit operator const char*() const;
 
+    template<typename T>
+    T get() const
+    {
+        return (T) * this;
+    }
+
+    template<typename T>
+    T& get()
+    {
+        return (T&) *this;
+    }
+
+    template<typename T>
+    const T& get() const
+    {
+        return (const T&) *this;
+    }
+
+    explicit operator bool&();
+    explicit operator int&();
+    explicit operator int64_t&();
+    explicit operator double&();
+    explicit operator Buffer&();
+    explicit operator String&();
+    explicit operator DateTime&();
+    explicit operator MoneyData&();
+
     VariantStorage& operator=(const VariantStorage& other);
     VariantStorage& operator=(VariantStorage&& other) noexcept;
     VariantStorage& operator=(bool value);
@@ -112,10 +131,14 @@ public:
     VariantStorage& operator=(const uint8_t* value);
     VariantStorage& operator=(const char* value);
 
+    VariantStorage& operator=(Buffer&& value);
+
 private:
     union VariantValue
     {
-        int64_t asInteger;
+        bool asBool;
+        int asInt;
+        int64_t asInt64;
         double asDouble;
         const uint8_t* asBytePointer;
         const char* asCharPointer;
@@ -123,7 +146,7 @@ private:
 
     VariantValue m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    Type m_type {Type::VAR_NONE};
+    VariantDataType m_type {VariantDataType::VAR_NONE};
     bool m_null {true};
 };
 
