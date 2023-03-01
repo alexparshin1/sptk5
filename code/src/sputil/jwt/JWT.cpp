@@ -343,8 +343,9 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
                 newData[i] = src[i];
         }
     }
-    auto z = 4 - (i % 4);
-    if (z < 4)
+
+    if (auto z = 4 - (i % 4);
+        z < 4)
     {
         while (--z)
         {

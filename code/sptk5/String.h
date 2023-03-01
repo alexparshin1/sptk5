@@ -46,14 +46,15 @@ class Strings;
  * Extended version of std::string that supports an integer string ID
  */
 class SP_EXPORT String
-    : public std::string, public VariantStorageClient
+    : public std::string
+    , public VariantStorageClient
 {
 public:
     /**
      * Default constructor
      */
     String()
-        : m_id(0)
+        : VariantStorageClient(VariantDataType::VAR_STRING)
     {
     }
 
@@ -65,9 +66,9 @@ public:
 
     /**
      * Move constructor
-     * @param src                Other object
+     * @param other                Other object
      */
-    String(String&& src) noexcept = default;
+    String(String&& other) noexcept = default;
 
     /**
      * Constructor
@@ -76,6 +77,7 @@ public:
      */
     String(const std::string& str, int64_t id = 0)
         : std::string(str)
+        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -87,7 +89,7 @@ public:
      */
     String(const char* str)
         : std::string(str)
-        , m_id(0)
+        , VariantStorageClient(VariantDataType::VAR_STRING)
     {
     }
 
@@ -99,6 +101,7 @@ public:
      */
     String(const char* str, size_t len, int64_t id = 0)
         : std::string(str, len)
+        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -111,6 +114,7 @@ public:
      */
     String(size_t len, char ch, int64_t id = 0)
         : std::string(len, ch)
+        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -118,7 +122,7 @@ public:
     /**
      * Destructor
      */
-    ~String() noexcept = default;
+    ~String() noexcept override = default;
 
     /**
      * Assignment operator

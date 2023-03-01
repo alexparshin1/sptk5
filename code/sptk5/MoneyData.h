@@ -48,8 +48,9 @@ public:
      * @param quantity          Money value
      * @param scale             Money value scale (signs after decimal point)
      */
-    MoneyData(int64_t quantity = 0, uint8_t scale = 0)
-        : quantity(quantity)
+    explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0)
+        : VariantStorageClient(VariantDataType::VAR_MONEY)
+        , quantity(quantity)
         , scale(scale)
     {
     }

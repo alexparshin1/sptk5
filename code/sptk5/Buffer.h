@@ -48,11 +48,36 @@ namespace sptk {
  * Generic buffer with a special memory-allocation strategy for effective append() operation
  */
 class SP_EXPORT Buffer
-    : public BufferStorage, public VariantStorageClient
+    : public BufferStorage
+    , public VariantStorageClient
 {
 
 public:
-    using BufferStorage::BufferStorage;
+    /**
+     * Constructor
+     * @param size              Pre-allocated buffer size
+     */
+    explicit Buffer(size_t size = 16)
+        : BufferStorage(size)
+        , VariantStorageClient(VariantDataType::VAR_BUFFER)
+    {
+    }
+
+    /**
+     * Constructor
+     *
+     * Creates a buffer from void *data.
+     * The data is copied inside the buffer.
+     * The return of the bytes() method will be the input data size.
+     * @param data              Data buffer
+     * @param sz                Data buffer size
+     */
+    template<typename T>
+    Buffer(const T* data, size_t sz)
+        : BufferStorage(data, sz)
+        , VariantStorageClient(VariantDataType::VAR_BUFFER)
+    {
+    }
 
     /**
      * Constructor

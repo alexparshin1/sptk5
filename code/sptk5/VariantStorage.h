@@ -113,10 +113,17 @@ public:
     explicit operator int&();
     explicit operator int64_t&();
     explicit operator double&();
-    explicit operator Buffer&();
-    explicit operator String&();
-    explicit operator DateTime&();
-    explicit operator MoneyData&();
+
+    template<typename T,
+             typename std::enable_if<std::is_class<T>::value, int>::type = 0>
+    operator T&()
+    {
+        if (std::dynamic_pointer_cast<T>(m_class))
+        {
+            return *dynamic_pointer_cast<T>(m_class);
+        }
+        throw std::invalid_argument("Invalid type");
+    }
 
     VariantStorage& operator=(const VariantStorage& other);
     VariantStorage& operator=(VariantStorage&& other) noexcept;

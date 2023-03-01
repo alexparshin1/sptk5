@@ -805,7 +805,7 @@ static inline MoneyData readNumericToScaledInteger(const char* v)
         value = -value;
     }
 
-    MoneyData moneyData = {value, uint8_t(dscale)};
+    MoneyData moneyData(value, uint8_t(dscale));
 
     return moneyData;
 }

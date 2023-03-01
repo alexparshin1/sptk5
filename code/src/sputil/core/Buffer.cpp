@@ -34,6 +34,7 @@ using namespace sptk;
 
 Buffer::Buffer(const String& str)
     : BufferStorage((const uint8_t*) str.c_str(), str.length())
+    , VariantStorageClient(VariantDataType::VAR_BUFFER)
 {
 }
 

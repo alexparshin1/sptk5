@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sptk5/VariantDataType.h>
 #include <sptk5/sptk.h>
 
 namespace sptk {
@@ -36,16 +37,26 @@ namespace sptk {
 class SP_EXPORT VariantStorageClient
 {
 public:
-
     /**
      * @brief Constructor
      */
-    VariantStorageClient() = default;
+    VariantStorageClient(VariantDataType dataType)
+        : m_dataType(dataType)
+    {
+    }
 
     /**
      * @brief Destructor
      */
     virtual ~VariantStorageClient() = default;
+
+    VariantDataType dataType() const
+    {
+        return m_dataType;
+    }
+
+private:
+    VariantDataType m_dataType;
 };
 
 } // namespace sptk

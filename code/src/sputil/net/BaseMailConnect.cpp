@@ -233,8 +233,9 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
                 << "--" << boundary2 << "--" << endl;
     }
 
-    const Strings strings(m_attachments, ";");
-    for (const auto& attachment: strings)
+
+    for (const Strings strings(m_attachments, ";");
+         const auto& attachment: strings)
     {
         String attachmentAlias(attachment);
         const char* separator = "\\";

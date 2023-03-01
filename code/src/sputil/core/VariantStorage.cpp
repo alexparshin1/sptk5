@@ -210,42 +210,6 @@ VariantStorage::operator double&()
     throw invalid_argument("Invalid type");
 }
 
-VariantStorage::operator Buffer&()
-{
-    if (m_type == VariantDataType::VAR_BUFFER)
-    {
-        return *dynamic_pointer_cast<Buffer>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator String&()
-{
-    if (m_type == VariantDataType::VAR_STRING)
-    {
-        return *dynamic_pointer_cast<String>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator DateTime&()
-{
-    if (m_type == VariantDataType::VAR_DATE_TIME)
-    {
-        return *dynamic_pointer_cast<DateTime>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator MoneyData&()
-{
-    if (m_type == VariantDataType::VAR_MONEY)
-    {
-        return *dynamic_pointer_cast<MoneyData>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
 VariantStorage::operator const uint8_t*() const
 {
     if (m_type == VariantDataType::VAR_BYTE_POINTER)

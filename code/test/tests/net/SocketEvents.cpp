@@ -80,25 +80,26 @@ TEST(SPTK_SocketEvents, minimal)
     Semaphore eventReceived;
     shared_ptr<SocketReader> socketReader;
 
-    auto eventsCallback = [&eventReceived, &socketReader](const uint8_t* userData, SocketEventType eventType) {
-        Buffer line;
-        switch (eventType)
-        {
-            case SocketEventType::HAS_DATA:
-                while (socketReader->readLine(line, '\n') != 0)
-                {
-                    COUT("Client received: " << line.c_str() << endl)
-                    eventReceived.post();
-                }
-                break;
-            case SocketEventType::CONNECTION_CLOSED:
-                COUT("Socket closed" << endl)
-                break;
-            default:
-                COUT("Unknown event" << endl)
-                break;
-        }
-    };
+    auto eventsCallback =
+        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
+            Buffer line;
+            switch (eventType)
+            {
+                case SocketEventType::HAS_DATA:
+                    while (socketReader->readLine(line, '\n') != 0)
+                    {
+                        COUT("Client received: " << line.c_str() << endl)
+                        eventReceived.post();
+                    }
+                    break;
+                case SocketEventType::CONNECTION_CLOSED:
+                    COUT("Socket closed" << endl)
+                    break;
+                default:
+                    COUT("Unknown event" << endl)
+                    break;
+            }
+        };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
 
