@@ -54,7 +54,7 @@ public:
      * Default constructor
      */
     String()
-        : VariantStorageClient(VariantDataType::VAR_STRING)
+        : m_id(0)
     {
     }
 
@@ -77,7 +77,6 @@ public:
      */
     String(const std::string& str, int64_t id = 0)
         : std::string(str)
-        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -89,7 +88,6 @@ public:
      */
     String(const char* str)
         : std::string(str)
-        , VariantStorageClient(VariantDataType::VAR_STRING)
     {
     }
 
@@ -101,7 +99,6 @@ public:
      */
     String(const char* str, size_t len, int64_t id = 0)
         : std::string(str, len)
-        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -114,7 +111,6 @@ public:
      */
     String(size_t len, char ch, int64_t id = 0)
         : std::string(len, ch)
-        , VariantStorageClient(VariantDataType::VAR_STRING)
         , m_id(id)
     {
     }
@@ -244,6 +240,11 @@ public:
      * Returns trimmed string
      */
     String trim() const;
+
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_STRING;
+    }
 
 private:
     /**

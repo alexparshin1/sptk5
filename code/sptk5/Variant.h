@@ -267,7 +267,7 @@ public:
     /**
      * Assignment method
      */
-    virtual void setDateTime(DateTime value, bool dateOnly = false);
+    virtual void setDateTime(const DateTime& value, bool dateOnly = false);
 
     /**
      * Assignment method
@@ -499,7 +499,7 @@ public:
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator=(DateTime value);
+    virtual Variant& operator=(const DateTime& value);
 
     /**
      * Assignment operator

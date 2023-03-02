@@ -59,7 +59,6 @@ public:
      */
     explicit Buffer(size_t size = 16)
         : BufferStorage(size)
-        , VariantStorageClient(VariantDataType::VAR_BUFFER)
     {
     }
 
@@ -75,7 +74,6 @@ public:
     template<typename T>
     Buffer(const T* data, size_t sz)
         : BufferStorage(data, sz)
-        , VariantStorageClient(VariantDataType::VAR_BUFFER)
     {
     }
 
@@ -268,6 +266,11 @@ public:
     explicit operator String() const
     {
         return String((const char*) data(), bytes());
+    }
+
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_BUFFER;
     }
 };
 

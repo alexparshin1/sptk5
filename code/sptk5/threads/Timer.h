@@ -27,8 +27,8 @@
 #pragma once
 
 #include "Semaphore.h"
-#include "Thread.h"
 #include "TimerEvent.h"
+#include "TimerThread.h"
 
 #include <functional>
 #include <set>
@@ -85,7 +85,7 @@ public:
     void cancel() const;
 
 private:
-    std::shared_ptr<TimerThread> m_timerThread; ///< Event processing thread
+    std::shared_ptr<TimerThread> m_timerThread {std::make_shared<TimerThread>()}; ///< Event processing thread
 };
 
 } // namespace sptk

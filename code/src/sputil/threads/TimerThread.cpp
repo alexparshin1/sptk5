@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "TimerThread.h"
+#include "sptk5/threads/TimerThread.h"
 
 using namespace std;
 using namespace sptk;

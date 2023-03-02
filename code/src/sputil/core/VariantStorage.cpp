@@ -3,7 +3,7 @@
 using namespace std;
 using namespace sptk;
 
-VariantStorage::VariantStorage(const VariantStorage& other)
+BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     : m_type(other.m_type)
     , m_null(other.m_null)
 {
@@ -27,42 +27,35 @@ VariantStorage::VariantStorage(const VariantStorage& other)
     }
 }
 
-VariantStorage::VariantStorage(bool value)
+BaseVariantStorage::BaseVariantStorage(bool value)
     : m_type(VariantDataType::VAR_BOOL)
     , m_null(false)
 {
     m_value.asInt64 = value != 0 ? 1 : 0;
 }
 
-VariantStorage::VariantStorage(int value)
+BaseVariantStorage::BaseVariantStorage(int value)
     : m_type(VariantDataType::VAR_INT)
     , m_null(false)
 {
     m_value.asInt64 = value;
 }
 
-VariantStorage::VariantStorage(int64_t value)
+BaseVariantStorage::BaseVariantStorage(int64_t value)
     : m_type(VariantDataType::VAR_INT64)
     , m_null(false)
 {
     m_value.asInt64 = value;
 }
 
-VariantStorage::VariantStorage(double value)
+BaseVariantStorage::BaseVariantStorage(double value)
     : m_type(VariantDataType::VAR_FLOAT)
     , m_null(false)
 {
     m_value.asDouble = value;
 }
 
-VariantStorage::VariantStorage(const Buffer& value)
-    : m_type(VariantDataType::VAR_BUFFER)
-    , m_null(false)
-{
-    m_class = make_shared<Buffer>(value);
-}
-
-VariantStorage::VariantStorage(Buffer&& value)
+BaseVariantStorage::BaseVariantStorage(Buffer&& value)
     : m_type(VariantDataType::VAR_BUFFER)
     , m_null(false)
 {
@@ -71,46 +64,28 @@ VariantStorage::VariantStorage(Buffer&& value)
     m_class = buffer;
 }
 
-VariantStorage::VariantStorage(const String& value)
-    : m_type(VariantDataType::VAR_STRING)
-    , m_null(false)
-{
-    m_class = make_shared<String>(value);
-}
-
-VariantStorage::VariantStorage(const DateTime& value)
-    : m_type(VariantDataType::VAR_DATE_TIME)
-    , m_null(false)
-{
-    m_class = make_shared<DateTime>(value);
-}
-
-VariantStorage::VariantStorage(const MoneyData& value)
-    : m_type(VariantDataType::VAR_MONEY)
-    , m_null(false)
-{
-    m_class = make_shared<MoneyData>(value);
-}
-
-VariantStorage::VariantStorage(const uint8_t* value)
+BaseVariantStorage::BaseVariantStorage(const uint8_t* value)
     : m_type(VariantDataType::VAR_BYTE_POINTER)
     , m_null(false)
 {
     m_value.asBytePointer = value;
 }
 
-VariantStorage::VariantStorage(const char* value)
-    : m_type(VariantDataType::VAR_CHAR_POINTER)
-    , m_null(false)
+void BaseVariantStorage::setNull()
 {
-    m_value.asCharPointer = value;
+    if (m_class)
+    {
+        m_class.reset();
+    }
+    m_value.asInt64 = 0;
+    m_null = true;
 }
 
 VariantStorage::operator bool() const
 {
-    if (m_type == VariantDataType::VAR_BOOL)
+    if (type() == VariantDataType::VAR_BOOL)
     {
-        return (bool) m_value.asInt64;
+        return (bool) value().asInt64;
     }
     throw invalid_argument("Invalid type");
 }
@@ -122,120 +97,65 @@ VariantStorage::operator int() const
 
 VariantStorage::operator int64_t() const
 {
-    if (m_type == VariantDataType::VAR_INT || m_type == VariantDataType::VAR_INT64)
+    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
     {
-        return m_value.asInt64;
+        return value().asInt64;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator double() const
 {
-    if (m_type == VariantDataType::VAR_FLOAT)
+    if (type() == VariantDataType::VAR_FLOAT)
     {
-        return m_value.asDouble;
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator const Buffer&() const
-{
-    if (m_type == VariantDataType::VAR_BUFFER)
-    {
-        return *dynamic_pointer_cast<Buffer>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator const String&() const
-{
-    if (m_type == VariantDataType::VAR_STRING)
-    {
-        return *dynamic_pointer_cast<String>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator const DateTime&() const
-{
-    if (m_type == VariantDataType::VAR_DATE_TIME)
-    {
-        return *dynamic_pointer_cast<DateTime>(m_class);
-    }
-    throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator const MoneyData&() const
-{
-    if (m_type == VariantDataType::VAR_MONEY)
-    {
-        return *dynamic_pointer_cast<MoneyData>(m_class);
+        return value().asDouble;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator bool&()
 {
-    if (m_type == VariantDataType::VAR_BOOL)
+    if (type() == VariantDataType::VAR_BOOL)
     {
-        return m_value.asBool;
+        return value().asBool;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator int&()
 {
-    if (m_type == VariantDataType::VAR_INT || m_type == VariantDataType::VAR_INT64)
+    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
     {
-        return m_value.asInt;
+        return value().asInt;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator int64_t&()
 {
-    if (m_type == VariantDataType::VAR_INT || m_type == VariantDataType::VAR_INT64)
+    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
     {
-        return m_value.asInt64;
+        return value().asInt64;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator double&()
 {
-    if (m_type == VariantDataType::VAR_FLOAT)
+    if (type() == VariantDataType::VAR_FLOAT)
     {
-        return m_value.asDouble;
+        return value().asDouble;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator const uint8_t*() const
 {
-    if (m_type == VariantDataType::VAR_BYTE_POINTER)
+    if (type() == VariantDataType::VAR_BYTE_POINTER)
     {
-        return m_value.asBytePointer;
+        return value().asBytePointer;
     }
     throw invalid_argument("Invalid type");
-}
-
-VariantStorage::operator const char*() const
-{
-    if (m_type == VariantDataType::VAR_CHAR_POINTER)
-    {
-        return m_value.asCharPointer;
-    }
-    throw invalid_argument("Invalid type");
-}
-
-void VariantStorage::setNull()
-{
-    if (m_class)
-    {
-        m_class.reset();
-    }
-    m_value.asInt64 = 0;
-    m_null = true;
 }
 
 VariantStorage& VariantStorage::operator=(const VariantStorage& other)
@@ -245,203 +165,119 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
         return *this;
     }
 
-    m_type = other.m_type;
-    m_null = other.m_null;
+    setType(other.type());
+    setNull(other.isNull());
 
-    switch (m_type)
+    switch (type())
     {
         case VariantDataType::VAR_BUFFER:
-            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
+            setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
             break;
         case VariantDataType::VAR_STRING:
-            m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
+            setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
             break;
         case VariantDataType::VAR_DATE_TIME:
-            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
+            setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
             break;
         case VariantDataType::VAR_MONEY:
-            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
+            setStorageClient(make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.storageClient())));
             break;
         default:
-            m_value.asInt64 = other.m_value.asInt64;
+            value().asInt64 = other.value().asInt64;
             break;
     }
 
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(bool value)
+VariantStorage& VariantStorage::operator=(bool aValue)
 {
-    if (m_class)
+    if (storageClient())
     {
-        m_class.reset();
+        storageClient().reset();
     }
-    m_type = VariantDataType::VAR_BOOL;
-    m_null = false;
-    m_value.asInt64 = value != 0 ? 1 : 0;
+    setType(VariantDataType::VAR_BOOL);
+    setNull(false);
+    value().asInt64 = aValue != 0 ? 1 : 0;
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int value)
+VariantStorage& VariantStorage::operator=(int aValue)
 {
-    if (m_class)
+    if (storageClient())
     {
-        m_class.reset();
+        storageClient().reset();
     }
-    m_null = false;
-    m_type = VariantDataType::VAR_INT;
-    m_value.asInt64 = value;
+    setNull(false);
+    setType(VariantDataType::VAR_INT);
+    value().asInt64 = aValue;
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int64_t value)
+VariantStorage& VariantStorage::operator=(int64_t aValue)
 {
-    if (m_class)
+    if (storageClient())
     {
-        m_class.reset();
+        storageClient().reset();
     }
-    m_null = false;
-    m_type = VariantDataType::VAR_INT64;
-    m_value.asInt64 = value;
+    setNull(false);
+    setType(VariantDataType::VAR_INT64);
+    value().asInt64 = aValue;
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(double value)
+VariantStorage& VariantStorage::operator=(double aValue)
 {
-    if (m_class)
+    if (storageClient())
     {
-        m_class.reset();
+        storageClient().reset();
     }
-    m_null = false;
-    m_type = VariantDataType::VAR_FLOAT;
-    m_value.asDouble = value;
+    setNull(false);
+    setType(VariantDataType::VAR_FLOAT);
+    value().asDouble = aValue;
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(const Buffer& value)
+VariantStorage& VariantStorage::operator=(Buffer&& aValue)
 {
-    if (m_type != VariantDataType::VAR_BUFFER || !m_class)
-    {
-        m_class = make_shared<Buffer>(value);
-        m_type = VariantDataType::VAR_BUFFER;
-    }
-    else
-    {
-        *dynamic_pointer_cast<Buffer>(m_class) = value;
-    }
-    m_null = false;
-    return *this;
-}
-
-VariantStorage& VariantStorage::operator=(Buffer&& value)
-{
-    if (m_type != VariantDataType::VAR_BUFFER || !m_class)
+    if (type() != VariantDataType::VAR_BUFFER || !storageClient())
     {
         auto buffer = make_shared<Buffer>();
-        *buffer = std::move(value);
-        m_class = buffer;
-        m_type = VariantDataType::VAR_BUFFER;
+        *buffer = std::move(aValue);
+        setStorageClient(buffer);
+        setType(VariantDataType::VAR_BUFFER);
     }
     else
     {
-        *dynamic_pointer_cast<Buffer>(m_class) = std::move(value);
+        *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
     }
-    m_null = false;
+    setNull(false);
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(const String& value)
+VariantStorage& VariantStorage::operator=(const uint8_t* aValue)
 {
-    if (m_type != VariantDataType::VAR_STRING || !m_class)
+    if (storageClient())
     {
-        m_class = make_shared<String>(value);
-        m_type = VariantDataType::VAR_STRING;
+        storageClient().reset();
     }
-    else
-    {
-        *dynamic_pointer_cast<String>(m_class) = value;
-    }
-    m_null = false;
+    setType(VariantDataType::VAR_BYTE_POINTER);
+    setNull(false);
+    value().asBytePointer = aValue;
     return *this;
-}
-
-VariantStorage& VariantStorage::operator=(const DateTime& value)
-{
-    if (m_type != VariantDataType::VAR_DATE_TIME || !m_class)
-    {
-        m_class = make_shared<DateTime>(value);
-        m_type = VariantDataType::VAR_DATE_TIME;
-    }
-    else
-    {
-        *dynamic_pointer_cast<DateTime>(m_class) = value;
-    }
-    m_null = false;
-    return *this;
-}
-
-VariantStorage& VariantStorage::operator=(const MoneyData& value)
-{
-    if (m_type != VariantDataType::VAR_MONEY || !m_class)
-    {
-        m_class = make_shared<MoneyData>(value);
-        m_type = VariantDataType::VAR_MONEY;
-    }
-    else
-    {
-        *dynamic_pointer_cast<MoneyData>(m_class) = value;
-    }
-    m_null = false;
-    return *this;
-}
-
-VariantStorage& VariantStorage::operator=(const uint8_t* value)
-{
-    if (m_class)
-    {
-        m_class.reset();
-    }
-    m_type = VariantDataType::VAR_BYTE_POINTER;
-    m_null = false;
-    m_value.asBytePointer = value;
-    return *this;
-}
-
-VariantStorage& VariantStorage::operator=(const char* value)
-{
-    if (m_class)
-    {
-        m_class.reset();
-    }
-    m_type = VariantDataType::VAR_CHAR_POINTER;
-    m_null = false;
-    m_value.asCharPointer = value;
-    return *this;
-}
-
-VariantStorage::VariantStorage(VariantStorage&& other) noexcept
-    : m_value(other.m_value)
-    , m_class(other.m_class)
-    , m_type(other.m_type)
-    , m_null(other.m_null)
-{
-    other.m_class.reset();
-    other.m_value.asInt64 = 0;
-    other.m_type = VariantDataType::VAR_NONE;
-    other.m_null = true;
 }
 
 VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
 {
     if (this != &other)
     {
-        m_value = other.m_value;
-        m_class = other.m_class;
-        m_type = other.m_type;
-        other.m_value.asInt64 = 0;
-        other.m_class.reset();
-        other.m_type = VariantDataType::VAR_NONE;
-        other.m_null = true;
+        value() = other.value();
+        setStorageClient(other.storageClient());
+        setType(other.type());
+        other.value().asInt64 = 0;
+        other.storageClient().reset();
+        other.setType(VariantDataType::VAR_NONE);
+        other.setNull(true);
     }
     return *this;
 }

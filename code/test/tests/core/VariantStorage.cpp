@@ -36,7 +36,7 @@ TEST(SPTK_VariantStorage, null)
     const VariantStorage variantStorage;
     EXPECT_EQ(VariantDataType::VAR_NONE, variantStorage.type());
     EXPECT_TRUE(variantStorage.isNull());
-    EXPECT_EQ(32, sizeof(variantStorage));
+    EXPECT_EQ(40, sizeof(variantStorage));
 }
 
 TEST(SPTK_VariantStorage, bool)
@@ -334,41 +334,6 @@ TEST(SPTK_VariantStorage, MoneyData)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(SPTK_VariantStorage, CharPointer)
-{
-    const char* testText = "Test text";
-    const char* testText2 = "Test text 2";
-
-    VariantStorage variantStorage(testText);
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage.type());
-    EXPECT_STREQ(testText, (const char*) variantStorage);
-    EXPECT_FALSE(variantStorage.isNull());
-
-    variantStorage = 1;
-    variantStorage = testText2;
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage.type());
-    EXPECT_STREQ(testText2, (const char*) variantStorage);
-
-    VariantStorage variantStorage2(variantStorage);
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage2.type());
-    EXPECT_STREQ(testText2, (const char*) variantStorage2);
-
-    const VariantStorage variantStorage3(std::move(variantStorage2));
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage3.type());
-    EXPECT_STREQ(testText2, (const char*) variantStorage3);
-
-    variantStorage2 = Buffer("Test");
-    variantStorage2 = variantStorage;
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage2.type());
-    EXPECT_EQ(testText2, (const char*) variantStorage2);
-
-    variantStorage2.setNull();
-    variantStorage2 = variantStorage;
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage2.type());
-    EXPECT_EQ(testText2, (const char*) variantStorage2);
-    EXPECT_FALSE(variantStorage2.isNull());
-}
-
 TEST(SPTK_VariantStorage, BytePointer)
 {
     const array<uint8_t, 4> testBytes = {0, 1, 2, 3};
@@ -416,10 +381,10 @@ TEST(SPTK_VariantStorage, BytePointer)
 TEST(SPTK_VariantStorage, moveAssignment)
 {
     VariantStorage variantStorage;
-    VariantStorage variantStorage2("Test");
+    VariantStorage variantStorage2(Buffer("Test"));
     variantStorage = std::move(variantStorage2);
-    EXPECT_EQ(VariantDataType::VAR_CHAR_POINTER, variantStorage.type());
-    EXPECT_STREQ("Test", (const char*) variantStorage);
+    EXPECT_EQ(VariantDataType::VAR_BUFFER, variantStorage.type());
+    EXPECT_STREQ("Test", ((const Buffer&) variantStorage).c_str());
 }
 
 TEST(SPTK_VariantStorage, getInvalidType)
@@ -432,7 +397,6 @@ TEST(SPTK_VariantStorage, getInvalidType)
     EXPECT_THROW(((const DateTime&) variantStorage).date(), invalid_argument);
     EXPECT_THROW(((const MoneyData&) variantStorage).quantity, invalid_argument);
     EXPECT_THROW((const uint8_t*) variantStorage, invalid_argument);
-    EXPECT_THROW((const char*) variantStorage, invalid_argument);
     EXPECT_THROW(((const String&) variantStorage).length(), invalid_argument);
     EXPECT_THROW((bool) variantStorage, invalid_argument);
 

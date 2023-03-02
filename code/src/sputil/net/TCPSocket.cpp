@@ -164,7 +164,7 @@ size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
         }
     } while (error == EAGAIN);
 
-    return (int32_t) receivedBytes;
+    return receivedBytes;
 }
 
 size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)

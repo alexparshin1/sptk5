@@ -49,7 +49,7 @@ QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, cons
     m_columns.remove(m_pkColumn);
     for (const auto& join: m_joins)
     {
-        auto tableAlias = join.tableAlias;
+        const auto& tableAlias = join.tableAlias;
         removeUnNeededColumns(join, tableAlias);
     }
 }

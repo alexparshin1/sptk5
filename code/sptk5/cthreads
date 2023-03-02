@@ -4,7 +4,7 @@
 ║                       cthreads - description                                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CTHREADS__
-#define __CTHREADS__
+#pragma once
 
 #include <sptk5/threads/Locks.h>
 #include <sptk5/threads/Runable.h>
@@ -35,7 +34,6 @@
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedMap.h>
 #include <sptk5/threads/SynchronizedQueue.h>
-#include <sptk5/threads/Timer.h>
+#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/ThreadPool.h>
-
-#endif
+#include <sptk5/threads/Timer.h>

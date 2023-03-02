@@ -49,10 +49,14 @@ public:
      * @param scale             Money value scale (signs after decimal point)
      */
     explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0)
-        : VariantStorageClient(VariantDataType::VAR_MONEY)
-        , quantity(quantity)
+        : quantity(quantity)
         , scale(scale)
     {
+    }
+
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_MONEY;
     }
 
     /**

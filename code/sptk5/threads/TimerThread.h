@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/cthreads>
+#include "sptk5/cthreads"
 
 namespace sptk {
 

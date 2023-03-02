@@ -173,7 +173,7 @@ public:
     /**
      * Assign operator
      */
-    QueryParameter& operator=(DateTime dt) override
+    QueryParameter& operator=(const DateTime& dt) override
     {
         setDateTime(dt);
         return *this;

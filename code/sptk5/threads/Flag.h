@@ -98,10 +98,10 @@ public:
     /**
      * Wait until the flag has the value
      * @param value             Value to wait for
-     * @param timeout           Wait timeout
+     * @param timeoutAt           Wait timeout
      * @return true if flag received the value, or false if timeout occurs
      */
-    bool wait_until(bool value, DateTime timeout);
+    bool wait_until(bool value, const DateTime& timeoutAt);
 
 private:
     /**

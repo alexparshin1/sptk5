@@ -284,7 +284,7 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t valueSize, Varian
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setDateTime(DateTime value, bool dateOnly)
+void VariantAdaptors::setDateTime(const DateTime& value, bool dateOnly)
 {
     if (dateOnly)
     {
@@ -412,7 +412,7 @@ Variant& Variant::operator=(const String& value)
 }
 
 //---------------------------------------------------------------------------
-Variant& Variant::operator=(DateTime value)
+Variant& Variant::operator=(const DateTime& value)
 {
     setDateTime(value);
     return *this;

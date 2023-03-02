@@ -357,7 +357,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
-static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, DateTime dt, bool dateOnly)
+static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, const DateTime& dt, bool dateOnly)
 {
     if (!dt.zero())
     {

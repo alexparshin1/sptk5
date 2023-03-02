@@ -24,15 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "TimerThread.h"
 #include <sptk5/cutils>
+#include <sptk5/threads/Timer.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
 Timer::Timer()
-    : m_timerThread(make_shared<TimerThread>())
 {
     m_timerThread->run();
 }

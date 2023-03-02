@@ -40,23 +40,12 @@ public:
     /**
      * @brief Constructor
      */
-    VariantStorageClient(VariantDataType dataType)
-        : m_dataType(dataType)
-    {
-    }
+    VariantStorageClient() = default;
 
     /**
      * @brief Destructor
      */
     virtual ~VariantStorageClient() = default;
-
-    VariantDataType dataType() const
-    {
-        return m_dataType;
-    }
-
-private:
-    VariantDataType m_dataType;
 };
 
 } // namespace sptk

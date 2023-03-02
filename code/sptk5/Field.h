@@ -182,7 +182,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator=(DateTime value) override
+    Field& operator=(const DateTime& value) override
     {
         setDateTime(value);
         return *this;

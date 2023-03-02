@@ -192,9 +192,8 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
 void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    auto simpleTypeNodes = schemaElement->select("//xsd:simpleType");
-
-    for (const auto& element: simpleTypeNodes)
+    for (const auto simpleTypeNodes = schemaElement->select("//xsd:simpleType");
+         const auto& element: simpleTypeNodes)
     {
         if (element->name() == "xsd:simpleType")
         {

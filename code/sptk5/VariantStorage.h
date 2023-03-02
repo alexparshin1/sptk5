@@ -35,44 +35,43 @@
 
 namespace sptk {
 
-/// @brief Compact variant data storage
-///
-/// Unlike std::variant that uses combined space for all variant types,
-/// this class shares the space for included data types, taking just 16 bytes of memory
-/// (dynamically allocated memory for Buffer or DateTime is not included)
-class SP_EXPORT VariantStorage
+class SP_EXPORT BaseVariantStorage
 {
 public:
     /**
      * @brief Constructor
      */
-    VariantStorage() = default;
+    BaseVariantStorage() = default;
 
-    VariantStorage(const VariantStorage& other);
-    VariantStorage(VariantStorage&& other) noexcept;
+    BaseVariantStorage(const BaseVariantStorage& other, int);
+    BaseVariantStorage(BaseVariantStorage&& other) noexcept = default;
 
-    explicit VariantStorage(bool value);
-    explicit VariantStorage(int value);
-    explicit VariantStorage(int64_t value);
-    explicit VariantStorage(double value);
-    explicit VariantStorage(const Buffer& value);
-    explicit VariantStorage(const String& value);
-    explicit VariantStorage(const DateTime& value);
-    explicit VariantStorage(const MoneyData& value);
-    explicit VariantStorage(const uint8_t* value);
-    explicit VariantStorage(const char* value);
+    explicit BaseVariantStorage(bool value);
+    explicit BaseVariantStorage(int value);
+    explicit BaseVariantStorage(int64_t value);
+    explicit BaseVariantStorage(double value);
+    explicit BaseVariantStorage(const uint8_t* value);
 
-    explicit VariantStorage(Buffer&& value);
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    explicit BaseVariantStorage(const T& value)
+        : m_class(std::make_shared<T>(value))
+        , m_type(T::variantDataType())
+        , m_null(false)
+    {
+    }
+
+    explicit BaseVariantStorage(Buffer&& value);
 
     /**
      * @brief Destructor
      */
-    ~VariantStorage() = default;
+    virtual ~BaseVariantStorage() = default;
 
     [[nodiscard]] VariantDataType type() const
     {
         return m_type;
     }
+
     [[nodiscard]] bool isNull() const
     {
         return m_null;
@@ -80,16 +79,90 @@ public:
 
     void setNull();
 
+protected:
+    union VariantValue
+    {
+        bool asBool;
+        int asInt;
+        int64_t asInt64;
+        double asDouble;
+        const uint8_t* asBytePointer;
+    };
+
+    [[nodiscard]] std::shared_ptr<VariantStorageClient> storageClient()
+    {
+        return m_class;
+    }
+
+    [[nodiscard]] const std::shared_ptr<VariantStorageClient>& storageClient() const
+    {
+        return m_class;
+    }
+
+    void setStorageClient(const std::shared_ptr<VariantStorageClient>& storageClient)
+    {
+        m_class = storageClient;
+    }
+
+    void setType(VariantDataType dataType)
+    {
+        m_type = dataType;
+    }
+
+    void setNull(bool isNull)
+    {
+        m_null = isNull;
+    }
+
+    [[nodiscard]] VariantValue& value()
+    {
+        return m_value;
+    }
+
+    [[nodiscard]] const VariantValue& value() const
+    {
+        return m_value;
+    }
+
+private:
+    VariantValue m_value {};
+    std::shared_ptr<VariantStorageClient> m_class;
+    VariantDataType m_type {VariantDataType::VAR_NONE};
+    bool m_null {true};
+};
+
+/// @brief Compact variant data storage
+///
+/// Unlike std::variant that uses combined space for all variant types,
+/// this class shares the space for included data types, taking just 16 bytes of memory
+/// (dynamically allocated memory for Buffer or DateTime is not included)
+class SP_EXPORT VariantStorage : public BaseVariantStorage
+{
+public:
+    using BaseVariantStorage::BaseVariantStorage;
+
+    VariantStorage(const VariantStorage& other)
+        : BaseVariantStorage(other, 0)
+    {
+    }
+
+    ~VariantStorage() override = default;
+
     explicit operator bool() const;
     explicit operator int() const;
     explicit operator int64_t() const;
     explicit operator double() const;
-    explicit operator const Buffer&() const;
-    explicit operator const String&() const;
-    explicit operator const DateTime&() const;
-    explicit operator const MoneyData&() const;
     explicit operator const uint8_t*() const;
-    explicit operator const char*() const;
+
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    operator const T&() const
+    {
+        if (type() == T::variantDataType())
+        {
+            return *dynamic_pointer_cast<T>(storageClient());
+        }
+        throw std::invalid_argument("Invalid type");
+    }
 
     template<typename T>
     T get() const
@@ -114,13 +187,12 @@ public:
     explicit operator int64_t&();
     explicit operator double&();
 
-    template<typename T,
-             typename std::enable_if<std::is_class<T>::value, int>::type = 0>
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     operator T&()
     {
-        if (std::dynamic_pointer_cast<T>(m_class))
+        if (std::dynamic_pointer_cast<T>(storageClient()))
         {
-            return *dynamic_pointer_cast<T>(m_class);
+            return *dynamic_pointer_cast<T>(storageClient());
         }
         throw std::invalid_argument("Invalid type");
     }
@@ -131,30 +203,25 @@ public:
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);
-    VariantStorage& operator=(const Buffer& value);
-    VariantStorage& operator=(const String& value);
-    VariantStorage& operator=(const DateTime& value);
-    VariantStorage& operator=(const MoneyData& value);
     VariantStorage& operator=(const uint8_t* value);
-    VariantStorage& operator=(const char* value);
+
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    T& operator=(const T& value)
+    {
+        if (type() != T::variantDataType() || !storageClient())
+        {
+            setStorageClient(std::make_shared<T>(value));
+            setType(T::variantDataType());
+        }
+        else
+        {
+            *dynamic_pointer_cast<T>(storageClient()) = value;
+        }
+        setNull(false);
+        return *this;
+    }
 
     VariantStorage& operator=(Buffer&& value);
-
-private:
-    union VariantValue
-    {
-        bool asBool;
-        int asInt;
-        int64_t asInt64;
-        double asDouble;
-        const uint8_t* asBytePointer;
-        const char* asCharPointer;
-    };
-
-    VariantValue m_value {};
-    std::shared_ptr<VariantStorageClient> m_class;
-    VariantDataType m_type {VariantDataType::VAR_NONE};
-    bool m_null {true};
 };
 
 } // namespace sptk

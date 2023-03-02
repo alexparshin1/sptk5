@@ -342,6 +342,11 @@ public:
         return m_dateTime.time_since_epoch().count() == 0;
     }
 
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_DATE_TIME;
+    }
+
 private:
     time_point m_dateTime; ///< Actual date and time value
 

@@ -602,7 +602,6 @@ void DateTime::time24Mode(bool t24mode)
 //----------------------------------------------------------------
 DateTime::DateTime(short year, short month, short day, short hour, short minute, short second,
                    short millisecond)
-    : VariantStorageClient(VariantDataType::VAR_DATE_TIME)
 {
     try
     {
@@ -616,7 +615,6 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
 }
 
 DateTime::DateTime(const char* dat)
-    : VariantStorageClient(VariantDataType::VAR_DATE_TIME)
 {
     if (dat == nullptr || *dat == char(0))
     {
@@ -669,14 +667,12 @@ DateTime::DateTime(const char* dat)
 }
 
 DateTime::DateTime(const time_point& timePoint)
-    : VariantStorageClient(VariantDataType::VAR_DATE_TIME)
-    , m_dateTime(timePoint)
+    : m_dateTime(timePoint)
 {
 }
 
 DateTime::DateTime(const duration& interval)
-    : VariantStorageClient(VariantDataType::VAR_DATE_TIME)
-    , m_dateTime(interval)
+    : m_dateTime(interval)
 {
 }
 
