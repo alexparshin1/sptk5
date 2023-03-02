@@ -131,7 +131,7 @@ public:
     /**
      * @brief Sets the calendar date
      */
-    void date(DateTime dt);
+    void date(const DateTime& dt);
 
     /**
      * @brief Reports the calendar date
@@ -202,7 +202,7 @@ public:
      * @brief Sets the calendar date
      * @param dt DateTime, new calendar date
      */
-    void date(DateTime dt)
+    void date(const DateTime& dt)
     {
         m_calendar->date(dt);
     }

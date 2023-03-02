@@ -157,7 +157,7 @@ public:
      * @param min DateTime, minimum value
      * @param max DateTime, maximum value
      */
-    void setLimits(bool limited, DateTime min = DateTime(), DateTime max = DateTime());
+    void setLimits(bool limited, const DateTime& min = DateTime(), const DateTime& max = DateTime());
 
     /**
      * @brief Returns widget date or time  value
@@ -167,7 +167,7 @@ public:
     /**
      * @brief Sets widget date or time value
      */
-    virtual void dateTimeValue(DateTime dt);
+    virtual void dateTimeValue(const DateTime& dt);
 };
 
 class CTimeInput;
@@ -388,7 +388,7 @@ public:
     /**
      * @brief Sets widget date or time value
      */
-    void dateTimeValue(DateTime dt) override;
+    void dateTimeValue(const DateTime& dt) override;
 
     /**
      * @brief Universal data connection, returns data from control

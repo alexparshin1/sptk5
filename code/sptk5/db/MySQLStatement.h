@@ -68,7 +68,7 @@ public:
      * @param timestamp DateTime, Timestamp
      * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
      */
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantDataType timeType);
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& timestamp, VariantDataType timeType);
 
     /**
      * Constructor

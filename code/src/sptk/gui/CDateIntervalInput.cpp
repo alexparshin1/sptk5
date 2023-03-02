@@ -200,7 +200,7 @@ DateTime CDateIntervalInput::beginOfInterval() const
     return DateTime(m_firstDateInput->input()->value());
 }
 
-void CDateIntervalInput::beginOfInterval(const DateTime bi)
+void CDateIntervalInput::beginOfInterval(const DateTime& bi)
 {
     m_firstDateInput->input()->value(bi.dateString().c_str());
 }
@@ -210,7 +210,7 @@ DateTime CDateIntervalInput::endOfInterval() const
     return DateTime(m_secondDateInput->input()->value());
 }
 
-void CDateIntervalInput::endOfInterval(const DateTime ei)
+void CDateIntervalInput::endOfInterval(const DateTime& ei)
 {
     m_secondDateInput->input()->value(ei.dateString().c_str());
 }

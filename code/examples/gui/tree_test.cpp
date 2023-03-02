@@ -138,7 +138,7 @@ public:
         return m_publishDate;
     }
 
-    void publishDate(DateTime dt)
+    void publishDate(const DateTime& dt)
     {
         m_publishDate = dt;
         m_publishDateBox->data(dt.monthName().substr(0, 3) + " " + int2string(dt.day()) + " " + int2string(dt.year()));

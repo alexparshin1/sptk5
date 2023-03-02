@@ -296,7 +296,7 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     }
 }
 
-void CCalendar::date(DateTime dt)
+void CCalendar::date(const DateTime& dt)
 {
     m_date = dt;
     resize(x(), y(), w(), h());

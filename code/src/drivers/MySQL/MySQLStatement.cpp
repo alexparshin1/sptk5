@@ -99,7 +99,7 @@ MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool aut
     }
 }
 
-void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantDataType timeType)
+void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& timestamp, VariantDataType timeType)
 {
     short year = 0;
     short month = 0;

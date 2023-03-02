@@ -558,7 +558,7 @@ public:
     /**
      * Assignment operation
      */
-    WSDate& operator=(DateTime _value)
+    WSDate& operator=(const DateTime& _value)
     {
         value().setDateTime(_value, true);
         return *this;
@@ -685,7 +685,7 @@ public:
     /**
      * Assignment operation
      */
-    WSDateTime& operator=(DateTime _value)
+    WSDateTime& operator=(const DateTime& _value)
     {
         value().setDateTime(_value);
         return *this;
