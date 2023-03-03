@@ -218,12 +218,12 @@ VariantStorage& VariantStorage::operator=(bool aValue)
 {
     if (storageClient())
     {
-        storageClient().reset();
+        setStorageClient(nullptr);
     }
 
-    VariantType type {VariantDataType::VAR_BOOL, false, false, sizeof(aValue)};
+    const VariantType type {VariantDataType::VAR_BOOL, false, false, sizeof(aValue)};
     setType(type);
-    value().asBool = aValue != 0 ? 1 : 0;
+    value().asBool = aValue != 0 ? true : false;
     return *this;
 }
 
@@ -231,9 +231,9 @@ VariantStorage& VariantStorage::operator=(int aValue)
 {
     if (storageClient())
     {
-        storageClient().reset();
+        setStorageClient(nullptr);
     }
-    VariantType type {VariantDataType::VAR_INT, false, false, sizeof(aValue)};
+    const VariantType type {VariantDataType::VAR_INT, false, false, sizeof(aValue)};
     setType(type);
     value().asInt64 = aValue;
     return *this;
@@ -243,9 +243,9 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
 {
     if (storageClient())
     {
-        storageClient().reset();
+        setStorageClient(nullptr);
     }
-    VariantType type {VariantDataType::VAR_INT64, false, false, sizeof(aValue)};
+    const VariantType type {VariantDataType::VAR_INT64, false, false, sizeof(aValue)};
     setType(type);
     value().asInt64 = aValue;
     return *this;
@@ -255,9 +255,9 @@ VariantStorage& VariantStorage::operator=(double aValue)
 {
     if (storageClient())
     {
-        storageClient().reset();
+        setStorageClient(nullptr);
     }
-    VariantType type {VariantDataType::VAR_FLOAT, false, false, sizeof(aValue)};
+    const VariantType type {VariantDataType::VAR_FLOAT, false, false, sizeof(aValue)};
     setType(type);
     value().asDouble = aValue;
     return *this;
@@ -289,9 +289,9 @@ void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, V
 
     if (storageClient())
     {
-        storageClient().reset();
+        setStorageClient(nullptr);
     }
-    VariantType variantType {type, false, true, dataSize};
+    const VariantType variantType {type, false, true, dataSize};
     setType(variantType);
     value().asBytePointer = aValue;
 }
@@ -304,7 +304,7 @@ VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
         setStorageClient(other.storageClient());
         setType(other.type());
         other.value().asInt64 = 0;
-        other.storageClient().reset();
+        other.setStorageClient(nullptr);
         other.setNull(true, VariantDataType::VAR_NONE);
     }
     return *this;

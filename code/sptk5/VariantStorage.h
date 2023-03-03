@@ -107,9 +107,9 @@ public:
     }
 
     // TODO: remove size in favor to setSize
-    void size(size_t sz)
+    void size(size_t size)
     {
-        m_type.size = sz;
+        m_type.size = size;
     }
 
     [[nodiscard]] size_t size() const
@@ -147,7 +147,7 @@ protected:
         m_type = dataType;
     }
 
-    void setType(VariantDataType dataType)
+    [[maybe_unused]] void setType(VariantDataType dataType)
     {
         m_type.type = dataType;
     }
@@ -165,16 +165,6 @@ protected:
     void setSize(size_t sz)
     {
         m_type.size = sz;
-    }
-
-    void setExternalBufferFlag(bool flag)
-    {
-        m_type.isExternalBuffer = flag;
-    }
-
-    [[nodiscard]] bool externalBufferFlag() const
-    {
-        return m_type.isExternalBuffer;
     }
 
 private:

@@ -181,7 +181,7 @@ TEST(SPTK_VariantStorage, Buffer)
     EXPECT_EQ(VariantDataType::VAR_BUFFER, variantStorage3.type().type);
     EXPECT_STREQ(testBuffer2.c_str(), ((const Buffer&) variantStorage3).c_str());
 
-    const VariantStorage variantStorage4(std::move(variantStorage3));
+    VariantStorage variantStorage4(std::move(variantStorage3));
     EXPECT_EQ(VariantDataType::VAR_BUFFER, variantStorage4.type().type);
     EXPECT_STREQ(testBuffer2.c_str(), ((const Buffer&) variantStorage4).c_str());
 
@@ -223,7 +223,7 @@ TEST(SPTK_VariantStorage, String)
     EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage2.type().type);
     EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage2).c_str());
 
-    const VariantStorage variantStorage3(std::move(variantStorage2));
+    VariantStorage variantStorage3(std::move(variantStorage2));
     EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage3.type().type);
     EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage3).c_str());
 
@@ -309,7 +309,7 @@ TEST(SPTK_VariantStorage, MoneyData)
     EXPECT_EQ(VariantDataType::VAR_MONEY, variantStorage2.type().type);
     EXPECT_DOUBLE_EQ((double) testMoneyData2, (double) ((const MoneyData&) variantStorage2));
 
-    const VariantStorage variantStorage3(std::move(variantStorage2));
+    VariantStorage variantStorage3(std::move(variantStorage2));
     EXPECT_EQ(VariantDataType::VAR_MONEY, variantStorage3.type().type);
     EXPECT_DOUBLE_EQ((double) testMoneyData2, (double) ((const MoneyData&) variantStorage3));
 
@@ -364,7 +364,7 @@ TEST(SPTK_VariantStorage, externalBuffer)
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage2.type().type);
     EXPECT_EQ(testBytes2.data(), (const uint8_t*) variantStorage2);
 
-    const VariantStorage variantStorage3(std::move(variantStorage2));
+    VariantStorage variantStorage3(std::move(variantStorage2));
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage3.type().type);
     EXPECT_EQ(testBytes2.data(), (const uint8_t*) variantStorage3);
 
@@ -437,7 +437,7 @@ TEST(SPTK_VariantStorage, getInvalidType)
 TEST(SPTK_VariantStorage, getAndSet)
 {
     VariantStorage variantStorage;
-    Buffer testBuffer("test");
+    const Buffer testBuffer("test");
     variantStorage.set(testBuffer);
     EXPECT_EQ(VariantDataType::VAR_BUFFER, variantStorage.type().type);
     EXPECT_STREQ(testBuffer.c_str(), variantStorage.get<Buffer>().c_str());
