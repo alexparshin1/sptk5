@@ -75,12 +75,47 @@ public:
         return m_type;
     }
 
+    void type(const VariantType& type)
+    {
+        m_type = type;
+    }
+
+    void type(const VariantDataType& type)
+    {
+        m_type.type = type;
+    }
+
     [[nodiscard]] bool isNull() const
     {
         return m_type.isNull;
     }
 
     void setNull();
+
+    void setNull(bool isNull, VariantDataType type)
+    {
+        m_type.type = type;
+        if (isNull)
+        {
+            setNull();
+        }
+        else
+        {
+            m_type.isNull = false;
+            m_type.type = type;
+        }
+    }
+
+    // TODO: remove size in favor to setSize
+    void size(size_t sz)
+    {
+        m_type.size = sz;
+    }
+
+    [[nodiscard]] size_t size() const
+    {
+        return m_type.size;
+    }
 
 protected:
     union VariantValue
@@ -117,11 +152,6 @@ protected:
         m_type.type = dataType;
     }
 
-    void setNull(bool isNull)
-    {
-        m_type.isNull = isNull;
-    }
-
     [[nodiscard]] VariantValue& value()
     {
         return m_value;
@@ -135,11 +165,6 @@ protected:
     void setSize(size_t sz)
     {
         m_type.size = sz;
-    }
-
-    [[nodiscard]] size_t size() const
-    {
-        return m_type.size;
     }
 
     void setExternalBufferFlag(bool flag)
@@ -184,26 +209,26 @@ public:
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     operator const T&() const
     {
-        if (type().type == T::variantDataType())
+        if (type().type == T::variantDataType() || (type().type == VariantDataType::VAR_DATE && T::variantDataType() == VariantDataType::VAR_DATE_TIME))
         {
             return *dynamic_pointer_cast<T>(storageClient());
         }
         throw std::invalid_argument("Invalid type");
     }
 
-    template<typename T>
-    T get() const
-    {
-        return (T) * this;
-    }
-
-    template<typename T>
+    template<typename T, typename std::enable_if_t<!std::is_pointer_v<T>, int> = 0>
     T& get()
     {
         return (T&) *this;
     }
 
-    template<typename T>
+    template<typename T, typename std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>, int> = 0>
+    T get() const
+    {
+        return (T) * this;
+    }
+
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
     {
         return (const T&) *this;
@@ -214,7 +239,7 @@ public:
      * @param value             Internal data
      */
     template<typename T>
-    void set(const T& value)
+    void set(const T& value, typename std::enable_if_t<!std::is_pointer_v<T>, int> = 0)
     {
         *this = value;
     }
@@ -264,14 +289,14 @@ public:
         {
             *dynamic_pointer_cast<T>(storageClient()) = value;
         }
-        setNull(false);
+        setNull(false, T::variantDataType());
         setSize(sizeof(T));
         return *this;
     }
 
     VariantStorage& operator=(Buffer&& value);
 
-    void setExternalPointer(const uint8_t* value, size_t dataSize);
+    void setExternalBuffer(const uint8_t* aValue, size_t dataSize, VariantDataType type = VariantDataType::VAR_BYTE_POINTER);
 };
 
 } // namespace sptk

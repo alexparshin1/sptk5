@@ -335,10 +335,11 @@ TEST(SPTK_VariantStorage, MoneyData)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(SPTK_VariantStorage, BytePointer)
+TEST(SPTK_VariantStorage, externalBuffer)
 {
     const array<uint8_t, 4> testBytes = {0, 1, 2, 3};
     const array<uint8_t, 5> testBytes2 = {0, 1, 2, 3, 4};
+    const char* testText = "Test text";
 
     VariantStorage variantStorage(testBytes.data(), sizeof(testBytes), true);
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage.type().type);
@@ -348,14 +349,14 @@ TEST(SPTK_VariantStorage, BytePointer)
     EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
-    variantStorage.setExternalPointer(testBytes2.data(), sizeof(testBytes2));
-    EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage.type().type);
-    EXPECT_EQ(5, variantStorage.type().size);
+    variantStorage.setExternalBuffer((const uint8_t*) testText, strlen(testText), VariantDataType::VAR_STRING);
+    EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage.type().type);
+    EXPECT_EQ(strlen(testText), variantStorage.type().size);
     EXPECT_EQ(true, variantStorage.type().isExternalBuffer);
-    EXPECT_EQ(testBytes2.data(), (const uint8_t*) variantStorage);
+    EXPECT_EQ((const uint8_t*) testText, (const uint8_t*) variantStorage);
 
     variantStorage = Buffer("");
-    variantStorage.setExternalPointer(testBytes2.data(), sizeof(testBytes2));
+    variantStorage.setExternalBuffer(testBytes2.data(), sizeof(testBytes2), VariantDataType::VAR_BYTE_POINTER);
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage.type().type);
     EXPECT_EQ(testBytes2.data(), (const uint8_t*) variantStorage);
 
@@ -372,12 +373,12 @@ TEST(SPTK_VariantStorage, BytePointer)
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage2.type().type);
     EXPECT_EQ(testBytes2.data(), (const uint8_t*) variantStorage2);
 
-    variantStorage2.setExternalPointer(testBytes.data(), sizeof(testBytes));
+    variantStorage2.setExternalBuffer(testBytes.data(), sizeof(testBytes), VariantDataType::VAR_BYTE_POINTER);
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage2.type().type);
     EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage2);
 
     variantStorage2.setNull();
-    variantStorage2.setExternalPointer(testBytes.data(), sizeof(testBytes2));
+    variantStorage2.setExternalBuffer(testBytes.data(), sizeof(testBytes2), VariantDataType::VAR_BYTE_POINTER);
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage2.type().type);
     EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage2);
     EXPECT_FALSE(variantStorage2.isNull());
@@ -429,7 +430,7 @@ TEST(SPTK_VariantStorage, getInvalidType)
     EXPECT_THROW((int) variantStorage, invalid_argument);
 
     const array<uint8_t, 4> testBytes = {0, 1, 2, 3};
-    variantStorage.setExternalPointer(testBytes.data(), sizeof(testBytes));
+    variantStorage.setExternalBuffer(testBytes.data(), sizeof(testBytes), VariantDataType::VAR_BYTE_POINTER);
     EXPECT_THROW((int) variantStorage, invalid_argument);
 }
 

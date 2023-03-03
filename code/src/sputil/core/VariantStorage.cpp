@@ -3,26 +3,35 @@
 using namespace std;
 using namespace sptk;
 
+static constexpr int BUFFER_TYPES =
+    (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER | (int) VariantDataType::VAR_IMAGE_PTR;
+
 BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     : m_type(other.m_type)
 {
-    switch (m_type.type)
+    if (other.m_class)
     {
-        case VariantDataType::VAR_BUFFER:
-            m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
-            break;
-        case VariantDataType::VAR_STRING:
-            m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
-            break;
-        case VariantDataType::VAR_DATE_TIME:
-            m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
-            break;
-        case VariantDataType::VAR_MONEY:
-            m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
-            break;
-        default:
-            m_value.asInt64 = other.m_value.asInt64;
-            break;
+        switch (m_type.type)
+        {
+            case VariantDataType::VAR_BUFFER:
+                m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
+                break;
+            case VariantDataType::VAR_STRING:
+                m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
+                break;
+            case VariantDataType::VAR_DATE_TIME:
+                m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
+                break;
+            case VariantDataType::VAR_MONEY:
+                m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
+                break;
+            default:
+                break;
+        }
+    }
+    else
+    {
+        m_value.asInt64 = other.m_value.asInt64;
     }
 }
 
@@ -96,14 +105,18 @@ VariantStorage::operator bool() const
 {
     if (type().type == VariantDataType::VAR_BOOL)
     {
-        return (bool) value().asInt64;
+        return value().asBool;
     }
     throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator int() const
 {
-    return (int) operator int64_t();
+    if (type().type == VariantDataType::VAR_INT || type().type == VariantDataType::VAR_INT64)
+    {
+        return value().asInt;
+    }
+    throw invalid_argument("Invalid type");
 }
 
 VariantStorage::operator int64_t() const
@@ -162,7 +175,7 @@ VariantStorage::operator double&()
 
 VariantStorage::operator const uint8_t*() const
 {
-    if (type().type == VariantDataType::VAR_BYTE_POINTER)
+    if (type().isExternalBuffer)
     {
         return value().asBytePointer;
     }
@@ -186,6 +199,7 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
         case VariantDataType::VAR_STRING:
             setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
             break;
+        case VariantDataType::VAR_DATE:
         case VariantDataType::VAR_DATE_TIME:
             setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
             break;
@@ -206,10 +220,10 @@ VariantStorage& VariantStorage::operator=(bool aValue)
     {
         storageClient().reset();
     }
-    setType(VariantDataType::VAR_BOOL);
-    setNull(false);
-    setSize(sizeof(aValue));
-    value().asInt64 = aValue != 0 ? 1 : 0;
+
+    VariantType type {VariantDataType::VAR_BOOL, false, false, sizeof(aValue)};
+    setType(type);
+    value().asBool = aValue != 0 ? 1 : 0;
     return *this;
 }
 
@@ -219,9 +233,8 @@ VariantStorage& VariantStorage::operator=(int aValue)
     {
         storageClient().reset();
     }
-    setNull(false);
-    setType(VariantDataType::VAR_INT);
-    setSize(sizeof(aValue));
+    VariantType type {VariantDataType::VAR_INT, false, false, sizeof(aValue)};
+    setType(type);
     value().asInt64 = aValue;
     return *this;
 }
@@ -232,9 +245,8 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
     {
         storageClient().reset();
     }
-    setNull(false);
-    setType(VariantDataType::VAR_INT64);
-    setSize(sizeof(aValue));
+    VariantType type {VariantDataType::VAR_INT64, false, false, sizeof(aValue)};
+    setType(type);
     value().asInt64 = aValue;
     return *this;
 }
@@ -245,9 +257,8 @@ VariantStorage& VariantStorage::operator=(double aValue)
     {
         storageClient().reset();
     }
-    setNull(false);
-    setType(VariantDataType::VAR_FLOAT);
-    setSize(sizeof(aValue));
+    VariantType type {VariantDataType::VAR_FLOAT, false, false, sizeof(aValue)};
+    setType(type);
     value().asDouble = aValue;
     return *this;
 }
@@ -264,21 +275,24 @@ VariantStorage& VariantStorage::operator=(Buffer&& aValue)
     {
         *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
     }
-    setType(VariantDataType::VAR_BUFFER);
-    setNull(false);
+    setNull(false, VariantDataType::VAR_BUFFER);
     setSize(sizeof(aValue));
     return *this;
 }
 
-void VariantStorage::setExternalPointer(const uint8_t* aValue, size_t dataSize)
+void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, VariantDataType type)
 {
+    if (((int) type & BUFFER_TYPES) == 0)
+    {
+        throw Exception("Invalid buffer type");
+    }
+
     if (storageClient())
     {
         storageClient().reset();
     }
-    setType(VariantDataType::VAR_BYTE_POINTER);
-    setNull(false);
-    setSize(dataSize);
+    VariantType variantType {type, false, true, dataSize};
+    setType(variantType);
     value().asBytePointer = aValue;
 }
 
@@ -289,11 +303,9 @@ VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
         value() = other.value();
         setStorageClient(other.storageClient());
         setType(other.type());
-        setSize(other.size());
         other.value().asInt64 = 0;
         other.storageClient().reset();
-        other.setType(VariantDataType::VAR_NONE);
-        other.setNull(true);
+        other.setNull(true, VariantDataType::VAR_NONE);
     }
     return *this;
 }
