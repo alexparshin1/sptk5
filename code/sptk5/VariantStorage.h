@@ -41,7 +41,10 @@ public:
     /**
      * @brief Constructor
      */
-    BaseVariantStorage() = default;
+    BaseVariantStorage()
+    {
+        m_type.isNull = true;
+    }
 
     BaseVariantStorage(const BaseVariantStorage& other, int);
     BaseVariantStorage(BaseVariantStorage&& other) noexcept = default;
@@ -50,14 +53,14 @@ public:
     explicit BaseVariantStorage(int value);
     explicit BaseVariantStorage(int64_t value);
     explicit BaseVariantStorage(double value);
-    explicit BaseVariantStorage(const uint8_t* value);
+    BaseVariantStorage(const uint8_t* value, size_t dataSize, bool externalBuffer = false);
 
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     explicit BaseVariantStorage(const T& value)
         : m_class(std::make_shared<T>(value))
-        , m_type(T::variantDataType())
-        , m_null(false)
     {
+        m_type.type = T::variantDataType();
+        m_type.size = sizeof(value);
     }
 
     explicit BaseVariantStorage(Buffer&& value);
@@ -67,14 +70,14 @@ public:
      */
     virtual ~BaseVariantStorage() = default;
 
-    [[nodiscard]] VariantDataType type() const
+    [[nodiscard]] const VariantType& type() const
     {
         return m_type;
     }
 
     [[nodiscard]] bool isNull() const
     {
-        return m_null;
+        return m_type.isNull;
     }
 
     void setNull();
@@ -104,14 +107,19 @@ protected:
         m_class = storageClient;
     }
 
-    void setType(VariantDataType dataType)
+    void setType(VariantType dataType)
     {
         m_type = dataType;
     }
 
+    void setType(VariantDataType dataType)
+    {
+        m_type.type = dataType;
+    }
+
     void setNull(bool isNull)
     {
-        m_null = isNull;
+        m_type.isNull = isNull;
     }
 
     [[nodiscard]] VariantValue& value()
@@ -124,11 +132,30 @@ protected:
         return m_value;
     }
 
+    void setSize(size_t sz)
+    {
+        m_type.size = sz;
+    }
+
+    [[nodiscard]] size_t size() const
+    {
+        return m_type.size;
+    }
+
+    void setExternalBufferFlag(bool flag)
+    {
+        m_type.isExternalBuffer = flag;
+    }
+
+    [[nodiscard]] bool externalBufferFlag() const
+    {
+        return m_type.isExternalBuffer;
+    }
+
 private:
     VariantValue m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    VariantDataType m_type {VariantDataType::VAR_NONE};
-    bool m_null {true};
+    VariantType m_type {};
 };
 
 /// @brief Compact variant data storage
@@ -157,7 +184,7 @@ public:
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     operator const T&() const
     {
-        if (type() == T::variantDataType())
+        if (type().type == T::variantDataType())
         {
             return *dynamic_pointer_cast<T>(storageClient());
         }
@@ -223,12 +250,12 @@ public:
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
     VariantStorage& operator=(double value);
-    VariantStorage& operator=(const uint8_t* value);
+    VariantStorage& operator=(const uint8_t*) = delete;
 
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     VariantStorage& operator=(const T& value)
     {
-        if (type() != T::variantDataType() || !storageClient())
+        if (type().type != T::variantDataType() || !storageClient())
         {
             setStorageClient(std::make_shared<T>(value));
             setType(T::variantDataType());
@@ -238,10 +265,13 @@ public:
             *dynamic_pointer_cast<T>(storageClient()) = value;
         }
         setNull(false);
+        setSize(sizeof(T));
         return *this;
     }
 
     VariantStorage& operator=(Buffer&& value);
+
+    void setExternalPointer(const uint8_t* value, size_t dataSize);
 };
 
 } // namespace sptk

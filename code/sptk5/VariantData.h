@@ -39,12 +39,6 @@ namespace sptk {
  * @{
  */
 
-struct VariantType {
-    VariantDataType type;
-    bool isNull : 1;
-    bool isExternalBuffer : 1;
-};
-
 class SP_EXPORT VariantData
 {
 public:

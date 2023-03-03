@@ -5,9 +5,8 @@ using namespace sptk;
 
 BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     : m_type(other.m_type)
-    , m_null(other.m_null)
 {
-    switch (m_type)
+    switch (m_type.type)
     {
         case VariantDataType::VAR_BUFFER:
             m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
@@ -28,47 +27,57 @@ BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
 }
 
 BaseVariantStorage::BaseVariantStorage(bool value)
-    : m_type(VariantDataType::VAR_BOOL)
-    , m_null(false)
 {
     m_value.asInt64 = value != 0 ? 1 : 0;
+    m_type.type = VariantDataType::VAR_BOOL;
+    m_type.size = sizeof(value);
 }
 
 BaseVariantStorage::BaseVariantStorage(int value)
-    : m_type(VariantDataType::VAR_INT)
-    , m_null(false)
 {
     m_value.asInt64 = value;
+    m_type.type = VariantDataType::VAR_INT;
+    m_type.size = sizeof(value);
 }
 
 BaseVariantStorage::BaseVariantStorage(int64_t value)
-    : m_type(VariantDataType::VAR_INT64)
-    , m_null(false)
 {
     m_value.asInt64 = value;
+    m_type.type = VariantDataType::VAR_INT64;
+    m_type.size = sizeof(value);
 }
 
 BaseVariantStorage::BaseVariantStorage(double value)
-    : m_type(VariantDataType::VAR_FLOAT)
-    , m_null(false)
 {
     m_value.asDouble = value;
+    m_type.type = VariantDataType::VAR_FLOAT;
+    m_type.size = sizeof(value);
 }
 
 BaseVariantStorage::BaseVariantStorage(Buffer&& value)
-    : m_type(VariantDataType::VAR_BUFFER)
-    , m_null(false)
 {
     auto buffer = make_shared<Buffer>();
     *buffer = std::move(value);
     m_class = buffer;
+    m_type.type = VariantDataType::VAR_BUFFER;
+    m_type.size = sizeof(value.size());
 }
 
-BaseVariantStorage::BaseVariantStorage(const uint8_t* value)
-    : m_type(VariantDataType::VAR_BYTE_POINTER)
-    , m_null(false)
+BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bool externalBuffer)
 {
-    m_value.asBytePointer = value;
+    if (externalBuffer || value == nullptr)
+    {
+        m_value.asBytePointer = value;
+        m_type.type = VariantDataType::VAR_BYTE_POINTER;
+        m_type.isNull = value == nullptr;
+    }
+    else
+    {
+        m_class = make_shared<Buffer>(value, dataSize);
+        m_type.type = VariantDataType::VAR_BUFFER;
+    }
+    m_type.size = m_type.isNull ? 0 : dataSize;
+    m_type.isExternalBuffer = externalBuffer;
 }
 
 void BaseVariantStorage::setNull()
@@ -78,12 +87,14 @@ void BaseVariantStorage::setNull()
         m_class.reset();
     }
     m_value.asInt64 = 0;
-    m_null = true;
+    m_type.isNull = true;
+    m_type.size = 0;
+    m_type.isExternalBuffer = false;
 }
 
 VariantStorage::operator bool() const
 {
-    if (type() == VariantDataType::VAR_BOOL)
+    if (type().type == VariantDataType::VAR_BOOL)
     {
         return (bool) value().asInt64;
     }
@@ -97,7 +108,7 @@ VariantStorage::operator int() const
 
 VariantStorage::operator int64_t() const
 {
-    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
+    if (type().type == VariantDataType::VAR_INT || type().type == VariantDataType::VAR_INT64)
     {
         return value().asInt64;
     }
@@ -106,7 +117,7 @@ VariantStorage::operator int64_t() const
 
 VariantStorage::operator double() const
 {
-    if (type() == VariantDataType::VAR_FLOAT)
+    if (type().type == VariantDataType::VAR_FLOAT)
     {
         return value().asDouble;
     }
@@ -115,7 +126,7 @@ VariantStorage::operator double() const
 
 VariantStorage::operator bool&()
 {
-    if (type() == VariantDataType::VAR_BOOL)
+    if (type().type == VariantDataType::VAR_BOOL)
     {
         return value().asBool;
     }
@@ -124,7 +135,7 @@ VariantStorage::operator bool&()
 
 VariantStorage::operator int&()
 {
-    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
+    if (type().type == VariantDataType::VAR_INT || type().type == VariantDataType::VAR_INT64)
     {
         return value().asInt;
     }
@@ -133,7 +144,7 @@ VariantStorage::operator int&()
 
 VariantStorage::operator int64_t&()
 {
-    if (type() == VariantDataType::VAR_INT || type() == VariantDataType::VAR_INT64)
+    if (type().type == VariantDataType::VAR_INT || type().type == VariantDataType::VAR_INT64)
     {
         return value().asInt64;
     }
@@ -142,7 +153,7 @@ VariantStorage::operator int64_t&()
 
 VariantStorage::operator double&()
 {
-    if (type() == VariantDataType::VAR_FLOAT)
+    if (type().type == VariantDataType::VAR_FLOAT)
     {
         return value().asDouble;
     }
@@ -151,7 +162,7 @@ VariantStorage::operator double&()
 
 VariantStorage::operator const uint8_t*() const
 {
-    if (type() == VariantDataType::VAR_BYTE_POINTER)
+    if (type().type == VariantDataType::VAR_BYTE_POINTER)
     {
         return value().asBytePointer;
     }
@@ -166,9 +177,8 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     }
 
     setType(other.type());
-    setNull(other.isNull());
 
-    switch (type())
+    switch (type().type)
     {
         case VariantDataType::VAR_BUFFER:
             setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
@@ -198,6 +208,7 @@ VariantStorage& VariantStorage::operator=(bool aValue)
     }
     setType(VariantDataType::VAR_BOOL);
     setNull(false);
+    setSize(sizeof(aValue));
     value().asInt64 = aValue != 0 ? 1 : 0;
     return *this;
 }
@@ -210,6 +221,7 @@ VariantStorage& VariantStorage::operator=(int aValue)
     }
     setNull(false);
     setType(VariantDataType::VAR_INT);
+    setSize(sizeof(aValue));
     value().asInt64 = aValue;
     return *this;
 }
@@ -222,6 +234,7 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
     }
     setNull(false);
     setType(VariantDataType::VAR_INT64);
+    setSize(sizeof(aValue));
     value().asInt64 = aValue;
     return *this;
 }
@@ -234,28 +247,30 @@ VariantStorage& VariantStorage::operator=(double aValue)
     }
     setNull(false);
     setType(VariantDataType::VAR_FLOAT);
+    setSize(sizeof(aValue));
     value().asDouble = aValue;
     return *this;
 }
 
 VariantStorage& VariantStorage::operator=(Buffer&& aValue)
 {
-    if (type() != VariantDataType::VAR_BUFFER || !storageClient())
+    if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
         auto buffer = make_shared<Buffer>();
         *buffer = std::move(aValue);
         setStorageClient(buffer);
-        setType(VariantDataType::VAR_BUFFER);
     }
     else
     {
         *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
     }
+    setType(VariantDataType::VAR_BUFFER);
     setNull(false);
+    setSize(sizeof(aValue));
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(const uint8_t* aValue)
+void VariantStorage::setExternalPointer(const uint8_t* aValue, size_t dataSize)
 {
     if (storageClient())
     {
@@ -263,8 +278,8 @@ VariantStorage& VariantStorage::operator=(const uint8_t* aValue)
     }
     setType(VariantDataType::VAR_BYTE_POINTER);
     setNull(false);
+    setSize(dataSize);
     value().asBytePointer = aValue;
-    return *this;
 }
 
 VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
@@ -274,6 +289,7 @@ VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
         value() = other.value();
         setStorageClient(other.storageClient());
         setType(other.type());
+        setSize(other.size());
         other.value().asInt64 = 0;
         other.storageClient().reset();
         other.setType(VariantDataType::VAR_NONE);
