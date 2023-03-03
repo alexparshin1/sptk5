@@ -285,5 +285,5 @@ String sptk::capitalizeWords(const String& s)
         }
     }
 
-    return {buffer.c_str(), buffer.length()};
+    return {buffer.c_str(), buffer.size()};
 }

@@ -73,7 +73,7 @@ void Tar::read(const Buffer& tarData)
     m_files.clear();
 
     size_t offset = 0;
-    while (offset < tarData.length())
+    while (offset < tarData.size())
     {
         if (!readNextFile(tarData, offset))
         {
@@ -164,11 +164,11 @@ void Tar::save(const String& tarFileName) const
     {
         const auto& header = *(const TarHeader*) archiveFile->header();
         archive.write((const char*) &header, TAR_BLOCK_SIZE);
-        if (archiveFile->length() > 0)
+        if (archiveFile->size() > 0)
         {
-            size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->length() % TAR_BLOCK_SIZE;
+            size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
             Buffer padding(paddingLength);
-            archive.write(archiveFile->c_str(), (int) archiveFile->length());
+            archive.write(archiveFile->c_str(), (int) archiveFile->size());
             archive.write(padding.c_str(), (int) paddingLength);
         }
     }

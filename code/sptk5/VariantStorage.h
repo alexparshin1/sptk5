@@ -182,6 +182,16 @@ public:
         return (const T&) *this;
     }
 
+    /**
+     * Set internal data
+     * @param value             Internal data
+     */
+    template<typename T>
+    void set(const T& value)
+    {
+        *this = value;
+    }
+
     explicit operator bool&();
     explicit operator int&();
     explicit operator int64_t&();
@@ -197,8 +207,18 @@ public:
         throw std::invalid_argument("Invalid type");
     }
 
+    /**
+     * Copy assigment
+     * @param other             Other object
+     */
     VariantStorage& operator=(const VariantStorage& other);
+
+    /**
+     * Move assigment
+     * @param other             Other object
+     */
     VariantStorage& operator=(VariantStorage&& other) noexcept;
+
     VariantStorage& operator=(bool value);
     VariantStorage& operator=(int value);
     VariantStorage& operator=(int64_t value);
@@ -206,7 +226,7 @@ public:
     VariantStorage& operator=(const uint8_t* value);
 
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
-    T& operator=(const T& value)
+    VariantStorage& operator=(const T& value)
     {
         if (type() != T::variantDataType() || !storageClient())
         {

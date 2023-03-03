@@ -428,6 +428,11 @@ TEST(SPTK_VariantStorage, getInvalidType)
     EXPECT_THROW((int) variantStorage, invalid_argument);
 }
 
-TEST(SPTK_VariantStorage, memcheck)
+TEST(SPTK_VariantStorage, getAndSet)
 {
+    VariantStorage variantStorage;
+    Buffer testBuffer("test");
+    variantStorage.set(testBuffer);
+    EXPECT_EQ(VariantDataType::VAR_BUFFER, variantStorage.type());
+    EXPECT_STREQ(testBuffer.c_str(), variantStorage.get<Buffer>().c_str());
 }

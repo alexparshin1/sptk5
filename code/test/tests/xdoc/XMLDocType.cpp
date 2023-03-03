@@ -62,13 +62,13 @@ TEST(SPTK_XmlXMLDocType, decodeEncodeEntities)
     xdoc::XMLDocType docType("x");
 
     docType.encodeEntities(testString1.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.size(), decoded);
     EXPECT_STREQ(testString1.c_str(), decoded.c_str());
 
     encoded.reset();
     decoded.reset();
 
     docType.encodeEntities(testString2.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.length(), decoded);
+    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.size(), decoded);
     EXPECT_STREQ(testString2.c_str(), decoded.c_str());
 }

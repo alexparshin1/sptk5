@@ -117,7 +117,7 @@ String SSLKeys::ident() const
     buffer.append(to_string(m_verifyMode));
     buffer.append('~');
     buffer.append(to_string(m_verifyDepth));
-    return {buffer.c_str(), buffer.length()};
+    return {buffer.c_str(), buffer.size()};
 }
 
 bool SSLKeys::empty() const

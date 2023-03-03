@@ -62,7 +62,7 @@ RequestInfo WSStaticHttpProtocol::process()
         {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
         }
-        socket().write("Content-Length: " + int2string(output.length()) + "\n\n");
+        socket().write("Content-Length: " + int2string(output.size()) + "\n\n");
         socket().write(output);
     }
     catch (const Exception&)

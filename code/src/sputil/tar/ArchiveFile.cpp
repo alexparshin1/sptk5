@@ -158,7 +158,7 @@ void ArchiveFile::makeHeader()
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
     snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_ownership.uid);
     snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_ownership.gid);
-    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) length());
+    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) size());
     snprintf(m_header->mtime.data(), sizeof(m_header->mtime), "%011o", (unsigned) (time_t) m_mtime);
 
     m_header->typeflag = (char) m_type;

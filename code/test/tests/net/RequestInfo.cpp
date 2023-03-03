@@ -80,7 +80,7 @@ TEST(SPTK_RequestInfo, Message)
 #ifdef HAVE_BROTLI
     Buffer brotliData;
     Brotli::compress(brotliData, testData);
-    EXPECT_TRUE(testData.length() > brotliData.length());
+    EXPECT_TRUE(testData.size() > brotliData.size());
     message.input(brotliData, "br");
     output = message.output(outputEncodings);
     decoded = decode(output, message.contentEncoding());
@@ -101,7 +101,7 @@ TEST(SPTK_RequestInfo, Message)
     outputEncodings.remove("br");
     Buffer gzipData;
     ZLib::compress(gzipData, testData);
-    EXPECT_TRUE(testData.length() > gzipData.length());
+    EXPECT_TRUE(testData.size() > gzipData.size());
     message.input(gzipData, "gzip");
     output = message.output(outputEncodings);
     decoded = decode(output, message.contentEncoding());

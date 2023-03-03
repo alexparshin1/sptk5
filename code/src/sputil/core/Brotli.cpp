@@ -48,7 +48,7 @@ public:
     Context(ReadBuffer& inputBuffer, Buffer& outputBuffer)
         : inputData(inputBuffer)
         , outputData(outputBuffer)
-        , input_file_length((int64_t) inputBuffer.length())
+        , input_file_length((int64_t) inputBuffer.size())
         , next_out(output)
     {
     }

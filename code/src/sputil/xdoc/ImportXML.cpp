@@ -370,7 +370,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
     {
         Buffer& decoded = m_decodeBuffer;
         doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
-        String decodedText(decoded.c_str(), decoded.length());
+        String decodedText(decoded.c_str(), decoded.size());
 
         Node::Type nodeType = Node::Type::Text;
         if (formatting != Mode::KeepFormatting)

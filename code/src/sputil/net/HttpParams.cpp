@@ -106,7 +106,7 @@ String Url::decode(const String& str)
                 break;
         }
     }
-    return {buffer.c_str(), buffer.length()};
+    return {buffer.c_str(), buffer.size()};
 }
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)

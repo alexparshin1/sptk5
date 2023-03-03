@@ -338,7 +338,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
 
     Buffer clob;
     size_t counter = 0;
-    while (clob.length() < 65536)
+    while (clob.size() < 65536)
     { // A size of the CLOB that is bigger than 64K
         clob.append("A text ");
         counter += 7;
@@ -359,7 +359,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         insert.param("price") = row.price;
         insert.param("ts") = DateTime::Now();
         insert.param("enabled").setBool(true);
-        insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.length(), VariantDataType::VAR_TEXT);
+        insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.size(), VariantDataType::VAR_TEXT);
         insert.exec();
     }
 
@@ -391,7 +391,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
         EXPECT_EQ(row.ssid, select["ssid"].asInt64());
         EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
         EXPECT_FLOAT_EQ((float) row.price, (float) select["price"].asFloat());
-        EXPECT_EQ(clob.length(), select["txt"].asString().length());
+        EXPECT_EQ(clob.size(), select["txt"].asString().length());
 
         EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
         clob.saveToFile("/tmp/clob.txt");

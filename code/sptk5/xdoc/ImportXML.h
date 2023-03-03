@@ -72,15 +72,6 @@ public:
     }
 
     /**
-     * Set indentation in save, defaults to 2
-     *
-     * @param i                 New indent spaces
-     */
-    [[maybe_unused]] void indentSpaces(int)
-    {
-    }
-
-    /**
      * Load document from buffer.
      * @param _buffer            Source buffer
      */

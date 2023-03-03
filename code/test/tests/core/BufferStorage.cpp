@@ -38,11 +38,11 @@ TEST(SPTK_BufferStorage, constructors)
     BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
 
     BufferStorage testStorage2(testStorage1);
-    EXPECT_EQ(testStorage2.length(), 16U);
+    EXPECT_EQ(testStorage2.size(), 16U);
     EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
     BufferStorage testStorage3(move(testStorage1));
-    EXPECT_EQ(testStorage3.length(), 16U);
+    EXPECT_EQ(testStorage3.size(), 16U);
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
@@ -52,12 +52,12 @@ TEST(SPTK_BufferStorage, assignments)
 
     BufferStorage testStorage2;
     testStorage2 = testStorage1;
-    EXPECT_EQ(testStorage2.length(), size_t(16));
+    EXPECT_EQ(testStorage2.size(), size_t(16));
     EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
     BufferStorage testStorage3;
     testStorage3 = move(testStorage1);
-    EXPECT_EQ(testStorage3.length(), size_t(16));
+    EXPECT_EQ(testStorage3.size(), size_t(16));
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
@@ -71,7 +71,7 @@ TEST(SPTK_BufferStorage, append)
     }
     testStorage.append(testString.c_str(), testString.length());
 
-    EXPECT_EQ(testStorage.length(), size_t(32));
+    EXPECT_EQ(testStorage.size(), size_t(32));
     EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF0123456789ABCDEF");
 }
 
@@ -81,7 +81,7 @@ TEST(SPTK_BufferStorage, erase)
     BufferStorage testStorage(bufferSize);
     testStorage.fill(0, bufferSize);
     testStorage.set("0123456789ABCDEF");
-    EXPECT_EQ(testStorage.length(), size_t(16));
+    EXPECT_EQ(testStorage.size(), size_t(16));
     EXPECT_STREQ(testStorage.c_str(), testString.c_str());
     testStorage.erase(0, 4);
     EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
@@ -94,10 +94,10 @@ TEST(SPTK_BufferStorage, reset)
     testStorage.set(testString.c_str());
 
     testStorage.reset();
-    EXPECT_EQ(testStorage.length(), size_t(0));
+    EXPECT_EQ(testStorage.size(), size_t(0));
 
     testStorage.append(testString.c_str(), testString.length());
 
-    EXPECT_EQ(testStorage.length(), testString.length());
+    EXPECT_EQ(testStorage.size(), testString.length());
     EXPECT_STREQ(testStorage.c_str(), testString.c_str());
 }

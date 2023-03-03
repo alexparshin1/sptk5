@@ -230,7 +230,7 @@ void ODBCConnectionBase::execQuery(const char* query)
     }
 
     if (Buffer queryBuffer((const uint8_t*) query, strlen(query));
-        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.length())))
+        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.size())))
     {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));

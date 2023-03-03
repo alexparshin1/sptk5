@@ -50,7 +50,7 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
     constexpr size_t maxContentLength = 512;
 
     logMessage << prefix;
-    logMessage << message.content().length() << "/" << message.compressedLength()
+    logMessage << message.content().size() << "/" << message.compressedLength()
                << " bytes ";
     if (!message.contentEncoding().empty())
     {

@@ -37,7 +37,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
     static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
     constexpr int initialBufferSize = 128;
     m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
+    m_compressedLength = content.size();
     m_contentEncoding = contentEncoding;
 
     switch (knowContentEncodings.indexOf(contentEncoding))
@@ -79,7 +79,7 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
         {
             m_contentEncoding = "br";
             Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
+            m_compressedLength = outputData.size();
             return outputData;
         }
 #endif
@@ -88,13 +88,13 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
         {
             m_contentEncoding = "gzip";
             ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
+            m_compressedLength = outputData.size();
             return outputData;
         }
 #endif
     }
 
-    m_compressedLength = m_content.length();
+    m_compressedLength = m_content.size();
 
     return m_content;
 }

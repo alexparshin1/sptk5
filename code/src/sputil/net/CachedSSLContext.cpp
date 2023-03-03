@@ -69,5 +69,5 @@ String CachedSSLContext::makeIdent(const String& keyFileName, const String& cert
     buffer.append(int2string(verifyDepth));
     buffer.append(cipherList);
     buffer.append('~');
-    return {buffer.c_str(), buffer.length()};
+    return {buffer.c_str(), buffer.size()};
 }

@@ -209,7 +209,6 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantDataType dataType
             return MYSQL_TYPE_DOUBLE;
 
         case VariantDataType::VAR_STRING:
-            //return MYSQL_TYPE_VARCHAR; // Stopped working after upgrade to MariaDB?
             return MYSQL_TYPE_STRING;
 
         case VariantDataType::VAR_TEXT:

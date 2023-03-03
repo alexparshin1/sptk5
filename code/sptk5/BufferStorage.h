@@ -201,7 +201,7 @@ public:
      * Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t length() const
+    size_t size() const
     {
         return m_bytes;
     }
@@ -217,8 +217,6 @@ public:
 
     /**
      * Sets the size of the data stored
-     *
-     * Doesn't check anything so use it this caution.
      * @param b                 New size of the buffer
      */
     void bytes(size_t b)
@@ -227,13 +225,15 @@ public:
         {
             return;
         }
-        if (b + 1 <= m_buffer.size())
+
+        if (b + 1 > m_buffer.size())
         {
-            m_bytes = b;
-            m_buffer[b] = 0;
-            return;
+            m_buffer.resize(b + 1);
         }
-        throw Exception("Attempt to set buffer size outside storage");
+
+        m_bytes = b;
+        m_buffer[b] = 0;
+        return;
     }
 
     /**

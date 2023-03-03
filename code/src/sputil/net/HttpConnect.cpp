@@ -174,7 +174,7 @@ static bool compressPostData(const sptk::Strings& possibleContentEncodings, Stri
         }
     }
 
-    if (!usedEncoding.empty() && compressedData.length() < postData.length())
+    if (!usedEncoding.empty() && compressedData.size() < postData.size())
     {
         headers.push_back("Content-Encoding: " + usedEncoding);
         return true;
