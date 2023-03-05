@@ -91,10 +91,12 @@ BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bo
 
 void BaseVariantStorage::setNull()
 {
+    /*
     if (m_class)
     {
         m_class.reset();
     }
+    */
     m_value.asInt64 = 0;
     m_type.isNull = true;
     m_type.size = 0;
@@ -191,24 +193,32 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
 
     setType(other.type());
 
-    switch (type().type)
+    if (!other.isNull())
     {
-        case VariantDataType::VAR_BUFFER:
-            setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
-            break;
-        case VariantDataType::VAR_STRING:
-            setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
-            break;
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-            setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
-            break;
-        case VariantDataType::VAR_MONEY:
-            setStorageClient(make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.storageClient())));
-            break;
-        default:
-            value().asInt64 = other.value().asInt64;
-            break;
+        switch (type().type)
+        {
+            case VariantDataType::VAR_BUFFER:
+                setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
+                break;
+            case VariantDataType::VAR_STRING:
+                setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
+                break;
+            case VariantDataType::VAR_DATE:
+            case VariantDataType::VAR_DATE_TIME:
+                setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
+                break;
+            case VariantDataType::VAR_MONEY:
+                setStorageClient(make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.storageClient())));
+                break;
+            default:
+                value().asInt64 = other.value().asInt64;
+                break;
+        }
+    }
+    else
+    {
+        setStorageClient(nullptr);
+        value().asInt64 = 0;
     }
 
     return *this;
@@ -267,8 +277,7 @@ VariantStorage& VariantStorage::operator=(Buffer&& aValue)
 {
     if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
-        auto buffer = make_shared<Buffer>();
-        *buffer = std::move(aValue);
+        auto buffer = make_shared<Buffer>(std::move(aValue));
         setStorageClient(buffer);
     }
     else
@@ -276,7 +285,7 @@ VariantStorage& VariantStorage::operator=(Buffer&& aValue)
         *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
     }
     setNull(false, VariantDataType::VAR_BUFFER);
-    setSize(sizeof(aValue));
+    setSize(aValue.size());
     return *this;
 }
 

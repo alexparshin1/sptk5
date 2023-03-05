@@ -119,10 +119,21 @@ public:
      * @tparam T variant data type
      * @return const refernce to variant data
      */
-    template<typename T>
+    template<typename T, typename std::enable_if_t<!std::is_class_v<T>, int> = 0>
+    T get() const
+    {
+        return (T) m_data;
+    }
+
+    /**
+     * @brief Direct and fast const access to variant data
+     * @tparam T variant data type
+     * @return const refernce to variant data
+     */
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
     {
-        return m_data.get<T>();
+        return (const T&) m_data;
     }
 
     /**
@@ -133,7 +144,7 @@ public:
     template<typename T>
     T& get()
     {
-        return m_data.get<T>();
+        return (T&) m_data;
     }
 
     /**

@@ -246,6 +246,11 @@ public:
         return VariantDataType::VAR_STRING;
     }
 
+    size_t dataSize() const override
+    {
+        return size();
+    }
+
 private:
     /**
      * String ID

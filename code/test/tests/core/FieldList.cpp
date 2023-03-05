@@ -112,9 +112,7 @@ TEST(SPTK_FieldList, dataTypes)
 
     EXPECT_TRUE(fieldList["date"].asDateTime() == testDate);
     EXPECT_STREQ("2020-02-01T11:22:33Z",
-                 fieldList["date"].asDateTime().isoDateTimeString(sptk::DateTime::PrintAccuracy::SECONDS,
-                                                                  true)
-                     .c_str());
+                 fieldList["date"].asDateTime().isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str());
 
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ("1234", fieldList["text"].asString().c_str());

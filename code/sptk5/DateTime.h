@@ -206,6 +206,11 @@ public:
         return m_dateTime;
     }
 
+    size_t dataSize() const override
+    {
+        return sizeof(DateTime);
+    }
+
     /**
      * Assignment
      */

@@ -46,6 +46,8 @@ public:
      * @brief Destructor
      */
     virtual ~VariantStorageClient() = default;
+
+    virtual size_t dataSize() const = 0;
 };
 
 } // namespace sptk

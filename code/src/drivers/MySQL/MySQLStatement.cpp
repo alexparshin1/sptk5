@@ -235,8 +235,7 @@ void MySQLStatement::setParameterValues()
     auto paramCount = enumeratedParams().size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex)
     {
-        auto param = enumeratedParams()[paramIndex];
-        bool setNull = param->isNull();
+        auto* param = enumeratedParams()[paramIndex].get();
         MYSQL_BIND& bind = m_paramBuffers[paramIndex];
 
         bind.buffer = nullptr;
@@ -265,10 +264,28 @@ void MySQLStatement::setParameterValues()
                 break;
 
             case VariantDataType::VAR_STRING:
+                m_paramLengths[paramIndex] = ULONG_CAST(param->dataSize());
+                if (param->isNull())
+                {
+                    bind.buffer = nullptr;
+                }
+                else
+                {
+                    bind.buffer = (void*) param->get<String>().c_str();
+                }
+                break;
+
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
                 m_paramLengths[paramIndex] = ULONG_CAST(param->dataSize());
-                bind.buffer = (void*) param->getText();
+                if (param->isNull())
+                {
+                    bind.buffer = nullptr;
+                }
+                else
+                {
+                    bind.buffer = (void*) param->getText();
+                }
                 break;
 
             case VariantDataType::VAR_DATE:
@@ -290,7 +307,8 @@ void MySQLStatement::setParameterValues()
                     "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
                     param->name() + "'");
         }
-        if (setNull)
+
+        if (param->isNull())
         {
             bind.is_null = &nullValue;
         }
@@ -637,10 +655,18 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
                                       uint32_t dataLength) const
 {
     bool fieldSizeChanged = false;
-    if (field->bufferSize() < dataLength)
+
+    if (field->isNull() || field->bufferSize() < dataLength)
     {
-        /// Fetch truncated, enlarge buffer and fetch again
-        field->checkSize(dataLength);
+        if (field->isNull())
+        {
+            field->setBuffer(nullptr, dataLength);
+        }
+        else
+        {
+            /// Fetch truncated, enlarge buffer and fetch again
+            field->checkSize(dataLength);
+        }
         bind.buffer = field->get<Buffer>().data();
         bind.buffer_length = ULONG_CAST(field->bufferSize());
         if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)

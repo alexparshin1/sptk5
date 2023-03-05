@@ -160,6 +160,9 @@ protected:
 
     String doubleDataToString() const override;
 
+public:
+    void setNull(VariantDataType vtype) override;
+
 private:
     int m_fldType;                ///< Native database data type
     int m_fldColumn;              ///< Field column number in recordset

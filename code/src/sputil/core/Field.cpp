@@ -90,9 +90,14 @@ String Field::asString() const
             {
                 result = (const char*) get<const uint8_t*>();
             }
-            else if (const auto& buffer = get<Buffer>(); !buffer.empty())
+            else if (dataType() == VariantDataType::VAR_STRING)
             {
-                result = buffer.c_str();
+                result = get<String>();
+            }
+            else
+            {
+                const auto& buffer = get<Buffer>();
+                result.assign(buffer.c_str(), buffer.size());
             }
             break;
 

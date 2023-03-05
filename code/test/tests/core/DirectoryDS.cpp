@@ -87,7 +87,11 @@ TEST(SPTK_DirectoryDS, open)
     map<String, int> files;
     while (!directoryDS.eof())
     {
-        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
+        const auto& field = directoryDS["Name"];
+        const auto& fileName = field.asString();
+        const auto fileSize = directoryDS["Size"].asInteger();
+        cout << fileName << ": " << fileSize << endl;
+        files[fileName] = fileSize;
         directoryDS.next();
     }
     directoryDS.close();

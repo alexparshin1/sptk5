@@ -67,7 +67,7 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
-            Variant::setBuffer((const uint8_t*) "", 1, dataType);
+            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_BUFFER);
             checkSize((size_t) fieldLength + 1);
             view().width = dataType == VariantDataType::VAR_BUFFER ? 1 : fieldLength;
             break;
@@ -102,4 +102,9 @@ String DatabaseField::doubleDataToString() const
     stringstream output;
     output << fixed << setprecision(m_fldScale) << m_data.get<double>();
     return output.str();
+}
+
+void DatabaseField::setNull(VariantDataType vtype)
+{
+    m_data.setNull(true, vtype, false);
 }

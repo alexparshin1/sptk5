@@ -78,6 +78,11 @@ public:
      * Convert to bool value
      */
     explicit operator bool() const;
+
+    size_t dataSize() const override
+    {
+        return sizeof(MoneyData);
+    }
 };
 
 } // namespace sptk

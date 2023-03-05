@@ -325,14 +325,45 @@ TEST(SPTK_Variant, money)
     EXPECT_DOUBLE_EQ((double) s.getMoney(), 123.4567);
 }
 
+TEST(SPTK_Variant, setBuffer)
+{
+    String testString("External Data");
+    Buffer externalBuffer("External Data");
+
+    Variant v;
+    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_BUFFER);
+    EXPECT_EQ(v.dataType(), VariantDataType::VAR_BUFFER);
+    EXPECT_EQ(testString.size(), v.dataSize());
+    EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
+    EXPECT_STREQ(testString.c_str(), v.getString());
+    EXPECT_STREQ(testString.c_str(), v.getText());
+    EXPECT_STREQ(testString.c_str(), v.asString().c_str());
+
+    v.setNull();
+    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_STRING);
+    EXPECT_EQ(v.dataType(), VariantDataType::VAR_STRING);
+    EXPECT_EQ(testString.size(), v.dataSize());
+    EXPECT_STREQ(testString.c_str(), v.get<String>().c_str());
+    EXPECT_STREQ(testString.c_str(), v.getString());
+    EXPECT_STREQ(testString.c_str(), v.getText());
+    EXPECT_STREQ(testString.c_str(), v.asString().c_str());
+
+    v.setNull();
+    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_TEXT);
+    EXPECT_EQ(v.dataType(), VariantDataType::VAR_TEXT);
+    EXPECT_EQ(testString.size(), v.dataSize());
+    EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
+    EXPECT_STREQ(testString.c_str(), v.getString());
+    EXPECT_STREQ(testString.c_str(), v.getText());
+    EXPECT_STREQ(testString.c_str(), v.asString().c_str());
+}
+
 TEST(SPTK_Variant, externalBuffer)
 {
     Buffer externalBuffer("External Data");
     Variant v;
     v.setExternalBuffer(externalBuffer.data(), externalBuffer.size());
-    EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());
-    externalBuffer[1] = 'X';
-    EXPECT_STREQ(externalBuffer.c_str(), v.asString().c_str());
+    EXPECT_EQ(externalBuffer.c_str(), (const char*) v.getExternalBuffer());
 }
 
 TEST(SPTK_Variant, json)

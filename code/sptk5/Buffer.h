@@ -272,6 +272,11 @@ public:
     {
         return VariantDataType::VAR_BUFFER;
     }
+
+    size_t dataSize() const override
+    {
+        return size();
+    }
 };
 
 using SBuffer = std::shared_ptr<Buffer>;
