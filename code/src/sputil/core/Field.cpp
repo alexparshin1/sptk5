@@ -97,7 +97,7 @@ String Field::asString() const
             else
             {
                 const auto& buffer = get<Buffer>();
-                result.assign(buffer.c_str(), buffer.size());
+                result.assign(buffer.c_str(), dataSize());
             }
             break;
 

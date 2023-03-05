@@ -678,7 +678,7 @@ void ODBCConnection::queryOpen(Query* query)
 
 static uint32_t trimField(char* s, uint32_t sz)
 {
-    char* p = s + sz;
+    char* p = s + sz - 1;
     char ch = s[0];
     s[0] = '!';
 
@@ -719,10 +719,11 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
 
     if (dataLength != SQL_NO_TOTAL)
     {
-        field->checkSize(uint32_t(dataLength + 1));
+        field->checkSize(uint32_t(dataLength));
 
         // Read data
         rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(dataLength + 1), &dataLength);
+        field->setDataSize(dataLength);
         return rc;
     }
 

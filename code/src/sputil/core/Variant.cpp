@@ -366,6 +366,11 @@ const MoneyData& BaseVariant::getMoney() const
 //---------------------------------------------------------------------------
 const char* BaseVariant::getString() const
 {
+    if (isNull())
+    {
+        return nullptr;
+    }
+
     if (isExternalBuffer())
     {
         return (const char*) (const uint8_t*) m_data;
