@@ -117,7 +117,7 @@ public:
     /**
      * @brief Direct and fast const access to variant data
      * @tparam T variant data type
-     * @return const refernce to variant data
+     * @return const reference to variant data
      */
     template<typename T, typename std::enable_if_t<!std::is_class_v<T>, int> = 0>
     T get() const
@@ -128,7 +128,7 @@ public:
     /**
      * @brief Direct and fast const access to variant data
      * @tparam T variant data type
-     * @return const refernce to variant data
+     * @return const reference to variant data
      */
     template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
@@ -139,7 +139,7 @@ public:
     /**
      * @brief Direct and fast access to variant data
      * @tparam T variant data type
-     * @return refernce to variant data
+     * @return reference to variant data
      */
     template<typename T>
     T& get()
@@ -268,12 +268,12 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type);
 
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(uint8_t* value, size_t valueSize, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setExternalBuffer(uint8_t* value, size_t valueSize, VariantDataType type);
 
     /**
      * Assignment method
@@ -301,9 +301,9 @@ public:
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
-     * @param vtype             Optional variant type to enforce
+     * @param variantDataType             Optional variant type to enforce
      */
-    virtual void setNull(VariantDataType vtype = VariantDataType::VAR_NONE);
+    virtual void setNull(VariantDataType variantDataType = VariantDataType::VAR_NONE);
 
     /**
      * Conversion method
@@ -345,7 +345,7 @@ public:
     /**
      * Conversion method
      *
-     * Converts variant value to DateTime. The time part of CDdatetime is empty.
+     * Converts variant value to DateTime. The time part of datetime is empty.
      */
     [[nodiscard]] DateTime asDate() const;
 
@@ -362,7 +362,7 @@ public:
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
      */
-    const uint8_t* asImagePtr() const;
+    [[nodiscard]] const uint8_t* asImagePtr() const;
 
 protected:
     /**
@@ -385,7 +385,7 @@ public:
     /**
      * Constructor
      */
-    Variant();
+    Variant() = default;
 
     /**
      * Constructor
@@ -439,7 +439,7 @@ public:
      * Copy constructor
      * @param other             Other object
      */
-    explicit Variant(const Variant& other) = default;
+    Variant(const Variant& other) = default;
 
     /**
      * Move constructor

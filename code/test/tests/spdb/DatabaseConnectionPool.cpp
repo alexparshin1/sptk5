@@ -43,7 +43,6 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     try
     {
         DatabaseConnectionPool connectionPool("xsql://server1/db1");
-        CERR(connectionPool.toString() << endl)
         FAIL() << "MUST FAIL, incorrect server type";
     }
     catch (const Exception& e)

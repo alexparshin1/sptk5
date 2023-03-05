@@ -65,11 +65,6 @@ void BaseVariant::dataType(VariantType newDataType)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant()
-{
-}
-
-//---------------------------------------------------------------------------
 Variant::Variant(bool value)
 {
     m_data = value;
@@ -243,8 +238,8 @@ void VariantAdaptors::setImagePtr(const uint8_t* value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(uint32_t value)
 {
-    const VariantType vtype {VariantDataType::VAR_IMAGE_NDX, false, false};
-    dataType(vtype);
+    const VariantType variantType {VariantDataType::VAR_IMAGE_NDX, false, false};
+    dataType(variantType);
     dataSize(sizeof(value));
     m_data.set((int32_t) value);
 }
@@ -801,9 +796,9 @@ const uint8_t* VariantAdaptors::asImagePtr() const
     throw Exception("Can't convert field for that type");
 }
 
-void VariantAdaptors::setNull(VariantDataType vtype)
+void VariantAdaptors::setNull(VariantDataType variantDataType)
 {
-    m_data.setNull(true, vtype);
+    m_data.setNull(true, variantDataType);
 }
 
 const char* VariantAdaptors::getBufferPtr() const

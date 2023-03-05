@@ -177,7 +177,7 @@ private:
      * @param db                Database connection
      * @param commit            If true then commit the transaction
      */
-    static void testTransaction(DatabaseConnection db, bool commit);
+    static void testTransaction(const DatabaseConnection& db, bool commit);
 
     /**
      * Connect to database and create test table
@@ -185,13 +185,13 @@ private:
      * @param autoPrepare       If true then use auto-prepared queries (default)
      * @param withBlob          If true then add BLOB field 'data' to the table
      */
-    static void createTestTable(DatabaseConnection db, bool autoPrepare = true, bool withBlob = false);
+    static void createTestTable(const DatabaseConnection& db, bool autoPrepare = true, bool withBlob = false);
 
     /**
      * Connect to database and create test table with serial id
      * @param db                Database connection
      */
-    static void createTestTableWithSerial(DatabaseConnection db);
+    static void createTestTableWithSerial(const DatabaseConnection& db);
 
     /**
      * Create Oracle autoincrement for a column

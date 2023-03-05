@@ -71,7 +71,6 @@ QueryParameter& QueryParameter::operator=(const Variant& param)
 
 void QueryParameter::setString(const char* value, size_t maxLength)
 {
-    auto aDataType = VariantDataType::VAR_STRING;
     auto valueLength = maxLength != 0 ? maxLength : strlen(value);
     setBuffer((const uint8_t*) value, valueLength, VariantDataType::VAR_STRING);
 }

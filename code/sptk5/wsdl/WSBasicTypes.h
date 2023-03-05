@@ -194,7 +194,7 @@ public:
 
     void setBuffer(const char* buffer, size_t size)
     {
-        m_value.setBuffer((const uint8_t*) buffer, size);
+        m_value.setBuffer((const uint8_t*) buffer, size, VariantDataType::VAR_BUFFER);
     }
 
     bool isNull() const override

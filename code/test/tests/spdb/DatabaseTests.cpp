@@ -274,7 +274,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     createTable.exec();
 
     DateTime testDate(2000, 01, 01);
-    auto timezone = testDate.isoDateTimeString().substr(19);
+    auto testTimezone = testDate.isoDateTimeString().substr(19);
 
     String testDateStr = db->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015 11:22:33" : "2015-06-01 11:22:33";
 
@@ -289,7 +289,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     auto dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
 
-    DateTime testDateTime(("2015-06-01T11:22:33" + timezone).c_str());
+    DateTime testDateTime(("2015-06-01T11:22:33" + testTimezone).c_str());
     auto testDateTimeStr = testDateTime.isoDateTimeString();
     EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
     auto result = select.next();
@@ -300,7 +300,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     else
     {
         dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
-        testDateTime = DateTime(("2015-06-01T11:22:33" + timezone).c_str());
+        testDateTime = DateTime(("2015-06-01T11:22:33" + testTimezone).c_str());
         EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
         select.close();
     }
@@ -404,7 +404,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     select.close();
 }
 
-void DatabaseTests::testTransaction(DatabaseConnection db, bool commit)
+void DatabaseTests::testTransaction(const DatabaseConnection& db, bool commit)
 {
     Query deleteRecords(db, "DELETE FROM gtest_temp_table");
     deleteRecords.exec();
@@ -494,7 +494,7 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return itor->second;
 }
 
-void DatabaseTests::createTestTable(DatabaseConnection db, bool autoPrepare, bool withBlob)
+void DatabaseTests::createTestTable(const DatabaseConnection& db, bool autoPrepare, bool withBlob)
 {
     auto itor = blobFieldTypes.find(db->connectionString().driverName());
     if (itor == blobFieldTypes.end())
@@ -531,7 +531,7 @@ void DatabaseTests::createTestTable(DatabaseConnection db, bool autoPrepare, boo
     createTable.exec();
 }
 
-void DatabaseTests::createTestTableWithSerial(DatabaseConnection db)
+void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& db)
 {
     auto itor = dateTimeFieldTypes.find(db->connectionString().driverName());
     if (itor == dateTimeFieldTypes.end())
@@ -610,27 +610,27 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 
     vector<VariantVector> data;
 
-    VariantVector arow;
+    VariantVector aRow;
 
-    arow.emplace_back(1);
-    arow.emplace_back("Alex,'Doe'");
-    arow.emplace_back("Programmer");
-    arow.emplace_back("01-JAN-2014");
-    data.push_back(arow);
+    aRow.emplace_back(1);
+    aRow.emplace_back("Alex,'Doe'");
+    aRow.emplace_back("Programmer");
+    aRow.emplace_back("01-JAN-2014");
+    data.push_back(aRow);
 
-    arow.clear();
-    arow.emplace_back(2);
-    arow.emplace_back("David");
-    arow.emplace_back("CEO");
-    arow.emplace_back("01-JAN-2015");
-    data.push_back(arow);
+    aRow.clear();
+    aRow.emplace_back(2);
+    aRow.emplace_back("David");
+    aRow.emplace_back("CEO");
+    aRow.emplace_back("01-JAN-2015");
+    data.push_back(aRow);
 
-    arow.clear();
-    arow.emplace_back(3);
-    arow.emplace_back("Roger");
-    arow.emplace_back("Bunny");
-    arow.emplace_back("01-JAN-2016");
-    data.push_back(arow);
+    aRow.clear();
+    aRow.emplace_back(3);
+    aRow.emplace_back("Roger");
+    aRow.emplace_back("Bunny");
+    aRow.emplace_back("01-JAN-2016");
+    data.push_back(aRow);
 
     Strings columnNames("id,name,position_name,hire_date", ",");
     db->bulkInsert("gtest_temp_table", columnNames, data);
@@ -725,7 +725,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         arow.emplace_back("Alex,'Doe'");
         arow.emplace_back("Programmer");
         arow.emplace_back("01-JAN-2014");
-        data.push_back(move(arow));
+        data.push_back(std::move(arow));
     }
 
     Transaction transaction(db);
@@ -738,7 +738,6 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     transaction.commit();
 
     DateTime started2("now");
-    size_t i = 1;
 
     auto& idParam = insertData.param("id");
     auto& nameParam = insertData.param("name");
@@ -753,7 +752,6 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         positionParam = row[2].asString();
         hiredParam = row[3].asString();
         insertData.exec();
-        ++i;
     }
     transaction.commit();
     DateTime ended2("now");
@@ -821,8 +819,8 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     DatabaseConnection db = connectionPool.getConnection();
     createTestTable(db, false, false);
 
-    //Query emptyQuery(db);
-    //EXPECT_THROW(emptyQuery.exec(), DatabaseException);
+    Query emptyQuery(db);
+    EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
     Query selectData(db, "SELECT * FROM gtest_temp_table");
     Query insertData(db, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
@@ -857,14 +855,12 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectData.eof())
     {
         // Check if all fields are NULLs
-        int column = 0;
         for (const auto& field: selectData.fields())
         {
             if (!field->isNull())
             {
                 throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
             }
-            ++column;
         }
         selectData.next();
 

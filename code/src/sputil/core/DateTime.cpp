@@ -706,10 +706,12 @@ bool operator==(const DateTime& dt1, const DateTime& dt2)
     return (dt1.timePoint() == dt2.timePoint());
 }
 
+#if CXX_VERSION < 20
 bool operator!=(const DateTime& dt1, const DateTime& dt2)
 {
     return (dt1.timePoint() != dt2.timePoint());
 }
+#endif
 
 DateTime operator+(const DateTime& dateTime, const sptk::DateTime::duration& duration)
 {

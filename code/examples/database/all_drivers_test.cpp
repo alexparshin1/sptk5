@@ -26,16 +26,16 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
-#include <sptk5/cdatabase>
 #include <sptk5/Printer.h>
+#include <sptk5/cdatabase>
 
 using namespace std;
 using namespace sptk;
 
-bool testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
+bool testTransactions(const DatabaseConnection& db, const string& tableName, bool rollback)
 {
     try
     {
@@ -47,7 +47,7 @@ bool testTransactions(DatabaseConnection db, const string& tableName, bool rollb
         step6Query.close();
         COUT("\n        The table has " << counter << " records.")
 
-        COUT("\n        Begining the transaction ..")
+        COUT("\n        Beginning the transaction ..")
         db->beginTransaction();
         COUT("\n        Deleting everything from the table ..")
         step5Query.exec();
@@ -64,7 +64,7 @@ bool testTransactions(DatabaseConnection db, const string& tableName, bool rollb
         }
         else
         {
-            COUT("\n        Commiting the transaction ..")
+            COUT("\n        Committing the transaction ..")
             db->commitTransaction();
         }
         step6Query.open();
@@ -110,7 +110,7 @@ void testBLOBs(PoolDatabaseConnection* db)
     {
         createBlobQuery.param("id").setInteger(i);
         String text("This is a test " + to_string(i));
-        createBlobQuery.param("data").setBuffer((const uint8_t*) text.c_str(), text.size());
+        createBlobQuery.param("data").setBuffer((const uint8_t*) text.c_str(), text.size(), sptk::VariantDataType::VAR_BUFFER);
         createBlobQuery.exec();
     }
 
@@ -119,8 +119,8 @@ void testBLOBs(PoolDatabaseConnection* db)
     while (!selectBlobsQuery.eof())
     {
         COUT(selectBlobsQuery["id"].asInteger()
-                 << ": "
-                 << selectBlobsQuery["data"].asString() << endl)
+             << ": "
+             << selectBlobsQuery["data"].asString() << endl)
         selectBlobsQuery.fetch();
     }
     selectBlobsQuery.close();
@@ -129,11 +129,11 @@ void testBLOBs(PoolDatabaseConnection* db)
     dropTableQuery.exec();
 }
 
-void printDatabaseObjects(DatabaseConnection db)
+void printDatabaseObjects(const DatabaseConnection& db)
 {
-    DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS,
-                                        DatabaseObjectType::PROCEDURES};
-    string objectTypeNames[] = {"tables", "views", "stored procedures"};
+    vector<DatabaseObjectType> objectTypes = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS,
+                                              DatabaseObjectType::PROCEDURES};
+    const Strings objectTypeNames = {"tables", "views", "stored procedures"};
 
     for (unsigned i = 0; i < 3; i++)
     {
@@ -149,12 +149,12 @@ void printDatabaseObjects(DatabaseConnection db)
             CERR(e.what() << endl)
         }
         for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-        COUT("  " << objectList[j] << endl)
+            COUT("  " << objectList[j] << endl)
     }
     COUT("-------------------------------------------------" << endl)
 }
 
-void createTempTable(DatabaseConnection db, const String& tableName)
+void createTempTable(const DatabaseConnection& db, const String& tableName)
 {
     Query createTempTableQuery(db);
     if (db->driverDescription().find("Microsoft") != string::npos)
@@ -184,7 +184,7 @@ void createTempTable(DatabaseConnection db, const String& tableName)
         if (db->connectionType() == DatabaseConnectionType::FIREBIRD)
         {
             db->commitTransaction();
-        } // Some databases don't recognize table existense until it is committed
+        } // Some databases don't recognize table existence until it is committed
     }
     catch (const Exception& e)
     {
@@ -198,7 +198,7 @@ void createTempTable(DatabaseConnection db, const String& tableName)
     }
 }
 
-void dropTempTable(DatabaseConnection& db, const string& tableName)
+void dropTempTable(const DatabaseConnection& db, const string& tableName)
 {
     Query dropTempTableQuery(db, "DROP TABLE " + tableName, false);
     try
@@ -220,7 +220,7 @@ int testDatabase(const string& connectionString)
     {
         COUT("==========================================\n")
         COUT("Connection string: " << connectionString << "\n")
-        COUT("Openning the database.. ")
+        COUT("Opening the database.. ")
         db->open();
         COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
         printDatabaseObjects(db);
@@ -228,8 +228,7 @@ int testDatabase(const string& connectionString)
         // Defining the statements
         String tableName = "test_table";
 
-        Query insertRecordQuery(db, "INSERT INTO " + tableName +
-                                    " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true);
+        Query insertRecordQuery(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name,:hire_date,:rate)", true);
         Query selectRecordsQuery(db, "SELECT * FROM " + tableName + " WHERE id >= 1 OR id IS NULL", false);
 
         dropTempTable(db, tableName);
@@ -239,7 +238,7 @@ int testDatabase(const string& connectionString)
 
         COUT("Ok.\nStep 2: Inserting data into the test table.. ")
 
-        // The following example shows how to use the paramaters,
+        // The following example shows how to use the parameters,
         // addressing them by name
         insertRecordQuery.param("person_id") = 1;
         insertRecordQuery.param("person_name") = "John Doe";
@@ -312,13 +311,12 @@ int testDatabase(const string& connectionString)
 
             // Another method: getting data by the column number.
             // For printing values we use custom function implemented above
-            string name = fieldToString(selectRecordsQuery[1]);
-            string position_name = fieldToString(selectRecordsQuery[2]);
-            string date = fieldToString(selectRecordsQuery[3]);
-            string rate = fieldToString(selectRecordsQuery[4]);
+            auto name = fieldToString(selectRecordsQuery[1]);
+            auto position_name = fieldToString(selectRecordsQuery[2]);
+            auto date = fieldToString(selectRecordsQuery[3]);
+            auto rate = fieldToString(selectRecordsQuery[4]);
 
-            COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate <<
-                       endl)
+            COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate << endl)
 
             selectRecordsQuery.fetch();
         }
@@ -368,11 +366,11 @@ int testDatabase(const string& connectionString)
         selectRecordsQuery.open();
 
         // First, find the field references by name or by number
-        Field& idField = selectRecordsQuery[uint32_t(0)];
-        Field& nameField = selectRecordsQuery["name"];
-        Field& positionNameField = selectRecordsQuery["position_name"];
-        Field& dateField = selectRecordsQuery["hire_date"];
-        Field& rateField = selectRecordsQuery["rate"];
+        const Field& idField = selectRecordsQuery[uint32_t(0)];
+        const Field& nameField = selectRecordsQuery["name"];
+        const Field& positionNameField = selectRecordsQuery["position_name"];
+        const Field& dateField = selectRecordsQuery["hire_date"];
+        const Field& rateField = selectRecordsQuery["rate"];
 
         while (!selectRecordsQuery.eof())
         {
@@ -383,8 +381,7 @@ int testDatabase(const string& connectionString)
             auto hire_date = dateField.asString();
             auto rate = rateField.asString();
 
-            COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " <<
-                         hire_date << " | " << rate << endl)
+            COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl)
 
             selectRecordsQuery.fetch();
         }
@@ -397,7 +394,8 @@ int testDatabase(const string& connectionString)
         COUT("  After the test, table should have same number of records as before test." << endl)
         testTransactions(db, tableName, true);
 
-        COUT(endl << endl)
+        COUT(endl
+             << endl)
         COUT("- Start transaction, delete all records from test table, then rollback:" << endl)
         COUT("  After the test, table should have no records." << endl)
         testTransactions(db, tableName, false);
@@ -436,7 +434,7 @@ int main(int argc, const char* argv[])
         if (connectionString.empty())
         {
             Strings databaseTypes;
-            const char* availableDatabaseTypes[] = {
+            const vector<const char*> availableDatabaseTypes = {
 #ifdef HAVE_MYSQL
                 "mysql",
 #endif

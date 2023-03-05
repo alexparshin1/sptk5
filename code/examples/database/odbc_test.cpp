@@ -86,7 +86,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
     return true;
 }
 
-int testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
+int testTransactions(const DatabaseConnection& db, const string& tableName, bool rollback)
 {
     try
     {

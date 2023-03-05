@@ -83,7 +83,7 @@ private:
 
 MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare)
     : DatabaseStatement<MySQLConnection, MYSQL_STMT>(connection)
-    , m_sql(move(sql))
+    , m_sql(std::move(sql))
 {
     if (autoPrepare)
     {
@@ -104,15 +104,15 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
     short year = 0;
     short month = 0;
     short day = 0;
-    short wday = 0;
-    short yday = 0;
+    short weekDay = 0;
+    short yearDay = 0;
     short hour = 0;
     short minute = 0;
     short second = 0;
     short msecond = 0;
 
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
-    timestamp.decodeDate(&year, &month, &day, &wday, &yday);
+    timestamp.decodeDate(&year, &month, &day, &weekDay, &yearDay);
     mysqlDate.year = (unsigned) year;
     mysqlDate.month = (unsigned) month;
     mysqlDate.day = (unsigned) day;
@@ -660,7 +660,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
     {
         if (field->isNull())
         {
-            field->setBuffer(nullptr, dataLength);
+            field->setBuffer(nullptr, dataLength, VariantDataType::VAR_BUFFER);
         }
         else
         {

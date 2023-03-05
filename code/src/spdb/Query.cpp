@@ -47,12 +47,12 @@ void QueryStatementManagement::closeStmt(bool freeStatement)
     {
         if (freeStatement)
         {
-            database()->queryFreeStmt(static_cast<Query*>(this));
+            database()->queryFreeStmt(dynamic_cast<Query*>(this));
             setPrepared(false);
         }
         else
         {
-            database()->queryCloseStmt(static_cast<Query*>(this));
+            database()->queryCloseStmt(dynamic_cast<Query*>(this));
         }
         setActive(false);
     }
@@ -80,7 +80,7 @@ void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
     }
     disconnect();
     setDatabase(_db);
-    database()->linkQuery(static_cast<Query*>(this));
+    database()->linkQuery(dynamic_cast<Query*>(this));
 }
 
 void QueryStatementManagement::disconnect()
@@ -88,7 +88,7 @@ void QueryStatementManagement::disconnect()
     closeQuery(true);
     if (database() != nullptr)
     {
-        database()->unlinkQuery(static_cast<Query*>(this));
+        database()->unlinkQuery(dynamic_cast<Query*>(this));
     }
     setDatabase(nullptr);
 }

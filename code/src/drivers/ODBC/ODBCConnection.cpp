@@ -361,10 +361,10 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, const DateTime& dt, bool da
 {
     if (!dt.zero())
     {
-        short wday = 0;
-        short yday = 0;
+        short weekDay = 0;
+        short yearDay = 0;
         short ms = 0;
-        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &wday, &yday);
+        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &weekDay, &yearDay);
         if (dateOnly)
         {
             t->hour = t->minute = t->second = 0;
@@ -887,8 +887,8 @@ String ODBCConnection::driverDescription() const
 void ODBCConnection::listDataSources(Strings& dsns)
 {
     dsns.clear();
-    array<SQLCHAR, MAX_BUF> datasrc = {0};
-    array<SQLCHAR, MAX_BUF> descrip = {0};
+    array<SQLCHAR, MAX_BUF> dataSource = {0};
+    array<SQLCHAR, MAX_BUF> description = {0};
     SQLSMALLINT rdsrc = 0;
     SQLSMALLINT rdesc = 0;
 
@@ -910,14 +910,14 @@ void ODBCConnection::listDataSources(Strings& dsns)
     while (true)
     {
         if (const SQLRETURN ret = SQLDataSources(hEnv, direction,
-                                                 datasrc.data(), (SQLSMALLINT) datasrc.size(), &rdsrc,
-                                                 descrip.data(), (SQLSMALLINT) descrip.size(), &rdesc);
+                                                 dataSource.data(), (SQLSMALLINT) dataSource.size(), &rdsrc,
+                                                 description.data(), (SQLSMALLINT) description.size(), &rdesc);
             ret == SQL_NO_DATA)
         {
             break;
         }
         direction = SQL_FETCH_NEXT;
-        dsns.push_back(String((char*) datasrc.data()) + " (" + String((char*) descrip.data()) + ")");
+        dsns.push_back(String((char*) dataSource.data()) + " (" + String((char*) description.data()) + ")");
     }
 
     if (offline)

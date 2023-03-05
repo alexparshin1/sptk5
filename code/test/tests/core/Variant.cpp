@@ -16,7 +16,7 @@
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
 │   General Public License for more details.                                   │
 │                                                                              │
-│   You shouldint have received a copy of the GNU Library General Public License  │
+│   You should have received a copy of the GNU Library General Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
 │   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
 │                                                                              │
@@ -103,12 +103,12 @@ TEST(SPTK_Variant, move_ctors)
 
     v5.setNull(VariantDataType::VAR_STRING);
 
-    Variant v1m(move(v1));
-    Variant v2m(move(v2));
-    Variant v3m(move(v3));
-    Variant v4m(move(v4));
-    Variant v5m(move(v5));
-    Variant v6m(move(v6));
+    Variant v1m(std::move(v1));
+    Variant v2m(std::move(v2));
+    Variant v3m(std::move(v3));
+    Variant v4m(std::move(v4));
+    Variant v5m(std::move(v5));
+    Variant v6m(std::move(v6));
 
     EXPECT_EQ(1, v1m.asInteger());
     EXPECT_DOUBLE_EQ(2.22, v2m.asFloat());
@@ -220,25 +220,25 @@ TEST(SPTK_Variant, move_assigns)
     Variant vm;
 
     v = 1;
-    vm = move(v);
+    vm = std::move(v);
     EXPECT_EQ(1, vm.asInteger());
 
     v = 2.22;
-    vm = move(v);
+    vm = std::move(v);
     EXPECT_DOUBLE_EQ(2.22, vm.asFloat());
 
     v = "Test";
-    vm = move(v);
+    vm = std::move(v);
     EXPECT_STREQ("Test", vm.asString().c_str());
 
     v = testDate;
-    vm = move(v);
+    vm = std::move(v);
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     Variant v2;
     v2.setDateTime(testDate, true);
-    vm = move(v2);
+    vm = std::move(v2);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
@@ -362,7 +362,7 @@ TEST(SPTK_Variant, externalBuffer)
 {
     Buffer externalBuffer("External Data");
     Variant v;
-    v.setExternalBuffer(externalBuffer.data(), externalBuffer.size());
+    v.setExternalBuffer(externalBuffer.data(), externalBuffer.size(), VariantDataType::VAR_BUFFER);
     EXPECT_EQ(externalBuffer.c_str(), (const char*) v.getExternalBuffer());
 }
 

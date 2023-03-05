@@ -396,10 +396,12 @@ SP_EXPORT bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
  */
 SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
+#if CXX_VERSION < 20
 /**
  * Compares DateTime values
  */
 SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+#endif
 
 /**
  * Adds two DateTime values

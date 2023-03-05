@@ -67,7 +67,7 @@ TEST(SPTK_FieldList, move)
     fieldList["name"] = "id";
     fieldList["value"] = testInteger;
 
-    FieldList fieldList2 = move(fieldList);
+    FieldList fieldList2 = std::move(fieldList);
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
     EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);
@@ -95,7 +95,7 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList["visible"] = false;
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VariantDataType::VAR_STRING);
-    fieldList["text"].setBuffer((const uint8_t*) "1234", 5);
+    fieldList["text"].setBuffer((const uint8_t*) "1234", 5, VariantDataType::VAR_BUFFER);
     fieldList["float_value"] = double(testInteger);
     fieldList["money_value"].setMoney(1234567, 2);
     fieldList["long_value"] = int64_t(12345678901234567);

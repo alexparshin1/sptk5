@@ -194,7 +194,7 @@ public:
      */
     QueryParameter& operator=(const Buffer& buffer) override
     {
-        setBuffer(buffer.data(), buffer.bytes());
+        setBuffer(buffer.data(), buffer.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
@@ -250,12 +250,11 @@ public:
     }
 
 private:
-    QueryParameterBinding m_binding;           ///< The last successfull binding information
-    String m_name;                             ///< Parameter name
-    std::vector<uint32_t> m_bindParamIndexes;  ///< The list of SQL query parameter numbers with this name
-    std::array<uint8_t, 80> m_timeData {};     ///< Special memory allocated for time structures
-    long m_callbackLength {0};                 ///< An integer reserved to callback parameter data length
-    QueryParameterList* m_paramList {nullptr}; ///< Parent param list used for notifications
+    QueryParameterBinding m_binding;          ///< The last successfull binding information
+    String m_name;                            ///< Parameter name
+    std::vector<uint32_t> m_bindParamIndexes; ///< The list of SQL query parameter numbers with this name
+    std::array<uint8_t, 80> m_timeData {};    ///< Special memory allocated for time structures
+    long m_callbackLength {0};                ///< An integer reserved to callback parameter data length
 };
 
 using SQueryParameter = std::shared_ptr<QueryParameter>;

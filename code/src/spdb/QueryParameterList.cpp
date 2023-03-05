@@ -41,7 +41,6 @@ void QueryParameterList::add(const SQueryParameter& item)
 {
     m_items.push_back(item);
     m_index[item->name()] = item;
-    item->m_paramList = this;
 }
 
 SQueryParameter QueryParameterList::find(const String& paramName)
