@@ -678,9 +678,7 @@ DateTime::DateTime(const duration& interval)
 
 namespace sptk {
 
-//----------------------------------------------------------------
-// Date comparison
-//----------------------------------------------------------------
+#if CXX_VERSION < 20
 bool operator<(const DateTime& dt1, const DateTime& dt2)
 {
     return (dt1.timePoint() < dt2.timePoint());
@@ -706,10 +704,30 @@ bool operator==(const DateTime& dt1, const DateTime& dt2)
     return (dt1.timePoint() == dt2.timePoint());
 }
 
-#if CXX_VERSION < 20
 bool operator!=(const DateTime& dt1, const DateTime& dt2)
 {
     return (dt1.timePoint() != dt2.timePoint());
+}
+#else
+
+int operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2)
+{
+    if (dt1.timePoint() < dt2.timePoint())
+    {
+        return -1;
+    }
+
+    if (dt1.timePoint() > dt2.timePoint())
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2)
+{
+    return dt1.timePoint() == dt2.timePoint();
 }
 #endif
 

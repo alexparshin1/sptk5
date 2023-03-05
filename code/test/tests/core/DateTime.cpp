@@ -246,3 +246,15 @@ TEST(SPTK_DateTime, dateElements)
     EXPECT_STREQ(dt.monthName().c_str(), "September");
     EXPECT_STREQ(dt.dayOfWeekName().c_str(), "Monday");
 }
+
+TEST(SPTK_DateTime, compare)
+{
+    DateTime dt1("2021-09-20 00:00:00");
+    DateTime dt2("2021-10-20 00:00:00");
+    DateTime dt3("2021-09-20 00:00:00");
+    EXPECT_TRUE(dt1 < dt2);
+    EXPECT_TRUE(dt1 <= dt2);
+    EXPECT_TRUE(dt1 == dt3);
+    EXPECT_TRUE(dt2 > dt1);
+    EXPECT_TRUE(dt2 >= dt1);
+}
