@@ -63,7 +63,7 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 
     for (int i = 0; i < 2; ++i)
     {
-        DatabaseConnection db = connectionPool.getConnection();
+        const DatabaseConnection db = connectionPool.getConnection();
 #ifdef USE_GTEST
         EXPECT_STREQ(db->connectionString().toString().c_str(), connectionString.toString().c_str());
 #endif
@@ -90,12 +90,12 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection db = connectionPool.getConnection();
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    db->open();
+    databaseConnection->open();
 
-    Query createTable(db, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-    Query dropTable(db, "DROP TABLE gtest_temp_table");
+    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
+    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
 
     try
     {
@@ -103,7 +103,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     }
     catch (const Exception& e)
     {
-        RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
             CERR(e.what() << endl)
     }
@@ -111,7 +111,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     createTable.exec();
     dropTable.exec();
 
-    db->close();
+    databaseConnection->close();
 }
 
 struct Row {

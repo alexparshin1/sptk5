@@ -699,7 +699,7 @@ void MySQLStatement::fetch()
 {
     if (statement() != nullptr)
     {
-        int rc = mysql_stmt_fetch(statement());
+        const int rc = mysql_stmt_fetch(statement());
         switch (rc)
         {
             case 0:                    // Successful, the data has been fetched to application data buffers

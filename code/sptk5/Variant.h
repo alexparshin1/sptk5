@@ -420,7 +420,7 @@ public:
     /**
      * Constructor
      */
-    Variant(const DateTime& v);
+    Variant(const DateTime& dateTime);
 
     /**
      * Constructor

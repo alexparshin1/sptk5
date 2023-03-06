@@ -166,9 +166,9 @@ protected:
         return m_value;
     }
 
-    void setSize(size_t sz)
+    void setSize(size_t size)
     {
-        m_type.size = sz;
+        m_type.size = size;
     }
 
 private:

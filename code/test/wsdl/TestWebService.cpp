@@ -299,10 +299,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
             }
         }
 
-        StopWatch stopwatch;
-        stopwatch.start();
         listener.stop();
-        stopwatch.stop();
     }
     catch (const Exception& e)
     {

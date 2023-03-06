@@ -42,7 +42,7 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
 {
     try
     {
-        DatabaseConnectionPool connectionPool("xsql://server1/db1");
+        const DatabaseConnectionPool connectionPool("xsql://server1/db1");
         FAIL() << "MUST FAIL, incorrect server type";
     }
     catch (const Exception& e)
@@ -52,7 +52,7 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
 
     try
     {
-        DatabaseConnectionPool connectionPool("mysql://server1/db1");
+        const DatabaseConnectionPool connectionPool("mysql://server1/db1");
         COUT(connectionPool.toString() << endl)
     }
     catch (const Exception& e)
@@ -63,7 +63,7 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
 
 static void testConnect(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -81,7 +81,7 @@ static void testConnect(const String& dbName)
 
 static void testDDL(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -96,14 +96,14 @@ static void testDDL(const String& dbName)
 
 static void testInvalidQuery(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
 
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    DatabaseConnection db = connectionPool.getConnection();
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    Query query(db, "SELECT * FROM xx");
+    Query query(databaseConnection, "SELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 
     query.sql("UNSELECT * FROM xx");
@@ -112,7 +112,7 @@ static void testInvalidQuery(const String& dbName)
 
 static void testInsertQuery(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -143,7 +143,7 @@ static void testBlobInsertAndSelect(const String& dbName)
 
 static void testBulkInsert(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -159,7 +159,7 @@ static void testBulkInsert(const String& dbName)
 
 static void testBulkInsertPerformance(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -175,7 +175,7 @@ static void testBulkInsertPerformance(const String& dbName)
 
 static void testQueryParameters(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -190,7 +190,7 @@ static void testQueryParameters(const String& dbName)
 
 static void testQueryDateAndTimestamp(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -206,7 +206,7 @@ static void testQueryDateAndTimestamp(const String& dbName)
 
 static void testTransaction(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try
@@ -221,7 +221,7 @@ static void testTransaction(const String& dbName)
 
 static void testSelect(const String& dbName)
 {
-    DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
         FAIL() << dbName << " connection is not defined";
     try

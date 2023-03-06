@@ -108,9 +108,9 @@ Variant::Variant(const String& value)
 }
 
 //---------------------------------------------------------------------------
-Variant::Variant(const DateTime& value)
+Variant::Variant(const DateTime& dateTime)
 {
-    m_data = value;
+    m_data = dateTime;
 }
 
 //---------------------------------------------------------------------------
@@ -192,7 +192,7 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantD
             if (value == nullptr)
             {
                 Buffer buffer(valueSize);
-                m_data = buffer;
+                m_data = std::move(buffer);
             }
             else
             {

@@ -40,7 +40,7 @@ void MySQLConnection::initConnection()
 {
     static std::mutex libraryInitMutex;
 
-    scoped_lock lock(libraryInitMutex);
+    const scoped_lock lock(libraryInitMutex);
     m_connection = shared_ptr<MYSQL>(mysql_init(nullptr),
                                      [](auto* connection) {
                                          mysql_close(connection);
@@ -149,14 +149,14 @@ void MySQLConnection::queryAllocStmt(Query* query)
 
 void MySQLConnection::queryFreeStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 
 void MySQLConnection::queryCloseStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     try
     {
         auto* statement = (MySQLStatement*) query->statement();
@@ -179,7 +179,7 @@ void MySQLConnection::queryPrepare(Query* query)
         queryAllocStmt(query);
     }
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
     if (statement != nullptr)
@@ -218,7 +218,7 @@ int MySQLConnection::queryColCount(Query* query)
 
 void MySQLConnection::queryBindParameters(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
     try
@@ -302,7 +302,7 @@ void MySQLConnection::queryFetch(Query* query)
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     try
     {

@@ -269,6 +269,7 @@ VariantStorage& VariantStorage::operator=(double aValue)
 
 VariantStorage& VariantStorage::operator=(Buffer&& aValue)
 {
+    auto valueSize = aValue.size();
     if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
         auto buffer = make_shared<Buffer>(std::move(aValue));
@@ -279,7 +280,7 @@ VariantStorage& VariantStorage::operator=(Buffer&& aValue)
         *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
     }
     setNull(false, VariantDataType::VAR_BUFFER);
-    setSize(aValue.size());
+    setSize(valueSize);
     return *this;
 }
 
