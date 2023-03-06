@@ -64,10 +64,10 @@ char DateTime::_timeSeparator;
 Strings DateTime::_weekDayNames;
 Strings DateTime::_monthNames;
 
-bool DateTime::_time24Mode;
-String DateTime::_timeZoneName;
-minutes DateTime::_timeZoneOffset;
-int DateTime::_isDaylightSavingsTime;
+bool TimeZone::_time24Mode;
+String TimeZone::_timeZoneName;
+minutes TimeZone::_timeZoneOffset;
+int TimeZone::_isDaylightSavingsTime;
 
 constexpr int minutesInHour = 60;
 constexpr int secondsInMinute = 60;
@@ -141,11 +141,11 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
         {
             case 10:
                 pattern = "19"; // hour (12-hour mode)
-                DateTime::_time24Mode = false;
+                TimeZone::time24Mode(false);
                 break;
             case 22:
                 pattern = "29"; // hour (24-hour mode)
-                DateTime::_time24Mode = true;
+                TimeZone::time24Mode(true);
                 break;
             case 48:
             case 59:
@@ -267,7 +267,7 @@ void DateTimeFormat::init() noexcept
         len = int(ptr1 - ptr);
     }
 
-    DateTime::_timeZoneName = String(ptr, (unsigned) len);
+    TimeZone::timeZoneName(String(ptr, (unsigned) len));
 
     const time_t timestamp = time(nullptr);
     array<char, bufferLength> buf {};
@@ -282,8 +282,8 @@ void DateTimeFormat::init() noexcept
     const int offset = string2int(buf.data());
     auto offsetMinutes = minutes(offset % tzMultiplier);
     auto offsetHours = hours(offset / tzMultiplier);
-    DateTime::_isDaylightSavingsTime = ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst;
-    DateTime::_timeZoneOffset = offsetHours + offsetMinutes;
+    TimeZone::isDaylightSavingsTime(ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst);
+    TimeZone::timeZoneOffset(offsetHours + offsetMinutes);
 }
 
 static const DateTimeFormat dateTimeFormatInitializer;
@@ -304,7 +304,7 @@ static void decodeDate(const DateTime::time_point& timePoint, short& year, short
     tm time = {};
     if (!gmt)
     {
-        atime += DateTime::timeZoneOffset().count() * secondsInMinute;
+        atime += TimeZone::offset().count() * secondsInMinute;
     }
     gmtime_r(&atime, &time);
 
@@ -323,7 +323,7 @@ static void decodeTime(const DateTime::time_point& timePoint, short& hour, short
     tm time = {};
     if (!gmt)
     {
-        timestamp += DateTime::timeZoneOffset().count() * secondsInMinute;
+        timestamp += TimeZone::offset().count() * secondsInMinute;
     }
     gmtime_r(&timestamp, &time);
 
@@ -582,7 +582,7 @@ void DateTime::time24Mode(bool t24mode)
         timeBuffer = "22:48:59";
     }
 
-    _time24Mode = t24mode;
+    TimeZone::time24Mode(t24mode);
     DateTime::_timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::_fullTimeFormat, timeBuffer);
     DateTime::_shortTimeFormat = DateTime::_fullTimeFormat;
 
@@ -590,7 +590,8 @@ void DateTime::time24Mode(bool t24mode)
     {
         DateTime::_shortTimeFormat = DateTime::_fullTimeFormat.substr(0, pos);
     }
-    if (!_time24Mode)
+
+    if (!TimeZone::time24Mode())
     {
         DateTime::_fullTimeFormat += "TM";
         DateTime::_shortTimeFormat += "TM";
@@ -763,7 +764,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
 
     if ((printFlags & PF_GMT) == 0)
     {
-        timestamp += DateTime::timeZoneOffset().count() * secondsInMinute;
+        timestamp += TimeZone::offset().count() * secondsInMinute;
     }
 
     tm timeStructure {};
@@ -833,22 +834,22 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 
     if ((printFlags & PF_TIMEZONE) != 0)
     {
-        if (_timeZoneOffset.count() == 0 || (printFlags & PF_GMT) != 0)
+        if (TimeZone::offset().count() == 0 || (printFlags & PF_GMT) != 0)
         {
             str << "Z";
         }
         else
         {
             minutes offsetMinutes {};
-            if (_timeZoneOffset.count() > 0)
+            if (TimeZone::offset().count() > 0)
             {
                 str << '+';
-                offsetMinutes = _timeZoneOffset;
+                offsetMinutes = TimeZone::offset();
             }
             else
             {
                 str << '-';
-                offsetMinutes = -_timeZoneOffset;
+                offsetMinutes = -TimeZone::offset();
             }
             str << setw(2) << offsetMinutes.count() / secondsInMinute << ":" << setw(2) << offsetMinutes.count() % secondsInMinute;
         }
@@ -983,49 +984,6 @@ char DateTime::dateSeparator()
 char DateTime::timeSeparator()
 {
     return _timeSeparator;
-}
-
-String TimeZone::name()
-{
-    return DateTime::timeZoneName();
-}
-
-minutes TimeZone::offset()
-{
-    return DateTime::timeZoneOffset();
-}
-
-int TimeZone::isDaylightSavingsTime()
-{
-    return DateTime::isDaylightSavingsTime();
-}
-
-bool DateTime::time24Mode()
-{
-    return _time24Mode;
-}
-
-minutes DateTime::timeZoneOffset()
-{
-    return _timeZoneOffset;
-}
-
-/**
- * Returns timezone name
- * @return timezone name
- */
-String DateTime::timeZoneName()
-{
-    return _timeZoneName;
-}
-
-/**
- * Returns true if daylight savings time
- * @return true if daylight savings time
- */
-bool DateTime::isDaylightSavingsTime()
-{
-    return _isDaylightSavingsTime > 0;
 }
 
 double sptk::duration2seconds(const DateTime::duration& duration)

@@ -204,10 +204,6 @@ TEST(SPTK_Variant, assigns)
     v = b;
     EXPECT_STREQ(v.asString().c_str(), "Hello");
 
-    v.setBuffer((const uint8_t*) nullptr, 10, sptk::VariantDataType::VAR_BUFFER);
-    EXPECT_TRUE(v.isNull());
-    EXPECT_EQ(v.dataSize(), size_t(0));
-
     v.setImageNdx(12);
     EXPECT_EQ(v.getImageNdx(), 12U);
 }

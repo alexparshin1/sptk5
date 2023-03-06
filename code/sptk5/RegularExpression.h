@@ -231,12 +231,14 @@ public:
      */
     bool operator==(const String& text) const;
 
+#if CXX_VERSION < 20
     /**
      * Returns true if text doesn't match with regular expression
      * @param text              Input text
      * @return true if match found
      */
     bool operator!=(const String& text) const;
+#endif
 
     /**
      * Returns true if text matches with regular expression

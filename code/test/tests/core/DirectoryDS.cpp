@@ -90,7 +90,6 @@ TEST(SPTK_DirectoryDS, open)
         const auto& field = directoryDS["Name"];
         const auto& fileName = field.asString();
         const auto fileSize = directoryDS["Size"].asInteger();
-        cout << fileName << ": " << fileSize << endl;
         files[fileName] = fileSize;
         directoryDS.next();
     }

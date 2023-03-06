@@ -160,7 +160,7 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    auto tzOffsetMinutes = (int) DateTime::timeZoneOffset().count();
+    auto tzOffsetMinutes = (int) TimeZone::offset().count();
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)

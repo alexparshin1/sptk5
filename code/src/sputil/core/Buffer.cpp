@@ -104,6 +104,7 @@ bool Buffer::operator==(const Buffer& other) const
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
+#if CXX_VERSION < 20
 bool Buffer::operator!=(const Buffer& other) const
 {
     if (bytes() == other.bytes())
@@ -112,6 +113,7 @@ bool Buffer::operator!=(const Buffer& other) const
     }
     return true;
 }
+#endif
 
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {

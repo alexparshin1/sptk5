@@ -49,29 +49,73 @@ class DateTime;
  */
 class SP_EXPORT TimeZone
 {
+    friend class DateTime;
+    friend class DateTimeFormat;
+
 public:
     /**
      * Time zone abbbreviastion
      */
-    static String name();
-
-    /**
-    * Get timezone offset
-    * @return timezone offset, minutes
-    */
-    static std::chrono::minutes offset();
-
-    /**
-    * Get timezone offset
-    * @return timezone offset
-    */
-    static int isDaylightSavingsTime();
+    static String name()
+    {
+        return _timeZoneName;
+    }
 
     /**
     * Set timezone for the application
     * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
     */
     static void set(const sptk::String& timeZoneName);
+
+    static bool time24Mode()
+    {
+        return _time24Mode;
+    }
+
+    /**
+    * Get timezone offset
+    * @return timezone offset, minutes
+    */
+    static std::chrono::minutes offset()
+    {
+        return _timeZoneOffset;
+    }
+
+    /**
+    * Get timezone offset
+    * @return timezone offset
+    */
+    static int isDaylightSavingsTime()
+    {
+        return _isDaylightSavingsTime;
+    }
+
+protected:
+    static void time24Mode(bool mode)
+    {
+        _time24Mode = mode;
+    }
+
+    static void timeZoneName(const String& name)
+    {
+        _timeZoneName = name;
+    }
+
+    static void timeZoneOffset(std::chrono::minutes offset)
+    {
+        _timeZoneOffset = offset;
+    }
+
+    static void isDaylightSavingsTime(int savingsTime)
+    {
+        _isDaylightSavingsTime = savingsTime;
+    }
+
+private:
+    static bool _time24Mode;
+    static String _timeZoneName;
+    static std::chrono::minutes _timeZoneOffset;
+    static int _isDaylightSavingsTime;
 };
 
 
@@ -296,18 +340,6 @@ public:
     String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 
     /**
-     * Returns timezone offset in minutes
-     * @return timezone offset in minutes
-     */
-    static std::chrono::minutes timeZoneOffset();
-
-    /**
-     * Returns timezone name
-     * @return timezone name
-     */
-    static String timeZoneName();
-
-    /**
      * Returns true if daylight savings time
      * @return true if daylight savings time
      */
@@ -363,11 +395,6 @@ private:
     static char _timeSeparator;     ///< System's time separator
     static Strings _weekDayNames;   ///< The locale-defined weekday names
     static Strings _monthNames;     ///< The locale-defined weekday names
-
-    static bool _time24Mode;
-    static String _timeZoneName;
-    static std::chrono::minutes _timeZoneOffset;
-    static int _isDaylightSavingsTime;
 };
 
 #if CXX_VERSION < 20

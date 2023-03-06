@@ -42,7 +42,7 @@ class SQLite3Field
 
 public:
     SQLite3Field(const std::string& fieldName, int fieldColumn)
-        : DatabaseField(fieldName, fieldColumn, 0, VariantDataType::VAR_NONE, 0, 0)
+        : DatabaseField(fieldName, fieldColumn, 0, VariantDataType::VAR_BUFFER, 0, 0)
     {
     }
 };
@@ -484,7 +484,7 @@ void SQLite3Connection::queryFetch(Query* query)
 
                     case SQLITE_TEXT:
                         field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
-                                         VariantDataType::VAR_STRING);
+                                         VariantDataType::VAR_BUFFER);
                         dataLength = trimField((char*) field->get<Buffer>().data(), dataLength);
                         break;
 

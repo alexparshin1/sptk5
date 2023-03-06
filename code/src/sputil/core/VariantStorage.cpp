@@ -91,12 +91,6 @@ BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bo
 
 void BaseVariantStorage::setNull()
 {
-    /*
-    if (m_class)
-    {
-        m_class.reset();
-    }
-    */
     m_value.asInt64 = 0;
     m_type.isNull = true;
     m_type.size = 0;
