@@ -423,21 +423,21 @@ void Node::clone(const SNode& destination, const SNode& source)
     destination->load(DataFormat::JSON, content, false);
 }
 
-bool sptk::xdoc::isBoolean(const String& str)
+bool xdoc::isBoolean(const String& str)
 {
     static const RegularExpression isInteger(R"(^(true|false)$)");
 
     return isInteger.matches(str);
 }
 
-bool sptk::xdoc::isInteger(const String& str)
+bool xdoc::isInteger(const String& str)
 {
     static const RegularExpression isInteger(R"(^(0|[\+\-]?[1-9]\d*)$)");
 
     return isInteger.matches(str);
 }
 
-bool sptk::xdoc::isFloat(const String& str)
+bool xdoc::isFloat(const String& str)
 {
     static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d+(e[\+\-]?\d+)?$)", "i");
 

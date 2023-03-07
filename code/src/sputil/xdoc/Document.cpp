@@ -24,13 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
-#include <sptk5/StopWatch.h>
 #include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
-using namespace sptk::xdoc;
+using namespace xdoc;
 
 static DataFormat autoDetectFormat(const char* data)
 {

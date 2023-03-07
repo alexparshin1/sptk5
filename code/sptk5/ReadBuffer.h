@@ -36,7 +36,7 @@ namespace sptk {
  * Data is added to the buffer the usual way, using ctors and/or append operations.
  * Any read operations copy data into external buffer, then advance internal read offset.
  */
-class ReadBuffer : public Buffer
+class SP_EXPORT ReadBuffer : public Buffer
 {
     size_t m_readOffset {0}; ///< read offset
 

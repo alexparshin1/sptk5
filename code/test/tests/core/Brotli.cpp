@@ -34,6 +34,8 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef HAVE_BROTLI
+
 static const String originalTestString = "This is a test of compression using Brotli algorithm";
 
 #ifdef _WIN32
@@ -95,3 +97,5 @@ TEST(SPTK_Brotli, performance)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
+
+#endif

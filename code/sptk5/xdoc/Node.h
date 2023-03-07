@@ -217,18 +217,18 @@ using SNode = Node::SNode;
  * Does string match a float?
  * @return true if string constains a float
  */
-bool isFloat(const String& str);
+SP_EXPORT bool isFloat(const String& str);
 
 /**
  * Does string match an integer?
  * @return true if string constains an integer
  */
-bool isInteger(const String& str);
+SP_EXPORT bool isInteger(const String& str);
 
 /**
  * Does string match a boolen?
  * @return true if string constains a boolean
  */
-bool isBoolean(const String& str);
+SP_EXPORT bool isBoolean(const String& str);
 
 } // namespace sptk::xdoc

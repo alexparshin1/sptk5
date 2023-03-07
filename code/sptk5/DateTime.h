@@ -56,10 +56,7 @@ public:
     /**
      * Time zone abbbreviastion
      */
-    static String name()
-    {
-        return _timeZoneName;
-    }
+    static String name();
 
     /**
     * Set timezone for the application
@@ -67,49 +64,25 @@ public:
     */
     static void set(const sptk::String& timeZoneName);
 
-    static bool time24Mode()
-    {
-        return _time24Mode;
-    }
+    static bool time24Mode();
 
     /**
     * Get timezone offset
     * @return timezone offset, minutes
     */
-    static std::chrono::minutes offset()
-    {
-        return _timeZoneOffset;
-    }
+    static std::chrono::minutes offset();
 
     /**
     * Get timezone offset
     * @return timezone offset
     */
-    static int isDaylightSavingsTime()
-    {
-        return _isDaylightSavingsTime;
-    }
+    static int isDaylightSavingsTime();
 
 protected:
-    static void time24Mode(bool mode)
-    {
-        _time24Mode = mode;
-    }
-
-    static void timeZoneName(const String& name)
-    {
-        _timeZoneName = name;
-    }
-
-    static void timeZoneOffset(std::chrono::minutes offset)
-    {
-        _timeZoneOffset = offset;
-    }
-
-    static void isDaylightSavingsTime(int savingsTime)
-    {
-        _isDaylightSavingsTime = savingsTime;
-    }
+    static void time24Mode(bool mode);
+    static void timeZoneName(const String& name);
+    static void timeZoneOffset(std::chrono::minutes offset);
+    static void isDaylightSavingsTime(int savingsTime);
 
 private:
     static bool _time24Mode;

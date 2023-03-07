@@ -178,7 +178,7 @@ void Host::getHostAddress()
     if (host_info == nullptr)
         throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
 
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
     any().sa_family = host_info->h_addrtype;
 

@@ -92,7 +92,7 @@ TEST(SPTK_Thread, runAgain) /* NOLINT */
     EXPECT_EQ(testCounter, testThread.counter());
 
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(50));
+    this_thread::sleep_for(chrono::milliseconds(60));
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(5, testThread.counter());

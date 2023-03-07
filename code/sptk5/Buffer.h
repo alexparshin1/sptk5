@@ -85,7 +85,7 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str               Input string
      */
-    explicit Buffer(const String& str);
+    Buffer(const String& str);
 
     /**
      * Copy constructor

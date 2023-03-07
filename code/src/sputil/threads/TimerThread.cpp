@@ -83,9 +83,9 @@ void TimerThread::wakeUp()
 
 void TimerThread::schedule(const STimerEvent& event)
 {
-    scoped_lock lock(m_scheduledMutex);
-    auto ticks = event->when().timePoint().time_since_epoch().count();
-    auto itor = m_scheduledEvents.emplace(ticks, event);
+    const scoped_lock lock(m_scheduledMutex);
+    const auto ticks = (long) event->when().timePoint().time_since_epoch().count();
+    const auto itor = m_scheduledEvents.emplace(ticks, event);
     if (itor == m_scheduledEvents.begin())
     {
         wakeUp();
@@ -94,13 +94,13 @@ void TimerThread::schedule(const STimerEvent& event)
 
 void TimerThread::clear()
 {
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
     m_scheduledEvents.clear();
 }
 
 STimerEvent TimerThread::nextEvent()
 {
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
     while (!m_scheduledEvents.empty())
     {
         auto itor = m_scheduledEvents.begin();
@@ -116,7 +116,7 @@ STimerEvent TimerThread::nextEvent()
 
 void TimerThread::popFrontEvent()
 {
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
     if (!m_scheduledEvents.empty())
     {
         auto itor = m_scheduledEvents.begin();

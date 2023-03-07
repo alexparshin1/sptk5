@@ -290,11 +290,6 @@ static const DateTimeFormat dateTimeFormatInitializer;
 
 namespace sptk {
 
-#if _WIN32
-#define gmtime_r(a, b) gmtime_s(b, a)
-#define localtime_r(a, b) localtime_s(b, a)
-#endif
-
 static void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
                        short& dayOfYear,
                        bool gmt)
@@ -562,6 +557,26 @@ static int isLeapYear(const int16_t year)
 
 } // namespace sptk
 
+String TimeZone::name()
+{
+    return _timeZoneName;
+}
+
+bool TimeZone::time24Mode()
+{
+    return _time24Mode;
+}
+
+minutes TimeZone::offset()
+{
+    return _timeZoneOffset;
+}
+
+int TimeZone::isDaylightSavingsTime()
+{
+    return _isDaylightSavingsTime;
+}
+
 void TimeZone::set(const String& timeZoneName)
 {
 #ifdef _WIN32
@@ -571,6 +586,26 @@ void TimeZone::set(const String& timeZoneName)
 #endif
     ::tzset();
     dateTimeFormatInitializer.init();
+}
+
+void TimeZone::time24Mode(bool mode)
+{
+    _time24Mode = mode;
+}
+
+void TimeZone::timeZoneName(const String& name)
+{
+    _timeZoneName = name;
+}
+
+void TimeZone::timeZoneOffset(std::chrono::minutes offset)
+{
+    _timeZoneOffset = offset;
+}
+
+void TimeZone::isDaylightSavingsTime(int savingsTime)
+{
+    _isDaylightSavingsTime = savingsTime;
 }
 
 void DateTime::time24Mode(bool t24mode)

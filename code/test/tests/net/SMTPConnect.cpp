@@ -25,7 +25,6 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/Printer.h>
 #include <sptk5/md5.h>
 #include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/SmtpConnect.h>

@@ -25,7 +25,6 @@
 */
 
 #include <cmath>
-#include <cstring>
 #include <ctime>
 #include <sptk5/cutils>
 

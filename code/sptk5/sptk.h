@@ -96,31 +96,8 @@
 #include <map>
 #include <string>
 #include <vector>
-
-#ifdef __UNIX_COMPILER__
-
 #include <cinttypes>
 #include <cstdint>
-
-#elif __BORLANDC__
-#include <ctype.h>
-#include <stdint.h>
-
-#elif defined(_MSC_VER)
-#if _MSC_VER >= 1800
-// Visual Studio 2013 and up
-#include <inttypes.h>
-#include <stdint.h>
-#else
-// Visual Studio 2012 and before
-#include <inttypes.h>
-#include <stdint.h>
-#endif
-#else
-#include <inttypes.h>
-#include <stdint.h>
-
-#endif
 
 #ifdef _WIN32
 #define snprintf _snprintf
@@ -128,19 +105,14 @@
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define strtok_r strtok_s
-#include <filesystem>
-namespace fs = std::filesystem;
-#else
-#if __cplusplus >= 201703L && __has_include(<filesystem>)
+
+#define gmtime_r(a, b) gmtime_s(b, a)
+#define localtime_r(a, b) localtime_s(b, a)
+
+#endif
 
 #include <filesystem>
-
 namespace fs = std::filesystem;
-#else
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-#endif
-#endif
 
 [[maybe_unused]] constexpr int ALIGN_LEFT = 1;
 [[maybe_unused]] constexpr int ALIGN_RIGHT = 2;

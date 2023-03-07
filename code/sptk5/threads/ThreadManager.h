@@ -31,7 +31,7 @@
 
 namespace sptk {
 
-class ThreadManager
+class SP_EXPORT ThreadManager
 {
 public:
     explicit ThreadManager(const String& name);

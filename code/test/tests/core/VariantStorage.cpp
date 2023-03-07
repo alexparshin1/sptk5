@@ -36,8 +36,6 @@ TEST(SPTK_VariantStorage, null)
     const VariantStorage variantStorage;
     EXPECT_EQ(VariantDataType::VAR_NONE, variantStorage.type().type);
     EXPECT_TRUE(variantStorage.isNull());
-    EXPECT_EQ(40, sizeof(variantStorage));
-    EXPECT_EQ(8, sizeof(VariantType));
 }
 
 TEST(SPTK_VariantStorage, bool)
@@ -86,7 +84,7 @@ TEST(SPTK_VariantStorage, integer)
     variantStorage1 = variantStorage1;
 
     variantStorage1 = testFloat;
-    variantStorage1 = 2L;
+    variantStorage1 = (int64_t) 2;
     EXPECT_EQ(VariantDataType::VAR_INT64, variantStorage1.type().type);
     EXPECT_EQ(2, (int) variantStorage1);
     EXPECT_FALSE(variantStorage1.isNull());

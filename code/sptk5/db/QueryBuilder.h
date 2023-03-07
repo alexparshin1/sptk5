@@ -31,10 +31,10 @@
 
 namespace sptk {
 
-class QueryBuilder
+class SP_EXPORT QueryBuilder
 {
 public:
-    class Join
+    class SP_EXPORT Join
     {
     public:
         Join(const String& tableAlias, const Strings& columns, const String& join);
