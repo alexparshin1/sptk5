@@ -26,6 +26,7 @@
 
 #include <array>
 #include <iomanip>
+#include <sptk5/Printer.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
@@ -476,7 +477,7 @@ static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* pa
                 sqlType = SQL_LONGVARBINARY;
                 len = static_cast<SQLLEN>(param->dataSize());
                 buff = (void*) param->getText();
-                param->callbackLength() = len;
+                param->callbackLength() = (long) len;
 #ifdef _WIN32
                 cbValue = (SQLLEN*) &param->callbackLength();
 #else
@@ -939,11 +940,13 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     SQLHSTMT stmt = nullptr;
     try
     {
-        Buffer objectSchema(MAX_NAME_LEN);
-        Buffer objectName(MAX_NAME_LEN);
+        vector<SQLCHAR> objectSchema(2048);
+        vector<SQLCHAR> objectName(2048);
         short procedureType = 0;
+        SQLLEN objectSchemaLength = 0;
+        SQLLEN objectNameLength = 0;
 
-        stmt = makeObjectListStatement(objectType, objectSchema, objectName, procedureType);
+        stmt = makeObjectListStatement(objectType, objectSchema, objectName, procedureType, objectSchemaLength, objectNameLength);
 
         while (true)
         {
@@ -961,7 +964,10 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 throw DatabaseException("SQLFetch");
             }
 
-            String objectNameStr = String((char*) objectName.data()).replace(";0$", "");
+            objectSchema[objectSchemaLength] = 0;
+            objectName[objectNameLength] = 0;
+
+            //String objectNameStr = String((char*) objectName.data()).replace(";0$", "");
 
             if (objectType == DatabaseObjectType::FUNCTIONS && procedureType != SQL_PT_FUNCTION)
             {
@@ -973,7 +979,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 continue;
             }
 
-            objects.push_back(String((char*) objectSchema.data()) + "." + objectNameStr);
+            objects.push_back(String((char*) objectSchema.data()) + "." + String((char*)objectName.data()));
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
@@ -990,7 +996,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
     }
 }
 
-SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, Buffer& objectSchema, Buffer& objectName, short& procedureType) const
+SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objectType, vector<SQLCHAR>& objectSchema, vector<SQLCHAR>& objectName, short& procedureType, SQLLEN& objectSchemaLength, SQLLEN& objectNameLength) const
 {
     procedureType = 0;
 
@@ -1032,15 +1038,12 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
             break;
     }
 
-    SQLLEN cbObjectSchema = 0;
-    SQLLEN cbObjectName = 0;
-
-    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), (SQLLEN) objectSchema.capacity() / 2, &cbObjectSchema) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 2, SQL_C_CHAR, objectSchema.data(), objectSchema.size() - 1, &objectSchemaLength) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }
 
-    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), (SQLLEN) objectName.capacity() / 2, &cbObjectName) != SQL_SUCCESS)
+    if (SQLBindCol(stmt, 3, SQL_C_CHAR, objectName.data(), objectName.size() - 1, &objectNameLength) != SQL_SUCCESS)
     {
         throw DatabaseException("SQLBindCol");
     }

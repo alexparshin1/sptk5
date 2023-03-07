@@ -244,7 +244,7 @@ private:
      */
     void parseColumns(Query* query, int count);
 
-    SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, sptk::Buffer& objectSchema, sptk::Buffer& objectName, short& procedureType) const;
+    SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::vector<SQLCHAR>& objectSchema, std::vector<SQLCHAR>& objectName, short& procedureType, SQLLEN& objectSchemaLength, SQLLEN& objectNameLength) const;
 };
 /**
  * @}
