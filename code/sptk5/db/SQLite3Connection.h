@@ -184,11 +184,10 @@ protected:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
 private:
     using SQLHSTMT = sqlite3_stmt*;
-    using SQLHDBC = sqlite3*;
 
     mutable std::mutex m_mutex;         ///< Mutex that protects access to data members
     std::shared_ptr<sqlite3> m_connect; ///< Database connection

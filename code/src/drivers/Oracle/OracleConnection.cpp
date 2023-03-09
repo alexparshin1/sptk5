@@ -198,14 +198,14 @@ void OracleConnection::queryAllocStmt(Query* query)
 
 void OracleConnection::queryFreeStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 
 void OracleConnection::queryCloseStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     auto* statement = (OracleStatement*) query->statement();
     if (statement)
     {
@@ -215,7 +215,7 @@ void OracleConnection::queryCloseStmt(Query* query)
 
 void OracleConnection::queryPrepare(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     statement->enumerateParams(query->params());
@@ -273,7 +273,7 @@ int OracleConnection::queryColCount(Query* query)
 
 void OracleConnection::queryBindParameters(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     if (!statement)
@@ -327,7 +327,8 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
     switch (dataType)
     {
         case VariantDataType::VAR_NONE:
-            throwException("Data type is not defined") case VariantDataType::VAR_INT : return (Type) SQLT_INT;
+        throwException("Data type is not defined") case VariantDataType::VAR_INT:
+            return (Type) SQLT_INT;
         case VariantDataType::VAR_FLOAT:
             return OCCIBDOUBLE;
         case VariantDataType::VAR_STRING:
@@ -343,8 +344,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
         case VariantDataType::VAR_INT64:
         case VariantDataType::VAR_BOOL:
             return OCCIINT;
-        default:
-            throwException("Unsupported SPTK data type: " << (int) dataType)
+            default: throwException("Unsupported SPTK data type: " << (int) dataType)
     }
 }
 
@@ -655,10 +655,10 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::_bulkInsert(const String& _tableName, const Strings& columnNames,
-                                   const vector<VariantVector>& data)
+void OracleConnection::bulkInsert(const String& _tableName, const Strings& columnNames,
+                                  const vector<VariantVector>& data)
 {
-    RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
+    const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
 
     String schema;
     String tableName;
@@ -785,13 +785,13 @@ String OracleConnection::paramMark(unsigned paramIndex)
     return string(mark.data());
 }
 
-void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
-    RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
-    RegularExpression matchGo("^/\\s*$");
-    RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
-    RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchStatementEnd("(;\\s*)$");
+    static const RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
+    static const RegularExpression matchGo("^/\\s*$");
+    static const RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
+    static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     string statement;

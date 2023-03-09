@@ -79,7 +79,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
@@ -90,7 +90,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The MySQL connection string
      */
-    explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
+    explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::minutes(1));
 
     MySQLConnection(const MySQLConnection&) = delete;
 
@@ -220,9 +220,6 @@ private:
      */
     void executeCommand(const String& command);
 };
-
-#define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection.get())))
-
 /**
  * @}
  */

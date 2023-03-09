@@ -218,10 +218,10 @@ protected:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-    void _bulkInsert(const String& tableName, const Strings& columnNames,
-                     const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    const std::vector<VariantVector>& data) override;
 
 private:
     static constexpr size_t MAX_NAME_LEN = 256;

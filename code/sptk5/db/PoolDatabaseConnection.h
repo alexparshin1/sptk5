@@ -53,7 +53,6 @@ using SStmtHandle = std::shared_ptr<uint8_t>;
  */
 enum class DatabaseConnectionType : uint16_t
 {
-    UNKNOWN = 0,       ///< Unknown
     MYSQL = 1,         ///< MySQL
     ORACLE = 2,        ///< Oracle
     POSTGRES = 4,      ///< PostgreSQL
@@ -68,7 +67,6 @@ enum class DatabaseConnectionType : uint16_t
  */
 enum class DatabaseObjectType : uint8_t
 {
-    UNDEFINED,  ///< Undefined
     TABLES,     ///< Tables
     VIEWS,      ///< Views
     PROCEDURES, ///< Stored procedures
@@ -107,22 +105,22 @@ protected:
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query* q, SStmtHandle stmt);
+    void querySetStmt(Query* query, const SStmtHandle& stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    static void querySetPrepared(Query* q, bool pf);
+    static void querySetPrepared(Query* query, bool isPrepared);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    static void querySetActive(Query* q, bool af);
+    static void querySetActive(Query* query, bool isActive);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    static void querySetEof(Query* q, bool eof);
+    static void querySetEof(Query* query, bool isEof);
 
     // These methods implement the actions requested by CQuery
     /**
@@ -202,12 +200,12 @@ protected:
     /**
      * Attaches (links) query to the database
      */
-    bool linkQuery(Query* q);
+    bool linkQuery(Query* query);
 
     /**
      * Unlinks query from the database
      */
-    bool unlinkQuery(Query* q);
+    bool unlinkQuery(Query* query);
 
     /**
      * Close all queries, connected to this connection,
@@ -234,6 +232,31 @@ class SP_EXPORT PoolDatabaseConnection
     friend class QueryStatementManagement;
 
 public:
+    /**
+     * @brief Destructor
+     */
+    ~PoolDatabaseConnection() override;
+
+    /**
+     * @brief Copy constructor is deleted
+     */
+    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
+
+    /**
+     * @brief Move constructor is deleted
+     */
+    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
+
+    /**
+     * @brief Copy assignment is deleted
+     */
+    PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
+
+    /**
+     * @brief Move assignment is deleted
+     */
+    PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
+
     /**
      * Opens the database connection
      *
@@ -338,10 +361,8 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
-    {
-        _bulkInsert(tableName, columnNames, data);
-    }
+    virtual void bulkInsert(const String& tableName, const Strings& columnNames,
+                            const std::vector<VariantVector>& data);
 
     /**
      * Executes SQL batch file
@@ -351,10 +372,7 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr)
-    {
-        _executeBatchFile(batchFileName, errors);
-    }
+    virtual void executeBatchFile(const String& batchFileName, Strings* errors);
 
     /**
      * Executes SQL batch queries
@@ -364,10 +382,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr)
-    {
-        _executeBatchSQL(batchSQL, errors);
-    }
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
 protected:
     bool getInTransaction() const;
@@ -383,16 +398,6 @@ protected:
      * @param connectionString  The connection string
      */
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, std::chrono::seconds connectTimeout);
-
-    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
-
-    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
-
-    PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
-
-    PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
-
-    ~PoolDatabaseConnection() override;
 
     /**
      * Opens the database connection.
@@ -432,39 +437,6 @@ protected:
      * @param error             Error text
      */
     [[noreturn]] static void logAndThrow(const String& method, const String& error);
-
-    /**
-     * Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    virtual void _bulkInsert(const String& tableName, const Strings& columnNames,
-                             const std::vector<VariantVector>& data);
-
-    /**
-     * Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
-
-    /**
-     * Executes SQL batch queries
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
     /**
      * Set the connection type

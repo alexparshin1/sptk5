@@ -31,6 +31,11 @@
 using namespace std;
 using namespace sptk;
 
+static void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
+{
+    throw DatabaseException(String(info) + ":" + String(mysql_error(connection.get())));
+}
+
 MySQLConnection::MySQLConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
 {
@@ -108,14 +113,14 @@ void MySQLConnection::executeCommand(const String& command)
     }
 
     if (mysql_real_query(m_connection.get(), command.c_str(), ULONG_CAST(command.length())) != 0)
-        throwMySQLException("Can't execute " + command);
+        throwMySQLException(m_connection, "Can't execute " + command);
 }
 
 void MySQLConnection::driverBeginTransaction()
 {
     if (getInTransaction())
     {
-        throwMySQLException("Transaction already started");
+        throwMySQLException(m_connection, "Transaction already started");
     }
 
     executeCommand("BEGIN");
@@ -289,7 +294,7 @@ void MySQLConnection::queryOpen(Query* query)
     querySetActive(query, true);
     if (query->fieldCount() == 0)
     {
-        scoped_lock lock(m_mutex);
+        const scoped_lock lock(m_mutex);
         statement->bindResult(query->fields());
     }
 
@@ -377,13 +382,13 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     auto matchStatementEnd = make_shared<RegularExpression>("(;\\s*)$");
 
-    RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
-    RegularExpression matchEscapeChars("([$.])", "g");
-    RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
+    static const RegularExpression matchEscapeChars("([$.])", "g");
+    static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     String statement;

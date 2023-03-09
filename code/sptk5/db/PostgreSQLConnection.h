@@ -101,8 +101,8 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames,
-                     const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file
@@ -112,7 +112,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor

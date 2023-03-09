@@ -177,24 +177,24 @@ String ODBCConnection::queryError(SQLHSTMT stmt) const
     SQLINTEGER nativeError = 0;
 
     String error;
-    int rc = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
-                      (SQLSMALLINT) errorDescription.size(), &pcnmsg);
+    int resultCode = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
+                              (SQLSMALLINT) errorDescription.size(), &pcnmsg);
 
-    if (rc == SQL_SUCCESS)
+    if (resultCode == SQL_SUCCESS)
     {
         error = (const char*) errorDescription.data();
     }
     else
     {
-        rc = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState.data(), &nativeError, errorDescription.data(),
-                      (SQLSMALLINT) errorDescription.size(), &pcnmsg);
-        if (rc == SQL_SUCCESS)
+        resultCode = SQLError(SQL_NULL_HENV, handle(), nullptr, errorState.data(), &nativeError, errorDescription.data(),
+                              (SQLSMALLINT) errorDescription.size(), &pcnmsg);
+        if (resultCode == SQL_SUCCESS)
         {
             error = (const char*) errorDescription.data();
         }
     }
 
-    if (rc != SQL_SUCCESS)
+    if (resultCode != SQL_SUCCESS)
     {
         error = "Unknown error";
     }
@@ -209,7 +209,7 @@ String ODBCConnection::queryError(const Query* query) const
 
 void ODBCConnection::queryAllocStmt(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     auto* hStmt = (SQLHSTMT) query->statement();
     if (hStmt != SQL_NULL_HSTMT)
@@ -219,9 +219,10 @@ void ODBCConnection::queryAllocStmt(Query* query)
 
     auto* hdb = handle();
 
-    if (int rc = SQLAllocStmt(hdb, &hStmt); rc != SQL_SUCCESS)
+    if (const int result = SQLAllocStmt(hdb, &hStmt);
+        result != SQL_SUCCESS)
     {
-        String error = queryError(query);
+        const String error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
         logAndThrow("ODBCConnection::queryAllocStmt", error);
     }
@@ -235,7 +236,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
 
 void ODBCConnection::queryFreeStmt(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
@@ -243,14 +244,14 @@ void ODBCConnection::queryFreeStmt(Query* query)
 
 void ODBCConnection::queryCloseStmt(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     SQLFreeStmt(query->statement(), SQL_CLOSE);
 }
 
 void ODBCConnection::queryPrepare(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     query->fields().clear();
 
@@ -263,12 +264,12 @@ void ODBCConnection::queryPrepare(Query* query)
 
 void ODBCConnection::queryExecute(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
-    int rc = 0;
+    int result = 0;
     if (query->prepared())
     {
-        rc = SQLExecute(query->statement());
+        result = SQLExecute(query->statement());
     }
     else
     {
@@ -276,15 +277,15 @@ void ODBCConnection::queryExecute(Query* query)
         {
             return;
         }
-        rc = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().data(), SQL_NTS);
+        result = SQLExecDirect(query->statement(), (SQLCHAR*) query->sql().data(), SQL_NTS);
     }
 
-    if (successful(rc))
+    if (successful(result))
     {
         return;
     }
 
-    if (rc == SQL_NEED_DATA)
+    if (result == SQL_NEED_DATA)
     {
         THROW_QUERY_ERROR(query, "Invalid data size")
     }
@@ -296,16 +297,16 @@ void ODBCConnection::queryExecute(Query* query)
     SQLSMALLINT recordCount = 0;
     SQLSMALLINT textLength = 0;
 
-    rc = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
-                         &textLength);
+    result = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
+                             &textLength);
 
     Strings errors;
-    SQLSMALLINT recordNumber = 1;
-    while (successful(rc))
+    const SQLSMALLINT recordNumber = 1;
+    while (successful(result))
     {
-        rc = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
-                           text.data(), (SQLSMALLINT) text.size(), &textLength);
-        if (successful(rc))
+        result = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
+                               text.data(), (SQLSMALLINT) text.size(), &textLength);
+        if (successful(result))
         {
             errors.push_back(removeDriverIdentification((const char*) text.data()));
         }
@@ -314,13 +315,13 @@ void ODBCConnection::queryExecute(Query* query)
     if (!errors.empty())
         THROW_QUERY_ERROR(query, errors.join("; "))
 
-    if (!successful(rc))
+    if (!successful(result))
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
 int ODBCConnection::queryColCount(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     int16_t count = 0;
     if (!successful(SQLNumResultCols(query->statement(), &count)))
@@ -331,7 +332,7 @@ int ODBCConnection::queryColCount(Query* query)
 
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
     SQLLEN result = 0;
 
     if (!successful(
@@ -350,7 +351,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     if (buff == nullptr || len <= 0)
         THROW_QUERY_ERROR(query, "Invalid buffer or buffer len")
 
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     if (!successful(
             SQLColAttributes(query->statement(), (SQLUSMALLINT) column, (SQLUSMALLINT) descType, buff, (int16_t) len,
@@ -358,24 +359,25 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
-static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* t, const DateTime& dt, bool dateOnly)
+static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& dt, bool dateOnly)
 {
     if (!dt.zero())
     {
         short weekDay = 0;
         short yearDay = 0;
-        short ms = 0;
-        dt.decodeDate(&t->year, (int16_t*) &t->month, (int16_t*) &t->day, &weekDay, &yearDay);
+        short milliseconds = 0;
+        dt.decodeDate(&timestampStruct->year, (int16_t*) &timestampStruct->month, (int16_t*) &timestampStruct->day,
+                      &weekDay, &yearDay);
         if (dateOnly)
         {
-            t->hour = t->minute = t->second = 0;
+            timestampStruct->hour = timestampStruct->minute = timestampStruct->second = 0;
         }
         else
         {
-            dt.decodeTime((int16_t*) &t->hour, (int16_t*) &t->minute, (int16_t*) &t->second, &ms);
+            dt.decodeTime((int16_t*) &timestampStruct->hour, (int16_t*) &timestampStruct->minute, (int16_t*) &timestampStruct->second, &milliseconds);
         }
         const int msInSecond = 1000;
-        t->fraction = ms * msInSecond;
+        timestampStruct->fraction = milliseconds * msInSecond;
         return true;
     }
     return false;
@@ -491,9 +493,9 @@ static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* pa
                     param->name() + "'");
         }
 
-        const auto rc = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType,
-                                         len, scale, buff, len, cbValue);
-        if (rc != SQL_SUCCESS)
+        const auto resultCode = SQLBindParameter(query->statement(), (SQLUSMALLINT) paramNumber, parameterMode, paramType, sqlType,
+                                                 len, scale, buff, len, cbValue);
+        if (resultCode != SQL_SUCCESS)
         {
             param->binding().reset(false);
             THROW_QUERY_ERROR(query, "Can't bind parameter " << paramNumber)
@@ -503,7 +505,7 @@ static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* pa
 
 void ODBCConnection::queryBindParameters(Query* query)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     for (uint32_t i = 0; i < query->paramCount(); ++i)
     {
@@ -658,8 +660,7 @@ void ODBCConnection::queryOpen(Query* query)
 
     queryExecute(query);
 
-    int count = queryColCount(query);
-
+    const int count = queryColCount(query);
     if (count < 1)
     {
         queryCloseStmt(query);
@@ -677,11 +678,11 @@ void ODBCConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-static uint32_t trimField(char* s, uint32_t sz)
+static uint32_t trimField(char* str, uint32_t size)
 {
-    char* p = s + sz - 1;
-    char ch = s[0];
-    s[0] = '!';
+    char* p = str + size - 1;
+    char ch = str[0];
+    str[0] = '!';
 
     while (*p == ' ')
     {
@@ -689,14 +690,14 @@ static uint32_t trimField(char* s, uint32_t sz)
     }
     *(++p) = 0;
 
-    if (ch == ' ' && s[1] == 0)
+    if (ch == ' ' && str[1] == 0)
     {
-        s[0] = 0;
+        str[0] = 0;
         return 0;
     }
 
-    s[0] = ch;
-    return uint32_t(p - s);
+    str[0] = ch;
+    return uint32_t(p - str);
 }
 
 static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
@@ -707,10 +708,10 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
     auto& buffer = field->get<Buffer>();
 
     // Get data length
-    auto rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(0), &dataLength);
-    if (!successful(rc))
+    auto resultCode = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(0), &dataLength);
+    if (!successful(resultCode))
     {
-        return rc;
+        return resultCode;
     }
 
     if (dataLength == 0 || (dataLength < 0 && dataLength != SQL_NO_TOTAL))
@@ -723,9 +724,9 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
         field->checkSize(uint32_t(dataLength));
 
         // Read data
-        rc = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(dataLength + 1), &dataLength);
+        resultCode = SQLGetData(statement, column, fieldType, buffer.data(), SQLINTEGER(dataLength + 1), &dataLength);
         field->setDataSize(dataLength);
-        return rc;
+        return resultCode;
     }
 
     // Fetch BLOB data until there is no more data
@@ -738,15 +739,15 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
     SQLLEN offset = 0;
     dataLength = 0;
     SQLLEN readSize = initialReadSize;
-    rc = SQL_SUCCESS;
-    while (rc != SQL_NO_DATA)
+    resultCode = SQL_SUCCESS;
+    while (resultCode != SQL_NO_DATA)
     {
         bufferSize += readSize;
         field->checkSize(bufferSize);
-        rc = SQLGetData(statement, column, fieldType,
-                        buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
+        resultCode = SQLGetData(statement, column, fieldType,
+                                buffer.data() + offset, SQLINTEGER(readSize), &remainingSize);
 
-        if (rc == SQL_NO_DATA)
+        if (resultCode == SQL_NO_DATA)
         {
             return SQL_SUCCESS;
         }
@@ -762,7 +763,7 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
         dataLength += readSize - 1;
     }
 
-    return rc;
+    return resultCode;
 }
 
 static SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
@@ -785,7 +786,7 @@ void ODBCConnection::queryFetch(Query* query)
 
     auto* statement = query->statement();
 
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     int rc = SQLFetch(statement);
 
@@ -929,7 +930,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
 
 void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
-    scoped_lock lock(*m_connect);
+    const scoped_lock lock(*m_connect);
 
     if (objectType == DatabaseObjectType::DATABASES)
     {
@@ -979,7 +980,7 @@ void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
                 continue;
             }
 
-            objects.push_back(String((char*) objectSchema.data()) + "." + String((char*)objectName.data()));
+            objects.push_back(String((char*) objectSchema.data()) + "." + String((char*) objectName.data()));
         }
 
         SQLFreeStmt(stmt, SQL_DROP);
@@ -1060,12 +1061,12 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     return stmt;
 }
 
-void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void ODBCConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
-    RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
-    RegularExpression matchGo("^\\s*GO\\s*$", "i");
-    RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchStatementEnd("(;\\s*)$");
+    static const RegularExpression matchRoutineStart("^CREATE\\s+FUNCTION", "i");
+    static const RegularExpression matchGo("^\\s*GO\\s*$", "i");
+    static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     string statement;
@@ -1140,7 +1141,7 @@ void ODBCConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     }
 }
 
-void ODBCConnection::_bulkInsert(const String& tableName, const Strings& columnNames, const vector<VariantVector>& data)
+void ODBCConnection::bulkInsert(const String& tableName, const Strings& columnNames, const vector<VariantVector>& data)
 {
     constexpr int recordsInBatch = 64;
     auto begin = data.begin();

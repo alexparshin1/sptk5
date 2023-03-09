@@ -74,19 +74,19 @@ void PoolDatabaseConnection::setInTransaction(bool inTransaction)
     m_inTransaction = inTransaction;
 }
 
-bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* query)
 {
-    if (auto itor = m_queryList.find(q);
+    if (auto itor = m_queryList.find(query);
         itor == m_queryList.end())
     {
-        m_queryList[q] = nullptr;
+        m_queryList[query] = nullptr;
     }
     return true;
 }
 
-bool PoolDatabaseConnectionQueryMethods::unlinkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::unlinkQuery(Query* query)
 {
-    m_queryList.erase(q);
+    m_queryList.erase(query);
     return true;
 }
 
@@ -144,7 +144,7 @@ void PoolDatabaseConnection::rollbackTransaction()
 
 void PoolDatabaseConnection::logAndThrow(const String& method, const String& error)
 {
-    String errorText("Exception in " + method + ": " + error);
+    const String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 
@@ -261,8 +261,8 @@ void PoolDatabaseConnection::bulkInsertRecords(
     insertRows.exec();
 }
 
-void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
-                                         const vector<VariantVector>& data)
+void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
+                                        const vector<VariantVector>& data)
 {
     const auto recordsInBatch = 16;
     auto begin = data.begin();
@@ -282,37 +282,37 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
     }
 }
 
-void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
+void PoolDatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName.c_str());
-    _executeBatchSQL(batchFileContent, errors);
+    executeBatchSQL(batchFileContent, errors);
 }
 
-void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
+void PoolDatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, SStmtHandle stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* query, const SStmtHandle& stmt)
 {
-    m_queryList[q] = stmt;
-    q->setStatement(stmt.get());
+    m_queryList[query] = stmt;
+    query->setStatement(stmt.get());
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* q, bool pf)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, bool isPrepared)
 {
-    q->setPrepared(pf);
+    query->setPrepared(isPrepared);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetActive(Query* q, bool af)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query* query, bool isActive)
 {
-    q->setActive(af);
+    query->setActive(isActive);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetEof(Query* q, bool eof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query* query, bool isEof)
 {
-    q->setEof(eof);
+    query->setEof(isEof);
 }
 
 void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const

@@ -44,7 +44,7 @@ void BaseVariant::dataSize(size_t newDataSize)
         m_data.get<Buffer>().bytes(newDataSize);
     }
 
-    m_data.size(newDataSize);
+    m_data.setSize(newDataSize);
 
     if (m_data.size() > 0)
     {

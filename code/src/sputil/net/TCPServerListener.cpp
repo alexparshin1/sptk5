@@ -77,7 +77,7 @@ void TCPServerListener::threadFunction()
         constexpr auto readTimeout = chrono::milliseconds(100);
         while (!terminated())
         {
-            scoped_lock lock(*this);
+            const scoped_lock lock(*this);
             if (m_listenerSocket.readyToRead(readTimeout))
             {
                 if (!m_listenerSocket.active())
@@ -97,7 +97,7 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
     m_listenerSocket.close();
 }
 

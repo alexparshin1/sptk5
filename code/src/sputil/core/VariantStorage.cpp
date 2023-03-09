@@ -63,13 +63,13 @@ BaseVariantStorage::BaseVariantStorage(double value)
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(Buffer&& value)
+BaseVariantStorage::BaseVariantStorage(Buffer&& buffer)
 {
-    auto buffer = make_shared<Buffer>();
-    *buffer = std::move(value);
-    m_class = buffer;
+    auto buff = make_shared<Buffer>();
+    *buff = std::move(buffer);
+    m_class = buff;
     m_type.type = VariantDataType::VAR_BUFFER;
-    m_type.size = sizeof(value.size());
+    m_type.size = sizeof(buffer.size());
 }
 
 BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bool externalBuffer)
@@ -267,17 +267,16 @@ VariantStorage& VariantStorage::operator=(double aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(Buffer&& aValue)
+VariantStorage& VariantStorage::operator=(Buffer&& buffer)
 {
-    auto valueSize = aValue.size();
+    auto valueSize = buffer.size();
     if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
-        auto buffer = make_shared<Buffer>(std::move(aValue));
-        setStorageClient(buffer);
+        setStorageClient(make_shared<Buffer>(std::move(buffer)));
     }
     else
     {
-        *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(aValue);
+        *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(buffer);
     }
     setNull(false, VariantDataType::VAR_BUFFER);
     setSize(valueSize);
