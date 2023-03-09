@@ -111,7 +111,7 @@ public:
     }
 
     // TODO: remove size in favor to setSize
-    void size(size_t size)
+    void setSize(size_t size)
     {
         m_type.size = size;
     }
@@ -164,11 +164,6 @@ protected:
     [[nodiscard]] const VariantValue& value() const
     {
         return m_value;
-    }
-
-    void setSize(size_t size)
-    {
-        m_type.size = size;
     }
 
 private:

@@ -25,12 +25,10 @@
 */
 
 #include "TestWebService.h"
-#include <sptk5/StopWatch.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSListener.h>
-#include <sptk5/xdoc/Document.h>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
@@ -210,13 +208,13 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
     SysLogEngine logEngine("TestWebService");
     auto service = make_shared<TestWebService>();
 
-    String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
+    const String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
 
     // Define Web Service listener
-    WSConnection::Paths paths("index.html", "/test", ".");
+    const WSConnection::Paths paths("index.html", "/test", ".");
     WSConnection::Options options(paths);
     options.encrypted = encrypted;
-    WSServices services(service);
+    const WSServices services(service);
     WSListener listener(services, logEngine, "localhost", 16, options);
 
     const uint16_t servicePort = 11000;
@@ -394,7 +392,7 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     login.m_password = "secret";
     auto str = exportToString(login);
 
-    CLogin login2(move(login));
+    CLogin login2(std::move(login));
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
     auto str2 = exportToString(login2);
@@ -426,7 +424,7 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     auto str = exportToString(login);
 
     CLogin login2;
-    login2 = move(login);
+    login2 = std::move(login);
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
     auto str2 = exportToString(login2);

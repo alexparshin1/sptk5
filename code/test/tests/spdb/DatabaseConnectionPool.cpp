@@ -94,6 +94,8 @@ static void testDDL(const String& dbName)
     }
 }
 
+static void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection);
+static void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection);
 static void testInvalidQuery(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -103,10 +105,19 @@ static void testInvalidQuery(const String& dbName)
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
+    verifyInvalidTableQueryThrows(databaseConnection);
+    verifyInvalidKeywordQueryThrows(databaseConnection);
+}
+
+static void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection)
+{
     Query query(databaseConnection, "SELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
+}
 
-    query.sql("UNSELECT * FROM xx");
+static void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection)
+{
+    Query query(databaseConnection, "UNSELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 }
 
