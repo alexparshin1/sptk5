@@ -271,6 +271,15 @@ public:
     }
 
     /**
+     * @brief Move constructor
+     * @param other
+     */
+    VariantStorage(VariantStorage&& other)
+        : BaseVariantStorage(std::move(other))
+    {
+    }
+
+    /**
      * @brief Destructor
      */
     ~VariantStorage() override = default;

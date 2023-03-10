@@ -156,7 +156,7 @@ private:
     /**
      * Clear reader state
      */
-    void reset() override;
+    void clear() override;
 
     /**
      * Read HTTP status

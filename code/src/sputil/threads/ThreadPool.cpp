@@ -55,7 +55,7 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     static mutex mtx;
     if (m_logger)
     {
-        scoped_lock lock(mtx);
+        const scoped_lock lock(mtx);
         stringstream message;
         if (workerThread != nullptr)
         {

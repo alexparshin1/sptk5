@@ -117,7 +117,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
+    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     /**
      * Reads data from the socket into memory buffer
@@ -128,7 +128,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr) override;
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     /**
      * Reads data from the socket into memory buffer
@@ -139,7 +139,7 @@ public:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
+    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
 
     template<typename T>
     size_t read(T& value, sockaddr_in* from = nullptr)

@@ -150,6 +150,7 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     {
         auto event = timer.fireAt(when,
                                   [] {
+                                      // Do nothing
                                   });
         createdEvents.push_back(event);
     }

@@ -82,7 +82,7 @@ TEST(SPTK_Host, ctorCopy)
 
 TEST(SPTK_Host, ctorMove)
 {
-    const Host host1("11.22.33.44", sshPort);
+    Host host1("11.22.33.44", sshPort);
     const Host host2(std::move(host1));
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
@@ -98,7 +98,7 @@ TEST(SPTK_Host, assign)
 
 TEST(SPTK_Host, move)
 {
-    const Host host1("11.22.33.44", sshPort);
+    Host host1("11.22.33.44", sshPort);
     const Host host2 = std::move(host1);
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());

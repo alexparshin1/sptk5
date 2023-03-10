@@ -52,10 +52,19 @@ void verifyDocument(xdoc::Document& document)
     const auto& arrayData = root.nodes("skills");
     Strings skills;
     skills.resize(arrayData.size());
+
+#if CXX_VERSION < 20
     transform(arrayData.begin(), arrayData.end(), skills.begin(),
               [](const xdoc::SNode& skill) {
                   return skill->getString();
               });
+#else
+    ranges::transform(arrayData, skills.begin(),
+                      [](const xdoc::SNode& skill) {
+                          return skill->getString();
+                      });
+#endif
+
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
     const auto ptr = root.findFirst("address");
@@ -145,10 +154,19 @@ TEST(SPTK_XDocument, add)
     const auto& array = root.nodes("array");
     Strings skills;
     skills.resize(array.size());
+
+#if CXX_VERSION < 20
     transform(array.begin(), array.end(), skills.begin(),
               [](const xdoc::SNode& skill) {
                   return skill->getString();
               });
+#else
+    ranges::transform(array, skills.begin(),
+                      [](const xdoc::SNode& skill) {
+                          return skill->getString();
+                      });
+#endif
+
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 
     const auto object = root.findFirst("object");

@@ -32,8 +32,8 @@ using namespace sptk;
 WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(typeName)
 {
-    auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
-    for (const auto& enumerationNode: enumerationNodes)
+    for (auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
+         const auto& enumerationNode: enumerationNodes)
     {
         if (enumerationNode != nullptr)
         {

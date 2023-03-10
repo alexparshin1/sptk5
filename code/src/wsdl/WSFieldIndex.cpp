@@ -41,7 +41,11 @@ void WSFieldIndex::setElements(const Strings& elementNames, std::initializer_lis
         ++index;
     }
 
+#if CXX_VERSION < 20
     std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_elements));
+#else
+    ranges::copy(fieldList, back_inserter(m_elements));
+#endif
 }
 
 void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer_list<WSType*> fieldList)
@@ -56,7 +60,11 @@ void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer
         ++index;
     }
 
+#if CXX_VERSION < 20
     std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_attributes));
+#else
+    ranges::copy(fieldList, back_inserter(m_attributes));
+#endif
 }
 
 WSType* WSFieldIndex::find(const String& name) const

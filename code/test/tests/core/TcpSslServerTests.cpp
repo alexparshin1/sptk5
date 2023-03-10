@@ -110,7 +110,10 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
                  << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
 
     const chrono::seconds tenSeconds(10);
-    socket.readyToRead(tenSeconds);
+    if (!socket.readyToRead(tenSeconds))
+    {
+        CERR("Timeout waiting for response" << endl)
+    }
     socket.close();
 }
 

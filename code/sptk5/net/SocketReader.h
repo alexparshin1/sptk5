@@ -53,9 +53,9 @@ public:
     explicit SocketReader(TCPSocket& socket, size_t bufferSize = 16384);
 
     /**
-     * Resets reader buffer position
+     * Clears read buffer
      */
-    virtual void reset();
+    virtual void clear();
 
     /**
      * Closes socket

@@ -36,7 +36,7 @@ SocketReader::SocketReader(TCPSocket& socket, size_t buffer_size)
 {
 }
 
-void SocketReader::reset()
+void SocketReader::clear()
 {
     scoped_lock const lock(m_mutex);
     m_readOffset = 0;

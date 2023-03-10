@@ -125,7 +125,7 @@ public:
      * @param option            Log option, one or more of LO_* constants
      * @returns Option value
      */
-    bool option(Option option);
+    bool option(Option option) const;
 
     /**
      * Sets current message priority

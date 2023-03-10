@@ -56,6 +56,11 @@ public:
     Timer(const Timer& other) = delete;
 
     /**
+     * Copy assignment
+     */
+    Timer& operator=(const Timer&) = delete;
+
+    /**
      * Destructor.
      * Cancel all events scheduled by this timer.
      */

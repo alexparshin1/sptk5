@@ -420,8 +420,9 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
     {
         classDeclaration << endl;
         classDeclaration << "   /**" << endl;
-        Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
-        for (const String& row: rows)
+
+        for (Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
+             const String& row: rows)
         {
             classDeclaration << "    * " << trim(row) << endl;
         }

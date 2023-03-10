@@ -77,7 +77,7 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     {
         option = option.substr(1, option.length() - 2);
     }
-    auto pathElementOption = option;
+    const auto& pathElementOption = option;
 
     pathElement.elementName = "";
     pathElement.attributeName = "";

@@ -285,17 +285,6 @@ public:
     [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
-     * Reads data from the socket
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size)
-    {
-        return read(buffer, size, nullptr);
-    }
-
-    /**
      * Reads data from the socket into memory buffer
      *
      * Buffer bytes() is set to number of bytes read
@@ -310,38 +299,12 @@ public:
      * Reads data from the socket into memory buffer
      *
      * Buffer bytes() is set to number of bytes read
-     * @param buffer            The output buffer
-     * @param size              The number of bytes to read
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] size_t read(Buffer& buffer, size_t size)
-    {
-        return read(buffer, size, nullptr);
-    }
-
-    /**
-     * Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
     [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from);
-
-    /**
-     * Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] size_t read(String& buffer, size_t size)
-    {
-        return read(buffer, size, nullptr);
-    }
 
     /**
      * Writes data to the socket

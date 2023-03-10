@@ -83,7 +83,7 @@ void IntervalTimerThread::wakeUp()
 
 void IntervalTimerThread::schedule(const STimerEvent& event)
 {
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
     m_scheduledEvents.emplace(event);
     if (m_scheduledEvents.size() == 1)
     {
@@ -93,11 +93,11 @@ void IntervalTimerThread::schedule(const STimerEvent& event)
 
 STimerEvent IntervalTimerThread::nextEvent()
 {
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
 
     while (!m_scheduledEvents.empty())
     {
-        if (auto& event = m_scheduledEvents.front();
+        if (const auto& event = m_scheduledEvents.front();
             !event->cancelled())
         {
             return event;
@@ -112,7 +112,7 @@ void IntervalTimerThread::popFrontEvent()
 {
     STimerEvent event;
 
-    scoped_lock lock(m_scheduledMutex);
+    const scoped_lock lock(m_scheduledMutex);
     if (m_scheduledEvents.empty())
     {
         return;

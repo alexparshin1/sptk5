@@ -42,6 +42,4 @@ TEST(SPTK_XDocument, xmlToJson)
 
     document.load(buffer, false);
     document.exportTo(xdoc::DataFormat::JSON, buffer, true);
-
-    //COUT(buffer << endl)
 }

@@ -123,8 +123,13 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
         complexTypeName = parent->attributes().get("name");
     }
 
+#if CXX_VERSION < 20
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
         complexTypes.find(complexTypeName) != complexTypes.end())
+#else
+    if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
+        complexTypes.contains(complexTypeName))
+#endif
     {
         throwException("Duplicate complexType definition: " << complexTypeName)
     }
@@ -201,9 +206,8 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
         }
     }
 
-    auto complexTypeNodes = schemaElement->select("//xsd:complexType");
-
-    for (auto& element: complexTypeNodes)
+    for (auto complexTypeNodes = schemaElement->select("//xsd:complexType");
+         auto& element: complexTypeNodes)
     {
         if (element->name() == "xsd:complexType")
         {

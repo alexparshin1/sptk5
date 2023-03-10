@@ -102,7 +102,7 @@ void HttpReader::readHttpHeaders()
 {
     constexpr int lengthRequiredResponseCode(411);
 
-    reset();
+    clear();
 
     if (m_readMode == ReadMode::RESPONSE)
     {
@@ -407,7 +407,7 @@ int HttpReader::readAll(std::chrono::milliseconds timeout)
     return getStatusCode();
 }
 
-void HttpReader::reset()
+void HttpReader::clear()
 {
     m_readerState = State::READY;
     m_statusText = "";
@@ -419,7 +419,7 @@ void HttpReader::reset()
     m_read_buffer.reset(oneKb);
     m_requestType = "";
     m_requestURL = "";
-    SocketReader::reset();
+    SocketReader::clear();
 }
 
 Buffer& HttpReader::output()
