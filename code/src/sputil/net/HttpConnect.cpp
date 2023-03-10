@@ -57,7 +57,7 @@ int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
             throw Exception("Response read timeout");
         }
 
-        m_reader->read();
+        m_reader->readStream();
     }
 
     return m_reader->getStatusCode();

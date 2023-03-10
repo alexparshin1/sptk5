@@ -289,7 +289,7 @@ bool HttpReader::readData()
     return true;
 }
 
-void HttpReader::read()
+void HttpReader::readStream()
 {
     constexpr int httpErrorResponseCode(400);
     constexpr int serverErrorResponseCode(500);
@@ -401,7 +401,7 @@ int HttpReader::readAll(std::chrono::milliseconds timeout)
             throw Exception("Response read timeout");
         }
 
-        read();
+        readStream();
     }
 
     return getStatusCode();

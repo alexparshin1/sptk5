@@ -102,7 +102,7 @@ public:
     /**
      * Read data that can be read completely
      */
-    void read();
+    void readStream();
 
     /**
      * Read HTTP request string
