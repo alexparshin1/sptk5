@@ -191,12 +191,14 @@ public:
      */
     bool operator==(const Host& other) const;
 
+#if CXX_VERSION < 20
     /**
      * Compare to another host
      * @param other             The other object
      * @return true if objects don't have equal data
      */
     bool operator!=(const Host& other) const;
+#endif
 
     /**
      * Get host name

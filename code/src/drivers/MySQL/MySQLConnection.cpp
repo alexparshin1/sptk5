@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-static void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
+[[noreturn]] static void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
 {
     throw DatabaseException(String(info) + ":" + String(mysql_error(connection.get())));
 }

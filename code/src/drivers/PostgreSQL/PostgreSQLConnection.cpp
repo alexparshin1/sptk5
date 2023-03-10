@@ -423,7 +423,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
                                     (const char* const*) paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
-    ExecStatusType statusType = PQresultStatus(stmt);
+    const ExecStatusType statusType = PQresultStatus(stmt);
 
     string error;
     switch (statusType)
@@ -473,7 +473,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
                                   (const char* const*) paramValues.values(),
                                   paramValues.lengths(), paramValues.formats(), resultFormat);
 
-    ExecStatusType statusCode = PQresultStatus(stmt);
+    const ExecStatusType statusCode = PQresultStatus(stmt);
 
     string error;
     switch (statusCode)
@@ -842,7 +842,7 @@ static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::
                 output << ",";
             }
 
-            uint32_t dataSize = ntohl(*(const uint32_t*) data);
+            const uint32_t dataSize = ntohl(*(const uint32_t*) data);
             data += sizeof(uint32_t);
 
             switch ((PostgreSQLDataType) arrayHeader->elementType)
@@ -1038,9 +1038,9 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
 void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
-    string tablesSQL("SELECT table_schema || '.' || table_name "
-                     "FROM information_schema.tables "
-                     "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
+    const string tablesSQL("SELECT table_schema || '.' || table_name "
+                           "FROM information_schema.tables "
+                           "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
     string objectsSQL;
     objects.clear();
 
@@ -1193,10 +1193,10 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* err
 
 Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 {
-    RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
-    RegularExpression matchFunctionBodyStart(R"(AS\s+(\S+)\s*$)", "i");
-    RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
-    RegularExpression matchCommentRow(R"(^\s*--)");
+    static const RegularExpression matchFunction("^(CREATE|REPLACE) .*FUNCTION", "i");
+    static const RegularExpression matchFunctionBodyStart(R"(AS\s+(\S+)\s*$)", "i");
+    static const RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
+    static const RegularExpression matchCommentRow(R"(^\s*--)");
 
     Strings statements;
     RegularExpression::Groups matches;

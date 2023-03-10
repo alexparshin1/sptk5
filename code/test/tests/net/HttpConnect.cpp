@@ -34,7 +34,7 @@ using namespace sptk;
 
 TEST(SPTK_HttpConnect, get)
 {
-    Host google("www.google.com:80");
+    const Host google("www.google.com:80");
 
     auto socket = make_shared<TCPSocket>();
 

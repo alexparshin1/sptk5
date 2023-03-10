@@ -149,10 +149,12 @@ bool Host::operator==(const Host& other) const
     return toString(true) == other.toString(true);
 }
 
+#if CXX_VERSION < 20
 bool Host::operator!=(const Host& other) const
 {
     return toString(true) != other.toString(true);
 }
+#endif
 
 void Host::setPort(uint16_t port)
 {

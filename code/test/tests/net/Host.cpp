@@ -42,18 +42,18 @@ static const String testHost("www.google.com:80");
 
 TEST(SPTK_Host, ctorHostname)
 {
-    Host google1(testHost);
+    const Host google1(testHost);
     EXPECT_STREQ(testHost.c_str(), google1.toString(false).c_str());
     EXPECT_STREQ("www.google.com", google1.hostname().c_str());
     EXPECT_EQ(httpPort, google1.port());
 
-    Host google(google1.toString(true));
+    const Host google(google1.toString(true));
     EXPECT_TRUE(google1 == google);
 }
 
 TEST(SPTK_Host, ctorAddress)
 {
-    Host host("11.22.33.44", sshPort);
+    const Host host("11.22.33.44", sshPort);
     EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
     EXPECT_EQ(sshPort, host.port());
 }
@@ -61,11 +61,11 @@ TEST(SPTK_Host, ctorAddress)
 TEST(SPTK_Host, ctorAddressStruct)
 {
     String testHostAndPort {"bitbucket.com:80"};
-    Host host1(testHostAndPort);
+    const Host host1(testHostAndPort);
 
     sockaddr_in address {};
     host1.getAddress(address);
-    Host host2(&address);
+    const Host host2(&address);
 
     EXPECT_STREQ(host1.toString(true).c_str(), host2.toString(true).c_str());
     EXPECT_STREQ(testHostAndPort.c_str(), host2.toString(false).c_str());
@@ -74,42 +74,42 @@ TEST(SPTK_Host, ctorAddressStruct)
 
 TEST(SPTK_Host, ctorCopy)
 {
-    Host host1("11.22.33.44", sshPort);
-    Host host2(host1);
+    const Host host1("11.22.33.44", sshPort);
+    const Host host2(host1);
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, ctorMove)
 {
-    Host host1("11.22.33.44", sshPort);
-    Host host2(move(host1));
+    const Host host1("11.22.33.44", sshPort);
+    const Host host2(std::move(host1));
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, assign)
 {
-    Host host1("11.22.33.44", sshPort);
-    Host host2 = host1;
+    const Host host1("11.22.33.44", sshPort);
+    const Host host2 = host1;
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, move)
 {
-    Host host1("11.22.33.44", sshPort);
-    Host host2 = move(host1);
+    const Host host1("11.22.33.44", sshPort);
+    const Host host2 = std::move(host1);
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
 }
 
 TEST(SPTK_Host, compare)
 {
-    Host host1("11.22.33.44", sshPort);
-    Host host2(host1);
-    Host host3("11.22.33.45", sshPort);
-    Host host4("11.22.33.44", telnetPort);
+    const Host host1("11.22.33.44", sshPort);
+    const Host host2(host1);
+    const Host host3("11.22.33.45", sshPort);
+    const Host host4("11.22.33.44", telnetPort);
 
     EXPECT_TRUE(host1 == host2);
     EXPECT_FALSE(host1 != host2);

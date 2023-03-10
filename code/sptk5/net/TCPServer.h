@@ -63,8 +63,7 @@ public:
         REQUEST_DURATION,
         REQUEST_DATA,
         RESPONSE_DATA,
-        THREAD_POOLING,
-        MAX_MESSAGE_DETAIL
+        THREAD_POOLING
     };
 
     using MessageDetails = std::set<MessageDetail>;
@@ -110,7 +109,11 @@ public:
      */
     bool has(MessageDetail detail) const
     {
+#if CXX_VERSION < 20
         return m_details.find(detail) != m_details.end();
+#else
+        return m_details.contains(detail);
+#endif
     }
 
     bool empty() const

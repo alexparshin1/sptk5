@@ -377,7 +377,7 @@ TEST(SPTK_WSGeneratedClasses, CopyConstructor)
     login.m_password = "secret";
     auto str = exportToString(login);
 
-    CLogin login2(login);
+    const CLogin login2(login);
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
     auto str2 = exportToString(login2);
@@ -392,7 +392,7 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     login.m_password = "secret";
     auto str = exportToString(login);
 
-    CLogin login2(std::move(login));
+    const CLogin login2(std::move(login));
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
     auto str2 = exportToString(login2);

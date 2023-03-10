@@ -34,7 +34,7 @@ using namespace chrono;
 
 TEST(SPTK_SSLSocket, connect)
 {
-    SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
+    const SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
     SSLSocket sslSocket;
 
     try
