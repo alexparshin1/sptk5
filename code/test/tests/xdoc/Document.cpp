@@ -223,7 +223,7 @@ TEST(SPTK_XDocument, moveCtor)
     xdoc::Document document;
     document.load(input);
 
-    xdoc::Document document2(move(document));
+    xdoc::Document document2(std::move(document));
 
     verifyDocument(document2);
 }
@@ -250,7 +250,7 @@ TEST(SPTK_XDocument, moveAssign)
 
     xdoc::Document document2;
 
-    document2 = move(document);
+    document2 = std::move(document);
 
     verifyDocument(document2);
 }

@@ -132,7 +132,7 @@ void LogEngine::log(Logger::UMessage& message)
 
 void LogEngine::threadFunction()
 {
-    chrono::seconds timeout(1);
+    const chrono::seconds timeout(1);
     while (!terminated())
     {
 
