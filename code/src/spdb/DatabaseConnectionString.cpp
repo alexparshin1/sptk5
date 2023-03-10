@@ -38,11 +38,7 @@ void DatabaseConnectionString::parse()
 
     URL url(m_connectionString);
 
-#if CXX_VERSION < 20
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
-#else
     if (!supportedDrivers.contains(url.protocol()))
-#endif
     {
         throw DatabaseException("Unsupported driver: " + url.protocol());
     }

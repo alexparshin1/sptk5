@@ -104,17 +104,6 @@ bool Buffer::operator==(const Buffer& other) const
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
-#if CXX_VERSION < 20
-bool Buffer::operator!=(const Buffer& other) const
-{
-    if (bytes() == other.bytes())
-    {
-        return memcmp(data(), other.data(), bytes()) != 0;
-    }
-    return true;
-}
-#endif
-
 ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 {
     if ((stream.flags() & ios::hex) == 0)

@@ -55,11 +55,7 @@ void SysLogEngine::saveMessage(const Logger::UMessage& message)
 
     getOptions(options, programName, facilities);
 
-#if CXX_VERSION < 20
-    if (options.find(Option::ENABLE) != options.end())
-#else
     if (options.contains(Option::ENABLE))
-#endif
     {
 #ifndef _WIN32
         const scoped_lock lock(m_syslogMutex);

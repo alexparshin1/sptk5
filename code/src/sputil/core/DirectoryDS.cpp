@@ -128,18 +128,10 @@ void DirectoryDS::directory(const String& dirName)
 
 static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
-#if CXX_VERSION < 20
-    return any_of(matchPatterns.begin(),
-                  matchPatterns.end(),
-                  [&fileName](const auto& matchPattern) {
-                      return matchPattern->matches(fileName);
-                  });
-#else
     return ranges::any_of(matchPatterns,
                           [&fileName](const auto& matchPattern) {
                               return matchPattern->matches(fileName);
                           });
-#endif
 }
 
 bool DirectoryDS::open()

@@ -31,37 +31,12 @@ using namespace sptk;
 
 void Semaphore::post()
 {
-#if CXX_VERSION < 20
-    unique_lock lock(m_lockMutex);
-    ++m_value;
-    lock.unlock();
-    m_condition.notify_one();
-#else
     m_value.release();
-#endif
 }
 
 bool Semaphore::sleep_for(chrono::milliseconds timeout)
 {
-#if CXX_VERSION < 20
-    unique_lock lock(m_lockMutex);
-
-    // Wait until semaphore value is greater than 0
-    if (!m_condition.wait_for(lock,
-                              timeout,
-                              [this]() {
-                                  return m_value > 0;
-                              }))
-    {
-        return false;
-    }
-
-    --m_value;
-
-    return true;
-#else
     return m_value.try_acquire_for(timeout);
-#endif
 }
 
 bool Semaphore::sleep_until(const DateTime& timeoutAt)
@@ -71,25 +46,5 @@ bool Semaphore::sleep_until(const DateTime& timeoutAt)
 
 bool Semaphore::sleep_until(const DateTime::time_point& timeoutAt)
 {
-#if CXX_VERSION < 20
-    unique_lock lock(m_lockMutex);
-
-    if (!m_condition.wait_until(lock,
-                                timeoutAt,
-                                [this]() {
-                                    return m_value > 0;
-                                }))
-    {
-        if (timeoutAt < DateTime::Now())
-        {
-            return false;
-        }
-    }
-
-    --m_value;
-
-    return true;
-#else
     return m_value.try_acquire_until(timeoutAt);
-#endif
 }

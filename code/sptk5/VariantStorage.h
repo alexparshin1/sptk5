@@ -274,11 +274,11 @@ public:
      * @brief Move constructor
      * @param other
      */
-    VariantStorage(VariantStorage&& other)
+    VariantStorage(VariantStorage&& other) noexcept
         : BaseVariantStorage(std::move(other))
     {
     }
-
+    
     /**
      * @brief Destructor
      */

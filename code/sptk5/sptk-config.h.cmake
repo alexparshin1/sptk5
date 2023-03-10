@@ -29,8 +29,6 @@
 constexpr const char* VERSION = "@VERSION@";
 constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
 
-@CXX_VERSION_DEFINE@
-
 @FLTK_DEFINE@
 @ODBC_DEFINE@
 @SQLITE3_DEFINE@

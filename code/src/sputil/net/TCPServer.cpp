@@ -60,11 +60,7 @@ String LogDetails::toString(const String& delimiter) const
     Strings names;
     for (const auto& [name, value]: detailNames)
     {
-#if CXX_VERSION < 20
-        if (m_details.find(value) != m_details.end())
-#else
         if (m_details.contains(value))
-#endif
         {
             names.push_back(name);
         }

@@ -93,13 +93,7 @@ int String::toInt() const
 
 bool String::in(std::initializer_list<String> list) const
 {
-#if CXX_VERSION < 20
-    return any_of(list.begin(), list.end(), [this](const String& value) {
-        return value == *this;
-    });
-#else
     return ranges::any_of(list, [this](const String& value) {
         return value == *this;
     });
-#endif
 }

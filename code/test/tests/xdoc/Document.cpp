@@ -53,17 +53,10 @@ void verifyDocument(xdoc::Document& document)
     Strings skills;
     skills.resize(arrayData.size());
 
-#if CXX_VERSION < 20
-    transform(arrayData.begin(), arrayData.end(), skills.begin(),
-              [](const xdoc::SNode& skill) {
-                  return skill->getString();
-              });
-#else
     ranges::transform(arrayData, skills.begin(),
                       [](const xdoc::SNode& skill) {
                           return skill->getString();
                       });
-#endif
 
     EXPECT_STREQ("C++,Java,Motorbike", skills.join(",").c_str());
 
@@ -155,17 +148,10 @@ TEST(SPTK_XDocument, add)
     Strings skills;
     skills.resize(array.size());
 
-#if CXX_VERSION < 20
-    transform(array.begin(), array.end(), skills.begin(),
-              [](const xdoc::SNode& skill) {
-                  return skill->getString();
-              });
-#else
     ranges::transform(array, skills.begin(),
                       [](const xdoc::SNode& skill) {
                           return skill->getString();
                       });
-#endif
 
     EXPECT_STREQ("C++,Java,Python", skills.join(",").c_str());
 

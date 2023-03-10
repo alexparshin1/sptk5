@@ -227,15 +227,6 @@ public:
      */
     bool operator==(const Buffer& other) const;
 
-#if CXX_VERSION < 20
-    /**
-     * Compare operator
-     * @param other             Other buffer
-     * @return                  True if buffer contents are not identical
-     */
-    bool operator!=(const Buffer& other) const;
-#endif
-
     /**
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file

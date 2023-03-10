@@ -30,12 +30,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
-#if CXX_VERSION < 20
-#include <condition_variable>
-#else
 #include <semaphore>
-#endif
-
 #include <chrono>
 
 namespace sptk {
@@ -86,24 +81,7 @@ public:
     bool sleep_until(const DateTime::time_point& timeoutAt);
 
 private:
-#if CXX_VERSION < 20
-    /**
-     * Mutex object
-     */
-    std::mutex m_lockMutex;
-
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
-
-    /**
-     * Semaphore value
-     */
-    size_t m_value {0};
-#else
     std::counting_semaphore<0x7FFFFFFF> m_value {0};
-#endif
 };
 /**
  * @}

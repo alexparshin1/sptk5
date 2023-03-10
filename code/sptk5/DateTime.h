@@ -370,40 +370,8 @@ private:
     static Strings _monthNames;     ///< The locale-defined weekday names
 };
 
-#if CXX_VERSION < 20
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator<(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator<=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-#else
 SP_EXPORT int operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-#endif
 
 /**
  * Adds two DateTime values

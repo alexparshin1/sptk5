@@ -43,17 +43,10 @@ String Attributes::get(const String& name, const String& defaultValue) const
 
 bool Attributes::have(const String& name) const
 {
-#if CXX_VERSION < 20
-    return std::any_of(m_items.begin(), m_items.end(),
-                       [&name](const auto& itor) {
-                           return itor.first == name;
-                       });
-#else
     return std::ranges::any_of(m_items,
                                [&name](const auto& itor) {
                                    return itor.first == name;
                                });
-#endif
 }
 
 Attributes& Attributes::set(const String& name, const String& value)

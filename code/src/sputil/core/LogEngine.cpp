@@ -62,11 +62,7 @@ void LogEngine::option(Option option, bool flag)
 
 bool LogEngine::option(Option option) const
 {
-#if CXX_VERSION < 20
-    return m_options.find(option) != m_options.end();
-#else
     return m_options.contains(option);
-#endif
 }
 
 String LogEngine::priorityName(LogPriority prt)

@@ -123,13 +123,8 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
         complexTypeName = parent->attributes().get("name");
     }
 
-#if CXX_VERSION < 20
-    if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
-        complexTypes.find(complexTypeName) != complexTypes.end())
-#else
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
         complexTypes.contains(complexTypeName))
-#endif
     {
         throwException("Duplicate complexType definition: " << complexTypeName)
     }

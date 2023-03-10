@@ -48,11 +48,7 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
     // Validate options
     for (const auto& [name, value]: m_options.operationsAuth)
     {
-#if CXX_VERSION < 20
-        if (operations.find(name) == operations.end())
-#else
         if (!operations.contains(name))
-#endif
         {
             throw Exception("Alternative Auth operation '" + name + "' is not a part of this service");
         }

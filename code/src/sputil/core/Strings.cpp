@@ -131,22 +131,14 @@ int Strings::indexOf(const String& needle) const
             }
             break;
         case SortOrder::ASCENDING:
-#if CXX_VERSION < 20
-            itor = lower_bound(begin(), end(), needle);
-#else
             itor = ranges::lower_bound(*this, needle);
-#endif
             if (itor != end() && *itor == needle)
             {
                 result = (int) distance(begin(), itor);
             }
             break;
         default:
-#if CXX_VERSION < 20
-            itor = find(begin(), end(), needle);
-#else
             itor = ranges::find(*this, needle);
-#endif
             if (itor != end() && *itor == needle)
             {
                 result = (int) distance(begin(), itor);
@@ -237,10 +229,6 @@ static bool sortDescending(const String& first, const String& second)
 
 void Strings::sort(bool ascending)
 {
-#if CXX_VERSION < 20
-    ::sort(begin(), end(), ascending ? sortAscending : sortDescending);
-#else
     ranges::sort(*this, ascending ? sortAscending : sortDescending);
-#endif
     m_sorted = ascending ? SortOrder::ASCENDING : SortOrder::DESCENDING;
 }

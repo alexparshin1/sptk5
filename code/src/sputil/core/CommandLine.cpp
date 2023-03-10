@@ -514,11 +514,7 @@ String CommandLine::getOptionValue(const String& name) const
 
 bool CommandLine::hasOption(const String& name) const
 {
-#if CXX_VERSION < 20
-    return m_values.find(name) != m_values.end();
-#else
     return m_values.contains(name);
-#endif
 }
 
 void CommandLine::setOptionValue(const String& name, const String& value)
@@ -554,11 +550,7 @@ void CommandLine::printHelp(size_t screenColumns) const
 
 void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
 {
-#if CXX_VERSION < 20
-    if (!onlyForCommand.empty() && m_argumentTemplates.find(onlyForCommand) == m_argumentTemplates.end())
-#else
     if (!onlyForCommand.empty() && !m_argumentTemplates.contains(onlyForCommand))
-#endif
     {
         CERR("Command '" << onlyForCommand << "' is not defined" << endl)
         return;
