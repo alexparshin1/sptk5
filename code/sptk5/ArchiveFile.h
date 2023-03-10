@@ -132,11 +132,6 @@ public:
         return m_ownership;
     }
 
-    unsigned size() const
-    {
-        return m_size;
-    }
-
     DateTime mtime() const
     {
         return m_mtime;
@@ -158,7 +153,6 @@ private:
     String m_fileName;
     unsigned m_mode {777};
     Ownership m_ownership {};
-    unsigned m_size {0};
     DateTime m_mtime;
     Type m_type {Type::REGULAR_FILE};
     String m_linkname;
