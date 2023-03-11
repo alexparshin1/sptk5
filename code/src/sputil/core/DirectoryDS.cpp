@@ -36,9 +36,9 @@ constexpr int FL_ALIGN_LEFT = 4;
 
 using namespace std;
 using namespace sptk;
-using namespace fs;
+using namespace filesystem;
 
-String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
+String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
     struct stat fileStat = {};
 
@@ -83,14 +83,14 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     {
         if (!directory && !ext.empty())
         {
-            image = imageTypeFromExtention(ext);
+            image = imageTypeFromExtension(ext);
         }
     }
 
     return modeName;
 }
 
-CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
+CSmallPixmapType DirectoryDS::imageTypeFromExtension(const String& ext)
 {
     static const map<String, CSmallPixmapType> imageTypes {
         {"doc", CSmallPixmapType::SXPM_DOC_DOCUMENT},
@@ -145,7 +145,7 @@ bool DirectoryDS::open()
 
     clear();
 
-    if (!fs::exists(m_directory.c_str()))
+    if (!std::filesystem::exists(m_directory.c_str()))
     {
         throw Exception("Directory doesn't exist");
     }
@@ -202,7 +202,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
+FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file, size_t& index)
 {
     CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime modificationTime;

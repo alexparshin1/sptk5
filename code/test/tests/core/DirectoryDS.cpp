@@ -34,7 +34,7 @@
 
 using namespace std;
 using namespace sptk;
-using namespace fs;
+using namespace filesystem;
 
 #ifdef _WIN32
 const String testTempDirectory = "C:\\gtest_temp_dir";

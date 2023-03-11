@@ -109,11 +109,6 @@ public:
     };
 
     /**
-     * Map of element names to corresponding WSDL (XML) elements
-     */
-    using XmlTypeMap = std::map<String, const xdoc::Node*>;
-
-    /**
      * Map of operation names to operation objects
      */
     using DocumentationMap = std::map<String, String>;
@@ -145,7 +140,7 @@ public:
      * Loads WSDL-file and parses it to output classes
      * @param wsdlFile          WSDL file name
      */
-    void parse(const fs::path& wsdlFile);
+    void parse(const std::filesystem::path& wsdlFile);
 
     /**
      * Stores parsed classes to files in source directory
@@ -162,7 +157,7 @@ public:
      * @param headerFile        Optional header file to insert at the start of each generated file
      * @param wsdlFileName              WSDL content
      */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const fs::path& wsdlFileName) const;
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const std::filesystem::path& wsdlFileName) const;
 
     /**
      * Utility function that removes namespace from the element name

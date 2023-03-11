@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/CommandLine.h>
-#include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
 
 #ifdef _WIN32
@@ -47,7 +46,7 @@ void help()
     COUT("Parameters:" << endl)
     COUT("WSDL file         WSDL file that defines Web Service" << endl)
     COUT("output directory  Directory where generated files will be stored" << endl)
-    COUT("header file       File that contains text too be added at the start of gerated files" << endl)
+    COUT("header file       File that contains text too be added at the start of generated files" << endl)
 }
 
 #ifdef _WIN32
@@ -78,11 +77,11 @@ public:
         defineParameter("cxx-namespace", "n", "C++ namespace",
                         ".*",
                         CommandLine::Visibility(""), "",
-                        "C++ namespace for generated C++ classes. The default is '<lc(servicename)>_service'");
+                        "C++ namespace for generated C++ classes. The default is '<lc(service_name)>_service'");
 
         defineParameter("openapi-json", "j", "filename", ".*",
                         CommandLine::Visibility(""), "",
-                        "Create openapi service description file. The default file name is the same as WSDL file, only with .json extention.");
+                        "Create openapi service description file. The default file name is the same as WSDL file, only with .json extension.");
 
         defineParameter("openapi-default-auth", "a", "auth method",
                         "^(none|basic|bearer)$",
@@ -125,9 +124,9 @@ static bool createDirectory(const String& directory)
 {
     try
     {
-        fs::create_directory(directory.c_str());
+        filesystem::create_directory(directory.c_str());
     }
-    catch (const fs::filesystem_error& e)
+    catch (const filesystem::filesystem_error& e)
     {
         CERR("Can't create output directory '" << directory << "': " << e.what() << endl)
         return false;
@@ -157,7 +156,7 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        fs::path wsdlFile = commandLine.arguments().front().c_str();
+        filesystem::path wsdlFile = commandLine.arguments().front().c_str();
         auto quiet = commandLine.hasOption("quiet");
         auto verbose = commandLine.hasOption("verbose");
 

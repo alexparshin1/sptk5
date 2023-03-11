@@ -93,11 +93,11 @@
 #endif
 
 #include <array>
+#include <cinttypes>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
-#include <cinttypes>
-#include <cstdint>
 
 #ifdef _WIN32
 #define snprintf _snprintf
@@ -112,7 +112,6 @@
 #endif
 
 #include <filesystem>
-namespace fs = std::filesystem;
 
 [[maybe_unused]] constexpr int ALIGN_LEFT = 1;
 [[maybe_unused]] constexpr int ALIGN_RIGHT = 2;

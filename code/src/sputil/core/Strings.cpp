@@ -118,37 +118,37 @@ void Strings::fromString(const String& src, const char* delimiter, SplitMode mod
 int Strings::indexOf(const String& needle) const
 {
     int result = -1;
-    const_iterator itor;
-    const_reverse_iterator xtor;
+    const_iterator constIterator;
+    const_reverse_iterator reverseIterator;
 
     switch (m_sorted)
     {
         case SortOrder::DESCENDING:
-            xtor = lower_bound(rbegin(), rend(), needle);
-            if (xtor != rend() && *xtor == needle)
+            reverseIterator = lower_bound(rbegin(), rend(), needle);
+            if (reverseIterator != rend() && *reverseIterator == needle)
             {
-                result = (int) distance(rbegin(), xtor);
+                result = (int) distance(rbegin(), reverseIterator);
             }
             break;
         case SortOrder::ASCENDING:
-            itor = ranges::lower_bound(*this, needle);
-            if (itor != end() && *itor == needle)
+            constIterator = ranges::lower_bound(*this, needle);
+            if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), itor);
+                result = (int) distance(begin(), constIterator);
             }
             break;
         default:
-            itor = ranges::find(*this, needle);
-            if (itor != end() && *itor == needle)
+            constIterator = ranges::find(*this, needle);
+            if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), itor);
+                result = (int) distance(begin(), constIterator);
             }
             break;
     }
     return result;
 }
 
-void Strings::saveToFile(const fs::path& fileName) const
+void Strings::saveToFile(const std::filesystem::path& fileName) const
 {
     Buffer buffer;
     for (const auto& str: *this)
@@ -159,7 +159,7 @@ void Strings::saveToFile(const fs::path& fileName) const
     buffer.saveToFile(fileName);
 }
 
-void Strings::loadFromFile(const fs::path& fileName)
+void Strings::loadFromFile(const std::filesystem::path& fileName)
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);

@@ -231,13 +231,13 @@ public:
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file
      */
-    void loadFromFile(const fs::path& fileName);
+    void loadFromFile(const std::filesystem::path& fileName);
 
     /**
      * Saves the buffer to the file fileName.
      * @param fileName          Name of the output file
      */
-    void saveToFile(const fs::path& fileName) const;
+    void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
      * Assigns from String
@@ -258,7 +258,7 @@ public:
      */
     explicit operator String() const
     {
-        return String((const char*) data(), bytes());
+        return {(const char*) data(), bytes()};
     }
 
     static VariantDataType variantDataType()
@@ -266,13 +266,11 @@ public:
         return VariantDataType::VAR_BUFFER;
     }
 
-    size_t dataSize() const override
+    [[nodiscard]] size_t dataSize() const override
     {
         return size();
     }
 };
-
-using SBuffer = std::shared_ptr<Buffer>;
 
 /**
  * Print buffer to ostream as hexadecimal dump

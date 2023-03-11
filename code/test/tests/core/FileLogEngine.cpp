@@ -32,7 +32,7 @@ using namespace sptk;
 
 TEST(SPTK_FileLogEngine, create)
 {
-    const fs::path logFileName("/tmp/file_log_test.tmp");
+    const filesystem::path logFileName("/tmp/file_log_test.tmp");
 
     unlink(logFileName.string().c_str());
 

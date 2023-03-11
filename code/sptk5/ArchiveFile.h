@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_ARCHIVEFILE_H
-#define SPTK_ARCHIVEFILE_H
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
@@ -46,9 +45,9 @@ struct TarHeader {
     std::array<char, 8> gid;
     std::array<char, 12> size;
     std::array<char, 12> mtime;
-    std::array<char, 8> chksum;
+    std::array<char, 8> checkSum;
     char typeflag;
-    std::array<char, 100> linkname;
+    std::array<char, 100> linkName;
     std::array<char, 6> magic;
     std::array<char, 2> version;
     std::array<char, 32> uname;
@@ -96,7 +95,7 @@ public:
      * @param fileName          File name
      * @param baseDirectory     Directory used as a base for relative path for files inside archive
      */
-    explicit ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory);
+    explicit ArchiveFile(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
     /**
      * @brief Constructor
@@ -108,8 +107,8 @@ public:
      * @param ownership         File owners
      * @param linkName          Name the link is pointing to
      */
-    ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
-                ArchiveFile::Type type, const Ownership& ownership, const fs::path& linkName);
+    ArchiveFile(const std::filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+                ArchiveFile::Type type, const Ownership& ownership, const std::filesystem::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE
@@ -147,7 +146,7 @@ public:
         return m_linkname;
     }
 
-    static fs::path relativePath(const fs::path& fileName, const fs::path& baseDirectory);
+    static std::filesystem::path relativePath(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
 private:
     String m_fileName;
@@ -165,5 +164,3 @@ private:
 using SArchiveFile = std::shared_ptr<ArchiveFile>;
 
 } // namespace sptk
-
-#endif

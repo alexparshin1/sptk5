@@ -69,7 +69,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
     }
 }
 
-FileLogEngine::FileLogEngine(const fs::path& fileName)
+FileLogEngine::FileLogEngine(const filesystem::path& fileName)
     : LogEngine("FileLogEngine")
     , m_fileName(fileName)
     , m_fileStream(fileName.c_str())

@@ -88,7 +88,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    explicit Exception(const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    explicit Exception(String text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception
@@ -131,7 +131,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    TimeoutException(const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    TimeoutException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -155,7 +155,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    ConnectionException(const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    ConnectionException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -179,7 +179,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    DatabaseException(const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    DatabaseException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -203,7 +203,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    SOAPException(const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    SOAPException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -230,7 +230,7 @@ public:
      * @param line              The line number in the file where exception occurs
      * @param description       The optional description information
      */
-    HTTPException(size_t statusCode, const String& text, const fs::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    HTTPException(size_t statusCode, const String& text, const std::filesystem::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor

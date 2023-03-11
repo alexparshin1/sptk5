@@ -145,13 +145,13 @@ public:
      * Saves strings to file. String ids are discarded.
      * @param fileName          The name of the file
      */
-    void saveToFile(const fs::path& fileName) const;
+    void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
      * Loads strings from file. String ids are not loaded.
      * @param fileName          The name of the file
      */
-    void loadFromFile(const fs::path& fileName);
+    void loadFromFile(const std::filesystem::path& fileName);
 
     /**
      * Returns user data as integer

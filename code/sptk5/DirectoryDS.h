@@ -147,7 +147,7 @@ protected:
      * @param file              File information
      * @returns the file type name
      */
-    static String getFileType(const fs::directory_entry& file, CSmallPixmapType& image,
+    static String getFileType(const std::filesystem::directory_entry& file, CSmallPixmapType& image,
                               DateTime& modificationTime);
 
 private:
@@ -178,9 +178,9 @@ private:
      * @param file              File information
      * @return data source row
      */
-    FieldList makeFileListEntry(const fs::directory_entry& file, size_t& index) const;
+    static FieldList makeFileListEntry(const std::filesystem::directory_entry& file, size_t& index);
 
-    static CSmallPixmapType imageTypeFromExtention(const String& ext);
+    static CSmallPixmapType imageTypeFromExtension(const String& ext);
 };
 /**
  * @}

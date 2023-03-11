@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 static const String testPhrase("This is a test");
-static const fs::path tempFileName("./gtest_sptk5_buffer.tmp");
+static const filesystem::path tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
@@ -58,7 +58,6 @@ TEST(SPTK_Buffer, move)
 {
     Buffer buffer1(testPhrase);
     Buffer buffer2(std::move(buffer1));
-    buffer1.reset();
 
     EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
     EXPECT_EQ(testPhrase.length(), buffer2.bytes());

@@ -27,13 +27,15 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(const String& text, const fs::path& file, int line, const String& description) DOESNT_THROW
+Exception::Exception(String text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
     : m_file(file.string())
     , m_line(line)
-    , m_text(text)
+    , m_text(std::move(text))
     , m_description(description)
     , m_fullMessage(m_text)
 {
@@ -79,30 +81,30 @@ String Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(const String& text, const fs::path& file, int line,
+TimeoutException::TimeoutException(const String& text, const std::filesystem::path& file, int line,
                                    const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-ConnectionException::ConnectionException(const String& text, const fs::path& file, int line,
+ConnectionException::ConnectionException(const String& text, const std::filesystem::path& file, int line,
                                          const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-DatabaseException::DatabaseException(const String& text, const fs::path& file, int line,
+DatabaseException::DatabaseException(const String& text, const filesystem::path& file, int line,
                                      const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-SOAPException::SOAPException(const String& text, const fs::path& file, int line, const String& description) DOESNT_THROW
+SOAPException::SOAPException(const String& text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-HTTPException::HTTPException(size_t statusCode, const String& text, const fs::path& file, int line,
+HTTPException::HTTPException(size_t statusCode, const String& text, const std::filesystem::path& file, int line,
                              const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
     , m_statusCode(statusCode)

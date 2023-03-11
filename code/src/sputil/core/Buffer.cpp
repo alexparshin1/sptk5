@@ -37,7 +37,7 @@ Buffer::Buffer(const String& str)
 {
 }
 
-void Buffer::loadFromFile(const fs::path& fileName)
+void Buffer::loadFromFile(const std::filesystem::path& fileName)
 {
     FILE* file = fopen(fileName.string().c_str(), "rb");
 
@@ -64,7 +64,7 @@ void Buffer::loadFromFile(const fs::path& fileName)
     }
 }
 
-void Buffer::saveToFile(const fs::path& fileName) const
+void Buffer::saveToFile(const std::filesystem::path& fileName) const
 {
     FILE* file = fopen(fileName.string().c_str(), "wb");
 

@@ -46,7 +46,7 @@ protected:
     void SetUp() override
     {
 
-        fs::create_directories(gtestTempDirectory.c_str());
+        filesystem::create_directories(gtestTempDirectory.c_str());
 
         constexpr int TestFileBytes = 1000;
 
@@ -69,10 +69,10 @@ protected:
 
     void TearDown() override
     {
-        fs::remove_all(gtestTempDirectory.c_str());
-        fs::remove(testTar1.c_str());
-        fs::remove(testTar2.c_str());
-        fs::remove("test.lst");
+        filesystem::remove_all(gtestTempDirectory.c_str());
+        filesystem::remove(testTar1.c_str());
+        filesystem::remove(testTar2.c_str());
+        filesystem::remove("test.lst");
     }
 };
 
@@ -82,10 +82,10 @@ TEST_F(SPTK_Tar, relativePath)
     EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/mydir2/myfile.txt", "/tmp/mydir1");
-    EXPECT_EQ(relPath, fs::path("mydir2/myfile.txt"));
+    EXPECT_EQ(relPath, filesystem::path("mydir2/myfile.txt"));
 
     relPath = ArchiveFile::relativePath("/tmp/mydir1/myfile.txt", "/tmp/mydir");
-    EXPECT_EQ(relPath, fs::path("/tmp/mydir1/myfile.txt"));
+    EXPECT_EQ(relPath, filesystem::path("/tmp/mydir1/myfile.txt"));
 }
 
 TEST_F(SPTK_Tar, read) /* NOLINT */

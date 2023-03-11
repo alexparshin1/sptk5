@@ -59,22 +59,22 @@ public:
         /**
          * Constructor
          * @param pattern       Regular expression to match or do not match command line argument. If empty then it matches any argument.
-         * @param mustMatch     If true then regular expression should match, otherwiseit shouldn't match.
+         * @param mustMatch     If true then regular expression should match, otherwise it shouldn't match.
          */
         Visibility(const String& pattern, bool mustMatch = true);
 
         /**
          * Returns true if there is no regular expression to match, and matches any argument.
          */
-        bool any() const;
+        [[nodiscard]] bool any() const;
 
         /**
          * Returns true if matches given argument or command.
          */
-        bool matches(const String& command) const;
+        [[nodiscard]] bool matches(const String& command) const;
 
     private:
-        bool m_inverted;                             ///< If true then expression shoul not match
+        bool m_inverted;                             ///< If true then expression should not match
         std::shared_ptr<RegularExpression> m_regexp; ///< Regular expression for matching an argument(s)
     };
 
@@ -109,9 +109,9 @@ public:
 
     /**
      * Constructor
-     * @param programVersion        Program version and copyright message (forhelp only).
-     * @param description           Program description (forhelp only).
-     * @param commandLinePrototype  Command line prototype (forhelp only).
+     * @param programVersion        Program version and copyright message (for help only).
+     * @param description           Program description (for help only).
+     * @param commandLinePrototype  Command line prototype (for help only).
      */
     CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype);
 
@@ -226,7 +226,6 @@ public:
         enum class Type
         {
             IS_UNKNOWN,     ///< Type is unknown or undefined
-            IS_COMMAND,     ///< Element is a command, not starting from '-' character
             IS_OPTION,      ///< Element is an option that doesn't expect value
             IS_VALUE_OPTION ///< Element is an option that expects value
         };
@@ -296,7 +295,7 @@ public:
          * @param nameWidth         Optional name width
          * @param textWidth         Help text width
          * @param optionDefaultValue Option default value (if any)
-         * @param output            Optinal output stream
+         * @param output            Optional output stream
          */
         void printHelp(size_t nameWidth, size_t textWidth, const String& optionDefaultValue) const;
 
@@ -449,7 +448,7 @@ private:
     std::map<String, std::shared_ptr<CommandLineArgument>> m_argumentTemplates;
     std::map<String, String> m_values;                            ///< Received option values.
     Strings m_arguments;                                          ///< Received arguments.
-    fs::path m_executablePath;                                    ///< Executable path, from argv[0]
+    std::filesystem::path m_executablePath;                       ///< Executable path, from argv[0]
     std::list<std::shared_ptr<CommandLineElement>> m_allElements; ///< All defined elements.
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);

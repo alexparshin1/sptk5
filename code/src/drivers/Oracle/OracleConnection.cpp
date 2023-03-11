@@ -74,7 +74,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        Statement* createLOBtable = nullptr;
+        Statement* createLobTable = nullptr;
         try
         {
             m_connection = shared_ptr<Connection>(m_environment.createConnection(connectionString()),
@@ -82,10 +82,10 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
                                                       disconnectAllQueries();
                                                       m_environment.terminateConnection(ptr);
                                                   });
-            createLOBtable = m_connection->createStatement();
-            createLOBtable->setSQL(
+            createLobTable = m_connection->createStatement();
+            createLobTable->setSQL(
                 "CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
-            createLOBtable->executeUpdate();
+            createLobTable->executeUpdate();
         }
         catch (const SQLException& e)
         {
@@ -93,13 +93,13 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
             {
                 if (m_connection)
                 {
-                    m_connection->terminateStatement(createLOBtable);
+                    m_connection->terminateStatement(createLobTable);
                     m_connection.reset();
                 }
                 throwException<DatabaseException>(string("Can't create connection: ") + e.what());
             }
         }
-        m_connection->terminateStatement(createLOBtable);
+        m_connection->terminateStatement(createLobTable);
     }
 }
 
@@ -241,12 +241,12 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
     unsigned paramIndex = 1;
     for (const auto& param: enumeratedParams)
     {
-        if (auto xtor = columnTypeSizes.find(upperCase(param->name()));
-            xtor != columnTypeSizes.end())
+        if (auto sizesIterator = columnTypeSizes.find(upperCase(param->name()));
+            sizesIterator != columnTypeSizes.end())
         {
-            if (xtor->second.length)
+            if (sizesIterator->second.length)
             {
-                stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
+                stmt->setMaxParamSize(paramIndex, (unsigned) sizesIterator->second.length);
             }
             else
             {
@@ -346,7 +346,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
         case VariantDataType::VAR_BOOL:
             return OCCIINT;
         default:
-            throwException<DatabaseException>("Unsupported SPTK data type: " + (int) dataType);
+            throwException<DatabaseException>("Unsupported SPTK data type: " + to_string((int) dataType));
     }
 }
 
@@ -440,8 +440,8 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
-            const auto maxColumnNameLenght = 31;
-            array<char, maxColumnNameLenght> alias {};
+            const auto maxColumnNameLength = 31;
+            array<char, maxColumnNameLength> alias {};
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
@@ -601,7 +601,7 @@ static void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, un
     auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
-    // Attention: clob stored as widechar
+    // Attention: clob stored as wide char
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
@@ -798,9 +798,9 @@ void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     Strings statements;
     string statement;
     bool routineStarted = false;
-    for (const auto& arow: sqlBatch)
+    for (const auto& aRow: sqlBatch)
     {
-        String row = trim(arow);
+        String row = trim(aRow);
         if (row.empty() || matchCommentRow.matches(row))
         {
             continue;

@@ -47,34 +47,34 @@ std::time_t to_time_t(TP tp)
     return system_clock::to_time_t(sctp);
 }
 
-ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory)
+ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::path& baseDirectory)
 {
     auto relativeFileName = relativePath(fileName, baseDirectory);
 
-    fs::path path(fileName.c_str());
-    auto status = fs::status(path);
+    filesystem::path path(fileName.c_str());
+    auto status = filesystem::status(path);
 
-    if (fs::is_symlink(path))
+    if (filesystem::is_symlink(path))
     {
         m_type = ArchiveFile::Type::SYM_LINK;
-        status = fs::symlink_status(path);
-        m_linkname = fs::read_symlink(path).string();
+        status = filesystem::symlink_status(path);
+        m_linkname = filesystem::read_symlink(path).string();
     }
-    else if (fs::is_regular_file(status))
+    else if (filesystem::is_regular_file(status))
     {
         loadFromFile(fileName.c_str());
     }
-    else if (fs::is_directory(status))
+    else if (filesystem::is_directory(status))
     {
         m_type = ArchiveFile::Type::DIRECTORY;
-        fs::path relpath(relativeFileName.c_str());
+        filesystem::path relpath(relativeFileName.c_str());
         relpath /= "";
         relativeFileName = relpath;
     }
 
     m_mode = (int) status.permissions();
 
-    fs::file_time_type ftime = fs::last_write_time(path);
+    filesystem::file_time_type ftime = filesystem::last_write_time(path);
     time_t mtime = to_time_t(ftime);
     m_mtime = DateTime::convertCTime(mtime);
 
@@ -109,18 +109,18 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
     makeHeader();
 }
 
-fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& baseDirectory)
+filesystem::path ArchiveFile::relativePath(const filesystem::path& fileName, const filesystem::path& baseDirectory)
 {
-    fs::path relativePath;
+    filesystem::path relativePath;
 
     auto fdir = fileName.begin();
-    for (auto bdir = baseDirectory.begin(); fdir != fileName.end(); ++fdir, ++bdir)
+    for (auto baseDirIterator = baseDirectory.begin(); fdir != fileName.end(); ++fdir, ++baseDirIterator)
     {
-        if (bdir == baseDirectory.end())
+        if (baseDirIterator == baseDirectory.end())
         {
             break;
         }
-        if (*fdir != *bdir)
+        if (*fdir != *baseDirIterator)
         {
             return fileName;
         }
@@ -135,9 +135,9 @@ fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& bas
     return relativePath;
 }
 
-ArchiveFile::ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+ArchiveFile::ArchiveFile(const filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
                          ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
-                         const fs::path& linkName)
+                         const filesystem::path& linkName)
     : Buffer(content)
     , m_fileName(fileName.string())
     , m_mode(mode)
@@ -165,7 +165,7 @@ void ArchiveFile::makeHeader()
 
     if (m_type == ArchiveFile::Type::SYM_LINK)
     {
-        strncpy(m_header->linkname.data(), m_linkname.c_str(), sizeof(m_header->linkname) - 1);
+        strncpy(m_header->linkName.data(), m_linkname.c_str(), sizeof(m_header->linkName) - 1);
     }
 
     memcpy(m_header->magic.data(), "ustar ", sizeof(m_header->magic));
@@ -174,16 +174,16 @@ void ArchiveFile::makeHeader()
     snprintf(m_header->uname.data(), sizeof(m_header->uname), "%s", m_ownership.uname.c_str());
     snprintf(m_header->gname.data(), sizeof(m_header->gname), "%s", m_ownership.gname.c_str());
 
-    memset(m_header->chksum.data(), ' ', sizeof(m_header->chksum));
-    unsigned chksum = 0;
+    memset(m_header->checkSum.data(), ' ', sizeof(m_header->checkSum));
+    unsigned checkSum = 0;
 
     const auto* header = (const uint8_t*) m_header.get();
     for (size_t i = 0; i < sizeof(TarHeader); ++i)
     {
-        chksum += header[i];
+        checkSum += header[i];
     }
 
-    snprintf(m_header->chksum.data(), sizeof(m_header->chksum) - 1, "%06o", chksum);
+    snprintf(m_header->checkSum.data(), sizeof(m_header->checkSum) - 1, "%06o", checkSum);
 }
 
 const char* ArchiveFile::header() const

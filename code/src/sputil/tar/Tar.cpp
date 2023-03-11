@@ -129,10 +129,10 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 
     const Buffer content(buffer.data() + offset, contentLength);
 
-    fs::path fname(header->filename.data());
+    std::filesystem::path fname(header->filename.data());
     String uname(header->uname.data());
     String gname(header->gname.data());
-    fs::path linkName(header->linkname.data());
+    std::filesystem::path linkName(header->linkName.data());
 
     size_t blockCount = contentLength / TAR_BLOCK_SIZE;
     if (blockCount * TAR_BLOCK_SIZE < contentLength)
@@ -164,7 +164,7 @@ void Tar::save(const String& tarFileName) const
     {
         const auto& header = *(const TarHeader*) archiveFile->header();
         archive.write((const char*) &header, TAR_BLOCK_SIZE);
-        if (archiveFile->size() > 0)
+        if (!archiveFile->empty())
         {
             size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
             Buffer padding(paddingLength);

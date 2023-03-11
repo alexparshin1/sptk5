@@ -54,7 +54,7 @@ public:
      * If this file doesn't exist - it will be created.
      * @param fileName          Log file name
      */
-    explicit FileLogEngine(const fs::path& fileName);
+    explicit FileLogEngine(const std::filesystem::path& fileName);
 
     /**
      * @brief Destructor
@@ -75,9 +75,9 @@ public:
     void reset() override;
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects internal data
-    fs::path m_fileName;        ///< Log file name
-    std::ofstream m_fileStream; ///< Log file stream
+    mutable std::mutex m_mutex;       ///< Mutex that protects internal data
+    std::filesystem::path m_fileName; ///< Log file name
+    std::ofstream m_fileStream;       ///< Log file stream
 };
 /**
  * @}

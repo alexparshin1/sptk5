@@ -221,7 +221,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
     }
 }
 
-void WSParser::parse(const fs::path& wsdlFile)
+void WSParser::parse(const filesystem::path& wsdlFile)
 {
     m_wsdlFile = wsdlFile.string();
 
@@ -632,7 +632,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile,
-                               const fs::path& _wsdlFileName) const
+                               const filesystem::path& _wsdlFileName) const
 {
     Strings wsdl;
     wsdl.loadFromFile(_wsdlFileName);
