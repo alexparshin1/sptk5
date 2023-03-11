@@ -104,11 +104,7 @@ public:
      */
     Strings(std::initializer_list<String> list)
     {
-#if CXX_VERSION < 20
-        std::copy(list.begin(), list.end(), back_inserter(*this));
-#else
         std::ranges::copy(list, back_inserter(*this));
-#endif
     }
 
     /**
@@ -185,11 +181,7 @@ public:
      */
     iterator remove(const String& str)
     {
-#if CXX_VERSION < 20
-        if (auto itor = std::find(begin(), end(), str); itor != end())
-#else
         if (auto itor = std::ranges::find(*this, str); itor != end())
-#endif
         {
             return StringVector::erase(itor);
         }

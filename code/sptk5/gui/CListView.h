@@ -299,12 +299,12 @@ protected:
     /**
      * @brief Internal vertical scrollback callback
      */
-    static void scrollbar_callback(Fl_Widget* s, void*);
+    static void scrollbar_callback(Fl_Widget* scrollbar, void*);
 
     /**
      * @brief Internal horizontal scrollback callback
      */
-    static void hscrollbar_callback(Fl_Widget* s, void*);
+    static void hscrollbar_callback(Fl_Widget* scrollbar, void*);
 
     /**
      * @brief Vertical scrollback
@@ -326,15 +326,15 @@ protected:
 
     /**
      * @brief Sets horizontal position of the scroll
-     * @param hpos int, new horizontal position
+     * @param xPosition int, new horizontal position
      */
-    void hposition(int hpos); // pan to here
+    void hposition(int xPosition); // pan to here
 
     /**
      * @brief Changes the default scrollbar width for the class
-     * @param b int, new scrollbar width
+     * @param width int, new scrollbar width
      */
-    static void scrollbar_width(int b);
+    static void scrollbar_width(int width);
 
     /**
      * @brief Returns the default scrollbar width for the class
@@ -423,11 +423,11 @@ protected:
 
     /**
      * @brief Draws header (internal)
-     * @param x int, x-coordinate
-     * @param y int, y-coordinate
-     * @param hh int, header height
+     * @param xPosition int, xPosition-coordinate
+     * @param yPosition int, yPosition-coordinate
+     * @param headerHeight int, header height
      */
-    virtual void header_draw(int x, int y, int hh) const;
+    virtual void header_draw(int xPosition, int yPosition, int headerHeight) const;
 
     /**
      * @brief Header clicked mouse callback
@@ -453,10 +453,10 @@ protected:
     virtual void header_released(int x);
 
     /**
-     * @brief Request to redraw line index
-     * @param index uint32_t, row number
+     * @brief Request to redraw line line
+     * @param line uint32_t, row number
      */
-    void redraw_line(uint32_t index);
+    void redraw_line(uint32_t line);
 
     /**
      * @brief Redraw all the lines
@@ -512,12 +512,12 @@ public:
 
     /**
      * @brief Resizes the control and inside widgets.
-     * @param x int, x-position
-     * @param y int, y-position
-     * @param w int, width
-     * @param h int, height
+     * @param xPosition int, xPosition-position
+     * @param yPosition int, yPosition-position
+     * @param width int, width
+     * @param height int, height
      */
-    void resize(int x, int y, int w, int h) override;
+    void resize(int xPosition, int yPosition, int width, int height) override;
 
     /**
      * @brief Removes row

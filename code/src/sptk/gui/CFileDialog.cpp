@@ -241,11 +241,11 @@ void CFileDialog::createFolder()
         folderName = folderName.replace("[\\/\\\\]{2}", slashStr);
         try
         {
-            fs::create_directories(folderName.c_str());
+            filesystem::create_directories(folderName.c_str());
             directory(folderName);
             refreshDirectory();
         }
-        catch (const fs::filesystem_error& e)
+        catch (const filesystem::filesystem_error& e)
         {
             fl_alert("%s", ("Can't create directory " + folderName + ": " + String(e.what())).c_str());
         }
