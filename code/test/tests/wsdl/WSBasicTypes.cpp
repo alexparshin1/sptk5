@@ -28,7 +28,6 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSArray.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -42,11 +41,11 @@ TEST(SPTK_WSInteger, move_ctor_assign)
     EXPECT_EQ(integer1.asInteger(), testIntegerValue);
     EXPECT_EQ(integer1.isNull(), false);
 
-    WSInteger integer2(move(integer1));
+    WSInteger integer2(std::move(integer1));
     EXPECT_EQ(integer2.asInteger(), testIntegerValue);
 
     WSInteger integer3("I3", false);
-    integer3 = move(integer2);
+    integer3 = std::move(integer2);
     EXPECT_EQ(integer3.asInteger(), 5);
 }
 
@@ -103,7 +102,7 @@ TEST(SPTK_WSBasicTypes, array)
     EXPECT_EQ(array3[1].asInteger(), 2);
 
     WSArray<WSInteger> array4;
-    array4 = move(array);
+    array4 = std::move(array);
     EXPECT_EQ(array4.size(), size_t(3));
     EXPECT_EQ(array4[1].asInteger(), 2);
 }

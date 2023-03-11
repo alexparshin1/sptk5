@@ -228,7 +228,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             return matchedNamedGroups.namedGroups().size();
         });
         scoped_lock lock(amutex);
-        states.push(move(f));
+        states.push(std::move(f));
     }
 
     future<size_t> f;
@@ -241,7 +241,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             scoped_lock lock(amutex);
             if (!states.empty())
             {
-                f = move(states.front());
+                f = std::move(states.front());
                 states.pop();
                 ++n;
                 gotOne = true;

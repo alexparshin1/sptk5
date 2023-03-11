@@ -551,7 +551,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             default:
-                throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
+                throwException<DatabaseException>("Unsupported Variant type: " + int2string((int) fieldType));
         }
     }
 }
@@ -641,7 +641,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                 break;
 
             default:
-                throwDatabaseException("Unsupported Variant type: " + int2string((int) fieldType))
+                throwException<DatabaseException>("Unsupported Variant type: " + int2string((int) fieldType));
         }
     }
 

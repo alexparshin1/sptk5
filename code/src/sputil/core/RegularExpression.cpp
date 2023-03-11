@@ -213,11 +213,13 @@ RegularExpression::RegularExpression(const String& pattern, const String& option
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     if (!m_pcre)
-        throwException(m_error)
+    {
+        throwException<Exception>(m_error);
+    }
 
 #ifdef HAVE_PCRE2
 
-            const auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
+    const auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
         m_pcre.get(),               // the compiled pattern
@@ -246,10 +248,10 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     return false;
 #else
-            int rc = pcre_exec(
-                m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-                (pcre_offset_t*) matchData.matches.data(),
-                (pcre_offset_t) matchData.maxMatches * 2);
+    int rc = pcre_exec(
+        m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
+        (pcre_offset_t*) matchData.matches.data(),
+        (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
@@ -259,11 +261,16 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         switch (rc)
         {
             case PCRE_ERROR_NULL:
-            throwException("Null argument") case PCRE_ERROR_BADOPTION:
-            throwException("Invalid regular expression option") case PCRE_ERROR_BADMAGIC:
+                throwException<Exception>("Null argument");
+            case PCRE_ERROR_BADOPTION:
+                throwException<Exception>("Invalid regular expression option");
+            case PCRE_ERROR_BADMAGIC:
             case PCRE_ERROR_UNKNOWN_NODE:
-            throwException("Invalid compiled regular expression\n") case PCRE_ERROR_NOMEMORY:
-                throwException("Out of memory") default : throwException("Unknown error")
+                throwException<Exception>("Invalid compiled regular expression\n");
+            case PCRE_ERROR_NOMEMORY:
+                throwException<Exception>("Out of memory");
+            default:
+                throwException<Exception>("Unknown error");
         }
     }
 

@@ -13,11 +13,27 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
 : WSRequest(logEngine)
 {
     map<String, RequestMethod> requestMethods {
-        {"AccountBalance", bind(&CTestServiceBase::process_AccountBalance, this, _1, _2, _3, _4)},
-        {"Hello", bind(&CTestServiceBase::process_Hello, this, _1, _2, _3, _4)},
-        {"Login", bind(&CTestServiceBase::process_Login, this, _1, _2, _3, _4)},
+
+        {"AccountBalance", 
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            {
+                process_AccountBalance(xmlNode, jsonNode, authentication, requestNameSpace);
+            }},
+
+        {"Hello", 
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            {
+                process_Hello(xmlNode, jsonNode, authentication, requestNameSpace);
+            }},
+
+        {"Login", 
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            {
+                process_Login(xmlNode, jsonNode, authentication, requestNameSpace);
+            }}
+
     };
-    setRequestMethods(move(requestMethods));
+    setRequestMethods(std::move(requestMethods));
 }
 
 
@@ -64,7 +80,12 @@ void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentic
 
 void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::AccountBalance, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = 
+        [this](const CAccountBalance& request, CAccountBalanceResponse& response, HttpAuthentication* authentication)
+        {
+            AccountBalance(request, response, authentication);
+        };
+
     if (xmlNode)
         processAnyRequest<CAccountBalance,CAccountBalanceResponse>(xmlNode, authentication, requestNameSpace, method);
     else
@@ -73,7 +94,12 @@ void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const 
 
 void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Hello, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = 
+        [this](const CHello& request, CHelloResponse& response, HttpAuthentication* authentication)
+        {
+            Hello(request, response, authentication);
+        };
+
     if (xmlNode)
         processAnyRequest<CHello,CHelloResponse>(xmlNode, authentication, requestNameSpace, method);
     else
@@ -82,7 +108,12 @@ void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNo
 
 void CTestServiceBase::process_Login(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = bind(&CTestServiceBase::Login, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+    function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = 
+        [this](const CLogin& request, CLoginResponse& response, HttpAuthentication* authentication)
+        {
+            Login(request, response, authentication);
+        };
+
     if (xmlNode)
         processAnyRequest<CLogin,CLoginResponse>(xmlNode, authentication, requestNameSpace, method);
     else

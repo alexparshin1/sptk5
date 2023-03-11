@@ -57,7 +57,7 @@ TEST(SPTK_Buffer, copyCtor)
 TEST(SPTK_Buffer, move)
 {
     Buffer buffer1(testPhrase);
-    Buffer buffer2(move(buffer1));
+    Buffer buffer2(std::move(buffer1));
     buffer1.reset();
 
     EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
@@ -68,7 +68,7 @@ TEST(SPTK_Buffer, move)
     EXPECT_STREQ("Test 1", buffer1.c_str());
 
     buffer2 = testPhrase;
-    buffer1 = move(buffer2);
+    buffer1 = std::move(buffer2);
 
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());

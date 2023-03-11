@@ -84,19 +84,19 @@ int main()
         arow.emplace_back("Alex");
         arow.emplace_back("Programmer");
         arow.emplace_back("01-JAN-2014");
-        data.push_back(move(arow));
+        data.push_back(std::move(arow));
 
         arow.emplace_back(2);
         arow.emplace_back("David");
         arow.emplace_back("CEO");
         arow.emplace_back("01-JAN-2015");
-        data.push_back(move(arow));
+        data.push_back(std::move(arow));
 
         arow.emplace_back(3);
         arow.emplace_back("Roger");
         arow.emplace_back("Bunny");
         arow.emplace_back("01-JAN-2016");
-        data.push_back(move(arow));
+        data.push_back(std::move(arow));
 
         db->bulkInsert(tableName, columnNames, data);
 

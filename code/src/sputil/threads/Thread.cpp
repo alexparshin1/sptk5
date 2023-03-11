@@ -105,7 +105,7 @@ void Thread::run()
     {
         return;
     }
-    m_thread = make_shared<thread>(&Thread::threadStart, this);
+    m_thread = make_shared<jthread>(&Thread::threadStart, this);
 }
 
 bool Thread::sleep_for(std::chrono::milliseconds interval)

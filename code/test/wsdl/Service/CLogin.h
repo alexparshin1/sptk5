@@ -33,7 +33,7 @@ public:
    sptk::WSArray<sptk::WSString>            m_servers {"servers"};
    CProjectInfo                             m_project {"project", true};
    // Attributes
-   sptk::WSInteger                          m_server_count {"server_count", true};
+   sptk::WSString                           m_server_count {"server_count", true};
    sptk::WSString                           m_type {"type", true};
 
    /**

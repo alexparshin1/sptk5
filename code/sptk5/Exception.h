@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <source_location>
 #include <sptk5/Strings.h>
 #include <sptk5/sptk.h>
 #include <sstream>
@@ -264,59 +265,13 @@ public:
 };
 
 /**
- * Defines a handy macros that automatically registers filename and line number
- * for the place an exception is thrown from
- */
-
-/**
  * @brief Throws exception with file name and line number
  */
-#define throwException(msg)                                   \
-    {                                                         \
-        std::stringstream err;                                \
-        err << msg;                                           \
-        throw sptk::Exception(err.str(), __FILE__, __LINE__); \
-    }
-
-/**
- * @brief Throws timeout exception with file name and line number
- */
-#define throwTimeoutException(msg)                                   \
-    {                                                                \
-        std::stringstream err;                                       \
-        err << msg;                                                  \
-        throw sptk::TimeoutException(err.str(), __FILE__, __LINE__); \
-    }
-
-/**
- * @brief Throws connection exception with file name and line number
- */
-#define throwConnectionException(msg)                                   \
-    {                                                                   \
-        std::stringstream err;                                          \
-        err << msg;                                                     \
-        throw sptk::ConnectionException(err.str(), __FILE__, __LINE__); \
-    }
-
-/**
- * @brief Throws database exception with file name and line number
- */
-#define throwDatabaseException(msg)                                   \
-    {                                                                 \
-        std::stringstream err;                                        \
-        err << msg;                                                   \
-        throw sptk::DatabaseException(err.str(), __FILE__, __LINE__); \
-    }
-
-/**
- * @brief Throws SOAP exception with file name and line number
- */
-#define throwSOAPException(msg)                                   \
-    {                                                             \
-        std::stringstream err;                                    \
-        err << msg;                                               \
-        throw sptk::SOAPException(err.str(), __FILE__, __LINE__); \
-    }
+template<typename ExceptionType>
+[[noreturn]] SP_EXPORT void throwException(const String& error, const std::source_location& location = std::source_location::current())
+{
+    throw ExceptionType(error, location.file_name(), location.line());
+}
 
 /**
  * @}

@@ -25,8 +25,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/VariantStorage.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -396,40 +395,40 @@ TEST(SPTK_VariantStorage, getInvalidType)
     VariantStorage variantStorage;
 
     variantStorage = 1;
-    EXPECT_THROW((double) variantStorage, invalid_argument);
-    EXPECT_THROW(((const Buffer&) variantStorage).bytes(), invalid_argument);
-    EXPECT_THROW(((const DateTime&) variantStorage).date(), invalid_argument);
-    EXPECT_THROW(((const MoneyData&) variantStorage).quantity, invalid_argument);
-    EXPECT_THROW((const uint8_t*) variantStorage, invalid_argument);
-    EXPECT_THROW(((const String&) variantStorage).length(), invalid_argument);
-    EXPECT_THROW((bool) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((double) variantStorage), invalid_argument);
+    EXPECT_THROW(COUT((const Buffer&) variantStorage), invalid_argument);
+    EXPECT_THROW(COUT(((const DateTime&) variantStorage).dateString()), invalid_argument);
+    EXPECT_THROW(COUT(((const MoneyData&) variantStorage).quantity), invalid_argument);
+    EXPECT_THROW(COUT((const uint8_t*) variantStorage), invalid_argument);
+    EXPECT_THROW(COUT(((const String&) variantStorage).length()), invalid_argument);
+    EXPECT_THROW(COUT((bool) variantStorage), invalid_argument);
 
     variantStorage = (int64_t) 2;
-    EXPECT_THROW((double) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((double) variantStorage), invalid_argument);
 
     constexpr double testDouble = 3.0;
     variantStorage = testDouble;
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 
     const Buffer testBuffer("Test buffer");
     variantStorage = testBuffer;
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 
     const DateTime testDateTime(2023, 2, 21);
     variantStorage = testDateTime;
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 
     const MoneyData testMoneyData(1234567, 2);
     variantStorage = testMoneyData;
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 
     const char* testText = "Test text";
     variantStorage = testText;
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 
     const array<uint8_t, 4> testBytes = {0, 1, 2, 3};
     variantStorage.setExternalBuffer(testBytes.data(), sizeof(testBytes), VariantDataType::VAR_BYTE_POINTER);
-    EXPECT_THROW((int) variantStorage, invalid_argument);
+    EXPECT_THROW(COUT((int) variantStorage), invalid_argument);
 }
 
 TEST(SPTK_VariantStorage, getAndSet)

@@ -79,7 +79,6 @@ FileLogEngine::FileLogEngine(const fs::path& fileName)
 FileLogEngine::~FileLogEngine()
 {
     shutdown();
-
     scoped_lock lock(m_mutex);
     if (m_fileStream.is_open())
     {

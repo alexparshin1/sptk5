@@ -41,7 +41,7 @@ TEST(SPTK_BufferStorage, constructors)
     EXPECT_EQ(testStorage2.size(), 16U);
     EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
-    BufferStorage testStorage3(move(testStorage1));
+    BufferStorage testStorage3(std::move(testStorage1));
     EXPECT_EQ(testStorage3.size(), 16U);
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
@@ -56,7 +56,7 @@ TEST(SPTK_BufferStorage, assignments)
     EXPECT_STREQ(testStorage2.c_str(), testString.c_str());
 
     BufferStorage testStorage3;
-    testStorage3 = move(testStorage1);
+    testStorage3 = std::move(testStorage1);
     EXPECT_EQ(testStorage3.size(), size_t(16));
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }

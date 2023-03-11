@@ -131,7 +131,7 @@ void MySQLConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
     {
-        throwDatabaseException("Transaction isn't started.")
+        throwException<DatabaseException>("Transaction isn't started.");
     }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";

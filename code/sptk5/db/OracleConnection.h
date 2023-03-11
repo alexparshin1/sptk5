@@ -270,12 +270,6 @@ VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int s
  */
 OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 
-#define throwOracleException(description)    \
-    {                                        \
-        m_lastError = description;           \
-        throwDatabaseException(m_lastError); \
-    }
-
 /**
  * @}
  */

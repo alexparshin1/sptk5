@@ -408,7 +408,6 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabase
 
 void OracleStatement::getOutputParameters(FieldList& fields)
 {
-    size_t columnIndex = 0;
     for (unsigned index: m_outputParamIndex)
     {
         SQueryParameter parameter;
@@ -464,7 +463,6 @@ void OracleStatement::getOutputParameters(FieldList& fields)
         {
             throw DatabaseException("Can't read parameter " + parameter->name() + ": " + string(e.what()));
         }
-        ++columnIndex;
     }
 }
 

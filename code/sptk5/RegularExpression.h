@@ -98,7 +98,7 @@ public:
          * @param end           String end position in subject
          */
         Group(String value, pcre_offset_t start, pcre_offset_t end)
-            : value(move(value))
+            : value(std::move(value))
             , start(start)
             , end(end)
         {

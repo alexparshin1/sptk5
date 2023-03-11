@@ -68,10 +68,10 @@ TEST(SPTK_HttpProxy, connect)
     try
     {
         constexpr int httpPort {80};
-        Host ahost("www.sptk.net:80");
+        Host aHost("www.sptk.net:80");
 
         shared_ptr<TCPSocket> socket;
-        if (ahost.port() == httpPort)
+        if (aHost.port() == httpPort)
         {
             socket = make_shared<TCPSocket>();
         }
@@ -80,9 +80,9 @@ TEST(SPTK_HttpProxy, connect)
             socket = make_shared<SSLSocket>();
         }
 
-        socket->setProxy(move(httpProxy));
+        socket->setProxy(std::move(httpProxy));
         constexpr seconds connectTimeout {5};
-        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
+        socket->open(aHost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
 
         HttpConnect http(*socket);
 

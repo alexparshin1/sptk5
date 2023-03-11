@@ -104,9 +104,11 @@ void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
     simpleTypeName = "tns:" + simpleTypeName;
 
     if (WSParserComplexType::findSimpleType(simpleTypeName))
-        throwException("Duplicate simpleType definition: " << simpleTypeName)
+    {
+        throwException<Exception>("Duplicate simpleType definition: " + simpleTypeName);
+    }
 
-            WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
+    WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
 }
 
 void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
@@ -126,7 +128,7 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
         complexTypes.contains(complexTypeName))
     {
-        throwException("Duplicate complexType definition: " << complexTypeName)
+        throwException<Exception>("Duplicate complexType definition: " + complexTypeName);
     }
 
     auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
@@ -168,7 +170,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
         {
             message = message.substr(pos + 1);
         }
-        auto elementName = messageToElementMap[message];
+        const auto& elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input")
         {
             operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
@@ -240,18 +242,21 @@ void WSParser::parse(const fs::path& wsdlFile)
 
     auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
-        throwException("Can't find xsd:schema element")
-            parseSchema(schemaElement);
+        throwException<Exception>("Can't find xsd:schema element");
+
+    parseSchema(schemaElement);
 
     auto portElement = wsdlXML.root()->findFirst("wsdl:portType");
     if (portElement == nullptr)
-        throwException("Can't find wsdl:portType element")
+    {
+        throwException<Exception>("Can't find wsdl:portType element");
+    }
 
-            if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
-                descriptionElement != nullptr)
-        {
-            m_description = descriptionElement->getText();
-        }
+    if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
+        descriptionElement != nullptr)
+    {
+        m_description = descriptionElement->getText();
+    }
 
     for (const auto& element: portElement->nodes())
     {
@@ -295,7 +300,6 @@ String WSParser::get_namespace(const String& name)
 void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition)
 {
     string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
-    string defineName = "__" + upperCase(serviceClassName) + "__";
 
     serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl
                       << endl;
@@ -430,16 +434,28 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
     serviceImplementation << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
     serviceImplementation << ": WSRequest(logEngine)" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
+    serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl
+                          << endl;
+    auto lastOperationName = m_operations.rbegin()->first;
     for (const auto& [name, operation]: m_operations)
     {
         auto requestName = strip_namespace(operation.m_input->name());
-        serviceImplementation << "        {\"" << requestName << "\", "
-                              << "bind(&" << serviceClassName << "::process_" << requestName
-                              << ", this, _1, _2, _3, _4)}," << endl;
+        auto inputType = "C" + operation.m_input->name();
+        auto outputType = "C" + operation.m_output->name();
+        serviceImplementation << "        {\"" << requestName << "\", " << endl
+                              << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
+                              << "            {" << endl
+                              << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);" << endl
+                              << "            }}";
+        if (name != lastOperationName)
+        {
+            serviceImplementation << ",";
+        }
+        serviceImplementation << endl
+                              << endl;
     }
     serviceImplementation << "    };" << endl;
-    serviceImplementation << "    setRequestMethods(move(requestMethods));" << endl;
+    serviceImplementation << "    setRequestMethods(std::move(requestMethods));" << endl;
     serviceImplementation << "}" << endl
                           << endl;
 
@@ -506,9 +522,12 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         auto outputType = "C" + operation.m_output->name();
         serviceImplementation << "{\n"
                               << "    function<void(const " << inputType << "&, " << outputType
-                              << "&, HttpAuthentication*)>"
-                              << " method = bind(&" + serviceClassName + "::" << operationName
-                              << ", this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);\n"
+                              << "&, HttpAuthentication*)> method = " << endl
+                              << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* authentication)" << endl
+                              << "        {" << endl
+                              << "            " << operationName << "(request, response, authentication);" << endl
+                              << "        };" << endl
+                              << endl
                               << "    if (xmlNode)\n"
                               << "        processAnyRequest<" << inputType << "," << outputType
                               << ">(xmlNode, authentication, requestNameSpace, method);\n"

@@ -59,7 +59,7 @@ TEST(SPTK_MemoryDS, createAndVerify)
         *age = person.age;
         row.push_back(age);
 
-        ds.push_back(move(row));
+        ds.push_back(std::move(row));
     }
 
     EXPECT_EQ(ds.recordCount(), size_t(3));

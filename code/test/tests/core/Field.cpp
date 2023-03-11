@@ -38,11 +38,11 @@ TEST(SPTK_Field, move_ctor_assign)
     Field field1("f1");
     field1 = testInteger;
 
-    Field field2(move(field1));
+    Field field2(std::move(field1));
     EXPECT_EQ(field2.asInteger(), testInteger);
 
     Field field3("f3");
-    field3 = move(field2);
+    field3 = std::move(field2);
     EXPECT_EQ(field3.asInteger(), testInteger);
 }
 

@@ -60,9 +60,11 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-        throwException("Invalid parameter name: " << paramName)
+    {
+        throwException<Exception>("Invalid parameter name: " + paramName);
+    }
 
-            return *itor->second;
+    return *itor->second;
 }
 
 QueryParameter& QueryParameterList::operator[](size_t index) const
