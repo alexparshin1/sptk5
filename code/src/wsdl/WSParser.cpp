@@ -37,7 +37,7 @@ using namespace sptk;
 
 static void replaceFile(const String& fileName, const stringstream& fileData)
 {
-    String str = fileData.str();
+    const String str = fileData.str();
     Buffer newData(fileData.str());
     if (newData.empty())
     {
@@ -71,7 +71,7 @@ void WSParser::parseElement(const xdoc::SNode& elementNode)
     auto elementName = elementNode->attributes().get("name");
     auto elementType = elementNode->attributes().get("type");
 
-    if (size_t namespacePos = elementType.find(':');
+    if (const size_t namespacePos = elementType.find(':');
         namespacePos != string::npos)
     {
         elementType = elementType.substr(namespacePos + 1);
@@ -643,8 +643,8 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
         externalHeader.loadFromFile(headerFile.c_str());
     }
 
-    String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
-    String wsdlFileName = sourceDirectory + "/" + baseFileName;
+    const String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    const String wsdlFileName = sourceDirectory + "/" + baseFileName;
 
     stringstream wsdlHeader;
     wsdlHeader << externalHeader.c_str() << endl;

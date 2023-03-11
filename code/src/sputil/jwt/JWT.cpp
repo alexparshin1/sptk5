@@ -326,34 +326,34 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
     /* Decode based on RFC-4648 URI safe encoding. */
     auto len = strlen(src);
     Buffer newData_buffer(len + 4);
-    auto* newData = reinterpret_cast<char*>(newData_buffer.data());
+    auto* newData = bit_cast<char*>(newData_buffer.data());
 
-    size_t i = 0;
-    for (; i < len; ++i)
+    size_t index = 0;
+    for (; index < len; ++index)
     {
-        switch (src[i])
+        switch (src[index])
         {
             case '-':
-                newData[i] = '+';
+                newData[index] = '+';
                 break;
             case '_':
-                newData[i] = '/';
+                newData[index] = '/';
                 break;
             default:
-                newData[i] = src[i];
+                newData[index] = src[index];
         }
     }
 
-    if (auto z = 4 - (i % 4);
-        z < 4)
+    if (auto trailingIndex = 4 - (index % 4);
+        trailingIndex < 4)
     {
-        while (--z)
+        while (--trailingIndex)
         {
-            newData[i] = '=';
-            ++i;
+            newData[index] = '=';
+            ++index;
         }
     }
-    newData[i] = '\0';
+    newData[index] = '\0';
 
     Base64::decode(destination, newData);
 }
@@ -370,33 +370,33 @@ static void jwt_b64_decode_json(const xdoc::Document& dest, const Buffer& src)
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
-    auto* str = reinterpret_cast<char*>(buffer.data());
-    size_t len = strlen(str);
-    size_t t = 0;
+    auto* str = bit_cast<char*>(buffer.data());
+    const size_t len = strlen(str);
+    size_t outputIndex = 0;
 
     for (size_t i = 0; i < len; ++i)
     {
         switch (str[i])
         {
             case '+':
-                str[t] = '-';
-                ++t;
+                str[outputIndex] = '-';
+                ++outputIndex;
                 break;
             case '/':
-                str[t] = '_';
-                ++t;
+                str[outputIndex] = '_';
+                ++outputIndex;
                 break;
             case '=':
                 break;
             default:
-                str[t] = str[i];
-                ++t;
+                str[outputIndex] = str[i];
+                ++outputIndex;
                 break;
         }
     }
 
-    buffer[t] = char(0);
-    buffer.bytes(t);
+    buffer[outputIndex] = char(0);
+    buffer.bytes(outputIndex);
 }
 
 void JWT::verify(const Buffer& head, const Buffer& sig) const
@@ -500,9 +500,9 @@ void JWT::decode(const char* token, const String& _key)
         throw Exception("Invalid JWT data");
     }
 
-    Buffer head(reinterpret_cast<const uint8_t*>(parts[0].data), parts[0].length);
-    Buffer body(reinterpret_cast<const uint8_t*>(parts[1].data), parts[1].length);
-    Buffer sig(reinterpret_cast<const uint8_t*>(parts[2].data), parts[2].length);
+    Buffer head(bit_cast<const uint8_t*>(parts[0].data), parts[0].length);
+    const Buffer body(bit_cast<const uint8_t*>(parts[1].data), parts[1].length);
+    const Buffer sig(bit_cast<const uint8_t*>(parts[2].data), parts[2].length);
 
     // Now that we have everything split up, let's check out the header.
 

@@ -67,13 +67,13 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
     timer.fireAt(
         DateTime::Now() + delayInterval,
         [&counter, &counterMutex]() {
-            scoped_lock lock(counterMutex);
+            const scoped_lock lock(counterMutex);
             ++counter;
         });
 
     this_thread::sleep_for(delayInterval * 2);
 
-    scoped_lock lock(counterMutex);
+    const scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
@@ -87,14 +87,14 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     timer.repeat(
         repeatInterval,
         [&counter, &counterMutex]() {
-            scoped_lock lock(counterMutex);
+            const scoped_lock lock(counterMutex);
             ++counter;
         },
         2);
 
     this_thread::sleep_for(repeatInterval * 4);
 
-    scoped_lock lock(counterMutex);
+    const scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
 }
 
@@ -114,7 +114,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
         {
             auto event = timer.repeat(repeatInterval,
                                       [&totalEvents, &eventCounterMutex] {
-                                          scoped_lock lock(eventCounterMutex);
+                                          const scoped_lock lock(eventCounterMutex);
                                           totalEvents++;
                                       });
             createdEvents.push_back(event);

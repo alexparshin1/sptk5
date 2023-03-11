@@ -258,8 +258,8 @@ TEST(SPTK_XDocument, moveAssign)
 TEST(SPTK_XDocument, truncated)
 {
     xdoc::Document document;
-    String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
-    Buffer input(truncatedJSON);
+    const String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
+    const Buffer input(truncatedJSON);
     try
     {
         document.load(input);
@@ -276,7 +276,7 @@ TEST(SPTK_XDocument, errors)
     xdoc::Document document;
     size_t errorCount = 0;
 
-    Buffer junkTailJSON(String(testJSON) + "=");
+    const Buffer junkTailJSON(String(testJSON) + "=");
     try
     {
         document.load(junkTailJSON);

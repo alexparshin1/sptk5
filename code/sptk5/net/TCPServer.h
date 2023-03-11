@@ -92,7 +92,7 @@ public:
      * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(std::initializer_list<MessageDetail> details)
+    LogDetails(std::initializer_list<MessageDetail> details)
     {
         for (auto detail: details)
         {
@@ -100,19 +100,19 @@ public:
         }
     }
 
-    String toString(const String& delimiter = ",") const;
+    [[nodiscard]] String toString(const String& delimiter = ",") const;
 
     /**
      * Query log details
      * @param detail            Log detail
      * @return true if log detail is set
      */
-    bool has(MessageDetail detail) const
+    [[nodiscard]] bool has(MessageDetail detail) const
     {
         return m_details.contains(detail);
     }
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return m_details.empty();
     }

@@ -100,17 +100,17 @@ protected:
     /**
      * Internal directory double-clicked callback
      */
-    static void dirview_cb(Fl_Widget* w, void*);
+    static void dirview_cb(Fl_Widget* dialog, void*);
 
     /**
      * Internal look-in combo callback
      */
-    static void lookin_cb(Fl_Widget* w, void*);
+    static void lookin_cb(Fl_Widget* dialog, void*);
 
     /**
      * Internal pattern combo callback
      */
-    static void pattern_cb(Fl_Widget* w, void*);
+    static void pattern_cb(Fl_Widget* combobox, void*);
 
     /**
      * Creates a new folder. The folder name is asked interactively.
