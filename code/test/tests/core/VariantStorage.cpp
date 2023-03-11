@@ -224,7 +224,7 @@ TEST(SPTK_VariantStorage, String)
     EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage3.type().type);
     EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage3).c_str());
 
-    VariantStorage variantStorage4("test 2");
+    VariantStorage variantStorage4(String("test 2"));
     variantStorage4 = variantStorage;
     EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage4.type().type);
     EXPECT_STREQ(testString2.c_str(), ((const String&) variantStorage4).c_str());
