@@ -127,7 +127,7 @@ void LogEngine::log(Logger::UMessage& message)
         run();
     }
 
-    if (m_minPriority <= message->priority)
+    if (m_minPriority >= message->priority)
     {
         m_messages.push(std::move(message));
     }
