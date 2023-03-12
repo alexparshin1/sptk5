@@ -51,6 +51,11 @@ const xdoc::SNode& HttpAuthentication::getData()
     }
 }
 
+String HttpAuthentication::getHeader() const
+{
+    return m_authenticationHeader;
+}
+
 void HttpAuthentication::parse()
 {
     if (m_type == Type::UNDEFINED)
