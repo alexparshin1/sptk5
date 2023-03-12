@@ -393,8 +393,6 @@ size_t SSLSocket::recv(uint8_t* buffer, size_t len)
                 throwSSLError("SSL_read", result);
         }
     }
-
-    return (size_t) 0;
 }
 
 static constexpr int WRITE_BLOCK = 16384;

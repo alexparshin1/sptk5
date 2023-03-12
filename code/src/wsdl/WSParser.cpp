@@ -144,7 +144,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
         document = document->parent();
     }
 
-    xdoc::Node::Vector messageNodes = document->select("//wsdl:message");
+    const xdoc::Node::Vector messageNodes = document->select("//wsdl:message");
 
     map<String, String> messageToElementMap;
     for (const auto& message: messageNodes)
@@ -165,7 +165,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
     for (const auto& element: operationNode->nodes())
     {
         auto message = element->attributes().get("message");
-        if (size_t pos = message.find(':');
+        if (const size_t pos = message.find(':');
             pos != string::npos)
         {
             message = message.substr(pos + 1);
@@ -279,7 +279,7 @@ String capitalize(const String& name)
 
 String WSParser::strip_namespace(const String& name)
 {
-    size_t pos = name.find(':');
+    const size_t pos = name.find(':');
     if (pos == string::npos)
     {
         return name;
@@ -289,7 +289,7 @@ String WSParser::strip_namespace(const String& name)
 
 String WSParser::get_namespace(const String& name)
 {
-    size_t pos = name.find(':');
+    const size_t pos = name.find(':');
     if (pos == string::npos)
     {
         return name;
@@ -299,7 +299,7 @@ String WSParser::get_namespace(const String& name)
 
 void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition)
 {
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl
                       << endl;
@@ -355,7 +355,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         if (auto documentation = m_documentation[operation.m_input->name()];
             !documentation.empty())
         {
-            Strings documentationRows(documentation, "\n");
+            const Strings documentationRows(documentation, "\n");
             for (const auto& row: documentationRows)
             {
                 serviceDefinition << "     * " << trim(row) << endl;
@@ -407,16 +407,16 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
 
 void WSParser::generateImplementation(ostream& serviceImplementation) const
 {
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
     for (const auto& [name, operation]: m_operations)
     {
-        String requestName = strip_namespace(operation.m_input->name());
+        const String requestName = strip_namespace(operation.m_input->name());
         serviceOperations.push_back(requestName);
     }
-    String operationNames = serviceOperations.join("|");
-    WSMessageIndex serviceOperationsIndex(serviceOperations);
+    const String operationNames = serviceOperations.join("|");
+    const WSMessageIndex serviceOperationsIndex(serviceOperations);
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
     serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl;
@@ -523,9 +523,9 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         serviceImplementation << "{\n"
                               << "    function<void(const " << inputType << "&, " << outputType
                               << "&, HttpAuthentication*)> method = " << endl
-                              << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* authentication)" << endl
+                              << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
                               << "        {" << endl
-                              << "            " << operationName << "(request, response, authentication);" << endl
+                              << "            " << operationName << "(request, response, auth);" << endl
                               << "        };" << endl
                               << endl
                               << "    if (xmlNode)\n"
@@ -565,7 +565,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         externalHeader.set("");
     }
 
-    String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    const String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
     {
         COUT("Creating service class " << serviceClassName)
@@ -579,7 +579,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     cmakeLists << "  " << sourceDirectory << "/" << serviceClassName << ".cpp "
                << sourceDirectory << "/" << serviceClassName << ".h" << endl;
 
-    String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    const String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
     cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
@@ -614,7 +614,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
-    OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
+    const OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
     auto openApiFileName = options.openApiFile;
     if (openApiFileName.empty())
     {
