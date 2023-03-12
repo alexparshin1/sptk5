@@ -86,6 +86,7 @@ TEST(SPTK_LogEngine, message)
 {
     auto logEngine = make_shared<TestLogEngine>();
     logEngine->option(LogEngine::Option::STDOUT, true);
+    logEngine->minPriority(LogPriority::DEBUG);
 
     Logger logger(*logEngine);
 

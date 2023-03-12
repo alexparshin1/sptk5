@@ -129,7 +129,7 @@ bool CDateTimeBaseInput::valid() const
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     return false;
 }

@@ -56,11 +56,11 @@ OracleConnection::~OracleConnection()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     catch (const SQLException& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 

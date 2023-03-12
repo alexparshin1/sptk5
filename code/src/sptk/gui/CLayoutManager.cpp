@@ -488,7 +488,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl)
+                    CERR(e.what() << endl);
                 }
             }
             else
@@ -503,7 +503,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl)
+                    CERR(e.what() << endl);
                 }
             }
             if (widget->parent() != m_group)
@@ -561,7 +561,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
             try
             {
@@ -584,7 +584,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
         }
     }
@@ -647,7 +647,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }
@@ -671,7 +671,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
 
         if (recursive)
@@ -686,7 +686,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
         }
     }

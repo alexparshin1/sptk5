@@ -42,21 +42,21 @@ int main()
 #endif
     try
     {
-        COUT("Defining a log attributes: " << endl)
+        COUT("Defining a log attributes: " << endl);
         SysLogEngine logger1("syslog_test", LOG_USER);
         Logger sysLog(logger1);
 
         SysLogEngine logger2("syslog_test", LOG_AUTH);
         Logger authLog(logger2);
 
-        COUT("Sending 'Hello, World!' to the log.." << endl)
+        COUT("Sending 'Hello, World!' to the log.." << endl);
         sysLog.info("Hello, World! Welcome to SPTK.");
         authLog.log(LogPriority::ALERT, "This is SPTK test message");
         sysLog.log(LogPriority::WARNING, "Eating too much nuts will turn you into HappySquirrel!");
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 

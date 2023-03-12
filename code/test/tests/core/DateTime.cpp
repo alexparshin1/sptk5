@@ -61,14 +61,14 @@ TEST(SPTK_DateTime, ctorDate)
     chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
-    COUT(dateTime1.isoDateTimeString() << endl)
+    COUT(dateTime1.isoDateTimeString() << endl);
 }
 
 TEST(SPTK_DateTime, isoTimeString)
 {
     String input("2018-01-01T11:22:33");
     DateTime dateTime1(input.c_str());
-    COUT((String) dateTime1 << endl)
+    COUT((String) dateTime1 << endl);
     String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
     EXPECT_TRUE(output.startsWith(input));
 }
@@ -204,7 +204,7 @@ TEST(SPTK_DateTime, parsePerformance)
     DateTime ended("now");
     double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
 
-    COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl)
+    COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl);
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)

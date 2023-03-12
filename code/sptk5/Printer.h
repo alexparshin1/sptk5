@@ -31,15 +31,17 @@
 #include <sstream>
 
 #define COUT(a)                                  \
+    do                                           \
     {                                            \
         std::stringstream _printstream;          \
         _printstream << a;                       \
         std::cout << _printstream.str().c_str(); \
-    }
+    } while (false)
 
 #define CERR(a)                                  \
+    do                                           \
     {                                            \
         std::stringstream _printstream;          \
         _printstream << a;                       \
         std::cerr << _printstream.str().c_str(); \
-    }
+    } while (false)

@@ -82,10 +82,10 @@ TEST(SPTK_Brotli, performance)
 
     constexpr auto megabyte = double(1024 * 1024);
 
-    COUT("Brotli compressor:" << endl)
+    COUT("Brotli compressor:" << endl);
     COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
                        << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / megabyte << " Mb/s)"
-                       << endl)
+                       << endl);
 
     stopWatch.start();
     Brotli::decompress(decompressed, compressed);
@@ -93,7 +93,7 @@ TEST(SPTK_Brotli, performance)
 
     COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
                          << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / megabyte
-                         << " Mb/s)" << endl)
+                         << " Mb/s)" << endl);
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }

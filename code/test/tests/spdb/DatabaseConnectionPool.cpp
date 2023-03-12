@@ -47,13 +47,13 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 
     try
     {
         const DatabaseConnectionPool connectionPool("mysql://server1/db1");
-        COUT(connectionPool.toString() << endl)
+        COUT(connectionPool.toString() << endl);
     }
     catch (const Exception& e)
     {

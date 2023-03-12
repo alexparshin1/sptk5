@@ -43,39 +43,39 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
         COUT(endl
-             << "        Begining the transaction ..")
+             << "        Begining the transaction ..");
         db->beginTransaction();
         COUT(endl
-             << "        Deleting everything from the temp table ..")
+             << "        Deleting everything from the temp table ..");
         step5Query.exec();
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT(endl
-             << "        The temp table now has " << counter << " records ..")
+             << "        The temp table now has " << counter << " records ..");
 
         if (rollback)
         {
             COUT(endl
-                 << "        Rolling back the transaction ..")
+                 << "        Rolling back the transaction ..");
             db->rollbackTransaction();
         }
         else
         {
             COUT(endl
-                 << "        Commiting the transaction ..")
+                 << "        Commiting the transaction ..");
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
         COUT(endl
-             << "        The temp table now has " << counter << " records.." << endl)
+             << "        The temp table now has " << counter << " records.." << endl);
     }
     catch (const Exception& e)
     {
-        CERR("Error: " << e.what() << endl)
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -88,15 +88,15 @@ int main()
 
     try
     {
-        COUT("Openning the database.. ")
+        COUT("Openning the database.. ");
         db->open();
-        COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
+        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         Strings tableList;
         db->objectList(DatabaseObjectType::TABLES, tableList);
-        COUT("First 10 tables in the database:" << endl)
+        COUT("First 10 tables in the database:" << endl);
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
-            COUT("  Table: " << tableList[i] << endl)
+            COUT("  Table: " << tableList[i] << endl);
 
         // Defining the queries
         Query step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
@@ -104,10 +104,10 @@ int main()
         Query step3Query(db, "SELECT * FROM test WHERE id > :some_id");
         Query step4Query(db, "DROP TABLE test");
 
-        COUT("Ok.\nStep 1: Creating the table.. ")
+        COUT("Ok.\nStep 1: Creating the table.. ");
         step1Query.exec();
 
-        COUT("Ok.\nStep 2: Inserting data into the table.. ")
+        COUT("Ok.\nStep 2: Inserting data into the table.. ");
 
         // The following example shows how to use the paramaters,
         // addressing them by name
@@ -141,7 +141,7 @@ int main()
         position_param.setNull(); // This is the way to set field to NULL
         step2Query.exec();
 
-        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl)
+        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -155,14 +155,14 @@ int main()
             String name = step3Query[1].asString();
             String position = step3Query[2].asString();
 
-            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl)
+            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
 
-        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl)
+        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -178,28 +178,28 @@ int main()
             string name = nameField.asString();
             string position = positionField.asString();
 
-            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl)
+            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        COUT("Ok.\n***********************************************\nTesting the transactions.")
+        COUT("Ok.\n***********************************************\nTesting the transactions.");
 
         testTransactions(db, "test", true);
         testTransactions(db, "test", false);
 
         step4Query.exec();
 
-        COUT("Ok.\nStep 6: Closing the database.. ")
+        COUT("Ok.\nStep 6: Closing the database.. ");
         db->close();
-        COUT("Ok." << endl)
+        COUT("Ok." << endl);
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << endl)
-        CERR("Sorry, you have to fix your database or database connection." << endl)
-        CERR("Please, read the README.txt for more information." << endl)
+        CERR("\nError: " << e.what() << endl);
+        CERR("Sorry, you have to fix your database or database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     return 0;

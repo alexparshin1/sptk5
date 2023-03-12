@@ -568,7 +568,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     const String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
     {
-        COUT("Creating service class " << serviceClassName)
+        COUT("Creating service class " << serviceClassName);
     }
 
     stringstream cmakeLists;
@@ -623,7 +623,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     if (verbose)
     {
-        COUT("Creating OpenAPI file " << openApiFileName)
+        COUT("Creating OpenAPI file " << openApiFileName);
     }
 
     ofstream openApiFile(openApiFileName);

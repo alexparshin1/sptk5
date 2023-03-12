@@ -24,7 +24,7 @@ bool TimerEvent::fire()
     }
     catch (const Exception& e)
     {
-        CERR(e.what())
+        CERR(e.what());
     }
 
     if (m_repeatCount == 0)

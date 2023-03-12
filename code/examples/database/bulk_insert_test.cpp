@@ -50,7 +50,7 @@ void createTable(DatabaseConnection db, const String& tableName)
         {
             throw;
         }
-        COUT("Table already exists, ")
+        COUT("Table already exists, ");
     }
 }
 
@@ -63,7 +63,7 @@ int main()
         DatabaseConnectionPool connectionPool("oracle://protis:xxxxx@theater/XE");
         DatabaseConnection db = connectionPool.getConnection();
 
-        COUT("Openning the database.. ")
+        COUT("Openning the database.. ");
         db->open();
 
         // Defining the queries
@@ -71,10 +71,10 @@ int main()
         Query step3Query(db, "SELECT * FROM " + tableName + " WHERE id > :some_id OR id IS NULL", true);
         Query step4Query(db, "DROP TABLE " + tableName, true);
 
-        COUT("Ok.\nStep 1: Creating the test table.. ")
+        COUT("Ok.\nStep 1: Creating the test table.. ");
         createTable(db, tableName);
 
-        COUT("Ok.\nStep 2: Inserting data into the test table.. ")
+        COUT("Ok.\nStep 2: Inserting data into the test table.. ");
         Strings columnNames("id,name,position_name,hire_date", ",");
 
         vector<VariantVector> data;
@@ -100,7 +100,7 @@ int main()
 
         db->bulkInsert(tableName, columnNames, data);
 
-        COUT("Ok.\nStep 3: Selecting the information through the field iterator .." << endl)
+        COUT("Ok.\nStep 3: Selecting the information through the field iterator .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -135,20 +135,20 @@ int main()
                 fieldIndex++;
             }
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl)
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
         step4Query.open();
-        COUT("Ok." << endl)
+        COUT("Ok." << endl);
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << endl)
-        CERR("\nSorry, you have to fix your database connection." << endl)
-        CERR("Please, read the README.txt for more information." << endl)
+        CERR("\nError: " << e.what() << endl);
+        CERR("\nSorry, you have to fix your database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     return 0;

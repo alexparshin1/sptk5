@@ -94,7 +94,7 @@ void LoadBalance::threadFunction()
         catch (const Exception& e)
         {
             delete channel;
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 

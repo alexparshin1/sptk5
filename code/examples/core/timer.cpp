@@ -34,7 +34,7 @@ using namespace sptk;
 
 void timerCallback(const char* eventData)
 {
-    COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " " << eventData << "." << endl)
+    COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " " << eventData << "." << endl);
 }
 
 int main()
@@ -43,7 +43,7 @@ int main()
     {
         Timer timer;
 
-        COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " scheduled." << endl)
+        COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " scheduled." << endl);
 
         // Schedule single event
         timer.fireAt(DateTime::Now() + chrono::milliseconds(2500), bind(timerCallback, "single"));
@@ -61,11 +61,11 @@ int main()
 
         this_thread::sleep_for(chrono::seconds(5));
 
-        COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Done" << endl)
+        COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Done" << endl);
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 

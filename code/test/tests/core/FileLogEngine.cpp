@@ -30,13 +30,18 @@
 using namespace std;
 using namespace sptk;
 
-TEST(SPTK_FileLogEngine, create)
+static shared_ptr<FileLogEngine> makeFileLogEngine(const filesystem::path& logFileName, LogPriority minLogPriority)
 {
-    const filesystem::path logFileName("/tmp/file_log_test.tmp");
-
     unlink(logFileName.string().c_str());
 
     auto logEngine = make_shared<FileLogEngine>(logFileName);
+    logEngine->minPriority(minLogPriority);
+
+    return logEngine;
+}
+
+static void logMessages(const shared_ptr<LogEngine>& logEngine)
+{
     auto logger = make_shared<Logger>(*logEngine, "(Test application) ");
     logger->debug("Test started");
     logger->critical("Critical message");
@@ -44,18 +49,27 @@ TEST(SPTK_FileLogEngine, create)
     logger->warning("Warning message");
     logger->info("Test completed");
 
-    this_thread::sleep_for(chrono::milliseconds(100));
+    this_thread::sleep_for(chrono::milliseconds(20));
+}
 
-    logger.reset();
+static void testPriority(LogPriority priority, size_t expectedMessageCount)
+{
+    const filesystem::path logFileName("/tmp/file_log_test.tmp");
+    auto logEngine = makeFileLogEngine(logFileName, priority);
+
+    logMessages(logEngine);
+
     logEngine.reset();
 
     Strings content;
     content.loadFromFile(logFileName);
 
-    EXPECT_EQ(content.size(), 5U);
-    for (String level: {"critical", "error", "warning", "info", "debug"})
-    {
-        const auto messages = content.grep(level.toUpperCase());
-        EXPECT_EQ(messages.size(), 1U);
-    }
+    EXPECT_EQ(expectedMessageCount, content.size());
+}
+
+TEST(SPTK_FileLogEngine, testLogPriorities)
+{
+    testPriority(LogPriority::DEBUG, 5);
+    testPriority(LogPriority::INFO, 4);
+    testPriority(LogPriority::ERR, 2);
 }

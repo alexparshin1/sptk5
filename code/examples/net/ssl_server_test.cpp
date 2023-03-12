@@ -42,14 +42,14 @@ void readAndReply(SSLSocket& socket)
 
     if (!socket.readyToRead(chrono::seconds(3)))
     {
-        CERR("Read timeout" << endl)
+        CERR("Read timeout" << endl);
         return;
     }
 
     bytes = socket.socketBytes();
     if (bytes == 0)
     {
-        COUT("Connection is closed by client" << endl)
+        COUT("Connection is closed by client" << endl);
         return;
     }
 
@@ -58,7 +58,7 @@ void readAndReply(SSLSocket& socket)
 
     bytes = socket.read((uint8_t*) buffer.data(), bytes);
     buffer[bytes] = 0;
-    COUT("Client msg: " << buffer.data() << endl)
+    COUT("Client msg: " << buffer.data() << endl);
     snprintf(reply.data(), sizeof(reply), HTMLecho, buffer);
     socket.write((const uint8_t*) reply.data(), strlen(reply.data()));
 }
@@ -76,7 +76,7 @@ void processConnection(SOCKET clientSocketFD)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[])
 
     if (argc != 2 || port == 0)
     {
-        COUT("Usage: " << argv[0] << "<portnum>" << endl)
+        COUT("Usage: " << argv[0] << "<portnum>" << endl);
         return 1;
     }
 
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[])
 
             if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
             {
-                COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port))
+                COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port));
 
                 processConnection(clientSocketFD);
             }
@@ -114,6 +114,6 @@ int main(int argc, const char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }

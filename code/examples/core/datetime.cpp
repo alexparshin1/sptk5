@@ -37,24 +37,24 @@ int main()
     int printFlags = DateTime::PF_TIMEZONE;
 
     // Print current date and time, showing timezone and milliseconds
-    COUT("Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PrintAccuracy::MILLISECONDS) << endl)
+    COUT("Current time is " << now.dateString() + " " + now.timeString(printFlags, DateTime::PrintAccuracy::MILLISECONDS) << endl);
 
     // Print same date and time as GMT, showing timezone and milliseconds
-    COUT("Current GMT time is " << now.dateString() + " " + now.timeString(printFlags | DateTime::PF_GMT, DateTime::PrintAccuracy::MILLISECONDS) << endl)
-    COUT("UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl)
-    COUT(endl)
+    COUT("Current GMT time is " << now.dateString() + " " + now.timeString(printFlags | DateTime::PF_GMT, DateTime::PrintAccuracy::MILLISECONDS) << endl);
+    COUT("UTC epoch is " << chrono::duration_cast<chrono::seconds>(now.sinceEpoch()).count() << endl);
+    COUT(endl);
 
-    COUT("Decode date and time in PST timezone and print it in local timezone:" << endl)
+    COUT("Decode date and time in PST timezone and print it in local timezone:" << endl);
     const char* pstDateTimeStr = "2013-10-01 10:00:00-7:00";
     DateTime pstDateTime(pstDateTimeStr);
-    COUT("From PST(-7:00): " << pstDateTimeStr << " to local: " << pstDateTime.isoDateTimeString() << endl)
+    COUT("From PST(-7:00): " << pstDateTimeStr << " to local: " << pstDateTime.isoDateTimeString() << endl);
 
     const char* utcDateTimeStr = "2013-10-01T10:00:00Z";
     DateTime utcDateTime(utcDateTimeStr);
-    COUT("From UTC: " << utcDateTimeStr << " to local: " << utcDateTime.isoDateTimeString() << endl)
+    COUT("From UTC: " << utcDateTimeStr << " to local: " << utcDateTime.isoDateTimeString() << endl);
 
     COUT(endl
-         << "Define the date as 2003/09/28, and print the date components:" << endl)
+         << "Define the date as 2003/09/28, and print the date components:" << endl);
 
     short year;
     short month;
@@ -63,44 +63,44 @@ int main()
     short yday;
     DateTime dt(2003, 9, 28);
     dt.decodeDate(&year, &month, &day, &wday, &yday);
-    COUT("Year:  " << year << endl)
-    COUT("Month:  " << month << ", " << dt.monthName() << endl)
-    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl)
-    COUT("Date:   " << dt.dateString() << endl)
-    COUT("Time:   " << dt.timeString(printFlags) << endl)
+    COUT("Year:  " << year << endl);
+    COUT("Month:  " << month << ", " << dt.monthName() << endl);
+    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString(printFlags) << endl);
 
     COUT(endl
          << "Get the date and time from the system, and print the date components:" << endl
-         << endl)
+         << endl);
     dt = DateTime::Now();
     dt.decodeDate(&year, &month, &day, &wday, &yday);
 
     /// Printing the date components:
-    COUT("Year:   " << year << endl)
-    COUT("Month:  " << month << ", " << dt.monthName() << endl)
-    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl)
-    COUT("Date:   " << dt.dateString() << endl)
-    COUT("Time:   " << dt.timeString(printFlags) << endl)
+    COUT("Year:   " << year << endl);
+    COUT("Month:  " << month << ", " << dt.monthName() << endl);
+    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString(printFlags) << endl);
 
     COUT(endl
          << "Get the date and time from the system for TZ=':US/Pacific', and print the date components:" << endl
-         << endl)
-    COUT("Local TZ offset is " << TimeZone::offset().count() << " minutes." << endl)
+         << endl);
+    COUT("Local TZ offset is " << TimeZone::offset().count() << " minutes." << endl);
 
 #ifndef _WIN32
     TimeZone::set(":US/Pacific");
-    COUT("US/Pacific TZ offset is " << TimeZone::offset().count() << " minutes." << endl)
+    COUT("US/Pacific TZ offset is " << TimeZone::offset().count() << " minutes." << endl);
 
     dt = DateTime::Now();
     dt.decodeDate(&year, &month, &day, &wday, &yday);
 
     /// Printing the date components:
-    COUT("Year:   " << year << endl)
-    COUT("Month:  " << month << ", " << dt.monthName() << endl)
-    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl)
-    COUT("Date:   " << dt.dateString() << endl)
-    COUT("Time:   " << dt.timeString() << endl)
-    COUT("TZ offset is " << TimeZone::offset().count() << " minutes" << endl)
+    COUT("Year:   " << year << endl);
+    COUT("Month:  " << month << ", " << dt.monthName() << endl);
+    COUT("Day:    " << day << ", " << dt.dayOfWeekName() << endl);
+    COUT("Date:   " << dt.dateString() << endl);
+    COUT("Time:   " << dt.timeString() << endl);
+    COUT("TZ offset is " << TimeZone::offset().count() << " minutes" << endl);
 #endif
 
     return 0;

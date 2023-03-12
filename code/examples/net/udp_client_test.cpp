@@ -57,10 +57,10 @@ int main()
     catch (const Exception& e)
     {
         CERR("Exception was caught:" << e.what() << endl
-                                     << "Exiting." << endl)
+                                     << "Exiting." << endl);
         return 1;
     }
 
-    COUT("Exiting" << endl)
+    COUT("Exiting" << endl);
     return 0;
 }

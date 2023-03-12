@@ -65,5 +65,5 @@ TEST(SPTK_MD5, performance)
     stopWatch.stop();
 
     COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, "
-                     << iterations / stopWatch.seconds() << " per second" << endl)
+                     << iterations / stopWatch.seconds() << " per second" << endl);
 }

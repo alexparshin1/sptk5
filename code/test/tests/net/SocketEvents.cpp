@@ -59,7 +59,7 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
                 }
                 string str(data.c_str());
                 str += "\n";
-                COUT("Server received: " << str)
+                COUT("Server received: " << str);
                 socket.write(str);
             }
             else
@@ -69,7 +69,7 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
     socket.close();
@@ -88,15 +88,15 @@ TEST(SPTK_SocketEvents, minimal)
                 case SocketEventType::HAS_DATA:
                     while (socketReader->readLine(line, '\n') != 0)
                     {
-                        COUT("Client received: " << line.c_str() << endl)
+                        COUT("Client received: " << line.c_str() << endl);
                         eventReceived.post();
                     }
                     break;
                 case SocketEventType::CONNECTION_CLOSED:
-                    COUT("Socket closed" << endl)
+                    COUT("Socket closed" << endl);
                     break;
                 default:
-                    COUT("Unknown event" << endl)
+                    COUT("Unknown event" << endl);
                     break;
             }
         };

@@ -418,7 +418,7 @@ int main(int argc, char** argv)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

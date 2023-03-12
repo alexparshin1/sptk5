@@ -58,7 +58,7 @@ void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
     m_queryList.clear();

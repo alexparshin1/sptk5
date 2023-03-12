@@ -43,7 +43,7 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
     {
         String data;
 
-        COUT("Sending:   Test SPTK server 1.00\n")
+        COUT("Sending:   Test SPTK server 1.00\n");
         new_sock.write("Test SPTK server 1.00\n");
 
         do
@@ -54,22 +54,22 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
                 {
                     break;
                 }
-                COUT("Receiving: " << data.c_str() << endl)
+                COUT("Receiving: " << data.c_str() << endl);
             }
         } while (data != "EOD");
 
-        COUT("Sending:   confirmation\n")
+        COUT("Sending:   confirmation\n");
         new_sock.write("Data accepted\n");
 
         // End of session
         socketReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << endl)
+        COUT("Receiving: " << data.c_str() << endl);
 
         server.close();
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 
@@ -86,7 +86,7 @@ int main()
 
         server.listen();
 
-        COUT("Listening on port 3000\n")
+        COUT("Listening on port 3000\n");
 
         constexpr chrono::milliseconds acceptTimeout {3000};
         if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
@@ -95,13 +95,13 @@ int main()
         }
         else
         {
-            CERR("Timeout waiting for connection to test server" << endl)
+            CERR("Timeout waiting for connection to test server" << endl);
         }
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << "\nExiting.\n")
+        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
     }
-    COUT("Server session closed\n")
+    COUT("Server session closed\n");
     return 0;
 }

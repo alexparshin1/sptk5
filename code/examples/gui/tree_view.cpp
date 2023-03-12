@@ -50,7 +50,7 @@ void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item)
-        COUT(item->label().c_str() << endl)
+        COUT(item->label().c_str() << endl);
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

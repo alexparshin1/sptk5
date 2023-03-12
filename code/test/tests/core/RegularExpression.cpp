@@ -185,7 +185,7 @@ TEST(SPTK_RegularExpression, match_performance)
     stopWatch.stop();
     constexpr double oneThousand = 1000;
     COUT("SPTK: " << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                  << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl)
+                  << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
 }
 
 TEST(SPTK_RegularExpression, std_match_performance)
@@ -209,7 +209,7 @@ TEST(SPTK_RegularExpression, std_match_performance)
     stopWatch.stop();
     constexpr double oneThousand = 1000;
     COUT("STD: " << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                 << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl)
+                 << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
 }
 
 TEST(SPTK_RegularExpression, asyncExec)

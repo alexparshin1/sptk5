@@ -187,7 +187,7 @@ CPngImage::CPngImage(const String& fileName)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 

@@ -65,7 +65,7 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
     socket.close();
@@ -101,19 +101,19 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
     stopWatch.stop();
 
     COUT("Sent " << packetsInTest << " packets at the rate " << fixed << setprecision(2) << packetsInTest / stopWatch.seconds() << "/s, or "
-                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
 
 
     if (const chrono::seconds timeout(10);
         !socket.readyToRead(timeout))
     {
-        CERR("Timeout waiting for response" << endl)
+        CERR("Timeout waiting for response" << endl);
     }
     socket.close();
 }
@@ -245,7 +245,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         stopWatch.stop();
 
         COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
 
         socket.close();
     }
@@ -305,7 +305,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
     }
 
     COUT("Received " << packetCount << " packets for " << fixed << setprecision(2) << stopWatch.seconds() << " sec, at the rate " << packetCount / stopWatch.seconds() << "/s, or "
-                     << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+                     << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
 
     if (!failReason.empty())
     {
@@ -339,17 +339,17 @@ TEST(SPTK_TCPServer, tcpTransferReaderPerformance)
         {
             if (socketReader.read(readBufferPtr, 1) != 1)
             {
-                COUT("Incomplete read" << endl)
+                COUT("Incomplete read" << endl);
                 break;
             }
             if (socketReader.read(readBufferPtr, 3) != 3)
             {
-                COUT("Incomplete read" << endl)
+                COUT("Incomplete read" << endl);
                 break;
             }
             if (socketReader.read(readBufferPtr, readSize - 4) != readSize - 4)
             {
-                COUT("Incomplete read" << endl)
+                COUT("Incomplete read" << endl);
                 break;
             }
             ++packetCount;
@@ -360,7 +360,7 @@ TEST(SPTK_TCPServer, tcpTransferReaderPerformance)
         stopWatch.stop();
 
         COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl)
+                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
 
         socket.close();
     }

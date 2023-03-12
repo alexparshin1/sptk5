@@ -417,10 +417,10 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("ERROR:" << e.what() << endl)
+        CERR("ERROR:" << e.what() << endl);
         return 1;
     }
 
-    COUT("All tests passed." << endl)
+    COUT("All tests passed." << endl);
     return 0;
 }

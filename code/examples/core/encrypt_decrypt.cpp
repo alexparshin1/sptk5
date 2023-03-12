@@ -41,17 +41,17 @@ int main()
     Buffer intext(text);
     Buffer outtext;
 
-    COUT("Encrypt text (" << text.length() << " bytes)." << endl)
+    COUT("Encrypt text (" << text.length() << " bytes)." << endl);
     try
     {
         Crypt::encrypt(outtext, intext, key, iv);
-        COUT(outtext << endl)
+        COUT(outtext << endl);
         Crypt::decrypt(intext, outtext, key, iv);
-        COUT(intext << endl)
+        COUT(intext << endl);
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 
     return 0;

@@ -141,7 +141,7 @@ Query::~Query()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     if (database() != nullptr)
     {

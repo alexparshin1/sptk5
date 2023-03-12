@@ -265,7 +265,7 @@ RequestInfo WSWebSocketsProtocol::process()
                 break;
             }
 
-            COUT((int) msg.opcode() << ": " << msg.payload().c_str() << endl)
+            COUT((int) msg.opcode() << ": " << msg.payload().c_str() << endl);
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OpCode::TEXT, true, message);
             socket().write(message);

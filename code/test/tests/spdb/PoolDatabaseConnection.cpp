@@ -53,5 +53,5 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     stopWatch.stop();
     COUT("Escaped " << maxCount << " SQLs "
                     << " for " << stopWatch.seconds() << " sec, "
-                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl)
+                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl);
 }

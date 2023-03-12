@@ -149,14 +149,14 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     {
         if (firstRow)
         {
-            COUT(left << setw((int) nameWidth) << printableName())
+            COUT(left << setw((int) nameWidth) << printableName());
             firstRow = false;
         }
         else
         {
-            COUT(left << setw((int) nameWidth) << "")
+            COUT(left << setw((int) nameWidth) << "");
         }
-        COUT("  " << helpRow << endl)
+        COUT("  " << helpRow << endl);
     }
 
     if (!optionDefaultValue.empty())
@@ -167,7 +167,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
             printDefaultValue = "'" + optionDefaultValue + "'";
         }
         COUT(left << setw((int) nameWidth) << ""
-                  << "  The default value is " + printDefaultValue + "." << endl)
+                  << "  The default value is " + printDefaultValue + "." << endl);
     }
 }
 //=============================================================================
@@ -540,7 +540,7 @@ void CommandLine::printLine(const String& ch, size_t count)
     {
         temp << ch;
     }
-    COUT(temp.str() << endl)
+    COUT(temp.str() << endl);
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -552,16 +552,16 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 {
     if (!onlyForCommand.empty() && !m_argumentTemplates.contains(onlyForCommand))
     {
-        CERR("Command '" << onlyForCommand << "' is not defined" << endl)
+        CERR("Command '" << onlyForCommand << "' is not defined" << endl);
         return;
     }
 
     printVersion();
     printLine(doubleLine, screenColumns);
-    COUT(m_description << endl)
+    COUT(m_description << endl);
 
     COUT(endl
-         << "Syntax:" << endl)
+         << "Syntax:" << endl);
     printLine(singleLine, screenColumns);
 
     String commandLinePrototype = m_commandLinePrototype;
@@ -569,7 +569,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     {
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
     }
-    COUT(commandLinePrototype << endl)
+    COUT(commandLinePrototype << endl);
 
     // Find out space needed for command and option names
     constexpr size_t minimalWidth {10};
@@ -624,7 +624,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if (helpTextColumns < minimalWidth)
     {
-        CERR("Can't print help information - the screen width is too small" << endl)
+        CERR("Can't print help information - the screen width is too small" << endl);
         return;
     }
 
@@ -638,7 +638,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
     if (!m_optionTemplates.empty())
     {
         COUT(endl
-             << "Options:" << endl)
+             << "Options:" << endl);
         printLine(singleLine, screenColumns);
         for (const String& optionName: sortedOptions)
         {
@@ -664,7 +664,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
     if (onlyForCommand.empty() && !m_argumentTemplates.empty())
     {
         COUT(endl
-             << "Commands:" << endl)
+             << "Commands:" << endl);
         printLine(singleLine, screenColumns);
         for (const String& commandName: sortedCommands)
         {
@@ -681,5 +681,5 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 
 void CommandLine::printVersion() const
 {
-    COUT(m_programVersion << endl)
+    COUT(m_programVersion << endl);
 }

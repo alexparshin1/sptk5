@@ -51,9 +51,9 @@ int main(int argc, const char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR("Error in command line arguments:" << endl)
-        CERR(e.what() << endl)
-        COUT(endl)
+        CERR("Error in command line arguments:" << endl);
+        CERR(e.what() << endl);
+        COUT(endl);
         commandLine.printHelp(80);
         return 1;
     }
@@ -78,15 +78,15 @@ int main(int argc, const char* argv[])
         }
         else
         {
-            COUT("Archive mode: " << commandLine.getOptionValue("archive-mode") << endl)
-            COUT("Archive date: " << commandLine.getOptionValue("archive-date") << endl)
+            COUT("Archive mode: " << commandLine.getOptionValue("archive-mode") << endl);
+            COUT("Archive date: " << commandLine.getOptionValue("archive-date") << endl);
         }
 
         return 0;
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

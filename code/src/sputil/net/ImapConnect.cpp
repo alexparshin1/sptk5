@@ -341,7 +341,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
         }
     }

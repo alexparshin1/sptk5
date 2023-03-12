@@ -72,7 +72,7 @@ void WorkerThread::threadFunction()
             }
             catch (const Exception& e)
             {
-                CERR("Runable::execute() : " << e.what() << endl)
+                CERR("Runable::execute() : " << e.what() << endl);
             }
             setRunable(nullptr);
             if (m_threadEvent != nullptr)

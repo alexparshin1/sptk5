@@ -369,7 +369,7 @@ TEST(SPTK_XDocument, performance)
 
     stopWatch.stop();
 
-    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl)
+    COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds" << endl);
 }
 
 TEST(SPTK_XDocument, exportText)

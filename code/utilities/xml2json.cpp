@@ -11,12 +11,12 @@ void printHelp(const String& progName, const String& error = "")
          << endl
          << "Syntax:" << endl
          << progName << " <filename>" << endl
-         << endl)
+         << endl);
     if (!error.empty())
     {
         COUT("Error: "
              << error << endl
-             << endl)
+             << endl);
     }
 }
 

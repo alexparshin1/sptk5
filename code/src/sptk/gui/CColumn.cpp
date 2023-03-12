@@ -98,7 +98,7 @@ void CColumnList::load(const xdoc::SNode& node)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }
@@ -119,7 +119,7 @@ void CColumnList::save(const xdoc::SNode& node) const
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }

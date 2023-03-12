@@ -35,7 +35,7 @@ int main()
 {
     try
     {
-        COUT("Creating a log file ./logfile_test.log: " << endl)
+        COUT("Creating a log file ./logfile_test.log: " << endl);
         FileLogEngine fileLog("logfile_test.log");
         Logger log(fileLog);
 
@@ -49,7 +49,7 @@ int main()
         /// would make it to the log.
         fileLog.minPriority(LogPriority::INFO);
 
-        COUT("Sending 'Hello, World!' to this file.." << endl)
+        COUT("Sending 'Hello, World!' to this file.." << endl);
         log.info("Hello, World! Welcome to SPTK.");
         log.log(LogPriority::WARNING, "Eating too much nuts will turn you into HappySquirrel!");
         log.log(LogPriority::DEBUG, "This statement is not confirmed by HappySquirrel");
@@ -57,7 +57,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 

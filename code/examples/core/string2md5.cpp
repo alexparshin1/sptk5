@@ -44,14 +44,14 @@ int main(int argc, const char* argv[])
 {
     if (argc != 2)
     {
-        CERR("Please provide a phrase to md5 as a single parameter!" << endl)
+        CERR("Please provide a phrase to md5 as a single parameter!" << endl);
         return 1;
     }
 
     if (argv[1] != nullptr)
     {
         Buffer buffer(argv[1]);
-        COUT(md5(buffer) << endl)
+        COUT(md5(buffer) << endl);
     }
 
     return 0;

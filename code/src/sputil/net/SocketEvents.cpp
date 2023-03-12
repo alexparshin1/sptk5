@@ -59,7 +59,7 @@ void SocketEvents::stop()
     }
     catch (const Exception& e)
     {
-        CERR(e.message() << endl)
+        CERR(e.message() << endl);
     }
 }
 
@@ -102,7 +102,7 @@ void SocketEvents::threadFunction()
         {
             if (m_socketPool.active())
             {
-                CERR(e.message() << endl)
+                CERR(e.message() << endl);
             }
             else
             {
