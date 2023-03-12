@@ -148,16 +148,6 @@ public:
     }
 
     /**
-     * Returns the min priority
-     *
-     * Messages with priority less than requested are ignored
-     */
-    virtual LogPriority minPriority() const
-    {
-        return m_minPriority;
-    }
-
-    /**
      * String representation of priority
      */
     static String priorityName(LogPriority prt);
