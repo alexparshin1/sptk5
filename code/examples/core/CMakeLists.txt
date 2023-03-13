@@ -9,18 +9,12 @@ IF (UNIX)
 ENDIF (UNIX)
 
 SET(CONSOLE_TESTS
-    command_line datetime logfile_test syslog_test
-    unique_instance string2md5 encrypt_decrypt timer
-    zlib_test
+    syslog_test
     )
 
 IF (WIN32)
     SET(CONSOLE_TESTS ${CONSOLE_TESTS} eventlog_test)
 ENDIF ()
-
-IF (PCRE_FLAG)
-    SET(CONSOLE_TESTS ${CONSOLE_TESTS} regexp)
-ENDIF (PCRE_FLAG)
 
 FOREACH (CONSOLE_TEST ${CONSOLE_TESTS})
     IF (UNIX)

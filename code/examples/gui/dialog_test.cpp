@@ -27,26 +27,25 @@
 */
 
 #include <sptk5/cgui>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-void example_dialog_cb(Fl_Widget* w, void*)
+void example_dialog_cb(Fl_Widget* button, void*)
 {
-    auto* btn = dynamic_cast<CButton*>(w);
+    auto* btn = dynamic_cast<CButton*>(button);
     if (btn)
     {
-        spInformation(string(btn->label()) +
+        spInformation(String(btn->label()) +
                       " button was pressed.\n"
                       "It is different from <B>Ok</B> and <B>Cancel</B> buttons "
                       "that are processed by default.");
     }
 }
 
-void exit_cb(Fl_Widget* w, void*)
+void exit_cb(Fl_Widget* button, void*)
 {
-    w->window()->hide();
+    button->window()->hide();
 }
 
 class CExampleDialog
@@ -59,23 +58,21 @@ public:
     CExampleDialog()
         : CDialog(300, 260, "Example Dialog")
     {
-        CInput* inp;
-
         CDialog::newPage("Company", true);
 
-        inp = new CInput("Company Name:");
+        auto* inp = new CInput("Company Name:");
         inp->fieldName("company_name");
 
         inp = new CIntegerInput("Company Size:");
         inp->fieldName("company_size");
 
-        auto* cb = new CComboBox("Business Type:");
-        cb->fieldName("business_type");
-        cb->addColumn("business type", VariantDataType::VAR_STRING, 120);
-        cb->addRow(1, Strings("Agriculture", "|"));
-        cb->addRow(2, Strings("Education", "|"));
-        cb->addRow(3, Strings("Hardware", "|"));
-        cb->addRow(4, Strings("Software", "|"));
+        auto* comboBox = new CComboBox("Business Type:");
+        comboBox->fieldName("business_type");
+        comboBox->addColumn("business type", VariantDataType::VAR_STRING, 120);
+        comboBox->addRow(1, Strings("Agriculture", "|"));
+        comboBox->addRow(2, Strings("Education", "|"));
+        comboBox->addRow(3, Strings("Hardware", "|"));
+        comboBox->addRow(4, Strings("Software", "|"));
 
         auto* dateInput = new CDateInput("Established");
         dateInput->fieldName("established");
@@ -172,7 +169,9 @@ void dialog_cb(Fl_Widget*, void*)
     if (dialog.showModal())
     {
         COUT(
-            (String) dialog["company_name"] << ", has " << (int) dialog["company_size"] << " employees (" << (String) dialog["business_type"] << "), established " << (String) dialog["established"] << endl)
+            (String) dialog["company_name"] << ", has " << (int) dialog["company_size"] << " employees ("
+                                            << (String) dialog["business_type"] << "), established "
+                                            << (String) dialog["established"] << endl);
     }
 
     /// This saves the last known state of the dialog
@@ -185,9 +184,9 @@ int main(int argc, char* argv[])
     try
     {
         // Initialize themes
-        CThemes themes;
+        const CThemes themes;
 
-        CWindow w(300, 170);
+        CWindow window(300, 170);
 
         CHtmlBox textBox;
         textBox.data("<p>This test shows how simple it is"
@@ -196,15 +195,15 @@ int main(int argc, char* argv[])
                      "widget may have a <i>field name</i> attached to it.</p>");
         textBox.color(FL_GRAY);
 
-        CButton b2(CButtonKind::EXIT_BUTTON);
-        b2.callback(exit_cb);
+        CButton exitButton(CButtonKind::EXIT_BUTTON);
+        exitButton.callback(exit_cb);
 
-        CButton b1(CButtonKind::EDIT_BUTTON, CLayoutAlign::RIGHT,
-                   "Show Dialog");
-        b1.callback(dialog_cb);
+        CButton showDialogButton(CButtonKind::EDIT_BUTTON, CLayoutAlign::RIGHT,
+                                 "Show Dialog");
+        showDialogButton.callback(dialog_cb);
 
-        w.end();
-        w.show();
+        window.end();
+        window.show();
 
         if (argc > 1)
         {
