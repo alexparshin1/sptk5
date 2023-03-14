@@ -26,9 +26,12 @@
 
 #include <gtest/gtest.h>
 #include <sptk5/FileLogEngine.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
+
+static const filesystem::path logFileName("/tmp/file_log_test.tmp");
 
 static shared_ptr<FileLogEngine> makeFileLogEngine(const filesystem::path& logFileName, LogPriority minLogPriority)
 {
@@ -54,7 +57,6 @@ static void logMessages(const shared_ptr<LogEngine>& logEngine)
 
 static void testPriority(LogPriority priority, size_t expectedMessageCount)
 {
-    const filesystem::path logFileName("/tmp/file_log_test.tmp");
     auto logEngine = makeFileLogEngine(logFileName, priority);
 
     logMessages(logEngine);
@@ -72,4 +74,20 @@ TEST(SPTK_FileLogEngine, testLogPriorities)
     testPriority(LogPriority::DEBUG, 5);
     testPriority(LogPriority::INFO, 4);
     testPriority(LogPriority::ERR, 2);
+}
+
+TEST(SPTK_FileLogEngine, performance)
+{
+    FileLogEngine logEngine(logFileName);
+    Logger logger(logEngine, "(Test application) ");
+    StopWatch stopWatch;
+    stopWatch.start();
+    constexpr size_t messageCount = 10000;
+    for (size_t i = 0; i < messageCount; i++)
+    {
+        logger.info("Test log message of some length");
+    }
+    stopWatch.stop();
+    COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
+                   << messageCount / (int) stopWatch.milliseconds() << " msgs/sec)" << endl);
 }
