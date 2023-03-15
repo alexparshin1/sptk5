@@ -73,7 +73,7 @@ public:
      * @param name              Name of the thread for future references.
      * @param threadManager     Optional thread manager. If provided, then it owns the created thread's memory.
      */
-    explicit Thread(const String& name, const std::shared_ptr<ThreadManager>& threadManager = nullptr);
+    explicit Thread(String name, std::shared_ptr<ThreadManager> threadManager = nullptr);
 
     /**
      * Destructor
@@ -138,24 +138,12 @@ public:
      * @param interval          Interval of time
      */
     virtual bool sleep_for(std::chrono::milliseconds interval);
-
-    /**
-     * Sleep until moment of time
-     * The pause is automatically interrupted when terminate() is called.
-     * @param timestamp         Moment of time
-     */
-    virtual bool sleep_until(const DateTime& timestamp);
 };
 
 /**
  * Shared pointer to Thread
  */
 using SThread = std::shared_ptr<Thread>;
-
-/**
- * Unique pointer to Thread
- */
-using UThread = std::unique_ptr<Thread>;
 
 /**
  * @}

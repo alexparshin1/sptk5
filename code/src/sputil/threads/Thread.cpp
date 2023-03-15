@@ -26,6 +26,7 @@
 
 #include <sptk5/cutils>
 #include <sptk5/threads/ThreadManager.h>
+#include <utility>
 
 using namespace std;
 using namespace sptk;
@@ -51,9 +52,9 @@ void Thread::threadStart()
     }
 }
 
-Thread::Thread(const String& name, const SThreadManager& threadManager)
-    : m_name(name)
-    , m_threadManager(threadManager)
+Thread::Thread(String name, SThreadManager threadManager)
+    : m_name(std::move(name))
+    , m_threadManager(std::move(threadManager))
 {
 }
 
@@ -111,11 +112,6 @@ void Thread::run()
 bool Thread::sleep_for(std::chrono::milliseconds interval)
 {
     return m_pause.sleep_for(interval);
-}
-
-bool Thread::sleep_until(const DateTime& timestamp)
-{
-    return m_pause.sleep_until(timestamp);
 }
 
 bool Thread::running() const

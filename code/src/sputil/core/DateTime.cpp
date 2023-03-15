@@ -349,11 +349,11 @@ static void encodeDate(DateTime::time_point& timePoint, short year, short month,
     timePoint = DateTime::clock::from_time_t(aTime);
 }
 
-static short splitDateString(const char* bdat, short* datePart, char& actualDateSeparator)
+static short splitDateString(const char* dateString, short* datePart, char& actualDateSeparator)
 {
     actualDateSeparator = 0;
 
-    const char* ptr = bdat;
+    const char* ptr = dateString;
     char* end = nullptr;
     size_t partNumber = 0;
     for (; partNumber < 3; ++partNumber)
@@ -386,10 +386,10 @@ static short splitDateString(const char* bdat, short* datePart, char& actualDate
 }
 
 
-static short splitTimeString(const char* bdat, short* timePart)
+static short splitTimeString(const char* timeString, short* timePart)
 {
     static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d+)?)");
-    auto matches = matchTime.m(bdat);
+    auto matches = matchTime.m(timeString);
     if (!matches)
     {
         throw Exception("Invalid time string");
@@ -525,9 +525,9 @@ static void encodeDate(DateTime::time_point& timePoint, const char* dat)
 
     if (timePtr != nullptr)
     { // Time part included into string
-        DateTime::time_point dtime;
-        encodeTime(dtime, timePtr);
-        timePoint += dtime.time_since_epoch();
+        DateTime::time_point timestamp;
+        encodeTime(timestamp, timePtr);
+        timePoint += timestamp.time_since_epoch();
     }
 }
 
@@ -866,9 +866,9 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 }
 
 
-void DateTime::decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt) const
+void DateTime::decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, bool gmt) const
 {
-    sptk::decodeDate(m_dateTime, *year, *month, *day, *wday, *yday, gmt);
+    sptk::decodeDate(m_dateTime, *year, *month, *day, *weekDay, *yearDate, gmt);
 }
 
 void DateTime::decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt) const

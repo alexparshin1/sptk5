@@ -153,7 +153,7 @@ public:
     static String priorityName(LogPriority prt);
 
     /**
-     * Priotrity from string representation
+     * Priority from string representation
      */
     static LogPriority priorityFromName(const String& prt);
 

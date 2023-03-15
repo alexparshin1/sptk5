@@ -33,7 +33,7 @@ using namespace sptk;
 
 static const filesystem::path logFileName("/tmp/file_log_test.tmp");
 
-static shared_ptr<FileLogEngine> makeFileLogEngine(const filesystem::path& logFileName, LogPriority minLogPriority)
+static shared_ptr<FileLogEngine> makeFileLogEngine(LogPriority minLogPriority)
 {
     unlink(logFileName.string().c_str());
 
@@ -57,11 +57,11 @@ static void logMessages(const shared_ptr<LogEngine>& logEngine)
 
 static void testPriority(LogPriority priority, size_t expectedMessageCount)
 {
-    auto logEngine = makeFileLogEngine(logFileName, priority);
+    auto logEngine = makeFileLogEngine(priority);
+
+    logEngine->reset();
 
     logMessages(logEngine);
-
-    logEngine.reset();
 
     Strings content;
     content.loadFromFile(logFileName);

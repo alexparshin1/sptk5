@@ -337,7 +337,7 @@ public:
     /**
      * Decodes date into y,m,d
      */
-    void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const;
+    void decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, bool gmt = false) const;
 
     /**
      * Decodes time into hour,minute,second,millisecond
