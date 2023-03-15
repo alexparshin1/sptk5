@@ -25,9 +25,7 @@
 */
 #pragma once
 
-#include <iomanip>
 #include <iostream>
-#include <sptk5/String.h>
 #include <sstream>
 
 #define COUT(a)                                  \
