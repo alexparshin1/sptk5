@@ -55,7 +55,7 @@ public:
             {
                 break;
             }
-            sleep_for(timeout);
+            this_thread::sleep_for(timeout);
         }
     }
 
@@ -86,13 +86,13 @@ TEST(SPTK_Thread, runAgain) /* NOLINT */
     ThreadTestThread testThread("Test Thread", testCounter);
 
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(sleepInterval));
+    this_thread::sleep_for(sleepInterval);
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(testCounter, testThread.counter());
 
     testThread.run();
-    this_thread::sleep_for(chrono::milliseconds(60));
+    this_thread::sleep_for(sleepInterval);
     testThread.terminate();
     testThread.join();
     EXPECT_EQ(5, testThread.counter());

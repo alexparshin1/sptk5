@@ -53,7 +53,7 @@ protected:
     {
         constexpr auto tenMilliseconds = milliseconds(10);
         ++taskCounter;
-        sleep_for(tenMilliseconds);
+        this_thread::sleep_for(tenMilliseconds);
     }
 };
 

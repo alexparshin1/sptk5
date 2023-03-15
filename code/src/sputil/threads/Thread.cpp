@@ -58,26 +58,21 @@ Thread::Thread(String name, SThreadManager threadManager)
 {
 }
 
-Thread::~Thread()
-{
-    Thread::terminate();
-    if (m_thread && m_thread->joinable())
-    {
-        m_thread->join();
-    }
-}
-
 void Thread::terminate()
 {
-    UniqueLock(m_mutex);
-    m_pause.post();
-    m_terminated = true;
+    if (m_thread && m_thread->joinable())
+    {
+        m_thread->request_stop();
+    }
 }
 
 bool Thread::terminated()
 {
-    SharedLock(m_mutex);
-    return m_terminated;
+    if (m_thread && m_thread->joinable())
+    {
+        return m_thread->get_stop_token().stop_requested();
+    }
+    return false;
 }
 
 Thread::Id Thread::id() const
@@ -100,18 +95,15 @@ void Thread::join()
 
 void Thread::run()
 {
-    UniqueLock(m_mutex);
-    m_terminated = false;
+    const scoped_lock lock(m_mutex);
     if (m_thread && m_thread->joinable())
     {
         return;
     }
-    m_thread = make_shared<jthread>(&Thread::threadStart, this);
-}
 
-bool Thread::sleep_for(std::chrono::milliseconds interval)
-{
-    return m_pause.sleep_for(interval);
+    m_thread = make_shared<jthread>([this](stop_token stopToken) {
+        threadStart();
+    });
 }
 
 bool Thread::running() const

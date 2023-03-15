@@ -197,6 +197,42 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
     return responseNode;
 }
 
+class TestListener : public WSListener
+{
+public:
+    uint16_t servicePort {11000};
+    shared_ptr<SSLKeys> sslKeys;
+    SysLogEngine logEngine {"TestWebService"};
+
+    TestListener(const WSServices& services, const WSConnection::Options& options, bool encrypted)
+        : WSListener(services, logEngine, "localhost", 16, options)
+    {
+        if (encrypted)
+        {
+            servicePort = 11001;
+            sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
+            setSSLKeys(sslKeys);
+        }
+    }
+};
+
+shared_ptr<TestListener> createTestListener(bool encrypted)
+{
+    auto service = make_shared<TestWebService>();
+
+    // Define Web Service listener
+    const WSConnection::Paths paths("index.html", "/test", ".");
+    WSConnection::Options options(paths);
+    options.encrypted = encrypted;
+    const WSServices services(service);
+    auto testListener = make_shared<TestListener>(services, options, encrypted);
+
+    // Start Web Service listener
+    testListener->listen(testListener->servicePort);
+
+    return testListener;
+}
+
 /**
  * Test execution of { Hello, Login, AccountBalance } methods.
  * Calling AccountBalance method requires calling Login method first.
@@ -205,30 +241,20 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
  */
 static void request_listener_test(const Strings& methodNames, DataFormat dataFormat, bool encrypted = false)
 {
-    SysLogEngine logEngine("TestWebService");
-    auto service = make_shared<TestWebService>();
+    static shared_ptr<TestListener> tcpTestListener;
+    static shared_ptr<TestListener> sslTestListener;
 
-    const String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
+    if (!tcpTestListener)
+    {
+        tcpTestListener = createTestListener(false);
+        sslTestListener = createTestListener(true);
+    }
 
-    // Define Web Service listener
-    const WSConnection::Paths paths("index.html", "/test", ".");
-    WSConnection::Options options(paths);
-    options.encrypted = encrypted;
-    const WSServices services(service);
-    WSListener listener(services, logEngine, "localhost", 16, options);
+    auto testListener = encrypted ? sslTestListener : tcpTestListener;
 
-    const uint16_t servicePort = 11000;
-    shared_ptr<SSLKeys> sslKeys;
     try
     {
-        if (encrypted)
-        {
-            sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
-            listener.setSSLKeys(sslKeys);
-        }
-
-        // Start Web Service listener
-        listener.listen(servicePort);
+        const String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
 
         for (const auto& methodName: methodNames)
         {
@@ -240,14 +266,14 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
             if (encrypted)
             {
                 auto sslClient = make_shared<SSLSocket>();
-                sslClient->loadKeys(*sslKeys);
+                sslClient->loadKeys(*testListener->sslKeys);
                 client = sslClient;
             }
             else
             {
                 client = make_shared<TCPSocket>();
             }
-            client->host(Host("localhost", servicePort));
+            client->host(Host("localhost", testListener->servicePort));
             client->open();
 
             HttpConnect httpClient(*client);
@@ -296,8 +322,6 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
                 }
             }
         }
-
-        listener.stop();
     }
     catch (const Exception& e)
     {
