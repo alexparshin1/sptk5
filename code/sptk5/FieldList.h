@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
+#include <map>
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Field.h>
 #include <sptk5/xdoc/Node.h>
-#include <sptk5/CaseInsensitiveCompare.h>
-#include <map>
 #include <vector>
 
 namespace sptk {
@@ -236,8 +236,9 @@ public:
      * Otherwise, fields are stored as subnodes, with the field information stored as attributes.
      * @param node              XDoc node to store fields into
      * @param compact           Compact XML export flag
+     * @param nullLargeData     Set text fileds to null if data length is 256 bytes or longer
      */
-    void exportTo(xdoc::Node& node, bool compactMode = false) const;
+    void exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData = false) const;
 
 private:
     /**
@@ -250,8 +251,8 @@ private:
      */
     using Map = std::map<String, SField, CaseInsensitiveCompare>;
 
-    Vector m_list;                     ///< The list of fields
-    std::shared_ptr<Map> m_index;                    ///< The optional field index by name. 0L if field list isn't indexed.
+    Vector m_list;                ///< The list of fields
+    std::shared_ptr<Map> m_index; ///< The optional field index by name. 0L if field list isn't indexed.
 
     /**
      * Copy assignment
@@ -261,7 +262,7 @@ private:
     void assign(const FieldList& other);
 };
 
-}
+} // namespace sptk
 
 /**
  * @}

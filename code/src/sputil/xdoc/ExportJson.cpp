@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,8 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/RegularExpression.h>
+#include <iosfwd>
+#include <sptk5/String.h>
+#include <sptk5/cutils>
+#include <sptk5/xdoc/ExportJSON.h>
 
 using namespace std;
 using namespace sptk;
@@ -85,78 +87,90 @@ static String jsonEscape(const String& text)
     return result;
 }
 
-void Node::exportJsonValueTo(ostream& stream, bool formatted, size_t indent) const
+void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool formatted,
+                                   size_t indent)
 {
-    String indentSpaces;
-    String newLineChar;
-    String firstElement;
-    String betweenElements(",");
+    Formatting formatting;
 
-    if (formatted && (is(Type::Array) || is(Type::Object)))
+    if (formatted && (node->type() == Node::Type::Array || node->type() == Node::Type::Object))
     {
         if (indent)
         {
-            indentSpaces = string(indent, ' ');
+            formatting.indentSpaces = string(indent, ' ');
         }
-        newLineChar = "\n";
-        firstElement = "\n  " + indentSpaces;
-        betweenElements = ",\n  " + indentSpaces;
+        formatting.newLineChar = "\n";
+        formatting.firstElement = "\n  " + formatting.indentSpaces;
+        formatting.betweenElements = ",\n  " + formatting.indentSpaces;
+    }
+
+    string spacing = formatted ? " " : "";
+
+    bool isValue = node->nodes().empty();
+
+    if (isValue && !node->attributes().empty())
+    {
+        stream << "{" << spacing;
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
+        stream << "\"value\":" << spacing;
     }
 
     auto saveFlags = stream.flags();
 
     double dNumber;
     int64_t iNumber;
-    switch (type())
+    switch (node->type())
     {
-        case Type::Number:
-            iNumber = asInt64();
-            dNumber = asFloat();
+        case Node::Type::Number:
+            iNumber = node->getValue().asInt64();
+            dNumber = node->getValue().asFloat();
             if (double(iNumber) == dNumber)
             {
                 stream << fixed << iNumber;
             }
             else
             {
-                stream << asString();
+                stream << node->getValue().asString();
             }
             break;
 
-        case Type::Text:
-            stream << "\"" << jsonEscape(asString()) << "\"";
+        case Node::Type::Text:
+        case Node::Type::CData:
+            stream << "\"" << jsonEscape(node->getValue().asString()) << "\"";
             break;
 
-        case Type::CData:
-            stream << "\"" << jsonEscape(asString()) << "\"";
+        case Node::Type::Boolean:
+            stream << (node->getValue().asBool() ? "true" : "false");
             break;
 
-        case Type::Boolean:
-            stream << (asBool() ? "true" : "false");
+        case Node::Type::Array:
+            exportJsonArray(node, stream, formatted, indent, formatting);
             break;
 
-        case Type::Array:
-            exportJsonArray(stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
-            break;
-
-        case Type::Object:
-            exportJsonObject(stream, formatted, indent, firstElement, betweenElements, newLineChar, indentSpaces);
+        case Node::Type::Object:
+            exportJsonObject(node, stream, formatted, indent, formatting);
             break;
 
         default:
             stream << "null";
             break;
     }
+
+    if (isValue && !node->attributes().empty())
+    {
+        stream << spacing << "}";
+    }
+
     stream.flags(saveFlags);
 }
 
-void Node::exportJsonArray(ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                           const String& betweenElements, const String& newLineChar, const String& indentSpaces) const
+void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                 const Formatting& formatting)
 {
     stream << "[";
-    if (is(Type::Array))
+    if (node->type() == Node::Type::Array)
     {
         bool first = true;
-        const auto& array = m_nodes;
+        const auto& array = node->nodes();
         if (array.empty())
         {
             stream << "]";
@@ -167,51 +181,98 @@ void Node::exportJsonArray(ostream& stream, bool formatted, size_t indent, const
             if (first)
             {
                 first = false;
-                stream << firstElement;
+                stream << formatting.firstElement;
             }
             else
             {
-                stream << betweenElements;
+                stream << formatting.betweenElements;
             }
-            element.exportJsonValueTo(stream, formatted, indent + 2);
+            exportJsonValueTo(element.get(), stream, formatted, indent + 2);
         }
     }
-    stream << newLineChar << indentSpaces << "]";
+    stream << formatting.newLineChar << formatting.indentSpaces << "]";
 }
 
-void Node::exportJsonObject(ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                            const String& betweenElements, const String& newLineChar,
-                            const String& indentSpaces) const
+void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+                                  const Formatting& formatting)
 {
     stream << "{";
-    if (is(Type::Object))
+    if (node->type() == Node::Type::Object)
     {
+        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
+
+        string spacing = formatted ? " " : "";
+
         bool first = true;
-        for (auto& node: m_nodes)
+        for (const auto& anode: node->nodes())
         {
             if (first)
             {
                 first = false;
-                stream << firstElement;
+                stream << formatting.firstElement;
             }
             else
             {
-                stream << betweenElements;
+                stream << formatting.betweenElements;
             }
-            stream << "\"" << node.name() << "\":";
-            if (formatted)
-            {
-                stream << " ";
-            }
-            node.exportJsonValueTo(stream, formatted, indent + 2);
+
+            stream << "\"" << anode->name() << "\":" << spacing;
+
+            exportJsonValueTo(anode.get(), stream, formatted, indent + 2);
         }
     }
-    stream << newLineChar << indentSpaces << "}";
+    stream << formatting.newLineChar << formatting.indentSpaces << "}";
 }
 
-void Node::exportJson(sptk::Buffer& json, bool formatted) const
+void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
+{
+    String spacing = formatted ? " " : "";
+    if (!node->attributes().empty())
+    {
+        stream << firstElement << "\"attributes\":" << spacing << "{";
+
+        bool first1 = true;
+        for (const auto& [name, value]: node->attributes())
+        {
+            if (first1)
+            {
+                first1 = false;
+                stream << spacing;
+            }
+            else
+            {
+                stream << "," << spacing;
+            }
+
+            stream << "\"" << name << "\":" << spacing;
+
+            if (isInteger(value) || isFloat(value) || isBoolean(value))
+            {
+                stream << value;
+            }
+            else
+            {
+                stream << "\"" << value << "\"";
+            }
+        }
+
+        stream << spacing << "}";
+
+        if (!node->nodes().empty() || !node->attributes().empty())
+        {
+            stream << ",";
+        }
+
+        if (formatted)
+        {
+            stream << " ";
+        }
+    }
+}
+
+void ExportJSON::exportToJSON(const Node* node, sptk::Buffer& json, bool formatted)
 {
     stringstream stream;
-    exportJsonValueTo(stream, formatted, 0);
+    exportJsonValueTo(node, stream, formatted, 0);
     json.set(stream.str());
 }

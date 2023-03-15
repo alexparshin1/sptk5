@@ -4,7 +4,7 @@
 ║                       CPostgreSQLParamValues.h - description                 ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __POSTGRESQL_PARAM_VALUES_H__
-#define __POSTGRESQL_PARAM_VALUES_H__
+#pragma once
 
 #include "PostgreSQLDataType.h"
 #include <sptk5/db/PostgreSQLConnection.h>
-#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/db/QueryParameter.h>
+#include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
 
@@ -40,18 +39,21 @@ class PostgreSQLParamValues
 {
     friend class PostgreSQLStatement;
 
-    size_t m_count{0};
+    size_t m_count {0};
     std::vector<const uint8_t*> m_values;
     std::vector<int> m_lengths;
     std::vector<int> m_formats;
     std::vector<Oid> m_types;
     CParamVector m_params;
     bool m_int64timestamps;
+
+    static constexpr size_t defaultParamCount = 8;
+
 public:
     explicit PostgreSQLParamValues(bool int64timestamps)
         : m_int64timestamps(int64timestamps)
     {
-        resize(16);
+        resize(defaultParamCount);
     }
 
     void reset()
@@ -83,22 +85,34 @@ public:
     void setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param);
 
     [[nodiscard]] unsigned size() const
-    { return (unsigned) m_count; }
+    {
+        return (unsigned) m_count;
+    }
 
     [[nodiscard]] const uint8_t* const* values() const
-    { return m_values.data(); }
+    {
+        return m_values.data();
+    }
 
     [[nodiscard]] const int* lengths() const
-    { return m_lengths.data(); }
+    {
+        return m_lengths.data();
+    }
 
     [[nodiscard]] const int* formats() const
-    { return m_formats.data(); }
+    {
+        return m_formats.data();
+    }
 
     [[nodiscard]] const Oid* types() const
-    { return m_types.data(); }
+    {
+        return m_types.data();
+    }
 
     [[nodiscard]] const CParamVector& params() const
-    { return m_params; }
+    {
+        return m_params;
+    }
 };
 
 extern const DateTime epochDate;
@@ -106,5 +120,3 @@ extern const long daysSinceEpoch;
 extern const int64_t microsecondsSinceEpoch;
 
 } // namespace sptk
-
-#endif

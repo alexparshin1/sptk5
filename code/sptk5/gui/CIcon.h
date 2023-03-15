@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Tar.h>
-#include <sptk5/cxml>
+#include <sptk5/gui/CPngImage.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -41,8 +41,7 @@ namespace sptk {
 /**
  * @brief Icon size variations
  */
-enum class CIconSize
-    : uint8_t
+enum class CIconSize : uint8_t
 {
     /**
      * Combo box icon, 12x12
@@ -91,10 +90,9 @@ public:
      * @brief Constructor
      */
     CIcon(const String& name = "", CPngImage* image = 0L, bool shared = true)
-        :
-        m_image(image),
-        m_name(name),
-        m_shared(shared)
+        : m_image(image)
+        , m_name(name)
+        , m_shared(shared)
     {
     }
 
@@ -154,6 +152,7 @@ class SP_EXPORT CIconMap
     : public std::map<String, CIcon*, CaseInsensitiveCompare>
 {
     bool m_shared;
+
 public:
     /**
      * @brief Default constructor
@@ -190,10 +189,10 @@ public:
      * @param tar CTar&, the loaded tar archive where images are located
      * @param node xml::Node*, an XML node describing the theme icon images
      */
-    void load(Tar& tar, xml::Node* node);
+    void load(Tar& tar, const xdoc::SNode& node);
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

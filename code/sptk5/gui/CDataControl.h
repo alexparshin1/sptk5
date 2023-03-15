@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,13 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CBox.h>
-#include <sptk5/gui/CMemoInput.h>
-#include <sptk5/gui/CHtmlBox.h>
 #include <sptk5/gui/CDateIntervalInput.h>
-#include <sptk5/gui/CPhoneNumberInput.h>
-#include <sptk5/gui/CIntegerInput.h>
-#include <sptk5/gui/CFloatInput.h>
-#include <sptk5/gui/CPasswordInput.h>
 #include <sptk5/gui/CDateTimeInput.h>
-
+#include <sptk5/gui/CFloatInput.h>
+#include <sptk5/gui/CHtmlBox.h>
+#include <sptk5/gui/CIntegerInput.h>
+#include <sptk5/gui/CMemoInput.h>
+#include <sptk5/gui/CPasswordInput.h>
+#include <sptk5/gui/CPhoneNumberInput.h>
+#include <sptk5/sptk.h>

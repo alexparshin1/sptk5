@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,11 +28,11 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Box.H>
+#include <FL/Fl_Group.H>
 #include <FL/Fl_Input_.H>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -57,7 +57,6 @@ class SP_EXPORT CHtmlBox
     void ctor_init(const char* label);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -76,7 +75,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CHtmlBox(int,int,int,int,const char * = 0);
+    CHtmlBox(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -142,10 +141,10 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -1,5 +1,7 @@
 IF (GTEST_FLAG)
-    ADD_LIBRARY(sptest ${LIBRARY_TYPE} TestRunner.cpp)
+    FILE(GLOB TEST_SOURCE_FILES tests/*/*.cpp)
+
+    ADD_LIBRARY(sptest ${LIBRARY_TYPE} TestRunner.cpp ${TEST_SOURCE_FILES})
     SET_TARGET_PROPERTIES(sptest PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES(sptest sputil5 spdb5 spwsdl5 gtest)
 
@@ -8,11 +10,13 @@ IF (GTEST_FLAG)
     ADD_EXECUTABLE(unit_tests unit_tests.cpp)
     TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 spwsdl5 sptest gtest)
 
-    IF (UNIX)
+    INSTALL(TARGETS unit_tests RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+
+    IF (BUILD_TEST_WS)
         TARGET_LINK_LIBRARIES(unit_tests WebServiceUnitTests)
     ENDIF ()
 ENDIF ()
 
-IF (UNIX)
+IF (BUILD_TEST_WS)
     add_subdirectory(wsdl)
 ENDIF ()

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/cutils>
-#include <sptk5/cnet>
-#include <sptk5/wsdl/WSRequest.h>
-#include <sptk5/wsdl/WSConnection.h>
 #include "WSServices.h"
+#include <sptk5/cnet>
+#include <sptk5/cutils>
+#include <sptk5/wsdl/WSConnection.h>
+#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
@@ -48,7 +48,8 @@ namespace sptk {
  * As a bonus, WSListener also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
  */
-class SP_EXPORT WSListener : public TCPServer
+class SP_EXPORT WSListener
+    : public TCPServer
 {
 public:
     /**
@@ -71,18 +72,17 @@ protected:
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override;
+    SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override;
 
 private:
-    mutable SharedMutex     m_mutex;                ///< Mutex that protects internal data
-    WSServices              m_services;             ///< Web Service request processor
-    Logger                  m_logger;               ///< Logger object
-    WSConnection::Options   m_options;              ///< Client connection options
+    mutable SharedMutex m_mutex;     ///< Mutex that protects internal data
+    WSServices m_services;           ///< Web Service request processor
+    Logger m_logger;                 ///< Logger object
+    WSConnection::Options m_options; ///< Client connection options
 };
 
 /**
  * @}
  */
 
-}
-
+} // namespace sptk

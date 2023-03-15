@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -443,7 +443,7 @@ void CLayoutManager::paintBackground()
     }
 }
 
-void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMode)
+void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xmlMode)
 {
     if (m_noXml)
     {
@@ -460,14 +460,10 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
     {
         clear();
         m_group->begin();
-        auto itor = groupNode->begin();
-        for (; itor != groupNode->end(); ++itor)
+        auto itor = groupNode->nodes().begin();
+        for (; itor != groupNode->nodes().end(); ++itor)
         {
-            xml::Node* widgetNode = *itor;
-            if (!widgetNode->isElement())
-            {
-                continue;
-            }
+            auto& widgetNode = *itor;
             string widgetType = widgetNode->name();
 
             auto cctor = controlCreator.find(widgetType);
@@ -480,7 +476,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
             CLayoutClient* layoutClient = creator(widgetNode);
             Fl_Widget* widget = layoutClient->m_widget;
 
-            if (!widgetNode->empty())
+            if (!widgetNode->nodes().empty())
             {
                 try
                 {
@@ -492,7 +488,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl)
+                    CERR(e.what() << endl);
                 }
             }
             else
@@ -507,7 +503,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl)
+                    CERR(e.what() << endl);
                 }
             }
             if (widget->parent() != m_group)
@@ -520,16 +516,16 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
     }
     else
     {
-        map<string, xml::Node*> xmlControls;
-        map<string, xml::Node*> xmlGroups;
-        auto itor = groupNode->begin();
-        for (; itor != groupNode->end(); ++itor)
+        map<string, xdoc::SNode> xmlControls;
+        map<string, xdoc::SNode> xmlGroups;
+        auto itor = groupNode->nodes().begin();
+        for (; itor != groupNode->nodes().end(); ++itor)
         {
-            xml::Node* node = *itor;
-            String label = (String) node->getAttribute("label");
+            auto& node = *itor;
+            String label = (String) node->attributes().get("label");
             if (label.empty())
             {
-                label = "noName:" + (String) node->getAttribute("nn_index");
+                label = "noName:" + (String) node->attributes().get("nn_index");
             }
             if (node->name() == "group")
             {
@@ -557,7 +553,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     auto gtor = xmlGroups.find(glabel);
                     if (gtor != xmlGroups.end())
                     {
-                        xml::Node* node = gtor->second;
+                        const auto& node = gtor->second;
                         group->loadLayout(node, xmlMode);
                     }
                     continue;
@@ -565,7 +561,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
             try
             {
@@ -580,7 +576,7 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
                     auto ctor = xmlControls.find(clabel);
                     if (ctor != xmlControls.end())
                     {
-                        xml::Node* node = ctor->second;
+                        const auto& node = ctor->second;
                         control->load(node, xmlMode);
                     }
                     continue;
@@ -588,13 +584,13 @@ void CLayoutManager::loadLayout(const xml::Node* groupNode, CLayoutXMLmode xmlMo
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
         }
     }
 }
 
-void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) const
+void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xmlMode) const
 {
     groupNode->clear();
     if (m_noXml)
@@ -622,7 +618,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
             auto* layoutClient = dynamic_cast<CLayoutClient*>(widget);
             if (layoutClient)
             {
-                xml::Node* node = new xml::Element(groupNode, layoutClient->className().c_str());
+                auto& node = groupNode->pushNode(layoutClient->className());
                 if (layoutManager)
                 {
                     layoutManager->saveLayout(node, xmlMode);
@@ -635,7 +631,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                         layoutClient->save(node, xmlMode);
                     }
                 }
-                if (node->empty() && !node->hasAttributes())
+                if (node->nodes().empty() && node->attributes().empty())
                 {
                     groupNode->remove(node);
                 }
@@ -643,7 +639,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
                 {
                     if (widget->label() == nullptr || widget->label()[0] == 0)
                     {
-                        node->setAttribute("nn_index", (int) i);
+                        node->attributes().set("nn_index", to_string(i));
                     }
                 }
                 continue;
@@ -651,7 +647,7 @@ void CLayoutManager::saveLayout(xml::Node* groupNode, CLayoutXMLmode xmlMode) co
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }
@@ -675,7 +671,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
 
         if (recursive)
@@ -690,7 +686,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl)
+                CERR(e.what() << endl);
             }
         }
     }

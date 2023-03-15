@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,26 +31,26 @@
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType, chrono::seconds connectTimeout)
     : m_connType(connectionType)
+    , m_connectionTimeout(connectTimeout)
 {
     connectionString(DatabaseConnectionString(_connectionString));
 }
 
+PoolDatabaseConnection::~PoolDatabaseConnection()
+{
+    disconnectAllQueries();
+}
+
 void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& connectionString)
 {
-    m_connString = shared_ptr<DatabaseConnectionString>(
-        new DatabaseConnectionString(connectionString),
-        [this](DatabaseConnectionString* ptr) {
-            disconnectAllQueries();
-            delete ptr;
-        }
-    );
+    m_connString = DatabaseConnectionString(connectionString);
 }
 
 void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
 {
-    for (const auto&[query, statement]: m_queryList)
+    for (const auto& [query, statement]: m_queryList)
     {
         try
         {
@@ -58,7 +58,7 @@ void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
     m_queryList.clear();
@@ -74,19 +74,19 @@ void PoolDatabaseConnection::setInTransaction(bool inTransaction)
     m_inTransaction = inTransaction;
 }
 
-bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* query)
 {
-    if (auto itor = m_queryList.find(q);
+    if (auto itor = m_queryList.find(query);
         itor == m_queryList.end())
     {
-        m_queryList[q] = nullptr;
+        m_queryList[query] = nullptr;
     }
     return true;
 }
 
-bool PoolDatabaseConnectionQueryMethods::unlinkQuery(Query* q)
+bool PoolDatabaseConnectionQueryMethods::unlinkQuery(Query* query)
 {
-    m_queryList.erase(q);
+    m_queryList.erase(query);
     return true;
 }
 
@@ -144,7 +144,7 @@ void PoolDatabaseConnection::rollbackTransaction()
 
 void PoolDatabaseConnection::logAndThrow(const String& method, const String& error)
 {
-    String errorText("Exception in " + method + ": " + error);
+    const String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 
@@ -256,12 +256,13 @@ void PoolDatabaseConnection::bulkInsertRecords(
         }
         sql << ")";
     }
+    sql << ";" << endl;
     Query insertRows(this, sql.str(), false);
     insertRows.exec();
 }
 
-void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings& columnNames,
-                                         const vector<VariantVector>& data)
+void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
+                                        const vector<VariantVector>& data)
 {
     const auto recordsInBatch = 16;
     auto begin = data.begin();
@@ -281,107 +282,37 @@ void PoolDatabaseConnection::_bulkInsert(const String& tableName, const Strings&
     }
 }
 
-void PoolDatabaseConnection::_executeBatchFile(const String& batchFileName, Strings* errors)
+void PoolDatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors)
 {
     Strings batchFileContent;
     batchFileContent.loadFromFile(batchFileName.c_str());
-    _executeBatchSQL(batchFileContent, errors);
+    executeBatchSQL(batchFileContent, errors);
 }
 
-void PoolDatabaseConnection::_executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
+void PoolDatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* q, SStmtHandle stmt)
+void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* query, const SStmtHandle& stmt)
 {
-    m_queryList[q] = stmt;
-    q->setStatement(stmt.get());
+    m_queryList[query] = stmt;
+    query->setStatement(stmt.get());
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* q, bool pf)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, bool isPrepared)
 {
-    q->setPrepared(pf);
+    query->setPrepared(isPrepared);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetActive(Query* q, bool af)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query* query, bool isActive)
 {
-    q->setActive(af);
+    query->setActive(isActive);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetEof(Query* q, bool eof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query* query, bool isEof)
 {
-    q->setEof(eof);
-}
-
-String PoolDatabaseConnectionQueryMethods::queryError(const Query*) const
-{
-    notImplemented("queryError");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryAllocStmt(Query*)
-{
-    notImplemented("queryAllocStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryFreeStmt(Query*)
-{
-    notImplemented("queryFreeStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryCloseStmt(Query*)
-{
-    notImplemented("queryCloseStmt");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryPrepare(Query*)
-{
-    notImplemented("queryPrepare");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-}
-
-void PoolDatabaseConnectionQueryMethods::queryExecute(Query*)
-{
-    notImplemented("queryExecute");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryExecDirect(Query*)
-{
-    notImplemented("queryExecDirect");
-}
-
-int PoolDatabaseConnectionQueryMethods::queryColCount(Query*)
-{
-    notImplemented("queryColCount");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryColAttributes(Query*, int16_t, int16_t, char*, int32_t)
-{
-    notImplemented("queryColAttributes");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryBindParameters(Query*)
-{
-    notImplemented("queryBindParameters");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryOpen(Query*)
-{
-    notImplemented("queryOpen");
-}
-
-void PoolDatabaseConnectionQueryMethods::queryFetch(Query*)
-{
-    notImplemented("queryFetch");
+    query->setEof(isEof);
 }
 
 void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
@@ -391,32 +322,5 @@ void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName
 
 String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
 {
-    return String("?");
+    return {"?"};
 }
-
-#if USE_GTEST
-
-TEST(SPTK_BulkInsert, escapeSqlString)
-{
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    String escapedString = escapeSQLString(sourceString, false);
-    EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
-}
-
-TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
-{
-    constexpr auto maxCount = 100000;
-    constexpr auto mcsInSecond = 1E6;
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    StopWatch stopWatch;
-    stopWatch.start();
-    for (size_t i = 0; i < maxCount; ++i)
-    {
-        escapeSQLString(sourceString, false);
-    }
-    stopWatch.stop();
-    COUT("Escaped " << maxCount << " SQLs " << " for " << stopWatch.seconds() << " sec, "
-                    << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl)
-}
-
-#endif

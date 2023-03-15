@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,85 +25,80 @@
 */
 
 #include "sptk5/ArchiveFile.h"
-#include "sptk5/Tar.h"
 #include <chrono>
-#include <filesystem>
 
 #ifndef _WIN32
 
-#include <pwd.h>
 #include <grp.h>
-#include <sys/stat.h>
-#include <sptk5/DateTime.h>
+#include <pwd.h>
 #include <sptk5/SystemException.h>
-#include <sptk5/ArchiveFile.h>
+#include <sys/stat.h>
 
 #endif
 
 using namespace std;
 using namespace sptk;
 
-namespace fs = filesystem;
-
 template<typename TP>
 std::time_t to_time_t(TP tp)
 {
     using namespace std::chrono;
-    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now()
-                                                        + system_clock::now());
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
     return system_clock::to_time_t(sctp);
 }
 
-ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory)
+ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::path& baseDirectory)
 {
     auto relativeFileName = relativePath(fileName, baseDirectory);
 
-    fs::path path(fileName.c_str());
-    auto status = fs::status(path);
+    filesystem::path path(fileName.c_str());
+    auto status = filesystem::status(path);
 
-    m_type = ArchiveFile::Type::REGULAR_FILE;
-    if (fs::is_symlink(path))
+    if (filesystem::is_symlink(path))
     {
         m_type = ArchiveFile::Type::SYM_LINK;
-        status = fs::symlink_status(path);
-        m_linkname = fs::read_symlink(path);
+        status = filesystem::symlink_status(path);
+        m_linkname = filesystem::read_symlink(path).string();
     }
-    else if (fs::is_regular_file(status))
+    else if (filesystem::is_regular_file(status))
     {
         loadFromFile(fileName.c_str());
     }
-    else if (fs::is_directory(status))
+    else if (filesystem::is_directory(status))
     {
         m_type = ArchiveFile::Type::DIRECTORY;
-        fs::path relpath(relativeFileName.c_str());
+        filesystem::path relpath(relativeFileName.c_str());
         relpath /= "";
         relativeFileName = relpath;
     }
 
     m_mode = (int) status.permissions();
 
-    fs::file_time_type ftime = fs::last_write_time(path);
+    filesystem::file_time_type ftime = filesystem::last_write_time(path);
     time_t mtime = to_time_t(ftime);
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
-    struct stat info {};
-    stat(fileName.c_str(), &info);  // Error check omitted
+    struct stat info {
+    };
+    stat(fileName.c_str(), &info); // Error check omitted
 
     constexpr int bufferSize = 128;
     Buffer buff(bufferSize);
-    struct passwd pw {};
-    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    struct passwd pw {
+    };
+    if (struct passwd * pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
 
     m_ownership.uname = pw.pw_name;
-    m_ownership.uid = pw.pw_uid;
-    m_ownership.gid = pw.pw_gid;
+    m_ownership.uid = (int) pw.pw_uid;
+    m_ownership.gid = (int) pw.pw_gid;
 
-    struct group gr {};
-    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    struct group gr {
+    };
+    if (struct group * gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }
@@ -114,18 +109,18 @@ ArchiveFile::ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory
     makeHeader();
 }
 
-fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& baseDirectory)
+filesystem::path ArchiveFile::relativePath(const filesystem::path& fileName, const filesystem::path& baseDirectory)
 {
-    fs::path relativePath;
+    filesystem::path relativePath;
 
     auto fdir = fileName.begin();
-    for (auto bdir = baseDirectory.begin(); fdir != fileName.end(); ++fdir, ++bdir)
+    for (auto baseDirIterator = baseDirectory.begin(); fdir != fileName.end(); ++fdir, ++baseDirIterator)
     {
-        if (bdir == baseDirectory.end())
+        if (baseDirIterator == baseDirectory.end())
         {
             break;
         }
-        if (*fdir != *bdir)
+        if (*fdir != *baseDirIterator)
         {
             return fileName;
         }
@@ -140,12 +135,16 @@ fs::path ArchiveFile::relativePath(const fs::path& fileName, const fs::path& bas
     return relativePath;
 }
 
-ArchiveFile::ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+ArchiveFile::ArchiveFile(const filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
                          ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
-                         const fs::path& linkName)
-    : Buffer(content),
-      m_fileName(fileName), m_mode(mode), m_ownership(ownership), m_mtime(mtime),
-      m_type(type), m_linkname(linkName)
+                         const filesystem::path& linkName)
+    : Buffer(content)
+    , m_fileName(fileName.string())
+    , m_mode(mode)
+    , m_ownership(ownership)
+    , m_mtime(mtime)
+    , m_type(type)
+    , m_linkname(linkName.string())
 {
     makeHeader();
 }
@@ -155,18 +154,18 @@ void ArchiveFile::makeHeader()
     m_header = make_shared<TarHeader>();
     memset(m_header.get(), 0, sizeof(TarHeader));
 
-    strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename));
+    strncpy(m_header->filename.data(), m_fileName.c_str(), sizeof(m_header->filename) - 1);
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
     snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_ownership.uid);
     snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_ownership.gid);
-    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) length());
+    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) size());
     snprintf(m_header->mtime.data(), sizeof(m_header->mtime), "%011o", (unsigned) (time_t) m_mtime);
 
     m_header->typeflag = (char) m_type;
 
     if (m_type == ArchiveFile::Type::SYM_LINK)
     {
-        strncpy(m_header->linkname.data(), m_linkname.c_str(), sizeof(m_header->linkname));
+        strncpy(m_header->linkName.data(), m_linkname.c_str(), sizeof(m_header->linkName) - 1);
     }
 
     memcpy(m_header->magic.data(), "ustar ", sizeof(m_header->magic));
@@ -175,16 +174,16 @@ void ArchiveFile::makeHeader()
     snprintf(m_header->uname.data(), sizeof(m_header->uname), "%s", m_ownership.uname.c_str());
     snprintf(m_header->gname.data(), sizeof(m_header->gname), "%s", m_ownership.gname.c_str());
 
-    memset(m_header->chksum.data(), ' ', sizeof(m_header->chksum));
-    unsigned chksum = 0;
+    memset(m_header->checkSum.data(), ' ', sizeof(m_header->checkSum));
+    unsigned checkSum = 0;
 
     const auto* header = (const uint8_t*) m_header.get();
     for (size_t i = 0; i < sizeof(TarHeader); ++i)
     {
-        chksum += header[i];
+        checkSum += header[i];
     }
 
-    snprintf(m_header->chksum.data(), sizeof(m_header->chksum) - 1, "%06o", chksum);
+    snprintf(m_header->checkSum.data(), sizeof(m_header->checkSum) - 1, "%06o", checkSum);
 }
 
 const char* ArchiveFile::header() const

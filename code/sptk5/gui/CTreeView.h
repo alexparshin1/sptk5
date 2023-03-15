@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CTreeControl.h>
-#include <sptk5/gui/CDataControl.h>
 
 namespace sptk {
 
@@ -49,7 +49,7 @@ class SP_EXPORT CTreeView
     /**
      * @brief The actual tree control
      */
-    CTreeControl* m_treeControl;
+    CTreeControl* m_treeControl {nullptr};
 
     /**
      * @brief Constructor initializer
@@ -57,21 +57,19 @@ class SP_EXPORT CTreeView
     void ctor_init();
 
 protected:
-
     /**
      * @brief Internal tree control callback
      */
     static void internal_callback(Fl_Widget*, void*);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label             Label
      * @param layoutSize        Widget align in layout
      * @param layoutAlign       Widget align in layout
      */
-    CTreeView(const char* label = 0, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
+    CTreeView(const char* label = nullptr, int layoutSize = 10, CLayoutAlign layoutAlign = CLayoutAlign::TOP);
 
 #ifdef __COMPATIBILITY_MODE__
     /**
@@ -82,7 +80,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CTreeView(int x,int y,int w,int h,const char *label=0);
+    CTreeView(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -142,7 +140,7 @@ public:
      * @param data              The user data or ID attached to the item
      * @returns the new child item
      */
-    CTreeItem* addPath(const std::vector<String>& path, const Fl_Image* itemImage = 0L, void* data = 0L)
+    CTreeItem* addPath(const std::vector<String>& path, const Fl_Image* itemImage = 0L, void* data = nullptr)
     {
         return m_treeControl->addPath(path, itemImage, itemImage, itemImage, data);
     }
@@ -221,7 +219,7 @@ public:
      * and widget data
      * @param node              XML node
      */
-    void load(const xml::Node* node) override;
+    void load(const xdoc::SNode& node) override;
 
     /**
      * @brief Saves the the widget to XML node
@@ -230,7 +228,7 @@ public:
      * and widget data
      * @param node              XML node
      */
-    void save(xml::Node* node) const override;
+    void save(const xdoc::SNode& node) const override;
 
     /**
      * @brief Returns true if data is valid
@@ -244,9 +242,9 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node              XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,19 +29,17 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CControl.h>
 
 using namespace std;
 using namespace sptk;
 
 const Fl_Menu_Item CControl::defaultControlMenu[] = {
-    {"Copy",  FL_CTRL + FL_Insert,  CControl::defaultControlMenuCopy,  nullptr, 0, 0, 0, 12, 0},
-    {"Cut",   FL_SHIFT + FL_Delete, CControl::defaultControlMenuCut,   nullptr, 0, 0, 0, 12, 0},
+    {"Copy", FL_CTRL + FL_Insert, CControl::defaultControlMenuCopy, nullptr, 0, 0, 0, 12, 0},
+    {"Cut", FL_SHIFT + FL_Delete, CControl::defaultControlMenuCut, nullptr, 0, 0, 0, 12, 0},
     {"Paste", FL_SHIFT + FL_Insert, CControl::defaultControlMenuPaste, nullptr, 0, 0, 0, 12, 0},
     {"Clear", 0, CControl::defaultControlMenuClear, nullptr, 0, 0, 0, 12, 0},
-    {nullptr, 0, nullptr,                           nullptr, 0, 0, 0, 0,  0}
-};
+    {nullptr, 0, nullptr, nullptr, 0, 0, 0, 0, 0}};
 
 class CControlKindIndex
 {
@@ -65,35 +63,33 @@ public:
     static CControlKind type(const char* name);
 };
 
-struct CControlKindName
-{
+struct CControlKindName {
     CControlKind type;
     const char* name;
 };
 
 static CControlKindName typeNames[] = {
-    {CControlKind::BOX,           "BOX"},
-    {CControlKind::HTMLBOX,       "HTML"},
-    {CControlKind::STRING,        "STRING"},
-    {CControlKind::MEMO,          "MEMO"},
-    {CControlKind::INTEGER,       "INTEGER"},
-    {CControlKind::FLOAT,         "FLOAT"},
-    {CControlKind::DATE,          "DATE"},
-    {CControlKind::TIME,          "TIME"},
-    {CControlKind::DATETIME,      "DATETIME"},
-    {CControlKind::DATEINTERVAL,  "DATEINTERVAL"},
-    {CControlKind::COMBO,         "COMBO"},
+    {CControlKind::BOX, "BOX"},
+    {CControlKind::HTMLBOX, "HTML"},
+    {CControlKind::STRING, "STRING"},
+    {CControlKind::MEMO, "MEMO"},
+    {CControlKind::INTEGER, "INTEGER"},
+    {CControlKind::FLOAT, "FLOAT"},
+    {CControlKind::DATE, "DATE"},
+    {CControlKind::TIME, "TIME"},
+    {CControlKind::DATETIME, "DATETIME"},
+    {CControlKind::DATEINTERVAL, "DATEINTERVAL"},
+    {CControlKind::COMBO, "COMBO"},
     {CControlKind::INTVALUECOMBO, "INTVALUECOMBO"},
-    {CControlKind::LISTBOX,       "LISTBOX"},
-    {CControlKind::CHECKBUTTONS,  "CHECKBUTTONS"},
-    {CControlKind::RADIOBUTTONS,  "RADIOBUTTONS"},
-    {CControlKind::PHONE,         "PHONE"},
-    {CControlKind::TREEVIEW,      "TREEVIEW"},
-    {CControlKind::GROUP,         "GROUP"},
-    {CControlKind::SLIDER,        "SLIDER"},
-    {CControlKind::PROGRESS,      "PROGRESS"},
-    {CControlKind::UNKNOWN,       ""}
-};
+    {CControlKind::LISTBOX, "LISTBOX"},
+    {CControlKind::CHECKBUTTONS, "CHECKBUTTONS"},
+    {CControlKind::RADIOBUTTONS, "RADIOBUTTONS"},
+    {CControlKind::PHONE, "PHONE"},
+    {CControlKind::TREEVIEW, "TREEVIEW"},
+    {CControlKind::GROUP, "GROUP"},
+    {CControlKind::SLIDER, "SLIDER"},
+    {CControlKind::PROGRESS, "PROGRESS"},
+    {CControlKind::UNKNOWN, ""}};
 
 CControlKindIndex::CControlKindIndex() noexcept
 {
@@ -107,7 +103,6 @@ CControlKindIndex::CControlKindIndex() noexcept
 
 CControlKindIndex::CTypeNameMap CControlKindIndex::m_typeNameMap;
 CControlKindIndex::CNameTypeMap CControlKindIndex::m_nameTypeMap;
-static CControlKindIndex controlKindIndex;
 
 void CControlKindIndex::registerType(CControlKind type, const char* name)
 {
@@ -201,15 +196,16 @@ void CControl::ctor_init(const char* label)
 }
 
 CControl::CControl(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    :
-    Fl_Group(0, 0, layoutSize, layoutSize), CLayoutClient(this, layoutSize, layoutAlignment)
+    : Fl_Group(0, 0, layoutSize, layoutSize)
+    , CLayoutClient(this, layoutSize, layoutAlignment)
 {
     ctor_init(label);
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CControl::CControl(int x,int y,int w,int h,const char * label) :
-    Fl_Group(x,y,w,h,""), CLayoutClient(this,w,CLayoutAlign::NONE)
+CControl::CControl(int x, int y, int w, int h, const char* label)
+    : Fl_Group(x, y, w, h, "")
+    , CLayoutClient(this, w, CLayoutAlign::NONE)
 {
     ctor_init(label);
 }
@@ -443,11 +439,11 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
     maxLength = 0;
     switch (toupper(typeName[0]))
     {
-        case 'A':   // AREA CODE
+        case 'A': // AREA CODE
             maxLength = 3;
             return CControlKind::INTEGER;
 
-        case 'C':   // CURRENCY, CREDIT CARD, COMBO BOX, CHOICE, CHECK BUTTONS
+        case 'C': // CURRENCY, CREDIT CARD, COMBO BOX, CHOICE, CHECK BUTTONS
             switch (c1)
             {
                 case 'U':
@@ -472,7 +468,7 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'D':   // DATE, DATE AND TIME
+        case 'D': // DATE, DATE AND TIME
             if (typeName.length() > 4)
             {
                 controlType = CControlKind::DATETIME;
@@ -483,19 +479,19 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'F':   // float #
+        case 'F': // float #
             controlType = CControlKind::FLOAT;
             break;
 
-        case 'H':  // HTML
+        case 'H': // HTML
             controlType = CControlKind::HTMLBOX;
             break;
 
-        case 'G':  // GROUP
+        case 'G': // GROUP
             controlType = CControlKind::GROUP;
             break;
 
-        case 'I':   // INTEGER
+        case 'I': // INTEGER
             if (trim(values).length())
             {
                 controlType = CControlKind::INTVALUECOMBO;
@@ -506,7 +502,7 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'L':   // LABEL, LONG ZIP CODE
+        case 'L': // LABEL, LONG ZIP CODE
             switch (c1)
             {
                 case 'A':
@@ -521,7 +517,7 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'M':   // MASK, MULTIPLE CHOICE, MONEY
+        case 'M': // MASK, MULTIPLE CHOICE, MONEY
             switch (c1)
             {
                 case 'A':
@@ -538,7 +534,7 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'P':   // PHONE, PHONE EXT, PLAIN TEXT
+        case 'P': // PHONE, PHONE EXT, PLAIN TEXT
             switch (c1)
             {
                 case 'H':
@@ -549,11 +545,11 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
                     else
                     {
                         maxLength = 4;
-                        controlType = CControlKind::INTEGER;  // phone extension
+                        controlType = CControlKind::INTEGER; // phone extension
                     }
                     break;
                 case 'R':
-                    controlType = CControlKind::PROGRESS;  // progress bar
+                    controlType = CControlKind::PROGRESS; // progress bar
                     break;
                 default:
                     controlType = CControlKind::BOX;
@@ -561,15 +557,15 @@ CControlKind CControl::controlNameToType(const String& typeName, int& maxLength,
             }
             break;
 
-        case 'S':   // SIMPLE, STRING, SSN
+        case 'S': // SIMPLE, STRING, SSN
             controlType = CControlKind::STRING;
             break;
 
-        case 'T':   // TIME
+        case 'T': // TIME
             controlType = CControlKind::TIME;
             break;
 
-        case 'Z':   // Zip code
+        case 'Z': // Zip code
             maxLength = 10;
             controlType = CControlKind::STRING;
             break;
@@ -638,26 +634,26 @@ void CControl::fireEvent(CEvent ev, int32_t arg)
     }
 }
 
-void sptk::createControls(const xml::NodeList& xmlControls)
+void sptk::createControls(const xdoc::SNode& xmlControls)
 {
-    for (auto* node: xmlControls)
+    for (const auto& node: xmlControls->nodes())
     {
         CControlKind controlKind = CControlKindIndex::type(node->name());
-        CControl* control = createControl(controlKind, (String) node->getAttribute("label", ""),
-                                          (String) node->getAttribute("fieldName", ""),
-                                          (int) node->getAttribute("size", "12"));
-        if ((int) node->getAttribute("visible", "1") == 0)
+        CControl* control = createControl(controlKind, (String) node->attributes().get("label", ""),
+                                          (String) node->attributes().get("fieldName", ""),
+                                          node->attributes().get("size", "12").toInt());
+        if (node->attributes().get("visible", "1").toInt() == 0)
         {
             control->hide();
         }
-        if ((int) node->getAttribute("enable", "1") == 0)
+        if (node->attributes().get("enable", "1").toInt() == 0)
         {
             control->deactivate();
         }
     }
 }
 
-void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CControl::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
@@ -672,7 +668,7 @@ void CControl::load(const xml::Node* node, CLayoutXMLmode xmlMode)
     }
 }
 
-void CControl::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CControl::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     node->name("control");
 

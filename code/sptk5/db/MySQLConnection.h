@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,10 +28,10 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_MYSQL == 1
+#ifdef HAVE_MYSQL
 
-#include <sptk5/db/MySQLStatement.h>
 #include <mutex>
+#include <sptk5/db/MySQLStatement.h>
 
 #ifdef _WIN32
 #define ULONG_CAST (unsigned long)
@@ -79,7 +79,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
@@ -90,7 +90,7 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The MySQL connection string
      */
-    explicit MySQLConnection(const String& connectionString = "");
+    explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::minutes(1));
 
     MySQLConnection(const MySQLConnection&) = delete;
 
@@ -100,7 +100,7 @@ public:
 
     MySQLConnection& operator=(MySQLConnection&&) = delete;
 
-    virtual ~MySQLConnection() = default;
+    ~MySQLConnection() override = default;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -129,8 +129,12 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-protected:
+    /**
+     * @brief All active connections
+     */
+    static std::map<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
 
+protected:
     /**
      * @brief Begins the transaction
      */
@@ -169,11 +173,6 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
-
-    /**
      * Executes a statement
      */
     void queryExecute(Query* query) override;
@@ -197,8 +196,8 @@ protected:
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
-
-
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     /**
      * @brief Returns parameter mark
      *
@@ -208,9 +207,8 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-
     std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
-    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
+    mutable std::mutex m_mutex;          ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to MySQL server
@@ -222,17 +220,14 @@ private:
      */
     void executeCommand(const String& command);
 };
-
-#define throwMySQLException(info) throw DatabaseException(string(info) + ":" + string(mysql_error(m_connection.get())))
-
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 SP_DRIVER_EXPORT void mysql_destroy_connection(void* connection);
 }

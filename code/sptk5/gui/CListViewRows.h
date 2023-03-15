@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Variant.h>
 #include <sptk5/PackedStrings.h>
 #include <sptk5/Variant.h>
 
@@ -78,8 +77,6 @@ class SP_EXPORT CListViewRows
     CPSVector m_rows;
 
 protected:
-
-
     /**
      * The sort column number for the sort functions
      */
@@ -111,7 +108,6 @@ protected:
     static bool compare_datetimes(const PPackedStrings&, const PPackedStrings&);
 
 public:
-
     /**
      * Default constructor
      */
@@ -144,8 +140,7 @@ public:
      * @param row CPackedStrings *, the new row pointer
      * @returns row index
      */
-    uint32_t add
-        (CPackedStrings* row);
+    uint32_t add(CPackedStrings* row);
 
     /**
      * Inserts the new row.
@@ -243,4 +238,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

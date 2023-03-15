@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
@@ -56,7 +55,6 @@ namespace sptk {
 class SP_EXPORT DatabaseConnectionString
 {
 public:
-
     /**
      * Constructor
      * @param connectionString  Database connection string
@@ -174,14 +172,12 @@ public:
     bool empty() const;
 
 protected:
-
     /**
      * Parses connection string
      */
     void parse();
 
 private:
-
     /**
      * Database connection string
      */
@@ -233,4 +229,4 @@ using SDatabaseConnectionString = std::shared_ptr<DatabaseConnectionString>;
 /**
  * @}
  */
-}
+} // namespace sptk

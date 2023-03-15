@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,112 +31,76 @@ using namespace sptk;
 
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    UniqueLock(m_mutex);
+    lock_guard lock(m_mutex);
 
-    if (!m_fileStream)
+    if (option(Option::ENABLE))
     {
-        return;
-    }
-
-    if (auto _options = (uint32_t) options(); (_options & LO_ENABLE) == LO_ENABLE)
-    {
-        if (!m_fileStream->is_open())
+        if (!m_fileStream.is_open())
         {
-            m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::app);
-            if (!m_fileStream->is_open())
+            m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
+            if (!m_fileStream.is_open())
             {
-                throw Exception("Can't append or create log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+                throw Exception("Can't append or create log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
             }
         }
 
-        if ((_options & LO_DATE) == LO_DATE)
+        if (option(Option::DATE))
         {
-            *m_fileStream << message->timestamp.dateString() << " ";
+            m_fileStream << message->timestamp.dateString() << " ";
         }
 
-        if ((_options & LO_TIME) == LO_TIME)
+        if (option(Option::TIME))
         {
-            *m_fileStream << message->timestamp.timeString(true) << " ";
+            auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+            m_fileStream << message->timestamp.timeString(true, printAccuracy) << " ";
         }
 
-        if ((_options & LO_PRIORITY) == LO_PRIORITY)
+        if (option(Option::PRIORITY))
         {
-            *m_fileStream << "[" << priorityName(message->priority) << "] ";
+            m_fileStream << "[" << priorityName(message->priority) << "] ";
         }
 
-        *m_fileStream << message->message << endl;
+        m_fileStream << message->message << endl;
     }
 
-    if (m_fileStream->bad())
+    if (m_fileStream.bad())
     {
-        throw Exception("Can't write to log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't write to log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
     }
 }
 
-FileLogEngine::FileLogEngine(const fs::path& fileName)
-    : LogEngine("FileLogEngine"),
-      m_fileName(fileName),
-      m_fileStream(shared_ptr<ofstream>(new ofstream(fileName.c_str()),
-                                        [this](ofstream* ptr) {
-                                            sleep_for(chrono::milliseconds(1000));
-                                            terminate();
-                                            join();
-                                            UniqueLock(m_mutex);
-                                            if (ptr->is_open())
-                                            {
-                                                ptr->close();
-                                            }
-                                            delete ptr;
-                                        }))
+FileLogEngine::FileLogEngine(const filesystem::path& fileName)
+    : LogEngine("FileLogEngine")
+    , m_fileName(fileName)
+    , m_fileStream(fileName.c_str())
 {
+}
+
+FileLogEngine::~FileLogEngine()
+{
+    shutdown();
+    scoped_lock lock(m_mutex);
+    if (m_fileStream.is_open())
+    {
+        m_fileStream.flush();
+        m_fileStream.close();
+    }
 }
 
 void FileLogEngine::reset()
 {
-    UniqueLock(m_mutex);
-    if (m_fileStream->is_open())
+    lock_guard lock(m_mutex);
+    if (m_fileStream.is_open())
     {
-        m_fileStream->close();
+        m_fileStream.close();
     }
     if (m_fileName.empty())
     {
         throw Exception("File name isn't defined", __FILE__, __LINE__);
     }
-    m_fileStream->open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
-    if (!m_fileStream->is_open())
+    m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
+    if (!m_fileStream.is_open())
     {
-        throw Exception("Can't open log file '" + (string) m_fileName + "'", __FILE__, __LINE__);
+        throw Exception("Can't open log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
     }
 }
-
-#if USE_GTEST
-
-TEST(SPTK_FileLogEngine, create)
-{
-    const fs::path logFileName("/tmp/file_log_test.tmp");
-
-    unlink(logFileName.c_str());
-
-    auto logEngine = make_shared<FileLogEngine>(logFileName);
-    auto logger = make_shared<Logger>(*logEngine, "(Test application) ");
-    logger->debug("Test started");
-    logger->critical("Critical message");
-    logger->error("Error message");
-    logger->warning("Warning message");
-    logger->info("Test completed");
-    logger.reset();
-
-    logEngine.reset();
-
-    Strings content;
-    content.loadFromFile(logFileName);
-
-    EXPECT_EQ(content.size(), 5U);
-    for (String level: {"critical", "error", "warning", "info", "debug"})
-    {
-        const auto messages = content.grep(level.toUpperCase());
-        EXPECT_EQ(messages.size(), 1U);
-    }
-}
-
-#endif

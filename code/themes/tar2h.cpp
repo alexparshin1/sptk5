@@ -25,8 +25,8 @@ int main(int argc, char** argv)
 
         size_t dataSize = data.bytes();
 
-        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl)
-        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl)
+        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl);
+        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl);
 
         const auto* x = (const unsigned char*) data.c_str();
 
@@ -39,13 +39,13 @@ int main(int argc, char** argv)
             { str << endl; }
         }
         str << "};" << endl;
-        COUT(str.str())
+        COUT(str.str());
 
         return 0;
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

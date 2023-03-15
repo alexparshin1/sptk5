@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,15 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/gui/CEditorSpellChecker.h>
 #include <aspell.h>
+#include <sptk5/gui/CEditorSpellChecker.h>
 
 using namespace std;
 using namespace sptk;
 
 CSpellOption::CSpellOption(const String& name, const String& value)
-    : m_name(name), m_value(value)
+    : m_name(name)
+    , m_value(value)
 {
 }
 
@@ -70,7 +71,9 @@ void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
         spellChecker->m_okButton->activate();
     }
     else
-    { spellChecker->m_okButton->deactivate(); }
+    {
+        spellChecker->m_okButton->deactivate();
+    }
 }
 
 void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
@@ -86,7 +89,9 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
             spellChecker->m_okButton->activate();
         }
         else
-        { spellChecker->m_okButton->deactivate(); }
+        {
+            spellChecker->m_okButton->deactivate();
+        }
     }
 }
 
@@ -141,11 +146,11 @@ CSpellChecker::CSpellChecker()
     (*this)["data-dir"] = "C:\\Program Files\\Aspell\\data";
 
     if (m_personalDirectory == "")
-       m_personalDirectory = "C:\\Program Files\\Aspell";
+        m_personalDirectory = "C:\\Program Files\\Aspell";
 
     (*this)["personal"] = m_personalDirectory + "\\personal.pws";
-    (*this)["repl"]     = m_personalDirectory + "\\personal.prepl";
- /*
+    (*this)["repl"] = m_personalDirectory + "\\personal.prepl";
+    /*
     (*this)["word-list-path"] = "C:\\Program Files\\Aspell\\dict";
     (*this)["master"] = "master.pwl";
  */
@@ -175,12 +180,13 @@ void CSpellChecker::getConfigStrings(AspellConfig* aconfig, CSpellOptions& optio
     {
         const AspellKeyInfo* keyInfo = aspell_key_info_enumeration_next(keyInfoElements);
         if (!keyInfo)
-        { break; }
+        {
+            break;
+        }
         string val = aspell_config_retrieve(aconfig, keyInfo->name);
         CSpellOption option(keyInfo->name, val);
         options.insert(CSpellOptions::value_type(keyInfo->name, option));
-    }
-    while (!aspell_key_info_enumeration_at_end(keyInfoElements));
+    } while (!aspell_key_info_enumeration_at_end(keyInfoElements));
 }
 
 void CSpellChecker::getDictionaries(Strings& dictionaries)
@@ -222,7 +228,9 @@ void CSpellChecker::getOptions(CSpellOptions& options)
 void CSpellChecker::checkForError()
 {
     if (!m_spellChecker)
-    { return; }
+    {
+        return;
+    }
     if (aspell_speller_error(m_spellChecker) != nullptr)
     {
         throw Exception(aspell_speller_error_message(m_spellChecker));
@@ -263,7 +271,9 @@ bool CSpellChecker::spellCheck()
     while (getNextWord(word, wordStart, wordEnd))
     {
         if (strpbrk(word.c_str(), "0123456789"))
-        { continue; }
+        {
+            continue;
+        }
         int result = aspell_speller_check(m_spellChecker, word.c_str(), (int) word.length());
         if (result != 1)
         {
@@ -282,7 +292,9 @@ bool CSpellChecker::spellCheck()
                     m_suggestionListView->addRow(0, Strings(nextWord, "|"));
                 }
                 else
-                { break; }
+                {
+                    break;
+                }
                 if (!bestAssigned)
                 {
                     best = nextWord;

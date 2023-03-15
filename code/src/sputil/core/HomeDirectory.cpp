@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +32,7 @@ using namespace sptk;
 String HomeDirectory::location()
 {
 #ifndef _WIN32
-    const char* hdir = getenv("HOME");
+    const char* hdir = std::getenv("HOME");
     if (hdir == nullptr)
         hdir = ".";
     String homeDir = trim(hdir);
@@ -40,10 +40,10 @@ String HomeDirectory::location()
         homeDir = ".";
     homeDir += "/";
 #else
-
-    char *hdrive = getenv("HOMEDRIVE");
-    char *hdir   = getenv("HOMEPATH");
-    if (!hdir && !hdrive) {
+    char* hdrive = getenv("HOMEDRIVE");
+    char* hdir = getenv("HOMEPATH");
+    if (!hdir && !hdrive)
+    {
         const char* wdir = getenv("WINDIR");
         if (wdir == nullptr)
             return "C:\\";

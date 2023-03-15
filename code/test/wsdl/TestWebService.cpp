@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,16 +24,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "TestWebService.h"
+#include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/Query.h>
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSListener.h>
-#include <sptk5/StopWatch.h>
-#include <sptk5/db/Query.h>
-#include <sptk5/db/DatabaseConnectionPool.h>
-#include "TestWebService.h"
+
+#ifdef USE_GTEST
+#include <gtest/gtest.h>
+#endif
 
 using namespace std;
 using namespace sptk;
 using namespace test_service;
+using namespace xdoc;
 
 shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 
@@ -77,12 +81,12 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
-    jwt["iat"] = (int) time(nullptr);                  // JWT issue time
-    jwt["iss"] = "http://test.com";                         // JWT issuer
-    jwt["exp"] = (int) time(nullptr) + secondsInDay;   // JWT expiration time
+    jwt.set("iat", (int) time(nullptr));                // JWT issue time
+    jwt.set("iss", "http://test.com");                  // JWT issuer
+    jwt.set("exp", (int) time(nullptr) + secondsInDay); // JWT expiration time
 
     // Add some description information that we may use later
-    auto* info = jwt.grants.root().add_object("info");
+    const auto& info = jwt.grants.root()->pushNode("info");
     info->set("username", "johnd");
     info->set("company", "My Company");
     info->set("city", "My City");
@@ -105,13 +109,13 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
     }
 
     const auto& token = authentication->getData();
-    const auto& info = token.getObject("info");
-    auto username = info["username"].getString();
+    const auto info = token->findFirst("info");
+    auto username = info->getString("username");
 
     output.m_account_balance = testAmount;
 }
 
-#if USE_GTEST
+#ifdef USE_GTEST
 
 static constexpr int int123 = 123;
 
@@ -140,29 +144,83 @@ TEST(SPTK_TestWebService, Hello)
     EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
+static const String soapWrapper(
+    R"(<?xml version="1.0" encoding="UTF-8"?>)"
+    R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
+    "<soap:Body>"
+    "{REQUEST_DATA}"
+    "</soap:Body>"
+    "</soap:Envelope>");
+
+
+static Document make_send_request(const String& methodName, DataFormat dataFormat)
+{
+    Document sendRequest;
+
+    auto requestNode = sendRequest.root();
+
+    if (dataFormat == DataFormat::XML)
+    {
+        auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
+        sendRequest.load(wrapper);
+        requestNode = sendRequest.root()->findFirst("ns1:" + methodName);
+    }
+
+    if (methodName == "Hello")
+    {
+        requestNode->set("first_name", "John");
+        requestNode->set("last_name", "Doe");
+        TestWebService::jwtAuthorization.reset();
+    }
+    else if (methodName == "Login")
+    {
+        requestNode->set("username", "johnd");
+        requestNode->set("password", "secret");
+        TestWebService::jwtAuthorization.reset();
+    }
+    else if (methodName == "AccountBalance")
+    {
+        requestNode->set("account_number", "000-123456-7890");
+    }
+
+    return sendRequest;
+}
+
+static SNode get_response_node(const Document& response, DataFormat dataFormat)
+{
+    SNode responseNode = response.root();
+    if (dataFormat == DataFormat::XML)
+    {
+        auto bodyNode = responseNode->findFirst("soap:Body");
+        responseNode = *bodyNode->nodes().begin();
+    }
+    return responseNode;
+}
+
 /**
  * Test execution of { Hello, Login, AccountBalance } methods.
  * Calling AccountBalance method requires calling Login method first.
  * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
  * @param methodNames           WS methods to be executed
  */
-static void request_listener_test(const Strings& methodNames, bool encrypted = false)
+static void request_listener_test(const Strings& methodNames, DataFormat dataFormat, bool encrypted = false)
 {
     SysLogEngine logEngine("TestWebService");
     auto service = make_shared<TestWebService>();
 
+    const String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
+
     // Define Web Service listener
-    WSConnection::Paths paths("index.html", "/test", ".");
+    const WSConnection::Paths paths("index.html", "/test", ".");
     WSConnection::Options options(paths);
     options.encrypted = encrypted;
-    WSServices services(service);
+    const WSServices services(service);
     WSListener listener(services, logEngine, "localhost", 16, options);
 
     const uint16_t servicePort = 11000;
     shared_ptr<SSLKeys> sslKeys;
     try
     {
-
         if (encrypted)
         {
             sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
@@ -175,26 +233,8 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
         for (const auto& methodName: methodNames)
         {
             Buffer sendRequestBuffer;
-            json::Document sendRequestJson;
-
-            if (methodName == "Hello")
-            {
-                sendRequestJson.root()["first_name"] = "John";
-                sendRequestJson.root()["last_name"] = "Doe";
-                TestWebService::jwtAuthorization.reset();
-            }
-            else if (methodName == "Login")
-            {
-                sendRequestJson.root()["username"] = "johnd";
-                sendRequestJson.root()["password"] = "secret";
-                TestWebService::jwtAuthorization.reset();
-            }
-            else if (methodName == "AccountBalance")
-            {
-                sendRequestJson.root()["account_number"] = "000-123456-7890";
-            }
-
-            sendRequestJson.exportTo(sendRequestBuffer);
+            const Document sendRequest = make_send_request(methodName, dataFormat);
+            sendRequest.exportTo(dataFormat, sendRequestBuffer, true);
 
             shared_ptr<TCPSocket> client;
             if (encrypted)
@@ -211,53 +251,53 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
             client->open();
 
             HttpConnect httpClient(*client);
-            HttpParams httpParams {{"action", "view"}};
+            const HttpParams httpParams {{"action", "view"}};
             Buffer requestResponse;
-            httpClient.requestHeaders()["Content-Type"] = "application/json";
-            int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer, requestResponse,
-                                                 {"gzip"}, TestWebService::jwtAuthorization.get());
+            httpClient.requestHeaders()["Content-Type"] = "application/" + serviceType;
+            const int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer,
+                                                       requestResponse, {"gzip"},
+                                                       TestWebService::jwtAuthorization.get());
             client->close();
 
             if (statusCode >= 400)
                 FAIL() << requestResponse.c_str();
             else
             {
-                json::Document response;
+                Document response;
                 response.load(requestResponse.c_str());
+
+                auto responseNode = get_response_node(response, dataFormat);
 
                 if (methodName == "Hello")
                 {
                     // Just check some fields
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("height"), 6.5);
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("vacation_days"), 21);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("height"), 6.5);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("vacation_days"), 21);
                 }
                 else if (methodName == "Login")
                 {
                     // Set JWT authorization for future operations
                     TestWebService::jwtAuthorization = make_shared<HttpConnect::BearerAuthorization>(
-                        response.root().getString("jwt"));
+                        responseNode->getString("jwt"));
 
                     // Decode JWT content
                     JWT jwt;
                     jwt.decode(TestWebService::jwtAuthorization->value().c_str(), jwtEncryptionKey256);
 
                     // Get username from "info" node
-                    auto& info = jwt.grants.root().getObject("info");
-                    auto username = info["username"].getString();
+                    auto info = jwt.grants.root()->findFirst("info");
+                    auto username = info->getString("username");
 
                     EXPECT_STREQ(username.c_str(), "johnd");
                 }
                 else if (methodName == "AccountBalance")
                 {
-                    EXPECT_DOUBLE_EQ(response.root().getNumber("account_balance"), 12345.67);
+                    EXPECT_DOUBLE_EQ(responseNode->getNumber("account_balance"), 12345.67);
                 }
             }
         }
 
-        StopWatch stopwatch;
-        stopwatch.start();
         listener.stop();
-        stopwatch.stop();
     }
     catch (const Exception& e)
     {
@@ -266,11 +306,14 @@ static void request_listener_test(const Strings& methodNames, bool encrypted = f
 }
 
 /**
- * Test Hello method working through the service
+ * Test Hello method working through the service in JSON and XML modes
  */
 TEST(SPTK_TestWebService, Hello_HTTP)
 {
-    request_listener_test(Strings("Hello", ","), false);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test({"Hello"}, dataType, false);
+    }
 }
 
 /**
@@ -290,8 +333,8 @@ TEST(SPTK_TestWebService, Login)
     JWT jwt;
     jwt.decode(response.m_jwt.getString(), jwtEncryptionKey256);
 
-    auto& info = jwt.grants.root().getObject("info");
-    auto username = info["username"].getString();
+    auto info = jwt.grants.root()->findFirst("info");
+    auto username = info->getString("username");
 
     EXPECT_STREQ(username.c_str(), "johnd");
 }
@@ -301,7 +344,10 @@ TEST(SPTK_TestWebService, Login)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), false);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test(Strings("Login|AccountBalance", "|"), dataType, false);
+    }
 }
 
 /**
@@ -309,7 +355,19 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 {
-    request_listener_test(Strings("Login|AccountBalance", "|"), true);
+    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    {
+        request_listener_test(Strings("Login|AccountBalance", "|"), dataType, true);
+    }
+}
+
+static String exportToString(const WSComplexType& object)
+{
+    Buffer buffer;
+    xdoc::Document document;
+    object.exportTo(document.root());
+    document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
+    return String(buffer);
 }
 
 TEST(SPTK_WSGeneratedClasses, CopyConstructor)
@@ -317,10 +375,14 @@ TEST(SPTK_WSGeneratedClasses, CopyConstructor)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
-    CLogin login2(login);
+    const CLogin login2(login);
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, MoveConstructor)
@@ -328,12 +390,14 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
-    CLogin login2(move(login));
+    const CLogin login2(std::move(login));
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
-    EXPECT_TRUE(login.m_username.isNull());
-    EXPECT_TRUE(login.m_password.isNull());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, CopyAssignment)
@@ -341,11 +405,15 @@ TEST(SPTK_WSGeneratedClasses, CopyAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2;
     login2 = login;
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, MoveAssignment)
@@ -353,11 +421,15 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
+    auto str = exportToString(login);
 
     CLogin login2;
-    login2 = move(login);
+    login2 = std::move(login);
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
+    auto str2 = exportToString(login2);
+
+    EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, Clear)
@@ -386,9 +458,9 @@ static const String testJSON(
 
 TEST(SPTK_WSGeneratedClasses, LoadXML)
 {
-    xml::Document input;
+    Document input;
     input.load(testXML);
-    const auto* loginNode = input.findFirst("login");
+    const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
     login.load(loginNode);
@@ -401,15 +473,37 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
 
 TEST(SPTK_WSGeneratedClasses, LoadJSON)
 {
-    json::Document input;
-    input.load(testJSON);
-    const auto& loginNode = input.root();
+    Document input;
+    input.load(testXML);
+    const auto loginNode = input.root()->findFirst("login");
 
     CLogin login;
-    login.load(&loginNode);
+    login.load(loginNode);
 
     EXPECT_STREQ("johnd", login.m_username.asString().c_str());
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, LoadFields)
+{
+    FieldList fields(false);
+    fields.push_back(make_shared<Field>("username"));
+    fields.push_back(make_shared<Field>("password"));
+    fields.push_back(make_shared<Field>("servers"));
+    fields.push_back(make_shared<Field>("server_count"));
+
+    fields["username"] = "johnd";
+    fields["password"] = "secret";
+    fields["server_count"] = 2;
+    fields["servers"] = R"(["x1","x2"])";
+
+    CLogin login;
+    login.load(fields);
+
+    EXPECT_STREQ("johnd", login.m_username.asString().c_str());
+    EXPECT_STREQ("secret", login.m_password.asString().c_str());
+    EXPECT_EQ(2, login.m_server_count.asInteger());
+    EXPECT_STREQ("x1", login.m_servers[0].asString().c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, UnloadXML)
@@ -424,17 +518,46 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    xml::Document xml;
-    auto* loginNode = xml.findOrCreate("login");
+    Document xml;
+    auto loginNode = xml.root()->findOrCreate("login");
     login.unload(loginNode);
 
     Buffer buffer;
-    xml.save(buffer, 0);
+    xml.root()->exportTo(DataFormat::XML, buffer, false);
 
-    EXPECT_STREQ(buffer.c_str(), testXML.c_str());
+    // Exclude <?xml..?> from test
+    auto pos = testXML.find("?>") + 2;
+    EXPECT_STREQ(buffer.c_str(), testXML.substr(pos).c_str());
 }
 
 TEST(SPTK_WSGeneratedClasses, UnloadJSON)
+{
+    CLogin login;
+
+    EXPECT_THROW(login.throwIfNull(""), SOAPException);
+
+    login.m_username = "johnd";
+    login.m_password = "secret";
+    login.m_servers.push_back(WSString("x1"));
+    login.m_servers.push_back(WSString("x2"));
+    login.m_project.m_id = int123;
+    login.m_project.m_expiration = "2020-10-01";
+    login.m_server_count = 2;
+    login.m_type = "abstract";
+
+    Document json;
+    login.unload(json.root());
+
+    Buffer buffer;
+    json.exportTo(DataFormat::JSON, buffer, false);
+
+    EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
+
+    auto str = login.toString();
+    EXPECT_STREQ(str.c_str(), testJSON.c_str());
+}
+
+TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -446,29 +569,16 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    json::Document json;
-    login.unload(&json.root());
-
-    Buffer buffer;
-    json.exportTo(buffer, false);
-
-    EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
-}
-
-TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
-{
-    CLogin login;
-    login.m_username = "johnd";
-    login.m_password = "secret";
-
     DatabaseConnectionPool pool("postgresql://localhost/test");
     auto connection = pool.getConnection();
-    Query query(connection, "SELECT * FROM test WHERE username = :username and password = :password");
+    Query query(connection,
+                "SELECT * FROM test WHERE username = :username AND password = :password AND servers = :servers");
 
     login.unload(query.params());
 
     EXPECT_STREQ(query.param("username").asString().c_str(), "johnd");
     EXPECT_STREQ(query.param("password").asString().c_str(), "secret");
+    EXPECT_STREQ(query.param("servers").asString().c_str(), R"(["x1","x2"])");
 }
 
 #endif

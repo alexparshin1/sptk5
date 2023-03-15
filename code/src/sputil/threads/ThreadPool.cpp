@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,9 +31,9 @@ using namespace sptk;
 
 ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
                        LogEngine* logEngine)
-    : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager")),
-      m_threadLimit(threadLimit),
-      m_threadIdleTime(threadIdleSeconds)
+    : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager"))
+    , m_threadLimit(threadLimit)
+    , m_threadIdleTime(threadIdleSeconds)
 {
     if (logEngine != nullptr)
     {
@@ -55,7 +55,7 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     static mutex mtx;
     if (m_logger)
     {
-        scoped_lock lock(mtx);
+        const scoped_lock lock(mtx);
         stringstream message;
         if (workerThread != nullptr)
         {
@@ -69,7 +69,7 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     }
 }
 
-void ThreadPool::execute(Runable* task)
+void ThreadPool::execute(const SRunable& task)
 {
     if (m_shutdown)
     {
@@ -92,16 +92,16 @@ void ThreadPool::execute(Runable* task)
     m_taskQueue.push(task);
 }
 
-void ThreadPool::threadEvent(Thread* workerThread, ThreadEvent::Type eventType, Runable*)
+void ThreadPool::threadEvent(Thread* thread, Type eventType, SRunable runable)
 {
     switch (eventType)
     {
         case ThreadEvent::Type::RUNABLE_STARTED:
-            logThreadEvent("Runable started", workerThread);
+            logThreadEvent("Runable started", thread);
             break;
         case ThreadEvent::Type::RUNABLE_FINISHED:
             m_availableThreads.post();
-            logThreadEvent("Runable finished", workerThread);
+            logThreadEvent("Runable finished", thread);
             break;
         default:
             break;
@@ -118,91 +118,3 @@ size_t ThreadPool::size() const
 {
     return m_threadManager->threadCount();
 }
-
-#if USE_GTEST
-
-class MyTask
-    : public Runable
-{
-public:
-    static SynchronizedQueue<int> intQueue;
-
-    MyTask()
-        : Runable("MyTask")
-    {
-    }
-
-    void run() override
-    {
-        constexpr std::chrono::milliseconds tenMilliseconds(10);
-        while (!terminated())
-        {
-            if (int item = 0;
-                intQueue.pop(item, tenMilliseconds))
-            {
-                ++m_count;
-            }
-            this_thread::sleep_for(chrono::milliseconds(1));
-        }
-    }
-
-    int count() const
-    {
-        return m_count;
-    }
-
-private:
-    atomic_int m_count {0};
-};
-
-SynchronizedQueue<int> MyTask::intQueue;
-
-TEST(SPTK_ThreadPool, run)
-{
-    vector<MyTask*> tasks;
-
-    /// Thread manager controls tasks execution.
-    constexpr uint32_t maxThreads = 16;
-    constexpr std::chrono::milliseconds maxThreadIdleTime(60);
-    auto* threadPool = new ThreadPool(maxThreads, maxThreadIdleTime, "test thread pool", nullptr);
-
-    // Creating several tasks
-    constexpr unsigned taskCount = 5;
-    for (unsigned i = 0; i < taskCount; ++i)
-    {
-        tasks.push_back(new MyTask);
-    }
-
-    for (auto& task : tasks)
-    {
-        threadPool->execute(task);
-    }
-
-    constexpr int maxValues = 100;
-    for (int value = 0; value < maxValues; ++value)
-    {
-        MyTask::intQueue.push(value);
-    }
-
-    constexpr chrono::milliseconds sleepInterval(300);
-    this_thread::sleep_for(sleepInterval);
-
-    EXPECT_EQ(size_t(5), tasks.size());
-    for (const auto* task: tasks)
-        EXPECT_NEAR(20, task->count(), 10);
-
-    EXPECT_EQ(size_t(5), threadPool->size());
-
-    threadPool->stop();
-    EXPECT_EQ(size_t(0), threadPool->size());
-
-    delete threadPool;
-
-    for (auto* task: tasks)
-    {
-        task->terminate();
-        delete task;
-    }
-}
-
-#endif

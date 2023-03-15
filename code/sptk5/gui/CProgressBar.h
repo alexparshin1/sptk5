@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -68,7 +68,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CProgressBar(int x,int y,int w,int h,const char * label=0);
+    CProgressBar(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -132,9 +132,9 @@ public:
      * Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

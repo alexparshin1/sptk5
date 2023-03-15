@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,12 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/HttpProxy.h>
-#include <sptk5/net/SSLSocket.h>
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/HttpConnect.h>
-#include <sptk5/cutils>
+#include <sptk5/net/HttpProxy.h>
 
 #ifdef _WIN32
 #include <winhttp.h>
@@ -44,7 +42,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
 {
     auto socket = make_shared<TCPSocket>();
 
-    Strings methods("CONNECT|GET", "|");
+    const Strings methods({"CONNECT", "GET"});
     bool proxyConnected = false;
     for (const auto& method: methods)
     {
@@ -54,7 +52,9 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
             sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
-            if (socket->readyToRead(seconds(10)))
+
+            if (constexpr seconds readTimeout(10);
+                socket->readyToRead(readTimeout))
             {
                 proxyConnected = readResponse(socket);
             }
@@ -76,17 +76,20 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     return handle;
 }
 
-bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
+bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 {
-    bool proxyConnected{false};
+    bool proxyConnected {false};
+    SocketReader socketReader(*proxySocket);
+
     Buffer buffer;
-    socket->readLine(buffer);
+    socketReader.readLine(buffer);
 
     RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
+        constexpr int minimalHttpError = 400;
         int rc = responseMatches[0].value.toInt();
-        if (rc < 400)
+        if (rc < minimalHttpError)
         {
             proxyConnected = true;
         }
@@ -97,7 +100,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
     int contentLength = -1;
     while (buffer.bytes() > 1)
     {
-        socket->readLine(buffer);
+        socketReader.readLine(buffer);
         auto matches = matchResponseHeader.m(buffer.c_str());
         if (matches)
         {
@@ -115,13 +118,14 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& socket) const
     // Read response body (if any)
     if (contentLength > 0)
     {
-        socket->read(buffer, (size_t) contentLength);
+        socketReader.read(buffer, (size_t) contentLength);
     }
     else
     {
-        while (socket->readyToRead(milliseconds(100)))
+        constexpr milliseconds timeout {100};
+        while (socketReader.readyToRead(timeout))
         {
-            socket->read(buffer, socket->socketBytes());
+            socketReader.read(buffer, socketReader.availableBytes());
         }
     }
 
@@ -148,14 +152,14 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
 #ifdef _WIN32
 static bool windowsGetDefaultProxy(Host& host, String& username, String& password)
 {
-    WINHTTP_AUTOPROXY_OPTIONS  AutoProxyOptions {};
-    WINHTTP_PROXY_INFO         ProxyInfo {};
+    WINHTTP_AUTOPROXY_OPTIONS AutoProxyOptions {};
+    WINHTTP_PROXY_INFO ProxyInfo {};
 
     HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
-        WINHTTP_ACCESS_TYPE_NO_PROXY,
-        WINHTTP_NO_PROXY_NAME,
-        WINHTTP_NO_PROXY_BYPASS,
-        0);
+                                         WINHTTP_ACCESS_TYPE_NO_PROXY,
+                                         WINHTTP_NO_PROXY_NAME,
+                                         WINHTTP_NO_PROXY_BYPASS,
+                                         0);
 
     if (!hHttpSession)
         throw Exception("Can't initialize WinHTTP");
@@ -178,9 +182,9 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
     char passWord[256] {};
     DWORD size = sizeof(password);
     if (WinHttpGetProxyForUrl(hHttpSession,
-    L"https://www.microsoft.com/ms.htm",
-    &AutoProxyOptions,
-    &ProxyInfo))
+                              L"https://www.microsoft.com/ms.htm",
+                              &AutoProxyOptions,
+                              &ProxyInfo))
     {
         if (ProxyInfo.lpszProxy == nullptr)
             return false;
@@ -218,6 +222,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     {
         proxyEnv = getenv("HTTP_PROXY");
     }
+
     if (proxyEnv == nullptr)
     {
         return false;
@@ -234,87 +239,3 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     return false;
 #endif
 }
-
-#if USE_GTEST
-
-TEST(SPTK_HttpProxy, connect)
-{
-    // Check if proxy is defined in environment variable.
-    // It's typical for Linux, and rare for Windows.
-    // If proxy is not defined or defined in wrong format, this test is exiting.
-    const char* proxy = getenv("HTTP_PROXY");
-    if (proxy == nullptr)
-    {
-        proxy = getenv("http_proxy");
-    }
-    if (proxy == nullptr)
-    {
-        return;
-    } // No proxy defined, don't test
-
-    RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
-    auto matches = matchProxy.m(proxy);
-    if (!matches)
-    {
-        CERR("Can't parse proxy from environment variable" << endl)
-        return;
-    }
-
-    String proxyUser(matches[1].value);
-    String proxyPassword(matches[2].value);
-    Host proxyHost(matches[3].value);
-
-    auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
-    String error;
-    try
-    {
-        Host ahost("www.sptk.net:80");
-
-        shared_ptr<TCPSocket> socket;
-        if (ahost.port() == 80)
-            socket = make_shared<TCPSocket>();
-        else
-            socket = make_shared<SSLSocket>();
-
-        socket->setProxy(move(httpProxy));
-        socket->open(ahost, BaseSocket::OpenMode::CONNECT, true, seconds(5));
-
-        HttpConnect http(*socket);
-
-        Buffer output;
-
-        if (auto statusCode = http.cmd_get("/", HttpParams(), output); statusCode >= 400)
-            throw Exception(http.statusText());
-
-        COUT(output.c_str() << endl)
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(SPTK_HttpProxy, getDefaultProxy)
-{
-    Host proxyHost;
-    String proxyUser;
-    String proxyPassword;
-
-#ifdef _WIN32
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-#else
-    setenv("HTTP_PROXY", "127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
-    EXPECT_STREQ(proxyUser.c_str(), "");
-    EXPECT_STREQ(proxyPassword.c_str(), "");
-
-    setenv("HTTP_PROXY", "http://Domain\\user:password@127.0.0.1:3128", 1);
-    HttpProxy::getDefaultProxy(proxyHost, proxyUser, proxyPassword);
-    EXPECT_STREQ(proxyHost.toString(true).c_str(), "127.0.0.1:3128");
-    EXPECT_STREQ(proxyUser.c_str(), "Domain\\user");
-    EXPECT_STREQ(proxyPassword.c_str(), "password");
-#endif
-}
-
-#endif

@@ -18,6 +18,14 @@ class CLoginResponse : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "LoginResponse";
+    }
+
    // Elements
    sptk::WSString                           m_jwt {"jwt", false};
 
@@ -26,7 +34,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLoginResponse(const char* elementName="login_response", bool optional=false) noexcept;
+   explicit CLoginResponse(const char* elementName="login_response", bool optional=false);
 
    /**
     * Copy constructor
@@ -49,13 +57,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (const CLoginResponse& other);
+   CLoginResponse& operator = (const CLoginResponse& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (CLoginResponse&& other) noexcept;
+   CLoginResponse& operator = (CLoginResponse&& other) noexcept = default;
 
    /**
     * Get complex type field names.

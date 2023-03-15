@@ -1,8 +1,31 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
 #include "XPath.h"
 #include <sptk5/RegularExpression.h>
-#include <sptk5/xdoc/Attributes.h>
-#include <sptk5/xdoc/Document.h>
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -54,7 +77,7 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     {
         option = option.substr(1, option.length() - 2);
     }
-    auto pathElementOption = option;
+    const auto& pathElementOption = option;
 
     pathElement.elementName = "";
     pathElement.attributeName = "";
@@ -83,10 +106,9 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
     {
         pathElement.elementName = pathElementName.c_str();
     }
-
 }
 
-bool NodeSearchAlgorithms::matchPathElementAttribute(const Node* thisNode, const XPathElement& pathElement,
+bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, const XPathElement& pathElement,
                                                      const String& starPointer)
 {
     const Attributes& attributes = thisNode->attributes();
@@ -95,7 +117,7 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const Node* thisNode, const
     {
         if (pathElement.attributeValue == starPointer)
         {
-            attributeMatch = attributes.has(pathElement.attributeName);
+            attributeMatch = attributes.have(pathElement.attributeName);
         }
         else
         {
@@ -110,13 +132,13 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const Node* thisNode, const
         }
         else
         {
-            attributeMatch = thisNode->hasAttribute(pathElement.attributeName.c_str());
+            attributeMatch = thisNode->attributes().have(pathElement.attributeName.c_str());
         }
     }
     return attributeMatch;
 }
 
-bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathElement& pathElement,
+bool NodeSearchAlgorithms::matchPathElement(const SNode& thisNode, const XPathElement& pathElement,
                                             const String& starPointer)
 {
     if (!pathElement.elementName.empty() && pathElement.elementName != starPointer &&
@@ -125,7 +147,7 @@ bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathEle
         return false;
     }
 
-    // Node criteria is attribute
+    // Node criteria is an attribute
     if (!pathElement.attributeName.empty())
     {
         return matchPathElementAttribute(thisNode, pathElement, starPointer);
@@ -134,17 +156,17 @@ bool NodeSearchAlgorithms::matchPathElement(const Node* thisNode, const XPathEle
     return true;
 }
 
-void NodeSearchAlgorithms::matchNodesThisLevel(Node& thisNode, Node::Vector& nodes,
+void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vector& nodes,
                                                const vector<XPathElement>& pathElements, int pathPosition,
                                                const String& starPointer, Node::Vector& matchedNodes, bool descendants)
 {
     const XPathElement& pathElement = pathElements[size_t(pathPosition)];
 
-    for (auto& node: thisNode)
+    for (const auto& node: thisNode->nodes())
     {
-        if (matchPathElement(&node, pathElement, starPointer))
+        if (matchPathElement(node, pathElement, starPointer))
         {
-            matchedNodes.push_back(&node);
+            matchedNodes.push_back(node);
         }
         if (descendants)
         {
@@ -179,18 +201,18 @@ void NodeSearchAlgorithms::matchNodesThisLevel(Node& thisNode, Node::Vector& nod
         {
             return;
         }
-        Node* anode = matchedNodes[matchedPosition];
+        auto anode = matchedNodes[matchedPosition];
         matchedNodes.clear();
         matchedNodes.push_back(anode);
     }
 
-    for (auto* node: matchedNodes)
+    for (const auto& node: matchedNodes)
     {
-        matchNode(*node, nodes, pathElements, pathPosition, starPointer);
+        matchNode(node, nodes, pathElements, pathPosition, starPointer);
     }
 }
 
-void NodeSearchAlgorithms::scanDescendents(Node& thisNode, Node::Vector& nodes,
+void NodeSearchAlgorithms::scanDescendents(const SNode& thisNode, Node::Vector& nodes,
                                            const std::vector<XPathElement>& pathElements, int pathPosition,
                                            const String& starPointer)
 {
@@ -198,7 +220,7 @@ void NodeSearchAlgorithms::scanDescendents(Node& thisNode, Node::Vector& nodes,
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, true);
 }
 
-void NodeSearchAlgorithms::matchNode(Node& thisNode, Node::Vector& nodes,
+void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
                                      const vector<XPathElement>& pathElements,
                                      int pathPosition,
                                      const String& starPointer)
@@ -209,7 +231,7 @@ void NodeSearchAlgorithms::matchNode(Node& thisNode, Node::Vector& nodes,
         if (const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
             !pathElement.elementName.empty())
         {
-            nodes.push_back(&thisNode);
+            nodes.push_back(thisNode);
         }
         return;
     }
@@ -218,7 +240,7 @@ void NodeSearchAlgorithms::matchNode(Node& thisNode, Node::Vector& nodes,
     matchNodesThisLevel(thisNode, nodes, pathElements, pathPosition, starPointer, matchedNodes, false);
 }
 
-void NodeSearchAlgorithms::select(Node::Vector& nodes, Node& start, String xpath)
+void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, String xpath)
 {
     if (!xpath.startsWith("/"))
     {
@@ -239,94 +261,3 @@ void NodeSearchAlgorithms::select(Node::Vector& nodes, Node& start, String xpath
     const String starPointer("*");
     NodeSearchAlgorithms::matchNode(start, nodes, pathElements, -1, starPointer);
 }
-
-#if USE_GTEST
-
-static const String testXML1("<AAA><BBB/><CCC/><BBB/><BBB/><DDD><BBB/></DDD><CCC/></AAA>");
-static const String testXML2("<AAA><BBB/><CCC/><BBB/><DDD><BBB/></DDD><CCC><DDD><BBB/><BBB/></DDD></CCC></AAA>");
-static const String testXML3(
-    "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
-static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
-static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
-
-TEST(SPTK_XDocument, select)
-{
-    Node::Vector elementSet;
-    Document document;
-
-    document.load(DataFormat::XML, testXML1);
-
-    document.select(elementSet, "/AAA");
-    EXPECT_EQ(size_t(1), elementSet.size());
-
-    document.select(elementSet, "/AAA/CCC");
-    EXPECT_EQ(size_t(2), elementSet.size());
-
-    document.select(elementSet, "/AAA/DDD/BBB");
-    EXPECT_EQ(size_t(1), elementSet.size());
-}
-
-TEST(SPTK_XDocument, select2)
-{
-    Node::Vector elementSet;
-    Document document;
-
-    document.load(DataFormat::XML, testXML2);
-
-    document.select(elementSet, "//BBB");
-    EXPECT_EQ(size_t(5), elementSet.size());
-
-    document.select(elementSet, "//DDD/BBB");
-    EXPECT_EQ(size_t(3), elementSet.size());
-}
-
-TEST(SPTK_XDocument, select3)
-{
-    Node::Vector elementSet;
-    Document document;
-
-    document.load(DataFormat::XML, testXML3);
-
-    Buffer buff;
-    document.exportTo(DataFormat::XML, buff, false);
-
-    document.select(elementSet, "/AAA/CCC/DDD/*");
-    EXPECT_EQ(size_t(4), elementSet.size());
-
-    document.select(elementSet, "//*");
-    EXPECT_EQ(size_t(17), elementSet.size());
-}
-
-TEST(SPTK_XDocument, select4)
-{
-    Node::Vector elementSet;
-    Document document;
-
-    document.load(DataFormat::XML, testXML4);
-
-    document.select(elementSet, "/AAA/BBB[1]");
-    EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("1", elementSet[0]->getString().c_str());
-
-    document.select(elementSet, "/AAA/BBB[last()]");
-    EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("4", elementSet[0]->getString().c_str());
-}
-
-TEST(SPTK_XDocument, select5)
-{
-    Node::Vector elementSet;
-    Document document;
-
-    document.load(DataFormat::XML, testXML5);
-
-    document.select(elementSet, "//BBB[@id=002]");
-    EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("2", elementSet[0]->getString().c_str());
-
-    document.select(elementSet, "//BBB[@id=003]");
-    EXPECT_EQ(size_t(1), elementSet.size());
-    EXPECT_STREQ("3", elementSet[0]->getString().c_str());
-}
-
-#endif

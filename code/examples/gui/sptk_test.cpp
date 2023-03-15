@@ -4,7 +4,7 @@
 ║                       sptk_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,8 +37,8 @@
 #include <FL/Fl_Return_Button.H>
 #include <FL/fl_ask.H>
 
-#include <sptk5/sptk.h>
 #include <sptk5/cgui>
+#include <sptk5/sptk.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,8 +66,7 @@ class CDataDialog
 {
 public:
     CDataDialog(DatabaseConnection* db)
-        :
-        CDialog(300, 180, "Example Data Dialog")
+        : CDialog(300, 180, "Example Data Dialog")
     {
         database(db);
 
@@ -112,18 +111,17 @@ static void cb_show_dialog(void*, void*)
     }
 }
 
-struct CCompanyInfo
-{
+struct CCompanyInfo {
     int id;
     const char* name;
     int number;
 };
 
-CCompanyInfo companies[] = {{1, "Red Hat",      1000},
+CCompanyInfo companies[] = {{1, "Red Hat", 1000},
                             {2, "MandrakeSoft", 2000},
-                            {3, "Oracle",       30000},
+                            {3, "Oracle", 30000},
                             {4, "Microsoft",
-                                                300000}};
+                             300000}};
 
 CListView* eventsListView;
 
@@ -231,7 +229,7 @@ int main(int argc, char** argv)
             isTemp = "";
         }
         CQuery query1(&db, "CREATE " + isTemp + " TABLE " + tableName +
-                           "(comp_id INT,comp_name CHAR(20),comp_employees INT)");
+                               "(comp_id INT,comp_name CHAR(20),comp_employees INT)");
         CQuery query2(&db, "INSERT INTO " + tableName + "(comp_id,comp_name,comp_employees) VALUES (:id,:name,:emp)");
 
         // First, create a temporary table.
@@ -296,7 +294,7 @@ int main(int argc, char** argv)
         // BTW, you you can continue to use traditional FLTK
         // widget positioning, just define __COMPATIBILITY_MODE__
         // and recompile SPTK.
-        {   // It will be many widgets on this page, so creating a scroll
+        { // It will be many widgets on this page, so creating a scroll
             Fl_Group* t = tabs->newScroll("Data controls 1", true);
             t->labeltype(FL_ENGRAVED_LABEL);
 
@@ -367,7 +365,7 @@ int main(int argc, char** argv)
             dateTimeInput->callback(general_cb);
         }
 
-        {   // It will be many widgets on this page, so creating a scroll
+        { // It will be many widgets on this page, so creating a scroll
             Fl_Group* t = tabs->newScroll("Data controls 2", true);
             t->labeltype(FL_ENGRAVED_LABEL);
 
@@ -415,7 +413,7 @@ int main(int argc, char** argv)
                 printf("Exception: %s\n", e.what());
             }
 #else
-            comboBox2->addColumn("company",VAR_STRING,70);
+            comboBox2->addColumn("company", VAR_STRING, 70);
             comboBox2->addColumn("comp_employees", VAR_INT, 70);
             comboBox2->addRow(1, "Joy Inc.", "123");
             comboBox2->addRow(2, "Red Cap Inc.", "1234");

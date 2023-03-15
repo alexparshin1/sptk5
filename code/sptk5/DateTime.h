@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,12 @@
 
 #pragma once
 
+#include <sptk5/String.h>
+#include <sptk5/VariantStorageClient.h>
+
 #include <chrono>
 #include <ctime>
 #include <iostream>
-#include <sptk5/sptk.h>
-#include <sptk5/String.h>
 
 namespace sptk {
 
@@ -48,6 +49,9 @@ class DateTime;
  */
 class SP_EXPORT TimeZone
 {
+    friend class DateTime;
+    friend class DateTimeFormat;
+
 public:
     /**
      * Time zone abbbreviastion
@@ -55,10 +59,18 @@ public:
     static String name();
 
     /**
-    * Get timezone offset
-    * @return timezone offset, seconds
+    * Set timezone for the application
+    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
     */
-    static int offset();
+    static void set(const sptk::String& timeZoneName);
+
+    static bool time24Mode();
+
+    /**
+    * Get timezone offset
+    * @return timezone offset, minutes
+    */
+    static std::chrono::minutes offset();
 
     /**
     * Get timezone offset
@@ -66,11 +78,17 @@ public:
     */
     static int isDaylightSavingsTime();
 
-    /**
-    * Set timezone for the application
-    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
-    */
-    static void set(const sptk::String& timeZoneName);
+protected:
+    static void time24Mode(bool mode);
+    static void timeZoneName(const String& name);
+    static void timeZoneOffset(std::chrono::minutes offset);
+    static void isDaylightSavingsTime(int savingsTime);
+
+private:
+    static bool _time24Mode;
+    static String _timeZoneName;
+    static std::chrono::minutes _timeZoneOffset;
+    static int _isDaylightSavingsTime;
 };
 
 
@@ -82,12 +100,11 @@ public:
  * with the external date/time, without affecting the local host
  * system time.
  */
-class SP_EXPORT DateTime
+class SP_EXPORT DateTime : public VariantStorageClient
 {
     friend class DateTimeFormat;
 
 public:
-
     /**
      * Clock used by DateTime
      */
@@ -168,30 +185,35 @@ public:
     * @param s                  Second
     * @param ms                 Millisecond
     */
-    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0) noexcept;
+    DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0);
 
     /**
      * Constructor
      * @param dateStr           Date string
      */
-    explicit DateTime(const char* dateStr = nullptr) noexcept;
+    explicit DateTime(const char* dateStr = nullptr);
 
     /**
      * Copy constructor
      */
-    DateTime(const DateTime& dt) noexcept = default;
+    DateTime(const DateTime& dt) = default;
+
+    /**
+     * Move constructor
+     */
+    DateTime(DateTime&& dt) = default;
 
     /**
      * Constructor
-     * @param dt                Time point
+     * @param timePoint                Time point
      */
-    explicit DateTime(const time_point& dt) noexcept;
+    explicit DateTime(const time_point& timePoint);
 
     /**
      * Constructor
-     * @param dt                Duration since epoch
+     * @param interval                Duration since epoch
      */
-    explicit DateTime(const duration& dt) noexcept;
+    explicit DateTime(const duration& interval);
 
     /**
      * Returns time_point presentation of the date and time
@@ -199,6 +221,11 @@ public:
     const time_point& timePoint() const
     {
         return m_dateTime;
+    }
+
+    size_t dataSize() const override
+    {
+        return sizeof(DateTime);
     }
 
     /**
@@ -236,9 +263,9 @@ public:
 
     /**
      * Converts C time into DateTime
-     * @param tt                C time to convert
+     * @param timestamp                C time to convert
      */
-    static DateTime convertCTime(const time_t tt);
+    static DateTime convertCTime(const time_t timestamp);
 
     /**
      * Reports the number of days in the month in this date (1..31)
@@ -286,18 +313,6 @@ public:
     String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 
     /**
-     * Returns timezone offset in minutes
-     * @return timezone offset in minutes
-     */
-    static int timeZoneOffset();
-
-    /**
-     * Returns timezone name
-     * @return timezone name
-     */
-    static String timeZoneName();
-
-    /**
      * Returns true if daylight savings time
      * @return true if daylight savings time
      */
@@ -325,9 +340,9 @@ public:
     void decodeDate(short* year, short* month, short* day, short* wday, short* yday, bool gmt = false) const;
 
     /**
-     * Decodes time into h,m,s,ms
+     * Decodes time into hour,minute,second,millisecond
      */
-    void decodeTime(short* h, short* m, short* s, short* ms, bool gmt = false) const;
+    void decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt = false) const;
 
     /**
      * Return true if date and time are at epoch
@@ -337,70 +352,41 @@ public:
         return m_dateTime.time_since_epoch().count() == 0;
     }
 
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_DATE_TIME;
+    }
+
 private:
+    time_point m_dateTime; ///< Actual date and time value
 
-    time_point m_dateTime;             ///< Actual date and time value
-
-    static String _dateFormat;            ///< System's date format
-    static String _fullTimeFormat;        ///< System's time format
-    static String _shortTimeFormat;       ///< System's time format
-    static String _datePartsOrder;        ///< System's date parts order
-    static char _dateSeparator;         ///< System's date separator
-    static char _timeSeparator;         ///< System's time separator
-    static Strings _weekDayNames;          ///< The locale-defined weekday names
-    static Strings _monthNames;            ///< The locale-defined weekday names
-
-    static bool _time24Mode;
-    static String _timeZoneName;
-    static int _timeZoneOffset;
-    static int _isDaylightSavingsTime;
+    static String _dateFormat;      ///< System's date format
+    static String _fullTimeFormat;  ///< System's time format
+    static String _shortTimeFormat; ///< System's time format
+    static String _datePartsOrder;  ///< System's date parts order
+    static char _dateSeparator;     ///< System's date separator
+    static char _timeSeparator;     ///< System's time separator
+    static Strings _weekDayNames;   ///< The locale-defined weekday names
+    static Strings _monthNames;     ///< The locale-defined weekday names
 };
 
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator<(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator<=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
-SP_EXPORT bool operator>=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-
-/**
- * Compares DateTime values
- */
+SP_EXPORT int operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**
- * Compares DateTime values
+ * Adds two DateTime values
  */
-SP_EXPORT bool operator!=(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
 
 /**
  * Adds two DateTime values
  */
-SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
-
-/**
- * Adds two DateTime values
- */
-SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dt1, const sptk::DateTime::duration& duration);
+SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
 
 /**
  * Subtracts two DateTime values
  */
-SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dateTime, const sptk::DateTime& dt2);
 
 /**
  * Convert duration into seconds, with 1 msec accuracy
@@ -410,5 +396,4 @@ SP_EXPORT double duration2seconds(const sptk::DateTime::duration& duration);
 /**
  * @}
  */
-}
-
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <string>
 #include <map>
-#include <sptk5/cxml>
+#include <sptk5/Exception.h>
 #include <sptk5/gui/CFrame.h>
 #include <sptk5/gui/CLayoutClient.h>
-#include <sptk5/Exception.h>
+#include <sptk5/xdoc/Node.h>
+#include <string>
 
 class Fl_Image;
 
@@ -47,7 +47,7 @@ namespace sptk {
  *
  * The information (layout,style,etc) is provided by the XML node
  */
-using createControlCallback = CLayoutClient* (*)(xml::Node* node);
+using createControlCallback = CLayoutClient* (*) (const xdoc::SNode& node);
 
 /**
  * @brief A callback map that stores type names and control create functions
@@ -65,8 +65,7 @@ using CWidgetNamesMap = std::map<std::string, Fl_Widget*>;
  * Allows or disables the layout to
  * grow in horizontal and/or vertical direction
  */
-enum class CLayoutGrowMode
-    : uint8_t
+enum class CLayoutGrowMode : uint8_t
 {
     /**
      * Don't allow layout to grow
@@ -164,7 +163,6 @@ protected:
     virtual void paintBackground();
 
 public:
-
     /**
      * Constructor
      * @param group Fl_Group*, a group widget to manage (CGroup, CScroll, or CWindow)
@@ -255,7 +253,7 @@ public:
      * @param node const xml::Node*, node to load data from
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be loaded
      */
-    virtual void loadLayout(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void loadLayout(const xdoc::SNode& node, CLayoutXMLmode xmlMode);
 
     /**
      * @brief Saves group controls data into XML node
@@ -263,7 +261,7 @@ public:
      * @param node const xml::Node*, node to save data into
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    virtual void saveLayout(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void saveLayout(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const;
 
     /**
      * @brief Builds an index of internal widget names
@@ -318,4 +316,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

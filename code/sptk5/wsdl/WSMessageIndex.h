@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <mutex>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -39,12 +39,13 @@ class SP_EXPORT WSMessageIndex
     /**
      * Mutex that protects internal data
      */
-    mutable std::mutex      m_mutex;
+    mutable std::mutex m_mutex;
 
     /**
      * Map of message name to index
      */
-    std::map<String,int>    m_messageIndex;
+    std::map<String, int> m_messageIndex;
+
 public:
     /**
      * Constructor
@@ -61,4 +62,3 @@ public:
 };
 
 } // namespace sptk
-

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,17 +25,14 @@
 */
 
 #include <fstream>
-#include <sptk5/Strings.h>
 #include <sptk5/RegularExpression.h>
-#include <sptk5/String.h>
-
 
 using namespace std;
 using namespace sptk;
 
 bool String::matches(const String& pattern, const String& options) const
 {
-    RegularExpression regexp(pattern, options);
+    const RegularExpression regexp(pattern, options);
     return regexp.matches(*this);
 }
 
@@ -51,7 +48,7 @@ String String::toLowerCase() const
 
 Strings String::split(const String& pattern) const
 {
-    return Strings(*this, pattern.c_str(), Strings::SplitMode::REGEXP);
+    return {*this, pattern.c_str(), Strings::SplitMode::REGEXP};
 }
 
 bool String::startsWith(const String& subject) const
@@ -61,19 +58,19 @@ bool String::startsWith(const String& subject) const
 
 bool String::endsWith(const String& subject) const
 {
-    size_t pos = rfind(subject);
+    const size_t pos = rfind(subject);
     return pos != string::npos && pos == length() - subject.length();
 }
 
 bool String::contains(const String& subject) const
 {
-    size_t pos = find(subject);
+    const size_t pos = find(subject);
     return pos != string::npos;
 }
 
 String String::replace(const String& pattern, const String& replacement) const
 {
-    RegularExpression regexp(pattern);
+    const RegularExpression regexp(pattern);
     bool replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
 }
@@ -83,9 +80,9 @@ String String::trim() const
     auto startPos = find_first_not_of(" \n\r\t\b");
     if (startPos == string::npos)
     {
-        return String("");
+        return {};
     }
-    size_t endPos = find_last_not_of(" \n\r\t\b");
+    const size_t endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
 }
 
@@ -94,46 +91,9 @@ int String::toInt() const
     return string2int(*this, 0);
 }
 
-#if USE_GTEST
-
-static const String testString("This is a test");
-
-TEST(SPTK_String, matches)
+bool String::in(std::initializer_list<String> list) const
 {
-    EXPECT_TRUE(testString.matches("is a "));
+    return ranges::any_of(list, [this](const String& value) {
+        return value == *this;
+    });
 }
-
-TEST(SPTK_String, caseOps)
-{
-    EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
-    EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
-}
-
-TEST(SPTK_String, split)
-{
-    Strings words(testString.split("[\\s]+"));
-    EXPECT_EQ(size_t(4), words.size());
-    EXPECT_STREQ("This", words[0].c_str());
-    EXPECT_STREQ("test", words[3].c_str());
-}
-
-TEST(SPTK_String, startsEnds)
-{
-    EXPECT_TRUE(testString.startsWith("This "));
-    EXPECT_FALSE(testString.startsWith("this "));
-    EXPECT_TRUE(testString.endsWith(" test"));
-    EXPECT_FALSE(testString.endsWith(" tesT"));
-}
-
-TEST(SPTK_String, replace)
-{
-    EXPECT_STREQ("This is a Test", testString.replace(" t", " T").c_str());
-}
-
-TEST(SPTK_String, trim)
-{
-    String testString2(" \n\r\t" + testString + "\n\r\t ");
-    EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
-}
-
-#endif

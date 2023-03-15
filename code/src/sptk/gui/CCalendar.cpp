@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,16 +38,13 @@ static const char* monthDayLabels[31] = {
     "1", "2", "3", "4", "5", "6", "7", "8", "9", "10",
     "11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
     "21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
-    "31"
-};
+    "31"};
 
 static const char* switchLabels[4] = {
-    "@<<", "@<", "@>", "@>>"
-};
+    "@<<", "@<", "@>", "@>>"};
 
 static const int64_t monthChanges[4] = {
-    -12, -1, 1, 12
-};
+    -12, -1, 1, 12};
 
 // Callback function for day buttons
 void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
@@ -55,7 +52,9 @@ void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
     Fl_Group* buttonBox = button->parent();
     auto* calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
     if (!calendar)
-    { return; }
+    {
+        return;
+    }
     calendar->dayButtonClicked((uint32_t) (uint64_t) param);
 }
 
@@ -64,14 +63,18 @@ void CCalendar::cbSwitchButtonClicked(Fl_Widget* button, void* param)
 {
     auto* calendar = dynamic_cast<CCalendar*>(button->parent());
     if (!calendar)
-    { return; }
+    {
+        return;
+    }
     calendar->switchButtonClicked((uint32_t) (uint64_t) param);
 }
 
 void CCalendar::dayButtonClicked(uint32_t day)
 {
     if (day < 1 || day > 31)
-    { return; }
+    {
+        return;
+    }
     if (m_activeButtonIndex > -1)
     {
         Fl_Button* btn = m_dayButtons[m_activeButtonIndex];
@@ -147,8 +150,8 @@ void CCalendar::ctor_init()
     m_monthNameBox->labelfont(1);
 
     // Weekday headers
-    unsigned i;
-    for (i = 0; i < 7; i++)
+    unsigned i = 0;
+    for (; i < 7; i++)
     {
         auto* label = m_weekDayLabels.data() + uint64_t(i * 2);
         label[0] = DateTime::format(DateTime::Format::WEEKDAY_NAME, i).c_str()[0];
@@ -190,13 +193,15 @@ void CCalendar::ctor_init()
 }
 
 CCalendar::CCalendar(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    : Fl_Group(0, 0, 10, 10, label), CLayoutClient(this, layoutSize, layoutAlignment)
+    : Fl_Group(0, 0, 10, 10, label)
+    , CLayoutClient(this, layoutSize, layoutAlignment)
 {
     ctor_init();
 }
 
 CCalendar::CCalendar(int x, int y, int w, int h, const char* lbl)
-    : Fl_Group(x, y, w, h, lbl), CLayoutClient(this, w, CLayoutAlign::NONE)
+    : Fl_Group(x, y, w, h, lbl)
+    , CLayoutClient(this, w, CLayoutAlign::NONE)
 {
     ctor_init();
 }
@@ -256,7 +261,9 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
             btn->show();
         }
         else
-        { btn->hide(); }
+        {
+            btn->hide();
+        }
     }
 
     // last visible button
@@ -289,7 +296,7 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     }
 }
 
-void CCalendar::date(DateTime dt)
+void CCalendar::date(const DateTime& dt)
 {
     m_date = dt;
     resize(x(), y(), w(), h());
@@ -322,13 +329,16 @@ void CCalendar::autoHeight(int minHeight)
 {
     int height = maxHeight();
     if (height < minHeight)
-    { height = minHeight; }
+    {
+        height = minHeight;
+    }
     resize(x(), y(), w(), height);
 }
 
 //------------------------------------------------------------------------------------------------------
 CPopupCalendar::CPopupCalendar(Fl_Widget* dateControl)
-    : CPopupWindow(100, 140, "Calendar"), m_dateControl(dateControl)
+    : CPopupWindow(100, 140, "Calendar")
+    , m_dateControl(dateControl)
 {
     box(FL_UP_BOX);
     m_calendar = new CCalendar(0, 0, 100, 100);
@@ -360,12 +370,16 @@ int CPopupCalendar::handle(int event)
 {
     int rc = CPopupWindow::handle(event);
     if (rc)
-    { return rc; }
+    {
+        return rc;
+    }
 
     if (event != FL_DRAG)
     {
         return m_calendar->handle(event);
     }
     else
-    { return Fl_Widget::handle(event); }
+    {
+        return Fl_Widget::handle(event);
+    }
 }

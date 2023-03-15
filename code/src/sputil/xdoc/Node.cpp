@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,17 +24,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/xdoc/ImportXML.h>
-#include <sptk5/xdoc/ExportXML.h>
 #include "XPath.h"
+#include <sptk5/xdoc/ExportJSON.h>
+#include <sptk5/xdoc/ExportXML.h>
+#include <sptk5/xdoc/ImportXML.h>
 
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
+Node::Type Node::variantTypeToNodeType(VariantDataType type)
+{
+    switch (type)
+    {
+        case VariantDataType::VAR_NONE:
+            return Node::Type::Null;
+
+        case VariantDataType::VAR_INT:
+        case VariantDataType::VAR_FLOAT:
+        case VariantDataType::VAR_IMAGE_NDX:
+        case VariantDataType::VAR_INT64:
+            return Node::Type::Number;
+
+        case VariantDataType::VAR_MONEY:
+        case VariantDataType::VAR_STRING:
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+        case VariantDataType::VAR_DATE:
+        case VariantDataType::VAR_DATE_TIME:
+        case VariantDataType::VAR_IMAGE_PTR:
+            return Node::Type::Text;
+
+        case VariantDataType::VAR_BOOL:
+            return Node::Type::Boolean;
+
+        default:
+            break;
+    }
+
+    return Node::Type::Null;
+}
+
 Node::Node(const String& nodeName, Type type)
-    : m_name(nodeName), m_type(type)
+    : m_name(nodeName)
+    , m_type(type)
 {
 }
 
@@ -48,87 +81,50 @@ const Attributes& Node::attributes() const
     return m_attributes;
 }
 
-bool Node::hasAttribute(const String& name) const
+SNode& Node::findOrCreate(const String& name)
 {
-    return m_attributes.has(name);
-}
-
-String Node::getAttribute(const String& name, const String& defaultValue) const
-{
-    return m_attributes.get(name);
-}
-
-void Node::setAttribute(const String& name, const String& value)
-{
-    m_attributes.set(name, value);
-}
-
-Node& Node::findOrCreate(const String& name)
-{
-    if (!is(Type::Object))
+    if (name.empty())
     {
-        throw Exception("This element is not JSON object");
+        throw Exception("Name can't be empty");
+    }
+
+    if (m_type == Type::Null)
+    {
+        m_type = Type::Object;
+    }
+
+    if (type() != Type::Object)
+    {
+        throw Exception("This element is not an Object");
     }
 
     for (auto& node: m_nodes)
     {
-        if (node.name() == name)
+        if (node->name() == name)
         {
             return node;
         }
     }
 
-    m_nodes.emplace_back();
-    auto& newNode = m_nodes.back();
-    newNode.name(name);
-    newNode.m_parent = this;
-    return newNode;
+    auto newNode = make_shared<Node>(name);
+    newNode->m_parent = shared_from_this();
+    m_nodes.push_back(newNode);
+    return m_nodes.back();
 }
 
-Node* Node::find(const String& name, SearchMode searchMode)
+SNode Node::findFirst(const String& name, SearchMode searchMode) const
 {
-    if (!is(Type::Object))
+    if (type() != Type::Object && type() != Type::Array)
     {
         return nullptr;
     }
 
     // Search for immediate child, first
-    for (auto& node: m_nodes)
-    {
-        if (node.name() == name)
-        {
-            return &node;
-        }
-    }
-
-    if (searchMode == SearchMode::Recursive)
-    {
-        Node* found {nullptr};
-        for (auto& node: m_nodes)
-        {
-            if (node.is(Type::Object) && (found = node.find(name, searchMode)))
-            {
-                return found;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-const Node* Node::find(const String& name, SearchMode searchMode) const
-{
-    if (!is(Type::Object))
-    {
-        throw Exception("This element is not XDocument object");
-    }
-
-    // Search for immediate child, first
     for (const auto& node: m_nodes)
     {
-        if (node.name() == name)
+        if (node->name() == name)
         {
-            return &node;
+            return node;
         }
     }
 
@@ -136,7 +132,7 @@ const Node* Node::find(const String& name, SearchMode searchMode) const
     {
         for (const auto& node: m_nodes)
         {
-            const auto* found = node.find(name, searchMode);
+            auto found = node->findFirst(name, searchMode);
             if (found)
             {
                 return found;
@@ -147,7 +143,7 @@ const Node* Node::find(const String& name, SearchMode searchMode) const
     return nullptr;
 }
 
-Node& Node::pushNode(const String& name, Type type)
+SNode& Node::pushNode(const String& name, Type type)
 {
     if (m_type == Type::Null)
     {
@@ -160,55 +156,79 @@ Node& Node::pushNode(const String& name, Type type)
             m_type = Type::Object;
         }
     }
-    m_nodes.resize(m_nodes.size() + 1);
-    auto& node = m_nodes.back();
-    node.name(name);
-    node.type(type);
-    node.m_parent = this;
+    auto node = make_shared<Node>(name, type);
+    m_nodes.push_back(node);
+    node->m_parent = shared_from_this();
     return m_nodes.back();
 }
 
 String Node::getString(const String& name) const
 {
-    auto* node = this;
+    const auto& node = name.empty() ? shared_from_this() : findFirst(name);
 
+    if (node == nullptr)
+    {
+        return {};
+    }
+
+    if (node->type() == Type::Number)
+    {
+        auto doubleValue = node->m_value.asFloat();
+
+        if (auto intValue = node->m_value.asInt64();
+            doubleValue == double(intValue))
+        {
+            return int2string(intValue);
+        }
+
+        return double2string(doubleValue);
+    }
+
+    return node->m_value.asString();
+}
+
+static void getTextRecursively(const Node* node, Buffer& output)
+{
+    if (node->type() != Node::Type::Comment)
+    {
+        output.append(node->getString());
+        for (const auto& child: node->nodes())
+        {
+            getTextRecursively(child.get(), output);
+        }
+    }
+}
+
+String Node::getText(const String& name) const
+{
+    const Node* node = this;
     if (!name.empty())
     {
-        node = find(name);
-        if (node == nullptr)
+        const auto found = findFirst(name);
+        if (!found)
         {
-            return String();
+            return {};
         }
+        node = found.get();
     }
 
-    if (node->is(Type::Number))
-    {
-        auto dvalue = node->asFloat();
-        auto ivalue = node->asInt64();
-        if (dvalue == double(ivalue))
-        {
-            return int2string(ivalue);
-        }
-        else
-        {
-            return double2string(dvalue);
-        }
-    }
+    Buffer textInSubNodes;
+    getTextRecursively(node, textInSubNodes);
 
-    return node->asString();
+    return textInSubNodes.c_str();
 }
 
 double Node::getNumber(const String& name) const
 {
     if (name.empty())
     {
-        return asFloat();
+        return m_value.asFloat();
     }
 
-    if (auto* node = find(name);
+    if (const auto& node = findFirst(name);
         node != nullptr)
     {
-        return node->asFloat();
+        return node->m_value.asFloat();
     }
 
     return 0;
@@ -218,19 +238,19 @@ bool Node::getBoolean(const String& name) const
 {
     if (name.empty())
     {
-        return asBool();
+        return m_value.asBool();
     }
 
-    if (auto* node = find(name);
+    if (const auto& node = findFirst(name);
         node != nullptr)
     {
-        return node->asBool();
+        return node->m_value.asBool();
     }
 
     return false;
 }
 
-const Node::Nodes& Node::getArray(const String& name) const
+const Node::Nodes& Node::nodes(const String& name) const
 {
     static const Nodes emptyNodes;
 
@@ -239,31 +259,13 @@ const Node::Nodes& Node::getArray(const String& name) const
         return m_nodes;
     }
 
-    if (auto* node = find(name);
-        node && node->is(Type::Array))
+    if (const auto& node = findFirst(name);
+        node && node->type() == Type::Array)
     {
         return node->m_nodes;
     }
 
     return emptyNodes;
-}
-
-const Node& Node::getObject(const String& name) const
-{
-    static const Node emptyNode;
-
-    if (name.empty())
-    {
-        return *this;
-    }
-
-    if (auto* node = find(name);
-        node && node->is(Type::Object))
-    {
-        return *node;
-    }
-
-    return emptyNode;
 }
 
 void Node::clear()
@@ -273,26 +275,53 @@ void Node::clear()
     m_attributes.clear();
 }
 
-Node& Node::add_object(const String& name)
+SNode& xdoc::Node::pushValue(const String& name, const Variant& value, Node::Type type)
 {
-    return pushNode(name, Type::Object);
+    Node::Type actualType(type);
+    if (type == Node::Type::Null && !value.isNull())
+    {
+        actualType = variantTypeToNodeType(value.dataType());
+    }
+    auto& node = pushNode(name, actualType);
+    node->m_value = value;
+    return node;
 }
 
-Node& Node::add_array(const String& name)
+SNode& xdoc::Node::pushValue(const Variant& value, Node::Type type)
 {
-    return pushNode(name, Type::Array);
-}
-
-Node& Node::push_object()
-{
-    return pushNode("", Type::Object);
+    Node::Type actualType(type);
+    if (type == Node::Type::Null && !value.isNull())
+    {
+        actualType = variantTypeToNodeType(value.dataType());
+    }
+    auto& node = pushNode("", actualType);
+    node->m_value = value;
+    return node;
 }
 
 bool Node::remove(const String& name)
 {
+    bool found = false;
+    for (auto node = m_nodes.begin(); node != m_nodes.end();)
+    {
+        if ((*node)->name() == name)
+        {
+            node = m_nodes.erase(node);
+            found = true;
+        }
+        else
+        {
+            ++node;
+        }
+    }
+    return found;
+}
+
+bool Node::remove(const SNode& _node)
+{
     for (auto node = m_nodes.begin(); node != m_nodes.end(); ++node)
     {
-        if (node->name() == name)
+        if ((*node).get() == _node.get())
         {
             m_nodes.erase(node);
             return true;
@@ -301,9 +330,10 @@ bool Node::remove(const String& name)
     return false;
 }
 
-size_t Node::size() const
+static void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)
 {
-    return m_nodes.size();
+    ImportXML importer;
+    importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
 }
 
 void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
@@ -311,26 +341,30 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        importJson(*this, data);
+        auto node = shared_from_this();
+        importJson(node, data);
     }
     else
     {
-        importXML(data, xmlKeepFormatting);
+        auto node = shared_from_this();
+        importXML(node, data, xmlKeepFormatting);
     }
 }
 
-void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces)
+void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting)
 {
     Buffer input(data);
 
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        importJson(*this, input);
+        auto node = shared_from_this();
+        importJson(node, input);
     }
     else
     {
-        importXML(input, xmlKeepSpaces);
+        auto node = shared_from_this();
+        importXML(node, input, xmlKeepFormatting);
     }
 }
 
@@ -338,7 +372,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
 {
     if (dataFormat == DataFormat::JSON)
     {
-        exportJson(data, formatted);
+        ExportJSON::exportToJSON(this, data, formatted);
     }
     else
     {
@@ -346,37 +380,24 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         if (m_parent != nullptr)
         {
             // Exporting single node
-            exporter.saveElement(*this, name(), data, formatted ? 2 : 0);
+            exporter.saveElement(this, name(), data, formatted, 0);
         }
         else
         {
             // Exporting root node of the document
-            for (auto& node: m_nodes)
+            for (const auto& node: m_nodes)
             {
-                exporter.saveElement(node, node.name(), data, formatted ? 2 : 0);
+                exporter.saveElement(node.get(), node->name(), data, formatted, 0);
             }
         }
     }
 }
 
-void Node::importXML(const Buffer& xml, bool xmlKeepSpaces)
+void Node::exportTo(DataFormat dataFormat, ostream& stream, bool formatted) const
 {
-    ImportXML importer;
-    importer.parse(*this, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
-}
-
-void Node::exportXML(Buffer& xml, int indent) const
-{
-    ExportXML exporter;
-    for (auto& node: m_nodes)
-    {
-        exporter.save(node, xml, indent);
-    }
-}
-
-Node* Node::parent()
-{
-    return m_parent;
+    Buffer output;
+    exportTo(dataFormat, output, formatted);
+    stream << output.c_str();
 }
 
 void Node::clearChildren()
@@ -384,8 +405,41 @@ void Node::clearChildren()
     m_nodes.clear();
 }
 
-void Node::select(Node::Vector& selectedNodes, const String& xpath)
+Node::Vector Node::select(const String& xpath)
 {
+    Node::Vector selectedNodes;
+
     selectedNodes.clear();
-    NodeSearchAlgorithms::select(selectedNodes, *this, xpath);
+    auto node = shared_from_this();
+    NodeSearchAlgorithms::select(selectedNodes, node, xpath);
+
+    return selectedNodes;
+}
+
+void Node::clone(const SNode& destination, const SNode& source)
+{
+    Buffer content;
+    source->exportTo(DataFormat::JSON, content, false);
+    destination->load(DataFormat::JSON, content, false);
+}
+
+bool xdoc::isBoolean(const String& str)
+{
+    static const RegularExpression isInteger(R"(^(true|false)$)");
+
+    return isInteger.matches(str);
+}
+
+bool xdoc::isInteger(const String& str)
+{
+    static const RegularExpression isInteger(R"(^(0|[\+\-]?[1-9]\d*)$)");
+
+    return isInteger.matches(str);
+}
+
+bool xdoc::isFloat(const String& str)
+{
+    static const RegularExpression isNumber(R"(^[\+\-]?(0?\.|[1-9]\d*\.)\d+(e[\+\-]?\d+)?$)", "i");
+
+    return isNumber.matches(str);
 }

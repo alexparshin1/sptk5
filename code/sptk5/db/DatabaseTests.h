@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,9 @@
 
 #pragma once
 
-#include "DatabaseConnectionString.h"
 #include "AutoDatabaseConnection.h"
+#include "DatabaseConnectionString.h"
+#include "Transaction.h"
 
 namespace sptk {
 
@@ -37,6 +38,13 @@ namespace sptk {
 class SP_EXPORT DatabaseTests
 {
 public:
+    struct Row {
+        int id;
+        int64_t ssid;
+        String name;
+        double price;
+        DateTime ts;
+    };
 
     /**
      * Constructor
@@ -54,14 +62,14 @@ public:
      * Get list of added database connections
      * @return list of added database connections
      */
-    std::vector<DatabaseConnectionString> connectionStrings() const;
+    [[nodiscard]] std::vector<DatabaseConnectionString> connectionStrings() const;
 
     /**
      * Get connection string for database type (driver name).
      * @param driverName        Driver name
      * @return connection string
      */
-    DatabaseConnectionString connectionString(const String& driverName) const;
+    [[nodiscard]] DatabaseConnectionString connectionString(const String& driverName) const;
 
     /**
      * Test database connection
@@ -94,6 +102,12 @@ public:
     static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
 
     /**
+     * Test query inserting date
+     * @param connectionString
+     */
+    static void testQueryInsertDateTime(const DatabaseConnectionString& connectionString);
+
+    /**
      * Test parametrized queries
      * @param connectionString Database connection string
      */
@@ -104,6 +118,12 @@ public:
      * @param connectionString
      */
     static void testInsertQuery(const DatabaseConnectionString& connectionString);
+
+    /**
+     * Test InsertQuery returning created value
+     * @param connectionString
+     */
+    static void testInsertQueryDirect(const DatabaseConnectionString& connectionString);
 
     /**
      * Test transaction
@@ -124,10 +144,23 @@ public:
      */
     static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 
-	/**
+    /**
+     * Test batch SQL
+     * @param connectionString  Database connection string
+     */
+    static void testBatchSQL(const DatabaseConnectionString& connectionString);
+
+
+    /**
+     * Test BLOB insert and select
+     * @param connectionString  Database connection string
+     */
+    static void testBLOB(const DatabaseConnectionString& connectionString);
+
+    /**
 	 * Global database tests collection
 	 */
-	static DatabaseTests& tests();
+    static DatabaseTests& tests();
 
 private:
     /**
@@ -142,40 +175,50 @@ private:
 
     /**
      * Get number of rows in table
-     * @param db                Database connection
+     * @param databaseConnection                Database connection
      * @param table             Database table
      * @return number of rows in table
      */
-    static size_t countRowsInTable(const DatabaseConnection& db, const String& table);
+    static size_t countRowsInTable(const DatabaseConnection& databaseConnection, const String& table);
 
     /**
      * Test transactions
-     * @param db                Database connection
+     * @param databaseConnection                Database connection
      * @param commit            If true then commit the transaction
      */
-    static void testTransaction(DatabaseConnection db, bool commit);
+    static void testTransaction(const DatabaseConnection& databaseConnection, bool commit);
 
     /**
      * Connect to database and create test table
-     * @param db                Database connection
-     * @return
+     * @param databaseConnection                Database connection
+     * @param autoPrepare       If true then use auto-prepared queries (default)
+     * @param withBlob          If true then add BLOB field 'data' to the table
      */
-    static void createTestTable(DatabaseConnection db);
+    static void createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare = true, bool withBlob = false);
 
     /**
      * Connect to database and create test table with serial id
-     * @param db                Database connection
+     * @param databaseConnection                Database connection
      */
-    static void createTestTableWithSerial(DatabaseConnection db);
+    static void createTestTableWithSerial(const DatabaseConnection& databaseConnection);
 
     /**
      * Create Oracle autoincrement for a column
-     * @param db                Database connection
+     * @param databaseConnection                Database connection
      * @param tableName         Table name
      * @param columnName        Column name
      */
-    static void createOracleAutoIncrement(const DatabaseConnection& db, const String& tableName, const String& columnName);
+    static void createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName, const String& columnName);
+    static void createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
+    static Buffer createClob();
+    static void insertDataIntoTempTable(Buffer& clob, Query& insert);
+    static void verifyInsertedData(const DatabaseConnection& databaseConnection, const Buffer& clob);
+    static void verifyInsertedRow(const Row& row, const Buffer& clob, Query& select);
+    static void verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
+    static void verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
+    static size_t insertRecordsInTransaction(const DatabaseConnection& databaseConnection);
+    static void verifyInvalidTransactionStateCommitThrows(Transaction& transaction);
+    static void verifyInvalidTransactionStateRollbackThrows(Transaction& transaction);
 };
 
-}
-
+} // namespace sptk

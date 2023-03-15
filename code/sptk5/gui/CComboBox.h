@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -97,7 +97,6 @@ class SP_EXPORT CBaseListBox
     static void comboButtonPressed(Fl_Widget* btn, void* data);
 
 protected:
-
     /**
      * Drop down window - CComboBox only
      */
@@ -137,7 +136,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -147,7 +146,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * Returns true, if the data is valid.
@@ -176,7 +175,7 @@ protected:
      * @param label, const char * label
      * @param mode int, IS_COMBO_BOX or IS_LIST_BOX - internal
      */
-    CBaseListBox(int x,int y,int w,int h,const char *label,int mode);
+    CBaseListBox(int x, int y, int w, int h, const char* label, int mode);
 #endif
 
     /**
@@ -190,7 +189,6 @@ protected:
     virtual void button_handle(uint32_t theButtonKind);
 
 public:
-
     /**
      * Clears the list view inside
      */
@@ -477,7 +475,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CComboBox(int x,int y,int w,int h,const char *label = 0);
+    CComboBox(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -504,7 +502,7 @@ public:
     /**
      * @brief Creates a combo box based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
@@ -535,7 +533,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CListBox(int,int,int,int,const char * = 0);
+    CListBox(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -560,4 +558,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

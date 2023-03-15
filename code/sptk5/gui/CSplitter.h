@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CDataControl.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -47,12 +47,12 @@ class SP_EXPORT CSplitter
     : public CBox
 {
     Fl_Widget* m_chainedWidget;           /// Pointer on the widget that will be resized
-    CLayoutClient* m_chainedWidgetLayout;     /// Pointer on the CLayoutClient of the resized widget
-    bool m_dragging {false};        /// The flag indicating the dragging state
-    int m_lastDragX {0};           /// Where did we grab the bar (x-coordinate) ?
-    int m_lastDragY {0};           /// Where did we grab the bar (y-coordinate) ?
+    CLayoutClient* m_chainedWidgetLayout; /// Pointer on the CLayoutClient of the resized widget
+    bool m_dragging {false};              /// The flag indicating the dragging state
+    int m_lastDragX {0};                  /// Where did we grab the bar (x-coordinate) ?
+    int m_lastDragY {0};                  /// Where did we grab the bar (y-coordinate) ?
 protected:
-    void findChainedControl();                 /// After the splitter is grabbed finds out which widget is resizing
+    void findChainedControl(); /// After the splitter is grabbed finds out which widget is resizing
 public:
     /**
      * Constructor in SPTK style
@@ -71,7 +71,7 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
@@ -84,4 +84,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

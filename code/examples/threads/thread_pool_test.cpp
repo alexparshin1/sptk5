@@ -4,7 +4,7 @@
 ║                       thread_pool_test.cpp - description                     ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -37,11 +37,11 @@ SynchronizedQueue<int> intQueue;
 class CMyTask
     : public Runable
 {
-    Logger m_log;  /// Task proxy log
+    Logger m_log; /// Task proxy log
 
     static uint32_t taskCount;
-public:
 
+public:
     // Constructor
     explicit CMyTask(SysLogEngine& sharedLog);
 
@@ -52,8 +52,8 @@ public:
 uint32_t CMyTask::taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-    : Runable("Task " + int2string(taskCount)),
-      m_log(sharedLog)
+    : Runable("Task " + int2string(taskCount))
+    , m_log(sharedLog)
 {
     taskCount++;
 }
@@ -80,7 +80,7 @@ int main()
     try
     {
         unsigned i;
-        vector<CMyTask*> tasks;
+        vector<shared_ptr<CMyTask>> tasks;
 
         /// Thread manager controls tasks execution.
         ThreadPool threadPool(16, std::chrono::milliseconds(30000), "test thread pool", nullptr);
@@ -88,14 +88,14 @@ int main()
         /// Threads send messages through their own Logger objects.
         /// Multiple Logger objects can share same log object thread-safely.
         SysLogEngine logEngine("thread_pool_test");
-        logEngine.options(logEngine.options() | LO_STDOUT);
+        logEngine.option(LogEngine::Option::STDOUT, true);
 
         Logger sharedLog(logEngine);
 
         // Creating several tasks
         for (i = 0; i < 5; i++)
         {
-            tasks.push_back(new CMyTask(logEngine));
+            tasks.push_back(make_shared<CMyTask>(logEngine));
         }
 
         sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
@@ -120,9 +120,9 @@ int main()
         this_thread::sleep_for(chrono::milliseconds(1000));
 
         sharedLog.log(LogPriority::NOTICE, "Sending 'terminate' signal to all the tasks.");
-        for (i = 0; i < tasks.size(); i++)
+        for (auto& task: tasks)
         {
-            tasks[i]->terminate();
+            task->terminate();
         }
         this_thread::sleep_for(chrono::seconds(1));
 
@@ -132,16 +132,14 @@ int main()
         threadPool.stop();
 
         sharedLog.log(LogPriority::NOTICE, "Deleting all the tasks.");
-        for (i = 0; i < tasks.size(); i++)
-        {
-            delete tasks[i];
-        }
+
+        tasks.clear();
 
         return 0;
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

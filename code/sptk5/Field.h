@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -58,12 +58,11 @@ public:
     /**
      * Combination of field view attributes
      */
-    struct View
-    {
-        signed int width: 10;       ///< Field width
-        unsigned precision: 5;    ///< Field precision
-        unsigned flags: 16;       ///< Field flags like alignment, etc
-        bool visible: 1;      ///< Is field visible?
+    struct View {
+        signed int width : 10;  ///< Field width
+        unsigned precision : 5; ///< Field precision
+        unsigned flags : 16;    ///< Field flags like alignment, etc
+        bool visible : 1;       ///< Is field visible?
     };
 
     /**
@@ -103,15 +102,6 @@ public:
     }
 
     /**
-     * Sets the NULL state
-     *
-     * Useful for the database operations.
-     * Retains the data type. Sets the data to zero(s).
-     * @param vtype              Optional variant type to enforce
-     */
-    void setNull(VariantDataType vtype) override;
-
-    /**
      * Copy assignment operation
      */
     Field& operator=(const Field& other) = default;
@@ -138,9 +128,9 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator=(int64_t value) override
+    Field& operator=(bool value) override
     {
-        setInt64(value);
+        setBool(value);
         return *this;
     }
 
@@ -150,6 +140,15 @@ public:
     Field& operator=(int32_t value) override
     {
         setInteger(value);
+        return *this;
+    }
+
+    /**
+     * Assignment operation
+     */
+    Field& operator=(int64_t value) override
+    {
+        setInt64(value);
         return *this;
     }
 
@@ -183,7 +182,7 @@ public:
     /**
      * Assignment operation
      */
-    Field& operator=(DateTime value) override
+    Field& operator=(const DateTime& value) override
     {
         setDateTime(value);
         return *this;
@@ -218,10 +217,12 @@ public:
      * If the compactXmlMode flag is true, the field is exported as an attribute.
      * Otherwise, the field is exported as subnodes.
      * For the fields of the VAR_TEXT type, the subnode is created containing CDATA section.
-     * @param node               Node to export field data into
-     * @param compactXmlMode     Compact XML mode flag
+     * @param node              Node to export field data into
+     * @param compactXmlMode    When exporting to XML, export fields as attributes
+     * @param detailedInfo      Export extra field info such as size and type
+     * @param nullLargeData     Set text data longer than 256 bytes to null
      */
-    void exportTo(xdoc::Node& node, bool compactXmlMode = false) const;
+    void exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo = false, bool nullLargeData = false) const;
 
     String displayName() const
     {
@@ -233,13 +234,13 @@ public:
         m_displayName = name;
     }
 
+protected:
+    virtual String doubleDataToString() const;
+
 private:
-
-    String m_name;          ///< Field name
+    String m_name;        ///< Field name
     View m_view {};       ///< Combination of field view attributes
-    String m_displayName;   ///< Optional display field name
-
-    String doubleDataToString() const;
+    String m_displayName; ///< Optional display field name
 
     String epochDataToDateTimeString() const;
 };
@@ -249,4 +250,4 @@ using SField = std::shared_ptr<Field>;
 /**
  * @}
  */
-}
+} // namespace sptk

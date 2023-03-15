@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,37 +42,33 @@ void CFrames::clear()
     m_fltkFrames.clear();
 }
 
-const Strings     CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
-const std::array<Fl_Boxtype, 4>  CFrames::frameTypes = {
-    FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME
-};
+const Strings CFrames::frameTypeNames("up frame|thin up frame|thin down frame|down frame", "|");
+const std::array<Fl_Boxtype, 4> CFrames::frameTypes = {
+    FL_UP_FRAME, FL_THIN_UP_FRAME, FL_THIN_DOWN_FRAME, FL_DOWN_FRAME};
 
-void CFrames::load(Tar& tar, xml::Node* framesNode)
+void CFrames::load(Tar& tar, const xdoc::SNode& framesNode)
 {
     clear();
-    auto itor = framesNode->begin();
-    auto iend = framesNode->end();
-    for (; itor != iend; ++itor)
+    for (const auto& frameNode: framesNode->nodes())
     {
-        xml::Node* frameNode = *itor;
         if (frameNode->name() != "frame")
         {
             continue;
         }
-        String fileName = (String) frameNode->getAttribute("image");
+        String fileName = (String) frameNode->attributes().get("image");
         if (fileName.empty())
         {
             continue;
         }
-        String frameTypeStr = (String) frameNode->getAttribute("type");
-        String frameName = (String) frameNode->getAttribute("name", frameTypeStr.c_str());
+        String frameTypeStr = (String) frameNode->attributes().get("type");
+        String frameName = (String) frameNode->attributes().get("name", frameTypeStr.c_str());
         if (frameTypeStr.empty())
         {
             frameTypeStr = frameName;
         }
         unsigned frameTypeInt = (unsigned) frameTypeNames.indexOf(frameTypeStr);
-        unsigned frameWidth = (int) frameNode->getAttribute("width", "1");
-        unsigned cornerZone = (int) frameNode->getAttribute("corner", "1");
+        unsigned frameWidth = frameNode->attributes().get("width", "1").toInt();
+        unsigned cornerZone = frameNode->attributes().get("corner", "1").toInt();
         Fl_Boxtype frameType = FL_NO_BOX;
         CFrame::CFrameKind kind = CFrame::CFrameKind::USER_EXTENDED;
         if (frameTypeInt < 4)
@@ -81,7 +77,7 @@ void CFrames::load(Tar& tar, xml::Node* framesNode)
             kind = CFrame::CFrameKind::FLTK_STANDARD;
         }
         CPngImage::CPatternDrawMode drawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
-        if ((String) frameNode->getAttribute("mode") == "tile")
+        if ((String) frameNode->attributes().get("mode") == "tile")
         {
             drawMode = CPngImage::CPatternDrawMode::PDM_TILE;
         }

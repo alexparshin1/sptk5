@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,32 +24,30 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef SPTK_ARCHIVEFILE_H
-#define SPTK_ARCHIVEFILE_H
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 
 namespace sptk {
 
-constexpr int TAR_BLOCK_SIZE = 512;     ///< Tar archive block size
+constexpr int TAR_BLOCK_SIZE = 512; ///< Tar archive block size
 
 #pragma pack(push, 1)
 
 /**
  * Tar header as it's stored in file
  */
-struct TarHeader
-{
+struct TarHeader {
     std::array<char, 100> filename;
     std::array<char, 8> mode;
     std::array<char, 8> uid;
     std::array<char, 8> gid;
     std::array<char, 12> size;
     std::array<char, 12> mtime;
-    std::array<char, 8> chksum;
+    std::array<char, 8> checkSum;
     char typeflag;
-    std::array<char, 100> linkname;
+    std::array<char, 100> linkName;
     std::array<char, 6> magic;
     std::array<char, 2> version;
     std::array<char, 32> uname;
@@ -65,30 +63,27 @@ struct TarHeader
 /**
  * @brief File inside tar archive
  */
-class ArchiveFile
+class SP_EXPORT ArchiveFile
     : public Buffer
 {
 public:
-
     /**
      * @brief File type for file inside tar archive
      */
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
-        REGULAR_FILE = '0',    ///< Regular file (preferred code).
-        REGULAR_FILE2 = '\0',  ///< Regular file (alternate code).
-        HARD_LINK = '1',       ///< Hard link.
-        SYM_LINK = '2',        ///< Symbolic link (hard if not supported).
-        CHARACTER = '3',       ///< Character special.
-        BLOCK = '4',           ///< Block special.
-        DIRECTORY = '5',       ///< Directory.
-        FIFO = '6',            ///< Named pipe.
-        CONTTYPE = '7'         ///< Contiguous file (regular file if not supported).
+        REGULAR_FILE = '0',   ///< Regular file (preferred code).
+        REGULAR_FILE2 = '\0', ///< Regular file (alternate code).
+        HARD_LINK = '1',      ///< Hard link.
+        SYM_LINK = '2',       ///< Symbolic link (hard if not supported).
+        CHARACTER = '3',      ///< Character special.
+        BLOCK = '4',          ///< Block special.
+        DIRECTORY = '5',      ///< Directory.
+        FIFO = '6',           ///< Named pipe.
+        CONTTYPE = '7'        ///< Contiguous file (regular file if not supported).
     };
 
-    struct Ownership
-    {
+    struct Ownership {
         int uid {0};
         int gid {0};
         String uname;
@@ -100,7 +95,7 @@ public:
      * @param fileName          File name
      * @param baseDirectory     Directory used as a base for relative path for files inside archive
      */
-    explicit ArchiveFile(const fs::path& fileName, const fs::path& baseDirectory);
+    explicit ArchiveFile(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
     /**
      * @brief Constructor
@@ -112,8 +107,8 @@ public:
      * @param ownership         File owners
      * @param linkName          Name the link is pointing to
      */
-    ArchiveFile(const fs::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
-                ArchiveFile::Type type, const Ownership& ownership, const fs::path& linkName);
+    ArchiveFile(const std::filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
+                ArchiveFile::Type type, const Ownership& ownership, const std::filesystem::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE
@@ -136,11 +131,6 @@ public:
         return m_ownership;
     }
 
-    unsigned size() const
-    {
-        return m_size;
-    }
-
     DateTime mtime() const
     {
         return m_mtime;
@@ -156,14 +146,12 @@ public:
         return m_linkname;
     }
 
-    static fs::path relativePath(const fs::path& fileName, const fs::path& baseDirectory);
+    static std::filesystem::path relativePath(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
 private:
-
     String m_fileName;
     unsigned m_mode {777};
     Ownership m_ownership {};
-    unsigned m_size {0};
     DateTime m_mtime;
     Type m_type {Type::REGULAR_FILE};
     String m_linkname;
@@ -175,6 +163,4 @@ private:
 
 using SArchiveFile = std::shared_ptr<ArchiveFile>;
 
-}
-
-#endif
+} // namespace sptk

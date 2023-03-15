@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
-#include <sptk5/Buffer.h>
 #include <string>
 
 namespace sptk {
@@ -80,7 +80,7 @@ public:
      * @param bufSource         Source buffer that holds base64 decoded data
      * @returns length of returned buffer
      */
-    static size_t decode(Buffer &bufDest, const Buffer &bufSource);
+    static size_t decode(Buffer& bufDest, const Buffer& bufSource);
 
     /**
      * @brief Data decoding.
@@ -95,5 +95,4 @@ public:
 /**
  * @}
  */
-}
-
+} // namespace sptk

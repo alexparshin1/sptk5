@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,7 +41,7 @@ void WSFieldIndex::setElements(const Strings& elementNames, std::initializer_lis
         ++index;
     }
 
-    std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_elements));
+    ranges::copy(fieldList, back_inserter(m_elements));
 }
 
 void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer_list<WSType*> fieldList)
@@ -56,7 +56,7 @@ void WSFieldIndex::setAttributes(const Strings& attributeNames, std::initializer
         ++index;
     }
 
-    std::copy(fieldList.begin(), fieldList.end(), back_inserter(m_attributes));
+    ranges::copy(fieldList, back_inserter(m_attributes));
 }
 
 WSType* WSFieldIndex::find(const String& name) const

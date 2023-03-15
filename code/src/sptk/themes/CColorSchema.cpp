@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,7 +34,7 @@ Fl_Color CColorSchema::m_colorMapIndex[] =
         FL_FOREGROUND_COLOR, FL_BACKGROUND2_COLOR, FL_INACTIVE_COLOR, FL_SELECTION_COLOR,             /// Window colors
         FL_GRAY0, FL_DARK3, FL_DARK2, FL_DARK1, FL_BACKGROUND_COLOR, FL_LIGHT1, FL_LIGHT2, FL_LIGHT3, /// Box colors
         FL_WHITE                                                                                      /// List termination
-    };
+};
 
 void CColorSchema::store()
 {
@@ -47,7 +47,7 @@ void CColorSchema::store()
 
 void CColorSchema::restore()
 {
-    for (const auto&[name, value]: m_colorMap)
+    for (const auto& [name, value]: m_colorMap)
     {
         Fl::set_color(name, value);
     }

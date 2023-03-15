@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,6 @@
 #include <sptk5/Strings.h>
 #include <sptk5/gui/CDataControl.h>
 
-#include <sptk5/gui/CRadioButtons.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CComboBox.h>
 
@@ -86,8 +85,6 @@ CControl* sptk::createControl(CControlKind controlKind, const String& label, con
             control = new CCheckButtons(lbl);
             break;
         case CControlKind::COMBO:
-            control = new CComboBox(lbl, size);
-            break;
         case CControlKind::INTVALUECOMBO:
             control = new CComboBox(lbl, size);
             break;

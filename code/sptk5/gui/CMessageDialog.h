@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/gui/CDialog.h>
 #include <sptk5/gui/CDataControl.h>
+#include <sptk5/gui/CDialog.h>
 
 #include <string>
 
@@ -45,23 +45,23 @@ namespace sptk {
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-class SP_EXPORT CAskDialog : public CDialog {
+class SP_EXPORT CAskDialog : public CDialog
+{
     /**
      * The icon box
      */
-    Fl_Box    *m_imageBox;
+    Fl_Box* m_imageBox;
 
     /**
      * The HTML box widget to show the message text
      */
-    CHtmlBox  *m_textBox;
+    CHtmlBox* m_textBox;
 
 protected:
-
     /**
      * Input box, optionally shown
      */
-    CInput   *m_inputBox;
+    CInput* m_inputBox;
 
 public:
     /**
@@ -69,7 +69,7 @@ public:
      * @param label const char *, window caption
      * @param w int, window width
      */
-    CAskDialog(const char *label,int w=400);
+    CAskDialog(const char* label, int w = 400);
 
     /**
      * Shows message and waits for the user
@@ -81,7 +81,8 @@ public:
      * Sets icon for the window
      * @param image Fl_Pixmap *, icon to use, suggested size is 48x48 XPM
      */
-    void icon(Fl_Image *image) {
+    void icon(Fl_Image* image)
+    {
         m_imageBox->image(image);
     }
 };
@@ -91,14 +92,17 @@ public:
  *
  * Creates a dialog with the text or HTML text of message and one button (Ok)
  */
-class SP_EXPORT CMessageDialog : public CAskDialog {
+class SP_EXPORT CMessageDialog : public CAskDialog
+{
 public:
     /**
      * Constructor
      * @param label const char *, window caption
      * @param w int, window width
      */
-    CMessageDialog(const char *label,int w=400) : CAskDialog(label,w) {
+    CMessageDialog(const char* label, int w = 400)
+        : CAskDialog(label, w)
+    {
         m_cancelButton->hide();
     }
 };
@@ -108,14 +112,17 @@ public:
  *
  * Creates a dialog with the text or HTML text of question (message) and two buttons (Ok/Cancel)
  */
-class SP_EXPORT CInputDialog : public CAskDialog {
+class SP_EXPORT CInputDialog : public CAskDialog
+{
 public:
     /**
      * Constructor
      * @param label const char *, window caption
      * @param w int, window width
      */
-    CInputDialog(const char *label,int w=400) : CAskDialog(label,w) {
+    CInputDialog(const char* label, int w = 400)
+        : CAskDialog(label, w)
+    {
         m_inputBox->show();
     }
 
@@ -166,4 +173,4 @@ int SP_EXPORT spInput(const String& message, String& inputText);
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -50,7 +50,7 @@ void CControlList::scanControls(const Fl_Group* group)
         }
 
 
-        Fl_Group* g = dynamic_cast<Fl_Group*>(widget);
+        auto* g = dynamic_cast<Fl_Group*>(widget);
         if (g != nullptr)
         {
             scanControls(g);
@@ -79,7 +79,7 @@ void CControlList::add(const CControlList& list)
 
 void CControlList::remove(const CControlList& l)
 {
-    for (auto itor: l)
+    for (const auto& itor: l)
     {
         remove(itor.second);
     }

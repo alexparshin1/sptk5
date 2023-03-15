@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,21 +28,21 @@
 
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CThemeColorCollection.h>
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CTreeControl.h>
 #include <sptk5/HomeDirectory.h>
+#include <sptk5/gui/CButton.h>
+#include <sptk5/gui/CThemeColorCollection.h>
+#include <sptk5/gui/CTreeControl.h>
 
-#include <sptk5/gui/default_icons.h>
 #include <cmath>
+#include <sptk5/gui/default_icons.h>
 
 #include "ThemeUtils.h"
 
 #ifdef _WIN32
-#include <winsock2.h>
-#include <windows.h>
 #include <io.h>
+#include <windows.h>
+#include <winsock2.h>
 #define X_OK 0
 #endif
 
@@ -79,7 +79,7 @@ CThemeColorCollection CThemes::m_colors;
 bool CThemes::m_flatButtons;
 bool CThemes::m_gtkTheme;
 
-xml::Document* CThemes::m_registry;
+xdoc::Document* CThemes::m_registry;
 Tar CThemes::m_tar;
 CIconMap CThemes::m_icons[4]; /// Four different sets of icons
 bool CThemes::m_desaturateInactiveButtons;
@@ -99,11 +99,11 @@ CThemes::CThemes()
     m_thinDownFrame = Fl::get_boxtype(FL_THIN_DOWN_FRAME);
     m_downFrame = Fl::get_boxtype(FL_DOWN_FRAME);
 
-    m_registry = new xml::Document;
+    m_registry = new xdoc::Document;
     m_desaturateInactiveButtons = false;
     m_buttonFocusRadius = 0;
 
-    for (auto& i : m_background)
+    for (auto& i: m_background)
     {
         i = nullptr;
     }
@@ -282,7 +282,7 @@ void CThemes::set(string theThemeName)
         string fileName = dirs[dn] + "/" + themeName + ".tar";
 
         defaultTheme = lowerCase(themeName) == "default";
-        m_registry->clear();
+        m_registry->root()->clear();
 
         m_desaturateInactiveButtons = false;
         //int scrollBarButtonSize = 0;
@@ -309,15 +309,15 @@ void CThemes::set(string theThemeName)
 
         try
         {
-            auto itor = m_registry->begin();
-            for (; itor != m_registry->end(); ++itor)
+            auto itor = m_registry->root()->nodes().begin();
+            for (; itor != m_registry->root()->nodes().end(); ++itor)
             {
-                xml::Node* iconsNode = *itor;
+                auto& iconsNode = *itor;
                 if (iconsNode->name() != "icons")
                 {
                     continue;
                 }
-                String iconsSizeStr = (String) iconsNode->getAttribute("size", "large");
+                String iconsSizeStr = (String) iconsNode->attributes().get("size", "large");
                 CIconSize iconsSize;
                 switch (iconsSizeStr[0])
                 {
@@ -337,32 +337,31 @@ void CThemes::set(string theThemeName)
                 m_icons[(int) iconsSize].load(m_tar, iconsNode);
             }
 
-            xml::Node* buttonsNode = m_registry->findOrCreate("buttons", false);
-            m_desaturateInactiveButtons = (bool) buttonsNode->getAttribute("DesaturateInactive", "N");
-            m_buttonFocusRadius = (int) buttonsNode->getAttribute("FocusRadius", "0");
-            m_flatButtons = (bool) buttonsNode->getAttribute("FlatInactive", "N");
+            auto buttonsNode = m_registry->root()->findOrCreate("buttons");
+            m_desaturateInactiveButtons = buttonsNode->attributes().get("DesaturateInactive", "false") == "true";
+            m_buttonFocusRadius = buttonsNode->attributes().get("FocusRadius", "0").toInt();
+            m_flatButtons = buttonsNode->attributes().get("FlatInactive", "false") == "true";
 
-            xml::Node* tabsNode = m_registry->findOrCreate("tabs", false);
+            auto tabsNode = m_registry->root()->findOrCreate("tabs");
             m_tabImages.load(m_tar, tabsNode);
 
-            xml::Node* fontsTopic = m_registry->findOrCreate("fonts", false);
+            auto fontsTopic = m_registry->root()->findOrCreate("fonts");
             m_fonts.clear();
-            for (itor = fontsTopic->begin(); itor != fontsTopic->end(); ++itor)
+            for (itor = fontsTopic->nodes().begin(); itor != fontsTopic->nodes().end(); ++itor)
             {
-                xml::Node* fontInfo = *itor;
-                String fontName = (String) fontInfo->getAttribute("name", "Arial");
+                auto& fontInfo = *itor;
+                String fontName = (String) fontInfo->attributes().get("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
                 {
                     continue;
                 }
-                String object = (String) fontInfo->getAttribute("object", "Arial");
+                String object = (String) fontInfo->attributes().get("object", "Arial");
                 CFont* font = new CFont(fontName,
-                                        (int) fontInfo->getAttribute("size", "10"),
-                                        (int) fontInfo->getAttribute("color", "0"),
+                                        fontInfo->attributes().get("size", "10").toInt(),
+                                        fontInfo->attributes().get("color", "0").toInt(),
                                         screenFont->index(),
-                                        screenFont->attributes()
-                );
+                                        screenFont->attributes());
                 m_fonts[object] = font;
             }
             auto ftor = m_fonts.find("default");
@@ -372,9 +371,8 @@ void CThemes::set(string theThemeName)
                 m_fonts["default"] = new CFont(font->name(), 10, 0, font->index(), font->attributes());
             }
 
-            xml::Node* framesNode = m_registry->findOrCreate("frames", false);
+            auto framesNode = m_registry->root()->findOrCreate("frames");
             m_frames.load(m_tar, framesNode);
-
         }
         catch (...)
         {
@@ -403,7 +401,7 @@ void CThemes::set(string theThemeName)
         CTreeItem::setFolderOpened(
             getIconImage("folder_opened", CIconSize::IS_SMALL_ICON)); ///< Default image of the opened floder
         CTreeItem::setFolderClosed(
-            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON)); ///< Default image of the closed floder
+            getIconImage("folder_closed", CIconSize::IS_SMALL_ICON));               ///< Default image of the closed floder
         CTreeItem::setDocument(getIconImage("document", CIconSize::IS_SMALL_ICON)); ///< Default image of the document
         if (!CTreeItem::getFolderOpened())
         {
@@ -418,7 +416,7 @@ void CThemes::set(string theThemeName)
         try {
             Node& topic = *m_registry->findFirst("scrollbars", false);
             if (&topic)
-                scrollBarButtonSize = topic.getAttribute("ButtonSize", "16");
+                scrollBarButtonSize = topic.attributes().get("ButtonSize", "16");
         } catch (...) {}
         */
 
@@ -747,7 +745,7 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
         percent = 0;
     }
 
-    CPngImage* partImage[2];  // 0 - trough, 1 - bar
+    CPngImage* partImage[2]; // 0 - trough, 1 - bar
     int border[2] = {0, 0};
     CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::CPatternDrawMode::PDM_TILE,
                                                CPngImage::CPatternDrawMode::PDM_TILE};
@@ -787,7 +785,7 @@ Strings CThemes::availableThemes()
     themes.push_back("Default");
     //themes.push_back("GTK");
     const Strings& dirs = searchDirectories();
-    for (const auto& adir : dirs)
+    for (const auto& adir: dirs)
     {
         try
         {

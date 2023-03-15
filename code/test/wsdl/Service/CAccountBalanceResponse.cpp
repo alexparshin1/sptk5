@@ -1,6 +1,4 @@
 #include "CAccountBalanceResponse.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;
@@ -20,7 +18,7 @@ const sptk::Strings& CAccountBalanceResponse::fieldNames(WSFieldIndex::Group gro
     return _fieldNames;
 }
 
-CAccountBalanceResponse::CAccountBalanceResponse(const char* elementName, bool optional) noexcept
+CAccountBalanceResponse::CAccountBalanceResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_account_balance});
@@ -38,18 +36,6 @@ CAccountBalanceResponse::CAccountBalanceResponse(CAccountBalanceResponse&& other
   m_account_balance(std::move(other.m_account_balance))
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_account_balance});
-}
-
-CAccountBalanceResponse& CAccountBalanceResponse::operator = (const CAccountBalanceResponse& other)
-{
-    m_account_balance = other.m_account_balance;
-    return *this;
-}
-
-CAccountBalanceResponse& CAccountBalanceResponse::operator = (CAccountBalanceResponse&& other) noexcept
-{
-    m_account_balance = std::move(other.m_account_balance);
-    return *this;
 }
 
 void CAccountBalanceResponse::checkRestrictions() const

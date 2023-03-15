@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,11 @@
 
 #pragma once
 
+#include "SSLSocket.h"
 #include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/TCPServer.h>
 
-namespace sptk
-{
+namespace sptk {
 /**
  * @addtogroup net Networking Classes
  * @{
@@ -41,7 +42,7 @@ namespace sptk
  * Application derives concrete TCP server connections based on this class,
  * to use with CTCPServer as connection template
  */
-class SSLServerConnection: public ServerConnection
+class SSLServerConnection : public ServerConnection
 {
 public:
     /**
@@ -49,22 +50,22 @@ public:
      * @param server             TCP server
      * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
      */
-    SSLServerConnection(TCPServer& server, SOCKET connectionSocket)
-    : ServerConnection(server, connectionSocket, "SSLServerConnection")
+    SSLServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+        : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "SSLServerConnection", connectionFunction)
     {
-        setSocket(new SSLSocket);
-        socket().attach(connectionSocket);
+        auto sslSocket = std::make_shared<SSLSocket>();
+        setSocket(sslSocket);
+        sslSocket->loadKeys(server.getSSLKeys());
+        sslSocket->attach(connectionSocket, true);
     }
 
     /**
      * @brief Destructor
      */
-    virtual ~SSLServerConnection()
-    {
-    }
+    ~SSLServerConnection() override = default;
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -16,7 +16,7 @@
 │   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
 │   General Public License for more details.                                   │
 │                                                                              │
-│   You should have received a copy of the GNU Library General Public License  │
+│   You should have received a copy of the GNU Library General10 Public License  │
 │   along with this library; if not, write to the Free Software Foundation,    │
 │   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
 │                                                                              │
@@ -33,8 +33,7 @@ namespace sptk::xdoc {
 /**
  * XPath Axis enum
  */
-enum class XPathAxis
-    : uint8_t
+enum class XPathAxis : uint8_t
 {
     CHILD,      ///< Child axis
     DESCENDANT, ///< Descendant axis
@@ -47,13 +46,13 @@ enum class XPathAxis
 class SP_EXPORT XPathElement
 {
 public:
-    String elementName;                   ///< Node name, or '*'
-    String criteria;                      ///< Criteria
-    XPathAxis axis {XPathAxis::CHILD};       ///< Axis
-    String attributeName;                 ///< Attribute name (optional)
-    String attributeValue;                ///< Attribute value (optional)
+    String elementName;                 ///< Node name, or '*'
+    String criteria;                    ///< Criteria
+    XPathAxis axis {XPathAxis::CHILD};  ///< Axis
+    String attributeName;               ///< Attribute name (optional)
+    String attributeValue;              ///< Attribute value (optional)
     bool attributeValueDefined {false}; ///< true if attribute value was defined
-    int nodePosition {0};              ///< 0 (not required), -1 (last), or node position
+    int nodePosition {0};               ///< 0 (not required), -1 (last), or node position
 };
 
 /**
@@ -62,38 +61,39 @@ public:
 class SP_EXPORT NodeSearchAlgorithms
 {
 public:
-    static void select(Node::Vector& nodes, Node& start, String xpath);
+    static void select(Node::Vector& nodes, const SNode& start, String xpath);
 
 private:
     /**
      * Scan descendents nodes
      */
-    static void scanDescendents(Node& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
+    static void scanDescendents(const SNode& thisNode, Node::Vector& nodes,
+                                const std::vector<XPathElement>& pathElements,
                                 int pathPosition,
                                 const String& starPointer);
 
     /**
      * Match nodes
      */
-    static void matchNode(Node& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
+    static void matchNode(const SNode& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
                           int pathPosition,
                           const String& starPointer);
 
     /**
      * Match nodes only this level
      */
-    static void matchNodesThisLevel(Node& thisNode, Node::Vector& nodes,
+    static void matchNodesThisLevel(const SNode& thisNode, Node::Vector& nodes,
                                     const std::vector<XPathElement>& pathElements, int pathPosition,
                                     const String& starPointer, Node::Vector& matchedNodes, bool descendants);
 
     /**
      * Match path element
      */
-    static bool matchPathElement(const Node* thisNode, const XPathElement& pathElement,
+    static bool matchPathElement(const SNode& thisNode, const XPathElement& pathElement,
                                  const String& starPointer);
 
-    static bool matchPathElementAttribute(const Node* thisNode, const XPathElement& pathElement,
+    static bool matchPathElementAttribute(const SNode& thisNode, const XPathElement& pathElement,
                                           const String& starPointer);
 };
 
-}
+} // namespace sptk::xdoc

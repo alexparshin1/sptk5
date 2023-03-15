@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,16 +26,15 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <memory>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
-class QueryBuilder
+class SP_EXPORT QueryBuilder
 {
 public:
-
-    class Join
+    class SP_EXPORT Join
     {
     public:
         Join(const String& tableAlias, const Strings& columns, const String& join);
@@ -73,4 +72,4 @@ private:
     void removeUnNeededColumns(const Join& join, const String& tableAlias);
 };
 
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,54 +24,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/SystemException.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
 
-SystemException::SystemException(const String& context, const String& file, int line) DOESNT_THROW
-: Exception(context + ": " + osError(), file, line)
+SystemException::SystemException(const String& context, const filesystem::path& file, int line) DOESNT_THROW
+    : Exception(context + ": " + osError(), file, line)
 {
 }
 
-string SystemException::osError()
+String SystemException::osError()
 {
 #ifdef WIN32
     // Get Windows last error
     LPCTSTR lpMsgBuf = NULL;
     DWORD dw = GetLastError();
     FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
         dw,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR) &lpMsgBuf,
-        0, NULL );
+        0, NULL);
     if (lpMsgBuf)
         return lpMsgBuf;
     else
         return "Unknown system error";
 #else
     // Get Unix errno-based error
-    string osError = strerror(errno);
-    return osError;
+    constexpr size_t maxErrorLength {256};
+    array<char, maxErrorLength> osError {};
+    if (const char* error = strerror_r(errno, osError.data(), maxErrorLength);
+        error != nullptr)
+    {
+        return error;
+    }
+    return osError.data();
 #endif
 }
-
-#if USE_GTEST
-
-TEST(SPTK_SystemException, openFile)
-{
-    Buffer buffer;
-    try {
-        buffer.loadFromFile("/xx.xx");
-        FAIL() << "MUST FAIL";
-    }
-    catch (const Exception& e) {
-        if (String(e.what()).find("xx.xx") == string::npos)
-            FAIL() << e.what();
-    }
-}
-
-#endif

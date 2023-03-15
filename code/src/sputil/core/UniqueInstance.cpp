@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,9 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstring>
-#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 
 #include <sptk5/Exception.h>
@@ -43,26 +42,37 @@ using namespace sptk;
 
 // Constructor
 UniqueInstance::UniqueInstance(String instanceName)
-        : m_instanceName(move(instanceName))
+    : m_instanceName(std::move(instanceName))
 {
 #ifndef _WIN32
-    String home = getenv("HOME");
+    String const home = getenv("HOME");
     m_fileName = home + "/" + m_instanceName + ".lock";
     if (read_pid() == 0)
+    {
         write_pid();
+    }
 #else
-    m_mutex = CreateMutex(NULL,true,m_instanceName.c_str());
-    if (GetLastError() == 0) {
-        m_lockCreated = shared_ptr<bool>(new bool,
-                                         [this](bool* ptr) { cleanup(); delete ptr; } );
+    m_mutex = CreateMutex(NULL, true, m_instanceName.c_str());
+    if (GetLastError() == 0)
+    {
+        m_lockCreated = true;
     }
 #endif
+}
+
+UniqueInstance::~UniqueInstance()
+{
+    cleanup();
 }
 
 void UniqueInstance::cleanup()
 {
 #ifndef _WIN32
-    unlink(m_fileName.c_str());
+    if (!m_fileName.empty())
+    {
+        unlink(m_fileName.c_str());
+        m_lockCreated = false;
+    }
 #else
     CloseHandle(m_mutex);
 #endif
@@ -78,13 +88,20 @@ int UniqueInstance::read_pid() const
     ifstream lockfile(m_fileName.c_str());
     lockfile >> pid;
     if (lockfile.bad())
-        pid = 0; // Lock file doesn't exist, or doesn't contain pid
+    {
+        pid = 0;
+    } // Lock file doesn't exist, or doesn't contain pid
     lockfile.close();
     if (pid == 0)
-        return 0; // Lock file exists, but there is no process id int
+    {
+        return 0;
+    } // Lock file exists, but there is no process id int
 
-    if (int rc = getsid(pid); rc < 0 || rc == ESRCH)
+    if (int const result = getsid(pid);
+        result < 0 || result == ESRCH)
+    {
         return 0; // No such process - stale lock file.
+    }
 
     return pid;
 }
@@ -92,15 +109,11 @@ int UniqueInstance::read_pid() const
 int UniqueInstance::write_pid()
 {
     ofstream lockfile(m_fileName.c_str());
-    int pid = getpid();
+    int const pid = getpid();
     lockfile << pid;
     lockfile.close();
 
-    m_lockCreated = shared_ptr<bool>(new bool,
-                                     [this](bool* ptr) {
-                                         cleanup();
-                                         delete ptr;
-                                     });
+    m_lockCreated = true;
 
     return pid;
 }
@@ -114,42 +127,5 @@ const String& UniqueInstance::lockFileName() const
 
 bool UniqueInstance::isUnique() const
 {
-    return m_lockCreated != nullptr;
+    return m_lockCreated;
 }
-
-#if USE_GTEST
-
-#ifndef _WIN32
-
-TEST(SPTK_UniqueInstance, create)
-{
-    UniqueInstance uniqueInstance("unit_tests");
-    EXPECT_TRUE(uniqueInstance.isUnique());
-
-    // Simulate lock file with non-existing process
-    ofstream lockFile(uniqueInstance.lockFileName());
-    lockFile << 123456;
-    lockFile.close();
-
-    UniqueInstance uniqueInstance2("unit_tests");
-    EXPECT_TRUE(uniqueInstance2.isUnique());
-
-    // Get pid of existing process
-    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr) {
-        array<char, 64> buffer;
-        if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr) {
-            int pid = string2int(data);
-            if (pid > 0) {
-                lockFile.open(uniqueInstance.lockFileName());
-                lockFile << pid;
-                lockFile.close();
-                UniqueInstance uniqueInstance3("unit_tests");
-                EXPECT_FALSE(uniqueInstance3.isUnique());
-            }
-        }
-        pclose(pipe1);
-    }
-}
-
-#endif
-#endif

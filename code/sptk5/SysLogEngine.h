@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,9 +27,7 @@
 #pragma once
 
 #ifndef _WIN32
-
 #include <syslog.h>
-
 #else
 #include <winsock2.h>
 #include <windows.h>
@@ -83,9 +81,7 @@ public:
      *
      * Destructs the log object, closes the log descriptor, releases all the allocated resources
      */
-#ifdef _WIN32
     ~SysLogEngine() override;
-#endif
 
     /**
      * Get log engine options
@@ -93,20 +89,19 @@ public:
      * @param programName       Log engine program name
      * @param facilities        Log engine facilities
      */
-    void getOptions(uint32_t& options, String& programName, uint32_t& facilities) const;
+    void getOptions(std::set<Option>& options, String& programName, uint32_t& facilities) const;
 
 private:
-
 #ifdef _WIN32
-    std::atomic<HANDLE>     m_logHandle {0};        ///< The handle of the log file
-    static bool             m_registrySet;          ///< Is registry set?
+    std::atomic<HANDLE> m_logHandle {0}; ///< The handle of the log file
+    static bool m_registrySet;           ///< Is registry set?
 #endif
 
-    static SharedMutex syslogMutex;
+    static std::mutex m_syslogMutex;
     static std::atomic_bool m_logOpened;
 
-    uint32_t m_facilities;               ///< List of facilities allows to define one or more system logs where messages would be sent
-    String m_programName;              ///< Application name
+    uint32_t m_facilities; ///< List of facilities allows to define one or more system logs where messages would be sent
+    String m_programName;  ///< Application name
 
     void programName(const String& progName);
 
@@ -115,4 +110,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

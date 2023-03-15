@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,7 +28,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/net/SSLContext.h>
 
-// This include must be after SSLContext.h, or it breaks Windows compilation
+// This #include statement must be after SSLContext.h, or it breaks Windows compilation
 #include <openssl/err.h>
 
 using namespace std;
@@ -39,17 +39,17 @@ int SSLContext::s_server_session_id_context = 1;
 void SSLContext::throwError(const String& humanDescription)
 {
     unsigned long error = ERR_get_error();
-    string errorStr = ERR_func_error_string(error) + string("(): ") + ERR_reason_error_string(error);
-    throwException(humanDescription + "\n" + errorStr)
+    string errorStr = ERR_error_string(error, nullptr) + string("(): ") + ERR_reason_error_string(error);
+    throwException<Exception>(humanDescription + "\n" + errorStr);
 }
 
 SSLContext::SSLContext(const String& cipherList)
 {
     m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
-                                [this](SSL_CTX* context){
+                                [this](SSL_CTX* context) {
                                     UniqueLock(*this);
                                     SSL_CTX_free(context);
-    });
+                                });
     if (!cipherList.empty())
     {
         SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str());
@@ -65,7 +65,7 @@ SSL_CTX* SSLContext::handle()
     return m_ctx.get();
 }
 
-int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int/*rwflag*/, void* userdata)
+int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int /*rwflag*/, void* userdata)
 {
     snprintf(replyBuffer, size_t(replySize), "%s", (char*) userdata);
     replyBuffer[replySize - 1] = '\0';

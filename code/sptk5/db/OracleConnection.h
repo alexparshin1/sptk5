@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,15 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_ORACLE == 1
+#ifdef HAVE_ORACLE
 
-#include <sptk5/db/OracleStatement.h>
-#include <sptk5/db/OracleEnvironment.h>
-#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 #include "DatabaseField.h"
+#include <sptk5/db/OracleEnvironment.h>
+#include <sptk5/db/OracleStatement.h>
+#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 
 namespace sptk {
 
@@ -64,8 +64,6 @@ public:
     using Connection = oracle::occi::Connection;
     using Statement = oracle::occi::Statement;
     using Type = oracle::occi::Type;
-    using Clob = oracle::occi::Clob;
-    using Blob = oracle::occi::Blob;
 
     /**
      * @brief Returns the Oracle connection object
@@ -88,11 +86,6 @@ public:
         return m_connection->createStatement(sql);
     }
 
-    Statement* createStatement()
-    {
-        return m_connection->createStatement();
-    }
-
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The Oracle connection string
@@ -109,8 +102,8 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void _bulkInsert(const String& fullTableName, const Strings& columnNames,
-                     const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& fullTableName, const Strings& columnNames,
+                    const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file
@@ -120,18 +113,18 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void _executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
      * @param connectionString  The Oracle connection string
      */
-    explicit OracleConnection(const String& connectionString = "");
+    explicit OracleConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
      * @brief Destructor
      */
-    virtual ~OracleConnection();
+    ~OracleConnection() override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -165,8 +158,12 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-protected:
+    /**
+     * @brief All active connections
+     */
+    static std::map<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
 
+protected:
     /**
      * @brief Begins the transaction
      */
@@ -205,11 +202,6 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
-
-    /**
      * Executes a statement
      */
     void queryExecute(Query* query) override;
@@ -229,6 +221,9 @@ protected:
      */
     void queryOpen(Query* query) override;
 
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
+
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
@@ -243,31 +238,22 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-
     using SConnection = std::shared_ptr<Connection>;
 
-    mutable std::mutex m_mutex;               ///< Mutex that protects access to data members
-    OracleEnvironment m_environment;          ///< Oracle connection environment
-    SConnection m_connection;                 ///< Oracle database connection
-    std::string m_lastError;                  ///< Last error in this connection or query
+    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
+    OracleEnvironment m_environment; ///< Oracle connection environment
+    SConnection m_connection;        ///< Oracle database connection
+    std::string m_lastError;         ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
-    static void readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+    static void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
+                                 const QueryColumnTypeSizeMap& columnTypeSizes);
 
-    static void readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+    static void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet);
 
-    static void readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-
-    static void readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-
-    void setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
-                          const QueryColumnTypeSizeMap& columnTypeSizes) const;
-
-    void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet) const;
-
-    void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                             sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row) const;
+    static void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                                    sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row);
 };
 
 /**
@@ -284,16 +270,14 @@ VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int s
  */
 OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 
-#define throwOracleException(description) { m_lastError = description; throwDatabaseException(m_lastError); }
-
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
+[[maybe_unused]] SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+[[maybe_unused]] SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
 }

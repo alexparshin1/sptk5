@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,8 +35,8 @@ namespace sptk {
  */
 class SP_EXPORT TestRunner
 {
-    int&        m_argc;     ///< Reference to command line arguments number
-    char**&     m_argv;     ///< Reference to command line arguments array
+    int& m_argc;    ///< Reference to command line arguments number
+    char**& m_argv; ///< Reference to command line arguments array
 public:
     /**
      * Constructor
@@ -59,4 +59,3 @@ public:
 };
 
 } // namespace sptk
-

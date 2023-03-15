@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -64,7 +64,8 @@ public:
      * @param _y COORD, Y-coordinate
      */
     CShapePoint(COORD _x = 0, COORD _y = 0)
-    : x(_x), y(_y)
+        : x(_x)
+        , y(_y)
     {
     }
 
@@ -73,11 +74,12 @@ public:
      * @param p const CPoint&, point to copy from
      */
     CShapePoint(const CShapePoint& p)
-    : x(p.x), y(p.y)
+        : x(p.x)
+        , y(p.y)
     {
     }
 };
 /**
  * @}
  */
-}
+} // namespace sptk

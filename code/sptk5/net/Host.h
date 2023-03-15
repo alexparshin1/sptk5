@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
-#include <sptk5/threads/Locks.h>
 #include <cstring>
 #include <mutex>
+#include <sptk5/Strings.h>
+#include <sptk5/threads/Locks.h>
 #include <sstream>
 
 #ifndef _WIN32
@@ -37,8 +37,8 @@
 #include <netinet/in.h>
 
 #else
-#include <winsock2.h>
 #include <WS2tcpip.h>
+#include <winsock2.h>
 #endif
 
 namespace sptk {
@@ -53,10 +53,10 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable SharedMutex m_mutex;        ///< Mutex to protect internal class data
-    String m_hostname;     ///< Host name or IP address
-    uint16_t m_port {0};     ///< Port number
-    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {};   ///< Storage for IPv4 and IPv6 addresses
+    mutable std::mutex m_mutex;                             ///< Mutex to protect internal class data
+    String m_hostname;                                      ///< Host name or IP address
+    uint16_t m_port {0};                                    ///< Port number
+    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
 
     /**
      * Get address presentation as generic IP address
@@ -119,12 +119,11 @@ class SP_EXPORT Host
 
     /**
      * Set port number
-     * @param p                 Port number
+     * @param port                 Port number
      */
-    void setPort(uint16_t p);
+    void setPort(uint16_t port);
 
 public:
-
     /**
      * Default constructor
      */
@@ -193,19 +192,12 @@ public:
     bool operator==(const Host& other) const;
 
     /**
-     * Compare to another host
-     * @param other             The other object
-     * @return true if objects have not equal data
-     */
-    bool operator!=(const Host& other) const;
-
-    /**
      * Get host name
      * @return host name
      */
     const String& hostname() const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_hostname;
     }
 
@@ -224,7 +216,7 @@ public:
      */
     uint16_t port() const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         return m_port;
     }
 
@@ -241,7 +233,7 @@ public:
      */
     void getAddress(sockaddr_in& address) const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         memcpy(&address, &m_address, sizeof(address));
     }
 
@@ -250,7 +242,7 @@ public:
      */
     void getAddress(sockaddr_in6& address) const
     {
-        SharedLock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         memcpy(&address, &m_address, sizeof(address));
     }
 
@@ -288,4 +280,4 @@ public:
  * @}
  */
 
-}
+} // namespace sptk

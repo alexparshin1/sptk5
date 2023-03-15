@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,17 @@
 
 #pragma once
 
-#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/SynchronizedQueue.h>
+#include <sptk5/threads/Thread.h>
 
 namespace sptk {
 
-class ThreadManager
+class SP_EXPORT ThreadManager
 {
 public:
     explicit ThreadManager(const String& name);
+
+    ~ThreadManager();
 
     void start() const;
 
@@ -49,7 +51,6 @@ public:
     bool running() const;
 
 private:
-
     class Joiner
         : public Thread
     {
@@ -66,11 +67,11 @@ private:
         void joinTerminatedThreads(std::chrono::milliseconds timeout);
 
     private:
-        SynchronizedQueue<SThread> m_terminatedThreads;    ///< Terminated threads scheduled for delete
+        SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
     };
 
-    mutable std::mutex m_mutex;                            ///< Mutex that protects internal data
-    std::map<Thread*, SThread> m_runningThreads;           ///< Running threads
+    mutable std::mutex m_mutex;                  ///< Mutex that protects internal data
+    std::map<Thread*, SThread> m_runningThreads; ///< Running threads
     std::shared_ptr<Joiner> m_joiner;
 
     void terminateRunningThreads();
@@ -78,4 +79,4 @@ private:
 
 using SThreadManager = std::shared_ptr<ThreadManager>;
 
-}
+} // namespace sptk

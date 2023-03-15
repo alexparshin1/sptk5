@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,26 +37,49 @@ public:
     URL(String protocol, String path, const HttpParams& params);
     URL(const URL& other) = default;
 
-    HttpParams& params() { return m_params; }
-    const HttpParams& params() const { return m_params; }
-    String protocol() const { return m_protocol; }
-    String username() const { return m_username; }
-    String password() const { return m_password; }
-    String hostAndPort() const { return m_hostAndPort; }
-    String path() const { return m_path; }
+    HttpParams& params()
+    {
+        return m_params;
+    }
+    const HttpParams& params() const
+    {
+        return m_params;
+    }
+    String protocol() const
+    {
+        return m_protocol;
+    }
+    String username() const
+    {
+        return m_username;
+    }
+    String password() const
+    {
+        return m_password;
+    }
+    String hostAndPort() const
+    {
+        return m_hostAndPort;
+    }
+    String path() const
+    {
+        return m_path;
+    }
     String location() const;
-    String toString () const;
+    String toString() const;
 
-    void path(const String& path) { m_path = path; }
+    void path(const String& path)
+    {
+        m_path = path;
+    }
 
 private:
-    String      m_protocol;
-    String      m_username;
-    String      m_password;
-    String      m_hostAndPort;
-    String      m_path;
-    HttpParams  m_params;
+    String m_protocol;
+    String m_username;
+    String m_password;
+    String m_hostAndPort;
+    String m_path;
+    HttpParams m_params;
 };
 
-}
-
+} // namespace sptk

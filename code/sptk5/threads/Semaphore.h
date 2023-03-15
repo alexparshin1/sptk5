@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
-#include <condition_variable>
-#include <atomic>
+#include <sptk5/sptk.h>
+
+#include <semaphore>
 #include <chrono>
 
 namespace sptk {
@@ -45,64 +45,7 @@ namespace sptk {
  */
 class SP_EXPORT Semaphore
 {
-    /**
-     * Mutex object
-     */
-    mutable std::mutex      m_lockMutex;
-
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
-
-    /**
-     * Semaphore value
-     */
-    size_t                  m_value {0};
-
-    /**
-     * Semaphore max value
-     */
-    size_t                  m_maxValue {0};
-
-    /**
-     * Number of waiters
-     */
-    size_t                  m_waiters {0};
-
-    /**
-     * Terminated flag
-     */
-    bool                    m_terminated {false};
-
-    void terminate();
-
-    /**
-     * Current number of waiters
-     */
-    size_t waiters() const;
-
 public:
-
-    /**
-     * @brief Constructor
-     *
-     * Creates semaphore with starting value (default 0)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
-     */
-    explicit Semaphore(size_t startingValue=0, size_t maxValue=0);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~Semaphore();
-
-    /**
-     * @brief Set the semaphore value
-     */
-    void set(size_t value);
-
     /**
      * @brief Post the semaphore
      *
@@ -123,13 +66,24 @@ public:
      * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Timeout moment
+     * @param timeoutAt           Timeout moment
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool sleep_until(DateTime timeout);
+    bool sleep_until(const DateTime& timeoutAt);
+
+    /**
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool sleep_until(const DateTime::time_point& timeoutAt);
+
+private:
+    std::counting_semaphore<0x7FFFFFFF> m_value {0};
 };
 /**
  * @}
  */
-}
-
+} // namespace sptk

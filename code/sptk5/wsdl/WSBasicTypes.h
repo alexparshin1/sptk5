@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,11 +27,9 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
-#include <sptk5/xml/Element.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -53,7 +51,8 @@ public:
      * @param optional          Element optionality flag
      */
     WSBasicType(const char* name, bool optional)
-        : m_field(name), m_optional(optional)
+        : WSType(name)
+        , m_optional(optional)
     {
     }
 
@@ -61,26 +60,29 @@ public:
 
     WSBasicType(WSBasicType&& other) noexcept = default;
 
-    virtual ~WSBasicType() noexcept = default;
+    ~WSBasicType() override = default;
 
     WSBasicType& operator=(const WSBasicType& other)
     {
-        if (&other != this)
-        {
-            m_field = other.m_field;
-            m_optional = other.m_optional;
-        }
+        m_value = other.m_value;
+        m_optional = other.m_optional;
         return *this;
     }
 
     WSBasicType& operator=(WSBasicType&& other) noexcept
     {
-        if (&other != this)
-        {
-            m_optional = other.m_optional;
-            m_field = std::move(other.m_field);
-        }
+        m_value = std::move(other.m_value);
+        m_optional = other.m_optional;
         return *this;
+    }
+
+    /**
+     * Return true if value is optional
+     * @return true if value is optional
+     */
+    bool optional() const
+    {
+        return m_optional;
     }
 
     /**
@@ -97,25 +99,23 @@ public:
      */
     void clear() override
     {
-        m_field.setNull(VariantDataType::VAR_NONE);
+        m_value.setNull(defaultDataType());
     }
 
     /**
      * Loads type data from request XML node
      * @param attr              XML node
      */
-    void load(const xml::Node* attr) override
+    void load(const xdoc::SNode& attr, bool nullLargeData) override
     {
-        static_cast<Variant*>(&m_field)->load(attr);
-    }
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override
-    {
-        static_cast<Variant*>(&m_field)->load(attr);
+        if (nullLargeData && attr->getString().length() > 256)
+        {
+            m_value.setNull(VariantDataType::VAR_STRING);
+        }
+        else
+        {
+            m_value.load(attr);
+        }
     }
 
     /**
@@ -124,7 +124,7 @@ public:
      */
     virtual void load(const String& attr)
     {
-        m_field.setString(attr);
+        m_value.setString(attr);
     }
 
     /**
@@ -133,23 +133,15 @@ public:
      */
     virtual void load(const Field& field)
     {
-        *static_cast<Variant*>(&m_field) = *static_cast<const Variant*>(&field);
+        m_value = *static_cast<const Variant*>(&field);
     }
 
     /**
      * Returns element name
      */
-    [[nodiscard]] String name() const override
-    {
-        return m_field.fieldName();
-    }
-
-    /**
-     * Conversion operator
-     */
     virtual operator String() const
     {
-        return m_field.asString();
+        return m_value.asString();
     }
 
     /**
@@ -157,57 +149,57 @@ public:
      */
     String asString() const override
     {
-        return m_field.asString();
+        return m_value.asString();
     }
 
     auto asInteger() const
     {
-        return field().asInteger();
+        return value().asInteger();
     }
 
     auto asInt64() const
     {
-        return field().asInt64();
+        return value().asInt64();
     }
 
     auto asFloat() const
     {
-        return field().asFloat();
+        return value().asFloat();
     }
 
     auto asBool() const
     {
-        return field().asBool();
+        return m_value.asBool();
     }
 
-    void setInteger(int32_t value)
+    void setInteger(int32_t _value)
     {
-        field().setInteger(value);
+        m_value.setInteger(_value);
     }
 
-    void setInt64(int64_t value)
+    void setInt64(int64_t _value)
     {
-        field().setInt64(value);
+        m_value.setInt64(_value);
     }
 
-    void setFloat(bool value)
+    void setFloat(bool _value)
     {
-        field().setFloat(value);
+        m_value.setFloat(_value);
     }
 
-    void setBool(bool value)
+    void setBool(bool _value)
     {
-        field().setBool(value);
+        m_value.setBool(_value);
     }
 
     void setBuffer(const char* buffer, size_t size)
     {
-        field().setBuffer((const uint8_t*) buffer, size);
+        m_value.setBuffer((const uint8_t*) buffer, size, VariantDataType::VAR_BUFFER);
     }
 
     bool isNull() const override
     {
-        return m_field.isNull();
+        return m_value.isNull();
     }
 
     /**
@@ -216,24 +208,29 @@ public:
      */
     void throwIfNull(const String& parentTypeName) const;
 
+    size_t dataSize() const
+    {
+        return m_value.dataSize();
+    }
+
     VariantDataType dataType() const
     {
-        return m_field.dataType();
+        return m_value.dataType();
     }
 
-    void setNull(VariantDataType type)
+    void setNull()
     {
-        m_field.setNull(type);
+        m_value.setNull(defaultDataType());
     }
 
-    Field& field()
+    Variant& value()
     {
-        return m_field;
+        return m_value;
     }
 
-    const Field& field() const
+    const Variant& value() const
     {
-        return m_field;
+        return m_value;
     }
 
     /**
@@ -241,18 +238,27 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* parent, const char* name = nullptr) const override;
+    void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
+
+protected:
+    void setNull(VariantDataType dataType)
+    {
+        m_value.setNull(dataType);
+    }
 
     /**
-     * Adds an element to response JSON with this object data
-     * @param parent            Parent JSON element
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void addElement(json::Element* parent) const override;
+    virtual VariantDataType defaultDataType() const
+    {
+        return VariantDataType::VAR_NONE;
+    }
 
 private:
-
-    Field m_field {""};
-    bool m_optional {false};    ///< Element optionality flag
+    Variant m_value;
+    bool m_optional {false}; ///< Element optionality flag
 };
 
 /**
@@ -285,9 +291,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    WSString(const String& value)
+    explicit WSString(const String& _value)
     {
-        field().setString(value);
+        value().setString(_value);
     }
 
     /**
@@ -299,16 +305,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_STRING;
+    };
 
     /**
-     * Load data from JSON element
-     * @param attr              JSON element
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Loads type data from string
@@ -325,45 +336,45 @@ public:
     /**
      * Assignment operation
      */
-    WSString& operator=(const char* value)
+    WSString& operator=(const char* _value)
     {
-        field().setString(value);
+        value().setString(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const String& value)
+    WSString& operator=(const String& _value)
     {
-        field().setBuffer((const uint8_t*) value.c_str(), value.length(), VariantDataType::VAR_STRING);
+        value().setBuffer((const uint8_t*) _value.c_str(), _value.length(), VariantDataType::VAR_STRING);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(const Buffer& value)
+    WSString& operator=(const Buffer& _value)
     {
-        field().setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
+        value().setBuffer(_value.data(), _value.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int32_t value)
+    WSString& operator=(int32_t _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSString& operator=(int64_t value)
+    WSString& operator=(int64_t _value)
     {
-        field().setInt64(value);
+        value().setInt64(_value);
         return *this;
     }
 
@@ -372,12 +383,12 @@ public:
      */
     operator String() const override
     {
-        return field().asString();
+        return value().asString();
     }
 
     const char* getString() const
     {
-        return field().getString();
+        return value().getString();
     }
 };
 
@@ -412,9 +423,9 @@ public:
      * @param value             Value
      * @param optional          Element optionality flag
      */
-    explicit WSBool(bool value)
+    explicit WSBool(bool _value)
     {
-        field().setBool(value);
+        value().setBool(_value);
     }
 
     /**
@@ -426,16 +437,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_BOOL;
+    };
 
     /**
-     * Load data from JSON element
-     * @param attr              JSON element
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -452,9 +468,9 @@ public:
     /**
      * Assignment operation
      */
-    virtual WSBool& operator=(bool value)
+    virtual WSBool& operator=(bool _value)
     {
-        field().setBool(value);
+        value().setBool(_value);
         return *this;
     }
 
@@ -463,7 +479,7 @@ public:
      */
     operator bool() const
     {
-        return field().asBool();
+        return value().asBool();
     }
 };
 
@@ -497,9 +513,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    explicit WSDate(const DateTime& value)
+    explicit WSDate(const DateTime& _value)
     {
-        field().setDateTime(value, true);
+        value().setDateTime(_value, true);
     }
 
     /**
@@ -511,16 +527,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_DATE;
+    };
 
     /**
-     * Load data from JSON element
-     * @param attr              JSON element
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -537,9 +558,9 @@ public:
     /**
      * Assignment operation
      */
-    WSDate& operator=(DateTime value)
+    WSDate& operator=(const DateTime& _value)
     {
-        field().setDateTime(value, true);
+        value().setDateTime(_value, true);
         return *this;
     }
 
@@ -548,7 +569,7 @@ public:
      */
     auto asDate() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 
     /**
@@ -556,7 +577,7 @@ public:
      */
     auto asDateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 
     /**
@@ -564,7 +585,7 @@ public:
      */
     operator DateTime() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 };
 
@@ -598,9 +619,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    explicit WSDateTime(const DateTime& value)
+    explicit WSDateTime(const DateTime& _value)
     {
-        field().setDateTime(value);
+        value().setDateTime(_value);
     }
 
     /**
@@ -612,16 +633,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_DATE_TIME;
+    };
 
     /**
-     * Load data from JSON element
-     * @param attr              JSON element
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -645,7 +671,7 @@ public:
      */
     auto asDate() const
     {
-        return field().asDate();
+        return value().asDate();
     }
 
     /**
@@ -653,15 +679,15 @@ public:
      */
     auto asDateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 
     /**
      * Assignment operation
      */
-    WSDateTime& operator=(DateTime value)
+    WSDateTime& operator=(const DateTime& _value)
     {
-        field().setDateTime(value);
+        value().setDateTime(_value);
         return *this;
     }
 
@@ -670,7 +696,7 @@ public:
      */
     operator DateTime() const
     {
-        return field().asDateTime();
+        return value().asDateTime();
     }
 };
 
@@ -700,9 +726,9 @@ public:
         setNull(VariantDataType::VAR_FLOAT);
     }
 
-    WSDouble(double value)
+    WSDouble(double _value)
     {
-        field().setFloat(value);
+        value().setFloat(_value);
     }
 
     /**
@@ -714,16 +740,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_FLOAT;
+    };
 
     /**
-     * Load data from JSON element
-     * @param attr              JSON element
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -740,9 +771,9 @@ public:
     /**
      * Assignment operation
      */
-    WSDouble& operator=(double value)
+    WSDouble& operator=(double _value)
     {
-        field().setFloat(value);
+        value().setFloat(_value);
         return *this;
     }
 
@@ -751,7 +782,7 @@ public:
      */
     operator double() const
     {
-        return field().asFloat();
+        return value().asFloat();
     }
 };
 
@@ -785,9 +816,9 @@ public:
      * Constructor
      * @param value             Value
      */
-    WSInteger(int value)
+    WSInteger(int _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
     }
 
     /**
@@ -799,16 +830,21 @@ public:
     }
 
     /**
-     * Load data from XML node
-     * @param attr              XML node
+     * @brief   Default data type
+     * @details Used in clear operations
+     * @return  Default data type for the class
      */
-    void load(const xml::Node* attr) override;
+    VariantDataType defaultDataType() const override
+    {
+        return VariantDataType::VAR_INT;
+    };
 
     /**
-     * Load data from JSON node
-     * @param attr              JSON node
+     * Load data from XML node
+     * @param attr              XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
      * Load data from string
@@ -825,18 +861,18 @@ public:
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int64_t value)
+    WSInteger& operator=(int64_t _value)
     {
-        field().setInt64(value);
+        value().setInt64(_value);
         return *this;
     }
 
     /**
      * Assignment operation
      */
-    WSInteger& operator=(int value)
+    WSInteger& operator=(int _value)
     {
-        field().setInteger(value);
+        value().setInteger(_value);
         return *this;
     }
 
@@ -845,7 +881,7 @@ public:
      */
     operator int32_t() const
     {
-        return field().asInteger();
+        return value().asInteger();
     }
 
     /**
@@ -853,7 +889,7 @@ public:
      */
     operator int64_t() const
     {
-        return field().asInt64();
+        return value().asInt64();
     }
 
     /**
@@ -861,7 +897,7 @@ public:
      */
     operator uint64_t() const
     {
-        return (uint64_t) field().asInt64();
+        return (uint64_t) value().asInt64();
     }
 };
 
@@ -876,4 +912,4 @@ String SP_EXPORT wsTypeIdToName(const String& typeIdName);
  * @}
  */
 
-}
+} // namespace sptk

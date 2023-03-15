@@ -1,40 +1,43 @@
 #pragma once
 
-#include <sptk5/String.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/String.h>
+#include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/Node.h>
 #include <sptk5/xdoc/XMLDocType.h>
-#include <sptk5/xdoc/Document.h>
 
 namespace sptk::xdoc {
 
-class ExportXML
+class SP_EXPORT ExportXML
 {
 public:
-    ExportXML(int indentSPaces = 2)
-        : m_indentSpaces(indentSPaces)
+    explicit ExportXML(int indentSpaces = 2)
+        : m_indentSpaces(indentSpaces)
     {
     }
 
-    void saveElement(const Node& node, const String& nodeName, Buffer& buffer, int indent);
+    void saveElement(const Node* node, const String& nodeName, Buffer& buffer, bool formatted, int indent);
 
-    void appendSubNodes(const Node& node, Buffer& buffer, int indent, bool only_cdata);
+    void appendSubNodes(const Node* node, Buffer& buffer, bool formatted, int indent);
 
-    void appendClosingTag(const Node& node, Buffer& buffer, int indent, bool only_cdata) const;
+    static void appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent);
 
-    void saveAttributes(const Node& node, Buffer& buffer);
+    void saveAttributes(const Node* node, Buffer& buffer);
 
-    void save(const Node& node, Buffer& buffer, int indent);
+    int indentSpaces() const
+    {
+        return m_indentSpaces;
+    }
 
 private:
-    int m_indentSpaces;
+    int m_indentSpaces {2};
     XMLDocType m_docType;
 
-    Buffer& appendNodeContent(const Node& node, Buffer& buffer);
+    Buffer& appendNodeContent(const Node* node, Buffer& buffer);
 
-    void appendNodeNameAndAttributes(const Node& node, const String& nodeName, Buffer& buffer);
+    void appendNodeNameAndAttributes(const Node* node, const String& nodeName, Buffer& buffer);
 
-    void appendNodeEnd(const Node& node, const String& nodeName, Buffer& buffer, bool isNode);
+    void appendNodeEnd(const Node* node, const String& nodeName, Buffer& buffer, bool isNode);
 };
 
-}
+} // namespace sptk::xdoc

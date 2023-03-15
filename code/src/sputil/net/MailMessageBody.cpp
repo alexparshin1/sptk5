@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,9 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Strings.h>
-#include <sptk5/net/MailMessageBody.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/net/MailMessageBody.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,7 +49,9 @@ void MailMessageBody::text(const string& messageText, bool smtp)
             pos += 3;
         }
     }
-    if (upperCase(messageText.substr(0, 100)).find("<HTML>") == STRING_NPOS)
+
+    constexpr int searchFirstBytes {100};
+    if (upperCase(messageText.substr(0, searchFirstBytes)).find("<HTML>") == STRING_NPOS)
     {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
         m_plainText = msg;
@@ -63,18 +64,3 @@ void MailMessageBody::text(const string& messageText, bool smtp)
         m_htmlText = msg;
     }
 }
-
-#if USE_GTEST
-
-TEST(SPTK_MailMessageBody, minimal)
-{
-    MailMessageBody message;
-
-    message.text("<html><b>Hello,</b><i>World!</i></html>", false);
-    EXPECT_EQ(message.text(), "Hello, World!");
-
-    message.text("<html><b>Hello,</b><i>World!</i></html>\n.\n", true);
-    EXPECT_EQ(message.text(), "Hello, World!");
-}
-
-#endif

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/cnet>
-#include <sptk5/net/URL.h>
-#include <sptk5/net/HttpResponseStatus.h>
 #include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
+#include <sptk5/cnet>
+#include <sptk5/net/HttpResponseStatus.h>
+#include <sptk5/net/URL.h>
 #include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
@@ -44,7 +44,6 @@ namespace sptk {
 class SP_EXPORT WSWebServiceProtocol : public BaseWebServiceProtocol
 {
 public:
-
     /**
      * Constructor
      * @param httpReader        Connection socket
@@ -73,14 +72,14 @@ protected:
     std::shared_ptr<HttpAuthentication> getAuthentication() override;
 
 private:
-    HttpReader&         m_httpReader;           ///< HTTP reader
+    HttpReader& m_httpReader; ///< HTTP reader
     ///< Web service
     ///< Request URL
-    Host                m_host;                 ///< Listener's host
-    bool                m_allowCORS;            ///< Allow CORS?
-    bool                m_keepAlive;            ///< Allow keep-alive connections
-    bool                m_suppressHttpStatus;   ///< If true, then HTTP status is 202 Accepted even if HttpException raised
-    LogDetails          m_logDetails;           ///< Log details
+    Host m_host;               ///< Listener's host
+    bool m_allowCORS;          ///< Allow CORS?
+    bool m_keepAlive;          ///< Allow keep-alive connections
+    bool m_suppressHttpStatus; ///< If true, then HTTP status is 202 Accepted even if HttpException raised
+    LogDetails m_logDetails;   ///< Log details
 
     int getContentLength();
 };
@@ -88,4 +87,3 @@ private:
 /// @}
 
 } // namespace sptk
-

@@ -7,5 +7,5 @@ cd googletest || exit 1
 
 cat CMakeLists.txt.orig | \
 sed -re 's|^option\(BUILD_SHARED_LIBS.*$|set(BUILD_SHARED_LIBS ON)|' \
-| sed -re 's| DESTINATION \$\{CMAKE_INSTALL_LIBDIR\}\)| RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)|' \
+| sed -re 's|DESTINATION \$\{cmake_files_install_dir\}\)|RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)|i' \
 > CMakeLists.txt

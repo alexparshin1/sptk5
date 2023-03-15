@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,10 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
 
+#include <mutex>
 #include <shared_mutex>
 
 namespace sptk {
@@ -46,7 +47,6 @@ using WriteLockType = std::unique_lock<SharedMutex>;
 class SP_EXPORT UniqueLockInt
 {
 public:
-
     /**
      * Constructor
      * Waits until lock is acquired.
@@ -79,9 +79,8 @@ public:
     }
 
 private:
-
-    SharedMutex& mutex;              ///< Shared mutex that controls lock
-    bool locked {true};      ///< True if lock is acquired
+    SharedMutex& mutex; ///< Shared mutex that controls lock
+    bool locked {true}; ///< True if lock is acquired
 };
 
 /**
@@ -93,7 +92,6 @@ private:
 class SP_EXPORT SharedLockInt
 {
 public:
-
     /**
      * Constructor
      * @param mutex             Shared mutex that controls lock
@@ -129,9 +127,8 @@ public:
     }
 
 private:
-
-    SharedMutex& mutex;              ///< Shared mutex that controls lock
-    bool locked {true};      ///< True if lock is acquired
+    SharedMutex& mutex; ///< Shared mutex that controls lock
+    bool locked {true}; ///< True if lock is acquired
 };
 
 /**
@@ -142,12 +139,11 @@ private:
  */
 class CopyLockInt
 {
-    WriteLockType destinationLock;    ///< Unique lock that belongs to destination object
-    ReadLockType sourceLock;         ///< Shared lock that belongs to source object
+    WriteLockType destinationLock; ///< Unique lock that belongs to destination object
+    ReadLockType sourceLock;       ///< Shared lock that belongs to source object
 
 
 public:
-
     /**
      * Constructor
      * Locks both mutexes.
@@ -164,11 +160,10 @@ public:
  */
 class CompareLockInt
 {
-    ReadLockType lock1;   ///< Shared lock that belongs to first object
-    ReadLockType lock2;   ///< Shared lock that belongs to second object
+    ReadLockType lock1; ///< Shared lock that belongs to first object
+    ReadLockType lock2; ///< Shared lock that belongs to second object
 
 public:
-
     /**
      * Constructor
      * Locks both mutexes.
@@ -178,11 +173,11 @@ public:
     CompareLockInt(SharedMutex& lock1, SharedMutex& lock2);
 };
 
-#define UniqueLock(amutex)                      UniqueLockInt  lock(amutex)
-#define TimedUniqueLock(amutex, timeout)         UniqueLockInt  lock(amutex,timeout,__FILE__,__LINE__)
-#define SharedLock(amutex)                      SharedLockInt  lock(amutex)
-#define TimedSharedLock(amutex, timeout)         SharedLockInt  lock(amutex,timeout,__FILE__,__LINE__)
-#define CompareLock(mutex1, mutex2)              CompareLockInt lock(mutex1, mutex2)
-#define CopyLock(destinationMutex, sourceMutex)  CopyLockInt    lock(destinationMutex, sourceMutex)
+#define UniqueLock(amutex) sptk::UniqueLockInt lock(amutex)
+#define TimedUniqueLock(amutex, timeout) sptk::UniqueLockInt lock(amutex, timeout, __FILE__, __LINE__)
+#define SharedLock(amutex) sptk::SharedLockInt lock(amutex)
+#define TimedSharedLock(amutex, timeout) sptk::SharedLockInt lock(amutex, timeout, __FILE__, __LINE__)
+#define CompareLock(mutex1, mutex2) sptk::CompareLockInt lock(mutex1, mutex2)
+#define CopyLock(destinationMutex, sourceMutex) sptk::CopyLockInt lock(destinationMutex, sourceMutex)
 
 } // namespace sptk

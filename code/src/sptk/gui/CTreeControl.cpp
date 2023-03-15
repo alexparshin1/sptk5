@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,8 +30,8 @@
 #include <FL/fl_draw.H>
 
 #include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CTreeControl.h>
 #include <sptk5/gui/CThemes.h>
+#include <sptk5/gui/CTreeControl.h>
 
 using namespace std;
 using namespace sptk;
@@ -46,8 +46,8 @@ CTreeItem::CTreeItem(const char* lbl, const Fl_Image* openedImage, const Fl_Imag
     : CGroup("", 10, CLayoutAlign::TOP)
 {
     drawClipped(false);
-    m_tree = dynamic_cast<CTreeControl*> (parent());
-    auto* par = dynamic_cast<CTreeItem*> (parent());
+    m_tree = dynamic_cast<CTreeControl*>(parent());
+    auto* par = dynamic_cast<CTreeItem*>(parent());
     layoutSpacing(0);
     bool root = false;
 
@@ -174,7 +174,7 @@ void CTreeItem::label(const String& lbl)
     }
     else
     {
-        auto* control = dynamic_cast<CControl*> (m_body);
+        auto* control = dynamic_cast<CControl*>(m_body);
 
         if (control)
         {
@@ -264,8 +264,7 @@ int CTreeItem::handle(int event)
             redraw();
             return 1;
 
-        case FL_FOCUS:
-        {
+        case FL_FOCUS: {
             if (tree()->m_tabPressed)
             {
                 return 0;
@@ -300,7 +299,7 @@ int CTreeItem::handle(int event)
 
 CTreeItem* CTreeItem::parentItem() const
 {
-    auto* par = dynamic_cast<CTreeItem*> (parent());
+    auto* par = dynamic_cast<CTreeItem*>(parent());
     return par;
 }
 
@@ -332,7 +331,7 @@ void CTreeItem::draw()
     int xx = x();
     int yy = y();
 
-    bool isRoot = dynamic_cast<CTreeControl*> (parent()) != nullptr;
+    bool isRoot = dynamic_cast<CTreeControl*>(parent()) != nullptr;
 
     const Fl_Image* image = nullptr;
 
@@ -561,7 +560,7 @@ void CTreeItem::visibleChildren(bool show)
 
     for (unsigned i = 1; i < cnt; i++)
     {
-        auto* item = dynamic_cast<CTreeItem*> (child(i));
+        auto* item = dynamic_cast<CTreeItem*>(child(i));
 
         if (!item)
         {
@@ -605,20 +604,20 @@ void CTreeItem::moveItem(CTreeItem* item, int direction)
     }
 
     if (direction < 0)
-    {                          // move item up
+    { // move item up
         if (itemPosition == 0)
         {
             return;
-        }             // can't move - at the start already
+        } // can't move - at the start already
 
         insert(*item, child(itemPosition - 1));
     }
     else
-    {                                      // move item down
+    { // move item down
         if (itemPosition == children() - 1)
         {
             return;
-        }  // can't move - at the end already
+        } // can't move - at the end already
 
         insert(*item, itemPosition + 1);
     }
@@ -655,8 +654,7 @@ void CTreeItem::removeItem(CTreeItem* item)
         }
     }
 
-    remove
-        (item);
+    remove(item);
     delete item;
 
     if (newSelected)
@@ -670,8 +668,7 @@ void CTreeItem::clear()
     while (children() > 1)
     {
         Fl_Widget* widget = child(1);
-        remove
-            (*widget);
+        remove(*widget);
         delete widget;
     }
 }
@@ -1000,14 +997,14 @@ int CTreeControl::handle(int event)
     return CScroll::handle(event);
 }
 
-void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
+void CTreeControl::load(const xdoc::SNode& groupNode, CLayoutXMLmode)
 {
     if (m_noXml)
     {
         return;
     }
 
-    if (!(bool) groupNode.getAttribute("visible", "Y"))
+    if (groupNode->attributes().get("visible", "true") != "true")
     {
         m_group->hide();
     }
@@ -1016,7 +1013,7 @@ void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
         m_group->show();
     }
 
-    if (!(bool) groupNode.getAttribute("enable", "Y"))
+    if (groupNode->attributes().get("enable", "true") != "true")
     {
         m_group->deactivate();
     }
@@ -1026,10 +1023,10 @@ void CTreeControl::load(const xml::Node& groupNode, bool /*autoCreate*/)
     }
 }
 
-void CTreeControl::save(xml::Node& groupNode) const
+void CTreeControl::save(const xdoc::SNode& groupNode, CLayoutXMLmode) const
 {
-    groupNode.clear();
-    groupNode.name("tree");
+    groupNode->clear();
+    groupNode->name("tree");
 
     if (m_noXml)
     {
@@ -1040,17 +1037,17 @@ void CTreeControl::save(xml::Node& groupNode) const
 
     if (!label.empty())
     {
-        groupNode.setAttribute("label", label);
+        groupNode->attributes().set("label", label);
     }
 
     if (!visible())
     {
-        groupNode.setAttribute("visible", "N");
+        groupNode->attributes().set("visible", "false");
     }
 
     if (!active())
     {
-        groupNode.setAttribute("enable", "N");
+        groupNode->attributes().set("enable", "false");
     }
 }
 

@@ -19,13 +19,21 @@ class CLogin : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "Login";
+    }
+
    // Elements
    sptk::WSString                           m_username {"username", false};
    sptk::WSString                           m_password {"password", false};
    sptk::WSArray<sptk::WSString>            m_servers {"servers"};
    CProjectInfo                             m_project {"project", true};
    // Attributes
-   sptk::WSInteger                          m_server_count {"server_count", true};
+   sptk::WSString                           m_server_count {"server_count", true};
    sptk::WSString                           m_type {"type", true};
 
    /**
@@ -33,7 +41,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLogin(const char* elementName="login", bool optional=false) noexcept;
+   explicit CLogin(const char* elementName="login", bool optional=false);
 
    /**
     * Copy constructor
@@ -56,13 +64,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CLogin& operator = (const CLogin& other);
+   CLogin& operator = (const CLogin& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CLogin& operator = (CLogin&& other) noexcept;
+   CLogin& operator = (CLogin&& other) noexcept = default;
 
    /**
     * Get complex type field names.

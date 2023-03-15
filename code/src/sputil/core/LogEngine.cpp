@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,32 +25,44 @@
 */
 
 #include <sptk5/LogEngine.h>
-#include <sptk5/Logger.h>
 
 using namespace std;
 using namespace sptk;
 
 LogEngine::LogEngine(const String& logEngineName)
-    : Thread(logEngineName),
-      m_messages(shared_ptr<MessageQueue>(new MessageQueue,
-                                          [this](MessageQueue* ptr) {
-                                              terminate();
-                                              join();
-                                              delete ptr;
-                                          }))
+    : Thread(logEngineName)
 {
 }
 
-void LogEngine::option(int option, bool flag)
+LogEngine::~LogEngine() noexcept
+{
+    shutdown();
+}
+
+void LogEngine::shutdown() noexcept
+{
+    if (!terminated())
+    {
+        Thread::terminate();
+        Thread::join();
+    }
+}
+
+void LogEngine::option(Option option, bool flag)
 {
     if (flag)
     {
-        m_options |= option;
+        m_options.insert(option);
     }
     else
     {
-        m_options &= ~option;
+        m_options.erase(option);
     }
+}
+
+bool LogEngine::option(Option option) const
+{
+    return m_options.contains(option);
 }
 
 String LogEngine::priorityName(LogPriority prt)
@@ -115,37 +127,41 @@ void LogEngine::log(Logger::UMessage& message)
         run();
     }
 
-    m_messages->push(move(message));
+    if (m_minPriority >= message->priority)
+    {
+        m_messages.push(std::move(message));
+    }
 }
 
 void LogEngine::threadFunction()
 {
-    chrono::seconds timeout(1);
+    const chrono::seconds timeout(1);
     while (!terminated())
     {
 
         Logger::UMessage message = nullptr;
-        if (!m_messages->pop(message, timeout))
+        if (!m_messages.pop(message, timeout))
         {
             continue;
         }
 
         saveMessage(message);
 
-        if (m_options & LO_STDOUT)
+        if (option(Option::STDOUT))
         {
             string messagePrefix;
-            if (m_options & LO_DATE)
+            if (option(Option::DATE))
             {
                 messagePrefix += message->timestamp.dateString() + " ";
             }
 
-            if (m_options & LO_TIME)
+            if (option(Option::TIME))
             {
-                messagePrefix += message->timestamp.timeString(true) + " ";
+                auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+                messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
             }
 
-            if (m_options & LO_PRIORITY)
+            if (option(Option::PRIORITY))
             {
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
             }

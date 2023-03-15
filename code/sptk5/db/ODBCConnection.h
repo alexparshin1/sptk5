@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,9 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_ODBC == 1
+#ifdef HAVE_ODBC
 
+#include <array>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCEnvironment.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -52,12 +53,11 @@ class SP_DRIVER_EXPORT ODBCConnection
     friend class Query;
 
 public:
-
     /**
      * @brief Constructor
      * @param connectionString  The ODBC connection string
      */
-    explicit ODBCConnection(const String& connectionString = "");
+    explicit ODBCConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     ODBCConnection(const ODBCConnection&) = delete;
 
@@ -66,7 +66,10 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~ODBCConnection() = default;
+    ~ODBCConnection() override
+    {
+        close();
+    }
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
 
@@ -93,11 +96,6 @@ public:
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the ODBC connection string for the active connection
-     */
-    virtual String connectString() const;
-
-    /**
      * @brief Returns the ODBC driver description for the active connection
      */
     String driverDescription() const override;
@@ -109,8 +107,12 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-protected:
+    /**
+     * @brief All active connections
+     */
+    static std::map<ODBCConnection*, std::shared_ptr<ODBCConnection>> s_odbcConnections;
 
+protected:
     /**
      * @brief Begins the transaction
      */
@@ -147,11 +149,6 @@ protected:
      * Prepares a query if supported by database
      */
     void queryPrepare(Query* query) override;
-
-    /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
 
     /**
      * Executes a statement
@@ -221,16 +218,18 @@ protected:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
-    void _bulkInsert(const String& tableName, const Strings& columnNames,
-                     const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    const std::vector<VariantVector>& data) override;
 
 private:
+    static constexpr size_t MAX_NAME_LEN = 256;
+
     /**
      * The ODBC connection object
      */
-    std::shared_ptr<ODBCConnectionBase> m_connect;
+    std::shared_ptr<ODBCConnectionBase> m_connect {std::make_shared<ODBCConnectionBase>()};
 
     /**
      * @brief Retrieves an error (if any) after statement was executed
@@ -245,43 +244,15 @@ private:
      */
     void parseColumns(Query* query, int count);
 
-    /**
-     * Read string or blob field
-     * @param statement         Statement
-     * @param field             Query field
-     * @param column            Column number
-     * @param fieldType         Field type
-     * @param dataLength        Output data length
-     * @return operation result
-     */
-    static SQLRETURN readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                           int16_t fieldType,
-                                           SQLLEN& dataLength);
-
-    /**
-     * Read timestamp field
-     * @param statement         Statement
-     * @param field             Query field
-     * @param column            Column number
-     * @param fieldType         Field type
-     * @param rc
-     * @param dataLength        Output data length
-     */
-    static SQLRETURN readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                        int16_t fieldType,
-                                        SQLLEN& dataLength);
-
-    static void queryBindParameter(const Query* query, QueryParameter* parameter);
+    SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::vector<SQLCHAR>& objectSchema, std::vector<SQLCHAR>& objectName, short& procedureType, SQLLEN& objectSchemaLength, SQLLEN& objectNameLength) const;
 };
-
-
 /**
  * @}
  */
-}
+} // namespace sptk
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* odbc_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void odbc_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* odbc_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void odbc_destroy_connection(void* connection);
 }

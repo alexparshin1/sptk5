@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/db/QueryParameterBinding.h>
 #include <array>
+#include <sptk5/db/QueryParameterBinding.h>
 
 namespace sptk {
 
@@ -47,7 +47,6 @@ class SP_EXPORT QueryParameter
     friend class QueryParameterList;
 
 public:
-
     /**
      * Adds internal parameter binding index
      */
@@ -76,7 +75,7 @@ public:
     /**
      * An integer reserved to callback parameter data length
      */
-    int32_t& callbackLength()
+    long& callbackLength()
     {
         return m_callbackLength;
     }
@@ -174,7 +173,7 @@ public:
     /**
      * Assign operator
      */
-    QueryParameter& operator=(DateTime dt) override
+    QueryParameter& operator=(const DateTime& dt) override
     {
         setDateTime(dt);
         return *this;
@@ -195,7 +194,7 @@ public:
      */
     QueryParameter& operator=(const Buffer& buffer) override
     {
-        setBuffer(buffer.data(), buffer.bytes());
+        setBuffer(buffer.data(), buffer.bytes(), VariantDataType::VAR_BUFFER);
         return *this;
     }
 
@@ -217,9 +216,9 @@ public:
      * In contrast to CVariant::setString() method, this method
      * tries not to decrease the allocated buffer.
      * @param value const char*, string to assign
-     * @param maxlen size_t, maximum length of the assigned string
+     * @param maxLength size_t, maximum length of the assigned string
      */
-    virtual void setString(const char* value, size_t maxlen);
+    virtual void setString(const char* value, size_t maxLength);
 
     /**
      * String assignment method
@@ -250,16 +249,12 @@ public:
         return m_binding;
     }
 
-    void reallocateBuffer(const char* value, size_t maxlen, size_t valueLength);
-
 private:
-
-    QueryParameterBinding m_binding;               ///< The last successfull binding information
-    String m_name;                  ///< Parameter name
-    std::vector<uint32_t> m_bindParamIndexes;      ///< The list of SQL query parameter numbers with this name
-    std::array<uint8_t, 80> m_timeData;              ///< Special memory allocated for time structures
-    int32_t m_callbackLength {0};    ///< An integer reserved to callback parameter data length
-    QueryParameterList* m_paramList {nullptr};   ///< Parent param list used for notifications
+    QueryParameterBinding m_binding;          ///< The last successfull binding information
+    String m_name;                            ///< Parameter name
+    std::vector<uint32_t> m_bindParamIndexes; ///< The list of SQL query parameter numbers with this name
+    std::array<uint8_t, 80> m_timeData {};    ///< Special memory allocated for time structures
+    long m_callbackLength {0};                ///< An integer reserved to callback parameter data length
 };
 
 using SQueryParameter = std::shared_ptr<QueryParameter>;
@@ -267,4 +262,4 @@ using SQueryParameter = std::shared_ptr<QueryParameter>;
 /**
  * @}
  */
-}
+} // namespace sptk

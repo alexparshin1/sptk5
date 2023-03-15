@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,7 +31,7 @@
 
 namespace sptk::xdoc {
 
-class Attributes
+class SP_EXPORT Attributes
 {
 public:
     using AttributeVector = std::vector<std::pair<String, String>>;
@@ -64,42 +64,11 @@ public:
         m_items.clear();
     }
 
-    String get(const String& name, const String& defaultValue = "") const
-    {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return value;
-            }
-        }
-        return defaultValue;
-    }
+    String get(const String& name, const String& defaultValue = "") const;
 
-    bool has(const String& name) const
-    {
-        for (const auto&[attr, value]: m_items)
-        {
-            if (attr == name)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
+    bool have(const String& name) const;
 
-    void set(const String& name, const String& value)
-    {
-        for (auto&[attr, val]: m_items)
-        {
-            if (attr == name)
-            {
-                val = value;
-                return;
-            }
-        }
-        m_items.emplace_back(name, value);
-    }
+    Attributes& set(const String& name, const String& value);
 
     bool empty() const
     {
@@ -112,8 +81,7 @@ public:
     }
 
 private:
-
     AttributeVector m_items;
 };
 
-}
+} // namespace sptk::xdoc

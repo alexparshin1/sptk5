@@ -1,6 +1,4 @@
 #include "CHelloResponse.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;
@@ -20,7 +18,7 @@ const sptk::Strings& CHelloResponse::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CHelloResponse::CHelloResponse(const char* elementName, bool optional) noexcept
+CHelloResponse::CHelloResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
@@ -48,28 +46,6 @@ CHelloResponse::CHelloResponse(CHelloResponse&& other) noexcept
   m_height(std::move(other.m_height))
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_date_of_birth, &m_verified, &m_retired, &m_hour_rate, &m_vacation_days, &m_height});
-}
-
-CHelloResponse& CHelloResponse::operator = (const CHelloResponse& other)
-{
-    m_date_of_birth = other.m_date_of_birth;
-    m_verified = other.m_verified;
-    m_retired = other.m_retired;
-    m_hour_rate = other.m_hour_rate;
-    m_vacation_days = other.m_vacation_days;
-    m_height = other.m_height;
-    return *this;
-}
-
-CHelloResponse& CHelloResponse::operator = (CHelloResponse&& other) noexcept
-{
-    m_date_of_birth = std::move(other.m_date_of_birth);
-    m_verified = std::move(other.m_verified);
-    m_retired = std::move(other.m_retired);
-    m_hour_rate = std::move(other.m_hour_rate);
-    m_vacation_days = std::move(other.m_vacation_days);
-    m_height = std::move(other.m_height);
-    return *this;
 }
 
 void CHelloResponse::checkRestrictions() const

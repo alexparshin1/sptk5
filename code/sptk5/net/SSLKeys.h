@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,30 +27,16 @@
 #pragma once
 
 #include <sptk5/sptk.h>
-#include <sptk5/String.h>
+
 #include <openssl/ssl.h>
+#include <sptk5/String.h>
 #include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
 class SP_EXPORT SSLKeys
 {
-    mutable SharedMutex m_mutex;
-    String              m_privateKeyFileName;
-    String              m_certificateFileName;
-    String              m_password;
-    String              m_caFileName;
-    int                 m_verifyMode {SSL_VERIFY_NONE};
-    int                 m_verifyDepth {0};
-
-    /**
-     * Assign keys from another object
-     * @param other
-     */
-    void assign(const SSLKeys& other);
-
 public:
-
     /**
      * Default constructor
      */
@@ -70,8 +56,8 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    SSLKeys(String privateKeyFileName, String certificateFileName, String password="",
-            String caFileName="", int verifyMode=SSL_VERIFY_NONE, int verifyDepth=0);
+    SSLKeys(String privateKeyFileName, String certificateFileName, String password = "",
+            String caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
 
     /**
      * Copy constructor
@@ -83,7 +69,7 @@ public:
      * Copy assignment
      * @param other             The other object
      */
-    SSLKeys& operator = (const SSLKeys& other);
+    SSLKeys& operator=(const SSLKeys& other);
 
     /**
      * Destructor
@@ -125,7 +111,23 @@ public:
      * @return number of certificates to verify
      */
     int verifyDepth() const;
+
+    bool empty() const;
+
+private:
+    mutable SharedMutex m_mutex;
+    String m_privateKeyFileName;
+    String m_certificateFileName;
+    String m_password;
+    String m_caFileName;
+    int m_verifyMode {SSL_VERIFY_NONE};
+    int m_verifyDepth {0};
+
+    /**
+     * Assign keys from another object
+     * @param other
+     */
+    void assign(const SSLKeys& other);
 };
 
-}
-
+} // namespace sptk

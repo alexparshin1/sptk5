@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <functional>
 #include <sptk5/wsdl/WSType.h>
 
 namespace sptk {
@@ -39,8 +40,7 @@ public:
     /**
      * Type(s) of field that are processed with forEach
      */
-    enum class Group
-        : uint8_t
+    enum class Group : uint8_t
     {
         ELEMENTS = 1,
         ATTRIBUTES = 2,
@@ -138,15 +138,13 @@ public:
      * Execute the method for each field until it returns false
      * @param method            Method to execute
      */
-    void forEach(const std::function<bool(const WSType*)>& method,
-                 Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES) const;
+    void forEach(const std::function<bool(const WSType*)>& method, Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES) const;
 
     bool hasElements() const;
 
     bool hasAttributes() const;
 
 private:
-
     std::vector<WSType*> m_elements;
     std::vector<WSType*> m_attributes;
 
@@ -156,4 +154,4 @@ private:
 
 using SWSFieldIndex = std::shared_ptr<WSFieldIndex>;
 
-}
+} // namespace sptk

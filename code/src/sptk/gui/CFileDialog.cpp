@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,17 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/gui/CFileDialog.h>
-#include <sptk5/sptk.h>
-#include <sys/stat.h>
 #include <FL/fl_ask.H>
 #include <sptk5/HomeDirectory.h>
-#include <filesystem>
+#include <sptk5/gui/CFileDialog.h>
 
 #ifdef WIN32
 
 #include <direct.h>
-const char sptk::CFileDialog::slashChar  = '\\';
+const char sptk::CFileDialog::slashChar = '\\';
 const char sptk::CFileDialog::slashStr[] = "\\";
 #else
 const char sptk::CFileDialog::slashChar = '/';
@@ -46,7 +43,7 @@ using namespace sptk;
 
 String CFileDialog::removeTrailingSlash(const String& dirname)
 {
-    size_t dlen = dirname.length();
+    const size_t dlen = dirname.length();
 
     if (dlen && (dirname[dlen - 1] == '/' || dirname[dlen - 1] == '\\'))
     {
@@ -56,33 +53,33 @@ String CFileDialog::removeTrailingSlash(const String& dirname)
     return dirname;
 }
 
-void CFileDialog::new_folder_cb(Fl_Widget* w, void*)
+void CFileDialog::new_folder_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) dialog->window();
     fileDialog->createFolder();
 }
 
-void CFileDialog::home_cb(Fl_Widget* w, void*)
+void CFileDialog::home_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) dialog->window();
     String homeDirectory = HomeDirectory::location();
     fileDialog->directory(homeDirectory);
     fileDialog->refreshDirectory();
 }
 
-void CFileDialog::up_cb(Fl_Widget* w, void*)
+void CFileDialog::up_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) dialog->window();
     fileDialog->directory(fileDialog->directory() + "..");
     fileDialog->refreshDirectory();
 }
 
-void CFileDialog::dirview_cb(Fl_Widget* w, void*)
+void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
 {
     bool directoryClicked = false;
 
-    auto* fileDialog = (CFileDialog*) w->window();
-    auto* listView = (CListView*) w;
+    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto* listView = (CListView*) dialog;
 
     if (listView->selectedRow() == nullptr)
     {
@@ -118,8 +115,7 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
 
             break;
 
-        case CEvent::MOUSE_DOUBLE_CLICK:
-        {
+        case CEvent::MOUSE_DOUBLE_CLICK: {
             if (directoryClicked)
             {
                 String fullPath = fileDialog->m_directory.directory() + slashStr + row[1];
@@ -132,18 +128,17 @@ void CFileDialog::dirview_cb(Fl_Widget* w, void*)
                 fileDialog->m_okButton->do_callback();
             }
         }
-            break;
+        break;
 
-        default
-            :
+        default:
             break;
     }
 }
 
-void CFileDialog::lookin_cb(Fl_Widget* w, void*)
+void CFileDialog::lookin_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) w->window();
-    auto* comboBox = (CComboBox*) w;
+    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto* comboBox = (CComboBox*) dialog;
 
     if (comboBox->eventType() != CEvent::DATA_CHANGED)
     {
@@ -163,16 +158,16 @@ void CFileDialog::lookin_cb(Fl_Widget* w, void*)
     }
 }
 
-void CFileDialog::pattern_cb(Fl_Widget* w, void*)
+void CFileDialog::pattern_cb(Fl_Widget* combobox, void*)
 {
-    auto* comboBox = (CComboBox*) w;
+    auto* comboBox = (CComboBox*) combobox;
 
     if (comboBox->eventType() != CEvent::DATA_CHANGED)
     {
         return;
     }
 
-    auto* fileDialog = (CFileDialog*) w->window();
+    auto* fileDialog = (CFileDialog*) combobox->window();
     fileDialog->refreshDirectory();
 }
 
@@ -284,7 +279,8 @@ void CFileDialog::directory(const String& p)
     Strings driveList;
     makeDriveList(driveList);
 
-    for (unsigned d = 0; d < driveList.size(); d++) {
+    for (unsigned d = 0; d < driveList.size(); d++)
+    {
         pseudoID++;
         m_lookInCombo->addRow(pseudoID, Strings(driveList[d], "|"));
     }
@@ -390,7 +386,7 @@ String CFileDialog::fullFileName() const
     String fileNamesStr = m_fileNameInput->data().asString();
     Strings fileNames(fileNamesStr, ";");
 
-    for (auto& fileName : fileNames)
+    for (auto& fileName: fileNames)
     {
         String fname = m_directory.directory() + slashStr + fileName;
         fileName = trim(fname.replace("[\\/\\\\]{2}", slashStr));

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -41,13 +41,13 @@ bool DataSource::save()
     return saveData();
 }
 
-void DataSource::exportRowTo(xdoc::Node& node, bool compactXmlMode)
+void DataSource::exportRowTo(const xdoc::SNode& node, bool compactXmlMode, bool nullLargeData)
 {
     auto cnt = fieldCount();
     for (size_t i = 0; i < cnt; ++i)
     {
         const Field& field = operator[](i);
-        field.exportTo(node, compactXmlMode);
+        field.exportTo(node, compactXmlMode, nullLargeData);
     }
 }
 
@@ -58,8 +58,8 @@ void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool c
         open();
         while (!eof())
         {
-            auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
-            exportRowTo(node, compactXmlMode);
+            const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
+            exportRowTo(node, compactXmlMode, false);
             next();
         }
         close();

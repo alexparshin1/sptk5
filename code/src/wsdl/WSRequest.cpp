@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,30 +25,27 @@
 */
 
 #include <sptk5/RegularExpression.h>
-#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/WSParser.h>
+#include <sptk5/wsdl/WSRequest.h>
+
 
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(xml::Node* node, map<String, WSNameSpace>& nameSpaces)
+static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
 {
-    for (const auto* attributeNode: node->attributes())
+    for (const auto& [attr, value]: node->attributes())
     {
-        const auto* attribute = dynamic_cast<const xml::Attribute*>(attributeNode);
-        if (attribute == nullptr)
+        if (!attr.startsWith("xmlns:"))
         {
             continue;
         }
-        if (attribute->nameSpace() != "xmlns")
-        {
-            continue;
-        }
-        nameSpaces[attribute->tagname()] = WSNameSpace(attribute->tagname(), attribute->value());
+        auto tagname = WSRequest::tagName(attr);
+        nameSpaces[tagname] = WSNameSpace(tagname, value);
     }
 }
 
-void WSRequest::requestBroker(const String& requestName, xml::Element* xmlContent, json::Element* jsonContent,
+void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
     try
@@ -77,25 +74,24 @@ void WSRequest::requestBroker(const String& requestName, xml::Element* xmlConten
     }
 }
 
-void WSRequest::handleError(xml::Element* xmlContent, json::Element* jsonContent, const String& error,
+void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent, const String& error,
                             int errorCode) const
 {
     // Error handling
     if (xmlContent)
     {
-        auto* soapBody = (xml::Element*) xmlContent->parent();
+        const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
         String soap_namespace = WSParser::get_namespace(soapBody->name());
         if (!soap_namespace.empty())
         {
             soap_namespace += ":";
         }
-        auto* faultNode = new xml::Element(soapBody, (soap_namespace + "Fault").c_str());
-        auto* faultCodeNode = new xml::Element(faultNode, "faultcode");
-        faultCodeNode->text(soap_namespace + "Client");
-        auto* faultStringNode = new xml::Element(faultNode, "faultstring");
-        faultStringNode->text(error);
-        new xml::Element(faultNode, "detail");
+        const auto& faultNode = soapBody->pushNode(soap_namespace + "Fault", xdoc::Node::Type::Object);
+        const auto& faultCodeNode = faultNode->pushNode("faultcode", xdoc::Node::Type::Text);
+        faultCodeNode->set(soap_namespace + "Client");
+        const auto& faultStringNode = faultNode->pushNode("faultstring", xdoc::Node::Type::Text);
+        faultStringNode->set(error);
     }
     else
     {
@@ -124,38 +120,36 @@ void WSRequest::logError(const String& requestName, const String& error, int err
     }
 }
 
-xml::Element* WSRequest::findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace)
+xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace)
 {
     scoped_lock lock(*this);
 
-    auto* soapBody = dynamic_cast<xml::Element*>(soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body"));
-    if (soapBody == nullptr)
-    throwException("Can't find SOAP Body node in incoming request")
+    auto soapBody = soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body");
+    if (!soapBody)
+    {
+        throwException<Exception>("Can't find SOAP Body node in incoming request");
+    }
 
     return soapBody;
 }
 
-void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, String& requestName)
 {
     WSNameSpace requestNameSpace;
 
+    xdoc::SNode xmlRequestNode;
     if (xmlContent)
     {
         WSNameSpace soapNamespace;
-        xml::Element* soapEnvelope = nullptr;
+        xdoc::SNode soapEnvelope;
         map<String, WSNameSpace> allNamespaces;
-        for (auto* anode: *xmlContent)
+        for (const auto& node: xmlContent->nodes())
         {
-            auto* node = dynamic_cast<xml::Element*>(anode);
-            if (node == nullptr)
-            {
-                continue;
-            }
-            if (node->tagname() == "Envelope")
+            if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
             {
                 soapEnvelope = node;
-                String nameSpaceAlias = node->nameSpace();
+                String nameSpaceAlias = nameSpace(node->name());
                 extractNameSpaces(soapEnvelope, allNamespaces);
                 soapNamespace = allNamespaces[nameSpaceAlias];
                 break;
@@ -163,39 +157,63 @@ void WSRequest::processRequest(xml::Document* xmlContent, json::Document* jsonCo
         }
 
         if (soapEnvelope == nullptr)
-        throwException("Can't find SOAP Envelope node")
-
-        const xml::Element* soapBody = findSoapBody(soapEnvelope, soapNamespace);
-
-        xml::Element* requestNode = nullptr;
-        for (auto* anode: *soapBody)
         {
-            auto* node = dynamic_cast<xml::Element*>(anode);
-            if (node != nullptr)
-            {
-                scoped_lock lock(*this);
-                requestNode = node;
-                String nameSpaceAlias = requestNode->nameSpace();
-                extractNameSpaces(requestNode, allNamespaces);
-                requestNameSpace = allNamespaces[nameSpaceAlias];
-                break;
-            }
+            throwException<Exception>("Can't find SOAP Envelope node");
         }
-        if (requestNode == nullptr)
-        throwException("Can't find request node in SOAP Body")
 
-        requestName = WSParser::strip_namespace(requestNode->name());
+        auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
+        if (!soapBody || soapBody->nodes().empty())
+        {
+            throwException<Exception>("Can't find request node");
+        }
+
+        xmlRequestNode = soapBody->nodes().front();
+
+        scoped_lock lock(*this);
+        String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+        extractNameSpaces(xmlRequestNode, allNamespaces);
+
+        if (auto itor = allNamespaces.find(nameSpaceAlias);
+            itor == allNamespaces.end())
+        {
+            requestNameSpace = WSNameSpace(WSParser::get_namespace(xmlRequestNode->name()));
+        }
+        else
+        {
+            requestNameSpace = itor->second;
+        }
+
+        requestName = WSParser::strip_namespace(xmlRequestNode->name());
     }
     else
     {
-        requestName = (String) jsonContent->root()["rest_method_name"];
+        requestName = jsonContent->getString("rest_method_name");
     }
 
-    json::Element* jsonNode = jsonContent ? &jsonContent->root() : nullptr;
-    requestBroker(requestName, xmlContent, jsonNode, authentication, requestNameSpace);
+    requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
 void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)
 {
-    m_requestMethods = move(requestMethods);
+    m_requestMethods = std::move(requestMethods);
+}
+
+String WSRequest::tagName(const String& nodeName)
+{
+    auto pos = nodeName.find(':');
+    if (pos == string::npos)
+    {
+        return {};
+    }
+    return nodeName.substr(pos + 1);
+}
+
+String WSRequest::nameSpace(const String& nodeName)
+{
+    auto pos = nodeName.find(':');
+    if (pos == string::npos)
+    {
+        return {};
+    }
+    return nodeName.substr(0, pos);
 }

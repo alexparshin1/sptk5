@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,17 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "zlib.h"
 #include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
-#include "zlib.h"
-
-#if USE_GTEST
-
-#include <sptk5/Base64.h>
-#include <sptk5/StopWatch.h>
-#include <sptk5/cutils>
-
-#endif
 
 using namespace std;
 using namespace sptk;
@@ -44,8 +36,8 @@ constexpr size_t CHUNK = 16384;
 void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 {
     z_stream strm = {};
-    Buffer in(CHUNK);
-    Buffer out(CHUNK);
+    Buffer inputBuffer(CHUNK);
+    Buffer outputBuffer(CHUNK);
 
     // allocate deflate state
     strm.zalloc = Z_NULL;
@@ -76,31 +68,29 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
         {
             eof = true;
         }
-        memcpy(in.data(), src.c_str() + readPosition, bytesToRead);
+        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
-        int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
-        strm.next_in = in.data();
+        const int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
+        strm.next_in = inputBuffer.data();
 
         // Run deflate() on input until output buffer not full, finish
-        // compression if all of source has been read in
+        // compression if all of the source has been read inputBuffer
         do
         {
             strm.avail_out = CHUNK;
-            strm.next_out = out.data();
-            ret = deflate(&strm, flush);    // no bad return value
+            strm.next_out = outputBuffer.data();
+            ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
-            {      // state not clobbered
+            { // state not clobbered
                 throw Exception("compressed data error");
             }
-            size_t have = CHUNK - strm.avail_out;
-            dest.append(out.data(), have);
-        }
-        while (strm.avail_out == 0);
+            const size_t have = CHUNK - strm.avail_out;
+            dest.append(outputBuffer.data(), have);
+        } while (strm.avail_out == 0);
 
-        // Done when last data in file processed
-    }
-    while (!eof);
+        // Done when last data inputBuffer file processed
+    } while (!eof);
 
     // Clean up and return
     deflateEnd(&strm);
@@ -109,10 +99,10 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 void ZLib::decompress(Buffer& dest, const Buffer& src)
 {
     z_stream strm = {};
-    Buffer in(CHUNK);
-    Buffer out(CHUNK);
+    Buffer inputBuffer(CHUNK);
+    Buffer outputBuffer(CHUNK);
 
-    /* allocate inflate state */
+    // allocate inflate state
     strm.zalloc = Z_NULL;
     strm.zfree = Z_NULL;
     strm.opaque = Z_NULL;
@@ -133,23 +123,23 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
         {
             bytesToRead = CHUNK;
         }
-        memcpy(in.data(), src.c_str() + readPosition, bytesToRead);
+        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
         if (strm.avail_in == 0)
         {
             break;
         }
-        strm.next_in = in.data();
+        strm.next_in = inputBuffer.data();
 
         // Run inflate() on input until output buffer not full
         do
         {
             strm.avail_out = CHUNK;
-            strm.next_out = out.data();
+            strm.next_out = outputBuffer.data();
             ret = inflate(&strm, Z_NO_FLUSH);
             if (ret == Z_STREAM_ERROR)
-            {  // state not clobbered
+            {
                 throw Exception("compressed data error");
             }
             switch (ret)
@@ -162,93 +152,13 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
                 default:
                     break;
             }
-            unsigned have = CHUNK - strm.avail_out;
-            dest.append(out.data(), have);
-        }
-        while (strm.avail_out == 0);
+            const unsigned have = CHUNK - strm.avail_out;
+            dest.append(outputBuffer.data(), have);
+        } while (strm.avail_out == 0);
 
         // Done when inflate() says it's done
-    }
-    while (ret != Z_STREAM_END);
+    } while (ret != Z_STREAM_END);
 
     // clean up and return
     inflateEnd(&strm);
 }
-
-#if USE_GTEST
-
-static const String originalTestString = "This is a test of compression using GZip algorithm";
-
-// Note: ZLib under Windows produces slightly different result,
-// due old Windows port version.
-#ifdef _WIN32
-static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
-#else
-static const String originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
-#endif
-
-TEST(SPTK_ZLib, compressDecompress)
-{
-    Buffer compressed;
-    Buffer decompressed;
-    ZLib::compress(compressed, Buffer(originalTestString));
-    ZLib::decompress(decompressed, compressed);
-
-    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
-}
-
-TEST(SPTK_ZLib, compress)
-{
-    Buffer compressed;
-    String compressedBase64;
-    ZLib::compress(compressed, Buffer(originalTestString));
-    Base64::encode(compressedBase64, compressed);
-
-    compressed.saveToFile("/tmp/00.gz");
-
-    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
-}
-
-TEST(SPTK_ZLib, decompress)
-{
-    Buffer compressed;
-    Buffer decompressed;
-
-    Base64::decode(compressed, originalTestStringBase64);
-    ZLib::decompress(decompressed, compressed);
-
-    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
-}
-
-TEST(SPTK_ZLib, performance)
-{
-    Buffer data;
-    Buffer compressed;
-    Buffer decompressed;
-
-    // Using uncompressed mplayer manual as test data
-    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
-    EXPECT_EQ(data.bytes(), size_t(345517));
-
-    StopWatch stopWatch;
-    stopWatch.start();
-    ZLib::compress(compressed, data);
-    stopWatch.stop();
-
-    COUT("ZLib compressor:" << endl)
-    COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
-                       << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / 1E6 << " Mb/s)"
-                       << endl)
-
-    stopWatch.start();
-    ZLib::decompress(decompressed, compressed);
-    stopWatch.stop();
-
-    COUT("Decompressed " << compressed.bytes() << " bytes to " << decompressed.bytes() << " bytes for "
-                         << stopWatch.seconds() << " seconds (" << decompressed.bytes() / stopWatch.seconds() / 1E6
-                         << " Mb/s)" << endl)
-
-    EXPECT_STREQ(data.c_str(), decompressed.c_str());
-}
-
-#endif

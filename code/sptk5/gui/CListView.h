@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,17 +28,17 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/DataSource.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <sptk5/DataSource.h>
 
-#include <sptk5/sptk.h>
-#include <sptk5/gui/CScrollBar.h>
-#include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CListViewSelection.h>
-#include <sptk5/gui/CListViewRows.h>
 #include <sptk5/PackedStrings.h>
 #include <sptk5/gui/CColumn.h>
+#include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CDataControl.h>
+#include <sptk5/gui/CListViewRows.h>
+#include <sptk5/gui/CListViewSelection.h>
+#include <sptk5/gui/CScrollBar.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -50,8 +50,7 @@ namespace sptk {
 /**
  * @brief The refersh kind
  */
-enum class CRefreshKind
-    : uint8_t
+enum class CRefreshKind : uint8_t
 {
     /**
      * Retrieve the full dataset and replace the existing records completely
@@ -73,8 +72,7 @@ class CDBDropDownList;
  * @brief The data mode for the data() methods.
  */
 
-enum class CListViewDataMode
-    : uint8_t
+enum class CListViewDataMode : uint8_t
 {
     /**
      * data() sets/returns item caption. If the data connection is defined (in CDBListView) - it flips to LV_DATA_KEY mode.
@@ -105,7 +103,8 @@ enum class CListViewDataMode
  * by column, supports type-in incremental search etc.
  */
 class SP_EXPORT CListView
-    : public CControl, public SharedMutex
+    : public CControl
+    , public SharedMutex
 {
     friend class CInternalComboBoxPanel;
 
@@ -119,53 +118,53 @@ class SP_EXPORT CListView
     /**
      * Flag to indicate the current fill() operation
      */
-    bool m_fillInProgress;
+    bool m_fillInProgress {false};
 
     /**
      * Flag to terminate the current fill() operation
      */
-    bool m_fillTerminated;
+    bool m_fillTerminated {false};
 
 protected:
     /**
      * Should the column headers to be capitilized?
      */
-    bool m_capitalizeColumnNames;
+    bool m_capitalizeColumnNames {false};
 
     /**
      * Is multiple selection allowed?
      */
-    bool m_multipleSelection;
+    bool m_multipleSelection {false};
 
     /**
      * The horizontal position - to be
      */
-    int m_horizPosition;
+    int m_horizPosition {0};
 
     /**
      * The horizontal position - existing
      */
-    int m_realHorizPosition;
+    int m_realHorizPosition {0};
 
     /**
      * The maximum required width for the columns
      */
-    int m_maxWidth;
+    int m_maxWidth {0};
 
     /**
      * The minimal update pointer
      */
-    int m_redraw1;
+    int m_redraw1 {0};
 
     /**
      * The minimal update pointer
      */
-    int m_redraw2;
+    int m_redraw2 {0};
 
     /**
      * The scrolling position
      */
-    uint32_t m_top;
+    uint32_t m_top {0};
 
     /**
      * Scrollbar width for this class of object
@@ -175,12 +174,12 @@ protected:
     /**
      * Text font, currently used to draw the list view
      */
-    int m_currentTextFont;
+    int m_currentTextFont {0};
 
     /**
      * Text size, currently used to draw the list view
      */
-    int m_currentTextSize;
+    int m_currentTextSize {0};
 
     /**
      * Icon names that may be referred from items (icon size is 16)
@@ -192,12 +191,12 @@ protected:
      * Defines the kind of data to work through data() method
      * @see CListViewDataMode for more information
      */
-    CListViewDataMode m_dataMode;
+    CListViewDataMode m_dataMode {CListViewDataMode::LV_DATA_UNDEFINED};
 
     /**
      * The mouse pressed position
      */
-    int m_mousePressedX;
+    int m_mousePressedX {0};
 
     /**
      * The list of currently selected items
@@ -212,12 +211,12 @@ protected:
     /**
      * The row where the focus is or should be
      */
-    uint32_t m_activeRow;
+    uint32_t m_activeRow {0};
 
     /**
      * The height of the header area
      */
-    uint32_t m_headerHeight;
+    uint32_t m_headerHeight {0};
 
     /**
      * The list of rows
@@ -232,47 +231,47 @@ protected:
     /**
      * Dragged column
      */
-    int m_draggingColumn;
+    int m_draggingColumn {0};
 
     /**
      * Dragging column started
      */
-    int m_draggingStarted;
+    int m_draggingStarted {0};
 
     /**
      * The text font type
      */
-    Fl_Font m_textFont;
+    Fl_Font m_textFont {0};
 
     /**
      * The text font size
      */
-    uchar m_textSize;
+    uchar m_textSize {0};
 
     /**
      * The text font color
      */
-    Fl_Color m_textColor;
+    Fl_Color m_textColor {0};
 
     /**
      * Show/hide horizontal stripes. Stripes is an alternative to cell grid.
      */
-    bool m_showStripes;
+    bool m_showStripes {false};
 
     /**
      * Show/hide cell grid. Grid is an alternative to stripes.
      */
-    bool m_showGrid;
+    bool m_showGrid {false};
 
     /**
      * Show/hide selection
      */
-    bool m_showSelection;
+    bool m_showSelection {false};
 
     /**
      * Auto row height on/off
      */
-    bool m_autoRowHeight;
+    bool m_autoRowHeight {false};
 
     /**
      * @brief Computes which column contains x-coordinate
@@ -300,22 +299,22 @@ protected:
     /**
      * @brief Internal vertical scrollback callback
      */
-    static void scrollbar_callback(Fl_Widget* s, void*);
+    static void scrollbar_callback(Fl_Widget* scrollbar, void*);
 
     /**
      * @brief Internal horizontal scrollback callback
      */
-    static void hscrollbar_callback(Fl_Widget* s, void*);
+    static void hscrollbar_callback(Fl_Widget* scrollbar, void*);
 
     /**
      * @brief Vertical scrollback
      */
-    CScrollBar scrollbar;
+    CScrollBar scrollbar {0, 0, 0, 0};
 
     /**
      * @brief Horizontal scrollbar
      */
-    CScrollBar hscrollbar;
+    CScrollBar hscrollbar {0, 0, 0, 0};
 
     /**
      * @brief Returns horizontal position of the scroll
@@ -327,15 +326,15 @@ protected:
 
     /**
      * @brief Sets horizontal position of the scroll
-     * @param hpos int, new horizontal position
+     * @param xPosition int, new horizontal position
      */
-    void hposition(int hpos); // pan to here
+    void hposition(int xPosition); // pan to here
 
     /**
      * @brief Changes the default scrollbar width for the class
-     * @param b int, new scrollbar width
+     * @param width int, new scrollbar width
      */
-    static void scrollbar_width(int b);
+    static void scrollbar_width(int width);
 
     /**
      * @brief Returns the default scrollbar width for the class
@@ -424,11 +423,11 @@ protected:
 
     /**
      * @brief Draws header (internal)
-     * @param x int, x-coordinate
-     * @param y int, y-coordinate
-     * @param hh int, header height
+     * @param xPosition int, xPosition-coordinate
+     * @param yPosition int, yPosition-coordinate
+     * @param headerHeight int, header height
      */
-    virtual void header_draw(int x, int y, int hh) const;
+    virtual void header_draw(int xPosition, int yPosition, int headerHeight) const;
 
     /**
      * @brief Header clicked mouse callback
@@ -454,10 +453,10 @@ protected:
     virtual void header_released(int x);
 
     /**
-     * @brief Request to redraw line index
-     * @param index uint32_t, row number
+     * @brief Request to redraw line line
+     * @param line uint32_t, row number
      */
-    void redraw_line(uint32_t index);
+    void redraw_line(uint32_t line);
 
     /**
      * @brief Redraw all the lines
@@ -478,7 +477,6 @@ protected:
     void key_changed(uint32_t index);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -514,12 +512,12 @@ public:
 
     /**
      * @brief Resizes the control and inside widgets.
-     * @param x int, x-position
-     * @param y int, y-position
-     * @param w int, width
-     * @param h int, height
+     * @param xPosition int, xPosition-position
+     * @param yPosition int, yPosition-position
+     * @param width int, width
+     * @param height int, height
      */
-    void resize(int x, int y, int w, int h) override;
+    void resize(int xPosition, int yPosition, int width, int height) override;
 
     /**
      * @brief Removes row
@@ -750,7 +748,6 @@ public:
     }
 
 protected:
-
     /**
      * @brief Loads the key value from the query
      */
@@ -769,7 +766,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -779,7 +776,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief True if the data is valid
@@ -1061,12 +1058,12 @@ public:
     /**
      * @brief Returns maximum width of all items including the header row
      */
-    uint32_t fullWidth() const; // current width of all items
+    [[nodiscard]] uint32_t fullWidth() const; // current width of all items
 
     /**
      * @brief Returns summary height of all items including the header row
      */
-    uint32_t fullHeight(); // current height of all items
+    [[nodiscard]] uint32_t fullHeight() const; // current height of all items
 
     /**
      * @brief Finds a string in the sort column of list view defined with sortColumn()
@@ -1081,7 +1078,7 @@ public:
     /**
      * @brief Returns sort column name
      */
-    std::string sortColumnName() const;
+    String sortColumnName() const;
 
     /**
      * @brief Sets the sort column
@@ -1140,7 +1137,7 @@ public:
      * The XML node should contain the columns information, and optional list items
      * @param node const xml::Node&, the node to load list from
      */
-    void loadList(const xml::Node* node);
+    void loadList(const xdoc::SNode& node);
 
     /**
      * @brief Saves the list data into XML node
@@ -1148,7 +1145,7 @@ public:
      * The XML node should contain the columns information, and optional list items
      * @param node const xml::Node&, the node to save list into
      */
-    void saveList(xml::Node* node) const;
+    void saveList(const xdoc::SNode& node) const;
 
     /**
      * @brief Computes the optimal widgets size
@@ -1224,4 +1221,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

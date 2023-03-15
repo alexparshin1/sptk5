@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -67,8 +67,12 @@ public:
      * @param h int, rectangle height
      */
     CRect(int x = 0, int y = 0, int w = 0, int h = 0)
-    : m_x(x), m_y(y), m_w(w), m_h(h)
-    {}
+        : m_x(x)
+        , m_y(y)
+        , m_w(w)
+        , m_h(h)
+    {
+    }
 
     /**
      * returns rectangle X-coordinate
@@ -160,5 +164,4 @@ public:
 /**
  * @}
  */
-}
-
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,52 +24,46 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/RequestInfo.h>
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
 #include <sptk5/cnet>
+#include <sptk5/net/RequestInfo.h>
 
 using namespace std;
 using namespace sptk;
 
 void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
+    static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
     constexpr int initialBufferSize = 128;
     m_content.reset(initialBufferSize);
-    m_compressedLength = content.length();
+    m_compressedLength = content.size();
     m_contentEncoding = contentEncoding;
 
-    if (contentEncoding.empty())
+    switch (knowContentEncodings.indexOf(contentEncoding))
     {
-        m_content = content;
-    }
-    else
+        case 0:
+            m_content = content;
+            break;
 
-#if HAVE_BROTLI
-    if (contentEncoding == "br")
-    {
-        Brotli::decompress(m_content, content);
-    }
-    else
+#ifdef HAVE_BROTLI
+        case 1:
+            Brotli::decompress(m_content, content);
+            break;
 #endif
 
-#if HAVE_ZLIB
-    if (contentEncoding == "gzip")
-    {
-        ZLib::decompress(m_content, content);
-    }
-    else
+#ifdef HAVE_ZLIB
+        case 2:
+            ZLib::decompress(m_content, content);
+            break;
 #endif
 
-    if (contentEncoding == "x-www-form-urlencoded")
-    {
-        m_content = Url::decode(content.c_str());
-        return;
-    }
-    else
-    {
+        case 3:
+            m_content = Url::decode(content.c_str());
+            break;
 
-        throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
+        default:
+            throw Exception("Content-Encoding '" + contentEncoding + "' is not supported");
     }
 }
 
@@ -80,117 +74,27 @@ Buffer RequestInfo::Message::output(const Strings& contentEncodings)
     if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
     {
         Buffer outputData;
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
         if (contentEncodings.indexOf("br") >= 0)
         {
             m_contentEncoding = "br";
             Brotli::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
+            m_compressedLength = outputData.size();
             return outputData;
         }
 #endif
-#if HAVE_ZLIB
+#ifdef HAVE_ZLIB
         if (contentEncodings.indexOf("gzip") >= 0)
         {
             m_contentEncoding = "gzip";
             ZLib::compress(outputData, m_content);
-            m_compressedLength = outputData.length();
+            m_compressedLength = outputData.size();
             return outputData;
         }
 #endif
     }
 
-    m_compressedLength = m_content.length();
+    m_compressedLength = m_content.size();
 
     return m_content;
 }
-
-#if USE_GTEST
-
-static Buffer decode(const Buffer& data, const String& encoding)
-{
-    Buffer decoded;
-    if (encoding == "br")
-    {
-#if HAVE_BROTLI
-        Buffer brotliData;
-        Brotli::decompress(decoded, data);
-        return decoded;
-#endif
-    }
-    if (encoding == "gzip")
-    {
-#if HAVE_ZLIB
-        Buffer brotliData;
-        ZLib::decompress(decoded, data);
-        return decoded;
-#endif
-    }
-    throw Exception("Unsupported encoding: " + encoding);
-}
-
-TEST(SPTK_RequestInfo, Message)
-{
-    constexpr int nodeCount = 16;
-    Buffer testData;
-    for (size_t i = 0; i < nodeCount; ++i)
-    {
-        testData.append("<0123456789=ABCDEF>");
-    }
-
-    Strings outputEncodings {"br", "gzip"};
-    RequestInfo::Message message;
-
-    message.input(testData, "");
-    auto output = message.output(outputEncodings);
-    auto decoded = decode(output, message.contentEncoding());
-
-    Buffer urlEncoded(Url::encode(testData.c_str()));
-    message.input(urlEncoded, "x-www-form-urlencoded");
-    output = message.output(outputEncodings);
-    decoded = decode(output, message.contentEncoding());
-    EXPECT_STREQ(testData.c_str(), decoded.c_str());
-
-#if HAVE_BROTLI
-    Buffer brotliData;
-    Brotli::compress(brotliData, testData);
-    EXPECT_TRUE(testData.length() > brotliData.length());
-    message.input(brotliData, "br");
-    output = message.output(outputEncodings);
-    decoded = decode(output, message.contentEncoding());
-    EXPECT_STREQ(testData.c_str(), decoded.c_str());
-
-    try
-    {
-        message.input(brotliData, "gzip");
-        FAIL() << "MUST FAIL: wrong encoding";
-    }
-    catch (const Exception&)
-    {
-        SUCCEED() << "Correct: wrong encoding";
-    }
-#endif
-
-#if HAVE_ZLIB
-    outputEncodings.remove("br");
-    Buffer gzipData;
-    ZLib::compress(gzipData, testData);
-    EXPECT_TRUE(testData.length() > gzipData.length());
-    message.input(gzipData, "gzip");
-    output = message.output(outputEncodings);
-    decoded = decode(output, message.contentEncoding());
-    EXPECT_STREQ(testData.c_str(), decoded.c_str());
-
-    try
-    {
-        message.input(gzipData, "br");
-        FAIL() << "MUST FAIL: wrong encoding";
-    }
-    catch (const Exception&)
-    {
-        SUCCEED() << "Correct: wrong encoding";
-    }
-#endif
-}
-
-#endif

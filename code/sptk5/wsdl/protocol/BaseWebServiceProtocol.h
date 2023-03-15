@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,42 +26,43 @@
 
 #pragma once
 
-#include <sptk5/cnet>
-#include <sptk5/net/URL.h>
-#include <sptk5/net/HttpResponseStatus.h>
-#include <sptk5/wsdl/WSServices.h>
 #include "WSProtocol.h"
 #include "sptk5/wsdl/protocol/BaseWebServiceProtocol.h"
+#include <sptk5/cnet>
+#include <sptk5/net/HttpResponseStatus.h>
+#include <sptk5/net/URL.h>
+#include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
 
-class BaseWebServiceProtocol : public WSProtocol
+class BaseWebServiceProtocol
+    : public WSProtocol
 {
-    static xml::Node* getFirstChildElement(const xml::Node* element) ;
+    static xdoc::SNode getFirstChildElement(const xdoc::SNode& element);
 
 public:
     BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers, sptk::WSServices& services, const URL& url);
 
 protected:
-    WSServices&         m_services;
-    const URL           m_url;
+    WSServices& m_services;
+    const URL m_url;
 
     virtual std::shared_ptr<HttpAuthentication> getAuthentication() = 0;
 
     virtual void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
                                const HTTPException& e, bool jsonOutput) const = 0;
 
-    static void RESTtoSOAP(const URL& url, const char* startOfMessage, xml::Document& message) ;
+    static void RESTtoSOAP(const URL& url, const char* startOfMessage, const xdoc::SNode& message);
 
-    xml::Node* findRequestNode(const xml::Document& message, const String& messageType) const;
+    static xdoc::SNode findRequestNode(const xdoc::SNode& message, const String& messageType);
 
-    void processXmlContent(const char* startOfMessage, xml::Document& xmlContent, json::Document& jsonContent) const;
+    xdoc::SNode processXmlContent(const char* startOfMessage, const xdoc::SNode& xmlContent) const;
 
-    void processJsonContent(const char* startOfMessage, json::Document& jsonContent,
+    void processJsonContent(const char* startOfMessage, const xdoc::SNode& jsonContent,
                             RequestInfo& requestInfo, HttpResponseStatus& httpStatus,
                             String& contentType) const;
 
-/**
+    /**
  * Process request message, and store response to output
  * @param output                Output buffer
  * @param xmlContent            Input message
@@ -70,10 +71,9 @@ protected:
  * @param httpResponseStatus    Output HTTP response status
  * @param contentType           Output content type
  */
-String processMessage(Buffer& output, xml::Document& xmlContent, json::Document& jsonContent,
-                      const SHttpAuthentication& authentication, bool requestIsJSON,
-                      HttpResponseStatus& httpResponseStatus, String& contentType) const;
+    String processMessage(Buffer& output, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
+                          const SHttpAuthentication& authentication, bool requestIsJSON,
+                          HttpResponseStatus& httpResponseStatus, String& contentType) const;
 };
 
-}
-
+} // namespace sptk

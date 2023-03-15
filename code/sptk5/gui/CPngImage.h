@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,8 +35,7 @@ namespace sptk {
 /**
  * @brief For the borders, border size indices
  */
-enum class CBorderIndex
-    : uint8_t
+enum class CBorderIndex : uint8_t
 {
     BORDER_LEFT,
     BORDER_RIGHT,
@@ -59,7 +58,6 @@ class SP_EXPORT CPngImage
                                            int destY, int destW, int destH);
 
 protected:
-
     /**
      * @brief Internal loader from PNG image buffer
      * @param buffer const CBuffer&, image data
@@ -103,8 +101,7 @@ public:
      * By resized parts I mean everything besides four corners.
      * Corners are rectangles with the side of corner zone
      */
-    enum class CPatternDrawMode
-        : uint8_t
+    enum class CPatternDrawMode : uint8_t
     {
         /**
          * Undefined and not drawn, should be defined later.
@@ -206,4 +203,4 @@ public:
     void drawResized(int x, int y, int w, int h, int border[], CPatternDrawMode drawMode, bool drawBackground);
 };
 
-}
+} // namespace sptk

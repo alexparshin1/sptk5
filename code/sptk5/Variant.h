@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,20 +26,18 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/DateTime.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/VariantData.h>
+#include <sptk5/sptk.h>
+
+#include <utility>
 
 namespace sptk {
 
-namespace xml {
+namespace xdoc {
 class Node;
-}
-
-namespace json {
-class Element;
 }
 
 /**
@@ -54,135 +52,146 @@ class SP_EXPORT BaseVariant
     friend class VariantAdaptors;
 
 public:
+    /**
+     * @brief Default constructor
+     */
+    BaseVariant() = default;
+
+    /**
+     * @brief Copy constructor
+     * @param other             The other object
+     */
+    BaseVariant(const BaseVariant& other) = default;
+
+    /**
+     * @brief Move constructor
+     * @param other             The other object
+     */
+    BaseVariant(BaseVariant&& other) noexcept = default;
+
+    /**
+     * @brief Destructor
+     */
+    virtual ~BaseVariant() = default;
 
     /**
      * Returns the data type
      */
-    VariantDataType dataType() const;
+    [[nodiscard]] VariantDataType dataType() const;
 
     /**
      * Returns the data size
      */
-    size_t dataSize() const;
+    [[nodiscard]] size_t dataSize() const;
 
     /**
      * Sets the data size
-     * @param ds                Data size (in bytes).
+     * @param newDataSize                Data size (in bytes).
      */
-    void dataSize(size_t ds);
+    void dataSize(size_t newDataSize);
 
     /**
      * Returns the allocated buffer size
      */
-    size_t bufferSize() const;
-
-    /**
-     * Returns the internal buffer
-     */
-    uint8_t* dataBuffer() const;
+    [[nodiscard]] size_t bufferSize() const;
 
     /**
      * Null flag
      *
      * Returns true if the NULL state is set
      */
-    bool isNull() const;
+    [[nodiscard]] bool isNull() const;
 
     /**
      * Returns a name for a particular variant type
      * @param type              Variant type
      */
-    static String typeName(VariantDataType type);
+    [[nodiscard]] static String typeName(VariantDataType type);
 
     /**
      * Returns a type for a particular variant type name
      * @param name              Variant type name
      */
-    static VariantDataType nameType(const char* name);
+    [[nodiscard]] static VariantDataType nameType(const char* name);
+
+    /**
+     * @brief Direct and fast const access to variant data
+     * @tparam T variant data type
+     * @return const reference to variant data
+     */
+    template<typename T, typename std::enable_if_t<!std::is_class_v<T>, int> = 0>
+    T get() const
+    {
+        return (T) m_data;
+    }
+
+    /**
+     * @brief Direct and fast const access to variant data
+     * @tparam T variant data type
+     * @return const reference to variant data
+     */
+    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    const T& get() const
+    {
+        return (const T&) m_data;
+    }
+
+    /**
+     * @brief Direct and fast access to variant data
+     * @tparam T variant data type
+     * @return reference to variant data
+     */
+    template<typename T>
+    T& get()
+    {
+        return (T&) m_data;
+    }
 
     /**
      * Directly reads the internal data
      */
-    virtual bool getBool() const;
+    [[nodiscard]] virtual const MoneyData& getMoney() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const int32_t& getInteger() const;
+    [[nodiscard]] virtual const char* getString() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const int64_t& getInt64() const;
+    [[nodiscard]] virtual const uint8_t* getExternalBuffer() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const double& getFloat() const;
+    [[nodiscard]] virtual const char* getText() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const MoneyData& getMoney() const;
+    [[nodiscard]] virtual const uint8_t* getImagePtr() const;
 
     /**
      * Directly reads the internal data
      */
-    virtual const char* getString() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual uint8_t* getBuffer() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const char* getText() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDateTime() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual DateTime getDate() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual const uint8_t* getImagePtr() const;
-
-    /**
-     * Directly reads the internal data
-     */
-    virtual uint32_t getImageNdx() const;
+    [[nodiscard]] virtual uint32_t getImageNdx() const;
 
 protected:
-
-    VariantData m_data;                 ///< Internal variant data storage
-
     /**
-     * Releases allocated buffer (if any)
+     * Sets the data type
      */
-    void releaseBuffers();
+    void dataType(VariantType newDataType);
 
     /**
      * Sets the data type
      */
-    void dataType(VariantType dt);
-
-    /**
-     * Sets the data type
-     */
-    void dataType(VariantDataType dt);
+    void dataType(VariantDataType newDataType);
 
     /**
      * @return True if current data type is external buffer
      */
-    bool isExternalBuffer() const
+    [[nodiscard]] bool isExternalBuffer() const
     {
         return m_data.type().isExternalBuffer;
     }
@@ -191,7 +200,9 @@ protected:
      * Return money data as string
      * @return
      */
-    virtual String moneyDataToString() const;
+    [[nodiscard]] virtual String moneyDataToString() const;
+
+    VariantData m_data; ///< Internal variant data storage
 };
 
 /**
@@ -202,6 +213,27 @@ class SP_EXPORT VariantAdaptors
     : public BaseVariant
 {
 public:
+    /**
+     * @brief Default constructor
+     */
+    VariantAdaptors() = default;
+
+    /**
+     * @brief Copy constructor
+     * @param other             The other object
+     */
+    VariantAdaptors(const VariantAdaptors& other) = default;
+
+    /**
+     * @brief Move constructor
+     * @param other             The other object
+     */
+    VariantAdaptors(VariantAdaptors&& other) noexcept = default;
+
+    /**
+     * @brief Default destructor
+     */
+    ~VariantAdaptors() override = default;
 
     /**
      * Assignment method
@@ -236,17 +268,17 @@ public:
     /**
      * Assignment method
      */
-    virtual void setBuffer(const uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type);
 
     /**
      * Assignment method
      */
-    virtual void setExternalBuffer(uint8_t* value, size_t sz, VariantDataType type = VariantDataType::VAR_BUFFER);
+    virtual void setExternalBuffer(uint8_t* value, size_t valueSize, VariantDataType type);
 
     /**
      * Assignment method
      */
-    virtual void setDateTime(DateTime value, bool dateOnly = false);
+    virtual void setDateTime(const DateTime& value, bool dateOnly = false);
 
     /**
      * Assignment method
@@ -269,23 +301,23 @@ public:
      * Useful for the database operations.
      * Releases the memory allocated for string/text/blob types.
      * Sets the data to zero(s).
-     * @param vtype             Optional variant type to enforce
+     * @param variantDataType             Optional variant type to enforce
      */
-    virtual void setNull(VariantDataType vtype = VariantDataType::VAR_NONE);
+    virtual void setNull(VariantDataType variantDataType = VariantDataType::VAR_NONE);
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-    int asInteger() const;
+    [[nodiscard]] int asInteger() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to double.
      */
-    int64_t asInt64() const;
+    [[nodiscard]] int64_t asInt64() const;
 
     /**
      * Conversion to bool
@@ -294,35 +326,35 @@ public:
      * and one of 'N','n','F','f' to false.
      * For the integer and float values, the value <=0 is false, and > 0 is true.
      */
-    bool asBool() const;
+    [[nodiscard]] bool asBool() const;
 
     /**
      * Conversion to double
      *
      * Converts variant value to double.
      */
-    double asFloat() const;
+    [[nodiscard]] double asFloat() const;
 
     /**
      * Conversion to string
      *
      * Converts variant value to string.
      */
-    virtual String asString() const;
+    [[nodiscard]] virtual String asString() const;
 
     /**
      * Conversion method
      *
-     * Converts variant value to DateTime. The time part of CDdatetime is empty.
+     * Converts variant value to DateTime. The time part of datetime is empty.
      */
-    DateTime asDate() const;
+    [[nodiscard]] DateTime asDate() const;
 
     /**
      * Conversion method
      *
      * Converts variant value to DateTime.
      */
-    DateTime asDateTime() const;
+    [[nodiscard]] DateTime asDateTime() const;
 
     /**
      * Conversion method
@@ -330,14 +362,14 @@ public:
      * Simply returns the internal data pointer for string/text/blob types.
      * For incompatible types throws an exception.
      */
-    const uint8_t* asImagePtr() const;
+    [[nodiscard]] const uint8_t* asImagePtr() const;
 
 protected:
-
     /**
      * Copies data from another CVariant
      */
-    void setData(const BaseVariant& C);
+    void setData(const BaseVariant& other);
+    [[nodiscard]] const char* getBufferPtr() const;
 };
 
 /**
@@ -350,11 +382,15 @@ class SP_EXPORT Variant
     : public VariantAdaptors
 {
 public:
+    /**
+     * Constructor
+     */
+    Variant() = default;
 
     /**
      * Constructor
      */
-    Variant();
+    Variant(bool value);
 
     /**
      * Constructor
@@ -379,19 +415,19 @@ public:
     /**
      * Constructor
      */
-    Variant(const String& v);
+    Variant(const String& value);
 
     /**
      * Constructor
      */
-    Variant(const DateTime& v);
+    Variant(const DateTime& dateTime);
 
     /**
      * Constructor
      * @param value             Buffer to copy from
-     * @param sz                Buffer size
+     * @param valueSize                Buffer size
      */
-    Variant(const uint8_t* value, size_t sz);
+    Variant(const uint8_t* value, size_t valueSize);
 
     /**
      * Constructor
@@ -403,18 +439,18 @@ public:
      * Copy constructor
      * @param other             Other object
      */
-    explicit Variant(const Variant& other);
+    Variant(const Variant& other) = default;
 
     /**
      * Move constructor
      * @param other             Other object
      */
-    Variant(Variant&& other) noexcept;
+    Variant(Variant&& other) noexcept = default;
 
     /**
      * Destructor
      */
-    virtual ~Variant();
+    ~Variant() override;
 
     /**
      * Assignment operator
@@ -427,6 +463,12 @@ public:
      * @param other             Other object
      */
     Variant& operator=(Variant&& other) noexcept;
+
+    /**
+     * Assignment operator
+     * @param value             Value to assign
+     */
+    virtual Variant& operator=(bool value);
 
     /**
      * Assignment operator
@@ -468,7 +510,7 @@ public:
      * Assignment operator
      * @param value             Value to assign
      */
-    virtual Variant& operator=(DateTime value);
+    virtual Variant& operator=(const DateTime& value);
 
     /**
      * Assignment operator
@@ -519,27 +561,15 @@ public:
 
     /**
      * Loads the data from XML node
-     * @param node              XML node to load data from
+     * @param element              XML node to load data from
      */
-    virtual void load(const xml::Node* node);
-
-    /**
-     * Loads the data from JSON element
-     * @param node              JSON element to load data from
-     */
-    virtual void load(const json::Element* node);
+    virtual void load(const std::shared_ptr<xdoc::Node>& element);
 
     /**
      * Saves the data into XML node
      * @param node              XML node to save data into
      */
-    void save(xml::Node* node) const;
-
-    /**
-     * Saves the data into JSON element
-     * @param node              JSON element to save data into
-     */
-    void save(json::Element* node) const;
+    void save(const std::shared_ptr<xdoc::Node>& node) const;
 };
 
 /**
@@ -550,4 +580,4 @@ using VariantVector = std::vector<Variant>;
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -4,7 +4,7 @@
 ║                       odbc_test2.cpp - description                           ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -48,15 +48,17 @@ using namespace sptk;
 // Then the execution attempt is repeated.
 void smartQueryExec(CQuery& query)
 {
-    try {
+    try
+    {
         query.exec();
         return;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         if (!query.autoPrepare())
-            throw;   // Query is already in no-auto-prepare mode
+            throw; // Query is already in no-auto-prepare mode
         if (strstr(e.what(), "altered") == 0L)
-            throw;   // Table was not altered - something else is wrong
+            throw; // Table was not altered - something else is wrong
     }
     query.autoPrepare(false);
     query.unprepare();
@@ -69,15 +71,17 @@ void smartQueryExec(CQuery& query)
 // Then the open attempt is repeated.
 void smartQueryOpen(CQuery& query)
 {
-    try {
+    try
+    {
         query.open();
         return;
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         if (!query.autoPrepare())
-            throw;   // Query is already in no-auto-prepare mode
+            throw; // Query is already in no-auto-prepare mode
         if (strstr(e.what(), "altered") == 0L)
-            throw;   // Table was not altered - something else is wrong
+            throw; // Table was not altered - something else is wrong
     }
     query.autoPrepare(false);
     query.unprepare();
@@ -87,14 +91,13 @@ void smartQueryOpen(CQuery& query)
 // This function creates the temporary table, fills it with data,
 // prints the data from the table, and deletes the table.
 // At the first call ALL the queries are automatically auto-prepared.
-// The second call makes the auto-prepared queries to try to work 
+// The second call makes the auto-prepared queries to try to work
 // with destroyed and created table.
 void testPrepareAndUnprepare(
-        CQuery& step1Query,
-        CQuery& step2Query,
-        CQuery& step3Query,
-        CQuery& step4Query
-)
+    CQuery& step1Query,
+    CQuery& step2Query,
+    CQuery& step3Query,
+    CQuery& step4Query)
 {
     printf("Ok.\nStep 1: Creating the temp table.. ");
     smartQueryExec(step1Query);
@@ -114,7 +117,8 @@ void testPrepareAndUnprepare(
     //step3Query.param("some_id") = 1;
     smartQueryOpen(step3Query);
 
-    while (!step3Query.eof()) {
+    while (!step3Query.eof())
+    {
 
         // getting data from the query by the field name
         int id = step3Query["id"].asInteger();
@@ -144,15 +148,18 @@ int main()
     // If UID or PWD are omitted they are read from the datasource settings.
     CODBCConnection db("DSN=odbc_demo");
 
-    for (unsigned i = 0; i < 2; i++) {
-        try {
+    for (unsigned i = 0; i < 2; i++)
+    {
+        try
+        {
             printf("Openning the database.. ");
             db.open();
             printf("Ok.\nDriver description: %s\n", db.driverDescription().c_str());
 
             string tableName = "test_odbc";
             string isTemp = "TEMP";
-            if (db.driverDescription() == "SQL Server") {
+            if (db.driverDescription() == "SQL Server")
+            {
                 tableName = "##test_odbc";
                 isTemp = "";
             }
@@ -164,7 +171,7 @@ int main()
 
             puts("Pass 1 of the test");
             testPrepareAndUnprepare(
-                    step1Query, step2Query, step3Query, step4Query);
+                step1Query, step2Query, step3Query, step4Query);
 
             puts("Pass 2 of the test");
             testPrepareAndUnprepare(step1Query, step2Query, step3Query, step4Query);
@@ -176,7 +183,8 @@ int main()
             db.close();
             printf("Ok.\n");
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             db.close();
             printf("\nError: %s\n", e.what());
             puts("\nSorry, you have to fix your database connection.");

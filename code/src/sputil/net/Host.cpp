@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,13 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SystemException.h>
+#include <sptk5/net/BaseSocket.h>
 
-#ifndef _WIN32
-
-#endif
+#include <utility>
 
 using namespace std;
 using namespace sptk;
@@ -45,7 +43,8 @@ Host::Host() noexcept
 }
 
 Host::Host(const String& hostname, uint16_t port)
-    : m_hostname(hostname), m_port(port)
+    : m_hostname(hostname)
+    , m_port(port)
 {
     getHostAddress();
     setPort(m_port);
@@ -53,7 +52,7 @@ Host::Host(const String& hostname, uint16_t port)
 
 Host::Host(const String& hostAndPort)
 {
-    RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
+    const RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
     auto matches = matchHost.m(hostAndPort);
     if (matches)
     {
@@ -73,7 +72,7 @@ Host::Host(const String& hostAndPort)
 
 Host::Host(const sockaddr_in* addressAndPort)
 {
-    socklen_t addressLen = sizeof(sockaddr_in);
+    constexpr socklen_t addressLen = sizeof(sockaddr_in);
     memcpy(m_address.data(), addressAndPort, addressLen);
     m_port = htons(ip_v4().sin_port);
 
@@ -82,7 +81,7 @@ Host::Host(const sockaddr_in* addressAndPort)
 
 Host::Host(const sockaddr_in6* addressAndPort)
 {
-    socklen_t addressLen = sizeof(sockaddr_in6);
+    constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
     memcpy((sockaddr_in6*) m_address.data(), addressAndPort6, addressLen);
@@ -96,29 +95,31 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
     array<char, NI_MAXHOST> hbuf {};
     array<char, NI_MAXSERV> sbuf {};
 #ifdef _WIN32
-    if (getnameinfo((const sockaddr*)m_address, addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
+    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
         m_hostname = hbuf.data();
 #else
     if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(),
                     sizeof(sbuf), 0) ==
         0)
     {
-        m_hostname = hbuf.data();
+        m_hostname = String(hbuf.data());
     }
 #endif
 }
 
 Host::Host(const Host& other)
-    : m_hostname(other.m_hostname), m_port(other.m_port)
+    : m_hostname(other.m_hostname)
+    , m_port(other.m_port)
 {
-    SharedLock(other.m_mutex);
+    const scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
 Host::Host(Host&& other) noexcept
-    : m_hostname(exchange(other.m_hostname, "")), m_port(exchange(other.m_port, 0))
+    : m_hostname(exchange(other.m_hostname, ""))
+    , m_port(exchange(other.m_port, 0))
 {
-    SharedLock(other.m_mutex);
+    const scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -126,8 +127,7 @@ Host& Host::operator=(const Host& other)
 {
     if (&other != this)
     {
-        SharedLockInt lock1(other.m_mutex);
-        UniqueLockInt lock2(m_mutex);
+        const scoped_lock lock(m_mutex, other.m_mutex);
         m_hostname = other.m_hostname;
         m_port = other.m_port;
         memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -137,7 +137,7 @@ Host& Host::operator=(const Host& other)
 
 Host& Host::operator=(Host&& other) noexcept
 {
-    CopyLock(m_mutex, other.m_mutex);
+    const scoped_lock lock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
@@ -149,15 +149,10 @@ bool Host::operator==(const Host& other) const
     return toString(true) == other.toString(true);
 }
 
-bool Host::operator!=(const Host& other) const
+void Host::setPort(uint16_t port)
 {
-    return toString(true) != other.toString(true);
-}
-
-void Host::setPort(uint16_t p)
-{
-    UniqueLock(m_mutex);
-    m_port = p;
+    const scoped_lock lock(m_mutex);
+    m_port = port;
     switch (any().sa_family)
     {
         case AF_INET:
@@ -171,28 +166,6 @@ void Host::setPort(uint16_t p)
     }
 }
 
-
-static struct addrinfo* safeGetAddrInfo(const String& hostname)
-{
-    static SharedMutex getaddrinfoMutex;
-
-    struct addrinfo hints = {};
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;          // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM;    // Socket type
-    hints.ai_protocol = 0;
-
-    UniqueLock(getaddrinfoMutex);
-
-    struct addrinfo* result = nullptr;
-    if (int rc = getaddrinfo(hostname.c_str(), nullptr, &hints, &result); rc != 0)
-    {
-        throw Exception(gai_strerror(rc));
-    }
-
-    return result;
-}
-
 void Host::getHostAddress()
 {
 #ifdef _WIN32
@@ -200,22 +173,35 @@ void Host::getHostAddress()
     if (host_info == nullptr)
         throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
 
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
     any().sa_family = host_info->h_addrtype;
 
-    switch (any().sa_family) {
-    case AF_INET:
-        memcpy(&ip_v4().sin_addr, host_info->h_addr, size_t(host_info->h_length));
-        break;
-    case AF_INET6:
-        memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
-        break;
+    switch (any().sa_family)
+    {
+        case AF_INET:
+            memcpy(&ip_v4().sin_addr, host_info->h_addr, size_t(host_info->h_length));
+            break;
+        case AF_INET6:
+            memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
+            break;
     }
 #else
-    struct addrinfo* result = safeGetAddrInfo(m_hostname);
+    const scoped_lock lock(m_mutex);
 
-    UniqueLock(m_mutex);
+    struct addrinfo hints = {};
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_INET;       // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM; // Socket type
+    hints.ai_protocol = 0;
+
+    struct addrinfo* result = nullptr;
+    if (const int exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
+        exitCode != 0)
+    {
+        throw Exception(gai_strerror(exitCode));
+    }
+
     memset(&m_address, 0, sizeof(m_address));
     memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
 
@@ -225,7 +211,7 @@ void Host::getHostAddress()
 
 String Host::toString(bool forceAddress) const
 {
-    SharedLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     std::stringstream str;
 
     if (m_hostname.empty())
@@ -255,7 +241,7 @@ String Host::toString(bool forceAddress) const
             throw SystemException("Can't print IP address");
         }
 
-        address = buffer.data();
+        address = String(buffer.data());
     }
     else
     {
@@ -273,98 +259,3 @@ String Host::toString(bool forceAddress) const
 
     return str.str();
 }
-
-
-#if USE_GTEST
-
-static constexpr uint16_t sshPort = 22;
-static constexpr uint16_t telnetPort = 23;
-static constexpr uint16_t httpPort = 80;
-static const String testHost("www.google.com:80");
-
-TEST(SPTK_Host, ctorHostname)
-{
-    Host google1(testHost);
-    EXPECT_STREQ(testHost.c_str(), google1.toString(false).c_str());
-    EXPECT_STREQ("www.google.com", google1.hostname().c_str());
-    EXPECT_EQ(httpPort, google1.port());
-
-    Host google(google1.toString(true));
-    EXPECT_TRUE(google1 == google);
-}
-
-TEST(SPTK_Host, ctorAddress)
-{
-    Host host("11.22.33.44", sshPort);
-    EXPECT_STREQ("11.22.33.44", host.hostname().c_str());
-    EXPECT_EQ(sshPort, host.port());
-}
-
-TEST(SPTK_Host, ctorAddressStruct)
-{
-    String testHostAndPort {"bitbucket.com:80"};
-    Host host1(testHostAndPort);
-
-    sockaddr_in address {};
-    host1.getAddress(address);
-    Host host2(&address);
-
-    EXPECT_STREQ(host1.toString(true).c_str(), host2.toString(true).c_str());
-    EXPECT_STREQ(testHostAndPort.c_str(), host2.toString(false).c_str());
-    EXPECT_EQ(host1.port(), host2.port());
-}
-
-TEST(SPTK_Host, ctorCopy)
-{
-    Host host1("11.22.33.44", sshPort);
-    Host host2(host1);
-    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(sshPort, host2.port());
-}
-
-TEST(SPTK_Host, ctorMove)
-{
-    Host host1("11.22.33.44", sshPort);
-    Host host2(move(host1));
-    EXPECT_STREQ("", host1.hostname().c_str());
-    EXPECT_EQ(0, host1.port());
-    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(sshPort, host2.port());
-}
-
-TEST(SPTK_Host, assign)
-{
-    Host host1("11.22.33.44", sshPort);
-    Host host2 = host1;
-    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(sshPort, host2.port());
-}
-
-TEST(SPTK_Host, move)
-{
-    Host host1("11.22.33.44", sshPort);
-    Host host2 = move(host1);
-    EXPECT_STREQ("", host1.hostname().c_str());
-    EXPECT_EQ(0, host1.port());
-    EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
-    EXPECT_EQ(sshPort, host2.port());
-}
-
-TEST(SPTK_Host, compare)
-{
-    Host host1("11.22.33.44", sshPort);
-    Host host2(host1);
-    Host host3("11.22.33.45", sshPort);
-    Host host4("11.22.33.44", telnetPort);
-
-    EXPECT_TRUE(host1 == host2);
-    EXPECT_FALSE(host1 != host2);
-
-    EXPECT_FALSE(host1 == host3);
-    EXPECT_TRUE(host1 != host3);
-
-    EXPECT_FALSE(host1 == host4);
-    EXPECT_TRUE(host1 != host4);
-}
-
-#endif

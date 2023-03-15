@@ -1,8 +1,6 @@
 // Web Service Test definition
 
-#ifndef __CTESTSERVICEBASE__
-#define __CTESTSERVICEBASE__
-
+#pragma once
 #include "CTestWSDL.h"
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/net/HttpAuthentication.h>
@@ -82,7 +80,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_AccountBalance(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_AccountBalance(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Hello processing
@@ -90,7 +88,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Hello(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Hello(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Login processing
@@ -98,12 +96,10 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Login(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Login(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
 };
 
 using STestServiceBase = std::shared_ptr<CTestServiceBase>;
 
 }
-
-#endif

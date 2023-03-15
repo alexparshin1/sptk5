@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,18 +24,16 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/URL.h>
 #include "sptk5/wsdl/WSConnection.h"
 
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress,
-                           WSServices& services, LogEngine& logEngine, const Options& options)
-    : ServerConnection(server, connectionSocket, connectionAddress, "WSConnection"),
-      m_services(services),
-      m_logger(logEngine, "(" + to_string(serial()) + ") "),
-      m_options(options)
+WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, const Options& options)
+    : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
+    , m_services(services)
+    , m_logger(logEngine, "(" + to_string(serial()) + ") ")
+    , m_options(options)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
     {
@@ -52,7 +50,7 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
     constexpr size_t maxContentLength = 512;
 
     logMessage << prefix;
-    logMessage << message.content().length() << "/" << message.compressedLength()
+    logMessage << message.content().size() << "/" << message.compressedLength()
                << " bytes ";
     if (!message.contentEncoding().empty())
     {
@@ -74,8 +72,8 @@ void WSConnection::processSingleConnection(bool& done)
     m_logger.debug("Processing connection");
 
     if (constexpr chrono::seconds readTimeout30sec(30);
-        !socket().readyToRead(readTimeout30sec)                 // Client communication timeout
-        || socket().socketBytes() == 0)                         // Client closed connection
+        !socket().readyToRead(readTimeout30sec) // Client communication timeout
+        || socket().socketBytes() == 0)         // Client closed connection
     {
         socket().close();
         done = true;
@@ -321,18 +319,18 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr,
                                  WSServices& services,
                                  LogEngine& logEngine, const Options& options)
-    : WSConnection(server, connectionSocket, addr, services, logEngine, options)
+    : WSConnection(server, addr, services, logEngine, options)
 {
     if (options.encrypted)
     {
         const auto& sslKeys = server.getSSLKeys();
-        auto* socket = new SSLSocket;
+        auto socket = make_shared<SSLSocket>();
         socket->loadKeys(sslKeys);
         setSocket(socket);
     }
     else
     {
-        setSocket(new TCPSocket);
+        setSocket(make_shared<TCPSocket>());
     }
     socket().attach(connectionSocket, true);
 }

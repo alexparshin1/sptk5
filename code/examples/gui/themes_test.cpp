@@ -4,7 +4,7 @@
 ║                       themes_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -62,7 +62,7 @@ int main(int argc, char** argv)
 
         Fl::visual(FL_DOUBLE | FL_INDEX);
 
-        xml::Document doc;
+        xdoc::Document doc;
         CWindow w(550, 450, "SPTK themes test");
 
         w.layoutSpacing(10);
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

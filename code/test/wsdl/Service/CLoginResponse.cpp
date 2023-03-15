@@ -1,6 +1,4 @@
 #include "CLoginResponse.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;
@@ -20,7 +18,7 @@ const sptk::Strings& CLoginResponse::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CLoginResponse::CLoginResponse(const char* elementName, bool optional) noexcept
+CLoginResponse::CLoginResponse(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_jwt});
@@ -38,18 +36,6 @@ CLoginResponse::CLoginResponse(CLoginResponse&& other) noexcept
   m_jwt(std::move(other.m_jwt))
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_jwt});
-}
-
-CLoginResponse& CLoginResponse::operator = (const CLoginResponse& other)
-{
-    m_jwt = other.m_jwt;
-    return *this;
-}
-
-CLoginResponse& CLoginResponse::operator = (CLoginResponse&& other) noexcept
-{
-    m_jwt = std::move(other.m_jwt);
-    return *this;
 }
 
 void CLoginResponse::checkRestrictions() const

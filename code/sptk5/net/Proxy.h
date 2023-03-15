@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/net/Host.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Host.h>
 
 namespace sptk {
 
@@ -36,17 +36,14 @@ class TCPSocket;
 class SP_EXPORT Proxy
 {
 public:
-
-    explicit Proxy(const Host& host, const String& username="", const String& password="");
+    explicit Proxy(const Host& host, const String& username = "", const String& password = "");
     virtual ~Proxy() = default;
     virtual SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 
 protected:
-
-    const Host                  m_host;
-    const String                m_username;
-    const String                m_password;
+    const Host m_host;
+    const String m_username;
+    const String m_password;
 };
 
-}
-
+} // namespace sptk

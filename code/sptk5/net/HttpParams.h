@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/CaseInsensitiveCompare.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace sptk {
 
@@ -66,7 +65,7 @@ public:
  * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
  */
-class SP_EXPORT HttpParams: public StringHttpFieldMap
+class SP_EXPORT HttpParams : public StringHttpFieldMap
 {
 public:
     /**
@@ -82,7 +81,7 @@ public:
     /**
      * Initialization constructor.
      */
-    HttpParams(std::initializer_list<std::pair<String,String>> lst);
+    HttpParams(std::initializer_list<std::pair<String, String>> lst);
 
     /**
      * Encodes HTTP parameters for sending to the server.
@@ -92,10 +91,10 @@ public:
 
     /**
      * Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param paramString       Parameters string from HTTP server
+     * @param buffer       Parameters string from HTTP server
      * @param lowerCaseNames    True if you want to lower-case the parameter names
      */
-    void decode(const Buffer& paramString, bool lowerCaseNames = false);
+    void decode(const Buffer& buffer, bool lowerCaseNames = false);
 
     /**
      * Returns parameter value, or empty string if not found
@@ -114,4 +113,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

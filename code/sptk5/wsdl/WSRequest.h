@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/cxml>
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpAuthentication.h>
 
@@ -43,14 +42,14 @@ namespace sptk {
 class SP_EXPORT WSNameSpace
 {
 public:
-
     /**
      * Constructor
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
     WSNameSpace(const String& alias = "", const String& location = "")
-        : m_alias(alias), m_location(location)
+        : m_alias(alias)
+        , m_location(location)
     {
     }
 
@@ -59,7 +58,8 @@ public:
      * @param other             Other namespace
      */
     WSNameSpace(const WSNameSpace& other)
-        : m_alias(other.m_alias), m_location(other.m_location)
+        : m_alias(other.m_alias)
+        , m_location(other.m_location)
     {
     }
 
@@ -105,10 +105,9 @@ public:
     }
 
 private:
-
-    mutable std::mutex m_mutex;        ///< Mutex to protect internal data
-    String m_alias;        ///< Namespace alias
-    String m_location;     ///< Namespace location
+    mutable std::mutex m_mutex; ///< Mutex to protect internal data
+    String m_alias;             ///< Namespace alias
+    String m_location;          ///< Namespace location
 };
 
 /**
@@ -138,7 +137,7 @@ public:
      * The processing results are stored in the same request XML
      * @param xmlContent           Incoming request and outgoing response
      */
-    void processRequest(xml::Document* xmlContent, json::Document* jsonContent,
+    void processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                         HttpAuthentication* authentication, String& requestName);
 
     /**
@@ -169,10 +168,18 @@ public:
         return String("Not defined");
     }
 
-protected:
+    static String tagName(const String& nodeName);
 
-    using RequestMethod = std::function<void(sptk::xml::Element*, sptk::json::Element*, sptk::HttpAuthentication*,
-                                             const sptk::WSNameSpace&)>;
+    static String nameSpace(const String& nodeName);
+
+    sptk::LogEngine* getLogEngine()
+    {
+        return m_logEngine;
+    }
+
+protected:
+    using RequestMethod = std::function<void(const sptk::xdoc::SNode&, const sptk::xdoc::SNode&,
+                                             sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -180,11 +187,11 @@ protected:
      * Receives incoming SOAP body of Web Service requests, and returns
      * application response.
      * This method is abstract and overwritten in derived generated classes.
-     * @param requestNode       Incoming and outgoing SOAP element
+     * @param xmlContent        Incoming and outgoing SOAP element
      * @param authentication    Optional setRequestMethods(move(requestMethods));HTTP authentication
      * @param requestNameSpace  Request SOAP element namespace
      */
-    virtual void requestBroker(const String& requestName, xml::Element* requestNode, json::Element* jsonNode,
+    virtual void requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
 
     /**
@@ -196,7 +203,7 @@ protected:
      * @param error            Error description
      * @param errorCode        Optional HTTP error code, or 0
      */
-    virtual void handleError(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent,
+    virtual void handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                              const sptk::String& error, int errorCode) const;
 
     /**
@@ -214,17 +221,15 @@ protected:
      * @param soapEnvelope
      * @return
      */
-    xml::Element* findSoapBody(const xml::Element* soapEnvelope, const WSNameSpace& soapNamespace);
+    xdoc::SNode findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
 
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
-
-    sptk::LogEngine* m_logEngine;        ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods;   ///< Map of requset names to methods
-
+    sptk::LogEngine* m_logEngine;                           ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods; ///< Map of requset names to methods
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;
 
-}
+} // namespace sptk

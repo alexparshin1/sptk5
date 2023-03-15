@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Variant.h>
+#include <sptk5/sptk.h>
 
-#include <vector>
 #include <map>
 #include <sptk5/db/PoolDatabaseConnection.h>
+#include <vector>
 
 namespace sptk {
 
@@ -95,21 +95,9 @@ public:
     {
         m_output = true;
     }
-
-    /**
-     * Checks if the parameter binding is matching the cached
-     *
-     * Returns true, if the passed parameters are matching last binding parameters.
-     * Returns false and stores new parameters into last binding parameters otherwise.
-     * @param stmt              Statement handle
-     * @param type              Data type
-     * @param size              Binding buffer size
-     * @param buffer            Binding buffer
-     */
-    bool check(StmtHandle stmt, VariantDataType type, uint32_t size, uint8_t* buffer);
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

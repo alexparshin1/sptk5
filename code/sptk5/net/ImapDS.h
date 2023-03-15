@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <functional>
 #include <sptk5/MemoryDS.h>
 #include <sptk5/net/ImapConnect.h>
 
@@ -51,7 +52,6 @@ class SP_EXPORT ImapDS
     : public MemoryDS
 {
 public:
-
     /**
      * Default constructor
      */
@@ -60,7 +60,7 @@ public:
     /**
      * Set IMAP host
      */
-    void host(const Host& host) const
+    void host(const Host& host)
     {
         m_imap.host(host);
     }
@@ -172,16 +172,15 @@ public:
     }
 
 private:
-
-    ImapConnect m_imap;                 ///< IMAP socket connector
-    String m_folder;               ///< IMAP folder name
-    String m_user;                 ///< IMAP user name
-    String m_password;             ///< IMAP user password
-    bool m_fetchbody {false};    ///< Do we want to fetch the message headers AND message body?
-    ProgressCallback m_callback {nullptr};   ///< Internal prograssion callback for open()
-    int m_msgid {0};            ///< Internal message ID
+    ImapConnect m_imap;                    ///< IMAP socket connector
+    String m_folder;                       ///< IMAP folder name
+    String m_user;                         ///< IMAP user name
+    String m_password;                     ///< IMAP user password
+    bool m_fetchbody {false};              ///< Do we want to fetch the message headers AND message body?
+    ProgressCallback m_callback {nullptr}; ///< Internal prograssion callback for open()
+    int m_msgid {0};                       ///< Internal message ID
 };
 /**
  * @}
  */
-}
+} // namespace sptk

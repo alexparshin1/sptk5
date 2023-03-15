@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
+#include <functional>
+#include <mutex>
+#include <queue>
 #include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
-#include <queue>
-#include <mutex>
-#include <functional>
 
 namespace sptk {
 
@@ -48,7 +48,6 @@ template<class T>
 class SynchronizedQueue
 {
 public:
-
     virtual ~SynchronizedQueue() = default;
 
     /**
@@ -70,8 +69,9 @@ public:
      */
     void push(T&& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue->push(std::move(data));
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -84,8 +84,9 @@ public:
      */
     void push(const T& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue->push(data);
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -146,7 +147,7 @@ public:
     void clear()
     {
         std::scoped_lock lock(m_mutex);
-        m_queue = std::make_shared<std::queue<T> >();
+        m_queue = std::make_shared<std::queue<T>>();
     }
 
     /**
@@ -162,7 +163,7 @@ public:
     {
         std::scoped_lock lock(m_mutex);
 
-        auto newQueue = std::make_shared<std::queue<T> >();
+        auto newQueue = std::make_shared<std::queue<T>>();
 
         // Iterating through queue until callback returns false
         bool rc = true;
@@ -192,7 +193,6 @@ public:
     }
 
 private:
-
     /**
      * Lock to synchronize queue operations
      */
@@ -211,4 +211,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

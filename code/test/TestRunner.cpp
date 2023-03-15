@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,26 +24,26 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/DatabaseTests.h>
+#include <gtest/gtest.h>
+#include <sptk5/Base64.h>
+#include <sptk5/CommandLine.h>
+#include <sptk5/Crypt.h>
+#include <sptk5/DirectoryDS.h>
+#include <sptk5/JWT.h>
 #include <sptk5/Strings.h>
-#include <googletest/include/gtest/gtest.h>
-#include <sptk5/net/TCPServer.h>
+#include <sptk5/Tar.h>
+#include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/db/DatabaseTests.h>
+#include <sptk5/net/HttpConnect.h>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/ServerConnection.h>
-#include <sptk5/JWT.h>
-#include <sptk5/CommandLine.h>
-#include <sptk5/threads/ThreadPool.h>
-#include <sptk5/DirectoryDS.h>
-#include <sptk5/threads/Timer.h>
-#include <sptk5/Tar.h>
-#include <sptk5/net/HttpConnect.h>
-#include <sptk5/Crypt.h>
-#include <sptk5/Base64.h>
-#include <sptk5/wsdl/WSComplexType.h>
-#include <sptk5/db/DatabaseConnectionPool.h>
+#include <sptk5/net/TCPServer.h>
 #include <sptk5/test/TestRunner.h>
+#include <sptk5/threads/ThreadPool.h>
+#include <sptk5/threads/Timer.h>
+#include <sptk5/wsdl/WSComplexType.h>
 
-#ifndef _WIN32
+#ifdef BUILD_TEST_WS
 
 #include <test/wsdl/TestWebService.h>
 
@@ -59,15 +59,13 @@ class StubServer
     : public TCPServer
 {
 public:
-
     StubServer()
-        : TCPServer("test", 1)
+        : TCPServer("test", ServerConnection::Type::TCP)
     {
     }
 
 protected:
-
-    ServerConnection* createConnection(SOCKET, sockaddr_in*) override
+    SServerConnection createConnection(SOCKET, const sockaddr_in*) override
     {
         return nullptr;
     }
@@ -88,7 +86,6 @@ void stub()
     StubServer tcpServer;
     Tar tar;
     FieldList fieldList(false);
-    SharedStrings sharedStrings;
     Variant v;
 
     SSLSocket socket;
@@ -108,13 +105,14 @@ void stub()
 
     DatabaseConnectionPool connectionPool("");
 
-#ifndef _WIN32
+#ifdef BUILD_TEST_WS
     TestWebService setvice;
 #endif
 }
 
 TestRunner::TestRunner(int& argc, char**& argv)
-    : m_argc(argc), m_argv(argv)
+    : m_argc(argc)
+    , m_argv(argv)
 {
 }
 
@@ -127,11 +125,10 @@ static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString
 {
     map<String, String> excludeDrivers = {
         {"postgresql", "PostgreSQL"},
-        {"mysql",      "MySQL"},
-        {"mssql",      "MSSQL"},
-        {"oracle",     "Oracle"},
-        {"sqlite3",    "SQLite3"}
-    };
+        {"mysql", "MySQL"},
+        {"mssql", "MSSQL"},
+        {"oracle", "Oracle"},
+        {"sqlite3", "SQLite3"}};
 
     for (auto& connection: definedConnections)
     {
@@ -139,7 +136,7 @@ static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString
     }
 
     Strings excludePatterns;
-    for (const auto&[protocol, serverName]: excludeDrivers)
+    for (const auto& [protocol, serverName]: excludeDrivers)
     {
         excludePatterns.push_back("SPTK_" + serverName + "*.*");
     }

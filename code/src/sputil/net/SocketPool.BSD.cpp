@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,19 +25,19 @@
 */
 
 #include "sptk5/net/SocketPool.h"
-#include <sys/event.h>
+#include "sptk5/SystemException.h"
 #include <errno.h>
+#include <iostream>
+#include <signal.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <iostream>
-#include "sptk5/SystemException.h"
 
 using namespace std;
 using namespace sptk;
 
 SocketPool::SocketPool(SocketEventCallback eventsCallback)
-    : m_pool(INVALID_SOCKET), m_eventsCallback(eventsCallback)
+    : m_pool(INVALID_SOCKET)
+    , m_eventsCallback(eventsCallback)
 {
     open();
 }
@@ -89,10 +89,10 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
     scoped_lock lock(*this);
 
     int socketFD = socket.handle();
-    struct kevent* event = (struct kevent*) malloc(sizeof(struct kevent));
-    EV_SET(event, socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, userData);
+    auto event = make_shared<kevent>();
+    EV_SET(event.get(), socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, userData);
 
-    int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
+    int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
     if (rc == -1)
     {
         throw SystemException("Can't add socket to kqueue");
@@ -108,7 +108,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
         throw Exception("Socket is closed");
     }
 
-    struct kevent* event;
+    shared_ptr<kevent> event;
 
     {
         scoped_lock lock(*this);
@@ -119,22 +119,20 @@ void SocketPool::forgetSocket(BaseSocket& socket)
             return;
         }
 
-        event = (struct kevent*) itor->second;
+        event = itor->second;
         m_socketData.erase(itor);
     }
 
     int socketFD = socket.handle();
-    EV_SET(event, socketFD, 0, EV_DELETE, 0, 0, 0);
-    int rc = kevent(m_pool, event, 1, NULL, 0, NULL);
+    EV_SET(event.get(), socketFD, 0, EV_DELETE, 0, 0, 0);
+    int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
     if (rc == -1)
     {
         throw SystemException("Can't remove socket from kqueue");
     }
-
-    free(event);
 }
 
-#define MAXEVENTS 16
+constexpr int MAXEVENTS = 16;
 
 void SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 {

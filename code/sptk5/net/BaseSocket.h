@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,24 +27,24 @@
 #pragma once
 
 #include <chrono>
+#include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
-#include <sptk5/net/Host.h>
 #include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
+#include <sptk5/net/Host.h>
 
 #ifndef _WIN32
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <sys/time.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
 
 /**
  * A socket handle is an integer
@@ -64,6 +64,7 @@ using socklen_t = int;
 #else
 #include <winsock2.h>
 #include <ws2tcpip.h>
+
 #include <windows.h>
 using socklen_t = int;
 using SOCKET_ADDRESS_FAMILY = unsigned short;
@@ -88,12 +89,11 @@ public:
     /**
     * A mode to open a socket, one of
     */
-    enum class OpenMode
-        : uint8_t
+    enum class OpenMode : uint8_t
     {
-        CREATE,     ///< Only create (Typical UDP connectionless socket)
-        CONNECT,    ///< Connect (Typical TCP connection socket)
-        BIND        ///< Bind (TCP listener)
+        CREATE,  ///< Only create (Typical UDP connectionless socket)
+        CONNECT, ///< Connect (Typical TCP connection socket)
+        BIND     ///< Bind (TCP listener)
     };
 
     /**
@@ -134,6 +134,11 @@ public:
     BaseSocket(BaseSocket&& other) noexcept = default;
 
     /**
+     * @brief Destructor
+     */
+    virtual ~BaseSocket();
+
+    /**
      * Deleted copy assignment
      * @param other             Other socket
      */
@@ -149,7 +154,7 @@ public:
      * Set blocking mode
      * @param blocking          Socket blocking mode flag
      */
-    void blockingMode(bool blocking) const;
+    void blockingMode(bool blocking);
 
     /**
      * Returns number of bytes available in socket
@@ -173,14 +178,14 @@ public:
      * Sets the host name
      * @param host              The host
      */
-    void host(const Host& host) const;
+    void host(const Host& host);
 
     /**
      * Returns the host
      */
     [[nodiscard]] const Host& host() const
     {
-        return *m_host;
+        return m_host;
     }
 
     /**
@@ -255,7 +260,7 @@ public:
     void getOption(int level, int option, int& value) const;
 
     /**
-     * Reads data from the socket in regular or TLS mode
+     * Reads data from the socket in regular or SSL mode
      * @param buffer            The destination buffer
      * @param len              The destination buffer size
      * @returns the number of bytes read from the socket
@@ -274,7 +279,7 @@ public:
      * Reads data from the socket
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
-     * @param from              Optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
     [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
@@ -285,10 +290,10 @@ public:
      * Buffer bytes() is set to number of bytes read
      * @param buffer            The output buffer
      * @param size              The number of bytes to read
-     * @param from              An optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from);
 
     /**
      * Reads data from the socket into memory buffer
@@ -296,10 +301,10 @@ public:
      * Buffer bytes() is set to number of bytes read
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
-     * @param from              Optional structure for source address
+     * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from);
 
     /**
      * Writes data to the socket
@@ -307,26 +312,59 @@ public:
      * If size is omited then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
-     * @param peer              Optional peer information
+     * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const uint8_t* buffer, size_t size = size_t(-1), const sockaddr_in* peer = nullptr);
+    virtual size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer);
+
+    /**
+     * Writes data to the socket
+     *
+     * If size is omited then buffer is treated as zero-terminated string
+     * @param buffer            The memory buffer
+     * @param size              The memory buffer size
+     * @returns the number of bytes written to the socket
+     */
+    size_t write(const uint8_t* buffer, size_t size)
+    {
+        return write(buffer, size, nullptr);
+    }
 
     /**
      * Writes data to the socket
      * @param buffer            The memory buffer
-     * @param peer              Optional peer information
+     * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
+    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer);
 
     /**
      * Writes data to the socket
      * @param buffer            The memory buffer
-     * @param peer              Optional peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
+    size_t write(const Buffer& buffer)
+    {
+        return write(buffer, nullptr);
+    }
+
+    /**
+     * Writes data to the socket
+     * @param buffer            The memory buffer
+     * @param peer              The peer information
+     * @returns the number of bytes written to the socket
+     */
+    virtual size_t write(const String& buffer, const sockaddr_in* peer);
+
+    /**
+     * Writes data to the socket
+     * @param buffer            The memory buffer
+     * @returns the number of bytes written to the socket
+     */
+    size_t write(const String& buffer)
+    {
+        return write(buffer, nullptr);
+    }
 
     /**
      * Reports true if socket is ready for reading from it
@@ -340,14 +378,22 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
 
-protected:
+    /**
+     * @brief Return current blocking mode state
+     * @return Current blocking mode state
+     */
+    [[nodiscard]] bool blockingMode() const
+    {
+        return m_blockingMode;
+    }
 
+protected:
     /**
      * Set socket internal (OS) handle
      */
-    void setSocketFD(SOCKET fd)
+    void setSocketFD(SOCKET socket)
     {
-        m_sockfd = fd;
+        m_sockfd = socket;
     }
 
     /**
@@ -409,12 +455,12 @@ protected:
     }
 
 private:
-
-    SOCKET m_sockfd {INVALID_SOCKET};  ///< Socket internal (OS) handle
-    int32_t m_domain;                   ///< Socket domain type
-    int32_t m_type;                     ///< Socket type
-    int32_t m_protocol;                 ///< Socket protocol
-    SHost m_host;                     ///< Host
+    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t m_domain;                 ///< Socket domain type
+    int32_t m_type;                   ///< Socket type
+    int32_t m_protocol;               ///< Socket protocol
+    Host m_host;                      ///< Host
+    bool m_blockingMode {false};      ///< Blocking mode flag
 };
 
 /**
@@ -423,11 +469,11 @@ private:
  * @param file              Source file name
  * @param line              Source file line number
  */
-void throwSocketError(const String& message, const char* file, int line);
+SP_EXPORT void throwSocketError(const String& message, const char* file, int line);
 
-#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg,__FILE__,__LINE__)
+#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg, __FILE__, __LINE__)
 
 /**
  * @}
  */
-}
+} // namespace sptk

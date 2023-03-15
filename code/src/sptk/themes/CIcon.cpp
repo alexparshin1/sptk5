@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +27,11 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CIcon.h>
 
 #ifdef _WIN32
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 using namespace std;
@@ -87,16 +86,16 @@ void CIconMap::insert(CIcon* icon)
     }
 }
 
-void CIconMap::load(Tar& tar, xml::Node* iconsNode)
+void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
 {
-    for (auto node: *iconsNode)
+    for (auto node: iconsNode->nodes())
     {
         if (node->name() != "icon")
         {
             continue;
         }
-        String iconName = (String) node->getAttribute("name");
-        String fileName = (String) node->getAttribute("image");
+        String iconName = (String) node->attributes().get("name");
+        String fileName = (String) node->attributes().get("image");
         if (iconName.empty())
         {
             continue;
@@ -124,7 +123,7 @@ void CIconMap::load(Tar& tar, xml::Node* iconsNode)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }

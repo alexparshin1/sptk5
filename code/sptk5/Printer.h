@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,11 +25,23 @@
 */
 #pragma once
 
-#include <sptk5/String.h>
-#include <iostream>
-#include <sstream>
 #include <iomanip>
+#include <iostream>
+#include <sptk5/String.h>
+#include <sstream>
 
-#define COUT(a) { std::stringstream _printstream; _printstream << a; std::cout << _printstream.str().c_str(); }
-#define CERR(a) { std::stringstream _printstream; _printstream << a; std::cerr << _printstream.str().c_str(); }
+#define COUT(a)                                  \
+    do                                           \
+    {                                            \
+        std::stringstream _printstream;          \
+        _printstream << a;                       \
+        std::cout << _printstream.str().c_str(); \
+    } while (false)
 
+#define CERR(a)                                  \
+    do                                           \
+    {                                            \
+        std::stringstream _printstream;          \
+        _printstream << a;                       \
+        std::cerr << _printstream.str().c_str(); \
+    } while (false)

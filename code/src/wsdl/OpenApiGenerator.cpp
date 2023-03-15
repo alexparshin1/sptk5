@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,18 @@
 
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
-#include <sptk5/wsdl/OpenApiGenerator.h>
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
 OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
                                    const Strings& servers, const Options& options)
-    : m_title(title), m_description(description), m_version(version), m_servers(servers), m_options(options)
+    : m_title(title)
+    , m_description(description)
+    , m_version(version)
+    , m_servers(servers)
+    , m_options(options)
 {
 }
 
@@ -42,43 +46,43 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (const auto&[name, value]: m_options.operationsAuth)
+    for (const auto& [name, value]: m_options.operationsAuth)
     {
-        if (operations.find(name) == operations.end())
+        if (!operations.contains(name))
         {
             throw Exception("Alternative Auth operation '" + name + "' is not a part of this service");
         }
     }
 
-    json::Document document;
+    Document document;
 
-    document.root()["openapi"] = "3.0.0";
+    document.root()->set("openapi", "3.0.0");
 
     // Create info object
-    auto& info = *document.root().add_object("info");
-    info["title"] = m_title;
-    info["description"] = m_description;
-    info["version"] = m_version;
+    auto info = document.root()->pushNode("info");
+    info->set("title", m_title);
+    info->set("description", m_description);
+    info->set("version", m_version);
 
     createServers(document);
     createPaths(document, operations, documentation);
     createComponents(document, complexTypes);
 
-    document.exportTo(output);
+    document.root()->exportTo(DataFormat::JSON, output, true);
 }
 
-void OpenApiGenerator::createServers(json::Document& document) const
+void OpenApiGenerator::createServers(Document& document) const
 {
     // Create servers object
-    auto& servers = *document.root().add_array("servers");
-    for (auto& url: m_servers)
+    auto& servers = *document.root()->pushNode("servers");
+    for (const auto& url: m_servers)
     {
-        auto& server = *servers.push_object();
-        server["url"] = url;
+        const auto& server = servers.pushNode("", Node::Type::Object);
+        server->set("url", url);
     }
 }
 
-void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMap& operations,
+void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& operations,
                                    const map<String, String>& documentation) const
 {
     static const map<String, String> possibleResponses = {
@@ -89,11 +93,11 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
     };
 
     // Create paths object
-    auto& paths = *document.root().add_object("paths");
-    for (const auto&[operationName, operation]: operations)
+    const auto& paths = document.root()->pushNode("paths");
+    for (const auto& [operationName, operation]: operations)
     {
-        auto& operationElement = *paths.add_object("/" + operation.m_input->name());
-        auto& postElement = *operationElement.add_object("post");
+        const auto& operationElement = paths->pushNode("/" + operation.m_input->name(), Node::Type::Object);
+        const auto& postElement = operationElement->pushNode("post");
 
         // Define operation security
         AuthMethod authMethod;
@@ -109,62 +113,61 @@ void OpenApiGenerator::createPaths(json::Document& document, const WSOperationMa
         }
         if (authMethod != AuthMethod::NONE)
         {
-            auto& securityObject = *postElement.add_array("security");
-            auto& securityMechanism = *securityObject.push_object();
-            securityMechanism.add_array(authMethodName(authMethod));
+            const auto& securityObject = postElement->pushNode("security", Node::Type::Array);
+            const auto& securityMechanism = securityObject->pushNode("", Node::Type::Object);
+            securityMechanism->pushNode(authMethodName(authMethod), Node::Type::Array);
         }
 
         if (auto dtor = documentation.find(operation.m_input->name());
             dtor != documentation.end())
         {
-            postElement["summary"] = dtor->second;
+            postElement->set("summary", dtor->second);
         }
 
-        postElement["operationId"] = operationName;
+        postElement->set("operationId", operationName);
 
-        auto& requestBody = *postElement.add_object("requestBody");
-        auto& content = *requestBody.add_object("content");
-        auto& data = *content.add_object("application/json");
-        auto& schema = *data.add_object("schema");
-        schema["$ref"] = "#/components/schemas/" + operation.m_input->name();
+        const auto& requestBody = postElement->pushNode("requestBody", Node::Type::Object);
+        const auto& content = requestBody->pushNode("content", Node::Type::Object);
+        const auto& data = content->pushNode("application/json", Node::Type::Object);
+        const auto& schema = data->pushNode("schema", Node::Type::Object);
+        String ref = "#/components/schemas/" + operation.m_input->name();
+        schema->set("$ref", ref);
 
-        auto& responsesElement = *postElement.add_object("responses");
-        for (const auto&[name, description]: possibleResponses)
+        const auto& responsesElement = postElement->pushNode("responses", Node::Type::Object);
+        for (const auto& [name, description]: possibleResponses)
         {
-            auto& response = *responsesElement.add_object(name);
-            response["description"] = description;
+            const auto& response = responsesElement->pushNode(name, Node::Type::Object);
+            response->set("description", description);
         }
     }
 }
 
-void OpenApiGenerator::createComponents(json::Document& document, const WSComplexTypeMap& complexTypes) const
+void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeMap& complexTypes) const
 {
-    struct OpenApiType
-    {
+    struct OpenApiType {
         String type;
         String format;
     };
 
     static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
-        {"string",   {"string",  ""}},
-        {"datetime", {"string",  "date-time"}},
-        {"bool",     {"boolean", ""}},
-        {"integer",  {"integer", "int64"}},
-        {"double",   {"number",  "double"}}
-    };
+        {"string", {"string", ""}},
+        {"datetime", {"string", "date-time"}},
+        {"bool", {"boolean", ""}},
+        {"integer", {"integer", "int64"}},
+        {"double", {"number", "double"}}};
 
     // Create components object
-    auto& components = *document.root().add_object("components");
-    auto& schemas = *components.add_object("schemas");
-    for (const auto&[complexTypeName, complexTypeInfo]: complexTypes)
+    const auto& components = document.root()->pushNode("components", Node::Type::Object);
+    const auto& schemas = components->pushNode("schemas", Node::Type::Object);
+    for (const auto& [complexTypeName, complexTypeInfo]: complexTypes)
     {
-        auto& complexType = *schemas.add_object(complexTypeInfo->name());
-        complexType["type"] = "object";
-        auto& properties = *complexType.add_object("properties");
+        const auto& complexType = schemas->pushNode(complexTypeInfo->name(), Node::Type::Object);
+        complexType->set("type", "object");
+        const auto& properties = complexType->pushNode("properties", Node::Type::Object);
         Strings requiredProperties;
-        for (auto ctypeProperty: complexTypeInfo->sequence())
+        for (const auto& ctypeProperty: complexTypeInfo->sequence())
         {
-            auto& property = *properties.add_object(ctypeProperty->name());
+            const auto& property = properties->pushNode(ctypeProperty->name(), Node::Type::Object);
             parseClassName(ctypeProperty, property);
 
             if (ctypeProperty->multiplicity() != WSMultiplicity::ZERO_OR_ONE)
@@ -176,41 +179,41 @@ void OpenApiGenerator::createComponents(json::Document& document, const WSComple
         }
         if (!requiredProperties.empty())
         {
-            auto& required = *complexType.add_array("required");
+            const auto& required = complexType->pushNode("required", Node::Type::Array);
             for (const auto& property: requiredProperties)
             {
-                required.push_back(property);
+                const auto& element = required->pushNode("", Node::Type::Text);
+                element->set(property);
             }
         }
     }
 
-    auto& securitySchemas = *components.add_object("securitySchemes");
+    const auto& securitySchemas = components->pushNode("securitySchemes");
+    const auto& basicAuth = securitySchemas->pushNode("basicAuth",
+                                                      Node::Type::Object); // arbitrary name for the security scheme
+    basicAuth->set("type", "http");
+    basicAuth->set("scheme", "basic");
 
-    auto& basicAuth = *securitySchemas.add_object("basicAuth"); // arbitrary name for the security scheme
-    basicAuth["type"] = "http";
-    basicAuth["scheme"] = "basic";
-
-    auto& bearerAuth = *securitySchemas.add_object("bearerAuth"); // arbitrary name for the security scheme
-    bearerAuth["type"] = "http";
-    bearerAuth["scheme"] = "bearer";
-    bearerAuth["bearerFormat"] = "JWT"; // optional, arbitrary value for documentation purposes
+    const auto& bearerAuth = securitySchemas->pushNode("bearerAuth",
+                                                       Node::Type::Object); // arbitrary name for the security scheme
+    bearerAuth->set("type", "http");
+    bearerAuth->set("scheme", "bearer");
+    bearerAuth->set("bearerFormat", "JWT"); // optional, arbitrary value for documentation purposes
 }
 
-void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, const SNode& property) const
 {
-    struct OpenApiType
-    {
+    struct OpenApiType {
         String type;
         String format;
     };
 
     static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
-        {"string",   {"string",  ""}},
-        {"datetime", {"string",  "date-time"}},
-        {"bool",     {"boolean", ""}},
-        {"integer",  {"integer", "int64"}},
-        {"double",   {"number",  "double"}}
-    };
+        {"string", {"string", ""}},
+        {"datetime", {"string", "date-time"}},
+        {"bool", {"boolean", ""}},
+        {"integer", {"integer", "int64"}},
+        {"double", {"number", "double"}}};
 
     auto className = ctypeProperty->className();
     if (className.startsWith("sptk::WS"))
@@ -219,10 +222,10 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
         auto ttor = wsTypesToOpenApiTypes.find(className);
         if (ttor != wsTypesToOpenApiTypes.end())
         {
-            property["type"] = ttor->second.type;
+            property->set("type", ttor->second.type);
             if (!ttor->second.format.empty())
             {
-                property["format"] = ttor->second.format;
+                property->set("format", ttor->second.format);
             }
         }
     }
@@ -232,18 +235,18 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
         if ((int) ctypeProperty->multiplicity() &
             ((int) WSMultiplicity::ZERO_OR_MORE | (int) WSMultiplicity::ONE_OR_MORE))
         { //array
-            property["type"] = "array";
-            auto& items = *property.add_object("items");
-            items["$ref"] = className;
+            property->set("type", "array");
+            const auto& items = property->pushNode("items");
+            items->set("$ref", className);
         }
         else
         {
-            property["$ref"] = className;
+            property->set("$ref", className);
         }
     }
 }
 
-void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, json::Element& property) const
+void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, const SNode& property) const
 {
     auto restriction = ctypeProperty->restriction();
     if (restriction)
@@ -254,28 +257,29 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
         }
         else if (!restriction->enumeration().empty())
         {
-            auto& enumArray = *property.add_array("enum");
+            const auto& enumArray = property->pushNode("enum", Node::Type::Array);
             for (const auto& str: restriction->enumeration())
             {
-                enumArray.push_back(str);
+                const auto& element = enumArray->pushNode("", Node::Type::Text);
+                element->set(str);
             }
         }
     }
 }
 
-void OpenApiGenerator::parseRestrictionPatterns(json::Element& property, const SWSRestriction& restriction) const
+void OpenApiGenerator::parseRestrictionPatterns(const SNode& property, const SWSRestriction& restriction) const
 {
     if (restriction->patterns().size() == 1)
     {
-        property["pattern"] = restriction->patterns()[0].pattern();
+        property->set("pattern", restriction->patterns()[0].pattern());
     }
     else
     {
-        auto& oneOf = *property.add_array("oneOf");
+        const auto& oneOf = property->pushNode("oneOf", Node::Type::Array);
         for (const auto& regex: restriction->patterns())
         {
-            auto& patternElement = *oneOf.push_object();
-            patternElement["pattern"] = regex.pattern();
+            const auto& patternElement = oneOf->pushNode("", Node::Type::Object);
+            patternElement->set("pattern", regex.pattern());
         }
     }
 }

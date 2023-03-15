@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,13 +45,14 @@ CPhoneNumberInput::CPhoneNumberInput(const char* label, int layoutSize, CLayoutA
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CPhoneNumberInput::CPhoneNumberInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label) {
+CPhoneNumberInput::CPhoneNumberInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label)
+{
     ctor_init();
 }
 #endif
 
-CLayoutClient* CPhoneNumberInput::creator(xml::Node* node)
+CLayoutClient* CPhoneNumberInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CPhoneNumberInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

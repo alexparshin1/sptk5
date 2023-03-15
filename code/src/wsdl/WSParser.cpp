@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,19 +24,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iomanip>
-#include <sptk5/cutils>
-#include <sptk5/wsdl/SourceModule.h>
-#include <sptk5/wsdl/WSParser.h>
-#include <sptk5/wsdl/WSMessageIndex.h>
+#include <sptk5/Printer.h>
 #include <sptk5/wsdl/OpenApiGenerator.h>
+#include <sptk5/wsdl/SourceModule.h>
+#include <sptk5/wsdl/WSMessageIndex.h>
+#include <sptk5/wsdl/WSParser.h>
+
+#include <fstream>
 
 using namespace std;
 using namespace sptk;
 
 static void replaceFile(const String& fileName, const stringstream& fileData)
 {
-    String str = fileData.str();
+    const String str = fileData.str();
     Buffer newData(fileData.str());
     if (newData.empty())
     {
@@ -65,12 +66,12 @@ void WSParser::clear()
     m_complexTypeIndex.clear();
 }
 
-void WSParser::parseElement(const xml::Element* elementNode)
+void WSParser::parseElement(const xdoc::SNode& elementNode)
 {
-    auto elementName = (String) elementNode->getAttribute("name");
-    auto elementType = (String) elementNode->getAttribute("type");
+    auto elementName = elementNode->attributes().get("name");
+    auto elementType = elementNode->attributes().get("type");
 
-    if (size_t namespacePos = elementType.find(':');
+    if (const size_t namespacePos = elementType.find(':');
         namespacePos != string::npos)
     {
         elementType = elementType.substr(namespacePos + 1);
@@ -92,9 +93,9 @@ void WSParser::parseElement(const xml::Element* elementNode)
     }
 }
 
-void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
+void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 {
-    auto simpleTypeName = (String) simpleTypeElement->getAttribute("name");
+    auto simpleTypeName = simpleTypeElement->attributes().get("name");
     if (simpleTypeName.empty())
     {
         return;
@@ -103,29 +104,31 @@ void WSParser::parseSimpleType(const xml::Element* simpleTypeElement)
     simpleTypeName = "tns:" + simpleTypeName;
 
     if (WSParserComplexType::findSimpleType(simpleTypeName))
-    throwException("Duplicate simpleType definition: " << simpleTypeName)
+    {
+        throwException<Exception>("Duplicate simpleType definition: " + simpleTypeName);
+    }
 
     WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
 }
 
-void WSParser::parseComplexType(const xml::Element* complexTypeElement)
+void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
 {
-    auto complexTypeName = (String) complexTypeElement->getAttribute("name");
+    auto complexTypeName = complexTypeElement->attributes().get("name");
     if (complexTypeName.empty())
     {
-        complexTypeName = (String) complexTypeElement->parent()->getAttribute("name");
+        complexTypeName = complexTypeElement->parent()->attributes().get("name");
     }
 
     if (complexTypeName.empty())
     {
-        const xml::Node* parent = complexTypeElement->parent();
-        complexTypeName = (String) parent->getAttribute("name");
+        const auto& parent = complexTypeElement->parent();
+        complexTypeName = parent->attributes().get("name");
     }
 
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
-        complexTypes.find(complexTypeName) != complexTypes.end())
+        complexTypes.contains(complexTypeName))
     {
-        throwException("Duplicate complexType definition: " << complexTypeName)
+        throwException<Exception>("Duplicate complexType definition: " + complexTypeName);
     }
 
     auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
@@ -133,46 +136,41 @@ void WSParser::parseComplexType(const xml::Element* complexTypeElement)
     complexType->parse();
 }
 
-void WSParser::parseOperation(const xml::Element* operationNode)
+void WSParser::parseOperation(const xdoc::SNode& operationNode)
 {
-    xml::NodeVector messageNodes;
-    operationNode->document()->select(messageNodes, "//wsdl:message");
+    auto document = operationNode;
+    while (document->parent())
+    {
+        document = document->parent();
+    }
+
+    const xdoc::Node::Vector messageNodes = document->select("//wsdl:message");
 
     map<String, String> messageToElementMap;
-    for (auto* node: messageNodes)
+    for (const auto& message: messageNodes)
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
-        {
-            throw Exception("The node " + node->name() + " is not an XML element");
-        }
-        const auto* message = dynamic_cast<xml::Element*>(node);
-        const auto* part = message->findFirst("wsdl:part");
-        auto messageName = (String) message->getAttribute("name");
-        auto elementName = strip_namespace((String) part->getAttribute("element"));
+        const auto part = message->findFirst("wsdl:part");
+        auto messageName = message->attributes().get("name");
+        auto elementName = strip_namespace(part->attributes().get("element"));
         messageToElementMap[messageName] = elementName;
-        const auto* documentationNode = part->findFirst("wsdl:documentation");
+        const auto documentationNode = part->findFirst("wsdl:documentation");
         if (documentationNode != nullptr)
         {
-            m_documentation[elementName] = documentationNode->text().trim();
+            m_documentation[elementName] = documentationNode->getText().trim();
         }
     }
 
     WSOperation operation = {};
     bool found = false;
-    for (const auto* node: *operationNode)
+    for (const auto& element: operationNode->nodes())
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
-        {
-            throw Exception("The node " + node->name() + " is not an XML element");
-        }
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        auto message = (String) element->getAttribute("message");
-        if (size_t pos = message.find(':');
+        auto message = element->attributes().get("message");
+        if (const size_t pos = message.find(':');
             pos != string::npos)
         {
             message = message.substr(pos + 1);
         }
-        auto elementName = messageToElementMap[message];
+        const auto& elementName = messageToElementMap[message];
         if (element->name() == "wsdl:input")
         {
             operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
@@ -189,41 +187,34 @@ void WSParser::parseOperation(const xml::Element* operationNode)
 
     if (found)
     {
-        auto operationName = (String) operationNode->getAttribute("name");
+        auto operationName = operationNode->attributes().get("name");
         m_operations[operationName] = operation;
     }
 }
 
-void WSParser::parseSchema(xml::Element* schemaElement)
+void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    xml::NodeVector simpleTypeNodes;
-    schemaElement->select(simpleTypeNodes, "//xsd:simpleType");
-
-    for (const auto* node: simpleTypeNodes)
+    for (const auto simpleTypeNodes = schemaElement->select("//xsd:simpleType");
+         const auto& element: simpleTypeNodes)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element != nullptr && element->name() == "xsd:simpleType")
+        if (element->name() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
     }
 
-    xml::NodeVector complexTypeNodes;
-    schemaElement->select(complexTypeNodes, "//xsd:complexType");
-
-    for (const auto* node: complexTypeNodes)
+    for (auto complexTypeNodes = schemaElement->select("//xsd:complexType");
+         auto& element: complexTypeNodes)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element != nullptr && element->name() == "xsd:complexType")
+        if (element->name() == "xsd:complexType")
         {
             parseComplexType(element);
         }
     }
 
-    for (const auto* node: *schemaElement)
+    for (const auto& element: schemaElement->nodes())
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
-        if (element != nullptr && element->name() == "xsd:element")
+        if (element->name() == "xsd:element")
         {
             parseElement(element);
         }
@@ -232,41 +223,43 @@ void WSParser::parseSchema(xml::Element* schemaElement)
 
 void WSParser::parse(const filesystem::path& wsdlFile)
 {
-    m_wsdlFile = wsdlFile;
+    m_wsdlFile = wsdlFile.string();
 
-    xml::Document wsdlXML;
+    xdoc::Document wsdlXML;
     Buffer buffer;
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
-    const auto* service = (xml::Element*) wsdlXML.findFirst("wsdl:service");
-    m_serviceName = (String) service->getAttribute("name");
+    const auto service = wsdlXML.root()->findFirst("wsdl:service");
+    m_serviceName = service->attributes().get("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
-    if (const auto* address = service->findFirst("soap:address");
+    if (const auto address = service->findFirst("soap:address");
         address != nullptr)
     {
-        m_location = (String) address->getAttribute("location");
+        m_location = address->attributes().get("location");
     }
 
-    auto* schemaElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("xsd:schema"));
+    auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
-    throwException("Can't find xsd:schema element")
+        throwException<Exception>("Can't find xsd:schema element");
+
     parseSchema(schemaElement);
 
-    const auto* portElement = dynamic_cast<xml::Element*>(wsdlXML.findFirst("wsdl:portType"));
+    auto portElement = wsdlXML.root()->findFirst("wsdl:portType");
     if (portElement == nullptr)
-    throwException("Can't find wsdl:portType element")
-
-    if (const auto* descriptionElement = portElement->findFirst("wsdl:documentation");
-        descriptionElement != nullptr)
     {
-        m_description = descriptionElement->text();
+        throwException<Exception>("Can't find wsdl:portType element");
     }
 
-    for (const auto* node: *portElement)
+    if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
+        descriptionElement != nullptr)
     {
-        const auto* element = dynamic_cast<const xml::Element*>(node);
+        m_description = descriptionElement->getText();
+    }
+
+    for (const auto& element: portElement->nodes())
+    {
         if (element != nullptr && element->name() == "wsdl:operation")
         {
             parseOperation(element);
@@ -277,16 +270,16 @@ void WSParser::parse(const filesystem::path& wsdlFile)
 String capitalize(const String& name)
 {
     Strings parts(lowerCase(name), "_");
-    for (auto& part : parts)
+    for (auto& part: parts)
     {
         part[0] = (char) toupper(part[0]);
     }
     return parts.join("");
 }
 
-string WSParser::strip_namespace(const string& name)
+String WSParser::strip_namespace(const String& name)
 {
-    size_t pos = name.find(':');
+    const size_t pos = name.find(':');
     if (pos == string::npos)
     {
         return name;
@@ -294,9 +287,9 @@ string WSParser::strip_namespace(const string& name)
     return name.substr(pos + 1);
 }
 
-string WSParser::get_namespace(const string& name)
+String WSParser::get_namespace(const String& name)
 {
-    size_t pos = name.find(':');
+    const size_t pos = name.find(':');
     if (pos == string::npos)
     {
         return name;
@@ -306,16 +299,17 @@ string WSParser::get_namespace(const string& name)
 
 void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDefinition)
 {
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
-    string defineName = "__" + upperCase(serviceClassName) + "__";
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
-    serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl << endl;
-    serviceDefinition << "#ifndef " << defineName << endl;
-    serviceDefinition << "#define " << defineName << endl << endl;
+    serviceDefinition << "// Web Service " << m_serviceName << " definition" << endl
+                      << endl;
+    serviceDefinition << "#pragma once" << endl;
 
-    serviceDefinition << "#include \"" << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
+    serviceDefinition << "#include \""
+                      << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     serviceDefinition << "#include <sptk5/wsdl/WSRequest.h>" << endl;
-    serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl << endl;
+    serviceDefinition << "#include <sptk5/net/HttpAuthentication.h>" << endl
+                      << endl;
 
     serviceDefinition << "// This Web Service types" << endl;
     for (const auto& usedClass: usedClasses)
@@ -324,7 +318,8 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     }
     serviceDefinition << endl;
 
-    serviceDefinition << "namespace " << m_serviceNamespace << " {" << endl << endl;
+    serviceDefinition << "namespace " << m_serviceNamespace << " {" << endl
+                      << endl;
 
     serviceDefinition << "/**" << endl;
     serviceDefinition << " * Base class for service method." << endl;
@@ -339,17 +334,19 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "     * Constructor" << endl;
     serviceDefinition << "     * @param logEngine        Optional log engine for error messages" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);" << endl << endl;
+    serviceDefinition << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);" << endl
+                      << endl;
 
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * Destructor" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl << endl;
+    serviceDefinition << "    ~" << serviceClassName << "() override = default;" << endl
+                      << endl;
 
     serviceDefinition << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     serviceDefinition << "    // Application must overwrite these methods with processing of corresponding" << endl;
     serviceDefinition << "    // requests, reading data from input and writing data to output structures." << endl;
-    for (const auto&[name, operation]: m_operations)
+    for (const auto& [name, operation]: m_operations)
     {
         serviceDefinition << endl;
         serviceDefinition << "    /**" << endl;
@@ -358,7 +355,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         if (auto documentation = m_documentation[operation.m_input->name()];
             !documentation.empty())
         {
-            Strings documentationRows(documentation, "\n");
+            const Strings documentationRows(documentation, "\n");
             for (const auto& row: documentationRows)
             {
                 serviceDefinition << "     * " << trim(row) << endl;
@@ -379,12 +376,14 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
     serviceDefinition << "    /**" << endl;
     serviceDefinition << "     * @return original WSDL file content" << endl;
     serviceDefinition << "     */" << endl;
-    serviceDefinition << "    sptk::String wsdl() const override;" << endl << endl;
+    serviceDefinition << "    sptk::String wsdl() const override;" << endl
+                      << endl;
 
-    serviceDefinition << "private:" << endl << endl;
-    for (const auto&[name, operation]: m_operations)
+    serviceDefinition << "private:" << endl
+                      << endl;
+    for (const auto& [name, operation]: m_operations)
     {
-        string requestName = strip_namespace(operation.m_input->name());
+        auto requestName = strip_namespace(operation.m_input->name());
         serviceDefinition << "    /**" << endl;
         serviceDefinition << "     * Internal Web Service " << requestName << " processing" << endl;
         serviceDefinition << "     * @param requestNode      Operation input/output XML data" << endl;
@@ -392,100 +391,117 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition << "     * @param requestNameSpace Request SOAP element namespace" << endl;
         serviceDefinition << "     */" << endl;
         serviceDefinition << "    void process_" << requestName
-                          << "(sptk::xml::Element* xmlContent, sptk::json::Element* jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
-                          << endl << endl;
+                          << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
+                          << endl
+                          << endl;
     }
-    serviceDefinition << "};" << endl << endl;
+    serviceDefinition << "};" << endl
+                      << endl;
     serviceDefinition << "using S"
                       << capitalize(m_serviceName) + "ServiceBase = "
                       << "std::shared_ptr<" << serviceClassName << ">;"
-                      << endl << endl;
-    serviceDefinition << "}" << endl << endl;
-    serviceDefinition << "#endif" << endl;
+                      << endl
+                      << endl;
+    serviceDefinition << "}" << endl;
 }
 
 void WSParser::generateImplementation(ostream& serviceImplementation) const
 {
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (const auto&[name, operation]: m_operations)
+    for (const auto& [name, operation]: m_operations)
     {
-        String requestName = strip_namespace(operation.m_input->name());
+        const String requestName = strip_namespace(operation.m_input->name());
         serviceOperations.push_back(requestName);
     }
-    String operationNames = serviceOperations.join("|");
-    WSMessageIndex serviceOperationsIndex(serviceOperations);
+    const String operationNames = serviceOperations.join("|");
+    const WSMessageIndex serviceOperationsIndex(serviceOperations);
 
     serviceImplementation << "#include \"" << serviceClassName << ".h\"" << endl;
     serviceImplementation << "#include <sptk5/wsdl/WSParser.h>" << endl;
     serviceImplementation << "#include <sptk5/wsdl/WSMessageIndex.h>" << endl;
     serviceImplementation << "#include <functional>" << endl;
-    serviceImplementation << "#include <set>" << endl << endl;
+    serviceImplementation << "#include <set>" << endl
+                          << endl;
 
     serviceImplementation << "using namespace std;" << endl;
     serviceImplementation << "using namespace placeholders;" << endl;
     serviceImplementation << "using namespace sptk;" << endl;
-    serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl << endl;
+    serviceImplementation << "using namespace " << m_serviceNamespace << ";" << endl
+                          << endl;
 
     serviceImplementation << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
     serviceImplementation << ": WSRequest(logEngine)" << endl;
     serviceImplementation << "{" << endl;
-    serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl;
-    for (const auto&[name, operation]: m_operations)
+    serviceImplementation << "    map<String, RequestMethod> requestMethods {" << endl
+                          << endl;
+    auto lastOperationName = m_operations.rbegin()->first;
+    for (const auto& [name, operation]: m_operations)
     {
-        string requestName = strip_namespace(operation.m_input->name());
-        serviceImplementation << "        {\"" << requestName << "\", "
-                              << "bind(&" << serviceClassName << "::process_" << requestName
-                              << ", this, _1, _2, _3, _4)}," << endl;
+        auto requestName = strip_namespace(operation.m_input->name());
+        auto inputType = "C" + operation.m_input->name();
+        auto outputType = "C" + operation.m_output->name();
+        serviceImplementation << "        {\"" << requestName << "\", " << endl
+                              << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
+                              << "            {" << endl
+                              << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);" << endl
+                              << "            }}";
+        if (name != lastOperationName)
+        {
+            serviceImplementation << ",";
+        }
+        serviceImplementation << endl
+                              << endl;
     }
     serviceImplementation << "    };" << endl;
-    serviceImplementation << "    setRequestMethods(move(requestMethods));" << endl;
-    serviceImplementation << "}" << endl << endl;
+    serviceImplementation << "    setRequestMethods(std::move(requestMethods));" << endl;
+    serviceImplementation << "}" << endl
+                          << endl;
 
-    serviceImplementation << endl <<
-                          "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(xml::Element* requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
-                          "{\n"
-                          "   const String requestName = wsTypeIdToName(typeid(InputData).name());\n"
-                          "   const String responseName = wsTypeIdToName(typeid(OutputData).name());\n"
-                          "   String ns(requestNameSpace.getAlias());\n"
-                          "   InputData inputData((ns + \":\" + requestName).c_str());\n"
-                          "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
-                          "   try {\n"
-                          "      inputData.load(requestNode);\n"
-                          "   }"
-                          "   catch (const Exception& e) {\n"
-                          "      // Can't parse input data\n"
-                          "      throw HTTPException(400, e.what());\n"
-                          "   }\n"
-                          "   auto* soapBody = (xml::Element*) requestNode->parent();\n"
-                          "   soapBody->clearChildren();\n"
-                          "   method(inputData, outputData, authentication);\n"
-                          "   auto* response = new xml::Element(soapBody, (ns + \":\" + responseName).c_str());\n"
-                          "   response->setAttribute(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
-                          "   outputData.unload(response);\n"
-                          "}\n\n"
+    serviceImplementation << endl
+                          << "template <class InputData, class OutputData>\n"
+                             "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+                             "{\n"
+                             "   const String requestName = InputData::classId();\n"
+                             "   const String responseName = OutputData::classId();\n"
+                             "   String ns(requestNameSpace.getAlias());\n"
+                             "   InputData inputData((ns + \":\" + requestName).c_str());\n"
+                             "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
+                             "   try {\n"
+                             "      inputData.load(requestNode);\n"
+                             "   }"
+                             "   catch (const Exception& e) {\n"
+                             "      // Can't parse input data\n"
+                             "      throw HTTPException(400, e.what());\n"
+                             "   }\n"
+                             "   const auto& soapBody = requestNode->parent();\n"
+                             "   soapBody->clearChildren();\n"
+                             "   method(inputData, outputData, authentication);\n"
+                             "   auto& response = soapBody->pushNode(ns + \":\" + responseName);\n"
+                             "   response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
+                             "   outputData.unload(response);\n"
+                             "}\n\n"
 
-                          "template <class InputData, class OutputData>\n"
-                          "void processAnyRequest(json::Element* request, HttpAuthentication* authentication,\n"
-                          "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
-                          "{\n"
-                          "   InputData inputData;\n"
-                          "   OutputData outputData;\n"
-                          "   try {\n"
-                          "      inputData.load(request);\n"
-                          "   }\n"
-                          "   catch (const Exception& e) {\n"
-                          "      // Can't parse input data\n"
-                          "      throw HTTPException(400, e.what());\n"
-                          "   }\n"
-                          "   method(inputData, outputData, authentication);\n"
-                          "   request->clear();\n"
-                          "   outputData.unload(request);\n"
-                          "}\n\n";
+                             "template <class InputData, class OutputData>\n"
+                             "void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentication,\n"
+                             "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
+                             "{\n"
+                             "   InputData inputData;\n"
+                             "   OutputData outputData;\n"
+                             "   try {\n"
+                             "      inputData.load(request);\n"
+                             "   }\n"
+                             "   catch (const Exception& e) {\n"
+                             "      // Can't parse input data\n"
+                             "      throw HTTPException(400, e.what());\n"
+                             "   }\n"
+                             "   method(inputData, outputData, authentication);\n"
+                             "   request->clear();\n"
+                             "   outputData.unload(request);\n"
+                             "}\n\n";
 
-    for (const auto&[operationName, operation]: m_operations)
+    for (const auto& [operationName, operation]: m_operations)
     {
         Strings nameParts(operation.m_input->name(), ":");
         String requestName;
@@ -499,21 +515,24 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         }
         serviceImplementation << endl;
         serviceImplementation << "void " << serviceClassName << "::process_" << requestName
-                              << "(xml::Element* xmlNode, json::Element* jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
+                              << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
                               << endl;
 
         auto inputType = "C" + operation.m_input->name();
         auto outputType = "C" + operation.m_output->name();
         serviceImplementation << "{\n"
-                              << "  function<void(const " << inputType << "&, " << outputType
-                              << "&, HttpAuthentication*)>"
-                              << " method = bind(&" + serviceClassName + "::" << operationName
-                              << ", this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);\n"
-                              << "  if (xmlNode)\n"
-                              << "     processAnyRequest<" << inputType << "," << outputType
+                              << "    function<void(const " << inputType << "&, " << outputType
+                              << "&, HttpAuthentication*)> method = " << endl
+                              << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
+                              << "        {" << endl
+                              << "            " << operationName << "(request, response, auth);" << endl
+                              << "        };" << endl
+                              << endl
+                              << "    if (xmlNode)\n"
+                              << "        processAnyRequest<" << inputType << "," << outputType
                               << ">(xmlNode, authentication, requestNameSpace, method);\n"
-                              << "  else\n"
-                              << "     processAnyRequest<" << inputType << "," << outputType
+                              << "    else\n"
+                              << "        processAnyRequest<" << inputType << "," << outputType
                               << ">(jsonNode, authentication, method);\n"
                               << "}\n";
     }
@@ -546,23 +565,26 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         externalHeader.set("");
     }
 
-    string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
+    const String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
-    COUT("Creating service class " << serviceClassName)
+    {
+        COUT("Creating service class " << serviceClassName);
+    }
 
     stringstream cmakeLists;
     cmakeLists << "# The following list of files is generated automatically." << endl;
-    cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl << endl;
+    cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl
+               << endl;
     cmakeLists << "SET (" << m_serviceName << "_files" << endl;
     cmakeLists << "  " << sourceDirectory << "/" << serviceClassName << ".cpp "
                << sourceDirectory << "/" << serviceClassName << ".h" << endl;
 
-    String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    const String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
     cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
     Strings usedClasses;
-    for (const auto&[name, complexType]: m_complexTypeIndex.complexTypes())
+    for (const auto& [name, complexType]: m_complexTypeIndex.complexTypes())
     {
         SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
         sourceModule.open();
@@ -592,7 +614,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
-    OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
+    const OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
     auto openApiFileName = options.openApiFile;
     if (openApiFileName.empty())
     {
@@ -601,7 +623,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     if (verbose)
     {
-        COUT("Creating OpenAPI file " << openApiFileName)
+        COUT("Creating OpenAPI file " << openApiFileName);
     }
 
     ofstream openApiFile(openApiFileName);
@@ -610,7 +632,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 }
 
 void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile,
-                               const fs::path& _wsdlFileName) const
+                               const filesystem::path& _wsdlFileName) const
 {
     Strings wsdl;
     wsdl.loadFromFile(_wsdlFileName);
@@ -621,18 +643,22 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
         externalHeader.loadFromFile(headerFile.c_str());
     }
 
-    String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
-    String wsdlFileName = sourceDirectory + "/" + baseFileName;
+    const String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    const String wsdlFileName = sourceDirectory + "/" + baseFileName;
 
     stringstream wsdlHeader;
     wsdlHeader << externalHeader.c_str() << endl;
     wsdlHeader << "#pragma once" << endl;
-    wsdlHeader << endl << "#include <sptk5/Strings.h>" << endl;
-    wsdlHeader << endl << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl << endl;
+    wsdlHeader << endl
+               << "#include <sptk5/Strings.h>" << endl;
+    wsdlHeader << endl
+               << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl
+               << endl;
 
     stringstream wsdlCxx;
     wsdlCxx << externalHeader.c_str() << endl;
-    wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl << endl;
+    wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl
+            << endl;
     wsdlCxx << "const sptk::Strings " << m_serviceName << "_wsdl {" << endl;
 
     for (auto row = wsdl.begin(); row != wsdl.end(); ++row)

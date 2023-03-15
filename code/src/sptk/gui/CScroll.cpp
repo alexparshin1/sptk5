@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,8 @@
 #include <FL/Fl.H>
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CScroll.h>
 
 using namespace std;
@@ -52,25 +52,26 @@ void CScroll::ctor_init()
 }
 
 CScroll::CScroll(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
-    : Fl_Group(0, 0, layoutSize, layoutSize, label),
-      CLayoutManager(this, layoutSize, layoutAlignment),
-      scrollbar(layoutSize - SLIDER_WIDTH, 0, SLIDER_WIDTH, layoutSize - SLIDER_WIDTH),
-      hscrollbar(0, layoutSize - SLIDER_WIDTH, layoutSize - SLIDER_WIDTH, SLIDER_WIDTH)
+    : Fl_Group(0, 0, layoutSize, layoutSize, label)
+    , CLayoutManager(this, layoutSize, layoutAlignment)
+    , scrollbar(layoutSize - SLIDER_WIDTH, 0, SLIDER_WIDTH, layoutSize - SLIDER_WIDTH)
+    , hscrollbar(0, layoutSize - SLIDER_WIDTH, layoutSize - SLIDER_WIDTH, SLIDER_WIDTH)
 {
     ctor_init();
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CScroll::CScroll(int x,int y,int w,int h,const char *l)
-        : Fl_Group(x,y,w,h,l),
-        CLayoutManager(this,w,CLayoutAlign::NONE),
-        scrollbar(x+w-SLIDER_WIDTH,y,SLIDER_WIDTH,h-SLIDER_WIDTH),
-hscrollbar(x,y+h-SLIDER_WIDTH,w-SLIDER_WIDTH,SLIDER_WIDTH) {
+CScroll::CScroll(int x, int y, int w, int h, const char* l)
+    : Fl_Group(x, y, w, h, l)
+    , CLayoutManager(this, w, CLayoutAlign::NONE)
+    , scrollbar(x + w - SLIDER_WIDTH, y, SLIDER_WIDTH, h - SLIDER_WIDTH)
+    , hscrollbar(x, y + h - SLIDER_WIDTH, w - SLIDER_WIDTH, SLIDER_WIDTH)
+{
     ctor_init();
 }
 #endif
 
-CLayoutClient* CScroll::creator(xml::Node* node)
+CLayoutClient* CScroll::creator(const xdoc::SNode& node)
 {
     auto* widget = new CScroll("", 10, CLayoutAlign::TOP);
     widget->loadLayout(node, CLayoutXMLmode::LAYOUTDATA);

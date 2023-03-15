@@ -4,7 +4,7 @@
 ║                       list_view.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,9 +37,9 @@
 
 using namespace sptk;
 
-#define ROWS_AUTO_HEIGHT    1
-#define SHOW_GRID           2
-#define SHOW_STRIPES        4
+#define ROWS_AUTO_HEIGHT 1
+#define SHOW_GRID 2
+#define SHOW_STRIPES 4
 
 CDBListView* lView;
 CCheckButton* showGridCheckButton;
@@ -103,8 +103,7 @@ int main(int argc, char** argv)
     DateTime end = DateTime::Now();
 
     sprintf(buffer, "Filled list with 10K lines for = %0.2f sec",
-            ((double) end - double(start)) * 24 * 3600
-    );
+            ((double) end - double(start)) * 24 * 3600);
 
     w.label(buffer);
 

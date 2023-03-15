@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,9 @@
 
 #include <cstdlib>
 #include <fstream>
-#include <sptk5/sptk.h>
-#include <sptk5/Exception.h>
 #include <sptk5/Buffer.h>
 
 using namespace std;
-
 using namespace sptk;
 
 String sptk::upperCase(const String& str)
@@ -40,7 +37,8 @@ String sptk::upperCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i) {
+    for (uint32_t i = 0; i < len; ++i)
+    {
         result[i] = (char) toupper(str[i]);
     }
 
@@ -53,7 +51,8 @@ String sptk::lowerCase(const String& str)
     string result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i) {
+    for (uint32_t i = 0; i < len; ++i)
+    {
         result[i] = (char) tolower(str[i]);
     }
 
@@ -65,39 +64,47 @@ String sptk::trim(const String& str)
     auto len = (uint32_t) str.length();
 
     if (len == 0)
+    {
         return "";
+    }
 
     const auto* s = (const unsigned char*) str.c_str();
-    auto endpos = int(len - 1);
+    auto endPosition = int(len - 1);
     bool found = false;
 
     unsigned char space = ' ';
-    for (int i = endpos; i >= 0; --i) {
-        if (s[i] > space) {
-            endpos = i;
+    for (int i = endPosition; i >= 0; --i)
+    {
+        if (s[i] > space)
+        {
+            endPosition = i;
             found = true;
             break;
         }
     }
 
     if (!found)
+    {
         return "";
+    }
 
-    int startpos = 0;
-    for (int i = 0; i <= endpos; ++i) {
-        if (s[i] > space) {
-            startpos = i;
+    int startPosition = 0;
+    for (int i = 0; i <= endPosition; ++i)
+    {
+        if (s[i] > space)
+        {
+            startPosition = i;
             break;
         }
     }
 
-    return str.substr(size_t(startpos), size_t(long(endpos - startpos + 1)));
+    return str.substr(size_t(startPosition), size_t(long(endPosition - startPosition + 1)));
 }
 
 String sptk::int2string(int32_t value)
 {
     constexpr int maxLength = 32;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
     int len = snprintf(buff.data(), maxLength, "%i", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -105,7 +112,7 @@ String sptk::int2string(int32_t value)
 String sptk::int2string(uint32_t value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
     int len = snprintf(buff.data(), maxLength, "%u", value);
     return string(buff.data(), (unsigned) len);
 }
@@ -113,7 +120,7 @@ String sptk::int2string(uint32_t value)
 String sptk::int2string(int64_t value)
 {
     constexpr int maxLength = 128;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
 #ifdef _WIN32
     int len = snprintf(buff.data(), maxLength, "%lli", value);
 #else
@@ -125,7 +132,7 @@ String sptk::int2string(int64_t value)
 String sptk::int2string(uint64_t value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buff;
+    array<char, maxLength + 1> buff {};
 #ifdef _WIN32
     int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
 #else
@@ -136,24 +143,28 @@ String sptk::int2string(uint64_t value)
 
 int sptk::string2int(const String& str, int defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = (int) strtol(str.c_str(), &endptr, 10);
+    auto result = (int) strtol(str.c_str(), &endPointer, 10);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
 
 int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = (int64_t) strtoll(str.c_str(), &endptr, 10);
+    auto result = (int64_t) strtoll(str.c_str(), &endPointer, 10);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
@@ -161,40 +172,50 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
 String sptk::double2string(double value)
 {
     constexpr int maxLength = 64;
-    array<char,maxLength + 1> buffer;
+    array<char, maxLength + 1> buffer {};
     int len = snprintf(buffer.data(), maxLength, "%f", value);
-    for (int i = len - 1; i > 0; --i) {
-        if (buffer[i] != '0') {
+    for (int i = len - 1; i > 0; --i)
+    {
+        if (buffer[i] != '0')
+        {
             if (buffer[i] == '.')
+            {
                 len = i + 2;
+            }
             else
+            {
                 len = i + 1;
+            }
             break;
         }
     }
-    return String(buffer.data(), size_t(len), 0);
+    return {buffer.data(), size_t(len), 0};
 }
 
 double sptk::string2double(const String& str)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = strtod(str.c_str(), &endptr);
+    auto result = strtod(str.c_str(), &endPointer);
 
     if (errno)
+    {
         throw Exception("Invalid number");
+    }
 
     return result;
 }
 
 double sptk::string2double(const String& str, double defaultValue)
 {
-    char* endptr = nullptr;
+    char* endPointer = nullptr;
     errno = 0;
-    auto result = strtod(str.c_str(), &endptr);
+    auto result = strtod(str.c_str(), &endPointer);
 
     if (errno)
+    {
         return defaultValue;
+    }
 
     return result;
 }
@@ -202,19 +223,26 @@ double sptk::string2double(const String& str, double defaultValue)
 static void capitalizeWord(char* current, char* wordStart)
 {
     if (wordStart != nullptr)
+    {
         *wordStart = (char) toupper(*wordStart);
+    }
     else
+    {
         wordStart = current;
+    }
 
-    for (char* ptr = wordStart + 1; ptr < current; ++ptr) {
+    for (char* ptr = wordStart + 1; ptr < current; ++ptr)
+    {
         *ptr = (char) tolower(*ptr);
     }
 }
 
 static void lowerCaseWord(const char* current, char* wordStart)
 {
-    if (wordStart != nullptr) {
-        for (char* ptr = wordStart; ptr < current; ++ptr) {
+    if (wordStart != nullptr)
+    {
+        for (char* ptr = wordStart; ptr < current; ++ptr)
+        {
             *ptr = (char) tolower(*ptr);
         }
     }
@@ -223,43 +251,39 @@ static void lowerCaseWord(const char* current, char* wordStart)
 String sptk::capitalizeWords(const String& s)
 {
     if (s.empty())
+    {
         return s;
+    }
 
     Buffer buffer(s);
     char* wordStart = nullptr;
 
-    for (auto* current = (char*) buffer.data();; ++current) {
-        if (isalnum(*current) != 0) {
+    for (auto* current = (char*) buffer.data();; ++current)
+    {
+        if (isalnum(*current) != 0)
+        {
             if (wordStart == nullptr)
+            {
                 wordStart = current;
-        } else {
+            }
+        }
+        else
+        {
             if (current - wordStart > 3)
+            {
                 capitalizeWord(current, wordStart);
+            }
             else
+            {
                 lowerCaseWord(current, wordStart);
+            }
             wordStart = nullptr;
             if (*current == char(0))
+            {
                 break;
+            }
         }
     }
 
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.size()};
 }
-
-#if USE_GTEST
-
-TEST(SPTK_string_ext, to_string)
-{
-    EXPECT_EQ(222, string2int("222"));
-    EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
-    EXPECT_STREQ("2.22", double2string(2.22).c_str());
-    EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
-}
-
-TEST(SPTK_string_ext, capitalizeWords)
-{
-    auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
-    EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
-}
-
-#endif

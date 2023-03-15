@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +27,8 @@
 #include <sptk5/sptk.h>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CThemeScrollBar.h>
 #include <cmath>
+#include <sptk5/gui/CThemeScrollBar.h>
 
 using namespace std;
 using namespace sptk;
@@ -140,13 +140,13 @@ bool CThemeScrollBar::sizeScrollBar(int& w, int& h)
 }
 
 void CThemeScrollBar::loadGtkScrollbarButtons(
-    xml::Document& xml, const String& orientation, CThemeImageCollection& buttonImages)
+    xdoc::Document& xml, const String& orientation, CThemeImageCollection& buttonImages)
 {
     String XPath("/styles/style[@name='scrollbars']/engine[@name='pixmap']/image[@function='STEPPER']");
     buttonImages.loadFromGtkTheme(xml, XPath, "arrow_direction", orientation);
 }
 
-void CThemeScrollBar::loadGtkScrollbarTroughs(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbarTroughs(xdoc::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
     for (unsigned i = 0; i < 2; i++)
@@ -158,7 +158,7 @@ void CThemeScrollBar::loadGtkScrollbarTroughs(xml::Document& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbarSliders(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbarSliders(xdoc::Document& xml)
 {
     static const char* orientation[2] = {"VERTICAL", "HORIZONTAL"};
 
@@ -171,16 +171,15 @@ void CThemeScrollBar::loadGtkScrollbarSliders(xml::Document& xml)
     }
 }
 
-void CThemeScrollBar::loadGtkScrollbars(xml::Document& xml)
+void CThemeScrollBar::loadGtkScrollbars(xdoc::Document& xml)
 {
-    xml::NodeVector scrollBarDefaults;
-    xml.select(scrollBarDefaults, "/styles/style/GtkRange");
+    auto scrollBarDefaults = xml.root()->select("/styles/style/GtkRange");
     if (!scrollBarDefaults.empty())
     {
-        xml::Node* node = scrollBarDefaults[0];
-        m_scrollBarTroughBorder = (int) node->getAttribute("trough_border", "1");
-        m_scrollBarSliderWidth = (int) node->getAttribute("slider_width", "14");
-        m_scrollBarStepperSize = (int) node->getAttribute("stepper_size", "14");
+        const auto& node = scrollBarDefaults[0];
+        m_scrollBarTroughBorder = node->attributes().get("trough_border", "1").toInt();
+        m_scrollBarSliderWidth = node->attributes().get("slider_width", "14").toInt();
+        m_scrollBarStepperSize = node->attributes().get("stepper_size", "14").toInt();
     }
     loadGtkScrollbarButtons(xml, "UP", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[0]);
     loadGtkScrollbarButtons(xml, "DOWN", m_scrollBar[THM_SCROLLBAR_VERTICAL].m_steppers[1]);

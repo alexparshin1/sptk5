@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/gui/CLayoutManager.h>
 #include <sptk5/gui/CFontComboBox.h>
+#include <sptk5/gui/CLayoutManager.h>
 
 using namespace std;
 using namespace sptk;
@@ -57,13 +57,14 @@ CFontComboBox::CFontComboBox(const char* label, int layoutSize, CLayoutAlign lay
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CFontComboBox::CFontComboBox(int x,int y,int w,int h,const char *l)
-: CComboBox(x,y,w,h,l) {
-   loadFonts();
+CFontComboBox::CFontComboBox(int x, int y, int w, int h, const char* l)
+    : CComboBox(x, y, w, h, l)
+{
+    loadFonts();
 }
 #endif
 
-CLayoutClient* CFontComboBox::creator(xml::Node* node)
+CLayoutClient* CFontComboBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CFontComboBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/Buffer.h>
+#include <sptk5/net/BaseSocket.h>
 
 namespace sptk {
 
@@ -55,7 +55,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~UDPSocket() = default;
+    ~UDPSocket() override = default;
 
     /**
      * Reads data from the socket
@@ -88,4 +88,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

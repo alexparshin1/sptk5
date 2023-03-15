@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,20 +24,20 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
 #include "sptk5/net/CachedSSLContext.h"
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
-SharedMutex                             CachedSSLContext::m_mutex;
-CachedSSLContext::CachedSSLContextMap   CachedSSLContext::m_contexts;
+SharedMutex CachedSSLContext::m_mutex;
+CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList)
 {
-    String ident = keys.ident();
+    const String ident = keys.ident();
 
-    UniqueLock(m_mutex);
+    const UniqueLock(m_mutex);
 
     SharedSSLContext context = m_contexts[ident];
     if (!context)
@@ -69,5 +69,5 @@ String CachedSSLContext::makeIdent(const String& keyFileName, const String& cert
     buffer.append(int2string(verifyDepth));
     buffer.append(cipherList);
     buffer.append('~');
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.size()};
 }

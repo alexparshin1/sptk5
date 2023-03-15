@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -194,20 +194,26 @@ void CListViewRows::sortColumn(int column, VariantDataType columnType, bool sort
     m_sortColumn = column;
     m_sortColumnType = columnType;
     if (sortNow)
-    { sort(); }
+    {
+        sort();
+    }
 }
 
 void CListViewRows::sortAscending(bool ascending, bool sortNow)
 {
     m_sortAscending = ascending;
     if (sortNow)
-    { sort(); }
+    {
+        sort();
+    }
 }
 
 int CListViewRows::indexOf(CPackedStrings* ss) const
 {
     auto itor = find(m_rows.begin(), m_rows.end(), ss);
     if (itor == m_rows.end())
-    { return -1; }
+    {
+        return -1;
+    }
     return (int) distance(m_rows.begin(), itor);
 }

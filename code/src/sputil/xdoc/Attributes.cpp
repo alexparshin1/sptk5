@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,21 +29,36 @@
 using namespace sptk;
 using namespace xdoc;
 
-#if USE_GTEST
-
-TEST(SPTK_XDocument, getSetAttributes)
+String Attributes::get(const String& name, const String& defaultValue) const
 {
-    Attributes attributes;
-
-    attributes.set("name", "John");
-    attributes.set("position", "engineer");
-
-    EXPECT_STREQ("John", attributes.get("name").c_str());
-    EXPECT_STREQ("engineer", attributes.get("position").c_str());
-
-    attributes.set("position", "janitor");
-    EXPECT_STREQ("janitor", attributes.get("position").c_str());
-    EXPECT_EQ(attributes.size(), 2U);
+    for (const auto& [attr, value]: m_items)
+    {
+        if (attr == name)
+        {
+            return value;
+        }
+    }
+    return defaultValue;
 }
 
-#endif
+bool Attributes::have(const String& name) const
+{
+    return std::ranges::any_of(m_items,
+                               [&name](const auto& itor) {
+                                   return itor.first == name;
+                               });
+}
+
+Attributes& Attributes::set(const String& name, const String& value)
+{
+    for (auto& [attr, val]: m_items)
+    {
+        if (attr == name)
+        {
+            val = value;
+            return *this;
+        }
+    }
+    m_items.emplace_back(name, value);
+    return *this;
+}

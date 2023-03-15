@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/wsdl/WSParserComplexType.h>
-#include <sptk5/wsdl/WSOperation.h>
 #include <sptk5/wsdl/OpenApiGenerator.h>
+#include <sptk5/wsdl/WSOperation.h>
+#include <sptk5/wsdl/WSParserComplexType.h>
 
 namespace sptk {
 
@@ -104,15 +104,9 @@ public:
         }
 
     private:
-
-        ElementMap m_elements;         ///< Map of all elements
-        WSComplexTypeMap m_complexTypes;     ///< Map of all parsed complex types
+        ElementMap m_elements;           ///< Map of all elements
+        WSComplexTypeMap m_complexTypes; ///< Map of all parsed complex types
     };
-
-    /**
-     * Map of element names to corresponding WSDL (XML) elements
-     */
-    using XmlTypeMap = std::map<String, const xml::Element*>;
 
     /**
      * Map of operation names to operation objects
@@ -146,7 +140,7 @@ public:
      * Loads WSDL-file and parses it to output classes
      * @param wsdlFile          WSDL file name
      */
-    void parse(const fs::path& wsdlFile);
+    void parse(const std::filesystem::path& wsdlFile);
 
     /**
      * Stores parsed classes to files in source directory
@@ -163,52 +157,52 @@ public:
      * @param headerFile        Optional header file to insert at the start of each generated file
      * @param wsdlFileName              WSDL content
      */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const fs::path& wsdlFileName) const;
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const std::filesystem::path& wsdlFileName) const;
 
     /**
      * Utility function that removes namespace from the element name
      * @param name              Element name
      */
-    static std::string strip_namespace(const std::string& name);
+    static String strip_namespace(const String& name);
 
     /**
      * Utility function that returns namespace from the element name
      * @param name              Element name
      */
-    static std::string get_namespace(const std::string& name);
+    static String get_namespace(const String& name);
 
     const String& description() const;
 
 protected:
     /**
      * Parses xsd:element nodes directly under xsd:schema
-     * @param element           Schema element
+     * @param elementNode           Schema element
      */
-    void parseElement(const xml::Element* element);
+    void parseElement(const xdoc::SNode& elementNode);
 
     /**
      * Parses xsd:simpleType nodes directly under xsd:schema
      * @param simpleTypeElement Schema simple type
      */
-    static void parseSimpleType(const xml::Element* simpleTypeElement);
+    static void parseSimpleType(const xdoc::SNode& simpleTypeElement);
 
     /**
      * Parses xsd:complexType nodes directly under xsd:schema
      * @param complexTypeElement Schema complex type
      */
-    void parseComplexType(const xml::Element* complexTypeElement);
+    void parseComplexType(xdoc::SNode& complexTypeElement);
 
     /**
      * Parses wsdl:operation nodes directly under xsd:schema
      * @param operationNode         Schema complex type
      */
-    void parseOperation(const xml::Element* operationNode);
+    void parseOperation(const xdoc::SNode& operationNode);
 
     /**
      * Parses xsd:schema
      * @param schemaElement     Schema element
      */
-    void parseSchema(xml::Element* schemaElement);
+    void parseSchema(const xdoc::SNode& schemaElement);
 
     /**
      * Generates service definition to output stream
@@ -224,14 +218,13 @@ protected:
     void generateImplementation(std::ostream& output) const;
 
 private:
-
-    String m_serviceName;      ///< Service name, defining service class name and source file names
-    String m_serviceNamespace; ///< Service classes namespace
-    String m_description;      ///< Service description
-    String m_location;         ///< Service location
-    String m_wsdlFile;         ///< WSDL source file name
+    String m_serviceName;                ///< Service name, defining service class name and source file names
+    String m_serviceNamespace;           ///< Service classes namespace
+    String m_description;                ///< Service description
+    String m_location;                   ///< Service location
+    String m_wsdlFile;                   ///< WSDL source file name
     ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap m_operations;       ///< Map of all operations
+    WSOperationMap m_operations;         ///< Map of all operations
     DocumentationMap m_documentation;    ///< Map of documentation
 };
 
@@ -239,4 +232,4 @@ private:
  * @}
  */
 
-}
+} // namespace sptk

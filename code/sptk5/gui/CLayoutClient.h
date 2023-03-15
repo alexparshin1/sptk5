@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +27,8 @@
 #pragma once
 
 #include <FL/Fl_Widget.H>
+#include <sptk5/xdoc/Node.h>
 #include <string>
-#include <sptk5/cxml>
 
 namespace sptk {
 
@@ -40,22 +40,20 @@ namespace sptk {
 /**
  * Possible values for the widget layout aligns
  */
-enum class CLayoutAlign
-    : uint8_t
+enum class CLayoutAlign : uint8_t
 {
-    NONE,        /// Do not use allignment
-    LEFT,        /// Align to the left
-    RIGHT,       /// Align to the right
-    TOP,         /// Align to the top
-    BOTTOM,      /// Align to the bottom
-    CLIENT       /// Use the whole available space
+    NONE,   /// Do not use allignment
+    LEFT,   /// Align to the left
+    RIGHT,  /// Align to the right
+    TOP,    /// Align to the top
+    BOTTOM, /// Align to the bottom
+    CLIENT  /// Use the whole available space
 };
 
 /**
  * Layout load and save mode
  */
-enum class CLayoutXMLmode
-    : uint8_t
+enum class CLayoutXMLmode : uint8_t
 {
     /**
      * Load and save only controls data
@@ -107,7 +105,6 @@ class SP_EXPORT CLayoutClient
     int m_lastPreferredH {0};
 
 protected:
-
     /**
      * @return last preferred height
      */
@@ -300,7 +297,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    virtual void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode);
 
     /**
      * Loads layout client information from XML node
@@ -309,7 +306,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    virtual void load(const xml::Node* node)
+    virtual void load(const std::shared_ptr<xdoc::Node>& node)
     {
         load(node, CLayoutXMLmode::LAYOUT);
     }
@@ -322,9 +319,9 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    virtual void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
-#include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
-#include <sptk5/wsdl/WSBasicTypes.h>
-#include <sptk5/wsdl/WSArray.h>
-#include <sptk5/wsdl/WSFieldIndex.h>
+#include <sptk5/Variant.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/threads/Locks.h>
+#include <sptk5/wsdl/WSArray.h>
+#include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/wsdl/WSFieldIndex.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -50,14 +49,14 @@ class SP_EXPORT WSComplexType
     : public WSType
 {
 public:
-
     /**
      * Default constructor
      * @param name              Element name
      * @param optional          Element optionality flag
      */
     WSComplexType(const char* name, bool optional = false)
-        : m_name(name), m_optional(optional)
+        : WSType(name)
+        , m_optional(optional)
     {
     }
 
@@ -76,7 +75,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~WSComplexType() = default;
+    ~WSComplexType() override = default;
 
     /**
      * Copy assignment
@@ -115,34 +114,24 @@ public:
     /**
      * Loads type data from request XML node
      * @param input             XML node
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    void load(const xml::Node* input) override;
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override;
+    void load(const xdoc::SNode& input, bool nullLargeData = false) override;
 
     /**
      * Load data from FieldList
      *
      * Only simple WSDL type members are loaded.
      * @param input             Query field list containing CMqType data
+     * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    virtual void load(const sptk::FieldList& input);
+    virtual void load(const sptk::FieldList& input, bool nullLargeData = false);
 
     /**
      * Unload data to existing XML node
      * @param output            Existing XML node
      */
-    virtual void unload(xml::Node* output) const;
-
-    /**
-     * Unload data to existing JSON node
-     * @param output            Existing JSON node
-     */
-    virtual void unload(json::Element* output) const;
+    virtual void unload(const xdoc::SNode& output) const;
 
     /**
      * Unload data to Query's parameters
@@ -163,26 +152,12 @@ public:
      * @param parent            Parent XML node where new node is created
      * @param name              Optional name for the child element
      */
-    void addElement(xml::Node* parent, const char* name = nullptr) const override;
-
-    /**
-     * Unload data to new JSON node
-     * @param parent            Parent JSON node where new node is created
-     */
-    void addElement(json::Element* parent) const override;
+    void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
     /**
      * True if data was not loaded, or if all the fields are null.
      */
     bool isNull() const override;
-
-    /**
-     * Returns element name
-     */
-    [[nodiscard]] String name() const override
-    {
-        return m_name;
-    }
 
     /**
      * True is element is optional
@@ -215,7 +190,6 @@ public:
     }
 
 protected:
-
     /**
      * @return true if object is loaded
      */
@@ -268,16 +242,16 @@ protected:
     }
 
 private:
-    String m_name;              ///< WSDL element name
-    bool m_optional {false};    ///< Element optionality flag
-    bool m_loaded {false};      ///< Is data loaded flag
-    bool m_exportable {true};   ///< Is this object exportable?
-    WSFieldIndex m_fields;      ///< All fields
-    void setAttributes(const std::map<String, String>& values, json::Element* attributes) const;
+    bool m_optional {false};  ///< Element optionality flag
+    bool m_loaded {false};    ///< Is data loaded flag
+    bool m_exportable {true}; ///< Is this object exportable?
+    WSFieldIndex m_fields;    ///< All fields
+
+    static bool loadField(const FieldList& input, bool nullLargeData, WSType* field);
 };
 
 /**
  * @}
  */
 
-}
+} // namespace sptk

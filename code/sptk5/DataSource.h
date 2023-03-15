@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,8 @@
 
 #pragma once
 
-#include <sptk5/Variant.h>
 #include <sptk5/FieldList.h>
-#include <sptk5/cxml>
+#include <sptk5/Variant.h>
 
 class Fl_Group;
 
@@ -194,8 +193,9 @@ public:
      * Otherwise, the fields are stored as subnodes.
      * @param node              XDoc node to fill in
      * @param compactXmlMode    Compact XML flag
+     * @param nullLargeData     Set text data longer than 256 bytes to null
      */
-    void exportRowTo(xdoc::Node& node, bool compactXmlMode = false);
+    void exportRowTo(const xdoc::SNode& node, bool compactXmlMode, bool nullLargeData = false);
 
     /**
      * Saves data into XDoc
@@ -231,4 +231,4 @@ protected:
 /**
  * @}
  */
-}
+} // namespace sptk

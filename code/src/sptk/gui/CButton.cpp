@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,6 @@
 #include <FL/Fl.H>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CThemes.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CLayoutManager.h>
@@ -39,8 +38,8 @@ using namespace std;
 
 void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label)
 {
-    const char* name;
-    const char* l;
+    const char* name = "";
+    const char* l = "";
 
     if (buttonKind < CButtonKind::NEW_BUTTON)
     {
@@ -204,18 +203,22 @@ void CBaseButton::image(CButtonKind buttonKind, CIconSize iconSize, String label
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CBaseButton::CBaseButton(CButtonKind kind,int x,int y,int w,const char *l,CThemeButtonType tbt)
-: Fl_Button(x,y,w,30), CLayoutClient(this,w,CLayoutAlign::NONE) {
-   m_default = false;
-   m_type = tbt;
-   image(kind,CIconSize::IS_LARGE_ICON,l);
-   box(FL_THIN_UP_BOX);
-   color(FL_LIGHT3);
+CBaseButton::CBaseButton(CButtonKind kind, int x, int y, int w, const char* l, CThemeButtonType tbt)
+    : Fl_Button(x, y, w, 30)
+    , CLayoutClient(this, w, CLayoutAlign::NONE)
+{
+    m_default = false;
+    m_type = tbt;
+    image(kind, CIconSize::IS_LARGE_ICON, l);
+    box(FL_THIN_UP_BOX);
+    color(FL_LIGHT3);
 }
 #endif
 
 CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_small, const char* l, CThemeButtonType tbt)
-    : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign), m_type(tbt)
+    : Fl_Button(0, 0, 20, 20)
+    , CLayoutClient(this, 20, layoutAlign)
+    , m_type(tbt)
 {
     m_default = false;
     if (is_small)
@@ -223,15 +226,18 @@ CBaseButton::CBaseButton(CButtonKind kind, CLayoutAlign layoutAlign, bool is_sma
         image(kind, CIconSize::IS_SMALL_ICON);
     }
     else
-    { image(kind, CIconSize::IS_LARGE_ICON, l); }
+    {
+        image(kind, CIconSize::IS_LARGE_ICON, l);
+    }
     box(FL_THIN_UP_BOX);
 }
 
 CBaseButton::CBaseButton(const char* l, CLayoutAlign layoutAlign, CThemeButtonType tbt)
-    : Fl_Button(0, 0, 20, 20), CLayoutClient(this, 20, layoutAlign),
-      m_type(tbt),
-      m_kind(CButtonKind::UNDEFINED_BUTTON),
-      m_iconSize(CIconSize::IS_SMALL_ICON)
+    : Fl_Button(0, 0, 20, 20)
+    , CLayoutClient(this, 20, layoutAlign)
+    , m_type(tbt)
+    , m_kind(CButtonKind::UNDEFINED_BUTTON)
+    , m_iconSize(CIconSize::IS_SMALL_ICON)
 {
     m_default = false;
     m_image = nullptr;
@@ -247,7 +253,9 @@ void CBaseButton::defaultButton(bool isDefault)
         box(FL_UP_BOX);
     }
     else
-    { box(FL_THIN_UP_BOX); }
+    {
+        box(FL_THIN_UP_BOX);
+    }
     redraw();
 }
 
@@ -260,7 +268,9 @@ void CBaseButton::drawFocusLine(int xs, int ys, int xe, int ye)
     int xsign = ((xs < xe) - (xs > xe));
     int ysign = ((ys < ye) - (ys > ye));
     if (xsign == 0 && ysign == 0)
-    { return; }
+    {
+        return;
+    }
     int dx = xsign * 2;
     int dy = ysign * 2;
     for (; xp * xsign <= xe * xsign && yp * ysign <= ye * ysign; xp += dx, yp += dy)
@@ -274,9 +284,13 @@ void CBaseButton::drawFocus(bool usingTheme)
     fl_color(FL_FOREGROUND_COLOR);
     int r = 0;
     if (usingTheme)
-    { r = CThemes::buttonFocusRadius(); }
+    {
+        r = CThemes::buttonFocusRadius();
+    }
     if (r > h() / 2)
-    { r = h() / 2; }
+    {
+        r = h() / 2;
+    }
     int xx = x() + 3;
     int yy = y() + 3;
     int ww = w() - 7;
@@ -311,13 +325,17 @@ void CBaseButton::draw()
 #else
     align(Fl_Align(align() | FL_ALIGN_INSIDE));
     if (type() == FL_HIDDEN_BUTTON)
-    { return; }
+    {
+        return;
+    }
 
     int xx = x();
     int yy = y();
     int offset = 0;
     if (m_default)
-    { offset = 2; }
+    {
+        offset = 2;
+    }
     int X = xx + offset;
     int Y = yy + offset;
     int W = w() - offset * 2;
@@ -422,9 +440,13 @@ bool CBaseButton::preferredSize(int& w, int& h)
     int lh = 0;
     fl_measure(label().c_str(), lw, lh);
     if (lh + 8 > h)
-    { h = lh + 8; }
+    {
+        h = lh + 8;
+    }
     if (lw)
-    { lw += 8; }
+    {
+        lw += 8;
+    }
     int ww = lw + 6 + br;
     if (m_image)
     {
@@ -436,26 +458,32 @@ bool CBaseButton::preferredSize(int& w, int& h)
         ww += 4;
     }
     if (bh > h)
-    { h = bh; }
+    {
+        h = bh;
+    }
     if (w < ww)
-    { w = ww; }
+    {
+        w = ww;
+    }
     if (w < bw)
-    { w = bw; }
+    {
+        w = bw;
+    }
     return false;
 }
 
-CLayoutClient* CButton::creator(xml::Node* node)
+CLayoutClient* CButton::creator(const xdoc::SNode& node)
 {
     auto* button = new CButton("", CLayoutAlign::TOP, THM_BUTTON_NORMAL);
     button->load(node);
     return button;
 }
 
-void CButton::load(const xml::Node* node)
+void CButton::load(const xdoc::SNode& node)
 {
     CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
-    String iconName = (String) node->getAttribute("icon");
-    String iconType = (String) node->getAttribute("size", "large");
+    String iconName = (String) node->attributes().get("icon");
+    String iconType = (String) node->attributes().get("size", "large");
     CIconSize iconSize;
     switch (iconType[0])
     {
@@ -476,7 +504,7 @@ void CButton::load(const xml::Node* node)
     }
 }
 
-void CButton::save(xml::Node* node, CLayoutXMLmode) const
+void CButton::save(const xdoc::SNode& node, CLayoutXMLmode) const
 {
     CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
 }

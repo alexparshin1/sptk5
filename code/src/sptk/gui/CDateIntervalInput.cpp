@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,10 +28,10 @@
 
 #include <FL/fl_draw.H>
 
-#include <sptk5/gui/CDateIntervalInput.h>
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>
 #include <sptk5/gui/CDateControl.h>
+#include <sptk5/gui/CDateIntervalInput.h>
 
 using namespace std;
 using namespace sptk;
@@ -72,13 +72,14 @@ CDateIntervalInput::CDateIntervalInput(const char* label, int layoutSize, CLayou
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDateIntervalInput::CDateIntervalInput(int x,int y,int w,int h,const char * label)
-        : CInput(x,y,w,h,label,false) {
+CDateIntervalInput::CDateIntervalInput(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, label, false)
+{
     ctor_init();
 }
 #endif
 
-CLayoutClient* CDateIntervalInput::creator(xml::Node* node)
+CLayoutClient* CDateIntervalInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDateIntervalInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
@@ -199,7 +200,7 @@ DateTime CDateIntervalInput::beginOfInterval() const
     return DateTime(m_firstDateInput->input()->value());
 }
 
-void CDateIntervalInput::beginOfInterval(const DateTime bi)
+void CDateIntervalInput::beginOfInterval(const DateTime& bi)
 {
     m_firstDateInput->input()->value(bi.dateString().c_str());
 }
@@ -209,7 +210,7 @@ DateTime CDateIntervalInput::endOfInterval() const
     return DateTime(m_secondDateInput->input()->value());
 }
 
-void CDateIntervalInput::endOfInterval(const DateTime ei)
+void CDateIntervalInput::endOfInterval(const DateTime& ei)
 {
     m_secondDateInput->input()->value(ei.dateString().c_str());
 }

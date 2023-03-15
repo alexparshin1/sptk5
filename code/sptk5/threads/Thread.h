@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,13 +28,12 @@
 
 #include <sptk5/threads/Locks.h>
 
-#include <thread>
+#include "Semaphore.h"
 #include <atomic>
 #include <mutex>
-#include "Semaphore.h"
+#include <thread>
 
-namespace sptk
-{
+namespace sptk {
 /**
  * @addtogroup threads Thread Classes
  * @{
@@ -50,19 +49,19 @@ class ThreadManager;
  */
 class SP_EXPORT Thread
 {
-    SharedMutex                     m_mutex;                ///< Thread synchronization object
-    String                          m_name;                 ///< Thread name
-    std::shared_ptr<std::thread>    m_thread;               ///< Thread object
-    bool                            m_terminated {false};   ///< Flag: is the thread terminated?
-    Semaphore                       m_pause;                ///< Pause object
-    std::shared_ptr<ThreadManager>  m_threadManager;        ///< Optional thread manager
+    SharedMutex m_mutex;                            ///< Thread synchronization object
+    String m_name;                                  ///< Thread name
+    std::shared_ptr<std::jthread> m_thread;         ///< Thread object
+    bool m_terminated {false};                      ///< Flag: is the thread terminated?
+    Semaphore m_pause;                              ///< Pause object
+    std::shared_ptr<ThreadManager> m_threadManager; ///< Optional thread manager
 
     /**
      * Thread function wrapper
      */
     void threadStart();
-public:
 
+public:
     /**
      * Thread ID type
      */
@@ -74,7 +73,7 @@ public:
      * @param name              Name of the thread for future references.
      * @param threadManager     Optional thread manager. If provided, then it owns the created thread's memory.
      */
-    explicit Thread(const String& name, std::shared_ptr<ThreadManager> threadManager=nullptr);
+    explicit Thread(const String& name, const std::shared_ptr<ThreadManager>& threadManager = nullptr);
 
     /**
      * Destructor
@@ -161,5 +160,4 @@ using UThread = std::unique_ptr<Thread>;
 /**
  * @}
  */
-}
-
+} // namespace sptk

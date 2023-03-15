@@ -3,7 +3,7 @@
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,7 @@
 */
 
 #ifndef __THEMEUTILS_H__
-#define    __THEMEUTILS_H__
+#define __THEMEUTILS_H__
 
 #include <sptk5/gui/CPngImage.h>
 
@@ -36,4 +36,4 @@ CPngImage* loadValidatePNGImage(const std::string& fileName, bool externalFile =
 
 }
 
-#endif    /* _THEMEUTILS_H */
+#endif /* _THEMEUTILS_H */

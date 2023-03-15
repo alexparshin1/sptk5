@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,7 +37,8 @@ int main()
 #ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
 #endif
-    try {
+    try
+    {
         Loop<Host> destinations;
         destinations.add(Host("localhost", 1883));
 
@@ -50,8 +51,9 @@ int main()
         while (true)
             this_thread::sleep_for(chrono::milliseconds(100));
     }
-    catch (const Exception& e) {
-        CERR(e.what() << endl)
+    catch (const Exception& e)
+    {
+        CERR(e.what() << endl);
         return 1;
     }
 }

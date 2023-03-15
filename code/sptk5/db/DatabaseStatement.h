@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,16 +28,15 @@
 
 #include <sptk5/db/QueryParameterList.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * Template class for database statements for different database drivers
  */
-template <class Connection, class Statement> class DatabaseStatement
+template<class Connection, class Statement>
+class DatabaseStatement
 {
 public:
-
     Connection* connection() const
     {
         return m_connection;
@@ -58,8 +57,9 @@ public:
      * @param connection Connection*, DB connection
      */
     explicit DatabaseStatement(Connection* connection)
-    : m_connection(connection)
-    {}
+        : m_connection(connection)
+    {
+    }
 
     /**
      * Destructor
@@ -83,7 +83,8 @@ public:
         queryParams.enumerate(m_enumeratedParams);
         m_state.outputParameterCount = 0;
 
-        for (auto parameter: m_enumeratedParams) {
+        for (auto parameter: m_enumeratedParams)
+        {
             if (parameter->isOutput())
                 ++m_state.outputParameterCount;
         }
@@ -143,7 +144,6 @@ public:
     }
 
 protected:
-
     /**
      * Statement state type definition
      */
@@ -151,22 +151,22 @@ protected:
         /**
          * Number of columns is result set
          */
-        unsigned    columnCount:12;
+        unsigned columnCount : 12;
 
         /**
          * EOF (end of file) flag
          */
-        bool        eof:1;
+        bool eof : 1;
 
         /**
          * Transaction in progress flag
          */
-        bool        transaction:1;
+        bool transaction : 1;
 
         /**
          * Output parameter count
          */
-        unsigned    outputParameterCount:1;
+        unsigned outputParameterCount : 1;
     };
 
     State& state()
@@ -175,11 +175,10 @@ protected:
     }
 
 private:
-
-    Connection*     m_connection {nullptr}; ///< DB connection
-    Statement*      m_statement {nullptr};  ///< Statement
-    State           m_state {};             ///< State flags
-    CParamVector    m_enumeratedParams;     ///< Enumerated parameters
+    Connection* m_connection {nullptr}; ///< DB connection
+    Statement* m_statement {nullptr};   ///< Statement
+    State m_state {};                   ///< State flags
+    CParamVector m_enumeratedParams;    ///< Enumerated parameters
 };
 
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,26 +44,26 @@ class CInput_;
  * A masked date input with a small drop-down button inside.
  * Clicking on the button displays the calendar window.
  */
-class SP_EXPORT CDateControl : public Fl_Group {
+class SP_EXPORT CDateControl : public Fl_Group
+{
 
     /**
      * Drop-down button
      */
-    CSmallButton   *m_button;
+    CSmallButton* m_button;
 
     /**
      * Input box
      */
-    CInput_        *m_input;
+    CInput_* m_input;
 
 protected:
-
     /**
      * Internal callback
      */
-    static void date_cb(Fl_Widget *w,void *data);
-public:
+    static void date_cb(Fl_Widget* w, void* data);
 
+public:
     /**
      * Constructor in FLTK style
      * @param x int, x-position
@@ -72,19 +72,21 @@ public:
      * @param h int, height
      * @param label const char *, label
      */
-    CDateControl(int x,int y,int w,int h,const char *label=nullptr);
+    CDateControl(int x, int y, int w, int h, const char* label = nullptr);
 
     /**
      * Returns internal small button pointer
      */
-    CSmallButton *button() {
+    CSmallButton* button()
+    {
         return m_button;
     }
 
     /**
      * Returns internal input box
      */
-    CInput_ *input() {
+    CInput_* input()
+    {
         return m_input;
     }
 
@@ -95,7 +97,7 @@ public:
      * @param w int, width
      * @param h int, height
      */
-    void resize(int x,int y,int w,int h) override;
+    void resize(int x, int y, int w, int h) override;
 
     /**
      * Computes the best size for the control
@@ -104,7 +106,7 @@ public:
      * @param editorWidth int& the width of date input
      * @param buttonWidth int& the width of button
      */
-    void preferredSize(int& w,int& h,int& editorWidth,int& buttonWidth);
+    void preferredSize(int& w, int& h, int& editorWidth, int& buttonWidth);
 
     /**
      * Computes the best size for the control
@@ -115,4 +117,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

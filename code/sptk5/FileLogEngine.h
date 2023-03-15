@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/LogEngine.h>
 #include <fstream>
+#include <sptk5/LogEngine.h>
 
 namespace sptk {
 
@@ -47,7 +47,6 @@ class SP_EXPORT FileLogEngine
     : public sptk::LogEngine
 {
 public:
-
     /**
      * Constructor
      *
@@ -55,7 +54,12 @@ public:
      * If this file doesn't exist - it will be created.
      * @param fileName          Log file name
      */
-    explicit FileLogEngine(const fs::path& fileName);
+    explicit FileLogEngine(const std::filesystem::path& fileName);
+
+    /**
+     * @brief Destructor
+     */
+    ~FileLogEngine() override;
 
     /**
      * Stores or sends log message to actual destination
@@ -71,12 +75,11 @@ public:
     void reset() override;
 
 private:
-
-    mutable SharedMutex m_mutex;                    ///< Mutex that protects internal data
-    fs::path m_fileName;                            ///< Log file name
-    std::shared_ptr<std::ofstream> m_fileStream;    ///< Log file stream
+    mutable std::mutex m_mutex;       ///< Mutex that protects internal data
+    std::filesystem::path m_fileName; ///< Log file name
+    std::ofstream m_fileStream;       ///< Log file stream
 };
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -18,6 +18,14 @@ class CHelloResponse : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "HelloResponse";
+    }
+
    // Elements
    sptk::WSDate                             m_date_of_birth {"date_of_birth", false};
    sptk::WSDateTime                         m_verified {"verified", false};
@@ -31,7 +39,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false) noexcept;
+   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false);
 
    /**
     * Copy constructor
@@ -54,13 +62,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (const CHelloResponse& other);
+   CHelloResponse& operator = (const CHelloResponse& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (CHelloResponse&& other) noexcept;
+   CHelloResponse& operator = (CHelloResponse&& other) noexcept = default;
 
    /**
     * Get complex type field names.

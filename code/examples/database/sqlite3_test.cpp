@@ -4,7 +4,7 @@
 ║                       sqlite3_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/cdatabase>
 #include <sptk5/db/SQLite3Connection.h>
-#include <sptk5/Printer.h>
 
 #include <iomanip>
 
@@ -37,33 +37,45 @@ using namespace sptk;
 
 int testTransactions(DatabaseConnection db, const String& tableName, bool rollback)
 {
-    try {
+    try
+    {
         Query step5Query(db, "DELETE FROM " + tableName);
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
-        COUT(endl << "        Begining the transaction ..")
+        COUT(endl
+             << "        Begining the transaction ..");
         db->beginTransaction();
-        COUT(endl << "        Deleting everything from the temp table ..")
+        COUT(endl
+             << "        Deleting everything from the temp table ..");
         step5Query.exec();
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT(endl << "        The temp table now has " << counter << " records ..")
+        COUT(endl
+             << "        The temp table now has " << counter << " records ..");
 
-        if (rollback) {
-            COUT(endl << "        Rolling back the transaction ..")
+        if (rollback)
+        {
+            COUT(endl
+                 << "        Rolling back the transaction ..");
             db->rollbackTransaction();
-        } else {
-            COUT(endl << "        Commiting the transaction ..")
+        }
+        else
+        {
+            COUT(endl
+                 << "        Commiting the transaction ..");
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT(endl << "        The temp table now has " << counter << " records.." << endl)
-    } catch (const Exception& e) {
-        CERR("Error: " << e.what() << endl)
+        COUT(endl
+             << "        The temp table now has " << counter << " records.." << endl);
+    }
+    catch (const Exception& e)
+    {
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -74,16 +86,17 @@ int main()
     DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
     DatabaseConnection db = connectionPool.getConnection();
 
-    try {
-        COUT("Openning the database.. ")
+    try
+    {
+        COUT("Openning the database.. ");
         db->open();
-        COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
+        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         Strings tableList;
         db->objectList(DatabaseObjectType::TABLES, tableList);
-        COUT("First 10 tables in the database:" << endl)
+        COUT("First 10 tables in the database:" << endl);
         for (unsigned i = 0; i < tableList.size() && i < 10; i++)
-            COUT("  Table: " << tableList[i] << endl)
+            COUT("  Table: " << tableList[i] << endl);
 
         // Defining the queries
         Query step1Query(db, "CREATE TABLE test(id INT PRIMARY KEY,name CHAR(20),position CHAR(20))");
@@ -91,10 +104,10 @@ int main()
         Query step3Query(db, "SELECT * FROM test WHERE id > :some_id");
         Query step4Query(db, "DROP TABLE test");
 
-        COUT("Ok.\nStep 1: Creating the table.. ")
+        COUT("Ok.\nStep 1: Creating the table.. ");
         step1Query.exec();
 
-        COUT("Ok.\nStep 2: Inserting data into the table.. ")
+        COUT("Ok.\nStep 2: Inserting data into the table.. ");
 
         // The following example shows how to use the paramaters,
         // addressing them by name
@@ -128,11 +141,12 @@ int main()
         position_param.setNull(); // This is the way to set field to NULL
         step2Query.exec();
 
-        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl)
+        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             // getting data from the query by the field name
             int64_t id = step3Query["id"].asInt64();
@@ -141,14 +155,14 @@ int main()
             String name = step3Query[1].asString();
             String position = step3Query[2].asString();
 
-            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl)
+            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
 
-        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl)
+        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -157,32 +171,35 @@ int main()
         Field& nameField = step3Query["name"];
         Field& positionField = step3Query["position"];
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             int id = idField.asInteger();
             string name = nameField.asString();
             string position = positionField.asString();
 
-            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl)
+            COUT(setw(10) << id << setw(20) << name << setw(20) << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        COUT("Ok.\n***********************************************\nTesting the transactions.")
+        COUT("Ok.\n***********************************************\nTesting the transactions.");
 
         testTransactions(db, "test", true);
         testTransactions(db, "test", false);
 
         step4Query.exec();
 
-        COUT("Ok.\nStep 6: Closing the database.. ")
+        COUT("Ok.\nStep 6: Closing the database.. ");
         db->close();
-        COUT("Ok." << endl)
-    } catch (const Exception& e) {
-        CERR("\nError: " << e.what() << endl)
-        CERR("Sorry, you have to fix your database or database connection." << endl)
-        CERR("Please, read the README.txt for more information." << endl)
+        COUT("Ok." << endl);
+    }
+    catch (const Exception& e)
+    {
+        CERR("\nError: " << e.what() << endl);
+        CERR("Sorry, you have to fix your database or database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     return 0;

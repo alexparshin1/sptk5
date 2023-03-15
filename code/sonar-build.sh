@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH=/opt/sonar-scanner/bin:$PATH
+export PATH=/opt/sonar-scanner/bin:/usr/lib/ccache:$PATH
 
 CORES=$(grep 'cpu MHz' /proc/cpuinfo | wc -l)
 sed -i "s/sonar.cfamily.threads=.*$/sonar.cfamily.threads=$CORES/" sonar-project.properties

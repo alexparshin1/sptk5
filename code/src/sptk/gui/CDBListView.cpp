@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -44,11 +44,12 @@ CDBListView::CDBListView(const char* label, int layoutSize, CLayoutAlign layoutA
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDBListView::CDBListView(int x, int y, int w, int h, const char *label)
-: CListView(x, y, w, h, label) {
-   m_fastRefreshEnabed = false;
-   m_maxRecords = 0;
-   m_recordsLimited = false;
+CDBListView::CDBListView(int x, int y, int w, int h, const char* label)
+    : CListView(x, y, w, h, label)
+{
+    m_fastRefreshEnabed = false;
+    m_maxRecords = 0;
+    m_recordsLimited = false;
 }
 #endif
 
@@ -58,7 +59,7 @@ CDBListView::~CDBListView()
     m_fullRefreshQuery.close();
 }
 
-CLayoutClient* CDBListView::creator(xml::Node* node)
+CLayoutClient* CDBListView::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDBListView("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

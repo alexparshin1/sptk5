@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CGroup.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -91,7 +91,7 @@ public:
      * @param h int, height
      * @param label, const char* label
      */
-    CTabs(int x,int y,int w,int h,const char* label = 0);
+    CTabs(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -151,7 +151,7 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
@@ -164,4 +164,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/DateTime.h>
 #include "LogPriority.h"
+#include <sptk5/DateTime.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -52,15 +52,13 @@ class LogEngine;
 class SP_EXPORT Logger
 {
 public:
-
     /**
      * Log message
      */
-    struct Message
-    {
-        DateTime timestamp {DateTime::Now()};    ///< Message timestamp
-        LogPriority priority;                       ///< Message priority
-        String message;                        ///< Message text
+    struct Message {
+        DateTime timestamp {"now"}; ///< Message timestamp
+        LogPriority priority;                 ///< Message priority
+        String message;                       ///< Message text
 
         /**
          * Constructor
@@ -143,4 +141,4 @@ using SLogger = std::shared_ptr<Logger>;
 /**
  * @}
  */
-}
+} // namespace sptk

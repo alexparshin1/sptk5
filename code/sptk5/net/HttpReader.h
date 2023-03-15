@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,9 +27,10 @@
 #pragma once
 
 #include <sptk5/Buffer.h>
-#include <sptk5/net/TCPSocket.h>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/CaseInsensitiveCompare.h>
+#include <sptk5/RegularExpression.h>
+#include <sptk5/net/SocketReader.h>
+#include <sptk5/net/TCPSocket.h>
 
 #include <mutex>
 
@@ -45,25 +46,26 @@ using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
  *
  * Designed to be able accepting asynchronous data
  */
-class SP_EXPORT HttpReader
+class SP_EXPORT HttpReader : public SocketReader
 {
 public:
-
     /**
      * State of the response reader
      */
-    enum class State : unsigned {
-        READY = 0,              ///< Reader is ready to start
-        READING_HEADERS = 1,    ///< Reader is reading headers
-        READING_DATA = 2,       ///< Reader is reading data
-        COMPLETED = 4,          ///< Reading completed
-        READ_ERROR = 8          ///< Reading error (transfer terminated prematurely)
+    enum class State : unsigned
+    {
+        READY = 0,           ///< Reader is ready to start
+        READING_HEADERS = 1, ///< Reader is reading headers
+        READING_DATA = 2,    ///< Reader is reading data
+        COMPLETED = 4,       ///< Reading completed
+        READ_ERROR = 8       ///< Reading error (transfer terminated prematurely)
     };
 
     /**
      * Read mode, defines is it HTTP request (GET, POST, etc) or response.
      */
-    enum class ReadMode {
+    enum class ReadMode
+    {
         REQUEST,
         RESPONSE
     };
@@ -92,12 +94,6 @@ public:
     HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode);
 
     /**
-     * Get read socket
-     * @return socket to read from
-     */
-    TCPSocket& socket();
-
-    /**
      * Get output buffer
      * @return output buffer
      */
@@ -106,7 +102,7 @@ public:
     /**
      * Read data that can be read completely
      */
-    void read();
+    void readStream();
 
     /**
      * Read HTTP request string
@@ -141,30 +137,26 @@ public:
     String getRequestType() const;
     String getRequestURL() const;
 
-    void close();
-
 private:
-
-    TCPSocket&          m_socket;                       ///< Socket to read from
-    ReadMode            m_readMode;                     ///< Read mode
-    State               m_readerState {State::READY}; ///< State of the reader
-    mutable std::mutex  m_mutex;                        ///< Mutex that protects internal data
-    String              m_statusText;                   ///< HTTP response status text
-    int                 m_statusCode {0};               ///< HTTP response status code
-    size_t              m_contentLength {0};            ///< Content length (as defined in responce headers), or 0
-    size_t              m_contentReceivedLength {0};    ///< Received content length so far
-    bool                m_contentIsChunked {false};     ///< Chunked content (as defined in responce headers)
-    HttpHeaders         m_httpHeaders;                  ///< HTTP response headers
-    RegularExpression   m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
-    Buffer&             m_output;                       ///< Output data buffer
-    Buffer              m_read_buffer;                  ///< Read buffer
-    String              m_requestType;                  ///< Request type (GET, POST, etc)
-    String              m_requestURL;                   ///< Request URL (for REQUEST read mode only)
+    ReadMode m_readMode;                                                                    ///< Read mode
+    State m_readerState {State::READY};                                                     ///< State of the reader
+    mutable std::mutex m_mutex;                                                             ///< Mutex that protects internal data
+    String m_statusText;                                                                    ///< HTTP response status text
+    int m_statusCode {0};                                                                   ///< HTTP response status code
+    size_t m_contentLength {0};                                                             ///< Content length (as defined in responce headers), or 0
+    size_t m_contentReceivedLength {0};                                                     ///< Received content length so far
+    bool m_contentIsChunked {false};                                                        ///< Chunked content (as defined in responce headers)
+    HttpHeaders m_httpHeaders;                                                              ///< HTTP response headers
+    RegularExpression m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
+    Buffer& m_output;                                                                       ///< Output data buffer
+    Buffer m_read_buffer;                                                                   ///< Read buffer
+    String m_requestType;                                                                   ///< Request type (GET, POST, etc)
+    String m_requestURL;                                                                    ///< Request URL (for REQUEST read mode only)
 
     /**
      * Clear reader state
      */
-    void reset();
+    void clear() override;
 
     /**
      * Read HTTP status
@@ -181,4 +173,3 @@ private:
 };
 
 } // namespace sptk
-

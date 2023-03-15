@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,40 +26,40 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/sptk-config.h>
 #include <sptk5/Strings.h>
+#include <sptk5/sptk-config.h>
+#include <sptk5/sptk.h>
 
-#include <vector>
-#include <functional>
 #include <atomic>
+#include <functional>
 #include <memory>
+#include <vector>
 
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
 #define PCRE2_STATIC
 #define PCRE2_CODE_UNIT_WIDTH 8
 
 #include <pcre2.h>
 
-#define SPRE_CASELESS   PCRE2_CASELESS
-#define SPRE_MULTILINE  PCRE2_MULTILINE
-#define SPRE_DOTALL     PCRE2_DOTALL
-#define SPRE_EXTENDED   PCRE2_EXTENDED
+#define SPRE_CASELESS PCRE2_CASELESS
+#define SPRE_MULTILINE PCRE2_MULTILINE
+#define SPRE_DOTALL PCRE2_DOTALL
+#define SPRE_EXTENDED PCRE2_EXTENDED
 using pcre_offset_t = long;
 #endif
 
-#if HAVE_PCRE
+#ifdef HAVE_PCRE
 
 #include <pcre.h>
 
-#define SPRE_CASELESS   PCRE_CASELESS
-#define SPRE_MULTILINE  PCRE_MULTILINE
-#define SPRE_DOTALL     PCRE_DOTALL
-#define SPRE_EXTENDED   PCRE_EXTENDED
+#define SPRE_CASELESS PCRE_CASELESS
+#define SPRE_MULTILINE PCRE_MULTILINE
+#define SPRE_DOTALL PCRE_DOTALL
+#define SPRE_EXTENDED PCRE_EXTENDED
 using pcre_offset_t = int;
 #endif
 
-#if (HAVE_PCRE2 | HAVE_PCRE)
+#if defined(HAVE_PCRE2) | defined(HAVE_PCRE)
 
 namespace sptk {
 
@@ -76,16 +76,15 @@ class MatchData;
 class SP_EXPORT RegularExpression
 {
 
-#if HAVE_PCRE2
-    using PCREHandle = pcre2_code;      ///< Compiled PCRE expression handle
-    using PCREExtraHandle = uint8_t*;   ///< Dummy
+#ifdef HAVE_PCRE2
+    using PCREHandle = pcre2_code;    ///< Compiled PCRE expression handle
+    using PCREExtraHandle = uint8_t*; ///< Dummy
 #else
     using PCREHandle = pcre;            ///< Compiled PCRE expression handle
     using PCREExtraHandle = pcre_extra; ///< Compiled PCRE expression optimization (for faster execution)
 #endif
 
 public:
-
     /**
      * Matched group that includes string value, as well as start and end positions of the value in the subject string
      */
@@ -99,7 +98,9 @@ public:
          * @param end           String end position in subject
          */
         Group(String value, pcre_offset_t start, pcre_offset_t end)
-            : value(move(value)), start(start), end(end)
+            : value(std::move(value))
+            , start(start)
+            , end(end)
         {
         }
 
@@ -108,9 +109,9 @@ public:
          */
         Group() = default;
 
-        String value;        ///< Matched fragment of subject
-        pcre_offset_t start {0};    ///< Start position of the matched fragment in subject
-        pcre_offset_t end {0};      ///< End position of the matched fragment in subject
+        String value;            ///< Matched fragment of subject
+        pcre_offset_t start {0}; ///< Start position of the matched fragment in subject
+        pcre_offset_t end {0};   ///< End position of the matched fragment in subject
     };
 
     /**
@@ -122,7 +123,6 @@ public:
         friend class RegularExpression;
 
     public:
-
         /**
          * Get unnamed group by index.
          * If group doesn't exist, return reference to empty group.
@@ -200,14 +200,13 @@ public:
         }
 
     private:
-
         /**
          * Clear groups
          */
         void clear();
 
         std::vector<Group> m_groups;           ///< Unnamed groups
-        std::map<String, Group> m_namedGroups;      ///< Named groups
+        std::map<String, Group> m_namedGroups; ///< Named groups
         static const Group emptyGroup;         ///< Empty group to return if group can't be found
     };
 
@@ -223,7 +222,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(String pattern, const String& options = "");
+    explicit RegularExpression(const String& pattern, const String& options = "");
 
     /**
      * Returns true if text matches with regular expression
@@ -231,13 +230,6 @@ public:
      * @return true if match found
      */
     bool operator==(const String& text) const;
-
-    /**
-     * Returns true if text doesn't match with regular expression
-     * @param text              Input text
-     * @return true if match found
-     */
-    bool operator!=(const String& text) const;
 
     /**
      * Returns true if text matches with regular expression
@@ -314,13 +306,12 @@ public:
     const String& pattern() const;
 
 private:
-
-    String m_pattern;        ///< Match pattern
+    String m_pattern;      ///< Match pattern
     bool m_global {false}; ///< Global match (g) or first match only
-    String m_error;          ///< Last pattern error (if any)
+    String m_error;        ///< Last pattern error (if any)
 
     std::shared_ptr<PCREHandle> m_pcre;           ///< Compiled PCRE expression handle
-    std::shared_ptr<PCREExtraHandle> m_pcreExtra;      ///< Compiled PCRE expression optimization (for faster execution)
+    std::shared_ptr<PCREExtraHandle> m_pcreExtra; ///< Compiled PCRE expression optimization (for faster execution)
 
     uint32_t m_options {0};    ///< PCRE pattern options
     size_t m_captureCount {0}; ///< RE' capture count
@@ -374,6 +365,6 @@ using SRegularExpression = std::shared_ptr<RegularExpression>;
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif

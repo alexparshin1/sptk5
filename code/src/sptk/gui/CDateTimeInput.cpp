@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,10 +27,10 @@
 #include <sptk5/cutils>
 
 #include <FL/fl_draw.H>
-#include <sptk5/gui/CDateTimeInput.h>
 #include <sptk5/gui/CButton.h>
-#include <sptk5/gui/CDateControl.h>
 #include <sptk5/gui/CCalendar.h>
+#include <sptk5/gui/CDateControl.h>
+#include <sptk5/gui/CDateTimeInput.h>
 
 using namespace std;
 using namespace sptk;
@@ -67,13 +67,14 @@ CDateTimeBaseInput::CDateTimeBaseInput(const char* label, int layoutSize, CLayou
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDateTimeBaseInput::CDateTimeBaseInput(int x,int y,int w,int h,const char * label,bool autoCreate)
-        : CInput(x,y,w,h,label,autoCreate) {
+CDateTimeBaseInput::CDateTimeBaseInput(int x, int y, int w, int h, const char* label, bool autoCreate)
+    : CInput(x, y, w, h, label, autoCreate)
+{
     ctor_init();
 }
 #endif
 
-void CDateTimeBaseInput::setLimits(bool limited, DateTime min, DateTime max)
+void CDateTimeBaseInput::setLimits(bool limited, const DateTime& min, const DateTime& max)
 {
     m_limited = limited;
     m_minValue = min;
@@ -105,12 +106,12 @@ void CDateTimeBaseInput::save(Query* updateQuery)
     param.setDateTime(dt);
 }
 
-void CDateTimeBaseInput::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CDateTimeBaseInput::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
 }
 
-void CDateTimeBaseInput::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CDateTimeBaseInput::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
 }
@@ -128,7 +129,7 @@ bool CDateTimeBaseInput::valid() const
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     return false;
 }
@@ -138,7 +139,7 @@ DateTime CDateTimeBaseInput::dateTimeValue() const
     return data().asDateTime();
 }
 
-void CDateTimeBaseInput::dateTimeValue(DateTime dt)
+void CDateTimeBaseInput::dateTimeValue(const DateTime& dt)
 {
     if (kind() == CControlKind::DATE)
     {
@@ -188,8 +189,9 @@ CDateInput::CDateInput(const char* label, int layoutSize, CLayoutAlign layoutAli
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDateInput::CDateInput(int x,int y,int w,int h,const char * label)
-        : CDateTimeBaseInput(x,y,w,h,label,false) {
+CDateInput::CDateInput(int x, int y, int w, int h, const char* label)
+    : CDateTimeBaseInput(x, y, w, h, label, false)
+{
     ctor_init();
 }
 #endif
@@ -199,7 +201,7 @@ CDateInput::~CDateInput()
     delete m_calendarWindow;
 }
 
-CLayoutClient* CDateInput::creator(xml::Node* node)
+CLayoutClient* CDateInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDateInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
@@ -241,14 +243,15 @@ CTimeInput::CTimeInput(const char* label, int layoutSize, CLayoutAlign layoutAli
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CTimeInput::CTimeInput(int x,int y,int w,int h,const char * label)
-        : CDateTimeBaseInput(x,y,w,h,label,true) {
-    m_timeInput = (CInput_ *)m_control;
+CTimeInput::CTimeInput(int x, int y, int w, int h, const char* label)
+    : CDateTimeBaseInput(x, y, w, h, label, true)
+{
+    m_timeInput = (CInput_*) m_control;
     m_timeInput->mask(DateTime::shortTimeFormat);
 }
 #endif
 
-CLayoutClient* CTimeInput::creator(xml::Node* node)
+CLayoutClient* CTimeInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CTimeInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
@@ -288,13 +291,14 @@ CDateTimeInput::CDateTimeInput(const char* label, int layoutSize, CLayoutAlign l
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CDateTimeInput::CDateTimeInput(int x,int y,int w,int h,const char * label)
-        : CDateTimeBaseInput(x,y,w,h,label,false) {
+CDateTimeInput::CDateTimeInput(int x, int y, int w, int h, const char* label)
+    : CDateTimeBaseInput(x, y, w, h, label, false)
+{
     ctor_init();
 }
 #endif
 
-CLayoutClient* CDateTimeInput::creator(xml::Node* node)
+CLayoutClient* CDateTimeInput::creator(const xdoc::SNode& node)
 {
     auto* widget = new CDateTimeInput("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
@@ -322,7 +326,7 @@ void CDateTimeInput::resize(int x, int y, int w, int h)
     m_timeInput->resize(x, y, timeWidth, m_dateInput->h());
 }
 
-void CDateTimeInput::dateTimeValue(DateTime dt)
+void CDateTimeInput::dateTimeValue(const DateTime& dt)
 {
     m_dateInput->input()->value(dt.dateString().c_str());
     m_timeInput->value(dt.timeString().c_str());

@@ -1,6 +1,4 @@
 #include "CProjectInfo.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;
@@ -20,7 +18,7 @@ const sptk::Strings& CProjectInfo::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CProjectInfo::CProjectInfo(const char* elementName, bool optional) noexcept
+CProjectInfo::CProjectInfo(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_id, &m_expiration});
@@ -40,20 +38,6 @@ CProjectInfo::CProjectInfo(CProjectInfo&& other) noexcept
   m_expiration(std::move(other.m_expiration))
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_id, &m_expiration});
-}
-
-CProjectInfo& CProjectInfo::operator = (const CProjectInfo& other)
-{
-    m_id = other.m_id;
-    m_expiration = other.m_expiration;
-    return *this;
-}
-
-CProjectInfo& CProjectInfo::operator = (CProjectInfo&& other) noexcept
-{
-    m_id = std::move(other.m_id);
-    m_expiration = std::move(other.m_expiration);
-    return *this;
 }
 
 void CProjectInfo::checkRestrictions() const

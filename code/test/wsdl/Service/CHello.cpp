@@ -1,6 +1,4 @@
 #include "CHello.h"
-#include <sptk5/json/JsonArrayData.h>
-
 using namespace std;
 using namespace sptk;
 using namespace test_service;
@@ -20,7 +18,7 @@ const sptk::Strings& CHello::fieldNames(WSFieldIndex::Group group)
     return _fieldNames;
 }
 
-CHello::CHello(const char* elementName, bool optional) noexcept
+CHello::CHello(const char* elementName, bool optional)
 : WSComplexType(elementName, optional)
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
@@ -42,22 +40,6 @@ CHello::CHello(CHello&& other) noexcept
   m_last_name(std::move(other.m_last_name))
 {
     WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_action, &m_first_name, &m_last_name});
-}
-
-CHello& CHello::operator = (const CHello& other)
-{
-    m_action = other.m_action;
-    m_first_name = other.m_first_name;
-    m_last_name = other.m_last_name;
-    return *this;
-}
-
-CHello& CHello::operator = (CHello&& other) noexcept
-{
-    m_action = std::move(other.m_action);
-    m_first_name = std::move(other.m_first_name);
-    m_last_name = std::move(other.m_last_name);
-    return *this;
 }
 
 void CHello::checkRestrictions() const

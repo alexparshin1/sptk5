@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <string>
 #include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
+#include <string>
 
 namespace sptk {
 
@@ -69,7 +69,6 @@ class SP_EXPORT CColumn
     bool m_autoWidth;
 
 public:
-
     /**
      * @brief Constructor
      * @param cname             Column name
@@ -159,19 +158,7 @@ public:
      * Loads information about column from the registry.
      * @param node              XML node to load column information from
      */
-    void load(const xml::Node& node);
-
-    /**
-     * @brief Loads column information
-     *
-     * Loads information about column
-     * from the registry.
-     * @param node              XML node to load column information from
-     */
-    void load(const xml::Node* node)
-    {
-        load(*node);
-    }
+    void load(const xdoc::SNode& node);
 
     /**
      * @brief Saves column information
@@ -180,19 +167,7 @@ public:
      * from the registry.
      * @param node              XML node to unload column information to
      */
-    void save(xml::Node& node) const;
-
-    /**
-     * @brief Saves column information
-     *
-     * Saves information about column
-     * from the registry.
-     * @param node              XML node to unload column information to
-     */
-    void save(xml::Node* node) const
-    {
-        save(*node);
-    }
+    void save(const xdoc::SNode& node) const;
 };
 
 /**
@@ -202,7 +177,6 @@ class SP_EXPORT CColumnList
     : public std::vector<CColumn>
 {
 public:
-
     /**
      * @brief Default constructor
      */
@@ -220,18 +194,7 @@ public:
      * Loads information about columns from the registry.
      * @param node              XML node to load columns information from
      */
-    void load(const xml::Node& node);
-
-    /**
-     * @brief Loads columns information
-     *
-     * Loads information about columns from the registry.
-     * @param node              XML node to load columns information from
-     */
-    void load(const xml::Node* node)
-    {
-        load(*node);
-    }
+    void load(const xdoc::SNode& node);
 
     /**
      * @brief Saves columns information
@@ -239,20 +202,9 @@ public:
      * Saves information about columns from the registry.
      * @param node              XML node to unload columns information to
      */
-    void save(xml::Node& node) const;
-
-    /**
-     * @brief Saves columns information
-     *
-     * Saves information about columns from the registry.
-     * @param node              XML node to unload columns information to
-     */
-    void save(xml::Node* node) const
-    {
-        save(*node);
-    }
+    void save(const xdoc::SNode& node) const;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

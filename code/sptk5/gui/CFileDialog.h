@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/gui/CDialog.h>
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/gui/CListView.h>
-#include <sptk5/gui/CDataControl.h>
-#include <sptk5/gui/CComboBox.h>
 #include <sptk5/Strings.h>
+#include <sptk5/gui/CComboBox.h>
+#include <sptk5/gui/CDataControl.h>
+#include <sptk5/gui/CDialog.h>
+#include <sptk5/gui/CListView.h>
 
 namespace sptk {
 
@@ -100,17 +100,17 @@ protected:
     /**
      * Internal directory double-clicked callback
      */
-    static void dirview_cb(Fl_Widget* w, void*);
+    static void dirview_cb(Fl_Widget* dialog, void*);
 
     /**
      * Internal look-in combo callback
      */
-    static void lookin_cb(Fl_Widget* w, void*);
+    static void lookin_cb(Fl_Widget* dialog, void*);
 
     /**
      * Internal pattern combo callback
      */
-    static void pattern_cb(Fl_Widget* w, void*);
+    static void pattern_cb(Fl_Widget* combobox, void*);
 
     /**
      * Creates a new folder. The folder name is asked interactively.
@@ -135,7 +135,6 @@ protected:
     CFileDialog(const String& label, bool saveMode);
 
 public:
-
     /**
      * Returns the dialog's current directory
      */
@@ -207,4 +206,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

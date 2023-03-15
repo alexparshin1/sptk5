@@ -18,6 +18,14 @@ class CHello : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "Hello";
+    }
+
    // Elements
    sptk::WSString                           m_action {"action", false};
    sptk::WSString                           m_first_name {"first_name", false};
@@ -28,7 +36,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHello(const char* elementName="hello", bool optional=false) noexcept;
+   explicit CHello(const char* elementName="hello", bool optional=false);
 
    /**
     * Copy constructor
@@ -51,13 +59,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CHello& operator = (const CHello& other);
+   CHello& operator = (const CHello& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CHello& operator = (CHello&& other) noexcept;
+   CHello& operator = (CHello&& other) noexcept = default;
 
    /**
     * Get complex type field names.

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +27,13 @@
 #pragma once
 
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <windows.h>
+#include <winsock2.h>
+
+#include <windows.h>
 #endif
 
-#include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -56,13 +57,17 @@ public:
      * @param instanceName      Instance name
      */
     explicit UniqueInstance(String instanceName);
+    ~UniqueInstance();
+
+    UniqueInstance(const UniqueInstance&) = delete;
+    UniqueInstance& operator=(const UniqueInstance&) = delete;
 
 #ifndef _WIN32
     /**
      * Return lock file name
      * @return lock file name
      */
-	const String& lockFileName() const;
+    const String& lockFileName() const;
 #endif // _WIN32
 
     /**
@@ -71,21 +76,19 @@ public:
     bool isUnique() const;
 
 private:
-
-    String                  m_instanceName;     ///< Instance name
-    std::shared_ptr<bool>   m_lockCreated;      ///< Lock is created
+    String m_instanceName;      ///< Instance name
+    bool m_lockCreated {false}; ///< Lock is created
 #ifdef _WIN32
-    HANDLE       m_mutex;                       ///< The named mutex object
+    HANDLE m_mutex; ///< The named mutex object
 #else
-    String  m_fileName;                         ///< The lock file name
-    int     read_pid() const;                   ///< Gets the process ID
-    int     write_pid();                        ///< Writes the process ID into the lock file
+    String m_fileName;    ///< The lock file name
+    int read_pid() const; ///< Gets the process ID
+    int write_pid();      ///< Writes the process ID into the lock file
 #endif
 
-    void    cleanup();                          ///< Cleanup allocated resources
+    void cleanup(); ///< Cleanup allocated resources
 };
 /**
  * @}
  */
-}
-
+} // namespace sptk

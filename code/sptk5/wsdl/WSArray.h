@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,11 +27,10 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/cxml>
-#include <sptk5/json/JsonElement.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
-#include <sptk5/xml/Element.h>
+#include <sptk5/xdoc/Document.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -52,7 +51,7 @@ public:
      * @param name              Element name
      */
     explicit WSArray(const char* name = "array")
-        : m_name(name)
+        : WSType(name)
     {
     }
 
@@ -139,9 +138,24 @@ public:
         m_array.push_back(value);
     }
 
+    void push_back(T&& value)
+    {
+        m_array.push_back(std::move(value));
+    }
+
     void emplace_back(const T& value)
     {
         m_array.emplace_back(value);
+    }
+
+    void emplace_back(T&& value)
+    {
+        m_array.emplace_back(std::move(value));
+    }
+
+    void resize(size_t sz)
+    {
+        m_array.resize(sz);
     }
 
     auto erase(const iterator& pos)
@@ -154,26 +168,12 @@ public:
         return m_array.erase(first, last);
     }
 
-    void load(const xml::Node* node) override
+    void load(const xdoc::SNode& node, bool nullLargeData) override
     {
-        for (const auto* arrayElement: *node)
+        for (const auto& arrayElement: node->nodes())
         {
-            T item(m_name.c_str(), false);
-            item.load(arrayElement);
-            m_array.push_back(std::move(item));
-        }
-    }
-
-    /**
-     * Loads type data from request JSON element
-     * @param attr              JSON element
-     */
-    void load(const json::Element* attr) override
-    {
-        for (const auto* arrayElement: attr->getArray())
-        {
-            T item(m_name.c_str(), false);
-            item.load(arrayElement);
+            T item(name().c_str(), false);
+            item.load(arrayElement, nullLargeData);
             m_array.push_back(std::move(item));
         }
     }
@@ -183,7 +183,12 @@ public:
      */
     String asString() const override
     {
-        throwException("Invalid conversion attempt")
+        xdoc::Document document;
+        Buffer buffer;
+        exportTo(document.root());
+        const auto& arrayNode = document.root()->findFirst(name());
+        arrayNode->exportTo(xdoc::DataFormat::JSON, buffer, false);
+        return (String) buffer;
     }
 
     /**
@@ -191,32 +196,18 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void addElement(xml::Node* output, const char* name = nullptr) const override
+    void exportTo(const xdoc::SNode& output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
-        auto* arrayNode = new xml::Element(output, m_name.c_str());
+        auto& arrayNode = output->pushNode(this->name(), xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
-            element.addElement(arrayNode, itemName);
-        }
-    }
-
-    /**
-     * Adds an element to response JSON with this object data
-     * @param parent            Parent JSON element
-     */
-    void addElement(json::Element* parent) const override
-    {
-        auto* records_array = parent->add_array(m_name);
-        for (const auto& element: m_array)
-        {
-            element.addElement(records_array);
+            element.exportTo(arrayNode, itemName);
         }
     }
 
 private:
-    String m_name;
     std::vector<T> m_array;
 };
 
-}
+} // namespace sptk

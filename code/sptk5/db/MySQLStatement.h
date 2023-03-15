@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,9 +28,9 @@
 
 #include <mysql.h>
 
+#include <cstdio>
 #include <list>
 #include <string>
-#include <cstdio>
 
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/DatabaseStatement.h>
@@ -68,14 +68,7 @@ public:
      * @param timestamp DateTime, Timestamp
      * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
      */
-    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, DateTime timestamp, VariantDataType timeType);
-
-    /**
-     * Translates MySQL time to DateTime
-     * @param timestamp DateTime&, Timestamp
-     * @param mysqlDate const MYSQL_TIME&, MySQL time
-     */
-    static void mysqlDateToDateTime(DateTime& timestamp, const MYSQL_TIME& mysqlDate);
+    static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& timestamp, VariantDataType timeType);
 
     /**
      * Constructor
@@ -150,14 +143,13 @@ public:
     void fetch() override;
 
 private:
-
-    String m_sql;              ///< Statement SQL
-    std::vector<MYSQL_BIND> m_paramBuffers;     ///< Parameter binding buffers
+    String m_sql;                                  ///< Statement SQL
+    std::vector<MYSQL_BIND> m_paramBuffers;        ///< Parameter binding buffers
     std::vector<unsigned long> m_paramLengths;     ///< Parameter data lengths
-    std::vector<MYSQL_BIND> m_fieldBuffers;     ///< Fetch data buffers
-    std::shared_ptr<MYSQL_STMT> m_stmt;
+    std::vector<MYSQL_BIND> m_fieldBuffers;        ///< Fetch data buffers
+    std::shared_ptr<MYSQL_STMT> m_stmt;            ///< Connection statement
     std::shared_ptr<MYSQL_RES> m_result {nullptr}; ///< Statement handle
-    MYSQL_ROW m_row {};           ///< Fetch data row
+    MYSQL_ROW m_row {};                            ///< Fetch data row
 
     /**
      * Reads not prepared statement result row to query fields
@@ -196,4 +188,4 @@ private:
                                         uint32_t dataLength) const;
 };
 
-}
+} // namespace sptk

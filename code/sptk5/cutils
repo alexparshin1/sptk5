@@ -42,6 +42,6 @@
 
 #include <sptk5/md5.h>
 
-#include <sptk5/json/JsonDocument.h>
+#include <sptk5/xdoc/Document.h>
 
 #endif

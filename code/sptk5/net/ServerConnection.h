@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,16 +26,18 @@
 
 #pragma once
 
+#include <functional>
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/threads/Runable.h>
+#include <sptk5/threads/Thread.h>
 
 #ifndef _WIN32
+
 #include <netinet/in.h>
+
 #endif
 
-namespace sptk
-{
+namespace sptk {
 
 class TCPServer;
 
@@ -49,19 +51,28 @@ class TCPServer;
  *
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
-class SP_EXPORT ServerConnection: public Runable
+class SP_EXPORT ServerConnection
+    : public Runable
 {
     friend class TCPServer;
 
 public:
+    enum class Type
+    {
+        TCP,
+        SSL
+    };
+
+    using Function = std::function<void(const Runable& task, TCPSocket& socket, const String& address)>;
 
     /**
      * Constructor
      * @param server            Server that created this connection
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param taskName          Task name
+     * @param connectionFunction Connection function processing this connection
      */
-    ServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const String& taskName);
+    ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
+                     const String& taskName = "ServerConnection", const ServerConnection::Function& connectionFunction = {});
 
     /**
      * Access to internal socket for derived classes
@@ -79,31 +90,46 @@ public:
      * Get incoming connection address
      * @return incoming connection address
      */
-    String address() const { return m_address; }
+    String address() const
+    {
+        return m_address;
+    }
 
     /**
      * Get connection serial number
      * @return connection serial number
      */
-    size_t serial() const { return m_serial; }
+    size_t serial() const
+    {
+        return m_serial;
+    }
 
 protected:
-
     /**
      * Assign new socket
      * @param socket            Socket to assign
+     * @return previous socket
      */
-    void setSocket(TCPSocket* socket);
+    STCPSocket setSocket(const STCPSocket& socket);
 
     void parseAddress(const sockaddr_in* connectionAddress);
 
-private:
+    void run() override
+    {
+        if (m_connectionFunction)
+        {
+            m_connectionFunction(*this, socket(), address());
+        }
+    }
 
-    mutable std::mutex          m_mutex;
-    TCPServer&                  m_server;            ///< Parent server object
-    std::shared_ptr<TCPSocket>  m_socket {nullptr};  ///< Connection socket
-    String                      m_address;           ///< Incoming connection IP address
-    size_t                      m_serial {0};        ///< Connection serial number
+private:
+    mutable std::mutex m_mutex;
+    TCPServer& m_server;                             ///< Parent server object
+    STCPSocket m_socket;                             ///< Connection socket
+    String m_address;                                ///< Incoming connection IP address
+    size_t m_serial {0};                             ///< Connection serial number
+    Type m_type;                                     ///< Connection type (TCP or SSL)
+    ServerConnection::Function m_connectionFunction; ///< Function that is executed for each client connection
 
     /**
      * Create next connection serial number
@@ -112,7 +138,9 @@ private:
     static size_t nextSerial();
 };
 
+using SServerConnection = std::shared_ptr<ServerConnection>;
+
 /**
  * @}
  */
-}
+} // namespace sptk

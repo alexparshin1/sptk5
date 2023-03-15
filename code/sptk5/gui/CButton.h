@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CIcon.h>
+#include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CThemes.h>
+#include <sptk5/sptk.h>
 #include <string>
 
 #include <FL/Fl_Button.H>
@@ -48,42 +48,41 @@ namespace sptk {
  *
  * The button kind defines a picture and a default label for the button.
  */
-enum class CButtonKind
-    : uint32_t
+enum class CButtonKind : uint32_t
 {
-    UNDEFINED_BUTTON = 0,        ///< Default button without image, or with user-defined image
-    OK_BUTTON = 1,               ///< 'Ok' button
-    CANCEL_BUTTON = 2,           ///< 'Cancel' button
-    NO_BUTTON = 4,               ///< 'No' button
-    ADD_BUTTON = 8,              ///< 'Add' button
-    DELETE_BUTTON = 0x10,        ///< 'Delete' button
-    EDIT_BUTTON = 0x20,          ///< 'Edit' button
-    BROWSE_BUTTON = 0x40,        ///< 'Browse' button
-    REFRESH_BUTTON = 0x80,       ///< 'Refresh' button
-    CALENDAR_BUTTON = 0x100,     ///< 'Calendar' button
-    OPEN_BUTTON = 0x200,         ///< 'Open' button
-    PRINT_BUTTON = 0x400,        ///< 'Print' button
-    SAVE_BUTTON = 0x800,         ///< 'Save' button
-    SAVE_AS_BUTTON = 0x1000,     ///< 'Save As' button
-    COPY_BUTTON = 0x2000,        ///< 'Copy' button
-    LEFT_BUTTON = 0x4000,        ///< 'Left' button
-    NEW_BUTTON = 0x8000,         ///< 'New' button
-    NEXT_BUTTON = 0x10000,       ///< 'Next' button
-    PRINTER_BUTTON = 0x20000,    ///< 'Printer' button
-    PRIOR_BUTTON = 0x40000,      ///< 'Prior' button
-    RIGHT_BUTTON = 0x80000,      ///< 'Right' button
-    SEARCH_BUTTON = 0x100000,    ///< 'Left' button
-    SEND_BUTTON = 0x200000,      ///< 'Send' button
-    STEPLEFT_BUTTON = 0x400000,  ///< 'Step Left' button
-    STEPRIGHT_BUTTON = 0x800000, ///< 'Step Right' button
-    VIEW_BUTTON = 0x1000000,     ///< 'View' button
-    HOME_BUTTON = 0x2000000,     ///< 'Home' button
-    CONFIGURE_BUTTON = 0x4000000,///< 'Configure' button
-    EXEC_BUTTON = 0x8000000,     ///< Execute' button
-    STOP_BUTTON = 0x10000000,    ///< 'Stop' button
-    EXIT_BUTTON = 0x20000000,    ///< 'Exit' button
-    HELP_BUTTON = 0x40000000,    ///< 'Help' button
-    MAX_BUTTON = 0x40000001      ///< Max button id
+    UNDEFINED_BUTTON = 0,         ///< Default button without image, or with user-defined image
+    OK_BUTTON = 1,                ///< 'Ok' button
+    CANCEL_BUTTON = 2,            ///< 'Cancel' button
+    NO_BUTTON = 4,                ///< 'No' button
+    ADD_BUTTON = 8,               ///< 'Add' button
+    DELETE_BUTTON = 0x10,         ///< 'Delete' button
+    EDIT_BUTTON = 0x20,           ///< 'Edit' button
+    BROWSE_BUTTON = 0x40,         ///< 'Browse' button
+    REFRESH_BUTTON = 0x80,        ///< 'Refresh' button
+    CALENDAR_BUTTON = 0x100,      ///< 'Calendar' button
+    OPEN_BUTTON = 0x200,          ///< 'Open' button
+    PRINT_BUTTON = 0x400,         ///< 'Print' button
+    SAVE_BUTTON = 0x800,          ///< 'Save' button
+    SAVE_AS_BUTTON = 0x1000,      ///< 'Save As' button
+    COPY_BUTTON = 0x2000,         ///< 'Copy' button
+    LEFT_BUTTON = 0x4000,         ///< 'Left' button
+    NEW_BUTTON = 0x8000,          ///< 'New' button
+    NEXT_BUTTON = 0x10000,        ///< 'Next' button
+    PRINTER_BUTTON = 0x20000,     ///< 'Printer' button
+    PRIOR_BUTTON = 0x40000,       ///< 'Prior' button
+    RIGHT_BUTTON = 0x80000,       ///< 'Right' button
+    SEARCH_BUTTON = 0x100000,     ///< 'Left' button
+    SEND_BUTTON = 0x200000,       ///< 'Send' button
+    STEPLEFT_BUTTON = 0x400000,   ///< 'Step Left' button
+    STEPRIGHT_BUTTON = 0x800000,  ///< 'Step Right' button
+    VIEW_BUTTON = 0x1000000,      ///< 'View' button
+    HOME_BUTTON = 0x2000000,      ///< 'Home' button
+    CONFIGURE_BUTTON = 0x4000000, ///< 'Configure' button
+    EXEC_BUTTON = 0x8000000,      ///< Execute' button
+    STOP_BUTTON = 0x10000000,     ///< 'Stop' button
+    EXIT_BUTTON = 0x20000000,     ///< 'Exit' button
+    HELP_BUTTON = 0x40000000,     ///< 'Help' button
+    MAX_BUTTON = 0x40000001       ///< Max button id
 };
 
 /**
@@ -92,15 +91,16 @@ enum class CButtonKind
  * Base class for CButton and CSmallButton, uses Fl_Image * or a stock image of CButtonKind.
  */
 class SP_EXPORT CBaseButton
-    : public Fl_Button, public CLayoutClient
+    : public Fl_Button
+    , public CLayoutClient
 {
     friend class CThemes;
 
-    bool m_default;             ///< Is this button a default button?
-    CThemeButtonType m_type;    ///< Button type - normal, thin, or combo box button
-    CButtonKind m_kind;         ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
-    Fl_Image* m_image;          ///< Internal image pointer
-    CIconSize m_iconSize;       ///< Icon size
+    bool m_default;                                     ///< Is this button a default button?
+    CThemeButtonType m_type;                            ///< Button type - normal, thin, or combo box button
+    CButtonKind m_kind {CButtonKind::UNDEFINED_BUTTON}; ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
+    Fl_Image* m_image {nullptr};                        ///< Internal image pointer
+    CIconSize m_iconSize {CIconSize::IS_LARGE_ICON};    ///< Icon size
 
     /**
      * Draws the dotted line. The line angle should be divided by 45 degrees w/o remains.
@@ -112,7 +112,6 @@ class SP_EXPORT CBaseButton
     static void drawFocusLine(int xs, int ys, int xe, int ye);
 
 protected:
-
     /**
      * Sets the button image to the selected kind buttonKind
      * @param buttonKind CButtonKind, the button kind
@@ -176,7 +175,7 @@ protected:
      * @param label const char *, label
      * @param tbt CThemeButtonType, the type of button
      */
-    CBaseButton(CButtonKind kind,int x,int y,int w,const char *l=0,CThemeButtonType tbt=THM_BUTTON_NORMAL);
+    CBaseButton(CButtonKind kind, int x, int y, int w, const char* l = 0, CThemeButtonType tbt = THM_BUTTON_NORMAL);
 #endif
 
 public:
@@ -274,8 +273,10 @@ public:
      * @param h int height
      * @param label const char * label
      */
-    CButton(CButtonKind kind,int x,int y,int w,const char *label=0,CThemeButtonType tbt=THM_BUTTON_NORMAL)
-            : CBaseButton(kind,x,y,w,label,tbt) {}
+    CButton(CButtonKind kind, int x, int y, int w, const char* label = 0, CThemeButtonType tbt = THM_BUTTON_NORMAL)
+        : CBaseButton(kind, x, y, w, label, tbt)
+    {
+    }
 #endif
 
     /**
@@ -306,7 +307,7 @@ public:
     /**
      * Creates a button based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * Loads layout client information from XML node
@@ -316,7 +317,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           (ignored)
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    void load(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) override
     {
         load(node);
     }
@@ -328,7 +329,7 @@ public:
      * and widget data
      * @param node xml::Node*, XML node
      */
-    void load(const xml::Node* node) override;
+    void load(const xdoc::SNode& node) override;
 
     /**
      * Saves the the widget to XML node
@@ -338,7 +339,7 @@ public:
      * @param node              XML node
      * @param lm                (ignored)
      */
-    void save(xml::Node* node, CLayoutXMLmode lm = CLayoutXMLmode::LAYOUT) const override;
+    void save(const std::shared_ptr<xdoc::Node>& node, CLayoutXMLmode lm = CLayoutXMLmode::LAYOUT) const override;
 };
 
 /**
@@ -361,8 +362,10 @@ public:
      * @param h int height
      * @param label const char * label
      */
-    CSmallButton(CButtonKind kind,int x,int y,int w,const char *label=0)
-            : CBaseButton(kind,x,y,w,label,THM_BUTTON_COMBO) {}
+    CSmallButton(CButtonKind kind, int x, int y, int w, const char* label = 0)
+        : CBaseButton(kind, x, y, w, label, THM_BUTTON_COMBO)
+    {
+    }
 #endif
 
     /**
@@ -379,4 +382,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

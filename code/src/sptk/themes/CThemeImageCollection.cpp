@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -118,35 +118,35 @@ string CThemeImageCollection::gtkFullFileName(string fileName)
         return fileName;
     }
     if (fileName[0] == '/')
-    { fileName = fileName.substr(1, 255); }
+    {
+        fileName = fileName.substr(1, 255);
+    }
     return CThemes::themeFolder() + fileName;
 }
 
 void CThemeImageCollection::loadFromGtkTheme(
-    xml::Document& gtkTheme, const String& imagesXPath, const String& attribute,
+    xdoc::Document& gtkTheme, const String& imagesXPath, const String& attribute,
     const String& attributeValue)
 {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT", "|");
 
-    xml::NodeVector images;
-
-    gtkTheme.select(images, imagesXPath);
+    auto images = gtkTheme.root()->select(imagesXPath);
     bool borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
-    for (auto imageNode : images)
+    for (auto imageNode: images)
     {
-        if (!attribute.empty() && (String) imageNode->getAttribute(attribute) != attributeValue)
+        if (!attribute.empty() && (String) imageNode->attributes().get(attribute) != attributeValue)
         {
             continue;
         }
 
-        bool defaultFrame = (String) imageNode->getAttribute("detail", "") == "buttondefault";
+        bool defaultFrame = (String) imageNode->attributes().get("detail", "") == "buttondefault";
 
-        String fileName = gtkFullFileName((String) imageNode->getAttribute("file"));
-        String overlayFileName = gtkFullFileName((String) imageNode->getAttribute("overlay_file"));
+        String fileName = gtkFullFileName((String) imageNode->attributes().get("file"));
+        String overlayFileName = gtkFullFileName((String) imageNode->attributes().get("overlay_file"));
 
-        String state = upperCase((String) imageNode->getAttribute("state", "NORMAL"));
+        String state = upperCase((String) imageNode->attributes().get("state", "NORMAL"));
         int buttonState = buttonStates.indexOf(state);
 
         if (normalImageFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
@@ -161,8 +161,8 @@ void CThemeImageCollection::loadFromGtkTheme(
 
         if (!borderInitted)
         {
-            m_stretch = (String) imageNode->getAttribute("stretch") == "TRUE";
-            String border = (String) imageNode->getAttribute("border", "{ 0, 0, 0, 0 }");
+            m_stretch = (String) imageNode->attributes().get("stretch") == "TRUE";
+            String border = (String) imageNode->attributes().get("border", "{ 0, 0, 0, 0 }");
             size_t pos1 = border.find('{');
             size_t pos2 = border.find('}');
             if (pos1 != STRING_NPOS && pos2 != STRING_NPOS)
@@ -178,7 +178,7 @@ void CThemeImageCollection::loadFromGtkTheme(
             borderInitted = true;
         }
 
-        String shadow = upperCase((String) imageNode->getAttribute("shadow", "OUT"));
+        String shadow = upperCase((String) imageNode->attributes().get("shadow", "OUT"));
         if (shadow == "ETCHED_IN")
         {
             continue;

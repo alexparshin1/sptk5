@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Node.h>
-#include <sptk5/xdoc/XMLDocType.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
+#include <sptk5/xdoc/Node.h>
+#include <sptk5/xdoc/XMLDocType.h>
 
-#include <string>
 #include <map>
+#include <string>
 
 namespace sptk::xdoc {
 
@@ -50,12 +50,10 @@ namespace sptk::xdoc {
 class SP_EXPORT ImportXML
 {
 public:
-
-    enum class Mode
-        : uint8_t
+    enum class Mode : uint8_t
     {
-        Compact,        ///< Strip any XML formatting, store #text nodes directly into Nodes
-        KeepFormatting  ///< Keep any #text nodes
+        Compact,       ///< Strip any XML formatting, store #text nodes directly into Nodes
+        KeepFormatting ///< Keep any #text nodes
     };
 
     /**
@@ -74,102 +72,46 @@ public:
     }
 
     /**
-     * Return doctype of document.
-     */
-    const XMLDocType& docType() const
-    {
-        return m_doctype;
-    }
-
-    /**
-     * Return indentation in save
-     */
-    int indentSpaces() const
-    {
-        return m_indentSpaces;
-    }
-
-    /**
-     * Set indentation in save, defaults to 2
-     *
-     * @param i                 New indent spaces
-     */
-    void indentSpaces(int i)
-    {
-        m_indentSpaces = i;
-    }
-
-    /**
      * Load document from buffer.
      * @param _buffer            Source buffer
      */
-    void parse(xdoc::Node& node, const char* _buffer, Mode formatting = Mode::Compact);
-
-    /**
-     * Does string match a number?
-     * @return true if string constains a number
-     */
-    static bool isNumber(const String& str);
-
-protected:
-
-    /**
-     * Extract entities
-     * @param docTypeSection    XMLDocument type section
-     */
-    void extractEntities(char* docTypeSection);
-
-    static unsigned char* skipSpaces(unsigned char* start);
+    void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
 private:
-
-    XMLDocType m_doctype;                                  ///< XMLDocument type
-    int m_indentSpaces {2};                         ///< Indent spaces
-    Buffer m_encodeBuffer;                             ///< Buffer to encode entities
-    Buffer m_decodeBuffer;                             ///< Decode and encode buffer
-
-    /**
-     * Internal entities parser
-     */
-    void parseEntities(char* entitiesSection);
-
-    /**
-     * Internal doctype parser
-     */
-    void parseXMLDocType(char* docTypeSection);
+    XMLDocType m_doctype;  ///< XMLDocument type
+    Buffer m_encodeBuffer; ///< Buffer to encode entities
+    Buffer m_decodeBuffer; ///< Decode and encode buffer
 
     /**
      * Internal attributes parser
      */
     void processAttributes(Node& node, const char* ptr);
 
-    static char* readComment(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
+    static char* readComment(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd);
 
-    static char* readCDataSection(Node& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
+    static char* readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
                                   Mode formatting);
 
-    char* readXMLDocType(char* tokenEnd);
+    static char* readXMLDocType(char* tokenEnd);
 
     static const RegularExpression parseAttributes;
 
-    char* readExclamationTag(Node& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
+    static char* readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd, Mode formatting);
 
-    char* readProcessingInstructions(Node& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
+    char* readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
 
-    char* readOpenningTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    char* readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    static char* readClosingTag(Node*& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    static char* readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
-    void readText(Node& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
+    void readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
                   Mode formatting);
 
-    char* parseEntity(char* start);
-
-    static void detectArray(Node& node);
+    static SNode detectArray(const SNode& node);
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk::xdoc

@@ -4,7 +4,7 @@
 ║                       ceditor_test.cpp - description                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,21 +26,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
-#include <cstring>
 #include <cctype>
 #include <cerrno>
+#include <cstdlib>
+#include <cstring>
 
 #ifdef __MWERKS__
-#    define FL_DLL
+#define FL_DLL
 #endif
 
 #include <FL/Fl.H>
-#include <FL/fl_ask.H>
 #include <FL/Fl_Text_Buffer.H>
+#include <FL/fl_ask.H>
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -54,17 +54,18 @@ Fl_Text_Buffer* textbuf = nullptr;
 Fl_Text_Buffer* stylebuf = nullptr;
 
 Fl_Text_Display::Style_Table_Entry
-    styletable[] = {// Style table
-    {FL_BLACK,      FL_COURIER,        14}, // A - Plain
-    {FL_DARK_GREEN, FL_COURIER_ITALIC, 14}, // B - Line comments
-    {FL_DARK_GREEN, FL_COURIER_ITALIC, 14}, // C - Block comments
-    {FL_BLUE,       FL_COURIER,        14}, // D - Strings
-    {FL_DARK_RED,   FL_COURIER,        14}, // E - Directives
-    {FL_DARK_RED,   FL_COURIER_BOLD,   14}, // F - Types
-    {FL_BLUE,       FL_COURIER_BOLD,   14} // G - Keywords
+    styletable[] = {
+        // Style table
+        {FL_BLACK, FL_COURIER, 14},             // A - Plain
+        {FL_DARK_GREEN, FL_COURIER_ITALIC, 14}, // B - Line comments
+        {FL_DARK_GREEN, FL_COURIER_ITALIC, 14}, // C - Block comments
+        {FL_BLUE, FL_COURIER, 14},              // D - Strings
+        {FL_DARK_RED, FL_COURIER, 14},          // E - Directives
+        {FL_DARK_RED, FL_COURIER_BOLD, 14},     // F - Types
+        {FL_BLUE, FL_COURIER_BOLD, 14}          // G - Keywords
 };
 
-const char* code_keywords[] = {// List of known C/C++ keywords...
+const char* code_keywords[] = { // List of known C/C++ keywords...
     "and",
     "and_eq",
     "asm",
@@ -98,9 +99,8 @@ const char* code_keywords[] = {// List of known C/C++ keywords...
     "try",
     "while",
     "xor",
-    "xor_eq"
-};
-const char* code_types[] = {// List of known C/C++ types...
+    "xor_eq"};
+const char* code_types[] = { // List of known C/C++ types...
     "auto",
     "bool",
     "char",
@@ -136,8 +136,7 @@ const char* code_types[] = {// List of known C/C++ types...
     "unsigned",
     "virtual",
     "void",
-    "volatile"
-};
+    "volatile"};
 
 
 //
@@ -166,7 +165,9 @@ void style_parse(const char* text, char* style, int length)
     for (current = *style, col = 0, last = 0; length > 0; length--, text++)
     {
         if (current == 'B')
-        { current = 'A'; }
+        {
+            current = 'A';
+        }
         if (current == 'A')
         {
             // Check for directives, comments, strings, and keywords...
@@ -179,9 +180,13 @@ void style_parse(const char* text, char* style, int length)
             {
                 current = 'B';
                 for (; length > 0 && *text != '\n'; length--, text++)
-                { *style++ = 'B'; }
+                {
+                    *style++ = 'B';
+                }
                 if (length == 0)
-                { break; }
+                {
+                    break;
+                }
             }
             else if (strncmp(text, "/*", 2) == 0)
             {
@@ -207,7 +212,8 @@ void style_parse(const char* text, char* style, int length)
                 for (temp = text, bufptr = buf;
                      islower(*temp) && bufptr < (buf + sizeof(buf) - 1);
                      *bufptr++ = *temp++)
-                {}
+                {
+                }
 
                 if (!islower(*temp))
                 {
@@ -288,9 +294,13 @@ void style_parse(const char* text, char* style, int length)
 
         // Copy style info...
         if (current == 'A' && (*text == '{' || *text == '}'))
-        { *style++ = 'G'; }
+        {
+            *style++ = 'G';
+        }
         else
-        { *style++ = current; }
+        {
+            *style++ = current;
+        }
         col++;
 
         last = isalnum(*text) || *text == '.';
@@ -300,7 +310,9 @@ void style_parse(const char* text, char* style, int length)
             // Reset column and possibly reset the style
             col = 0;
             if (current == 'B' || current == 'E')
-            { current = 'A'; }
+            {
+                current = 'A';
+            }
         }
     }
 }
@@ -319,7 +331,9 @@ void style_init()
     style[textbuf->length()] = '\0';
 
     if (!stylebuf)
-    { stylebuf = new Fl_Text_Buffer(textbuf->length()); }
+    {
+        stylebuf = new Fl_Text_Buffer(textbuf->length());
+    }
 
     style_parse(text, style, textbuf->length());
 
@@ -343,16 +357,15 @@ void style_unfinished_cb(int, void*)
 //
 
 void style_update(
-    int pos, // I - Position of update
-    int nInserted, // I - Number of inserted chars
-    int nDeleted, // I - Number of deleted chars
-    int         /*nRestyled*/, // I - Number of restyled chars
+    int pos,                     // I - Position of update
+    int nInserted,               // I - Number of inserted chars
+    int nDeleted,                // I - Number of deleted chars
+    int /*nRestyled*/,           // I - Number of restyled chars
     const char* /*deletedText*/, // I - Text that was deleted
-    void* cbArg
-)
-{ // I - Callback data
-    int start;  // Start of text
-    int end;    // End of text
+    void* cbArg)
+{                // I - Callback data
+    int start;   // Start of text
+    int end;     // End of text
     char last;   // Last style on line
     char* style; // Style data
     char* text;  // Text data
@@ -489,7 +502,9 @@ EditorWindow::~EditorWindow()
 int check_save()
 {
     if (!changed)
-    { return 1; }
+    {
+        return 1;
+    }
 
     int r = fl_choice("The current file has not been saved.\n"
                       "Would you like to save it now?",
@@ -517,9 +532,13 @@ void load_file(const char* newfile, int ipos)
     }
     int r;
     if (!insert)
-    { r = textbuf->loadfile(newfile); }
+    {
+        r = textbuf->loadfile(newfile);
+    }
     else
-    { r = textbuf->insertfile(newfile, ipos); }
+    {
+        r = textbuf->insertfile(newfile, ipos);
+    }
     if (r)
     {
         fl_alert("Error reading from file \'%s\':\n%s.", newfile, strerror(errno));
@@ -597,7 +616,9 @@ void find2_cb(Fl_Widget* w, void* v)
         e->editor->show_insert_position();
     }
     else
-    { fl_alert("No occurrences of \'%s\' found!", e->search.c_str()); }
+    {
+        fl_alert("No occurrences of \'%s\' found!", e->search.c_str());
+    }
 }
 
 void cursor_cb(Fl_Widget* w, void*)
@@ -621,7 +642,8 @@ void set_title(Fl_Window* w)
         char* slash;
         slash = strrchr(filename, '/');
 #ifdef WIN32
-        if (slash == NULL) slash = strrchr(filename, '\\');
+        if (slash == NULL)
+            slash = strrchr(filename, '\\');
 #endif
         if (slash != nullptr)
         {
@@ -644,17 +666,23 @@ void set_title(Fl_Window* w)
 void changed_cb(int, int nInserted, int nDeleted, int, const char*, void* v)
 {
     if ((nInserted || nDeleted) && !loading)
-    { changed = 1; }
+    {
+        changed = 1;
+    }
     auto* w = (EditorWindow*) v;
     set_title(w);
     if (loading)
-    { w->editor->show_insert_position(); }
+    {
+        w->editor->show_insert_position();
+    }
 }
 
 void new_cb(Fl_Widget*, void*)
 {
     if (!check_save())
-    { return; }
+    {
+        return;
+    }
 
     filename[0] = '\0';
     textbuf->select(0, textbuf->length());
@@ -666,14 +694,18 @@ void new_cb(Fl_Widget*, void*)
 void open_cb(Fl_Widget*, void*)
 {
     if (!check_save())
-    { return; }
+    {
+        return;
+    }
 
     CFileOpenDialog dialog;
     if (dialog.execute())
     {
         String newfile = dialog.fullFileName();
         if (newfile.length())
-        { load_file(newfile.c_str(), -1); }
+        {
+            load_file(newfile.c_str(), -1);
+        }
     }
 }
 
@@ -686,7 +718,9 @@ void insert_cb(Fl_Widget*, void* v)
     {
         String newfile = dialog.fullFileName();
         if (newfile.length())
-        { load_file(newfile.c_str(), w->editor->insert_position()); }
+        {
+            load_file(newfile.c_str(), w->editor->insert_position());
+        }
     }
 }
 
@@ -711,7 +745,9 @@ void close_cb(Fl_Widget*, void* v)
     delete w;
     num_windows--;
     if (!num_windows)
-    { exit(0); }
+    {
+        exit(0);
+    }
 }
 
 void quit_cb(Fl_Widget*, void*)
@@ -759,7 +795,9 @@ void replace2_cb(Fl_Widget*, void* v)
         e->editor->show_insert_position();
     }
     else
-    { fl_alert("No occurrences of \'%s\' found!", find.c_str()); }
+    {
+        fl_alert("No occurrences of \'%s\' found!", find.c_str());
+    }
 }
 
 void replall_cb(Fl_Widget*, void* v)
@@ -799,9 +837,13 @@ void replall_cb(Fl_Widget*, void* v)
     }
 
     if (times)
-    { fl_message("Replaced %d occurrences.", times); }
+    {
+        fl_message("Replaced %d occurrences.", times);
+    }
     else
-    { fl_alert("No occurrences of \'%s\' found!", find.c_str()); }
+    {
+        fl_alert("No occurrences of \'%s\' found!", find.c_str());
+    }
 }
 
 void replcan_cb(Fl_Widget*, void* v)
@@ -819,7 +861,9 @@ void save_cb()
         return;
     }
     else
-    { save_file(filename); }
+    {
+        save_file(filename);
+    }
 }
 
 void saveas_cb()
@@ -829,7 +873,9 @@ void saveas_cb()
     {
         String newfile = dialog.fullFileName();
         if (newfile.length())
-        { save_file(newfile.c_str()); }
+        {
+            save_file(newfile.c_str());
+        }
     }
 }
 
@@ -842,33 +888,32 @@ void view_cb(Fl_Widget*, void*)
 }
 
 Fl_Menu_Item menuitems[] = {
-    {"&File",     0, nullptr, nullptr, FL_SUBMENU},
+    {"&File", 0, nullptr, nullptr, FL_SUBMENU},
     {"&New File", 0, (Fl_Callback*) new_cb},
-    {"&Open File...",    FL_CTRL + 'o',            (Fl_Callback*) open_cb},
-    {"&Insert File...",  FL_CTRL + 'i',            (Fl_Callback*) insert_cb, nullptr, FL_MENU_DIVIDER},
-    {"&Save File",       FL_CTRL + 's',            (Fl_Callback*) save_cb},
+    {"&Open File...", FL_CTRL + 'o', (Fl_Callback*) open_cb},
+    {"&Insert File...", FL_CTRL + 'i', (Fl_Callback*) insert_cb, nullptr, FL_MENU_DIVIDER},
+    {"&Save File", FL_CTRL + 's', (Fl_Callback*) save_cb},
     {"Save File &As...", FL_CTRL + FL_SHIFT + 's', (Fl_Callback*) saveas_cb, nullptr, FL_MENU_DIVIDER},
-    {"New &View",        FL_ALT + 'v',             (Fl_Callback*) view_cb,   nullptr},
-    {"&Close View",      FL_CTRL + 'w',            (Fl_Callback*) close_cb,  nullptr, FL_MENU_DIVIDER},
-    {"E&xit",            FL_CTRL + 'q',            (Fl_Callback*) quit_cb,   nullptr},
+    {"New &View", FL_ALT + 'v', (Fl_Callback*) view_cb, nullptr},
+    {"&Close View", FL_CTRL + 'w', (Fl_Callback*) close_cb, nullptr, FL_MENU_DIVIDER},
+    {"E&xit", FL_CTRL + 'q', (Fl_Callback*) quit_cb, nullptr},
     {nullptr},
 
-    {"&Edit",     0, nullptr, nullptr, FL_SUBMENU},
-    {"Cu&t",             FL_CTRL + 'x',            (Fl_Callback*) cut_cb},
-    {"&Copy",            FL_CTRL + 'c',            (Fl_Callback*) copy_cb},
-    {"&Paste",           FL_CTRL + 'v',            (Fl_Callback*) paste_cb},
-    {"&Delete",   0, (Fl_Callback*) delete_cb},
+    {"&Edit", 0, nullptr, nullptr, FL_SUBMENU},
+    {"Cu&t", FL_CTRL + 'x', (Fl_Callback*) cut_cb},
+    {"&Copy", FL_CTRL + 'c', (Fl_Callback*) copy_cb},
+    {"&Paste", FL_CTRL + 'v', (Fl_Callback*) paste_cb},
+    {"&Delete", 0, (Fl_Callback*) delete_cb},
     {nullptr},
 
-    {"&Search",   0, nullptr, nullptr, FL_SUBMENU},
-    {"&Find...",         FL_CTRL + 'f',            (Fl_Callback*) find_cb},
-    {"F&ind Again",      FL_CTRL + 'g',            find2_cb},
-    {"&Replace...",      FL_CTRL + 'r',            replace_cb},
-    {"Re&place Again",   FL_CTRL + 't',            replace2_cb},
+    {"&Search", 0, nullptr, nullptr, FL_SUBMENU},
+    {"&Find...", FL_CTRL + 'f', (Fl_Callback*) find_cb},
+    {"F&ind Again", FL_CTRL + 'g', find2_cb},
+    {"&Replace...", FL_CTRL + 'r', replace_cb},
+    {"Re&place Again", FL_CTRL + 't', replace2_cb},
     {nullptr},
 
-    {nullptr}
-};
+    {nullptr}};
 
 CWindow* new_view()
 {
@@ -939,7 +984,9 @@ int main(int argc, char* argv[])
         window->show(1, argv);
 
         if (argc > 1)
-        { load_file(argv[1], -1); }
+        {
+            load_file(argv[1], -1);
+        }
 
         CThemes::set("Keramic");
 
@@ -947,7 +994,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 }

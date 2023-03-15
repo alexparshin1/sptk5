@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <sptk5/cxml>
-#include <sptk5/wsdl/WSBasicTypes.h>
+#include "WSRestriction.h"
 #include <iostream>
 #include <list>
 #include <set>
-#include "WSRestriction.h"
+#include <sptk5/wsdl/WSBasicTypes.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -43,13 +43,12 @@ namespace sptk {
 /**
  * Multiplicity flag
  */
-enum class WSMultiplicity
-    : uint8_t
+enum class WSMultiplicity : uint8_t
 {
-    REQUIRED = 1, ///< Element is required
-    ZERO_OR_ONE = 2, ///< Element is optional
+    REQUIRED = 1,     ///< Element is required
+    ZERO_OR_ONE = 2,  ///< Element is optional
     ZERO_OR_MORE = 4, ///< Element may occur 0 or more times
-    ONE_OR_MORE = 8  ///< Element may occur one or more times
+    ONE_OR_MORE = 8   ///< Element may occur one or more times
 };
 
 /**
@@ -101,14 +100,14 @@ public:
     }
 
 private:
-
-    String m_name;         ///< Attribute name
-    String m_wsTypeName;   ///< Attribute type name
-    String m_cxxTypeName;  ///< C++ type name
+    String m_name;        ///< Attribute name
+    String m_wsTypeName;  ///< Attribute type name
+    String m_cxxTypeName; ///< C++ type name
 };
 
 class WSParserComplexType;
 
+using SWSParserAttribute = std::shared_ptr<WSParserAttribute>;
 using SWSParserComplexType = std::shared_ptr<WSParserComplexType>;
 using WSParserComplexTypeList = std::list<SWSParserComplexType>;
 
@@ -129,7 +128,7 @@ public:
      * @param name              Object name
      * @param typeName          Object types
      */
-    explicit WSParserComplexType(const xml::Element* complexTypeElement, const String& name = "",
+    explicit WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name = "",
                                  const String& typeName = "");
 
     /**
@@ -192,7 +191,7 @@ public:
     /**
      * Parses WSDL child sequence
      */
-    void parseSequence(const xml::Element* sequence);
+    void parseSequence(const xdoc::SNode& sequence);
 
     /**
      * Generates C++ class declaration and implementation
@@ -200,12 +199,11 @@ public:
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation,
                   const String& externalHeader, const String& serviceNamespace) const;
 
-    static std::map<String, const xml::Element*> SimpleTypeElements;
+    static std::map<String, xdoc::SNode> SimpleTypeElements;
 
-    static const xml::Element* findSimpleType(const String& typeName);
+    static xdoc::SNode findSimpleType(const String& typeName);
 
 protected:
-
     /**
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
@@ -223,7 +221,6 @@ protected:
                                 const String& serviceNamespace) const;
 
 private:
-
     class Initializer
     {
     public:
@@ -244,27 +241,21 @@ private:
         size_t restrictionNumber {0};
 
         void print(std::ostream& output) const;
-
-        void printImplementationLoadArray(const SWSParserComplexType& complexType);
-
-        String appendRestrictionIfDefined(const SWSParserComplexType& complexType);
-
-        void printImplementationLoadField(Strings& requiredElements, const SWSParserComplexType& complexType);
     };
 
     /**
      * Map of attribute names to attribute objects
      */
-    using AttributeMap = std::map<std::string, WSParserAttribute*, std::less<>>;
+    using AttributeMap = std::map<std::string, SWSParserAttribute, std::less<>>;
 
-    String m_name;                             ///< Element name
-    String m_typeName;                         ///< WSDL type name
-    const xml::Element* m_element {nullptr};   ///< XML element for that WSDL element
-    AttributeMap m_attributes;                 ///< Element attributes
-    WSParserComplexTypeList m_sequence;        ///< Child element sequence
-    WSMultiplicity m_multiplicity;             ///< Multiplicity flag
-    SWSRestriction m_restriction;              ///< Element restriction (if any) or NULL
-    String m_documentation;                    ///< Optional documentation
+    String m_name;                      ///< Element name
+    String m_typeName;                  ///< WSDL type name
+    xdoc::SNode m_element;              ///< XML element for that WSDL element
+    AttributeMap m_attributes;          ///< Element attributes
+    WSParserComplexTypeList m_sequence; ///< Child element sequence
+    WSMultiplicity m_multiplicity;      ///< Multiplicity flag
+    SWSRestriction m_restriction;       ///< Element restriction (if any) or NULL
+    String m_documentation;             ///< Optional documentation
 
     /**
      * Generate includes for C++ class
@@ -294,14 +285,10 @@ private:
     void printImplementationConstructors(std::ostream& classImplementation, const String& className,
                                          const Strings& elementNames, const Strings& attributeNames) const;
 
-    void printImplementationAssignments(std::ostream& classImplementation, const String& className) const;
-
     void printImplementationCheckRestrictions(std::ostream& classImplementation, const String& className) const;
 
     static void generateSetFieldIndex(std::ostream& classDeclaration, const Strings& elementNames,
                                       const Strings& attributeNames);
-
-    static String jsonAttributeOutputMethod(const String& wsTypeName);
 };
 
 /**
@@ -317,4 +304,4 @@ using WSComplexTypeMap = std::map<String, SWSParserComplexType>;
 /**
  * @}
  */
-}
+} // namespace sptk

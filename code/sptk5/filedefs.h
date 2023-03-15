@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,41 +26,42 @@
 
 #pragma once
 
-# include <sys/stat.h>
+#include <sys/stat.h>
 
 #ifdef _WIN32
 
-# include <windows.h>
-# include <winsock2.h>
-# include <io.h>
-# include <direct.h>
+#include <winsock2.h>
 
-# define S_ISLNK(m)      (false)
-# define S_ISEXEC(m)     (((m) & _S_IEXEC) == _S_IEXEC)
-# if !defined(__UNIX_COMPILER__) && !defined(__BORLANDC__)
-#   define S_ISREG(m)      (((m) & _S_IFREG) == _S_IFREG)
-#   define S_ISDIR(m)      (((m) & _S_IFDIR) == _S_IFDIR)
-#   define S_ISBLK(m)      (((m) & _S_IFBLK) == _S_IFBLK)
-# endif
+#include <direct.h>
+#include <io.h>
+#include <windows.h>
 
-# define lstat stat
+#define S_ISLNK(m) (false)
+#define S_ISEXEC(m) (((m) &_S_IEXEC) == _S_IEXEC)
+#if !defined(__UNIX_COMPILER__) && !defined(__BORLANDC__)
+#define S_ISREG(m) (((m) &_S_IFREG) == _S_IFREG)
+#define S_ISDIR(m) (((m) &_S_IFDIR) == _S_IFDIR)
+#define S_ISBLK(m) (((m) &_S_IFBLK) == _S_IFBLK)
+#endif
+
+#define lstat stat
 
 #else
 
-#include <unistd.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #ifndef S_ISEXEC
-# define S_ISEXEC(m)  (((m) & S_IEXEC) == S_IEXEC)
+#define S_ISEXEC(m) (((m) &S_IEXEC) == S_IEXEC)
 #endif
 #ifndef S_ISREG
-# define S_ISREG(m)   (((m) & S_IFMT) == S_IFREG)
+#define S_ISREG(m) (((m) &S_IFMT) == S_IFREG)
 #endif
 #ifndef S_ISDIR
-# define S_ISDIR(m)   (((m) & S_IFMT) == S_IFDIR)
+#define S_ISDIR(m) (((m) &S_IFMT) == S_IFDIR)
 #endif
 #ifndef S_ISBLK
-# define S_ISBLK(m)   (((m) & S_IFMT) == S_IFBLK)
+#define S_ISBLK(m) (((m) &S_IFMT) == S_IFBLK)
 #endif
 
 #endif

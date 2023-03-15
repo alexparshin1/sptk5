@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/QueryParameterList.h>
 #include <sptk5/cutils>
 #include <sptk5/db/QueryParameter.h>
+#include <sptk5/db/QueryParameterList.h>
 
 using namespace std;
 using namespace sptk;
@@ -41,7 +41,6 @@ void QueryParameterList::add(const SQueryParameter& item)
 {
     m_items.push_back(item);
     m_index[item->name()] = item;
-    item->m_paramList = this;
 }
 
 SQueryParameter QueryParameterList::find(const String& paramName)
@@ -61,7 +60,9 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
-    throwException("Invalid parameter name: " << paramName)
+    {
+        throwException<Exception>("Invalid parameter name: " + paramName);
+    }
 
     return *itor->second;
 }
@@ -78,7 +79,7 @@ size_t QueryParameterList::size() const
 
 void QueryParameterList::remove(size_t i)
 {
-    auto itor = m_items.begin() + i;
+    auto itor = m_items.begin() + (int) i;
     SQueryParameter item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
@@ -95,7 +96,7 @@ void QueryParameterList::enumerate(CParamVector& params) const
 
     size_t maxIndex = 0;
 
-    for (auto& param: m_items)
+    for (const auto& param: m_items)
     {
         const auto& bindIndex = param->m_bindParamIndexes;
 

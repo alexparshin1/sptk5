@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <FL/Fl.H>
 #include <FL/Enumerations.H>
-#include <sptk5/cxml>
-#include <sptk5/gui/CThemeImageCollection.h>
+#include <FL/Fl.H>
 #include <map>
+#include <sptk5/gui/CThemeImageCollection.h>
+#include <sptk5/xdoc/Node.h>
 #include <string>
 
 namespace sptk {
@@ -46,7 +46,8 @@ namespace sptk {
 
 enum CThemeScrollBarType
 {
-    THM_SCROLLBAR_VERTICAL, THM_SCROLLBAR_HORIZONTAL
+    THM_SCROLLBAR_VERTICAL,
+    THM_SCROLLBAR_HORIZONTAL
 };
 
 /**
@@ -56,7 +57,6 @@ enum CThemeScrollBarType
 class SP_EXPORT CScrollBarImages
 {
 public:
-
     /**
      * @brief Type of the scroll bar image
      */
@@ -93,7 +93,7 @@ public:
      * @brief Default constructor
      */
     CScrollBarImages() noexcept
-    : m_orientation(THM_SCROLLBAR_VERTICAL)
+        : m_orientation(THM_SCROLLBAR_VERTICAL)
     {
     }
 
@@ -146,25 +146,25 @@ public:
      * @param buttonImages CThemeImageCollection&, output button images
      */
     static void loadGtkScrollbarButtons(
-            xml::Document& xml, const String& orientation, CThemeImageCollection& buttonImages);
+        xdoc::Document& xml, const String& orientation, CThemeImageCollection& buttonImages);
 
     /**
      * @brief Loads GTK theme scrollbar troughs
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbarTroughs(xml::Document& xml);
+    static void loadGtkScrollbarTroughs(xdoc::Document& xml);
 
     /**
      * @brief Loads GTK theme scrollbar sliders
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbarSliders(xml::Document& xml);
+    static void loadGtkScrollbarSliders(xdoc::Document& xml);
 
     /**
      * @brief Loads GTK theme scrollbar button images from GTK theme
      * @param xml XMLDoc&, GTK theme converted to XML
      */
-    static void loadGtkScrollbars(xml::Document& xml);
+    static void loadGtkScrollbars(xdoc::Document& xml);
 
     /**
      * @brief Computes and returns the minimum size of the scroll bar
@@ -190,11 +190,11 @@ public:
      * @param activeZone int, 0 - no active zone, 1 - button 1, 2 - button 2, 3 - slider, +8 - pushed
      * @param active bool, true if scrollbar is active (enabled)
      */
-    static bool drawScrollBar(int x, int y, int w, int h, float minimum, float maximum, float value, float size, int activeZone, bool active);
+    static bool drawScrollBar(int x, int y, int w, int h, float minimum, float maximum, float value, float size,
+                              int activeZone, bool active);
 };
 
 /**
  * @}
  */
-}
-
+} // namespace sptk

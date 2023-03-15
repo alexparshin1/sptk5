@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,17 +26,17 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
 #include <mutex>
+#include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_POSTGRESQL == 1
+#ifdef HAVE_POSTGRESQL
 
 #include <libpq-fe.h>
 
 #ifndef _WIN32
 
-#include <netinet/in.h>
 #include <list>
+#include <netinet/in.h>
 
 #endif
 
@@ -60,9 +60,7 @@ class SP_EXPORT PostgreSQLConnection
     friend class Query;
 
 public:
-
-    enum class TimestampFormat
-        : uint8_t
+    enum class TimestampFormat : uint8_t
     {
         UNKNOWN,
         DOUBLE,
@@ -103,8 +101,8 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void _bulkInsert(const String& tableName, const Strings& columnNames,
-                     const std::vector<VariantVector>& data) override;
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    const std::vector<VariantVector>& data) override;
 
     /**
      * @brief Executes SQL batch file
@@ -114,7 +112,7 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
-    void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Constructor
@@ -125,12 +123,12 @@ public:
      * If the connection string is empty then default database with the name equal to user name is used.
      * @param connectionString  The PostgreSQL connection string
      */
-    explicit PostgreSQLConnection(const String& connectionString = "");
+    explicit PostgreSQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
      * @brief Destructor
      */
-    virtual ~PostgreSQLConnection();
+    ~PostgreSQLConnection() override;
 
     /**
      * @brief Returns driver-specific connection string
@@ -164,9 +162,13 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    static Strings extractStatements(const Strings& sqlBatch);
+    /**
+     * @brief All active connections
+     */
+    static std::map<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
 
 protected:
+    static Strings extractStatements(const Strings& sqlBatch);
 
     /**
      * @brief Begins the transaction
@@ -207,22 +209,12 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
-
-    /**
      * Executes a statement
      */
     void queryExecute(Query* query) override
     {
         // Not needed for PG driver
     }
-
-    /**
-     * Executes unprepared statement
-     */
-    void queryExecDirect(Query* query) override;
 
     /**
      * Counts columns of the dataset (if any) returned by query
@@ -261,21 +253,24 @@ protected:
         return m_timestampsFormat;
     }
 
-private:
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
+    void queryExecDirect(const Query* query);
 
+private:
     mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
-    PGconn* m_connect {nullptr};                        ///< PostgreSQL database connection
+    PGconn* m_connect {nullptr};                                   ///< PostgreSQL database connection
     TimestampFormat m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString);
+SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
 SP_DRIVER_EXPORT void postgresql_destroy_connection(void* connection);
 }

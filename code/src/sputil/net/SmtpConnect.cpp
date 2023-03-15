@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,6 +28,7 @@
 #include <sptk5/Base64.h>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/SmtpConnect.h>
+#include <sptk5/net/SocketReader.h>
 
 using namespace std;
 using namespace sptk;
@@ -38,43 +39,38 @@ SmtpConnect::SmtpConnect(Logger* log)
 }
 
 constexpr int RSP_BLOCK_SIZE = 1024;
+constexpr int minErrorCode = 433;
 
 int SmtpConnect::getResponse(bool decode)
 {
-    array<char, RSP_BLOCK_SIZE + 1> readBuffer;
+    Buffer readBuffer(RSP_BLOCK_SIZE);
     String longLine;
     bool readCompleted = false;
-    int rc = 0;
+    int result = 0;
 
-    if (!readyToRead(chrono::seconds(30)))
+    SocketReader socketReader(*this);
+
+    if (constexpr chrono::seconds readTimeout {30};
+        !readyToRead(readTimeout))
     {
         throw TimeoutException("SMTP server response timeout");
     }
 
     while (!readCompleted)
     {
-        size_t len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-        longLine = readBuffer.data();
-        if (len == RSP_BLOCK_SIZE && readBuffer[RSP_BLOCK_SIZE] != '\n')
-        {
-            do
-            {
-                len = readLine(readBuffer.data(), RSP_BLOCK_SIZE);
-                longLine += readBuffer.data();
-            }
-            while (len == RSP_BLOCK_SIZE);
-        }
+        socketReader.readLine(readBuffer);
+        longLine = readBuffer.c_str();
 
         if (longLine[3] == ' ')
         {
             readCompleted = true;
             longLine[3] = 0;
-            rc = string2int(longLine);
+            result = string2int(longLine);
         }
 
         if (!longLine.empty())
         {
-            size_t lastCharPos = longLine.length() - 1;
+            const size_t lastCharPos = longLine.length() - 1;
             if (longLine[lastCharPos] == '\r')
             {
                 longLine.erase(lastCharPos);
@@ -82,7 +78,7 @@ int SmtpConnect::getResponse(bool decode)
         }
 
         const char* text = longLine.c_str() + 4;
-        if (rc <= 432 && decode)
+        if (result < minErrorCode && decode)
         {
             longLine = unmime(text);
             m_response.push_back(longLine);
@@ -92,7 +88,7 @@ int SmtpConnect::getResponse(bool decode)
             m_response.push_back(text);
         }
     }
-    return rc;
+    return result;
 }
 
 void SmtpConnect::sendCommand(String cmd, bool encode)
@@ -131,32 +127,35 @@ String SmtpConnect::mime(const Buffer& buffer)
     return (String) result;
 }
 
-String SmtpConnect::mime(const String& s)
+String SmtpConnect::mime(const String& str)
 {
     String result;
     Buffer src;
-    src.set((const uint8_t*) s.c_str(), (uint32_t) s.length());
+    src.set((const uint8_t*) str.c_str(), (uint32_t) str.length());
     Base64::encode(result, src);
     return result;
 }
 
-String SmtpConnect::unmime(const String& s)
+String SmtpConnect::unmime(const String& str)
 {
     Buffer dest;
-    Base64::decode(dest, s);
-    return String(dest.c_str(), dest.bytes());
+    Base64::decode(dest, str);
+    return {dest.c_str(), dest.bytes()};
 }
 
 void SmtpConnect::cmd_auth(const String& user, const String& password)
 {
+    constexpr int minAuthErrorCode {252};
+    constexpr chrono::seconds connectTimeout {30};
+
     close();
-    open(Host(), OpenMode::CONNECT, true, chrono::seconds(30));
+    open(Host(), OpenMode::CONNECT, true, connectTimeout);
 
     m_response.clear();
     getResponse();
 
-    int rc = command("EHLO localhost");
-    if (rc > 251)
+    int result = command("EHLO localhost");
+    if (result > minAuthErrorCode)
     {
         throw Exception(m_response.join("\n"));
     }
@@ -167,9 +166,9 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
         return;
     } // Authentication not advertised and not required
 
-    RegularExpression matchAuth("^AUTH ");
-    String authMethodsStr = matchAuth.s(authInfo[0], "");
-    Strings authMethods(authMethodsStr, " ");
+    const RegularExpression matchAuth("^AUTH ");
+    const String authMethodsStr = matchAuth.s(authInfo[0], "");
+    const Strings authMethods(authMethodsStr, " ");
 
     String method = "LOGIN";
     if (authMethods.indexOf("LOGIN") < 0)
@@ -183,16 +182,16 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
     {
         if (method == "LOGIN")
         {
-            rc = command("AUTH LOGIN", false, true);
-            if (rc > 432)
+            result = command("AUTH LOGIN", false, true);
+            if (result >= minAuthErrorCode)
                 throw Exception(m_response.join("\n"));
 
-            rc = command(user, true, true);
-            if (rc > 432)
+            result = command(user, true, true);
+            if (result >= minAuthErrorCode)
                 throw Exception(m_response.join("\n"));
 
-            rc = command(password, true, false);
-            if (rc > 432)
+            result = command(password, true, false);
+            if (result >= minAuthErrorCode)
                 throw Exception(m_response.join("\n"));
             return;
         }
@@ -200,15 +199,15 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
         if (method == "PLAIN")
         {
             Buffer userAndPassword;
-            char nullChar = 0;
+            constexpr char nullChar = 0;
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(user.c_str(), user.size());
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(password.c_str(), password.size());
 
-            String userAndPasswordMimed = mime(userAndPassword);
-            rc = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
-            if (rc > 432)
+            const String userAndPasswordMimed = mime(userAndPassword);
+            result = command("AUTH PLAIN " + userAndPasswordMimed, false, false);
+            if (result >= minAuthErrorCode)
                 throw Exception(m_response.join("\n"));
             return;
         }
@@ -230,49 +229,53 @@ void SmtpConnect::cmd_quit()
 
 String parseAddress(const String& fullAddress)
 {
-    size_t p1 = fullAddress.find('<');
-    size_t p2 = fullAddress.find('>');
-    if (p1 == STRING_NPOS || p2 == STRING_NPOS || p2 < p1)
+    const size_t addressStart = fullAddress.find('<');
+    const size_t addressEnd = fullAddress.find('>');
+    if (addressStart == STRING_NPOS || addressEnd == STRING_NPOS || addressEnd < addressStart)
     {
         return fullAddress;
     }
-    return trim(fullAddress.substr(p1 + 1, p2 - p1 - 1));
+    return trim(fullAddress.substr(addressStart + 1, addressEnd - addressStart - 1));
 }
 
 void SmtpConnect::sendMessage()
 {
-    int rc = command("MAIL FROM:<" + parseAddress(from()) + ">");
-    if (rc > 251)
+    constexpr int minSendErrorCode {252};
+    int result = command("MAIL FROM:<" + parseAddress(from()) + ">");
+    if (result >= minSendErrorCode)
     {
         throw Exception("Can't send message:\n" + m_response.join("\n"));
     }
 
     String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
-    Strings recepients(rcpts, ";");
-    auto cnt = (uint32_t) recepients.size();
+    Strings recipients(rcpts, ";");
+    auto cnt = (uint32_t) recipients.size();
     for (uint32_t i = 0; i < cnt; ++i)
     {
-        if (trim(recepients[i]).empty())
-        { continue; }
-        rc = command("RCPT TO:<" + parseAddress(recepients[i]) + ">");
-        if (rc > 251)
+        if (trim(recipients[i]).empty())
         {
-            throw Exception("Recepient " + recepients[i] + " is not accepted.\n" + m_response.join("\n"));
+            continue;
+        }
+        result = command("RCPT TO:<" + parseAddress(recipients[i]) + ">");
+        if (result >= minSendErrorCode)
+        {
+            throw Exception("Recipient " + recipients[i] + " is not accepted.\n" + m_response.join("\n"));
         }
     }
 
+    constexpr int dataSuccessCode {354};
     Buffer message(messageBuffer());
     mimeMessage(message);
-    rc = command("DATA");
-    if (rc != 354)
+    result = command("DATA");
+    if (result != dataSuccessCode)
     {
         throw Exception("DATA command is not accepted.\n" + m_response.join("\n"));
     }
 
     sendCommand(message.c_str());
-    rc = command("\n.");
-    if (rc > 251)
+    result = command("\n.");
+    if (result >= minSendErrorCode)
     {
         throw Exception("Message body is not accepted.\n" + m_response.join("\n"));
     }

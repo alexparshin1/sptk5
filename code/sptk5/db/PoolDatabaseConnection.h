@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
-#include <sptk5/Strings.h>
-#include <sptk5/db/DatabaseConnectionString.h>
-#include <sptk5/Variant.h>
 #include <sptk5/Logger.h>
+#include <sptk5/Strings.h>
+#include <sptk5/Variant.h>
+#include <sptk5/db/DatabaseConnectionString.h>
 
-#include <vector>
 #include <list>
 #include <set>
+#include <vector>
 
 namespace sptk {
 
@@ -52,40 +51,35 @@ using SStmtHandle = std::shared_ptr<uint8_t>;
 /**
  * Database connection type
  */
-enum class DatabaseConnectionType
-    : uint16_t
+enum class DatabaseConnectionType : uint16_t
 {
-    UNKNOWN = 0,          ///< Unknown
-    MYSQL = 1,            ///< MySQL
-    ORACLE = 2,           ///< Oracle
-    POSTGRES = 4,         ///< PostgreSQL
-    SQLITE3 = 8,          ///< SQLite3
-    FIREBIRD = 16,        ///< Firebird
-    GENERIC_ODBC = 32,    ///< Generic ODBC
-    MSSQL_ODBC = 64       ///< MS SQL ODBC
+    MYSQL = 1,         ///< MySQL
+    ORACLE = 2,        ///< Oracle
+    POSTGRES = 4,      ///< PostgreSQL
+    SQLITE3 = 8,       ///< SQLite3
+    FIREBIRD = 16,     ///< Firebird
+    GENERIC_ODBC = 32, ///< Generic ODBC
+    MSSQL_ODBC = 64    ///< MS SQL ODBC
 };
 
 /**
  * Types of the objects for DatabaseConnection::listObjects method
  */
-enum class DatabaseObjectType
-    : uint8_t
+enum class DatabaseObjectType : uint8_t
 {
-    UNDEFINED,          ///< Undefined
-    TABLES,             ///< Tables
-    VIEWS,              ///< Views
-    PROCEDURES,         ///< Stored procedures
-    FUNCTIONS,          ///< Stored functions
-    DATABASES           ///< Available databases
+    TABLES,     ///< Tables
+    VIEWS,      ///< Views
+    PROCEDURES, ///< Stored procedures
+    FUNCTIONS,  ///< Stored functions
+    DATABASES   ///< Available databases
 };
 
 /**
  * Column type and size structure
  */
-struct QueryColumnTypeSize
-{
-    VariantDataType type;   ///< Column type
-    size_t length; ///< Column data size
+struct QueryColumnTypeSize {
+    VariantDataType type; ///< Column type
+    size_t length;        ///< Column data size
 };
 
 /**
@@ -104,97 +98,90 @@ class SP_EXPORT PoolDatabaseConnectionQueryMethods
 
     friend class QueryStatementManagement;
 
+public:
+    virtual ~PoolDatabaseConnectionQueryMethods() = default;
+
 protected:
     /**
      * Sets internal CQuery statement handle
      */
-    void querySetStmt(Query* q, SStmtHandle stmt);
+    void querySetStmt(Query* query, const SStmtHandle& stmt);
 
     /**
      * Sets internal CQuery m_prepared flag
      */
-    static void querySetPrepared(Query* q, bool pf);
+    static void querySetPrepared(Query* query, bool isPrepared);
 
     /**
      * Sets internal CQuery m_active flag
      */
-    static void querySetActive(Query* q, bool af);
+    static void querySetActive(Query* query, bool isActive);
 
     /**
      * Sets internal CQuery m_eof flag
      */
-    static void querySetEof(Query* q, bool eof);
+    static void querySetEof(Query* query, bool isEof);
 
     // These methods implement the actions requested by CQuery
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    virtual String queryError(const Query* query) const;
+    virtual String queryError(const Query* query) const = 0;
 
     /**
      * Allocates an ODBC statement
      */
-    virtual void queryAllocStmt(Query* query);
+    virtual void queryAllocStmt(Query* query) = 0;
 
     /**
      * Deallocates an ODBC statement
      */
-    virtual void queryFreeStmt(Query* query);
+    virtual void queryFreeStmt(Query* query) = 0;
 
     /**
      * Closes an ODBC statement
      */
-    virtual void queryCloseStmt(Query* query);
+    virtual void queryCloseStmt(Query* query) = 0;
 
     /**
      * Prepares a query if supported by database
      */
-    virtual void queryPrepare(Query* query);
-
-    /**
-     * Unprepares a query if supported by database
-     */
-    virtual void queryUnprepare(Query* query);
+    virtual void queryPrepare(Query* query) = 0;
 
     /**
      * Executes a statement
      */
-    virtual void queryExecute(Query* query);
-
-    /**
-     * Executes unprepared statement
-     */
-    virtual void queryExecDirect(Query* query);
+    virtual void queryExecute(Query* query) = 0;
 
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int queryColCount(Query* query);
+    virtual int queryColCount(Query* query) = 0;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) = 0;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
      */
-    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len);
+    virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) = 0;
 
     /**
      * Binds the parameters to the query
      */
-    virtual void queryBindParameters(Query* query);
+    virtual void queryBindParameters(Query* query) = 0;
 
     /**
      * Opens the query for reading data from the query' recordset
      */
-    virtual void queryOpen(Query* query);
+    virtual void queryOpen(Query* query) = 0;
 
     /**
      * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
-    virtual void queryFetch(Query* query);
+    virtual void queryFetch(Query* query) = 0;
 
     /**
      * Returns parameter mark
@@ -213,12 +200,12 @@ protected:
     /**
      * Attaches (links) query to the database
      */
-    bool linkQuery(Query* q);
+    bool linkQuery(Query* query);
 
     /**
      * Unlinks query from the database
      */
-    bool unlinkQuery(Query* q);
+    bool unlinkQuery(Query* query);
 
     /**
      * Close all queries, connected to this connection,
@@ -228,8 +215,7 @@ protected:
     void disconnectAllQueries();
 
 private:
-
-    std::map<Query*, SStmtHandle> m_queryList;  ///< The list of queries that use this database
+    std::map<Query*, SStmtHandle> m_queryList; ///< The list of queries that use this database
 };
 
 /**
@@ -246,6 +232,30 @@ class SP_EXPORT PoolDatabaseConnection
     friend class QueryStatementManagement;
 
 public:
+    /**
+     * @brief Destructor
+     */
+    ~PoolDatabaseConnection() override;
+
+    /**
+     * @brief Copy constructor is deleted
+     */
+    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
+
+    /**
+     * @brief Move constructor is deleted
+     */
+    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
+
+    /**
+     * @brief Copy assignment is deleted
+     */
+    PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
+
+    /**
+     * @brief Move assignment is deleted
+     */
+    PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
     /**
      * Opens the database connection
@@ -275,7 +285,7 @@ public:
      */
     const DatabaseConnectionString& connectionString() const
     {
-        return *m_connString;
+        return m_connString;
     }
 
     /**
@@ -351,10 +361,8 @@ public:
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data)
-    {
-        _bulkInsert(tableName, columnNames, data);
-    }
+    virtual void bulkInsert(const String& tableName, const Strings& columnNames,
+                            const std::vector<VariantVector>& data);
 
     /**
      * Executes SQL batch file
@@ -364,10 +372,7 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr)
-    {
-        _executeBatchFile(batchFileName, errors);
-    }
+    virtual void executeBatchFile(const String& batchFileName, Strings* errors);
 
     /**
      * Executes SQL batch queries
@@ -377,13 +382,9 @@ public:
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr)
-    {
-        _executeBatchSQL(batchSQL, errors);
-    }
+    virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
 protected:
-
     bool getInTransaction() const;
 
     void setInTransaction(bool inTransaction);
@@ -396,15 +397,7 @@ protected:
      * classes.
      * @param connectionString  The connection string
      */
-    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType);
-
-    PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
-
-    PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
-
-    PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
-
-    PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
+    explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, std::chrono::seconds connectTimeout);
 
     /**
      * Opens the database connection.
@@ -446,39 +439,6 @@ protected:
     [[noreturn]] static void logAndThrow(const String& method, const String& error);
 
     /**
-     * Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    virtual void _bulkInsert(const String& tableName, const Strings& columnNames,
-                             const std::vector<VariantVector>& data);
-
-    /**
-     * Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchFile(const String& batchFileName, Strings* errors);
-
-    /**
-     * Executes SQL batch queries
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
-     */
-    virtual void _executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
-
-    /**
      * Set the connection type
      */
     virtual void connectionType(DatabaseConnectionType connType)
@@ -497,12 +457,21 @@ protected:
                            const std::vector<VariantVector>::const_iterator& begin,
                            const std::vector<VariantVector>::const_iterator& end);
 
-private:
+    /**
+     * Return connection timeout
+     * @return connection timeout
+     */
+    std::chrono::seconds connectTimeout() const
+    {
+        return m_connectionTimeout;
+    }
 
-    SDatabaseConnectionString m_connString;      ///< The connection string
-    DatabaseConnectionType m_connType;           ///< The connection type
-    String m_driverDescription;                  ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};                ///< The in-transaction flag
+private:
+    DatabaseConnectionString m_connString;    ///< The connection string
+    DatabaseConnectionType m_connType;        ///< The connection type
+    String m_driverDescription;               ///< Driver description is filled by the particular driver.
+    bool m_inTransaction {false};             ///< The in-transaction flag
+    std::chrono::seconds m_connectionTimeout; ///< Connection timeout
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
@@ -518,4 +487,4 @@ SP_EXPORT String escapeSQLString(const String& str, bool tsv = false);
 /**
  * @}
  */
-}
+} // namespace sptk

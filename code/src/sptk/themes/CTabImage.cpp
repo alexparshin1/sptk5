@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,16 +32,16 @@
 using namespace std;
 using namespace sptk;
 
-CTabImage::CTabImage(const Tar& tar, const xml::Node* tabImageNode)
+CTabImage::CTabImage(const Tar& tar, const xdoc::SNode& tabImageNode)
 {
-    m_name = (String) tabImageNode->getAttribute("name");
-    String fileName = (String) tabImageNode->getAttribute("image");
+    m_name = (String) tabImageNode->attributes().get("name");
+    String fileName = (String) tabImageNode->attributes().get("image");
     m_image = new CPngImage(tar.file(fileName));
-    m_leftFrameWidth = (int) tabImageNode->getAttribute("left_frame", "0");
-    m_rightFrameWidth = (int) tabImageNode->getAttribute("right_frame", "0");
-    m_topFrameHeight = (int) tabImageNode->getAttribute("top_frame", "0");
-    m_bottomFrameHeight = (int) tabImageNode->getAttribute("bottom_frame", "0");
-    if ((String) tabImageNode->getAttribute("fill") == "stretch")
+    m_leftFrameWidth = tabImageNode->attributes().get("left_frame", "0").toInt();
+    m_rightFrameWidth = tabImageNode->attributes().get("right_frame", "0").toInt();
+    m_topFrameHeight = tabImageNode->attributes().get("top_frame", "0").toInt();
+    m_bottomFrameHeight = tabImageNode->attributes().get("bottom_frame", "0").toInt();
+    if ((String) tabImageNode->attributes().get("fill") == "stretch")
     {
         m_backgroundDrawMode = CPngImage::CPatternDrawMode::PDM_STRETCH;
     }
@@ -97,12 +97,12 @@ void CTabImage::draw(int x, int y, int w, int h)
                             h - (m_topFrameHeight + m_bottomFrameHeight));
 }
 
-void CTabImages::load(const Tar& tar, const xml::Node* tabImagesNode)
+void CTabImages::load(const Tar& tar, const xdoc::SNode& tabImagesNode)
 {
     clear();
-    for (auto tabNode: *tabImagesNode)
+    for (auto& tabNode: tabImagesNode->nodes())
     {
-        auto tabImage = new CTabImage(tar, tabNode);
+        auto* tabImage = new CTabImage(tar, tabNode);
         (*this)[tabImage->name()] = tabImage;
     }
 }

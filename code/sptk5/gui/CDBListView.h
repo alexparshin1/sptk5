@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/gui/CListView.h>
-#include <sptk5/db/Query.h>
 #include <sptk5/DateTime.h>
+#include <sptk5/db/Query.h>
+#include <sptk5/gui/CListView.h>
 
 namespace sptk {
 
@@ -84,7 +84,6 @@ class SP_EXPORT CDBListView
     bool m_recordsLimited;
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -103,7 +102,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDBListView(int x, int y, int w, int h, const char *label=0);
+    CDBListView(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -208,9 +207,9 @@ public:
      * @brief Creates a widget based on the XML node information
      * @param node xml::Node*, an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

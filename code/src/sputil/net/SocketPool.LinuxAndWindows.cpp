@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,19 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/SystemException.h"
-#include "sptk5/net/SocketPool.h"
-
-#ifdef _WIN32
-#include <wepoll.h>
-#include <WS2tcpip.h>
-#include <WinSock2.h>
-#include <Windows.h>
-#else
-
-#include <sys/epoll.h>
-
-#endif
+#include <sptk5/SystemException.h>
+#include <sptk5/net/SocketPool.h>
 
 using namespace std;
 using namespace sptk;
@@ -53,7 +42,7 @@ SocketPool::~SocketPool()
 
 void SocketPool::open()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -70,7 +59,7 @@ void SocketPool::open()
 
 void SocketPool::close()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -82,32 +71,32 @@ void SocketPool::close()
         m_pool = INVALID_EPOLL;
     }
 
-    for (const auto& [socket, event]: m_socketData)
-    {
-        delete (epoll_event*) event;
-    }
-
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, void* userData)
+void SocketPool::watchSocket(BaseSocket& socket, const uint8_t* userData)
 {
     if (!socket.active())
     {
         throw Exception("Socket is closed");
     }
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
+
+    if (m_pool == INVALID_EPOLL)
+    {
+        throw SystemException("SocketPool is not open");
+    }
 
     auto socketFD = socket.fd();
 
-    auto* event = new epoll_event;
-    event->data.ptr = userData;
+    auto event = make_shared<epoll_event>();
+    event->data.ptr = (void*) userData;
     event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event) == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event.get()) == -1)
     {
-        throw SystemException("Can't add socket to epoll");
+        throw SystemException("Can't add socket to SocketPool");
     }
 
     m_socketData[&socket] = event;
@@ -115,8 +104,6 @@ void SocketPool::watchSocket(BaseSocket& socket, void* userData)
 
 void SocketPool::forgetSocket(BaseSocket& socket)
 {
-    epoll_event* event;
-
     scoped_lock lock(*this);
 
     auto itor = m_socketData.find(&socket);
@@ -125,39 +112,50 @@ void SocketPool::forgetSocket(BaseSocket& socket)
         return;
     }
 
-    event = (epoll_event*) itor->second;
+    auto event = itor->second;
     m_socketData.erase(itor);
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event) == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event.get()) == -1)
     {
         throw SystemException("Can't remove socket from epoll");
     }
-
-    delete event;
 }
 
-constexpr int MAXEVENTS = 16;
+bool SocketPool::hasSocket(BaseSocket& socket)
+{
+    scoped_lock lock(*this);
+
+    auto itor = m_socketData.find(&socket);
+    return itor != m_socketData.end();
+}
+
+constexpr int maxEvents = 16;
 
 void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
-    array<epoll_event, MAXEVENTS> events;
+    array<epoll_event, maxEvents> events {};
 
-    int eventCount = epoll_wait(m_pool, events.data(), MAXEVENTS, (int) timeout.count());
+    int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
+        if (m_pool == INVALID_EPOLL)
+        {
+            throw Exception("Attempt to use closed epoll");
+        }
+
         return;
     }
 
-    for (int i = 0; i < eventCount && m_pool != INVALID_EPOLL; ++i)
+    for (int i = 0; i < eventCount; ++i)
     {
         epoll_event& event = events[i];
-        if ((event.events & (EPOLLHUP | EPOLLRDHUP)) != 0)
+        if (event.events & EPOLLIN)
         {
-            m_eventsCallback(event.data.ptr, SocketEventType::CONNECTION_CLOSED);
+            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::HAS_DATA);
         }
-        else
+        else if (event.events & (EPOLLHUP | EPOLLRDHUP))
         {
-            m_eventsCallback(event.data.ptr, SocketEventType::HAS_DATA);
+            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::CONNECTION_CLOSED);
         }
     }
 }

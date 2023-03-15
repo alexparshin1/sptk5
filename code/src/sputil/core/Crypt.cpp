@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,16 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Exception.h>
-#include <sptk5/Crypt.h>
-#include <openssl/conf.h>
 #include <openssl/evp.h>
-
-#if USE_GTEST
-
-#include <sptk5/Base64.h>
-
-#endif
+#include <sptk5/Crypt.h>
 
 using namespace std;
 using namespace sptk;
@@ -50,15 +42,17 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
      * and IV size appropriate for your cipher
-     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+     * In this example we are using 256-bit AES (i.e. a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    if (key.length() < 32)
+    if (const int minimalKeyLength = 32;
+        key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    if (iv.length() < 16)
+    if (const int minimalIvLength = 16;
+        iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
     }
@@ -74,7 +68,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
     dest.checkSize(src.bytes());
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
     {
-        const auto* intext = (unsigned char*) src.data() + position;
+        const auto* intext = src.data() + position;
         size_t inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
         {
@@ -147,38 +141,3 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
     // Clean up
     EVP_CIPHER_CTX_free(ctx);
 }
-
-#if USE_GTEST
-
-static const String testText("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-static const String testKey("01234567890123456789012345678901");
-static const String testIV("0123456789012345");
-static const String encryptedB64(
-    "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
-
-TEST(SPTK_Crypt, encrypt)
-{
-    Buffer encrypted;
-    String encryptedStr;
-
-    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), "xxx", testIV), Exception);
-    EXPECT_THROW(Crypt::encrypt(encrypted, Buffer(testText), testKey, "xxx"), Exception);
-
-    Crypt::encrypt(encrypted, Buffer(testText), testKey, testIV);
-    Base64::encode(encryptedStr, encrypted);
-
-    EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
-}
-
-TEST(SPTK_Crypt, decrypt)
-{
-    Buffer encrypted;
-    Buffer decrypted;
-
-    Base64::decode(encrypted, encryptedB64);
-    Crypt::decrypt(decrypted, encrypted, testKey, testIV);
-
-    EXPECT_STREQ(testText.c_str(), decrypted.c_str());
-}
-
-#endif

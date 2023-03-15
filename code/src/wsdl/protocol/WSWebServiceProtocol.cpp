@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,8 +25,7 @@
 */
 
 #include <sptk5/Brotli.h>
-#include <sptk5/ZLib.h>
-#include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
+#include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 
 using namespace std;
 using namespace sptk;
@@ -34,12 +33,12 @@ using namespace sptk;
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
                                            const Host& host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
-    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url),
-      m_httpReader(httpReader),
-      m_host(host),
-      m_allowCORS(allowCORS),
-      m_keepAlive(keepAlive),
-      m_suppressHttpStatus(suppressHttpStatus)
+    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url)
+    , m_httpReader(httpReader)
+    , m_host(host)
+    , m_allowCORS(allowCORS)
+    , m_keepAlive(keepAlive)
+    , m_suppressHttpStatus(suppressHttpStatus)
 {
 }
 
@@ -58,43 +57,39 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
     {
         contentType = "application/json";
 
-        json::Document error;
-        error.root().set("error", errorText);
-        error.root().set("status_code", (int) e.statusCode());
-        error.root().set("status_text", e.statusText());
-        error.exportTo(output, true);
+        xdoc::Document error;
+        error.root()->set("error", errorText);
+        error.root()->set("status_code", (int) e.statusCode());
+        error.root()->set("status_text", e.statusText());
+        error.exportTo(xdoc::DataFormat::JSON, output, true);
     }
     else
     {
         contentType = "application/xml";
 
-        xml::Document error;
-        auto* xmlEnvelope = new xml::Element(&error, "soap:Envelope");
-        xmlEnvelope->setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+        xdoc::Document error;
+        const auto& xmlEnvelope = error.root()->pushNode("soap:Envelope");
+        xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
-        auto* xmlBody = new xml::Element(xmlEnvelope, "soap:Body");
-        auto* faultNode = new xml::Element(xmlBody, "soap:Fault");
+        const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
+        const auto& faultNode = xmlBody->pushNode("soap:Fault");
+        faultNode->set("faultCode", "soap:Client");
+        faultNode->set("faultString", e.what());
 
-        auto* faultcodeNode = new xml::Element(faultNode, "faultCode");
-        faultcodeNode->text("soap:Client");
-
-        auto* faultstringNode = new xml::Element(faultNode, "faultString");
-        faultstringNode->text(e.what());
-
-        error.save(output, 2);
+        error.exportTo(xdoc::DataFormat::XML, output, true);
     }
 }
 
 static void substituteHostname(Buffer& page, const Host& host)
 {
-    xml::Document wsdl;
+    xdoc::Document wsdl;
     wsdl.load(page);
-    xml::Node* node = wsdl.findFirst("soap:address");
+    auto node = wsdl.root()->findFirst("soap:address");
     if (node == nullptr)
     {
         throw Exception("Can't find <soap:address> in WSDL file");
     }
-    auto location = (String) node->getAttribute("location", "");
+    auto location = node->attributes().get("location", "");
     if (location.empty())
     {
         throw Exception("Can't find location attribute of <soap:address> in WSDL file");
@@ -102,8 +97,8 @@ static void substituteHostname(Buffer& page, const Host& host)
     stringstream listener;
     listener << "http://" << host.toString() << "/";
     location = location.replace("http://([^\\/]+)/", listener.str());
-    node->setAttribute("location", location);
-    wsdl.save(page, 2);
+    node->attributes().set("location", location);
+    wsdl.exportTo(xdoc::DataFormat::XML, page, true);
 }
 
 RequestInfo WSWebServiceProtocol::process()
@@ -152,8 +147,9 @@ RequestInfo WSWebServiceProtocol::process()
         ++startOfMessage;
     }
 
-    xml::Document xmlContent;
-    json::Document jsonContent;
+    xdoc::Document xmlContent;
+    xdoc::Document jsonContent;
+    xdoc::SNode responseNode;
 
     if (startOfMessage != endOfMessage)
     {
@@ -162,12 +158,13 @@ RequestInfo WSWebServiceProtocol::process()
         {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            processXmlContent((const char*) startOfMessage, xmlContent, jsonContent);
+            responseNode = processXmlContent((const char*) startOfMessage, xmlContent.root());
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[')
         {
+            responseNode = jsonContent.root();
             contentType = "application/json; charset=utf-8";
-            processJsonContent((const char*) startOfMessage, jsonContent, requestInfo, httpStatus,
+            processJsonContent((const char*) startOfMessage, jsonContent.root(), requestInfo, httpStatus,
                                contentType);
         }
         else
@@ -192,15 +189,14 @@ RequestInfo WSWebServiceProtocol::process()
         else
         {
             // Regular request w/o content
-            RESTtoSOAP(m_url, "", xmlContent);
+            RESTtoSOAP(m_url, "", xmlContent.root());
         }
     }
 
     if (!returnWSDL && httpStatus.code < httpErrorResponseCode)
     {
-        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent, jsonContent, authentication,
-                                          requestIsJSON,
-                                          httpStatus, contentType);
+        requestInfo.name = processMessage(requestInfo.response.content(), xmlContent.root(), jsonContent.root(),
+                                          authentication, requestIsJSON, httpStatus, contentType);
     }
 
     Strings clientAcceptEncoding(header("accept-encoding"), "[,\\s]+", Strings::SplitMode::REGEXP);

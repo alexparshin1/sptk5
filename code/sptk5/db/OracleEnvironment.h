@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,7 +28,7 @@
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 
-#if HAVE_ORACLE == 1
+#ifdef HAVE_ORACLE
 
 #include <occi.h>
 
@@ -98,7 +98,6 @@ public:
     void terminateConnection(oracle::occi::Connection* connection) const;
 
 private:
-
     /**
      * Environment handle
      */
@@ -107,13 +106,12 @@ private:
             oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED),
             [](oracle::occi::Environment* handle) {
                 oracle::occi::Environment::terminateEnvironment(handle);
-            }
-        )};
+            })};
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif

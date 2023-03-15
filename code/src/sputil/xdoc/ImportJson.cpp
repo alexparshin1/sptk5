@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/xdoc/Node.h>
 #include <sptk5/Printer.h>
+#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -44,12 +44,12 @@ bool readJsonBoolean(const char* json, const char*& readPosition);
 
 double readJsonNumber(const char* json, const char*& readPosition);
 
-void readArrayData(Node& parent, const char* json, const char*& readPosition);
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition);
 
-void readObjectData(Node& parent, const char* json, const char*& readPosition);
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes);
 
 String decode(const String& text);
-}
+} // namespace sptk::xdoc
 
 static constexpr int ERROR_CONTEXT_CHARS = 65;
 
@@ -97,7 +97,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     throwError(msg.str(), json, position);
 }
 
-void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
+void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
 {
     const char* json = jsonStr.c_str();
     const char* pos = json;
@@ -106,11 +106,11 @@ void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
     switch (*pos)
     {
         case '{':
-            jsonElement.type(Node::Type::Object);
-            readObjectData(jsonElement, json, pos);
+            jsonElement->type(Node::Type::Object);
+            readObjectData(jsonElement, json, pos, false);
             break;
         case '[':
-            jsonElement.type(Node::Type::Array);
+            jsonElement->type(Node::Type::Array);
             readArrayData(jsonElement, json, pos);
             break;
         default:
@@ -120,7 +120,7 @@ void Node::importJson(Node& jsonElement, const Buffer& jsonStr)
     // Check if there is trailing junk data
     while (*pos)
     {
-        if ((unsigned char) *pos > 32)
+        if ((unsigned char) *pos > ' ')
         {
             throwError("Invalid character(s) after JSON data", json, strlen(json));
         }
@@ -132,7 +132,7 @@ namespace sptk::xdoc {
 
 inline void skipSpaces(const char* json, const char*& readPosition)
 {
-    while ((unsigned char) *readPosition <= 32)
+    while ((unsigned char) *readPosition <= ' ')
     {
         if (*readPosition == 0)
         {
@@ -152,19 +152,16 @@ String readJsonString(const char* json, const char*& readPosition)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
         }
-        else
+        char character = *pos;
+        if (character == '"')
         {
-            char ch = *pos;
-            if (ch == '"')
-            {
-                break;
-            }
-            if (ch == '\\')
-            {
-                ++pos;
-            }
+            break;
+        }
+        if (character == '\\')
+        {
             ++pos;
         }
+        ++pos;
     }
     String str = decode(string(readPosition + 1, pos - readPosition - 1));
 
@@ -213,7 +210,7 @@ bool readJsonBoolean(const char* json, const char*& readPosition)
         throwError("Premature end of data, expecting boolean value", json, readPosition - json);
     }
     ++pos;
-    bool result = false;
+    bool result;
     if (strncmp(readPosition, "true", 4) == 0)
     {
         result = true;
@@ -245,7 +242,7 @@ void readJsonNull(const char* json, const char*& readPosition)
     skipSpaces(json, readPosition);
 }
 
-void readArrayData(Node& parent, const char* json, const char*& readPosition)
+void readArrayData(const SNode& parent, const char* json, const char*& readPosition)
 {
     if (*readPosition != '[')
     {
@@ -272,34 +269,34 @@ void readArrayData(Node& parent, const char* json, const char*& readPosition)
 
             case '[':
 
-                xdoc::readArrayData(parent.pushNode("", Node::Type::Array), json, readPosition);
+                xdoc::readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(parent.pushNode("", Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false);
                 break;
 
             case '0':
             case '-':
                 // Number
-                parent.pushValue("", Node::Type::Number, readJsonNumber(json, readPosition));
+                parent->pushValue(readJsonNumber(json, readPosition), Node::Type::Number);
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent.pushValue("", Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                parent->pushValue(readJsonBoolean(json, readPosition), Node::Type::Boolean);
                 break;
 
             case 'n':
                 // Null
                 readJsonNull(json, readPosition);
-                parent.pushNode("", Node::Type::Null);
+                parent->pushValue(Variant(), Node::Type::Null);
                 break;
 
             case '"':
                 // String
-                parent.pushValue("", Node::Type::Text, readJsonString(json, readPosition));
+                parent->pushValue(readJsonString(json, readPosition), Node::Type::Text);
                 break;
 
             case ',':
@@ -314,7 +311,9 @@ void readArrayData(Node& parent, const char* json, const char*& readPosition)
     ++readPosition;
 }
 
-void readObjectData(Node& parent, const char* json, const char*& readPosition)
+const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
+const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
+void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
 {
     if (*readPosition != '{')
     {
@@ -339,6 +338,8 @@ void readObjectData(Node& parent, const char* json, const char*& readPosition)
 
         String elementName = readJsonName(json, readPosition);
 
+        bool elementIsAttributes = elementName == "attributes";
+
         char firstChar = *readPosition;
         if (isdigit(firstChar))
         {
@@ -352,35 +353,46 @@ void readObjectData(Node& parent, const char* json, const char*& readPosition)
                 break;
 
             case '[':
-                xdoc::readArrayData(parent.pushNode(elementName, Node::Type::Array),
+                xdoc::readArrayData(parent->pushNode(elementName, Node::Type::Array),
                                     json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(parent.pushNode(elementName, Node::Type::Object), json, readPosition);
+                xdoc::readObjectData(elementIsAttributes ? parent : parent->pushNode(elementName, Node::Type::Object),
+                                     json, readPosition, elementIsAttributes);
                 break;
 
             case '0':
             case '-':
                 // Number
-                parent.pushValue(elementName, Node::Type::Number, readJsonNumber(json, readPosition));
+                readPosition = readNumber(parent, json, readPosition, objectIsAttributes, elementName);
                 break;
 
             case 't':
             case 'f':
                 // Boolean
-                parent.pushValue(elementName, Node::Type::Boolean, readJsonBoolean(json, readPosition));
+                readPosition = readBoolean(parent, json, readPosition, objectIsAttributes, elementName);
                 break;
 
             case 'n':
                 // Null
-                readJsonNull(json, readPosition);
-                parent.pushNode(elementName, Node::Type::Null);
+                if (!objectIsAttributes)
+                {
+                    readJsonNull(json, readPosition);
+                    parent->pushValue(elementName, Variant(), Node::Type::Null);
+                }
                 break;
 
             case '"':
                 // String
-                parent.pushValue(elementName, Node::Type::Text, readJsonString(json, readPosition));
+                if (objectIsAttributes)
+                {
+                    parent->attributes().set(elementName, readJsonString(json, readPosition));
+                }
+                else
+                {
+                    parent->pushValue(elementName, readJsonString(json, readPosition), Node::Type::Text);
+                }
                 break;
 
             default:
@@ -390,37 +402,63 @@ void readObjectData(Node& parent, const char* json, const char*& readPosition)
     ++readPosition;
 }
 
-static String codePointToUTF8(unsigned cp)
+const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+{
+    if (objectIsAttributes)
+    {
+        parent->attributes().set(elementName, to_string(readJsonNumber(json, readPosition)));
+    }
+    else
+    {
+        parent->pushValue(elementName, readJsonNumber(json, readPosition), Node::Type::Number);
+    }
+    return readPosition;
+}
+
+const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+{
+    if (objectIsAttributes)
+    {
+        parent->attributes().set(elementName, readJsonBoolean(json, readPosition) ? "true" : "false");
+    }
+    else
+    {
+        parent->pushValue(elementName, readJsonBoolean(json, readPosition), Node::Type::Boolean);
+    }
+    return readPosition;
+}
+
+static String codePointToUTF8(unsigned codePoint)
 {
     String result;
 
     // based on description from http://en.wikipedia.org/wiki/UTF-8
 
-    if (cp <= 0x7f)
+    if (codePoint <= 0x7f)
     {
         result.resize(1);
-        result[0] = static_cast<char>(cp);
+        result[0] = static_cast<char>(codePoint);
     }
-    else if (cp <= 0x7FF)
+    else if (codePoint <= 0x7FF)
     {
         result.resize(2);
-        result[1] = static_cast<char>(0x80 | (0x3f & cp));
-        result[0] = static_cast<char>(0xC0 | (0x1f & (cp >> 6)));
+        result[1] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[0] = static_cast<char>(0xC0 | (0x1f & (codePoint >> 6)));
     }
-    else if (cp <= 0xFFFF)
+    else if (codePoint <= 0xFFFF)
     {
         result.resize(3);
-        result[2] = static_cast<char>(0x80 | (0x3f & cp));
-        result[1] = char(0x80 | static_cast<char>((0x3f & (cp >> 6))));
-        result[0] = char(0xE0 | static_cast<char>((0xf & (cp >> 12))));
+        result[2] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[1] = char(0x80 | static_cast<char>((0x3f & (codePoint >> 6))));
+        result[0] = char(0xE0 | static_cast<char>((0xf & (codePoint >> 12))));
     }
-    else if (cp <= 0x10FFFF)
+    else if (codePoint <= 0x10FFFF)
     {
         result.resize(4);
-        result[3] = static_cast<char>(0x80 | (0x3f & cp));
-        result[2] = static_cast<char>(0x80 | (0x3f & (cp >> 6)));
-        result[1] = static_cast<char>(0x80 | (0x3f & (cp >> 12)));
-        result[0] = static_cast<char>(0xF0 | (0x7 & (cp >> 18)));
+        result[3] = static_cast<char>(0x80 | (0x3f & codePoint));
+        result[2] = static_cast<char>(0x80 | (0x3f & (codePoint >> 6)));
+        result[1] = static_cast<char>(0x80 | (0x3f & (codePoint >> 12)));
+        result[0] = static_cast<char>(0xF0 | (0x7 & (codePoint >> 18)));
     }
 
     return result;
@@ -431,7 +469,7 @@ String decode(const String& text)
     String result;
     size_t length = text.length();
     size_t position = 0;
-    unsigned ucharCode;
+    unsigned ucharCode = 0;
 
     while (position < length)
     {
@@ -492,48 +530,4 @@ String decode(const String& text)
     return result;
 }
 
-}
-
-#if USE_GTEST
-
-static const String testJson(
-    R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"
-    R"("skills":["C++","Java","Motorbike"],)"
-    R"("location":null,)"
-    R"("title":"\"Mouse\"",)"
-    R"("address":{"married":true,"employed":false}})");
-
-static const String testFormattedJson(R"({
-  "name": "John",
-  "age": 33,
-  "temperature": 33.6,
-  "timestamp": 1519005758000,
-  "skills": [
-    "C++",
-    "Java",
-    "Motorbike"
-  ],
-  "location": null,
-  "title": "\"Mouse\"",
-  "address": {
-    "married": true,
-    "employed": false
-  }
-})");
-
-TEST(SPTK_XDoc, JsonParser)
-{
-    Buffer input(testJson);
-    xdoc::Node root;
-    Node::importJson(root, input);
-
-    Buffer output;
-    root.exportJson(output, false);
-
-    EXPECT_STREQ(testJson.c_str(), output.c_str());
-
-    root.exportJson(output, true);
-    EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
-}
-
-#endif
+} // namespace sptk::xdoc

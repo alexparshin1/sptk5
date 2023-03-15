@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,23 +30,26 @@
 using namespace std;
 using namespace sptk;
 
-int hexCharToInt(unsigned char ch)
+int hexCharToInt(unsigned char character)
 {
-    if (ch > '@')
+    if (character > '@')
     {
-        return ch - 'A' + 10;
+        constexpr int digitsOffset = 10;
+        return character - 'A' + digitsOffset;
     }
-    return ch - '0';
+    return character - '0';
 }
 
 String Url::encode(const String& str)
 {
     auto cnt = (uint32_t) str.length();
     const char* src = str.c_str();
-    array<char, 5> hexBuffer;
+
+    constexpr int bufferSize = 5;
+    array<char, bufferSize> hexBuffer {};
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
-    int len;
+    int len {0};
     while (*src != 0)
     {
         if (isalnum(*src) != 0)
@@ -72,13 +75,14 @@ String Url::encode(const String& str)
         }
         ++src;
     }
-    return String(buffer.c_str(), buffer.bytes());
+    return {buffer.c_str(), buffer.bytes()};
 }
 
 String Url::decode(const String& str)
 {
+    constexpr int base16 = 16;
     const char* src = str.c_str();
-    char dest;
+    char dest {0};
     Buffer buffer;
     while (*src != 0)
     {
@@ -91,7 +95,7 @@ String Url::decode(const String& str)
 
             case '%':
                 ++src;
-                dest = char(hexCharToInt((unsigned char) *src) * 16 + hexCharToInt((unsigned char) src[1]));
+                dest = char(hexCharToInt((unsigned char) *src) * base16 + hexCharToInt((unsigned char) src[1]));
                 buffer.append(dest);
                 src += 2;
                 break;
@@ -102,34 +106,34 @@ String Url::decode(const String& str)
                 break;
         }
     }
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.size()};
 }
 
 HttpParams::HttpParams(std::initializer_list<std::pair<String, String>> lst)
 {
-    for (const auto&[name, value]: lst)
+    for (const auto& [name, value]: lst)
     {
         operator[](name) = value;
     }
 }
 
-void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
+void HttpParams::decode(const Buffer& buffer, bool /*lowerCaseNames*/)
 {
     clear();
 
-    Strings sl(cb.c_str(), "&");
-    for (const auto& s: sl)
+    const Strings params(buffer.c_str(), "&");
+    for (const auto& param: params)
     {
-        size_t pos = s.find('=');
+        const size_t pos = param.find('=');
         if (pos != string::npos)
         {
-            string key = s.substr(0, pos);
-            string value = s.substr(pos + 1);
+            const String key = param.substr(0, pos);
+            const String value = param.substr(pos + 1);
             (*this)[key] = Url::decode(value);
         }
         else
         {
-            (*this)[s] = "";
+            (*this)[param] = "";
         }
     }
 }
@@ -137,7 +141,7 @@ void HttpParams::decode(const Buffer& cb, bool /*lowerCaseNames*/)
 void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
-    for (auto&[name, value]: *this)
+    for (const auto& [name, value]: *this)
     {
         String param;
         param = name + "=" + Url::encode(value);
@@ -165,34 +169,3 @@ bool HttpParams::has(const String& paramName) const
     auto itor = find(paramName);
     return itor != end();
 }
-
-#if USE_GTEST
-
-static const String gtestURLencoded("id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe");
-
-TEST(SPTK_HttpParams, encode)
-{
-    HttpParams httpParams;
-    httpParams["id"] = "1234";
-    httpParams["name"] = "John Doe";
-    httpParams["items"] = R"(["book","pen"])";
-
-    Buffer encoded;
-    httpParams.encode(encoded);
-    EXPECT_STREQ(gtestURLencoded.c_str(), encoded.c_str());
-}
-
-TEST(SPTK_HttpParams, decode)
-{
-    HttpParams httpParams;
-    httpParams["noise"] = "noise";
-
-    Buffer encoded(gtestURLencoded);
-    httpParams.decode(encoded);
-    EXPECT_STREQ("1234", httpParams["id"].c_str());
-    EXPECT_STREQ("John Doe", httpParams["name"].c_str());
-    EXPECT_STREQ(R"(["book","pen"])", httpParams["items"].c_str());
-    EXPECT_EQ(size_t(3), httpParams.size());
-}
-
-#endif

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <array>
 #include <cstring>
 
 #include <sptk5/db/ODBCEnvironment.h>
@@ -95,11 +96,14 @@ void ODBCConnectionBase::allocConnect()
 
     m_hConnection = shared_ptr<uint8_t>((uint8_t*) hConnection,
                                         [this](uint8_t* ptr) {
-                                            SQLHDBC conn(ptr);
-                                            SQLDisconnect(conn);
-                                            SQLFreeConnect(conn);
-                                            m_connected = false;
-                                            m_connectString = "";
+                                            if (m_connected)
+                                            {
+                                                SQLHDBC conn(ptr);
+                                                SQLDisconnect(conn);
+                                                SQLFreeHandle(SQL_HANDLE_DBC, conn);
+                                                m_connected = false;
+                                                m_connectString = "";
+                                            }
                                         });
 }
 
@@ -144,7 +148,8 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 
     m_connectString = ConnectionString;
 
-    Buffer buff(2048);
+    constexpr short bufferLength = 2048;
+    array<uint8_t, bufferLength> buff;
     SWORD bufflen = 0;
 
 #ifdef WIN32
@@ -154,7 +159,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 #endif
     char* pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
     SQLRETURN rc = ::SQLDriverConnect(m_hConnection.get(), ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
-                                      buff.data(), (short) 2048, &bufflen, SQL_DRIVER_NOPROMPT);
+                                      buff.data(), bufferLength, &bufflen, SQL_DRIVER_NOPROMPT);
 
 
     if (!Successful(rc))
@@ -163,23 +168,23 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         exception(errorInfo, __LINE__);
     }
 
-    pFinalString = buff.c_str();
+    pFinalString = (const char*) buff.data();
     m_connected = true;
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    Buffer driverDescription(2048);
+    array<uint8_t*, bufferLength> driverDescription;
     SQLSMALLINT descriptionLength = 0;
-    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription = driverDescription.c_str();
+        m_driverDescription = String((const char*) driverDescription.data());
     }
 
-    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), 2048, &descriptionLength);
+    rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription += " " + String(driverDescription.c_str());
+        m_driverDescription += " " + String((const char*) driverDescription.data());
     }
 }
 
@@ -225,7 +230,7 @@ void ODBCConnectionBase::execQuery(const char* query)
     }
 
     if (Buffer queryBuffer((const uint8_t*) query, strlen(query));
-        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.length())))
+        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.size())))
     {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));
@@ -293,7 +298,7 @@ String sptk::removeDriverIdentification(const char* error)
         }
     }
 
-    return String(p, size_t(len));
+    return {p, size_t(len)};
 }
 
 string extract_error(

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -35,7 +35,8 @@ namespace sptk {
 
 static const Strings notGroupingTags("styles;style;engine", ";");
 
-xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentNode, bool createAttributes)
+const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc::SNode& parentNode,
+                                                  bool createAttributes)
 {
     try
     {
@@ -51,8 +52,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
 
         switch (row[pos])
         {
-            case ':':
-            {
+            case ':': {
                 if (row[pos + 1] != ':')
                 {
                     throw Exception("single ':' found");
@@ -67,8 +67,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
                 pos = pos2 + 1;
                 break;
             }
-            case '[':
-            {
+            case '[': {
                 pos++;
                 size_t pos2 = row.find_first_of("]", pos);
                 if (pos2 == STRING_NPOS)
@@ -79,8 +78,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
                 pos = pos2 + 1;
                 break;
             }
-            case '\"':
-            {
+            case '\"': {
                 pos++;
                 size_t pos2 = row.find_first_of("\"", pos);
                 if (pos2 == STRING_NPOS)
@@ -119,7 +117,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
             }
             maxValueSize = int(pos2 - pos);
         }
-        xml::Node* node = nullptr;
+        xdoc::SNode node = nullptr;
         String value = trim(row.substr(pos, (unsigned) maxValueSize));
         bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
         if (!attemptGrouping)
@@ -130,7 +128,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
         {
             if (createAttributes)
             {
-                parentNode->setAttribute(name, value);
+                parentNode->attributes().set(name, value);
                 node = parentNode;
             }
             else
@@ -138,15 +136,15 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
                 node = parentNode->findFirst(name);
                 if (!node)
                 {
-                    node = new xml::Element(parentNode, name.c_str());
+                    node = parentNode->pushNode(name);
                 }
                 if (!subName.empty())
                 {
-                    node->setAttribute(subName, value);
+                    node->attributes().set(subName, value);
                 }
                 else
                 {
-                    node->setAttribute("value", value);
+                    node->attributes().set("value", value);
                 }
             }
         }
@@ -158,15 +156,15 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
             }
             if (!node)
             {
-                node = new xml::Element(parentNode, name.c_str());
+                node = parentNode->pushNode(name);
             }
             if (!subName.empty())
             {
-                node->setAttribute("name", subName);
+                node->attributes().set("name", subName);
             }
             if (!value.empty())
             {
-                node->setAttribute("value", value);
+                node->attributes().set("value", value);
             }
         }
         return node;
@@ -177,7 +175,7 @@ xml::Node* CGtkThemeParser::parseParameter(const String& row, xml::Node* parentN
     }
 }
 
-void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     if (gtkrc[currentRow] != "image")
     {
@@ -189,7 +187,7 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::
         throw Exception("Expecting '{' in row '" + gtkrc[currentRow]);
     }
     currentRow++;
-    xml::Node* imageNode = new xml::Element(parentNode, "image");
+    const auto& imageNode = parentNode->pushNode("image");
     while (gtkrc[currentRow] != "}")
     {
         parseParameter(gtkrc[currentRow], imageNode, true);
@@ -201,13 +199,13 @@ void CGtkThemeParser::parseImage(const Strings& gtkrc, size_t& currentRow, xml::
     }
 }
 
-void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     if (gtkrc[currentRow].find("engine") != 0)
     {
         throw Exception("Expecting 'engine' in row " + gtkrc[currentRow]);
     }
-    xml::Node* engineNode = parseParameter(gtkrc[currentRow++], parentNode);
+    auto engineNode = parseParameter(gtkrc[currentRow++], parentNode);
     try
     {
         if (gtkrc[currentRow] != "{")
@@ -234,21 +232,22 @@ void CGtkThemeParser::parseEngine(const Strings& gtkrc, size_t& currentRow, xml:
     }
     catch (exception& e)
     {
-        cerr << "Error parsing engine '" << (String) engineNode->getAttribute("name", "") << "': " << e.what() << endl;
+        cerr << "Error parsing engine '" << (String) engineNode->attributes().get("name", "") << "': " << e.what()
+             << endl;
     }
 }
 
-void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, xml::Node* parentNode)
+void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, const xdoc::SNode& parentNode)
 {
     //const string& styleRow = gtkrc[currentRow];
     if (gtkrc[currentRow].find("style") != 0)
     {
         throw Exception("Expecting 'style' in row " + gtkrc[currentRow]);
     }
-    xml::Node* styleNode = parseParameter(gtkrc[currentRow++], parentNode);
-    if ((String) styleNode->getAttribute("name") == "scrollbar")
+    auto styleNode = parseParameter(gtkrc[currentRow++], parentNode);
+    if ((String) styleNode->attributes().get("name") == "scrollbar")
     {
-        styleNode->setAttribute("name", "scrollbars");
+        styleNode->attributes().set("name", "scrollbars");
     }
     if (gtkrc[currentRow] != "{")
     {
@@ -277,8 +276,8 @@ void CGtkThemeParser::parseStyle(const Strings& gtkrc, size_t& currentRow, xml::
 void CGtkThemeParser::parse(const Strings& gtkrc)
 {
     Buffer buffer;
-    m_xml.clear();
-    xml::Node* stylesNode = new xml::Element(&m_xml, "styles");
+    m_xml.root()->clear();
+    const auto& stylesNode = m_xml.root()->pushNode("styles");
     //Node* paramsNode = new Element(&m_xml,"styles");
     for (size_t row = 0; row < gtkrc.size(); row++)
     {
@@ -289,10 +288,10 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
         }
         else
         {
-            parseParameter(str, &m_xml);
+            parseParameter(str, m_xml.root());
         }
     }
-    m_xml.save(buffer, true);
+    m_xml.exportTo(xdoc::DataFormat::XML, buffer, true);
     buffer.saveToFile("gtkrc.xml");
 }
 
@@ -379,4 +378,4 @@ void CGtkThemeParser::load(const string& themeName)
     parse(gtkrc);
 }
 
-}
+} // namespace sptk

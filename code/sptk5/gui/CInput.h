@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,9 +28,9 @@
 
 #include <FL/Fl_Input.H>
 
-#include <sptk5/sptk.h>
-#include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CLayoutClient.h>
+#include <sptk5/sptk.h>
 
 #include <string>
 
@@ -51,7 +51,8 @@ namespace sptk {
  * widgets.
  */
 class SP_EXPORT CInput_
-    : public Fl_Input, public CLayoutClient
+    : public Fl_Input
+    , public CLayoutClient
 {
 
     /**
@@ -86,7 +87,6 @@ class SP_EXPORT CInput_
     bool checkCharacter(int pos, char& key);
 
 protected:
-
     /**
      * Conversion of the outside input value into internal masked value
      * using mask (if defined)
@@ -94,7 +94,6 @@ protected:
     void maskValue();
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -112,7 +111,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CInput_(int x,int y,int w,int h,const char *label = 0);
+    CInput_(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -203,7 +202,6 @@ class SP_EXPORT CInput
     void ctor_init(bool autoCreate);
 
 protected:
-
     /**
      * Loads data from query
      */
@@ -222,7 +220,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override
     {
         CControl::load(node, xmlMode);
     }
@@ -235,7 +233,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override
     {
         CControl::save(node, xmlMode);
     }
@@ -275,7 +273,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CInput(int,int,int,int,const char * = 0,bool autoCreate=true);
+    CInput(int, int, int, int, const char* = 0, bool autoCreate = true);
 #endif
 
     /**
@@ -373,9 +371,9 @@ public:
     /**
      * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

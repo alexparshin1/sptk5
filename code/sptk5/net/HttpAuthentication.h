@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/JWT.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -43,7 +43,7 @@ public:
     /**
      * HTTP authentication type
      */
-    enum class Type: uint8_t
+    enum class Type : uint8_t
     {
         UNDEFINED,
         EMPTY,
@@ -62,6 +62,12 @@ public:
     explicit HttpAuthentication(String authenticationHeader);
 
     /**
+     * Copy constructor
+     * @param authenticationHeader  Authentication HTTP header content
+     */
+    explicit HttpAuthentication(const HttpAuthentication& other) = default;
+
+    /**
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
@@ -71,7 +77,7 @@ public:
      * Get decoded authentication data (username and password, or JWT)
      * @return authentication data
      */
-    const json::Element& getData();
+    const xdoc::SNode& getData();
 
     /**
      * Get authentication data type
@@ -79,11 +85,10 @@ public:
     Type type();
 
 private:
-
-    Type                                m_type { Type::UNDEFINED };   ///< Authentication data type
-    const String                        m_authenticationHeader;       ///< Authentication data
-    std::shared_ptr<JWT>                m_jwtData;                    ///< JWT token, if type is BEARER
-    std::shared_ptr<json::Document>     m_userData;                   ///< Decoded user data
+    Type m_type {Type::UNDEFINED};       ///< Authentication data type
+    const String m_authenticationHeader; ///< Authentication data
+    std::shared_ptr<JWT> m_jwtData;      ///< JWT token, if type is BEARER
+    xdoc::SDocument m_userData;          ///< Decoded user data
 
     /**
      * Decode authentication data (username and password, or JWT)
@@ -93,5 +98,4 @@ private:
 
 using SHttpAuthentication = std::shared_ptr<HttpAuthentication>;
 
-}
-
+} // namespace sptk

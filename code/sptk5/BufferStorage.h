@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
 #include <string.h>
 
 namespace sptk {
@@ -43,13 +43,15 @@ namespace sptk {
 class SP_EXPORT BufferStorage
 {
 public:
-
     /**
      * Default constructor
      *
      * Creates an empty buffer.
      */
-    BufferStorage() = default;
+    BufferStorage()
+        : m_buffer(16)
+    {
+    }
 
     /**
      * Constructor
@@ -58,7 +60,30 @@ public:
      * The return of the bytes() method will be 0.
      * @param sz                Buffer size to be pre-allocated
      */
-    explicit BufferStorage(size_t sz);
+    explicit BufferStorage(size_t sz)
+        : m_buffer(sz + 1)
+    {
+    }
+
+    /**
+     * Copy constructor
+     * @param bufferStorage     Other object
+     */
+    BufferStorage(const BufferStorage& bufferStorage) = default;
+
+    /**
+     * Move constructor
+     * @param bufferStorage     Other object
+     */
+    BufferStorage(BufferStorage&& bufferStorage) noexcept = default;
+
+    /**
+     * Destructor
+     */
+    virtual ~BufferStorage() = default;
+
+    BufferStorage& operator=(const BufferStorage& bufferStorage) = default;
+    BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept = default;
 
     /**
      * Constructor
@@ -69,7 +94,11 @@ public:
      * @param data              Data buffer
      * @param sz                Data buffer size
      */
-    BufferStorage(const uint8_t* data, size_t sz);
+    template<typename T>
+    BufferStorage(const T* data, size_t sz)
+    {
+        allocate((const uint8_t*) data, sz);
+    }
 
     /**
      * Returns pointer on the data buffer.
@@ -124,7 +153,11 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void set(const uint8_t* data, size_t sz);
+    template<typename T>
+    void set(const T* data, size_t sz)
+    {
+        _set((const uint8_t*) data, sz);
+    }
 
     /**
      * Copies the external data of size sz into the current buffer.
@@ -140,7 +173,7 @@ public:
         }
         else
         {
-            set(data.m_buffer.data(), data.m_bytes);
+            _set(data.m_buffer.data(), data.m_bytes);
         }
     }
 
@@ -152,7 +185,7 @@ public:
      */
     void set(const String& data)
     {
-        set((const uint8_t*) data.c_str(), data.length());
+        _set((const uint8_t*) data.c_str(), data.length());
     }
 
     /**
@@ -168,7 +201,7 @@ public:
      * Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t length() const
+    size_t size() const
     {
         return m_bytes;
     }
@@ -184,8 +217,6 @@ public:
 
     /**
      * Sets the size of the data stored
-     *
-     * Doesn't check anything so use it this caution.
      * @param b                 New size of the buffer
      */
     void bytes(size_t b)
@@ -194,55 +225,57 @@ public:
         {
             return;
         }
-        if (b + 1 <= m_buffer.size())
+
+        if (b + 1 > m_buffer.size())
         {
-            m_bytes = b;
-            m_buffer[b] = 0;
-            return;
+            m_buffer.resize(b + 1);
         }
-        throw Exception("Attempt to set buffer size outside storage");
+
+        m_bytes = b;
+        m_buffer[b] = 0;
+        return;
     }
 
     /**
      * Appends a single char to the current buffer.
      *
      * Allocates memory if needed.
-     * @param ch                Single character
+     * @param chr                Single character
      */
-    virtual void append(char ch);
+    virtual void append(char chr);
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    virtual void append(const char* data, size_t sz = 0);
+    virtual void append(const char* data, size_t size);
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    virtual void append(const uint8_t* data, size_t sz);
+    virtual void append(const uint8_t* data, size_t size);
 
     /**
-     * Truncates the current buffer to the size sz.
+     * Truncates the current buffer to the size size.
      *
      * Deallocates unused memory if needed.
-     * @param sz                Required data size in bytes
+     * @param size                Required data size in bytes
      */
-    void reset(size_t sz = 0);
+    void reset(size_t size = 0);
 
     /**
-     * Fills the bytes() characters in buffer with character ch.
-     * @param ch                The character to fill the buffer
+     * Fills the bytes() characters in buffer with character chr.
+     * @param chr                The character to fill the buffer
      * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
      */
-    void fill(char ch, size_t count);
+    void fill(char chr, size_t count);
 
     /**
      * Remove fragment from buffer's content
@@ -252,12 +285,11 @@ public:
     void erase(size_t offset, size_t length);
 
 protected:
-
     /**
      * Resizes current buffer
-     * @param sz                Required memory size
+     * @param size                Required memory size
      */
-    void adjustSize(size_t sz);
+    void adjustSize(size_t size);
 
     /**
      * Allocate memory
@@ -316,12 +348,21 @@ protected:
     }
 
 private:
+    std::vector<uint8_t> m_buffer; ///< Actual storage
+    size_t m_bytes {0};            ///< Actual size of the data in buffer
 
-    std::vector<uint8_t> m_buffer;         ///< Actual storage
-    size_t m_bytes {0};      ///< Actual size of the data in buffer
+
+    /**
+     * Copies the external data of size size into the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data              External data buffer
+     * @param size                Required memory size
+     */
+    void _set(const uint8_t* data, size_t size);
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

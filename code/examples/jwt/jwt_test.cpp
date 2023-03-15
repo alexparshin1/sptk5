@@ -4,7 +4,7 @@
 ║                       jwt_test.cpp - description                             ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Monday Feb 12 2017                                     ║
-║  copyright            (C) 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            (C) 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,8 +32,8 @@
 
 #include <ctime>
 
-#include <sptk5/cutils>
 #include <sptk5/JWT.h>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -45,28 +45,38 @@ bool test_dup()
 
     JWT jwt;
 
-    jwt["iss"] = "test";
-    String val = (String) jwt["iss"];
+    jwt.set("iss", "test");
+    String val = (String) jwt.get("iss");
     if (val.empty())
+    {
         throw Exception("Can't get grant");
+    }
 
     JWT newJWT(jwt);
-    val = (String) newJWT["iss"];
+    val = (String) newJWT.get("iss");
     if (val.empty())
+    {
         throw Exception("Can't get grant");
+    }
 
     if (val != "test")
+    {
         throw Exception("Got incorrect grant");
+    }
 
     if (jwt.get_alg() != JWT::Algorithm::NONE)
+    {
         throw Exception("Got incorrect alogorithm");
+    }
 
     now = time(nullptr);
-    jwt["iat"] = (int) now;
+    jwt.set("iat", (int) now);
 
-    valint = (int) jwt["iat"];
-    if (((long)now) != valint)
+    valint = (int) jwt.get("iat");
+    if (((long) now) != valint)
+    {
         throw Exception("Failed jwt_get_grant_int()");
+    }
 
     return true;
 }
@@ -77,16 +87,20 @@ bool test_dup_signed()
     String key256("012345678901234567890123456789XY");
 
     JWT jwt;
-    jwt["iss"] = "test";
+    jwt.set("iss", "test");
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     JWT newJWT(jwt);
-    String val = (String) newJWT["iss"];
+    String val = (String) newJWT.get("iss");
     if (val != "test")
+    {
         throw Exception("Failed jwt_get_grant_int()");
+    }
 
     if (jwt.get_alg() != JWT::Algorithm::HS256)
+    {
         throw Exception("Failed jwt_get_alg()");
+    }
 
     return true;
 }
@@ -95,21 +109,25 @@ bool test_dup_signed()
 bool test_decode()
 {
     const char token[] =
-            "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
-            "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
+        "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
+        "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
     JWT::Algorithm alg;
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         throw Exception("Failed jwt_decode(): " + string(e.what()));
     }
 
     alg = jwt->get_alg();
     if (alg != JWT::Algorithm::NONE)
+    {
         throw Exception("Failed jwt_get_alg()");
+    }
 
     return true;
 }
@@ -118,15 +136,17 @@ bool test_decode()
 bool test_decode_invalid_final_dot()
 {
     const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
-                 "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-                 "3ViIjoidXNlcjAifQ";
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -138,15 +158,17 @@ bool test_decode_invalid_final_dot()
 bool test_decode_invalid_alg()
 {
     const char token[] = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
-                 "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-                 "3ViIjoidXNlcjAifQ.";
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ.";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -158,15 +180,17 @@ bool test_decode_invalid_alg()
 bool test_decode_invalid_typ()
 {
     const char token[] = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
-                 "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-                 "3ViIjoidXNlcjAifQ.";
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+                         "3ViIjoidXNlcjAifQ.";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -177,17 +201,19 @@ bool test_decode_invalid_typ()
 
 bool test_decode_invalid_head()
 {
-    const char token[] = 
+    const char token[] =
         "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -198,17 +224,19 @@ bool test_decode_invalid_head()
 
 bool test_decode_alg_none_with_key()
 {
-    const char token[] = 
+    const char token[] =
         "eyJhbGciOiJub25lIn0."
         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -219,17 +247,19 @@ bool test_decode_alg_none_with_key()
 
 bool test_decode_invalid_body()
 {
-    const char token[] = 
+    const char token[] =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
         "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token);
         throw Exception("Not failed jwt_decode()");
     }
-    catch (const Exception&) {
+    catch (const Exception&)
+    {
         // We must get here
         return true;
     }
@@ -240,17 +270,19 @@ bool test_decode_invalid_body()
 
 bool test_decode_hs256()
 {
-    const char token[] = 
+    const char token[] =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
         "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
         "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
     String key256("012345678901234567890123456789XY");
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token, key256);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         throw Exception("Failed jwt_decode(): " + string(e.what()));
     }
 
@@ -271,10 +303,12 @@ bool test_decode_hs384()
         "ggghhhhiiiijjjjkkkkllll");
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token, key384);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         throw Exception("Failed jwt_decode(): " + string(e.what()));
     }
 
@@ -294,10 +328,12 @@ bool test_decode_hs512()
         "012345678901234567890123456789XY");
 
     auto jwt = make_shared<JWT>();
-    try {
+    try
+    {
         jwt->decode(token, key512);
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         throw Exception("Failed jwt_decode(): " + string(e.what()));
     }
 
@@ -311,11 +347,11 @@ bool test_encode_hs256_decode()
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-    jwt["iat"] = (int) time(nullptr);
-    jwt["iss"] = "http://test.com";
-    jwt["exp"] = (int) time(nullptr) + 86400;
+    jwt.set("iat", (int) time(nullptr));
+    jwt.set("iss", "http://test.com");
+    jwt.set("exp", (int) time(nullptr) + 86400);
 
-    auto* info = jwt.grants.root().add_object("info");
+    const auto& info = jwt.grants.root()->pushNode("info");
     info->set("company", "Linotex");
     info->set("city", "Melbourne");
 
@@ -335,38 +371,56 @@ bool test_encode_hs256_decode()
     jwt2.encode(copiedToken);
 
     if (originalJSON.str() != copiedJSON.str())
+    {
         throw Exception("Decoded JSON payload doesn't match the original");
+    }
 
     if (originalToken.str() != copiedToken.str())
+    {
         throw Exception("Decoded JWT data doesn't not match the original");
+    }
 
     return true;
 }
 
-#define run_test(test_name) { cout << setw(40) << left << string(#test_name) + ": "; try { test_name(); cout << "Ok" << endl; } catch (const Exception& e) { cout << e.what() << endl; } }
+#define run_test(test_name)                                    \
+    {                                                          \
+        cout << setw(40) << left << string(#test_name) + ": "; \
+        try                                                    \
+        {                                                      \
+            test_name();                                       \
+            cout << "Ok" << endl;                              \
+        }                                                      \
+        catch (const Exception& e)                             \
+        {                                                      \
+            cout << e.what() << endl;                          \
+        }                                                      \
+    }
 
 int main()
 {
-    try {
+    try
+    {
         run_test(test_dup)
-        run_test(test_dup_signed)
-        run_test(test_decode)
-        run_test(test_decode_invalid_alg)
-        run_test(test_decode_invalid_typ)
-        run_test(test_decode_invalid_head)
-        run_test(test_decode_alg_none_with_key)
-        run_test(test_decode_invalid_body)
-        run_test(test_decode_invalid_final_dot)
-        run_test(test_decode_hs256)
-        run_test(test_decode_hs384)
-        run_test(test_decode_hs512)
-        run_test(test_encode_hs256_decode)
+            run_test(test_dup_signed)
+                run_test(test_decode)
+                    run_test(test_decode_invalid_alg)
+                        run_test(test_decode_invalid_typ)
+                            run_test(test_decode_invalid_head)
+                                run_test(test_decode_alg_none_with_key)
+                                    run_test(test_decode_invalid_body)
+                                        run_test(test_decode_invalid_final_dot)
+                                            run_test(test_decode_hs256)
+                                                run_test(test_decode_hs384)
+                                                    run_test(test_decode_hs512)
+                                                        run_test(test_encode_hs256_decode)
     }
-    catch (const Exception& e) {
-        CERR("ERROR:" << e.what() << endl)
+    catch (const Exception& e)
+    {
+        CERR("ERROR:" << e.what() << endl);
         return 1;
     }
 
-    COUT("All tests passed." << endl)
+    COUT("All tests passed." << endl);
     return 0;
 }

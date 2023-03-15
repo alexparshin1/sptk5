@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
 #include "sptk5/net/SSLKeys.h"
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -33,21 +33,24 @@ using namespace sptk;
 SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
                  String password, String caFileName, int verifyMode,
                  int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName)), m_certificateFileName(std::move(certificateFileName)),
-      m_password(std::move(password)), m_caFileName(std::move(caFileName)), m_verifyMode(verifyMode),
-      m_verifyDepth(verifyDepth)
+    : m_privateKeyFileName(std::move(privateKeyFileName))
+    , m_certificateFileName(std::move(certificateFileName))
+    , m_password(std::move(password))
+    , m_caFileName(std::move(caFileName))
+    , m_verifyMode(verifyMode)
+    , m_verifyDepth(verifyDepth)
 {
 }
 
 SSLKeys::SSLKeys(const SSLKeys& other)
 {
-    SharedLock(other.m_mutex);
+    const SharedLock(other.m_mutex);
     assign(other);
 }
 
 SSLKeys& SSLKeys::operator=(const SSLKeys& other)
 {
-    CopyLock(m_mutex, other.m_mutex);
+    const CopyLock(m_mutex, other.m_mutex);
     if (&other == this)
     {
         return *this;
@@ -68,37 +71,37 @@ void SSLKeys::assign(const SSLKeys& other)
 
 String SSLKeys::privateKeyFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_privateKeyFileName;
 }
 
 String SSLKeys::certificateFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_certificateFileName;
 }
 
 String SSLKeys::password() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_password;
 }
 
 String SSLKeys::caFileName() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_caFileName;
 }
 
 int SSLKeys::verifyMode() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_verifyMode;
 }
 
 int SSLKeys::verifyDepth() const
 {
-    SharedLock(m_mutex);
+    const SharedLock(m_mutex);
     return m_verifyDepth;
 }
 
@@ -114,5 +117,10 @@ String SSLKeys::ident() const
     buffer.append(to_string(m_verifyMode));
     buffer.append('~');
     buffer.append(to_string(m_verifyDepth));
-    return String(buffer.c_str(), buffer.length());
+    return {buffer.c_str(), buffer.size()};
+}
+
+bool SSLKeys::empty() const
+{
+    return m_certificateFileName.empty();
 }

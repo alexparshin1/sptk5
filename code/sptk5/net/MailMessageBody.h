@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,7 @@
 #include <sptk5/sptk.h>
 #include <string>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -42,8 +41,8 @@ namespace sptk
  */
 enum class MailMessageType : uint8_t
 {
-    PLAIN_TEXT_MESSAGE,     ///< Message has plain text only
-    HTML_MESSAGE            ///< Message has plain text and HTML parts
+    PLAIN_TEXT_MESSAGE, ///< Message has plain text only
+    HTML_MESSAGE        ///< Message has plain text and HTML parts
 };
 
 /**
@@ -54,7 +53,6 @@ enum class MailMessageType : uint8_t
 class SP_EXPORT MailMessageBody
 {
 public:
-
     /**
      * Default constructor
      */
@@ -96,10 +94,9 @@ public:
     }
 
 private:
-
-    MailMessageType     m_type;         ///< Message type
-    String              m_plainText;    ///< Plain text part of the message
-    String              m_htmlText;     ///< Optional HTML part of the message
+    MailMessageType m_type; ///< Message type
+    String m_plainText;     ///< Plain text part of the message
+    String m_htmlText;      ///< Optional HTML part of the message
 
     /**
      * Builds a plain text string from HTML text
@@ -109,4 +106,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

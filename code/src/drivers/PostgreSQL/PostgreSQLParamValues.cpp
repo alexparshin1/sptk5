@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/db/QueryParameter.h>
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
 
@@ -99,6 +98,8 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQ
 
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
+    constexpr int64_t microsecondsInSecond {1000000};
+    constexpr int hoursInDay {24};
     VariantDataType ptype = param->dataType();
 
     if (param->isNull())
@@ -109,8 +110,9 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
     {
         uint32_t* uptrBuffer {nullptr};
         uint64_t* uptrBuffer64 {nullptr};
-        long days;
-        int64_t mcs = 0;
+        long days {0};
+        int64_t mcs {0};
+        constexpr int64_t secondsPerDay {86400};
         switch (ptype)
         {
             case VariantDataType::VAR_BOOL:
@@ -126,21 +128,21 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT:
                 uptrBuffer = (uint32_t*) param->conversionBuffer();
-                *uptrBuffer = htonl((uint32_t) param->getInteger());
+                *uptrBuffer = htonl((uint32_t) param->get<int>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1,
                                   PostgreSQLDataType::INT4);
                 break;
 
             case VariantDataType::VAR_DATE:
-                days = chrono::duration_cast<chrono::hours>(param->getDateTime() - epochDate).count() / 24;
+                days = chrono::duration_cast<chrono::hours>(param->get<DateTime>() - epochDate).count() / hoursInDay;
                 if (m_int64timestamps)
                 {
-                    int64_t dt = days * 86400 * 1000000;
+                    int64_t dt = days * secondsPerDay * microsecondsInSecond;
                     htonq_inplace((uint64_t*) &dt, (uint64_t*) param->conversionBuffer());
                 }
                 else
                 {
-                    double dt = double(days) * 86400;
+                    double dt = double(days) * double(secondsPerDay);
                     htonq_inplace((uint64_t*) (void*) &dt, (uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -148,14 +150,14 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 break;
 
             case VariantDataType::VAR_DATE_TIME:
-                mcs = chrono::duration_cast<chrono::microseconds>(param->getDateTime() - epochDate).count();
+                mcs = chrono::duration_cast<chrono::microseconds>(param->get<DateTime>() - epochDate).count();
                 if (m_int64timestamps)
                 {
                     htonq_inplace((uint64_t*) &mcs, (uint64_t*) param->conversionBuffer());
                 }
                 else
                 {
-                    double dt = double(mcs) / 1E6;
+                    double dt = double(mcs) / double(microsecondsInSecond);
                     htonq_inplace((uint64_t*) (void*) &dt, (uint64_t*) param->conversionBuffer());
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -164,7 +166,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT64:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq((uint64_t) param->getInt64());
+                *uptrBuffer64 = htonq((uint64_t) param->get<int64_t>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::INT8);
                 break;
@@ -175,20 +177,26 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_FLOAT:
                 uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(const uint64_t*) &param->getFloat());
+                *uptrBuffer64 = htonq(*(const uint64_t*) &param->get<double>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::FLOAT8);
                 break;
 
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
-            case VariantDataType::VAR_BUFFER:
-                setParameterValue(paramIndex, param->getBuffer(), (unsigned) param->dataSize(), 0,
+                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 0,
                                   PostgreSQLDataType::VARCHAR);
                 break;
 
+            case VariantDataType::VAR_BUFFER:
+                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 1,
+                                  PostgreSQLDataType::BYTEA);
+                break;
+
             default:
-                throw DatabaseException("Unsupported type of parameter " + int2string(paramIndex));
+                throw DatabaseException(
+                    "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
+                    param->name() + "'");
         }
     }
 }

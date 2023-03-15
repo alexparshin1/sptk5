@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -64,8 +64,8 @@ void CPngImage::load(const Buffer& imagedata)
 {
     int i;
     int channels;
-    png_structp pp; // PNG read pointer
-    png_infop info; // PNG info pointer
+    png_structp pp;  // PNG read pointer
+    png_infop info;  // PNG info pointer
     png_bytep* rows; // PNG row pointers
     CMemHandle p;
 
@@ -141,12 +141,13 @@ void CPngImage::load(const Buffer& imagedata)
 
 #ifdef WIN32
     // Some Windows graphics drivers don't honor transparency when RGB == white
-    if (channels == 4) {
+    if (channels == 4)
+    {
         // Convert RGB to 0 when alpha == 0...
-    uchar *ptr = (uchar *)array;
-    for (i = w() * h(); i > 0; i --, ptr += 4)
-        if (!ptr[3])
-            ptr[0] = ptr[1] = ptr[2] = 0;
+        uchar* ptr = (uchar*) array;
+        for (i = w() * h(); i > 0; i--, ptr += 4)
+            if (!ptr[3])
+                ptr[0] = ptr[1] = ptr[2] = 0;
     }
 #endif // WIN32
 
@@ -186,7 +187,7 @@ CPngImage::CPngImage(const String& fileName)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 
@@ -231,7 +232,9 @@ void CPngImage::cutStretchDraw(
     CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
 {
     if (destW <= 0 || destH <= 0)
-    { return; }
+    {
+        return;
+    }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
     auto* stretched = (Fl_RGB_Image*) img->copy(destW, destH);
     stretched->draw(destX, destY);
@@ -243,7 +246,9 @@ void CPngImage::cutTileDraw(
     CPngImage* sourceImage, int srcX, int srcY, int srcW, int srcH, int destX, int destY, int destW, int destH)
 {
     if (destW <= 0 || destH <= 0)
-    { return; }
+    {
+        return;
+    }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
     fl_push_clip(destX, destY, destW, destH);
     for (int y = destY; y < destY + destH; y += srcH)
@@ -257,8 +262,7 @@ void CPngImage::cutTileDraw(
     delete img;
 }
 
-void
-CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPatternDrawMode drawMode, bool drawBackground)
+void CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPatternDrawMode drawMode, bool drawBackground)
 {
     int xSideSpace = w() - cornerWidth * 2;
     if (xSideSpace < 2)
@@ -315,8 +319,7 @@ CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPattern
     }
 }
 
-void
-CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDrawMode drawMode, bool drawBackground)
+void CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDrawMode drawMode, bool drawBackground)
 {
     int xBorderSpace = border[(int) CBorderIndex::BORDER_LEFT] + border[(int) CBorderIndex::BORDER_RIGHT];
     int xSideSpace = w() - xBorderSpace;

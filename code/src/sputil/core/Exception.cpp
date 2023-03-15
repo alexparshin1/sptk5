@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,21 +27,27 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(const String& text, const String& file, int line, const String& description) DOESNT_THROW
-    : m_file(file), m_line(line), m_text(text), m_description(description), m_fullMessage(m_text)
+Exception::Exception(String text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
+    : m_file(file.string())
+    , m_line(line)
+    , m_text(std::move(text))
+    , m_description(description)
+    , m_fullMessage(m_text)
 {
     if (m_line != 0 && !m_file.empty())
     {
         RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-        String fname(file);
-        if (auto matches = matchFileName.m(file); !matches.empty())
+        String fileName(file.string());
+        if (auto matches = matchFileName.m(file.string().c_str()); !matches.empty())
         {
-            fname = matches[0].value;
+            fileName = matches[0].value;
         }
-        m_fullMessage += " in " + fname + "(" + int2string(uint32_t(m_line)) + ")";
+        m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_line)) + ")";
     }
 
     if (!m_description.empty())
@@ -75,39 +81,40 @@ String Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(const String& text, const String& file, int line,
+TimeoutException::TimeoutException(const String& text, const std::filesystem::path& file, int line,
                                    const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-ConnectionException::ConnectionException(const String& text, const String& file, int line,
+ConnectionException::ConnectionException(const String& text, const std::filesystem::path& file, int line,
                                          const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-DatabaseException::DatabaseException(const String& text, const String& file, int line,
+DatabaseException::DatabaseException(const String& text, const filesystem::path& file, int line,
                                      const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-SOAPException::SOAPException(const String& text, const String& file, int line, const String& description) DOESNT_THROW
+SOAPException::SOAPException(const String& text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
     : Exception(text, file, line, description)
 {
 }
 
-HTTPException::HTTPException(size_t statusCode, const String& text, const String& file, int line,
+HTTPException::HTTPException(size_t statusCode, const String& text, const std::filesystem::path& file, int line,
                              const String& description) DOESNT_THROW
-    : Exception(text, file, line, description), m_statusCode(statusCode)
+    : Exception(text, file, line, description)
+    , m_statusCode(statusCode)
 {
     m_statusText = httpResponseStatus(statusCode);
 }
 
 String HTTPException::httpResponseStatus(size_t statusCode)
 {
-    static const map<size_t, const char*> statusCodeInfo{
+    static const map<size_t, const char*> statusCodeInfo {
         {400, "Bad Request"},
         {401, "Unauthorized"},
         {402, "Payment Required"},
@@ -141,8 +148,7 @@ String HTTPException::httpResponseStatus(size_t statusCode)
         {504, "Gateway Timeout"},
         {505, "HTTP Version Not Supported"},
         {510, "Not Extended"},
-        {511, "Network Authentication Required"}
-    };
+        {511, "Network Authentication Required"}};
 
     auto itor = statusCodeInfo.find(statusCode);
     if (itor == statusCodeInfo.end())
@@ -151,68 +157,3 @@ String HTTPException::httpResponseStatus(size_t statusCode)
     }
     return itor->second;
 }
-
-#if USE_GTEST
-
-TEST(SPTK_Exception, throwException)
-{
-    try
-    {
-        throw Exception("Test exception");
-    }
-    catch (const Exception& e)
-    {
-        EXPECT_STREQ("Test exception", e.what());
-    }
-
-    constexpr int testLineNumber = 1234;
-    try
-    {
-        throw Exception("Test exception", __FILE__, testLineNumber, "This happens sometimes");
-    }
-    catch (const Exception& e)
-    {
-#ifdef _WIN32
-        EXPECT_STREQ("Test exception in core\\Exception.cpp(1234). This happens sometimes.", e.what());
-#else
-        EXPECT_STREQ("Test exception in core/Exception.cpp(1234). This happens sometimes.", e.what());
-#endif
-        EXPECT_STREQ("Test exception", e.message().c_str());
-        EXPECT_STREQ(__FILE__, e.file().c_str());
-        EXPECT_EQ(testLineNumber, e.line());
-    }
-}
-
-TEST(SPTK_HttpException, throw)
-{
-    constexpr size_t firstErrorCode = 400;
-    constexpr size_t maxErrorCode = 512;
-    constexpr int testLineNumber = 1234;
-    for (size_t code = firstErrorCode; code < maxErrorCode; ++code)
-    {
-        auto expectedStatus = HTTPException::httpResponseStatus(code);
-        if (expectedStatus.empty())
-        {
-            continue;
-        }
-        try
-        {
-            throw HTTPException(code, "Something happened", __FILE__, testLineNumber, "This happens sometimes");
-        }
-        catch (const HTTPException& e)
-        {
-#ifdef _WIN32
-            EXPECT_STREQ("Something happened in core\\Exception.cpp(1234). This happens sometimes.", e.what());
-#else
-            EXPECT_STREQ("Something happened in core/Exception.cpp(1234). This happens sometimes.", e.what());
-#endif
-            EXPECT_STREQ("Something happened", e.message().c_str());
-            EXPECT_STREQ(__FILE__, e.file().c_str());
-            EXPECT_EQ(1234, e.line());
-            EXPECT_EQ(size_t(code), e.statusCode());
-            EXPECT_EQ(expectedStatus, e.statusText());
-        }
-    }
-}
-
-#endif

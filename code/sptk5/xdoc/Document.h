@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,35 +26,66 @@
 
 #pragma once
 
-#include "Node.h"
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk::xdoc {
 
-class Document
-    : public Node
+class SP_EXPORT Document
 {
-    friend class ImportXML;
-
-    friend class ExportXML;
-
 public:
-    explicit Document(Type rootType = Type::Object)
-        : Node("", rootType)
+    explicit Document(Node::Type rootType = Node::Type::Object)
+        : m_root(std::make_shared<Node>("", rootType))
     {
     }
 
-    Document(const Document& other) = default;
-
-    Document(Document&& other) noexcept = default;
-
-    Document& operator=(const Document& other) = default;
-
-    Document& operator=(Document&& other) noexcept = default;
-
-    Document& root()
+    void clear() const
     {
-        return *this;
+        m_root->clear();
     }
+
+    [[nodiscard]] SNode& root()
+    {
+        return m_root;
+    }
+
+    [[nodiscard]] const SNode& root() const
+    {
+        return m_root;
+    }
+
+    void load(const Buffer& data, bool xmlKeepFormatting = false) const;
+
+    void load(const String& data, bool xmlKeepFormatting = false) const;
+
+    void exportTo(DataFormat dataFormat, Buffer& data, bool formatted = false) const
+    {
+        m_root->exportTo(dataFormat, data, formatted);
+    }
+
+    void exportTo(DataFormat dataFormat, std::ostream& data, bool formatted = false) const
+    {
+        m_root->exportTo(dataFormat, data, formatted);
+    }
+
+    [[maybe_unused]] [[nodiscard]] SNode& findOrCreate(const String& name)
+    {
+        return m_root->findOrCreate(name);
+    }
+
+    [[nodiscard]] SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const
+    {
+        return m_root->findFirst(name, searchMode);
+    }
+
+    [[nodiscard]] Node::Vector select(const String& xpath) const
+    {
+        return m_root->select(xpath);
+    }
+
+private:
+    SNode m_root;
 };
 
-}
+using SDocument = std::shared_ptr<Document>;
+
+} // namespace sptk::xdoc

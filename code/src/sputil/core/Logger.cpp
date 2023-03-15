@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,12 +30,14 @@ using namespace std;
 using namespace sptk;
 
 Logger::Message::Message(LogPriority priority, String message)
-    : priority(priority), message(move(message))
+    : priority(priority)
+    , message(std::move(message))
 {
 }
 
 Logger::Logger(LogEngine& destination, String prefix)
-    : m_destination(destination), m_prefix(move(prefix))
+    : m_destination(destination)
+    , m_prefix(std::move(prefix))
 {
 }
 

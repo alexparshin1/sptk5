@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/gui/CPngImage.h>
 #include <sptk5/Tar.h>
-#include <sptk5/cxml>
+#include <sptk5/gui/CPngImage.h>
+#include <sptk5/xdoc/Node.h>
 
 namespace sptk {
 
@@ -40,45 +40,47 @@ namespace sptk {
 /**
  * @brief Typee of the tab image
  */
-enum CTabImageIndex {
-    TI_INACTIVE=0,
-    TI_ACTIVE=1,
-    TI_BORDER=2
+enum CTabImageIndex
+{
+    TI_INACTIVE = 0,
+    TI_ACTIVE = 1,
+    TI_BORDER = 2
 };
 
 /**
  * @brief An image representing one of three required images for theme tabs
  */
-class SP_EXPORT CTabImage {
+class SP_EXPORT CTabImage
+{
     /**
      * Tab image
      */
-    CPngImage*  m_image;
+    CPngImage* m_image;
 
     /**
      * Logical name
      */
-    String      m_name;
+    String m_name;
 
     /**
      * Left frame width
      */
-    int         m_leftFrameWidth;
+    int m_leftFrameWidth;
 
     /**
      * Right frame width
      */
-    int         m_rightFrameWidth;
+    int m_rightFrameWidth;
 
     /**
      * Top frame height
      */
-    int         m_topFrameHeight;
+    int m_topFrameHeight;
 
     /**
      * Bottom frame height
      */
-    int         m_bottomFrameHeight;
+    int m_bottomFrameHeight;
 
     /**
      * Background draw mode
@@ -88,50 +90,64 @@ class SP_EXPORT CTabImage {
 public:
     /**
      * @brief Constructor
-     * @param tar const sptk::CTar&, the theme tar archive
-     * @param tabImageNode const sptk::xml::Node*, an XML node with the tab theme info
+     * @param tar               the theme tar archive
+     * @param tabImageNode      an XML node with the tab theme info
      */
-    CTabImage(const sptk::Tar& tar,const sptk::xml::Node* tabImageNode);
+    CTabImage(const sptk::Tar& tar, const xdoc::SNode& tabImageNode);
 
     /**
      * @brief Destructor
      */
-    ~CTabImage() {
-        if (m_image) delete m_image;
+    ~CTabImage()
+    {
+        if (m_image)
+        {
+            delete m_image;
+        }
     }
 
     /**
      * @brief Custom draw method
      */
-    void draw(int x,int y,int w,int h);
+    void draw(int x, int y, int w, int h);
 
     /**
      * @brief Tab name
      */
-    String name() const { return m_name; }
+    String name() const
+    {
+        return m_name;
+    }
 };
 
 /**
  * Tab theme images collection
  */
-class CTabImages : protected std::map<String,CTabImage*> {
+class CTabImages
+    : protected std::map<String, CTabImage*>
+{
 public:
     /**
      * @brief Constructor
      */
-    CTabImages() {}
+    CTabImages()
+    {
+    }
 
     /**
      * @brief Loads tab images from tar archive using XML node as an index
-     * @param tar const sptk::CTar&, the theme tar archive
-     * @param tabImagesNode const sptk::xml::Node*, an XML node with the tabs theme info
+     * @param tar               the theme tar archive
+     * @param tabImagesNode     an XML node with the tabs theme info
      */
-    void load(const sptk::Tar& tar,const sptk::xml::Node* tabImagesNode);
+    void load(const sptk::Tar& tar, const xdoc::SNode& tabImagesNode);
 
     /**
      * @brief Destructor
      */
-    ~CTabImages() { clear(); }
+    ~CTabImages()
+    {
+        clear();
+    }
 
     /**
      * @brief Removes all the tab images from the vector
@@ -147,4 +163,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

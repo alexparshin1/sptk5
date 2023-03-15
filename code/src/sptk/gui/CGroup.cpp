@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,19 +45,22 @@ void CGroup::ctor_init(const char* alabel)
 }
 
 CGroup::CGroup(const char* alabel, int layoutSize, CLayoutAlign layoutAlign)
-    : Fl_Group(0, 0, layoutSize, layoutSize), CLayoutManager(this, layoutSize, layoutAlign)
+    : Fl_Group(0, 0, layoutSize, layoutSize)
+    , CLayoutManager(this, layoutSize, layoutAlign)
 {
     ctor_init(alabel);
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CGroup::CGroup(int x,int y,int w,int h,const char *alabel)
-        : Fl_Group(x,y,w,h), CLayoutManager(this,w,CLayoutAlign::NONE) {
+CGroup::CGroup(int x, int y, int w, int h, const char* alabel)
+    : Fl_Group(x, y, w, h)
+    , CLayoutManager(this, w, CLayoutAlign::NONE)
+{
     ctor_init(alabel);
 }
 #endif
 
-CLayoutClient* CGroup::creator(xml::Node* node)
+CLayoutClient* CGroup::creator(const xdoc::SNode& node)
 {
     auto* widget = new CGroup("", 10, CLayoutAlign::TOP);
     widget->loadLayout(node, CLayoutXMLmode::LAYOUTDATA);

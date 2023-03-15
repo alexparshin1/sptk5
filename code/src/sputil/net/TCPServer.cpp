@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,28 +25,22 @@
 */
 
 #include <sptk5/cutils>
-#include <utility>
-#include <sptk5/net/TCPServer.h>
-#include <sptk5/net/TCPServerListener.h>
 
-#if USE_GTEST
-
+#include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerConnection.h>
-
-#endif
+#include <sptk5/net/TCPServerListener.h>
 
 using namespace std;
 using namespace sptk;
 
 const map<String, LogDetails::MessageDetail> LogDetails::detailNames {
-    {"serial_id",        MessageDetail::SERIAL_ID},
-    {"source_ip",        MessageDetail::SOURCE_IP},
-    {"request_name",     MessageDetail::REQUEST_NAME},
+    {"serial_id", MessageDetail::SERIAL_ID},
+    {"source_ip", MessageDetail::SOURCE_IP},
+    {"request_name", MessageDetail::REQUEST_NAME},
     {"request_duration", MessageDetail::REQUEST_DURATION},
-    {"request_data",     MessageDetail::REQUEST_DATA},
-    {"response_data",    MessageDetail::RESPONSE_DATA},
-    {"thread_pooling",   MessageDetail::THREAD_POOLING}
-};
+    {"request_data", MessageDetail::REQUEST_DATA},
+    {"response_data", MessageDetail::RESPONSE_DATA},
+    {"thread_pooling", MessageDetail::THREAD_POOLING}};
 
 LogDetails::LogDetails(const Strings& details)
 {
@@ -64,9 +58,9 @@ LogDetails::LogDetails(const Strings& details)
 String LogDetails::toString(const String& delimiter) const
 {
     Strings names;
-    for (const auto&[name, value]: detailNames)
+    for (const auto& [name, value]: detailNames)
     {
-        if (m_details.find(value) != m_details.end())
+        if (m_details.contains(value))
         {
             names.push_back(name);
         }
@@ -74,12 +68,13 @@ String LogDetails::toString(const String& delimiter) const
     return names.join(delimiter.c_str());
 }
 
-TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
+TCPServer::TCPServer(const String& listenerName, ServerConnection::Type connectionType, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
     : ThreadPool((uint32_t) threadLimit,
                  chrono::minutes(1),
                  listenerName,
-                 logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr),
-      m_logDetails(logDetails)
+                 logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr)
+    , m_logDetails(logDetails)
+    , m_connectionType(connectionType)
 {
     if (logEngine != nullptr)
     {
@@ -88,8 +83,8 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
 
     constexpr unsigned maxHostNameLength = 128;
     array<char, maxHostNameLength> hostname = {"localhost"};
-    int rc = gethostname(hostname.data(), sizeof(hostname));
-    if (rc == 0)
+    const int result = gethostname(hostname.data(), sizeof(hostname));
+    if (result == 0)
     {
         m_host = Host(hostname.data());
     }
@@ -132,7 +127,11 @@ void TCPServer::stop()
 {
     UniqueLock(m_mutex);
     ThreadPool::stop();
-    m_listenerThread.reset();
+    if (m_listenerThread)
+    {
+        m_listenerThread->stop();
+        m_listenerThread.reset();
+    }
 }
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
@@ -147,135 +146,28 @@ const SSLKeys& TCPServer::getSSLKeys() const
     return *m_sslKeys;
 }
 
-void TCPServer::threadEvent(Thread* thread, ThreadEvent::Type eventType, Runable* runable)
+void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
 {
     if (eventType == Type::RUNABLE_FINISHED)
     {
-        delete runable;
-        runable = nullptr;
+        runable.reset();
     }
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-#if USE_GTEST
-
-/**
- * Not encrypted connection to control service
- */
-class EchoConnection
-    : public TCPServerConnection
+SServerConnection TCPServer::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
 {
-public:
-    EchoConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-        : TCPServerConnection(server, connectionSocket, connectionAddress)
+    if (m_connectionType == ServerConnection::Type::TCP)
     {
+        return make_shared<TCPServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }
-
-    ~EchoConnection() override
+    else
     {
-        COUT("Connection destroyed" << endl)
-    }
-
-    /**
-     * Terminate connection thread
-     */
-    void terminate() override
-    {
-        socket().close();
-        TCPServerConnection::terminate();
-    }
-
-    /**
-     * Connection thread function
-     */
-    void run() override
-    {
-        Buffer data;
-        while (!terminated())
-        {
-            try
-            {
-                if (socket().readyToRead(chrono::seconds(1)))
-                {
-                    if (socket().readLine(data) == 0)
-                    {
-                        return;
-                    }
-                    string str(data.c_str());
-                    str += "\n";
-                    socket().write(str);
-                }
-                else
-                {
-                    break;
-                }
-            }
-            catch (const Exception& e)
-            {
-                CERR(e.what() << endl)
-            }
-        }
-        socket().close();
-    }
-};
-
-class EchoServer
-    : public sptk::TCPServer
-{
-public:
-
-    EchoServer()
-        : TCPServer("EchoServer")
-    {
-    }
-
-protected:
-
-    sptk::ServerConnection* createConnection(SOCKET connectionSocket, sockaddr_in* peer) override
-    {
-        return new EchoConnection(*this, connectionSocket, peer);
-    }
-};
-
-static constexpr uint16_t testEchoServerPort = 3001;
-
-TEST(SPTK_TCPServer, minimal)
-{
-    Buffer buffer;
-
-    try
-    {
-        EchoServer echoServer;
-        echoServer.listen(testEchoServerPort);
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        Strings rows("Hello, World!\n"
-                     "This is a test of TCPServer class.\n"
-                     "Using simple echo server to verify data flow.\n"
-                     "The session is terminated when this row is received", "\n");
-
-        int rowCount = 0;
-        for (const auto& row: rows)
-        {
-            socket.write(row + "\n");
-            buffer.bytes(0);
-            if (socket.readyToRead(chrono::seconds(3)))
-            {
-                socket.readLine(buffer);
-            }
-            EXPECT_STREQ(row.c_str(), buffer.c_str());
-            ++rowCount;
-        }
-        EXPECT_EQ(4, rowCount);
-
-        socket.close();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
+        return make_shared<SSLServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }
 }
 
-#endif
+void TCPServer::onConnection(const ServerConnection::Function& function)
+{
+    m_connectionFunction = function;
+}

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,9 +27,9 @@
 #ifndef __CORACLEBULKINSERTQUERY_H__
 #define __CORACLEBULKINSERTQUERY_H__
 
-#include <sptk5/db/Query.h>
-#include <sptk5/db/OracleConnection.h>
 #include <sptk5/Exception.h>
+#include <sptk5/db/OracleConnection.h>
+#include <sptk5/db/Query.h>
 
 namespace sptk {
 
@@ -47,27 +47,36 @@ public:
     /// @brief Executes next iteration of bulk insert
     void execNext();
 
-    size_t batchSize() const { return m_batchSize; }
-    bool lastIteration() const { return m_lastIteration; }
-    QueryColumnTypeSizeMap columnTypeSizes() const { return m_columnTypeSizes; }
+    size_t batchSize() const
+    {
+        return m_batchSize;
+    }
+    bool lastIteration() const
+    {
+        return m_lastIteration;
+    }
+    QueryColumnTypeSizeMap columnTypeSizes() const
+    {
+        return m_columnTypeSizes;
+    }
 
 protected:
     /// @brief Constructor
     /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    OracleBulkInsertQuery(PoolDatabaseConnection *db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
+    OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
 
     /// @brief Destructor
     ~OracleBulkInsertQuery() override = default;
 
 private:
-    size_t                  m_recordCount {0};          ///< Inserted record count
-    size_t                  m_recordNumber {0};         ///< Current record number
-    size_t                  m_batchSize {2};            ///< Batch size
-    bool                    m_lastIteration {false};    ///< Last iteration
-    QueryColumnTypeSizeMap  m_columnTypeSizes;          ///< Column type sizes
+    size_t m_recordCount {0};                 ///< Inserted record count
+    size_t m_recordNumber {0};                ///< Current record number
+    size_t m_batchSize {2};                   ///< Batch size
+    bool m_lastIteration {false};             ///< Last iteration
+    QueryColumnTypeSizeMap m_columnTypeSizes; ///< Column type sizes
 };
 /// @}
-}
+} // namespace sptk
 #endif

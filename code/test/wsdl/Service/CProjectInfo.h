@@ -18,6 +18,14 @@ class CProjectInfo : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "ProjectInfo";
+    }
+
    // Elements
    sptk::WSInteger                          m_id {"id", false};
    sptk::WSString                           m_expiration {"expiration", false};
@@ -27,7 +35,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CProjectInfo(const char* elementName="project_info", bool optional=false) noexcept;
+   explicit CProjectInfo(const char* elementName="project_info", bool optional=false);
 
    /**
     * Copy constructor
@@ -50,13 +58,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (const CProjectInfo& other);
+   CProjectInfo& operator = (const CProjectInfo& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (CProjectInfo&& other) noexcept;
+   CProjectInfo& operator = (CProjectInfo&& other) noexcept = default;
 
    /**
     * Get complex type field names.

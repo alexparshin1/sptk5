@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,29 +27,53 @@
 #pragma once
 
 #include <sptk5/Exception.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/threads/Thread.h>
 
 #include <functional>
 #include <map>
 #include <mutex>
+
+#ifdef _WIN32
+
+// Windows
+#include <WS2tcpip.h>
+#include <WinSock2.h>
+#include <Windows.h>
+#include <wepoll.h>
+using SocketEvent = epoll_event;
+
+#else
+
+#if __linux__ == 1
+// Linux
+#include <sys/epoll.h>
+
+using SocketEvent = epoll_event;
+
+#else
+// BSD
+#include <sys/event.h>
+using SocketEvent = kevent;
+
+#endif
+#endif
 
 namespace sptk {
 
 /**
  * Socket event types
  */
-enum class SocketEventType: uint8_t
+enum class SocketEventType : uint8_t
 {
-    UNKNOWN,             ///< Event is unknown or undefined
-    HAS_DATA,            ///< Socket has data available to read
-    CONNECTION_CLOSED    ///< Peer closed connection
+    HAS_DATA,         ///< Socket has data available to read
+    CONNECTION_CLOSED ///< Peer closed connection
 };
 
 /**
  * Type definition of socket event callback function
  */
-using SocketEventCallback = std::function<void(void *userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
@@ -64,7 +88,8 @@ using SocketEventCallback = std::function<void(void *userData, SocketEventType e
  * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
-class SP_EXPORT SocketPool : public std::mutex
+class SP_EXPORT SocketPool
+    : public std::mutex
 {
 public:
     /**
@@ -81,7 +106,7 @@ public:
     /**
      * Deleted copy assignment
      */
-    SocketPool& operator = (const SocketPool&) = delete;
+    SocketPool& operator=(const SocketPool&) = delete;
 
     /**
      * Initialize socket pool
@@ -107,16 +132,22 @@ public:
 
     /**
      * Add socket to monitored pool
-     * @param socket BaseSocket&, Socket to monitor events
-     * @param userData void*, User data to pass to callback function
+     * @param socket            Socket to monitor events
+     * @param userData          User data to pass to callback function
      */
-    void watchSocket(BaseSocket& socket, void* userData);
+    void watchSocket(BaseSocket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from monitored pool
-     * @param socket BaseSocket&, Socket from this pool
+     * @param socket            Socket from this pool
      */
     void forgetSocket(BaseSocket& socket);
+
+    /**
+     * Check if socket is already being monitored
+     * @param socket            Socket
+     */
+    bool hasSocket(BaseSocket& socket);
 
     /**
      * @return true if socket pool is active
@@ -128,21 +159,20 @@ private:
      * Socket that controls other sockets events
      */
 #ifdef _WIN32
-    HANDLE                      m_pool { INVALID_EPOLL };
+    HANDLE m_pool {INVALID_EPOLL};
 #else
-    SOCKET                      m_pool { INVALID_EPOLL };
+    SOCKET m_pool {INVALID_EPOLL};
 #endif // _WIN32
 
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback         m_eventsCallback;
+    SocketEventCallback m_eventsCallback;
 
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<BaseSocket*,void*> m_socketData;
+    std::map<BaseSocket*, std::shared_ptr<SocketEvent>> m_socketData;
 };
 
-}
-
+} // namespace sptk

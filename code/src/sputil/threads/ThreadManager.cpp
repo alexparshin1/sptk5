@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,13 +31,21 @@ using namespace sptk;
 using namespace chrono;
 
 ThreadManager::ThreadManager(const String& name)
-    : m_joiner(shared_ptr<Joiner>(new Joiner(name + ".Joiner"),
-                                  [this](Joiner* ptr) {
-                                      stop();
-                                      ptr->stop();
-                                      delete ptr;
-                                  }))
+    : m_joiner(make_shared<Joiner>(name + ".Joiner"))
 {
+}
+
+ThreadManager::~ThreadManager()
+{
+    try
+    {
+        stop();
+    }
+    catch (const Exception&)
+    {
+        // suppress any exceptions
+    }
+    m_joiner->stop();
 }
 
 ThreadManager::Joiner::Joiner(const String& name)
@@ -47,9 +55,10 @@ ThreadManager::Joiner::Joiner(const String& name)
 
 void ThreadManager::Joiner::threadFunction()
 {
+    constexpr auto timeout = std::chrono::milliseconds(1000);
     while (!terminated())
     {
-        joinTerminatedThreads(std::chrono::milliseconds(1000));
+        joinTerminatedThreads(timeout);
     }
 }
 
@@ -89,7 +98,7 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     scoped_lock lock(m_mutex);
-    for (const auto&[thread, threadSPtr]: m_runningThreads)
+    for (const auto& [thread, threadSPtr]: m_runningThreads)
     {
         m_joiner->push(threadSPtr);
         threadSPtr->terminate();
@@ -135,55 +144,3 @@ bool ThreadManager::running() const
     scoped_lock lock(m_mutex);
     return m_joiner->running();
 }
-
-#if USE_GTEST
-
-class ThreadManagerTestThread
-    : public Thread
-{
-public:
-    static atomic<size_t> taskCounter;
-    static atomic<size_t> joinCounter;
-
-    ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager> threadManager)
-        : Thread(name, threadManager)
-    {
-    }
-
-    void join() override
-    {
-        ++joinCounter;
-    }
-
-protected:
-    void threadFunction() override
-    {
-        ++taskCounter;
-        sleep_for(milliseconds(10));
-    }
-};
-
-atomic<size_t> ThreadManagerTestThread::taskCounter;
-atomic<size_t> ThreadManagerTestThread::joinCounter;
-
-TEST(SPTK_ThreadManager, minimal)
-{
-    size_t maxThreads = 10;
-    auto threadManager = make_shared<ThreadManager>("Test Manager");
-
-    threadManager->start();
-
-    for (size_t i = 0; i < maxThreads; ++i)
-    {
-        auto thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
-        thread->run();
-    }
-
-    this_thread::sleep_for(milliseconds(200));
-    threadManager->stop();
-
-    EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);
-    EXPECT_EQ(maxThreads, ThreadManagerTestThread::joinCounter);
-}
-
-#endif

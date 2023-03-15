@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,40 +31,37 @@ using namespace std;
 using namespace sptk;
 
 TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
-    : Thread("CTCPServer::Listener"),
-      m_server(shared_ptr<TCPServer>(server,
+    : Thread("CTCPServer::Listener")
+    , m_server(shared_ptr<TCPServer>(server,
                                      [this](const TCPServer*) {
-                                         // don't destroy server object as it's not owned here
                                          stop();
                                      }))
 {
     m_listenerSocket.host(Host("localhost", port));
 }
 
-void TCPServerListener::acceptConnection()
+void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
 {
     try
     {
-        SOCKET connectionFD;
+        SOCKET connectionFD {0};
         sockaddr_in connectionInfo = {};
-        m_listenerSocket.accept(connectionFD, connectionInfo);
-        if (connectionFD == -1)
+        if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
-            return;
-        }
-        if (m_server->allowConnection(&connectionInfo))
-        {
-            auto* connection = m_server->createConnection(connectionFD, &connectionInfo);
-            m_server->execute(connection);
-        }
-        else
-        {
+            if (m_server->allowConnection(&connectionInfo))
+            {
+                auto connection = m_server->createConnection(connectionFD, &connectionInfo);
+                m_server->execute(connection);
+            }
+            else
+            {
 #ifndef _WIN32
-            shutdown(connectionFD, SHUT_RDWR);
-            ::close(connectionFD);
+                shutdown(connectionFD, SHUT_RDWR);
+                ::close(connectionFD);
 #else
-            closesocket(connectionFD);
+                closesocket(connectionFD);
 #endif
+            }
         }
     }
     catch (const Exception& e)
@@ -77,12 +74,17 @@ void TCPServerListener::threadFunction()
 {
     try
     {
+        constexpr auto readTimeout = chrono::milliseconds(100);
         while (!terminated())
         {
-            scoped_lock lock(*this);
-            if (m_listenerSocket.readyToRead(chrono::milliseconds(100)))
+            const scoped_lock lock(*this);
+            if (m_listenerSocket.readyToRead(readTimeout))
             {
-                acceptConnection();
+                if (!m_listenerSocket.active())
+                {
+                    break;
+                }
+                acceptConnection(readTimeout);
             }
         }
     }
@@ -95,7 +97,7 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
     m_listenerSocket.close();
 }
 

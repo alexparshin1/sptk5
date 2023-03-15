@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/gui/CPopupWindow.h>
-#include <sptk5/gui/CControl.h>
 #include <sptk5/DateTime.h>
+#include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CLayoutClient.h>
+#include <sptk5/gui/CPopupWindow.h>
 
 class Fl_Box;
 
@@ -50,7 +50,8 @@ namespace sptk {
  * You can change a day, a month and a year selected in the widget.
  */
 class SP_EXPORT CCalendar
-    : public ::Fl_Group, public CLayoutClient
+    : public ::Fl_Group
+    , public CLayoutClient
 {
     Fl_Group* m_headerBox;
     Fl_Group* m_buttonBox;
@@ -90,7 +91,6 @@ protected:
     void switchButtonClicked(int32_t monthChange);
 
 public:
-
     /**
      * @brief SPTK-style constructor
      * @param label const char *, the widget label
@@ -131,7 +131,7 @@ public:
     /**
      * @brief Sets the calendar date
      */
-    void date(DateTime dt);
+    void date(const DateTime& dt);
 
     /**
      * @brief Reports the calendar date
@@ -202,7 +202,7 @@ public:
      * @brief Sets the calendar date
      * @param dt DateTime, new calendar date
      */
-    void date(DateTime dt)
+    void date(const DateTime& dt)
     {
         m_calendar->date(dt);
     }
@@ -228,4 +228,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

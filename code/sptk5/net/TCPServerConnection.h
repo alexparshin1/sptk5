@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,7 @@
 
 #include <sptk5/net/ServerConnection.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup net Networking Classes
@@ -42,7 +41,8 @@ namespace sptk
  * Application derives concrete TCP server connections based on this class,
  * to use with CTCPServer as connection template
  */
-class TCPServerConnection: public ServerConnection
+class TCPServerConnection
+    : public ServerConnection
 {
 public:
     /**
@@ -50,16 +50,27 @@ public:
      * @param server            TCP server
      * @param connectionSocket  Already accepted by accept() function incoming connection socket
      * @param connectionAddress Incoming connection address
+     * @param connectionFunction Connection function executed for each new client connection to server
      */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress)
-    : ServerConnection(server, connectionSocket, connectionAddress, "TCPServerConnection")
+    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+        : ServerConnection(server, ServerConnection::Type::TCP, connectionAddress,
+                           "TCPServerConnection", connectionFunction)
     {
-        setSocket(new TCPSocket);
+        setSocket(std::make_shared<TCPSocket>());
         socket().attach(connectionSocket, false);
+    }
+
+    /**
+     * Terminate connection thread
+     */
+    void terminate() override
+    {
+        socket().close();
+        ServerConnection::terminate();
     }
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

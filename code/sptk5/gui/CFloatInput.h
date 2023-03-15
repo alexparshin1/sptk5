@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <sptk5/sptk.h>
 
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -64,7 +64,6 @@ class SP_EXPORT CFloatInput
     int m_decimalPlaces;
 
 protected:
-
     /**
      * @brief Saves data to query
      */
@@ -76,7 +75,6 @@ protected:
     bool valid() const override;
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -95,7 +93,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CFloatInput(int,int,int,int,const char * = 0);
+    CFloatInput(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -142,9 +140,9 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

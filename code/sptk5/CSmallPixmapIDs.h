@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,7 +38,8 @@ namespace sptk {
 /**
  * A list of predefined small pixmaps
  */
-enum class CSmallPixmapType : uint8_t {
+enum class CSmallPixmapType : uint8_t
+{
     /**
      * Small pixmap - executable
      */
@@ -83,5 +84,4 @@ extern const Strings smallPixmapIDs;
 /**
  * @}
  */
-}
-
+} // namespace sptk

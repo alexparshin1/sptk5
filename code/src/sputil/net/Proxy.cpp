@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -30,5 +30,8 @@ using namespace std;
 using namespace sptk;
 
 Proxy::Proxy(const Host& host, const String& username, const String& password)
-    : m_host(host), m_username(username), m_password(password)
-{}
+    : m_host(host)
+    , m_username(username)
+    , m_password(password)
+{
+}

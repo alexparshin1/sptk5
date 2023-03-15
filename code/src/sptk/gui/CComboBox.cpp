@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -406,12 +406,12 @@ void CBaseListBox::save(Query* updateQuery)
     param = data();
 }
 
-void CBaseListBox::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CBaseListBox::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
     CControl::load(node, xmlMode);
 }
 
-void CBaseListBox::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CBaseListBox::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     CControl::save(node, xmlMode);
 }
@@ -707,7 +707,7 @@ CControlKind CComboBox::kind() const
     return CControlKind::INTVALUECOMBO;
 }
 
-CLayoutClient* CComboBox::creator(xml::Node* node)
+CLayoutClient* CComboBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CComboBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);

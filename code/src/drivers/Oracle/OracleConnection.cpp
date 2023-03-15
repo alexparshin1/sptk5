@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,20 @@
 
 #include <sptk5/cutils>
 #include <sptk5/db/OracleConnection.h>
-#include <sptk5/db/Transaction.h>
 
 using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-OracleConnection::OracleConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE)
+namespace sptk {
+static void Oracle_readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+static void Oracle_readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+} // namespace sptk
+
+OracleConnection::OracleConnection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE, connectTimeout)
 {
 }
 
@@ -50,11 +56,11 @@ OracleConnection::~OracleConnection()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     catch (const SQLException& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
 }
 
@@ -68,7 +74,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        Statement* createLOBtable = nullptr;
+        Statement* createLobTable = nullptr;
         try
         {
             m_connection = shared_ptr<Connection>(m_environment.createConnection(connectionString()),
@@ -76,10 +82,10 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
                                                       disconnectAllQueries();
                                                       m_environment.terminateConnection(ptr);
                                                   });
-            createLOBtable = m_connection->createStatement();
-            createLOBtable->setSQL(
+            createLobTable = m_connection->createStatement();
+            createLobTable->setSQL(
                 "CREATE GLOBAL TEMPORARY TABLE sptk_lobs (sptk_clob CLOB, sptk_blob BLOB) ON COMMIT DELETE ROWS");
-            createLOBtable->executeUpdate();
+            createLobTable->executeUpdate();
         }
         catch (const SQLException& e)
         {
@@ -87,13 +93,13 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
             {
                 if (m_connection)
                 {
-                    m_connection->terminateStatement(createLOBtable);
+                    m_connection->terminateStatement(createLobTable);
                     m_connection.reset();
                 }
-                throwOracleException(string("Can't create connection: ") + e.what())
+                throwException<DatabaseException>(string("Can't create connection: ") + e.what());
             }
         }
-        m_connection->terminateStatement(createLOBtable);
+        m_connection->terminateStatement(createLobTable);
     }
 }
 
@@ -105,7 +111,7 @@ void OracleConnection::closeDatabase()
     }
     catch (const SQLException& e)
     {
-        throwOracleException(string("Can't close connection: ") + e.what())
+        throwException<DatabaseException>(string("Can't close connection: ") + e.what());
     }
 }
 
@@ -144,7 +150,7 @@ void OracleConnection::driverBeginTransaction()
     }
 
     if (getInTransaction())
-    throwOracleException("Transaction already started.")
+        throwException<DatabaseException>("Transaction already started.");
 
     setInTransaction(true);
 }
@@ -152,7 +158,7 @@ void OracleConnection::driverBeginTransaction()
 void OracleConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
-    throwOracleException("Transaction isn't started.")
+        throwException<DatabaseException>("Transaction isn't started.");
 
     string action;
     try
@@ -170,7 +176,7 @@ void OracleConnection::driverEndTransaction(bool commit)
     }
     catch (const SQLException& e)
     {
-        throwOracleException((action + " failed: ") + e.what())
+        throwException<DatabaseException>((action + " failed: ") + e.what());
     }
 
     setInTransaction(false);
@@ -186,24 +192,20 @@ String OracleConnection::queryError(const Query*) const
 // the previously allocated stmt is released
 void OracleConnection::queryAllocStmt(Query* query)
 {
-    auto* stmt = (StmtHandle) new OracleStatement(this, query->sql());
-    querySetStmt(query, shared_ptr<uint8_t>(stmt,
-                                            [](StmtHandle ptr) {
-                                                auto* ostmt = (OracleStatement*) ptr;
-                                                delete ostmt;
-                                            }));
+    auto stmt = make_shared<OracleStatement>(this, query->sql());
+    querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
 void OracleConnection::queryFreeStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 
 void OracleConnection::queryCloseStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     auto* statement = (OracleStatement*) query->statement();
     if (statement)
     {
@@ -213,7 +215,7 @@ void OracleConnection::queryCloseStmt(Query* query)
 
 void OracleConnection::queryPrepare(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     statement->enumerateParams(query->params());
@@ -234,30 +236,26 @@ void OracleConnection::queryPrepare(Query* query)
 }
 
 void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, Statement* stmt,
-                                        const QueryColumnTypeSizeMap& columnTypeSizes) const
+                                        const QueryColumnTypeSizeMap& columnTypeSizes)
 {
     unsigned paramIndex = 1;
     for (const auto& param: enumeratedParams)
     {
-        if (auto xtor = columnTypeSizes.find(upperCase(param->name()));
-            xtor != columnTypeSizes.end())
+        if (auto sizesIterator = columnTypeSizes.find(upperCase(param->name()));
+            sizesIterator != columnTypeSizes.end())
         {
-            if (xtor->second.length)
+            if (sizesIterator->second.length)
             {
-                stmt->setMaxParamSize(paramIndex, (unsigned) xtor->second.length);
+                stmt->setMaxParamSize(paramIndex, (unsigned) sizesIterator->second.length);
             }
             else
             {
-                stmt->setMaxParamSize(paramIndex, 32);
+                const auto maxParamDataSize = 32;
+                stmt->setMaxParamSize(paramIndex, maxParamDataSize);
             }
         }
         ++paramIndex;
     }
-}
-
-void OracleConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
 }
 
 int OracleConnection::queryColCount(Query* query)
@@ -265,7 +263,7 @@ int OracleConnection::queryColCount(Query* query)
     const auto* statement = (OracleStatement*) query->statement();
     if (statement == nullptr)
     {
-        throwOracleException("Query not opened")
+        throwException<DatabaseException>("Query not opened");
     }
     else
     {
@@ -275,13 +273,14 @@ int OracleConnection::queryColCount(Query* query)
 
 void OracleConnection::queryBindParameters(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
     if (!statement)
     {
         throw DatabaseException("Query not prepared");
     }
+
     try
     {
         statement->setParameterValues();
@@ -328,7 +327,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
     switch (dataType)
     {
         case VariantDataType::VAR_NONE:
-        throwException("Data type is not defined")
+            throwException<DatabaseException>("Data type is not defined");
         case VariantDataType::VAR_INT:
             return (Type) SQLT_INT;
         case VariantDataType::VAR_FLOAT:
@@ -347,7 +346,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
         case VariantDataType::VAR_BOOL:
             return OCCIINT;
         default:
-        throwException("Unsupported SPTK data type: " << (int) dataType)
+            throwException<DatabaseException>("Unsupported SPTK data type: " + to_string((int) dataType));
     }
 }
 
@@ -376,7 +375,7 @@ void OracleConnection::queryExecute(Query* query)
     }
     catch (const SQLException& e)
     {
-        throwOracleException(e.what())
+        throwException<DatabaseException>(e.what());
     }
 }
 
@@ -429,7 +428,7 @@ void OracleConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet) const
+void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet)
 {
     vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
     unsigned columnIndex = 0;
@@ -441,13 +440,15 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
-            array<char, 32> alias;
+            const auto maxColumnNameLength = 31;
+            array<char, maxColumnNameLength> alias {};
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
         {
-            resultSet->setMaxColumnSize(columnIndex + 1, 16384);
+            const auto maxColumnSize = 16384;
+            resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
         }
         VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
         auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
@@ -458,7 +459,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
     }
 }
 
-void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -473,7 +474,7 @@ void OracleConnection::readTimestamp(ResultSet* resultSet, DatabaseField* field,
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -488,7 +489,7 @@ void OracleConnection::readDate(ResultSet* resultSet, DatabaseField* field, unsi
 void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
     scoped_lock lock(m_mutex);
 
@@ -561,29 +562,28 @@ void OracleConnection::queryFetch(Query* query)
 
                 case Type(SQLT_DAT):
                 case Type(SQLT_DATE):
-                    readDate(resultSet, field, columnIndex);
+                    Oracle_readDate(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_TIME):
                 case Type(SQLT_TIME_TZ):
                 case Type(SQLT_TIMESTAMP):
                 case Type(SQLT_TIMESTAMP_TZ):
-                    readTimestamp(resultSet, field, columnIndex);
+                    Oracle_readTimestamp(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_BLOB):
-                    readBLOB(resultSet, field, columnIndex);
+                    Oracle_readBLOB(resultSet, field, columnIndex);
                     break;
 
                 case Type(SQLT_CLOB):
-                    readCLOB(resultSet, field, columnIndex);
+                    Oracle_readCLOB(resultSet, field, columnIndex);
                     break;
 
                 default:
                     field->setString(resultSet->getString(columnIndex));
                     break;
             }
-
         }
         catch (const Exception& e)
         {
@@ -596,27 +596,29 @@ void OracleConnection::queryFetch(Query* query)
     }
 }
 
-void OracleConnection::readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
+    auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
-    // Attention: clob stored as widechar
+    // Attention: clob stored as wide char
     unsigned clobChars = clob.length();
     unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, field->getBuffer(), clobBytes, 1);
+    unsigned bytes = clob.read(clobChars, buffer.data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
-    field->getBuffer()[bytes] = 0;
+    buffer.data()[bytes] = 0;
 }
 
-void OracleConnection::readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+static void sptk::Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
+    auto& buffer = field->get<Buffer>();
     Blob blob = resultSet->getBlob(columnIndex);
     blob.open(OCCI_LOB_READONLY);
     unsigned bytes = blob.length();
     field->checkSize(bytes);
-    blob.read(bytes, field->getBuffer(), bytes, 1);
+    blob.read(bytes, buffer.data(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
@@ -628,16 +630,19 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     switch (objectType)
     {
         case DatabaseObjectType::PROCEDURES:
-            objectsSQL = "SELECT object_name FROM user_procedures";
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'PROCEDURE'";
             break;
         case DatabaseObjectType::FUNCTIONS:
-            objectsSQL = "SELECT object_name FROM user_functions";
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'FUNCTION'";
             break;
         case DatabaseObjectType::TABLES:
             objectsSQL = "SELECT table_name FROM user_tables";
             break;
         case DatabaseObjectType::VIEWS:
-            objectsSQL = "SELECT view_name FROM user_views";
+            objectsSQL = "SELECT view_name FROM sys.all_views";
+            break;
+        case DatabaseObjectType::DATABASES:
+            objectsSQL = "SELECT username FROM all_users";
             break;
         default:
             throw Exception("Not implemented yet");
@@ -652,10 +657,10 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::_bulkInsert(const String& _tableName, const Strings& columnNames,
-                                   const vector<VariantVector>& data)
+void OracleConnection::bulkInsert(const String& _tableName, const Strings& columnNames,
+                                  const vector<VariantVector>& data)
 {
-    RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
+    const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
 
     String schema;
     String tableName;
@@ -700,8 +705,9 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
         columnTypeSize.length = 0;
         if (columnType.find("LOB") != string::npos)
         {
+            constexpr size_t defaultTextSize = 65536;
             columnTypeSize.type = VariantDataType::VAR_TEXT;
-            columnTypeSize.length = 65536;
+            columnTypeSize.length = defaultTextSize;
         }
         else if (columnType.find("CHAR") != string::npos)
         {
@@ -721,14 +727,14 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
     {
         auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
-        throwDatabaseException(
-            "Column '" << columnName << "' doesn't belong to table " << tableName)
+            throwException<DatabaseException>(
+                "Column '" + columnName + "' doesn't belong to table " + tableName);
         columnTypeSizeVector.push_back(column->second);
     }
 
     OracleBulkInsertQuery insertQuery(this,
                                       "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                                      ") VALUES (:" + columnNames.join(",:") + ")",
+                                          ") VALUES (:" + columnNames.join(",:") + ")",
                                       data.size(),
                                       columnTypeSizeMap);
     for (const auto& row: data)
@@ -739,11 +745,11 @@ void OracleConnection::_bulkInsert(const String& _tableName, const Strings& colu
 
 void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
                                            const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row) const
+                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row)
 {
     for (size_t i = 0; i < columnNames.size(); ++i)
     {
-        auto& value = row[i];
+        const auto& value = row[i];
         switch (columnTypeSizeVector[i].type)
         {
             case VariantDataType::VAR_TEXT:
@@ -758,7 +764,7 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
                 }
                 break;
             case VariantDataType::VAR_DATE_TIME:
-                insertQuery.param(i).setDateTime(value.getDateTime());
+                insertQuery.param(i).setDateTime(value.get<DateTime>());
                 break;
             default:
                 insertQuery.param(i).setString(value.asString());
@@ -775,25 +781,26 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    array<char, 16> mark;
+    const auto maxParamMarkLength = 16;
+    array<char, maxParamMarkLength> mark {};
     snprintf(mark.data(), sizeof(mark) - 1, ":%i", paramIndex + 1);
     return string(mark.data());
 }
 
-void OracleConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
-    RegularExpression matchStatementEnd("(;\\s*)$");
-    RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
-    RegularExpression matchGo("^/\\s*$");
-    RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
-    RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchStatementEnd("(;\\s*)$");
+    static const RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
+    static const RegularExpression matchGo("^/\\s*$");
+    static const RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
+    static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     string statement;
     bool routineStarted = false;
-    for (const auto& arow: sqlBatch)
+    for (const auto& aRow: sqlBatch)
     {
-        String row = trim(arow);
+        String row = trim(aRow);
         if (row.empty() || matchCommentRow.matches(row))
         {
             continue;
@@ -879,13 +886,26 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
     }
 }
 
-void* oracle_create_connection(const char* connectionString)
+void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    auto* connection = new OracleConnection(connectionString);
-    return connection;
+    notImplemented("queryColAttributes");
 }
 
-void oracle_destroy_connection(void* connection)
+void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
 {
-    delete (OracleConnection*) connection;
+    notImplemented("queryColAttributes");
+}
+
+map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
+
+[[maybe_unused]] void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+{
+    auto connection = make_shared<OracleConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    OracleConnection::s_oracleConnections[connection.get()] = connection;
+    return connection.get();
+}
+
+[[maybe_unused]] void oracle_destroy_connection(void* connection)
+{
+    OracleConnection::s_oracleConnections.erase((OracleConnection*) connection);
 }

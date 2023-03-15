@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,11 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
+#include <sptk5/ArchiveFile.h>
+#include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/Buffer.h>
-#include <sptk5/ArchiveFile.h>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -42,7 +42,6 @@ namespace sptk {
  */
 class SP_EXPORT Tar
 {
-    using SBuffer = std::shared_ptr<Buffer>;
     using FileCollection = std::map<String, SArchiveFile>;
 
 public:
@@ -93,10 +92,10 @@ public:
     /**
      * returns a list of files in tar archive
      */
-    Strings fileList() const
+    [[maybe_unused]] Strings fileList() const
     {
         Strings fileNames;
-        for (const auto&[fileName, data]: m_files)
+        for (const auto& [fileName, data]: m_files)
         {
             fileNames.push_back(fileName);
         }
@@ -134,16 +133,10 @@ public:
     void clear();
 
 private:
-    FileCollection m_files;       ///< File name to the file data map
-    bool m_memoryRead {false};    ///< Flag to indicate if tar data is red from the memory buffer
-    String m_fileName;            ///< Tar file name
+    FileCollection m_files; ///< File name to the file data map
+    String m_fileName;      ///< Tar file name
 
     [[nodiscard]] bool readNextFile(const Buffer& buffer, size_t& offset);
-
-    /**
-     * Loads tar file into memory
-     */
-    void loadFile();
 };
 
-}
+} // namespace sptk

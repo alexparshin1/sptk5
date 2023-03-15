@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/fl_draw.H>
@@ -58,17 +57,18 @@ CBox::CBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment)
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CBox::CBox(int x,int y,int w,int h,const char *label)
-        : CInput(x,y,w,h,"",false) {
+CBox::CBox(int x, int y, int w, int h, const char* label)
+    : CInput(x, y, w, h, "", false)
+{
     ctor_init(label);
 }
 #endif
 
-CLayoutClient* CBox::creator(xml::Node* node)
+CLayoutClient* CBox::creator(const xdoc::SNode& node)
 {
     auto* widget = new CBox("", 10, CLayoutAlign::TOP);
     widget->load(node, CLayoutXMLmode::LAYOUTDATA);
-    widget->dragable((bool) node->getAttribute("drag", "N"));
+    widget->dragable(node->attributes().get("drag", "false") == "true");
     return widget;
 }
 

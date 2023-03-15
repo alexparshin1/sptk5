@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Flag.h>
 #include <mutex>
+#include <sptk5/threads/Flag.h>
 
 using namespace std;
 using namespace sptk;
@@ -43,8 +43,7 @@ Flag::~Flag()
     {
         scoped_lock lock(m_lockMutex);
         m_condition.notify_one();
-    }
-    while (waiters() > 0);
+    } while (waiters() > 0);
 }
 
 void Flag::terminate()
@@ -81,7 +80,7 @@ bool Flag::wait_for(bool value, chrono::milliseconds timeout)
     return wait_until(value, timeoutAt);
 }
 
-bool Flag::wait_until(bool value, DateTime timeoutAt)
+bool Flag::wait_until(bool value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
@@ -92,7 +91,9 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
     {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
-                                    [this, value]() { return m_value == value; }))
+                                    [this, value]() {
+                                        return m_value == value;
+                                    }))
         {
             if (timeoutAt < DateTime::Now())
             {
@@ -110,48 +111,3 @@ bool Flag::wait_until(bool value, DateTime timeoutAt)
 
     return true;
 }
-
-#if USE_GTEST
-
-TEST(SPTK_Flag, ctor)
-{
-    Flag flag;
-    EXPECT_EQ(flag.get(), false);
-}
-
-TEST(SPTK_Flag, waitFor)
-{
-    Flag flag;
-
-    bool result = flag.wait_for(true, milliseconds(10));
-    EXPECT_EQ(flag.get(), false);
-    EXPECT_EQ(result, false);
-
-    result = flag.wait_for(false, milliseconds(10));
-    EXPECT_EQ(flag.get(), false);
-    EXPECT_EQ(result, true);
-}
-
-TEST(SPTK_Flag, setWaitFor)
-{
-    Flag flag;
-
-    flag.set(true);
-    bool result = flag.wait_for(true, milliseconds(10));
-    EXPECT_EQ(flag.get(), true);
-    EXPECT_EQ(result, true);
-}
-
-TEST(SPTK_Flag, adaptorAndAssignment)
-{
-    Flag flag;
-
-    flag = true;
-    EXPECT_EQ((bool) flag, true);
-
-    flag = false;
-    EXPECT_EQ((bool) flag, false);
-}
-
-
-#endif

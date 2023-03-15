@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,13 +26,13 @@
 
 #pragma once
 
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Input_.H>
+#include <sptk5/Strings.h>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CInput.h>
-#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -52,7 +52,7 @@ class SP_EXPORT CButtonGroup
     /**
      * Required group height
      */
-    int m_maxHeight;
+    int m_maxHeight {0};
 
     /**
      * Last value of the group (last list of choices)
@@ -67,15 +67,14 @@ class SP_EXPORT CButtonGroup
     /**
      * The 'Other' Button if requested (add '*' in the button list)
      */
-    Fl_Button* m_otherButton;
+    Fl_Button* m_otherButton {nullptr};
 
     /**
      * The 'Other' Input if requested (add '*' in the button list)
      */
-    CInput_* m_otherInput;
+    CInput_* m_otherInput {nullptr};
 
 protected:
-
     /**
      * Internal callback processing
      */
@@ -122,7 +121,7 @@ protected:
      * @param h int, widget height
      * @param label int, optional widget label
      */
-    CButtonGroup(int,int,int,int,const char * = 0);
+    CButtonGroup(int, int, int, int, const char* = 0);
 #endif
 
 public:
@@ -181,7 +180,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Loads control data from XML
@@ -190,7 +189,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    void load(const xml::Node* node) override
+    void load(const xdoc::SNode& node) override
     {
         load(node, CLayoutXMLmode::DATA);
     }
@@ -203,7 +202,7 @@ public:
      * @param node              the XML node
      * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Saves control data to XML
@@ -212,7 +211,7 @@ public:
      * as well as visible() and active() states
      * @param node              the XML node
      */
-    virtual void save(xml::Node* node) const
+    void save(const xdoc::SNode& node) const override
     {
         save(node, CLayoutXMLmode::DATA);
     }
@@ -250,9 +249,8 @@ public:
     {
         return m_otherInput;
     }
-
 };
 /**
  * @}
  */
-}
+} // namespace sptk

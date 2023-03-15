@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -265,7 +265,7 @@ bool CDialog::buildQueries()
     }
 
     bool first = true;
-    for (auto itor: m_defaultFields)
+    for (const auto& itor: m_defaultFields)
     {
         const CControl* control = itor.second;
         const string& fieldName = control->fieldName();
@@ -379,13 +379,13 @@ bool CDialog::save()
     return true;
 }
 
-void CDialog::load(const xml::Node* node)
+void CDialog::load(const xdoc::SNode& node)
 {
     CLayoutManager::loadLayout(node, CLayoutXMLmode::DATA);
     loadPosition(node);
 }
 
-void CDialog::save(xml::Node* node) const
+void CDialog::save(const xdoc::SNode& node) const
 {
     CLayoutManager::saveLayout(node, CLayoutXMLmode::DATA);
     savePosition(node);

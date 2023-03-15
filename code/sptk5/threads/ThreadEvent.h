@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sptk5/threads/Runable.h>
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
@@ -34,8 +35,6 @@ namespace sptk {
  * @addtogroup threads Thread Classes
  * @{
  */
-
-class Runable;
 
 /**
  * @brief Thread event interface
@@ -46,14 +45,13 @@ public:
     /**
      * @brief Thread event type
      */
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
-        THREAD_STARTED,     ///< Thread started event
-        THREAD_FINISHED,    ///< Thread finished event
-        RUNABLE_STARTED,    ///< Runable started
-        RUNABLE_FINISHED,   ///< Runable finished
-        IDLE_TIMEOUT        ///< Thread was idle longer than defined idle timeout
+        THREAD_STARTED,   ///< Thread started event
+        THREAD_FINISHED,  ///< Thread finished event
+        RUNABLE_STARTED,  ///< Runable started
+        RUNABLE_FINISHED, ///< Runable finished
+        IDLE_TIMEOUT      ///< Thread was idle longer than defined idle timeout
     };
 
     /**
@@ -65,7 +63,7 @@ public:
      * @param eventType         Thread event type
      * @param runable           Related runable (if any)
      */
-    virtual void threadEvent(Thread* thread, Type eventType, Runable* runable) = 0;
+    virtual void threadEvent(Thread* thread, Type eventType, SRunable runable) = 0;
 
     /**
      * @brief Destructor
@@ -76,4 +74,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

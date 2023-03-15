@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,11 @@
 
 #pragma once
 
-#include "sptk.h"
-#include "string_ext.h"
-#include <string>
+#include <sptk5/VariantStorageClient.h>
+#include <sptk5/string_ext.h>
+
 #include <algorithm>
+#include <string>
 
 namespace sptk {
 
@@ -46,6 +47,7 @@ class Strings;
  */
 class SP_EXPORT String
     : public std::string
+    , public VariantStorageClient
 {
 public:
     /**
@@ -64,9 +66,9 @@ public:
 
     /**
      * Move constructor
-     * @param src                Other object
+     * @param other                Other object
      */
-    String(String&& src) noexcept = default;
+    String(String&& other) noexcept = default;
 
     /**
      * Constructor
@@ -74,7 +76,8 @@ public:
      * @param id                 Optional string id
      */
     String(const std::string& str, int64_t id = 0)
-        : std::string(str), m_id(id)
+        : std::string(str)
+        , m_id(id)
     {
     }
 
@@ -83,8 +86,8 @@ public:
      * @param str                Source string
      * @param len                Optional string id
      */
-    String(const char* str) noexcept
-        : std::string(str), m_id(0)
+    String(const char* str)
+        : std::string(str)
     {
     }
 
@@ -94,8 +97,9 @@ public:
      * @param len                String length
      * @param id                 String id
      */
-    String(const char* str, size_t len, int64_t id = 0) noexcept
-        : std::string(str, len), m_id(id)
+    String(const char* str, size_t len, int64_t id = 0)
+        : std::string(str, len)
+        , m_id(id)
     {
     }
 
@@ -105,15 +109,16 @@ public:
      * @param ch                Fill character
      * @param id                Optional string id
      */
-    String(size_t len, char ch, int64_t id = 0) noexcept
-        : std::string(len, ch), m_id(id)
+    String(size_t len, char ch, int64_t id = 0)
+        : std::string(len, ch)
+        , m_id(id)
     {
     }
 
     /**
      * Destructor
      */
-    ~String() noexcept = default;
+    ~String() noexcept override = default;
 
     /**
      * Assignment operator
@@ -131,6 +136,15 @@ public:
      * @param other             Source string
      */
     String& operator=(const String& other) = default;
+    /**
+     * Copy assignment operator
+     * @param other             Source string
+     */
+    /**
+     * Move assignment operator
+     * @param other             Source string
+     */
+    String& operator=(String&& other) noexcept = default;
 
     /**
      * Assignment operator
@@ -158,6 +172,13 @@ public:
     {
         m_id = id;
     }
+
+    /**
+     * Check if string is in the list
+     * @param list              List of values
+     * @return true if string is in the list
+     */
+    bool in(std::initializer_list<String> list) const;
 
     /**
      * Checks if string is matching with regular expression pattern
@@ -219,6 +240,16 @@ public:
      * Returns trimmed string
      */
     String trim() const;
+
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_STRING;
+    }
+
+    size_t dataSize() const override
+    {
+        return size();
+    }
 
 private:
     /**

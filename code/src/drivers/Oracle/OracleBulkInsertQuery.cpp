@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,10 @@
 using namespace std;
 using namespace sptk;
 
-OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection *db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
-: Query(db, sql), m_recordCount(recordCount), m_columnTypeSizes(columnTypeSizes)
+OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
+    : Query(db, sql)
+    , m_recordCount(recordCount)
+    , m_columnTypeSizes(columnTypeSizes)
 {
     setBulkMode(true);
 }

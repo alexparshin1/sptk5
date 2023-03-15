@@ -80,18 +80,3 @@ IF (MYSQL_FLAG)
         LIBRARY DESTINATION lib COMPONENT db_mysql
         ARCHIVE DESTINATION lib COMPONENT db_mysql)
 ENDIF (MYSQL_FLAG)
-
-IF (FIREBIRD_FLAG)
-    ADD_LIBRARY (spdb5_firebird ${LIBRARY_TYPE}
-        Firebird/FirebirdConnection.cpp
-        Firebird/FirebirdStatement.cpp
-    )
-    SET_TARGET_PROPERTIES(spdb5_firebird PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
-    INCLUDE_DIRECTORIES (${Firebird_INCLUDE_DIR})
-    TARGET_LINK_LIBRARIES (spdb5_firebird spdb5 sputil5 ${Firebird_LIBRARY})
-    INSTALL(
-        TARGETS spdb5_firebird
-        RUNTIME DESTINATION bin COMPONENT db_firebird
-        LIBRARY DESTINATION lib COMPONENT db_firebird
-        ARCHIVE DESTINATION lib COMPONENT db_firebird)
-ENDIF (FIREBIRD_FLAG)

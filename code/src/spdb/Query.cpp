@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -47,12 +47,12 @@ void QueryStatementManagement::closeStmt(bool freeStatement)
     {
         if (freeStatement)
         {
-            database()->queryFreeStmt((Query*) this);
+            database()->queryFreeStmt(dynamic_cast<Query*>(this));
             setPrepared(false);
         }
         else
         {
-            database()->queryCloseStmt((Query*) this);
+            database()->queryCloseStmt(dynamic_cast<Query*>(this));
         }
         setActive(false);
     }
@@ -64,37 +64,6 @@ void QueryStatementManagement::closeQuery(bool releaseStatement)
     if (statement() != nullptr)
     {
         closeStmt(releaseStatement);
-    }
-}
-
-void QueryStatementManagement::prepare()
-{
-    if (!autoPrepare())
-    {
-        throw DatabaseException("Can't prepare this statement");
-    }
-    if (prepared())
-    {
-        return;
-    }
-    if (database() != nullptr && statement() != nullptr)
-    {
-        database()->queryPrepare((Query*) this);
-        setPrepared(true);
-    }
-}
-
-void QueryStatementManagement::unprepare()
-{
-    if (!prepared())
-    {
-        return;
-    }
-    if (database() != nullptr && statement() != nullptr)
-    {
-        database()->queryUnprepare((Query*) this);
-        setPrepared(false);
-        setActive(false);
     }
 }
 
@@ -111,7 +80,7 @@ void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
     }
     disconnect();
     setDatabase(_db);
-    database()->linkQuery((Query*) this);
+    database()->linkQuery(dynamic_cast<Query*>(this));
 }
 
 void QueryStatementManagement::disconnect()
@@ -119,7 +88,7 @@ void QueryStatementManagement::disconnect()
     closeQuery(true);
     if (database() != nullptr)
     {
-        database()->unlinkQuery((Query*) this);
+        database()->unlinkQuery(dynamic_cast<Query*>(this));
     }
     setDatabase(nullptr);
 }
@@ -135,12 +104,14 @@ void Query::execute()
 
 //==============================================================================
 Query::Query() noexcept
-    : QueryStatementManagement(true), m_fields(false)
+    : QueryStatementManagement(true)
+    , m_fields(false)
 {
 }
 
 Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
-    : QueryStatementManagement(autoPrepare), m_fields(false)
+    : QueryStatementManagement(autoPrepare)
+    , m_fields(false)
 {
     if (db)
     {
@@ -151,7 +122,8 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
 }
 
 Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
-    : QueryStatementManagement(autoPrepare), m_fields(false)
+    : QueryStatementManagement(autoPrepare)
+    , m_fields(false)
 {
     if (db != nullptr)
     {
@@ -169,7 +141,7 @@ Query::~Query()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
     }
     if (database() != nullptr)
     {
@@ -180,14 +152,14 @@ Query::~Query()
 bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql)
 {
     // Looking up for SQL parameters
-    const char* delimitters = "':-/";
+    const char* delimiters = "':-/";
 
     // Find param start
-    paramStart = strpbrk(paramEnd, delimitters);
+    paramStart = strpbrk(paramEnd, delimiters);
     if (paramStart == nullptr)
     {
         return false;
-    }      // No more parameters
+    } // No more parameters
 
     bool rc = false;
     if (*paramStart == '\'')
@@ -301,7 +273,7 @@ void Query::sql(const String& _sql)
     }
 }
 
-const char* Query::readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
+const char* Query::readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
 {
     for (;; ++paramEnd)
     {
@@ -350,7 +322,7 @@ String Query::parseParameters(const String& _sql)
             continue;
         }
 
-        paramEnd = readParamater(sql, paramNumber, paramStart, paramEnd);
+        paramEnd = readParameter(sql, paramNumber, paramStart, paramEnd);
     }
 
     if (paramEnd != nullptr)
@@ -390,6 +362,11 @@ void Query::fetch()
     if (database() == nullptr || !active())
     {
         throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, sql());
+    }
+
+    if (eof())
+    {
+        throw DatabaseException("No more rows to read", __FILE__, __LINE__, sql());
     }
 
     database()->queryFetch(this);

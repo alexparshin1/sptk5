@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,8 +29,8 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/DateTime.h>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 namespace sptk {
 
@@ -69,21 +69,20 @@ class SP_EXPORT CDateTimeBaseInput
     void ctor_init();
 
 protected:
-
     /**
      * @brief Popup calendar window
      */
-    CPopupCalendar* m_calendarWindow;
+    CPopupCalendar* m_calendarWindow {nullptr};
 
     /**
      * @brief Date input control
      */
-    CDateControl* m_dateInput;
+    CDateControl* m_dateInput {nullptr};
 
     /**
      * @brief Time input control
      */
-    CInput_* m_timeInput;
+    CInput_* m_timeInput {nullptr};
 
     /**
      * @brief Loads data from query
@@ -103,7 +102,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void load(const xml::Node* node, CLayoutXMLmode xmlMode) override;
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Saves control data to XML
@@ -113,7 +112,7 @@ protected:
      * @param node xml::Node*, the XML node
      * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
      */
-    void save(xml::Node* node, CLayoutXMLmode xmlMode) const override;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Returns true if the input data is valid
@@ -143,7 +142,7 @@ protected:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateTimeBaseInput(int x,int y,int w,int h,const char * label,bool autoCreate);
+    CDateTimeBaseInput(int x, int y, int w, int h, const char* label, bool autoCreate);
 #endif
 
     /**
@@ -152,14 +151,13 @@ protected:
     bool showCalendar(Fl_Widget* btn);
 
 public:
-
     /**
      * @brief Sets limits for the value inside
      * @param limited bool, true if use the limits
      * @param min DateTime, minimum value
      * @param max DateTime, maximum value
      */
-    void setLimits(bool limited, DateTime min = DateTime(), DateTime max = DateTime());
+    void setLimits(bool limited, const DateTime& min = DateTime(), const DateTime& max = DateTime());
 
     /**
      * @brief Returns widget date or time  value
@@ -169,7 +167,7 @@ public:
     /**
      * @brief Sets widget date or time value
      */
-    virtual void dateTimeValue(DateTime dt);
+    virtual void dateTimeValue(const DateTime& dt);
 };
 
 class CTimeInput;
@@ -188,7 +186,6 @@ class SP_EXPORT CDateInput
     void ctor_init();
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -207,7 +204,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateInput(int x,int y,int w,int h,const char * label=0);
+    CDateInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     ~CDateInput() override;
@@ -258,7 +255,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
@@ -270,7 +267,6 @@ class SP_EXPORT CTimeInput
     : public CDateTimeBaseInput
 {
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -289,7 +285,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CTimeInput(int x,int y,int w,int h,const char * label=0);
+    CTimeInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -318,7 +314,7 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 
 /**
@@ -337,7 +333,6 @@ class SP_EXPORT CDateTimeInput
     void ctor_init();
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -356,7 +351,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CDateTimeInput(int x,int y,int w,int h,const char * label=0);
+    CDateTimeInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -393,7 +388,7 @@ public:
     /**
      * @brief Sets widget date or time value
      */
-    void dateTimeValue(DateTime dt) override;
+    void dateTimeValue(const DateTime& dt) override;
 
     /**
      * @brief Universal data connection, returns data from control
@@ -408,9 +403,9 @@ public:
     /**
      * @brief Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

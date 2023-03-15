@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,18 +39,27 @@ const Buffer& WSWebSocketsMessage::payload() const
 
 static uint64_t ntoh64(uint64_t data)
 {
-    union
+    enum class VarType
     {
-        uint64_t m_uint64;
-        array<uint32_t, 2> m_uint32;
+        u32,
+        u64
+    };
+
+    struct {
+        VarType type;
+        union
+        {
+            uint64_t m_uint64;
+            array<uint32_t, 2> m_uint32;
+        } variant;
     } input = {}, output = {};
 
-    input.m_uint64 = data;
+    input.variant.m_uint64 = data;
 
-    output.m_uint32[0] = ntohl(input.m_uint32[1]);
-    output.m_uint32[1] = ntohl(input.m_uint32[0]);
+    output.variant.m_uint32[0] = ntohl(input.variant.m_uint32[1]);
+    output.variant.m_uint32[1] = ntohl(input.variant.m_uint32[0]);
 
-    return output.m_uint64;
+    return output.variant.m_uint64;
 }
 
 void WSWebSocketsMessage::decode(const char* incomingData)
@@ -92,11 +101,11 @@ void WSWebSocketsMessage::decode(const char* incomingData)
 
     if (masked)
     {
-        array<uint8_t, 4> mask;
+        array<uint8_t, 4> mask {};
         memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
         auto* dest = m_payload.data();
-        array<char, 2> statusCodeBuffer = {};
+        array<uint8_t, 2> statusCodeBuffer = {};
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i)
         {
@@ -184,7 +193,6 @@ bool WSWebSocketsMessage::isFinal() const
 WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers)
     : WSProtocol(socket, headers)
 {
-
 }
 
 RequestInfo WSWebSocketsProtocol::process()
@@ -242,7 +250,10 @@ RequestInfo WSWebSocketsProtocol::process()
             }
 
             Buffer message;
-            socket().read(message, available);
+            if (socket().read(message, available) != available)
+            {
+                throwException<Exception>("Incomplete read");
+            }
 
             WSWebSocketsMessage msg;
             msg.decode(message.c_str());
@@ -254,7 +265,7 @@ RequestInfo WSWebSocketsProtocol::process()
                 break;
             }
 
-            COUT((int) msg.opcode() << ": " << msg.payload().c_str() << endl)
+            COUT((int) msg.opcode() << ": " << msg.payload().c_str() << endl);
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OpCode::TEXT, true, message);
             socket().write(message);

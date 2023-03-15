@@ -4,7 +4,7 @@
 ║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cnet>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -37,53 +37,71 @@ void processConnection(TCPSocket& server, SOCKET clientSocketFD)
     TCPSocket new_sock;
     new_sock.attach(clientSocketFD, false);
 
-    try {
+    SocketReader socketReader(new_sock);
+
+    try
+    {
         String data;
 
-        COUT("Sending: Test SPTK server 1.00\n")
+        COUT("Sending:   Test SPTK server 1.00\n");
         new_sock.write("Test SPTK server 1.00\n");
 
-        COUT("Receving (strings): ")
-
-        do {
-            new_sock.readLine(data);
-            COUT(data.c_str() << "\n")
+        do
+        {
+            if (socketReader.readyToRead(chrono::seconds(1)))
+            {
+                if (socketReader.readLine(data) == 0)
+                {
+                    break;
+                }
+                COUT("Receiving: " << data.c_str() << endl);
+            }
         } while (data != "EOD");
 
-        COUT("Sending: confirmation\n")
+        COUT("Sending:   confirmation\n");
         new_sock.write("Data accepted\n");
 
         // End of session
-        new_sock.readLine(data);
+        socketReader.readLine(data);
+        COUT("Receiving: " << data.c_str() << endl);
 
         server.close();
     }
-    catch (const Exception& e) {
-        CERR(e.what() << endl)
+    catch (const Exception& e)
+    {
+        CERR(e.what() << endl);
     }
 }
 
 int main()
 {
-    try {
+    try
+    {
         // Create the socket
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
         SOCKET clientSocketFD;
-        struct sockaddr_in clientInfo{};
+        sockaddr_in clientInfo {};
 
         server.listen();
 
-        COUT("Listening on port 3000\n")
+        COUT("Listening on port 3000\n");
 
-        server.accept(clientSocketFD, clientInfo);
-
-        processConnection(server, clientSocketFD);
+        constexpr chrono::milliseconds acceptTimeout {3000};
+        if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
+        {
+            processConnection(server, clientSocketFD);
+        }
+        else
+        {
+            CERR("Timeout waiting for connection to test server" << endl);
+        }
     }
-    catch (const Exception& e) {
-        COUT("Exception was caught: " << e.what() << "\nExiting.\n")
+    catch (const Exception& e)
+    {
+        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
     }
-    COUT("Server session closed\n")
+    COUT("Server session closed\n");
     return 0;
 }

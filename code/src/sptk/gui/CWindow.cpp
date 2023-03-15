@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cxml>
 #include <sptk5/gui/CWindow.h>
 
 using namespace std;
@@ -110,43 +109,43 @@ void CWindow::draw()
     x(savex);
 }
 
-void CWindow::load(const xml::Node* node, CLayoutXMLmode xmlMode)
+void CWindow::load(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode)
 {
     CLayoutManager::loadLayout(node, xmlMode);
     loadPosition(node);
 }
 
-void CWindow::save(xml::Node* node, CLayoutXMLmode xmlMode) const
+void CWindow::save(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode) const
 {
     CLayoutManager::saveLayout(node, xmlMode);
     savePosition(node);
 }
 
-void CWindow::loadPosition(const xml::Node* node)
+void CWindow::loadPosition(const xdoc::SNode& node)
 {
-    int hh = (int) node->getAttribute("height");
+    int hh = node->attributes().get("height").toInt();
     if (!hh)
     {
-        hh = (int) node->getAttribute("h");
+        hh = node->attributes().get("h").toInt();
     }
-    int ww = (int) node->getAttribute("width");
+    int ww = node->attributes().get("width").toInt();
     if (!ww)
     {
-        ww = (int) node->getAttribute("w");
+        ww = node->attributes().get("w").toInt();
     }
     if (hh > 0 && ww > 0)
     {
-        resize((int) node->getAttribute("x", "0"), (int) node->getAttribute("y", "0"), ww, hh);
+        resize(node->attributes().get("x", "0").toInt(), node->attributes().get("y", "0").toInt(), ww, hh);
     }
 }
 
-void CWindow::savePosition(xml::Node* node) const
+void CWindow::savePosition(const xdoc::SNode& node) const
 {
-    node->setAttribute("x", x());
-    node->setAttribute("y", y());
-    node->setAttribute("width", w());
-    node->setAttribute("height", h());
-    node->setAttribute("label", label());
+    node->attributes().set("x", to_string(x()));
+    node->attributes().set("y", to_string(y()));
+    node->attributes().set("width", to_string(w()));
+    node->attributes().set("height", to_string(h()));
+    node->attributes().set("label", label());
     node->name(className());
 }
 

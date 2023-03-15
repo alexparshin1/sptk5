@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,37 +26,34 @@
 
 #pragma once
 
-#include <sptk5/xdoc/Attributes.h>
 #include <sptk5/Variant.h>
+#include <sptk5/xdoc/Attributes.h>
 
 namespace sptk::xdoc {
 
-enum class DataFormat
-    : uint8_t
+enum class DataFormat : uint8_t
 {
     JSON,
     XML
 };
 
-class Node
-    : public Variant
+enum class SearchMode : uint8_t
+{
+    ImmediateChild,
+    Recursive
+};
+
+class SP_EXPORT Node
+    : public std::enable_shared_from_this<Node>
 {
 public:
-
-    using Nodes = std::vector<Node>;
-    using Vector = std::vector<Node*>;
+    using SNode = std::shared_ptr<Node>;
+    using Nodes = std::vector<SNode>;
+    using Vector = std::vector<SNode>;
     using iterator = Nodes::iterator;
     using const_iterator = Nodes::const_iterator;
 
-    enum class SearchMode
-        : uint8_t
-    {
-        ImmediateChild,
-        Recursive
-    };
-
-    enum class Type
-        : uint8_t
+    enum class Type : uint8_t
     {
         DocumentRoot,
         Null,
@@ -72,7 +69,7 @@ public:
 
     Node(const String& nodeName = "", Type type = Type::Null);
 
-    ~Node() override = default;
+    virtual ~Node() = default;
 
     virtual void clear();
 
@@ -88,11 +85,6 @@ public:
         m_name = name;
     }
 
-    bool is(Type type) const
-    {
-        return m_type == type;
-    }
-
     Type type() const
     {
         return m_type;
@@ -103,176 +95,140 @@ public:
         m_type = type;
     }
 
-    Node& pushNode(const String& name, Type type = Type::Null);
+    SNode& pushNode(const String& name, Type type = Type::Null);
 
-    template<typename T>
-    Node& pushValue(const String& name, Type type, const T& value)
-    {
-        Variant v(value);
-        auto& node = pushNode(name, type);
-        node.setData(v);
-        return node;
-    }
+    /**
+     * @brief   Push named property to object
+     * @details If the value type isn't provided and value isn't null, the type deducted from value.
+     * @param name              Property name
+     * @param value             Property value
+     * @param type              Optional type
+     * @return created node
+     */
+    SNode& pushValue(const String& name, const Variant& value, Node::Type type = Node::Type::Null);
 
-    bool empty() const
-    {
-        return m_nodes.empty();
-    }
+    /**
+     * @brief   Push value to array
+     * @details If the value type isn't provided and value isn't null, the type deducted from value.
+     * @param value             Property value
+     * @param type              Optional type
+     * @return created node
+     */
+    SNode& pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
     Attributes& attributes();
 
     const Attributes& attributes() const;
 
-    bool hasAttribute(const String& name) const;
-
-    String getAttribute(const String& name, const String& defaultValue = "") const;
-
-    void setAttribute(const String& name, const String& value);
-
     String getString(const String& name = "") const;
+
+    String getText(const String& name = "") const;
 
     double getNumber(const String& name = "") const;
 
     bool getBoolean(const String& name = "") const;
 
-    const Nodes& getArray(const String& name = "") const;
+    const Nodes& nodes(const String& name = "") const;
 
-    const Node& getObject(const String& name = "") const;
-
-    // Compatibility
-    size_t size() const;
-
-    Node& add_array(const String& name);
-
-    Node& add_object(const String& name);
-
-    Node& push_back(const Variant& value)
+    const Variant& getValue() const
     {
-        auto& node = pushNode("", Type::Null);
-        node.setData(value);
-        return node;
+        return m_value;
     }
 
-    Node& push_object();
+    template<typename T>
+    void set(const T& value)
+    {
+        m_value = value;
+    }
 
-    Node& set(const String& name, const Variant& value)
+    template<typename T>
+    SNode& set(const String& name, const T& value)
     {
         auto& node = findOrCreate(name);
-        node.setData(value);
+        node->m_value = value;
+        node->type(variantTypeToNodeType(node->m_value.dataType()));
+
         return node;
     }
 
     bool remove(const String& name);
 
-    Variant& operator[](const String& name)
+    bool remove(const SNode& node);
+
+    SNode& findOrCreate(const String& name);
+
+    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
+
+    SNode& parent()
     {
-        return findOrCreate(name);
+        return m_parent;
     }
 
-    const Variant& operator[](const String& name) const
+    const SNode& parent() const
     {
-        auto* pNode = find(name);
-        if (pNode == nullptr)
-        {
-            throw Exception("Element " + name + " doesn't exist");
-        }
-        return *pNode;
+        return m_parent;
     }
-
-    Variant& operator[](const size_t index)
-    {
-        return m_nodes[index];
-    }
-
-    const Variant& operator[](const size_t index) const
-    {
-        return m_nodes[index];
-    }
-
-    iterator begin()
-    {
-        return m_nodes.begin();
-    }
-
-    const_iterator begin() const
-    {
-        return m_nodes.begin();
-    }
-
-    iterator end()
-    {
-        return m_nodes.end();
-    }
-
-    const_iterator end() const
-    {
-        return m_nodes.end();
-    }
-
-    Node& findOrCreate(const String& name);
-
-    Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild);
-
-    const Node* find(const String& name, SearchMode searchMode = SearchMode::ImmediateChild) const;
 
     /**
      * Parse JSON text
      * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param node              Output node
-     * @param json              JSON text
+     * @param jsonElement              Output node
+     * @param jsonStr              JSON text
      */
-    static void importJson(xdoc::Node& node, const sptk::Buffer& json);
-
-    /**
-     * Export to JSON text
-     * @param node              Output node
-     * @param formatted         Format JSON output
-     */
-    void exportJson(sptk::Buffer& json, bool formatted) const;
-
-    /**
-     * Parse XML text
-     * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param node              Output node
-     * @param xmlKeepSpaces     Import XML mode
-     */
-    void importXML(const Buffer& xml, bool xmlKeepSpaces = false);
-
-    /**
-     * Export to XML text
-     * @param node              Output node
-     * @param indent            Indent (spaces)
-     */
-    void exportXML(sptk::Buffer& xml, int indent) const;
+    static void importJson(const SNode& jsonElement, const sptk::Buffer& jsonStr);
 
     void load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting = false);
 
-    void load(DataFormat dataFormat, const String& data, bool xmlKeepSpaces = false);
+    void load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting = false);
 
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const;
 
-    Node* parent();
+    void exportTo(DataFormat dataFormat, std::ostream& stream, bool formatted) const;
 
-    virtual void select(Node::Vector& selectedNodes, const String& xpath);
+    /**
+     * @brief Select a list of sub-nodes matching xpath
+     * @param xpath             XPath
+     * @return                  List of matching sub-nodes
+     */
+    [[nodiscard]] Node::Vector select(const String& xpath);
+
+    /**
+     * @brief Perform a deep copy of the source to destination
+     * @param destination       Destination node
+     * @param source            Source node
+     */
+    static void clone(const SNode& destination, const SNode& source);
 
 private:
-
-    Node* m_parent {nullptr};
+    SNode m_parent {nullptr};
     String m_name;
     Type m_type {Type::Null};
+    Variant m_value;
     Attributes m_attributes;
     Nodes m_nodes;
 
-    void exportJsonValueTo(std::ostream& stream, bool formatted, size_t indent) const;
-
-    void exportJsonArray(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                         const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
-    void exportJsonObject(std::ostream& stream, bool formatted, size_t indent, const String& firstElement,
-                          const String& betweenElements, const String& newLineChar, const String& indentSpaces) const;
-
+    static Type variantTypeToNodeType(VariantDataType type);
 };
 
 using Element = Node;
+using SNode = Node::SNode;
 
-}
+/**
+ * Does string match a float?
+ * @return true if string constains a float
+ */
+SP_EXPORT bool isFloat(const String& str);
+
+/**
+ * Does string match an integer?
+ * @return true if string constains an integer
+ */
+SP_EXPORT bool isInteger(const String& str);
+
+/**
+ * Does string match a boolen?
+ * @return true if string constains a boolean
+ */
+SP_EXPORT bool isBoolean(const String& str);
+
+} // namespace sptk::xdoc

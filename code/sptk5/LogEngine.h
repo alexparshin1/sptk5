@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +27,13 @@
 #pragma once
 
 #include <sptk5/DateTime.h>
-#include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/LogPriority.h>
 #include <sptk5/Logger.h>
+#include <sptk5/threads/SynchronizedQueue.h>
 
 #include <atomic>
 #include <iostream>
+#include <set>
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
@@ -41,13 +42,6 @@ namespace sptk {
  * @addtogroup log Log Classes
  * @{
  */
-
-// Log options
-constexpr int LO_STDOUT = 1;    ///< Duplicate messages to stdout
-constexpr int LO_DATE = 2;      ///< Print date for every log message
-constexpr int LO_TIME = 4;      ///< Print time for every log message
-constexpr int LO_PRIORITY = 8;  ///< Print message priority
-constexpr int LO_ENABLE = 16;   ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
 
 /**
  * Base class for various log engines.
@@ -61,6 +55,17 @@ class SP_EXPORT LogEngine
     friend class Logger;
 
 public:
+    // Log options
+    enum class Option : uint8_t
+    {
+        STDOUT,      ///< Duplicate messages to stdout
+        DATE,        ///< Print date for every log message
+        TIME,        ///< Print time for every log message
+        PRIORITY,    ///< Print message priority
+        ENABLE,      ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+        MILLISECONDS ///< Enable logging (doesn't affect stdout if CLO_STDOUT is on)
+    };
+
     /**
      * Stores or sends log message to actual destination
      * @param message           Log message
@@ -75,6 +80,11 @@ public:
     explicit LogEngine(const String& logEngineName);
 
     /**
+     * Destructor
+     */
+    ~LogEngine() noexcept override;
+
+    /**
      * Restarts the log
      *
      * The current log content is cleared.
@@ -87,18 +97,18 @@ public:
 
     /**
      * Sets log options
-     * @param ops int, a bit combination of Option
+     * @param ops               Log options
      */
-    void options(int ops)
+    void options(const std::set<Option>& ops)
     {
         m_options = ops;
     }
 
     /**
      * Returns log options
-     * @returns a bit combination of Option
+     * @returns log options
      */
-    size_t options() const
+    std::set<Option> options() const
     {
         return m_options;
     }
@@ -108,7 +118,14 @@ public:
      * @param option            Log option, one or more of LO_* constants
      * @param flag              Set option on or off?
      */
-    void option(int options, bool flag);
+    void option(Option option, bool flag);
+
+    /**
+     * Gets an option value
+     * @param option            Log option, one or more of LO_* constants
+     * @returns Option value
+     */
+    bool option(Option option) const;
 
     /**
      * Sets current message priority
@@ -131,16 +148,6 @@ public:
     }
 
     /**
-     * Returns the min priority
-     *
-     * Messages with priority less than requested are ignored
-     */
-    virtual LogPriority minPriority() const
-    {
-        return m_minPriority;
-    }
-
-    /**
      * String representation of priority
      */
     static String priorityName(LogPriority prt);
@@ -151,7 +158,6 @@ public:
     static LogPriority priorityFromName(const String& prt);
 
 protected:
-
     void threadFunction() override;
 
     /**
@@ -159,6 +165,11 @@ protected:
      * @param message           Message
      */
     void log(Logger::UMessage& message);
+
+    /**
+     * Shutdown log worker thread
+     */
+    void shutdown() noexcept;
 
 private:
     /**
@@ -174,17 +185,16 @@ private:
     /**
      * Log options, a bit combination of Option
      */
-    std::atomic<uint32_t> m_options {LO_ENABLE | LO_DATE | LO_TIME | LO_PRIORITY};
+    std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
-
     /**
      * Message queue
      */
-    std::shared_ptr<MessageQueue> m_messages;
+    MessageQueue m_messages;
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

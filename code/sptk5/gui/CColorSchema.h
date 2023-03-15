@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <FL/Fl.H>
 #include <map>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
@@ -42,16 +42,17 @@ namespace sptk {
 /**
  * @brief Stores and restores the color schema
  */
-class SP_EXPORT CColorSchema {
+class SP_EXPORT CColorSchema
+{
     /**
      * Color map index
      */
-    static Fl_Color             m_colorMapIndex[];
+    static Fl_Color m_colorMapIndex[];
 
     /**
      * Color values
      */
-    std::map<Fl_Color,unsigned> m_colorMap;
+    std::map<Fl_Color, unsigned> m_colorMap;
 
 public:
     /**
@@ -67,11 +68,13 @@ public:
     /**
      * @brief Number of colors in color schema
      */
-    size_t size() const { return m_colorMap.size(); }
+    size_t size() const
+    {
+        return m_colorMap.size();
+    }
 };
 
 /**
  * @}
  */
-}
-
+} // namespace sptk

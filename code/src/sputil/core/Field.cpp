@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,54 +24,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Field.h>
 #include <iomanip>
+#include <sptk5/Field.h>
 
 using namespace std;
 using namespace sptk;
 
 Field::Field(const String& name)
-    : m_name(name), m_displayName(name)
+    : m_name(name)
+    , m_displayName(name)
 {
     m_view.width = -1;
-    m_view.flags = 4;       // FL_ALIGN_LEFT
+    m_view.flags = 4; // FL_ALIGN_LEFT
     m_view.visible = true;
-    m_view.precision = 3;   // default precision, only affects floating point fields
+    m_view.precision = 3; // default precision, only affects floating point fields
     dataSize(0);
-}
-
-void Field::setNull(VariantDataType vtype)
-{
-    switch (dataType())
-    {
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-            if (isExternalBuffer())
-            {
-                m_data.getBuffer().data = nullptr;
-            }
-            else if (m_data.getBuffer().data != nullptr)
-            {
-                m_data.getBuffer().data[0] = 0;
-            }
-
-            break;
-
-        default:
-            m_data.getInt64() = 0;
-            break;
-    }
-
-    if (vtype == VariantDataType::VAR_NONE)
-    {
-        m_data.setNull(true);
-    }
-    else
-    {
-        VariantType type {vtype, true, false};
-        m_data.type(type);
-    }
 }
 
 String Field::asString() const
@@ -79,8 +46,8 @@ String Field::asString() const
     constexpr int maxPrintLength = 64;
 
     String result;
-    array<char, maxPrintLength + 1> print_buffer;
-    int len = 0;
+    array<char, maxPrintLength + 1> print_buffer {};
+    int len;
 
     if (isNull())
     {
@@ -90,20 +57,20 @@ String Field::asString() const
     switch (dataType())
     {
         case VariantDataType::VAR_BOOL:
-            result = m_data.getInteger() != 0 ? "true" : "false";
+            result = get<bool>() != 0 ? "true" : "false";
             break;
 
         case VariantDataType::VAR_INT:
         case VariantDataType::VAR_IMAGE_NDX:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.getInteger());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.get<int32_t>());
             result.assign(print_buffer.data(), len);
             break;
 
         case VariantDataType::VAR_INT64:
 #ifndef _WIN32
-            len = snprintf(print_buffer.data(), maxPrintLength, "%li", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%li", get<int64_t>());
 #else
-            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.getInt64());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.get<int64_t>());
 #endif
             result.assign(print_buffer.data(), len);
             break;
@@ -119,14 +86,23 @@ String Field::asString() const
         case VariantDataType::VAR_STRING:
         case VariantDataType::VAR_TEXT:
         case VariantDataType::VAR_BUFFER:
-            if (m_data.getBuffer().data != nullptr)
+            if (isExternalBuffer())
             {
-                result = m_data.getBuffer().data;
+                result = (const char*) get<const uint8_t*>();
+            }
+            else if (dataType() == VariantDataType::VAR_STRING)
+            {
+                result = get<String>();
+            }
+            else
+            {
+                const auto& buffer = get<Buffer>();
+                result.assign(buffer.c_str(), dataSize());
             }
             break;
 
         case VariantDataType::VAR_DATE:
-            result = DateTime(chrono::microseconds(m_data.getInt64())).dateString();
+            result = DateTime(chrono::microseconds(get<int64_t>())).dateString();
             break;
 
         case VariantDataType::VAR_DATE_TIME:
@@ -134,7 +110,7 @@ String Field::asString() const
             break;
 
         case VariantDataType::VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) m_data.getImagePtr());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) get<const uint8_t*>());
             result.assign(print_buffer.data(), len);
             break;
 
@@ -146,97 +122,52 @@ String Field::asString() const
 
 String Field::epochDataToDateTimeString() const
 {
-    DateTime dt(chrono::microseconds(m_data.getInt64()));
-    return dt.dateString() + " " + dt.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
+    const auto& dateTime(get<DateTime>());
+    return dateTime.dateString() + " " + dateTime.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision((int) m_view.precision) << m_data.getFloat();
+    output << fixed << setprecision((int) m_view.precision) << get<double>();
     return output.str();
 }
 
-void Field::exportTo(xdoc::Node& node, bool compactXmlMode) const
+void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo, bool nullLargeData) const
 {
+    constexpr size_t minLargeFieldSize {256};
     String value = asString();
 
     if (!value.empty())
     {
-        xdoc::Element* element = nullptr;
+        xdoc::SNode element;
 
-        if (dataType() == VariantDataType::VAR_TEXT)
+        if (nullLargeData && value.length() >= minLargeFieldSize)
         {
-            element = &node.pushNode(fieldName(), xdoc::Node::Type::CData);
-            element->setString(value);
+            value = "";
+        }
+
+        if (dataType() == VariantDataType::VAR_TEXT && !value.empty())
+        {
+            element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
+            element->set(value);
         }
         else
         {
             if (compactXmlMode)
             {
-                node.setAttribute(fieldName(), value);
+                node->attributes().set(fieldName(), value);
             }
             else
             {
-                element = &node.pushNode("field", xdoc::Node::Type::Text);
-                element->setString(value);
+                element = node->pushValue(fieldName(), Variant(value));
             }
         }
 
-        if (!compactXmlMode)
+        if (detailedInfo)
         {
-            element->setAttribute("name", fieldName());
-            element->setAttribute("type", Variant::typeName(dataType()));
-            element->setAttribute("size", int2string((uint32_t) dataSize()));
+            element->attributes().set("type", Variant::typeName(dataType()));
+            element->attributes().set("size", int2string((uint32_t) dataSize()));
         }
     }
 }
-
-#if USE_GTEST
-
-TEST(SPTK_Field, move_ctor_assign)
-{
-    constexpr int testInteger = 10;
-    Field field1("f1");
-    field1 = testInteger;
-
-    Field field2(move(field1));
-    EXPECT_EQ(field2.asInteger(), testInteger);
-
-    Field field3("f3");
-    field3 = move(field2);
-    EXPECT_EQ(field3.asInteger(), testInteger);
-}
-
-TEST(SPTK_Field, double)
-{
-    Field field1("f1");
-
-    constexpr double testDouble = 12345678.123456;
-    field1 = testDouble;
-    field1.view().precision = 3;
-
-    EXPECT_DOUBLE_EQ(field1.asFloat(), testDouble);
-    EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
-}
-
-TEST(SPTK_Field, money)
-{
-    constexpr int64_t testLong = 1234567890123456789L;
-    constexpr int64_t testInt64 = 12345678901;
-    constexpr int scaleDigits = 8;
-
-    MoneyData money1(testLong, scaleDigits);
-    MoneyData money2(-testLong, scaleDigits);
-    Field field1("f1");
-
-    field1.setMoney(money1);
-    EXPECT_EQ(field1.asInt64(), testInt64);
-    EXPECT_STREQ(field1.asString().c_str(), "12345678901.23456789");
-
-    field1.setMoney(money2);
-    EXPECT_EQ(field1.asInt64(), -testInt64);
-    EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
-}
-
-#endif

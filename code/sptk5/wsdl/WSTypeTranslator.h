@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,11 +26,10 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Strings.h>
+#include <sptk5/sptk.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup wsdl WSDL-related Classes
@@ -65,4 +64,4 @@ extern const WSTypeTranslator wsTypeTranslator;
  * @}
  */
 
-}
+} // namespace sptk

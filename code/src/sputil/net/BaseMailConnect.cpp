@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,7 @@
 #include <sstream>
 
 #ifdef _MSC_VER
-#pragma warning (disable: 4786)
+#pragma warning(disable : 4786)
 #endif
 
 #include <sptk5/Base64.h>
@@ -50,22 +50,20 @@ private:
     static const map<string, string, std::less<>> m_contentTypes;
 };
 
-const map<string, string, std::less<>> ContentTypes::m_contentTypes
-    {
-        {"txt",  "text/plain"},
-        {"htm",  "text/html"},
-        {"html", "text/html"},
-        {"gif",  "image/gif"},
-        {"png",  "image/png"},
-        {"bmp",  "image/bmp"},
-        {"jpg",  "image/jpeg"},
-        {"tif",  "image/tiff"},
-        {"pdf",  "application/pdf"},
-        {"xls",  "application/vnd.ms-excel"},
-        {"csv",  "text/plain"},
-        {"doc",  "application/msword"},
-        {"wav",  "application/data"}
-    };
+const map<string, string, std::less<>> ContentTypes::m_contentTypes {
+    {"txt", "text/plain"},
+    {"htm", "text/html"},
+    {"html", "text/html"},
+    {"gif", "image/gif"},
+    {"png", "image/png"},
+    {"bmp", "image/bmp"},
+    {"jpg", "image/jpeg"},
+    {"tif", "image/tiff"},
+    {"pdf", "application/pdf"},
+    {"xls", "application/vnd.ms-excel"},
+    {"csv", "text/plain"},
+    {"doc", "application/msword"},
+    {"wav", "application/data"}};
 
 string ContentTypes::type(const string& fileName)
 {
@@ -92,18 +90,19 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 
     bufSource.loadFromFile(fileName.c_str());
 
-    String ctype = ContentTypes::type(trim(fileName));
+    const String ctype = ContentTypes::type(trim(fileName));
 
     message << "Content-Type: " << ctype << "; name=\"" << fileAlias << "\"" << endl;
     message << "Content-Transfer-Encoding: base64" << endl;
-    message << "Content-Disposition: attachment; filename=\"" << fileAlias << "\"" << endl << endl;
+    message << "Content-Disposition: attachment; filename=\"" << fileAlias << "\"" << endl
+            << endl;
 
     Buffer buffer;
 
     Base64::encode(strDest, bufSource);
 
     // Split encoded data to lines
-    size_t dataLen = strDest.length();
+    const size_t dataLen = strDest.length();
     buffer.checkSize(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
@@ -123,7 +122,6 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
     static const char* boundary = "--MESSAGE-MIME-BOUNDARY--";
-    static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
     stringstream message;
 
     if (!m_from.empty())
@@ -147,81 +145,97 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     const DateTime date = DateTime::Now();
-    short dy {0};
-    short dm {0};
-    short dd {0};
-    short wd {0};
-    short yd {0};
-    short th {0};
-    short tm {0};
-    short ts {0};
-    short tms {0};
+    short year {0};
+    short month {0};
+    short day {0};
+    short weekDay {0};
+    short yearDay {0};
+    short hour {0};
+    short minute {0};
+    short second {0};
+    short millisecond {0};
 
-    date.decodeDate(&dy, &dm, &dd, &wd, &yd);
-    date.decodeTime(&th, &tm, &ts, &tms);
+    date.decodeDate(&year, &month, &day, &weekDay, &yearDay);
+    date.decodeTime(&hour, &minute, &second, &millisecond);
 
     constexpr int maxDateBuffer = 128;
+    constexpr int sixtySeconds = 60;
     array<char, maxDateBuffer> dateBuffer = {};
     const char* sign = "-";
-    int tzOffset = TimeZone::offset();
+    auto tzOffset = (int) TimeZone::offset().count();
+    auto offsetHours = TimeZone::offset().count() / sixtySeconds;
+    auto offsetMinutes = TimeZone::offset().count() % sixtySeconds;
     if (tzOffset >= 0)
     {
-        sign = "";
+        sign = "+";
     }
     else
     {
-        tzOffset = -tzOffset;
+        offsetHours = -offsetHours;
     }
 
-    constexpr int tzOffsetMultiplier = 100;
-    int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
-                       "Date: %s, %i %s %04i %02i:%02i:%02i %s%04i (%s)",
-                       date.dayOfWeekName().substr(0, 3).c_str(),
-                       dd,
-                       DateTime::format(DateTime::Format::MONTH_NAME, size_t(dm) - 1).substr(0, 3).c_str(),
-                       dy,
-                       th, tm, ts,
-                       sign,
-                       tzOffset * tzOffsetMultiplier,
-                       TimeZone::name().c_str()
-    );
+    const int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
+                             "Date: %s, %i %s %04i %02i:%02i:%02i %s%02i%02i (%s)",
+                             date.dayOfWeekName().substr(0, 3).c_str(),
+                             day,
+                             DateTime::format(DateTime::Format::MONTH_NAME, size_t(month) - 1).substr(0, 3).c_str(),
+                             year,
+                             hour, minute, second,
+                             sign,
+                             (int) offsetHours, (int) offsetMinutes,
+                             TimeZone::name().c_str());
 
     message << String(dateBuffer.data(), (size_t) len) << endl;
 
     message << "MIME-Version: 1.0" << endl;
-    message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl << endl;
+    message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl
+            << endl;
 
-    message << endl << "--" << boundary << endl;
+    message << endl
+            << "--" << boundary << endl;
 
     if (m_body.type() == MailMessageType::PLAIN_TEXT_MESSAGE)
     {
         message << "Content-Type: text/plain; charset=ISO-8859-1" << endl;
         message << "Content-Transfer-Encoding: 7bit" << endl;
-        message << "Content-Disposition: inline" << endl << endl;
-        message << m_body.text() << endl << endl;
+        message << "Content-Disposition: inline" << endl
+                << endl;
+        message << m_body.text() << endl
+                << endl;
     }
     else
     {
-        message << "Content-Type: multipart/alternative;  boundary=\"" << boundary2 << "\"" << endl << endl;
+        static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
 
-        message << endl << "--" << boundary2 << endl;
+        message << "Content-Type: multipart/alternative;  boundary=\"" << boundary2 << "\"" << endl
+                << endl;
+
+        message << endl
+                << "--" << boundary2 << endl;
         message << "Content-Type: text/plain; charset=ISO-8859-1" << endl;
         message << "Content-Disposition: inline" << endl;
-        message << "Content-Transfer-Encoding: 8bit" << endl << endl;
+        message << "Content-Transfer-Encoding: 8bit" << endl
+                << endl;
 
-        message << m_body.text() << endl << endl;
+        message << m_body.text() << endl
+                << endl;
 
-        message << endl << "--" << boundary2 << endl;
+        message << endl
+                << "--" << boundary2 << endl;
         message << "Content-Type: text/html; charset=ISO-8859-1" << endl;
         message << "Content-Disposition: inline" << endl;
-        message << "Content-Transfer-Encoding: 7bit" << endl << endl;
+        message << "Content-Transfer-Encoding: 7bit" << endl
+                << endl;
 
-        message << m_body.html() << endl << endl;
-        message << endl << "--" << boundary2 << "--" << endl;
+        message << m_body.html() << endl
+                << endl;
+        message << endl
+                << "--" << boundary2 << "--" << endl;
     }
 
-    Strings sl(m_attachments, ";");
-    for (const auto& attachment: sl)
+
+    for (const Strings strings(m_attachments, ";");
+         const auto& attachment: strings)
     {
         String attachmentAlias(attachment);
         const char* separator = "\\";
@@ -238,12 +252,14 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
         if (!attachment.empty())
         {
-            message << endl << "--" << boundary << endl;
+            message << endl
+                    << "--" << boundary << endl;
             mimeFile(attachment, attachmentAlias, message);
         }
     }
 
-    message << endl << "--" << boundary << "--" << endl;
+    message << endl
+            << "--" << boundary << "--" << endl;
 
     buffer.set((const uint8_t*) message.str().c_str(), (uint32_t) message.str().length());
     buffer.saveToFile("/tmp/mimed.txt");

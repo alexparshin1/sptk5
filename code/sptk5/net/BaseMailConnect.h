@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,14 +26,12 @@
 
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/net/MailMessageBody.h>
 
 #include <string>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -54,6 +52,11 @@ public:
     BaseMailConnect() = default;
 
     /**
+     * Destructor
+     */
+    virtual ~BaseMailConnect() = default;
+
+    /**
      * Method from() returns the current value of 'FROM:' field of e-mail message.
      * @returns a single e-mail address.
      */
@@ -68,7 +71,7 @@ public:
      * @param addr should be an e-mail address in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
-    void from(const String& addr) 
+    void from(const String& addr)
     {
         m_from = addr;
     }
@@ -214,24 +217,22 @@ public:
     virtual void sendMessage() = 0;
 
 protected:
-
     /**
      * Encoding the message into internal message buffer
      */
     static void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
 
 private:
-
-    String              m_from;     ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
-    String              m_to;       ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String              m_cc;       ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String              m_bcc;      ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String              m_subject;  ///< Mail SUBJECT:
-    MailMessageBody     m_body;     ///< Mail text (plain-text and html parts of the message)
-    String              m_attachments; ///< The list of attachment files separated with ';'
-    Buffer             m_messageBuffer; ///< Internal message buffer
+    String m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
+    String m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String m_subject;       ///< Mail SUBJECT:
+    MailMessageBody m_body; ///< Mail text (plain-text and html parts of the message)
+    String m_attachments;   ///< The list of attachment files separated with ';'
+    Buffer m_messageBuffer; ///< Internal message buffer
 };
 /**
  * @}
  */
-}
+} // namespace sptk

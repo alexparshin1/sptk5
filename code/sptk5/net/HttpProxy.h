@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,18 +26,16 @@
 
 #pragma once
 
-#include <sptk5/net/Proxy.h>
-#include <sptk5/net/Host.h>
 #include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Host.h>
+#include <sptk5/net/Proxy.h>
 
 namespace sptk {
 
 class SP_EXPORT HttpProxy : public Proxy
 {
 public:
-    explicit HttpProxy(const Host& host, const String& username="", const String& password="")
-    : Proxy(host, username, password)
-    {}
+    using Proxy::Proxy;
 
     SOCKET connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
 
@@ -45,8 +43,7 @@ public:
 
     void sendRequest(const Host& destination, const std::shared_ptr<TCPSocket>& socket, const String& method) const;
 
-    bool readResponse(const std::shared_ptr<TCPSocket>& socket) const;
+    static bool readResponse(const std::shared_ptr<TCPSocket>& socket);
 };
 
-}
-
+} // namespace sptk

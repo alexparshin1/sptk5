@@ -4,7 +4,7 @@
 ║                       cgroup_test.cpp - description                          ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,8 +28,8 @@
 
 #include <FL/Fl.H>
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
@@ -144,11 +144,10 @@ int main(int argc, char* argv[])
         w.show(argc, argv);
 
         Fl::run();
-
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         return 1;
     }
 

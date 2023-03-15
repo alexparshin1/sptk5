@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,8 +26,8 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/FieldList.h>
+#include <sptk5/Strings.h>
 
 namespace sptk {
 
@@ -73,7 +73,6 @@ class SP_EXPORT CPackedStrings
 
 
 public:
-
     /**
      * Constructor
      * @param cnt int, source strings count
@@ -173,4 +172,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

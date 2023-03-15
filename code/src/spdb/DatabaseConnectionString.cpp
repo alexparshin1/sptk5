@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <set> // Fedora
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/net/URL.h>
-#include <set> // Fedora
 
 using namespace std;
 using namespace sptk;
@@ -38,7 +38,7 @@ void DatabaseConnectionString::parse()
 
     URL url(m_connectionString);
 
-    if (supportedDrivers.find(url.protocol()) == supportedDrivers.end())
+    if (!supportedDrivers.contains(url.protocol()))
     {
         throw DatabaseException("Unsupported driver: " + url.protocol());
     }
@@ -105,7 +105,7 @@ String DatabaseConnectionString::toString() const
     {
         result << "?";
         bool first = true;
-        for (auto&[name, value]: m_parameters)
+        for (const auto& [name, value]: m_parameters)
         {
             if (first)
             {
@@ -136,59 +136,3 @@ bool DatabaseConnectionString::empty() const
 {
     return m_hostName.empty();
 }
-
-#if USE_GTEST
-
-TEST(SPTK_DatabaseConnectionString, ctorSimple)
-{
-    DatabaseConnectionString simple("postgres://localhost/dbname");
-    EXPECT_STREQ("postgresql", simple.driverName().c_str());
-    EXPECT_STREQ("localhost", simple.hostName().c_str());
-    EXPECT_STREQ("dbname", simple.databaseName().c_str());
-}
-
-TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
-{
-    DatabaseConnectionString simple("postgresql://localhost/dbname/schema");
-    EXPECT_STREQ("postgresql", simple.driverName().c_str());
-    EXPECT_STREQ("localhost", simple.hostName().c_str());
-    EXPECT_STREQ("dbname", simple.databaseName().c_str());
-    EXPECT_STREQ("schema", simple.schema().c_str());
-}
-
-TEST(SPTK_DatabaseConnectionString, ctorFull)
-{
-    DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
-    EXPECT_STREQ("auser", simple.userName().c_str());
-    EXPECT_STREQ("apassword", simple.password().c_str());
-    EXPECT_STREQ("localhost", simple.hostName().c_str());
-    EXPECT_EQ(5432, simple.portNumber());
-    EXPECT_STREQ("dbname", simple.databaseName().c_str());
-    EXPECT_STREQ("main", simple.schema().c_str());
-
-    EXPECT_STREQ("UTF8", simple.parameter("encoding").c_str());
-    EXPECT_STREQ("free", simple.parameter("mode").c_str());
-}
-
-TEST(SPTK_DatabaseConnectionString, ctorCopy)
-{
-    DatabaseConnectionString source("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
-    DatabaseConnectionString simple(source);
-    EXPECT_STREQ("auser", simple.userName().c_str());
-    EXPECT_STREQ("apassword", simple.password().c_str());
-    EXPECT_STREQ("localhost", simple.hostName().c_str());
-    EXPECT_EQ(5432, simple.portNumber());
-    EXPECT_STREQ("dbname", simple.databaseName().c_str());
-    EXPECT_STREQ("main", simple.schema().c_str());
-    EXPECT_STREQ("UTF8", simple.parameter("encoding").c_str());
-    EXPECT_STREQ("free", simple.parameter("mode").c_str());
-}
-
-TEST(SPTK_DatabaseConnectionString, toString)
-{
-    String connectionString("postgresql://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
-    DatabaseConnectionString simple(connectionString);
-    EXPECT_STREQ(connectionString.c_str(), simple.toString().c_str());
-}
-
-#endif

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,17 +24,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-#define MAXEVENTS 128
-
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
-    : Thread(name), m_socketPool(eventsCallback), m_timeout(timeout)
+    : Thread(name)
+    , m_socketPool(eventsCallback)
+    , m_timeout(timeout)
 {
     m_socketPool.open();
 }
@@ -57,21 +59,21 @@ void SocketEvents::stop()
     }
     catch (const Exception& e)
     {
-        CERR(e.message() << endl)
+        CERR(e.message() << endl);
     }
 }
 
-void SocketEvents::add(BaseSocket& socket, void* userData)
+void SocketEvents::add(BaseSocket& socket, const uint8_t* userData)
 {
     if (!running())
     {
-        scoped_lock lock(m_mutex);
+        const scoped_lock lock(m_mutex);
         if (m_shutdown)
         {
             throw Exception("SocketEvents already stopped");
         }
         run();
-        m_started.wait_for(true, milliseconds(1000));
+        m_started.wait_for(true, seconds(1));
     }
     m_socketPool.watchSocket(socket, userData);
 }
@@ -79,6 +81,11 @@ void SocketEvents::add(BaseSocket& socket, void* userData)
 void SocketEvents::remove(BaseSocket& socket)
 {
     m_socketPool.forgetSocket(socket);
+}
+
+bool SocketEvents::has(BaseSocket& socket)
+{
+    return m_socketPool.hasSocket(socket);
 }
 
 void SocketEvents::threadFunction()
@@ -95,7 +102,7 @@ void SocketEvents::threadFunction()
         {
             if (m_socketPool.active())
             {
-                CERR(e.message() << endl)
+                CERR(e.message() << endl);
             }
             else
             {
@@ -109,12 +116,12 @@ void SocketEvents::threadFunction()
 void SocketEvents::terminate()
 {
     Thread::terminate();
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_shutdown = true;
 }
 
 size_t SocketEvents::size() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_watchList.size();
 }

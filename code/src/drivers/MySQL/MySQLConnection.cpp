@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,8 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-MySQLConnection::MySQLConnection(const String& connectionString)
-    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL)
+[[noreturn]] static void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
+{
+    throw DatabaseException(String(info) + ":" + String(mysql_error(connection.get())));
+}
+
+MySQLConnection::MySQLConnection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
 {
 }
 
@@ -40,7 +45,7 @@ void MySQLConnection::initConnection()
 {
     static std::mutex libraryInitMutex;
 
-    scoped_lock lock(libraryInitMutex);
+    const scoped_lock lock(libraryInitMutex);
     m_connection = shared_ptr<MYSQL>(mysql_init(nullptr),
                                      [](auto* connection) {
                                          mysql_close(connection);
@@ -51,6 +56,8 @@ void MySQLConnection::initConnection()
     }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
+    size_t connectionTimeoutSeconds = connectTimeout().count();
+    mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 
 void MySQLConnection::_openDatabase(const String& newConnectionString)
@@ -106,13 +113,15 @@ void MySQLConnection::executeCommand(const String& command)
     }
 
     if (mysql_real_query(m_connection.get(), command.c_str(), ULONG_CAST(command.length())) != 0)
-        throwMySQLException("Can't execute " + command);
+        throwMySQLException(m_connection, "Can't execute " + command);
 }
 
 void MySQLConnection::driverBeginTransaction()
 {
     if (getInTransaction())
-        throwMySQLException("Transaction already started");
+    {
+        throwMySQLException(m_connection, "Transaction already started");
+    }
 
     executeCommand("BEGIN");
     setInTransaction(true);
@@ -121,7 +130,9 @@ void MySQLConnection::driverBeginTransaction()
 void MySQLConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
-    throwDatabaseException("Transaction isn't started.")
+    {
+        throwException<DatabaseException>("Transaction isn't started.");
+    }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
     executeCommand(action);
@@ -137,23 +148,20 @@ String MySQLConnection::queryError(const Query*) const
 void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto stmt = shared_ptr<uint8_t>((StmtHandle) new MySQLStatement(this, query->sql(), query->autoPrepare()),
-                                    [](StmtHandle handle) {
-                                        delete (MySQLStatement*) handle;
-                                    });
+    auto stmt = reinterpret_pointer_cast<uint8_t>(make_shared<MySQLStatement>(this, query->sql(), query->autoPrepare()));
     querySetStmt(query, stmt);
 }
 
 void MySQLConnection::queryFreeStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     querySetStmt(query, nullptr);
     querySetPrepared(query, false);
 }
 
 void MySQLConnection::queryCloseStmt(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     try
     {
         auto* statement = (MySQLStatement*) query->statement();
@@ -176,7 +184,7 @@ void MySQLConnection::queryPrepare(Query* query)
         queryAllocStmt(query);
     }
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
     if (statement != nullptr)
@@ -192,12 +200,6 @@ void MySQLConnection::queryPrepare(Query* query)
             THROW_QUERY_ERROR(query, e.what())
         }
     }
-}
-
-void MySQLConnection::queryUnprepare(Query* query)
-{
-    queryFreeStmt(query);
-    querySetPrepared(query, false);
 }
 
 int MySQLConnection::queryColCount(Query* query)
@@ -221,7 +223,7 @@ int MySQLConnection::queryColCount(Query* query)
 
 void MySQLConnection::queryBindParameters(Query* query)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (MySQLStatement*) query->statement();
     try
@@ -292,7 +294,7 @@ void MySQLConnection::queryOpen(Query* query)
     querySetActive(query, true);
     if (query->fieldCount() == 0)
     {
-        scoped_lock lock(m_mutex);
+        const scoped_lock lock(m_mutex);
         statement->bindResult(query->fields());
     }
 
@@ -303,9 +305,9 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-    THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     try
     {
@@ -322,7 +324,7 @@ void MySQLConnection::queryFetch(Query* query)
     }
     catch (const Exception& e)
     {
-        Query::throwError("CMySQLConnection::queryFetch", e.what());
+        Query::throwError("MySQLConnection::queryFetch", e.what());
     }
 }
 
@@ -376,17 +378,17 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
     catch (const Exception& e)
     {
-        CERR("Error fetching system info: " << e.what() << endl)
+        CERR("Error fetching system info: " << e.what() << endl);
     }
 }
 
-void MySQLConnection::_executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 {
     auto matchStatementEnd = make_shared<RegularExpression>("(;\\s*)$");
 
-    RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
-    RegularExpression matchEscapeChars("([$.])", "g");
-    RegularExpression matchCommentRow("^\\s*--");
+    static const RegularExpression matchDelimiterChange("^DELIMITER\\s+(\\S+)");
+    static const RegularExpression matchEscapeChars("([$.])", "g");
+    static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     String statement;
@@ -461,13 +463,26 @@ String MySQLConnection::paramMark(unsigned)
     return "?";
 }
 
-void* mysql_create_connection(const char* connectionString)
+void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
-    auto* connection = new MySQLConnection(connectionString);
-    return connection;
+    notImplemented("queryColAttributes");
+}
+
+void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+{
+    notImplemented("queryColAttributes");
+}
+
+map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
+
+void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+{
+    auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    MySQLConnection::s_mysqlConnections[connection.get()] = connection;
+    return connection.get();
 }
 
 void mysql_destroy_connection(void* connection)
 {
-    delete (MySQLConnection*) connection;
+    MySQLConnection::s_mysqlConnections.erase((MySQLConnection*) connection);
 }

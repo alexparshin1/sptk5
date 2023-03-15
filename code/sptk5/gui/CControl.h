@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -32,7 +32,7 @@
 #include <sptk5/db/Query.h>
 #include <sptk5/gui/CEvent.h>
 #include <sptk5/gui/CLayoutClient.h>
-#include <sptk5/cxml>
+#include <sptk5/xdoc/Node.h>
 
 #include <string>
 
@@ -46,8 +46,7 @@ namespace sptk {
 /**
  * @brief Control kind is the constant to report the internal SPTK RTTI.
  */
-enum class CControlKind
-    : uint32_t
+enum class CControlKind : uint32_t
 {
     /**
      * Control kind is unknown
@@ -159,8 +158,7 @@ enum class CControlKind
 /**
  * @brief Special control flags (used as bit combination)
  */
-enum class InputEntryFlags
-    : uint32_t
+enum class InputEntryFlags : uint32_t
 {
     /**
      * No flags
@@ -219,7 +217,8 @@ SP_EXPORT bool checkFieldName(const String& fldName);
  * Every CControl has a field name, and it can be a layout client.
  */
 class SP_EXPORT CControl
-    : public ::Fl_Group, public CLayoutClient
+    : public ::Fl_Group
+    , public CLayoutClient
 {
     friend class CInternalComboBoxPanel;
 
@@ -239,16 +238,15 @@ class SP_EXPORT CControl
     void ctor_init(const char*);
 
 protected:
-
     /**
      * Control has the defined min and max values
      */
-    bool m_limited;
+    bool m_limited {false};
 
     /**
      * Control label width (on the left)
      */
-    uint32_t m_labelWidth;
+    uint32_t m_labelWidth {0};
 
     /**
      * Control label color
@@ -268,7 +266,7 @@ protected:
     /**
      * Control text font size
      */
-    uchar m_textSize;
+    uchar m_textSize {0};
 
     /**
      * Field name for the universal data connection
@@ -283,22 +281,22 @@ protected:
     /**
      * The main widget inside the control.
      */
-    Fl_Widget* m_control;
+    Fl_Widget* m_control {nullptr};
 
     /**
      * Control's special data tag
      */
-    int m_tag;
+    int m_tag {0};
 
     /**
      * @brief Control's special flags (a bit combination of InputEntryFlags).
      * @see InputEntryFlags for details.
      */
-    uint32_t m_controlFlags;
+    uint32_t m_controlFlags {0};
     /**
      * Control's menu button - to show right-mouse click menu
      */
-    Fl_Menu_Button* m_menuButton;
+    Fl_Menu_Button* m_menuButton {nullptr};
 
     /**
      * The last SPTK event inside this control.
@@ -308,7 +306,7 @@ protected:
     /**
      * Does the control have focus?
      */
-    bool m_hasFocus;
+    bool m_hasFocus {false};
 
     /**
      * @brief Does the control contain focus?
@@ -346,7 +344,6 @@ protected:
     static void internalCallback(Fl_Widget* internalWidget, void* data);
 
 public:
-
     /**
      * @brief Constructor in SPTK style
      * @param label const char *, label
@@ -364,7 +361,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CControl(int,int,int,int,const char * = 0);
+    CControl(int, int, int, int, const char* = 0);
 #endif
 
     /**
@@ -416,7 +413,7 @@ public:
     /**
      * @brief Sets the control's text font
      */
-    virtual void textFont(Font *);
+    virtual void textFont(Font*);
 #endif
 
     /**
@@ -636,20 +633,19 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void load(const xml::Node* node, CLayoutXMLmode xmlMode);
+    void load(const xdoc::SNode& node, CLayoutXMLmode xmlMode) override;
 
     /**
      * @brief Loads control data from XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
      */
-    virtual void load(const xml::Node* node)
+    void load(const xdoc::SNode& node) override
     {
         load(node, CLayoutXMLmode::DATA);
     }
@@ -659,19 +655,19 @@ public:
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
-     * @param xmlMode CLayoutXMLmode, the mode defining how the layout and/or data should be stored
+     * @param node              the XML node
+     * @param xmlMode           the mode defining how the layout and/or data should be stored
      */
-    virtual void save(xml::Node* node, CLayoutXMLmode xmlMode) const;
+    void save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const override;
 
     /**
      * @brief Saves control data to XML
      *
      * Layout information may also include widget size and position,
      * as well as visible() and active() states
-     * @param node xml::Node*, the XML node
+     * @param node              the XML node
      */
-    virtual void save(xml::Node* node) const
+    virtual void save(const xdoc::SNode& node) const
     {
         save(node, CLayoutXMLmode::DATA);
     }
@@ -939,9 +935,9 @@ CControl* createControl(CControlKind controlKind, const String& label, const Str
  * the exception is thrown.
  * @param xmlControls           The controls description in XML
  */
-void createControls(const xml::NodeList& xmlControls);
+void createControls(const xdoc::SNode& xmlControls);
 
 /**
  * @}
  */
-}
+} // namespace sptk

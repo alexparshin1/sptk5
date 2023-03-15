@@ -18,6 +18,14 @@ class CAccountBalance : public sptk::WSComplexType
 {
 public:
 
+    /**
+     * ID of the class
+     */
+    static sptk::String classId()
+    {
+        return "AccountBalance";
+    }
+
    // Elements
    sptk::WSString                           m_account_number {"account_number", false};
 
@@ -26,7 +34,7 @@ public:
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CAccountBalance(const char* elementName="account_balance", bool optional=false) noexcept;
+   explicit CAccountBalance(const char* elementName="account_balance", bool optional=false);
 
    /**
     * Copy constructor
@@ -49,13 +57,13 @@ public:
     * Copy assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (const CAccountBalance& other);
+   CAccountBalance& operator = (const CAccountBalance& other) = default;
 
    /**
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (CAccountBalance&& other) noexcept;
+   CAccountBalance& operator = (CAccountBalance&& other) noexcept = default;
 
    /**
     * Get complex type field names.

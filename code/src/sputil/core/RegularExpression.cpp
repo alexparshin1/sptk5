@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,35 +24,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <future>
 #include <regex>
+#include <sptk5/cutils>
 
-#if (HAVE_PCRE | HAVE_PCRE2)
+#if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
 using namespace std;
 using namespace sptk;
 
 namespace sptk {
 
-struct Match
-{
-    pcre_offset_t m_start {0};  ///< Match start
-    pcre_offset_t m_end {0};    ///< Match end
+struct Match {
+    pcre_offset_t m_start {0}; ///< Match start
+    pcre_offset_t m_end {0};   ///< Match end
 };
 
 class MatchData
 {
+    friend class RegularExpression;
 
 public:
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     shared_ptr<pcre2_match_data> match_data;
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
         : match_data(shared_ptr<pcre2_match_data>(pcre2_match_data_create_from_pattern(pcre, nullptr),
-                                                  [](auto* ptr) { pcre2_match_data_free(ptr); })),
-          maxMatches(maxMatches + 2),
-          matches(maxMatches + 2)
+                                                  [](auto* ptr) {
+                                                      pcre2_match_data_free(ptr);
+                                                  }))
+        , matches(maxMatches + 2)
+        , maxMatches(maxMatches + 2)
     {
     }
 
@@ -60,8 +62,8 @@ public:
     static constexpr int reservedMatches = 4;
 
     MatchData(const pcre*, size_t maxMatches)
-    : maxMatches(maxMatches + reservedMatches),
-      matches(maxMatches + reservedMatches * 2)
+        : matches(maxMatches + (size_t) reservedMatches * 2)
+        , maxMatches(maxMatches + reservedMatches)
     {
     }
 #endif
@@ -70,23 +72,23 @@ public:
 
     MatchData& operator=(const MatchData&) = delete;
 
-    size_t maxMatches {0};
     vector<Match> matches;
+    size_t maxMatches {0};
 };
 
-}
+} // namespace sptk
 
 size_t RegularExpression::getCaptureCount() const
 {
     int captureCount = 0;
 
     if (
-#if HAVE_PCRE2
-pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
+#ifdef HAVE_PCRE2
+        pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_CAPTURECOUNT, &captureCount)
 #else
-pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
+        pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_CAPTURECOUNT, &captureCount)
 #endif
-!= 0)
+        != 0)
     {
         captureCount = 0;
     }
@@ -122,22 +124,22 @@ void RegularExpression::Groups::grow(size_t groupCount)
 
 void RegularExpression::compile()
 {
-#if HAVE_PCRE2
-    int errornumber {0};
-    PCRE2_SIZE erroroffset {0};
+#ifdef HAVE_PCRE2
+    int errorNumber {0};
+    PCRE2_SIZE errorOffset {0};
 
     auto* pcre = pcre2_compile(
-        (PCRE2_SPTR) m_pattern.c_str(),     // the pattern
-        PCRE2_ZERO_TERMINATED,              // indicates pattern is zero-terminated
-        m_options,                          // options
-        &errornumber,                       // for error number
-        &erroroffset,                       // for error offset
-        nullptr);                           // use default compile context
+        (PCRE2_SPTR) m_pattern.c_str(), // the pattern
+        PCRE2_ZERO_TERMINATED,          // indicates pattern is zero-terminated
+        m_options,                      // options
+        &errorNumber,                   // for error number
+        &errorOffset,                   // for error offset
+        nullptr);                       // use default compile context
 
     if (pcre == nullptr)
     {
-        array<PCRE2_UCHAR, 256> buffer;
-        pcre2_get_error_message(errornumber, buffer.data(), sizeof(buffer));
+        array<PCRE2_UCHAR, 256> buffer {};
+        pcre2_get_error_message(errorNumber, buffer.data(), sizeof(buffer));
         throw Exception((const char*) buffer.data());
     }
 
@@ -150,7 +152,7 @@ void RegularExpression::compile()
     const char* error = nullptr;
     int errorOffset = 0;
 
-    auto* pcre = pcre_compile(m_pattern.c_str(), m_options, &error, &errorOffset, nullptr);
+    auto* pcre = pcre_compile(m_pattern.c_str(), (int) m_options, &error, &errorOffset, nullptr);
     m_pcre = shared_ptr<PCREHandle>(pcre,
                                     [](auto* pcreHandle) {
                                         pcre_free(pcreHandle);
@@ -159,11 +161,15 @@ void RegularExpression::compile()
     if (!m_pcre)
         m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
 #if PCRE_MAJOR > 7
-    else {
+    else
+    {
         auto* pcreExtra = pcre_study(m_pcre.get(), 0, &error);
-        if (!pcreExtra && error) {
+        if (!pcreExtra && error)
+        {
             m_error = "PCRE pattern study error : " + string(error);
-        } else {
+        }
+        else
+        {
             m_pcreExtra = shared_ptr<PCREExtraHandle>(pcreExtra,
                                                       [](pcre_extra* study) {
                                                           pcre_free_study(study);
@@ -175,8 +181,8 @@ void RegularExpression::compile()
     m_captureCount = getCaptureCount();
 }
 
-RegularExpression::RegularExpression(String pattern, const String& options)
-    : m_pattern(move(pattern))
+RegularExpression::RegularExpression(const String& pattern, const String& options)
+    : m_pattern(pattern)
 {
     for (auto ch: options)
     {
@@ -207,14 +213,17 @@ RegularExpression::RegularExpression(String pattern, const String& options)
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     if (!m_pcre)
-    throwException(m_error)
+    {
+        throwException<Exception>(m_error);
+    }
 
-#if HAVE_PCRE2
-    auto ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
+#ifdef HAVE_PCRE2
+
+    const auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
 
     auto rc = pcre2_match(
         m_pcre.get(),               // the compiled pattern
-        (PCRE2_SPTR) text.c_str(),   // the subject string
+        (PCRE2_SPTR) text.c_str(),  // the subject string
         text.length(),              // the length of the subject
         offset,                     // start at offset in the subject
         0,                          // default options
@@ -233,28 +242,35 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         if (m_options == 0)
         {
             return false;
-        }      /* All matches found */
-        ++offset;              /* Advance one code unit */
+        }         /* All matches found */
+        ++offset; /* Advance one code unit */
     }
 
-    return rc >= 0;
+    return false;
 #else
     int rc = pcre_exec(
-            m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
-            (pcre_offset_t*) matchData.matches.data(),
-            (pcre_offset_t) matchData.maxMatches * 2);
+        m_pcre.get(), m_pcreExtra.get(), text.c_str(), (int) text.length(), (int) offset, 0,
+        (pcre_offset_t*) matchData.matches.data(),
+        (pcre_offset_t) matchData.maxMatches * 2);
 
     if (rc == PCRE_ERROR_NOMATCH)
         return 0;
 
-    if (rc < 0) {
-        switch (rc) {
-            case PCRE_ERROR_NULL         : throwException("Null argument")
-            case PCRE_ERROR_BADOPTION    : throwException("Invalid regular expression option")
-            case PCRE_ERROR_BADMAGIC     :
-            case PCRE_ERROR_UNKNOWN_NODE : throwException("Invalid compiled regular expression\n")
-            case PCRE_ERROR_NOMEMORY     : throwException("Out of memory")
-            default                      : throwException("Unknown error")
+    if (rc < 0)
+    {
+        switch (rc)
+        {
+            case PCRE_ERROR_NULL:
+                throwException<Exception>("Null argument");
+            case PCRE_ERROR_BADOPTION:
+                throwException<Exception>("Invalid regular expression option");
+            case PCRE_ERROR_BADMAGIC:
+            case PCRE_ERROR_UNKNOWN_NODE:
+                throwException<Exception>("Invalid compiled regular expression\n");
+            case PCRE_ERROR_NOMEMORY:
+                throwException<Exception>("Out of memory");
+            default:
+                throwException<Exception>("Unknown error");
         }
     }
 
@@ -272,13 +288,6 @@ bool RegularExpression::operator==(const String& text) const
     return nextMatch(text, offset, matchData) > 0;
 }
 
-bool RegularExpression::operator!=(const String& text) const
-{
-    size_t offset = 0;
-    MatchData matchData(m_pcre.get(), m_captureCount);
-    return nextMatch(text, offset, matchData) == 0;
-}
-
 bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
@@ -292,7 +301,6 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
     Groups matchedStrings;
 
     MatchData matchData(m_pcre.get(), m_captureCount);
-    size_t totalMatches = 0;
 
     bool first {true};
     do
@@ -302,7 +310,6 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
         { // No matches
             break;
         }
-        totalMatches += matchCount;
 
         matchedStrings.grow(matchCount);
 
@@ -336,8 +343,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
 
         first = false;
 
-    }
-    while (m_global && offset < text.length());
+    } while (m_global && offset < text.length());
 
     return matchedStrings;
 }
@@ -373,7 +379,7 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
 void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize) const
 {
     nameEntrySize = 0;
-#if HAVE_PCRE2
+#ifdef HAVE_PCRE2
     pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMETABLE, &nameTable);
     pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMEENTRYSIZE, &nameEntrySize);
 #else
@@ -387,12 +393,12 @@ size_t RegularExpression::getNamedGroupCount() const
     int nameCount = 0;
 
     if (
-#if HAVE_PCRE2
-pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
+#ifdef HAVE_PCRE2
+        pcre2_pattern_info(m_pcre.get(), PCRE2_INFO_NAMECOUNT, &nameCount)
 #else
-pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
+        pcre_fullinfo(m_pcre.get(), m_pcreExtra.get(), PCRE_INFO_NAMECOUNT, &nameCount)
 #endif
-!= 0)
+        != 0)
     {
         nameCount = 0;
     }
@@ -423,8 +429,7 @@ Strings RegularExpression::split(const String& text) const
             lastMatchEnd = match.m_end;
         }
 
-    }
-    while (offset);
+    } while (offset);
 
     matchedStrings.push_back(string(text.c_str() + lastMatchEnd));
 
@@ -490,17 +495,14 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         // Append next replacement
         result += nextReplacement;
 
-    }
-    while (offset);
+    } while (offset);
 
     if (lastOffset < text.length())
     {
         return result + text.substr(lastOffset);
     }
-    else
-    {
-        return result;
-    }
+
+    return result;
 }
 
 String RegularExpression::s(const String& text, const std::function<String(const String&)>& replace,
@@ -519,7 +521,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
         if (size_t matchCount = nextMatch(text, offset, matchData); matchCount == 0)
         {
             break;
-        }  // No matches
+        } // No matches
         if (offset)
         {
             lastOffset = offset;
@@ -542,8 +544,7 @@ String RegularExpression::s(const String& text, const std::function<String(const
 
         result += nextReplacement;
 
-    }
-    while (offset);
+    } while (offset);
 
     return result + text.substr(lastOffset);
 }
@@ -569,7 +570,7 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
     bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase)
     {
-        for (const auto&[name, value]: substitutions)
+        for (const auto& [name, value]: substitutions)
         {
             substitutionsMap[lowerCase(name)] = value;
         }
@@ -579,14 +580,16 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
         substitutionsMap = substitutions;
     }
 
-    return s(text, [&substitutionsMap, ignoreCase](const String& needle) {
-        auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
-        if (itor == substitutionsMap.end())
-        {
-            return needle;
-        }
-        return itor->second;
-    }, replaced);
+    return s(
+        text, [&substitutionsMap, ignoreCase](const String& needle) {
+            auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
+            if (itor == substitutionsMap.end())
+            {
+                return needle;
+            }
+            return itor->second;
+        },
+        replaced);
 }
 
 String RegularExpression::s(const String& text, const String& outputPattern) const
@@ -599,233 +602,5 @@ const String& RegularExpression::pattern() const
 {
     return m_pattern;
 }
-
-#if USE_GTEST
-
-static const String testPhrase("This is a test text to verify rexec text data group");
-
-TEST(SPTK_RegularExpression, match_first)
-{
-    RegularExpression matchFirst("test text", "g");
-    auto matches = matchFirst.m(testPhrase);
-    String words;
-    for (const auto& match: matches.groups())
-    {
-        words = match.value;
-    }
-    EXPECT_STREQ(words.c_str(), "test text");
-}
-
-TEST(SPTK_RegularExpression, match_first_group)
-{
-    RegularExpression matchFirst("(test text)", "g");
-    auto matches = matchFirst.m(testPhrase);
-    String words;
-    for (const auto& match: matches.groups())
-    {
-        words = match.value;
-    }
-    EXPECT_STREQ(words.c_str(), "test text");
-}
-
-TEST(SPTK_RegularExpression, match_many)
-{
-    RegularExpression matchWord("(\\w+)+", "g");
-    auto matches = matchWord.m(testPhrase);
-    Strings words;
-    for (const auto& match: matches.groups())
-    {
-        words.push_back(match.value);
-    }
-    EXPECT_STREQ(words.join("_").c_str(), "This_is_a_test_text_to_verify_rexec_text_data_group");
-}
-
-TEST(SPTK_RegularExpression, match)
-{
-    RegularExpression match1("test.*verify");
-    RegularExpression match2("test  .*verify");
-    EXPECT_TRUE(match1.matches(testPhrase));
-    EXPECT_FALSE(match2.matches(testPhrase));
-    EXPECT_TRUE(match1 == String(testPhrase));
-    EXPECT_FALSE(match1 != String(testPhrase));
-}
-
-TEST(SPTK_RegularExpression, match_global)
-{
-    RegularExpression match("(te[xs]t) (to verify|data)", "g");
-
-    EXPECT_TRUE(match.matches(testPhrase));
-
-    auto matchedStrings = match.m(testPhrase);
-
-    EXPECT_STREQ(matchedStrings[0].value.c_str(), "text");
-    EXPECT_EQ(matchedStrings.groups().size(), size_t(4));
-}
-
-TEST(SPTK_RegularExpression, named_groups)
-{
-    RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
-
-    RegularExpression::Groups matchedStrings;
-    auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
-
-    EXPECT_STREQ(matchedNamedGroups["aname"].value.c_str(), "xyz");
-    EXPECT_STREQ(matchedNamedGroups["avalue"].value.c_str(), "1234");
-    EXPECT_STREQ(matchedNamedGroups["description"].value.c_str(), "test1");
-}
-
-TEST(SPTK_RegularExpression, replace)
-{
-    RegularExpression match1("^(.*)(white).*(rabbit)(.*)");
-    EXPECT_STREQ("white crow eats flies over rabbit",
-                 match1.s("This is a white rabbit", "\\2 crow eats flies over \\3").c_str());
-}
-
-TEST(SPTK_RegularExpression, replaceAll)
-{
-    map<String, String> substitutions = {
-        {"$NAME", "John Doe"},
-        {"$CITY", "London"},
-        {"$YEAR", "2000"}
-    };
-
-    RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
-    String text = "$NAME was in $CITY in $YEAR ";
-    bool replaced(false);
-    String result = matchPlaceholders.replaceAll(text, substitutions, replaced);
-    EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
-}
-
-TEST(SPTK_RegularExpression, lambdaReplace)
-{
-    map<String, String> substitutions = {
-        {"$NAME", "John Doe"},
-        {"$CITY", "London"},
-        {"$YEAR", "2000"}
-    };
-
-    RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
-    String text = "$NAME was in $CITY in $YEAR ";
-    bool replaced(false);
-    String result = matchPlaceholders.s(text, [&substitutions](const String& match) { return substitutions[match]; },
-                                        replaced);
-    EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
-}
-
-TEST(SPTK_RegularExpression, extract)
-{
-    RegularExpression match1("^(.*)(text).*(verify)(.*)");
-    auto matchedStrings = match1.m(testPhrase);
-    EXPECT_TRUE(matchedStrings);
-    EXPECT_EQ(size_t(4), matchedStrings.groups().size());
-    EXPECT_STREQ("This is a test ", matchedStrings[0].value.c_str());
-    EXPECT_STREQ(" rexec text data group", matchedStrings[3].value.c_str());
-}
-
-TEST(SPTK_RegularExpression, split)
-{
-    RegularExpression match("[\\s]+");
-    auto matchedStrings = match.split(testPhrase);
-    EXPECT_EQ(size_t(11), matchedStrings.size());
-    EXPECT_STREQ("This", matchedStrings[0].c_str());
-    EXPECT_STREQ("text", matchedStrings[8].c_str());
-}
-
-TEST(SPTK_RegularExpression, match_performance)
-{
-    String data("red=#FF0000, green=#00FF00, blue=#0000FF");
-    RegularExpression match("((\\w+)=(#\\w+))");
-    constexpr size_t maxIterations = 100000;
-    size_t groupCount = 0;
-    StopWatch stopWatch;
-    stopWatch.start();
-    for (size_t i = 0; i < maxIterations; ++i)
-    {
-        String s(data);
-        while (auto matches = match.m(s))
-        {
-            s = s.substr(matches[0].value.length());
-            groupCount += matches.groups().size();
-        }
-    }
-    stopWatch.stop();
-    constexpr double oneMillion = 1E6;
-    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                       << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
-}
-
-TEST(SPTK_RegularExpression, std_match_performance)
-{
-    String data("red=#FF0000, green=#00FF00, blue=#0000FF");
-    std::regex match("(\\w+)=(#\\w+)");
-    constexpr size_t maxIterations = 100000;
-    size_t groupCount = 0;
-    StopWatch stopWatch;
-    stopWatch.start();
-    for (size_t i = 0; i < maxIterations; ++i)
-    {
-        String s(data);
-        std::smatch color_matches;
-        while (std::regex_search(s, color_matches, match))
-        {
-            s = color_matches.suffix().str();
-            groupCount += color_matches.size();
-        }
-    }
-    stopWatch.stop();
-    constexpr double oneMillion = 1E6;
-    COUT(maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                       << maxIterations / stopWatch.seconds() / oneMillion << "M/sec" << endl)
-}
-
-TEST(SPTK_RegularExpression, asyncExec)
-{
-    RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
-
-    mutex amutex;
-    queue<future<size_t> > states;
-
-    constexpr size_t maxThreads = 10;
-    for (size_t n = 0; n < maxThreads; ++n)
-    {
-        future<size_t> f = async(launch::async, [&match]() {
-            RegularExpression::Groups matchedStrings;
-            auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
-            return matchedNamedGroups.namedGroups().size();
-        });
-        scoped_lock lock(amutex);
-        states.push(move(f));
-    }
-
-    future<size_t> f;
-    auto statesCount = states.size();
-    for (size_t n = 0; n < maxThreads;)
-    {
-        bool gotOne {false};
-        if (statesCount > 0)
-        {
-            scoped_lock lock(amutex);
-            if (!states.empty())
-            {
-                f = move(states.front());
-                states.pop();
-                ++n;
-                gotOne = true;
-            }
-        }
-
-        constexpr chrono::milliseconds tenMilliseconds(10);
-        if (gotOne)
-        {
-            f.wait();
-        }
-        else
-        {
-            this_thread::sleep_for(tenMilliseconds);
-        }
-    }
-}
-
-#endif
 
 #endif

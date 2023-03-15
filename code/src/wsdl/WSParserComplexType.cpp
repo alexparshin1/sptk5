@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,19 +24,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <iomanip>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
-#include <iomanip>
 
 using namespace std;
 using namespace sptk;
 
-std::map<String, const xml::Element*> WSParserComplexType::SimpleTypeElements;
+std::map<String, xdoc::SNode> WSParserComplexType::SimpleTypeElements;
 
 WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
-    : m_name(name),
-      m_wsTypeName(typeName)
+    : m_name(name)
+    , m_wsTypeName(typeName)
 {
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
 }
@@ -45,7 +45,8 @@ String WSParserAttribute::generate(bool initialize) const
 {
     constexpr int fieldNameWidth = 40;
     stringstream str;
-    str << left << setw(fieldNameWidth) << m_cxxTypeName << " m_" << m_name;
+    str << left << setw(fieldNameWidth) << "sptk::WSString"
+        << " m_" << m_name;
     if (initialize)
     {
         str << " {\"" << m_name << "\", true}";
@@ -53,13 +54,13 @@ String WSParserAttribute::generate(bool initialize) const
     return str.str();
 }
 
-WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement, const String& name,
+WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name,
                                          const String& typeName)
-    : m_name(name.empty() ? (String) complexTypeElement->getAttribute("name") : name),
-      m_typeName(typeName.empty() ? (String) complexTypeElement->getAttribute("type") : typeName),
-      m_element(complexTypeElement)
+    : m_name(name.empty() ? complexTypeElement->attributes().get("name") : name)
+    , m_typeName(typeName.empty() ? complexTypeElement->attributes().get("type") : typeName)
+    , m_element(complexTypeElement)
 {
-    const xml::Element* simpleTypeElement = nullptr;
+    xdoc::SNode simpleTypeElement = nullptr;
     if (!m_typeName.empty())
     {
         simpleTypeElement = findSimpleType(m_typeName);
@@ -71,18 +72,18 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
 
     if (simpleTypeElement)
     {
-        const auto* restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
+        const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
         if (restrictionElement != nullptr)
         {
-            m_typeName = (String) restrictionElement->getAttribute("base");
-            m_restriction = make_shared<WSRestriction>(m_typeName, (xml::Element*) restrictionElement->parent());
+            m_typeName = restrictionElement->attributes().get("base");
+            m_restriction = make_shared<WSRestriction>(m_typeName, restrictionElement->parent());
         }
     }
 
-    if (const xml::Node* documentationElement = complexTypeElement->findFirst("xsd:documentation");
+    if (const auto& documentationElement = complexTypeElement->findFirst("xsd:documentation");
         documentationElement != nullptr)
     {
-        m_documentation = documentationElement->text().trim();
+        m_documentation = documentationElement->getText().trim();
     }
 
     if (m_typeName.empty())
@@ -92,13 +93,13 @@ WSParserComplexType::WSParserComplexType(const xml::Element* complexTypeElement,
 
     String maxOccurs;
     String minOccurs;
-    if (complexTypeElement->hasAttribute("maxOccurs"))
+    if (complexTypeElement->attributes().have("maxOccurs"))
     {
-        maxOccurs = (String) complexTypeElement->getAttribute("maxOccurs");
+        maxOccurs = complexTypeElement->attributes().get("maxOccurs");
     }
-    if (complexTypeElement->hasAttribute("minOccurs"))
+    if (complexTypeElement->attributes().have("minOccurs"))
     {
-        minOccurs = (String) complexTypeElement->getAttribute("minOccurs");
+        minOccurs = complexTypeElement->attributes().get("minOccurs");
     }
 
     m_multiplicity = WSMultiplicity::REQUIRED;
@@ -134,18 +135,13 @@ String WSParserComplexType::className() const
     return "C" + m_typeName.substr(pos + 1);
 }
 
-void WSParserComplexType::parseSequence(const xml::Element* sequence)
+void WSParserComplexType::parseSequence(const xdoc::SNode& sequence)
 {
-    for (auto* node: *sequence)
+    for (const auto& node: sequence->nodes())
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
+        if (node->name() == "xsd:element")
         {
-            throw Exception("The node " + node->name() + " is not an XML element");
-        }
-        auto* element = dynamic_cast<xml::Element*>(node);
-        if (element->name() == "xsd:element")
-        {
-            m_sequence.push_back(make_shared<WSParserComplexType>(element));
+            m_sequence.push_back(make_shared<WSParserComplexType>(node));
         }
     }
 }
@@ -157,23 +153,17 @@ void WSParserComplexType::parse()
     {
         return;
     }
-    for (auto* node: *m_element)
+
+    for (const auto& node: m_element->nodes())
     {
-        if (node->type() != xml::Node::Type::DOM_ELEMENT)
+        if (node->name() == "xsd:attribute")
         {
-            throw Exception("The node " + node->name() + " is not an XML element");
+            auto attrName = node->attributes().get("name");
+            m_attributes[attrName] = make_shared<WSParserAttribute>(attrName, node->attributes().get("type"));
         }
-        const auto* element = dynamic_cast<xml::Element*>(node);
-        if (element->name() == "xsd:attribute")
+        else if (node->name() == "xsd:sequence")
         {
-            auto attrName = (String) element->getAttribute("name");
-            m_attributes[attrName] = new WSParserAttribute(attrName, (String) element->getAttribute("type"));
-            continue;
-        }
-        if (element->name() == "xsd:sequence")
-        {
-            parseSequence(element);
-            continue;
+            parseSequence(node);
         }
     }
 }
@@ -200,23 +190,32 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     }
 
     includeFiles.sort();
-    classDeclaration << includeFiles.join("\n") << endl << endl;
+    classDeclaration << includeFiles.join("\n") << endl
+                     << endl;
 }
 
 WSParserComplexType::Initializer WSParserComplexType::makeInitializer() const
 {
     Initializer initializer;
-    if (!m_sequence.empty())
+
+    for (const auto& complexType: m_sequence)
     {
-        for (const auto& complexType: m_sequence)
-        {
-            initializer.copyCtor.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
-            initializer.moveCtor.push_back(
-                "m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
-            initializer.copyAssign.push_back("m_" + complexType->name() + " = other.m_" + complexType->name());
-            initializer.moveAssign.push_back(
-                "m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
-        }
+        initializer.copyCtor.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
+        initializer.moveCtor.push_back(
+            "m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
+        initializer.copyAssign.push_back("m_" + complexType->name() + " = other.m_" + complexType->name());
+        initializer.moveAssign.push_back(
+            "m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
+    }
+
+    for (const auto& [name, attribute]: m_attributes)
+    {
+        initializer.copyCtor.push_back("m_" + name + "(other.m_" + name + ")");
+        initializer.moveCtor.push_back(
+            "m_" + name + "(std::move(other.m_" + name + "))");
+        initializer.copyAssign.push_back("m_" + name + " = other.m_" + name);
+        initializer.moveAssign.push_back(
+            "m_" + name + " = std::move(other.m_" + name + ")");
     }
 
     return initializer;
@@ -238,7 +237,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     String tagName = makeTagName(className);
 
-    classDeclaration << "namespace " << serviceNamespace << " {" << endl << endl;
+    classDeclaration << "namespace " << serviceNamespace << " {" << endl
+                     << endl;
 
     classDeclaration << "/**" << endl;
     classDeclaration << " * WSDL complex type class " << className << "." << endl;
@@ -248,12 +248,18 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "class " << className << " : public sptk::WSComplexType" << endl;
     classDeclaration << "{" << endl;
 
-    if (!m_attributes.empty() || !m_sequence.empty())
-    {
-        classDeclaration << "public:" << endl << endl;
-    }
+    classDeclaration << "public:" << endl
+                     << endl;
+    classDeclaration << "    /**" << endl;
+    classDeclaration << "     * ID of the class" << endl;
+    classDeclaration << "     */" << endl;
+    classDeclaration << "    static sptk::String classId()" << endl;
+    classDeclaration << "    {" << endl;
+    classDeclaration << "        return \"" << className.substr(1) << "\";" << endl;
+    classDeclaration << "    }" << endl
+                     << endl;
 
-    for (const auto&[name, value]: m_attributes)
+    for (const auto& [name, value]: m_attributes)
     {
         attributeNames.push_back(name);
     }
@@ -300,36 +306,42 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "    * @param optional           Is element optional flag" << endl;
     classDeclaration << "    */" << endl;
     classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName
-                     << "\", bool optional=false) noexcept;" << endl << endl;
+                     << "\", bool optional=false);" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy constructor" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(const " << className << "& other);" << endl << endl;
+    classDeclaration << "   " << className << "(const " << className << "& other);" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Move constructor" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "(" << className << "&& other) noexcept;" << endl << endl;
+    classDeclaration << "   " << className << "(" << className << "&& other) noexcept;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Destructor" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   ~" << className << "() override = default;" << endl << endl;
+    classDeclaration << "   ~" << className << "() override = default;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Copy assignment" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (const " << className << "& other);" << endl << endl;
+    classDeclaration << "   " << className << "& operator = (const " << className << "& other) = default;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Move assignment" << endl;
     classDeclaration << "    * @param other              Other object" << endl;
     classDeclaration << "    */" << endl;
-    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept;" << endl << endl;
+    classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept = default;" << endl
+                     << endl;
 
     classDeclaration << "   /**" << endl;
     classDeclaration << "    * Get complex type field names." << endl;
@@ -340,7 +352,8 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     classDeclaration << endl;
 
-    classDeclaration << "private:" << endl << endl;
+    classDeclaration << "private:" << endl
+                     << endl;
     classDeclaration << "   /**" << endl
                      << "    * Check restrictions" << endl
                      << "    * Throws an exception if any restriction is violated." << endl
@@ -390,7 +403,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     if (!m_attributes.empty())
     {
         classDeclaration << "   // Attributes" << endl;
-        for (const auto&[name, attr]: m_attributes)
+        for (const auto& [name, attr]: m_attributes)
         {
             classDeclaration << "   " << attr->generate(true) << ";" << endl;
             initializer.copyCtor.push_back("m_" + attr->name() + "(other.m_" + attr->name() + ")");
@@ -407,8 +420,9 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
     {
         classDeclaration << endl;
         classDeclaration << "   /**" << endl;
-        Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
-        for (const String& row: rows)
+
+        for (Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
+             const String& row: rows)
         {
             classDeclaration << "    * " << trim(row) << endl;
         }
@@ -434,7 +448,6 @@ set<String> WSParserComplexType::getUsedClasses() const
 void WSParserComplexType::printImplementationIncludes(ostream& classImplementation, const String& className)
 {
     classImplementation << "#include \"" << className << ".h\"" << endl;
-    classImplementation << "#include <sptk5/json/JsonArrayData.h>" << endl << endl;
     classImplementation << "using namespace std;" << endl;
     classImplementation << "using namespace sptk;" << endl;
 }
@@ -473,7 +486,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
     if (!requiredElements.empty())
     {
         checks << "    // Check 'required' restrictions" << endl;
-        for (const auto& requiredElement : requiredElements)
+        for (const auto& requiredElement: requiredElements)
         {
             checks << "    m_" << requiredElement << ".throwIfNull(\"" << wsClassName(m_name) << "." << requiredElement
                    << "\");" << endl;
@@ -488,8 +501,16 @@ void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImp
                         << "{" << endl;
     stringstream checks;
     printImplementationRestrictions(classImplementation, checks);
-    classImplementation << checks.str();
-    classImplementation << "}" << endl << endl;
+    if (checks.str().empty())
+    {
+        classImplementation << "    // There are no checks for restrictions" << endl;
+    }
+    else
+    {
+        classImplementation << checks.str();
+    }
+    classImplementation << "}" << endl
+                        << endl;
 }
 
 String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
@@ -526,24 +547,6 @@ String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
     return restrictionCheck;
 }
 
-String WSParserComplexType::jsonAttributeOutputMethod(const String& wsTypeName)
-{
-    String attributeOutputMethod = ".asString()";
-    if (wsTypeName == "xsd:boolean")
-    {
-        attributeOutputMethod = ".asBool()";
-    }
-    else if (wsTypeName == "xsd:double" || wsTypeName == "xsd:float")
-    {
-        attributeOutputMethod = ".asFloat()";
-    }
-    else if (wsTypeName == "xsd:int")
-    {
-        attributeOutputMethod = ".asInt64()";
-    }
-    return attributeOutputMethod;
-}
-
 void WSParserComplexType::generateImplementation(std::ostream& classImplementation, const Strings& fieldNames,
                                                  const Strings& elementNames,
                                                  const Strings& attributeNames, const String& serviceNamespace) const
@@ -552,7 +555,8 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     printImplementationIncludes(classImplementation, className);
 
-    classImplementation << "using namespace " << serviceNamespace << ";" << endl << endl;
+    classImplementation << "using namespace " << serviceNamespace << ";" << endl
+                        << endl;
 
     classImplementation << "const sptk::Strings& " << className << "::fieldNames(WSFieldIndex::Group group)" << endl;
     classImplementation << "{" << endl;
@@ -560,17 +564,19 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "    static const Strings _elementNames { \"" << elementNames.join("\", \"") << "\" };"
                         << endl;
     classImplementation << "    static const Strings _attributeNames { \"" << attributeNames.join("\", \"") << "\" };"
-                        << endl << endl;
+                        << endl
+                        << endl;
     classImplementation << "    switch (group) {" << endl;
     classImplementation << "        case WSFieldIndex::Group::ELEMENTS: return _elementNames;" << endl;
     classImplementation << "        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;" << endl;
     classImplementation << "        default: break;" << endl;
-    classImplementation << "    }" << endl << endl;
+    classImplementation << "    }" << endl
+                        << endl;
     classImplementation << "    return _fieldNames;" << endl;
-    classImplementation << "}" << endl << endl;
+    classImplementation << "}" << endl
+                        << endl;
 
     printImplementationConstructors(classImplementation, className, elementNames, attributeNames);
-    printImplementationAssignments(classImplementation, className);
 
     printImplementationCheckRestrictions(classImplementation, className);
 
@@ -584,41 +590,27 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
     auto tagName = makeTagName(className);
     auto initializer = makeInitializer();
 
-    classImplementation << className << "::" << className << "(const char* elementName, bool optional) noexcept" << endl
+    classImplementation << className << "::" << className << "(const char* elementName, bool optional)" << endl
                         << ": " << initializer.ctor.join(",\n  ") << endl
                         << "{" << endl;
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);
-    classImplementation << "}" << endl << endl;
+    classImplementation << "}" << endl
+                        << endl;
 
     classImplementation << className << "::" << className << "(const " << className << "& other)" << endl
                         << ": " << initializer.copyCtor.join(",\n  ") << endl
                         << "{" << endl;
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);
-    classImplementation << "}" << endl << endl;
+    classImplementation << "}" << endl
+                        << endl;
 
-    classImplementation << className << "::" << "" << className << "(" << className << "&& other) noexcept" << endl
+    classImplementation << className << "::"
+                        << "" << className << "(" << className << "&& other) noexcept" << endl
                         << ": " << initializer.moveCtor.join(",\n  ") << endl
                         << "{" << endl;
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);
-    classImplementation << "}" << endl << endl;
-}
-
-void WSParserComplexType::printImplementationAssignments(ostream& classImplementation, const String& className) const
-{
-    auto initializer = makeInitializer();
-
-    classImplementation << className << "& " << className << "::operator = (const " << className << "& other)" << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    " << initializer.copyAssign.join(";\n    ") << ";" << endl;
-    classImplementation << "    return *this;" << endl;
-    classImplementation << "}" << endl << endl;
-
-    classImplementation << className << "& " << className << "::operator = (" << className << "&& other) noexcept"
+    classImplementation << "}" << endl
                         << endl;
-    classImplementation << "{" << endl;
-    classImplementation << "    " << initializer.moveAssign.join(";\n    ") << ";" << endl;
-    classImplementation << "    return *this;" << endl;
-    classImplementation << "}" << endl << endl;
 }
 
 void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImplementation,
@@ -637,7 +629,7 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
     generateImplementation(classImplementation, fieldNames, elementNames, attributeNames, serviceNamespace);
 }
 
-const xml::Element* WSParserComplexType::findSimpleType(const String& typeName)
+xdoc::SNode WSParserComplexType::findSimpleType(const String& typeName)
 {
     auto itor = SimpleTypeElements.find(typeName);
     if (itor == SimpleTypeElements.end())
@@ -656,45 +648,7 @@ void WSParserComplexType::ImplementationParts::print(ostream& output) const
     output << body.str();
     if (!checks.str().empty())
     {
-        output << endl << checks.str();
-    }
-}
-
-void WSParserComplexType::ImplementationParts::printImplementationLoadArray(const SWSParserComplexType& complexType)
-{
-    body << "            " << complexType->className() << " item(\"" << complexType->name() << "\", false);" << endl;
-    body << "            item.load(element);" << endl;
-    body << "            m_" << complexType->name() << ".push_back(move(item));" << endl;
-}
-
-sptk::String WSParserComplexType::ImplementationParts::appendRestrictionIfDefined(
-    const SWSParserComplexType& complexType)
-{
-    String restrictionName;
-    if (complexType->m_restriction != nullptr)
-    {
-        restrictionName = "restriction_" + to_string(restrictionNumber);
-        auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
-        if (!restrictionCtor.empty())
-        {
-            ++restrictionNumber;
-            declarations << "    static const " << restrictionCtor << ";" << endl;
-        }
-        else
-        {
-            restrictionName = "";
-        }
-    }
-    return restrictionName;
-}
-
-void WSParserComplexType::ImplementationParts::printImplementationLoadField(Strings& requiredElements,
-                                                                            const SWSParserComplexType& complexType)
-{
-    body << "            m_" << complexType->name() << ".load(element);" << endl;
-    body << "            continue;" << endl;
-    if (((int) complexType->multiplicity() & (int) WSMultiplicity::REQUIRED) != 0)
-    {
-        requiredElements.push_back(complexType->name());
+        output << endl
+               << checks.str();
     }
 }

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,12 +27,13 @@
 #pragma once
 
 #include <sptk5/sptk.h>
-#include <sptk5/String.h>
-#include <sptk5/threads/Locks.h>
-#include <sptk5/net/SSLKeys.h>
-#include <openssl/ssl.h>
-#include <mutex>
+
 #include <memory>
+#include <mutex>
+#include <openssl/ssl.h>
+#include <sptk5/String.h>
+#include <sptk5/net/SSLKeys.h>
+#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -46,14 +47,14 @@ namespace sptk {
  */
 class SSLContext : public SharedMutex
 {
-    std::shared_ptr<SSL_CTX>    m_ctx;                          ///< SSL connection context
-    String                      m_password;                     ///< Password for auto-answer in callback function
-    static int                  s_server_session_id_context;
+    std::shared_ptr<SSL_CTX> m_ctx; ///< SSL connection context
+    String m_password;              ///< Password for auto-answer in callback function
+    static int s_server_session_id_context;
 
     /**
      * Password auto-reply callback function
      */
-    static int passwordReplyCallback(char *replyBuffer, int replySize, int rwflag, void *userdata);
+    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
 
     /**
      * Throw SSL error
@@ -62,7 +63,6 @@ class SSLContext : public SharedMutex
     [[noreturn]] static void throwError(const String& humanDescription);
 
 public:
-
     /**
      * Constructor
 	 * @param cipherList		Cipher list. Use "ALL" if not known.
@@ -91,4 +91,4 @@ using SharedSSLContext = std::shared_ptr<SSLContext>;
 /**
  * @}
  */
-}
+} // namespace sptk

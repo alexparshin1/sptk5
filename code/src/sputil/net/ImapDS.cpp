@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -37,9 +37,10 @@ bool ImapDS::open()
     // Connect to the server
     m_imap.cmd_login(m_user, m_password);
 
-    // Select the mail box
-    int32_t total_messages;
-    int32_t first_message = 1;
+    // Select the mailbox
+    int32_t total_messages {0};
+    int32_t first_message {1};
+
     m_imap.cmd_select(m_folder, total_messages);
 
     if (m_msgid != 0)
@@ -47,6 +48,7 @@ bool ImapDS::open()
         first_message = m_msgid;
         total_messages = m_msgid;
     }
+
     if (total_messages != 0)
     {
         if (m_callback != nullptr)
@@ -62,14 +64,16 @@ bool ImapDS::open()
                 m_imap.cmd_fetch_message((int32_t) msg_id, df);
             }
             else
-            { m_imap.cmd_fetch_headers((int32_t) msg_id, df); }
+            {
+                m_imap.cmd_fetch_headers((int32_t) msg_id, df);
+            }
 
             auto fld = make_shared<Field>("msg_id");
             fld->view().width = 0;
             fld->setInteger((int32_t) msg_id);
             df.push_back(fld);
 
-            push_back(move(df));
+            push_back(std::move(df));
 
             if (m_callback != nullptr)
             {
@@ -83,9 +87,10 @@ bool ImapDS::open()
     }
     else
     {
+        constexpr int allDone = 100;
         if (m_callback != nullptr)
         {
-            m_callback(100, 100);
+            m_callback(allDone, allDone);
         }
     }
 

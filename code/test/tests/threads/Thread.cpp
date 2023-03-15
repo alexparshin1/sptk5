@@ -1,0 +1,99 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include <gtest/gtest.h>
+#include <sptk5/cutils>
+#include <sptk5/threads/ThreadManager.h>
+
+using namespace std;
+using namespace sptk;
+
+class ThreadTestThread
+    : public Thread
+{
+    atomic_int m_counter {0};
+    int m_maxCounter;
+
+public:
+    explicit ThreadTestThread(const String& threadName, int maxCounter)
+        : Thread(threadName)
+        , m_maxCounter(maxCounter)
+    {
+    }
+
+    void threadFunction() override
+    {
+        constexpr chrono::milliseconds timeout(5);
+        m_counter = 0;
+        while (!terminated())
+        {
+            ++m_counter;
+            if (m_counter == m_maxCounter)
+            {
+                break;
+            }
+            sleep_for(timeout);
+        }
+    }
+
+    int counter() const
+    {
+        return m_counter;
+    }
+};
+
+// Test thread start and join
+TEST(SPTK_Thread, run)
+{
+    constexpr int testCounter {5};
+    constexpr chrono::milliseconds interval(60);
+    ThreadTestThread testThread("Test Thread", testCounter);
+    testThread.run();
+    this_thread::sleep_for(interval);
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(testCounter, testThread.counter());
+}
+
+// Test thread re-start after join
+TEST(SPTK_Thread, runAgain) /* NOLINT */
+{
+    constexpr int testCounter {5};
+    constexpr chrono::milliseconds sleepInterval {60};
+    ThreadTestThread testThread("Test Thread", testCounter);
+
+    testThread.run();
+    this_thread::sleep_for(chrono::milliseconds(sleepInterval));
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(testCounter, testThread.counter());
+
+    testThread.run();
+    this_thread::sleep_for(chrono::milliseconds(60));
+    testThread.terminate();
+    testThread.join();
+    EXPECT_EQ(5, testThread.counter());
+}

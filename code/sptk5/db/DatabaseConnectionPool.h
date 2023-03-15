@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,10 +26,10 @@
 
 #pragma once
 
-#include <sptk5/db/AutoDatabaseConnection.h>
-#include <sptk5/db/PoolDatabaseConnection.h>
-#include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/CaseInsensitiveCompare.h>
+#include <sptk5/db/AutoDatabaseConnection.h>
+#include <sptk5/db/DatabaseConnectionString.h>
+#include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * Create driver instance function type
  */
-using CreateDriverInstance = PoolDatabaseConnection*(const char*);
+using CreateDriverInstance = PoolDatabaseConnection*(const char* connectString, size_t connectTimeoutSeconds);
 
 /**
  * Destroy driver instance function type
@@ -67,8 +67,7 @@ using DriverHandle = uint8_t*;
 /**
  * Information about loaded database driver
  */
-struct SP_EXPORT DatabaseDriver
-{
+struct SP_EXPORT DatabaseDriver {
     /**
      * Driver SO/DLL handle after load
      */
@@ -83,7 +82,6 @@ struct SP_EXPORT DatabaseDriver
      * Function that destroys driver instances
      */
     DestroyDriverInstance* m_destroyConnection;
-
 };
 
 /**
@@ -93,7 +91,8 @@ struct SP_EXPORT DatabaseDriver
  * Already loaded drivers are cached.
  */
 class SP_EXPORT DatabaseConnectionPool
-    : public DatabaseConnectionString, public std::mutex
+    : public DatabaseConnectionString
+    , public std::mutex
 {
     friend class AutoDatabaseConnection;
 
@@ -106,12 +105,16 @@ public:
      * @param connectionString  Database connection string
      * @param maxConnections    Maximum number of connections in the pool
      */
-    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100);
+    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100, std::chrono::seconds connectionTimeout = std::chrono::seconds(60));
 
     [[nodiscard]] DatabaseConnection getConnection();
 
-protected:
+    std::chrono::seconds connectionTimeout() const
+    {
+        return m_connectionTimeout;
+    }
 
+protected:
     /**
      * Loads database driver
      *
@@ -129,13 +132,6 @@ protected:
      * @param connection        Database that is no longer in use and may be returned to the pool
      */
     void releaseConnection(const SPoolDatabaseConnection& connection);
-
-    /**
-     * Destroys connection
-     * @param connection DatabaseConnection*, destroys the driver instance
-     * @param unlink            Should always be true for any external use
-     */
-    void destroyConnection(SPoolDatabaseConnection& connection) const;
 
 private:
     /**
@@ -157,11 +153,12 @@ private:
      * Maximum number of connections in the pool
      */
     size_t m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;          ///< Available connections
-    SynchronizedList<SPoolDatabaseConnection> m_connections;   ///< All connections
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;       ///< Available connections
+    SynchronizedList<SPoolDatabaseConnection> m_connections; ///< All connections
+    std::chrono::seconds m_connectionTimeout;                ///< Connection timeout
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk

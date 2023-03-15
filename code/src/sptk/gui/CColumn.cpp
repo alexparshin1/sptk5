@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <sptk5/Printer.h>
 #include <sptk5/gui/CColumn.h>
 
@@ -32,7 +31,9 @@ using namespace std;
 using namespace sptk;
 
 CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool cvisible)
-    : m_name(cname), m_type(type), m_visible(cvisible)
+    : m_name(cname)
+    , m_type(type)
+    , m_visible(cvisible)
 {
     if (cwidth < 0)
     {
@@ -46,24 +47,24 @@ CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool
     }
 }
 
-void CColumn::load(const xml::Node& node)
+void CColumn::load(const xdoc::SNode& node)
 {
-    m_name = (String) node.getAttribute("caption");
-    m_type = (VariantDataType) (int) node.getAttribute("type");
-    m_width = (int) node.getAttribute("width");
-    m_visible = (bool) node.getAttribute("visible");
-    m_autoWidth = (bool) node.getAttribute("auto_width");
+    m_name = node->attributes().get("caption");
+    m_type = (VariantDataType) node->attributes().get("type").toInt();
+    m_width = node->attributes().get("width").toInt();
+    m_visible = node->attributes().get("visible") == "true";
+    m_autoWidth = node->attributes().get("auto_width") == "true";
 }
 
-void CColumn::save(xml::Node& node) const
+void CColumn::save(const xdoc::SNode& node) const
 {
-    node.clear();
-    node.name("column");
-    node.setAttribute("caption", m_name);
-    node.setAttribute("type", (int) m_type);
-    node.setAttribute("width", (int) m_width);
-    node.setAttribute("visible", m_visible);
-    node.setAttribute("auto_width", m_autoWidth);
+    node->clear();
+    node->name("column");
+    node->attributes().set("caption", m_name);
+    node->attributes().set("type", to_string((int) m_type));
+    node->attributes().set("width", to_string(m_width));
+    node->attributes().set("visible", m_visible ? "true" : "false");
+    node->attributes().set("auto_width", m_autoWidth ? "true" : "false");
 }
 
 int CColumnList::indexOf(const char* colname) const
@@ -80,17 +81,14 @@ int CColumnList::indexOf(const char* colname) const
     return -1;
 }
 
-void CColumnList::load(const xml::Node& node)
+void CColumnList::load(const xdoc::SNode& node)
 {
-    auto itor = node.begin();
-    auto iend = node.end();
-    resize(node.size());
-    for (; itor != iend; ++itor)
+    resize(node->nodes().size());
+    for (const auto& columnNode: node->nodes())
     {
         try
         {
-            xml::Node& columnNode = *(*itor);
-            unsigned columnIndex = (int) columnNode.getAttribute("index");
+            unsigned columnIndex = columnNode->attributes().get("index").toInt();
             if (columnIndex >= size())
             {
                 continue;
@@ -100,28 +98,28 @@ void CColumnList::load(const xml::Node& node)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }
 
-void CColumnList::save(xml::Node& node) const
+void CColumnList::save(const xdoc::SNode& node) const
 {
-    node.clear();
-    node.name("columns");
+    node->clear();
+    node->name("columns");
     size_t counter = size();
     for (size_t i = 0; i < counter; i++)
     {
         try
         {
             const CColumn& column = (*this)[i];
-            xml::Node& columnNode = *(new xml::Element(node, "column"));
+            const auto& columnNode = node->pushNode("column");
             column.save(columnNode);
-            columnNode.setAttribute("index", (int) i);
+            columnNode->attributes().set("index", to_string(i));
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 }

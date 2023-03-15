@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,14 +28,15 @@
 
 #ifdef WIN32
 #include <winsock2.h>
+
 #include <windows.h>
 #endif
 
 #include <sptk5/DataSource.h>
 
+#include <sptk5/FieldList.h>
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/FieldList.h>
 #include <sptk5/threads/Locks.h>
 
 namespace sptk {
@@ -138,7 +139,6 @@ public:
     }
 
 protected:
-
     /**
      * Set database (internal)
      */
@@ -186,16 +186,6 @@ protected:
      * @param releaseStatement  True if we need to release the query's ODBC statement
      */
     void closeQuery(bool releaseStatement = false);
-
-    /**
-     * Prepares query for the fast execution
-     */
-    virtual void prepare();
-
-    /**
-     * Unprepares query releasing previously prepared statement
-     */
-    virtual void unprepare();
 
     /**
      * Optional diagnostic messages populated after exec() or open()
@@ -252,7 +242,6 @@ class SP_EXPORT Query
     friend class PoolDatabaseConnectionQueryMethods;
 
 public:
-
     /**
      * Default constructor
      */
@@ -329,10 +318,9 @@ public:
      *
      * Currently is NOT implemented.
      */
-    size_t recordCount() const override
+    [[noreturn]] size_t recordCount() const override
     {
         notImplemented("recordCount");
-        return 0;
     }
 
     /**
@@ -484,7 +472,6 @@ public:
     [[noreturn]] static void throwError(const String& method, const String& error);
 
 protected:
-
     /**
      * Executes a statement
      */
@@ -513,7 +500,6 @@ protected:
     }
 
 private:
-
     /**
      * List of query parameters
      */
@@ -535,7 +521,7 @@ private:
 
     String parseParameters(const String& _sql);
 
-    const char* readParamater(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
+    const char* readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 };
 
 using SQuery = std::shared_ptr<Query>;
@@ -544,8 +530,13 @@ using SQuery = std::shared_ptr<Query>;
  * @}
  */
 
-#define THROW_QUERY_ERROR(query, error) { std::stringstream err; err << error; throw sptk::DatabaseException(err.str(),__FILE__,__LINE__, query->sql()); }
+#define THROW_QUERY_ERROR(query, error)                                             \
+    {                                                                               \
+        std::stringstream err;                                                      \
+        err << error;                                                               \
+        throw sptk::DatabaseException(err.str(), __FILE__, __LINE__, query->sql()); \
+    }
 
 constexpr int FETCH_BUFFER_SIZE = 1024;
 
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,8 +27,8 @@
 #pragma once
 
 #include <sptk5/cnet>
-#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/net/RequestInfo.h>
+#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
@@ -39,13 +39,13 @@ namespace sptk {
 class WSProtocol
 {
 public:
-
     /// Constructor
     /// Note: the socket is not owned by this class and not discarded by destructor.
     /// @param socket           Connection socket
     /// @param headers          Connection HTTP headers
     WSProtocol(TCPSocket* socket, const HttpHeaders& headers)
-    : m_socket(socket), m_headers(headers)
+        : m_socket(socket)
+        , m_headers(headers)
     {
     }
 
@@ -60,7 +60,7 @@ public:
             m_socket->close();
     }
 
-    WSProtocol& operator = (const WSProtocol&) = delete;
+    WSProtocol& operator=(const WSProtocol&) = delete;
 
     /// Process virtual method - to be implemented in derived classes
     virtual RequestInfo process() = 0;
@@ -70,13 +70,19 @@ protected:
      * Connection socket
      * @return Connection socket
      */
-    TCPSocket& socket() { return *m_socket; }
+    TCPSocket& socket()
+    {
+        return *m_socket;
+    }
 
     /**
      * Connection HTTP headers
      * @return Connection HTTP headers
      */
-    HttpHeaders& headers() { return m_headers; }
+    HttpHeaders& headers()
+    {
+        return m_headers;
+    }
 
     /**
      * Connection HTTP headers
@@ -85,12 +91,10 @@ protected:
     String header(const sptk::String& name);
 
 private:
-
-    TCPSocket*      m_socket;   ///< Connection socket
-    HttpHeaders     m_headers;  ///< Connection HTTP headers
+    TCPSocket* m_socket;   ///< Connection socket
+    HttpHeaders m_headers; ///< Connection HTTP headers
 };
 
 /// @}
 
-}
-
+} // namespace sptk

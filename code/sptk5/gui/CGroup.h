@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -45,14 +45,15 @@ namespace sptk {
  * at the same time.
  */
 class SP_EXPORT CGroup
-    : public Fl_Group, public CLayoutManager
+    : public Fl_Group
+    , public CLayoutManager
 {
     /**
      * Draw the contents of the group clipped inside the group
      */
     bool m_drawClipped;
-public:
 
+public:
     /**
      * @returns true if contents of the group is drawn clipped inside the group
      */
@@ -65,8 +66,6 @@ public:
     void drawClipped(bool drawClipped);
 
 protected:
-
-
     /**
      * Constructor initializer
      * @param label const char *, label
@@ -74,7 +73,6 @@ protected:
     void ctor_init(const char* label);
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -93,7 +91,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CGroup(int x,int y,int w,int h,const char *label=0L);
+    CGroup(int x, int y, int w, int h, const char* label = 0L);
 #endif
 
     /**
@@ -138,9 +136,9 @@ public:
 
     /**
      * @brief Creates a widget based on the XML node information
-     * @param node xml::Node*, an XML node with widget information
+     * @param node              an XML node with widget information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
@@ -153,4 +151,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

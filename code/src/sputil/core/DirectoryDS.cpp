@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,7 +29,6 @@
 
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/filedefs.h>
-#include <sptk5/Printer.h>
 
 #ifndef FL_ALIGN_LEFT
 constexpr int FL_ALIGN_LEFT = 4;
@@ -39,16 +38,16 @@ using namespace std;
 using namespace sptk;
 using namespace filesystem;
 
-String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime) const
+String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
-    struct stat st {};
+    struct stat fileStat = {};
 
-    stat(file.path().string().c_str(), &st);
+    stat(file.path().string().c_str(), &fileStat);
 
     String ext = file.path().extension().string();
-    modificationTime = DateTime::convertCTime(st.st_mtime);
+    modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
-    bool executable = S_ISEXEC(st.st_mode);
+    bool executable = S_ISEXEC(fileStat.st_mode);
 #else
     ext = ext.toLowerCase();
     bool executable = ext == "exe" || ext == "bat";
@@ -64,7 +63,7 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
         executable = false;
         image = CSmallPixmapType::SXPM_FOLDER;
     }
-    else if (S_ISREG(st.st_mode))
+    else if (S_ISREG(fileStat.st_mode))
     {
         if (executable)
         {
@@ -84,24 +83,22 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
     {
         if (!directory && !ext.empty())
         {
-            image = imageTypeFromExtention(ext);
+            image = imageTypeFromExtension(ext);
         }
     }
 
     return modeName;
 }
 
-CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
+CSmallPixmapType DirectoryDS::imageTypeFromExtension(const String& ext)
 {
-    static const map<String, CSmallPixmapType> imageTypes
-        {
-            {"doc",  CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"docx", CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"odt",  CSmallPixmapType::SXPM_DOC_DOCUMENT},
-            {"txt",  CSmallPixmapType::SXPM_TXT_DOCUMENT},
-            {"xls",  CSmallPixmapType::SXPM_XLS_DOCUMENT},
-            {"csv",  CSmallPixmapType::SXPM_XLS_DOCUMENT}
-        };
+    static const map<String, CSmallPixmapType> imageTypes {
+        {"doc", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"docx", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"odt", CSmallPixmapType::SXPM_DOC_DOCUMENT},
+        {"txt", CSmallPixmapType::SXPM_TXT_DOCUMENT},
+        {"xls", CSmallPixmapType::SXPM_XLS_DOCUMENT},
+        {"csv", CSmallPixmapType::SXPM_XLS_DOCUMENT}};
 
     if (const auto itor = imageTypes.find(ext); itor != imageTypes.end())
     {
@@ -120,21 +117,21 @@ CSmallPixmapType DirectoryDS::imageTypeFromExtention(const String& ext)
 
 String DirectoryDS::absolutePath(const String& _path)
 {
-    path p = _path.c_str();
-    String fullPath = absolute(p).string();
+    String fullPath = absolute(_path.c_str()).string();
     return fullPath;
 }
 
-void DirectoryDS::directory(const String& d)
+void DirectoryDS::directory(const String& dirName)
 {
-    m_directory = absolutePath(d);
+    m_directory = absolutePath(dirName);
 }
 
 static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
-    return any_of(matchPatterns.begin(),
-                  matchPatterns.end(),
-                  [&fileName](const auto& matchPattern) { return matchPattern->matches(fileName); });
+    return ranges::any_of(matchPatterns,
+                          [&fileName](const auto& matchPattern) {
+                              return matchPattern->matches(fileName);
+                          });
 }
 
 bool DirectoryDS::open()
@@ -148,21 +145,26 @@ bool DirectoryDS::open()
 
     clear();
 
+    if (!std::filesystem::exists(m_directory.c_str()))
+    {
+        throw Exception("Directory doesn't exist");
+    }
+
     if ((showPolicy() & DDS_HIDE_DOT_FILES) == 0)
     {
-        for (const String& dirName: {".", ".."})
+        for (const char* dirName: {".", ".."})
         {
-            FieldList df(false);
-            df.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
-            df.push_back("Name", false) = dirName;
-            df.push_back("Size", false) = "";
-            df.push_back("Type", false) = "Directory";
-            push_back(move(df));
+            FieldList fields(false);
+            fields.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
+            fields.push_back("Name", false) = dirName;
+            fields.push_back("Size", false) = "";
+            fields.push_back("Type", false) = "Directory";
+            push_back(std::move(fields));
             ++index;
         }
     }
 
-    for (const auto& file : directory_iterator(m_directory.c_str()))
+    for (const auto& file: directory_iterator(m_directory.c_str()))
     {
 
         String fileName = file.path().filename().string();
@@ -192,7 +194,7 @@ bool DirectoryDS::open()
         }
 
         auto entry = makeFileListEntry(file, index);
-        push_back(move(entry));
+        push_back(std::move(entry));
     }
 
     first();
@@ -200,7 +202,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index) const
+FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file, size_t& index)
 {
     CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime modificationTime;
@@ -211,30 +213,30 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
         modeName += " symlink";
     }
 
-    FieldList df(false);
-    df.push_back(" ", false).setImageNdx((uint32_t) pixmapType);
-    df.push_back("Name", false) = file.path().filename().string();
+    FieldList fields(false);
+    fields.push_back(" ", false).setImageNdx((uint32_t) pixmapType);
+    fields.push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
     {
-        df.push_back("Size", false) = "";
+        fields.push_back("Size", false) = "";
     }
     else
     {
-        df.push_back("Size", false) = (int64_t) file_size(file.path());
+        fields.push_back("Size", false) = (int64_t) file_size(file.path());
     }
-    df.push_back("Type", false) = modeName;
+    fields.push_back("Type", false) = modeName;
 
-    df.push_back("Modified", false) = modificationTime;
-    df.push_back("", false) = (int32_t) index; // Fake key value
+    fields.push_back("Modified", false) = modificationTime;
+    fields.push_back("", false) = (int32_t) index; // Fake key value
     ++index;
 
     if (access(file.path().filename().string().c_str(), R_OK) != 0)
     {
-        df[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
-        df[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
+        fields[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
+        fields[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
     }
 
-    return df;
+    return fields;
 }
 
 std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
@@ -246,14 +248,14 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
     size_t pos = 0;
     while (pos < wildcard.length())
     {
-        char ch = wildcard[pos];
+        char chr = wildcard[pos];
 
         if (charClassStarted)
         {
-            switch (ch)
+            switch (chr)
             {
                 case '!':
-                    ch = '^';
+                    chr = '^';
                     break;
                 case ']':
                     charClassStarted = false;
@@ -261,32 +263,32 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 default:
                     break;
             }
-            regexpStr += ch;
+            regexpStr += chr;
             ++pos;
             continue;
         }
 
-        switch (ch)
+        switch (chr)
         {
             case '{':
                 groupStarted = true;
-                ch = '(';
+                chr = '(';
                 break;
             case ',':
                 if (groupStarted)
                 {
-                    ch = '|';
+                    chr = '|';
                 }
                 break;
             case '}':
                 if (groupStarted)
                 {
                     groupStarted = false;
-                    ch = ')';
+                    chr = ')';
                 }
                 break;
             case '\\':
-                regexpStr += ch;
+                regexpStr += chr;
                 ++pos;
                 if (pos < wildcard.length())
                 {
@@ -294,7 +296,7 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
                 }
                 break;
             case '?':
-                ch = '.';
+                chr = '.';
                 break;
             case '*':
                 regexpStr += ".";
@@ -311,99 +313,9 @@ std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& w
             default:
                 break;
         }
-        regexpStr += ch;
+        regexpStr += chr;
         ++pos;
     }
     regexpStr += "$";
     return make_shared<RegularExpression>(regexpStr);
 }
-
-#if USE_GTEST
-
-#ifdef _WIN32
-const String testTempDirectory = "C:\\gtest_temp_dir";
-#else
-const String testTempDirectory = "/tmp/gtest_temp_dir";
-#endif
-
-class TempDirectory
-{
-public:
-    explicit TempDirectory(const String& _path)
-        : m_path(shared_ptr<path>(new path(_path.c_str()),
-                                  [](path* ptr) {
-                                      remove_all(*ptr);
-                                      delete ptr;
-                                  }))
-    {
-        path dir = *m_path / "dir1";
-        try
-        {
-            create_directories(dir);
-        }
-        catch (const filesystem_error& e)
-        {
-            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl)
-            return;
-        }
-
-        Buffer buffer;
-        buffer.fill('X', 10);
-        buffer.saveToFile((*m_path / "file1").c_str());
-        buffer.saveToFile((*m_path / "file2").c_str());
-    }
-
-private:
-
-    shared_ptr<path> m_path;
-};
-
-TEST (SPTK_DirectoryDS, open)
-{
-    TempDirectory dir(testTempDirectory + "1");
-
-    DirectoryDS directoryDS(testTempDirectory + "1");
-    directoryDS.open();
-    map<String, int> files;
-    while (!directoryDS.eof())
-    {
-        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
-        directoryDS.next();
-    }
-    directoryDS.close();
-
-    EXPECT_EQ(size_t(5), files.size());
-    EXPECT_EQ(10, files["file1"]);
-}
-
-TEST (SPTK_DirectoryDS, patternToRegexp)
-{
-    auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
-    EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
-
-    regexp = DirectoryDS::wildcardToRegexp("[!a-f][c-z].doc");
-    EXPECT_STREQ("^[^a-f][c-z]\\.doc$", regexp->pattern().c_str());
-
-    regexp = DirectoryDS::wildcardToRegexp("{full,short}.*");
-    EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
-}
-
-TEST (SPTK_DirectoryDS, patterns)
-{
-    TempDirectory dir(testTempDirectory + "2");
-
-    DirectoryDS directoryDS(testTempDirectory + "2", "file1;dir*", DDS_HIDE_DOT_FILES);
-    directoryDS.open();
-    map<String, int> files;
-    while (!directoryDS.eof())
-    {
-        files[directoryDS["Name"].asString()] = directoryDS["Size"].asInteger();
-        directoryDS.next();
-    }
-    directoryDS.close();
-
-    EXPECT_EQ(size_t(2), files.size());
-    EXPECT_EQ(10, files["file1"]);
-}
-
-#endif

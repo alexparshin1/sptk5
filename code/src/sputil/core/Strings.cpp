@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,26 +24,25 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sstream>
-#include <sptk5/Strings.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/RegularExpression.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-static void splitByDelimiter(Strings& dest, const String& src, const char* delimitter)
+static void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     const auto* pos = src.c_str();
-    size_t delimitterLength = strlen(delimitter);
+    size_t delimiterLength = strlen(delimiter);
     while (true)
     {
-        const auto* end = strstr(pos, delimitter);
+        const auto* end = strstr(pos, delimiter);
         if (end != nullptr)
         {
             dest.emplace_back(pos, size_t(end - pos));
-            pos = end + delimitterLength;
+            pos = end + delimiterLength;
         }
         else
         {
@@ -56,17 +55,17 @@ static void splitByDelimiter(Strings& dest, const String& src, const char* delim
     }
 }
 
-static void splitByAnyChar(Strings& dest, const String& src, const char* delimitter)
+static void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     size_t pos = 0;
     while (pos != string::npos)
     {
-        size_t end = src.find_first_of(delimitter, pos);
+        size_t end = src.find_first_of(delimiter, pos);
         if (end != string::npos)
         {
             dest.emplace_back(src.substr(pos, end - pos));
-            pos = src.find_first_not_of(delimitter, end + 1);
+            pos = src.find_first_not_of(delimiter, end + 1);
         }
         else
         {
@@ -99,57 +98,57 @@ Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexc
     }
 }
 
-void Strings::fromString(const String& src, const char* delimitter, SplitMode mode)
+void Strings::fromString(const String& src, const char* delimiter, SplitMode mode)
 {
     clear();
     switch (mode)
     {
         case SplitMode::ANYCHAR:
-            splitByAnyChar(*this, src, delimitter);
+            splitByAnyChar(*this, src, delimiter);
             break;
         case SplitMode::REGEXP:
-            splitByRegExp(*this, src, delimitter);
+            splitByRegExp(*this, src, delimiter);
             break;
         default:
-            splitByDelimiter(*this, src, delimitter);
+            splitByDelimiter(*this, src, delimiter);
             break;
     }
 }
 
-int Strings::indexOf(const String& s) const
+int Strings::indexOf(const String& needle) const
 {
     int result = -1;
-    const_iterator itor;
-    const_reverse_iterator xtor;
+    const_iterator constIterator;
+    const_reverse_iterator reverseIterator;
 
     switch (m_sorted)
     {
         case SortOrder::DESCENDING:
-            xtor = lower_bound(rbegin(), rend(), s);
-            if (xtor != rend() && *xtor == s)
+            reverseIterator = lower_bound(rbegin(), rend(), needle);
+            if (reverseIterator != rend() && *reverseIterator == needle)
             {
-                result = (int) distance(rbegin(), xtor);
+                result = (int) distance(rbegin(), reverseIterator);
             }
             break;
         case SortOrder::ASCENDING:
-            itor = lower_bound(begin(), end(), s);
-            if (itor != end() && *itor == s)
+            constIterator = ranges::lower_bound(*this, needle);
+            if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), itor);
+                result = (int) distance(begin(), constIterator);
             }
             break;
         default:
-            itor = find(begin(), end(), s);
-            if (itor != end() && *itor == s)
+            constIterator = ranges::find(*this, needle);
+            if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), itor);
+                result = (int) distance(begin(), constIterator);
             }
             break;
     }
     return result;
 }
 
-void Strings::saveToFile(const fs::path& fileName) const
+void Strings::saveToFile(const std::filesystem::path& fileName) const
 {
     Buffer buffer;
     for (const auto& str: *this)
@@ -160,7 +159,7 @@ void Strings::saveToFile(const fs::path& fileName) const
     buffer.saveToFile(fileName);
 }
 
-void Strings::loadFromFile(const fs::path& fileName)
+void Strings::loadFromFile(const std::filesystem::path& fileName)
 {
     Buffer buffer;
     buffer.loadFromFile(fileName);
@@ -185,7 +184,7 @@ void Strings::loadFromFile(const fs::path& fileName)
     splitByDelimiter(*this, text, delimiter.c_str());
 }
 
-String Strings::join(const String& delimitter) const
+String Strings::join(const String& delimiter) const
 {
     stringstream result;
     bool first = true;
@@ -198,7 +197,7 @@ String Strings::join(const String& delimitter) const
         }
         else
         {
-            result << delimitter << str;
+            result << delimiter << str;
         }
     }
     return result.str();
@@ -208,7 +207,7 @@ Strings Strings::grep(const String& pattern) const
 {
     RegularExpression regularExpression(pattern);
     Strings output;
-    for (const String& str : *(this))
+    for (const String& str: *(this))
     {
         if (regularExpression.matches(str))
         {
@@ -230,87 +229,6 @@ static bool sortDescending(const String& first, const String& second)
 
 void Strings::sort(bool ascending)
 {
-    if (ascending)
-    {
-        ::sort(begin(), end(), sortAscending);
-        m_sorted = SortOrder::ASCENDING;
-    }
-    else
-    {
-        ::sort(begin(), end(), sortDescending);
-        m_sorted = SortOrder::DESCENDING;
-    }
+    ranges::sort(*this, ascending ? sortAscending : sortDescending);
+    m_sorted = ascending ? SortOrder::ASCENDING : SortOrder::DESCENDING;
 }
-
-#if USE_GTEST
-
-static const String testString("This is a test\ntext that contains several\nexample rows");
-static const String resultString("This is a test\rtext that contains several\rexample rows");
-
-TEST(SPTK_Strings, ctor)
-{
-    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
-    EXPECT_EQ(size_t(3), strings.size());
-    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
-
-    Strings strings2(strings);
-    EXPECT_EQ(size_t(3), strings2.size());
-    EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
-
-    strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
-    EXPECT_EQ(size_t(3), strings.size());
-    EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
-
-    Strings strings3({"1", "2", "3"});
-    EXPECT_EQ(size_t(3), strings3.size());
-    EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
-
-    Strings numbers = {{"one",   3,               1},
-                       {"two",   3,               2},
-                       {"three", strlen("three"), 3}};
-    EXPECT_EQ(size_t(3), numbers.size());
-    EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
-    EXPECT_EQ(2, numbers[1].ident());
-}
-
-TEST(SPTK_Strings, sort)
-{
-    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
-    strings.sort();
-    EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
-}
-
-TEST(SPTK_Strings, remove)
-{
-    Strings strings({"1", "2", "3"});
-    strings.remove("2");
-    EXPECT_STREQ("1,3", strings.join(",").c_str());
-}
-
-TEST(SPTK_Strings, indexOf)
-{
-    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
-    EXPECT_EQ(1, strings.indexOf("text that contains several"));
-    EXPECT_EQ(-1, strings.indexOf("text that contains"));
-
-    strings.sort();
-    EXPECT_EQ(2, strings.indexOf("text that contains several"));
-    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
-
-    strings.sort(false);
-    EXPECT_EQ(2, strings.indexOf("text that contains several"));
-    EXPECT_EQ(-1, strings.indexOf("text that Contains"));
-}
-
-TEST(SPTK_Strings, grep)
-{
-    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
-
-    Strings group1 = strings.grep("text");
-    EXPECT_EQ(size_t(1), group1.size());
-
-    Strings group2 = strings.grep("text|rows");
-    EXPECT_EQ(size_t(2), group2.size());
-}
-
-#endif

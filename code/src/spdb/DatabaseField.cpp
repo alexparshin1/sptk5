@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,6 +25,7 @@
 */
 
 #include <cstdlib>
+#include <iomanip>
 #include <sptk5/db/DatabaseField.h>
 
 using namespace std;
@@ -32,15 +33,13 @@ using namespace sptk;
 
 DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType,
                              VariantDataType dataType, int fieldLength, int fieldScale)
-    : Field(fName.c_str()),
-      m_fldType(fieldType),
-      m_fldColumn(fieldColumn),
-      m_fldSize(fieldLength),
-      m_fldScale(fieldScale)
+    : Field(fName.c_str())
+    , m_fldType(fieldType)
+    , m_fldColumn(fieldColumn)
+    , m_fldSize(fieldLength)
+    , m_fldScale(fieldScale)
 {
     displayName(fName);
-
-    m_data.getBuffer().size = 0;
 
     switch (dataType)
     {
@@ -61,26 +60,16 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
             break;
 
         case VariantDataType::VAR_STRING:
-            Variant::setString("");
-            if (fieldLength == 0)
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+            if (dataType == VariantDataType::VAR_STRING && fieldLength == 0)
             {
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
-            checkSize((size_t) fieldLength + 1);
-            view().width = fieldLength;
-            break;
-
-        case VariantDataType::VAR_TEXT:
-            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_TEXT);
-            checkSize((size_t) fieldLength + 1);
-            view().width = fieldLength;
-            break;
-
-        case VariantDataType::VAR_BUFFER:
             Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_BUFFER);
-            checkSize((size_t) fieldLength);
-            view().width = 1;
+            checkSize((size_t) fieldLength + 1);
+            view().width = dataType == VariantDataType::VAR_BUFFER ? 1 : fieldLength;
             break;
 
         case VariantDataType::VAR_DATE:
@@ -105,16 +94,17 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
 void DatabaseField::checkSize(size_t sz)
 {
-    if (sz > m_data.getBuffer().size)
-    {
-        size_t newSize = (sz / 16 + 1) * 16;
-        auto* p = new char[newSize + 1];
-        if (m_data.getBuffer().data != nullptr)
-        {
-            memcpy(p, m_data.getBuffer().data, m_data.getBuffer().size);
-            delete[] m_data.getBuffer().data;
-        }
-        m_data.getBuffer().data = p;
-        m_data.getBuffer().size = newSize;
-    }
+    m_data.get<Buffer>().checkSize(sz);
+}
+
+String DatabaseField::doubleDataToString() const
+{
+    stringstream output;
+    output << fixed << setprecision(m_fldScale) << m_data.get<double>();
+    return output.str();
+}
+
+void DatabaseField::setNull(VariantDataType vtype)
+{
+    m_data.setNull(true, vtype, false);
 }

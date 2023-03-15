@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,9 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/net/UDPSocket.h>
-#include <sptk5/threads/Thread.h>
 #include <sptk5/cutils>
+#include <sptk5/net/UDPSocket.h>
 
 using namespace std;
 using namespace sptk;
@@ -39,7 +38,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
 
 size_t UDPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
-    sockaddr_in6 addr;
+    sockaddr_in6 addr {};
     if (from == nullptr)
     {
         from = (sockaddr_in*) &addr;
@@ -73,107 +72,3 @@ size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
     buffer.resize((size_t) bytes);
     return (size_t) bytes;
 }
-
-#if USE_GTEST
-
-class UDPEchoServer
-    : public UDPSocket, public Thread
-{
-    UDPSocket socket;
-public:
-    UDPEchoServer()
-        : Thread("UDP server")
-    {
-        socket.bind(nullptr, 3000);
-    }
-
-    void getAddress(sockaddr_in& addr) const
-    {
-        return socket.host().getAddress(addr);
-    }
-
-    /**
-     * Terminate connection thread
-     */
-    void terminate() override
-    {
-        socket.close();
-    }
-
-    /**
-     * Session thread function
-     */
-    void threadFunction() override
-    {
-        Buffer data(2048);
-        while (!terminated())
-        {
-            try
-            {
-                if (socket.readyToRead(chrono::milliseconds(100)))
-                {
-                    sockaddr_in from {};
-                    size_t sz = socket.read(data.data(), 2048, &from);
-                    if (sz == 0)
-                    {
-                        return;
-                    }
-                    data.bytes(sz);
-                    socket.write((const uint8_t*) data.c_str(), sz, &from);
-                }
-            }
-            catch (const Exception& e)
-            {
-                COUT("Server: " << e.what() << endl)
-                break;
-            }
-        }
-        socket.close();
-    }
-};
-
-TEST(SPTK_UDPSocket, minimal)
-{
-    Buffer buffer(4096);
-
-    UDPEchoServer echoServer;
-    echoServer.run();
-
-    sockaddr_in serverAddr {};
-    Host serverHost("127.0.0.1:3000");
-    serverHost.getAddress(serverAddr);
-
-    Strings rows("Hello, World!\n"
-                 "This is a test of TCPServer class.\n"
-                 "Using simple echo server to verify data flow.\n"
-                 "The session is terminated when this row is received", "\n");
-
-
-    UDPSocket socket;
-
-    int rowCount = 0;
-    for (const auto& row: rows)
-    {
-        socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
-        buffer.bytes(0);
-        if (socket.readyToRead(chrono::milliseconds(100)))
-        {
-            auto bytes = socket.read(buffer.data(), 2048);
-            if (bytes > 0)
-            {
-                buffer.bytes(bytes);
-            }
-            COUT("received " << bytes << " bytes: " << buffer.c_str() << endl)
-        }
-        EXPECT_STREQ(row.c_str(), buffer.c_str());
-        ++rowCount;
-    }
-    EXPECT_EQ(4, rowCount);
-
-    echoServer.terminate();
-    echoServer.join();
-
-    socket.close();
-}
-
-#endif

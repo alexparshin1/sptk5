@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,9 +27,8 @@
 #pragma once
 
 #include <sptk5/sptk.h>
-#include <sptk5/sptk.h>
 
-#if HAVE_SQLITE3 == 1
+#ifdef HAVE_SQLITE3
 
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sqlite3.h>
@@ -51,17 +50,16 @@ class SP_EXPORT SQLite3Connection
     friend class Query;
 
 public:
-
     /**
      * @brief Constructor
      * @param connectionString  The SQLite3 connection string
      */
-    explicit SQLite3Connection(const String& connectionString = "");
+    explicit SQLite3Connection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
      * @brief Destructor
      */
-    virtual ~SQLite3Connection() = default;
+    ~SQLite3Connection() override = default;
 
     /**
      * @brief Returns driver-specific connection string
@@ -95,8 +93,12 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-protected:
+    /**
+     * @brief All active connections
+     */
+    static std::map<SQLite3Connection*, std::shared_ptr<SQLite3Connection>> s_sqlite3Connections;
 
+protected:
     /**
      * @brief Begins the transaction
      */
@@ -135,15 +137,11 @@ protected:
     void queryPrepare(Query* query) override;
 
     /**
-     * Unprepares a query if supported by database
-     */
-    void queryUnprepare(Query* query) override;
-
-    /**
      * Executes a statement
      */
     void queryExecute(Query* query) override;
-
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
+    void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     /**
      * Counts columns of the dataset (if any) returned by query
      */
@@ -173,36 +171,40 @@ protected:
     }
 
     /**
-     * @brief Converts datatype from SQLite type to SPTK VariantType
-     */
-    static void SQLITEtypeToCType(int sqliteType, VariantDataType& dataType);
-
-    /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The SQLite3 connection string
      */
     void _openDatabase(const String& connectionString = "") override;
 
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            If not nullptr, store errors here instead of exceptions
+     */
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
+
 private:
-
     using SQLHSTMT = sqlite3_stmt*;
-    using SQLHDBC = sqlite3*;
 
-    mutable std::mutex m_mutex;              ///< Mutex that protects access to data members
-    std::shared_ptr<sqlite3> m_connect;      ///< Database connection
+    mutable std::mutex m_mutex;         ///< Mutex that protects access to data members
+    std::shared_ptr<sqlite3> m_connect; ///< Database connection
     void bindParameter(const Query* query, uint32_t paramNumber) const;
 
     void closeAndClean();
+    int transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber) const;
 };
 
 /**
  * @}
  */
-}
+} // namespace sptk
 
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* sqlite3_create_connection(const char* connectionString);
-SP_DRIVER_EXPORT void sqlite3_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3_destroy_connection(void* connection);
 }

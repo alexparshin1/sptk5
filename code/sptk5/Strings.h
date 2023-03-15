@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -54,8 +54,7 @@ public:
     /**
      * Sort order enumeration
      */
-    enum class SortOrder
-        : uint8_t
+    enum class SortOrder : uint8_t
     {
         UNSORTED,
         ASCENDING,
@@ -65,8 +64,7 @@ public:
     /**
      * String split mode
      */
-    enum class SplitMode
-        : uint8_t
+    enum class SplitMode : uint8_t
     {
         /**
          * Split by the whole delimiter
@@ -91,12 +89,22 @@ public:
     Strings() = default;
 
     /**
+     * Copy constructor
+     */
+    Strings(const Strings& other) = default;
+
+    /**
+     * Move constructor
+     */
+    Strings(Strings&& other) = default;
+
+    /**
      * Initializer list constructor
      * @param list              Initializer list
      */
     Strings(std::initializer_list<String> list)
     {
-        std::copy(list.begin(), list.end(), back_inserter(*this));
+        std::ranges::copy(list, back_inserter(*this));
     }
 
     /**
@@ -106,6 +114,11 @@ public:
      * @param mode              Delimiter string usage
      */
     Strings(const String& src, const char* delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
+
+    /**
+     * Destructor
+     */
+    virtual ~Strings() = default;
 
     /**
      * Assigns strings from a string with elements separated by a delimiter string
@@ -119,38 +132,38 @@ public:
      * Returns an index of the string in strings, or -1 if not found.
      * If strings were sorted prior to calling this method, and not modified
      * since that, then binary search is used.
-     * @param s                 String to find
+     * @param needle            String to find
      * @returns                 String index, or -1
      */
-    virtual int indexOf(const String& s) const;
+    [[nodiscard]] virtual int indexOf(const String& needle) const;
 
     /**
      * Saves strings to file. String ids are discarded.
      * @param fileName          The name of the file
      */
-    void saveToFile(const fs::path& fileName) const;
+    void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
      * Loads strings from file. String ids are not loaded.
      * @param fileName          The name of the file
      */
-    void loadFromFile(const fs::path& fileName);
+    void loadFromFile(const std::filesystem::path& fileName);
 
     /**
      * Returns user data as integer
      */
-    int64_t argument() const
+    [[nodiscard]] int64_t argument() const
     {
         return (int) m_userData;
     }
 
     /**
      * Sets user data as integer
-     * @param d                 New value for user data
+     * @param arg                 New value for user data
      */
-    void argument(int64_t d)
+    void argument(int64_t arg)
     {
-        m_userData = d;
+        m_userData = arg;
     }
 
     /**
@@ -168,24 +181,27 @@ public:
      */
     iterator remove(const String& str)
     {
-        if (auto itor = std::find(begin(), end(), str); itor != end())
+        if (auto itor = std::ranges::find(*this, str); itor != end())
         {
             return StringVector::erase(itor);
         }
         return end();
     }
 
+    Strings& operator=(const Strings& other) = default;
+    Strings& operator=(Strings&& other) = default;
+
     /**
      * Returns concatenated string
      * @param delimiter         Delimiter
      */
-    String join(const String& delimiter) const;
+    [[nodiscard]] String join(const String& delimiter) const;
 
     /**
      * Returns strings matching regex pattern
      * @param pattern           Regex pattern
      */
-    Strings grep(const String& pattern) const;
+    [[nodiscard]] Strings grep(const String& pattern) const;
 
     /**
      * Sort strings inside this object
@@ -237,7 +253,7 @@ public:
      * Emplace back a string
      */
     template<typename... Args>
-    void emplace_back(Args&& ... args)
+    void emplace_back(Args&&... args)
     {
         m_sorted = SortOrder::UNSORTED;
         StringVector::emplace_back(args...);
@@ -265,7 +281,6 @@ public:
     }
 
 private:
-
     using StringVector = std::vector<String>;
 
     /**
@@ -282,4 +297,4 @@ private:
 /**
  * @}
  */
-}
+} // namespace sptk

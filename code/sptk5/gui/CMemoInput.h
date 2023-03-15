@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,15 +28,15 @@
 
 #include <sptk5/sptk.h>
 
-#include <FL/Fl_Group.H>
 #include <FL/Fl_Box.H>
-#include <FL/Fl_Input_.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Group.H>
+#include <FL/Fl_Input_.H>
 #include <sptk5/DateTime.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
-#include <sptk5/gui/CInput.h>
 #include <sptk5/gui/CControl.h>
+#include <sptk5/gui/CInput.h>
 
 #include <sptk5/gui/CBox.h>
 
@@ -71,7 +71,6 @@ class SP_EXPORT CMemoInput
     void ctor_init();
 
 public:
-
     /**
      * Constructor in SPTK style
      * @param label const char *, label
@@ -89,7 +88,7 @@ public:
      * @param h int, height
      * @param label, const char * label
      */
-    CMemoInput(int x,int y,int w,int h,const char *label=0);
+    CMemoInput(int x, int y, int w, int h, const char* label = 0);
 #endif
 
     /**
@@ -155,9 +154,9 @@ public:
     /**
      * Creates a widget based on the XML node information
      */
-    static CLayoutClient* creator(xml::Node* node);
+    static CLayoutClient* creator(const xdoc::SNode& node);
 };
 /**
  * @}
  */
-}
+} // namespace sptk

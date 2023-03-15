@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/cxml>
 #include <sptk5/gui/CPngImage.h>
 #include <sptk5/gui/CThemeImageState.h>
+#include <sptk5/xdoc/Document.h>
 
 namespace sptk {
 
@@ -42,96 +42,104 @@ namespace sptk {
  *
  * The images are stored for the different states of the object
  */
-    class SP_EXPORT CThemeImageCollection
+class SP_EXPORT CThemeImageCollection
+{
+    /**
+     * List of images for different image states
+     */
+    CPngImage* m_images[MAX_IMAGE_STATES];
+
+    /**
+     * List of overlay images for different image states
+     */
+    CPngImage* m_overlayImages[MAX_IMAGE_STATES];
+
+    /**
+     * Border, for the first image
+     */
+    int m_border[4];
+
+    /**
+     * Stretch flag, for the first image
+     */
+    bool m_stretch;
+
+public:
+    /**
+     * @brief Default constructor
+     */
+    CThemeImageCollection() noexcept;
+
+    /**
+     * @brief Destructor
+     */
+    ~CThemeImageCollection()
     {
-        /**
-         * List of images for different image states
-         */
-        CPngImage* m_images[MAX_IMAGE_STATES];
+        clear();
+    }
 
-        /**
-         * List of overlay images for different image states
-         */
-        CPngImage* m_overlayImages[MAX_IMAGE_STATES];
+    /**
+     * @brief Clears the collection
+     */
+    void clear();
 
-        /**
-         * Border, for the first image
-         */
-        int m_border[4];
+    /**
+     * @brief Loads the collection from SPTK theme
+     */
+    void loadFromSptkTheme(const Strings& objectNames);
 
-        /**
-         * Stretch flag, for the first image
-         */
-        bool m_stretch;
+    /**
+     * @brief Loads the collection from GTK theme
+     */
+    void loadFromGtkTheme(
+        xdoc::Document& gtkTheme, const String& imagesXPath, const String& attribute = "",
+        const String& attributeValue = "");
 
-    public:
-        /**
-         * @brief Default constructor
-         */
-        CThemeImageCollection() noexcept;
+    /**
+     * @brief Returns border for a paticular index (0..3)
+     * @param ndx int, border index
+     */
+    int border(int ndx) const
+    {
+        return m_border[ndx];
+    }
 
-        /**
-         * @brief Destructor
-         */
-        ~CThemeImageCollection()
-        { clear(); }
+    /**
+     * @brief Returns border sizes
+     */
+    int* border()
+    {
+        return m_border;
+    }
 
-        /**
-         * @brief Clears the collection
-         */
-        void clear();
+    /**
+     * @brief Returns draw stretch flag
+     */
+    bool stretch() const
+    {
+        return m_stretch;
+    }
 
-        /**
-         * @brief Loads the collection from SPTK theme
-         */
-        void loadFromSptkTheme(const Strings& objectNames);
+    /**
+     * @brief Returns an image for a particular state
+     * @param state CThemeImageState, image state
+     */
+    CPngImage* image(CThemeImageState state) const;
 
-        /**
-         * @brief Loads the collection from GTK theme
-         */
-        void loadFromGtkTheme(
-                xml::Document& gtkTheme, const String& imagesXPath, const String& attribute = "",
-                const String& attributeValue = "");
+    /**
+     * @brief Returns an overlay image for a particular state
+     * @param state CThemeImageState, image state
+     */
+    CPngImage* overlayImage(CThemeImageState state) const;
 
-        /**
-         * @brief Returns border for a paticular index (0..3)
-         * @param ndx int, border index
-         */
-        int border(int ndx) const
-        { return m_border[ndx]; }
-
-        /**
-         * @brief Returns border sizes
-         */
-        int* border()
-        { return m_border; }
-
-        /**
-         * @brief Returns draw stretch flag
-         */
-        bool stretch() const
-        { return m_stretch; }
-
-        /**
-         * @brief Returns an image for a particular state
-         * @param state CThemeImageState, image state
-         */
-        CPngImage* image(CThemeImageState state) const;
-
-        /**
-         * @brief Returns an overlay image for a particular state
-         * @param state CThemeImageState, image state
-         */
-        CPngImage* overlayImage(CThemeImageState state) const;
-
-        /**
-         * @brief Returns full file name
-         * @param fileName std::string, file name
-         */
-        static std::string gtkFullFileName(std::string fileName);
-    };
+    /**
+     * @brief Returns full file name
+     * @param fileName std::string, file name
+     */
+    static std::string gtkFullFileName(std::string fileName);
+};
 
 /**
  * @}
  */
-}
+} // namespace sptk

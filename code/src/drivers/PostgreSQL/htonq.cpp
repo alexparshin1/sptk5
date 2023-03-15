@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,37 +26,39 @@
 
 #ifndef WIN32
 #include <arpa/inet.h>
-#else       
-#include <windows.h>
+#else
 #include <cstdint>
+#include <windows.h>
 #endif
 
 namespace sptk {
 
-    uint64_t htonq(uint64_t val) {
-        uint64_t result;
-        const auto* src = (uint32_t *)(void *)&val;
-        auto* dst = (uint32_t *)(void *)&result;
-        dst[0] = htonl(src[1]);
-        dst[1] = htonl(src[0]);
-        return result;
-    }
-
-    uint64_t ntohq(uint64_t val) {
-        uint64_t result;
-        const auto* src = (uint32_t *)(void *)&val;
-        auto* dst = (uint32_t *)(void *)&result;
-        dst[0] = htonl(src[1]);
-        dst[1] = htonl(src[0]);
-        return result;
-    }
-
-    void htonq_inplace(uint64_t* in, uint64_t* out)
-    {
-        const auto* src = (uint32_t *)(void *)in;
-        auto* dst = (uint32_t *)(void *)out;
-        dst[1] = htonl(src[0]);
-        dst[0] = htonl(src[1]);
-    }
-
+uint64_t htonq(uint64_t val)
+{
+    uint64_t result {0};
+    const auto* src = (uint32_t*) (void*) &val;
+    auto* dst = (uint32_t*) (void*) &result;
+    dst[0] = htonl(src[1]);
+    dst[1] = htonl(src[0]);
+    return result;
 }
+
+uint64_t ntohq(uint64_t val)
+{
+    uint64_t result {0};
+    const auto* src = (uint32_t*) (void*) &val;
+    auto* dst = (uint32_t*) (void*) &result;
+    dst[0] = htonl(src[1]);
+    dst[1] = htonl(src[0]);
+    return result;
+}
+
+void htonq_inplace(uint64_t* in, uint64_t* out)
+{
+    const auto* src = (uint32_t*) (void*) in;
+    auto* dst = (uint32_t*) (void*) out;
+    dst[1] = htonl(src[0]);
+    dst[0] = htonl(src[1]);
+}
+
+} // namespace sptk

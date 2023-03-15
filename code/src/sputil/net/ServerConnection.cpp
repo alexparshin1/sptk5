@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,8 +25,8 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/net/TCPServer.h>
 #include <sptk5/net/ServerConnection.h>
+#include <sptk5/net/TCPServer.h>
 
 #ifdef _WIN32
 #include <ws2tcpip.h>
@@ -37,41 +37,48 @@ using namespace sptk;
 
 size_t ServerConnection::nextSerial()
 {
-    static mutex amutex;
+    static mutex aMutex;
     static size_t serial = 0;
 
-    scoped_lock lock(amutex);
+    const scoped_lock lock(aMutex);
     return ++serial;
 }
 
 TCPSocket& ServerConnection::socket() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return *m_socket;
 }
 
-void ServerConnection::setSocket(TCPSocket* socket)
+STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 {
-    scoped_lock lock(m_mutex);
-    m_socket = shared_ptr<TCPSocket>(socket);
+    const scoped_lock lock(m_mutex);
+    auto priorSocket = m_socket;
+    m_socket = socket;
+    return priorSocket;
 }
 
 TCPServer& ServerConnection::server() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, SOCKET, const sockaddr_in* connectionAddress,
-                                   const String& taskName)
-    : Runable(taskName), m_server(server), m_serial(nextSerial())
+ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
+                                   const String& taskName, const ServerConnection::Function& connectionFunction)
+    : Runable(taskName)
+    , m_server(server)
+    , m_serial(nextSerial())
+    , m_type(type)
+    , m_connectionFunction(connectionFunction)
 {
     parseAddress(connectionAddress);
 }
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    array<char, 128> address{"127.0.0.1"};
+    constexpr int maxAddressSize {128};
+    array<char, maxAddressSize> address {"127.0.0.1"};
     if (connectionAddress)
     {
         if (connectionAddress->sin_family == AF_INET)
@@ -80,9 +87,9 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
         }
         else if (connectionAddress->sin_family == AF_INET6)
         {
-            auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
+            const auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
         }
     }
-    m_address = address.data();
+    m_address = String(address.data());
 }

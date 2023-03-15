@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -31,14 +31,14 @@ using namespace sptk;
 
 #ifndef _WIN32
 
-#  ifdef __APPLE__
-#    include <stdlib.h>
-#  else
+#ifdef __APPLE__
+#include <stdlib.h>
+#else
 
-#  endif
+#endif
 
 #else
-#  include <malloc.h>
+#include <malloc.h>
 #endif
 
 CPackedStrings::CPackedStrings(int cnt, const char* strings[])
@@ -137,11 +137,13 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     *(uint16_t*) m_buffer = uint16_t(cnt);
     memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
     j = 0;
-    {/*alex*/
+    { /*alex*/
         for (int i = 0; i < cnt; i++)
         {
             if (i == keyField)
-            { continue; }
+            {
+                continue;
+            }
             memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
             j++;
         }

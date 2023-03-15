@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,16 +26,16 @@
 
 #include "LoadBalance.h"
 #include "Channel.h"
-#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED) {
+    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    {
         channel->close();
         delete channel;
         return;
@@ -44,11 +44,12 @@ void LoadBalance::sourceEventCallback(void *userData, SocketEventType eventType)
     channel->copyData(channel->source(), channel->destination());
 }
 
-void LoadBalance::destinationEventCallback(void *userData, SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED) {
+    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    {
         channel->close();
         delete channel;
         return;
@@ -58,30 +59,42 @@ void LoadBalance::destinationEventCallback(void *userData, SocketEventType event
 }
 
 LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
-: Thread("load balance"), m_listenerPort(listenerPort), m_destinations(destinations), m_interfaces(interfaces)
+    : Thread("load balance")
+    , m_listenerPort(listenerPort)
+    , m_destinations(destinations)
+    , m_interfaces(interfaces)
 {
 }
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr {};
+    struct sockaddr_in addr {
+    };
 
     m_sourceEvents.run();
     m_destinationEvents.run();
     m_listener.listen(m_listenerPort);
 
-    while (!terminated()) {
-        SOCKET sourceFD;
-        m_listener.accept(sourceFD, addr);
-        auto* channel = new Channel(m_sourceEvents, m_destinationEvents);
-        const Host& destination = m_destinations.loop();
-        const String& interfaceAddress = m_interfaces.loop();
-        try {
-            channel->open(sourceFD, interfaceAddress, destination);
+    constexpr chrono::milliseconds acceptTimeout {500};
+
+    while (!terminated())
+    {
+        Channel* channel {nullptr};
+        try
+        {
+            SOCKET sourceFD;
+            if (m_listener.accept(sourceFD, addr, acceptTimeout))
+            {
+                channel = new Channel(m_sourceEvents, m_destinationEvents);
+                const Host& destination = m_destinations.loop();
+                const String& interfaceAddress = m_interfaces.loop();
+                channel->open(sourceFD, interfaceAddress, destination);
+            }
         }
-        catch (const Exception& e) {
+        catch (const Exception& e)
+        {
             delete channel;
-            CERR(e.what() << endl)
+            CERR(e.what() << endl);
         }
     }
 

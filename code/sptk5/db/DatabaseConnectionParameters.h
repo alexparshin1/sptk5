@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,11 +42,10 @@ namespace sptk {
  *
  * Converts database connection string to string-string map.
  */
-class SP_EXPORT DatabaseConnectionParameters: public std::map<std::string,std::string>
+class SP_EXPORT DatabaseConnectionParameters : public std::map<std::string, std::string>
 {
 
 public:
-
     /**
      * @brief Constructor
      * @param connectionString std::string, the connection string
@@ -56,9 +55,9 @@ public:
     /**
      * @brief Returns connection string in format of name=value pairs
      */
-    std::string toString(const char* delimiter=" ") const;
+    std::string toString(const char* delimiter = " ") const;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -4,7 +4,7 @@
 ║                       odbc_test.cpp - description                            ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,34 +26,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 
+#include <sptk5/Printer.h>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/cdatabase>
 #include <sptk5/cthreads>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
 
 int testPerformance(DatabaseConnection db, const string& tableName, bool rollback)
 {
-    COUT("Testing performance on INSERTs")
-    try {
+    COUT("Testing performance on INSERTs");
+    try
+    {
         Query deleteQuery(db, "DELETE FROM " + tableName);
         Query insertQuery(db, "INSERT INTO " + tableName + " VALUES(:person_id,:person_name,:position_name)");
 
-        COUT("\n        Deleting everything from the table ..")
+        COUT("\n        Deleting everything from the table ..");
         deleteQuery.exec();
 
         DateTime started("now");
 
-        COUT("\n        Begining the transaction ..")
+        COUT("\n        Begining the transaction ..");
         Transaction transaction(db);
         transaction.begin();
 
         size_t count = 1000;
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i++)
+        {
             insertQuery.param((std::size_t) 0) = int(i);
             insertQuery.param("person_name") = "John Doe";
             insertQuery.param("position_name") = "lead engineer";
@@ -61,52 +64,63 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
         }
 
         if (rollback)
+        {
             transaction.rollback();
+        }
         else
+        {
             transaction.commit();
+        }
 
         DateTime ended("now");
 
         double durationSec = duration2seconds(ended - started);
 
-        COUT("\nPerformance Test: " << count / durationSec << " TPS" << endl)
-
-    } catch (const Exception& e) {
-        CERR("Error: " << e.what() << endl)
+        COUT("\nPerformance Test: " << count / durationSec << " TPS" << endl);
+    }
+    catch (const Exception& e)
+    {
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
 }
 
-int testTransactions(DatabaseConnection db, const string& tableName, bool rollback)
+int testTransactions(const DatabaseConnection& db, const string& tableName, bool rollback)
 {
-    try {
+    try
+    {
         Query step5Query(db, "DELETE FROM " + tableName);
         Query step6Query(db, "SELECT count(*) FROM " + tableName);
 
-        COUT("\n        Begining the transaction ..")
+        COUT("\n        Begining the transaction ..");
         db->beginTransaction();
-        COUT("\n        Deleting everything from the table ..")
+        COUT("\n        Deleting everything from the table ..");
         step5Query.exec();
 
         step6Query.open();
         int counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT("\n        The table now has " << counter << " records ..")
+        COUT("\n        The table now has " << counter << " records ..");
 
-        if (rollback) {
-            COUT("\n        Rolling back the transaction ..")
+        if (rollback)
+        {
+            COUT("\n        Rolling back the transaction ..");
             db->rollbackTransaction();
-        } else {
-            COUT("\n        Commiting the transaction ..")
+        }
+        else
+        {
+            COUT("\n        Commiting the transaction ..");
             db->commitTransaction();
         }
         step6Query.open();
         counter = step6Query[uint32_t(0)].asInteger();
         step6Query.close();
-        COUT("\n        The table now has " << counter << " records..")
-    } catch (const Exception& e) {
-        CERR("Error: " << e.what() << endl)
+        COUT("\n        The table now has " << counter << " records..");
+    }
+    catch (const Exception& e)
+    {
+        CERR("Error: " << e.what() << endl);
     }
 
     return true;
@@ -115,14 +129,18 @@ int testTransactions(DatabaseConnection db, const string& tableName, bool rollba
 void createTestTable(DatabaseConnection db, String tableName)
 {
     Query query(db, "CREATE TABLE " + tableName + "(id INT, name CHAR(20) NULL, position CHAR(20) NULL)");
-    COUT("Ok.\nStep 1: Creating the test table.. ")
-    try {
+    COUT("Ok.\nStep 1: Creating the test table.. ");
+    try
+    {
         query.exec();
     }
-    catch (const Exception& e) {
+    catch (const Exception& e)
+    {
         if (strstr(e.what(), " already ") == nullptr)
+        {
             throw;
-        COUT("Table already exists, ")
+        }
+        COUT("Table already exists, ");
     }
 }
 
@@ -130,43 +148,53 @@ int main(int argc, const char* argv[])
 {
     String connectString;
     if (argc == 1)
+    {
         connectString = "mssql://gtest:test#123@dsn_mssql/gtest";
+    }
     else
+    {
         connectString = argv[1];
+    }
 
-    try {
-        if (!RegularExpression("^(mssql|odbc)://").matches(connectString)) {
-            COUT("Syntax:" << endl << endl)
-            COUT("odbc_test [connection string]" << endl << endl)
-            COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl)
-            COUT("for instance:" << endl << endl)
-            COUT("  odbc://alex:secret@mydsn" << endl)
+    try
+    {
+        if (!RegularExpression("^(mssql|odbc)://").matches(connectString))
+        {
+            COUT("Syntax:" << endl
+                           << endl);
+            COUT("odbc_test [connection string]" << endl
+                                                 << endl);
+            COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl);
+            COUT("for instance:" << endl
+                                 << endl);
+            COUT("  odbc://alex:secret@mydsn" << endl);
             return 1;
         }
 
         DatabaseConnectionPool connectionPool(connectString);
         DatabaseConnection db = connectionPool.getConnection();
 
-        COUT("Openning the database, using connection string " << connectString << ":" << endl)
+        COUT("Openning the database, using connection string " << connectString << ":" << endl);
 
         db->open();
 
         String tableName = "test_table";
 
-        COUT("Ok.\nDriver description: " << db->driverDescription() << endl)
+        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
 
         DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS, DatabaseObjectType::PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
-        for (unsigned i = 0; i < 3; i++) {
-            COUT("-------------------------------------------------" << endl)
-            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl)
+        for (unsigned i = 0; i < 3; i++)
+        {
+            COUT("-------------------------------------------------" << endl);
+            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
             Strings objectList;
             db->objectList(objectTypes[i], objectList);
             for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                COUT("  " << objectList[j] << endl)
+                COUT("  " << objectList[j] << endl);
         }
-        COUT("-------------------------------------------------" << endl)
+        COUT("-------------------------------------------------" << endl);
 
         // Defining the queries
         Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id, :person_name, :position_name)");
@@ -175,7 +203,7 @@ int main(int argc, const char* argv[])
 
         createTestTable(db, tableName);
 
-        COUT("Ok.\nStep 2: Inserting data into the test table.. ")
+        COUT("Ok.\nStep 2: Inserting data into the test table.. ");
 
         // The following example shows how to use the paramaters,
         // addressing them by name
@@ -212,11 +240,12 @@ int main(int argc, const char* argv[])
         position_param.setNull(); // This is the way to set field to NULL
         step2Query.exec();
 
-        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl)
+        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             // getting data from the query by the field name
             int id = step3Query["id"].asInteger();
@@ -225,13 +254,13 @@ int main(int argc, const char* argv[])
             String name = step3Query[1].asString();
             String position = step3Query[2].asString();
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl)
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl)
+        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl);
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -240,19 +269,20 @@ int main(int argc, const char* argv[])
         Field& nameField = step3Query["name"];
         Field& positionField = step3Query["position"];
 
-        while (!step3Query.eof()) {
+        while (!step3Query.eof())
+        {
 
             auto id = idField.asInteger();
             auto name = nameField.asString();
             auto position = positionField.asString();
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl)
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        COUT("Ok.\n***********************************************\nTesting the transactions.")
+        COUT("Ok.\n***********************************************\nTesting the transactions.");
 
         testTransactions(db, tableName, true);
         testTransactions(db, tableName, false);
@@ -261,13 +291,15 @@ int main(int argc, const char* argv[])
 
         step4Query.exec();
 
-        COUT("Ok.\nStep 5: Closing the database.. ")
+        COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();
-        COUT("Ok." << endl)
-    } catch (const Exception& e) {
-        CERR("\nError: " << e.what() << endl)
-        CERR("\nSorry, you have to fix your database connection." << endl)
-        CERR("Please, read the README.txt for more information." << endl)
+        COUT("Ok." << endl);
+    }
+    catch (const Exception& e)
+    {
+        CERR("\nError: " << e.what() << endl);
+        CERR("\nSorry, you have to fix your database connection." << endl);
+        CERR("Please, read the README.txt for more information." << endl);
     }
 
     this_thread::sleep_for(chrono::milliseconds(1000));

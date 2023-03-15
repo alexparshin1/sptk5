@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/db/QueryParameterBinding.h>
-//#include <sptk5/string_ext.h>
 
 using namespace std;
 using namespace sptk;
@@ -37,35 +36,4 @@ void QueryParameterBinding::reset(bool isOutput)
     m_size = 0;
     m_buffer = nullptr;
     m_output = isOutput;
-}
-
-bool QueryParameterBinding::check(StmtHandle stmt, VariantDataType type, uint32_t size, uint8_t* buffer)
-{
-    bool changed = true;
-
-    if (m_stmt != stmt)
-    {
-        m_stmt = stmt;
-        changed = false;
-    }
-
-    if (m_dataType != type)
-    {
-        m_dataType = type;
-        changed = false;
-    }
-
-    if (m_size != size)
-    {
-        m_size = size;
-        changed = false;
-    }
-
-    if (m_buffer != buffer)
-    {
-        m_buffer = buffer;
-        changed = false;
-    }
-
-    return changed;
 }

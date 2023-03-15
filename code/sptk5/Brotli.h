@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -28,12 +28,11 @@
 
 #include <sptk5/sptk.h>
 
-#if HAVE_BROTLI
+#ifdef HAVE_BROTLI
 
 #include <sptk5/Buffer.h>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * Simple wrapper for Brotli functions
@@ -60,7 +59,6 @@ public:
     static void decompress(Buffer& dest, const Buffer& src);
 };
 
-}
+} // namespace sptk
 
 #endif
-

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -38,8 +38,7 @@ namespace sptk {
 /**
  * Event type constants
  */
-enum class CEvent
-    : uint8_t
+enum class CEvent : uint8_t
 {
     /**
      * Empty event (no event)
@@ -165,7 +164,8 @@ public:
      * @param eventArg CEvent, event argument
      */
     explicit CEventInfo(CEvent eventType = CEvent::NONE, int32_t eventArg = 0)
-        : m_event(eventType), m_argument(eventArg)
+        : m_event(eventType)
+        , m_argument(eventArg)
     {
     }
 
@@ -198,4 +198,4 @@ public:
 /**
  * @}
  */
-}
+} // namespace sptk

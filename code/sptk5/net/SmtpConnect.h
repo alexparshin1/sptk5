@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,15 +26,14 @@
 
 #pragma once
 
-#include <sptk5/net/TCPSocket.h>
+#include <sptk5/Logger.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/BaseMailConnect.h>
-#include <sptk5/Logger.h>
+#include <sptk5/net/TCPSocket.h>
 
 #include <string>
 
-namespace sptk
-{
+namespace sptk {
 
 /**
  * @addtogroup utility Utility Classes
@@ -48,24 +47,15 @@ namespace sptk
  * It uses CSocket class to establish the connection, and CBaseMailConnect
  * to make the complete RFC 822 message.
  */
-class SP_EXPORT SmtpConnect: public BaseMailConnect, public TCPSocket
+class SP_EXPORT SmtpConnect : public BaseMailConnect
+    , public TCPSocket
 {
 public:
     /**
      * @brief Default constructor
      * @param log               Optional log object
      */
-    explicit SmtpConnect(Logger* log=nullptr);
-
-    /**
-     * Sends command using SMTP protocol and retrieve the server response.
-     * The response can be read then with response() method.
-     * The CRLF characters after the command are added automatically.
-     * @param cmd               SMTP protocol command
-     * @param encodeCommand     Encode the comand argument to Base64 or not
-     * @param decodeResponse    Decode the response from Base64 or not
-     */
-    int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
+    explicit SmtpConnect(Logger* log = nullptr);
 
     /**
      * @brief The response from the server - makes sence after calling any command
@@ -95,15 +85,16 @@ public:
      */
     void cmd_quit();
 
-    /**
-     * @brief Sends the message
-     *
-     * The message based on the information defined by the methods from
-     * CBaseMailConnect, and retrieves the server output.
-     */
-    void sendMessage() override;
-
 protected:
+    /**
+     * Sends command using SMTP protocol and retrieve the server response.
+     * The response can be read then with response() method.
+     * The CRLF characters after the command are added automatically.
+     * @param cmd               SMTP protocol command
+     * @param encodeCommand     Encode the comand argument to Base64 or not
+     * @param decodeResponse    Decode the response from Base64 or not
+     */
+    int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /**
      * @brief Sends command using SMTP protocol
@@ -113,6 +104,14 @@ protected:
      * @param encode            Encode the arguments to Base64 or not
      */
     void sendCommand(String cmd, bool encode = false);
+
+    /**
+     * @brief Sends the message
+     *
+     * The message based on the information defined by the methods from
+     * CBaseMailConnect, and retrieves the server output.
+     */
+    void sendMessage() override;
 
     /**
      * @brief Retrieves the server response after the command into internal Strings buffer
@@ -131,24 +130,23 @@ protected:
 
     /**
      * @brief Mime-encodes the string
-     * @param s                 Source data
+     * @param str                 Source data
      * @return MIME-encoded data
      */
-    static String mime(const String& s);
+    static String mime(const String& str);
 
     /**
      * @brief Mime-decodes the string
-     * @param s                 Source data
+     * @param str                 Source data
      * @return Decoded data
      */
-    static String unmime(const String& s);
+    static String unmime(const String& str);
 
 private:
-
-    Logger*    m_log;
-    Strings    m_response;
+    Logger* m_log;
+    Strings m_response;
 };
 /**
  * @}
  */
-}
+} // namespace sptk

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,10 +27,11 @@
 #pragma once
 
 #include <sptk5/sptk.h>
-#include <sptk5/net/SSLContext.h>
-#include <sptk5/net/TCPSocket.h>
+
 #include <memory>
+#include <sptk5/net/SSLContext.h>
 #include <sptk5/net/SSLKeys.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
 
@@ -42,7 +43,8 @@ namespace sptk {
 /**
  * Encrypted TCP Socket
  */
-class SP_EXPORT SSLSocket: public TCPSocket, public std::mutex
+class SP_EXPORT SSLSocket : public TCPSocket
+    , public std::mutex
 {
 public:
     /**
@@ -53,15 +55,15 @@ public:
     /**
      * Throws SSL error based on SSL function return code
      * @param function          SSL function name
-     * @param rc                SSL function return code
+     * @param resultCode        SSL function return code
      */
-    [[noreturn]] void throwSSLError(const String& function, int rc) const;
+    [[noreturn]] void throwSSLError(const String& function, int resultCode) const;
 
     /**
      * Constructor
 	 * @param cipherList		Optional cipher list
      */
-    explicit SSLSocket(const String& cipherList="ALL");
+    explicit SSLSocket(const String& cipherList = "ALL");
 
     /**
      * Destructor
@@ -111,8 +113,23 @@ public:
         return m_ssl;
     }
 
-protected:
+    /**
+     * Reads data from SSL socket
+     * @param buffer            Destination buffer
+     * @param size              Destination buffer size
+     * @return the number of bytes read from the socket
+     */
+    size_t recv(uint8_t* buffer, size_t size) override;
 
+    /**
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
+     * @return the number of bytes sent the socket
+     */
+    size_t send(const uint8_t* buffer, size_t len) override;
+
+protected:
     /**
      * Initialize SSL context and socket structures
      */
@@ -140,38 +157,20 @@ protected:
     void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
-     * Reads data from SSL socket
-     * @param buffer            Destination buffer
-     * @param size              Destination buffer size
-     * @return the number of bytes read from the socket
-     */
-    size_t recv(uint8_t* buffer, size_t size) override;
-
-    /**
-     * Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
-     */
-
-    size_t send(const uint8_t* buffer, size_t len) override;
-
-    /**
      * Get error description for SSL error code
      * @param function          SSL function
      * @param SSLError          Error code returned by SSL_get_error() result
      * @return Error description
      */
-    virtual std::string getSSLError(const std::string& function, int32_t SSLError) const;
+    virtual String getSSLError(const std::string& function, int32_t SSLError) const;
 
 private:
+    SharedSSLContext m_sslContext {nullptr}; ///< SSL context
+    SSL* m_ssl {nullptr};                    ///< SSL socket
+    SSLKeys m_keys;                          ///< SSL keys info
 
-    SharedSSLContext	m_sslContext {nullptr};     ///< SSL context
-    SSL*				m_ssl {nullptr};            ///< SSL socket
-    SSLKeys				m_keys;                     ///< SSL keys info
-
-    String				m_sniHostName;              ///< SNI host name (optional)
-    String				m_cipherList;				///< Cipher List, the default is "ALL"
+    String m_sniHostName; ///< SNI host name (optional)
+    String m_cipherList;  ///< Cipher List, the default is "ALL"
 
     void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
 
@@ -181,5 +180,4 @@ private:
 /**
  * @}
  */
-}
-
+} // namespace sptk

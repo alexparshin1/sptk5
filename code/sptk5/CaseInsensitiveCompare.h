@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -26,7 +26,12 @@
 
 #pragma once
 
+#include <sptk5/String.h>
 #include <sptk5/sptk.h>
+
+#ifndef _WIN32
+#include <strings.h>
+#endif
 
 namespace sptk {
 /**
@@ -62,5 +67,4 @@ public:
  * @}
  */
 
-}
-
+} // namespace sptk

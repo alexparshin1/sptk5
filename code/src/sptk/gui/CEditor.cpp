@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/sptk.h>
 #include <sptk5/gui/CEditor.h>
 
 using namespace sptk;
@@ -39,15 +38,18 @@ void CEditor::ctor_init()
 }
 
 CEditor::CEditor(int layoutSize, CLayoutAlign layoutAlign)
-    : Fl_Text_Editor(0, 0, 100, 100), CLayoutClient(this, layoutSize, layoutAlign)
+    : Fl_Text_Editor(0, 0, 100, 100)
+    , CLayoutClient(this, layoutSize, layoutAlign)
 {
     ctor_init();
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CEditor::CEditor(int x, int y, int w, int h, const char*l)
-: Fl_Text_Editor(x, y, w, h, l), CLayoutClient(this,w,CLayoutAlign::NONE) {
-   ctor_init();
+CEditor::CEditor(int x, int y, int w, int h, const char* l)
+    : Fl_Text_Editor(x, y, w, h, l)
+    , CLayoutClient(this, w, CLayoutAlign::NONE)
+{
+    ctor_init();
 }
 #endif
 
@@ -60,9 +62,13 @@ CEditor::~CEditor()
 bool CEditor::preferredSize(int& w, int& h)
 {
     if (h < 50)
-    { h = 50; }
+    {
+        h = 50;
+    }
     if (w < 50)
-    { w = 50; }
+    {
+        w = 50;
+    }
     return false;
 }
 

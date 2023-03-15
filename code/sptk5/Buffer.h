@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -27,13 +27,13 @@
 #pragma once
 
 #include <sptk5/BufferStorage.h>
+#include <sptk5/VariantStorageClient.h>
 
 #include <cstdlib>
 #include <cstring>
-#include <string>
 #include <iostream>
 #include <memory>
-#include <filesystem>
+#include <string>
 
 namespace sptk {
 
@@ -49,11 +49,33 @@ namespace sptk {
  */
 class SP_EXPORT Buffer
     : public BufferStorage
+    , public VariantStorageClient
 {
 
 public:
+    /**
+     * Constructor
+     * @param size              Pre-allocated buffer size
+     */
+    explicit Buffer(size_t size = 16)
+        : BufferStorage(size)
+    {
+    }
 
-    using BufferStorage::BufferStorage;
+    /**
+     * Constructor
+     *
+     * Creates a buffer from void *data.
+     * The data is copied inside the buffer.
+     * The return of the bytes() method will be the input data size.
+     * @param data              Data buffer
+     * @param sz                Data buffer size
+     */
+    template<typename T>
+    Buffer(const T* data, size_t sz)
+        : BufferStorage(data, sz)
+    {
+    }
 
     /**
      * Constructor
@@ -63,7 +85,7 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str               Input string
      */
-    explicit Buffer(const String& str);
+    Buffer(const String& str);
 
     /**
      * Copy constructor
@@ -84,14 +106,14 @@ public:
     /**
      * Destructor
      */
-    virtual ~Buffer() noexcept = default;
+    ~Buffer() noexcept override = default;
 
     /**
      * Moves buffer from another buffer
      * @param other             Buffer to move from
      * @returns this object
      */
-    Buffer& operator=(Buffer&& other) DOESNT_THROW = default;
+    Buffer& operator=(Buffer&& other) noexcept = default;
 
     /**
      * Assigns from Buffer
@@ -206,23 +228,16 @@ public:
     bool operator==(const Buffer& other) const;
 
     /**
-     * Compare operator
-     * @param other             Other buffer
-     * @return                  True if buffer contents are not matching
-     */
-    bool operator!=(const Buffer& other) const;
-
-    /**
      * Loads the buffer from file fileName.
      * @param fileName          Name of the input file
      */
-    void loadFromFile(const fs::path& fileName);
+    void loadFromFile(const std::filesystem::path& fileName);
 
     /**
      * Saves the buffer to the file fileName.
      * @param fileName          Name of the output file
      */
-    void saveToFile(const fs::path& fileName) const;
+    void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
      * Assigns from String
@@ -243,11 +258,19 @@ public:
      */
     explicit operator String() const
     {
-        return String((const char*) data(), bytes());
+        return {(const char*) data(), bytes()};
+    }
+
+    static VariantDataType variantDataType()
+    {
+        return VariantDataType::VAR_BUFFER;
+    }
+
+    [[nodiscard]] size_t dataSize() const override
+    {
+        return size();
     }
 };
-
-using SBuffer = std::shared_ptr<Buffer>;
 
 /**
  * Print buffer to ostream as hexadecimal dump
@@ -257,4 +280,4 @@ SP_EXPORT std::ostream& operator<<(std::ostream&, const Buffer& buffer);
 /**
  * @}
  */
-}
+} // namespace sptk

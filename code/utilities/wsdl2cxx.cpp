@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,10 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/wsdl/WSParser.h>
 #include <sptk5/CommandLine.h>
-#include <filesystem>
+#include <sptk5/wsdl/WSParser.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -38,14 +36,17 @@ using namespace sptk;
 
 void help()
 {
-    COUT("WSDL to C++ prototype parser. (C) 2012-2019 Alexey Parshin" << endl << endl)
-    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl)
-    COUT("Usage:" << endl << endl)
-    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl << endl)
-    COUT("Parameters:" << endl)
-    COUT("WSDL file         WSDL file that defines Web Service" << endl)
-    COUT("output directory  Directory where generated files will be stored" << endl)
-    COUT("header file       File that contains text too be added at the start of gerated files" << endl)
+    COUT("WSDL to C++ prototype parser. (C) 2012-2023 Alexey Parshin" << endl
+                                                                      << endl);
+    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl);
+    COUT("Usage:" << endl
+                  << endl);
+    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl
+                                                                   << endl);
+    COUT("Parameters:" << endl);
+    COUT("WSDL file         WSDL file that defines Web Service" << endl);
+    COUT("output directory  Directory where generated files will be stored" << endl);
+    COUT("header file       File that contains text too be added at the start of generated files" << endl);
 }
 
 #ifdef _WIN32
@@ -76,11 +77,11 @@ public:
         defineParameter("cxx-namespace", "n", "C++ namespace",
                         ".*",
                         CommandLine::Visibility(""), "",
-                        "C++ namespace for generated C++ classes. The default is '<lc(servicename)>_service'");
+                        "C++ namespace for generated C++ classes. The default is '<lc(service_name)>_service'");
 
         defineParameter("openapi-json", "j", "filename", ".*",
                         CommandLine::Visibility(""), "",
-                        "Create openapi service description file. The default file name is the same as WSDL file, only with .json extention.");
+                        "Create openapi service description file. The default file name is the same as WSDL file, only with .json extension.");
 
         defineParameter("openapi-default-auth", "a", "auth method",
                         "^(none|basic|bearer)$",
@@ -127,7 +128,7 @@ static bool createDirectory(const String& directory)
     }
     catch (const filesystem::filesystem_error& e)
     {
-        CERR("Can't create output directory '" << directory << "': " << e.what() << endl)
+        CERR("Can't create output directory '" << directory << "': " << e.what() << endl);
         return false;
     }
     return true;
@@ -155,7 +156,7 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        fs::path wsdlFile = commandLine.arguments().front().c_str();
+        filesystem::path wsdlFile = commandLine.arguments().front().c_str();
         auto quiet = commandLine.hasOption("quiet");
         auto verbose = commandLine.hasOption("verbose");
 
@@ -177,10 +178,10 @@ int main(int argc, const char* argv[])
 
         if (!quiet && verbose)
         {
-            COUT("Input WSDL file:             " << wsdlFile << endl)
-            COUT("Generate files to directory: " << wsdlFile << endl)
+            COUT("Input WSDL file:             " << wsdlFile << endl);
+            COUT("Generate files to directory: " << wsdlFile << endl);
             if (!headerFile.empty())
-            COUT("Using C++ header file:       " << headerFile << endl)
+                COUT("Using C++ header file:       " << headerFile << endl);
         }
 
         OpenApiGenerator::Options options;
@@ -194,7 +195,7 @@ int main(int argc, const char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl)
+        CERR(e.what() << endl);
         rc = 1;
     }
 
