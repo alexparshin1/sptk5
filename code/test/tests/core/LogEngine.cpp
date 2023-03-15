@@ -37,14 +37,17 @@ public:
     TestLogEngine()
         : LogEngine("TestLogEngine")
     {
+        const scoped_lock lock(m_mutex);
         storage.clear();
     }
 
     void saveMessage(const Logger::UMessage& message) override
     {
+        const scoped_lock lock(m_mutex);
         storage.emplace_back(message);
     }
 
+    std::mutex m_mutex;
     static vector<Logger::UMessage> storage;
 };
 

@@ -115,7 +115,7 @@ LogPriority LogEngine::priorityFromName(const String& prt)
     }
 }
 
-void LogEngine::log(Logger::UMessage& message)
+void LogEngine::log(const Logger::UMessage& message)
 {
     if (terminated())
     {
@@ -129,7 +129,7 @@ void LogEngine::log(Logger::UMessage& message)
 
     if (m_minPriority >= message->priority)
     {
-        m_messages.push(std::move(message));
+        m_messages.push(message);
     }
 }
 

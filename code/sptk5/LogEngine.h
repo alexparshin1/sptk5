@@ -164,7 +164,7 @@ protected:
      * Log a message
      * @param message           Message
      */
-    void log(Logger::UMessage& message);
+    void log(const Logger::UMessage& message);
 
     /**
      * Shutdown log worker thread
