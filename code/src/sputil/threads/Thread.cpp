@@ -69,14 +69,14 @@ Thread::~Thread()
 
 void Thread::terminate()
 {
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_pause.post();
     m_terminated = true;
 }
 
 bool Thread::terminated()
 {
-    SharedLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_terminated;
 }
 
@@ -100,7 +100,7 @@ void Thread::join()
 
 void Thread::run()
 {
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_terminated = false;
     if (m_thread && m_thread->joinable())
     {
