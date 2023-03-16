@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/LogEngine.h>
+#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -174,5 +175,14 @@ void LogEngine::threadFunction()
             fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
             fflush(dest);
         }
+    }
+
+    try
+    {
+        close();
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.what() << std::endl);
     }
 }

@@ -72,7 +72,7 @@ bool Thread::terminated()
     {
         return m_thread->get_stop_token().stop_requested();
     }
-    return false;
+    return true;
 }
 
 Thread::Id Thread::id() const
