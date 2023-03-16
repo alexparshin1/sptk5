@@ -66,7 +66,7 @@ public:
     /**
      * Destructor
      */
-    virtual ~Thread();
+    virtual ~Thread() = default;
 
     /**
      * Starts the already created thread
@@ -120,19 +120,10 @@ public:
         return m_name;
     }
 
-    /**
-     * Sleep for interval of time
-     * The sleep is automatically interrupted when terminate() is called.
-     * @param interval          Interval of time
-     */
-    virtual bool sleep_for(std::chrono::milliseconds interval);
-
 private:
     std::mutex m_mutex;                             ///< Thread synchronization object
     String m_name;                                  ///< Thread name
     std::shared_ptr<std::jthread> m_thread;         ///< Thread object
-    bool m_terminated {false};                      ///< Flag: is the thread terminated?
-    Semaphore m_pause;                              ///< Pause object
     std::shared_ptr<ThreadManager> m_threadManager; ///< Optional thread manager
     void threadStart();                             ///< Thread function wrapper
 };

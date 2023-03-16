@@ -115,7 +115,7 @@ public:
     bool empty() const;
 
 private:
-    mutable SharedMutex m_mutex;
+    mutable std::mutex m_mutex;
     String m_privateKeyFileName;
     String m_certificateFileName;
     String m_password;

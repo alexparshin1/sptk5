@@ -167,6 +167,13 @@ protected:
     void log(const Logger::UMessage& message);
 
     /**
+     * Flush messages
+     */
+    virtual void close()
+    {
+    }
+
+    /**
      * Shutdown log worker thread
      */
     void shutdown() noexcept;

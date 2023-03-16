@@ -52,7 +52,7 @@ static void logMessages(const shared_ptr<LogEngine>& logEngine)
     logger->warning("Warning message");
     logger->info("Test completed");
 
-    this_thread::sleep_for(chrono::milliseconds(20));
+    this_thread::sleep_for(chrono::milliseconds(10));
 }
 
 static void testPriority(LogPriority priority, size_t expectedMessageCount)
@@ -82,7 +82,7 @@ TEST(SPTK_FileLogEngine, performance)
     Logger logger(logEngine, "(Test application) ");
     StopWatch stopWatch;
     stopWatch.start();
-    constexpr size_t messageCount = 10000;
+    constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
     {
         logger.info("Test log message of some length");

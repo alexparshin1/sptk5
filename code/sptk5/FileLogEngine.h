@@ -57,11 +57,6 @@ public:
     explicit FileLogEngine(const std::filesystem::path& fileName);
 
     /**
-     * @brief Destructor
-     */
-    ~FileLogEngine() override;
-
-    /**
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
@@ -73,6 +68,9 @@ public:
      * The current log content is cleared. The file is recreated.
      */
     void reset() override;
+
+protected:
+    void close() override;
 
 private:
     mutable std::mutex m_mutex;       ///< Mutex that protects internal data

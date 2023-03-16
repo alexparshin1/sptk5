@@ -25,6 +25,8 @@
 */
 
 #include <sptk5/FileLogEngine.h>
+#include <sptk5/Printer.h>
+#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
@@ -61,11 +63,11 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
         }
 
         m_fileStream << message->message << endl;
-    }
 
-    if (m_fileStream.bad())
-    {
-        throw Exception("Can't write to log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
+        if (m_fileStream.bad() && !terminated())
+        {
+            CERR("Can't write to file " << m_fileName.c_str() << endl);
+        }
     }
 }
 
@@ -74,17 +76,6 @@ FileLogEngine::FileLogEngine(const filesystem::path& fileName)
     , m_fileName(fileName)
     , m_fileStream(fileName.c_str())
 {
-}
-
-FileLogEngine::~FileLogEngine()
-{
-    shutdown();
-    scoped_lock lock(m_mutex);
-    if (m_fileStream.is_open())
-    {
-        m_fileStream.flush();
-        m_fileStream.close();
-    }
 }
 
 void FileLogEngine::reset()
@@ -102,5 +93,15 @@ void FileLogEngine::reset()
     if (!m_fileStream.is_open())
     {
         throw Exception("Can't open log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
+    }
+}
+
+void FileLogEngine::close()
+{
+    scoped_lock lock(m_mutex);
+    if (m_fileStream.is_open())
+    {
+        m_fileStream.flush();
+        m_fileStream.close();
     }
 }

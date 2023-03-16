@@ -30,6 +30,8 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/sptk.h>
 
+#include <mutex>
+
 namespace sptk {
 
 class LogEngine;
@@ -57,8 +59,8 @@ public:
      */
     struct Message {
         DateTime timestamp {"now"}; ///< Message timestamp
-        LogPriority priority;                 ///< Message priority
-        String message;                       ///< Message text
+        LogPriority priority;       ///< Message priority
+        String message;             ///< Message text
 
         /**
          * Constructor
@@ -134,6 +136,7 @@ private:
      */
     LogEngine& m_destination;
     String m_prefix;
+    std::mutex m_mutex;
 };
 
 using SLogger = std::shared_ptr<Logger>;
