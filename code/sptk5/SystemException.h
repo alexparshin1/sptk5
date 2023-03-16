@@ -45,11 +45,11 @@ class SP_EXPORT SystemException : public Exception
 public:
     /**
      * @brief Constructor
-     * @param context std::string, the exception context
-     * @param file std::string, the file name where exception occurs
-     * @param line int, the line number in the file where exception occurs
+     * @param context           The exception context
+     * @param location          The location where exception occurs
+     * @param line              The line number in the file where exception occurs
      */
-    SystemException(const String& context, const std::filesystem::path& file = "", int line = 0) DOESNT_THROW;
+    SystemException(const String& context, const std::source_location& location = std::source_location::current()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor

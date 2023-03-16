@@ -58,12 +58,7 @@ class SP_EXPORT Exception : public std::exception
     /**
      * The file where exception occurs
      */
-    String m_file;
-
-    /**
-     * The line number in the file where exception occurs
-     */
-    int m_line;
+    const std::source_location m_location;
 
     /**
      * The exception text
@@ -84,11 +79,10 @@ public:
     /**
      * @brief Constructor
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    explicit Exception(String text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
+    explicit Exception(String text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception
@@ -101,14 +95,9 @@ public:
     String message() const;
 
     /**
-     * @brief Returns exception file name
+     * @brief Returns exception location
      */
-    String file() const;
-
-    /**
-     * @brief Returns exception line number
-     */
-    int line() const;
+    std::source_location location() const;
 
     /**
      * @brief Returns exception description
@@ -127,11 +116,10 @@ public:
     /**
      * Constructor
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    TimeoutException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
+    TimeoutException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -151,11 +139,10 @@ public:
     /**
      * Constructor
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    ConnectionException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
+    ConnectionException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -175,11 +162,10 @@ public:
     /**
      * @brief Constructor
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    DatabaseException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
+    DatabaseException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -199,11 +185,10 @@ public:
     /**
      * Constructor
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    SOAPException(const String& text, const std::filesystem::path& file = {}, int line = 0, const String& description = String()) DOESNT_THROW;
+    SOAPException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -226,11 +211,10 @@ public:
      * Constructor
      * @param statusCode        The HTTP status
      * @param text              The exception text
-     * @param file              The file where exception occurs
-     * @param line              The line number in the file where exception occurs
+     * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    HTTPException(size_t statusCode, const String& text, const std::filesystem::path& file = std::string(), int line = 0, const String& description = String()) DOESNT_THROW;
+    HTTPException(size_t statusCode, const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -270,7 +254,7 @@ public:
 template<typename ExceptionType>
 [[noreturn]] SP_EXPORT void throwException(const String& error, const std::source_location& location = std::source_location::current())
 {
-    throw ExceptionType(error, location.file_name(), location.line());
+    throw ExceptionType(error, location);
 }
 
 /**

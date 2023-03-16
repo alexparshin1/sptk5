@@ -213,7 +213,7 @@ void SQLite3Connection::queryPrepare(Query* query)
         SQLITE_OK)
     {
         const char* errorMsg = sqlite3_errmsg(m_connect.get());
-        throw DatabaseException(errorMsg, __FILE__, __LINE__, query->sql());
+        throw DatabaseException(errorMsg, source_location::current(), query->sql());
     }
 
     auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
@@ -316,7 +316,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
         {
             const String error = sqlite3_errmsg(m_connect.get());
             throw DatabaseException(
-                error + ", in binding parameter " + int2string(paramBindNumber), __FILE__, __LINE__,
+                error + ", in binding parameter " + int2string(paramBindNumber), source_location::current(),
                 query->sql());
         }
     }
@@ -368,7 +368,7 @@ void SQLite3Connection::queryOpen(Query* query)
         {
             const String error = queryError(query);
             queryCloseStmt(query);
-            throw DatabaseException(error, __FILE__, __LINE__, query->sql());
+            throw DatabaseException(error, source_location::current(), query->sql());
         }
 
         queryCloseStmt(query);
@@ -426,7 +426,7 @@ void SQLite3Connection::queryFetch(Query* query)
 {
     if (!query->active())
     {
-        throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, query->sql());
+        throw DatabaseException("Dataset isn't open", source_location::current(), query->sql());
     }
 
     auto* statement = (SQLHSTMT) query->statement();
@@ -443,7 +443,7 @@ void SQLite3Connection::queryFetch(Query* query)
             break;
 
         default:
-            throw DatabaseException(queryError(query), __FILE__, __LINE__, query->sql());
+            throw DatabaseException(queryError(query), source_location::current(), query->sql());
     }
 
     auto fieldCount = query->fieldCount();
@@ -509,7 +509,7 @@ void SQLite3Connection::queryFetch(Query* query)
         catch (const Exception& e)
         {
             throw DatabaseException(
-                "Can't read field " + field->fieldName() + "\n" + string(e.what()), __FILE__, __LINE__,
+                "Can't read field " + field->fieldName() + "\n" + string(e.what()), source_location::current(),
                 query->sql());
         }
     }

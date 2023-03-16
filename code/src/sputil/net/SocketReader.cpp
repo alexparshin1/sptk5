@@ -273,7 +273,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
     if (!m_socket.active())
     {
-        throw Exception("Can't read from closed socket", __FILE__, __LINE__);
+        throw Exception("Can't read from closed socket");
     }
 
     while (eol == 0)

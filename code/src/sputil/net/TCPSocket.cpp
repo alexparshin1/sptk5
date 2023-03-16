@@ -72,7 +72,7 @@ void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, 
 
     if (host().hostname().empty())
     {
-        throw Exception("Please, define the host name", __FILE__, __LINE__);
+        throw Exception("Please, define the host name");
     }
 
     if (proxy() != nullptr)

@@ -51,7 +51,7 @@ const ArchiveFile& Tar::file(const String& fileName) const
     auto itor = m_files.find(fileName);
     if (itor == m_files.end())
     {
-        throw Exception("File '" + fileName + "' isn't found", __FILE__, __LINE__);
+        throw Exception("File '" + fileName + "' isn't found");
     }
     return *itor->second;
 }

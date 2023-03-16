@@ -135,7 +135,7 @@ void SSLSocket::throwSSLError(const String& function, int resultCode) const
 {
     int errorCode = SSL_get_error(m_ssl, resultCode);
     auto error = getSSLError(function.c_str(), errorCode);
-    throw Exception(error, __FILE__, __LINE__);
+    throw Exception(error);
 }
 
 SSLSocket::SSLSocket(const String& cipherList)
@@ -302,11 +302,11 @@ void SSLSocket::attach(SOCKET socketHandle, bool accept)
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
         if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
         {
-            throw TimeoutException(error, __FILE__, __LINE__);
+            throw TimeoutException(error);
         }
 
         // The serious problem - can't accept, and it's final
-        throw Exception(error, __FILE__, __LINE__);
+        throw Exception(error);
     }
 }
 

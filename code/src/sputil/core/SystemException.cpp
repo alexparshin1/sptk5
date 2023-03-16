@@ -30,8 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-SystemException::SystemException(const String& context, const filesystem::path& file, int line) DOESNT_THROW
-    : Exception(context + ": " + osError(), file, line)
+SystemException::SystemException(const String& context, const std::source_location& location) DOESNT_THROW
+    : Exception(context + ": " + osError(), location)
 {
 }
 

@@ -26,15 +26,12 @@
 
 #include <sptk5/FileLogEngine.h>
 #include <sptk5/Printer.h>
-#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
 
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    lock_guard lock(m_mutex);
-
     if (option(Option::ENABLE))
     {
         if (!m_fileStream.is_open())
@@ -42,7 +39,7 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
             {
-                throw Exception("Can't append or create log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
+                throw Exception("Can't append or create log file '" + m_fileName.string() + "'");
             }
         }
 
@@ -87,12 +84,12 @@ void FileLogEngine::reset()
     }
     if (m_fileName.empty())
     {
-        throw Exception("File name isn't defined", __FILE__, __LINE__);
+        throw Exception("File name isn't defined");
     }
     m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!m_fileStream.is_open())
     {
-        throw Exception("Can't open log file '" + m_fileName.string() + "'", __FILE__, __LINE__);
+        throw Exception("Can't open log file '" + m_fileName.string() + "'");
     }
 }
 
