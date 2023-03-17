@@ -104,7 +104,7 @@ enum class CListViewDataMode : uint8_t
  */
 class SP_EXPORT CListView
     : public CControl
-    , public SharedMutex
+    , public std::mutex
 {
     friend class CInternalComboBoxPanel;
 

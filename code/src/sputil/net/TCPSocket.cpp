@@ -112,7 +112,7 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
         }
         if (clientSocketFD == INVALID_SOCKET)
         {
-            THROW_SOCKET_ERROR("Error on accept(). ");
+            throwSocketError("Error on accept(). ");
         }
     }
 
@@ -124,7 +124,7 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
             return true;
         }
         if (clientSocketFD == INVALID_SOCKET)
-            THROW_SOCKET_ERROR("Error on accept(). ");
+            throwSocketError("Error on accept(). ");
     }
 
     return false;

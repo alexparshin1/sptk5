@@ -32,7 +32,7 @@ using namespace sptk;
 
 LogEngine::LogEngine(const String&)
 {
-    m_saveMessageThread = jthread([this](stop_token stopToken) {
+    m_saveMessageThread = jthread([this](const stop_token& stopToken) {
         try
         {
             threadFunction();
@@ -144,14 +144,13 @@ void LogEngine::threadFunction()
     const chrono::seconds timeout(1);
     while (!terminated())
     {
-
         Logger::UMessage message = nullptr;
         if (!m_messages.pop(message, timeout))
         {
             continue;
         }
 
-        saveMessage(std::move(message));
+        saveMessage(*message);
 
         if (option(Option::STDOUT))
         {

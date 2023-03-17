@@ -96,7 +96,7 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
             auto res = (int) socket.send(dataPtr, packetSize);
             if (res < 0)
             {
-                throwSocketError("Error writing to socket", __FILE__, __LINE__);
+                throwSocketError("Error writing to socket");
             }
         }
         catch (const Exception& e)

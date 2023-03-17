@@ -41,17 +41,17 @@ public:
         storage.clear();
     }
 
-    void saveMessage(Logger::UMessage&& message) override
+    void saveMessage(const Logger::Message& message) override
     {
         const scoped_lock lock(m_mutex);
-        storage.push_back(std::move(message));
+        storage.push_back(message);
     }
 
     std::mutex m_mutex;
-    static vector<Logger::UMessage> storage;
+    static vector<Logger::Message> storage;
 };
 
-vector<Logger::UMessage> TestLogEngine::storage;
+vector<Logger::Message> TestLogEngine::storage;
 
 TEST(SPTK_LogEngine, options)
 {
@@ -105,12 +105,12 @@ TEST(SPTK_LogEngine, message)
     this_thread::sleep_for(chrono::milliseconds(10));
     logEngine.reset();
 
-    EXPECT_EQ(TestLogEngine::storage[0]->priority, LogPriority::DEBUG);
-    EXPECT_STREQ(TestLogEngine::storage[0]->message.c_str(), "debug message");
+    EXPECT_EQ(TestLogEngine::storage[0].priority, LogPriority::DEBUG);
+    EXPECT_STREQ(TestLogEngine::storage[0].message.c_str(), "debug message");
 
-    EXPECT_EQ(TestLogEngine::storage[1]->priority, LogPriority::INFO);
-    EXPECT_STREQ(TestLogEngine::storage[1]->message.c_str(), "info message");
+    EXPECT_EQ(TestLogEngine::storage[1].priority, LogPriority::INFO);
+    EXPECT_STREQ(TestLogEngine::storage[1].message.c_str(), "info message");
 
-    EXPECT_EQ(TestLogEngine::storage[6]->priority, LogPriority::ALERT);
-    EXPECT_STREQ(TestLogEngine::storage[6]->message.c_str(), "alert message");
+    EXPECT_EQ(TestLogEngine::storage[6].priority, LogPriority::ALERT);
+    EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
 }

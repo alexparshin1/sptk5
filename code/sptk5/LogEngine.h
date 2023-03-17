@@ -69,7 +69,7 @@ public:
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
-    virtual void saveMessage(Logger::UMessage&& message) = 0;
+    virtual void saveMessage(const Logger::Message& message) = 0;
 
     /**
      * Constructor

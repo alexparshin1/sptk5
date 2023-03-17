@@ -47,7 +47,7 @@ SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void SysLogEngine::saveMessage(Logger::UMessage&& message)
+void SysLogEngine::saveMessage(const Logger::Message& message)
 {
     set<Option> options;
     String programName;
@@ -64,7 +64,7 @@ void SysLogEngine::saveMessage(Logger::UMessage&& message)
             openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
             m_logOpened = true;
         }
-        syslog((int) message->priority, "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
+        syslog((int) message.priority, "[%s] %s", priorityName(message.priority).c_str(), message.message.c_str());
 #else
         if (m_logHandle.load() == nullptr)
         {
@@ -80,7 +80,7 @@ void SysLogEngine::saveMessage(Logger::UMessage&& message)
             throw Exception("Can't open Application Event Log");
 
         WORD eventType;
-        switch ((int) message->priority)
+        switch ((int) message.priority)
         {
             case LOG_EMERG:
             case LOG_ALERT:
@@ -97,7 +97,7 @@ void SysLogEngine::saveMessage(Logger::UMessage&& message)
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[] = {TEXT(message->message.c_str())};
+        LPCTSTR messageStrings[] = {TEXT(message.message.c_str())};
 
         if (!ReportEvent(
                 m_logHandle,       // handle returned by RegisterEventSource

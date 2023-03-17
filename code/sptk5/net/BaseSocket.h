@@ -469,9 +469,7 @@ private:
  * @param file              Source file name
  * @param line              Source file line number
  */
-SP_EXPORT void throwSocketError(const String& message, const char* file, int line);
-
-#define THROW_SOCKET_ERROR(msg) sptk::throwSocketError(msg, __FILE__, __LINE__)
+SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
 
 /**
  * @}

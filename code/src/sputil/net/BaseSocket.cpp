@@ -41,7 +41,7 @@ static int m_socketCount;
 static bool m_inited(false);
 #endif
 
-void sptk::throwSocketError(const String& operation, const char* file, int line)
+void sptk::throwSocketError(const String& operation, const std::source_location& location)
 {
     string errorStr;
 #ifdef _WIN32
@@ -63,7 +63,7 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
 #endif
     if (!errorStr.empty())
     {
-        throw Exception(operation + ": " + errorStr);
+        throw Exception(operation + ": " + errorStr, location);
     }
 }
 
@@ -123,7 +123,7 @@ void BaseSocket::blockingMode(bool blocking)
 #endif
     if (result != 0)
     {
-        THROW_SOCKET_ERROR("Can't set socket blocking mode");
+        throwSocketError("Can't set socket blocking mode");
     }
 
     m_blockingMode = blocking;
@@ -139,7 +139,7 @@ size_t BaseSocket::socketBytes()
         const int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
 #endif
         result < 0)
-        THROW_SOCKET_ERROR("Can't get socket bytes");
+        throwSocketError("Can't get socket bytes");
 
     return bytes;
 }
@@ -195,7 +195,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
     // Create a new socket
     m_sockfd = socket(m_domain, m_type, m_protocol);
     if (m_sockfd == INVALID_SOCKET)
-        THROW_SOCKET_ERROR("Can't create socket");
+        throwSocketError("Can't create socket");
 
     int result = 0;
     const char* currentOperation;
@@ -282,7 +282,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
         // Create a new socket
         m_sockfd = socket(m_domain, m_type, m_protocol);
         if (m_sockfd == INVALID_SOCKET)
-            THROW_SOCKET_ERROR("Can't create socket");
+            throwSocketError("Can't create socket");
     }
 
     sockaddr_in addr = {};
@@ -301,7 +301,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
     addr.sin_port = htons(uint16_t(portNumber));
 
     if (::bind(m_sockfd, (sockaddr*) &addr, sizeof(addr)) != 0)
-        THROW_SOCKET_ERROR("Can't bind socket to port " + int2string(portNumber));
+        throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 
 void BaseSocket::listen(uint16_t portNumber)
@@ -366,7 +366,7 @@ size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
     }
 
     if (bytes == -1)
-        THROW_SOCKET_ERROR("Can't read from socket");
+        throwSocketError("Can't read from socket");
 
     return (size_t) bytes;
 }
@@ -414,7 +414,7 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
             bytes = (int) send(ptr, (int32_t) size);
         }
         if (bytes == -1)
-            THROW_SOCKET_ERROR("Can't write to socket");
+            throwSocketError("Can't write to socket");
         remaining -= bytes;
         ptr += bytes;
     }
@@ -466,7 +466,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
                 throw ConnectionException("Connection closed");
             break;
         default:
-            THROW_SOCKET_ERROR("WSAPoll error");
+            throwSocketError("WSAPoll error");
             break;
     }
     return false;
@@ -477,7 +477,7 @@ bool BaseSocket::readyToRead(chrono::milliseconds timeout)
     pfd.events = POLLIN;
     int result = poll(&pfd, 1, timeoutMS);
     if (result < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
+        throwSocketError("Can't read from socket");
     if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
     {
         throw ConnectionException("Connection closed");
@@ -504,7 +504,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
                 throw ConnectionException("Connection closed");
             break;
         default:
-            THROW_SOCKET_ERROR("WSAPoll error");
+            throwSocketError("WSAPoll error");
             break;
     }
     return false;
@@ -514,7 +514,7 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     pfd.events = POLLOUT;
     int result = poll(&pfd, 1, timeoutMS);
     if (result < 0)
-        THROW_SOCKET_ERROR("Can't read from socket");
+        throwSocketError("Can't read from socket");
     if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
     {
         throw Exception("Connection closed");
@@ -533,12 +533,12 @@ void BaseSocket::setOption(int level, int option, int value) const
 {
     const socklen_t len = sizeof(int);
     if (setsockopt(m_sockfd, level, option, VALUE_TYPE(&value), len) != 0)
-        THROW_SOCKET_ERROR("Can't set socket option");
+        throwSocketError("Can't set socket option");
 }
 
 void BaseSocket::getOption(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_sockfd, level, option, VALUE_TYPE(&value), &len) != 0)
-        THROW_SOCKET_ERROR("Can't get socket option");
+        throwSocketError("Can't get socket option");
 }
