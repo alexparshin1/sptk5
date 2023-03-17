@@ -62,7 +62,7 @@ public:
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
-    void saveMessage(const Logger::UMessage& message) override;
+    void saveMessage(Logger::UMessage&& message) override;
 
     /**
      * Restarts the log

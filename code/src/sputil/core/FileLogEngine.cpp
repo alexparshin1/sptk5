@@ -35,7 +35,7 @@ FileLogEngine::~FileLogEngine()
     terminate();
 }
 
-void FileLogEngine::saveMessage(const Logger::UMessage& message)
+void FileLogEngine::saveMessage(Logger::UMessage&& message)
 {
     const auto options = this->options();
 

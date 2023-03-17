@@ -41,10 +41,10 @@ public:
         storage.clear();
     }
 
-    void saveMessage(const Logger::UMessage& message) override
+    void saveMessage(Logger::UMessage&& message) override
     {
         const scoped_lock lock(m_mutex);
-        storage.emplace_back(message);
+        storage.push_back(std::move(message));
     }
 
     std::mutex m_mutex;

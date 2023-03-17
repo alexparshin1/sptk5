@@ -70,7 +70,7 @@ public:
         Message(LogPriority priority, String message);
     };
 
-    using UMessage = std::shared_ptr<Message>;
+    using UMessage = std::unique_ptr<Message>;
 
     /**
      * @brief Constructor

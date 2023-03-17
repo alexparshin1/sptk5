@@ -47,7 +47,7 @@ SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
     programName(_programName);
 }
 
-void SysLogEngine::saveMessage(const Logger::UMessage& message)
+void SysLogEngine::saveMessage(Logger::UMessage&& message)
 {
     set<Option> options;
     String programName;

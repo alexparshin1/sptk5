@@ -43,42 +43,42 @@ Logger::Logger(LogEngine& destination, String prefix)
 
 void Logger::log(LogPriority priority, const String& message)
 {
-    auto msg = make_shared<Message>(priority, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(priority, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::debug(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::DEBUG, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::DEBUG, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::info(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::INFO, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::INFO, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::notice(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::NOTICE, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::NOTICE, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::warning(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::WARNING, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::WARNING, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::error(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::ERR, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::ERR, m_prefix + message);
+    m_destination.log(std::move(msg));
 }
 
 void Logger::critical(const String& message)
 {
-    auto msg = make_shared<Message>(LogPriority::CRITICAL, m_prefix + message);
-    m_destination.log(msg);
+    auto msg = make_unique<Message>(LogPriority::CRITICAL, m_prefix + message);
+    m_destination.log(std::move(msg));
 }

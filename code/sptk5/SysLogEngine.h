@@ -29,8 +29,8 @@
 #ifndef _WIN32
 #include <syslog.h>
 #else
-#include <winsock2.h>
 #include <windows.h>
+#include <winsock2.h>
 #endif
 
 #include <sptk5/LogEngine.h>
@@ -60,7 +60,7 @@ public:
      * This method should be overwritten by the actual log implementation
      * @param message           Log message
      */
-    void saveMessage(const Logger::UMessage& message) override;
+    void saveMessage(Logger::UMessage&& message) override;
 
     /**
      * Constructor
