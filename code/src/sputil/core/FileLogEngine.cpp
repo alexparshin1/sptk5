@@ -30,13 +30,19 @@
 using namespace std;
 using namespace sptk;
 
+FileLogEngine::~FileLogEngine()
+{
+    terminate();
+    join();
+}
+
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
     const auto options = this->options();
 
     const scoped_lock lock(masterLock());
 
-    if (options.contains(Option::ENABLE))
+    if (options.contains(Option::ENABLE) && !terminated())
     {
         if (!m_fileStream.is_open())
         {

@@ -56,6 +56,8 @@ public:
      */
     explicit FileLogEngine(const std::filesystem::path& fileName);
 
+    ~FileLogEngine() override;
+
     /**
      * Stores or sends log message to actual destination
      * @param message           Log message
