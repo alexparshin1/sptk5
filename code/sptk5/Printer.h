@@ -36,17 +36,13 @@ extern std::mutex printMutex;
 #define COUT(a)                                  \
     do                                           \
     {                                            \
-        std::stringstream _printstream;          \
-        _printstream << a;                       \
         std::scoped_lock lock(sptk::printMutex); \
-        std::cout << _printstream.str().c_str(); \
+        std::cout << a;                          \
     } while (false)
 
 #define CERR(a)                                  \
     do                                           \
     {                                            \
-        std::stringstream _printstream;          \
-        _printstream << a;                       \
         std::scoped_lock lock(sptk::printMutex); \
-        std::cerr << _printstream.str().c_str(); \
+        std::cerr << a;                          \
     } while (false)
