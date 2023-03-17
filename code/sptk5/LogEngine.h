@@ -50,7 +50,6 @@ namespace sptk {
  * at least saveMessage() method.
  */
 class SP_EXPORT LogEngine
-    : public Thread
 {
     friend class Logger;
 
@@ -82,7 +81,7 @@ public:
     /**
      * Destructor
      */
-    ~LogEngine() noexcept override;
+    virtual ~LogEngine();
 
     /**
      * Restarts the log
@@ -160,7 +159,7 @@ public:
     static LogPriority priorityFromName(const String& prt);
 
 protected:
-    void threadFunction() override;
+    void threadFunction();
 
     /**
      * Log a message
@@ -178,11 +177,34 @@ protected:
     /**
      * Shutdown log worker thread
      */
-    void shutdown() noexcept;
+    void shutdown();
 
+    /**
+     * Mutex for using in derived classes
+     */
     std::mutex& masterLock()
     {
         return m_mutex;
+    }
+
+    /**
+     * Terminate message save thread
+     */
+    void terminate()
+    {
+        if (m_saveMessageThread.joinable())
+        {
+            m_saveMessageThread.request_stop();
+            m_saveMessageThread.join();
+        }
+    }
+
+    /**
+     * Terminate message save thread
+     */
+    bool terminated() const
+    {
+        return m_saveMessageThread.get_stop_token().stop_requested();
     }
 
 private:
@@ -190,6 +212,11 @@ private:
      * Mutex that protects internal data access
      */
     mutable std::mutex m_mutex;
+
+    /**
+     * Thread that saves messages into backend
+     */
+    std::jthread m_saveMessageThread;
 
     /**
      * Min message priority, should be defined for every message

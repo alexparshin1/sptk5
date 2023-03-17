@@ -30,22 +30,30 @@
 using namespace std;
 using namespace sptk;
 
-LogEngine::LogEngine(const String& logEngineName)
-    : Thread(logEngineName)
+LogEngine::LogEngine(const String&)
 {
+    m_saveMessageThread = jthread([this](stop_token stopToken) {
+        try
+        {
+            threadFunction();
+        }
+        catch (const Exception& exception)
+        {
+            CERR(exception.what() << endl);
+        }
+    });
 }
 
-LogEngine::~LogEngine() noexcept
+LogEngine::~LogEngine()
 {
     shutdown();
 }
 
-void LogEngine::shutdown() noexcept
+void LogEngine::shutdown()
 {
     if (!terminated())
     {
-        Thread::terminate();
-        Thread::join();
+        terminate();
     }
 }
 
@@ -123,11 +131,6 @@ void LogEngine::log(const Logger::UMessage& message)
     if (terminated())
     {
         return;
-    }
-
-    if (!running())
-    {
-        run();
     }
 
     if (m_minPriority >= message->priority)

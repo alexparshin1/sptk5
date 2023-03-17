@@ -33,7 +33,6 @@ using namespace sptk;
 FileLogEngine::~FileLogEngine()
 {
     terminate();
-    join();
 }
 
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
