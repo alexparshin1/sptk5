@@ -251,7 +251,7 @@ protected:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
-    mutable SharedMutex m_mutex;                         ///< Mutex protecting internal data
+    mutable std::mutex m_mutex;                          ///< Mutex protecting internal data
     std::shared_ptr<TCPServerListener> m_listenerThread; ///< Server listener
     std::shared_ptr<Logger> m_logger;                    ///< Optional logger
     std::shared_ptr<SSLKeys> m_sslKeys;                  ///< Optional SSL keys. Only used for SSL server.

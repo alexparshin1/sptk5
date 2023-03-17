@@ -27,7 +27,6 @@
 
 #include <iostream>
 #include <mutex>
-#include <sstream>
 
 namespace sptk {
 extern std::mutex printMutex;

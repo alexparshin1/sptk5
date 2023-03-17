@@ -75,7 +75,7 @@ protected:
     SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override;
 
 private:
-    mutable SharedMutex m_mutex;     ///< Mutex that protects internal data
+    mutable std::mutex m_mutex;      ///< Mutex that protects internal data
     WSServices m_services;           ///< Web Service request processor
     Logger m_logger;                 ///< Logger object
     WSConnection::Options m_options; ///< Client connection options

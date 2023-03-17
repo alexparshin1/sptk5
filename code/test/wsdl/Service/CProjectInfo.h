@@ -3,7 +3,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
@@ -17,7 +16,6 @@ namespace test_service {
 class CProjectInfo : public sptk::WSComplexType
 {
 public:
-
     /**
      * ID of the class
      */
@@ -26,60 +24,59 @@ public:
         return "ProjectInfo";
     }
 
-   // Elements
-   sptk::WSInteger                          m_id {"id", false};
-   sptk::WSString                           m_expiration {"expiration", false};
+    // Elements
+    sptk::WSInteger m_id {"id", false};
+    sptk::WSString m_expiration {"expiration", false};
 
-   /**
+    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CProjectInfo(const char* elementName="project_info", bool optional=false);
+    explicit CProjectInfo(const char* elementName = "project_info", bool optional = false);
 
-   /**
+    /**
     * Copy constructor
     * @param other              Other object
     */
-   CProjectInfo(const CProjectInfo& other);
+    CProjectInfo(const CProjectInfo& other);
 
-   /**
+    /**
     * Move constructor
     * @param other              Other object
     */
-   CProjectInfo(CProjectInfo&& other) noexcept;
+    CProjectInfo(CProjectInfo&& other) noexcept;
 
-   /**
+    /**
     * Destructor
     */
-   ~CProjectInfo() override = default;
+    ~CProjectInfo() override = default;
 
-   /**
+    /**
     * Copy assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (const CProjectInfo& other) = default;
+    CProjectInfo& operator=(const CProjectInfo& other) = default;
 
-   /**
+    /**
     * Move assignment
     * @param other              Other object
     */
-   CProjectInfo& operator = (CProjectInfo&& other) noexcept = default;
+    CProjectInfo& operator=(CProjectInfo&& other) noexcept = default;
 
-   /**
+    /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-
-   /**
+    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const override;
+    void checkRestrictions() const override;
 };
 
-}
+} // namespace test_service

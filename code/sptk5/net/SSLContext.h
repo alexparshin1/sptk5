@@ -33,7 +33,6 @@
 #include <openssl/ssl.h>
 #include <sptk5/String.h>
 #include <sptk5/net/SSLKeys.h>
-#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 
@@ -45,7 +44,7 @@ namespace sptk {
 /**
  * SSL connection context
  */
-class SSLContext : public SharedMutex
+class SSLContext : public std::mutex
 {
     std::shared_ptr<SSL_CTX> m_ctx; ///< SSL connection context
     String m_password;              ///< Password for auto-answer in callback function

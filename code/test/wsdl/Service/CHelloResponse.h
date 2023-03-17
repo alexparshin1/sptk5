@@ -3,7 +3,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
@@ -17,7 +16,6 @@ namespace test_service {
 class CHelloResponse : public sptk::WSComplexType
 {
 public:
-
     /**
      * ID of the class
      */
@@ -26,64 +24,63 @@ public:
         return "HelloResponse";
     }
 
-   // Elements
-   sptk::WSDate                             m_date_of_birth {"date_of_birth", false};
-   sptk::WSDateTime                         m_verified {"verified", false};
-   sptk::WSBool                             m_retired {"retired", false};
-   sptk::WSDouble                           m_hour_rate {"hour_rate", false};
-   sptk::WSInteger                          m_vacation_days {"vacation_days", false};
-   sptk::WSDouble                           m_height {"height", false};
+    // Elements
+    sptk::WSDate m_date_of_birth {"date_of_birth", false};
+    sptk::WSDateTime m_verified {"verified", false};
+    sptk::WSBool m_retired {"retired", false};
+    sptk::WSDouble m_hour_rate {"hour_rate", false};
+    sptk::WSInteger m_vacation_days {"vacation_days", false};
+    sptk::WSDouble m_height {"height", false};
 
-   /**
+    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CHelloResponse(const char* elementName="hello_response", bool optional=false);
+    explicit CHelloResponse(const char* elementName = "hello_response", bool optional = false);
 
-   /**
+    /**
     * Copy constructor
     * @param other              Other object
     */
-   CHelloResponse(const CHelloResponse& other);
+    CHelloResponse(const CHelloResponse& other);
 
-   /**
+    /**
     * Move constructor
     * @param other              Other object
     */
-   CHelloResponse(CHelloResponse&& other) noexcept;
+    CHelloResponse(CHelloResponse&& other) noexcept;
 
-   /**
+    /**
     * Destructor
     */
-   ~CHelloResponse() override = default;
+    ~CHelloResponse() override = default;
 
-   /**
+    /**
     * Copy assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (const CHelloResponse& other) = default;
+    CHelloResponse& operator=(const CHelloResponse& other) = default;
 
-   /**
+    /**
     * Move assignment
     * @param other              Other object
     */
-   CHelloResponse& operator = (CHelloResponse&& other) noexcept = default;
+    CHelloResponse& operator=(CHelloResponse&& other) noexcept = default;
 
-   /**
+    /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-
-   /**
+    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const override;
+    void checkRestrictions() const override;
 };
 
-}
+} // namespace test_service

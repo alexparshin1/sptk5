@@ -3,7 +3,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
@@ -17,7 +16,6 @@ namespace test_service {
 class CLoginResponse : public sptk::WSComplexType
 {
 public:
-
     /**
      * ID of the class
      */
@@ -26,59 +24,58 @@ public:
         return "LoginResponse";
     }
 
-   // Elements
-   sptk::WSString                           m_jwt {"jwt", false};
+    // Elements
+    sptk::WSString m_jwt {"jwt", false};
 
-   /**
+    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CLoginResponse(const char* elementName="login_response", bool optional=false);
+    explicit CLoginResponse(const char* elementName = "login_response", bool optional = false);
 
-   /**
+    /**
     * Copy constructor
     * @param other              Other object
     */
-   CLoginResponse(const CLoginResponse& other);
+    CLoginResponse(const CLoginResponse& other);
 
-   /**
+    /**
     * Move constructor
     * @param other              Other object
     */
-   CLoginResponse(CLoginResponse&& other) noexcept;
+    CLoginResponse(CLoginResponse&& other) noexcept;
 
-   /**
+    /**
     * Destructor
     */
-   ~CLoginResponse() override = default;
+    ~CLoginResponse() override = default;
 
-   /**
+    /**
     * Copy assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (const CLoginResponse& other) = default;
+    CLoginResponse& operator=(const CLoginResponse& other) = default;
 
-   /**
+    /**
     * Move assignment
     * @param other              Other object
     */
-   CLoginResponse& operator = (CLoginResponse&& other) noexcept = default;
+    CLoginResponse& operator=(CLoginResponse&& other) noexcept = default;
 
-   /**
+    /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-
-   /**
+    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const override;
+    void checkRestrictions() const override;
 };
 
-}
+} // namespace test_service

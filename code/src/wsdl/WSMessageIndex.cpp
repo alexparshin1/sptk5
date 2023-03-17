@@ -41,7 +41,7 @@ WSMessageIndex::WSMessageIndex(const Strings& messages)
 
 int WSMessageIndex::indexOf(const String& message) const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     auto itor = m_messageIndex.find(message);
     if (itor == m_messageIndex.end())
     {

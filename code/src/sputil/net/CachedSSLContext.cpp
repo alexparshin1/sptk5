@@ -30,14 +30,14 @@
 using namespace std;
 using namespace sptk;
 
-SharedMutex CachedSSLContext::m_mutex;
+mutex CachedSSLContext::m_mutex;
 CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList)
 {
     const String ident = keys.ident();
 
-    const UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     SharedSSLContext context = m_contexts[ident];
     if (!context)

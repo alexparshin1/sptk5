@@ -97,13 +97,13 @@ TCPServer::~TCPServer()
 
 const Host& TCPServer::host() const
 {
-    SharedLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_host;
 }
 
 void TCPServer::host(const Host& host)
 {
-    SharedLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (!m_listenerThread)
     {
         m_host = host;
@@ -112,7 +112,7 @@ void TCPServer::host(const Host& host)
 
 void TCPServer::listen(uint16_t port)
 {
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_host.port(port);
     m_listenerThread = make_shared<TCPServerListener>(this, port);
     m_listenerThread->listen();
@@ -125,7 +125,7 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     ThreadPool::stop();
     if (m_listenerThread)
     {
@@ -136,13 +136,13 @@ void TCPServer::stop()
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
 {
-    UniqueLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_sslKeys = std::move(sslKeys);
 }
 
 const SSLKeys& TCPServer::getSSLKeys() const
 {
-    SharedLock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return *m_sslKeys;
 }
 

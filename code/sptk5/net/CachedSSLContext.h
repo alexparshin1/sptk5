@@ -35,7 +35,7 @@ class CachedSSLContext
 {
     using CachedSSLContextMap = std::map<String, SharedSSLContext>;
 
-    static SharedMutex m_mutex;
+    static std::mutex m_mutex;
     static CachedSSLContextMap m_contexts;
 
     /**

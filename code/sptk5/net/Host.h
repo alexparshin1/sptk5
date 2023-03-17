@@ -29,7 +29,6 @@
 #include <cstring>
 #include <mutex>
 #include <sptk5/Strings.h>
-#include <sptk5/threads/Locks.h>
 #include <sstream>
 
 #ifndef _WIN32

@@ -47,7 +47,7 @@ SSLContext::SSLContext(const String& cipherList)
 {
     m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
                                 [this](SSL_CTX* context) {
-                                    UniqueLock(*this);
+                                    const scoped_lock lock(*this);
                                     SSL_CTX_free(context);
                                 });
     if (!cipherList.empty())
@@ -61,7 +61,7 @@ SSLContext::SSLContext(const String& cipherList)
 
 SSL_CTX* SSLContext::handle()
 {
-    UniqueLock(*this);
+    const scoped_lock lock(*this);
     return m_ctx.get();
 }
 
@@ -74,7 +74,7 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int /*rw
 
 void SSLContext::loadKeys(const SSLKeys& keys)
 {
-    UniqueLock(*this);
+    const scoped_lock lock(*this);
 
     m_password = keys.password();
 

@@ -3,7 +3,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
@@ -17,7 +16,6 @@ namespace test_service {
 class CAccountBalance : public sptk::WSComplexType
 {
 public:
-
     /**
      * ID of the class
      */
@@ -26,59 +24,58 @@ public:
         return "AccountBalance";
     }
 
-   // Elements
-   sptk::WSString                           m_account_number {"account_number", false};
+    // Elements
+    sptk::WSString m_account_number {"account_number", false};
 
-   /**
+    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CAccountBalance(const char* elementName="account_balance", bool optional=false);
+    explicit CAccountBalance(const char* elementName = "account_balance", bool optional = false);
 
-   /**
+    /**
     * Copy constructor
     * @param other              Other object
     */
-   CAccountBalance(const CAccountBalance& other);
+    CAccountBalance(const CAccountBalance& other);
 
-   /**
+    /**
     * Move constructor
     * @param other              Other object
     */
-   CAccountBalance(CAccountBalance&& other) noexcept;
+    CAccountBalance(CAccountBalance&& other) noexcept;
 
-   /**
+    /**
     * Destructor
     */
-   ~CAccountBalance() override = default;
+    ~CAccountBalance() override = default;
 
-   /**
+    /**
     * Copy assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (const CAccountBalance& other) = default;
+    CAccountBalance& operator=(const CAccountBalance& other) = default;
 
-   /**
+    /**
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalance& operator = (CAccountBalance&& other) noexcept = default;
+    CAccountBalance& operator=(CAccountBalance&& other) noexcept = default;
 
-   /**
+    /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-
-   /**
+    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const override;
+    void checkRestrictions() const override;
 };
 
-}
+} // namespace test_service

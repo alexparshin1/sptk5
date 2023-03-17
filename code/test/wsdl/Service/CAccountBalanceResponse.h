@@ -3,7 +3,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/sptk.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSComplexType.h>
 #include <sptk5/wsdl/WSRestriction.h>
@@ -17,7 +16,6 @@ namespace test_service {
 class CAccountBalanceResponse : public sptk::WSComplexType
 {
 public:
-
     /**
      * ID of the class
      */
@@ -26,59 +24,58 @@ public:
         return "AccountBalanceResponse";
     }
 
-   // Elements
-   sptk::WSDouble                           m_account_balance {"account_balance", false};
+    // Elements
+    sptk::WSDouble m_account_balance {"account_balance", false};
 
-   /**
+    /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-   explicit CAccountBalanceResponse(const char* elementName="account_balance_response", bool optional=false);
+    explicit CAccountBalanceResponse(const char* elementName = "account_balance_response", bool optional = false);
 
-   /**
+    /**
     * Copy constructor
     * @param other              Other object
     */
-   CAccountBalanceResponse(const CAccountBalanceResponse& other);
+    CAccountBalanceResponse(const CAccountBalanceResponse& other);
 
-   /**
+    /**
     * Move constructor
     * @param other              Other object
     */
-   CAccountBalanceResponse(CAccountBalanceResponse&& other) noexcept;
+    CAccountBalanceResponse(CAccountBalanceResponse&& other) noexcept;
 
-   /**
+    /**
     * Destructor
     */
-   ~CAccountBalanceResponse() override = default;
+    ~CAccountBalanceResponse() override = default;
 
-   /**
+    /**
     * Copy assignment
     * @param other              Other object
     */
-   CAccountBalanceResponse& operator = (const CAccountBalanceResponse& other) = default;
+    CAccountBalanceResponse& operator=(const CAccountBalanceResponse& other) = default;
 
-   /**
+    /**
     * Move assignment
     * @param other              Other object
     */
-   CAccountBalanceResponse& operator = (CAccountBalanceResponse&& other) noexcept = default;
+    CAccountBalanceResponse& operator=(CAccountBalanceResponse&& other) noexcept = default;
 
-   /**
+    /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-
-   /**
+    /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-   void checkRestrictions() const override;
+    void checkRestrictions() const override;
 };
 
-}
+} // namespace test_service

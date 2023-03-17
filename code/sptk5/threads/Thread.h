@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include <sptk5/threads/Locks.h>
-
 #include "Semaphore.h"
 #include <atomic>
 #include <mutex>

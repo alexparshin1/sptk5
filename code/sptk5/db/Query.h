@@ -37,7 +37,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/threads/Locks.h>
 
 namespace sptk {
 

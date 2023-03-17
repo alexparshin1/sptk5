@@ -178,7 +178,6 @@ void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, co
     Strings includeFiles;
     includeFiles.push_back("#include <sptk5/sptk.h>");
     includeFiles.push_back("#include <sptk5/FieldList.h>");
-    includeFiles.push_back("#include <sptk5/threads/Locks.h>");
     includeFiles.push_back("#include <sptk5/db/QueryParameterList.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
     includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");

@@ -29,7 +29,6 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/Variant.h>
 #include <sptk5/db/QueryParameterList.h>
-#include <sptk5/threads/Locks.h>
 #include <sptk5/wsdl/WSArray.h>
 #include <sptk5/wsdl/WSBasicTypes.h>
 #include <sptk5/wsdl/WSFieldIndex.h>
