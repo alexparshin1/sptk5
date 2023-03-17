@@ -172,13 +172,16 @@ void LogEngine::threadFunction()
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
             }
 
-            FILE* dest = stdout;
             if (message->priority <= LogPriority::ERR)
             {
-                dest = stderr;
+                CERR(messagePrefix.c_str() << message->message.c_str() << endl
+                                           << flush);
             }
-            fprintf(dest, "%s%s\n", messagePrefix.c_str(), message->message.c_str());
-            fflush(dest);
+            else
+            {
+                COUT(messagePrefix.c_str() << message->message.c_str() << endl
+                                           << flush);
+            }
         }
     }
 

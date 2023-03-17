@@ -26,13 +26,19 @@
 #pragma once
 
 #include <iostream>
+#include <mutex>
 #include <sstream>
+
+namespace sptk {
+extern std::mutex printMutex;
+}
 
 #define COUT(a)                                  \
     do                                           \
     {                                            \
         std::stringstream _printstream;          \
         _printstream << a;                       \
+        std::scoped_lock lock(sptk::printMutex); \
         std::cout << _printstream.str().c_str(); \
     } while (false)
 
@@ -41,5 +47,6 @@
     {                                            \
         std::stringstream _printstream;          \
         _printstream << a;                       \
+        std::scoped_lock lock(sptk::printMutex); \
         std::cerr << _printstream.str().c_str(); \
     } while (false)
