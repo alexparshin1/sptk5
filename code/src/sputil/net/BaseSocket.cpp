@@ -63,7 +63,7 @@ void sptk::throwSocketError(const String& operation, const char* file, int line)
 #endif
     if (!errorStr.empty())
     {
-        throw Exception(operation + ": " + errorStr, file, line);
+        throw Exception(operation + ": " + errorStr);
     }
 }
 

@@ -38,11 +38,6 @@ static inline bool Successful(RETCODE ret)
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 
-void ODBCBase::exception(const String& text, int line)
-{
-    throw DatabaseException(text, __FILE__, line);
-}
-
 //---------------------------------------------------------------------------
 // ODBC Environment class
 //---------------------------------------------------------------------------
@@ -57,7 +52,7 @@ void ODBCEnvironment::allocEnv()
     SQLHENV hEnvironment {nullptr};
     if (!Successful(SQLAllocEnv(&hEnvironment)))
     {
-        exception("Can't allocate ODBC environment", __LINE__);
+        throw DatabaseException("Can't allocate ODBC environment");
     }
 
     m_hEnvironment = shared_ptr<uint8_t>((uint8_t*) hEnvironment,
@@ -91,7 +86,7 @@ void ODBCConnectionBase::allocConnect()
     if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &hConnection)))
     {
         m_hConnection = SQL_NULL_HDBC;
-        exception(errorInformation("Can't alloc connection"), __LINE__);
+        throw DatabaseException(errorInformation("Can't alloc connection"));
     }
 
     m_hConnection = shared_ptr<uint8_t>((uint8_t*) hConnection,
@@ -132,7 +127,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     // Check parameters
     if (ConnectionString.empty())
     {
-        exception("Can'connect: connection string is empty", __LINE__);
+        throw DatabaseException("Can'connect: connection string is empty");
     }
 
     // If handle not allocated, allocate it
@@ -165,7 +160,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     if (!Successful(rc))
     {
         String errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
-        exception(errorInfo, __LINE__);
+        throw DatabaseException(errorInfo);
     }
 
     pFinalString = (const char*) buff.data();
@@ -206,14 +201,14 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
 {
     if (!isConnected())
     {
-        exception(errorInformation(cantSetConnectOption), __LINE__);
+        throw DatabaseException(errorInformation(cantSetConnectOption));
     }
 
     scoped_lock lock(*this);
 
     if (!Successful(SQLSetConnectOption(m_hConnection.get(), fOption, vParam)))
     {
-        exception(errorInformation(cantSetConnectOption), __LINE__);
+        throw DatabaseException(errorInformation(cantSetConnectOption));
     }
 }
 
@@ -248,7 +243,7 @@ void ODBCConnectionBase::transact(UWORD fType)
 {
     if (!isConnected())
     {
-        exception(string(cantEndTranscation) + "Not connected to the database", __LINE__);
+        throw DatabaseException(string(cantEndTranscation) + "Not connected to the database");
     }
 
     if (fType == SQL_COMMIT)
@@ -343,7 +338,7 @@ String ODBCConnectionBase::errorInformation(const char* function) const
                   &nativeError, (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS)
     {
-        exception(cantGetInformation, __LINE__);
+        throw DatabaseException(cantGetInformation);
     }
 
     return String(function) + ": " + removeDriverIdentification(errorDescription.data());

@@ -79,11 +79,6 @@ public:
      */
     ~ODBCBase() = default;
 
-    /**
-     * Throws the exception
-     */
-    [[noreturn]] static void exception(const String& text, int line);
-
 protected:
     /**
      * Constructor

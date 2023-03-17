@@ -32,23 +32,20 @@
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(String text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
-    : m_file(file.string())
-    , m_line(line)
+Exception::Exception(String text, const std::source_location& location, const String& description) DOESNT_THROW
+    : m_location(location)
     , m_text(std::move(text))
     , m_description(description)
     , m_fullMessage(m_text)
 {
-    if (m_line != 0 && !m_file.empty())
+    RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
+    String fileName(m_location.file_name());
+    if (auto matches = matchFileName.m(m_location.file_name());
+        !matches.empty())
     {
-        RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-        String fileName(file.string());
-        if (auto matches = matchFileName.m(file.string().c_str()); !matches.empty())
-        {
-            fileName = matches[0].value;
-        }
-        m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_line)) + ")";
+        fileName = matches[0].value;
     }
+    m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_location.line())) + ")";
 
     if (!m_description.empty())
     {
@@ -66,14 +63,9 @@ String Exception::message() const
     return m_text;
 }
 
-String Exception::file() const
+std::source_location Exception::location() const
 {
-    return m_file;
-}
-
-int Exception::line() const
-{
-    return m_line;
+    return m_location;
 }
 
 String Exception::description() const
@@ -81,32 +73,29 @@ String Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(const String& text, const std::filesystem::path& file, int line,
-                                   const String& description) DOESNT_THROW
-    : Exception(text, file, line, description)
+TimeoutException::TimeoutException(const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+    : Exception(text, location, description)
 {
 }
 
-ConnectionException::ConnectionException(const String& text, const std::filesystem::path& file, int line,
+ConnectionException::ConnectionException(const String& text, const std::source_location& location,
                                          const String& description) DOESNT_THROW
-    : Exception(text, file, line, description)
+    : Exception(text, location, description)
 {
 }
 
-DatabaseException::DatabaseException(const String& text, const filesystem::path& file, int line,
-                                     const String& description) DOESNT_THROW
-    : Exception(text, file, line, description)
+DatabaseException::DatabaseException(const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+    : Exception(text, location, description)
 {
 }
 
-SOAPException::SOAPException(const String& text, const std::filesystem::path& file, int line, const String& description) DOESNT_THROW
-    : Exception(text, file, line, description)
+SOAPException::SOAPException(const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+    : Exception(text, location, description)
 {
 }
 
-HTTPException::HTTPException(size_t statusCode, const String& text, const std::filesystem::path& file, int line,
-                             const String& description) DOESNT_THROW
-    : Exception(text, file, line, description)
+HTTPException::HTTPException(size_t statusCode, const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+    : Exception(text, location, description)
     , m_statusCode(statusCode)
 {
     m_statusText = httpResponseStatus(statusCode);

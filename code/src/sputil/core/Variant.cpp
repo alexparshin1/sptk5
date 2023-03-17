@@ -886,7 +886,7 @@ VariantDataType BaseVariant::nameType(const char* name)
     auto itor = nameToTypeMap.find(lowerCase(name));
     if (itor == nameToTypeMap.end())
     {
-        throw Exception("Type name " + string(name) + " isn't recognized", __FILE__, __LINE__);
+        throw Exception("Type name " + string(name) + " isn't recognized");
     }
 
     return itor->second;

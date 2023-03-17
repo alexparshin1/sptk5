@@ -69,7 +69,7 @@ void QueryStatementManagement::closeQuery(bool releaseStatement)
 
 void QueryStatementManagement::notImplemented(const String& functionName) const
 {
-    throw DatabaseException(functionName + " isn't implemented", __FILE__, __LINE__, getSQL());
+    throw DatabaseException(functionName + " isn't implemented", source_location::current(), getSQL());
 }
 
 void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
@@ -336,7 +336,7 @@ bool Query::open()
 {
     if (database() == nullptr)
     {
-        throw DatabaseException("Query is not connected to the database", __FILE__, __LINE__, sql());
+        throw DatabaseException("Query is not connected to the database", source_location::current(), sql());
     }
 
     try
@@ -361,12 +361,12 @@ void Query::fetch()
 {
     if (database() == nullptr || !active())
     {
-        throw DatabaseException("Dataset isn't open", __FILE__, __LINE__, sql());
+        throw DatabaseException("Dataset isn't open", source_location::current(), sql());
     }
 
     if (eof())
     {
-        throw DatabaseException("No more rows to read", __FILE__, __LINE__, sql());
+        throw DatabaseException("No more rows to read", source_location::current(), sql());
     }
 
     database()->queryFetch(this);

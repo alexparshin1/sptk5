@@ -42,7 +42,7 @@ static void logMessages(LogEngine& logEngine)
     logger->warning("Warning message");
     logger->info("Test completed");
 
-    this_thread::sleep_for(chrono::milliseconds(10));
+    this_thread::sleep_for(chrono::milliseconds(50));
 }
 
 static void testPriority(LogEngine& logEngine, LogPriority priority, size_t expectedMessageCount)

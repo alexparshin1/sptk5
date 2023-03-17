@@ -529,11 +529,11 @@ using SQuery = std::shared_ptr<Query>;
  * @}
  */
 
-#define THROW_QUERY_ERROR(query, error)                                             \
-    {                                                                               \
-        std::stringstream err;                                                      \
-        err << error;                                                               \
-        throw sptk::DatabaseException(err.str(), __FILE__, __LINE__, query->sql()); \
+#define THROW_QUERY_ERROR(query, error)                                                     \
+    {                                                                                       \
+        std::stringstream err;                                                              \
+        err << error;                                                                       \
+        throw sptk::DatabaseException(err.str(), source_location::current(), query->sql()); \
     }
 
 constexpr int FETCH_BUFFER_SIZE = 1024;
