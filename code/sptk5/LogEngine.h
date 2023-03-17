@@ -101,6 +101,7 @@ public:
      */
     void options(const std::set<Option>& ops)
     {
+        const std::scoped_lock lock(m_mutex);
         m_options = ops;
     }
 
@@ -110,6 +111,7 @@ public:
      */
     std::set<Option> options() const
     {
+        const std::scoped_lock lock(m_mutex);
         return m_options;
     }
 
@@ -178,11 +180,16 @@ protected:
      */
     void shutdown() noexcept;
 
+    std::mutex& masterLock()
+    {
+        return m_mutex;
+    }
+
 private:
     /**
      * Mutex that protects internal data access
      */
-    mutable SharedMutex m_mutex;
+    mutable std::mutex m_mutex;
 
     /**
      * Min message priority, should be defined for every message

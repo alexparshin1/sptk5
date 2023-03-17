@@ -33,19 +33,9 @@ using namespace sptk;
 
 static const filesystem::path logFileName("/tmp/file_log_test.tmp");
 
-static shared_ptr<FileLogEngine> makeFileLogEngine(LogPriority minLogPriority)
+static void logMessages(LogEngine& logEngine)
 {
-    unlink(logFileName.string().c_str());
-
-    auto logEngine = make_shared<FileLogEngine>(logFileName);
-    logEngine->minPriority(minLogPriority);
-
-    return logEngine;
-}
-
-static void logMessages(const shared_ptr<LogEngine>& logEngine)
-{
-    auto logger = make_shared<Logger>(*logEngine, "(Test application) ");
+    auto logger = make_shared<Logger>(logEngine, "(Test application) ");
     logger->debug("Test started");
     logger->critical("Critical message");
     logger->error("Error message");
@@ -55,11 +45,10 @@ static void logMessages(const shared_ptr<LogEngine>& logEngine)
     this_thread::sleep_for(chrono::milliseconds(10));
 }
 
-static void testPriority(LogPriority priority, size_t expectedMessageCount)
+static void testPriority(LogEngine& logEngine, LogPriority priority, size_t expectedMessageCount)
 {
-    auto logEngine = makeFileLogEngine(priority);
-
-    logEngine->reset();
+    logEngine.reset();
+    logEngine.minPriority(priority);
 
     logMessages(logEngine);
 
@@ -71,9 +60,11 @@ static void testPriority(LogPriority priority, size_t expectedMessageCount)
 
 TEST(SPTK_FileLogEngine, testLogPriorities)
 {
-    testPriority(LogPriority::DEBUG, 5);
-    testPriority(LogPriority::INFO, 4);
-    testPriority(LogPriority::ERR, 2);
+    FileLogEngine logEngine(logFileName);
+
+    testPriority(logEngine, LogPriority::DEBUG, 5);
+    testPriority(logEngine, LogPriority::INFO, 4);
+    testPriority(logEngine, LogPriority::ERR, 2);
 }
 
 TEST(SPTK_FileLogEngine, performance)

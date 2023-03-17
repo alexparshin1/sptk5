@@ -26,16 +26,17 @@
 
 #include <sptk5/FileLogEngine.h>
 #include <sptk5/Printer.h>
-#include <sptk5/SystemException.h>
 
 using namespace std;
 using namespace sptk;
 
 void FileLogEngine::saveMessage(const Logger::UMessage& message)
 {
-    lock_guard lock(m_mutex);
+    const auto options = this->options();
 
-    if (option(Option::ENABLE))
+    const scoped_lock lock(masterLock());
+
+    if (options.contains(Option::ENABLE))
     {
         if (!m_fileStream.is_open())
         {
@@ -46,18 +47,18 @@ void FileLogEngine::saveMessage(const Logger::UMessage& message)
             }
         }
 
-        if (option(Option::DATE))
+        if (options.contains(Option::DATE))
         {
             m_fileStream << message->timestamp.dateString() << " ";
         }
 
-        if (option(Option::TIME))
+        if (options.contains(Option::TIME))
         {
-            auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+            auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
             m_fileStream << message->timestamp.timeString(true, printAccuracy) << " ";
         }
 
-        if (option(Option::PRIORITY))
+        if (options.contains(Option::PRIORITY))
         {
             m_fileStream << "[" << priorityName(message->priority) << "] ";
         }
@@ -80,15 +81,18 @@ FileLogEngine::FileLogEngine(const filesystem::path& fileName)
 
 void FileLogEngine::reset()
 {
-    lock_guard lock(m_mutex);
+    const scoped_lock lock(masterLock());
+
     if (m_fileStream.is_open())
     {
         m_fileStream.close();
     }
+
     if (m_fileName.empty())
     {
         throw Exception("File name isn't defined", __FILE__, __LINE__);
     }
+
     m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::trunc);
     if (!m_fileStream.is_open())
     {
@@ -98,7 +102,7 @@ void FileLogEngine::reset()
 
 void FileLogEngine::close()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(masterLock());
     if (m_fileStream.is_open())
     {
         m_fileStream.flush();

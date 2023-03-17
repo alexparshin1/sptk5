@@ -73,7 +73,6 @@ protected:
     void close() override;
 
 private:
-    mutable std::mutex m_mutex;       ///< Mutex that protects internal data
     std::filesystem::path m_fileName; ///< Log file name
     std::ofstream m_fileStream;       ///< Log file stream
 };
