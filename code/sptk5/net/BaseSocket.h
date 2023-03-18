@@ -26,49 +26,7 @@
 
 #pragma once
 
-#include <chrono>
-#include <sptk5/Buffer.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/Strings.h>
-#include <sptk5/net/Host.h>
-
-#ifndef _WIN32
-
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <unistd.h>
-
-/**
- * A socket handle is an integer
- */
-using SOCKET = int;
-using SOCKET_ADDRESS_FAMILY = sa_family_t;
-
-#ifdef __APPLE__
-using socklen_t = int;
-#endif
-
-/**
- * A value to indicate an invalid handle
- */
-#define INVALID_SOCKET (-1)
-
-#else
-#include <winsock2.h>
-#include <ws2tcpip.h>
-
-#include <windows.h>
-using socklen_t = int;
-using SOCKET_ADDRESS_FAMILY = unsigned short;
-#endif
+#include <sptk5/net/BaseSocketVirtualMethods.h>
 
 namespace sptk {
 
@@ -83,35 +41,25 @@ namespace sptk {
  * Allows establishing a network connection
  * to the host by name and port address
  */
-class SP_EXPORT BaseSocket
+class SP_EXPORT BaseSocket : public BaseSocketVirtualMethods
 {
 public:
-    /**
-    * A mode to open a socket, one of
-    */
-    enum class OpenMode : uint8_t
-    {
-        CREATE,  ///< Only create (Typical UDP connectionless socket)
-        CONNECT, ///< Connect (Typical TCP connection socket)
-        BIND     ///< Bind (TCP listener)
-    };
-
     /**
      * Get socket internal (OS) handle
      */
     SOCKET fd() const
     {
-        return m_sockfd;
+        const std::scoped_lock lock(m_socketMutex);
+        return getSocketFdUnlocked();
     }
 
     /**
      * Opens the socket connection by address.
-     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param addr              Defines socket address/port information
+     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param timeout           Connection timeout. If 0 then wait forever.
      */
-    void open_addr(OpenMode openMode = OpenMode::CREATE, const sockaddr_in* addr = nullptr,
-                   std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
+    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
     /**
      * Constructor
@@ -455,21 +403,8 @@ protected:
     }
 
 private:
-    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    int32_t m_domain;                 ///< Socket domain type
-    int32_t m_type;                   ///< Socket type
-    int32_t m_protocol;               ///< Socket protocol
-    Host m_host;                      ///< Host
-    bool m_blockingMode {false};      ///< Blocking mode flag
+    mutable std::mutex m_socketMutex; ///< Mutex that protects socket data
 };
-
-/**
- * Throws socket exception with error description retrieved from socket state
- * @param message           Error message
- * @param file              Source file name
- * @param line              Source file line number
- */
-SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
 
 /**
  * @}

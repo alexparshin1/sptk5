@@ -24,50 +24,98 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocket.h>
+#pragma once
 
-#include <gtest/gtest.h>
+#include <chrono>
+#include <sptk5/Buffer.h>
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
+#include <sptk5/Strings.h>
+#include <sptk5/net/Host.h>
 
-using namespace sptk;
+#ifndef _WIN32
 
-TEST(SPTK_BaseSocket, minimal)
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <unistd.h>
+
+/**
+ * A socket handle is an integer
+ */
+using SOCKET = int;
+using SOCKET_ADDRESS_FAMILY = sa_family_t;
+
+#ifdef __APPLE__
+using socklen_t = int;
+#endif
+
+/**
+ * A value to indicate an invalid handle
+ */
+#define INVALID_SOCKET (-1)
+
+#else
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#include <windows.h>
+using socklen_t = int;
+using SOCKET_ADDRESS_FAMILY = unsigned short;
+#endif
+
+namespace sptk {
+
+class BaseSocketVirtualMethods
 {
-    constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
-
-    BaseSocket socket;
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
-    socket.close();
-}
-
-TEST(SPTK_BaseSocket, option)
-{
-    constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
-
-    BaseSocket socket;
-    int value = 0;
-    try
+public:
+    /**
+    * A mode to open a socket, one of
+    */
+    enum class OpenMode : uint8_t
     {
-        socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-        FAIL() << "Shouldn't get socket option for closed socket";
-    }
-    catch (const Exception&)
+        CREATE,  ///< Only create (Typical UDP connectionless socket)
+        CONNECT, ///< Connect (Typical TCP connection socket)
+        BIND     ///< Bind (TCP listener)
+    };
+
+    /**
+     * Constructor
+     * @param domain            Socket domain type
+     * @param type              Socket type
+     * @param protocol          Protocol type
+     */
+    explicit BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+
+    /**
+     * Get socket internal (OS) handle
+     */
+    SOCKET getSocketFdUnlocked() const
     {
-        SUCCEED() << "Can't get socket option for closed socket";
+        return m_sockfd;
     }
 
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
+protected:
+    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t m_domain;                 ///< Socket domain type
+    int32_t m_type;                   ///< Socket type
+    int32_t m_protocol;               ///< Socket protocol
+    Host m_host;                      ///< Host
+    bool m_blockingMode {false};      ///< Blocking mode flag
+};
 
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 0);
+/**
+ * Throws socket exception with error description retrieved from socket state
+ * @param message           Error message
+ * @param file              Source file name
+ * @param line              Source file line number
+ */
+SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
 
-    socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 1);
-}
+} // namespace sptk

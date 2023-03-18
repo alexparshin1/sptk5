@@ -41,32 +41,6 @@ static int m_socketCount;
 static bool m_inited(false);
 #endif
 
-void sptk::throwSocketError(const String& operation, const std::source_location& location)
-{
-    string errorStr;
-#ifdef _WIN32
-    constexpr int maxMessageSize {256};
-    array<char, maxMessageSize> buffer {};
-
-    LPCTSTR lpMsgBuf = nullptr;
-    const DWORD dw = GetLastError();
-    if (dw != 0)
-    {
-        FormatMessage(
-            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) buffer.data(), maxMessageSize, nullptr);
-        errorStr = buffer.data();
-    }
-#else
-    // strerror_r() doesn't work here
-    errorStr = strerror(errno);
-#endif
-    if (!errorStr.empty())
-    {
-        throw Exception(operation + ": " + errorStr, location);
-    }
-}
-
 #ifdef _WIN32
 void BaseSocket::init() noexcept
 {
@@ -87,9 +61,7 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : m_domain(domain)
-    , m_type(type)
-    , m_protocol(protocol)
+    : BaseSocketVirtualMethods(domain, type, protocol)
 {
 #ifdef _WIN32
     init();
@@ -183,7 +155,7 @@ void BaseSocket::host(const Host& host)
 }
 
 // Connect & disconnect
-void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chrono::milliseconds timeout)
+void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 
@@ -207,7 +179,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             if (timeoutMS != 0)
             {
                 blockingMode(false);
-                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+                result = connect(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
                 switch (result)
                 {
                     case ENETUNREACH:
@@ -234,7 +206,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
             }
             else
             {
-                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+                result = connect(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
             }
             break;
 
@@ -248,7 +220,7 @@ void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chro
 #endif
             }
             currentOperation = "bind";
-            result = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
+            result = ::bind(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
                 result = ::listen(m_sockfd, SOMAXCONN);
@@ -318,7 +290,7 @@ void BaseSocket::listen(uint16_t portNumber)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(m_host.port());
 
-    open_addr(OpenMode::BIND, &addr);
+    openAddressUnlocked(addr, OpenMode::BIND);
 }
 
 void BaseSocket::close() noexcept

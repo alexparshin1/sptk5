@@ -92,7 +92,7 @@ void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, 
 void TCPSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
                       chrono::milliseconds timeoutMS)
 {
-    open_addr(openMode, &address, timeoutMS);
+    openAddressUnlocked(address, openMode, timeoutMS);
 
     if (!_blockingMode)
     {

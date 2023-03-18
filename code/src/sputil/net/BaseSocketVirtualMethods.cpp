@@ -24,50 +24,43 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocket.h>
+#include "sptk5/net/BaseSocketVirtualMethods.h"
 
-#include <gtest/gtest.h>
+using namespace std;
 
-using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_BaseSocket, minimal)
+BaseSocketVirtualMethods::BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+    : m_domain(domain)
+    , m_type(type)
+    , m_protocol(protocol)
 {
-    constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
-
-    BaseSocket socket;
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
-    socket.close();
 }
 
-TEST(SPTK_BaseSocket, option)
+void throwSocketError(const String& operation, const std::source_location& location)
 {
-    constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
-    yahoo.getAddress(address);
+    string errorStr;
+#ifdef _WIN32
+    constexpr int maxMessageSize {256};
+    array<char, maxMessageSize> buffer {};
 
-    BaseSocket socket;
-    int value = 0;
-    try
+    LPCTSTR lpMsgBuf = nullptr;
+    const DWORD dw = GetLastError();
+    if (dw != 0)
     {
-        socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-        FAIL() << "Shouldn't get socket option for closed socket";
+        FormatMessage(
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) buffer.data(), maxMessageSize, nullptr);
+        errorStr = buffer.data();
     }
-    catch (const Exception&)
+#else
+    // strerror_r() doesn't work here
+    errorStr = strerror(errno);
+#endif
+    if (!errorStr.empty())
     {
-        SUCCEED() << "Can't get socket option for closed socket";
+        throw Exception(operation + ": " + errorStr, location);
     }
-
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
-
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 0);
-
-    socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
-    socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 1);
 }
+
+} // namespace sptk
