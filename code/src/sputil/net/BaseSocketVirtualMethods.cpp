@@ -314,6 +314,24 @@ bool BaseSocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds ti
 #endif
 }
 
+size_t BaseSocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
+{
+#ifdef _WIN32
+    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+#else
+    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
+#endif
+    if (result == -1)
+    {
+        constexpr chrono::seconds timeout(30);
+        if (readyToReadUnlocked(timeout))
+        {
+            result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
+        }
+    }
+    return (size_t) result;
+}
+
 size_t BaseSocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     int bytes;

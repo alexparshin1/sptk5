@@ -65,7 +65,7 @@ protected:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
+    [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from) override;
 };
 
 /**

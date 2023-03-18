@@ -234,14 +234,6 @@ public:
     }
 
     /**
-     * Reads data from the socket in regular or SSL mode
-     * @param buffer            The destination buffer
-     * @param len              The destination buffer size
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] virtual size_t recvUnlocked(uint8_t* buffer, size_t len);
-
-    /**
      * Reads data from the socket in regular or TLS mode
      * @param buffer            The send buffer
      * @param len              The send data length

@@ -219,13 +219,21 @@ protected:
     [[nodiscard]] virtual bool readyToWriteUnlocked(std::chrono::milliseconds timeout);
 
     /**
+     * Reads data from the socket in regular or SSL mode
+     * @param buffer            The destination buffer
+     * @param len              The destination buffer size
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] virtual size_t recvUnlocked(uint8_t* buffer, size_t len);
+
+    /**
      * Reads data from the socket
      * @param buffer            The memory buffer
      * @param size              The number of bytes to read
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from);
 
     SOCKET m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
     int32_t m_domain;                   ///< Socket domain type

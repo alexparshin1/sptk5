@@ -232,7 +232,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         auto* readBufferPtr = readBuffer->data();
         while (packetCount < packetsInTest)
         {
-            if (auto result = socket.recvUnlocked(readBufferPtr, readSize);
+            if (auto result = socket.read(readBufferPtr, readSize);
                 result == 0)
             {
                 break;

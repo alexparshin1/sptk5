@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cerrno>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
@@ -67,24 +66,6 @@ BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t proto
 BaseSocket::~BaseSocket()
 {
     BaseSocket::close();
-}
-
-size_t BaseSocket::recvUnlocked(uint8_t* buffer, size_t len)
-{
-#ifdef _WIN32
-    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
-#else
-    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
-#endif
-    if (result == -1)
-    {
-        constexpr chrono::seconds timeout(30);
-        if (readyToReadUnlocked(timeout))
-        {
-            result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
-        }
-    }
-    return (size_t) result;
 }
 
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
