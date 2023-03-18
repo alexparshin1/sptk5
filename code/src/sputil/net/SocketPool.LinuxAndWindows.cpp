@@ -27,11 +27,13 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketPool.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(const SocketEventCallback& eventsCallback)
-    : m_eventsCallback(eventsCallback)
+SocketPool::SocketPool(SocketEventCallback eventsCallback)
+    : m_eventsCallback(std::move(eventsCallback))
 {
 }
 

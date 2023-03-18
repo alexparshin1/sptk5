@@ -45,14 +45,17 @@ static uint64_t ntoh64(uint64_t data)
         u64
     };
 
-    struct {
+    struct IntConvert {
         VarType type;
         union
         {
             uint64_t m_uint64;
             array<uint32_t, 2> m_uint32;
         } variant;
-    } input = {}, output = {};
+    };
+
+    IntConvert input = {};
+    IntConvert output = {};
 
     input.variant.m_uint64 = data;
 

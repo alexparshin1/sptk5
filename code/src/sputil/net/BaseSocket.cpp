@@ -24,48 +24,16 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cerrno>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
-#ifndef _WIN32
-#include <sys/poll.h>
-#endif
-
 using namespace std;
 using namespace sptk;
-
 
 #ifdef _WIN32
 static int m_socketCount;
 static bool m_inited(false);
 #endif
-
-void sptk::throwSocketError(const String& operation, const std::source_location& location)
-{
-    string errorStr;
-#ifdef _WIN32
-    constexpr int maxMessageSize {256};
-    array<char, maxMessageSize> buffer {};
-
-    LPCTSTR lpMsgBuf = nullptr;
-    const DWORD dw = GetLastError();
-    if (dw != 0)
-    {
-        FormatMessage(
-            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) buffer.data(), maxMessageSize, nullptr);
-        errorStr = buffer.data();
-    }
-#else
-    // strerror_r() doesn't work here
-    errorStr = strerror(errno);
-#endif
-    if (!errorStr.empty())
-    {
-        throw Exception(operation + ": " + errorStr, location);
-    }
-}
 
 #ifdef _WIN32
 void BaseSocket::init() noexcept
@@ -87,9 +55,7 @@ void BaseSocket::cleanup() noexcept
 
 // Constructor
 BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : m_domain(domain)
-    , m_type(type)
-    , m_protocol(protocol)
+    : BaseSocketVirtualMethods(domain, type, protocol)
 {
 #ifdef _WIN32
     init();
@@ -102,69 +68,9 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-void BaseSocket::blockingMode(bool blocking)
-{
-#ifdef _WIN32
-    uint32_t arg = blocking ? 0 : 1;
-    control(FIONBIO, &arg);
-    u_long arg2 = arg;
-    const int result = ioctlsocket(m_sockfd, FIONBIO, &arg2);
-#else
-    int flags = fcntl(m_sockfd, F_GETFL);
-    if ((flags & O_NONBLOCK) == O_NONBLOCK)
-    {
-        flags -= O_NONBLOCK;
-    }
-    if (!blocking)
-    {
-        flags |= O_NONBLOCK;
-    }
-    const int result = fcntl(m_sockfd, F_SETFL, flags);
-#endif
-    if (result != 0)
-    {
-        throwSocketError("Can't set socket blocking mode");
-    }
-
-    m_blockingMode = blocking;
-}
-
-size_t BaseSocket::socketBytes()
-{
-    uint32_t bytes = 0;
-    if (
-#ifdef _WIN32
-        const int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
-#else
-        const int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
-#endif
-        result < 0)
-        throwSocketError("Can't get socket bytes");
-
-    return bytes;
-}
-
-size_t BaseSocket::recv(uint8_t* buffer, size_t len)
-{
-#ifdef _WIN32
-    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
-#else
-    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
-#endif
-    if (result == -1)
-    {
-        constexpr chrono::seconds timeout(30);
-        if (readyToRead(timeout))
-        {
-            result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
-        }
-    }
-    return (size_t) result;
-}
-
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
-    auto res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+    auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
     return res;
 }
 
@@ -173,115 +79,17 @@ int32_t BaseSocket::control(int flag, const uint32_t* check) const
 #ifdef _WIN32
     return ioctlsocket(m_sockfd, flag, (u_long*) check);
 #else
-    return fcntl(m_sockfd, flag, *check);
+    return fcntl(m_socketFd, flag, *check);
 #endif
-}
-
-void BaseSocket::host(const Host& host)
-{
-    m_host = host;
-}
-
-// Connect & disconnect
-void BaseSocket::open_addr(OpenMode openMode, const sockaddr_in* addr, std::chrono::milliseconds timeout)
-{
-    auto timeoutMS = (int) timeout.count();
-
-    if (active())
-    {
-        close();
-    }
-
-    // Create a new socket
-    m_sockfd = socket(m_domain, m_type, m_protocol);
-    if (m_sockfd == INVALID_SOCKET)
-        throwSocketError("Can't create socket");
-
-    int result = 0;
-    const char* currentOperation;
-
-    switch (openMode)
-    {
-        case OpenMode::CONNECT:
-            currentOperation = "connect";
-            if (timeoutMS != 0)
-            {
-                blockingMode(false);
-                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-                switch (result)
-                {
-                    case ENETUNREACH:
-                        throw Exception("Network unreachable");
-                    case ECONNREFUSED:
-                        throw Exception("Connection refused");
-                    default:
-                        break;
-                }
-                try
-                {
-                    if (!readyToWrite(timeout))
-                    {
-                        throw Exception("Connection timeout");
-                    }
-                }
-                catch (const Exception&)
-                {
-                    close();
-                    throw;
-                }
-                result = 0;
-                blockingMode(true);
-            }
-            else
-            {
-                result = connect(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-            }
-            break;
-
-        case OpenMode::BIND:
-            if (m_type != SOCK_DGRAM)
-            {
-#ifndef _WIN32
-                setOption(SOL_SOCKET, SO_REUSEPORT, 1);
-#else
-                setOption(SOL_SOCKET, SO_REUSEADDR, 1);
-#endif
-            }
-            currentOperation = "bind";
-            result = ::bind(m_sockfd, (const sockaddr*) addr, sizeof(sockaddr_in));
-            if (result == 0 && m_type != SOCK_DGRAM)
-            {
-                result = ::listen(m_sockfd, SOMAXCONN);
-                currentOperation = "listen";
-            }
-            break;
-
-        default:
-            break;
-    }
-
-    if (result != 0)
-    {
-        stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
-              << ".";
-        close();
-        throw Exception(error.str());
-    }
-}
-
-void BaseSocket::_open(const Host&, OpenMode, bool, std::chrono::milliseconds)
-{
-    // Override in derived classes
 }
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
 {
-    if (m_sockfd == INVALID_SOCKET)
+    if (m_socketFd == INVALID_SOCKET)
     {
         // Create a new socket
-        m_sockfd = socket(m_domain, m_type, m_protocol);
-        if (m_sockfd == INVALID_SOCKET)
+        m_socketFd = socket(m_domain, m_type, m_protocol);
+        if (m_socketFd == INVALID_SOCKET)
             throwSocketError("Can't create socket");
     }
 
@@ -300,7 +108,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
 
     addr.sin_port = htons(uint16_t(portNumber));
 
-    if (::bind(m_sockfd, (sockaddr*) &addr, sizeof(addr)) != 0)
+    if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 
@@ -318,75 +126,28 @@ void BaseSocket::listen(uint16_t portNumber)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(m_host.port());
 
-    open_addr(OpenMode::BIND, &addr);
-}
-
-void BaseSocket::close() noexcept
-{
-    if (m_sockfd != INVALID_SOCKET)
-    {
-#ifndef _WIN32
-        shutdown(m_sockfd, SHUT_RDWR);
-        ::close(m_sockfd);
-#else
-        closesocket(m_sockfd);
-#endif
-        m_sockfd = INVALID_SOCKET;
-    }
-}
-
-void BaseSocket::attach(SOCKET socketHandle, bool)
-{
-    if (active())
-    {
-        close();
-    }
-    m_sockfd = socketHandle;
-}
-
-SOCKET BaseSocket::detach()
-{
-    SOCKET sockfd = m_sockfd;
-    m_sockfd = INVALID_SOCKET;
-    close();
-    return sockfd;
-}
-
-size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
-{
-    int bytes;
-    if (from != nullptr)
-    {
-        socklen_t flen = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_sockfd, (char*) buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
-    }
-    else
-    {
-        bytes = (int) ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
-    }
-
-    if (bytes == -1)
-        throwSocketError("Can't read from socket");
-
-    return (size_t) bytes;
+    openAddressUnlocked(addr, OpenMode::BIND);
 }
 
 size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
+    const std::scoped_lock lock(m_socketMutex);
+
     buffer.checkSize(size);
-    const size_t bytes = read(buffer.data(), size, from);
-    if (bytes != size)
-    {
-        buffer.bytes(bytes);
-    }
+    size_t bytes = readUnlocked(buffer.data(), size, from);
+    buffer.bytes(bytes);
+
     return bytes;
 }
 
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
-    Buffer buff(size);
-    const size_t bytes = read(buff.data(), size, from);
-    buffer.assign(buff.c_str(), bytes);
+    const std::scoped_lock lock(m_socketMutex);
+
+    buffer.resize(size);
+    size_t bytes = readUnlocked((uint8_t*) buffer.data(), size, from);
+    buffer.resize(bytes);
+
     return bytes;
 }
 
@@ -406,7 +167,7 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     {
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_sockfd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
+            bytes = (int) sendto(m_socketFd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
                                  sizeof(sockaddr_in));
         }
         else
@@ -429,116 +190,4 @@ size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
 size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 {
     return write((const uint8_t*) buffer.c_str(), buffer.length(), peer);
-}
-
-#if (__FreeBSD__ | __OpenBSD__)
-constexpr int CONNCLOSED = POLLHUP;
-#else
-#ifdef _WIN32
-constexpr int CONNCLOSED = POLLHUP;
-#else
-constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
-#endif
-#endif
-
-bool BaseSocket::readyToRead(chrono::milliseconds timeout)
-{
-    const auto timeoutMS = (int) timeout.count();
-
-    if (m_sockfd == INVALID_SOCKET)
-    {
-        return false;
-    }
-
-#ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
-    fdarray.events = POLLRDNORM;
-    int result = WSAPoll(&fdarray, 1, timeoutMS);
-    switch (result)
-    {
-        case 0:
-            return false;
-        case 1:
-            if (fdarray.revents & POLLRDNORM)
-                return true;
-            if (fdarray.revents & POLLHUP)
-                throw ConnectionException("Connection closed");
-            break;
-        default:
-            throwSocketError("WSAPoll error");
-            break;
-    }
-    return false;
-#else
-    struct pollfd pfd = {};
-
-    pfd.fd = m_sockfd;
-    pfd.events = POLLIN;
-    int result = poll(&pfd, 1, timeoutMS);
-    if (result < 0)
-        throwSocketError("Can't read from socket");
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
-    {
-        throw ConnectionException("Connection closed");
-    }
-    return result != 0;
-#endif
-}
-
-bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
-{
-    const auto timeoutMS = (int) timeout.count();
-#ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
-    fdarray.events = POLLWRNORM;
-    switch (WSAPoll(&fdarray, 1, timeoutMS))
-    {
-        case 0:
-            return false;
-        case 1:
-            if (fdarray.revents & POLLWRNORM)
-                return true;
-            if (fdarray.revents & POLLHUP)
-                throw ConnectionException("Connection closed");
-            break;
-        default:
-            throwSocketError("WSAPoll error");
-            break;
-    }
-    return false;
-#else
-    struct pollfd pfd = {};
-    pfd.fd = m_sockfd;
-    pfd.events = POLLOUT;
-    int result = poll(&pfd, 1, timeoutMS);
-    if (result < 0)
-        throwSocketError("Can't read from socket");
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
-    {
-        throw Exception("Connection closed");
-    }
-    return result != 0;
-#endif
-}
-
-#ifdef _WIN32
-#define VALUE_TYPE(val) (char*) (val)
-#else
-#define VALUE_TYPE(val) (void*) (val)
-#endif
-
-void BaseSocket::setOption(int level, int option, int value) const
-{
-    const socklen_t len = sizeof(int);
-    if (setsockopt(m_sockfd, level, option, VALUE_TYPE(&value), len) != 0)
-        throwSocketError("Can't set socket option");
-}
-
-void BaseSocket::getOption(int level, int option, int& value) const
-{
-    socklen_t len = sizeof(int);
-    if (getsockopt(m_sockfd, level, option, VALUE_TYPE(&value), &len) != 0)
-        throwSocketError("Can't get socket option");
 }

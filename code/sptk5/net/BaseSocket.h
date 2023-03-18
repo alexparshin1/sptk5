@@ -26,49 +26,7 @@
 
 #pragma once
 
-#include <chrono>
-#include <sptk5/Buffer.h>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/Strings.h>
-#include <sptk5/net/Host.h>
-
-#ifndef _WIN32
-
-#include <arpa/inet.h>
-#include <fcntl.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/un.h>
-#include <unistd.h>
-
-/**
- * A socket handle is an integer
- */
-using SOCKET = int;
-using SOCKET_ADDRESS_FAMILY = sa_family_t;
-
-#ifdef __APPLE__
-using socklen_t = int;
-#endif
-
-/**
- * A value to indicate an invalid handle
- */
-#define INVALID_SOCKET (-1)
-
-#else
-#include <winsock2.h>
-#include <ws2tcpip.h>
-
-#include <windows.h>
-using socklen_t = int;
-using SOCKET_ADDRESS_FAMILY = unsigned short;
-#endif
+#include <sptk5/net/BaseSocketVirtualMethods.h>
 
 namespace sptk {
 
@@ -83,35 +41,17 @@ namespace sptk {
  * Allows establishing a network connection
  * to the host by name and port address
  */
-class SP_EXPORT BaseSocket
+class SP_EXPORT BaseSocket : public BaseSocketVirtualMethods
 {
 public:
-    /**
-    * A mode to open a socket, one of
-    */
-    enum class OpenMode : uint8_t
-    {
-        CREATE,  ///< Only create (Typical UDP connectionless socket)
-        CONNECT, ///< Connect (Typical TCP connection socket)
-        BIND     ///< Bind (TCP listener)
-    };
-
     /**
      * Get socket internal (OS) handle
      */
     SOCKET fd() const
     {
-        return m_sockfd;
+        const std::scoped_lock lock(m_socketMutex);
+        return getSocketFdUnlocked();
     }
-
-    /**
-     * Opens the socket connection by address.
-     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-     * @param addr              Defines socket address/port information
-     * @param timeout           Connection timeout. If 0 then wait forever.
-     */
-    void open_addr(OpenMode openMode = OpenMode::CREATE, const sockaddr_in* addr = nullptr,
-                   std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
 
     /**
      * Constructor
@@ -131,12 +71,12 @@ public:
      * Move constructor
      * @param other             Other socket
      */
-    BaseSocket(BaseSocket&& other) noexcept = default;
+    BaseSocket(BaseSocket&& other) noexcept = delete;
 
     /**
      * @brief Destructor
      */
-    virtual ~BaseSocket();
+    ~BaseSocket() override;
 
     /**
      * Deleted copy assignment
@@ -148,44 +88,65 @@ public:
      * Move assignment
      * @param other             Other socket
      */
-    BaseSocket& operator=(BaseSocket&& other) noexcept = default;
+    BaseSocket& operator=(BaseSocket&& other) noexcept = delete;
 
     /**
-     * Set blocking mode
-     * @param blocking          Socket blocking mode flag
+     * Set blockingMode mode
+     * @param blockingMode      Socket blockingMode mode flag
      */
-    void blockingMode(bool blocking);
+    void blockingMode(bool blockingMode)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        setBlockModeUnlocked(blockingMode);
+    }
 
     /**
      * Returns number of bytes available in socket
      */
-    [[nodiscard]] virtual size_t socketBytes();
+    [[nodiscard]] size_t socketBytes() const
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return getSocketBytesUnlocked();
+    }
 
     /**
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    virtual void attach(SOCKET socketHandle, bool accept);
+    void attach(SOCKET socketHandle, bool accept)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return attachUnlocked(socketHandle, accept);
+    }
 
     /**
      * Detaches socket handle, setting it to INVALID_SOCKET.
      * Closes the socket without affecting socket handle.
      * @return Existing socket handle
      */
-    virtual SOCKET detach();
+    SOCKET detach()
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return detachUnlocked();
+    }
 
     /**
      * Sets the host name
      * @param host              The host
      */
-    void host(const Host& host);
+    void host(const Host& host)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        setHostUnlocked(host);
+    }
 
     /**
      * Returns the host
      */
     [[nodiscard]] const Host& host() const
     {
-        return m_host;
+        const std::scoped_lock lock(m_socketMutex);
+        return getHostUnlocked();
     }
 
     /**
@@ -198,7 +159,7 @@ public:
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        _open(host, openMode, blockingMode, timeoutMS);
+        openUnlocked(host, openMode, blockingMode, timeoutMS);
     }
 
     /**
@@ -211,7 +172,7 @@ public:
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        _open(address, openMode, blockingMode, timeoutMS);
+        openUnlocked(address, openMode, blockingMode, timeoutMS);
     }
 
     /**
@@ -230,7 +191,11 @@ public:
     /**
      * Closes the socket connection
      */
-    virtual void close() noexcept;
+    void close()
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        closeUnlocked();
+    }
 
     /**
      * Returns the current socket state
@@ -238,7 +203,8 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        return m_sockfd != INVALID_SOCKET;
+        const std::scoped_lock lock(m_socketMutex);
+        return activeUnlocked();
     }
 
     /**
@@ -250,22 +216,22 @@ public:
      * Sets socket option value
      * Throws an error if not succeeded
      */
-    void setOption(int level, int option, int value) const;
+    void setOption(int level, int option, int value) const
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        setOptionUnlocked(level, option, value);
+    }
 
     /**
      * Gets socket option value
      *
      * Throws an error if not succeeded
      */
-    void getOption(int level, int option, int& value) const;
-
-    /**
-     * Reads data from the socket in regular or SSL mode
-     * @param buffer            The destination buffer
-     * @param len              The destination buffer size
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] virtual size_t recv(uint8_t* buffer, size_t len);
+    void getOption(int level, int option, int& value) const
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        getOptionUnlocked(level, option, value);
+    }
 
     /**
      * Reads data from the socket in regular or TLS mode
@@ -282,7 +248,11 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readUnlocked(buffer, size, from);
+    }
 
     /**
      * Reads data from the socket into memory buffer
@@ -293,7 +263,7 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from);
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -304,12 +274,19 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from);
+    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+
+    template<typename T>
+    size_t read(T& value, sockaddr_in* from = nullptr)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readUnlocked((uint8_t*) &value, sizeof(T), from);
+    }
 
     /**
      * Writes data to the socket
      *
-     * If size is omited then buffer is treated as zero-terminated string
+     * If size is omitted then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
      * @param peer              The peer information
@@ -320,7 +297,7 @@ public:
     /**
      * Writes data to the socket
      *
-     * If size is omited then buffer is treated as zero-terminated string
+     * If size is omitted then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
      * @returns the number of bytes written to the socket
@@ -370,13 +347,21 @@ public:
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    [[nodiscard]] virtual bool readyToRead(std::chrono::milliseconds timeout);
+    [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readyToReadUnlocked(timeout);
+    }
 
     /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readyToWriteUnlocked(timeout);
+    }
 
     /**
      * @brief Return current blocking mode state
@@ -393,7 +378,7 @@ protected:
      */
     void setSocketFD(SOCKET socket)
     {
-        m_sockfd = socket;
+        m_socketFd = socket;
     }
 
     /**
@@ -432,44 +417,9 @@ protected:
     static void cleanup() noexcept;
 #endif
 
-    /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
-     */
-    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                       std::chrono::milliseconds timeoutMS)
-    {
-        // Implement in derived class
-    }
-
 private:
-    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    int32_t m_domain;                 ///< Socket domain type
-    int32_t m_type;                   ///< Socket type
-    int32_t m_protocol;               ///< Socket protocol
-    Host m_host;                      ///< Host
-    bool m_blockingMode {false};      ///< Blocking mode flag
+    mutable std::mutex m_socketMutex; ///< Mutex that protects socket data
 };
-
-/**
- * Throws socket exception with error description retrieved from socket state
- * @param message           Error message
- * @param file              Source file name
- * @param line              Source file line number
- */
-SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
 
 /**
  * @}

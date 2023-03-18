@@ -115,11 +115,12 @@ public:
      */
     const String& name() const
     {
+        const std::scoped_lock lock(m_mutex);
         return m_name;
     }
 
 private:
-    std::mutex m_mutex;                             ///< Thread synchronization object
+    mutable std::mutex m_mutex;                     ///< Thread synchronization object
     String m_name;                                  ///< Thread name
     std::shared_ptr<std::jthread> m_thread;         ///< Thread object
     std::shared_ptr<ThreadManager> m_threadManager; ///< Optional thread manager

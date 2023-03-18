@@ -48,11 +48,6 @@ public:
         socket.bind(nullptr, testPort);
     }
 
-    void getAddress(sockaddr_in& addr) const
-    {
-        return socket.host().getAddress(addr);
-    }
-
     /**
      * Terminate connection thread
      */
@@ -127,7 +122,7 @@ TEST(SPTK_UDPSocket, minimal)
             {
                 buffer.bytes(bytes);
             }
-            COUT("received " << bytes << " bytes: " << buffer.c_str() << endl);
+            COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Received " << bytes << " bytes: " << buffer.c_str() << endl);
         }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
         ++rowCount;

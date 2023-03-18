@@ -96,7 +96,7 @@ public:
      * Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      */
-    explicit SocketPool(const SocketEventCallback& eventsCallback);
+    explicit SocketPool(SocketEventCallback eventsCallback);
 
     /**
      * Deleted copy constructor

@@ -46,13 +46,6 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         {
             if (socketReader.readyToRead(chrono::seconds(1)))
             {
-                /*
-                size_t hasBytes = socketReader.availableBytes();
-                if (hasBytes == 0)
-                {
-                    break;
-                }
-                */
                 if (socketReader.readLine(data) == 0)
                 {
                     continue;
@@ -126,15 +119,13 @@ TEST(SPTK_SocketEvents, minimal)
         size_t receivedEventCount {0};
         for (const auto& row: testRows)
         {
-            auto bytes = socket.send((const uint8_t*) row.c_str(), row.length());
-            auto bytes2 = socket.send((const uint8_t*) "\n", 1);
+            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
             if (bytes != row.length() || bytes2 != 1)
             {
                 FAIL() << "Client can't send data";
             }
         }
-
-        //this_thread::sleep_for(chrono::milliseconds(100));
 
         while (eventReceived.sleep_for(chrono::milliseconds(100)))
         {
