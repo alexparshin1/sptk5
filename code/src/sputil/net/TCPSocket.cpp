@@ -63,40 +63,40 @@ TCPSocket::~TCPSocket()
     TCPSocket::close();
 }
 
-void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!_host.hostname().empty())
     {
-        host(_host);
+        setHostUnlocked(_host);
     }
 
-    if (host().hostname().empty())
+    if (getHostUnlocked().hostname().empty())
     {
         throw Exception("Please, define the host name");
     }
 
     if (proxy() != nullptr)
     {
-        const SOCKET fd = proxy()->connect(host(), _blockingMode, timeout);
+        const SOCKET fd = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
         attach(fd, false);
     }
     else
     {
         sockaddr_in addr = {};
-        host().getAddress(addr);
+        getHostUnlocked().getAddress(addr);
 
-        _open(addr, openMode, _blockingMode, timeout);
+        openUnlocked(addr, openMode, _blockingMode, timeout);
     }
 }
 
-void TCPSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                      chrono::milliseconds timeoutMS)
+void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
+                             chrono::milliseconds timeoutMS)
 {
-    open_addr(openMode, &address, timeoutMS);
+    openAddressUnlocked(address, openMode, timeoutMS);
 
     if (!_blockingMode)
     {
-        blockingMode(false);
+        setBlockingModeUnlocked(false);
     }
 }
 
@@ -130,27 +130,14 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
     return false;
 }
 
-size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
+size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
 {
     int receivedBytes;
     int error;
     do
     {
         error = 0;
-        if (from != nullptr)
-        {
-#ifdef _WIN32
-            int flen = sizeof(sockaddr_in);
-#else
-            socklen_t flen = sizeof(sockaddr_in);
-#endif
-            receivedBytes = (int) recvfrom(fd(), (char*) destination, (int) size, 0, (sockaddr*) from,
-                                           &flen);
-        }
-        else
-        {
-            receivedBytes = (int) recv(destination, size);
-        }
+        receivedBytes = (int) recvUnlocked(destination, size);
 
         if (receivedBytes == -1)
         {
@@ -165,22 +152,6 @@ size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
     } while (error == EAGAIN);
 
     return receivedBytes;
-}
-
-size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.checkSize(size);
-    size_t bytes = read(buffer.data(), size, from);
-    buffer.bytes(bytes);
-    return bytes;
-}
-
-size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.resize(size);
-    size_t bytes = read((uint8_t*) buffer.data(), size, from);
-    buffer.resize(bytes);
-    return bytes;
 }
 
 void TCPSocket::setProxy(shared_ptr<Proxy> proxy)

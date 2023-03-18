@@ -110,43 +110,6 @@ public:
      */
     [[nodiscard]] virtual bool accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
 
-    /**
-     * Reads data from the socket
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
-
-    /**
-     * Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              Number of bytes to read from socket
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr) override;
-
-    /**
-     * Reads data from the socket into memory buffer
-     *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              Number of bytes to read from socket
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
-     */
-    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr) override;
-
-    template<typename T>
-    size_t read(T& value, sockaddr_in* from = nullptr)
-    {
-        return read((uint8_t*) &value, sizeof(T), from);
-    }
-
 protected:
     /**
      * Opens the client socket connection by host and port
@@ -155,7 +118,7 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -164,8 +127,17 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-               std::chrono::milliseconds timeout) override;
+    void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
+                      std::chrono::milliseconds timeout) override;
+
+    /**
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              An optional structure for source address
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from) override;
 
     /**
      * Get proxy information
