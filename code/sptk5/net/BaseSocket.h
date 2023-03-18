@@ -79,7 +79,7 @@ public:
      * Move constructor
      * @param other             Other socket
      */
-    BaseSocket(BaseSocket&& other) noexcept = default;
+    BaseSocket(BaseSocket&& other) noexcept = delete;
 
     /**
      * @brief Destructor
@@ -96,13 +96,17 @@ public:
      * Move assignment
      * @param other             Other socket
      */
-    BaseSocket& operator=(BaseSocket&& other) noexcept = default;
+    BaseSocket& operator=(BaseSocket&& other) noexcept = delete;
 
     /**
-     * Set blocking mode
-     * @param blocking          Socket blocking mode flag
+     * Set blockingMode mode
+     * @param blockingMode      Socket blockingMode mode flag
      */
-    void blockingMode(bool blocking);
+    void blockingMode(bool blockingMode)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        setBlockingModeUnlocked(blockingMode);
+    }
 
     /**
      * Returns number of bytes available in socket
@@ -126,14 +130,19 @@ public:
      * Sets the host name
      * @param host              The host
      */
-    void host(const Host& host);
+    void host(const Host& host)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        setHostUnlocked(host);
+    }
 
     /**
      * Returns the host
      */
     [[nodiscard]] const Host& host() const
     {
-        return m_host;
+        const std::scoped_lock lock(m_socketMutex);
+        return getHostUnlocked();
     }
 
     /**
@@ -178,7 +187,11 @@ public:
     /**
      * Closes the socket connection
      */
-    virtual void close() noexcept;
+    void close()
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        closeUnlocked();
+    }
 
     /**
      * Returns the current socket state
@@ -186,7 +199,8 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        return m_sockfd != INVALID_SOCKET;
+        const std::scoped_lock lock(m_socketMutex);
+        return activeUnlocked();
     }
 
     /**
@@ -198,14 +212,20 @@ public:
      * Sets socket option value
      * Throws an error if not succeeded
      */
-    void setOption(int level, int option, int value) const;
+    void setOption(int level, int option, int value) const
+    {
+        setOptionUnlocked(level, option, value);
+    }
 
     /**
      * Gets socket option value
      *
      * Throws an error if not succeeded
      */
-    void getOption(int level, int option, int& value) const;
+    void getOption(int level, int option, int& value) const
+    {
+        getOptionUnlocked(level, option, value);
+    }
 
     /**
      * Reads data from the socket in regular or SSL mode

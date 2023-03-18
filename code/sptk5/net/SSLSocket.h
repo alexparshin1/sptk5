@@ -103,7 +103,7 @@ public:
      *
      * This method is not thread-safe.
      */
-    void close() noexcept override;
+    void closeUnlocked() override;
 
     /**
      * Returns SSL handle

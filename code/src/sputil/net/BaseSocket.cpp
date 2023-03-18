@@ -74,33 +74,6 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-void BaseSocket::blockingMode(bool blocking)
-{
-#ifdef _WIN32
-    uint32_t arg = blocking ? 0 : 1;
-    control(FIONBIO, &arg);
-    u_long arg2 = arg;
-    const int result = ioctlsocket(m_sockfd, FIONBIO, &arg2);
-#else
-    int flags = fcntl(m_sockfd, F_GETFL);
-    if ((flags & O_NONBLOCK) == O_NONBLOCK)
-    {
-        flags -= O_NONBLOCK;
-    }
-    if (!blocking)
-    {
-        flags |= O_NONBLOCK;
-    }
-    const int result = fcntl(m_sockfd, F_SETFL, flags);
-#endif
-    if (result != 0)
-    {
-        throwSocketError("Can't set socket blocking mode");
-    }
-
-    m_blockingMode = blocking;
-}
-
 size_t BaseSocket::socketBytes()
 {
     uint32_t bytes = 0;
@@ -149,19 +122,14 @@ int32_t BaseSocket::control(int flag, const uint32_t* check) const
 #endif
 }
 
-void BaseSocket::host(const Host& host)
-{
-    m_host = host;
-}
-
 // Connect & disconnect
 void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 
-    if (active())
+    if (activeUnlocked())
     {
-        close();
+        closeUnlocked();
     }
 
     // Create a new socket
@@ -178,7 +146,7 @@ void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
             currentOperation = "connect";
             if (timeoutMS != 0)
             {
-                blockingMode(false);
+                setBlockingModeUnlocked(false);
                 result = connect(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
                 switch (result)
                 {
@@ -198,11 +166,11 @@ void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
                 }
                 catch (const Exception&)
                 {
-                    close();
+                    closeUnlocked();
                     throw;
                 }
                 result = 0;
-                blockingMode(true);
+                setBlockingModeUnlocked(true);
             }
             else
             {
@@ -291,20 +259,6 @@ void BaseSocket::listen(uint16_t portNumber)
     addr.sin_port = htons(m_host.port());
 
     openAddressUnlocked(addr, OpenMode::BIND);
-}
-
-void BaseSocket::close() noexcept
-{
-    if (m_sockfd != INVALID_SOCKET)
-    {
-#ifndef _WIN32
-        shutdown(m_sockfd, SHUT_RDWR);
-        ::close(m_sockfd);
-#else
-        closesocket(m_sockfd);
-#endif
-        m_sockfd = INVALID_SOCKET;
-    }
 }
 
 void BaseSocket::attach(SOCKET socketHandle, bool)
@@ -493,24 +447,4 @@ bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
     }
     return result != 0;
 #endif
-}
-
-#ifdef _WIN32
-#define VALUE_TYPE(val) (char*) (val)
-#else
-#define VALUE_TYPE(val) (void*) (val)
-#endif
-
-void BaseSocket::setOption(int level, int option, int value) const
-{
-    const socklen_t len = sizeof(int);
-    if (setsockopt(m_sockfd, level, option, VALUE_TYPE(&value), len) != 0)
-        throwSocketError("Can't set socket option");
-}
-
-void BaseSocket::getOption(int level, int option, int& value) const
-{
-    socklen_t len = sizeof(int);
-    if (getsockopt(m_sockfd, level, option, VALUE_TYPE(&value), &len) != 0)
-        throwSocketError("Can't get socket option");
 }

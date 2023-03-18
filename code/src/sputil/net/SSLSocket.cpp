@@ -262,10 +262,10 @@ void SSLSocket::openSocketFD(bool _blockingMode, const chrono::milliseconds& tim
     blockingMode(_blockingMode);
 }
 
-void SSLSocket::close() noexcept
+void SSLSocket::closeUnlocked()
 {
     SSL_set_fd(m_ssl, -1);
-    TCPSocket::close();
+    TCPSocket::closeUnlocked();
 }
 
 void SSLSocket::attach(SOCKET socketHandle, bool accept)

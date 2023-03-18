@@ -93,6 +93,18 @@ public:
      */
     explicit BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
+protected:
+    /**
+     * Returns the current socket state
+     * @returns true if socket is opened
+     */
+    [[nodiscard]] virtual bool activeUnlocked() const
+    {
+        return m_sockfd != INVALID_SOCKET;
+    }
+
+    virtual void closeUnlocked();
+
     /**
      * Get socket internal (OS) handle
      */
@@ -100,6 +112,42 @@ public:
     {
         return m_sockfd;
     }
+
+    /**
+     * Set the host
+     * @param host              The host
+     */
+    void setHostUnlocked(const Host& host)
+    {
+        m_host = host;
+    }
+
+    /**
+     * Return the host
+     */
+    [[nodiscard]] const Host& getHostUnlocked() const
+    {
+        return m_host;
+    }
+
+    /**
+     * Set blockingMode mode
+     * @param blockingMode      Socket blockingMode mode flag
+     */
+    void setBlockingModeUnlocked(bool blockingMode);
+
+    /**
+     * Sets socket option value
+     * Throws an error if not succeeded
+     */
+    void setOptionUnlocked(int level, int option, int value) const;
+
+    /**
+     * Gets socket option value
+     *
+     * Throws an error if not succeeded
+     */
+    void getOptionUnlocked(int level, int option, int& value) const;
 
 protected:
     SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
