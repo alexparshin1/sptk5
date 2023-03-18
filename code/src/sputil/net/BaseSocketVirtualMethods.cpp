@@ -26,6 +26,10 @@
 
 #include "sptk5/net/BaseSocketVirtualMethods.h"
 
+#ifndef _WIN32
+#include <sys/poll.h>
+#endif
+
 using namespace std;
 
 namespace sptk {
@@ -128,6 +132,98 @@ SOCKET BaseSocketVirtualMethods::detachUnlocked()
     m_sockfd = INVALID_SOCKET;
     closeUnlocked();
     return sockfd;
+}
+
+#if (__FreeBSD__ | __OpenBSD__)
+constexpr int CONNCLOSED = POLLHUP;
+#else
+#ifdef _WIN32
+constexpr int CONNCLOSED = POLLHUP;
+#else
+constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
+#endif
+#endif
+
+bool BaseSocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
+{
+    const auto timeoutMS = (int) timeout.count();
+
+    if (m_sockfd == INVALID_SOCKET)
+    {
+        return false;
+    }
+
+#ifdef _WIN32
+    WSAPOLLFD fdarray {};
+    fdarray.fd = m_sockfd;
+    fdarray.events = POLLRDNORM;
+    int result = WSAPoll(&fdarray, 1, timeoutMS);
+    switch (result)
+    {
+        case 0:
+            return false;
+        case 1:
+            if (fdarray.revents & POLLRDNORM)
+                return true;
+            if (fdarray.revents & POLLHUP)
+                throw ConnectionException("Connection closed");
+            break;
+        default:
+            throwSocketError("WSAPoll error");
+            break;
+    }
+    return false;
+#else
+    struct pollfd pfd = {};
+
+    pfd.fd = m_sockfd;
+    pfd.events = POLLIN;
+    int result = poll(&pfd, 1, timeoutMS);
+    if (result < 0)
+        throwSocketError("Can't read from socket");
+    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
+    {
+        throw ConnectionException("Connection closed");
+    }
+    return result != 0;
+#endif
+}
+
+bool BaseSocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeout)
+{
+    const auto timeoutMS = (int) timeout.count();
+#ifdef _WIN32
+    WSAPOLLFD fdarray {};
+    fdarray.fd = m_sockfd;
+    fdarray.events = POLLWRNORM;
+    switch (WSAPoll(&fdarray, 1, timeoutMS))
+    {
+        case 0:
+            return false;
+        case 1:
+            if (fdarray.revents & POLLWRNORM)
+                return true;
+            if (fdarray.revents & POLLHUP)
+                throw ConnectionException("Connection closed");
+            break;
+        default:
+            throwSocketError("WSAPoll error");
+            break;
+    }
+    return false;
+#else
+    struct pollfd pfd = {};
+    pfd.fd = m_sockfd;
+    pfd.events = POLLOUT;
+    int result = poll(&pfd, 1, timeoutMS);
+    if (result < 0)
+        throwSocketError("Can't read from socket");
+    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
+    {
+        throw Exception("Connection closed");
+    }
+    return result != 0;
+#endif
 }
 
 void throwSocketError(const String& operation, const std::source_location& location)

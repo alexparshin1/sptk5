@@ -95,6 +95,31 @@ public:
 
 protected:
     /**
+     * Opens the client socket connection by host and port
+     * @param host              The host
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
+     */
+    virtual void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    {
+        // Implement in derived class
+    }
+
+    /**
+     * Opens the client socket connection by host and port
+     * @param address           Address and port
+     * @param openMode          Socket open mode
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     */
+    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
+                       std::chrono::milliseconds timeoutMS)
+    {
+        // Implement in derived class
+    }
+
+    /**
      * Returns the current socket state
      * @returns true if socket is opened
      */
@@ -166,6 +191,18 @@ protected:
      * @return Existing socket handle
      */
     virtual SOCKET detachUnlocked();
+
+    /**
+     * Reports true if socket is ready for reading from it
+     * @param timeout           Read timeout
+     */
+    [[nodiscard]] virtual bool readyToReadUnlocked(std::chrono::milliseconds timeout);
+
+    /**
+     * Reports true if socket is ready for writing to it
+     * @param timeout           Write timeout
+     */
+    [[nodiscard]] virtual bool readyToWriteUnlocked(std::chrono::milliseconds timeout);
 
 protected:
     SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle

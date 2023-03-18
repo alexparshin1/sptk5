@@ -350,13 +350,21 @@ public:
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    [[nodiscard]] virtual bool readyToRead(std::chrono::milliseconds timeout);
+    [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readyToReadUnlocked(timeout);
+    }
 
     /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readyToWriteUnlocked(timeout);
+    }
 
     /**
      * @brief Return current blocking mode state
@@ -411,28 +419,6 @@ protected:
      */
     static void cleanup() noexcept;
 #endif
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
-     */
-    virtual void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
-
-    /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
-     */
-    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                       std::chrono::milliseconds timeoutMS)
-    {
-        // Implement in derived class
-    }
 
 private:
     mutable std::mutex m_socketMutex; ///< Mutex that protects socket data

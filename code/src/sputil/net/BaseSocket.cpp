@@ -28,13 +28,8 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/BaseSocket.h>
 
-#ifndef _WIN32
-#include <sys/poll.h>
-#endif
-
 using namespace std;
 using namespace sptk;
-
 
 #ifdef _WIN32
 static int m_socketCount;
@@ -144,7 +139,7 @@ void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
                 }
                 try
                 {
-                    if (!readyToWrite(timeout))
+                    if (!readyToWriteUnlocked(timeout))
                     {
                         throw Exception("Connection timeout");
                     }
@@ -167,9 +162,9 @@ void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
             if (m_type != SOCK_DGRAM)
             {
 #ifndef _WIN32
-                setOption(SOL_SOCKET, SO_REUSEPORT, 1);
+                setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
 #else
-                setOption(SOL_SOCKET, SO_REUSEADDR, 1);
+                setOptionUnlocked(SOL_SOCKET, SO_REUSEADDR, 1);
 #endif
             }
             currentOperation = "bind";
@@ -190,14 +185,9 @@ void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
         stringstream error;
         error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
               << ".";
-        close();
+        closeUnlocked();
         throw Exception(error.str());
     }
-}
-
-void BaseSocket::_open(const Host&, OpenMode, bool, std::chrono::milliseconds)
-{
-    // Override in derived classes
 }
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
@@ -323,96 +313,4 @@ size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
 size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
 {
     return write((const uint8_t*) buffer.c_str(), buffer.length(), peer);
-}
-
-#if (__FreeBSD__ | __OpenBSD__)
-constexpr int CONNCLOSED = POLLHUP;
-#else
-#ifdef _WIN32
-constexpr int CONNCLOSED = POLLHUP;
-#else
-constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
-#endif
-#endif
-
-bool BaseSocket::readyToRead(chrono::milliseconds timeout)
-{
-    const auto timeoutMS = (int) timeout.count();
-
-    if (m_sockfd == INVALID_SOCKET)
-    {
-        return false;
-    }
-
-#ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
-    fdarray.events = POLLRDNORM;
-    int result = WSAPoll(&fdarray, 1, timeoutMS);
-    switch (result)
-    {
-        case 0:
-            return false;
-        case 1:
-            if (fdarray.revents & POLLRDNORM)
-                return true;
-            if (fdarray.revents & POLLHUP)
-                throw ConnectionException("Connection closed");
-            break;
-        default:
-            throwSocketError("WSAPoll error");
-            break;
-    }
-    return false;
-#else
-    struct pollfd pfd = {};
-
-    pfd.fd = m_sockfd;
-    pfd.events = POLLIN;
-    int result = poll(&pfd, 1, timeoutMS);
-    if (result < 0)
-        throwSocketError("Can't read from socket");
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
-    {
-        throw ConnectionException("Connection closed");
-    }
-    return result != 0;
-#endif
-}
-
-bool BaseSocket::readyToWrite(std::chrono::milliseconds timeout)
-{
-    const auto timeoutMS = (int) timeout.count();
-#ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
-    fdarray.events = POLLWRNORM;
-    switch (WSAPoll(&fdarray, 1, timeoutMS))
-    {
-        case 0:
-            return false;
-        case 1:
-            if (fdarray.revents & POLLWRNORM)
-                return true;
-            if (fdarray.revents & POLLHUP)
-                throw ConnectionException("Connection closed");
-            break;
-        default:
-            throwSocketError("WSAPoll error");
-            break;
-    }
-    return false;
-#else
-    struct pollfd pfd = {};
-    pfd.fd = m_sockfd;
-    pfd.events = POLLOUT;
-    int result = poll(&pfd, 1, timeoutMS);
-    if (result < 0)
-        throwSocketError("Can't read from socket");
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
-    {
-        throw Exception("Connection closed");
-    }
-    return result != 0;
-#endif
 }
