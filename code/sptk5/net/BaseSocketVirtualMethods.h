@@ -149,6 +149,24 @@ protected:
      */
     void getOptionUnlocked(int level, int option, int& value) const;
 
+    /**
+     * Returns number of bytes available in socket
+     */
+    [[nodiscard]] virtual size_t getSocketBytesUnlocked() const;
+
+    /**
+     * Attaches socket handle
+     * @param socketHandle      Existing socket handle
+     */
+    virtual void attachUnlocked(SOCKET socketHandle, bool accept);
+
+    /**
+     * Detaches socket handle, setting it to INVALID_SOCKET.
+     * Closes the socket without affecting socket handle.
+     * @return Existing socket handle
+     */
+    virtual SOCKET detachUnlocked();
+
 protected:
     SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
     int32_t m_domain;                 ///< Socket domain type

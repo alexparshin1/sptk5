@@ -111,20 +111,32 @@ public:
     /**
      * Returns number of bytes available in socket
      */
-    [[nodiscard]] virtual size_t socketBytes();
+    [[nodiscard]] size_t socketBytes() const
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return getSocketBytesUnlocked();
+    }
 
     /**
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    virtual void attach(SOCKET socketHandle, bool accept);
+    void attach(SOCKET socketHandle, bool accept)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return attachUnlocked(socketHandle, accept);
+    }
 
     /**
      * Detaches socket handle, setting it to INVALID_SOCKET.
      * Closes the socket without affecting socket handle.
      * @return Existing socket handle
      */
-    virtual SOCKET detach();
+    SOCKET detach()
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return detachUnlocked();
+    }
 
     /**
      * Sets the host name

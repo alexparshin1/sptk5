@@ -98,6 +98,38 @@ void BaseSocketVirtualMethods::getOptionUnlocked(int level, int option, int& val
         throwSocketError("Can't get socket option");
 }
 
+size_t BaseSocketVirtualMethods::getSocketBytesUnlocked() const
+{
+    uint32_t bytes = 0;
+    if (
+#ifdef _WIN32
+        const int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+#else
+        const int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
+#endif
+        result < 0)
+        throwSocketError("Can't get socket bytes");
+
+    return bytes;
+}
+
+void BaseSocketVirtualMethods::attachUnlocked(SOCKET socketHandle, bool)
+{
+    if (activeUnlocked())
+    {
+        closeUnlocked();
+    }
+    m_sockfd = socketHandle;
+}
+
+SOCKET BaseSocketVirtualMethods::detachUnlocked()
+{
+    SOCKET sockfd = m_sockfd;
+    m_sockfd = INVALID_SOCKET;
+    closeUnlocked();
+    return sockfd;
+}
+
 void throwSocketError(const String& operation, const std::source_location& location)
 {
     string errorStr;

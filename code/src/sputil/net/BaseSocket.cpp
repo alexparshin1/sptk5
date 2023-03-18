@@ -74,21 +74,6 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-size_t BaseSocket::socketBytes()
-{
-    uint32_t bytes = 0;
-    if (
-#ifdef _WIN32
-        const int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
-#else
-        const int32_t result = ioctl(m_sockfd, FIONREAD, &bytes);
-#endif
-        result < 0)
-        throwSocketError("Can't get socket bytes");
-
-    return bytes;
-}
-
 size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
@@ -259,23 +244,6 @@ void BaseSocket::listen(uint16_t portNumber)
     addr.sin_port = htons(m_host.port());
 
     openAddressUnlocked(addr, OpenMode::BIND);
-}
-
-void BaseSocket::attach(SOCKET socketHandle, bool)
-{
-    if (active())
-    {
-        close();
-    }
-    m_sockfd = socketHandle;
-}
-
-SOCKET BaseSocket::detach()
-{
-    SOCKET sockfd = m_sockfd;
-    m_sockfd = INVALID_SOCKET;
-    close();
-    return sockfd;
 }
 
 size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)

@@ -268,15 +268,13 @@ void SSLSocket::closeUnlocked()
     TCPSocket::closeUnlocked();
 }
 
-void SSLSocket::attach(SOCKET socketHandle, bool accept)
+void SSLSocket::attachUnlocked(SOCKET socketHandle, bool accept)
 {
-    scoped_lock lock(*this);
-
     initContextAndSocket();
 
-    if (fd() != socketHandle)
+    if (getSocketFdUnlocked() != socketHandle)
     {
-        TCPSocket::attach(socketHandle, false);
+        TCPSocket::attachUnlocked(socketHandle, false);
         int result = SSL_set_fd(m_ssl, (int) socketHandle);
         if (result <= 0)
         {
@@ -342,7 +340,7 @@ String SSLSocket::getSSLError(const string& function, int32_t openSSLError) cons
     return error + ERR_error_string(unknownError, nullptr) + string(": ") + ERR_reason_error_string(unknownError);
 }
 
-size_t SSLSocket::socketBytes()
+size_t SSLSocket::getSocketBytesUnlocked() const
 {
     if (m_ssl != nullptr)
     {

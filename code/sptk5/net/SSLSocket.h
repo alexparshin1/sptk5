@@ -48,11 +48,6 @@ class SP_EXPORT SSLSocket : public TCPSocket
 {
 public:
     /**
-     * Returns number of bytes available for read
-     */
-    size_t socketBytes() override;
-
-    /**
      * Throws SSL error based on SSL function return code
      * @param function          SSL function name
      * @param resultCode        SSL function return code
@@ -91,21 +86,6 @@ public:
     void setSNIHostName(const String& sniHostName);
 
     /**
-     * Attaches socket handle
-     *
-     * This method is designed to only attach socket handles obtained with accept().
-     * @param socketHandle          External socket handle.
-     */
-    void attach(SOCKET socketHandle, bool accept) override;
-
-    /**
-     * Closes the socket connection
-     *
-     * This method is not thread-safe.
-     */
-    void closeUnlocked() override;
-
-    /**
      * Returns SSL handle
      */
     SSL* handle()
@@ -136,6 +116,11 @@ protected:
     void initContextAndSocket();
 
     /**
+     * Returns number of bytes available for read
+     */
+    size_t getSocketBytesUnlocked() const override;
+
+    /**
      * opens the socket connection by host and port
      *
      * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
@@ -163,6 +148,21 @@ protected:
      * @return Error description
      */
     virtual String getSSLError(const std::string& function, int32_t SSLError) const;
+
+    /**
+     * Attaches socket handle
+     *
+     * This method is designed to only attach socket handles obtained with accept().
+     * @param socketHandle          External socket handle.
+     */
+    void attachUnlocked(SOCKET socketHandle, bool accept) override;
+
+    /**
+     * Closes the socket connection
+     *
+     * This method is not thread-safe.
+     */
+    void closeUnlocked() override;
 
 private:
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
