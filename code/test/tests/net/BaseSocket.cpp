@@ -39,7 +39,7 @@ TEST(SPTK_BaseSocket, minimal)
     yahoo.getAddress(address);
 
     BaseSocket socket;
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
+    socket.open(address, sptk::BaseSocket::OpenMode::CONNECT);
     socket.close();
 }
 
@@ -62,7 +62,7 @@ TEST(SPTK_BaseSocket, option)
         SUCCEED() << "Can't get socket option for closed socket";
     }
 
-    socket.openAddressUnlocked(address, sptk::BaseSocket::OpenMode::CONNECT);
+    socket.open(address, sptk::BaseSocket::OpenMode::CONNECT);
 
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
     EXPECT_EQ(value, 0);

@@ -99,7 +99,7 @@ public:
      * @param size              Destination buffer size
      * @return the number of bytes read from the socket
      */
-    size_t recv(uint8_t* buffer, size_t size) override;
+    size_t recvUnlocked(uint8_t* buffer, size_t size) override;
 
     /**
      * Sends data through SSL socket
@@ -130,7 +130,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -139,7 +139,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Get error description for SSL error code

@@ -48,11 +48,6 @@ public:
         socket.bind(nullptr, testPort);
     }
 
-    void getAddress(sockaddr_in& addr) const
-    {
-        return socket.host().getAddress(addr);
-    }
-
     /**
      * Terminate connection thread
      */

@@ -186,17 +186,17 @@ void SSLSocket::initContextAndSocket()
     }
 }
 
-void SSLSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
+void SSLSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode, chrono::milliseconds timeout)
 {
     initContextAndSocket();
 
-    TCPSocket::_open(_host, openMode, _blockingMode, timeout);
+    TCPSocket::openUnlocked(_host, openMode, _blockingMode, timeout);
 }
 
-void SSLSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                      chrono::milliseconds timeout)
+void SSLSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
+                             chrono::milliseconds timeout)
 {
-    TCPSocket::_open(address, openMode, _blockingMode, timeout);
+    TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout);
 
     scoped_lock lock(*this);
 
@@ -351,7 +351,7 @@ size_t SSLSocket::getSocketBytesUnlocked() const
     return 0;
 }
 
-size_t SSLSocket::recv(uint8_t* buffer, size_t len)
+size_t SSLSocket::recvUnlocked(uint8_t* buffer, size_t len)
 {
     static const chrono::seconds readTimeout(30);
 

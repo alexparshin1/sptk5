@@ -69,19 +69,19 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-size_t BaseSocket::recv(uint8_t* buffer, size_t len)
+size_t BaseSocket::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
     auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
 #else
-    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
+    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
 #endif
     if (result == -1)
     {
         constexpr chrono::seconds timeout(30);
-        if (readyToRead(timeout))
+        if (readyToReadUnlocked(timeout))
         {
-            result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+            result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
         }
     }
     return (size_t) result;
@@ -89,7 +89,7 @@ size_t BaseSocket::recv(uint8_t* buffer, size_t len)
 
 size_t BaseSocket::send(const uint8_t* buffer, size_t len)
 {
-    auto res = ::send(m_sockfd, (const char*) buffer, (int32_t) len, 0);
+    auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
     return res;
 }
 
@@ -98,105 +98,17 @@ int32_t BaseSocket::control(int flag, const uint32_t* check) const
 #ifdef _WIN32
     return ioctlsocket(m_sockfd, flag, (u_long*) check);
 #else
-    return fcntl(m_sockfd, flag, *check);
+    return fcntl(m_socketFd, flag, *check);
 #endif
-}
-
-// Connect & disconnect
-void BaseSocket::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
-{
-    auto timeoutMS = (int) timeout.count();
-
-    if (activeUnlocked())
-    {
-        closeUnlocked();
-    }
-
-    // Create a new socket
-    m_sockfd = socket(m_domain, m_type, m_protocol);
-    if (m_sockfd == INVALID_SOCKET)
-        throwSocketError("Can't create socket");
-
-    int result = 0;
-    const char* currentOperation;
-
-    switch (openMode)
-    {
-        case OpenMode::CONNECT:
-            currentOperation = "connect";
-            if (timeoutMS != 0)
-            {
-                setBlockingModeUnlocked(false);
-                result = connect(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
-                switch (result)
-                {
-                    case ENETUNREACH:
-                        throw Exception("Network unreachable");
-                    case ECONNREFUSED:
-                        throw Exception("Connection refused");
-                    default:
-                        break;
-                }
-                try
-                {
-                    if (!readyToWriteUnlocked(timeout))
-                    {
-                        throw Exception("Connection timeout");
-                    }
-                }
-                catch (const Exception&)
-                {
-                    closeUnlocked();
-                    throw;
-                }
-                result = 0;
-                setBlockingModeUnlocked(true);
-            }
-            else
-            {
-                result = connect(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
-            }
-            break;
-
-        case OpenMode::BIND:
-            if (m_type != SOCK_DGRAM)
-            {
-#ifndef _WIN32
-                setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
-#else
-                setOptionUnlocked(SOL_SOCKET, SO_REUSEADDR, 1);
-#endif
-            }
-            currentOperation = "bind";
-            result = ::bind(m_sockfd, (const sockaddr*) &addr, sizeof(sockaddr_in));
-            if (result == 0 && m_type != SOCK_DGRAM)
-            {
-                result = ::listen(m_sockfd, SOMAXCONN);
-                currentOperation = "listen";
-            }
-            break;
-
-        default:
-            break;
-    }
-
-    if (result != 0)
-    {
-        stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
-              << ".";
-        closeUnlocked();
-        throw Exception(error.str());
-    }
 }
 
 void BaseSocket::bind(const char* address, uint32_t portNumber)
 {
-    if (m_sockfd == INVALID_SOCKET)
+    if (m_socketFd == INVALID_SOCKET)
     {
         // Create a new socket
-        m_sockfd = socket(m_domain, m_type, m_protocol);
-        if (m_sockfd == INVALID_SOCKET)
+        m_socketFd = socket(m_domain, m_type, m_protocol);
+        if (m_socketFd == INVALID_SOCKET)
             throwSocketError("Can't create socket");
     }
 
@@ -215,7 +127,7 @@ void BaseSocket::bind(const char* address, uint32_t portNumber)
 
     addr.sin_port = htons(uint16_t(portNumber));
 
-    if (::bind(m_sockfd, (sockaddr*) &addr, sizeof(addr)) != 0)
+    if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 
@@ -236,41 +148,25 @@ void BaseSocket::listen(uint16_t portNumber)
     openAddressUnlocked(addr, OpenMode::BIND);
 }
 
-size_t BaseSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
-{
-    int bytes;
-    if (from != nullptr)
-    {
-        socklen_t flen = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_sockfd, (char*) buffer, (int32_t) size, 0, (sockaddr*) from, &flen);
-    }
-    else
-    {
-        bytes = (int) ::recv(m_sockfd, (char*) buffer, (int32_t) size, 0);
-    }
-
-    if (bytes == -1)
-        throwSocketError("Can't read from socket");
-
-    return (size_t) bytes;
-}
-
 size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
+    const std::scoped_lock lock(m_socketMutex);
+
     buffer.checkSize(size);
-    const size_t bytes = read(buffer.data(), size, from);
-    if (bytes != size)
-    {
-        buffer.bytes(bytes);
-    }
+    size_t bytes = readUnlocked(buffer.data(), size, from);
+    buffer.bytes(bytes);
+
     return bytes;
 }
 
 size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
 {
-    Buffer buff(size);
-    const size_t bytes = read(buff.data(), size, from);
-    buffer.assign(buff.c_str(), bytes);
+    const std::scoped_lock lock(m_socketMutex);
+
+    buffer.resize(size);
+    size_t bytes = readUnlocked((uint8_t*) buffer.data(), size, from);
+    buffer.resize(bytes);
+
     return bytes;
 }
 
@@ -290,7 +186,7 @@ size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* 
     {
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_sockfd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
+            bytes = (int) sendto(m_socketFd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
                                  sizeof(sockaddr_in));
         }
         else

@@ -63,7 +63,7 @@ TCPSocket::~TCPSocket()
     TCPSocket::close();
 }
 
-void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
 {
     if (!_host.hostname().empty())
     {
@@ -85,12 +85,12 @@ void TCPSocket::_open(const Host& _host, OpenMode openMode, bool _blockingMode, 
         sockaddr_in addr = {};
         host().getAddress(addr);
 
-        _open(addr, openMode, _blockingMode, timeout);
+        openUnlocked(addr, openMode, _blockingMode, timeout);
     }
 }
 
-void TCPSocket::_open(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                      chrono::milliseconds timeoutMS)
+void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
+                             chrono::milliseconds timeoutMS)
 {
     openAddressUnlocked(address, openMode, timeoutMS);
 
@@ -130,27 +130,14 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
     return false;
 }
 
-size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
+size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
 {
     int receivedBytes;
     int error;
     do
     {
         error = 0;
-        if (from != nullptr)
-        {
-#ifdef _WIN32
-            int flen = sizeof(sockaddr_in);
-#else
-            socklen_t flen = sizeof(sockaddr_in);
-#endif
-            receivedBytes = (int) recvfrom(fd(), (char*) destination, (int) size, 0, (sockaddr*) from,
-                                           &flen);
-        }
-        else
-        {
-            receivedBytes = (int) recv(destination, size);
-        }
+        receivedBytes = (int) recvUnlocked(destination, size);
 
         if (receivedBytes == -1)
         {
@@ -165,22 +152,6 @@ size_t TCPSocket::read(uint8_t* destination, size_t size, sockaddr_in* from)
     } while (error == EAGAIN);
 
     return receivedBytes;
-}
-
-size_t TCPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.checkSize(size);
-    size_t bytes = read(buffer.data(), size, from);
-    buffer.bytes(bytes);
-    return bytes;
-}
-
-size_t TCPSocket::read(String& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.resize(size);
-    size_t bytes = read((uint8_t*) buffer.data(), size, from);
-    buffer.resize(bytes);
-    return bytes;
 }
 
 void TCPSocket::setProxy(shared_ptr<Proxy> proxy)

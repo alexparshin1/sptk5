@@ -93,7 +93,20 @@ public:
      */
     explicit BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
+    /**
+     * @Destructor
+     */
+    virtual ~BaseSocketVirtualMethods() = default;
+
 protected:
+    /**
+     * Opens the socket connection by address.
+     * @param addr              Defines socket address/port information
+     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
+     * @param timeout           Connection timeout. If 0 then wait forever.
+     */
+    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
+
     /**
      * Opens the client socket connection by host and port
      * @param host              The host
@@ -101,7 +114,7 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
      */
-    virtual void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
+    virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
     {
         // Implement in derived class
     }
@@ -110,13 +123,14 @@ protected:
      * Opens the client socket connection by host and port
      * @param address           Address and port
      * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
+     * @param blockMode         Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
      */
-    virtual void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                       std::chrono::milliseconds timeoutMS)
+    virtual void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode,
+                              std::chrono::milliseconds timeoutMS)
     {
-        // Implement in derived class
+        openAddressUnlocked(address, openMode, timeoutMS);
+        setBlockModeUnlocked(blockMode);
     }
 
     /**
@@ -125,7 +139,7 @@ protected:
      */
     [[nodiscard]] virtual bool activeUnlocked() const
     {
-        return m_sockfd != INVALID_SOCKET;
+        return m_socketFd != INVALID_SOCKET;
     }
 
     virtual void closeUnlocked();
@@ -135,7 +149,7 @@ protected:
      */
     SOCKET getSocketFdUnlocked() const
     {
-        return m_sockfd;
+        return m_socketFd;
     }
 
     /**
@@ -159,7 +173,7 @@ protected:
      * Set blockingMode mode
      * @param blockingMode      Socket blockingMode mode flag
      */
-    void setBlockingModeUnlocked(bool blockingMode);
+    void setBlockModeUnlocked(bool blockingMode);
 
     /**
      * Sets socket option value
@@ -204,13 +218,21 @@ protected:
      */
     [[nodiscard]] virtual bool readyToWriteUnlocked(std::chrono::milliseconds timeout);
 
-protected:
-    SOCKET m_sockfd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    int32_t m_domain;                 ///< Socket domain type
-    int32_t m_type;                   ///< Socket type
-    int32_t m_protocol;               ///< Socket protocol
-    Host m_host;                      ///< Host
-    bool m_blockingMode {false};      ///< Blocking mode flag
+    /**
+     * Reads data from the socket
+     * @param buffer            The memory buffer
+     * @param size              The number of bytes to read
+     * @param from              The source address
+     * @returns the number of bytes read from the socket
+     */
+    [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
+
+    SOCKET m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t m_domain;                   ///< Socket domain type
+    int32_t m_type;                     ///< Socket type
+    int32_t m_protocol;                 ///< Socket protocol
+    Host m_host;                        ///< Host
+    bool m_blockingMode {false};        ///< Blocking mode flag
 };
 
 /**

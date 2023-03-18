@@ -80,7 +80,7 @@ int32_t SocketReader::readFromSocket()
     do
     {
         error = 0;
-        auto receivedBytes = (int) m_socket.recv(data(), capacity() - 2);
+        auto receivedBytes = (int) m_socket.recvUnlocked(data(), capacity() - 2);
         if (receivedBytes == -1)
         {
             bytes(0);
@@ -116,7 +116,7 @@ void SocketReader::readMoreFromSocket(int availableBytes)
         checkSize(capacity() + readBytesLWM);
     }
 
-    const size_t receivedBytes = m_socket.recv(data() + availableBytes, capacity() - availableBytes);
+    const size_t receivedBytes = m_socket.recvUnlocked(data() + availableBytes, capacity() - availableBytes);
     bytes(bytes() + receivedBytes);
 }
 

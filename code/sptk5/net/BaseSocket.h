@@ -54,14 +54,6 @@ public:
     }
 
     /**
-     * Opens the socket connection by address.
-     * @param addr              Defines socket address/port information
-     * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
-     * @param timeout           Connection timeout. If 0 then wait forever.
-     */
-    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
-
-    /**
      * Constructor
      * @param domain            Socket domain type
      * @param type              Socket type
@@ -84,7 +76,7 @@ public:
     /**
      * @brief Destructor
      */
-    virtual ~BaseSocket();
+    ~BaseSocket() override;
 
     /**
      * Deleted copy assignment
@@ -105,7 +97,7 @@ public:
     void blockingMode(bool blockingMode)
     {
         const std::scoped_lock lock(m_socketMutex);
-        setBlockingModeUnlocked(blockingMode);
+        setBlockModeUnlocked(blockingMode);
     }
 
     /**
@@ -167,7 +159,7 @@ public:
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        _open(host, openMode, blockingMode, timeoutMS);
+        openUnlocked(host, openMode, blockingMode, timeoutMS);
     }
 
     /**
@@ -180,7 +172,7 @@ public:
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        _open(address, openMode, blockingMode, timeoutMS);
+        openUnlocked(address, openMode, blockingMode, timeoutMS);
     }
 
     /**
@@ -226,6 +218,7 @@ public:
      */
     void setOption(int level, int option, int value) const
     {
+        const std::scoped_lock lock(m_socketMutex);
         setOptionUnlocked(level, option, value);
     }
 
@@ -236,6 +229,7 @@ public:
      */
     void getOption(int level, int option, int& value) const
     {
+        const std::scoped_lock lock(m_socketMutex);
         getOptionUnlocked(level, option, value);
     }
 
@@ -245,7 +239,7 @@ public:
      * @param len              The destination buffer size
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t recv(uint8_t* buffer, size_t len);
+    [[nodiscard]] virtual size_t recvUnlocked(uint8_t* buffer, size_t len);
 
     /**
      * Reads data from the socket in regular or TLS mode
@@ -262,7 +256,11 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr);
+    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readUnlocked(buffer, size, from);
+    }
 
     /**
      * Reads data from the socket into memory buffer
@@ -273,7 +271,7 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(Buffer& buffer, size_t size, sockaddr_in* from);
+    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -284,12 +282,19 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] virtual size_t read(String& buffer, size_t size, sockaddr_in* from);
+    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+
+    template<typename T>
+    size_t read(T& value, sockaddr_in* from = nullptr)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        return readUnlocked((uint8_t*) &value, sizeof(T), from);
+    }
 
     /**
      * Writes data to the socket
      *
-     * If size is omited then buffer is treated as zero-terminated string
+     * If size is omitted then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
      * @param peer              The peer information
@@ -300,7 +305,7 @@ public:
     /**
      * Writes data to the socket
      *
-     * If size is omited then buffer is treated as zero-terminated string
+     * If size is omitted then buffer is treated as zero-terminated string
      * @param buffer            The memory buffer
      * @param size              The memory buffer size
      * @returns the number of bytes written to the socket
@@ -381,7 +386,7 @@ protected:
      */
     void setSocketFD(SOCKET socket)
     {
-        m_sockfd = socket;
+        m_socketFd = socket;
     }
 
     /**

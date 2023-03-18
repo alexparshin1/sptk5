@@ -232,7 +232,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
         auto* readBufferPtr = readBuffer->data();
         while (packetCount < packetsInTest)
         {
-            if (auto result = socket.recv(readBufferPtr, readSize);
+            if (auto result = socket.recvUnlocked(readBufferPtr, readSize);
                 result == 0)
             {
                 break;
@@ -283,7 +283,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
 
         while (packetCount < packetsInTest)
         {
-            auto result = socket.recv(readBuffer->data(), readSize);
+            auto result = socket.recvUnlocked(readBuffer->data(), readSize);
             if (result == 0)
             {
                 break;

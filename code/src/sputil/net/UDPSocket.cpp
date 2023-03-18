@@ -36,7 +36,7 @@ UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
     setSocketFD(socket(domain(), type(), protocol()));
 }
 
-size_t UDPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
+size_t UDPSocket::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     sockaddr_in6 addr {};
     if (from == nullptr)
@@ -45,30 +45,8 @@ size_t UDPSocket::read(uint8_t* buffer, size_t size, sockaddr_in* from)
     }
 
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(fd(), (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(getSocketFdUnlocked(), (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
     if (bytes == -1)
         throwSocketError("Can't read from socket");
-    return (size_t) bytes;
-}
-
-size_t UDPSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.checkSize(size);
-    socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(fd(), (char*) buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
-    if (bytes == -1)
-        throwSocketError("Can't read from socket");
-    buffer.bytes(bytes);
-    return (size_t) bytes;
-}
-
-size_t UDPSocket::read(String& buffer, size_t size, sockaddr_in* from)
-{
-    buffer.resize(size);
-    socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(fd(), buffer.data(), (int) size, 0, (sockaddr*) from, &addrLength);
-    if (bytes == -1)
-        throwSocketError("Can't read from socket");
-    buffer.resize((size_t) bytes);
     return (size_t) bytes;
 }
