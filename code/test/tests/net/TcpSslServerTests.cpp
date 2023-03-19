@@ -262,6 +262,13 @@ size_t readAllPackets(T& reader, size_t readSize)
     return packetCount;
 }
 
+static void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
+{
+    COUT(testLabel << " Reader Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
+                   << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl
+                   << endl);
+}
+
 static void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType);
@@ -284,9 +291,7 @@ static void testTransferPerformance(ServerConnection::Type connectionType, const
     size_t packetCount = readAllPackets(*socket, readSize);
     stopWatch.stop();
 
-    COUT(testLabel << " Received " << packetCount << " packets for "
-                   << fixed << setprecision(2) << stopWatch.seconds() << " sec, at the rate " << packetCount / stopWatch.seconds() << "/s, or "
-                   << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
+    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 }
 
 TEST(SPTK_TCPServer, tcpTransferPerformance)
@@ -337,9 +342,7 @@ static void testReaderTransferPerformance(ServerConnection::Type connectionType,
     size_t packetCount = readAllPackets(socketReader, readSize);
     stopWatch.stop();
 
-    COUT(testLabel << " Reader Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                   << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl
-                   << endl);
+    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 
     socket->close();
 }
