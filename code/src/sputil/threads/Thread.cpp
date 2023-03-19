@@ -60,6 +60,7 @@ Thread::Thread(String name, SThreadManager threadManager)
 
 void Thread::terminate()
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread && m_thread->joinable())
     {
         m_thread->request_stop();
@@ -68,6 +69,7 @@ void Thread::terminate()
 
 bool Thread::terminated()
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread && m_thread->joinable())
     {
         return m_thread->get_stop_token().stop_requested();
@@ -77,6 +79,7 @@ bool Thread::terminated()
 
 Thread::Id Thread::id() const
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread)
     {
         return m_thread->get_id();

@@ -249,7 +249,7 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
         if (int result = SSL_connect(m_ssl);
             result <= 0)
         {
-            close();
+            closeUnlocked();
             throwSSLError("SSL_connect", result);
         }
         return;
