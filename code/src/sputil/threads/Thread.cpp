@@ -111,5 +111,6 @@ void Thread::run()
 
 bool Thread::running() const
 {
+    const scoped_lock lock(m_mutex);
     return m_thread && m_thread->joinable();
 }

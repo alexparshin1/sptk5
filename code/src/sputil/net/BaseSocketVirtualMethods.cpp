@@ -65,7 +65,7 @@ void BaseSocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, Open
             currentOperation = "connect";
             if (timeoutMS != 0)
             {
-                setBlockModeUnlocked(false);
+                setBlockingModeUnlocked(false);
                 result = connect(m_socketFd, (const sockaddr*) &addr, sizeof(sockaddr_in));
                 switch (result)
                 {
@@ -89,7 +89,7 @@ void BaseSocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, Open
                     throw;
                 }
                 result = 0;
-                setBlockModeUnlocked(true);
+                setBlockingModeUnlocked(true);
             }
             else
             {
@@ -143,7 +143,7 @@ void BaseSocketVirtualMethods::closeUnlocked()
     }
 }
 
-void BaseSocketVirtualMethods::setBlockModeUnlocked(bool blockingMode)
+void BaseSocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 {
 #ifdef _WIN32
     uint32_t arg = blockingMode ? 0 : 1;
@@ -220,6 +220,52 @@ SOCKET BaseSocketVirtualMethods::detachUnlocked()
     m_socketFd = INVALID_SOCKET;
     closeUnlocked();
     return socketFd;
+}
+
+void BaseSocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber)
+{
+    if (m_socketFd == INVALID_SOCKET)
+    {
+        // Create a new socket
+        m_socketFd = socket(m_domain, m_type, m_protocol);
+        if (m_socketFd == INVALID_SOCKET)
+            throwSocketError("Can't create socket");
+    }
+
+    sockaddr_in addr = {};
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+
+    if (address == nullptr)
+    {
+        addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+    else
+    {
+        addr.sin_addr.s_addr = inet_addr(address);
+    }
+
+    addr.sin_port = htons(uint16_t(portNumber));
+
+    if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
+        throwSocketError("Can't bind socket to port " + int2string(portNumber));
+}
+
+void BaseSocketVirtualMethods::listenUnlocked(uint16_t portNumber)
+{
+    if (portNumber != 0)
+    {
+        m_host.port(portNumber);
+    }
+
+    sockaddr_in addr = {};
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_port = htons(m_host.port());
+
+    openAddressUnlocked(addr, OpenMode::BIND);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)
@@ -349,6 +395,43 @@ size_t BaseSocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sock
         throwSocketError("Can't read from socket");
 
     return (size_t) bytes;
+}
+
+size_t BaseSocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
+{
+    auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
+    return res;
+}
+
+size_t BaseSocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
+{
+    int bytes;
+    const auto* ptr = buffer;
+
+    if ((int) size == -1)
+    {
+        size = strlen((const char*) buffer);
+    }
+
+    const size_t total = size;
+    auto remaining = (int) size;
+    while (remaining > 0)
+    {
+        if (peer != nullptr)
+        {
+            bytes = (int) sendto(m_socketFd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
+                                 sizeof(sockaddr_in));
+        }
+        else
+        {
+            bytes = (int) sendUnlocked(ptr, (int32_t) size);
+        }
+        if (bytes == -1)
+            throwSocketError("Can't write to socket");
+        remaining -= bytes;
+        ptr += bytes;
+    }
+    return total;
 }
 
 void throwSocketError(const String& operation, const std::source_location& location)

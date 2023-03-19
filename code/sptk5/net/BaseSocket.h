@@ -62,33 +62,9 @@ public:
     explicit BaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
-     * Deleted copy constructor
-     * @param other             Other socket
-     */
-    BaseSocket(const BaseSocket& other) = delete;
-
-    /**
-     * Move constructor
-     * @param other             Other socket
-     */
-    BaseSocket(BaseSocket&& other) noexcept = delete;
-
-    /**
      * @brief Destructor
      */
     ~BaseSocket() override;
-
-    /**
-     * Deleted copy assignment
-     * @param other             Other socket
-     */
-    BaseSocket& operator=(const BaseSocket& other) = delete;
-
-    /**
-     * Move assignment
-     * @param other             Other socket
-     */
-    BaseSocket& operator=(BaseSocket&& other) noexcept = delete;
 
     /**
      * Set blockingMode mode
@@ -97,7 +73,7 @@ public:
     void blockingMode(bool blockingMode)
     {
         const std::scoped_lock lock(m_socketMutex);
-        setBlockModeUnlocked(blockingMode);
+        setBlockingModeUnlocked(blockingMode);
     }
 
     /**
@@ -159,6 +135,7 @@ public:
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
+        const std::scoped_lock lock(m_socketMutex);
         openUnlocked(host, openMode, blockingMode, timeoutMS);
     }
 
@@ -172,6 +149,7 @@ public:
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
+        const std::scoped_lock lock(m_socketMutex);
         openUnlocked(address, openMode, blockingMode, timeoutMS);
     }
 
@@ -180,13 +158,21 @@ public:
      * @param address           Local IP address, or NULL if any
      * @param portNumber        The port number, or 0 if any
      */
-    void bind(const char* address, uint32_t portNumber);
+    void bind(const char* address, uint32_t portNumber)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        bindUnlocked(address, portNumber);
+    }
 
     /**
      * Opens the server socket connection on port (binds/listens)
      * @param portNumber        The port number
      */
-    void listen(uint16_t portNumber = 0);
+    void listen(uint16_t portNumber = 0)
+    {
+        const std::scoped_lock lock(m_socketMutex);
+        listenUnlocked(portNumber);
+    }
 
     /**
      * Closes the socket connection
@@ -208,11 +194,6 @@ public:
     }
 
     /**
-     * Calls Unix fcntl() or Windows ioctlsocket()
-     */
-    int32_t control(int flag, const uint32_t* check) const;
-
-    /**
      * Sets socket option value
      * Throws an error if not succeeded
      */
@@ -232,14 +213,6 @@ public:
         const std::scoped_lock lock(m_socketMutex);
         getOptionUnlocked(level, option, value);
     }
-
-    /**
-     * Reads data from the socket in regular or TLS mode
-     * @param buffer            The send buffer
-     * @param len              The send data length
-     * @returns the number of bytes sent the socket
-     */
-    [[nodiscard]] virtual size_t send(const uint8_t* buffer, size_t len);
 
     /**
      * Reads data from the socket
@@ -292,19 +265,10 @@ public:
      * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer);
-
-    /**
-     * Writes data to the socket
-     *
-     * If size is omitted then buffer is treated as zero-terminated string
-     * @param buffer            The memory buffer
-     * @param size              The memory buffer size
-     * @returns the number of bytes written to the socket
-     */
-    size_t write(const uint8_t* buffer, size_t size)
+    size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer = nullptr)
     {
-        return write(buffer, size, nullptr);
+        const std::scoped_lock lock(m_socketMutex);
+        return writeUnlocked(buffer, size, peer);
     }
 
     /**
@@ -313,17 +277,7 @@ public:
      * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const Buffer& buffer, const sockaddr_in* peer);
-
-    /**
-     * Writes data to the socket
-     * @param buffer            The memory buffer
-     * @returns the number of bytes written to the socket
-     */
-    size_t write(const Buffer& buffer)
-    {
-        return write(buffer, nullptr);
-    }
+    size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Writes data to the socket
@@ -331,17 +285,7 @@ public:
      * @param peer              The peer information
      * @returns the number of bytes written to the socket
      */
-    virtual size_t write(const String& buffer, const sockaddr_in* peer);
-
-    /**
-     * Writes data to the socket
-     * @param buffer            The memory buffer
-     * @returns the number of bytes written to the socket
-     */
-    size_t write(const String& buffer)
-    {
-        return write(buffer, nullptr);
-    }
+    size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
      * Reports true if socket is ready for reading from it
@@ -369,24 +313,18 @@ public:
      */
     [[nodiscard]] bool blockingMode() const
     {
-        return m_blockingMode;
+        const std::scoped_lock lock(m_socketMutex);
+        return getBlockingModeUnlocked();
     }
 
 protected:
-    /**
-     * Set socket internal (OS) handle
-     */
-    void setSocketFD(SOCKET socket)
-    {
-        m_socketFd = socket;
-    }
-
     /**
      * Get socket domain type
      */
     [[nodiscard]] int32_t domain() const
     {
-        return m_domain;
+        const std::scoped_lock lock(m_socketMutex);
+        return getDomainUnlocked();
     }
 
     /**
@@ -394,7 +332,8 @@ protected:
      */
     [[nodiscard]] int32_t type() const
     {
-        return m_type;
+        const std::scoped_lock lock(m_socketMutex);
+        return getTypeUnlocked();
     }
 
     /**
@@ -402,7 +341,8 @@ protected:
      */
     [[nodiscard]] int32_t protocol() const
     {
-        return m_protocol;
+        const std::scoped_lock lock(m_socketMutex);
+        return getProtocolUnlocked();
     }
 
 #ifdef _WIN32

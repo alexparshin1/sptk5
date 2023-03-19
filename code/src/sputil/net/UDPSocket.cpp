@@ -33,7 +33,7 @@ using namespace sptk;
 UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
     : BaseSocket(_domain, SOCK_DGRAM)
 {
-    setSocketFd(socket(domain(), type(), protocol()));
+    setSocketFdUnlocked(socket(domain(), type(), protocol()));
 }
 
 size_t UDPSocket::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)

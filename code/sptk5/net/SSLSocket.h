@@ -58,7 +58,7 @@ public:
      * Constructor
 	 * @param cipherList		Optional cipher list
      */
-    explicit SSLSocket(const String& cipherList = "ALL");
+    explicit SSLSocket(String cipherList = "ALL");
 
     /**
      * Destructor
@@ -100,14 +100,6 @@ public:
      * @return the number of bytes read from the socket
      */
     size_t recvUnlocked(uint8_t* buffer, size_t size) override;
-
-    /**
-     * Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
-     */
-    size_t send(const uint8_t* buffer, size_t len) override;
 
 protected:
     /**
@@ -164,6 +156,14 @@ protected:
      */
     void closeUnlocked() override;
 
+    /**
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
+     * @return the number of bytes sent the socket
+     */
+    size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
+
 private:
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
     SSL* m_ssl {nullptr};                    ///< SSL socket
@@ -172,9 +172,9 @@ private:
     String m_sniHostName; ///< SNI host name (optional)
     String m_cipherList;  ///< Cipher List, the default is "ALL"
 
-    void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
+    void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
 
-    bool tryConnect(const DateTime& timeoutAt);
+    bool tryConnectUnlocked(const DateTime& timeoutAt);
 };
 
 /**

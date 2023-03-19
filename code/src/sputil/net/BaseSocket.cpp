@@ -68,67 +68,6 @@ BaseSocket::~BaseSocket()
     BaseSocket::close();
 }
 
-size_t BaseSocket::send(const uint8_t* buffer, size_t len)
-{
-    auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
-    return res;
-}
-
-int32_t BaseSocket::control(int flag, const uint32_t* check) const
-{
-#ifdef _WIN32
-    return ioctlsocket(m_sockfd, flag, (u_long*) check);
-#else
-    return fcntl(m_socketFd, flag, *check);
-#endif
-}
-
-void BaseSocket::bind(const char* address, uint32_t portNumber)
-{
-    if (m_socketFd == INVALID_SOCKET)
-    {
-        // Create a new socket
-        m_socketFd = socket(m_domain, m_type, m_protocol);
-        if (m_socketFd == INVALID_SOCKET)
-            throwSocketError("Can't create socket");
-    }
-
-    sockaddr_in addr = {};
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
-
-    if (address == nullptr)
-    {
-        addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    }
-    else
-    {
-        addr.sin_addr.s_addr = inet_addr(address);
-    }
-
-    addr.sin_port = htons(uint16_t(portNumber));
-
-    if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
-        throwSocketError("Can't bind socket to port " + int2string(portNumber));
-}
-
-void BaseSocket::listen(uint16_t portNumber)
-{
-    if (portNumber != 0)
-    {
-        m_host.port(portNumber);
-    }
-
-    sockaddr_in addr = {};
-
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(m_host.port());
-
-    openAddressUnlocked(addr, OpenMode::BIND);
-}
-
 size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     const std::scoped_lock lock(m_socketMutex);
@@ -149,37 +88,6 @@ size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
     buffer.resize(bytes);
 
     return bytes;
-}
-
-size_t BaseSocket::write(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
-{
-    int bytes;
-    const auto* ptr = buffer;
-
-    if ((int) size == -1)
-    {
-        size = strlen((const char*) buffer);
-    }
-
-    const size_t total = size;
-    auto remaining = (int) size;
-    while (remaining > 0)
-    {
-        if (peer != nullptr)
-        {
-            bytes = (int) sendto(m_socketFd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
-                                 sizeof(sockaddr_in));
-        }
-        else
-        {
-            bytes = (int) send(ptr, (int32_t) size);
-        }
-        if (bytes == -1)
-            throwSocketError("Can't write to socket");
-        remaining -= bytes;
-        ptr += bytes;
-    }
-    return total;
 }
 
 size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)

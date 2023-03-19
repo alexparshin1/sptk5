@@ -130,7 +130,7 @@ protected:
                               std::chrono::milliseconds timeoutMS)
     {
         openAddressUnlocked(address, openMode, timeoutMS);
-        setBlockModeUnlocked(blockMode);
+        setBlockingModeUnlocked(blockMode);
     }
 
     /**
@@ -142,6 +142,20 @@ protected:
         return m_socketFd != INVALID_SOCKET;
     }
 
+
+    /**
+     * Binds the socket to port
+     * @param address           Local IP address, or NULL if any
+     * @param portNumber        The port number, or 0 if any
+     */
+    void bindUnlocked(const char* address, uint32_t portNumber);
+
+    /**
+     * Opens the server socket connection on port (binds/listens)
+     * @param portNumber        The port number
+     */
+    void listenUnlocked(uint16_t portNumber);
+
     virtual void closeUnlocked();
 
     /**
@@ -150,6 +164,14 @@ protected:
     SOCKET getSocketFdUnlocked() const
     {
         return m_socketFd;
+    }
+
+    /**
+     * Set socket internal (OS) handle
+     */
+    void setSocketFdUnlocked(SOCKET socket)
+    {
+        m_socketFd = socket;
     }
 
     /**
@@ -170,10 +192,19 @@ protected:
     }
 
     /**
+     * @brief Return current blocking mode state
+     * @return Current blocking mode state
+     */
+    [[nodiscard]] bool getBlockingModeUnlocked() const
+    {
+        return m_blockingMode;
+    }
+
+    /**
      * Set blockingMode mode
      * @param blockingMode      Socket blockingMode mode flag
      */
-    void setBlockModeUnlocked(bool blockingMode);
+    void setBlockingModeUnlocked(bool blockingMode);
 
     /**
      * Sets socket option value
@@ -235,6 +266,50 @@ protected:
      */
     [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from);
 
+    /**
+     * Reads data from the socket in regular or TLS mode
+     * @param buffer            The send buffer
+     * @param len              The send data length
+     * @returns the number of bytes sent the socket
+     */
+    [[nodiscard]] virtual size_t sendUnlocked(const uint8_t* buffer, size_t len);
+
+    /**
+     * Writes data to the socket
+     *
+     * If size is omitted then buffer is treated as zero-terminated string
+     * @param buffer            The memory buffer
+     * @param size              The memory buffer size
+     * @param peer              The peer information
+     * @returns the number of bytes written to the socket
+     */
+    virtual size_t writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer);
+
+    /**
+     * Get socket domain type
+     */
+    [[nodiscard]] int32_t getDomainUnlocked() const
+    {
+        return m_domain;
+    }
+
+    /**
+     * Get socket type
+     */
+    [[nodiscard]] int32_t getTypeUnlocked() const
+    {
+        return m_type;
+    }
+
+    /**
+     * Get socket protocol
+     */
+    [[nodiscard]] int32_t getProtocolUnlocked() const
+    {
+        return m_protocol;
+    }
+
+private:
     SOCKET m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
     int32_t m_domain;                   ///< Socket domain type
     int32_t m_type;                     ///< Socket type
