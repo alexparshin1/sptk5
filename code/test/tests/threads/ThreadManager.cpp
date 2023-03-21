@@ -51,7 +51,7 @@ public:
 protected:
     void threadFunction() override
     {
-        constexpr auto tenMilliseconds = milliseconds(10);
+        constexpr auto tenMilliseconds = milliseconds(20);
         ++taskCounter;
         this_thread::sleep_for(tenMilliseconds);
     }
@@ -73,7 +73,7 @@ TEST(SPTK_ThreadManager, minimal)
         thread->run();
     }
 
-    constexpr auto smallDelay = milliseconds(200);
+    constexpr auto smallDelay = milliseconds(50);
     this_thread::sleep_for(smallDelay);
     threadManager->stop();
 

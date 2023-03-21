@@ -32,13 +32,14 @@
 namespace sptk {
 
 class SP_EXPORT ThreadManager
+    : public Thread
 {
 public:
     explicit ThreadManager(const String& name);
 
     ~ThreadManager();
 
-    void start() const;
+    void start();
 
     void stop();
 
@@ -48,31 +49,15 @@ public:
 
     size_t threadCount() const;
 
-    bool running() const;
+protected:
+    void threadFunction() override;
+
+    void joinTerminatedThreads(std::chrono::milliseconds timeout);
 
 private:
-    class Joiner
-        : public Thread
-    {
-    public:
-        explicit Joiner(const String& name);
-
-        void push(const SThread& thread);
-
-        void stop();
-
-    protected:
-        void threadFunction() override;
-
-        void joinTerminatedThreads(std::chrono::milliseconds timeout);
-
-    private:
-        SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
-    };
-
-    mutable std::mutex m_mutex;                  ///< Mutex that protects internal data
-    std::map<Thread*, SThread> m_runningThreads; ///< Running threads
-    std::shared_ptr<Joiner> m_joiner;
+    mutable std::mutex m_mutex;                     ///< Mutex that protects internal data
+    std::map<Thread*, SThread> m_runningThreads;    ///< Running threads
+    SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
 
     void terminateRunningThreads();
 };
