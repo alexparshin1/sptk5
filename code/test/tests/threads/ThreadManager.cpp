@@ -38,8 +38,8 @@ public:
     static atomic<size_t> taskCounter;
     static atomic<size_t> joinCounter;
 
-    ThreadManagerTestThread(const String& name, const shared_ptr<ThreadManager>& threadManager)
-        : Thread(name, threadManager)
+    ThreadManagerTestThread(const String& name)
+        : Thread(name)
     {
     }
 
@@ -60,6 +60,10 @@ protected:
 atomic<size_t> ThreadManagerTestThread::taskCounter;
 atomic<size_t> ThreadManagerTestThread::joinCounter;
 
+/**
+ * @brief Test starts several threads that each will increment the counter by 1
+ * @details The resulting counter is expected to become same as number of threads
+ */
 TEST(SPTK_ThreadManager, minimal)
 {
     constexpr size_t maxThreads = 10;
@@ -69,7 +73,8 @@ TEST(SPTK_ThreadManager, minimal)
 
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto* thread = new ThreadManagerTestThread("thread " + to_string(i), threadManager);
+        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        threadManager->manage(thread);
         thread->run();
     }
 

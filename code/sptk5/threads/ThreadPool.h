@@ -106,7 +106,7 @@ private:
      *
      * Create new worker thread
      */
-    WorkerThread* createThread();
+    void createThread();
 
     /**
      * Log thread event

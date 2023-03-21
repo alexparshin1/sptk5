@@ -30,28 +30,19 @@
 using namespace std;
 using namespace sptk;
 
-WorkerThread::WorkerThread(const SThreadManager& threadManager, SynchronizedQueue<SRunable>& queue,
-                           ThreadEvent* threadEvent, chrono::milliseconds maxIdleTime)
-    : Thread("worker", threadManager)
+WorkerThread::WorkerThread(SynchronizedQueue<SRunable>& queue, std::chrono::milliseconds maxIdleTime)
+    : Thread("worker")
     , m_queue(queue)
-    , m_threadEvent(threadEvent)
-    , m_maxIdleSeconds(
-          maxIdleTime)
+    , m_maxIdleSeconds(maxIdleTime)
 {
 }
 
 void WorkerThread::threadFunction()
 {
-    if (m_threadEvent != nullptr)
-    {
-        m_threadEvent->threadEvent(this, ThreadEvent::Type::THREAD_STARTED, nullptr);
-    }
-
     constexpr chrono::seconds oneSecond(1);
     chrono::milliseconds idleSeconds(0);
     while (!terminated())
     {
-
         if (idleSeconds >= m_maxIdleSeconds)
         {
             break;
@@ -62,10 +53,7 @@ void WorkerThread::threadFunction()
         {
             setRunable(runable);
             idleSeconds = chrono::milliseconds(0);
-            if (m_threadEvent != nullptr)
-            {
-                m_threadEvent->threadEvent(this, ThreadEvent::Type::RUNABLE_STARTED, runable);
-            }
+
             try
             {
                 runable->execute();
@@ -75,19 +63,11 @@ void WorkerThread::threadFunction()
                 CERR("Runable::execute() : " << e.what() << endl);
             }
             setRunable(nullptr);
-            if (m_threadEvent != nullptr)
-            {
-                m_threadEvent->threadEvent(this, ThreadEvent::Type::RUNABLE_FINISHED, runable);
-            }
         }
         else
         {
             ++idleSeconds;
         }
-    }
-    if (m_threadEvent != nullptr)
-    {
-        m_threadEvent->threadEvent(this, ThreadEvent::Type::THREAD_FINISHED, nullptr);
     }
 }
 

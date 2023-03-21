@@ -51,7 +51,7 @@ void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
             if (m_server->allowConnection(&connectionInfo))
             {
                 auto connection = m_server->createConnection(connectionFD, &connectionInfo);
-                m_server->execute(connection);
+                m_server->execute(move(connection);
             }
             else
             {
@@ -97,12 +97,12 @@ void TCPServerListener::threadFunction()
 void TCPServerListener::terminate()
 {
     Thread::terminate();
-    const scoped_lock lock(*this);
-    m_listenerSocket.close();
 }
 
 void TCPServerListener::stop()
 {
     terminate();
     join();
+    const scoped_lock lock(*this);
+    m_listenerSocket.close();
 }

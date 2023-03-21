@@ -41,13 +41,13 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
     }
 }
 
-WorkerThread* ThreadPool::createThread()
+void ThreadPool::createThread()
 {
     logThreadEvent("Creating worker thread", nullptr);
-    auto* workerThread = new WorkerThread(m_threadManager, m_taskQueue, this, m_threadIdleTime);
+    auto workerThread = make_shared<WorkerThread>(m_taskQueue, m_threadIdleTime);
+    m_threadManager->manage(workerThread);
     workerThread->run();
-    logThreadEvent("Started worker thread", workerThread);
-    return workerThread;
+    logThreadEvent("Started worker thread", workerThread.get());
 }
 
 void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread) const

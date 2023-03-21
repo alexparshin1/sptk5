@@ -31,34 +31,72 @@
 
 namespace sptk {
 
+/**
+ * ThreadManager automatically joins and destroys terminated threads that are
+ * registered with it.
+ */
 class SP_EXPORT ThreadManager
     : public Thread
 {
 public:
+    /**
+     * @brief Constructor
+     * @param name              Thread manager thread name
+     */
     explicit ThreadManager(const String& name);
 
+    /**
+     * @brief Destructor
+     */
     ~ThreadManager();
 
+    /**
+     * @brief Start thread manager monitoring of the threads
+     */
     void start();
 
+    /**
+     * @brief Stop thread manager monitoring of the threads
+     */
     void stop();
 
-    void registerThread(Thread* thread);
+    /**
+     * @brief Register thread for monitoring
+     * @param thread            Thread
+     */
+    void manage(const SThread& thread);
 
+    /**
+     * @brief Destroy thread if it was monitored
+     * @param thread            Thread
+     */
     void destroyThread(Thread* thread);
 
+    /**
+     * @return Count of currently running monitored threads
+     */
     size_t threadCount() const;
 
 protected:
+    /**
+     * @brief Monitoring thread function
+     */
     void threadFunction() override;
-
-    void joinTerminatedThreads(std::chrono::milliseconds timeout);
 
 private:
     mutable std::mutex m_mutex;                     ///< Mutex that protects internal data
     std::map<Thread*, SThread> m_runningThreads;    ///< Running threads
     SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
 
+    /**
+     * @brief Join terminated threads
+     * @param timeout           Timeout waiting for the terminated threads in the loop
+     */
+    void joinTerminatedThreads(std::chrono::milliseconds timeout);
+
+    /**
+     * @brief Terminate all running monitored threads
+     */
     void terminateRunningThreads();
 };
 

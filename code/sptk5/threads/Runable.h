@@ -107,6 +107,7 @@ private:
 };
 
 using SRunable = std::shared_ptr<Runable>;
+using URunable = std::unique_ptr<Runable>;
 
 class RunableQueue
 {

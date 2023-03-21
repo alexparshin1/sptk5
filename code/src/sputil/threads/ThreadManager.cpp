@@ -24,7 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/ThreadManager.h"
+#include <sptk5/Printer.h>
+#include <sptk5/threads/ThreadManager.h>
 
 using namespace std;
 using namespace sptk;
@@ -58,10 +59,18 @@ void ThreadManager::threadFunction()
 
 void ThreadManager::joinTerminatedThreads(milliseconds timeout)
 {
-    SThread thread;
-    while (m_terminatedThreads.pop(thread, timeout))
+    vector<SThread> joinThreads;
     {
-        thread->terminate();
+        SThread thread;
+        while (m_terminatedThreads.pop(thread, timeout))
+        {
+            thread->terminate();
+            joinThreads.push_back(thread);
+        }
+    }
+
+    for (auto& thread: joinThreads)
+    {
         thread->join();
         const scoped_lock lock(m_mutex);
         thread.reset();
@@ -83,7 +92,7 @@ void ThreadManager::stop()
 
 void ThreadManager::terminateRunningThreads()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     for (const auto& [thread, threadSPtr]: m_runningThreads)
     {
         m_terminatedThreads.push(threadSPtr);
@@ -91,15 +100,16 @@ void ThreadManager::terminateRunningThreads()
     }
 }
 
-void ThreadManager::registerThread(Thread* thread)
+void ThreadManager::manage(const SThread& thread)
 {
     if (thread)
     {
-        scoped_lock lock(m_mutex);
-        auto itor = m_runningThreads.find(thread);
+        const scoped_lock lock(m_mutex);
+        auto itor = m_runningThreads.find(thread.get());
         if (itor == m_runningThreads.end())
         {
-            m_runningThreads[thread] = shared_ptr<Thread>(thread);
+            thread->setThreadManager(this);
+            m_runningThreads[thread.get()] = std::move(thread);
         }
     }
 }
@@ -121,6 +131,6 @@ void ThreadManager::destroyThread(Thread* thread)
 
 size_t ThreadManager::threadCount() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_runningThreads.size();
 }
