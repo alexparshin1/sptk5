@@ -62,11 +62,6 @@ public:
     void threadFunction() override;
 
     /**
-     * Custom thread terminate method
-     */
-    void terminate() override;
-
-    /**
      * Start socket listening
      */
     void listen()

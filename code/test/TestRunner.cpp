@@ -30,7 +30,6 @@
 #include <sptk5/Crypt.h>
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/JWT.h>
-#include <sptk5/Strings.h>
 #include <sptk5/Tar.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
@@ -39,7 +38,6 @@
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/test/TestRunner.h>
-#include <sptk5/threads/ThreadPool.h>
 #include <sptk5/threads/Timer.h>
 #include <sptk5/wsdl/WSComplexType.h>
 
@@ -65,7 +63,7 @@ public:
     }
 
 protected:
-    SServerConnection createConnection(SOCKET, const sockaddr_in*) override
+    UServerConnection createConnection(SOCKET, const sockaddr_in*) override
     {
         return nullptr;
     }
@@ -75,38 +73,38 @@ protected:
 // Otherwise, Visual Studio doesn't include any tests
 void stub()
 {
-    DateTime dt;
-    JWT jwt;
-    RegularExpression regexp(".*");
-    CommandLine cmd("", "", "");
-    DirectoryDS dir("");
-    ThreadPool threads(1, std::chrono::milliseconds(), "test", nullptr);
-    Timer timer;
-    MD5 md5;
-    StubServer tcpServer;
-    Tar tar;
-    FieldList fieldList(false);
-    Variant v;
+    const DateTime dateTime;
+    const JWT jwt;
+    const RegularExpression regexp(".*");
+    const CommandLine cmd("", "", "");
+    const DirectoryDS dir("");
+    const ThreadPool threads(1, std::chrono::milliseconds(), "test", nullptr);
+    const Timer timer;
+    const MD5 md5;
+    const StubServer tcpServer;
+    const Tar tar;
+    const FieldList fieldList(false);
+    const Variant variant;
 
     SSLSocket socket;
-    HttpConnect connect(socket);
+    const HttpConnect connect(socket);
 
-    string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    string key("01234567890123456789012345678901");
-    string iv("0123456789012345");
+    const string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    const string key("01234567890123456789012345678901");
+    const string iv("0123456789012345");
 
-    Buffer intext(text);
+    const Buffer intext(text);
     Buffer outtext;
     Crypt::encrypt(outtext, intext, key, iv);
 
-    Buffer b1;
-    Buffer b2("xxx");
-    Base64::encode(b1, b2);
+    Buffer buffer1;
+    const Buffer buffer2("xxx");
+    Base64::encode(buffer1, buffer2);
 
-    DatabaseConnectionPool connectionPool("");
+    const DatabaseConnectionPool connectionPool("");
 
 #ifdef BUILD_TEST_WS
-    TestWebService setvice;
+    const TestWebService setvice;
 #endif
 }
 
@@ -130,7 +128,7 @@ static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString
         {"oracle", "Oracle"},
         {"sqlite3", "SQLite3"}};
 
-    for (auto& connection: definedConnections)
+    for (const auto& connection: definedConnections)
     {
         excludeDrivers.erase(connection.driverName());
     }
@@ -151,7 +149,7 @@ int TestRunner::runAllTests()
     TCPSocket socket;
 #endif
 
-    String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
+    const String excludeDBDriverPatterns = excludeDatabasePatterns(DatabaseTests::tests().connectionStrings());
 
     size_t filterArgumentIndex = 0;
     for (int i = 1; i < m_argc; ++i)
@@ -184,16 +182,16 @@ int TestRunner::runAllTests()
 
         if (filterArgumentIndex == 0)
         {
-            argv.push_back(&filter[0]);
+            argv.push_back(filter.data());
             ++m_argc;
         }
         else
         {
-            argv[filterArgumentIndex] = &filter[0];
+            argv[filterArgumentIndex] = filter.data();
         }
     }
 
-    ::testing::InitGoogleTest(&m_argc, &argv[0]);
+    ::testing::InitGoogleTest(&m_argc, argv.data());
 
     return RUN_ALL_TESTS();
 }

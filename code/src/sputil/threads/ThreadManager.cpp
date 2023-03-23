@@ -59,18 +59,21 @@ void ThreadManager::threadFunction()
 
 void ThreadManager::joinTerminatedThreads(milliseconds timeout)
 {
-    vector<SThread> joinThreads;
+    queue<SThread> joinThreads;
     {
         SThread thread;
         while (m_terminatedThreads.pop(thread, timeout))
         {
+            const scoped_lock lock(m_mutex);
             thread->terminate();
-            joinThreads.push_back(thread);
+            joinThreads.push(thread);
         }
     }
 
-    for (auto& thread: joinThreads)
+    while (!joinThreads.empty())
     {
+        shared_ptr<Thread> thread = joinThreads.front();
+        joinThreads.pop();
         thread->join();
         const scoped_lock lock(m_mutex);
         thread.reset();

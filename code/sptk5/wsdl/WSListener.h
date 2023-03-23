@@ -72,7 +72,7 @@ protected:
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    SServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override;
+    UServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer) override;
 
 private:
     mutable std::mutex m_mutex;      ///< Mutex that protects internal data

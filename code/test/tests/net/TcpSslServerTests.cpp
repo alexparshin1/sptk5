@@ -154,6 +154,8 @@ TEST(SPTK_TCPServer, tcpMinimal)
         EXPECT_EQ(4, rowCount);
 
         socket.close();
+
+        echoServer.stop();
     }
     catch (const Exception& e)
     {

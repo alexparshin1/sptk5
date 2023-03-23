@@ -138,7 +138,7 @@ private:
     static size_t nextSerial();
 };
 
-using SServerConnection = std::shared_ptr<ServerConnection>;
+using UServerConnection = std::unique_ptr<ServerConnection>;
 
 /**
  * @}

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WorkerThread::WorkerThread(SynchronizedQueue<SRunable>& queue, std::chrono::milliseconds maxIdleTime)
+WorkerThread::WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::milliseconds maxIdleTime)
     : Thread("worker")
     , m_queue(queue)
     , m_maxIdleSeconds(maxIdleTime)
@@ -48,10 +48,10 @@ void WorkerThread::threadFunction()
             break;
         }
 
-        SRunable runable;
+        URunable runable;
         if (m_queue.pop(runable, oneSecond))
         {
-            setRunable(runable);
+            setRunable(runable.get());
             idleSeconds = chrono::milliseconds(0);
 
             try
@@ -71,12 +71,12 @@ void WorkerThread::threadFunction()
     }
 }
 
-void WorkerThread::execute(const SRunable& task)
+void WorkerThread::execute(URunable& task)
 {
-    m_queue.push(task);
+    m_queue.push(std::move(task));
 }
 
-void WorkerThread::setRunable(const SRunable& runable)
+void WorkerThread::setRunable(Runable* runable)
 {
     scoped_lock lock(m_mutex);
     m_currentRunable = runable;

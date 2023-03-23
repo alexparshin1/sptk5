@@ -71,7 +71,12 @@ void Thread::join()
 {
     if (running())
     {
-        m_thread->join();
+        shared_ptr<jthread> thread;
+        {
+            const scoped_lock lock(m_mutex);
+            thread = m_thread;
+        }
+        thread->join();
         const scoped_lock lock(m_mutex);
         m_thread.reset();
     }
