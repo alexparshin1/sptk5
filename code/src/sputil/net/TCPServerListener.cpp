@@ -51,7 +51,10 @@ void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
             if (m_server->allowConnection(&connectionInfo))
             {
                 auto connection = m_server->createConnection(connectionFD, &connectionInfo);
-                m_server->execute(move(connection);
+                if (connection)
+                {
+                    m_server->execute(move(connection));
+                }
             }
             else
             {

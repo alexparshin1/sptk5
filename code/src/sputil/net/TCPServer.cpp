@@ -125,13 +125,14 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    const scoped_lock lock(m_mutex);
-    ThreadPool::stop();
     if (m_listenerThread)
     {
         m_listenerThread->stop();
         m_listenerThread.reset();
     }
+
+    const scoped_lock lock(m_mutex);
+    ThreadPool::stop();
 }
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
