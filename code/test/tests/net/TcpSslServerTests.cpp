@@ -93,7 +93,7 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     {
         try
         {
-            auto res = (int) socket.send(dataPtr, packetSize);
+            auto res = (int) socket.write(dataPtr, packetSize);
             if (res < 0)
             {
                 throwSocketError("Error writing to socket");
@@ -154,6 +154,8 @@ TEST(SPTK_TCPServer, tcpMinimal)
         EXPECT_EQ(4, rowCount);
 
         socket.close();
+
+        echoServer.stop();
     }
     catch (const Exception& e)
     {
@@ -203,6 +205,8 @@ TEST(SPTK_TCPServer, sslMinimal)
         EXPECT_EQ(4, rowCount);
 
         socket.close();
+
+        echoServer.stop();
     }
     catch (const Exception& e)
     {
@@ -210,44 +214,95 @@ TEST(SPTK_TCPServer, sslMinimal)
     }
 }
 
+static shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType)
+{
+    auto pushTcpServer = make_shared<TCPServer>("Performance Test Server", connectionType);
+
+    pushTcpServer->onConnection(performanceTestFunction);
+
+    if (connectionType == ServerConnection::Type::SSL)
+    {
+        auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+        pushTcpServer->setSSLKeys(keys);
+        pushTcpServer->listen(testSslEchoServerPort);
+    }
+    else
+    {
+        pushTcpServer->listen(testTcpEchoServerPort);
+    }
+
+    return pushTcpServer;
+}
+
+template<typename T>
+size_t readAllPackets(T& reader, size_t readSize)
+{
+    auto readBuffer = make_shared<Buffer>(readSize);
+
+    size_t packetCount = 0;
+    for (; packetCount < packetsInTest; ++packetCount)
+    {
+        auto result = reader.read(readBuffer->data(), 1);
+        if (result == 0)
+        {
+            break;
+        }
+
+        result = reader.read(readBuffer->data(), 3);
+        if (result == 0)
+        {
+            break;
+        }
+
+        result = reader.read(readBuffer->data(), readSize - 4);
+        if (result == 0)
+        {
+            break;
+        }
+    }
+
+    reader.close();
+
+    return packetCount;
+}
+
+static void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
+{
+    COUT(testLabel << " Reader Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
+                   << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl
+                   << endl);
+}
+
+static void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+{
+    auto pushTcpServer = makePerformanceTestServer(connectionType);
+
+    constexpr size_t readSize {packetSize};
+    StopWatch stopWatch;
+    String failReason;
+
+    shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
+                                       ? make_shared<TCPSocket>()
+                                       : make_shared<SSLSocket>();
+
+    auto serverPortNumber = connectionType == ServerConnection::Type::TCP
+                                ? testTcpEchoServerPort
+                                : testSslEchoServerPort;
+
+    socket->open(Host("localhost", serverPortNumber));
+
+    stopWatch.start();
+    size_t packetCount = readAllPackets(*socket, readSize);
+    stopWatch.stop();
+
+    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
+}
+
 TEST(SPTK_TCPServer, tcpTransferPerformance)
 {
     try
     {
-        TCPServer pushTcpServer("Performance Test Server", ServerConnection::Type::TCP);
-        pushTcpServer.onConnection(performanceTestFunction);
-        pushTcpServer.listen(testTcpEchoServerPort);
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testTcpEchoServerPort));
-
-        constexpr size_t readSize {packetSize};
-        auto readBuffer = make_shared<Buffer>(readSize);
-
-        size_t packetCount = 0;
-
-        StopWatch stopWatch;
-        stopWatch.start();
-
-        auto* readBufferPtr = readBuffer->data();
-        while (packetCount < packetsInTest)
-        {
-            if (auto result = socket.recv(readBufferPtr, readSize);
-                result == 0)
-            {
-                break;
-            }
-            ++packetCount;
-        }
-
-        readBuffer.reset();
-
-        stopWatch.stop();
-
-        COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
-
-        socket.close();
+        testTransferPerformance(ServerConnection::Type::TCP, "TCP");
     }
     catch (const Exception& e)
     {
@@ -257,112 +312,62 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
 
 TEST(SPTK_TCPServer, sslTransferPerformance)
 {
-    TCPServer pushSslServer("Performance Test Server", ServerConnection::Type::SSL);
-    pushSslServer.onConnection(performanceTestFunction);
-
-    auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
-    pushSslServer.setSSLKeys(keys);
-
-    size_t packetCount = 0;
-
-    constexpr size_t readSize {packetSize};
-    StopWatch stopWatch;
-    String failReason;
-
     try
     {
-        pushSslServer.listen(testSslEchoServerPort);
-
-        SSLSocket socket;
-        socket.open(Host("localhost", testSslEchoServerPort));
-        socket.blockingMode(false);
-
-        auto readBuffer = make_shared<Buffer>(readSize);
-
-        stopWatch.start();
-
-        while (packetCount < packetsInTest)
-        {
-            auto result = socket.recv(readBuffer->data(), readSize);
-            if (result == 0)
-            {
-                break;
-            }
-            if (result != readSize)
-            {
-                throw Exception("Incomplete read");
-            }
-            ++packetCount;
-        }
-        stopWatch.stop();
-
-        socket.close();
+        testTransferPerformance(ServerConnection::Type::SSL, "SSL");
     }
     catch (const Exception& e)
     {
-        stopWatch.stop();
-        failReason = e.what();
-    }
-
-    COUT("Received " << packetCount << " packets for " << fixed << setprecision(2) << stopWatch.seconds() << " sec, at the rate " << packetCount / stopWatch.seconds() << "/s, or "
-                     << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
-
-    if (!failReason.empty())
-    {
-        FAIL() << failReason;
+        FAIL() << e.what();
     }
 }
 
-TEST(SPTK_TCPServer, tcpTransferReaderPerformance)
+static void testReaderTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+{
+    auto pushTcpServer = makePerformanceTestServer(connectionType);
+
+    shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
+                                       ? make_shared<TCPSocket>()
+                                       : make_shared<SSLSocket>();
+
+    auto serverPortNumber = connectionType == ServerConnection::Type::TCP
+                                ? testTcpEchoServerPort
+                                : testSslEchoServerPort;
+
+    socket->open(Host("localhost", serverPortNumber));
+
+    const size_t readerBufferSize = 2048;
+    SocketReader socketReader(*socket, readerBufferSize);
+
+    constexpr size_t readSize {packetSize};
+
+    StopWatch stopWatch;
+    stopWatch.start();
+    size_t packetCount = readAllPackets(socketReader, readSize);
+    stopWatch.stop();
+
+    printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
+
+    socket->close();
+}
+
+TEST(SPTK_TCPServer, tcpReaderTransferPerformance)
 {
     try
     {
-        TCPServer pushTcpServer("Performance Test Server", ServerConnection::Type::TCP);
-        pushTcpServer.onConnection(performanceTestFunction);
-        pushTcpServer.listen(testTcpEchoServerPort);
+        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCP");
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
 
-        TCPSocket socket;
-        const size_t readerBufferSize = 1024;
-        SocketReader socketReader(socket, readerBufferSize);
-        socket.open(Host("localhost", testTcpEchoServerPort));
-
-        constexpr size_t readSize {packetSize};
-        auto readBuffer = make_shared<Buffer>(readSize);
-
-        size_t packetCount = 0;
-
-        StopWatch stopWatch;
-        stopWatch.start();
-
-        auto* readBufferPtr = readBuffer->data();
-        while (packetCount < packetsInTest)
-        {
-            if (socketReader.read(readBufferPtr, 1) != 1)
-            {
-                COUT("Incomplete read" << endl);
-                break;
-            }
-            if (socketReader.read(readBufferPtr, 3) != 3)
-            {
-                COUT("Incomplete read" << endl);
-                break;
-            }
-            if (socketReader.read(readBufferPtr, readSize - 4) != readSize - 4)
-            {
-                COUT("Incomplete read" << endl);
-                break;
-            }
-            ++packetCount;
-        }
-
-        readBuffer.reset();
-
-        stopWatch.stop();
-
-        COUT("Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                         << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
-
-        socket.close();
+TEST(SPTK_TCPServer, sslReaderTransferPerformance)
+{
+    try
+    {
+        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCP");
     }
     catch (const Exception& e)
     {

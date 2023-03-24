@@ -47,6 +47,8 @@ class ThreadManager;
  */
 class SP_EXPORT Thread
 {
+    friend class ThreadManager;
+
 public:
     /**
      * Thread ID type
@@ -57,9 +59,8 @@ public:
     /**
      * Constructor
      * @param name              Name of the thread for future references.
-     * @param threadManager     Optional thread manager. If provided, then it owns the created thread's memory.
      */
-    explicit Thread(String name, std::shared_ptr<ThreadManager> threadManager = nullptr);
+    explicit Thread(String name);
 
     /**
      * Destructor
@@ -115,15 +116,18 @@ public:
      */
     const String& name() const
     {
+        const std::scoped_lock lock(m_mutex);
         return m_name;
     }
 
+protected:
+    void setThreadManager(ThreadManager* threadManager);
+
 private:
-    std::mutex m_mutex;                             ///< Thread synchronization object
-    String m_name;                                  ///< Thread name
-    std::shared_ptr<std::jthread> m_thread;         ///< Thread object
-    std::shared_ptr<ThreadManager> m_threadManager; ///< Optional thread manager
-    void threadStart();                             ///< Thread function wrapper
+    mutable std::mutex m_mutex;               ///< Thread synchronization object
+    String m_name;                            ///< Thread name
+    std::shared_ptr<std::jthread> m_thread;   ///< Thread object
+    ThreadManager* m_threadManager {nullptr}; ///< Optional thread manager
 };
 
 /**

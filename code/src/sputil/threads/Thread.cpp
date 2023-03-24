@@ -24,42 +24,23 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/threads/Thread.h"
 #include <sptk5/cutils>
 #include <sptk5/threads/ThreadManager.h>
 #include <utility>
 
+
 using namespace std;
 using namespace sptk;
 
-void Thread::threadStart()
-{
-    try
-    {
-        if (m_threadManager)
-        {
-            m_threadManager->registerThread(this);
-        }
-        threadFunction();
-        onThreadExit();
-        if (m_threadManager)
-        {
-            m_threadManager->destroyThread(this);
-        }
-    }
-    catch (const Exception& e)
-    {
-        CERR("Exception in thread '" << name() << "': " << e.what() << endl);
-    }
-}
-
-Thread::Thread(String name, SThreadManager threadManager)
+Thread::Thread(String name)
     : m_name(std::move(name))
-    , m_threadManager(std::move(threadManager))
 {
 }
 
 void Thread::terminate()
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread && m_thread->joinable())
     {
         m_thread->request_stop();
@@ -68,6 +49,7 @@ void Thread::terminate()
 
 bool Thread::terminated()
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread && m_thread->joinable())
     {
         return m_thread->get_stop_token().stop_requested();
@@ -77,6 +59,7 @@ bool Thread::terminated()
 
 Thread::Id Thread::id() const
 {
+    const scoped_lock lock(m_mutex);
     if (m_thread)
     {
         return m_thread->get_id();
@@ -86,27 +69,53 @@ Thread::Id Thread::id() const
 
 void Thread::join()
 {
-    if (m_thread && m_thread->joinable())
+    if (running())
     {
-        m_thread->join();
+        shared_ptr<jthread> thread;
+        {
+            const scoped_lock lock(m_mutex);
+            thread = m_thread;
+        }
+        thread->join();
+        const scoped_lock lock(m_mutex);
         m_thread.reset();
     }
 }
 
 void Thread::run()
 {
-    const scoped_lock lock(m_mutex);
-    if (m_thread && m_thread->joinable())
+    if (running())
     {
         return;
     }
 
-    m_thread = make_shared<jthread>([this](stop_token stopToken) {
-        threadStart();
-    });
+    const scoped_lock lock(m_mutex);
+    m_thread = make_shared<jthread>(
+        [this](stop_token stopToken) {
+            try
+            {
+                threadFunction();
+                onThreadExit();
+                if (m_threadManager)
+                {
+                    m_threadManager->destroyThread(this);
+                }
+            }
+            catch (const Exception& e)
+            {
+                CERR("Exception in thread '" << name() << "': " << e.what() << endl);
+            }
+        });
 }
 
 bool Thread::running() const
 {
+    const scoped_lock lock(m_mutex);
     return m_thread && m_thread->joinable();
+}
+
+void Thread::setThreadManager(ThreadManager* threadManager)
+{
+    const scoped_lock lock(m_mutex);
+    m_threadManager = threadManager;
 }

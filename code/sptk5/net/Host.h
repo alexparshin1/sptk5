@@ -133,7 +133,7 @@ public:
      * @param hostname          Host name or IP address
      * @param port              Port number
      */
-    Host(const String& hostname, uint16_t port);
+    Host(String hostname, uint16_t port);
 
     /**
      * Constructor

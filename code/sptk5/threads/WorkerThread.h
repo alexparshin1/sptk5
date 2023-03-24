@@ -61,15 +61,11 @@ public:
      * Otherwise, external (shared) task queue is used.
      * If maxIdleSec is defined and thread is idle (not executing any tasks)
      * for a period longer than maxIdleSec then it terminates automatically.
-     * @param threadManager     Thread manager
      * @param queue             Task queue
      * @param threadEvent       Optional thread event interface
      * @param maxIdleTime       Maximum time the thread is idle, seconds
      */
-    WorkerThread(const SThreadManager& threadManager,
-                 SynchronizedQueue<SRunable>& queue,
-                 ThreadEvent* threadEvent = nullptr,
-                 std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
+    WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::milliseconds maxIdleTime = std::chrono::seconds(3600));
 
     /**
      * Destructor
@@ -80,8 +76,11 @@ public:
      * Execute runable task
      * @param task              Task to execute in the worker thread
      */
-    void execute(const SRunable& task);
+    void execute(URunable& task);
 
+    /**
+     * Terminate runable
+     */
     void terminate() override;
 
 protected:
@@ -99,21 +98,16 @@ private:
     /**
      * Task queue
      */
-    SynchronizedQueue<SRunable>& m_queue;
-
-    /**
-     * Optional thread event interface
-     */
-    ThreadEvent* m_threadEvent {nullptr};
+    SynchronizedQueue<URunable>& m_queue;
 
     /**
      * Number of thread idle seconds before thread terminates automatically
      */
     std::chrono::milliseconds m_maxIdleSeconds;
 
-    SRunable m_currentRunable;
+    Runable* m_currentRunable {nullptr};
 
-    void setRunable(const SRunable& runable);
+    void setRunable(Runable* runable);
 };
 
 /**

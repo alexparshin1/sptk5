@@ -32,16 +32,16 @@ namespace sptk {
 extern std::mutex printMutex;
 }
 
-#define COUT(a)                                  \
-    do                                           \
-    {                                            \
-        std::scoped_lock lock(sptk::printMutex); \
-        std::cout << a;                          \
+#define COUT(a)                                        \
+    do                                                 \
+    {                                                  \
+        const std::scoped_lock lock(sptk::printMutex); \
+        std::cout << a;                                \
     } while (false)
 
-#define CERR(a)                                  \
-    do                                           \
-    {                                            \
-        std::scoped_lock lock(sptk::printMutex); \
-        std::cerr << a;                          \
+#define CERR(a)                                        \
+    do                                                 \
+    {                                                  \
+        const std::scoped_lock lock(sptk::printMutex); \
+        std::cerr << a;                                \
     } while (false)

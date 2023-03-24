@@ -48,11 +48,6 @@ class SP_EXPORT SSLSocket : public TCPSocket
 {
 public:
     /**
-     * Returns number of bytes available for read
-     */
-    size_t socketBytes() override;
-
-    /**
      * Throws SSL error based on SSL function return code
      * @param function          SSL function name
      * @param resultCode        SSL function return code
@@ -63,7 +58,7 @@ public:
      * Constructor
 	 * @param cipherList		Optional cipher list
      */
-    explicit SSLSocket(const String& cipherList = "ALL");
+    explicit SSLSocket(String cipherList = "ALL");
 
     /**
      * Destructor
@@ -91,21 +86,6 @@ public:
     void setSNIHostName(const String& sniHostName);
 
     /**
-     * Attaches socket handle
-     *
-     * This method is designed to only attach socket handles obtained with accept().
-     * @param socketHandle          External socket handle.
-     */
-    void attach(SOCKET socketHandle, bool accept) override;
-
-    /**
-     * Closes the socket connection
-     *
-     * This method is not thread-safe.
-     */
-    void close() noexcept override;
-
-    /**
      * Returns SSL handle
      */
     SSL* handle()
@@ -119,21 +99,18 @@ public:
      * @param size              Destination buffer size
      * @return the number of bytes read from the socket
      */
-    size_t recv(uint8_t* buffer, size_t size) override;
-
-    /**
-     * Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
-     */
-    size_t send(const uint8_t* buffer, size_t len) override;
+    size_t recvUnlocked(uint8_t* buffer, size_t size) override;
 
 protected:
     /**
      * Initialize SSL context and socket structures
      */
     void initContextAndSocket();
+
+    /**
+     * Returns number of bytes available for read
+     */
+    size_t getSocketBytesUnlocked() const override;
 
     /**
      * opens the socket connection by host and port
@@ -145,7 +122,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -154,7 +131,7 @@ protected:
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
      * @param timeout               Connection timeout. The default is 0 (wait forever)
      */
-    void _open(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
      * Get error description for SSL error code
@@ -164,6 +141,29 @@ protected:
      */
     virtual String getSSLError(const std::string& function, int32_t SSLError) const;
 
+    /**
+     * Attaches socket handle
+     *
+     * This method is designed to only attach socket handles obtained with accept().
+     * @param socketHandle          External socket handle.
+     */
+    void attachUnlocked(SOCKET socketHandle, bool accept) override;
+
+    /**
+     * Closes the socket connection
+     *
+     * This method is not thread-safe.
+     */
+    void closeUnlocked() override;
+
+    /**
+     * Sends data through SSL socket
+     * @param buffer            Send buffer
+     * @param len               Send data length
+     * @return the number of bytes sent the socket
+     */
+    size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
+
 private:
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
     SSL* m_ssl {nullptr};                    ///< SSL socket
@@ -172,9 +172,9 @@ private:
     String m_sniHostName; ///< SNI host name (optional)
     String m_cipherList;  ///< Cipher List, the default is "ALL"
 
-    void openSocketFD(bool blockingMode, const std::chrono::milliseconds& timeout);
+    void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
 
-    bool tryConnect(const DateTime& timeoutAt);
+    bool tryConnectUnlocked(const DateTime& timeoutAt);
 };
 
 /**

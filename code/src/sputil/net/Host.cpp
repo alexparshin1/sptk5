@@ -42,8 +42,8 @@ Host::Host() noexcept
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(const String& hostname, uint16_t port)
-    : m_hostname(hostname)
+Host::Host(String hostname, uint16_t port)
+    : m_hostname(std::move(hostname))
     , m_port(port)
 {
     getHostAddress();
@@ -92,17 +92,17 @@ Host::Host(const sockaddr_in6* addressAndPort)
 
 void Host::setHostNameFromAddress(socklen_t addressLen)
 {
-    array<char, NI_MAXHOST> hbuf {};
-    array<char, NI_MAXSERV> sbuf {};
+    array<char, NI_MAXHOST> hostBuffer {};
+    array<char, NI_MAXSERV> addressBuffer {};
 #ifdef _WIN32
-    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(), sizeof(sbuf), 0) == 0)
-        m_hostname = hbuf.data();
+    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(), sizeof(addressBuffer), 0) == 0)
+        m_hostname = hostBuffer.data();
 #else
-    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hbuf.data(), sizeof(hbuf), sbuf.data(),
-                    sizeof(sbuf), 0) ==
+    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
+                    sizeof(addressBuffer), 0) ==
         0)
     {
-        m_hostname = String(hbuf.data());
+        m_hostname = String(hostBuffer.data());
     }
 #endif
 }

@@ -24,14 +24,15 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/ThreadManager.h"
+#include <sptk5/Printer.h>
+#include <sptk5/threads/ThreadManager.h>
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
 ThreadManager::ThreadManager(const String& name)
-    : m_joiner(make_shared<Joiner>(name + ".Joiner"))
+    : Thread(name)
 {
 }
 
@@ -45,15 +46,9 @@ ThreadManager::~ThreadManager()
     {
         // suppress any exceptions
     }
-    m_joiner->stop();
 }
 
-ThreadManager::Joiner::Joiner(const String& name)
-    : Thread(name)
-{
-}
-
-void ThreadManager::Joiner::threadFunction()
+void ThreadManager::threadFunction()
 {
     constexpr auto timeout = std::chrono::milliseconds(1000);
     while (!terminated())
@@ -62,58 +57,62 @@ void ThreadManager::Joiner::threadFunction()
     }
 }
 
-void ThreadManager::Joiner::push(const SThread& thread)
+void ThreadManager::joinTerminatedThreads(milliseconds timeout)
 {
-    m_terminatedThreads.push(thread);
-}
-
-void ThreadManager::Joiner::stop()
-{
-    terminate();
-    join();
-    joinTerminatedThreads(milliseconds(0));
-}
-
-void ThreadManager::Joiner::joinTerminatedThreads(milliseconds timeout)
-{
-    SThread thread;
-    while (m_terminatedThreads.pop(thread, timeout))
+    queue<SThread> joinThreads;
     {
-        thread->terminate();
+        SThread thread;
+        while (m_terminatedThreads.pop(thread, timeout))
+        {
+            const scoped_lock lock(m_mutex);
+            thread->terminate();
+            joinThreads.push(thread);
+        }
+    }
+
+    while (!joinThreads.empty())
+    {
+        shared_ptr<Thread> thread = joinThreads.front();
+        joinThreads.pop();
         thread->join();
+        const scoped_lock lock(m_mutex);
+        thread.reset();
     }
 }
 
-void ThreadManager::start() const
+void ThreadManager::start()
 {
-    m_joiner->run();
+    run();
 }
 
 void ThreadManager::stop()
 {
     terminateRunningThreads();
-    m_joiner->stop();
+    joinTerminatedThreads(milliseconds(0));
+    terminate();
+    join();
 }
 
 void ThreadManager::terminateRunningThreads()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     for (const auto& [thread, threadSPtr]: m_runningThreads)
     {
-        m_joiner->push(threadSPtr);
+        m_terminatedThreads.push(threadSPtr);
         threadSPtr->terminate();
     }
 }
 
-void ThreadManager::registerThread(Thread* thread)
+void ThreadManager::manage(const SThread& thread)
 {
     if (thread)
     {
-        scoped_lock lock(m_mutex);
-        auto itor = m_runningThreads.find(thread);
+        const scoped_lock lock(m_mutex);
+        auto itor = m_runningThreads.find(thread.get());
         if (itor == m_runningThreads.end())
         {
-            m_runningThreads[thread] = shared_ptr<Thread>(thread);
+            thread->setThreadManager(this);
+            m_runningThreads[thread.get()] = std::move(thread);
         }
     }
 }
@@ -122,25 +121,19 @@ void ThreadManager::destroyThread(Thread* thread)
 {
     if (thread && thread->running())
     {
-        scoped_lock lock(m_mutex);
+        const scoped_lock lock(m_mutex);
         auto itor = m_runningThreads.find(thread);
         if (itor != m_runningThreads.end())
         {
             auto sthread = itor->second;
             m_runningThreads.erase(itor);
-            m_joiner->push(sthread);
+            m_terminatedThreads.push(sthread);
         }
     }
 }
 
 size_t ThreadManager::threadCount() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_runningThreads.size();
-}
-
-bool ThreadManager::running() const
-{
-    scoped_lock lock(m_mutex);
-    return m_joiner->running();
 }

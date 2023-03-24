@@ -65,12 +65,12 @@ TCPServer& ServerConnection::server() const
 }
 
 ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                                   const String& taskName, const ServerConnection::Function& connectionFunction)
-    : Runable(taskName)
+                                   String taskName, ServerConnection::Function connectionFunction)
+    : Runable(std::move(taskName))
     , m_server(server)
     , m_serial(nextSerial())
     , m_type(type)
-    , m_connectionFunction(connectionFunction)
+    , m_connectionFunction(std::move(connectionFunction))
 {
     parseAddress(connectionAddress);
 }

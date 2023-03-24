@@ -92,12 +92,9 @@ protected:
     virtual void run() = 0;
 
 private:
-    using SRunable = std::shared_ptr<Runable>;
-
-    mutable std::mutex m_dataMutex;           ///< Synchronized object that protects internal data
-    bool m_terminated {false};                ///< Flag indicating if task is terminated
-    const String m_name;                      ///< Runable object name
-    std::list<SRunable>::iterator m_position; ///< Runable position in the queue
+    mutable std::mutex m_dataMutex; ///< Synchronized object that protects internal data
+    bool m_terminated {false};      ///< Flag indicating if task is terminated
+    String m_name;                  ///< Runable object name
 
     /**
      * Set runable to terminated
@@ -105,18 +102,10 @@ private:
      */
     void setTerminated(bool terminated);
 };
+;
 
 using SRunable = std::shared_ptr<Runable>;
-
-class RunableQueue
-{
-public:
-    void push(const SRunable& runable);
-
-private:
-    mutable std::mutex m_mutex;
-    std::list<SRunable> m_queue;
-};
+using URunable = std::unique_ptr<Runable>;
 
 /**
  * @}

@@ -125,13 +125,14 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    const scoped_lock lock(m_mutex);
-    ThreadPool::stop();
     if (m_listenerThread)
     {
         m_listenerThread->stop();
         m_listenerThread.reset();
     }
+
+    const scoped_lock lock(m_mutex);
+    ThreadPool::stop();
 }
 
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
@@ -155,15 +156,15 @@ void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-SServerConnection TCPServer::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
+UServerConnection TCPServer::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
 {
     if (m_connectionType == ServerConnection::Type::TCP)
     {
-        return make_shared<TCPServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
+        return make_unique<TCPServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }
     else
     {
-        return make_shared<SSLServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
+        return make_unique<SSLServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }
 }
 

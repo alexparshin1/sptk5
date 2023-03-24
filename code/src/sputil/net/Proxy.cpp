@@ -29,9 +29,9 @@
 using namespace std;
 using namespace sptk;
 
-Proxy::Proxy(const Host& host, const String& username, const String& password)
-    : m_host(host)
-    , m_username(username)
-    , m_password(password)
+Proxy::Proxy(Host host, String username, String password)
+    : m_host(std::move(host))
+    , m_username(std::move(username))
+    , m_password(std::move(password))
 {
 }

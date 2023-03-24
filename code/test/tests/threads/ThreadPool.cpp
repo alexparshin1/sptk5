@@ -68,7 +68,8 @@ SynchronizedQueue<int> MyTask::intQueue;
 
 TEST(SPTK_ThreadPool, run)
 {
-    vector<shared_ptr<MyTask>> tasks;
+    vector<unique_ptr<MyTask>> tasks;
+    vector<MyTask*> taskPointers;
 
     /// Thread manager controls tasks execution.
     constexpr uint32_t maxThreads = 16;
@@ -79,13 +80,16 @@ TEST(SPTK_ThreadPool, run)
     constexpr unsigned taskCount = 5;
     for (unsigned i = 0; i < taskCount; ++i)
     {
-        tasks.push_back(make_shared<MyTask>());
+        auto task = make_unique<MyTask>();
+        taskPointers.push_back(task.get());
+        tasks.push_back(std::move(task));
     }
 
-    for (const auto& task: tasks)
+    for (auto& task: tasks)
     {
-        threadPool->execute(task);
+        threadPool->execute(std::move(task));
     }
+    tasks.clear();
 
     constexpr int maxValues = 100;
     for (int value = 0; value < maxValues; ++value)
@@ -96,8 +100,7 @@ TEST(SPTK_ThreadPool, run)
     constexpr chrono::milliseconds sleepInterval(300);
     this_thread::sleep_for(sleepInterval);
 
-    EXPECT_EQ(size_t(5), tasks.size());
-    for (const auto& task: tasks)
+    for (const auto& task: taskPointers)
         EXPECT_NEAR(20, task->count(), 10);
 
     EXPECT_EQ(size_t(5), threadPool->size());
@@ -106,11 +109,4 @@ TEST(SPTK_ThreadPool, run)
     EXPECT_EQ(size_t(0), threadPool->size());
 
     threadPool.reset();
-
-    for (const auto& task: tasks)
-    {
-        task->terminate();
-    }
-
-    tasks.clear();
 }

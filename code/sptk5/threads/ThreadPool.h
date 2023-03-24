@@ -67,7 +67,7 @@ public:
      * Executes task
      * @param task              Task to execute
      */
-    virtual void execute(const SRunable& task);
+    virtual void execute(URunable task);
 
     /**
      * Thread event callback function
@@ -94,7 +94,7 @@ public:
 private:
     SThreadManager m_threadManager;             ///< Pool's thread manager
     size_t m_threadLimit;                       ///< Maximum number of threads in this pool
-    SynchronizedQueue<SRunable> m_taskQueue;    ///< Shared task queue
+    SynchronizedQueue<URunable> m_taskQueue;    ///< Shared task queue
     Semaphore m_availableThreads;               ///< Semaphore indicating available threads
     std::chrono::milliseconds m_threadIdleTime; ///< Maximum thread idle time before thread in this pool is terminated
     SLogger m_logger;                           ///< Optional logger
@@ -106,7 +106,7 @@ private:
      *
      * Create new worker thread
      */
-    WorkerThread* createThread();
+    void createThread();
 
     /**
      * Log thread event

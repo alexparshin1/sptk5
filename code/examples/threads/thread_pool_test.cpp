@@ -80,7 +80,8 @@ int main()
     try
     {
         unsigned i;
-        vector<shared_ptr<CMyTask>> tasks;
+        vector<unique_ptr<CMyTask>> tasks;
+        vector<CMyTask*> taskPointers;
 
         /// Thread manager controls tasks execution.
         ThreadPool threadPool(16, std::chrono::milliseconds(30000), "test thread pool", nullptr);
@@ -95,16 +96,19 @@ int main()
         // Creating several tasks
         for (i = 0; i < 5; i++)
         {
-            tasks.push_back(make_shared<CMyTask>(logEngine));
+            auto task = make_unique<CMyTask>(logEngine);
+            taskPointers.push_back(task.get());
+            tasks.push_back(std::move(task));
         }
 
         sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
         sharedLog.log(LogPriority::NOTICE, "Starting all tasks.");
-        for (i = 0; i < tasks.size(); i++)
+        for (auto& task: tasks)
         {
-            threadPool.execute(tasks[i]);
+            threadPool.execute(std::move(task));
         }
+        tasks.clear();
 
         sharedLog.log(LogPriority::NOTICE, to_string(tasks.size()) + " tasks are running.");
 
@@ -120,7 +124,7 @@ int main()
         this_thread::sleep_for(chrono::milliseconds(1000));
 
         sharedLog.log(LogPriority::NOTICE, "Sending 'terminate' signal to all the tasks.");
-        for (auto& task: tasks)
+        for (auto& task: taskPointers)
         {
             task->terminate();
         }
