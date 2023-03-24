@@ -6,14 +6,16 @@ IF (GTEST_FLAG)
     TARGET_LINK_LIBRARIES(sptest sputil5 spdb5 spwsdl5 gtest)
 
     INSTALL(TARGETS sptest RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+    SET_TARGET_PROPERTIES(sptest PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib" )
 
-    ADD_EXECUTABLE(unit_tests unit_tests.cpp)
-    TARGET_LINK_LIBRARIES(unit_tests sputil5 spdb5 spwsdl5 sptest gtest)
+    ADD_EXECUTABLE(sptk_unit_tests unit_tests.cpp)
+    TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 sptest gtest)
 
-    INSTALL(TARGETS unit_tests RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+    INSTALL(TARGETS sptk_unit_tests RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+    SET_TARGET_PROPERTIES(sptk_unit_tests PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin" )
 
     IF (BUILD_TEST_WS)
-        TARGET_LINK_LIBRARIES(unit_tests WebServiceUnitTests)
+        TARGET_LINK_LIBRARIES(sptk_unit_tests WebServiceUnitTests)
     ENDIF ()
 ENDIF ()
 
