@@ -33,14 +33,14 @@
 using namespace std;
 using namespace sptk;
 
-void Channel::open(SOCKET sourceFD, const String& interfaceAddress, const Host& destination)
+void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Host& destination)
 {
     scoped_lock lock(m_mutex);
 
     m_source.attach(sourceFD, false);
 
     m_destination.bind(interfaceAddress.c_str(), 0);
-    m_destination.open(destination, BaseSocket::OpenMode::CONNECT, false, chrono::seconds(60));
+    m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
 
     m_sourceEvents.add(m_source, (uint8_t*) this);
     m_destinationEvents.add(m_destination, (uint8_t*) this);

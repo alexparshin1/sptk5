@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/net/BaseSocketVirtualMethods.h>
+#include <sptk5/net/SocketVirtualMethods.h>
 
 namespace sptk {
 
@@ -41,13 +41,13 @@ namespace sptk {
  * Allows establishing a network connection
  * to the host by name and port address
  */
-class SP_EXPORT BaseSocket : public BaseSocketVirtualMethods
+class SP_EXPORT Socket : public SocketVirtualMethods
 {
 public:
     /**
      * Get socket internal (OS) handle
      */
-    SOCKET fd() const
+    SocketType fd() const
     {
         const std::scoped_lock lock(m_socketMutex);
         return getSocketFdUnlocked();
@@ -59,12 +59,12 @@ public:
      * @param type              Socket type
      * @param protocol          Protocol type
      */
-    explicit BaseSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+    explicit Socket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
      * @brief Destructor
      */
-    ~BaseSocket() override;
+    ~Socket() override;
 
     /**
      * Set blockingMode mode
@@ -89,7 +89,7 @@ public:
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    void attach(SOCKET socketHandle, bool accept)
+    void attach(SocketType socketHandle, bool accept)
     {
         const std::scoped_lock lock(m_socketMutex);
         return attachUnlocked(socketHandle, accept);
@@ -100,7 +100,7 @@ public:
      * Closes the socket without affecting socket handle.
      * @return Existing socket handle
      */
-    SOCKET detach()
+    SocketType detach()
     {
         const std::scoped_lock lock(m_socketMutex);
         return detachUnlocked();

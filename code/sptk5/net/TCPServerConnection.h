@@ -52,7 +52,7 @@ public:
      * @param connectionAddress Incoming connection address
      * @param connectionFunction Connection function executed for each new client connection to server
      */
-    explicit TCPServerConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+    explicit TCPServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
         : ServerConnection(server, ServerConnection::Type::TCP, connectionAddress,
                            "TCPServerConnection", connectionFunction)
     {

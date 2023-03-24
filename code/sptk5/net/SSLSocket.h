@@ -147,7 +147,7 @@ protected:
      * This method is designed to only attach socket handles obtained with accept().
      * @param socketHandle          External socket handle.
      */
-    void attachUnlocked(SOCKET socketHandle, bool accept) override;
+    void attachUnlocked(SocketType socketHandle, bool accept) override;
 
     /**
      * Closes the socket connection

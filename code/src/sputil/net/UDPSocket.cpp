@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 
 UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
-    : BaseSocket(_domain, SOCK_DGRAM)
+    : Socket(_domain, SOCK_DGRAM)
 {
     setSocketFdUnlocked(socket(domain(), type(), protocol()));
 }

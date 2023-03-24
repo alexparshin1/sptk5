@@ -54,7 +54,7 @@ void TCPSocket::handleReadFromSocketError(int error)
 }
 
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : BaseSocket(domain, type, protocol)
+    : Socket(domain, type, protocol)
 {
 }
 
@@ -77,7 +77,7 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
 
     if (proxy() != nullptr)
     {
-        const SOCKET fd = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
+        const SocketType fd = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
         attach(fd, false);
     }
     else
@@ -100,7 +100,7 @@ void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMod
     }
 }
 
-bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
+bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
 {
     socklen_t len = sizeof(clientInfo);
     if (!blockingMode())

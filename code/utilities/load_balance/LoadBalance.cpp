@@ -82,7 +82,7 @@ void LoadBalance::threadFunction()
         Channel* channel {nullptr};
         try
         {
-            SOCKET sourceFD;
+            SocketType sourceFD;
             if (m_listener.accept(sourceFD, addr, acceptTimeout))
             {
                 channel = new Channel(m_sourceEvents, m_destinationEvents);

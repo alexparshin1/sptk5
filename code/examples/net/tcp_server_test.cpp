@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-void processConnection(TCPSocket& server, SOCKET clientSocketFD)
+void processConnection(TCPSocket& server, SocketType clientSocketFD)
 {
     TCPSocket new_sock;
     new_sock.attach(clientSocketFD, false);
@@ -81,7 +81,7 @@ int main()
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
-        SOCKET clientSocketFD;
+        SocketType clientSocketFD;
         sockaddr_in clientInfo {};
 
         server.listen();

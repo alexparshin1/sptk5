@@ -38,7 +38,7 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout)
+SocketType HttpProxy::connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout)
 {
     auto socket = make_shared<TCPSocket>();
 
@@ -48,7 +48,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
     {
         try
         {
-            socket->open(m_host, BaseSocket::OpenMode::CONNECT, blockingMode, timeout);
+            socket->open(m_host, Socket::OpenMode::CONNECT, blockingMode, timeout);
             sendRequest(destination, socket, method);
 
             String error("Proxy connection timeout");
@@ -70,7 +70,7 @@ SOCKET HttpProxy::connect(const Host& destination, bool blockingMode, std::chron
         }
     }
 
-    SOCKET handle = socket->detach();
+    SocketType handle = socket->detach();
     socket.reset();
 
     return handle;

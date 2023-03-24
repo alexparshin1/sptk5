@@ -25,7 +25,7 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocketVirtualMethods.h>
+#include <sptk5/net/SocketVirtualMethods.h>
 
 #ifndef _WIN32
 #include <sys/poll.h>
@@ -35,14 +35,14 @@ using namespace std;
 
 namespace sptk {
 
-BaseSocketVirtualMethods::BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
     : m_domain(domain)
     , m_type(type)
     , m_protocol(protocol)
 {
 }
 
-void BaseSocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
+void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 
@@ -129,7 +129,7 @@ void BaseSocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, Open
     }
 }
 
-void BaseSocketVirtualMethods::closeUnlocked()
+void SocketVirtualMethods::closeUnlocked()
 {
     if (m_socketFd != INVALID_SOCKET)
     {
@@ -143,7 +143,7 @@ void BaseSocketVirtualMethods::closeUnlocked()
     }
 }
 
-void BaseSocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
+void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 {
 #ifdef _WIN32
     uint32_t arg = blockingMode ? 0 : 1;
@@ -176,21 +176,21 @@ void BaseSocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 #define VALUE_TYPE(val) (void*) (val)
 #endif
 
-void BaseSocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
+void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
 {
     const socklen_t len = sizeof(int);
     if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), len) != 0)
         throwSocketError("Can't set socket option");
 }
 
-void BaseSocketVirtualMethods::getOptionUnlocked(int level, int option, int& value) const
+void SocketVirtualMethods::getOptionUnlocked(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_socketFd, level, option, VALUE_TYPE(&value), &len) != 0)
         throwSocketError("Can't get socket option");
 }
 
-size_t BaseSocketVirtualMethods::getSocketBytesUnlocked() const
+size_t SocketVirtualMethods::getSocketBytesUnlocked() const
 {
     uint32_t bytes = 0;
     if (
@@ -205,7 +205,7 @@ size_t BaseSocketVirtualMethods::getSocketBytesUnlocked() const
     return bytes;
 }
 
-void BaseSocketVirtualMethods::attachUnlocked(SOCKET socketHandle, bool)
+void SocketVirtualMethods::attachUnlocked(SocketType socketHandle, bool)
 {
     if (activeUnlocked())
     {
@@ -214,15 +214,15 @@ void BaseSocketVirtualMethods::attachUnlocked(SOCKET socketHandle, bool)
     m_socketFd = socketHandle;
 }
 
-SOCKET BaseSocketVirtualMethods::detachUnlocked()
+SocketType SocketVirtualMethods::detachUnlocked()
 {
-    SOCKET socketFd = m_socketFd;
+    SocketType socketFd = m_socketFd;
     m_socketFd = INVALID_SOCKET;
     closeUnlocked();
     return socketFd;
 }
 
-void BaseSocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber)
+void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber)
 {
     if (m_socketFd == INVALID_SOCKET)
     {
@@ -251,7 +251,7 @@ void BaseSocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNu
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 
-void BaseSocketVirtualMethods::listenUnlocked(uint16_t portNumber)
+void SocketVirtualMethods::listenUnlocked(uint16_t portNumber)
 {
     if (portNumber != 0)
     {
@@ -278,7 +278,7 @@ constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
 #endif
 #endif
 
-bool BaseSocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
+bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
 
@@ -323,7 +323,7 @@ bool BaseSocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 #endif
 }
 
-bool BaseSocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeout)
+bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeout)
 {
     const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
@@ -360,7 +360,7 @@ bool BaseSocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds ti
 #endif
 }
 
-size_t BaseSocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
+size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
     auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
@@ -378,7 +378,7 @@ size_t BaseSocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
     return (size_t) result;
 }
 
-size_t BaseSocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
+size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
     int bytes;
     if (from != nullptr)
@@ -397,13 +397,13 @@ size_t BaseSocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sock
     return (size_t) bytes;
 }
 
-size_t BaseSocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
+size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
     auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
     return res;
 }
 
-size_t BaseSocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
+size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
 {
     int bytes;
     const auto* ptr = buffer;

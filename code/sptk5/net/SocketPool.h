@@ -27,7 +27,7 @@
 #pragma once
 
 #include <sptk5/Exception.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 #include <sptk5/threads/Thread.h>
 
 #include <functional>
@@ -135,19 +135,19 @@ public:
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
      */
-    void watchSocket(BaseSocket& socket, const uint8_t* userData);
+    void watchSocket(Socket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from monitored pool
      * @param socket            Socket from this pool
      */
-    void forgetSocket(BaseSocket& socket);
+    void forgetSocket(Socket& socket);
 
     /**
      * Check if socket is already being monitored
      * @param socket            Socket
      */
-    bool hasSocket(BaseSocket& socket);
+    bool hasSocket(Socket& socket);
 
     /**
      * @return true if socket pool is active
@@ -161,7 +161,7 @@ private:
 #ifdef _WIN32
     HANDLE m_pool {INVALID_EPOLL};
 #else
-    SOCKET m_pool {INVALID_EPOLL};
+    SocketType m_pool {INVALID_EPOLL};
 #endif // _WIN32
 
     /**
@@ -172,7 +172,7 @@ private:
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<BaseSocket*, std::shared_ptr<SocketEvent>> m_socketData;
+    std::map<Socket*, std::shared_ptr<SocketEvent>> m_socketData;
 };
 
 } // namespace sptk

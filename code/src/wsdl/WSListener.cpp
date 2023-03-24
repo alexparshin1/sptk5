@@ -52,7 +52,7 @@ WSListener::WSListener(const WSServices& services, LogEngine& logger, const Stri
     }
 }
 
-UServerConnection WSListener::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
+UServerConnection WSListener::createConnection(SocketType connectionSocket, const sockaddr_in* peer)
 {
     return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
 }

@@ -44,7 +44,7 @@ void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
 {
     try
     {
-        SOCKET connectionFD {0};
+        SocketType connectionFD {0};
         sockaddr_in connectionInfo = {};
         if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {

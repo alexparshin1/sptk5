@@ -30,7 +30,7 @@
 #include <map>
 #include <mutex>
 #include <sptk5/Exception.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 #include <sptk5/net/SocketPool.h>
 #include <sptk5/threads/Flag.h>
 #include <sptk5/threads/Thread.h>
@@ -68,19 +68,19 @@ public:
      * @param socket	            Socket to monitor
      * @param userData	            User data to pass into callback function
      */
-    void add(BaseSocket& socket, const uint8_t* userData);
+    void add(Socket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from collection and stop monitoring its events
      * @param socket	            Socket to remove
      */
-    void remove(BaseSocket& socket);
+    void remove(Socket& socket);
 
     /**
      * Check if socket is already being monitored
      * @param socket	            Socket to check
      */
-    bool has(BaseSocket& socket);
+    bool has(Socket& socket);
 
     /**
      * Stop socket events manager and wait until it joins.

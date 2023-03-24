@@ -27,7 +27,7 @@
 #pragma once
 
 #include <sptk5/Buffer.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 
 namespace sptk {
 
@@ -43,7 +43,7 @@ namespace sptk {
  * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.
  */
 class SP_EXPORT UDPSocket
-    : public BaseSocket
+    : public Socket
 {
 public:
     /**

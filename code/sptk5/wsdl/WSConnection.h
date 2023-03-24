@@ -123,7 +123,7 @@ public:
      * @param logEngine         Log engine
      * @param options           Connection options
      */
-    WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr, WSServices& services,
+    WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
                     LogEngine& logEngine, const Options& options);
 
     /**
