@@ -271,7 +271,7 @@ void SSLSocket::closeUnlocked()
     TCPSocket::closeUnlocked();
 }
 
-void SSLSocket::attachUnlocked(SOCKET socketHandle, bool accept)
+void SSLSocket::attachUnlocked(SocketType socketHandle, bool accept)
 {
     initContextAndSocket();
 

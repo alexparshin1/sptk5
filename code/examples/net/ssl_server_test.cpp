@@ -63,7 +63,7 @@ void readAndReply(SSLSocket& socket)
     socket.write((const uint8_t*) reply.data(), strlen(reply.data()));
 }
 
-void processConnection(SOCKET clientSocketFD)
+void processConnection(SocketType clientSocketFD)
 {
     SSLSocket connection;
     SSLKeys keys("key.pem", "cert.pem", "");
@@ -101,7 +101,7 @@ int main(int argc, const char* argv[])
 
         while (true)
         {
-            SOCKET clientSocketFD;
+            SocketType clientSocketFD;
             struct sockaddr_in clientInfo = {};
 
             if (server.accept(clientSocketFD, clientInfo, acceptTimeout))

@@ -76,7 +76,7 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(BaseSocket& socket, const uint8_t* userData)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     if (!socket.active())
     {
@@ -104,7 +104,7 @@ void SocketPool::watchSocket(BaseSocket& socket, const uint8_t* userData)
     m_socketData[&socket] = event;
 }
 
-void SocketPool::forgetSocket(BaseSocket& socket)
+void SocketPool::forgetSocket(Socket& socket)
 {
     scoped_lock lock(*this);
 
@@ -123,7 +123,7 @@ void SocketPool::forgetSocket(BaseSocket& socket)
     }
 }
 
-bool SocketPool::hasSocket(BaseSocket& socket)
+bool SocketPool::hasSocket(Socket& socket)
 {
     scoped_lock lock(*this);
 

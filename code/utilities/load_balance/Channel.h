@@ -60,7 +60,7 @@ public:
         }
     }
 
-    void open(SOCKET sourceFD, const String& interfaceAddess, const Host& destination);
+    void open(SocketType sourceFD, const String& interfaceAddess, const Host& destination);
     int copyData(const TCPSocket& source, const TCPSocket& destination);
     void close();
 

@@ -316,7 +316,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     socket().write(response);
 }
 
-WSSSLConnection::WSSSLConnection(TCPServer& server, SOCKET connectionSocket, const sockaddr_in* addr,
+WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
                                  WSServices& services,
                                  LogEngine& logEngine, const Options& options)
     : WSConnection(server, addr, services, logEngine, options)

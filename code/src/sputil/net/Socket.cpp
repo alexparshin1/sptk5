@@ -25,7 +25,7 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 
 using namespace std;
 using namespace sptk;
@@ -54,8 +54,8 @@ void BaseSocket::cleanup() noexcept
 #endif
 
 // Constructor
-BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : BaseSocketVirtualMethods(domain, type, protocol)
+Socket::Socket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+    : SocketVirtualMethods(domain, type, protocol)
 {
 #ifdef _WIN32
     init();
@@ -63,39 +63,39 @@ BaseSocket::BaseSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t proto
 #endif
 }
 
-BaseSocket::~BaseSocket()
+Socket::~Socket()
 {
-    BaseSocket::close();
+    Socket::close();
 }
 
-size_t BaseSocket::read(Buffer& buffer, size_t size, sockaddr_in* from)
+size_t Socket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
     const std::scoped_lock lock(m_socketMutex);
 
     buffer.checkSize(size);
-    size_t bytes = readUnlocked(buffer.data(), size, from);
+    const size_t bytes = readUnlocked(buffer.data(), size, from);
     buffer.bytes(bytes);
 
     return bytes;
 }
 
-size_t BaseSocket::read(String& buffer, size_t size, sockaddr_in* from)
+size_t Socket::read(String& buffer, size_t size, sockaddr_in* from)
 {
     const std::scoped_lock lock(m_socketMutex);
 
     buffer.resize(size);
-    size_t bytes = readUnlocked((uint8_t*) buffer.data(), size, from);
+    const size_t bytes = readUnlocked((uint8_t*) buffer.data(), size, from);
     buffer.resize(bytes);
 
     return bytes;
 }
 
-size_t BaseSocket::write(const Buffer& buffer, const sockaddr_in* peer)
+size_t Socket::write(const Buffer& buffer, const sockaddr_in* peer)
 {
     return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t BaseSocket::write(const String& buffer, const sockaddr_in* peer)
+size_t Socket::write(const String& buffer, const sockaddr_in* peer)
 {
     return write((const uint8_t*) buffer.c_str(), buffer.length(), peer);
 }

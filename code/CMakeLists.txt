@@ -73,7 +73,7 @@ OPTION(BUILD_PACKAGE "Build OS package" ON)
 
 IF (NOT WIN32)
     OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
-    OPTION(BUILD_WITH_COVERAGE "Build with coverage" ON)
+    OPTION(BUILD_WITH_COVERAGE "Build with coverage" OFF)
 ENDIF ()
 
 INCLUDE(${CMAKE_ROOT}/Modules/FindASPELL.cmake)
@@ -124,7 +124,7 @@ ELSE ()
             -Wno-unused-parameter
         )
         IF (BUILD_WITH_COVERAGE)
-            ADD_DEFINITIONS(-fprofile-arcs -ftest-coverage)
+            ADD_DEFINITIONS(-fprofile-instr-generate -fcoverage-mapping)
         ENDIF ()
     ELSE ()
         ADD_DEFINITIONS(

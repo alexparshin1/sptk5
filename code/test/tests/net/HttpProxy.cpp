@@ -82,7 +82,7 @@ TEST(SPTK_HttpProxy, connect)
 
         socket->setProxy(std::move(httpProxy));
         constexpr seconds connectTimeout {5};
-        socket->open(aHost, BaseSocket::OpenMode::CONNECT, true, connectTimeout);
+        socket->open(aHost, Socket::OpenMode::CONNECT, true, connectTimeout);
 
         HttpConnect http(*socket);
 

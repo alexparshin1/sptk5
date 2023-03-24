@@ -238,7 +238,7 @@ protected:
      * @param connectionSocket  Already accepted incoming connection socket
      * @param peer              Incoming connection information
      */
-    virtual UServerConnection createConnection(SOCKET connectionSocket, const sockaddr_in* peer);
+    virtual UServerConnection createConnection(SocketType connectionSocket, const sockaddr_in* peer);
 
     /**
      * Thread event callback function

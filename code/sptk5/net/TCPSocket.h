@@ -29,8 +29,8 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
-#include <sptk5/net/BaseSocket.h>
 #include <sptk5/net/Proxy.h>
+#include <sptk5/net/Socket.h>
 
 #ifndef _WIN32
 
@@ -46,7 +46,7 @@
 /**
  * A socket handle is an integer
  */
-using SOCKET = int;
+using SocketType = int;
 using SOCKET_ADDRESS_FAMILY = sa_family_t;
 
 /**
@@ -77,7 +77,7 @@ namespace sptk {
  * to the host by name and port address
  */
 class SP_EXPORT TCPSocket
-    : public BaseSocket
+    : public Socket
 {
 public:
     /**
@@ -108,7 +108,7 @@ public:
      * @param timeout           Accept operation timeout
      * @returns                 True if accepted a connection
      */
-    [[nodiscard]] virtual bool accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
 
 protected:
     /**
@@ -137,7 +137,7 @@ protected:
      * @param from              An optional structure for source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr) override;
+    [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from) override;
 
     /**
      * Get proxy information

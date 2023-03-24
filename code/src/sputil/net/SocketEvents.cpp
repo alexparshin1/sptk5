@@ -63,7 +63,7 @@ void SocketEvents::stop()
     }
 }
 
-void SocketEvents::add(BaseSocket& socket, const uint8_t* userData)
+void SocketEvents::add(Socket& socket, const uint8_t* userData)
 {
     if (!running())
     {
@@ -78,12 +78,12 @@ void SocketEvents::add(BaseSocket& socket, const uint8_t* userData)
     m_socketPool.watchSocket(socket, userData);
 }
 
-void SocketEvents::remove(BaseSocket& socket)
+void SocketEvents::remove(Socket& socket)
 {
     m_socketPool.forgetSocket(socket);
 }
 
-bool SocketEvents::has(BaseSocket& socket)
+bool SocketEvents::has(Socket& socket)
 {
     return m_socketPool.hasSocket(socket);
 }

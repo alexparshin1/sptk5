@@ -279,7 +279,6 @@ static void testTransferPerformance(ServerConnection::Type connectionType, const
 
     constexpr size_t readSize {packetSize};
     StopWatch stopWatch;
-    String failReason;
 
     shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
                                        ? make_shared<TCPSocket>()

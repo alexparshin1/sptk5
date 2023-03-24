@@ -54,7 +54,7 @@ void TCPSocket::handleReadFromSocketError(int error)
 }
 
 TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
-    : BaseSocket(domain, type, protocol)
+    : Socket(domain, type, protocol)
 {
 }
 
@@ -77,8 +77,8 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
 
     if (proxy() != nullptr)
     {
-        const SOCKET fd = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
-        attach(fd, false);
+        const SocketType socketHandle = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
+        attach(socketHandle, false);
     }
     else
     {
@@ -100,7 +100,7 @@ void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMod
     }
 }
 
-bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
+bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
 {
     socklen_t len = sizeof(clientInfo);
     if (!blockingMode())
@@ -133,10 +133,9 @@ bool TCPSocket::accept(SOCKET& clientSocketFD, struct sockaddr_in& clientInfo, s
 size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
 {
     int receivedBytes;
-    int error;
+    int error = 0;
     do
     {
-        error = 0;
         receivedBytes = (int) recvUnlocked(destination, size);
 
         if (receivedBytes == -1)

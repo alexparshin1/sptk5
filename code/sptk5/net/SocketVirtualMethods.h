@@ -49,7 +49,7 @@
 /**
  * A socket handle is an integer
  */
-using SOCKET = int;
+using SocketType = int;
 using SOCKET_ADDRESS_FAMILY = sa_family_t;
 
 #ifdef __APPLE__
@@ -72,7 +72,12 @@ using SOCKET_ADDRESS_FAMILY = unsigned short;
 
 namespace sptk {
 
-class BaseSocketVirtualMethods
+/**
+ * @brief Virtual methods for the Socket class.
+ *
+ * All methods are not locking a mutex
+ */
+class SocketVirtualMethods
 {
 public:
     /**
@@ -91,12 +96,12 @@ public:
      * @param type              Socket type
      * @param protocol          Protocol type
      */
-    explicit BaseSocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
+    explicit SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
      * @Destructor
      */
-    virtual ~BaseSocketVirtualMethods() = default;
+    virtual ~SocketVirtualMethods() = default;
 
 protected:
     /**
@@ -156,12 +161,15 @@ protected:
      */
     void listenUnlocked(uint16_t portNumber);
 
+    /**
+     * Close socket
+     */
     virtual void closeUnlocked();
 
     /**
      * Get socket internal (OS) handle
      */
-    SOCKET getSocketFdUnlocked() const
+    SocketType getSocketFdUnlocked() const
     {
         return m_socketFd;
     }
@@ -169,7 +177,7 @@ protected:
     /**
      * Set socket internal (OS) handle
      */
-    void setSocketFdUnlocked(SOCKET socket)
+    void setSocketFdUnlocked(SocketType socket)
     {
         m_socketFd = socket;
     }
@@ -228,14 +236,14 @@ protected:
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
      */
-    virtual void attachUnlocked(SOCKET socketHandle, bool accept);
+    virtual void attachUnlocked(SocketType socketHandle, bool accept);
 
     /**
      * Detaches socket handle, setting it to INVALID_SOCKET.
      * Closes the socket without affecting socket handle.
      * @return Existing socket handle
      */
-    virtual SOCKET detachUnlocked();
+    virtual SocketType detachUnlocked();
 
     /**
      * Reports true if socket is ready for reading from it
@@ -310,12 +318,12 @@ protected:
     }
 
 private:
-    SOCKET m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    int32_t m_domain;                   ///< Socket domain type
-    int32_t m_type;                     ///< Socket type
-    int32_t m_protocol;                 ///< Socket protocol
-    Host m_host;                        ///< Host
-    bool m_blockingMode {false};        ///< Blocking mode flag
+    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t m_domain;                       ///< Socket domain type
+    int32_t m_type;                         ///< Socket type
+    int32_t m_protocol;                     ///< Socket protocol
+    Host m_host;                            ///< Host
+    bool m_blockingMode {false};            ///< Blocking mode flag
 };
 
 /**

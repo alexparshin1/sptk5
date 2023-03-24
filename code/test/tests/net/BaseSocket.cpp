@@ -25,7 +25,7 @@
 */
 
 #include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 
 #include <gtest/gtest.h>
 
@@ -38,8 +38,8 @@ TEST(SPTK_BaseSocket, minimal)
     sockaddr_in address {};
     yahoo.getAddress(address);
 
-    BaseSocket socket;
-    socket.open(address, sptk::BaseSocket::OpenMode::CONNECT);
+    Socket socket;
+    socket.open(address, sptk::Socket::OpenMode::CONNECT);
     socket.close();
 }
 
@@ -50,7 +50,7 @@ TEST(SPTK_BaseSocket, option)
     sockaddr_in address {};
     yahoo.getAddress(address);
 
-    BaseSocket socket;
+    Socket socket;
     int value = 0;
     try
     {
@@ -62,7 +62,7 @@ TEST(SPTK_BaseSocket, option)
         SUCCEED() << "Can't get socket option for closed socket";
     }
 
-    socket.open(address, sptk::BaseSocket::OpenMode::CONNECT);
+    socket.open(address, sptk::Socket::OpenMode::CONNECT);
 
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
     EXPECT_EQ(value, 0);

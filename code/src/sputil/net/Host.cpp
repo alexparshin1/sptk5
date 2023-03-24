@@ -26,7 +26,7 @@
 
 #include <sptk5/RegularExpression.h>
 #include <sptk5/SystemException.h>
-#include <sptk5/net/BaseSocket.h>
+#include <sptk5/net/Socket.h>
 
 #include <utility>
 

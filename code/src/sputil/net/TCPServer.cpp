@@ -156,7 +156,7 @@ void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-UServerConnection TCPServer::createConnection(SOCKET connectionSocket, const sockaddr_in* peer)
+UServerConnection TCPServer::createConnection(SocketType connectionSocket, const sockaddr_in* peer)
 {
     if (m_connectionType == ServerConnection::Type::TCP)
     {
