@@ -128,6 +128,7 @@ private:
     String m_name;                            ///< Thread name
     std::shared_ptr<std::jthread> m_thread;   ///< Thread object
     ThreadManager* m_threadManager {nullptr}; ///< Optional thread manager
+    std::atomic_bool m_terminated {false};    ///< If true then terminate() was called
 };
 
 /**
