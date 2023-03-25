@@ -136,7 +136,7 @@ void SocketVirtualMethods::closeUnlocked()
         shutdown(m_socketFd, SHUT_RDWR);
         ::close(m_socketFd);
 #else
-        closesocket(m_sockfd);
+        closesocket(m_socketFd);
 #endif
         m_socketFd = INVALID_SOCKET;
     }
@@ -145,10 +145,8 @@ void SocketVirtualMethods::closeUnlocked()
 void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 {
 #ifdef _WIN32
-    uint32_t arg = blockingMode ? 0 : 1;
-    control(FIONBIO, &arg);
-    u_long arg2 = arg;
-    const int result = ioctlsocket(m_sockfd, FIONBIO, &arg2);
+    u_long arg = blockingMode ? 0 : 1;
+    const int result = ioctlsocket(m_socketFd, FIONBIO, &arg);
 #else
     int flags = fcntl(m_socketFd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
@@ -194,7 +192,7 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
     uint32_t bytes = 0;
     if (
 #ifdef _WIN32
-        const int32_t result = ioctlsocket(m_sockfd, FIONREAD, (u_long*) &bytes);
+        const int32_t result = ioctlsocket(m_socketFd, FIONREAD, (u_long*) &bytes);
 #else
         const int32_t result = ioctl(m_socketFd, FIONREAD, &bytes);
 #endif
@@ -288,7 +286,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 
 #ifdef _WIN32
     WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
+    fdarray.fd = m_socketFd;
     fdarray.events = POLLRDNORM;
     int result = WSAPoll(&fdarray, 1, timeoutMS);
     switch (result)
@@ -327,7 +325,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
     const auto timeoutMS = (int) timeout.count();
 #ifdef _WIN32
     WSAPOLLFD fdarray {};
-    fdarray.fd = m_sockfd;
+    fdarray.fd = m_socketFd;
     fdarray.events = POLLWRNORM;
     switch (WSAPoll(&fdarray, 1, timeoutMS))
     {
@@ -366,7 +364,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto result = ::recv(m_sockfd, (char*) buffer, (int32_t) len, 0);
+    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
 #else
     auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
 #endif

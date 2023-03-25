@@ -68,6 +68,7 @@ using socklen_t = int;
 #include <windows.h>
 using socklen_t = int;
 using SOCKET_ADDRESS_FAMILY = unsigned short;
+using SocketType = SOCKET;
 #endif
 
 namespace sptk {
@@ -77,7 +78,7 @@ namespace sptk {
  *
  * All methods are not locking a mutex
  */
-class SocketVirtualMethods
+class SP_EXPORT SocketVirtualMethods
 {
 public:
     /**

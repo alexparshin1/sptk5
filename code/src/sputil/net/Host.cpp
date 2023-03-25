@@ -34,7 +34,7 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static BaseSocket initializer; // Needed for WinSock2 initialization
+static Socket initializer; // Needed for WinSock2 initialization
 #endif
 
 Host::Host() noexcept
@@ -171,7 +171,7 @@ void Host::getHostAddress()
 #ifdef _WIN32
     struct hostent* host_info = gethostbyname(m_hostname.c_str());
     if (host_info == nullptr)
-        throwSocketError("Can't get host info for " + m_hostname, __FILE__, __LINE__);
+        throwSocketError("Can't get host info for " + m_hostname);
 
     const scoped_lock lock(m_mutex);
     memset(&m_address, 0, sizeof(m_address));
