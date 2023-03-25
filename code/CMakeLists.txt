@@ -73,7 +73,7 @@ OPTION(BUILD_PACKAGE "Build OS package" ON)
 
 IF (NOT WIN32)
     OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
-    OPTION(BUILD_WITH_COVERAGE "Build with coverage" ON)
+    OPTION(BUILD_WITH_COVERAGE "Build with coverage" OFF)
 ENDIF ()
 
 INCLUDE(${CMAKE_ROOT}/Modules/FindASPELL.cmake)
