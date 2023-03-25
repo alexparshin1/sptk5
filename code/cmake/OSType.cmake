@@ -8,7 +8,7 @@ IF (UNIX)
     ENDIF ()
 
     EXEC_PROGRAM(grep ARGS -E "^ID=" /etc/os-release OUTPUT_VARIABLE OS_NAME)
-    STRING(REGEX MATCH "(debian|centos|ubuntu|fedora|redhat|ol|linuxmint)" OS_FLAVOUR "${OS_NAME}")
+    STRING(REGEX MATCH "(debian|ubuntu|fedora|redhat|ol|linuxmint)" OS_FLAVOUR "${OS_NAME}")
 
     EXEC_PROGRAM(grep ARGS -E "^VERSION=" /etc/os-release OUTPUT_VARIABLE OS_VERS)
     STRING(REGEX MATCH "[0-9]+" OS_VERSION "${OS_VERS}")
@@ -20,4 +20,12 @@ IF (OS_FLAVOUR)
     MESSAGE("OS Flavour:         ${OS_TYPE} (${OS_FLAVOUR} ${OS_VERSION})")
 ELSE ()
     MESSAGE("OS Type:            ${OS_TYPE}")
+ENDIF ()
+
+IF (OS_FLAVOUR STREQUAL "fedora")
+    SET (SET_RPATH "1")
+ENDIF ()
+
+IF (OS_FLAVOUR STREQUAL "redhat")
+    SET (SET_RPATH "1")
 ENDIF ()
