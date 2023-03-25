@@ -36,7 +36,7 @@ static bool m_inited(false);
 #endif
 
 #ifdef _WIN32
-void BaseSocket::init() noexcept
+void Socket::init() noexcept
 {
     if (m_inited)
         return;
@@ -46,7 +46,7 @@ void BaseSocket::init() noexcept
     WSAStartup(wVersionRequested, &wsaData);
 }
 
-void BaseSocket::cleanup() noexcept
+void Socket::cleanup() noexcept
 {
     m_inited = false;
     WSACleanup();

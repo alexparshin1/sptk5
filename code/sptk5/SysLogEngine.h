@@ -29,8 +29,9 @@
 #ifndef _WIN32
 #include <syslog.h>
 #else
-#include <windows.h>
 #include <winsock2.h>
+
+#include <windows.h>
 #endif
 
 #include <sptk5/LogEngine.h>

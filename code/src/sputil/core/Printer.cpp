@@ -1,5 +1,7 @@
 #include <sptk5/Printer.h>
 
-namespace sptk {
-std::mutex printMutex;
+std::mutex& sptk::Console::printMutex()
+{
+    static std::mutex printMutex;
+    return printMutex;
 }

@@ -25,23 +25,29 @@
 */
 #pragma once
 
+#include <sptk5/sptk.h>
+
 #include <iostream>
 #include <mutex>
 
 namespace sptk {
-extern std::mutex printMutex;
-}
+class SP_EXPORT Console
+{
+public:
+    static std::mutex& printMutex();
+};
+} // namespace sptk
 
 #define COUT(a)                                        \
     do                                                 \
     {                                                  \
-        const std::scoped_lock lock(sptk::printMutex); \
+        const std::scoped_lock lock(Console::printMutex()); \
         std::cout << a;                                \
     } while (false)
 
 #define CERR(a)                                        \
     do                                                 \
     {                                                  \
-        const std::scoped_lock lock(sptk::printMutex); \
+        const std::scoped_lock lock(Console::printMutex()); \
         std::cerr << a;                                \
     } while (false)
