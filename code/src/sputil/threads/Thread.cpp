@@ -77,7 +77,7 @@ void Thread::run()
 
     const scoped_lock lock(m_mutex);
     m_thread = make_shared<jthread>(
-        [this](stop_token stopToken) {
+        [this]() {
             try
             {
                 m_terminated = false;

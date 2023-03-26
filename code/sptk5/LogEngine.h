@@ -192,9 +192,9 @@ protected:
      */
     void terminate()
     {
+        m_terminated = true;
         if (m_saveMessageThread.joinable())
         {
-            m_saveMessageThread.request_stop();
             m_saveMessageThread.join();
         }
     }
@@ -204,7 +204,7 @@ protected:
      */
     bool terminated() const
     {
-        return m_saveMessageThread.get_stop_token().stop_requested();
+        return m_terminated;
     }
 
 private:
@@ -227,6 +227,8 @@ private:
      * Log options, a bit combination of Option
      */
     std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
+
+    std::atomic_bool m_terminated {false};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

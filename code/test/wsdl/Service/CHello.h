@@ -16,6 +16,7 @@ namespace test_service {
 class CHello : public sptk::WSComplexType
 {
 public:
+
     /**
      * ID of the class
      */
@@ -24,60 +25,61 @@ public:
         return "Hello";
     }
 
-    // Elements
-    sptk::WSString m_action {"action", false};
-    sptk::WSString m_first_name {"first_name", false};
-    sptk::WSString m_last_name {"last_name", false};
+   // Elements
+   sptk::WSString                           m_action {"action", false};
+   sptk::WSString                           m_first_name {"first_name", false};
+   sptk::WSString                           m_last_name {"last_name", false};
 
-    /**
+   /**
     * Constructor
     * @param elementName        WSDL element name
     * @param optional           Is element optional flag
     */
-    explicit CHello(const char* elementName = "hello", bool optional = false);
+   explicit CHello(const char* elementName="hello", bool optional=false);
 
-    /**
+   /**
     * Copy constructor
     * @param other              Other object
     */
-    CHello(const CHello& other);
+   CHello(const CHello& other);
 
-    /**
+   /**
     * Move constructor
     * @param other              Other object
     */
-    CHello(CHello&& other) noexcept;
+   CHello(CHello&& other) noexcept;
 
-    /**
+   /**
     * Destructor
     */
-    ~CHello() override = default;
+   ~CHello() override = default;
 
-    /**
+   /**
     * Copy assignment
     * @param other              Other object
     */
-    CHello& operator=(const CHello& other) = default;
+   CHello& operator = (const CHello& other) = default;
 
-    /**
+   /**
     * Move assignment
     * @param other              Other object
     */
-    CHello& operator=(CHello&& other) noexcept = default;
+   CHello& operator = (CHello&& other) noexcept = default;
 
-    /**
+   /**
     * Get complex type field names.
     * @param group              Field group: elements, attributes, or both
     * @return list of fields as Strings
     */
-    static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
+   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);
 
 private:
-    /**
+
+   /**
     * Check restrictions
     * Throws an exception if any restriction is violated.
     */
-    void checkRestrictions() const override;
+   void checkRestrictions() const override;
 };
 
-} // namespace test_service
+}

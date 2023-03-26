@@ -72,7 +72,7 @@ public:
      * @param connectionFunction Connection function processing this connection
      */
     ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                     String taskName = "ServerConnection", ServerConnection::Function connectionFunction = {});
+                     const String& taskName = "ServerConnection", ServerConnection::Function connectionFunction = {});
 
     /**
      * Access to internal socket for derived classes

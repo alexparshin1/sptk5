@@ -81,9 +81,9 @@ void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentic
 void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
     function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method = 
-        [this](const CAccountBalance& request, CAccountBalanceResponse& response, HttpAuthentication* authentication)
+        [this](const CAccountBalance& request, CAccountBalanceResponse& response, HttpAuthentication* auth)
         {
-            AccountBalance(request, response, authentication);
+            AccountBalance(request, response, auth);
         };
 
     if (xmlNode)
@@ -95,9 +95,9 @@ void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const 
 void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
     function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method = 
-        [this](const CHello& request, CHelloResponse& response, HttpAuthentication* authentication)
+        [this](const CHello& request, CHelloResponse& response, HttpAuthentication* auth)
         {
-            Hello(request, response, authentication);
+            Hello(request, response, auth);
         };
 
     if (xmlNode)
@@ -109,9 +109,9 @@ void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNo
 void CTestServiceBase::process_Login(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
 {
     function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method = 
-        [this](const CLogin& request, CLoginResponse& response, HttpAuthentication* authentication)
+        [this](const CLogin& request, CLoginResponse& response, HttpAuthentication* auth)
         {
-            Login(request, response, authentication);
+            Login(request, response, auth);
         };
 
     if (xmlNode)

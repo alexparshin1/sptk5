@@ -4,7 +4,7 @@ ADD_CUSTOM_COMMAND(
     OUTPUT  Service/TestServiceBase.cpp
     DEPENDS Test.wsdl wsdl2cxx
     COMMAND wsdl2cxx
-    ARGS Test.wsdl Service
+    ARGS Test.wsdl -d Service
 )
 
 ADD_SUBDIRECTORY(Service)

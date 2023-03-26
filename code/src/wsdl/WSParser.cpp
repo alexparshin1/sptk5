@@ -370,7 +370,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& serviceDe
         serviceDefinition
             << "    virtual void " << name
             << "(const " << operation.m_input->className() << "& input, "
-            << operation.m_output->className() << "& output, sptk::HttpAuthentication* authentication) = 0;" << endl;
+            << operation.m_output->className() << "& output, sptk::HttpAuthentication* auth) = 0;" << endl;
     }
     serviceDefinition << endl;
     serviceDefinition << "    /**" << endl;
@@ -522,7 +522,7 @@ void WSParser::generateImplementation(ostream& serviceImplementation) const
         auto outputType = "C" + operation.m_output->name();
         serviceImplementation << "{\n"
                               << "    function<void(const " << inputType << "&, " << outputType
-                              << "&, HttpAuthentication*)> method = " << endl
+                              << "&, HttpAuthentication*)> method =" << endl
                               << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
                               << "        {" << endl
                               << "            " << operationName << "(request, response, auth);" << endl

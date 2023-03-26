@@ -65,8 +65,8 @@ TCPServer& ServerConnection::server() const
 }
 
 ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                                   String taskName, ServerConnection::Function connectionFunction)
-    : Runable(std::move(taskName))
+                                   const String& taskName, ServerConnection::Function connectionFunction)
+    : Runable(taskName)
     , m_server(server)
     , m_serial(nextSerial())
     , m_type(type)
