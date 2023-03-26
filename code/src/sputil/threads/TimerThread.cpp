@@ -37,6 +37,7 @@ TimerThread::TimerThread()
 
 TimerThread::~TimerThread()
 {
+    terminate();
     m_semaphore.post();
 }
 
