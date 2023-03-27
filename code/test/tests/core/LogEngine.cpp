@@ -41,6 +41,11 @@ public:
         storage.clear();
     }
 
+    ~TestLogEngine()
+    {
+        shutdown();
+    }
+
     void saveMessage(const Logger::Message& message) override
     {
         const scoped_lock lock(m_mutex);
@@ -91,18 +96,21 @@ TEST(SPTK_LogEngine, message)
     logEngine->option(LogEngine::Option::STDOUT, true);
     logEngine->minPriority(LogPriority::DEBUG);
 
-    Logger logger(*logEngine);
+    {
+        Logger logger(*logEngine);
 
-    logger.debug("debug message");
-    logger.info("info message");
-    logger.notice("notice message");
-    logger.warning("warning message");
-    logger.error("error message");
-    logger.critical("critical message");
-    logger.log(LogPriority::ALERT, "alert message");
-    logger.log(LogPriority::PANIC, "panic message");
+        logger.debug("debug message");
+        logger.info("info message");
+        logger.notice("notice message");
+        logger.warning("warning message");
+        logger.error("error message");
+        logger.critical("critical message");
+        logger.log(LogPriority::ALERT, "alert message");
+        logger.log(LogPriority::PANIC, "panic message");
+    }
 
-    this_thread::sleep_for(chrono::milliseconds(10));
+    this_thread::sleep_for(chrono::milliseconds(100));
+
     logEngine.reset();
 
     EXPECT_EQ(TestLogEngine::storage[0].priority, LogPriority::DEBUG);

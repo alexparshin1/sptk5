@@ -51,9 +51,12 @@ LogEngine::~LogEngine()
 
 void LogEngine::shutdown()
 {
-    if (!terminated())
+    terminate();
+
+    const std::scoped_lock lock(m_mutex);
+    if (m_saveMessageThread.joinable())
     {
-        terminate();
+        m_saveMessageThread.join();
     }
 }
 
@@ -146,7 +149,7 @@ void LogEngine::threadFunction()
     while (!terminated())
     {
         Logger::UMessage message = nullptr;
-        if (!m_messages.pop(message, timeout))
+        if (!m_messages.pop(message, timeout) || terminated())
         {
             continue;
         }
@@ -193,4 +196,11 @@ void LogEngine::threadFunction()
     {
         CERR(e.what() << std::endl);
     }
+}
+
+void LogEngine::terminate()
+{
+    m_terminated = true;
+    const std::scoped_lock lock(m_mutex);
+    m_messages.clear();
 }

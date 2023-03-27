@@ -190,17 +190,10 @@ protected:
     /**
      * Terminate message save thread
      */
-    void terminate()
-    {
-        m_terminated = true;
-        if (m_saveMessageThread.joinable())
-        {
-            m_saveMessageThread.join();
-        }
-    }
+    void terminate();
 
     /**
-     * Terminate message save thread
+     * Is message save thread trminated?
      */
     bool terminated() const
     {
