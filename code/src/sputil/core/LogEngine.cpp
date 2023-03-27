@@ -154,23 +154,25 @@ void LogEngine::threadFunction()
             continue;
         }
 
+        const scoped_lock lock(m_mutex);
+
         saveMessage(*message);
 
-        if (option(Option::STDOUT))
+        if (m_options.contains(Option::STDOUT))
         {
             string messagePrefix;
-            if (option(Option::DATE))
+            if (m_options.contains(Option::DATE))
             {
                 messagePrefix += message->timestamp.dateString() + " ";
             }
 
-            if (option(Option::TIME))
+            if (m_options.contains(Option::TIME))
             {
-                auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+                auto printAccuracy = m_options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
                 messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
             }
 
-            if (option(Option::PRIORITY))
+            if (m_options.contains(Option::PRIORITY))
             {
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
             }
@@ -186,6 +188,8 @@ void LogEngine::threadFunction()
                                            << flush);
             }
         }
+
+        message.reset();
     }
 
     try
