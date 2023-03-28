@@ -53,7 +53,6 @@ void LogEngine::shutdown()
 {
     terminate();
 
-    const std::scoped_lock lock(m_mutex);
     if (m_saveMessageThread.joinable())
     {
         m_saveMessageThread.join();
@@ -192,19 +191,11 @@ void LogEngine::threadFunction()
         message.reset();
     }
 
-    try
-    {
-        close();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what() << std::endl);
-    }
+    const scoped_lock lock(m_mutex);
+    m_messages.clear();
 }
 
 void LogEngine::terminate()
 {
     m_terminated = true;
-    const std::scoped_lock lock(m_mutex);
-    m_messages.clear();
 }

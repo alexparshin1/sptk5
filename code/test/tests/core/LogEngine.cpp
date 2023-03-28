@@ -41,7 +41,7 @@ public:
         storage.clear();
     }
 
-    ~TestLogEngine()
+    ~TestLogEngine() override
     {
         shutdown();
     }
@@ -51,6 +51,15 @@ public:
         const scoped_lock lock(m_mutex);
         storage.push_back(message);
     }
+
+protected:
+
+    void close() override
+    {
+        LogEngine::close();
+    }
+
+public:
 
     std::mutex m_mutex;
     static vector<Logger::Message> storage;
