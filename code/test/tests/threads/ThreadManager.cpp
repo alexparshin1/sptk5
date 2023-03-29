@@ -24,7 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/ThreadManager.h"
+#include <sptk5/Printer.h>
+#include <sptk5/threads/ThreadManager.h>
+
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -45,13 +47,17 @@ public:
 
     void join() override
     {
-        ++joinCounter;
+        if (running())
+        {
+            ++joinCounter;
+            Thread::join();
+        }
     }
 
 protected:
     void threadFunction() override
     {
-        constexpr auto tenMilliseconds = milliseconds(20);
+        constexpr auto tenMilliseconds = milliseconds(50);
         ++taskCounter;
         this_thread::sleep_for(tenMilliseconds);
     }
@@ -80,6 +86,7 @@ TEST(SPTK_ThreadManager, minimal)
 
     constexpr auto smallDelay = milliseconds(50);
     this_thread::sleep_for(smallDelay);
+
     threadManager->stop();
 
     EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);
