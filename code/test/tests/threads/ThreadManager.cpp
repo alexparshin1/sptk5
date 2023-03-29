@@ -85,3 +85,33 @@ TEST(SPTK_ThreadManager, minimal)
     EXPECT_EQ(maxThreads, ThreadManagerTestThread::taskCounter);
     EXPECT_EQ(maxThreads, ThreadManagerTestThread::joinCounter);
 }
+
+/**
+ * @brief Test starts several threads that each will increment the counter by 1
+ * @details The iteration through threads should loop through each thread
+ */
+TEST(SPTK_ThreadManager, nextThread)
+{
+    constexpr size_t maxThreads = 3;
+    auto threadManager = make_shared<ThreadManager>("Test Manager");
+
+    threadManager->start();
+
+    for (size_t i = 0; i < maxThreads; ++i)
+    {
+        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        threadManager->manage(thread);
+        thread->run();
+    }
+
+    Strings threadNames;
+    for (size_t index = 0; index <= maxThreads; ++index)
+    {
+        auto thread = threadManager->getNextThread();
+        threadNames.push_back(thread->name());
+    }
+
+    threadManager->stop();
+
+    EXPECT_STREQ("thread 0, thread 1, thread 2, thread 0", threadNames.join(", ").c_str());
+}

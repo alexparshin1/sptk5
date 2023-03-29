@@ -77,6 +77,12 @@ public:
      */
     size_t threadCount() const;
 
+    /**
+     * Get next running thread by index
+     * @return thread or nullptr
+     */
+    SThread getNextThread();
+
 protected:
     /**
      * @brief Monitoring thread function
@@ -85,8 +91,9 @@ protected:
 
 private:
     mutable std::mutex m_mutex;                     ///< Mutex that protects internal data
-    std::map<Thread*, SThread> m_runningThreads;    ///< Running threads
+    std::vector<SThread> m_runningThreads;          ///< Running threads
     SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
+    size_t m_nextThreadIndex {0};                   ///< Next thread index
 
     /**
      * @brief Join terminated threads

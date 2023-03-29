@@ -42,9 +42,9 @@ ThreadManager::~ThreadManager()
     {
         stop();
     }
-    catch (const Exception&)
+    catch (const Exception& e)
     {
-        // suppress any exceptions
+        CERR(e.what() << endl);
     }
 }
 
@@ -60,6 +60,8 @@ void ThreadManager::threadFunction()
 void ThreadManager::joinTerminatedThreads(milliseconds timeout)
 {
     queue<SThread> joinThreads;
+
+    if (!m_terminatedThreads.empty())
     {
         SThread thread;
         while (m_terminatedThreads.pop(thread, timeout))
@@ -96,10 +98,10 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     const scoped_lock lock(m_mutex);
-    for (const auto& [thread, threadSPtr]: m_runningThreads)
+    for (const auto& thread: m_runningThreads)
     {
-        m_terminatedThreads.push(threadSPtr);
-        threadSPtr->terminate();
+        m_terminatedThreads.push(thread);
+        thread->terminate();
     }
 }
 
@@ -108,11 +110,11 @@ void ThreadManager::manage(const SThread& thread)
     if (thread)
     {
         const scoped_lock lock(m_mutex);
-        auto itor = m_runningThreads.find(thread.get());
+        auto itor = ranges::find(m_runningThreads, thread);
         if (itor == m_runningThreads.end())
         {
             thread->setThreadManager(this);
-            m_runningThreads[thread.get()] = std::move(thread);
+            m_runningThreads.push_back(std::move(thread));
         }
     }
 }
@@ -122,12 +124,18 @@ void ThreadManager::destroyThread(Thread* thread)
     if (thread && thread->running())
     {
         const scoped_lock lock(m_mutex);
-        auto itor = m_runningThreads.find(thread);
+
+        auto matchThread =
+            [&thread](const SThread& aThread) {
+                return thread == aThread.get();
+            };
+
+        auto itor = ranges::find_if(m_runningThreads, matchThread);
         if (itor != m_runningThreads.end())
         {
-            auto sthread = itor->second;
+            auto matchedThread = *itor;
             m_runningThreads.erase(itor);
-            m_terminatedThreads.push(sthread);
+            m_terminatedThreads.push(matchedThread);
         }
     }
 }
@@ -136,4 +144,24 @@ size_t ThreadManager::threadCount() const
 {
     const scoped_lock lock(m_mutex);
     return m_runningThreads.size();
+}
+
+SThread ThreadManager::getNextThread()
+{
+    const scoped_lock lock(m_mutex);
+
+    if (m_runningThreads.empty())
+    {
+        return nullptr;
+    }
+
+    if (m_nextThreadIndex >= m_runningThreads.size())
+    {
+        m_nextThreadIndex = 0;
+    }
+
+    auto nextThread = m_runningThreads[m_nextThreadIndex];
+    ++m_nextThreadIndex;
+
+    return nextThread;
 }
