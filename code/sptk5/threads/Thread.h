@@ -62,7 +62,11 @@ public:
      * @param ignoreSignals     List of signals to ignore
      */
     explicit Thread(String name,
+#ifndef _WIN32
                     std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT, SIGINT});
+#else
+                    std::vector<int> ignoreSignals = {SIGABRT, SIGINT});
+#endif
 
     /**
      * Destructor
