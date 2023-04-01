@@ -75,7 +75,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
         strm.next_in = inputBuffer.data();
 
         // Run deflate() on input until output buffer not full, finish
-        // compression if all of the source has been read inputBuffer
+        // compression if all the source has been read inputBuffer
         do
         {
             strm.avail_out = CHUNK;

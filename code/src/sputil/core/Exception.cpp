@@ -32,13 +32,13 @@
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(String text, const std::source_location& location, const String& description) DOESNT_THROW
+Exception::Exception(String text, const std::source_location& location, String description) DOESNT_THROW
     : m_location(location)
     , m_text(std::move(text))
-    , m_description(description)
+    , m_description(std::move(description))
     , m_fullMessage(m_text)
 {
-    RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
+    const RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
     String fileName(m_location.file_name());
     if (auto matches = matchFileName.m(m_location.file_name());
         !matches.empty())

@@ -35,7 +35,7 @@ static void splitByDelimiter(Strings& dest, const String& src, const char* delim
 {
     dest.clear();
     const auto* pos = src.c_str();
-    size_t delimiterLength = strlen(delimiter);
+    size_t const delimiterLength = strlen(delimiter);
     while (true)
     {
         const auto* end = strstr(pos, delimiter);
@@ -61,7 +61,7 @@ static void splitByAnyChar(Strings& dest, const String& src, const char* delimit
     size_t pos = 0;
     while (pos != string::npos)
     {
-        size_t end = src.find_first_of(delimiter, pos);
+        const size_t end = src.find_first_of(delimiter, pos);
         if (end != string::npos)
         {
             dest.emplace_back(src.substr(pos, end - pos));
@@ -80,7 +80,7 @@ static void splitByAnyChar(Strings& dest, const String& src, const char* delimit
 
 static void splitByRegExp(Strings& dest, const String& src, const char* pattern)
 {
-    RegularExpression regularExpression(pattern);
+    const RegularExpression regularExpression(pattern);
 
     dest.clear();
     dest = regularExpression.split(src);
@@ -170,10 +170,10 @@ void Strings::loadFromFile(const std::filesystem::path& fileName)
 
     // Determine delimiter
     String delimiter = "\n";
-    if (size_t pos1 = text.find_first_of("\n\r");
+    if (const size_t pos1 = text.find_first_of("\n\r");
         pos1 != string::npos)
     {
-        size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
+        const size_t pos2 = text.find_first_of("\n\r", pos1 + 1);
         delimiter = text.substr(pos1, 1);
         if (pos1 + 1 == pos2 && text[pos1] != text[pos2])
         { // Two chars delimiter
@@ -205,7 +205,8 @@ String Strings::join(const String& delimiter) const
 
 Strings Strings::grep(const String& pattern) const
 {
-    RegularExpression regularExpression(pattern);
+    const RegularExpression regularExpression(pattern);
+
     Strings output;
     for (const String& str: *(this))
     {
@@ -214,6 +215,7 @@ Strings Strings::grep(const String& pattern) const
             output.push_back(str);
         }
     }
+
     return output;
 }
 

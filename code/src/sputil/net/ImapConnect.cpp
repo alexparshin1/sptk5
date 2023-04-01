@@ -36,7 +36,7 @@ using namespace sptk;
 
 static constexpr int RSP_BLOCK_SIZE = 1024;
 
-bool ImapConnect::getResponse(const String& ident)
+void ImapConnect::getResponse(const String& ident)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
 
@@ -49,7 +49,7 @@ bool ImapConnect::getResponse(const String& ident)
         m_response.push_back(longLine);
         if (ident[0] == 0)
         {
-            return true;
+            return;
         }
 
         if (longLine[0] == '*')
@@ -58,7 +58,7 @@ bool ImapConnect::getResponse(const String& ident)
         }
         if (longLine[0] == '+')
         {
-            return true;
+            return;
         }
         if (longLine.find(ident) == 0)
         {
@@ -70,7 +70,7 @@ bool ImapConnect::getResponse(const String& ident)
             switch (longLine[p])
             {
                 case 'O': // OK
-                    return true;
+                    return;
                 case 'N': // NO
                     throw Exception(longLine.c_str() + 8);
                 case 'B': // BAD

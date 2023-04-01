@@ -113,7 +113,7 @@ public:
      * @param description           Program description (for help only).
      * @param commandLinePrototype  Command line prototype (for help only).
      */
-    CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype);
+    CommandLine(const String& programVersion, const String& description, String commandLinePrototype);
 
     /**
      * Defines command line option
@@ -237,7 +237,7 @@ public:
          * @param help              Help (description) for the element
          * @param useWithCommands   Element visibility for a command (options only)
          */
-        CommandLineElement(const String& name, const String& shortName, const String& help,
+        CommandLineElement(String name, const String& shortName, String help,
                            const Visibility& useWithCommands);
 
         /**
@@ -406,7 +406,7 @@ public:
          * @param useWithCommands Element visibility for a command (options only)
          * @param help          Help (description) for the element
          */
-        CommandLineParameter(const String& name, const String& shortName, const String& valueName,
+        CommandLineParameter(const String& name, const String& shortName, String valueName,
                              const String& validateValue,
                              const Visibility& useWithCommands, const String& help);
 

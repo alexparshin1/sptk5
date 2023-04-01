@@ -27,6 +27,7 @@
 #include <future>
 #include <regex>
 #include <sptk5/cutils>
+#include <utility>
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
@@ -181,8 +182,8 @@ void RegularExpression::compile()
     m_captureCount = getCaptureCount();
 }
 
-RegularExpression::RegularExpression(const String& pattern, const String& options)
-    : m_pattern(pattern)
+RegularExpression::RegularExpression(String pattern, const String& options)
+    : m_pattern(std::move(pattern))
 {
     for (auto ch: options)
     {
@@ -292,7 +293,7 @@ bool RegularExpression::matches(const String& text) const
 {
     size_t offset = 0;
     MatchData matchData(m_pcre.get(), m_captureCount);
-    size_t matchCount = nextMatch(text, offset, matchData);
+    const size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
 
@@ -305,7 +306,7 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
     bool first {true};
     do
     {
-        size_t matchCount = nextMatch(text, offset, matchData);
+        const size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0)
         { // No matches
             break;
@@ -361,10 +362,10 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         for (int i = 0; i < nameCount; ++i)
         {
             auto n = size_t(((int) tabptr[0] << 8) | (int) tabptr[1]);
-            String name(tabptr + 2, size_t(nameEntrySize - 3));
+            const String name(tabptr + 2, size_t(nameEntrySize - 3));
             if (const auto& match = matchData.matches[n]; match.m_start >= 0 && n < matchCount)
             {
-                String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
+                const String value(text.c_str() + match.m_start, size_t(match.m_end - match.m_start));
                 matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
             }
             else
@@ -416,7 +417,7 @@ Strings RegularExpression::split(const String& text) const
     pcre_offset_t lastMatchEnd = 0;
     do
     {
-        size_t matchCount = nextMatch(text, offset, matchData);
+        const size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0)
         { // No matches
             break;
@@ -447,8 +448,8 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
 
     do
     {
-        size_t fragmentOffset = offset;
-        size_t matchCount = nextMatch(text, offset, matchData);
+        const size_t fragmentOffset = offset;
+        const size_t matchCount = nextMatch(text, offset, matchData);
         if (matchCount == 0)
         { // No matches
             break;
@@ -475,7 +476,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
             nextReplacement += outputPattern.substr(pos, placeHolderStart - pos);
             ++placeHolderStart;
             auto placeHolderIndex = (size_t) string2int(outputPattern.c_str() + placeHolderStart);
-            size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
+            const size_t placeHolderEnd = outputPattern.find_first_not_of("0123456789", placeHolderStart);
             if (placeHolderIndex < matchCount)
             {
                 const Match& match = matchData.matches[placeHolderIndex];
@@ -486,7 +487,7 @@ String RegularExpression::replaceAll(const String& text, const String& outputPat
         }
 
         // Append text from fragment start to match start
-        if (size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
+        if (const size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
             fragmentStartLength != 0)
         {
             result += text.substr(fragmentOffset, fragmentStartLength);
@@ -517,8 +518,9 @@ String RegularExpression::s(const String& text, const std::function<String(const
 
     do
     {
-        size_t fragmentOffset = offset;
-        if (size_t matchCount = nextMatch(text, offset, matchData); matchCount == 0)
+        const size_t fragmentOffset = offset;
+        if (const size_t matchCount = nextMatch(text, offset, matchData);
+            matchCount == 0)
         {
             break;
         } // No matches
@@ -530,17 +532,17 @@ String RegularExpression::s(const String& text, const std::function<String(const
         replaced = true;
 
         // Append text from fragment start to match start
-        if (size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
+        if (const size_t fragmentStartLength = size_t(matchData.matches[0].m_start) - size_t(fragmentOffset);
             fragmentStartLength != 0)
         {
             result += text.substr(fragmentOffset, fragmentStartLength);
         }
 
         // Append replacement
-        String currentMatch(text.c_str() + matchData.matches[0].m_start,
-                            (unsigned) matchData.matches[0].m_end - (unsigned) matchData.matches[0].m_start);
+        const String currentMatch(text.c_str() + matchData.matches[0].m_start,
+                                  (unsigned) matchData.matches[0].m_end - (unsigned) matchData.matches[0].m_start);
 
-        String nextReplacement = replace(currentMatch);
+        const String nextReplacement = replace(currentMatch);
 
         result += nextReplacement;
 
@@ -567,7 +569,7 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
 {
     // For "i" option, make lowercase match map
     map<String, String> substitutionsMap;
-    bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
+    const bool ignoreCase = (m_options & SPRE_CASELESS) == SPRE_CASELESS;
     if (ignoreCase)
     {
         for (const auto& [name, value]: substitutions)

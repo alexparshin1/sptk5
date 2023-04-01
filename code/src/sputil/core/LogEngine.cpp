@@ -141,7 +141,6 @@ void LogEngine::log(Logger::UMessage&& message)
 
 void LogEngine::threadFunction()
 {
-    m_terminated = false;
     const chrono::seconds timeout(1);
     while (!terminated())
     {
@@ -192,5 +191,15 @@ void LogEngine::threadFunction()
     catch (const Exception& e)
     {
         CERR(e.what() << std::endl);
+    }
+}
+
+void LogEngine::terminate()
+{
+    m_terminated = true;
+    m_messages.wakeup();
+    if (m_saveMessageThread.joinable())
+    {
+        m_saveMessageThread.join();
     }
 }

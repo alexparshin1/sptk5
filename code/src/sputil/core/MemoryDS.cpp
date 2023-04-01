@@ -31,7 +31,7 @@ using namespace sptk;
 
 Field& MemoryDS::operator[](const String& field_name)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -42,7 +42,7 @@ Field& MemoryDS::operator[](const String& field_name)
 
 size_t MemoryDS::recordCount() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_list.size();
 }
 
@@ -50,7 +50,7 @@ size_t MemoryDS::recordCount() const
 
 size_t MemoryDS::fieldCount() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -61,7 +61,7 @@ size_t MemoryDS::fieldCount() const
 // access to the field by number, 0..field.size()-1
 Field& MemoryDS::operator[](size_t index)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
@@ -73,7 +73,7 @@ Field& MemoryDS::operator[](size_t index)
 // read this field data into external value
 bool MemoryDS::readField(const char* fieldName, Variant& fieldValue)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     try
     {
         fieldValue = *(Variant*) &(*this)[fieldName];
@@ -88,7 +88,7 @@ bool MemoryDS::readField(const char* fieldName, Variant& fieldValue)
 // write this field data from external value
 bool MemoryDS::writeField(const char* fieldName, const Variant& fieldValue)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     try
     {
         (*this)[fieldName] = fieldValue;
@@ -102,7 +102,7 @@ bool MemoryDS::writeField(const char* fieldName, const Variant& fieldValue)
 
 bool MemoryDS::open()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (m_list.empty())
     {
         m_current = m_list.end();
@@ -123,7 +123,7 @@ bool MemoryDS::close()
 
 bool MemoryDS::first()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     if (!m_list.empty())
     {
@@ -136,7 +136,7 @@ bool MemoryDS::first()
 
 bool MemoryDS::last()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     if (!m_list.empty())
     {
@@ -150,7 +150,7 @@ bool MemoryDS::last()
 
 bool MemoryDS::next()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     if (m_current != m_list.end())
     {
@@ -162,7 +162,7 @@ bool MemoryDS::next()
 
 bool MemoryDS::prior()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     if (m_current != m_list.begin())
     {
@@ -174,7 +174,7 @@ bool MemoryDS::prior()
 
 bool MemoryDS::find(const String& fieldName, const Variant& position)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
@@ -192,7 +192,7 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
 
 void MemoryDS::clear()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     m_list.clear();
 
@@ -201,7 +201,7 @@ void MemoryDS::clear()
 
 void MemoryDS::push_back(FieldList&& fieldList)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     m_list.push_back(std::move(fieldList));
     if (m_list.size() == 1)
@@ -212,6 +212,6 @@ void MemoryDS::push_back(FieldList&& fieldList)
 
 bool MemoryDS::empty() const
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     return m_list.empty();
 }

@@ -44,7 +44,7 @@ String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallP
 
     stat(file.path().string().c_str(), &fileStat);
 
-    String ext = file.path().extension().string();
+    const String ext = file.path().extension().string();
     modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
     bool executable = S_ISEXEC(fileStat.st_mode);
@@ -53,7 +53,7 @@ String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallP
     bool executable = ext == "exe" || ext == "bat";
 #endif
 
-    bool directory = is_directory(file.status());
+    const bool directory = is_directory(file.status());
     image = CSmallPixmapType::SXPM_DOCUMENT;
 
     string modeName;

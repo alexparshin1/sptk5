@@ -82,7 +82,7 @@ public:
      * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    explicit Exception(String text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
+    explicit Exception(String text, const std::source_location& location = std::source_location::current(), String description = String()) DOESNT_THROW;
 
     /**
      * @brief Returns complete text of exception

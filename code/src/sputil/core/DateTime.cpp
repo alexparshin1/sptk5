@@ -470,7 +470,8 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
         tzOffsetMin += (int) TimeZone::offset().count();
     }
 
-    if (short partNumber = splitTimeString(tim, timePart.data()); partNumber == 0)
+    if (const short partNumber = splitTimeString(tim, timePart.data());
+        partNumber == 0)
     {
         dt = DateTime::time_point();
         return;
@@ -496,7 +497,8 @@ static void encodeDate(DateTime::time_point& timePoint, const char* dat)
 
     char actualDateSeparator = 0;
 
-    if (short partNumber = splitDateString(dat, datePart.data(), actualDateSeparator); partNumber != 0)
+    if (const short partNumber = splitDateString(dat, datePart.data(), actualDateSeparator);
+        partNumber != 0)
     {
         short month = 0;
         short day = 0;
@@ -897,9 +899,9 @@ short DateTime::daysInMonth() const
 DateTime DateTime::date() const
 {
     constexpr int hoursInDay = 24;
-    duration sinceEpoch = m_dateTime.time_since_epoch();
-    long days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
-    time_point timePoint = time_point() + hours(days * hoursInDay);
+    const duration sinceEpoch = m_dateTime.time_since_epoch();
+    const long days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
+    const time_point timePoint = time_point() + hours(days * hoursInDay);
     return DateTime(timePoint); // Sets the current date
 }
 

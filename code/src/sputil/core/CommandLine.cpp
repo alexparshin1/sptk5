@@ -26,6 +26,8 @@
 
 #include <sptk5/CommandLine.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
@@ -57,11 +59,11 @@ bool CommandLine::Visibility::matches(const String& command) const
 }
 //=============================================================================
 
-CommandLine::CommandLineElement::CommandLineElement(const String& name, const String& shortName, const String& help,
+CommandLine::CommandLineElement::CommandLineElement(String name, const String& shortName, String help,
                                                     const Visibility& useWithCommands)
-    : m_name(name)
+    : m_name(std::move(name))
     , m_shortName(shortName)
-    , m_help(help)
+    , m_help(std::move(help))
     , m_useWithCommands(useWithCommands)
 {
     if (m_name.empty())
@@ -111,7 +113,7 @@ bool CommandLine::CommandLineElement::useWithCommand(const String& command) cons
 
 void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& formattedText) const
 {
-    Strings words(m_help, "\\s+", Strings::SplitMode::REGEXP);
+    const Strings words(m_help, "\\s+", Strings::SplitMode::REGEXP);
 
     formattedText.clear();
 
@@ -140,7 +142,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
 void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth,
                                                 const String& optionDefaultValue) const
 {
-    static const RegularExpression doesntNeedQuotes("[\\d\\.\\-\\+:,_]+");
+    static const RegularExpression doesntNeedQuotes(R"([\d\.\-\+:,_]+)");
 
     Strings helpText;
     formatHelp(textWidth, helpText);
@@ -216,11 +218,11 @@ String CommandLine::CommandLineOption::printableName() const
 //=============================================================================
 
 CommandLine::CommandLineParameter::CommandLineParameter(const String& name, const String& shortName,
-                                                        const String& valueInfo,
+                                                        String valueInfo,
                                                         const String& validateValue, const Visibility& useWithCommands,
                                                         const String& help)
     : CommandLineElement(name, shortName, help, useWithCommands)
-    , m_valueInfo(valueInfo)
+    , m_valueInfo(std::move(valueInfo))
 {
     if (!validateValue.empty())
     {
@@ -276,10 +278,10 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 }
 //=============================================================================
 
-CommandLine::CommandLine(const String& programVersion, const String& description, const String& commandLinePrototype)
+CommandLine::CommandLine(const String& programVersion, const String& description, String commandLinePrototype)
     : m_programVersion(programVersion)
     , m_description(description)
-    , m_commandLinePrototype(commandLinePrototype)
+    , m_commandLinePrototype(std::move(commandLinePrototype))
 {
 }
 
@@ -363,7 +365,7 @@ Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
     String quotedString;
     for (auto& arg: args)
     {
-        String digestedArg = preprocessArgument(arg, quote, quotedString);
+        const String digestedArg = preprocessArgument(arg, quote, quotedString);
         if (!digestedArg.empty())
         {
             arguments.push_back(digestedArg);
@@ -431,7 +433,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
             // Short option name(s)
             for (unsigned j = 1; j < arg.length(); ++j)
             {
-                string opt = "-" + arg.substr(j, j + 1);
+                const string opt = "-" + arg.substr(j, j + 1);
                 digestedArgs.push_back(opt);
             }
             continue;
@@ -444,7 +446,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 
 void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
 {
-    String arg = digestedArgs[i];
+    const String& arg = digestedArgs[i];
     String value;
     if (arg.startsWith("-"))
     {
@@ -488,11 +490,11 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
 
 void CommandLine::init(size_t argc, const char** argv)
 {
-    vector<const char*> args(argv + 1, argv + argc);
+    const vector<const char*> args(argv + 1, argv + argc);
     m_executablePath = argv[0];
 
-    Strings arguments = preprocessArguments(args);
-    Strings digestedArgs = rewriteArguments(arguments);
+    const Strings arguments = preprocessArguments(args);
+    const Strings digestedArgs = rewriteArguments(arguments);
 
     size_t i = 0;
     while (i < digestedArgs.size())
@@ -609,19 +611,21 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         {
             continue;
         }
+
         const auto optionTemplate = itor->second;
         if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
         {
             continue;
         }
-        size_t width = optionTemplate->printableName().length();
+
+        const size_t width = optionTemplate->printableName().length();
         if (nameColumns < width)
         {
             nameColumns = width;
         }
     }
 
-    size_t helpTextColumns = screenColumns - (nameColumns + 2);
+    const size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if (helpTextColumns < minimalWidth)
     {
         CERR("Can't print help information - the screen width is too small" << endl);

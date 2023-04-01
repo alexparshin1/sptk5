@@ -222,7 +222,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(const String& pattern, const String& options = "");
+    explicit RegularExpression(String pattern, const String& options = "");
 
     /**
      * Returns true if text matches with regular expression

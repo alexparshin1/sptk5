@@ -225,7 +225,7 @@ String Host::toString(bool forceAddress) const
         constexpr int maxBufferSize = 128;
         array<char, maxBufferSize> buffer {};
 
-        const void* addr {nullptr};
+        const void* addr;
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET)
         {

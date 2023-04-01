@@ -255,7 +255,7 @@ protected:
      * Gets a response from the server for a previously sent command, identified by the ident
      * @param ident std::string, the command identifier returned by prior sendCommand().
      */
-    bool getResponse(const String& ident);
+    void getResponse(const String& ident);
 
     /**
      * Parses the result of SEARCH command in response. Returns results in result parameter

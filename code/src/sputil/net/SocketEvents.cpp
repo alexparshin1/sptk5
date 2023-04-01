@@ -27,7 +27,6 @@
 #include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/net/SocketEvents.h>
-#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;

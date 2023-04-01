@@ -106,7 +106,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
 void SocketPool::forgetSocket(Socket& socket)
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     auto itor = m_socketData.find(&socket);
     if (itor == m_socketData.end())
@@ -125,7 +125,7 @@ void SocketPool::forgetSocket(Socket& socket)
 
 bool SocketPool::hasSocket(Socket& socket)
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     auto itor = m_socketData.find(&socket);
     return itor != m_socketData.end();
@@ -137,7 +137,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
     array<epoll_event, maxEvents> events {};
 
-    int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
+    const int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
         if (m_pool == INVALID_EPOLL)
@@ -150,7 +150,7 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
 
     for (int i = 0; i < eventCount; ++i)
     {
-        epoll_event& event = events[i];
+        const epoll_event& event = events[i];
         if (event.events & EPOLLIN)
         {
             m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::HAS_DATA);

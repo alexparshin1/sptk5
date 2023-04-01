@@ -72,7 +72,7 @@ String sptk::trim(const String& str)
     auto endPosition = int(len - 1);
     bool found = false;
 
-    unsigned char space = ' ';
+    const unsigned char space = ' ';
     for (int i = endPosition; i >= 0; --i)
     {
         if (s[i] > space)
@@ -105,7 +105,7 @@ String sptk::int2string(int32_t value)
 {
     constexpr int maxLength = 32;
     array<char, maxLength + 1> buff {};
-    int len = snprintf(buff.data(), maxLength, "%i", value);
+    const int len = snprintf(buff.data(), maxLength, "%i", value);
     return string(buff.data(), (unsigned) len);
 }
 
@@ -113,7 +113,7 @@ String sptk::int2string(uint32_t value)
 {
     constexpr int maxLength = 64;
     array<char, maxLength + 1> buff {};
-    int len = snprintf(buff.data(), maxLength, "%u", value);
+    const int len = snprintf(buff.data(), maxLength, "%u", value);
     return string(buff.data(), (unsigned) len);
 }
 
@@ -122,9 +122,9 @@ String sptk::int2string(int64_t value)
     constexpr int maxLength = 128;
     array<char, maxLength + 1> buff {};
 #ifdef _WIN32
-    int len = snprintf(buff.data(), maxLength, "%lli", value);
+    const int len = snprintf(buff.data(), maxLength, "%lli", value);
 #else
-    int len = snprintf(buff.data(), maxLength, "%lli", (long long int) value);
+    const int len = snprintf(buff.data(), maxLength, "%lli", (long long int) value);
 #endif
     return string(buff.data(), (unsigned) len);
 }
@@ -134,9 +134,9 @@ String sptk::int2string(uint64_t value)
     constexpr int maxLength = 64;
     array<char, maxLength + 1> buff {};
 #ifdef _WIN32
-    int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
+    const int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
 #else
-    int len = snprintf(buff.data(), maxLength, "%lu", value);
+    const int len = snprintf(buff.data(), maxLength, "%lu", value);
 #endif
     return string(buff.data(), (unsigned) len);
 }

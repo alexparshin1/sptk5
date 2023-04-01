@@ -141,7 +141,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
         {
             for (index = 0; index < 4; ++index)
             {
-                char_array_4[index] = (uint8_t) base64_chars.find(char_array_4[index]);
+                char_array_4[index] = (uint8_t) base64_chars.find((char) char_array_4[index]);
             }
 
             char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
@@ -163,7 +163,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
         for (j = 0; j < 4; ++j)
         {
-            char_array_4[j] = (uint8_t) base64_chars.find(char_array_4[j]);
+            char_array_4[j] = (uint8_t) base64_chars.find((char) char_array_4[j]);
         }
 
         char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
@@ -181,7 +181,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
 size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource)
 {
-    string source(bufSource.c_str(), bufSource.bytes());
+    const string source(bufSource.c_str(), bufSource.bytes());
     return internal_decode(bufDest, source);
 }
 

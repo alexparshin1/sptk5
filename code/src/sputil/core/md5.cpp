@@ -278,7 +278,7 @@ void MD5::update(const unsigned char input[], size_type length)
     count[1] += (length >> 29);
 
     // number of bytes we need to fill in buffer
-    size_type firstPart = 64 - index;
+    const size_type firstPart = 64 - index;
 
     size_type i {0};
 
@@ -333,8 +333,8 @@ MD5& MD5::finalize()
         encode(bits.data(), count.data(), 8);
 
         // pad out to 56 mod 64.
-        size_type index = count[0] / 8 % 64;
-        size_type padLen = (index < 56) ? (56 - index) : (120 - index);
+        const size_type index = count[0] / 8 % 64;
+        const size_type padLen = (index < 56) ? (56 - index) : (120 - index);
         update(padding.data(), padLen);
 
         // Append length (before padding)
@@ -388,7 +388,7 @@ String sptk::md5(const Buffer& data)
 
 String sptk::md5(const String& data)
 {
-    Buffer buffer(data);
+    const Buffer buffer(data);
     auto md5 = MD5(buffer);
 
     return md5.hexDigest();

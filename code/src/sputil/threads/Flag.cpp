@@ -41,32 +41,32 @@ Flag::~Flag()
     terminate();
     do
     {
-        scoped_lock lock(m_lockMutex);
+        const scoped_lock lock(m_lockMutex);
         m_condition.notify_one();
     } while (waiters() > 0);
 }
 
 void Flag::terminate()
 {
-    scoped_lock lock(m_lockMutex);
+    const scoped_lock lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Flag::waiters() const
 {
-    scoped_lock lock(m_lockMutex);
+    const scoped_lock lock(m_lockMutex);
     return m_waiters;
 }
 
 bool Flag::get() const
 {
-    scoped_lock lock(m_lockMutex);
+    const scoped_lock lock(m_lockMutex);
     return m_value;
 }
 
 void Flag::set(bool value)
 {
-    scoped_lock lock(m_lockMutex);
+    const scoped_lock lock(m_lockMutex);
     if (m_value != value)
     {
         m_value = value;
