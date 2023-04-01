@@ -44,11 +44,12 @@ String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallP
 
     stat(file.path().string().c_str(), &fileStat);
 
-    const String ext = file.path().extension().string();
     modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
+    const String ext = file.path().extension().string();
     bool executable = S_ISEXEC(fileStat.st_mode);
 #else
+    String ext = file.path().extension().string();
     ext = ext.toLowerCase();
     bool executable = ext == "exe" || ext == "bat";
 #endif
