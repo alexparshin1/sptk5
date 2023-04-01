@@ -170,7 +170,8 @@ void HttpReader::readHttpHeaders()
     m_readerState = State::READING_DATA;
 }
 
-static size_t readAndAppend(SocketReader& socketReader, Buffer& output, size_t bytesToRead)
+namespace {
+size_t readAndAppend(SocketReader& socketReader, Buffer& output, size_t bytesToRead)
 {
     Buffer buffer(bytesToRead);
 
@@ -189,7 +190,7 @@ static size_t readAndAppend(SocketReader& socketReader, Buffer& output, size_t b
     return readBytes;
 }
 
-static size_t readChunk(SocketReader& socketReader, Buffer& m_output)
+size_t readChunk(SocketReader& socketReader, Buffer& m_output)
 {
     // Starting next chunk
     String chunkSizeStr;
@@ -220,6 +221,7 @@ static size_t readChunk(SocketReader& socketReader, Buffer& m_output)
 
     return readAndAppend(socketReader, m_output, chunkSize);
 }
+} // namespace
 
 void HttpReader::readDataChunk(bool& done)
 {

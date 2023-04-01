@@ -130,8 +130,9 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
     return getResponse(output, timeout);
 }
 
-static bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
-                             Buffer& compressedData)
+namespace {
+bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
+                      Buffer& compressedData)
 {
     static const sptk::Strings& availableContentEncodings {
 #ifdef HAVE_BROTLI
@@ -182,6 +183,7 @@ static bool compressPostData(const sptk::Strings& possibleContentEncodings, Stri
 
     return false;
 }
+} // namespace
 
 int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
                           const sptk::Strings& possibleContentEncodings, const Authorization* authorization,

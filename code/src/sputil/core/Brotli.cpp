@@ -35,10 +35,12 @@ using namespace sptk;
 constexpr int DEFAULT_LGWIN = 24;
 constexpr int BROTLI_WINDOW_GAP = 16;
 
-static size_t BROTLI_MAX_BACKWARD_LIMIT(uint32_t W)
+namespace {
+size_t BROTLI_MAX_BACKWARD_LIMIT(uint32_t W)
 {
     return (1U << W) - BROTLI_WINDOW_GAP;
 }
+} // namespace
 
 static constexpr size_t kBufferSize = 1 << 16;
 

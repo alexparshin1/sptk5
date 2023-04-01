@@ -111,17 +111,19 @@ void Base64::encode(String& strDest, const Buffer& bufSource)
     strDest = String(bufOut.c_str(), bufOut.bytes());
 }
 
-static const String base64_chars(
+namespace {
+
+const String base64_chars(
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/");
 
-static inline bool is_base64(uint8_t chr) noexcept
+inline bool is_base64(uint8_t chr) noexcept
 {
     return (isalnum(chr) || (chr == '+') || (chr == '/'));
 }
 
-static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
+size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 {
     size_t in_len = encoded_string.size();
     int index = 0;
@@ -178,6 +180,7 @@ static size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
     return dest.bytes();
 }
+} // namespace
 
 size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource)
 {

@@ -176,7 +176,7 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
 {
     const scoped_lock lock(m_mutex);
 
-    String value = position.asString();
+    const String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
     {
         FieldList& entry = *itor;

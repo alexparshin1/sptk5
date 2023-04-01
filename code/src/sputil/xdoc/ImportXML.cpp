@@ -25,7 +25,6 @@
 */
 
 #include <cmath>
-#include <cstdlib>
 #include <sptk5/Printer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/xdoc/Document.h>
@@ -140,7 +139,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
 {
     constexpr int cdataTagLength = 8;
     constexpr int docTypeTagLength = 8;
-    char ch = *tokenEnd;
+    const char ch = *tokenEnd;
     *tokenEnd = 0;
     if (strncmp(nodeName, "!--", 3) == 0)
     {
@@ -192,7 +191,7 @@ char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char
 
 char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
-    char ch = *tokenEnd;
+    const char ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch != '>')
     {
@@ -212,7 +211,7 @@ char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, 
 
 char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
-    char ch = *tokenEnd;
+    const char ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch == '>' || ch == '/')
     {

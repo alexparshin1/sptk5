@@ -28,6 +28,7 @@
 
 #include <sptk5/Strings.h>
 
+#include <atomic>
 #include <list>
 #include <mutex>
 
@@ -50,7 +51,7 @@ public:
     /**
      * Default Constructor
      */
-    explicit Runable(const String& name);
+    explicit Runable(String name);
 
     /**
      * Destructor
@@ -92,9 +93,8 @@ protected:
     virtual void run() = 0;
 
 private:
-    mutable std::mutex m_dataMutex; ///< Synchronized object that protects internal data
-    bool m_terminated {false};      ///< Flag indicating if task is terminated
-    String m_name;                  ///< Runable object name
+    std::atomic<bool> m_terminated {false}; ///< Flag indicating if task is terminated
+    String m_name;                          ///< Runable object name
 
     /**
      * Set runable to terminated

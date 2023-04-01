@@ -75,10 +75,11 @@ constexpr int tzMultiplier = 100;
 constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
 
+namespace {
 // Returns timezone offset in minutes from formats:
 // "Z" - UTC
 // "[+-]HH24:MM - TZ offset
-static int decodeTZOffset(const char* tzOffset)
+int decodeTZOffset(const char* tzOffset)
 {
     const char* ptr = tzOffset;
     int sign = 1;
@@ -123,6 +124,7 @@ static int decodeTZOffset(const char* tzOffset)
 
     return sign * (hours * minutesInHour + minutes);
 }
+} // namespace
 
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
@@ -292,11 +294,11 @@ void DateTimeFormat::init() noexcept
 
 static const DateTimeFormat dateTimeFormatInitializer;
 
-namespace sptk {
+namespace {
 
-static void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
-                       short& dayOfYear,
-                       bool gmt)
+void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
+                short& dayOfYear,
+                bool gmt)
 {
     time_t aTime = DateTime::clock::to_time_t(timePoint);
 
@@ -314,8 +316,7 @@ static void decodeDate(const DateTime::time_point& timePoint, short& year, short
     dayOfYear = static_cast<short>(time.tm_yday);
 }
 
-
-static void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minute, short& second, short& millisecond, bool gmt)
+void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minute, short& second, short& millisecond, bool gmt)
 {
     time_t timestamp = DateTime::clock::to_time_t(timePoint);
 
@@ -336,8 +337,7 @@ static void decodeTime(const DateTime::time_point& timePoint, short& hour, short
     millisecond = static_cast<short>(ms.count());
 }
 
-
-static void encodeDate(DateTime::time_point& timePoint, short year, short month, short day)
+void encodeDate(DateTime::time_point& timePoint, short year, short month, short day)
 {
     tm time = {};
     time.tm_year = year - lastCenturyYear;
@@ -349,7 +349,7 @@ static void encodeDate(DateTime::time_point& timePoint, short year, short month,
     timePoint = DateTime::clock::from_time_t(aTime);
 }
 
-static short splitDateString(const char* dateString, short* datePart, char& actualDateSeparator)
+short splitDateString(const char* dateString, short* datePart, char& actualDateSeparator)
 {
     actualDateSeparator = 0;
 
@@ -385,8 +385,7 @@ static short splitDateString(const char* dateString, short* datePart, char& actu
     return (short) partNumber;
 }
 
-
-static short splitTimeString(const char* timeString, short* timePart)
+short splitTimeString(const char* timeString, short* timePart)
 {
     static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d+)?)");
     auto matches = matchTime.m(timeString);
@@ -414,7 +413,7 @@ static short splitTimeString(const char* timeString, short* timePart)
     return (short) partNumber;
 }
 
-static short correctTwoDigitYear(short year)
+short correctTwoDigitYear(short year)
 {
     if (constexpr short yearsOffset = 100;
         year < yearsOffset)
@@ -431,14 +430,12 @@ static short correctTwoDigitYear(short year)
     return year;
 }
 
-
-static void encodeTime(DateTime::time_point& timePoint, short hour, short minute, short second, short millisecond)
+void encodeTime(DateTime::time_point& timePoint, short hour, short minute, short second, short millisecond)
 {
     timePoint += hours(hour) + minutes(minute) + seconds(second) + milliseconds(millisecond);
 }
 
-
-static void encodeTime(DateTime::time_point& dt, const char* tim)
+void encodeTime(DateTime::time_point& dt, const char* tim)
 {
     bool afternoon = false;
     array<short, 4> timePart = {0, 0, 0, 0};
@@ -486,10 +483,9 @@ static void encodeTime(DateTime::time_point& dt, const char* tim)
     dt += minutes(tzOffsetMin);
 }
 
-
 void parseDate(const short* datePart, short& month, short& day, short& year);
 
-static void encodeDate(DateTime::time_point& timePoint, const char* dat)
+void encodeDate(DateTime::time_point& timePoint, const char* dat)
 {
     array<short, 7> datePart {};
 
@@ -555,13 +551,12 @@ void parseDate(const short* datePart, short& month, short& day, short& year)
     }
 }
 
-
-static int isLeapYear(const int16_t year)
+int isLeapYear(const int16_t year)
 {
     return ((year & 3) == 0 && year % 100) || ((year % 400) == 0);
 }
 
-} // namespace sptk
+} // namespace
 
 String TimeZone::name()
 {
@@ -799,7 +794,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
     short second = 0;
     short millisecond = 0;
 
-    sptk::decodeTime(m_dateTime, hour, minute, second, millisecond, (printFlags & PF_GMT) != 0);
+    ::decodeTime(m_dateTime, hour, minute, second, millisecond, (printFlags & PF_GMT) != 0);
     const char* appendix = nullptr;
     bool amPm = (printFlags & PF_12HOURS) != 0;
     if ((printFlags & PF_TIMEZONE) != 0)
@@ -870,12 +865,12 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 
 void DateTime::decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, bool gmt) const
 {
-    sptk::decodeDate(m_dateTime, *year, *month, *day, *weekDay, *yearDate, gmt);
+    ::decodeDate(m_dateTime, *year, *month, *day, *weekDay, *yearDate, gmt);
 }
 
 void DateTime::decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt) const
 {
-    sptk::decodeTime(m_dateTime, *hour, *minute, *second, *millisecond, gmt);
+    ::decodeTime(m_dateTime, *hour, *minute, *second, *millisecond, gmt);
 }
 
 
@@ -892,7 +887,7 @@ short DateTime::daysInMonth() const
     short day = 0;
     short weekDay = 0;
     short yearDay = 0;
-    sptk::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
+    ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
     return isLeapYear(year) ? gLeapYear[month - 1] : gRegularYear[month - 1];
 }
 
@@ -913,7 +908,7 @@ short DateTime::dayOfWeek() const
     short weekDay = 0;
     short yearDay = 0;
 
-    sptk::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
+    ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
 
     return short(weekDay);
 }
@@ -931,7 +926,7 @@ String DateTime::monthName() const
     short weekDay = 0;
     short yearDay = 0;
 
-    sptk::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
+    ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
 
     return DateTime::_monthNames[size_t(month) - 1];
 }

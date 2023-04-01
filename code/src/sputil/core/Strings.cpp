@@ -31,7 +31,8 @@
 using namespace std;
 using namespace sptk;
 
-static void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
+namespace {
+void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     const auto* pos = src.c_str();
@@ -55,7 +56,7 @@ static void splitByDelimiter(Strings& dest, const String& src, const char* delim
     }
 }
 
-static void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
+void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
     size_t pos = 0;
@@ -78,13 +79,24 @@ static void splitByAnyChar(Strings& dest, const String& src, const char* delimit
     }
 }
 
-static void splitByRegExp(Strings& dest, const String& src, const char* pattern)
+void splitByRegExp(Strings& dest, const String& src, const char* pattern)
 {
     const RegularExpression regularExpression(pattern);
 
     dest.clear();
     dest = regularExpression.split(src);
 }
+
+bool sortAscending(const String& first, const String& second)
+{
+    return first < second;
+}
+
+bool sortDescending(const String& first, const String& second)
+{
+    return first > second;
+}
+} // namespace
 
 Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexcept
 {
@@ -217,16 +229,6 @@ Strings Strings::grep(const String& pattern) const
     }
 
     return output;
-}
-
-static bool sortAscending(const String& first, const String& second)
-{
-    return first < second;
-}
-
-static bool sortDescending(const String& first, const String& second)
-{
-    return first > second;
 }
 
 void Strings::sort(bool ascending)

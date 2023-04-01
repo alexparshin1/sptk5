@@ -220,7 +220,8 @@ double sptk::string2double(const String& str, double defaultValue)
     return result;
 }
 
-static void capitalizeWord(char* current, char* wordStart)
+namespace {
+void capitalizeWord(char* current, char* wordStart)
 {
     if (wordStart != nullptr)
     {
@@ -237,7 +238,7 @@ static void capitalizeWord(char* current, char* wordStart)
     }
 }
 
-static void lowerCaseWord(const char* current, char* wordStart)
+void lowerCaseWord(const char* current, char* wordStart)
 {
     if (wordStart != nullptr)
     {
@@ -247,6 +248,7 @@ static void lowerCaseWord(const char* current, char* wordStart)
         }
     }
 }
+} // namespace
 
 String sptk::capitalizeWords(const String& s)
 {

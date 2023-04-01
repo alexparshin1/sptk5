@@ -84,16 +84,18 @@ void ImapConnect::getResponse(const String& ident)
 
 const String ImapConnect::empty_quotes;
 
-static String quotes(const String& st)
+namespace {
+String quotes(const String& st)
 {
     return "\"" + st + "\"";
 }
+} // namespace
 
 String ImapConnect::sendCommand(const String& cmd)
 {
     String command(cmd);
     array<char, 10> id_str {};
-    int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
+    const int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
     String ident(id_str.data(), (size_t) len);
     command = ident + cmd + "\n";
     if (!active())
@@ -111,12 +113,15 @@ void ImapConnect::command(const String& cmd, const String& arg1, const String& a
     {
         command += " " + quotes(arg1);
     }
+
     if (!arg2.empty() || &arg2 == &empty_quotes)
     {
         command += " " + quotes(arg2);
     }
+
     m_response.clear();
-    String ident = sendCommand(command);
+
+    const String ident = sendCommand(command);
     getResponse(ident);
 }
 
@@ -133,8 +138,8 @@ void ImapConnect::cmd_login(const String& user, const String& password)
 
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
-    String ident = sendCommand(cmd);
+    const String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
+    const String ident = sendCommand(cmd);
     getResponse(ident);
     write(message.data(), message.bytes());
     write((const uint8_t*) "\n", 1);
@@ -148,7 +153,7 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
     {
         if (st[0] == '*')
         {
-            size_t p = st.find("EXISTS");
+            const size_t p = st.find("EXISTS");
             if (p != STRING_NPOS)
             {
                 total_msgs = string2int(st.substr(2, p - 2));
@@ -192,26 +197,27 @@ static const Strings required_headers {
     "Reply-To",
     "Return-Path"};
 
-static void parse_header(const String& header, String& header_name, String& header_value)
+namespace {
+void parse_header(const String& header, String& header_name, String& header_value)
 {
     if (header[0] == ' ')
     {
         return;
     }
 
-    size_t p = header.find(' ');
-    if (p == STRING_NPOS)
+    const size_t position = header.find(' ');
+    if (position == STRING_NPOS)
     {
         return;
     }
-    if (header[p - 1] == ':')
+    if (header[position - 1] == ':')
     {
-        header_name = lowerCase(header.substr(0, p - 1));
-        header_value = header.substr(p + 1, header.length());
+        header_name = lowerCase(header.substr(0, position - 1));
+        header_value = header.substr(position + 1, header.length());
     }
 }
 
-static DateTime decodeDate(const String& dt)
+DateTime decodeDate(const String& dt)
 {
     array<char, 40> temp {};
     snprintf(temp.data(), sizeof(temp), "%s", dt.c_str() + 5);
@@ -224,7 +230,8 @@ static DateTime decodeDate(const String& dt)
         return DateTime();
     }
     *p2 = 0;
-    int mday = string2int(p1);
+
+    const int mday = string2int(p1);
 
     // 2. get the month
     p1 = p2 + 1;
@@ -282,17 +289,18 @@ static DateTime decodeDate(const String& dt)
     p1 += 4;
     p2 = p1 + 4;
     *p2 = 0;
-    int year = string2int(p1);
+    const int year = string2int(p1);
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
     if (p2 != nullptr)
     {
         *p2 = 0;
     }
-    DateTime time(p1);
-    DateTime date((short) year, (short) month, (short) mday);
+    const DateTime time(p1);
+    const DateTime date((short) year, (short) month, (short) mday);
     return date + time.timePoint().time_since_epoch();
 }
+} // namespace
 
 void ImapConnect::parseMessage(FieldList& results, bool headers_only)
 {
@@ -386,20 +394,24 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
 {
     String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
-    if (size_t count = m_response.size() - 1; count > 0)
+    if (const size_t count = m_response.size() - 1;
+        count > 0)
     {
-        size_t i = 0;
-        const String& st = m_response[i];
+        const String& st = m_response[0];
         const char* fpos = strstr(st.c_str(), "(\\");
+
         if (fpos == nullptr)
         {
             return "";
         }
+
         String flags(fpos + 1);
-        if (size_t pos = flags.find("))"); pos != STRING_NPOS)
+        if (const size_t pos = flags.find("))");
+            pos != STRING_NPOS)
         {
             flags[pos] = 0;
         }
+
         return flags;
     }
     return result;
@@ -410,7 +422,8 @@ void ImapConnect::cmd_store_flags(int32_t msg_id, const char* flags)
     command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
 }
 
-static String strip_framing_quotes(const String& st)
+namespace {
+String strip_framing_quotes(const String& st)
 {
     if (st[0] == '\"')
     {
@@ -418,11 +431,12 @@ static String strip_framing_quotes(const String& st)
     }
     return st;
 }
+} // namespace
 
 void ImapConnect::parseFolderList()
 {
+    const String prefix = "* LIST ";
     Strings folder_names;
-    String prefix = "* LIST ";
     for (const auto& st: m_response)
     {
         if (st.find(prefix) == 0)

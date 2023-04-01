@@ -26,6 +26,7 @@
 
 #include "sptk5/ArchiveFile.h"
 #include <chrono>
+#include <utility>
 
 #ifndef _WIN32
 
@@ -51,7 +52,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
 {
     auto relativeFileName = relativePath(fileName, baseDirectory);
 
-    filesystem::path path(fileName.c_str());
+    const filesystem::path path(fileName.c_str());
     auto status = filesystem::status(path);
 
     if (filesystem::is_symlink(path))
@@ -74,8 +75,8 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
 
     m_mode = (int) status.permissions();
 
-    filesystem::file_time_type ftime = filesystem::last_write_time(path);
-    time_t mtime = to_time_t(ftime);
+    const filesystem::file_time_type ftime = filesystem::last_write_time(path);
+    const time_t mtime = to_time_t(ftime);
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
@@ -87,7 +88,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     Buffer buff(bufferSize);
     struct passwd pw {
     };
-    if (struct passwd * pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -98,7 +99,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
 
     struct group gr {
     };
-    if (struct group * gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }
@@ -135,14 +136,14 @@ filesystem::path ArchiveFile::relativePath(const filesystem::path& fileName, con
     return relativePath;
 }
 
-ArchiveFile::ArchiveFile(const filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
-                         ArchiveFile::Type type, const sptk::ArchiveFile::Ownership& ownership,
+ArchiveFile::ArchiveFile(const filesystem::path& fileName, const Buffer& content, int mode, DateTime mtime,
+                         ArchiveFile::Type type, ArchiveFile::Ownership ownership,
                          const filesystem::path& linkName)
     : Buffer(content)
     , m_fileName(fileName.string())
     , m_mode(mode)
-    , m_ownership(ownership)
-    , m_mtime(mtime)
+    , m_ownership(std::move(ownership))
+    , m_mtime(std::move(mtime))
     , m_type(type)
     , m_linkname(linkName.string())
 {

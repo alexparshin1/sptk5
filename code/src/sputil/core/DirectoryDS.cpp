@@ -126,13 +126,15 @@ void DirectoryDS::directory(const String& dirName)
     m_directory = absolutePath(dirName);
 }
 
-static bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
+namespace {
+bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
     return ranges::any_of(matchPatterns,
                           [&fileName](const auto& matchPattern) {
                               return matchPattern->matches(fileName);
                           });
 }
+} // namespace
 
 bool DirectoryDS::open()
 {

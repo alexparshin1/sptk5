@@ -26,11 +26,13 @@
 
 #include <sptk5/threads/Runable.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-Runable::Runable(const String& name)
-    : m_name(name)
+Runable::Runable(String name)
+    : m_name(std::move(name))
 {
 }
 
@@ -47,12 +49,10 @@ void Runable::terminate()
 
 bool Runable::terminated() const
 {
-    scoped_lock lock(m_dataMutex);
     return m_terminated;
 }
 
 void Runable::setTerminated(bool terminated)
 {
-    scoped_lock lock(m_dataMutex);
     m_terminated = terminated;
 }

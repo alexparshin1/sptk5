@@ -30,7 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-static bool nextToken(const String& url, size_t& start, size_t end, const String& delimiter, String& value)
+namespace {
+bool nextToken(const String& url, size_t& start, size_t end, const String& delimiter, String& value)
 {
     value = "";
     end = url.find(delimiter, start);
@@ -42,11 +43,12 @@ static bool nextToken(const String& url, size_t& start, size_t end, const String
     }
     return false;
 }
+} // namespace
 
 URL::URL(const String& url)
 {
     size_t start = 0;
-    size_t end = 0;
+    const size_t end = 0;
     nextToken(url, start, end, "://", m_protocol);
 
     String credentials;

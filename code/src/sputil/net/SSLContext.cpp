@@ -38,8 +38,8 @@ int SSLContext::s_server_session_id_context = 1;
 
 void SSLContext::throwError(const String& humanDescription)
 {
-    unsigned long error = ERR_get_error();
-    string errorStr = ERR_error_string(error, nullptr) + string("(): ") + ERR_reason_error_string(error);
+    const unsigned long error = ERR_get_error();
+    const string errorStr = ERR_error_string(error, nullptr) + string("(): ") + ERR_reason_error_string(error);
     throwException<Exception>(humanDescription + "\n" + errorStr);
 }
 

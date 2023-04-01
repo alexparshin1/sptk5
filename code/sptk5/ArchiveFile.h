@@ -107,8 +107,8 @@ public:
      * @param ownership         File owners
      * @param linkName          Name the link is pointing to
      */
-    ArchiveFile(const std::filesystem::path& fileName, const Buffer& content, int mode, const DateTime& mtime,
-                ArchiveFile::Type type, const Ownership& ownership, const std::filesystem::path& linkName);
+    ArchiveFile(const std::filesystem::path& fileName, const Buffer& content, int mode, DateTime mtime,
+                ArchiveFile::Type type, Ownership ownership, const std::filesystem::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE

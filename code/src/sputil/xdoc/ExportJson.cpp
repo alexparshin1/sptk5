@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <iosfwd>
 #include <sptk5/String.h>
 #include <sptk5/cutils>
 #include <sptk5/xdoc/ExportJSON.h>
@@ -33,7 +32,8 @@ using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
 
-static String jsonEscape(const String& text)
+namespace {
+String jsonEscape(const String& text)
 {
     String result;
 
@@ -86,6 +86,7 @@ static String jsonEscape(const String& text)
 
     return result;
 }
+} // namespace
 
 void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool formatted,
                                    size_t indent)

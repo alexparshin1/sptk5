@@ -51,7 +51,7 @@ SocketType HttpProxy::connect(const Host& destination, bool blockingMode, std::c
             socket->open(m_host, Socket::OpenMode::CONNECT, blockingMode, timeout);
             sendRequest(destination, socket, method);
 
-            String error("Proxy connection timeout");
+            const String error("Proxy connection timeout");
 
             if (constexpr seconds readTimeout(10);
                 socket->readyToRead(readTimeout))
@@ -70,7 +70,7 @@ SocketType HttpProxy::connect(const Host& destination, bool blockingMode, std::c
         }
     }
 
-    SocketType handle = socket->detach();
+    const SocketType handle = socket->detach();
     socket.reset();
 
     return handle;
@@ -84,11 +84,11 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     Buffer buffer;
     socketReader.readLine(buffer);
 
-    RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
+    const RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
         constexpr int minimalHttpError = 400;
-        int rc = responseMatches[0].value.toInt();
+        const int rc = responseMatches[0].value.toInt();
         if (rc < minimalHttpError)
         {
             proxyConnected = true;
@@ -96,7 +96,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     }
 
     // Read all headers
-    RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
+    const RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
     int contentLength = -1;
     while (buffer.bytes() > 1)
     {
@@ -140,7 +140,7 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
     socket->write("User-agent: SPTK\r\n");
     if (!m_username.empty())
     {
-        Buffer usernameAndPassword(m_username + ":" + m_password);
+        const Buffer usernameAndPassword(m_username + ":" + m_password);
         Buffer encodedUsernameAndPassword;
         Base64::encode(encodedUsernameAndPassword, (const uint8_t*) usernameAndPassword.c_str(),
                        usernameAndPassword.bytes());
@@ -216,7 +216,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 #ifdef _WIN32
     return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
-    RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
+    const RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
     const char* proxyEnv = getenv("http_proxy");
     if (proxyEnv == nullptr)
     {

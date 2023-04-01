@@ -59,12 +59,12 @@ bool CommandLine::Visibility::matches(const String& command) const
 }
 //=============================================================================
 
-CommandLine::CommandLineElement::CommandLineElement(String name, const String& shortName, String help,
-                                                    const Visibility& useWithCommands)
+CommandLine::CommandLineElement::CommandLineElement(String name, String shortName, String help,
+                                                    Visibility useWithCommands)
     : m_name(std::move(name))
-    , m_shortName(shortName)
+    , m_shortName(std::move(shortName))
     , m_help(std::move(help))
-    , m_useWithCommands(useWithCommands)
+    , m_useWithCommands(std::move(useWithCommands))
 {
     if (m_name.empty())
     {
@@ -278,9 +278,9 @@ CommandLine::CommandLineElement::Type CommandLine::CommandLineParameter::type() 
 }
 //=============================================================================
 
-CommandLine::CommandLine(const String& programVersion, const String& description, String commandLinePrototype)
-    : m_programVersion(programVersion)
-    , m_description(description)
+CommandLine::CommandLine(String programVersion, String description, String commandLinePrototype)
+    : m_programVersion(std::move(programVersion))
+    , m_description(std::move(description))
     , m_commandLinePrototype(std::move(commandLinePrototype))
 {
 }
