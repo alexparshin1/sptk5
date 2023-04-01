@@ -245,20 +245,9 @@ size_t readAllPackets(T& reader, size_t readSize)
     size_t packetCount = 0;
     for (; packetCount < packetsInTest; ++packetCount)
     {
-        auto result = reader.read(readBuffer->data(), 1);
-        if (result == 0)
-        {
-            break;
-        }
-
-        result = reader.read(readBuffer->data(), 3);
-        if (result == 0)
-        {
-            break;
-        }
-
-        result = reader.read(readBuffer->data(), readSize - 4);
-        if (result == 0)
+        if (reader.read(readBuffer->data(), 1) == 0 ||
+            reader.read(readBuffer->data(), 3) == 0 ||
+            reader.read(readBuffer->data(), readSize - 4) == 0)
         {
             break;
         }
@@ -271,7 +260,7 @@ size_t readAllPackets(T& reader, size_t readSize)
 
 static void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
 {
-    COUT(testLabel << " Reader Received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
+    COUT(testLabel << " received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
                    << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl
                    << endl);
 }
@@ -357,7 +346,7 @@ TEST(SPTK_TCPServer, tcpReaderTransferPerformance)
 {
     try
     {
-        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCP");
+        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCPReader");
     }
     catch (const Exception& e)
     {
@@ -369,7 +358,7 @@ TEST(SPTK_TCPServer, sslReaderTransferPerformance)
 {
     try
     {
-        testReaderTransferPerformance(ServerConnection::Type::TCP, "TCP");
+        testReaderTransferPerformance(ServerConnection::Type::SSL, "SSLReader");
     }
     catch (const Exception& e)
     {
