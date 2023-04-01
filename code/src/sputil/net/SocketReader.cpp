@@ -76,7 +76,7 @@ void SocketReader::handleReadFromSocketError(int error)
 int32_t SocketReader::readFromSocket()
 {
     m_readOffset = 0;
-    int error {0};
+    int error;
     do
     {
         error = 0;
@@ -140,7 +140,7 @@ int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delim
         }
     }
 
-    char* readPosition = (char*) data() + m_readOffset;
+    char* readPosition = bit_cast<char*>(data()) + m_readOffset;
     if (availableBytes < bytesToRead)
     {
         bytesToRead = availableBytes;

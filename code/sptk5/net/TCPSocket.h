@@ -150,9 +150,8 @@ protected:
 
 private:
     std::shared_ptr<Proxy> m_proxy; ///< Optional proxy
-    Buffer m_stringBuffer;          ///< Buffer to read a line
 
-    void handleReadFromSocketError(int error);
+    void handleReadFromSocketErrorUnlocked(int error);
 };
 
 using STCPSocket = std::shared_ptr<TCPSocket>;

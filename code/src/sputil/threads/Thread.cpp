@@ -33,8 +33,9 @@
 using namespace std;
 using namespace sptk;
 
-Thread::Thread(String name)
+Thread::Thread(String name, vector<int> ignoreSignals)
     : m_name(std::move(name))
+    , m_ignoreSignals(std::move(ignoreSignals))
 {
 }
 
@@ -78,6 +79,12 @@ void Thread::run()
     const scoped_lock lock(m_mutex);
     m_thread = make_shared<jthread>(
         [this]() {
+            // Ignore signals
+            for (const auto sig: m_ignoreSignals)
+            {
+                signal(sig, SIG_IGN);
+            }
+
             try
             {
                 m_terminated = false;

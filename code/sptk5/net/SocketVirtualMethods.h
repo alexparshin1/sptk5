@@ -36,6 +36,7 @@
 #ifndef _WIN32
 
 #include <arpa/inet.h>
+#include <atomic>
 #include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -319,12 +320,12 @@ protected:
     }
 
 private:
-    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    int32_t m_domain;                       ///< Socket domain type
-    int32_t m_type;                         ///< Socket type
-    int32_t m_protocol;                     ///< Socket protocol
-    Host m_host;                            ///< Host
-    bool m_blockingMode {false};            ///< Blocking mode flag
+    std::atomic<SocketType> m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    std::atomic<int32_t> m_domain;                       ///< Socket domain type
+    std::atomic<int32_t> m_type;                         ///< Socket type
+    std::atomic<int32_t> m_protocol;                     ///< Socket protocol
+    Host m_host;                                         ///< Host
+    std::atomic<bool> m_blockingMode {false};            ///< Blocking mode flag
 };
 
 /**

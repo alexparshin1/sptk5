@@ -24,8 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdio>
-#include <cstdlib>
 #include <sptk5/cutils>
 #include <sptk5/net/TCPSocket.h>
 #include <thread>
@@ -38,11 +36,11 @@ static int m_socketCount;
 static bool m_inited(false);
 #endif
 
-void TCPSocket::handleReadFromSocketError(int error)
+void TCPSocket::handleReadFromSocketErrorUnlocked(int error)
 {
     if (error == EAGAIN)
     {
-        if (!readyToRead(chrono::seconds(1)))
+        if (!readyToReadUnlocked(chrono::seconds(1)))
         {
             throw TimeoutException("Can't read from socket: timeout");
         }
@@ -141,12 +139,12 @@ size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
         if (receivedBytes == -1)
         {
             receivedBytes = 0;
-            if (!active())
+            if (!activeUnlocked())
             {
                 break;
             }
             error = errno;
-            handleReadFromSocketError(error);
+            handleReadFromSocketErrorUnlocked(error);
         }
     } while (error == EAGAIN);
 

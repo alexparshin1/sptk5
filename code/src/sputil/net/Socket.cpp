@@ -70,8 +70,6 @@ Socket::~Socket()
 
 size_t Socket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 {
-    const std::scoped_lock lock(m_socketMutex);
-
     buffer.checkSize(size);
     const size_t bytes = readUnlocked(buffer.data(), size, from);
     buffer.bytes(bytes);
@@ -81,10 +79,8 @@ size_t Socket::read(Buffer& buffer, size_t size, sockaddr_in* from)
 
 size_t Socket::read(String& buffer, size_t size, sockaddr_in* from)
 {
-    const std::scoped_lock lock(m_socketMutex);
-
     buffer.resize(size);
-    const size_t bytes = readUnlocked((uint8_t*) buffer.data(), size, from);
+    const size_t bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
     buffer.resize(bytes);
 
     return bytes;
@@ -97,5 +93,5 @@ size_t Socket::write(const Buffer& buffer, const sockaddr_in* peer)
 
 size_t Socket::write(const String& buffer, const sockaddr_in* peer)
 {
-    return write((const uint8_t*) buffer.c_str(), buffer.length(), peer);
+    return write(bit_cast<const uint8_t*>(buffer.c_str()), buffer.length(), peer);
 }

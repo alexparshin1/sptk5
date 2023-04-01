@@ -28,6 +28,7 @@
 
 #include "Semaphore.h"
 #include <atomic>
+#include <csignal>
 #include <mutex>
 #include <thread>
 
@@ -55,12 +56,13 @@ public:
      */
     using Id = std::thread::id;
 
-
     /**
      * Constructor
      * @param name              Name of the thread for future references.
+     * @param ignoreSignals     List of signals to ignore
      */
-    explicit Thread(String name);
+    explicit Thread(String name,
+                    std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT, SIGINT});
 
     /**
      * Destructor
@@ -129,6 +131,7 @@ private:
     std::shared_ptr<std::jthread> m_thread;   ///< Thread object
     ThreadManager* m_threadManager {nullptr}; ///< Optional thread manager
     std::atomic_bool m_terminated {false};    ///< If true then terminate() was called
+    std::vector<int> m_ignoreSignals;         ///< List of signals that should be ignored in the thread
 };
 
 /**

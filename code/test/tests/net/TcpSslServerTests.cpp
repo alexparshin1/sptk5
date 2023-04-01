@@ -54,6 +54,7 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
                 {
                     return;
                 }
+
                 string str(data.c_str());
                 str += "\n";
                 socket.write(str);
@@ -138,6 +139,8 @@ TEST(SPTK_TCPServer, tcpMinimal)
                            "Using simple echo server to verify data flow.\n"
                            "The session is terminated when this row is received",
                            "\n");
+
+        this_thread::sleep_for(chrono::milliseconds(5));
 
         int rowCount = 0;
         for (const auto& row: rows)

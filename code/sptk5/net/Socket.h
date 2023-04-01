@@ -49,7 +49,6 @@ public:
      */
     SocketType fd() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getSocketFdUnlocked();
     }
 
@@ -72,7 +71,6 @@ public:
      */
     void blockingMode(bool blockingMode)
     {
-        const std::scoped_lock lock(m_socketMutex);
         setBlockingModeUnlocked(blockingMode);
     }
 
@@ -81,7 +79,6 @@ public:
      */
     [[nodiscard]] size_t socketBytes() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getSocketBytesUnlocked();
     }
 
@@ -91,7 +88,6 @@ public:
      */
     void attach(SocketType socketHandle, bool accept)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return attachUnlocked(socketHandle, accept);
     }
 
@@ -102,7 +98,6 @@ public:
      */
     SocketType detach()
     {
-        const std::scoped_lock lock(m_socketMutex);
         return detachUnlocked();
     }
 
@@ -112,7 +107,7 @@ public:
      */
     void host(const Host& host)
     {
-        const std::scoped_lock lock(m_socketMutex);
+        const std::scoped_lock lock(m_mutex);
         setHostUnlocked(host);
     }
 
@@ -121,7 +116,7 @@ public:
      */
     [[nodiscard]] const Host& host() const
     {
-        const std::scoped_lock lock(m_socketMutex);
+        const std::scoped_lock lock(m_mutex);
         return getHostUnlocked();
     }
 
@@ -135,7 +130,6 @@ public:
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        const std::scoped_lock lock(m_socketMutex);
         openUnlocked(host, openMode, blockingMode, timeoutMS);
     }
 
@@ -149,7 +143,6 @@ public:
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
     {
-        const std::scoped_lock lock(m_socketMutex);
         openUnlocked(address, openMode, blockingMode, timeoutMS);
     }
 
@@ -160,7 +153,6 @@ public:
      */
     void bind(const char* address, uint32_t portNumber)
     {
-        const std::scoped_lock lock(m_socketMutex);
         bindUnlocked(address, portNumber);
     }
 
@@ -170,7 +162,7 @@ public:
      */
     void listen(uint16_t portNumber = 0)
     {
-        const std::scoped_lock lock(m_socketMutex);
+        const std::scoped_lock lock(m_mutex);
         listenUnlocked(portNumber);
     }
 
@@ -179,7 +171,6 @@ public:
      */
     void close()
     {
-        const std::scoped_lock lock(m_socketMutex);
         closeUnlocked();
     }
 
@@ -189,7 +180,6 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return activeUnlocked();
     }
 
@@ -199,7 +189,6 @@ public:
      */
     void setOption(int level, int option, int value) const
     {
-        const std::scoped_lock lock(m_socketMutex);
         setOptionUnlocked(level, option, value);
     }
 
@@ -210,7 +199,6 @@ public:
      */
     void getOption(int level, int option, int& value) const
     {
-        const std::scoped_lock lock(m_socketMutex);
         getOptionUnlocked(level, option, value);
     }
 
@@ -223,7 +211,6 @@ public:
      */
     [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return readUnlocked(buffer, size, from);
     }
 
@@ -252,7 +239,6 @@ public:
     template<typename T>
     size_t read(T& value, sockaddr_in* from = nullptr)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return readUnlocked((uint8_t*) &value, sizeof(T), from);
     }
 
@@ -267,7 +253,6 @@ public:
      */
     size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer = nullptr)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return writeUnlocked(buffer, size, peer);
     }
 
@@ -293,7 +278,6 @@ public:
      */
     [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return readyToReadUnlocked(timeout);
     }
 
@@ -303,17 +287,15 @@ public:
      */
     [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout)
     {
-        const std::scoped_lock lock(m_socketMutex);
         return readyToWriteUnlocked(timeout);
     }
 
     /**
-     * @brief Return current blocking mode state
+     * Return current blocking mode state
      * @return Current blocking mode state
      */
     [[nodiscard]] bool blockingMode() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getBlockingModeUnlocked();
     }
 
@@ -323,7 +305,6 @@ protected:
      */
     [[nodiscard]] int32_t domain() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getDomainUnlocked();
     }
 
@@ -332,7 +313,6 @@ protected:
      */
     [[nodiscard]] int32_t type() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getTypeUnlocked();
     }
 
@@ -341,7 +321,6 @@ protected:
      */
     [[nodiscard]] int32_t protocol() const
     {
-        const std::scoped_lock lock(m_socketMutex);
         return getProtocolUnlocked();
     }
 
@@ -358,7 +337,7 @@ protected:
 #endif
 
 private:
-    mutable std::mutex m_socketMutex; ///< Mutex that protects socket data
+    mutable std::mutex m_mutex; ///< Mutex that protects host data
 };
 
 /**

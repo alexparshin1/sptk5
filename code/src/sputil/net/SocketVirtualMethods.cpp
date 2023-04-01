@@ -144,25 +144,32 @@ void SocketVirtualMethods::closeUnlocked()
 
 void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 {
+    const String errorMessage("Can't set socket blockingMode mode");
 #ifdef _WIN32
     u_long arg = blockingMode ? 0 : 1;
-    const int result = ioctlsocket(m_socketFd, FIONBIO, &arg);
+    if (const int result = ioctlsocket(m_socketFd, FIONBIO, &arg);
+        result != 0)
+    {
+        throwSocketError(errorMessage);
+    }
 #else
     int flags = fcntl(m_socketFd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
     {
         flags -= O_NONBLOCK;
     }
+
     if (!blockingMode)
     {
         flags |= O_NONBLOCK;
     }
-    const int result = fcntl(m_socketFd, F_SETFL, flags);
-#endif
-    if (result != 0)
+    
+    if (const int result = fcntl(m_socketFd, F_SETFL, flags);
+        result != 0)
     {
-        throwSocketError("Can't set socket blockingMode mode");
+        throwSocketError(errorMessage);
     }
+#endif
 
     m_blockingMode = blockingMode;
 }
@@ -364,16 +371,16 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
+    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
 #else
-    auto result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, MSG_DONTWAIT);
+    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_DONTWAIT);
 #endif
     if (result == -1)
     {
         constexpr chrono::seconds timeout(30);
         if (readyToReadUnlocked(timeout))
         {
-            result = ::recv(m_socketFd, (char*) buffer, (int32_t) len, 0);
+            result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
         }
     }
     return (size_t) result;
@@ -385,11 +392,11 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_socketFd, (char*) buffer, (int32_t) size, 0, (sockaddr*) from, &fromLength);
+        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0, bit_cast<sockaddr*>(from), &fromLength);
     }
     else
     {
-        bytes = (int) ::recv(m_socketFd, (char*) buffer, (int32_t) size, 0);
+        bytes = (int) ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0);
     }
 
     if (bytes == -1)
@@ -400,7 +407,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
 
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
-    auto res = ::send(m_socketFd, (const char*) buffer, (int32_t) len, 0);
+    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
     return res;
 }
 
@@ -410,7 +417,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
 
     if ((int) size == -1)
     {
-        size = strlen((const char*) buffer);
+        size = strlen(bit_cast<const char*>(buffer));
     }
 
     const size_t total = size;
@@ -420,7 +427,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         int bytes;
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_socketFd, (const char*) ptr, (int32_t) size, 0, (const sockaddr*) peer,
+            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, 0, bit_cast<const sockaddr*>(peer),
                                  sizeof(sockaddr_in));
         }
         else
