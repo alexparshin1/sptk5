@@ -31,10 +31,10 @@ using namespace std;
 using namespace sptk;
 
 namespace {
-bool nextToken(const String& url, size_t& start, size_t end, const String& delimiter, String& value)
+bool nextToken(const String& url, size_t& start, const String& delimiter, String& value)
 {
     value = "";
-    end = url.find(delimiter, start);
+    auto end = url.find(delimiter, start);
     if (end != string::npos)
     {
         value = url.substr(start, end - start);
@@ -48,11 +48,10 @@ bool nextToken(const String& url, size_t& start, size_t end, const String& delim
 URL::URL(const String& url)
 {
     size_t start = 0;
-    const size_t end = 0;
-    nextToken(url, start, end, "://", m_protocol);
+    nextToken(url, start, "://", m_protocol);
 
     String credentials;
-    nextToken(url, start, end, "@", credentials);
+    nextToken(url, start, "@", credentials);
     if (!credentials.empty())
     {
         auto pos = credentials.find(":");
@@ -68,14 +67,14 @@ URL::URL(const String& url)
     }
 
     Buffer buffer;
-    if (!nextToken(url, start, end, "/", m_hostAndPort))
+    if (!nextToken(url, start, "/", m_hostAndPort))
     {
         m_hostAndPort = url.substr(start);
     }
     else
     {
         --start;
-        if (nextToken(url, start, end, "?", m_path))
+        if (nextToken(url, start, "?", m_path))
         {
             buffer.set(url.substr(start));
             m_params.decode(buffer);
