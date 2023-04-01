@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "TestSettings.h"
 #include <sptk5/RegularExpression.h>
 #include <sptk5/test/TestRunner.h>
 
@@ -41,6 +42,10 @@ void atesting()
 int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
+
+    filesystem::path executablePath(argv[0]);
+    auto settingsPath = executablePath.replace_filename("settings.txt");
+    TestSettings testSettings(settingsPath);
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
