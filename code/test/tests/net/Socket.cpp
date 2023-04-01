@@ -31,7 +31,7 @@
 
 using namespace sptk;
 
-TEST(SPTK_BaseSocket, minimal)
+TEST(SPTK_Socket, minimal)
 {
     constexpr uint16_t sslPort {443};
     const Host yahoo("www.yahoo.com", sslPort);
@@ -43,7 +43,7 @@ TEST(SPTK_BaseSocket, minimal)
     socket.close();
 }
 
-TEST(SPTK_BaseSocket, option)
+TEST(SPTK_Socket, option)
 {
     constexpr uint16_t sslPort {443};
     const Host yahoo("www.yahoo.com", sslPort);

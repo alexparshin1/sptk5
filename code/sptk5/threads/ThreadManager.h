@@ -48,7 +48,7 @@ public:
     /**
      * @brief Destructor
      */
-    ~ThreadManager();
+    ~ThreadManager() override;
 
     /**
      * @brief Start thread manager monitoring of the threads
@@ -70,7 +70,7 @@ public:
      * @brief Destroy thread if it was monitored
      * @param thread            Thread
      */
-    void destroyThread(Thread* thread);
+    void destroyThread(const Thread* thread);
 
     /**
      * @return Count of currently running monitored threads

@@ -119,7 +119,7 @@ void ThreadManager::manage(const SThread& thread)
     }
 }
 
-void ThreadManager::destroyThread(Thread* thread)
+void ThreadManager::destroyThread(const Thread* thread)
 {
     if (thread && thread->running())
     {

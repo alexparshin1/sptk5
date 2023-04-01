@@ -85,7 +85,11 @@ void TimerThread::wakeUp()
 void TimerThread::schedule(const STimerEvent& event)
 {
     const scoped_lock lock(m_scheduledMutex);
+#ifndef _WIN32
+    const auto ticks = event->when().timePoint().time_since_epoch().count();
+#else
     const auto ticks = (long) event->when().timePoint().time_since_epoch().count();
+#endif
     const auto itor = m_scheduledEvents.emplace(ticks, event);
     if (itor == m_scheduledEvents.begin())
     {

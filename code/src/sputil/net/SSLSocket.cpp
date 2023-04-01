@@ -37,6 +37,12 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
+#ifndef _WIN32
+#define SOCKET_CAST
+#else
+#define SOCKET_CAST (int)
+#endif
+
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
@@ -243,7 +249,7 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
     const DateTime started = DateTime::Now();
     const DateTime timeoutAt(started + timeout);
 
-    SSL_set_fd(m_ssl, (int) getSocketFdUnlocked());
+    SSL_set_fd(m_ssl, SOCKET_CAST getSocketFdUnlocked());
 
     if (timeout == chrono::milliseconds(0))
     {
@@ -279,7 +285,7 @@ void SSLSocket::attachUnlocked(SocketType socketHandle, bool accept)
     {
         TCPSocket::attachUnlocked(socketHandle, false);
 
-        if (const auto result = SSL_set_fd(m_ssl, (int) socketHandle);
+        if (const auto result = SSL_set_fd(m_ssl, SOCKET_CAST socketHandle);
             result <= 0)
         {
             const auto errorCode = SSL_get_error(m_ssl, result);
