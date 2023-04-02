@@ -195,7 +195,7 @@ protected:
      * Stub function to throw an exception in case if the
      * called method isn't implemented in the derived class
      */
-    [[noreturn]] void notImplemented(const String& methodName) const;
+    [[noreturn]] static void notImplemented(const String& methodName);
 
     /**
      * Attaches (links) query to the database

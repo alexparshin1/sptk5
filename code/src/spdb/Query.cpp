@@ -236,7 +236,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
 
 void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
 {
-    string paramName(paramStart + 1, paramEnd - paramStart - 1);
+    const string paramName(paramStart + 1, paramEnd - paramStart - 1);
     auto param = m_params.find(paramName.c_str());
     if (!param)
     {
@@ -255,7 +255,7 @@ void Query::sql(const String& _sql)
         throw DatabaseException("Query isn't connected to the database");
     }
 
-    String sql = parseParameters(_sql);
+    const String sql = parseParameters(_sql);
 
     for (int i = (int) m_params.size() - 1; i >= 0; --i)
     {
@@ -384,7 +384,7 @@ bool Query::writeField(const char*, const Variant&)
 
 void Query::throwError(const String& method, const String& error)
 {
-    String errorText("Exception in " + method + ": " + error);
+    const String errorText("Exception in " + method + ": " + error);
     throw DatabaseException(errorText);
 }
 

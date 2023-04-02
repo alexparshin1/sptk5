@@ -31,10 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-[[noreturn]] static void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
+namespace {
+[[noreturn]] void throwMySQLException(const shared_ptr<MYSQL>& connection, const String& info)
 {
     throw DatabaseException(String(info) + ":" + String(mysql_error(connection.get())));
 }
+} // namespace
 
 MySQLConnection::MySQLConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
@@ -463,12 +465,12 @@ String MySQLConnection::paramMark(unsigned)
     return "?";
 }
 
-void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+void MySQLConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void MySQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+void MySQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 {
     notImplemented("queryColAttributes");
 }

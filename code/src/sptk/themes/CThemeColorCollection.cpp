@@ -78,7 +78,7 @@ static void splitArguments(const String& expression, Strings& arguments)
     int subExpressionLevel = 0;
 
     const char* ptr1 = expression.c_str();
-    const char* ptr2 = nullptr;
+    const char* ptr2;
     while ((ptr2 = strpbrk(ptr1, "(,")))
     {
         if (*ptr2 == '(')

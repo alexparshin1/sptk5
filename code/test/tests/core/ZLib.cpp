@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "zlib.h"
 #include <sptk5/Exception.h>
 #include <sptk5/ZLib.h>
 

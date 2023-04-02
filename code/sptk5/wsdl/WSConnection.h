@@ -78,7 +78,7 @@ public:
      * @param logEngine         Logger engine
      * @param options           Connection options
      */
-    WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, const Options& options);
+    WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options);
 
     /**
      * Destructor

@@ -55,7 +55,7 @@ TEST(SPTK_MD5, md5)
 TEST(SPTK_MD5, performance)
 {
     StopWatch stopWatch;
-    size_t iterations = 200000;
+    const size_t iterations = 200000;
 
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)

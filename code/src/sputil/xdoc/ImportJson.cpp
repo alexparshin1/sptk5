@@ -66,17 +66,21 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
         {
             contextStart = json;
         }
-        size_t pretextLen = json + position - contextStart;
+
+        const size_t pretextLen = json + position - contextStart;
         error << " in context: '.." << String(contextStart, pretextLen) << ">" << json[position] << "<";
         size_t afterTextLength = ERROR_CONTEXT_CHARS / 2;
+
         if (int(position) + afterTextLength > jsonLength)
         {
             afterTextLength = jsonLength - position;
         }
+
         if (afterTextLength > 0)
         {
             error << String(json + position + 1, afterTextLength);
         }
+
         error << "'";
     }
     else if ((int) position < 0)
@@ -86,7 +90,8 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     throw Exception(error.str());
 }
 
-[[noreturn]] static void throwUnexpectedCharacterError(char character, char expected, const char* json, size_t position)
+namespace {
+[[noreturn]] void throwUnexpectedCharacterError(char character, char expected, const char* json, size_t position)
 {
     stringstream msg;
     msg << "Unexpected character '" << character << "'";
@@ -96,6 +101,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
     }
     throwError(msg.str(), json, position);
 }
+} // namespace
 
 void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
 {
@@ -147,16 +153,18 @@ String readJsonString(const char* json, const char*& readPosition)
     const char* pos = readPosition + 1;
     while (true)
     {
-        pos = strpbrk(pos, "\\\"");
+        pos = strpbrk(pos, R"(\")");
         if (pos == nullptr)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
         }
-        char character = *pos;
+
+        const char character = *pos;
         if (character == '"')
         {
             break;
         }
+
         if (character == '\\')
         {
             ++pos;
@@ -192,7 +200,7 @@ double readJsonNumber(const char* json, const char*& readPosition)
 {
     char* pos = nullptr;
     errno = 0;
-    double value = strtod(readPosition, &pos);
+    const double value = strtod(readPosition, &pos);
     if (errno != 0)
     {
         throwError("Invalid value", json, readPosition - json);
@@ -336,9 +344,9 @@ void readObjectData(const SNode& parent, const char* json, const char*& readPosi
             continue;
         }
 
-        String elementName = readJsonName(json, readPosition);
+        const String elementName = readJsonName(json, readPosition);
 
-        bool elementIsAttributes = elementName == "attributes";
+        const bool elementIsAttributes = elementName == "attributes";
 
         char firstChar = *readPosition;
         if (isdigit(firstChar))
@@ -428,7 +436,8 @@ const char* readBoolean(const SNode& parent, const char* json, const char*& read
     return readPosition;
 }
 
-static String codePointToUTF8(unsigned codePoint)
+namespace {
+String codePointToUTF8(unsigned codePoint)
 {
     String result;
 
@@ -463,13 +472,14 @@ static String codePointToUTF8(unsigned codePoint)
 
     return result;
 }
+} // namespace
 
 String decode(const String& text)
 {
     String result;
-    size_t length = text.length();
+    const size_t length = text.length();
     size_t position = 0;
-    unsigned ucharCode = 0;
+    unsigned ucharCode;
 
     while (position < length)
     {

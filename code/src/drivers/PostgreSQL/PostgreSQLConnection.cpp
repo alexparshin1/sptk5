@@ -176,7 +176,8 @@ PostgreSQLConnection::~PostgreSQLConnection()
     }
 }
 
-static string csParam(const string& name, const string& value)
+namespace {
+inline string csParam(const string& name, const string& value)
 {
     if (!value.empty())
     {
@@ -184,6 +185,7 @@ static string csParam(const string& name, const string& value)
     }
     return "";
 }
+} // namespace
 
 String PostgreSQLConnection::nativeConnectionString() const
 {
@@ -261,8 +263,9 @@ bool PostgreSQLConnection::active() const
     return m_connect != nullptr;
 }
 
-static void checkError(const PGconn* conn, PGresult* res, const String& command,
-                       ExecStatusType expectedResult = PGRES_COMMAND_OK)
+namespace {
+void checkError(const PGconn* conn, PGresult* res, const String& command,
+                ExecStatusType expectedResult = PGRES_COMMAND_OK)
 {
     const auto statusCode = PQresultStatus(res);
     if (statusCode != expectedResult)
@@ -273,6 +276,7 @@ static void checkError(const PGconn* conn, PGresult* res, const String& command,
         throw DatabaseException(error);
     }
 }
+} // namespace
 
 void PostgreSQLConnection::driverBeginTransaction()
 {
@@ -660,47 +664,48 @@ void PostgreSQLConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-static inline bool readBool(const char* data)
+namespace {
+inline bool readBool(const char* data)
 {
     return *data != char(0);
 }
 
-static inline int16_t readInt2(const char* data)
+inline int16_t readInt2(const char* data)
 {
     return (int16_t) ntohs(*(const uint16_t*) data);
 }
 
-static inline int32_t readInt4(const char* data)
+inline int32_t readInt4(const char* data)
 {
     return (int32_t) ntohl(*(const uint32_t*) data);
 }
 
-static inline int64_t readInt8(const char* data)
+inline int64_t readInt8(const char* data)
 {
     return (int64_t) ntohq(*(const uint64_t*) data);
 }
 
-static inline float readFloat4(const char* data)
+inline float readFloat4(const char* data)
 {
     uint32_t value = ntohl(*(const uint32_t*) data);
     void* ptr = &value;
     return *(float*) ptr;
 }
 
-static inline double readFloat8(const char* data)
+inline double readFloat8(const char* data)
 {
     uint64_t value = ntohq(*(const uint64_t*) data);
     void* ptr = &value;
     return *(double*) ptr;
 }
 
-static inline DateTime readDate(const char* data)
+inline DateTime readDate(const char* data)
 {
     const auto dateTime = (int32_t) ntohl(*(const uint32_t*) data);
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
-static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
+inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
     uint64_t value = ntohq(*(const uint64_t*) data);
 
@@ -717,7 +722,7 @@ static inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
-static inline MoneyData readNumericToScaledInteger(const char* numeric)
+inline MoneyData readNumericToScaledInteger(const char* numeric)
 {
     auto ndigits = (int16_t) ntohs(*(const uint16_t*) numeric);
     auto weight = (int16_t) ntohs(*(const uint16_t*) (numeric + 2));
@@ -805,8 +810,7 @@ static inline MoneyData readNumericToScaledInteger(const char* numeric)
     return moneyData;
 }
 
-
-static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
+void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
 {
     struct PGArrayHeader {
         uint32_t dimensionNumber;
@@ -893,6 +897,7 @@ static void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::
     }
     field->setString(output.str());
 }
+} // namespace
 
 void PostgreSQLConnection::queryFetch(Query* query)
 {
@@ -1100,7 +1105,8 @@ String PostgreSQLConnection::paramMark(unsigned paramIndex)
     return {mark.data()};
 }
 
-static void appendTSV(Buffer& dest, const VariantVector& row)
+namespace {
+void appendTSV(Buffer& dest, const VariantVector& row)
 {
     bool firstValue = true;
     for (const auto& value: row)
@@ -1130,6 +1136,7 @@ static void appendTSV(Buffer& dest, const VariantVector& row)
     }
     dest.append(char('\n'));
 }
+} // namespace
 
 void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& columnNames,
                                       const vector<VariantVector>& data)
@@ -1199,7 +1206,6 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     static const RegularExpression matchCommentRow(R"(^\s*--)");
 
     Strings statements;
-    RegularExpression::Groups matches;
     String delimiter;
     stringstream statement;
 
@@ -1225,6 +1231,7 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 
         if (functionHeader && !functionBody && matchFunctionBodyStart.matches(row))
         {
+            auto matches = matchFunctionBodyStart.m(row);
             functionBody = true;
             functionHeader = false;
             delimiter = matches[0].value;
@@ -1256,12 +1263,12 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     return statements;
 }
 
-void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+void PostgreSQLConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void PostgreSQLConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+void PostgreSQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 {
     notImplemented("queryColAttributes");
 }

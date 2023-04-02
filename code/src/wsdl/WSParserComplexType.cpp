@@ -28,14 +28,15 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 #include <sptk5/wsdl/WSTypeTranslator.h>
+#include <utility>
 
 using namespace std;
 using namespace sptk;
 
 std::map<String, xdoc::SNode> WSParserComplexType::SimpleTypeElements;
 
-WSParserAttribute::WSParserAttribute(const String& name, const String& typeName)
-    : m_name(name)
+WSParserAttribute::WSParserAttribute(String name, const String& typeName)
+    : m_name(std::move(name))
     , m_wsTypeName(typeName)
 {
     m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
@@ -131,7 +132,8 @@ String WSParserComplexType::className() const
     {
         return cxxType;
     }
-    size_t pos = m_typeName.find(':');
+
+    const size_t pos = m_typeName.find(':');
     return "C" + m_typeName.substr(pos + 1);
 }
 
@@ -225,7 +227,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                                              const String& serviceNamespace) const
 {
     constexpr int fieldNameWidth = 40;
-    String className = "C" + wsClassName(m_name);
+    const String className = "C" + wsClassName(m_name);
 
     classDeclaration << "#pragma once" << endl;
     classDeclaration << endl;
@@ -234,7 +236,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
     printDeclarationIncludes(classDeclaration, usedClasses);
 
-    String tagName = makeTagName(className);
+    const String tagName = makeTagName(className);
 
     classDeclaration << "namespace " << serviceNamespace << " {" << endl
                      << endl;
@@ -272,7 +274,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
             appendMemberDocumentation(classDeclaration, complexType);
 
             String cxxType = complexType->className();
-            string optional =
+            const string optional =
                 ((int) complexType->multiplicity() & (int) WSMultiplicity::ZERO_OR_ONE) != 0 ? ", true" : ", false";
             if (complexType->isArray())
             {
@@ -367,7 +369,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 String WSParserComplexType::makeTagName(const String& className)
 {
     String tagName = lowerCase(className.substr(1));
-    RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
+    const RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
     if (auto words = matchWords.m(className.substr(1));
         words)
     {
@@ -420,7 +422,7 @@ void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
         classDeclaration << endl;
         classDeclaration << "   /**" << endl;
 
-        for (Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
+        for (const Strings rows(complexType->m_documentation, "[\n\r]+", Strings::SplitMode::REGEXP);
              const String& row: rows)
         {
             classDeclaration << "    * " << trim(row) << endl;
@@ -461,11 +463,13 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
         {
             requiredElements.push_back(complexType->name());
         }
+
         if (!complexType->m_typeName.startsWith("xsd:"))
         {
             continue;
         }
-        String restrictionCheck = addOptionalRestriction(classImplementation, complexType, restrictionIndex);
+
+        const String restrictionCheck = addOptionalRestriction(classImplementation, complexType, restrictionIndex);
         if (!restrictionCheck.empty())
         {
             if (restrictionIndex == 1)
@@ -520,7 +524,7 @@ String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
     if (complexType->m_restriction != nullptr)
     {
         ++restrictionIndex;
-        String restrictionName = "restriction_" + int2string(restrictionIndex);
+        const String restrictionName = "restriction_" + int2string(restrictionIndex);
         auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
         if (!restrictionCtor.empty())
         {
@@ -550,7 +554,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
                                                  const Strings& elementNames,
                                                  const Strings& attributeNames, const String& serviceNamespace) const
 {
-    String className = "C" + wsClassName(m_name);
+    const String className = "C" + wsClassName(m_name);
 
     printImplementationIncludes(classImplementation, className);
 
@@ -579,7 +583,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     printImplementationCheckRestrictions(classImplementation, className);
 
-    RegularExpression matchStandardType("^xsd:");
+    const RegularExpression matchStandardType("^xsd:");
 }
 
 void WSParserComplexType::printImplementationConstructors(ostream& classImplementation, const String& className,

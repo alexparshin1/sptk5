@@ -304,9 +304,9 @@ void HttpReader::readStream()
         m_readerState = State::READING_DATA;
     }
 
-    if (m_readerState == State::READING_DATA && !readData())
+    if (m_readerState == State::READING_DATA)
     {
-        return;
+        readData();
     }
 
     auto itor = m_httpHeaders.find("content-encoding");

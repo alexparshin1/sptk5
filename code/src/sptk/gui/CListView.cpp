@@ -678,7 +678,7 @@ void CListView::header_draw(int xPosition, int yPosition, int headerHeight) cons
             int markSize = headerHeight - 8;
             if (!CThemes::drawButton(THM_BUTTON_COMBO, xPosition, yPosition, width, headerHeight, sortColumn, false, false))
             {
-                // Workaround for the FLTK bug..
+                // Workaround for the FLTK bug.
                 draw_box(FL_FLAT_BOX, xPosition, yPosition, width, headerHeight, FL_BACKGROUND_COLOR);
                 draw_box(FL_UP_FRAME, xPosition, yPosition, width, headerHeight, FL_BACKGROUND_COLOR);
             }

@@ -137,8 +137,8 @@ const struct entity* XMLEntityCache::encode(const char* str) const
     auto maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); ++maps)
     {
-        int len = maps->first;
-        String fragment(str, size_t(len));
+        const int len = maps->first;
+        const String fragment(str, size_t(len));
         const CEntityMap& replacements = maps->second;
         auto itor = replacements.find(fragment);
         if (itor != replacements.end())
@@ -187,7 +187,7 @@ void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
 
 char* XMLDocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end)
 {
-    char ch = *ent_end;
+    const char ch = *ent_end;
     *ent_end = 0;
     uint32_t replacementLength = 0;
     const char* rep = this->getReplacement(ent_start + 1, replacementLength);

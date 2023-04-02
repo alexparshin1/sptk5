@@ -35,7 +35,8 @@
 using namespace std;
 using namespace sptk;
 
-static void replaceFile(const String& fileName, const stringstream& fileData)
+namespace {
+void replaceFile(const String& fileName, const stringstream& fileData)
 {
     const String str = fileData.str();
     Buffer newData(fileData.str());
@@ -60,6 +61,7 @@ static void replaceFile(const String& fileName, const stringstream& fileData)
         newData.saveToFile(fileName.c_str());
     }
 }
+} // namespace
 
 void WSParser::clear()
 {

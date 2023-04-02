@@ -69,7 +69,7 @@ DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, u
 
 void DatabaseConnectionPool::load()
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     String driverNameLC = lowerCase(driverName());
     if (driverNameLC == "mssql")
@@ -92,7 +92,7 @@ void DatabaseConnectionPool::load()
     if (!handle)
         throw SystemException("Cannot load library " + driverFileName);
 #else
-    String driverFileName = String("libspdb5_") + driverNameLC + String(".so");
+    const String driverFileName = String("libspdb5_") + driverNameLC + String(".so");
 
     auto* handle = (DriverHandle) dlopen(driverFileName.c_str(), RTLD_NOW);
     if (handle == nullptr)
@@ -102,8 +102,8 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    String create_connectionFunctionName(driverNameLC + String("_create_connection"));
-    String destroy_connectionFunctionName(driverNameLC + String("_destroy_connection"));
+    const String create_connectionFunctionName(driverNameLC + String("_create_connection"));
+    const String destroy_connectionFunctionName(driverNameLC + String("_destroy_connection"));
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
     if (!createConnection)
@@ -120,7 +120,7 @@ void DatabaseConnectionPool::load()
     void* ptr = dlsym(handle, create_connectionFunctionName.c_str());
     auto* createConnection = (CreateDriverInstance*) ptr;
 
-    DestroyDriverInstance* destroyConnection = nullptr;
+    DestroyDriverInstance* destroyConnection;
     const char* dlsym_error = dlerror();
     if (dlsym_error == nullptr)
     {

@@ -52,7 +52,7 @@ public:
      * @param wsType            WSDL type name
      * @param defaultType       C++ type name returned when match is not found
      */
-    String toCxxType(const String& wsType, const String& defaultType = "std::string") const;
+    static String toCxxType(const String& wsType, const String& defaultType = "std::string");
 };
 
 /**

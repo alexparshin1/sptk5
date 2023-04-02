@@ -67,7 +67,7 @@ public:
         ProcessingInstruction
     };
 
-    Node(const String& nodeName = "", Type type = Type::Null);
+    Node(String nodeName = "", Type type = Type::Null);
 
     virtual ~Node() = default;
 

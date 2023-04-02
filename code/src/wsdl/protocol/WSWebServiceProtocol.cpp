@@ -27,15 +27,17 @@
 #include <sptk5/Brotli.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
-                                           const Host& host, bool allowCORS, bool keepAlive,
+                                           Host host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
     : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url)
     , m_httpReader(httpReader)
-    , m_host(host)
+    , m_host(std::move(host))
     , m_allowCORS(allowCORS)
     , m_keepAlive(keepAlive)
     , m_suppressHttpStatus(suppressHttpStatus)
@@ -80,7 +82,8 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
     }
 }
 
-static void substituteHostname(Buffer& page, const Host& host)
+namespace {
+void substituteHostname(Buffer& page, const Host& host)
 {
     xdoc::Document wsdl;
     wsdl.load(page);
@@ -100,6 +103,7 @@ static void substituteHostname(Buffer& page, const Host& host)
     node->attributes().set("location", location);
     wsdl.exportTo(xdoc::DataFormat::XML, page, true);
 }
+} // namespace
 
 RequestInfo WSWebServiceProtocol::process()
 {
@@ -125,7 +129,7 @@ RequestInfo WSWebServiceProtocol::process()
 
     String contentEncoding;
     String contentType(m_httpReader.httpHeader("Content-Type"));
-    bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
+    const bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
     bool requestIsJSON = true;
     if (urlEncoded)
     {
@@ -212,7 +216,7 @@ RequestInfo WSWebServiceProtocol::process()
         clientAcceptEncoding.clear();
     }
 
-    Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
+    const Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
     contentEncoding = requestInfo.response.contentEncoding();
 
     Buffer response;
@@ -257,7 +261,7 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
     if (auto itor = headers().find("authorization");
         itor != headers().end())
     {
-        String value(itor->second);
+        const String value(itor->second);
         authentication = make_shared<HttpAuthentication>(value);
     }
 

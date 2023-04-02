@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
 #include <iomanip>
 #include <sptk5/db/DatabaseField.h>
 
@@ -43,43 +42,44 @@ DatabaseField::DatabaseField(const String& fName, int fieldColumn, int fieldType
 
     switch (dataType)
     {
-        case VariantDataType::VAR_BOOL:
+        using enum VariantDataType;
+        case VAR_BOOL:
             Variant::setBool(false);
             view().width = 6;
             break;
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             Variant::setInteger(0);
             view().width = 10;
             break;
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             Variant::setFloat(0);
             view().width = 16;
             view().precision = (unsigned) fieldScale;
             break;
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-            if (dataType == VariantDataType::VAR_STRING && fieldLength == 0)
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            if (dataType == VAR_STRING && fieldLength == 0)
             {
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
-            Variant::setBuffer((const uint8_t*) "", 1, VariantDataType::VAR_BUFFER);
+            Variant::setBuffer((const uint8_t*) "", 1, VAR_BUFFER);
             checkSize((size_t) fieldLength + 1);
-            view().width = dataType == VariantDataType::VAR_BUFFER ? 1 : fieldLength;
+            view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
             break;
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
             Variant::setDateTime(DateTime());
             Field::dataType(dataType);
             view().width = 10;
             break;
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             Variant::setInt64(0);
             view().width = 16;
             break;

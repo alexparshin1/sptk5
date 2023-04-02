@@ -62,7 +62,7 @@ public:
      * @param name              Attribute name
      * @param typeName          Attribute WSDL type name
      */
-    explicit WSParserAttribute(const String& name = "", const String& typeName = "");
+    explicit WSParserAttribute(String name = "", const String& typeName = "");
 
     /**
      * Copy constructor

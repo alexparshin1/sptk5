@@ -24,16 +24,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <utility>
+
 #include "sptk5/wsdl/WSConnection.h"
 
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, const Options& options)
+WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options)
     : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
     , m_services(services)
     , m_logger(logEngine, "(" + to_string(serial()) + ") ")
-    , m_options(options)
+    , m_options(std::move(options))
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
     {
@@ -45,18 +47,21 @@ WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddre
     }
 }
 
-static void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
+namespace {
+void printMessage(stringstream& logMessage, const String& prefix, const RequestInfo::Message& message)
 {
     constexpr size_t maxContentLength = 512;
 
     logMessage << prefix;
     logMessage << message.content().size() << "/" << message.compressedLength()
                << " bytes ";
+
     if (!message.contentEncoding().empty())
     {
         logMessage << "(" << message.contentEncoding() << ") ";
     }
-    String content(message.content().c_str());
+
+    const String content(message.content().c_str());
     if (content.length() > maxContentLength)
     {
         logMessage << content.substr(0, maxContentLength) << "..";
@@ -66,6 +71,7 @@ static void printMessage(stringstream& logMessage, const String& prefix, const R
         logMessage << content;
     }
 }
+} // namespace
 
 void WSConnection::processSingleConnection(bool& done)
 {
@@ -91,7 +97,7 @@ void WSConnection::processSingleConnection(bool& done)
     httpReader.readHttpHeaders();
     auto& headers = httpReader.getHttpHeaders();
 
-    String requestType = httpReader.getRequestType();
+    const String requestType = httpReader.getRequestType();
     URL url(httpReader.getRequestURL());
 
     if (requestType == "OPTIONS")
@@ -131,7 +137,7 @@ void WSConnection::processSingleConnection(bool& done)
         return;
     }
 
-    bool closeConnection = reviewHeaders(requestType, headers);
+    const bool closeConnection = reviewHeaders(requestType, headers);
 
     WSWebServiceProtocol protocol(httpReader, url, m_services, server().host(),
                                   m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
@@ -150,12 +156,7 @@ void WSConnection::processSingleConnection(bool& done)
 
 void WSConnection::run()
 {
-    Buffer data;
-
     // Read request data
-    String row;
-    Strings matches;
-    String protocolName;
     bool done {false};
 
     while (!done && socket().active())
@@ -234,13 +235,13 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
 
 bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers)
 {
-    if (String contentLength = headers["Content-Length"];
+    if (const String contentLength = headers["Content-Length"];
         requestType == "GET" && contentLength.empty())
     {
         headers["Content-Length"] = "0";
     }
 
-    bool closeConnection = headers["Connection"].toLowerCase() == "close";
+    const bool closeConnection = headers["Connection"].toLowerCase() == "close";
     if (closeConnection)
     {
         headers.erase("Connection");
@@ -252,7 +253,7 @@ bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers
 bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, String& protocolName,
                                       HttpHeaders& headers) const
 {
-    String contentType = headers["Content-Type"];
+    const String contentType = headers["Content-Type"];
     bool processed = false;
     if (contentType.find("/json") != string::npos || requestType == "POST")
     {

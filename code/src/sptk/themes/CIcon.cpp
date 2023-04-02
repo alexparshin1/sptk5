@@ -103,7 +103,7 @@ void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
         try
         {
             const Buffer& imageData = tar.file(fileName);
-            CIcon* icon = nullptr;
+            CIcon* icon;
             auto ftor = find(iconName);
             if (ftor == end())
             {

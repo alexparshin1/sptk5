@@ -40,7 +40,7 @@ TEST(SPTK_ReadBuffer, read)
         buffer.append(i);
     }
 
-    String test1(":test1:");
+    const String test1(":test1:");
     buffer.append(test1);
 
     constexpr int dataLength {5};

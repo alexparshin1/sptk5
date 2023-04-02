@@ -29,44 +29,48 @@
 #include <sptk5/xdoc/ExportXML.h>
 #include <sptk5/xdoc/ImportXML.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
 Node::Type Node::variantTypeToNodeType(VariantDataType type)
 {
+    using enum Type;
     switch (type)
     {
-        case VariantDataType::VAR_NONE:
-            return Node::Type::Null;
+        using enum VariantDataType;
+        case VAR_NONE:
+            return Null;
 
-        case VariantDataType::VAR_INT:
-        case VariantDataType::VAR_FLOAT:
-        case VariantDataType::VAR_IMAGE_NDX:
-        case VariantDataType::VAR_INT64:
-            return Node::Type::Number;
+        case VAR_INT:
+        case VAR_FLOAT:
+        case VAR_IMAGE_NDX:
+        case VAR_INT64:
+            return Number;
 
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-        case VariantDataType::VAR_IMAGE_PTR:
-            return Node::Type::Text;
+        case VAR_MONEY:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+        case VAR_IMAGE_PTR:
+            return Text;
 
-        case VariantDataType::VAR_BOOL:
-            return Node::Type::Boolean;
+        case VAR_BOOL:
+            return Boolean;
 
         default:
             break;
     }
 
-    return Node::Type::Null;
+    return Null;
 }
 
-Node::Node(const String& nodeName, Type type)
-    : m_name(nodeName)
+Node::Node(String nodeName, Type type)
+    : m_name(std::move(nodeName))
     , m_type(type)
 {
 }
@@ -145,15 +149,16 @@ SNode Node::findFirst(const String& name, SearchMode searchMode) const
 
 SNode& Node::pushNode(const String& name, Type type)
 {
-    if (m_type == Type::Null)
+    using enum Type;
+    if (m_type == Null)
     {
         if (name.empty())
         {
-            m_type = Type::Array;
+            m_type = Array;
         }
         else
         {
-            m_type = Type::Object;
+            m_type = Object;
         }
     }
     auto node = make_shared<Node>(name, type);
@@ -187,7 +192,8 @@ String Node::getString(const String& name) const
     return node->m_value.asString();
 }
 
-static void getTextRecursively(const Node* node, Buffer& output)
+namespace {
+void getTextRecursively(const Node* node, Buffer& output)
 {
     if (node->type() != Node::Type::Comment)
     {
@@ -198,6 +204,7 @@ static void getTextRecursively(const Node* node, Buffer& output)
         }
     }
 }
+} // namespace
 
 String Node::getText(const String& name) const
 {
@@ -330,11 +337,13 @@ bool Node::remove(const SNode& _node)
     return false;
 }
 
-static void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)
+namespace {
+void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)
 {
     ImportXML importer;
     importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
 }
+} // namespace
 
 void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
 {
@@ -353,7 +362,7 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
 
 void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting)
 {
-    Buffer input(data);
+    const Buffer input(data);
 
     clear();
     if (dataFormat == DataFormat::JSON)

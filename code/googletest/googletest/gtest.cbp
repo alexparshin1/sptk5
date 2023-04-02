@@ -11,10 +11,10 @@
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest">
@@ -32,19 +32,12 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/12"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/12"/>
-					<Add directory="/usr/include/c++/12/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest"/>
-					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest/fast">
@@ -62,19 +55,12 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/12"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/12"/>
-					<Add directory="/usr/include/c++/12/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest/fast"/>
-					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main">
@@ -92,19 +78,12 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/12"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/12"/>
-					<Add directory="/usr/include/c++/12/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main"/>
-					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main/fast">
@@ -122,19 +101,12 @@
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
-					<Add directory="/usr/include/c++/12"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/12"/>
-					<Add directory="/usr/include/c++/12/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/12/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main/fast"/>
-					<CompileFile command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/gmake -j4 -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 gtest_main/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/alexeyp/workspace/sptk5/code/googletest/googletest/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>

@@ -37,7 +37,8 @@ const Buffer& WSWebSocketsMessage::payload() const
     return m_payload;
 }
 
-static uint64_t ntoh64(uint64_t data)
+namespace {
+uint64_t ntoh64(uint64_t data)
 {
     enum class VarType
     {
@@ -64,6 +65,7 @@ static uint64_t ntoh64(uint64_t data)
 
     return output.variant.m_uint64;
 }
+} // namespace
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
@@ -80,7 +82,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     m_opcode = OpCode((int) *ptr & opcodeBitMask);
 
     ++ptr;
-    bool masked = ((int) *ptr & maskedBitMask) != 0;
+    const bool masked = ((int) *ptr & maskedBitMask) != 0;
     auto payloadLength = uint64_t((int) *ptr & payloadLengthBitMask);
     switch (payloadLength)
     {
@@ -207,21 +209,21 @@ RequestInfo WSWebSocketsProtocol::process()
     RequestInfo requestInfo;
     try
     {
-        String clientKey = headers()["Sec-WebSocket-Key"];
-        if (String socketVersion = headers()["Sec-WebSocket-Version"];
+        const String clientKey = headers()["Sec-WebSocket-Key"];
+        if (const String socketVersion = headers()["Sec-WebSocket-Version"];
             clientKey.empty() || socketVersion != "13")
         {
             throw Exception(
                 "WebSocket protocol is missing or has invalid Sec-WebSocket-Key or Sec-WebSocket-Version headers");
         }
 
-        String websocketProtocol = headers()["Sec-WebSocket-Protocol"];
+        const String websocketProtocol = headers()["Sec-WebSocket-Protocol"];
 
         // Generate server response key from client key
         String responseKey = clientKey + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         Buffer obuf(shaBufferLength);
         SHA1((const unsigned char*) responseKey.c_str(), responseKey.length(), obuf.data());
-        Buffer responseKeySHA(obuf.data(), shaBufferLength);
+        const Buffer responseKeySHA(obuf.data(), shaBufferLength);
         Buffer responseKeyEncoded;
         Base64::encode(responseKeyEncoded, responseKeySHA);
         responseKey = responseKeyEncoded.c_str();
@@ -245,7 +247,7 @@ RequestInfo WSWebSocketsProtocol::process()
                 continue;
             }
 
-            size_t available = socket().socketBytes();
+            const size_t available = socket().socketBytes();
             if (available == 0)
             {
                 clientClosedConnection = true;
@@ -284,7 +286,7 @@ RequestInfo WSWebSocketsProtocol::process()
     }
     catch (const Exception& e)
     {
-        string text(
+        const string text(
             "<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
         socket().write("HTTP/1.1 400 Bad Request\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");

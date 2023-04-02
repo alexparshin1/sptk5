@@ -41,7 +41,7 @@ public:
          * @param eventCallback         Event callback function
          * @param repeatCount           Repeat count, -1 means no limit
          */
-    TimerEvent(const DateTime& timestamp, const Callback& eventCallback,
+    TimerEvent(DateTime timestamp, Callback eventCallback,
                std::chrono::milliseconds repeatInterval, int repeatCount = -1);
 
     /**

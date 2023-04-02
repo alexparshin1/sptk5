@@ -53,7 +53,7 @@ uint64_t ntohq(uint64_t val)
     return result;
 }
 
-void htonq_inplace(uint64_t* in, uint64_t* out)
+void htonq_inplace(const uint64_t* in, uint64_t* out)
 {
     const auto* src = (uint32_t*) (void*) in;
     auto* dst = (uint32_t*) (void*) out;

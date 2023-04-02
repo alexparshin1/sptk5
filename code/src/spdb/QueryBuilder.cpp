@@ -26,24 +26,25 @@
 
 #include <sptk5/RegularExpression.h>
 #include <sstream>
+#include <utility>
 
 #include "sptk5/db/QueryBuilder.h"
 
 using namespace std;
 using namespace sptk;
 
-QueryBuilder::Join::Join(const String& tableAlias, const Strings& columns, const String& join)
-    : tableAlias(tableAlias)
-    , columns(columns)
-    , joinDefinition(join)
+QueryBuilder::Join::Join(String tableAlias, Strings columns, String join)
+    : tableAlias(std::move(tableAlias))
+    , columns(std::move(columns))
+    , joinDefinition(std::move(join))
 {
 }
 
-QueryBuilder::QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns,
+QueryBuilder::QueryBuilder(String tableName, String pkColumn, Strings columns,
                            const vector<Join>& joins)
-    : m_tableName(tableName)
-    , m_pkColumn(pkColumn)
-    , m_columns(columns)
+    : m_tableName(std::move(tableName))
+    , m_pkColumn(std::move(pkColumn))
+    , m_columns(std::move(columns))
     , m_joins(joins)
 {
     m_columns.remove(m_pkColumn);
@@ -85,7 +86,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
 
     query << "SELECT ";
 
-    Strings outputColumns = makeSelectColumns(columns);
+    Strings const outputColumns = makeSelectColumns(columns);
     query << outputColumns.join(", ") << endl;
 
     query << "  FROM " << m_tableName << " t" << endl;
@@ -193,7 +194,7 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
     String queryStr = query.str();
     if (!pretty)
     {
-        queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+        queryStr = queryStr.replace(R"([\n\r\s]+)", " ").trim();
     }
 
     return queryStr;
@@ -242,7 +243,7 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
     String queryStr = query.str();
     if (!pretty)
     {
-        queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+        queryStr = queryStr.replace(R"([\n\r\s]+)", " ").trim();
     }
 
     return queryStr;
@@ -267,7 +268,7 @@ String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
     String queryStr = query.str();
     if (!pretty)
     {
-        queryStr = queryStr.replace("[\\n\\r\\s]+", " ").trim();
+        queryStr = queryStr.replace(R"([\n\r\s]+)", " ").trim();
     }
 
     return queryStr;

@@ -110,8 +110,6 @@ STimerEvent IntervalTimerThread::nextEvent()
 
 void IntervalTimerThread::popFrontEvent()
 {
-    STimerEvent event;
-
     const scoped_lock lock(m_scheduledMutex);
     if (m_scheduledEvents.empty())
     {

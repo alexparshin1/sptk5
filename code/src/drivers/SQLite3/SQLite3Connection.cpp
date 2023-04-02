@@ -262,8 +262,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
     for (unsigned j = 0; j < param->bindCount(); ++j)
     {
-
-        int res {0};
+        int res;
         auto paramBindNumber = short(param->bindIndex(j) + 1);
 
         if (param->isNull())
@@ -395,7 +394,8 @@ void SQLite3Connection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-static uint32_t trimField(char* str, uint32_t length)
+namespace {
+uint32_t trimField(char* str, uint32_t length)
 {
     if (length == 0)
     {
@@ -403,7 +403,7 @@ static uint32_t trimField(char* str, uint32_t length)
     }
 
     char* p = str + length - 1;
-    char ch = str[0];
+    const char ch = str[0];
     str[0] = '!';
 
     while (*p == ' ')
@@ -421,6 +421,7 @@ static uint32_t trimField(char* str, uint32_t length)
     str[0] = ch;
     return uint32_t(p - str);
 }
+} // namespace
 
 void SQLite3Connection::queryFetch(Query* query)
 {
@@ -612,12 +613,12 @@ String SQLite3Connection::driverDescription() const
     return "SQLite3 " SQLITE_VERSION;
 }
 
-void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+void SQLite3Connection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void SQLite3Connection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+void SQLite3Connection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 {
     notImplemented("queryColAttributes");
 }

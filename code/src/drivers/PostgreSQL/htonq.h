@@ -26,8 +26,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __HTONQ_H__
-#define __HTONQ_H__
+#pragma once
 
 #include <sptk5/sptk.h>
 
@@ -36,9 +35,9 @@
 #endif
 
 namespace sptk {
+
 uint64_t htonq(uint64_t val);
 uint64_t ntohq(uint64_t val);
-void htonq_inplace(uint64_t* in, uint64_t* out);
-} // namespace sptk
+void htonq_inplace(const uint64_t* in, uint64_t* out);
 
-#endif
+} // namespace sptk

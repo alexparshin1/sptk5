@@ -31,12 +31,12 @@ using namespace std;
 using namespace sptk;
 using namespace oracle::occi;
 
-namespace sptk {
-static void Oracle_readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-static void Oracle_readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-static void Oracle_readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-static void Oracle_readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
-} // namespace sptk
+namespace {
+void Oracle_readTimestamp(oracle::occi::ResultSet* resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+void Oracle_readDate(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+void Oracle_readBLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+void Oracle_readCLOB(oracle::occi::ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex);
+} // namespace
 
 OracleConnection::OracleConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE, connectTimeout)
@@ -417,7 +417,7 @@ void OracleConnection::queryOpen(Query* query)
         querySetActive(query, true);
         if (query->fieldCount() == 0)
         {
-            scoped_lock lock(m_mutex);
+            const scoped_lock lock(m_mutex);
             ResultSet* resultSet = statement->resultSet();
             createQueryFieldsFromMetadata(query, resultSet);
         }
@@ -430,14 +430,14 @@ void OracleConnection::queryOpen(Query* query)
 
 void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet)
 {
-    vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
+    const vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
     unsigned columnIndex = 0;
     for (const MetaData& metaData: resultSetMetaData)
     {
         auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
-        int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
+        const int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
         string columnName = metaData.getString(MetaData::ATTR_NAME);
-        int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
+        const int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
             const auto maxColumnNameLength = 31;
@@ -445,12 +445,14 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
             snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
             columnName = alias.data();
         }
+
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
         {
             const auto maxColumnSize = 16384;
             resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
         }
-        VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
+
+        const VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
         auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
                                                 columnScale);
         query->fields().push_back(field);
@@ -459,7 +461,8 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
     }
 }
 
-static void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+namespace {
+void Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -468,13 +471,13 @@ static void sptk::Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* fiel
     unsigned min = 0;
     unsigned sec = 0;
     unsigned ms = 0;
-    Timestamp timestamp = resultSet->getTimestamp(columnIndex);
+    const Timestamp timestamp = resultSet->getTimestamp(columnIndex);
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
 }
 
-static void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     int year = 0;
     unsigned month = 0;
@@ -485,13 +488,14 @@ static void sptk::Oracle_readDate(ResultSet* resultSet, DatabaseField* field, un
     resultSet->getDate(columnIndex).getDate(year, month, day, hour, min, sec);
     field->setDateTime(DateTime(short(year), short(month), short(day), short(0), short(0), short(0)), true);
 }
+} // namespace
 
 void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active())
         THROW_QUERY_ERROR(query, "Dataset isn't open")
 
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto* statement = (OracleStatement*) query->statement();
 
@@ -596,32 +600,34 @@ void OracleConnection::queryFetch(Query* query)
     }
 }
 
-static void sptk::Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+namespace {
+void Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Clob clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
     // Attention: clob stored as wide char
-    unsigned clobChars = clob.length();
-    unsigned clobBytes = clobChars * 4;
+    const unsigned clobChars = clob.length();
+    const unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, buffer.data(), clobBytes, 1);
+    const unsigned bytes = clob.read(clobChars, buffer.data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
     buffer.data()[bytes] = 0;
 }
 
-static void sptk::Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
+void Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
     Blob blob = resultSet->getBlob(columnIndex);
     blob.open(OCCI_LOB_READONLY);
-    unsigned bytes = blob.length();
+    const unsigned bytes = blob.length();
     field->checkSize(bytes);
     blob.read(bytes, buffer.data(), bytes, 1);
     blob.close();
     field->setDataSize(bytes);
 }
+} // namespace
 
 void OracleConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
@@ -886,12 +892,12 @@ void OracleConnection::executeMultipleStatements(const Strings& statements, Stri
     }
 }
 
-void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+void OracleConnection::queryColAttributes(Query*, int16_t, int16_t, int32_t&)
 {
     notImplemented("queryColAttributes");
 }
 
-void OracleConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+void OracleConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 {
     notImplemented("queryColAttributes");
 }

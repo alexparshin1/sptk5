@@ -54,7 +54,7 @@ TEST(SPTK_Semaphore, threads)
         semaphore.post();
     });
     constexpr chrono::milliseconds timeout(100);
-    bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
+    const bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
     EXPECT_TRUE(posted);
     poster.wait();
 }

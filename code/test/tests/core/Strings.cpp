@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/Buffer.h>
-#include <sptk5/RegularExpression.h>
 #include <sstream>
 
 #include <gtest/gtest.h>
@@ -42,7 +41,7 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
-    Strings strings2(strings);
+    const Strings strings2(strings);
     EXPECT_EQ(size_t(3), strings2.size());
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 
@@ -50,7 +49,7 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(size_t(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
-    Strings strings3({"1", "2", "3"});
+    const Strings strings3({"1", "2", "3"});
     EXPECT_EQ(size_t(3), strings3.size());
     EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 
@@ -93,11 +92,11 @@ TEST(SPTK_Strings, indexOf)
 
 TEST(SPTK_Strings, grep)
 {
-    Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+    const Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
 
-    Strings group1 = strings.grep("text");
+    const Strings group1 = strings.grep("text");
     EXPECT_EQ(size_t(1), group1.size());
 
-    Strings group2 = strings.grep("text|rows");
+    const Strings group2 = strings.grep("text|rows");
     EXPECT_EQ(size_t(2), group2.size());
 }

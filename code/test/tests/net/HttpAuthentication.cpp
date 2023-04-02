@@ -31,9 +31,10 @@
 using namespace std;
 using namespace sptk;
 
-static String makeJWT()
+namespace {
+String makeJWT()
 {
-    String key256("012345678901234567890123456789XY");
+    const String key256("012345678901234567890123456789XY");
 
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, key256);
@@ -52,6 +53,7 @@ static String makeJWT()
 
     return originalToken.str();
 }
+} // namespace
 
 TEST(SPTK_HttpAuthentication, basic)
 {

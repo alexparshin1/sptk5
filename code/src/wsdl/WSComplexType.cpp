@@ -61,7 +61,8 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         {
             return;
         }
-        String elementName = name == nullptr ? this->name().c_str() : name;
+
+        const String elementName = name == nullptr ? this->name().c_str() : name;
         xdoc::SNode element;
         if (parent->type() == Node::Type::Array)
         {

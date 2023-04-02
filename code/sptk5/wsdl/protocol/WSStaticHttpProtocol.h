@@ -48,7 +48,7 @@ public:
     /// @param url              Resource URL
     /// @param headers          Connection HTTP headers
     /// @param staticFilesDirectory String, Directory where static files reside on the server
-    WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, const String& staticFilesDirectory);
+    WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, String staticFilesDirectory);
 
     /// @brief Process method
     ///

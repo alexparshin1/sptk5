@@ -26,13 +26,15 @@
 
 #include "OracleBulkInsertQuery.h"
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes)
+OracleBulkInsertQuery::OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, QueryColumnTypeSizeMap columnTypeSizes)
     : Query(db, sql)
     , m_recordCount(recordCount)
-    , m_columnTypeSizes(columnTypeSizes)
+    , m_columnTypeSizes(std::move(columnTypeSizes))
 {
     setBulkMode(true);
 }

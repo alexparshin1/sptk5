@@ -40,10 +40,10 @@ inline bool isNodeByName(const String& nodeName)
 
 void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& buffer, bool formatted, int indent)
 {
-    String nodeName = _nodeName.empty() ? "item" : _nodeName;
+    const String nodeName = _nodeName.empty() ? "item" : _nodeName;
 
-    bool isNode = isNodeByName(nodeName);
-    size_t parentSubnodesCount = node->parent() ? node->parent()->nodes().size() : 0;
+    const bool isNode = isNodeByName(nodeName);
+    const size_t parentSubnodesCount = node->parent() ? node->parent()->nodes().size() : 0;
 
     if (isNode)
     {
@@ -69,7 +69,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
             buffer.append('>');
         }
 
-        if (bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
+        if (const bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
             formatted && (!firstSubNodeIsText || subNodes.size() > 1))
         {
             buffer.append('\n');
@@ -193,7 +193,7 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
 void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
     // output indendation spaces
-    if (bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
+    if (const bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
         formatted && indent > 0 && !lastSubNodeIsText)
     {
         buffer.append(indentsString.c_str(), size_t(indent));

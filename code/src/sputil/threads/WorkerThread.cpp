@@ -78,13 +78,13 @@ void WorkerThread::execute(URunable& task)
 
 void WorkerThread::setRunable(Runable* runable)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     m_currentRunable = runable;
 }
 
 void WorkerThread::terminate()
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     if (m_currentRunable != nullptr)
     {
         m_currentRunable->terminate();

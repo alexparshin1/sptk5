@@ -32,7 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
+namespace {
+void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSpaces)
 {
     for (const auto& [attr, value]: node->attributes())
     {
@@ -44,6 +45,7 @@ static void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>&
         nameSpaces[tagname] = WSNameSpace(tagname, value);
     }
 }
+} // namespace
 
 void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
@@ -122,7 +124,7 @@ void WSRequest::logError(const String& requestName, const String& error, int err
 
 xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace)
 {
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     auto soapBody = soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body");
     if (!soapBody)
@@ -149,7 +151,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
             if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
             {
                 soapEnvelope = node;
-                String nameSpaceAlias = nameSpace(node->name());
+                const String nameSpaceAlias = nameSpace(node->name());
                 extractNameSpaces(soapEnvelope, allNamespaces);
                 soapNamespace = allNamespaces[nameSpaceAlias];
                 break;
@@ -169,8 +171,8 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
 
         xmlRequestNode = soapBody->nodes().front();
 
-        scoped_lock lock(*this);
-        String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+        const scoped_lock lock(*this);
+        const String nameSpaceAlias = nameSpace(xmlRequestNode->name());
         extractNameSpaces(xmlRequestNode, allNamespaces);
 
         if (auto itor = allNamespaces.find(nameSpaceAlias);

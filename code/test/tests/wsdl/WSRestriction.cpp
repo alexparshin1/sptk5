@@ -58,7 +58,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
 
     auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
-    WSRestriction restrictions("Colours", simpleTypeElement);
+    const WSRestriction restrictions("Colours", simpleTypeElement);
 
     try
     {
@@ -87,7 +87,7 @@ TEST(SPTK_WSRestriction, parseInitials)
 
     auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
-    WSRestriction restrictions("Initials", simpleTypeElement);
+    const WSRestriction restrictions("Initials", simpleTypeElement);
 
     try
     {

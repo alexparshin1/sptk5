@@ -32,9 +32,9 @@
 using namespace std;
 using namespace sptk;
 
-SourceModule::SourceModule(String moduleName, const String& modulePath)
+SourceModule::SourceModule(String moduleName, String modulePath)
     : m_name(std::move(moduleName))
-    , m_path(modulePath)
+    , m_path(std::move(modulePath))
 {
 }
 
@@ -66,7 +66,8 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
     {
         m_path = ".";
     }
-    String fileName = m_path + "/" + fileNameAndExtension;
+
+    const String fileName = m_path + "/" + fileNameAndExtension;
 
     try
     {

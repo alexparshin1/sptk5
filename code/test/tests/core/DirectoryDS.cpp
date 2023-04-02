@@ -28,7 +28,6 @@
 
 #include <sptk5/DirectoryDS.h>
 #include <sptk5/Printer.h>
-#include <sptk5/filedefs.h>
 
 #include <gtest/gtest.h>
 

@@ -36,7 +36,7 @@ TEST(SPTK_Timer, repeat) /* NOLINT */
 {
     if (DateTime::Now() > DateTime()) // always true
     {
-        Timer timer;
+        const Timer timer;
 
         int eventSet(0);
 
@@ -61,7 +61,7 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
 {
     mutex counterMutex;
     size_t counter = 1;
-    Timer timer;
+    const Timer timer;
 
     constexpr milliseconds delayInterval {10};
     timer.fireAt(

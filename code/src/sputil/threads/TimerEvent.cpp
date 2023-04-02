@@ -2,13 +2,15 @@
 #include <sptk5/Printer.h>
 #include <sptk5/threads/TimerEvent.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-TimerEvent::TimerEvent(const DateTime& timestamp, const Callback& eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
-    : m_when(timestamp)
+TimerEvent::TimerEvent(DateTime timestamp, Callback eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
+    : m_when(std::move(timestamp))
     , m_repeatInterval(repeatInterval)
-    , m_callback(eventCallback)
+    , m_callback(std::move(eventCallback))
     , m_repeatCount(repeatCount)
 {
 }

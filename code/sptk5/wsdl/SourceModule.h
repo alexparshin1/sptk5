@@ -49,7 +49,7 @@ public:
      * @param moduleName        Module name
      * @param modulePath        Module path
      */
-    SourceModule(String moduleName, const String& modulePath);
+    SourceModule(String moduleName, String modulePath);
 
     /**
      * @brief Opens module output files

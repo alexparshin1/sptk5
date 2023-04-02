@@ -37,8 +37,8 @@ static const RegularExpression StringIsFloat(R"(^[+\-]?(0|[1-9]\d*)(\.\d*)?(e[+\
 
 void WSBasicType::exportTo(const SNode& parent, const char* _name) const
 {
-    String elementName = _name == nullptr ? name() : _name;
-    if (String text(isNull() ? "" : asString());
+    const String elementName = _name == nullptr ? name() : _name;
+    if (const String text(isNull() ? "" : asString());
         m_optional && (isNull() || text.empty()))
     {
         return;
@@ -175,7 +175,7 @@ void WSBool::load(const Field& field)
 
 void WSDate::load(const SNode& attr, bool)
 {
-    String text = attr->getString();
+    const String text = attr->getString();
     if (attr->type() == Node::Type::Null || text.empty())
     {
         setNull(VariantDataType::VAR_DATE);
@@ -194,7 +194,7 @@ void WSDate::load(const String& attr)
     }
     else
     {
-        DateTime dt(attr.c_str());
+        const DateTime dt(attr.c_str());
         value().setDateTime(dt, true);
     }
 }
@@ -213,14 +213,14 @@ void WSDate::load(const Field& field)
 
 void WSDateTime::load(const SNode& attr, bool)
 {
-    String text = attr->getText();
+    const String text = attr->getText();
     if (text.empty())
     {
         setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
-        DateTime dt(text.c_str());
+        const DateTime dt(text.c_str());
         value().setDateTime(dt);
     }
 }
@@ -233,7 +233,7 @@ void WSDateTime::load(const String& attr)
     }
     else
     {
-        DateTime dt(attr.c_str());
+        const DateTime dt(attr.c_str());
         value().setDateTime(DateTime(attr.c_str()));
     }
 }
@@ -252,7 +252,7 @@ void WSDateTime::load(const Field& field)
 
 String WSDateTime::asString() const
 {
-    DateTime dt = value().asDateTime();
+    const DateTime dt = value().asDateTime();
     return dt.isoDateTimeString();
 }
 
@@ -272,7 +272,7 @@ void WSDouble::load(const SNode& attr, bool)
 
         if (attr->type() == Node::Type::Text)
         {
-            String textValue = attr->getText();
+            const String textValue = attr->getText();
             if (optional() && textValue.empty())
             {
                 setNull(VariantDataType::VAR_FLOAT);

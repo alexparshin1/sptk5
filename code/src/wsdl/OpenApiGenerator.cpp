@@ -26,18 +26,19 @@
 
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
+#include <utility>
 
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-OpenApiGenerator::OpenApiGenerator(const String& title, const String& description, const String& version,
-                                   const Strings& servers, const Options& options)
-    : m_title(title)
-    , m_description(description)
-    , m_version(version)
-    , m_servers(servers)
-    , m_options(options)
+OpenApiGenerator::OpenApiGenerator(String title, String description, String version,
+                                   Strings servers, Options options)
+    : m_title(std::move(title))
+    , m_description(std::move(description))
+    , m_version(std::move(version))
+    , m_servers(std::move(servers))
+    , m_options(std::move(options))
 {
 }
 
@@ -130,7 +131,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         const auto& content = requestBody->pushNode("content", Node::Type::Object);
         const auto& data = content->pushNode("application/json", Node::Type::Object);
         const auto& schema = data->pushNode("schema", Node::Type::Object);
-        String ref = "#/components/schemas/" + operation.m_input->name();
+        const String ref = "#/components/schemas/" + operation.m_input->name();
         schema->set("$ref", ref);
 
         const auto& responsesElement = postElement->pushNode("responses", Node::Type::Object);
@@ -201,7 +202,7 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
     bearerAuth->set("bearerFormat", "JWT"); // optional, arbitrary value for documentation purposes
 }
 
-void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, const SNode& property) const
+void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, const SNode& property)
 {
     struct OpenApiType {
         String type;
@@ -267,7 +268,7 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
     }
 }
 
-void OpenApiGenerator::parseRestrictionPatterns(const SNode& property, const SWSRestriction& restriction) const
+void OpenApiGenerator::parseRestrictionPatterns(const SNode& property, const SWSRestriction& restriction)
 {
     if (restriction->patterns().size() == 1)
     {

@@ -65,5 +65,5 @@ enum class PostgreSQLDataType
     NUMERIC = 1700            ///< Numeric (decimal)
 };
 
-// This is copied from the server headers. We assume that it wouldn't change in the future..
+// This is copied from the server headers. We assume that it wouldn't change in the future.
 constexpr int VOIDOID = 2278;

@@ -25,12 +25,10 @@
 */
 
 #include <cmath>
-#include <cstdlib>
 #include <gtest/gtest.h>
 #include <sptk5/Printer.h>
 #include <sptk5/Strings.h>
 #include <sptk5/xdoc/Document.h>
-#include <sptk5/xdoc/ImportXML.h>
 
 using namespace std;
 using namespace sptk;

@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CORACLEBULKINSERTQUERY_H__
-#define __CORACLEBULKINSERTQUERY_H__
+#pragma once
 
 #include <sptk5/Exception.h>
 #include <sptk5/db/OracleConnection.h>
@@ -65,7 +64,7 @@ protected:
     /// @param db DatabaseConnection, the database to connect to, optional
     /// @param sql std::string, the SQL query text to use, optional
     /// @param recordCount size_t, number of records to insert
-    OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, const QueryColumnTypeSizeMap& columnTypeSizes);
+    OracleBulkInsertQuery(PoolDatabaseConnection* db, const String& sql, size_t recordCount, QueryColumnTypeSizeMap columnTypeSizes);
 
     /// @brief Destructor
     ~OracleBulkInsertQuery() override = default;
@@ -79,4 +78,3 @@ private:
 };
 /// @}
 } // namespace sptk
-#endif

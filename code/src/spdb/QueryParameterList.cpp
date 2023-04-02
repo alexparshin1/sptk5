@@ -80,7 +80,7 @@ size_t QueryParameterList::size() const
 void QueryParameterList::remove(size_t i)
 {
     auto itor = m_items.begin() + (int) i;
-    SQueryParameter item = *itor;
+    const SQueryParameter item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
 }

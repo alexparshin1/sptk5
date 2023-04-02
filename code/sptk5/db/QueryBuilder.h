@@ -37,14 +37,14 @@ public:
     class SP_EXPORT Join
     {
     public:
-        Join(const String& tableAlias, const Strings& columns, const String& join);
+        Join(String tableAlias, Strings columns, String join);
 
         String tableAlias;
         Strings columns;
         String joinDefinition;
     };
 
-    QueryBuilder(const String& tableName, const String& pkColumn, const Strings& columns = {},
+    QueryBuilder(String tableName, String pkColumn, Strings columns = {},
                  const std::vector<Join>& joins = {});
 
     virtual ~QueryBuilder() = default;

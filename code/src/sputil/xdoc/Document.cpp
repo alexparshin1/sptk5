@@ -30,7 +30,9 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-static DataFormat autoDetectFormat(const char* data)
+namespace {
+
+DataFormat autoDetectFormat(const char* data)
 {
     switch (auto skip = strspn(data, "\n\r\t ");
             data[skip])
@@ -45,6 +47,8 @@ static DataFormat autoDetectFormat(const char* data)
     }
     throw Exception("Invalid character at the data start");
 }
+
+} // namespace
 
 void Document::load(const Buffer& data, bool xmlKeepFormatting) const
 {

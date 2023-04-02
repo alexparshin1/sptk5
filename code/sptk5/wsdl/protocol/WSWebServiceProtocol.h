@@ -56,7 +56,7 @@ public:
      * @param keepAlive         Keep alive
      */
     WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
-                         const Host& host, bool allowCORS, bool keepAlive, bool suppressHttpStatus);
+                         Host host, bool allowCORS, bool keepAlive, bool suppressHttpStatus);
 
     /*
      * Process method

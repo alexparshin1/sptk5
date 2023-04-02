@@ -41,7 +41,7 @@ String jsonEscape(const String& text)
 
     for (;;)
     {
-        size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
+        const size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
         if (pos == string::npos)
         {
             if (position == 0)
@@ -104,9 +104,9 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         formatting.betweenElements = ",\n  " + formatting.indentSpaces;
     }
 
-    string spacing = formatted ? " " : "";
+    const string spacing = formatted ? " " : "";
 
-    bool isValue = node->nodes().empty();
+    const bool isValue = node->nodes().empty();
 
     if (isValue && !node->attributes().empty())
     {
@@ -202,7 +202,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     {
         exportNodeAttributes(node, stream, formatted, formatting.firstElement);
 
-        string spacing = formatted ? " " : "";
+        const string spacing = formatted ? " " : "";
 
         bool first = true;
         for (const auto& anode: node->nodes())
@@ -227,7 +227,8 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
 
 void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
 {
-    String spacing = formatted ? " " : "";
+    const String spacing = formatted ? " " : "";
+
     if (!node->attributes().empty())
     {
         stream << firstElement << "\"attributes\":" << spacing << "{";

@@ -56,7 +56,7 @@ STimerEvent IntervalTimer::repeat(const TimerEvent::Callback& eventCallback, int
 void IntervalTimer::cancel()
 {
     // Cancel all events in this timer
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
     while (!m_events.empty())
     {
         m_events.front()->cancel();

@@ -41,7 +41,7 @@ const std::map<String, String> WSTypeTranslator::wsTypeToCxxTypeMap {
     {"xsd:string", "sptk::WSString"},
     {"xsd:time", "sptk::WSTime"}};
 
-String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType) const
+String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType)
 {
     auto itor = wsTypeToCxxTypeMap.find(wsType);
     if (itor == wsTypeToCxxTypeMap.end())

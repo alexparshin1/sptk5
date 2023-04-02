@@ -26,11 +26,13 @@
 
 #include <sptk5/wsdl/WSRestriction.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
-WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement)
-    : m_wsdlTypeName(typeName)
+WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement)
+    : m_wsdlTypeName(std::move(typeName))
 {
     for (auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
          const auto& enumerationNode: enumerationNodes)
@@ -50,7 +52,7 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
         auto patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
         for (const auto& patternNode: patternNodes)
         {
-            String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
+            const String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())
             {
                 m_type = Type::Pattern;
@@ -60,9 +62,9 @@ WSRestriction::WSRestriction(const String& typeName, const xdoc::SNode& simpleTy
     }
 }
 
-WSRestriction::WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPatterns)
+WSRestriction::WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns)
     : m_type(type)
-    , m_wsdlTypeName(wsdlTypeName)
+    , m_wsdlTypeName(std::move(wsdlTypeName))
 {
     if (enumerationsOrPatterns.empty())
     {

@@ -66,7 +66,7 @@ static const String testFormattedJson(R"({
 
 TEST(SPTK_XDocument, formatJSON)
 {
-    Buffer input(testJson);
+    const Buffer input(testJson);
     xdoc::Document document;
     const auto& root = document.root();
     Node::importJson(root, input);
@@ -82,7 +82,7 @@ TEST(SPTK_XDocument, formatJSON)
 
 TEST(SPTK_XDocument, importJsonExceptions)
 {
-    Buffer input("<?xml?>");
+    const Buffer input("<?xml?>");
     xdoc::Document document;
     const auto& root = document.root();
     EXPECT_THROW(Node::importJson(root, input), Exception);

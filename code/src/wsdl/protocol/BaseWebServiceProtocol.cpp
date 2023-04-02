@@ -25,7 +25,6 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebServiceProtocol.h"
-#include <sptk5/ZLib.h>
 
 using namespace std;
 using namespace sptk;
@@ -47,7 +46,7 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
 {
     for (const auto& node: element->nodes())
     {
-        bool isElement =
+        const bool isElement =
             node->type() != xdoc::Node::Type::ProcessingInstruction &&
             node->type() != xdoc::Node::Type::Comment;
         if (isElement)
@@ -65,7 +64,7 @@ xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, 
     {
         if (lowerCase(node->name()).endsWith(":envelope"))
         {
-            size_t pos = node->name().find(':');
+            const size_t pos = node->name().find(':');
             ns = node->name().substr(0, pos);
         }
     }
@@ -90,7 +89,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
     // Converting JSON request to XML request
     xdoc::Document jsonContent;
     Strings pathElements(url.path(), "/");
-    String method(*pathElements.rbegin());
+    const String method(*pathElements.rbegin());
     const auto& xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
@@ -184,7 +183,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
     else
     {
         Strings pathElements(m_url.path(), "/");
-        String method(*pathElements.rbegin());
+        const String method(*pathElements.rbegin());
 
         try
         {

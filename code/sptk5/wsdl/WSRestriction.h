@@ -50,7 +50,7 @@ public:
      * @param typeName                  WSDL type name
      * @param simpleTypeElement         Simple type XML node
      */
-    WSRestriction(const String& typeName, const xdoc::SNode& simpleTypeElement);
+    WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement);
 
     /**
      * Constructor from WSDL (XML) definition
@@ -58,7 +58,7 @@ public:
      * @param wsdlTypeName              WSDL type name
      * @param enumerationsOrPatternss   Enumerations or patterns
      */
-    WSRestriction(Type type, const String& wsdlTypeName, const Strings& enumerationsOrPattern);
+    WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPattern);
 
     /**
      * Get restriction type

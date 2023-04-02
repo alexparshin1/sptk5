@@ -124,15 +124,15 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     auto uid = (int) readOctalNumber(header->uid, "uid");
     auto gid = (int) readOctalNumber(header->gid, "gid");
 
-    time_t mtime = readOctalNumber(header->mtime, "mtime");
+    const time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dateTime = DateTime::convertCTime(mtime);
 
     const Buffer content(buffer.data() + offset, contentLength);
 
-    std::filesystem::path fname(header->filename.data());
-    String uname(header->uname.data());
-    String gname(header->gname.data());
-    std::filesystem::path linkName(header->linkName.data());
+    const std::filesystem::path fname(header->filename.data());
+    const String uname(header->uname.data());
+    const String gname(header->gname.data());
+    const std::filesystem::path linkName(header->linkName.data());
 
     size_t blockCount = contentLength / TAR_BLOCK_SIZE;
     if (blockCount * TAR_BLOCK_SIZE < contentLength)
@@ -140,7 +140,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         blockCount++;
     }
 
-    ArchiveFile::Ownership ownership {uid, gid, uname, gname};
+    const ArchiveFile::Ownership ownership {uid, gid, uname, gname};
     auto file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
 
     m_files[fname.string()] = file;
@@ -166,8 +166,8 @@ void Tar::save(const String& tarFileName) const
         archive.write((const char*) &header, TAR_BLOCK_SIZE);
         if (!archiveFile->empty())
         {
-            size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
-            Buffer padding(paddingLength);
+            const size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
+            const Buffer padding(paddingLength);
             archive.write(archiveFile->c_str(), (int) archiveFile->size());
             archive.write(padding.c_str(), (int) paddingLength);
         }

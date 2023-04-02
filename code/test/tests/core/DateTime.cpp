@@ -40,54 +40,54 @@ constexpr size_t maxDateTimeStringLength = 128;
 
 TEST(SPTK_DateTime, ctor1)
 {
-    DateTime dateTime("2018-01-01 11:22:33.444+10");
-    chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
+    const DateTime dateTime("2018-01-01 11:22:33.444+10");
+    const chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(1514769753444, msSinceEpoch.count());
 }
 
 TEST(SPTK_DateTime, ctor2)
 {
-    DateTime dateTime1("2018-01-01 11:22:33");
-    DateTime dateTime2(2018, 1, 1, 11, 22, 33);
-    chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
-    chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
+    const DateTime dateTime1("2018-01-01 11:22:33");
+    const DateTime dateTime2(2018, 1, 1, 11, 22, 33);
+    const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
+    const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
 }
 
 TEST(SPTK_DateTime, ctorDate)
 {
-    DateTime dateTime1("2018-02-01");
-    DateTime dateTime2(2018, 2, 1);
-    chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
-    chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
+    const DateTime dateTime1("2018-02-01");
+    const DateTime dateTime2(2018, 2, 1);
+    const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
+    const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
     COUT(dateTime1.isoDateTimeString() << endl);
 }
 
 TEST(SPTK_DateTime, isoTimeString)
 {
-    String input("2018-01-01T11:22:33");
-    DateTime dateTime1(input.c_str());
+    const String input("2018-01-01T11:22:33");
+    const DateTime dateTime1(input.c_str());
     COUT((String) dateTime1 << endl);
-    String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
+    const String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
     EXPECT_TRUE(output.startsWith(input));
 }
 
 TEST(SPTK_DateTime, timeZones)
 {
-    DateTime dateTime1("2018-01-01 09:22:33.444PM+10:00");
-    DateTime dateTime2("2018-01-01 20:22:33.444+09");
-    chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
-    chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
+    const DateTime dateTime1("2018-01-01 09:22:33.444PM+10:00");
+    const DateTime dateTime2("2018-01-01 20:22:33.444+09");
+    const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
+    const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(1514805753444, msSinceEpoch1.count());
     EXPECT_EQ(1514805753444, msSinceEpoch2.count());
 }
 
 TEST(SPTK_DateTime, add)
 {
-    DateTime dateTime1("2018-01-01 11:22:33.444+10");
-    DateTime dateTime2 = dateTime1 + chrono::milliseconds(111);
-    chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
+    const DateTime dateTime1("2018-01-01 11:22:33.444+10");
+    const DateTime dateTime2 = dateTime1 + chrono::milliseconds(111);
+    const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(1514769753555, msSinceEpoch2.count());
 }
 
@@ -99,7 +99,7 @@ TEST(SPTK_DateTime, extractDate)
     short wday = 0;
     short yday = 0;
 
-    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    const DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeDate(&year, &month, &day, &wday, &yday, true);
 
     EXPECT_EQ(2018, year);
@@ -116,7 +116,7 @@ TEST(SPTK_DateTime, extractTime)
     short second = 0;
     short ms = 0;
 
-    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    const DateTime dateTime("2018-08-07 11:22:33.444Z");
     dateTime.decodeTime(&hour, &minute, &second, &ms, true);
 
     EXPECT_EQ(11, hour);
@@ -127,7 +127,7 @@ TEST(SPTK_DateTime, extractTime)
 
 TEST(SPTK_DateTime, formatDate)
 {
-    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     auto t = (time_t) dateTime;
     tm tt {};
@@ -142,7 +142,7 @@ TEST(SPTK_DateTime, formatDate)
 
 TEST(SPTK_DateTime, formatTime)
 {
-    DateTime dateTime("2018-08-07 11:22:33.444Z");
+    const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     auto t = (time_t) dateTime;
     tm tt {};
@@ -175,9 +175,9 @@ TEST(SPTK_DateTime, formatDateTime2)
     {
         tzOffsetStr << "Z";
     }
-    String tzOffset(tzOffsetStr.str());
 
-    DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
+    const String tzOffset(tzOffsetStr.str());
+    const DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
 
     auto t = (time_t) dateTime;
     tm tt {};
@@ -193,7 +193,7 @@ TEST(SPTK_DateTime, formatDateTime2)
 TEST(SPTK_DateTime, parsePerformance)
 {
     constexpr size_t maxTests = 100000;
-    DateTime started("now");
+    const DateTime started("now");
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     for (size_t i = 0; i < maxTests; ++i)
@@ -201,17 +201,17 @@ TEST(SPTK_DateTime, parsePerformance)
         dateTime = DateTime("2018-08-07 11:22:33.444Z");
     }
 
-    DateTime ended("now");
-    double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
+    const DateTime ended("now");
+    const double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
 
     COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec" << endl);
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)
 {
-    DateTime dt1("2021-02-03T01:02:03+10");
-    DateTime dt2("2021-02-03T01:02:03+10:00");
-    DateTime dt3("2021-02-03T01:02:03+1000");
+    const DateTime dt1("2021-02-03T01:02:03+10");
+    const DateTime dt2("2021-02-03T01:02:03+10:00");
+    const DateTime dt3("2021-02-03T01:02:03+1000");
 
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
@@ -219,9 +219,9 @@ TEST(SPTK_DateTime, timezoneFormats1)
 
 TEST(SPTK_DateTime, timezoneFormats2)
 {
-    DateTime dt1("2021-02-03T01:02:03-10");
-    DateTime dt2("2021-02-03T01:02:03-10:00");
-    DateTime dt3("2021-02-03T01:02:03-1000");
+    const DateTime dt1("2021-02-03T01:02:03-10");
+    const DateTime dt2("2021-02-03T01:02:03-10:00");
+    const DateTime dt3("2021-02-03T01:02:03-1000");
 
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
@@ -229,9 +229,9 @@ TEST(SPTK_DateTime, timezoneFormats2)
 
 TEST(SPTK_DateTime, timezoneFormats3)
 {
-    DateTime dt1("2021-02-03T01:02:03Z");
-    DateTime dt2("2021-02-03T01:02:03-00:00");
-    DateTime dt3("2021-02-03T01:02:03-00");
+    const DateTime dt1("2021-02-03T01:02:03Z");
+    const DateTime dt2("2021-02-03T01:02:03-00:00");
+    const DateTime dt3("2021-02-03T01:02:03-00");
 
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt2.isoDateTimeString().c_str());
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
@@ -239,7 +239,7 @@ TEST(SPTK_DateTime, timezoneFormats3)
 
 TEST(SPTK_DateTime, dateElements)
 {
-    DateTime dt("2021-09-20 00:00:00");
+    const DateTime dt("2021-09-20 00:00:00");
     EXPECT_EQ(dt.daysInMonth(), 30);
     EXPECT_EQ(dt.dayOfWeek(), 1);
     EXPECT_STREQ(dt.monthName().c_str(), "September");
@@ -248,9 +248,9 @@ TEST(SPTK_DateTime, dateElements)
 
 TEST(SPTK_DateTime, compare)
 {
-    DateTime dt1("2021-09-20 00:00:00");
-    DateTime dt2("2021-10-20 00:00:00");
-    DateTime dt3("2021-09-20 00:00:00");
+    const DateTime dt1("2021-09-20 00:00:00");
+    const DateTime dt2("2021-10-20 00:00:00");
+    const DateTime dt3("2021-09-20 00:00:00");
     EXPECT_TRUE(dt1 < dt2);
     EXPECT_TRUE(dt1 <= dt2);
     EXPECT_TRUE(dt1 == dt3);

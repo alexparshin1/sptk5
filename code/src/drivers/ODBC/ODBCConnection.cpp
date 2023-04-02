@@ -53,11 +53,13 @@ public:
     }
 };
 
-static SQLRETURN ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
-static SQLRETURN ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
-static void ODBC_queryBindParameter(const Query* query, QueryParameter* parameter);
-
 } // namespace sptk
+
+namespace {
+SQLRETURN ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
+SQLRETURN ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
+void ODBC_queryBindParameter(const Query* query, QueryParameter* parameter);
+} // namespace
 
 ODBCConnection::ODBCConnection(const String& connectionString, std::chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC, connectTimeout)
@@ -163,10 +165,12 @@ void ODBCConnection::driverEndTransaction(bool commit)
 }
 
 //-----------------------------------------------------------------------------------------------
-static inline bool successful(int ret)
+namespace {
+inline bool successful(int ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
+} // namespace
 
 String ODBCConnection::queryError(SQLHSTMT stmt) const
 {
@@ -359,7 +363,8 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
         THROW_QUERY_ERROR(query, queryError(query))
 }
 
-static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& dateTime, bool dateOnly)
+namespace {
+bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& dateTime, bool dateOnly)
 {
     if (!dateTime.zero())
     {
@@ -383,7 +388,7 @@ static bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTim
     return false;
 }
 
-static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* param)
+void ODBC_queryBindParameter(const Query* query, QueryParameter* param)
 {
     static const int dateAccuracy = 19;
     static SQLLEN cbNullValue = SQL_NULL_DATA;
@@ -503,6 +508,7 @@ static void sptk::ODBC_queryBindParameter(const Query* query, QueryParameter* pa
         }
     }
 }
+} // namespace
 
 void ODBCConnection::queryBindParameters(Query* query)
 {
@@ -679,7 +685,8 @@ void ODBCConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-static uint32_t trimField(char* str, uint32_t size)
+namespace {
+uint32_t trimField(char* str, uint32_t size)
 {
     char* ptr = str + size - 1;
     const char chr = str[0];
@@ -701,8 +708,8 @@ static uint32_t trimField(char* str, uint32_t size)
     return uint32_t(ptr - str);
 }
 
-static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
-                                                  int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseField* dbField, SQLUSMALLINT column,
+                                     int16_t fieldType, SQLLEN& dataLength)
 {
     auto* field = dynamic_cast<ODBCField*>(dbField);
 
@@ -767,8 +774,8 @@ static SQLRETURN sptk::ODBC_readStringOrBlobField(SQLHSTMT statement, DatabaseFi
     return resultCode;
 }
 
-static SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                               int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN ODBC_readTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
+                                  int16_t fieldType, SQLLEN& dataLength)
 {
     TIMESTAMP_STRUCT timestampStruct = {};
     const SQLRETURN resultCode = SQLGetData(statement, column, fieldType, (SQLPOINTER) &timestampStruct, 0, &dataLength);
@@ -779,6 +786,7 @@ static SQLRETURN sptk::ODBC_readTimestampField(SQLHSTMT statement, DatabaseField
     }
     return resultCode;
 }
+} // namespace
 
 void ODBCConnection::queryFetch(Query* query)
 {

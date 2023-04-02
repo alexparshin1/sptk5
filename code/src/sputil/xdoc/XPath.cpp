@@ -31,7 +31,8 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-static void makeCriteria(XPathElement& pathElement)
+namespace {
+void makeCriteria(XPathElement& pathElement)
 {
     static const RegularExpression matchAttribute(R"(@(?<attribute>[\w\-_:]+)=['"]?(?<value>.*)['"]?)");
 
@@ -57,7 +58,7 @@ static void makeCriteria(XPathElement& pathElement)
     }
 }
 
-static void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
+void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
 {
     static const RegularExpression matchPathElement(
         R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
@@ -107,12 +108,13 @@ static void parsePathElement(const string& pathElementStr, XPathElement& pathEle
         pathElement.elementName = pathElementName.c_str();
     }
 }
+} // namespace
 
 bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, const XPathElement& pathElement,
                                                      const String& starPointer)
 {
     const Attributes& attributes = thisNode->attributes();
-    bool attributeMatch = false;
+    bool attributeMatch;
     if (pathElement.attributeValueDefined)
     {
         if (pathElement.attributeValue == starPointer)
@@ -168,6 +170,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
         {
             matchedNodes.push_back(node);
         }
+
         if (descendants)
         {
             scanDescendents(node, nodes, pathElements, pathPosition, starPointer);
@@ -188,7 +191,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
 
     if (pathElement.nodePosition != 0)
     {
-        int matchedPosition = 0;
+        int matchedPosition;
         if (pathElement.nodePosition < 0)
         {
             matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
@@ -197,6 +200,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
         {
             matchedPosition = pathElement.nodePosition - 1;
         }
+        
         if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
         {
             return;

@@ -315,7 +315,7 @@ void PoolDatabaseConnectionQueryMethods::querySetEof(Query* query, bool isEof)
     query->setEof(isEof);
 }
 
-void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName) const
+void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName)
 {
     throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
 }

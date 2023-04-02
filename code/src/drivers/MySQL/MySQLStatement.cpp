@@ -358,7 +358,7 @@ void MySQLStatement::execute(bool)
         MYSQL* conn = connection()->m_connection.get();
         if (mysql_query(conn, m_sql.c_str()) != 0)
         {
-            string error = mysql_error(conn);
+            const String error(mysql_error(conn));
             throw DatabaseException(error);
         }
         state().columnCount = mysql_field_count(conn);
@@ -395,7 +395,7 @@ void MySQLStatement::bindResult(FieldList& fields)
             columnName = "column_" + to_string(columnIndex + 1);
         }
 
-        VariantDataType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
+        const VariantDataType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
         auto fieldLength = (unsigned) fieldMetadata->length;
         if (fieldLength > FETCH_BUFFER)
         {
@@ -498,7 +498,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 
         auto* field = (MySQLStatementField*) &fields[fieldIndex];
 
-        VariantDataType fieldType = field->dataType();
+        const VariantDataType fieldType = field->dataType();
 
         const char* data = m_row[fieldIndex];
         if (data == nullptr)
@@ -566,8 +566,8 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
     }
     else
     {
-        DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
-                    short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
+        const DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
+                          short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
         field->setDateTime(dt, fieldType == VariantDataType::VAR_DATE);
         field->setDataSize(sizeof(int64_t));
     }
@@ -578,7 +578,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
     auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL)
     {
-        double value = string2double((char*) bind.buffer);
+        const double value = string2double((char*) bind.buffer);
         field->setFloat(value);
     }
     else
@@ -586,7 +586,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
         auto dataLength = (uint32_t) * (bind.length);
         if (dataLength == sizeof(float))
         {
-            float value = *(float*) bind.buffer;
+            const float value = *(float*) bind.buffer;
             field->setFloat(value);
         }
         field->setDataSize(dataLength);
@@ -602,7 +602,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
         auto* field = (MySQLStatementField*) &fields[fieldIndex];
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
-        VariantDataType fieldType = field->dataType();
+        const VariantDataType fieldType = field->dataType();
 
         if (*(bind.is_null))
         {

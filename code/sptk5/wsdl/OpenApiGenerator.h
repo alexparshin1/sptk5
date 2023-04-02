@@ -75,8 +75,8 @@ public:
      * @param servers           Servers that provide this service
      * @param options           Service options
      */
-    OpenApiGenerator(const String& title, const String& description, const String& version,
-                     const Strings& servers, const Options& options);
+    OpenApiGenerator(String title, String description, String version,
+                     Strings servers, Options options);
 
     /**
      * Generate OpenAPI service description
@@ -121,11 +121,11 @@ private:
     const Strings m_servers;    ///< Service servers
     const Options m_options;    ///< Service options
 
-    void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
+    static void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property);
 
     void parseRestriction(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
 
-    void parseRestrictionPatterns(const xdoc::SNode& property, const SWSRestriction& restriction) const;
+    static void parseRestrictionPatterns(const xdoc::SNode& property, const SWSRestriction& restriction);
 };
 
 } // namespace sptk

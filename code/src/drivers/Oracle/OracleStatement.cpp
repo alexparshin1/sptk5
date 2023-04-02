@@ -116,7 +116,7 @@ void OracleStatement::setParameterValues()
 
         if (!parameter.isOutput() && parameter.isNull())
         {
-            Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
+            const Type nativeType = VariantTypeToOracleType(parameter.binding().m_dataType);
             statement()->setNull(parameterIndex, nativeType);
             ++parameterIndex;
             continue;
@@ -254,9 +254,9 @@ void OracleStatement::setDateTimeParameterValue(unsigned int parameterIndex, con
         int16_t second {0};
         int16_t msecond {0};
         parameter.get<DateTime>().decodeTime(&hour, &minute, &second, &msecond);
-        Timestamp timestampValue(connection()->environment(),
-                                 year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute,
-                                 (unsigned) second);
+        const Timestamp timestampValue(connection()->environment(),
+                                       year, (unsigned) month, (unsigned) day, (unsigned) hour, (unsigned) minute,
+                                       (unsigned) second);
         statement()->setTimestamp(parameterIndex, timestampValue);
     }
 }
@@ -276,7 +276,7 @@ void OracleStatement::setDateParameterValue(unsigned int parameterIndex, const Q
         int16_t wday {0};
         int16_t yday {0};
         parameter.asDate().decodeDate(&year, &month, &day, &wday, &yday);
-        Date dateValue(connection()->environment(), year, (unsigned) month, (unsigned) day);
+        const Date dateValue(connection()->environment(), year, (unsigned) month, (unsigned) day);
         statement()->setDate(parameterIndex, dateValue);
     }
 }
@@ -360,7 +360,7 @@ void OracleStatement::execute(bool inTransaction)
 
         m_resultSet = statement()->getResultSet();
 
-        vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
+        const vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
 
         state().columnCount = (unsigned) resultSetMetaData.size();
 
@@ -386,7 +386,7 @@ void OracleStatement::getBLOBOutputParameter(unsigned int index, const SDatabase
 {
     Blob blob = statement()->getBlob(index);
     blob.open(OCCI_LOB_READONLY);
-    unsigned bytes = blob.length();
+    const unsigned bytes = blob.length();
     field->checkSize(bytes);
     blob.read(bytes, field->get<Buffer>().data(), bytes, 1);
     blob.close();
@@ -398,17 +398,17 @@ void OracleStatement::getCLOBOutputParameter(unsigned int index, const SDatabase
     Clob clob = statement()->getClob(index);
     clob.open(OCCI_LOB_READONLY);
     // Attention: clob stored as widechar
-    unsigned clobChars = clob.length();
-    unsigned clobBytes = clobChars * 4;
+    const unsigned clobChars = clob.length();
+    const unsigned clobBytes = clobChars * 4;
     field->checkSize(clobBytes);
-    unsigned bytes = clob.read(clobChars, field->get<Buffer>().data(), clobBytes, 1);
+    const unsigned bytes = clob.read(clobChars, field->get<Buffer>().data(), clobBytes, 1);
     clob.close();
     field->setDataSize(bytes);
 }
 
 void OracleStatement::getOutputParameters(FieldList& fields)
 {
-    for (unsigned index: m_outputParamIndex)
+    for (const unsigned index: m_outputParamIndex)
     {
         SQueryParameter parameter;
         try
@@ -475,7 +475,7 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SData
     unsigned min {0};
     unsigned sec {0};
 
-    Timestamp timestamp = statement()->getTimestamp(index);
+    const Timestamp timestamp = statement()->getTimestamp(index);
     unsigned ms;
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);

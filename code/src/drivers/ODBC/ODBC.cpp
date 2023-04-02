@@ -32,11 +32,13 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
 // Returns true if result code indicates success
-static inline bool Successful(RETCODE ret)
+inline bool Successful(RETCODE ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
+} // namespace
 
 //---------------------------------------------------------------------------
 // ODBC Environment class
@@ -48,7 +50,8 @@ void ODBCEnvironment::allocEnv()
     {
         return;
     } // Already allocated
-    scoped_lock lock(*this);
+
+    const scoped_lock lock(*this);
     SQLHENV hEnvironment {nullptr};
     if (!Successful(SQLAllocEnv(&hEnvironment)))
     {
@@ -57,7 +60,7 @@ void ODBCEnvironment::allocEnv()
 
     m_hEnvironment = shared_ptr<uint8_t>((uint8_t*) hEnvironment,
                                          [this](uint8_t* env) {
-                                             scoped_lock lck(*this);
+                                             const scoped_lock lck(*this);
                                              SQLFreeEnv(env);
                                          });
 }
@@ -79,7 +82,7 @@ void ODBCConnectionBase::allocConnect()
     // Allocate environment if not already done
     m_cEnvironment.allocEnv();
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     // Create connection handle
     SQLHDBC hConnection = nullptr;
@@ -114,7 +117,7 @@ void ODBCConnectionBase::freeConnect()
         disconnect();
     }
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     SQLFreeConnect(m_hConnection.get());
     m_hConnection = SQL_NULL_HDBC;
@@ -139,7 +142,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         disconnect();
     }
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     m_connectString = ConnectionString;
 
@@ -159,7 +162,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 
     if (!Successful(rc))
     {
-        String errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
+        const String errorInfo = errorInformation(("SQLDriverConnect(" + ConnectionString + ")").c_str());
         throw DatabaseException(errorInfo);
     }
 
@@ -190,7 +193,7 @@ void ODBCConnectionBase::disconnect()
         return;
     } // Not connected
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     SQLDisconnect(m_hConnection.get());
     m_connected = false;
@@ -204,7 +207,7 @@ void ODBCConnectionBase::setConnectOption(UWORD fOption, UDWORD vParam)
         throw DatabaseException(errorInformation(cantSetConnectOption));
     }
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     if (!Successful(SQLSetConnectOption(m_hConnection.get(), fOption, vParam)))
     {
@@ -216,7 +219,7 @@ void ODBCConnectionBase::execQuery(const char* query)
 {
     SQLHSTMT hstmt = SQL_NULL_HSTMT;
 
-    scoped_lock lock(*this);
+    const scoped_lock lock(*this);
 
     // Allocate Statement Handle
     if (!Successful(SQLAllocHandle(SQL_HANDLE_STMT, m_hConnection.get(), &hstmt)))
