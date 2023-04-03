@@ -37,8 +37,8 @@ TimerThread::TimerThread()
 
 TimerThread::~TimerThread()
 {
-    terminate();
-    m_semaphore.post();
+    TimerThread::terminate();
+    Thread::join();
 }
 
 STimerEvent TimerThread::waitForEvent()

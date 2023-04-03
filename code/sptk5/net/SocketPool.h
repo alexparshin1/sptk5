@@ -123,7 +123,7 @@ public:
      *
      * Execute callback function for each signaled socket.
      */
-    void waitForEvents(std::chrono::milliseconds timeout) const;
+    bool waitForEvents(std::chrono::milliseconds timeout) const;
 
     /**
      * Shutdown socket pool.

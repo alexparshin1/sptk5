@@ -95,18 +95,14 @@ void SocketEvents::threadFunction()
     {
         try
         {
-            m_socketPool.waitForEvents(m_timeout);
-        }
-        catch (const Exception& e)
-        {
-            if (m_socketPool.active())
-            {
-                CERR(e.message() << endl);
-            }
-            else
+            if (!m_socketPool.waitForEvents(m_timeout))
             {
                 break;
             }
+        }
+        catch (const Exception& e)
+        {
+            CERR(e.message() << endl);
         }
     }
     m_socketPool.close();

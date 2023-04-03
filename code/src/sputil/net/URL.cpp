@@ -34,8 +34,8 @@ namespace {
 bool nextToken(const String& url, size_t& start, const String& delimiter, String& value)
 {
     value = "";
-    auto end = url.find(delimiter, start);
-    if (end != string::npos)
+    if (auto end = url.find(delimiter, start);
+        end != string::npos)
     {
         value = url.substr(start, end - start);
         start = end + delimiter.length();

@@ -53,6 +53,7 @@ public:
         }
 
         Paths(const Paths& other) = default;
+        Paths(Paths&& other) noexcept = default;
     };
 
     struct Options {

@@ -39,7 +39,7 @@ WSParserAttribute::WSParserAttribute(String name, const String& typeName)
     : m_name(std::move(name))
     , m_wsTypeName(typeName)
 {
-    m_cxxTypeName = wsTypeTranslator.toCxxType(typeName);
+    m_cxxTypeName = WSTypeTranslator::toCxxType(typeName);
 }
 
 String WSParserAttribute::generate(bool initialize) const
@@ -127,7 +127,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
 
 String WSParserComplexType::className() const
 {
-    if (String cxxType = wsTypeTranslator.toCxxType(m_typeName, "");
+    if (String cxxType = WSTypeTranslator::toCxxType(m_typeName, "");
         !cxxType.empty())
     {
         return cxxType;

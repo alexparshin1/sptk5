@@ -117,7 +117,8 @@ void SocketPool::forgetSocket(Socket& socket)
     auto event = itor->second;
     m_socketData.erase(itor);
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event.get()) == -1)
+    if (socket.active() &&
+        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event.get()) == -1)
     {
         throw SystemException("Can't remove socket from epoll");
     }
@@ -133,7 +134,7 @@ bool SocketPool::hasSocket(Socket& socket)
 
 constexpr int maxEvents = 16;
 
-void SocketPool::waitForEvents(chrono::milliseconds timeout) const
+bool SocketPool::waitForEvents(chrono::milliseconds timeout) const
 {
     array<epoll_event, maxEvents> events {};
 
@@ -142,10 +143,10 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
     {
         if (m_pool == INVALID_EPOLL)
         {
-            throw Exception("Attempt to use closed epoll");
+            return false;
         }
 
-        return;
+        return true;
     }
 
     for (int i = 0; i < eventCount; ++i)
@@ -160,6 +161,8 @@ void SocketPool::waitForEvents(chrono::milliseconds timeout) const
             m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::CONNECTION_CLOSED);
         }
     }
+
+    return true;
 }
 
 bool SocketPool::active() const
