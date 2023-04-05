@@ -31,6 +31,7 @@
 #include <mutex>
 
 namespace sptk {
+
 class SP_EXPORT Console
 {
 public:
@@ -41,13 +42,13 @@ public:
 #define COUT(a)                                                  \
     do                                                           \
     {                                                            \
-        const std::scoped_lock printLock(Console::printMutex()); \
+        const std::scoped_lock printLock(sptk::Console::printMutex()); \
         std::cout << a << std::flush;                            \
     } while (false)
 
 #define CERR(a)                                                  \
     do                                                           \
     {                                                            \
-        const std::scoped_lock printLock(Console::printMutex()); \
+        const std::scoped_lock printLock(sptk::Console::printMutex()); \
         std::cerr << a;                                          \
     } while (false)
