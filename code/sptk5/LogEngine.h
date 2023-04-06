@@ -138,7 +138,15 @@ public:
     }
 
     /**
-     * Sets min message priority
+     * Get min message priority
+     */
+    virtual LogPriority minPriority() const
+    {
+        return m_minPriority;
+    }
+
+    /**
+     * Set min message priority
      *
      * Messages with priority less than requested are ignored
      * @param prt LogPriority, min message priority
