@@ -107,20 +107,29 @@ public:
     size_t readLine(String& dest, char delimiter = '\n');
 
     /**
-     * Returns number of bytes available to read
+     * Return number of bytes available to read
      */
     [[nodiscard]] size_t availableBytes() const;
 
     /**
-     * Returns true if there are bytes available to read
+     * Return true if there are bytes available to read
      * @param dest              Timeout waiting for data ready to read
      */
     [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout) const;
 
     /**
-     * Returns reader's socket
+     * Return reader's socket
      */
     [[nodiscard]] TCPSocket& socket();
+
+    /**
+     *
+     * Return true if socket is active
+     */
+    [[nodiscard]] bool active() const
+    {
+        return m_socket.active();
+    }
 
 private:
     mutable std::mutex m_mutex; ///< Mutex protecting read operations
