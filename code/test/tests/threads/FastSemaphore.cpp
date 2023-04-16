@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/Semaphore.h"
+#include "sptk5/threads/FastSemaphore.h"
 #include "sptk5/StopWatch.h"
 #include <future>
 #include <gtest/gtest.h>
@@ -34,13 +34,13 @@
 using namespace std;
 using namespace sptk;
 
-TEST(SPTK_Semaphore, waitAndPost)
+TEST(SPTK_FastSemaphore, waitAndPost)
 {
-    Semaphore semaphore;
+    FastSemaphore semaphore;
 
     DateTime started = DateTime::Now();
     constexpr chrono::milliseconds interval(100);
-    semaphore.sleep_for(interval);
+    semaphore.wait_for(interval);
     DateTime ended = DateTime::Now();
     EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
     semaphore.post();
@@ -49,7 +49,7 @@ TEST(SPTK_Semaphore, waitAndPost)
     EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
 }
 
-TEST(SPTK_Semaphore, threads)
+TEST(SPTK_FastSemaphore, threads)
 {
     Semaphore semaphore;
 
@@ -62,9 +62,9 @@ TEST(SPTK_Semaphore, threads)
     poster.wait();
 }
 
-TEST(SPTK_Semaphore, waitPerformance)
+TEST(SPTK_FastSemaphore, waitPerformance)
 {
-    Semaphore semaphore;
+    FastSemaphore semaphore;
     const size_t iterations = 10000;
 
     StopWatch stopWatch;
@@ -80,9 +80,9 @@ TEST(SPTK_Semaphore, waitPerformance)
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)
     {
-        semaphore.sleep_for(chrono::microseconds(1));
+        semaphore.wait_for(chrono::microseconds(1));
     }
     stopWatch.stop();
 
-    COUT("Executed " << iterations << " Semaphore waits. Scheduled: " << setprecision(2) << scheduleTime << " Elapsed " << setprecision(2) << stopWatch.seconds() << " seconds" << endl);
+    COUT("Executed " << iterations << " FastSemaphore waits. Scheduled: " << setprecision(2) << scheduleTime << " Elapsed " << setprecision(2) << stopWatch.seconds() << " seconds" << endl);
 }

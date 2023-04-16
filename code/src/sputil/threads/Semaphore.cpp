@@ -34,7 +34,7 @@ void Semaphore::post()
     m_value.release();
 }
 
-bool Semaphore::sleep_for(chrono::milliseconds timeout)
+bool Semaphore::sleep_for(chrono::microseconds timeout)
 {
     return m_value.try_acquire_for(timeout);
 }

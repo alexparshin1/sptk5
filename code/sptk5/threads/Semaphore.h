@@ -30,8 +30,8 @@
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
-#include <semaphore>
 #include <chrono>
+#include <semaphore>
 
 namespace sptk {
 
@@ -60,7 +60,7 @@ public:
      * @param timeout           Wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool sleep_for(std::chrono::milliseconds timeout);
+    bool sleep_for(std::chrono::microseconds timeout);
 
     /**
      * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs

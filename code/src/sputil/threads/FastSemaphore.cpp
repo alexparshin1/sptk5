@@ -24,65 +24,34 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/Semaphore.h"
-#include "sptk5/StopWatch.h"
-#include <future>
-#include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/threads/Semaphore.h>
+#include "sptk5/threads/FastSemaphore.h"
 
 using namespace std;
 using namespace sptk;
+using namespace sptk;
 
-TEST(SPTK_Semaphore, waitAndPost)
+void FastSemaphore::post()
 {
-    Semaphore semaphore;
-
-    DateTime started = DateTime::Now();
-    constexpr chrono::milliseconds interval(100);
-    semaphore.sleep_for(interval);
-    DateTime ended = DateTime::Now();
-    EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
-    semaphore.post();
-    started = ended;
-    ended = DateTime::Now();
-    EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+    m_value++;
+    if (m_value == 1)
+    {
+        m_semaphore.release();
+    }
 }
 
-TEST(SPTK_Semaphore, threads)
+bool FastSemaphore::wait_for(std::chrono::microseconds interval)
 {
-    Semaphore semaphore;
-
-    auto poster = async([&semaphore]() {
-        semaphore.post();
-    });
-    constexpr chrono::milliseconds timeout(100);
-    const bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
-    EXPECT_TRUE(posted);
-    poster.wait();
-}
-
-TEST(SPTK_Semaphore, waitPerformance)
-{
-    Semaphore semaphore;
-    const size_t iterations = 10000;
-
-    StopWatch stopWatch;
-
-    stopWatch.start();
-    for (size_t i = 0; i < iterations; ++i)
+    if (m_value > 0)
     {
-        semaphore.post();
+        m_value--;
+        return true;
     }
-    stopWatch.stop();
-    auto scheduleTime = stopWatch.seconds();
 
-    stopWatch.start();
-    for (size_t i = 0; i < iterations; ++i)
+    auto acquired = m_semaphore.try_acquire_for(interval);
+    if (acquired)
     {
-        semaphore.sleep_for(chrono::microseconds(1));
+        m_value--;
     }
-    stopWatch.stop();
 
-    COUT("Executed " << iterations << " Semaphore waits. Scheduled: " << setprecision(2) << scheduleTime << " Elapsed " << setprecision(2) << stopWatch.seconds() << " seconds" << endl);
+    return acquired;
 }
