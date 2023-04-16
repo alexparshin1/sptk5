@@ -41,7 +41,7 @@ int main()
 
         COUT("Semaphore posted       (Ok)" << endl);
 
-        if (semaphore.sleep_for(chrono::seconds(1)))
+        if (semaphore.wait_for(chrono::seconds(1)))
         {
             COUT("Semaphore was posted   (Ok)" << endl);
         }
@@ -50,7 +50,7 @@ int main()
             COUT("Semaphore wait timeout (Error)" << endl);
         }
 
-        if (semaphore.sleep_for(chrono::seconds(1)))
+        if (semaphore.wait_for(chrono::seconds(1)))
         {
             COUT("Semaphore was posted   (Error)" << endl);
         }

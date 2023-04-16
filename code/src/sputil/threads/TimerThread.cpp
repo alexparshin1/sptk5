@@ -46,11 +46,11 @@ STimerEvent TimerThread::waitForEvent()
     STimerEvent event = nextEvent();
     if (!event)
     {
-        m_semaphore.sleep_for(chrono::seconds(1));
+        m_semaphore.wait_for(chrono::seconds(1));
         return nullptr;
     }
 
-    if (m_semaphore.sleep_until(event->when()))
+    if (m_semaphore.wait_until(event->when()))
     {
         return nullptr; // Wait interrupted
     }

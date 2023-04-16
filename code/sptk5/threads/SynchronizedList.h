@@ -99,7 +99,7 @@ public:
      */
     virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout))
+        if (m_semaphore.wait_for(timeout))
         {
             std::scoped_lock lock(m_mutex);
             if (!m_list.empty())
@@ -136,7 +136,7 @@ public:
      */
     virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout))
+        if (m_semaphore.wait_for(timeout))
         {
             std::scoped_lock lock(m_mutex);
             if (!m_list.empty())

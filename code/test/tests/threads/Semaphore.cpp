@@ -40,7 +40,7 @@ TEST(SPTK_Semaphore, waitAndPost)
 
     DateTime started = DateTime::Now();
     constexpr chrono::milliseconds interval(100);
-    semaphore.sleep_for(interval);
+    semaphore.wait_for(interval);
     DateTime ended = DateTime::Now();
     EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
     semaphore.post();
@@ -57,7 +57,7 @@ TEST(SPTK_Semaphore, threads)
         semaphore.post();
     });
     constexpr chrono::milliseconds timeout(100);
-    const bool posted = semaphore.sleep_for(chrono::milliseconds(timeout));
+    const bool posted = semaphore.wait_for(chrono::milliseconds(timeout));
     EXPECT_TRUE(posted);
     poster.wait();
 }
@@ -80,7 +80,7 @@ TEST(SPTK_Semaphore, waitPerformance)
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)
     {
-        semaphore.sleep_for(chrono::microseconds(1));
+        semaphore.wait_for(chrono::microseconds(1));
     }
     stopWatch.stop();
 

@@ -83,7 +83,7 @@ void ThreadPool::execute(URunable task)
 
     constexpr std::chrono::milliseconds tenMilliseconds(10);
 
-    if (bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.sleep_for(tenMilliseconds);
+    if (bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.wait_for(tenMilliseconds);
         needMoreThreads && (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
     {
         createThread();

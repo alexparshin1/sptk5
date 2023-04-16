@@ -26,7 +26,9 @@
 
 #pragma once
 
-#include "Semaphore.h"
+#include <sptk5/String.h>
+#include <sptk5/threads/Semaphore.h>
+
 #include <atomic>
 #include <csignal>
 #include <mutex>

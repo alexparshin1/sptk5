@@ -127,7 +127,7 @@ TEST(SPTK_SocketEvents, minimal)
             }
         }
 
-        while (eventReceived.sleep_for(chrono::milliseconds(100)))
+        while (eventReceived.wait_for(chrono::milliseconds(100)))
         {
             receivedEventCount++;
         }

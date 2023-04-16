@@ -24,27 +24,51 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/threads/Semaphore.h>
+#include "sptk5/threads/Semaphore.h"
 
 using namespace std;
+using namespace sptk;
 using namespace sptk;
 
 void Semaphore::post()
 {
-    m_value.release();
+    m_value++;
+    if (m_value == 1)
+    {
+        m_semaphore.release();
+    }
 }
 
-bool Semaphore::sleep_for(chrono::microseconds timeout)
+bool Semaphore::wait_for(std::chrono::microseconds interval)
 {
-    return m_value.try_acquire_for(timeout);
+    if (m_value > 0)
+    {
+        m_value--;
+        return true;
+    }
+
+    auto acquired = m_semaphore.try_acquire_for(interval);
+    if (acquired)
+    {
+        m_value--;
+    }
+
+    return acquired;
 }
 
-bool Semaphore::sleep_until(const DateTime& timeoutAt)
+bool Semaphore::wait_until(const DateTime& timeout)
 {
-    return sleep_until(timeoutAt.timePoint());
-}
+    if (m_value > 0)
+    {
+        m_value--;
+        return true;
+    }
 
-bool Semaphore::sleep_until(const DateTime::time_point& timeoutAt)
-{
-    return m_value.try_acquire_until(timeoutAt);
+    auto acquired = m_semaphore.try_acquire_until(timeout.timePoint());
+    if (acquired)
+    {
+        m_value--;
+    }
+
+    return acquired;
 }

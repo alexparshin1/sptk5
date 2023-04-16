@@ -29,6 +29,7 @@
 #include <functional>
 #include <mutex>
 #include <queue>
+#include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
 
@@ -100,7 +101,7 @@ public:
      */
     bool pop(T& item, std::chrono::milliseconds timeout)
     {
-        if (m_semaphore.sleep_for(timeout))
+        if (m_semaphore.wait_for(timeout))
         {
             std::scoped_lock lock(m_mutex);
             if (!m_queue->empty())
