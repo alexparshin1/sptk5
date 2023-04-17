@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
