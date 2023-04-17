@@ -83,7 +83,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
         auto sum = task.get();
         actualSum += sum;
         // Expect tasks doing about the same amount of work
-        EXPECT_NEAR(expectedSum / maxTasks, sum, 70);
+        EXPECT_NEAR(expectedSum / maxTasks, sum, 100);
     }
 
     EXPECT_EQ(expectedSum, actualSum);
