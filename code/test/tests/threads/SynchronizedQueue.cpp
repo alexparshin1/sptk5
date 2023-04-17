@@ -66,8 +66,6 @@ TEST(SPTK_SynchronizedQueue, tasks)
         tasks.push_back(std::move(task));
     }
 
-    //this_thread::sleep_for(chrono::milliseconds(1));
-
     int value = 1;
     int expectedSum = 0;
     for (size_t index = 0; index < maxNumbers; ++index, ++value)
@@ -77,13 +75,14 @@ TEST(SPTK_SynchronizedQueue, tasks)
     }
 
     int actualSum = 0;
+    int expectedSumPerTask = expectedSum / (int) maxTasks;
     for (auto& task: tasks)
     {
         task.wait_for(chrono::milliseconds(200));
         auto sum = task.get();
         actualSum += sum;
         // Expect tasks doing about the same amount of work
-        EXPECT_NEAR(expectedSum / maxTasks, sum, 100);
+        EXPECT_NEAR(expectedSumPerTask, sum, 100);
     }
 
     EXPECT_EQ(expectedSum, actualSum);
@@ -118,5 +117,6 @@ TEST(SPTK_SynchronizedQueue, states)
         EXPECT_TRUE(queue.pop(queueItem, timeout));
         EXPECT_EQ(queueItem, item);
     }
+
     EXPECT_FALSE(queue.pop(item, timeout));
 }
