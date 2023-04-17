@@ -26,7 +26,7 @@
 
 #include <gtest/gtest.h>
 #include <sptk5/md5.h>
-#include <sptk5/net/HttpConnect.h>
+#include <sptk5/Printer.h>
 #include <sptk5/net/SmtpConnect.h>
 
 using namespace std;
@@ -43,13 +43,17 @@ TEST(SPTK_SmtpConnect, minimal)
 
     try
     {
+        COUT("Connecting to " << smtpServer.toString() << ".. " << flush);
         smtp.open(smtpServer);
+        COUT(" Connected" << endl);
         smtp.cmd_auth(username, password);
         smtp.subject("SPTK SMTP test");
         smtp.from("Some developer <somebody@nowhere.net>");
         smtp.to("someone@nowhere.net");
         smtp.body("Hello, World!", true);
+        COUT("Sending email.. " << flush);
         smtp.cmd_send();
+        COUT("Sent " << flush);
     }
     catch (const Exception& e)
     {
