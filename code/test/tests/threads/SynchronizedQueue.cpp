@@ -58,7 +58,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
                 {
                     break;
                 }
-                this_thread::sleep_for(chrono::milliseconds(100));
+                this_thread::sleep_for(chrono::milliseconds(10));
             }
             return sum;
         });
@@ -66,7 +66,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
         tasks.push_back(std::move(task));
     }
 
-    this_thread::sleep_for(chrono::milliseconds(10));
+    //this_thread::sleep_for(chrono::milliseconds(1));
 
     int value = 1;
     int expectedSum = 0;
@@ -76,17 +76,47 @@ TEST(SPTK_SynchronizedQueue, tasks)
         queue.push(value);
     }
 
-    COUT("Pushed " << maxNumbers << " numbers to the queue" << endl);
-    COUT("Expected sum is " << expectedSum << endl);
-
     int actualSum = 0;
     for (auto& task: tasks)
     {
         task.wait_for(chrono::milliseconds(200));
         auto sum = task.get();
         actualSum += sum;
-        COUT("Sum is " << sum << ", actual sum is " << actualSum << endl);
+        // Expect tasks doing about the same amount of work
+        EXPECT_NEAR(expectedSum / maxTasks, sum, 70);
     }
 
     EXPECT_EQ(expectedSum, actualSum);
+}
+
+TEST(SPTK_SynchronizedQueue, states)
+{
+    const chrono::milliseconds timeout(100);
+    SynchronizedQueue<int> queue;
+
+    int item = 1;
+    int maxItems = 10;
+
+    // Pull from the empty queue
+    EXPECT_FALSE(queue.pop(item, timeout));
+    EXPECT_FALSE(queue.pop(item, timeout));
+    queue.push(item);
+    EXPECT_TRUE(queue.pop(item, timeout));
+    EXPECT_EQ(1, item);
+    EXPECT_FALSE(queue.pop(item, timeout));
+
+    // Push few items to the queue
+    for (item = 1; item < maxItems; ++item)
+    {
+        queue.push(item);
+    }
+
+    // Now pull the same items
+    for (item = 1; item < maxItems; ++item)
+    {
+        int queueItem = 0;
+        EXPECT_TRUE(queue.pop(queueItem, timeout));
+        EXPECT_EQ(queueItem, item);
+    }
+    EXPECT_FALSE(queue.pop(item, timeout));
 }
