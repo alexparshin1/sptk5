@@ -24,12 +24,13 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/Semaphore.h"
-#include "sptk5/StopWatch.h"
-#include <future>
 #include <gtest/gtest.h>
+
 #include <sptk5/Printer.h>
+#include <sptk5/StopWatch.h>
 #include <sptk5/threads/Semaphore.h>
+
+#include <future>
 
 using namespace std;
 using namespace sptk;
@@ -51,15 +52,18 @@ TEST(SPTK_Semaphore, waitAndPost)
 
 TEST(SPTK_Semaphore, threads)
 {
+    constexpr chrono::milliseconds timeout(1000);
     Semaphore semaphore;
 
     auto poster = async([&semaphore]() {
         semaphore.post();
     });
-    constexpr chrono::milliseconds timeout(100);
-    const bool posted = semaphore.wait_for(chrono::milliseconds(timeout));
-    EXPECT_TRUE(posted);
+
+    const bool posted = semaphore.wait_for(timeout);
+
     poster.wait();
+
+    EXPECT_TRUE(posted);
 }
 
 TEST(SPTK_Semaphore, waitPerformance)

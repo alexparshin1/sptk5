@@ -24,53 +24,69 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <gtest/gtest.h>
+
 #include <sptk5/Printer.h>
-#include <sptk5/threads/Semaphore.h>
+#include <sptk5/StopWatch.h>
+#include <sptk5/threads/SynchronizedQueue.h>
+
+#include <future>
 
 using namespace std;
 using namespace sptk;
 
-void Semaphore::post()
+TEST(SPTK_SynchronizedQueue, tasks)
 {
-    atomic_thread_fence(std::memory_order_release);
-    int count = m_value.fetch_add(1, std::memory_order_relaxed);
-    if (count > 0)
-        m_semaphore.release();
-}
+    const size_t maxNumbers = 100;
+    const size_t maxTasks = 10;
+    const chrono::milliseconds timeout(1000);
+    SynchronizedQueue<int> queue;
 
-bool Semaphore::wait_for(std::chrono::microseconds interval)
-{
-    bool acquired = true;
-
-    int count = m_value.fetch_sub(1, std::memory_order_relaxed);
-    if (count < 1)
+    vector<future<int>> tasks;
+    for (size_t index = 0; index < maxTasks; ++index)
     {
-        acquired = m_semaphore.try_acquire_for(interval);
-        if (!acquired)
-        {
-            m_value++;
-            acquired = false;
-        }
+        auto task = async([&queue, &timeout]() {
+            int sum = 0;
+            while (true)
+            {
+                int value;
+                if (queue.pop(value, timeout))
+                {
+                    sum += value;
+                }
+                else
+                {
+                    break;
+                }
+                this_thread::sleep_for(chrono::milliseconds(100));
+            }
+            return sum;
+        });
+
+        tasks.push_back(std::move(task));
     }
 
-    atomic_thread_fence(std::memory_order_acquire);
+    this_thread::sleep_for(chrono::milliseconds(10));
 
-    return acquired;
-}
-
-bool Semaphore::wait_until(const DateTime& timeout)
-{
-    if (m_value > 0)
+    int value = 1;
+    int expectedSum = 0;
+    for (size_t index = 0; index < maxNumbers; ++index, ++value)
     {
-        m_value--;
-        return true;
+        expectedSum += value;
+        queue.push(value);
     }
 
-    auto acquired = m_semaphore.try_acquire_until(timeout.timePoint());
-    if (acquired)
+    COUT("Pushed " << maxNumbers << " numbers to the queue" << endl);
+    COUT("Expected sum is " << expectedSum << endl);
+
+    int actualSum = 0;
+    for (auto& task: tasks)
     {
-        m_value--;
+        task.wait_for(chrono::milliseconds(200));
+        auto sum = task.get();
+        actualSum += sum;
+        COUT("Sum is " << sum << ", actual sum is " << actualSum << endl);
     }
 
-    return acquired;
+    EXPECT_EQ(expectedSum, actualSum);
 }
