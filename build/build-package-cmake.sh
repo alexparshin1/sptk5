@@ -61,7 +61,8 @@ export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient
 echo "10.1.1.242  oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host" >> /etc/hosts
 
 cat /etc/hosts
-cd test && /usr/local/bin/sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
+pwd
+cd $CWD/test && ./sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
 RC=$?
 
 exit $RC
