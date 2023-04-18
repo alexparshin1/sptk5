@@ -88,6 +88,40 @@ TEST(SPTK_SynchronizedQueue, tasks)
     EXPECT_EQ(expectedSum, actualSum);
 }
 
+TEST(SPTK_SynchronizedQueue, performance)
+{
+    const size_t maxNumbers = 10000;
+    const chrono::milliseconds timeout(1000);
+    SynchronizedQueue<int> queue;
+
+    StopWatch stopWatch;
+
+    stopWatch.start();
+    int value = 1;
+    int actualSum = 0;
+    for (size_t index = 0; index < maxNumbers; ++index, ++value)
+    {
+        queue.push(value);
+        actualSum += value;
+    }
+    stopWatch.stop();
+    COUT("Pushed " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second" << endl);
+
+    stopWatch.start();
+    int receivedSum = 0;
+    for (size_t index = 0; index < maxNumbers; ++index)
+    {
+        if (queue.pop(value, timeout))
+        {
+            receivedSum += value;
+        }
+    }
+    stopWatch.stop();
+    COUT("Popped " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second" << endl);
+
+    EXPECT_EQ(actualSum, receivedSum);
+}
+
 TEST(SPTK_SynchronizedQueue, states)
 {
     const chrono::milliseconds timeout(100);
