@@ -39,11 +39,13 @@ TEST(SPTK_Semaphore, waitAndPost)
 {
     Semaphore semaphore;
 
-    DateTime started = DateTime::Now();
     constexpr chrono::milliseconds interval(100);
+
+    DateTime started = DateTime::Now();
     semaphore.wait_for(interval);
     DateTime ended = DateTime::Now();
     EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 20);
+
     semaphore.post();
     started = ended;
     ended = DateTime::Now();

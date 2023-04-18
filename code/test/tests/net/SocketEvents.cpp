@@ -82,7 +82,7 @@ TEST(SPTK_SocketEvents, minimal)
                     while (socketReader->readLine(line, '\n') != 0)
                     {
                         eventReceived.post();
-                        COUT("Client received (" << eventReceived.value() << "): " << line.c_str() << endl);
+                        COUT("Client received: " << line.c_str() << endl);
                     }
                     break;
                 case SocketEventType::CONNECTION_CLOSED:

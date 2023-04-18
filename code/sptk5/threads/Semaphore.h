@@ -26,10 +26,10 @@
 
 #pragma once
 
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
-#include "sptk5/DateTime.h"
-#include <atomic>
 #include <chrono>
 #include <semaphore>
 
@@ -43,7 +43,7 @@ namespace sptk {
 /**
  * @brief Generic unnamed semaphore class
  */
-class Semaphore
+class SP_EXPORT Semaphore
 {
 public:
     /**
@@ -51,34 +51,51 @@ public:
      *
      * The semaphore value is increased by one.
      */
-    void post();
+    void post()
+    {
+        m_value.release();
+    }
 
     /**
      * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param interval           Wait timeout
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
-     */
-    bool wait_for(std::chrono::microseconds interval);
-
-    /**
-     * @brief Wait until semaphore value is greater than zero, or until timeout is passed
-     *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
      * @param timeout           Wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait_until(const DateTime& timeout);
-
-    int value() const
+    bool wait_for(std::chrono::microseconds timeout)
     {
-        return m_value;
+        return m_value.try_acquire_for(timeout);
+    }
+
+    /**
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool wait_until(const DateTime& timeoutAt)
+    {
+        return wait_until(timeoutAt.timePoint());
+    }
+
+    /**
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool wait_until(const DateTime::time_point& timeoutAt)
+    {
+        return m_value.try_acquire_until(timeoutAt);
     }
 
 private:
-    std::atomic_int m_value;               ///< Semaphore value
-    std::binary_semaphore m_semaphore {0}; ///< Semaphore is posted flag
+    std::counting_semaphore<0x7FFFFFFF> m_value {0};
 };
-
+/**
+ * @}
+ */
 } // namespace sptk
