@@ -73,8 +73,8 @@ void TimerThread::threadFunction()
 
 void TimerThread::terminate()
 {
-    m_semaphore.post();
     Thread::terminate();
+    m_semaphore.post();
 }
 
 void TimerThread::wakeUp()

@@ -34,7 +34,7 @@ void Semaphore::post()
 {
     atomic_thread_fence(std::memory_order_release);
     int count = m_value.fetch_add(1, std::memory_order_relaxed);
-    if (count < 0)
+    if (count < 1)
     {
         m_semaphore.release();
     }

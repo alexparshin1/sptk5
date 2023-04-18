@@ -71,6 +71,11 @@ public:
      */
     bool wait_until(const DateTime& timeout);
 
+    int value() const
+    {
+        return m_value;
+    }
+
 private:
     std::atomic_int m_value;               ///< Semaphore value
     std::binary_semaphore m_semaphore {0}; ///< Semaphore is posted flag

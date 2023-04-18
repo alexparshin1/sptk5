@@ -81,8 +81,8 @@ TEST(SPTK_SocketEvents, minimal)
                 case SocketEventType::HAS_DATA:
                     while (socketReader->readLine(line, '\n') != 0)
                     {
-                        COUT("Client received: " << line.c_str() << endl);
                         eventReceived.post();
+                        COUT("Client received (" << eventReceived.value() << "): " << line.c_str() << endl);
                     }
                     break;
                 case SocketEventType::CONNECTION_CLOSED:
@@ -116,7 +116,6 @@ TEST(SPTK_SocketEvents, minimal)
 
         socketReader = make_shared<SocketReader>(socket);
 
-        size_t receivedEventCount {0};
         for (const auto& row: testRows)
         {
             auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
@@ -127,6 +126,7 @@ TEST(SPTK_SocketEvents, minimal)
             }
         }
 
+        size_t receivedEventCount {0};
         while (eventReceived.wait_for(chrono::milliseconds(100)))
         {
             receivedEventCount++;
