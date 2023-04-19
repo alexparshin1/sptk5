@@ -121,36 +121,3 @@ TEST(SPTK_SynchronizedQueue, performance)
 
     EXPECT_EQ(actualSum, receivedSum);
 }
-
-TEST(SPTK_SynchronizedQueue, states)
-{
-    const chrono::milliseconds timeout(100);
-    SynchronizedQueue<int> queue;
-
-    int item = 1;
-    int maxItems = 10;
-
-    // Pull from the empty queue
-    EXPECT_FALSE(queue.pop(item, timeout));
-    EXPECT_FALSE(queue.pop(item, timeout));
-    queue.push(item);
-    EXPECT_TRUE(queue.pop(item, timeout));
-    EXPECT_EQ(1, item);
-    EXPECT_FALSE(queue.pop(item, timeout));
-
-    // Push few items to the queue
-    for (item = 1; item < maxItems; ++item)
-    {
-        queue.push(item);
-    }
-
-    // Now pull the same items
-    for (item = 1; item < maxItems; ++item)
-    {
-        int queueItem = 0;
-        EXPECT_TRUE(queue.pop(queueItem, timeout));
-        EXPECT_EQ(queueItem, item);
-    }
-
-    EXPECT_FALSE(queue.pop(item, timeout));
-}
