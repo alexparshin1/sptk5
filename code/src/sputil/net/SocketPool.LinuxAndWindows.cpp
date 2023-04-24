@@ -132,13 +132,9 @@ bool SocketPool::hasSocket(Socket& socket)
     return itor != m_socketData.end();
 }
 
-constexpr int maxEvents = 16;
-
-bool SocketPool::waitForEvents(chrono::milliseconds timeout) const
+bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
-    array<epoll_event, maxEvents> events {};
-
-    const int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
+    const int eventCount = epoll_wait(m_pool, m_events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
         if (m_pool == INVALID_EPOLL)
@@ -151,14 +147,14 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout) const
 
     for (int i = 0; i < eventCount; ++i)
     {
-        const epoll_event& event = events[i];
+        const epoll_event& event = m_events[i];
         if (event.events & EPOLLIN)
         {
-            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::HAS_DATA);
+            m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), SocketEventType::HAS_DATA);
         }
         else if (event.events & (EPOLLHUP | EPOLLRDHUP))
         {
-            m_eventsCallback((uint8_t*) event.data.ptr, SocketEventType::CONNECTION_CLOSED);
+            m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), SocketEventType::CONNECTION_CLOSED);
         }
     }
 

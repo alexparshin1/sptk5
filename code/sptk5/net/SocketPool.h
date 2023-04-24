@@ -123,7 +123,7 @@ public:
      *
      * Execute callback function for each signaled socket.
      */
-    bool waitForEvents(std::chrono::milliseconds timeout) const;
+    bool waitForEvents(std::chrono::milliseconds timeout);
 
     /**
      * Shutdown socket pool.
@@ -173,6 +173,13 @@ private:
      * Map of sockets to corresponding user data
      */
     std::map<Socket*, std::shared_ptr<SocketEvent>> m_socketData;
+
+    static const int maxEvents = 128;
+
+    /**
+     * Events received by epoll
+     */
+    std::array<epoll_event, maxEvents> m_events {};
 };
 
 } // namespace sptk
