@@ -4,7 +4,7 @@
 using namespace std;
 using namespace sptk;
 
-TestSettings::TestSettings(std::filesystem::path settingsFile)
+void TestSettings::load(std::filesystem::path settingsFile)
 {
     Buffer settings;
     settings.loadFromFile(settingsFile);

@@ -136,10 +136,7 @@ public:
      * @param other             Source string
      */
     String& operator=(const String& other) = default;
-    /**
-     * Copy assignment operator
-     * @param other             Source string
-     */
+
     /**
      * Move assignment operator
      * @param other             Source string

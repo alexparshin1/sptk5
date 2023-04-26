@@ -4,6 +4,6 @@
 
 namespace sptk {
 
-std::shared_ptr<TestSettings> g_testSettings;
+const std::shared_ptr<TestSettings> g_testSettings = std::make_shared<TestSettings>();
 
 }

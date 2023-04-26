@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
 
     filesystem::path executablePath(argv[0]);
     auto settingsPath = executablePath.replace_filename("settings.txt");
-    g_testSettings = make_shared<TestSettings>(settingsPath);
+    g_testSettings->load(settingsPath);
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));

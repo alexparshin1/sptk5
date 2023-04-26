@@ -180,6 +180,7 @@ protected:
      */
     virtual void close()
     {
+        // Implement in derived class
     }
 
     /**

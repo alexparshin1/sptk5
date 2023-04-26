@@ -49,8 +49,8 @@ TEST(SPTK_SynchronizedQueue, tasks)
             int sum = 0;
             while (true)
             {
-                int value;
-                if (queue.pop(value, timeout))
+                if (int value;
+                    queue.pop(value, timeout))
                 {
                     sum += value;
                 }
