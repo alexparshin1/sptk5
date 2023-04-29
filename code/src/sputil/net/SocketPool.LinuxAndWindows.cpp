@@ -78,26 +78,26 @@ void SocketPool::close()
 
 void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
-    if (!socket.active())
+    const lock_guard lock(*this);
+    const uint32_t eventMask = (EPOLLIN | EPOLLHUP | EPOLLRDHUP);
+
+    auto socketFD = socket.fd();
+    if (socketFD == INVALID_SOCKET)
     {
         throw Exception("Socket is closed");
     }
 
-    const scoped_lock lock(*this);
-
-    if (m_pool == INVALID_EPOLL)
-    {
-        throw SystemException("SocketPool is not open");
-    }
-
-    auto socketFD = socket.fd();
-
     auto event = make_shared<epoll_event>();
     event->data.ptr = (void*) userData;
-    event->events = EPOLLIN | EPOLLHUP | EPOLLRDHUP;
+    event->events = eventMask;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event.get()) == -1)
     {
+        if (m_pool == INVALID_EPOLL)
+        {
+            throw SystemException("SocketPool is not open");
+        }
+
         throw SystemException("Can't add socket to SocketPool");
     }
 
@@ -106,7 +106,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
 void SocketPool::forgetSocket(Socket& socket)
 {
-    const scoped_lock lock(*this);
+    const lock_guard lock(*this);
 
     auto itor = m_socketData.find(&socket);
     if (itor == m_socketData.end())

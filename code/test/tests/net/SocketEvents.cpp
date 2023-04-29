@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/StopWatch.h"
 #include "sptk5/net/TCPServer.h"
 #include <gtest/gtest.h>
 #include <sptk5/Printer.h>
@@ -141,4 +142,34 @@ TEST(SPTK_SocketEvents, minimal)
     {
         FAIL() << e.what();
     }
+}
+
+TEST(SPTK_SocketEvents, performance)
+{
+    SocketEvents socketEvents("test events",
+                              [](const uint8_t*, SocketEventType) {
+                              });
+
+    const size_t maxSockets = 1024;
+    vector<shared_ptr<TCPSocket>> sockets;
+    for (size_t index = 0; index < maxSockets; ++index)
+    {
+        auto socket = make_shared<TCPSocket>();
+        socket->open(Host("theater", 80));
+        sockets.push_back(socket);
+        socketEvents.add(*socket, nullptr);
+    }
+
+    StopWatch stopWatch;
+
+    stopWatch.start();
+    for (auto& socket: sockets)
+    {
+        socketEvents.remove(*socket);
+        socketEvents.add(*socket, nullptr);
+    }
+    stopWatch.stop();
+
+    COUT("Executed " << maxSockets << " add/remove socket ops: "
+                     << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
 }

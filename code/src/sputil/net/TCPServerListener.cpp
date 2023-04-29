@@ -98,6 +98,25 @@ void TCPServerListener::threadFunction()
     }
 }
 
+void TCPServerListener::listen()
+{
+    if (!running())
+    {
+        m_listenerSocket.listen();
+        run();
+    }
+}
+
+uint16_t TCPServerListener::port() const
+{
+    return m_listenerSocket.host().port();
+}
+
+String TCPServerListener::error() const
+{
+    return m_error;
+}
+
 void TCPServerListener::stop()
 {
     terminate();

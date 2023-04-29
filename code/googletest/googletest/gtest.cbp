@@ -26,7 +26,6 @@
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
@@ -49,7 +48,6 @@
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
@@ -72,7 +70,6 @@
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
@@ -95,7 +92,6 @@
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
-					<Add option="-DSPTK_LOCK_DEBUG"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
 					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>

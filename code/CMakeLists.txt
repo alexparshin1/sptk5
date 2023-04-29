@@ -84,7 +84,7 @@ INCLUDE(${CMAKE_ROOT}/Modules/CheckFunctionExists.cmake)
 INCLUDE(cmake/OSType.cmake)
 
 INCLUDE(CheckTypeSize)
-check_type_size("void*" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
+CHECK_TYPE_SIZE("void*" SIZEOF_VOID_P BUILTIN_TYPES_ONLY)
 SET(BITNESS 32)
 IF (SIZEOF_VOID_P EQUAL 8)
     SET(BITNESS 64)
@@ -94,43 +94,43 @@ MESSAGE("Build type:         ${CMAKE_BUILD_TYPE} ${BITNESS} bit")
 MESSAGE("Compiler:           ${CMAKE_CXX_COMPILER_ID}")
 IF (WIN32)
     ADD_DEFINITIONS(
-        -DHAVE_CONFIG_H
-        -DWIN32
-        -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
-        -D_CRT_SECURE_NO_WARNINGS
-        -DGTEST_LANG_CXX11=1
+            -DHAVE_CONFIG_H
+            -DWIN32
+            -D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
+            -D_CRT_SECURE_NO_WARNINGS
+            -DGTEST_LANG_CXX11=1
     )
     ADD_COMPILE_OPTIONS(/wd4275 /std:c++20)
     LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         ADD_DEFINITIONS(
-            -fPIC
-            -Wall -pedantic
-            -Wno-c++98-compat
-            -Wno-c++98-compat-pedantic
-            -Wno-cast-align
-            -Wno-exit-time-destructors
-            -Wno-float-equal
-            -Wno-format-nonliteral
-            -Wno-global-constructors
-            -Wno-implicit-fallthrough
-            -Wno-long-long
-            -Wno-missing-prototypes
-            -Wno-missing-noreturn
-            -Wno-padded
-            -Wno-shadow
-            -Wno-switch-enum
-            -Wno-unused-parameter
+                -fPIC
+                -Wall -pedantic
+                -Wno-c++98-compat
+                -Wno-c++98-compat-pedantic
+                -Wno-cast-align
+                -Wno-exit-time-destructors
+                -Wno-float-equal
+                -Wno-format-nonliteral
+                -Wno-global-constructors
+                -Wno-implicit-fallthrough
+                -Wno-long-long
+                -Wno-missing-prototypes
+                -Wno-missing-noreturn
+                -Wno-padded
+                -Wno-shadow
+                -Wno-switch-enum
+                -Wno-unused-parameter
         )
         IF (BUILD_WITH_COVERAGE)
             ADD_DEFINITIONS(-fprofile-instr-generate -fcoverage-mapping)
         ENDIF ()
     ELSE ()
         ADD_DEFINITIONS(
-            -fPIC
-            -Wall -pedantic
-            -Wno-long-long
+                -fPIC
+                -Wall -pedantic
+                -Wno-long-long
         )
         IF (BUILD_WITH_COVERAGE)
             ADD_DEFINITIONS(--coverage)
@@ -158,16 +158,13 @@ ELSE ()
 
     IF (UNIX)
         LINK_LIBRARIES(pthread rt dl stdc++fs)
-        LINK_LIBRARIES(gcov)
+        IF (BUILD_WITH_COVERAGE)
+            LINK_LIBRARIES(gcov)
+        ENDIF ()
     ELSE ()
         LINK_LIBRARIES(pthread rt)
     ENDIF ()
 ENDIF ()
-
-IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    ADD_DEFINITIONS(-DSPTK_LOCK_DEBUG)
-ENDIF ()
-
 
 IF (WIN32)
     SET(WINDIR "$ENV{ProgramW6432}")
@@ -363,15 +360,15 @@ IF (WIN32)
     SET(ProgramFiles "$ENV{ProgramFiles}")
     SET(ProgramFilesX86 "${ProgramFiles} (x86)")
     FIND_PROGRAM(MC_COMPILER mc PATHS
-        "${ProgramFiles}/Windows Kits/*/bin/x64"
-        "${ProgramFilesX86}/Windows Kits/*/bin/x64"
-        "${ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
-        "${ProgramFilesX86}/Microsoft SDKs/Windows/*/Bin/x64"
-        "${ProgramFiles}/Windows Kits/*/bin/*/x64"
-        "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
-        "${ProgramFiles}/Windows Kits/10/bin/*/x64"
-        "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
-        )
+                 "${ProgramFiles}/Windows Kits/*/bin/x64"
+                 "${ProgramFilesX86}/Windows Kits/*/bin/x64"
+                 "${ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
+                 "${ProgramFilesX86}/Microsoft SDKs/Windows/*/Bin/x64"
+                 "${ProgramFiles}/Windows Kits/*/bin/*/x64"
+                 "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
+                 "${ProgramFiles}/Windows Kits/10/bin/*/x64"
+                 "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
+                 )
     IF (MC_COMPILER)
         MESSAGE("Windows SDK mc:     found")
     ELSE (MC_COMPILER)
@@ -456,10 +453,10 @@ ENDIF (USE_OPENSSL)
 
 
 INCLUDE(cmake/CXX20.cmake)
-check_for_cxx20_compiler(CXX20_COMPILER)
+CHECK_FOR_CXX20_COMPILER(CXX20_COMPILER)
 # If a C++20 compiler is available, then set the appropriate flags
 IF (CXX20_COMPILER)
-    enable_cxx20()
+    ENABLE_CXX20()
     SET(CXX_STANDARD "20")
 ELSE (CXX20_COMPILER)
     MESSAGE(FATAL_ERROR "C++ compiler 20 or above isn't available")
@@ -560,14 +557,14 @@ INSTALL(FILES ${includeFilesGroup} DESTINATION include/sptk5 COMPONENT core)
 
 # create uninstall configuration file
 CONFIGURE_FILE(
-    "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    #  "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
-    "share/sptk5/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY
+        "${PROJECT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+        #  "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake"
+        "share/sptk5/cmake_uninstall.cmake"
+        IMMEDIATE @ONLY
 )
 
 # create uninstall target
 ADD_CUSTOM_TARGET(
-    uninstall
-    "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake "
+        uninstall
+        "${CMAKE_COMMAND}" -P "${PROJECT_BINARY_DIR}/cmake_uninstall.cmake "
 )

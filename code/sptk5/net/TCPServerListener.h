@@ -64,30 +64,17 @@ public:
     /**
      * Start socket listening
      */
-    void listen()
-    {
-        if (!running())
-        {
-            m_listenerSocket.listen();
-            run();
-        }
-    }
+    void listen();
 
     /**
      * Returns listener port number
      */
-    uint16_t port() const
-    {
-        return m_listenerSocket.host().port();
-    }
+    uint16_t port() const;
 
     /**
      * Returns latest socket error (if any)
      */
-    String error() const
-    {
-        return m_error;
-    }
+    String error() const;
 
     /**
      * Stop running listener and join its thread
