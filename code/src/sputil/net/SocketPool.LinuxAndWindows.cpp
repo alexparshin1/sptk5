@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketPool.h>
 
@@ -79,7 +80,7 @@ void SocketPool::close()
 void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const lock_guard lock(*this);
-    const uint32_t eventMask = (EPOLLIN | EPOLLHUP | EPOLLRDHUP);
+    const uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 
     auto socketFD = socket.fd();
     if (socketFD == INVALID_SOCKET)
@@ -148,14 +149,20 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     for (int i = 0; i < eventCount; ++i)
     {
         const epoll_event& event = m_events[i];
-        if (event.events & EPOLLIN)
+        auto eventType = SocketEventType::UNKNOWN;
+        if (event.events & EPOLLIN) [[likely]]
         {
-            m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), SocketEventType::HAS_DATA);
+            eventType = SocketEventType::HAS_DATA;
         }
-        else if (event.events & (EPOLLHUP | EPOLLRDHUP))
+        else if (event.events & (EPOLLHUP | EPOLLRDHUP)) [[unlikely]]
         {
-            m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), SocketEventType::CONNECTION_CLOSED);
+            eventType = SocketEventType::CONNECTION_CLOSED;
         }
+        else if (event.events & (EPOLLERR)) [[unlikely]]
+        {
+            eventType = SocketEventType::CONNECTION_ERROR;
+        }
+        m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), eventType);
     }
 
     return true;
