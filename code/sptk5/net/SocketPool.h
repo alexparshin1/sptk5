@@ -64,12 +64,11 @@ namespace sptk {
 /**
  * Socket event types
  */
-enum class SocketEventType : uint8_t
+struct SocketEventType
 {
-    UNKNOWN,           ///< Unknown event
-    HAS_DATA,          ///< Socket has data available to read
-    CONNECTION_CLOSED, ///< Peer closed connection
-    CONNECTION_ERROR   ///< Connection error
+    bool m_data:1;   ///< Socket has data available to read
+    bool m_hangup:1; ///< Peer closed connection
+    bool m_error:1;  ///< Connection error
 };
 
 /**

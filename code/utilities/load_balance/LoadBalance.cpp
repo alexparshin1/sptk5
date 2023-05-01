@@ -34,7 +34,7 @@ void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType e
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    if (eventType.m_hangup)
     {
         channel->close();
         delete channel;
@@ -48,7 +48,7 @@ void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventT
 {
     auto* channel = (Channel*) userData;
 
-    if (eventType == SocketEventType::CONNECTION_CLOSED)
+    if (eventType.m_hangup)
     {
         channel->close();
         delete channel;

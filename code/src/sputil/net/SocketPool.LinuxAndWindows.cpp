@@ -149,19 +149,23 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     for (int i = 0; i < eventCount; ++i)
     {
         const epoll_event& event = m_events[i];
-        auto eventType = SocketEventType::UNKNOWN;
+        SocketEventType eventType {};
+
         if (event.events & EPOLLIN) [[likely]]
         {
-            eventType = SocketEventType::HAS_DATA;
+            eventType.m_data = true;
         }
-        else if (event.events & (EPOLLHUP | EPOLLRDHUP)) [[unlikely]]
+
+        if (event.events & (EPOLLHUP | EPOLLRDHUP)) [[unlikely]]
         {
-            eventType = SocketEventType::CONNECTION_CLOSED;
+            eventType.m_hangup = true;
         }
-        else if (event.events & (EPOLLERR)) [[unlikely]]
+
+        if (event.events & (EPOLLERR)) [[unlikely]]
         {
-            eventType = SocketEventType::CONNECTION_ERROR;
+            eventType.m_error = true;
         }
+
         m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), eventType);
     }
 

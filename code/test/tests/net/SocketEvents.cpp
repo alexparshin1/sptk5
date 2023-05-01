@@ -77,21 +77,19 @@ TEST(SPTK_SocketEvents, minimal)
     auto eventsCallback =
         [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
             Buffer line;
-            switch (eventType)
+
+            if (eventType.m_data)
             {
-                case SocketEventType::HAS_DATA:
-                    while (socketReader->readLine(line, '\n') != 0)
-                    {
-                        eventReceived.post();
-                        COUT("Client received: " << line.c_str() << endl);
-                    }
-                    break;
-                case SocketEventType::CONNECTION_CLOSED:
-                    COUT("Socket closed" << endl);
-                    break;
-                default:
-                    COUT("Unknown event" << endl);
-                    break;
+                while (socketReader->readLine(line, '\n') != 0)
+                {
+                    eventReceived.post();
+                    COUT("Client received: " << line.c_str() << endl);
+                }
+            }
+
+            if (eventType.m_hangup)
+            {
+                COUT("Socket closed" << endl);
             }
         };
 
