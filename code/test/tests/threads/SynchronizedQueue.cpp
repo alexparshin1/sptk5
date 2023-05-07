@@ -121,3 +121,31 @@ TEST(SPTK_SynchronizedQueue, performance)
 
     EXPECT_EQ(actualSum, receivedSum);
 }
+
+TEST(SPTK_SynchronizedQueue, for_each)
+{
+    const size_t maxNumbers = 10;
+    SynchronizedQueue<int> queue;
+
+    int actualSum = 0;
+    for (size_t index = 1; index < maxNumbers; ++index)
+    {
+        queue.push(index);
+        if (index < 5)
+        {
+            actualSum += index;
+        }
+    }
+
+    int receivedSum = 0;
+    queue.each([&receivedSum](const int& item) {
+        if (item < 5)
+        {
+            receivedSum += item;
+            return true;
+        }
+        return false;
+    });
+
+    EXPECT_EQ(actualSum, receivedSum);
+}

@@ -217,7 +217,7 @@ TEST(SPTK_RegularExpression, asyncExec)
     RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
     mutex amutex;
-    queue<future<size_t>> states;
+    deque<future<size_t>> states;
 
     constexpr size_t maxThreads = 10;
     for (size_t n = 0; n < maxThreads; ++n)
@@ -228,7 +228,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             return matchedNamedGroups.namedGroups().size();
         });
         scoped_lock lock(amutex);
-        states.push(std::move(f));
+        states.push_back(std::move(f));
     }
 
     future<size_t> f;
@@ -242,7 +242,7 @@ TEST(SPTK_RegularExpression, asyncExec)
             if (!states.empty())
             {
                 f = std::move(states.front());
-                states.pop();
+                states.pop_front();
                 ++n;
                 gotOne = true;
             }

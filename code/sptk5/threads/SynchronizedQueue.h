@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <deque>
 #include <functional>
 #include <mutex>
-#include <queue>
 #include <sptk5/Exception.h>
 #include <sptk5/Printer.h>
 #include <sptk5/threads/Semaphore.h>
@@ -52,15 +52,6 @@ public:
     virtual ~SynchronizedQueue() = default;
 
     /**
-     * Queue callback function used in each() method.
-     *
-     * Iterates through queue until false is returned.
-     * @param item T&, List item
-     * @param data void*, Optional function-specific data
-     */
-    using CallbackFunction = std::function<bool(T& item)>;
-
-    /**
      * Pushes a data item to the queue
      *
      * Item is moved inside the queue.
@@ -71,7 +62,7 @@ public:
     void push(T&& data)
     {
         std::unique_lock lock(m_mutex);
-        m_queue->push(std::move(data));
+        m_queue.push_back(std::move(data));
         lock.unlock();
         m_semaphore.post();
     }
@@ -86,7 +77,7 @@ public:
     void push(const T& data)
     {
         std::unique_lock lock(m_mutex);
-        m_queue->push(data);
+        m_queue.push_back(data);
         lock.unlock();
         m_semaphore.post();
     }
@@ -104,10 +95,10 @@ public:
         if (m_semaphore.wait_for(timeout))
         {
             std::scoped_lock lock(m_mutex);
-            if (!m_queue->empty())
+            if (!m_queue.empty())
             {
-                item = std::move(m_queue->front());
-                m_queue->pop();
+                item = std::move(m_queue.front());
+                m_queue.pop_front();
                 return true;
             }
         }
@@ -130,7 +121,7 @@ public:
     bool empty() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_queue->empty();
+        return m_queue.empty();
     }
 
     /**
@@ -139,7 +130,7 @@ public:
     size_t size() const
     {
         std::scoped_lock lock(m_mutex);
-        return m_queue->size();
+        return m_queue.size();
     }
 
     /**
@@ -148,47 +139,33 @@ public:
     void clear()
     {
         std::scoped_lock lock(m_mutex);
-        m_queue = std::make_shared<std::queue<T>>();
+        m_queue.clear();
     }
 
     /**
      * Calls callbackFunction() for every list until false is returned
      *
      * Current implementation does the job but isn't too efficient due to
-     * std::queue class limitations.
+     * std::deque class limitations.
      * @param callbackFunction  Callback function that is executed for list items
      * @param data              Function-specific data
      * @returns true if every list item was processed
      */
+    template<typename CallbackFunction>
     bool each(const CallbackFunction& callbackFunction)
     {
         std::scoped_lock lock(m_mutex);
 
-        auto newQueue = std::make_shared<std::queue<T>>();
-
         // Iterating through queue until callback returns false
         bool rc = true;
-        while (m_queue->size())
+        for (auto& item: m_queue)
         {
-            T& item = m_queue->front();
-            m_queue->pop();
-            newQueue->push(item);
-            // When rc switches to false, don't execute callback
-            // for the remaining queue items
-            if (rc)
+            rc = callbackFunction(item);
+            if (!rc)
             {
-                try
-                {
-                    rc = callbackFunction(item);
-                }
-                catch (const Exception&)
-                {
-                    rc = false;
-                }
+                break;
             }
         }
-
-        m_queue = newQueue;
 
         return rc;
     }
@@ -207,7 +184,7 @@ private:
     /**
      * Queue
      */
-    std::shared_ptr<std::queue<T>> m_queue {std::make_shared<std::queue<T>>()};
+    std::deque<T> m_queue;
 };
 /**
  * @}
