@@ -66,7 +66,7 @@ void CMyTask::run()
     while (!terminated())
     {
         int item;
-        if (intQueue.pop(item, chrono::milliseconds(100)))
+        if (intQueue.pop_front(item, chrono::milliseconds(100)))
         {
             m_log.info("Output " + to_string(item) + " from " + name());
         }
@@ -117,7 +117,7 @@ int main()
 
         for (int value = 0; value < 100; value++)
         {
-            intQueue.push(value);
+            intQueue.push_back(value);
         }
 
         sharedLog.log(LogPriority::NOTICE, "Waiting 1 seconds while tasks are running..");

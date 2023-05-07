@@ -90,7 +90,7 @@ void ThreadPool::execute(URunable task)
         createThread();
     }
 
-    m_taskQueue.push(std::move(task));
+    m_taskQueue.push_back(std::move(task));
 }
 
 void ThreadPool::threadEvent(Thread* thread, Type eventType, SRunable runable)

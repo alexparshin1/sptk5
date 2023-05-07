@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/LogEngine.h>
-#include <sptk5/Printer.h>
 
 using namespace std;
 using namespace sptk;
@@ -135,7 +134,7 @@ void LogEngine::log(Logger::UMessage&& message)
 
     if (m_minPriority >= message->priority)
     {
-        m_messages.push(std::move(message));
+        m_messages.push_back(std::move(message));
     }
 }
 
@@ -145,7 +144,7 @@ void LogEngine::threadFunction()
     while (!terminated())
     {
         Logger::UMessage message = nullptr;
-        if (!m_messages.pop(message, timeout))
+        if (!m_messages.pop_front(message, timeout))
         {
             continue;
         }

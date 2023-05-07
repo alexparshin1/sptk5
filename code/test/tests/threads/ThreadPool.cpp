@@ -47,7 +47,7 @@ public:
         while (!terminated())
         {
             if (int item = 0;
-                intQueue.pop(item, tenMilliseconds))
+                intQueue.pop_front(item, tenMilliseconds))
             {
                 ++m_count;
             }
@@ -94,7 +94,7 @@ TEST(SPTK_ThreadPool, run)
     constexpr int maxValues = 100;
     for (int value = 0; value < maxValues; ++value)
     {
-        MyTask::intQueue.push(value);
+        MyTask::intQueue.push_back(value);
     }
 
     constexpr chrono::milliseconds sleepInterval(300);

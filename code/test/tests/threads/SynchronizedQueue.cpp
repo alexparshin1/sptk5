@@ -50,7 +50,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
             while (true)
             {
                 if (int value;
-                    queue.pop(value, timeout))
+                    queue.pop_front(value, timeout))
                 {
                     sum += value;
                 }
@@ -71,7 +71,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
     for (size_t index = 0; index < maxNumbers; ++index, ++value)
     {
         expectedSum += value;
-        queue.push(value);
+        queue.push_back(value);
     }
 
     int actualSum = 0;
@@ -101,7 +101,7 @@ TEST(SPTK_SynchronizedQueue, performance)
     int actualSum = 0;
     for (size_t index = 0; index < maxNumbers; ++index, ++value)
     {
-        queue.push(value);
+        queue.push_back(value);
         actualSum += value;
     }
     stopWatch.stop();
@@ -111,7 +111,7 @@ TEST(SPTK_SynchronizedQueue, performance)
     int receivedSum = 0;
     for (size_t index = 0; index < maxNumbers; ++index)
     {
-        if (queue.pop(value, timeout))
+        if (queue.pop_front(value, timeout))
         {
             receivedSum += value;
         }
@@ -130,7 +130,7 @@ TEST(SPTK_SynchronizedQueue, for_each)
     int actualSum = 0;
     for (size_t index = 1; index < maxNumbers; ++index)
     {
-        queue.push(index);
+        queue.push_back(index);
         if (index < 5)
         {
             actualSum += index;

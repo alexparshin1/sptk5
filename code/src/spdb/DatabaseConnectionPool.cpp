@@ -178,11 +178,11 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
         m_connections.push_back(connection);
         return connection;
     }
-    m_pool.pop(connection, std::chrono::seconds(10));
+    m_pool.pop_front(connection, std::chrono::seconds(10));
     return connection;
 }
 
 void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& connection)
 {
-    m_pool.push(connection);
+    m_pool.push_back(connection);
 }

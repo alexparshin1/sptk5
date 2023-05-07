@@ -49,7 +49,7 @@ void WorkerThread::threadFunction()
         }
 
         URunable runable;
-        if (m_queue.pop(runable, oneSecond))
+        if (m_queue.pop_front(runable, oneSecond))
         {
             setRunable(runable.get());
             idleSeconds = chrono::milliseconds(0);
@@ -73,7 +73,7 @@ void WorkerThread::threadFunction()
 
 void WorkerThread::execute(URunable& task)
 {
-    m_queue.push(std::move(task));
+    m_queue.push_back(std::move(task));
 }
 
 void WorkerThread::setRunable(Runable* runable)

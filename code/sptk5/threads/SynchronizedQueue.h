@@ -59,10 +59,26 @@ public:
      * queue item availability.
      * @param data T&&, A data item
      */
-    void push(T&& data)
+    void push_back(T&& data)
     {
         std::unique_lock lock(m_mutex);
         m_queue.push_back(std::move(data));
+        lock.unlock();
+        m_semaphore.post();
+    }
+
+    /**
+     * Pushes a data item to the queue
+     *
+     * Item is moved inside the queue.
+     * Automatically posts internal semaphore to indicate
+     * queue item availability.
+     * @param data T&&, A data item
+     */
+    void push_front(T&& data)
+    {
+        std::unique_lock lock(m_mutex);
+        m_queue.push_front(std::move(data));
         lock.unlock();
         m_semaphore.post();
     }
@@ -74,10 +90,25 @@ public:
      * queue item availability.
      * @param data const T&, A data item
      */
-    void push(const T& data)
+    void push_back(const T& data)
     {
         std::unique_lock lock(m_mutex);
         m_queue.push_back(data);
+        lock.unlock();
+        m_semaphore.post();
+    }
+
+    /**
+     * Pushes a data item to the queue
+     *
+     * Automatically posts internal semaphore to indicate
+     * queue item availability.
+     * @param data const T&, A data item
+     */
+    void push_front(const T& data)
+    {
+        std::unique_lock lock(m_mutex);
+        m_queue.push_front(data);
         lock.unlock();
         m_semaphore.post();
     }
@@ -90,7 +121,7 @@ public:
      * @param item T&, A queue item (output)
      * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
      */
-    bool pop(T& item, std::chrono::milliseconds timeout)
+    bool pop_front(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.wait_for(timeout))
         {
@@ -99,6 +130,29 @@ public:
             {
                 item = std::move(m_queue.front());
                 m_queue.pop_front();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Pops a data item from the queue
+     *
+     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * Returns false if timeout occurs.
+     * @param item T&, A queue item (output)
+     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
+     */
+    bool pop_back(T& item, std::chrono::milliseconds timeout)
+    {
+        if (m_semaphore.wait_for(timeout))
+        {
+            std::scoped_lock lock(m_mutex);
+            if (!m_queue.empty())
+            {
+                item = std::move(m_queue.back());
+                m_queue.pop_back();
                 return true;
             }
         }

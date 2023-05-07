@@ -64,7 +64,7 @@ void ThreadManager::joinTerminatedThreads(milliseconds timeout)
     if (!m_terminatedThreads.empty())
     {
         SThread thread;
-        while (m_terminatedThreads.pop(thread, timeout))
+        while (m_terminatedThreads.pop_front(thread, timeout))
         {
             const scoped_lock lock(m_mutex);
             thread->terminate();
@@ -100,7 +100,7 @@ void ThreadManager::terminateRunningThreads()
     const scoped_lock lock(m_mutex);
     for (const auto& thread: m_runningThreads)
     {
-        m_terminatedThreads.push(thread);
+        m_terminatedThreads.push_back(thread);
         thread->terminate();
     }
 }
@@ -135,7 +135,7 @@ void ThreadManager::destroyThread(const Thread* thread)
         {
             auto matchedThread = *itor;
             m_runningThreads.erase(itor);
-            m_terminatedThreads.push(matchedThread);
+            m_terminatedThreads.push_back(matchedThread);
         }
     }
 }
