@@ -89,7 +89,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     }
 
     auto event = make_shared<epoll_event>();
-    event->data.ptr = (void*) userData;
+    event->data.ptr = const_cast<uint8_t*>(userData);
     event->events = eventMask;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event.get()) == -1)
@@ -161,7 +161,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
             eventType.m_hangup = true;
         }
 
-        if (event.events & (EPOLLERR)) [[unlikely]]
+        if (event.events & EPOLLERR) [[unlikely]]
         {
             eventType.m_error = true;
         }

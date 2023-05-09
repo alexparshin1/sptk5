@@ -30,51 +30,68 @@
 using namespace std;
 using namespace sptk;
 
-SocketReader::SocketReader(TCPSocket &socket, size_t buffer_size)
-        : Buffer(buffer_size), m_socket(socket) {
+SocketReader::SocketReader(TCPSocket& socket, size_t buffer_size)
+    : Buffer(buffer_size)
+    , m_socket(socket)
+{
 }
 
-void SocketReader::clear() {
+void SocketReader::clear()
+{
     scoped_lock const lock(m_mutex);
     m_readOffset = 0;
     bytes(0);
 }
 
-void SocketReader::close() {
+void SocketReader::close()
+{
     scoped_lock const lock(m_mutex);
-    try {
+    try
+    {
         m_readOffset = 0;
         bytes(0);
         m_socket.close();
     }
-    catch (const Exception &e) {
+    catch (const Exception& e)
+    {
         CERR(e.what() << endl);
     }
 }
 
-void SocketReader::handleReadFromSocketError(int error) {
-    if (error == EAGAIN) {
-        if (!m_socket.readyToRead(chrono::seconds(1))) {
+void SocketReader::handleReadFromSocketError(int error)
+{
+    if (error == EAGAIN)
+    {
+        if (!m_socket.readyToRead(chrono::seconds(1)))
+        {
             throw TimeoutException("Can't read from socket: timeout");
         }
-    } else {
+    }
+    else
+    {
         throw SystemException("Can't read from socket");
     }
 }
 
-int32_t SocketReader::readFromSocket() {
+int32_t SocketReader::readFromSocket()
+{
     m_readOffset = 0;
     int error;
-    do {
+    do
+    {
         error = 0;
         auto receivedBytes = (int) m_socket.read(data(), capacity() - 2);
-        if (receivedBytes == -1) {
+        if (receivedBytes == -1)
+        {
             bytes(0);
-            if (m_socket.active()) {
+            if (m_socket.active())
+            {
                 error = errno;
                 handleReadFromSocketError(error);
             }
-        } else {
+        }
+        else
+        {
             bytes((size_t) receivedBytes);
         }
     } while (error == EAGAIN);
@@ -84,14 +101,18 @@ int32_t SocketReader::readFromSocket() {
     return (int32_t) bytes();
 }
 
-static constexpr size_t readBytesLWM{128};
+static constexpr size_t readBytesLWM {128};
 
-void SocketReader::readMoreFromSocket(int availableBytes) {
-    if (m_readOffset != 0) {
+void SocketReader::readMoreFromSocket(int availableBytes)
+{
+    if (m_readOffset != 0)
+    {
         memmove(data(), data() + m_readOffset, (size_t) availableBytes);
         m_readOffset = 0;
         bytes((size_t) availableBytes);
-    } else {
+    }
+    else
+    {
         checkSize(capacity() + readBytesLWM);
     }
 
@@ -99,48 +120,63 @@ void SocketReader::readMoreFromSocket(int availableBytes) {
     bytes(bytes() + receivedBytes);
 }
 
-int32_t SocketReader::bufferedRead(uint8_t *destination, size_t size, char delimiter, bool read_line) {
+int32_t SocketReader::bufferedRead(uint8_t* destination, size_t size, char delimiter, bool read_line)
+{
     auto availableBytes = int(bytes() - m_readOffset);
     auto bytesToRead = (int) size;
     bool eol = false;
 
-    if (availableBytes == 0) {
-        if (!m_socket.active()) {
+    if (availableBytes == 0)
+    {
+        if (!m_socket.active())
+        {
             return 0;
         }
 
         availableBytes = readFromSocket();
-        if (empty()) {
+        if (empty())
+        {
             return 0;
         }
     }
 
-    char *readPosition = bit_cast<char *>(data()) + m_readOffset;
-    if (availableBytes < bytesToRead) {
+    char* readPosition = bit_cast<char*>(data()) + m_readOffset;
+    if (availableBytes < bytesToRead)
+    {
         bytesToRead = availableBytes;
     }
 
-    char *carriageReturn = nullptr;
-    if (read_line) {
-        size_t len{0};
-        if (delimiter == 0) {
+    char* carriageReturn = nullptr;
+    if (read_line)
+    {
+        size_t len {0};
+        if (delimiter == 0)
+        {
             len = strlen(readPosition);
-        } else {
+        }
+        else
+        {
             carriageReturn = strchr(readPosition, delimiter);
-            if (carriageReturn != nullptr) {
+            if (carriageReturn != nullptr)
+            {
                 len = carriageReturn - readPosition + 1;
-            } else {
+            }
+            else
+            {
                 readMoreFromSocket(availableBytes);
                 return 0;
             }
         }
-        if (len < size) {
+        if (len < size)
+        {
             eol = true;
             bytesToRead = (int) len;
-            if (delimiter == 0) {
+            if (delimiter == 0)
+            {
                 ++bytesToRead;
             }
-            if (carriageReturn != nullptr) {
+            if (carriageReturn != nullptr)
+            {
                 *carriageReturn = 0;
             }
         }
@@ -149,7 +185,8 @@ int32_t SocketReader::bufferedRead(uint8_t *destination, size_t size, char delim
     // copy data to destination, advance the read offset
     memcpy(destination, readPosition, size_t(bytesToRead));
 
-    if (read_line || bytesToRead < int(size)) {
+    if (read_line || bytesToRead < int(size))
+    {
         destination[bytesToRead] = 0;
     }
 
@@ -157,23 +194,28 @@ int32_t SocketReader::bufferedRead(uint8_t *destination, size_t size, char delim
     return eol ? -bytesToRead : bytesToRead;
 }
 
-size_t SocketReader::read(uint8_t *destination, size_t size, char delimiter, bool read_line) {
+size_t SocketReader::read(uint8_t* destination, size_t size, char delimiter, bool read_line)
+{
     int total = 0;
     int eol = 0;
 
-    while (eol == 0) {
+    while (eol == 0)
+    {
         const int bytesToRead = int(size) - total;
-        if (bytesToRead <= 0) {
+        if (bytesToRead <= 0)
+        {
             return size;
         }
 
         int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, read_line);
 
-        if (bytes == 0) { // No more data
+        if (bytes == 0)
+        { // No more data
             break;
         }
 
-        if (bytes < 0) { // Received the complete string
+        if (bytes < 0)
+        { // Received the complete string
             eol = 1;
             bytes = -bytes;
         }
@@ -184,38 +226,45 @@ size_t SocketReader::read(uint8_t *destination, size_t size, char delimiter, boo
     return size_t(total - eol);
 }
 
-size_t SocketReader::availableBytes() const {
+size_t SocketReader::availableBytes() const
+{
     scoped_lock const lock(m_mutex);
     auto available = bytes() - m_readOffset;
-    if (available == 0) {
+    if (available == 0)
+    {
         available = m_socket.socketBytes();
     }
     return available;
 }
 
-bool SocketReader::canRead(size_t bytesToRead) const {
+bool SocketReader::canRead(size_t bytesToRead) const
+{
     scoped_lock const lock(m_mutex);
 
     auto available = bytes() - m_readOffset;
-    if (available >= bytesToRead) {
+    if (available >= bytesToRead)
+    {
         return true;
     }
 
     return available + m_socket.socketBytes() >= bytesToRead;
 }
 
-bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const {
+bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
+{
     scoped_lock const lock(m_mutex);
 
     if (auto availableBytes = bytes() - m_readOffset;
-            availableBytes > 0) {
+        availableBytes > 0)
+    {
         return true;
     }
 
     return m_socket.readyToRead(timeout);
 }
 
-size_t SocketReader::read(Buffer &destinationBuffer, size_t size) {
+size_t SocketReader::read(Buffer& destinationBuffer, size_t size)
+{
     scoped_lock const lock(m_mutex);
     destinationBuffer.checkSize(size);
     auto bytes = read(destinationBuffer.data(), size, '\0', false);
@@ -223,35 +272,42 @@ size_t SocketReader::read(Buffer &destinationBuffer, size_t size) {
     return bytes;
 }
 
-size_t SocketReader::read(uint8_t *destinationBuffer, size_t size) {
+size_t SocketReader::read(uint8_t* destinationBuffer, size_t size)
+{
     scoped_lock const lock(m_mutex);
     return read(destinationBuffer, size, '\0', false);
 }
 
-size_t SocketReader::readLine(Buffer &destinationBuffer, char delimiter) {
+size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
+{
     scoped_lock const lock(m_mutex);
     size_t total = 0;
     int eol = 0;
 
-    if (!m_socket.active()) {
+    if (!m_socket.active())
+    {
         throw Exception("Can't read from closed socket");
     }
 
-    while (eol == 0) {
+    while (eol == 0)
+    {
         auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        if (bytesToRead <= (int) readBytesLWM) {
+        if (bytesToRead <= (int) readBytesLWM)
+        {
             destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
             bytesToRead = int(destinationBuffer.capacity() - total - 1);
         }
 
-        auto *destination = destinationBuffer.data() + total;
+        auto* destination = destinationBuffer.data() + total;
 
         int bytes = bufferedRead(destination, size_t(bytesToRead), delimiter, true);
-        if (bytes == 0) { // No more data
+        if (bytes == 0)
+        { // No more data
             break;
         }
 
-        if (bytes < 0) { // Received the complete string
+        if (bytes < 0)
+        { // Received the complete string
             eol = 1;
             bytes = -bytes;
         }
@@ -263,17 +319,22 @@ size_t SocketReader::readLine(Buffer &destinationBuffer, char delimiter) {
     return destinationBuffer.bytes();
 }
 
-size_t SocketReader::readLine(String &destinationBuffer, char delimiter) {
+size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
+{
     Buffer buffer;
     auto bytes = readLine(buffer, delimiter);
-    if (bytes > 0) {
+    if (bytes > 0)
+    {
         destinationBuffer.assign(buffer.c_str(), bytes - 1);
-    } else {
+    }
+    else
+    {
         destinationBuffer.clear();
     }
     return bytes;
 }
 
-TCPSocket &SocketReader::socket() {
+TCPSocket& SocketReader::socket()
+{
     return m_socket;
 }
