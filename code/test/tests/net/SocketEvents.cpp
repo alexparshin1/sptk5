@@ -27,7 +27,6 @@
 #include "sptk5/StopWatch.h"
 #include "sptk5/net/TCPServer.h"
 #include <gtest/gtest.h>
-#include <sptk5/Printer.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/SocketReader.h>
 
@@ -161,7 +160,7 @@ TEST(SPTK_SocketEvents, performance)
     StopWatch stopWatch;
 
     stopWatch.start();
-    for (auto& socket: sockets)
+    for (const auto& socket: sockets)
     {
         socketEvents.remove(*socket);
         socketEvents.add(*socket, nullptr);
