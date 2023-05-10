@@ -187,7 +187,7 @@ private:
      * Read more (as much as we can) from socket into buffer
      * @param availableBytes    Number of bytes already available in buffer
      */
-    void readMoreFromSocket(int availableBytes);
+    void readMoreFromSocket(size_t availableBytes);
 
     void handleReadFromSocketError(int error);
 };

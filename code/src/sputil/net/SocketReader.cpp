@@ -103,13 +103,13 @@ size_t SocketReader::readFromSocket()
 
 static constexpr size_t readBytesLWM {128};
 
-void SocketReader::readMoreFromSocket(int availableBytes)
+void SocketReader::readMoreFromSocket(size_t availableBytes)
 {
     if (m_readOffset != 0)
     {
         memmove(data(), data() + m_readOffset, (size_t) availableBytes);
         m_readOffset = 0;
-        bytes((size_t) availableBytes);
+        bytes(availableBytes);
     }
     else
     {
@@ -153,8 +153,8 @@ size_t SocketReader::bufferedRead(uint8_t* destination, size_t size)
 
 int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char delimiter)
 {
-    auto availableBytes = int(bytes() - m_readOffset);
-    auto bytesToRead = (int) size;
+    auto availableBytes = bytes() - m_readOffset;
+    auto bytesToRead = size;
     bool eol = false;
 
     if (availableBytes == 0)
@@ -217,7 +217,7 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
 
     m_readOffset += uint32_t(bytesToRead);
 
-    return eol ? -bytesToRead : bytesToRead;
+    return eol ? -(int) bytesToRead : (int) bytesToRead;
 }
 
 size_t SocketReader::read(uint8_t* destination, size_t size)
