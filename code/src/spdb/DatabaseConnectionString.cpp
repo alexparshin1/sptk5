@@ -64,8 +64,9 @@ void DatabaseConnectionString::parse()
     {
         databaseAndSchema.push_back("");
     }
-    m_databaseName = databaseAndSchema[0];
-    m_schema = databaseAndSchema[1];
+    m_schema = databaseAndSchema[databaseAndSchema.size() - 1];
+    databaseAndSchema.resize(databaseAndSchema.size() - 1);
+    m_databaseName = databaseAndSchema.join("/");
 
     m_parameters = url.params();
 }

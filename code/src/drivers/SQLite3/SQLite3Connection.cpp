@@ -158,7 +158,6 @@ void SQLite3Connection::driverEndTransaction(bool commit)
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
 
-
     if (char* zErrMsg = nullptr;
         sqlite3_exec(m_connect.get(), action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
     {
