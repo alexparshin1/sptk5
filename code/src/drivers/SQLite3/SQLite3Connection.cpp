@@ -208,7 +208,7 @@ void SQLite3Connection::queryPrepare(Query* query)
     SQLHSTMT hStmt = nullptr;
 
     if (const char* pzTail = nullptr;
-        sqlite3_prepare(m_connect.get(), query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) !=
+        sqlite3_prepare_v2(m_connect.get(), query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) !=
         SQLITE_OK)
     {
         const char* errorMsg = sqlite3_errmsg(m_connect.get());
@@ -272,33 +272,34 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
         {
             switch (ptype)
             {
-                case VariantDataType::VAR_BOOL:
+                using enum sptk::VariantDataType;
+                case VAR_BOOL:
                     res = sqlite3_bind_int(stmt, paramBindNumber, param->get<bool>());
                     break;
 
-                case VariantDataType::VAR_INT:
+                case VAR_INT:
                     res = sqlite3_bind_int(stmt, paramBindNumber, param->get<int>());
                     break;
 
-                case VariantDataType::VAR_INT64:
+                case VAR_INT64:
                     res = sqlite3_bind_int64(stmt, paramBindNumber, param->get<int64_t>());
                     break;
 
-                case VariantDataType::VAR_FLOAT:
+                case VAR_FLOAT:
                     res = sqlite3_bind_double(stmt, paramBindNumber, param->get<double>());
                     break;
 
-                case VariantDataType::VAR_DATE_TIME:
+                case VAR_DATE_TIME:
                     res = transformDateTimeParameter(stmt, param, paramBindNumber);
                     break;
 
-                case VariantDataType::VAR_STRING:
-                case VariantDataType::VAR_TEXT:
+                case VAR_STRING:
+                case VAR_TEXT:
                     res = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                             nullptr);
                     break;
 
-                case VariantDataType::VAR_BUFFER:
+                case VAR_BUFFER:
                     res = sqlite3_bind_blob(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
                                             nullptr);
                     break;
@@ -320,7 +321,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
     }
 }
 
-int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber) const
+int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber)
 {
     const auto dt = param->get<DateTime>();
     param->setString(dt.isoDateTimeString());
@@ -485,11 +486,11 @@ void SQLite3Connection::queryFetch(Query* query)
                     case SQLITE_TEXT:
                         field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
                                          VariantDataType::VAR_BUFFER);
-                        dataLength = trimField((char*) field->get<Buffer>().data(), dataLength);
+                        dataLength = trimField(bit_cast<char*>(field->get<Buffer>().data()), dataLength);
                         break;
 
                     case SQLITE_BLOB:
-                        field->setBuffer((const uint8_t*) sqlite3_column_blob(statement, int(column)), dataLength,
+                        field->setBuffer(bit_cast<const uint8_t*>(sqlite3_column_blob(statement, int(column))), dataLength,
                                          VariantDataType::VAR_BUFFER);
                         break;
 
