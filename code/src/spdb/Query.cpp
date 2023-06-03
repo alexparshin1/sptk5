@@ -339,20 +339,7 @@ bool Query::open()
         throw DatabaseException("Query is not connected to the database", source_location::current(), sql());
     }
 
-    try
-    {
-        database()->queryOpen(this);
-    }
-    catch (const DatabaseException& e)
-    {
-        if (strstr(e.what(), "connection") == nullptr)
-        {
-            throw;
-        }
-        database()->close();
-        database()->open();
-        database()->queryOpen(this);
-    }
+    database()->queryOpen(this);
 
     return true;
 }
