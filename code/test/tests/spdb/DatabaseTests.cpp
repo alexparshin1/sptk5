@@ -863,15 +863,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     Query emptyQuery(databaseConnection);
 
-    try
-    {
-        emptyQuery.exec();
-        FAIL() << "Expected to throw DatabaseException";
-    }
-    catch (const DatabaseException&)
-    {
-        COUT("");
-    }
+    EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table");
     Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");

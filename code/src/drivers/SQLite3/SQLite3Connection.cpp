@@ -107,6 +107,22 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
                                         [this](const sqlite3*) {
                                             closeAndClean();
                                         });
+
+        const Strings pragmas {
+            "pragma journal_mode = WAL",
+            "pragma synchronous = off",
+            "pragma temp_store = memory",
+            "pragma mmap_size = 30000000000",
+            "pragma auto_vacuum = incremental",
+        };
+        for (const auto& pragma: pragmas)
+        {
+            if (char* zErrMsg = nullptr;
+                sqlite3_exec(m_connect.get(), pragma.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
+            {
+                throw DatabaseException(zErrMsg);
+            }
+        }
     }
 }
 
@@ -180,7 +196,8 @@ void SQLite3Connection::queryAllocStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    if (auto* stmt = (SQLHSTMT) query->statement(); stmt != nullptr)
+    if (auto* stmt = (SQLHSTMT) query->statement();
+        stmt != nullptr)
     {
         sqlite3_finalize(stmt);
     }
@@ -221,6 +238,10 @@ void SQLite3Connection::queryPrepare(Query* query)
                                              sqlite3_finalize(stmt);
                                          });
     querySetStmt(query, statement);
+    if (!statement)
+    {
+        throw DatabaseException("Can't prepare SQL statement");
+    }
     querySetPrepared(query, true);
 }
 
@@ -246,6 +267,10 @@ int SQLite3Connection::queryColCount(Query* query)
 void SQLite3Connection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
+
+    auto* stmt = (SQLHSTMT) query->statement();
+    sqlite3_reset(stmt);
+    sqlite3_clear_bindings(stmt);
 
     for (uint32_t i = 0; i < query->paramCount(); ++i)
     {
@@ -314,8 +339,9 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
         if (res != SQLITE_OK)
         {
             const String error = sqlite3_errmsg(m_connect.get());
+            sqlite3_finalize(stmt);
             throw DatabaseException(
-                error + ", in binding parameter " + int2string(paramBindNumber), source_location::current(),
+                error + ", in binding parameter '" + param->name() + "'", source_location::current(),
                 query->sql());
         }
     }
@@ -369,8 +395,6 @@ void SQLite3Connection::queryOpen(Query* query)
             queryCloseStmt(query);
             throw DatabaseException(error, source_location::current(), query->sql());
         }
-
-        queryCloseStmt(query);
         return;
     }
 
@@ -634,7 +658,7 @@ map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqli
 
 [[maybe_unused]] void sqlite3_destroy_connection(void* connection)
 {
-    SQLite3Connection::s_sqlite3Connections.erase((SQLite3Connection*) connection);
+    SQLite3Connection::s_sqlite3Connections.erase(bit_cast<SQLite3Connection*>(connection));
 }
 
 #endif

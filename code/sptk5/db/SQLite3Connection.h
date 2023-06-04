@@ -174,7 +174,7 @@ protected:
      * @brief Opens the database connection. If unsuccessful throws an exception.
      * @param connectionString  The SQLite3 connection string
      */
-    void _openDatabase(const String& connectionString = "") override;
+    void _openDatabase(const String& connectionString) override;
 
     /**
      * @brief Executes SQL batch file

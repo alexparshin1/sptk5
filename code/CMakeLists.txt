@@ -360,15 +360,15 @@ IF (WIN32)
     SET(ProgramFiles "$ENV{ProgramFiles}")
     SET(ProgramFilesX86 "${ProgramFiles} (x86)")
     FIND_PROGRAM(MC_COMPILER mc PATHS
-                 "${ProgramFiles}/Windows Kits/*/bin/x64"
-                 "${ProgramFilesX86}/Windows Kits/*/bin/x64"
-                 "${ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
-                 "${ProgramFilesX86}/Microsoft SDKs/Windows/*/Bin/x64"
-                 "${ProgramFiles}/Windows Kits/*/bin/*/x64"
-                 "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
-                 "${ProgramFiles}/Windows Kits/10/bin/*/x64"
-                 "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
-                 )
+            "${ProgramFiles}/Windows Kits/*/bin/x64"
+            "${ProgramFilesX86}/Windows Kits/*/bin/x64"
+            "${ProgramFiles}/Microsoft SDKs/Windows/*/Bin/x64"
+            "${ProgramFilesX86}/Microsoft SDKs/Windows/*/Bin/x64"
+            "${ProgramFiles}/Windows Kits/*/bin/*/x64"
+            "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
+            "${ProgramFiles}/Windows Kits/10/bin/*/x64"
+            "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
+            )
     IF (MC_COMPILER)
         MESSAGE("Windows SDK mc:     found")
     ELSE (MC_COMPILER)
