@@ -25,10 +25,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -49,10 +49,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -73,10 +73,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -97,10 +97,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -121,10 +121,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -143,10 +143,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -165,10 +165,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -187,10 +187,10 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
-					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=1"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
+					<Add directory="/opt/oracle/instantclient_21_10/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
