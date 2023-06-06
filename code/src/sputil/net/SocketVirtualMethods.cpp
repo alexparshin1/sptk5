@@ -28,7 +28,9 @@
 #include <sptk5/net/SocketVirtualMethods.h>
 
 #ifndef _WIN32
+
 #include <sys/poll.h>
+
 #endif
 
 using namespace std;
@@ -42,7 +44,8 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 {
 }
 
-void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode, std::chrono::milliseconds timeout)
+void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
+                                               std::chrono::milliseconds timeout)
 {
     auto timeoutMS = (int) timeout.count();
 
@@ -121,7 +124,8 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
     if (result != 0)
     {
         stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". " << SystemException::osError()
+        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". "
+              << SystemException::osError()
               << ".";
         closeUnlocked();
         throw Exception(error.str());
@@ -163,7 +167,7 @@ void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
     {
         flags |= O_NONBLOCK;
     }
-    
+
     if (const int result = fcntl(m_socketFd, F_SETFL, flags);
         result != 0)
     {
@@ -204,7 +208,7 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
         const int32_t result = ioctl(m_socketFd, FIONREAD, &bytes);
 #endif
         result < 0)
-        throwSocketError("Can't get socket bytes");
+        return 0;
 
     return bytes;
 }
@@ -392,7 +396,8 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0, bit_cast<sockaddr*>(from), &fromLength);
+        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0,
+                                 bit_cast<sockaddr*>(from), &fromLength);
     }
     else
     {
@@ -407,7 +412,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
 
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
-    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
+    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_NOSIGNAL);
     return res;
 }
 
@@ -427,7 +432,8 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         int bytes;
         if (peer != nullptr)
         {
-            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, 0, bit_cast<const sockaddr*>(peer),
+            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
+                                 bit_cast<const sockaddr*>(peer),
                                  sizeof(sockaddr_in));
         }
         else
