@@ -27,9 +27,6 @@
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 
-#ifndef WIN32
-#include <dlfcn.h>
-#endif
 #include <future>
 #include <gtest/gtest.h>
 #include <sptk5/db/DatabaseTests.h>
@@ -61,11 +58,17 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     }
 }
 
-static void testConnect(const String& dbName)
+namespace {
+
+void testConnect(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testConnect(connectionString);
@@ -75,15 +78,19 @@ static void testConnect(const String& dbName)
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 
-    auto invalidConnectionStringStr = DatabaseConnectionString(dbName.toLowerCase() + "://localhost:1234/xyz");
+    const auto invalidConnectionStringStr = DatabaseConnectionString(dbName.toLowerCase() + "://localhost:1234/xyz");
     EXPECT_THROW(DatabaseTests::testConnect(invalidConnectionStringStr), DatabaseException);
 }
 
-static void testDDL(const String& dbName)
+void testDDL(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testDDL(connectionString);
@@ -94,13 +101,15 @@ static void testDDL(const String& dbName)
     }
 }
 
-static void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection);
-static void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection);
-static void testInvalidQuery(const String& dbName)
+void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection);
+void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection);
+void testInvalidQuery(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
 
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
@@ -109,23 +118,26 @@ static void testInvalidQuery(const String& dbName)
     verifyInvalidKeywordQueryThrows(databaseConnection);
 }
 
-static void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection)
+void verifyInvalidTableQueryThrows(const DatabaseConnection& databaseConnection)
 {
     Query query(databaseConnection, "SELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 }
 
-static void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection)
+void verifyInvalidKeywordQueryThrows(const DatabaseConnection& databaseConnection)
 {
     Query query(databaseConnection, "UNSELECT * FROM xx");
     EXPECT_THROW(query.exec(), DatabaseException);
 }
 
-static void testInsertQuery(const String& dbName)
+void testInsertQuery(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testInsertQuery(connectionString);
@@ -137,11 +149,13 @@ static void testInsertQuery(const String& dbName)
     }
 }
 
-static void testBlobInsertAndSelect(const String& dbName)
+void testBlobInsertAndSelect(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
     try
     {
         DatabaseTests::testBLOB(connectionString);
@@ -152,11 +166,14 @@ static void testBlobInsertAndSelect(const String& dbName)
     }
 }
 
-static void testBulkInsert(const String& dbName)
+void testBulkInsert(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testBulkInsert(connectionString);
@@ -168,14 +185,17 @@ static void testBulkInsert(const String& dbName)
     }
 }
 
-static void testBulkInsertPerformance(const String& dbName)
+void testBulkInsertPerformance(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
-        constexpr auto recordCount = 1024;
+        constexpr auto recordCount = 1024 * 128;
         DatabaseTests::testBulkInsertPerformance(connectionString, recordCount);
     }
     catch (const Exception& e)
@@ -184,11 +204,14 @@ static void testBulkInsertPerformance(const String& dbName)
     }
 }
 
-static void testQueryParameters(const String& dbName)
+void testQueryParameters(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testQueryParameters(connectionString);
@@ -199,11 +222,14 @@ static void testQueryParameters(const String& dbName)
     }
 }
 
-static void testQueryDateAndTimestamp(const String& dbName)
+void testQueryDateAndTimestamp(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testQueryInsertDate(connectionString);
@@ -215,11 +241,14 @@ static void testQueryDateAndTimestamp(const String& dbName)
     }
 }
 
-static void testTransaction(const String& dbName)
+void testTransaction(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testTransaction(connectionString);
@@ -230,11 +259,14 @@ static void testTransaction(const String& dbName)
     }
 }
 
-static void testSelect(const String& dbName)
+void testSelect(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
     if (connectionString.empty())
+    {
         FAIL() << dbName << " connection is not defined";
+    }
+
     try
     {
         DatabaseTests::testSelect(connectionString);
@@ -244,6 +276,8 @@ static void testSelect(const String& dbName)
         FAIL() << connectionString.toString() << ": " << e.what();
     }
 }
+
+} // namespace
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
 #ifdef HAVE_POSTGRESQL
