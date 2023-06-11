@@ -85,7 +85,7 @@ public:
      * The return of the bytes() method will be the input string length.
      * @param str               Input string
      */
-    Buffer(const String& str);
+    Buffer(std::string_view str);
 
     /**
      * Copy constructor

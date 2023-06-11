@@ -32,8 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-Buffer::Buffer(const String& str)
-    : BufferStorage((const uint8_t*) str.c_str(), str.length())
+Buffer::Buffer(string_view str)
+    : BufferStorage((const uint8_t*) str.data(), str.length())
 {
 }
 
