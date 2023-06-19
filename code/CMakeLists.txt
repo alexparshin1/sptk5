@@ -259,7 +259,6 @@ IF (USE_ORACLE)
     ENDIF (Oracle_FOUND)
 ENDIF (USE_ORACLE)
 
-
 SET(MYSQL_FLAG "0")
 SET(MYSQL_DEFINE "// MySQL is not used")
 SET(MARIADB_DEFINE "// MariaDB is not used")
