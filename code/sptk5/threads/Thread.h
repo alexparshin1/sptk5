@@ -65,9 +65,9 @@ public:
      */
     explicit Thread(String name,
 #ifndef _WIN32
-                    std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT, SIGINT});
+                    std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT});
 #else
-                    std::vector<int> ignoreSignals = {SIGABRT, SIGINT});
+                    std::vector<int> ignoreSignals = {SIGABRT});
 #endif
 
     /**
