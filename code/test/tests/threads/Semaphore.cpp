@@ -68,15 +68,15 @@ TEST(SPTK_Semaphore, threads)
     EXPECT_TRUE(posted);
 }
 
-TEST(SPTK_Semaphore, waitPerformance)
+static void waitPerformance(bool withTimeout)
 {
     Semaphore semaphore;
-    const size_t iterations = 10000;
+    const size_t iterations = 1000000;
 
     StopWatch stopWatch;
 
     stopWatch.start();
-    for (size_t i = 0; i < iterations; ++i)
+    for (size_t i = 0; i <= iterations; ++i)
     {
         semaphore.post();
     }
@@ -86,9 +86,22 @@ TEST(SPTK_Semaphore, waitPerformance)
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)
     {
-        semaphore.wait_for(chrono::microseconds(1));
+        if (withTimeout)
+        {
+            semaphore.wait_for(chrono::microseconds(1));
+        }
+        else
+        {
+            semaphore.wait();
+        }
     }
     stopWatch.stop();
 
-    COUT("Executed " << iterations << " Semaphore waits. Scheduled: " << setprecision(2) << scheduleTime << " Elapsed " << setprecision(2) << stopWatch.seconds() << " seconds" << endl);
+    COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << (int) iterations / stopWatch.milliseconds() / 1000 << "M/sec" << endl);
+}
+
+TEST(SPTK_Semaphore, waitPerformance)
+{
+    waitPerformance(false);
+    waitPerformance(true);
 }

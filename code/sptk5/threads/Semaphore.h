@@ -57,6 +57,28 @@ public:
     }
 
     /**
+     * @brief Check if semaphore value is greater than zero
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * Otherwise, exits immediately.
+     * @return true if semaphore was posted (signaled)
+     */
+    bool check()
+    {
+        return m_value.try_acquire();
+    }
+
+    /**
+     * @brief Wait until semaphore value is greater than zero
+     *
+     * Decreases semaphore value by one and returns true.
+     */
+    void wait()
+    {
+        return m_value.acquire();
+    }
+
+    /**
      * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
