@@ -61,9 +61,8 @@ public:
      */
     void push_back(T&& data)
     {
-        std::unique_lock lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue.push_back(std::move(data));
-        lock.unlock();
         m_semaphore.post();
     }
 
@@ -77,9 +76,8 @@ public:
      */
     void push_front(T&& data)
     {
-        std::unique_lock lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue.push_front(std::move(data));
-        lock.unlock();
         m_semaphore.post();
     }
 
@@ -92,9 +90,8 @@ public:
      */
     void push_back(const T& data)
     {
-        std::unique_lock lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue.push_back(data);
-        lock.unlock();
         m_semaphore.post();
     }
 
@@ -107,10 +104,32 @@ public:
      */
     void push_front(const T& data)
     {
-        std::unique_lock lock(m_mutex);
+        std::scoped_lock lock(m_mutex);
         m_queue.push_front(data);
-        lock.unlock();
         m_semaphore.post();
+    }
+
+    /**
+     * Pops a data item from the queue
+     *
+     * If queue is empty then waits until a new item pushed to the queue,
+     * or until wakeup() is called.
+     * Returns false if queue is empty after wakeup() call.
+     * @param item              A queue item (output)
+     */
+    bool pop_front(T& item)
+    {
+        m_semaphore.wait();
+
+        std::scoped_lock lock(m_mutex);
+        if (!m_queue.empty())
+        {
+            item = std::move(m_queue.front());
+            m_queue.pop_front();
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -133,6 +152,29 @@ public:
                 return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * Pops a data item from the queue
+     *
+     * If queue is empty then waits until a new item pushed to the queue,
+     * or until wakeup() is called.
+     * Returns false if queue is empty after wakeup() call.
+     * @param item              A queue item (output)
+     */
+    bool pop_back(T& item)
+    {
+        m_semaphore.wait();
+
+        std::scoped_lock lock(m_mutex);
+        if (!m_queue.empty())
+        {
+            item = std::move(m_queue.back());
+            m_queue.pop_back();
+            return true;
+        }
+
         return false;
     }
 
