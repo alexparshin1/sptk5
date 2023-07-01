@@ -77,6 +77,7 @@ TEST(SPTK_FieldList, dataTypes)
 {
     FieldList fieldList(true);
 
+    const char* testString = "0123456789ABCDEF";
     DateTime testDate("2020-02-01 11:22:33Z");
 
     fieldList.push_back("name", true);
@@ -95,7 +96,7 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList["visible"] = false;
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VariantDataType::VAR_STRING);
-    fieldList["text"].setBuffer((const uint8_t*) "1234", 5, VariantDataType::VAR_BUFFER);
+    fieldList["text"].setBuffer(bit_cast<const uint8_t*>(testString), strlen(testString) + 1, VariantDataType::VAR_BUFFER);
     fieldList["float_value"] = double(testInteger);
     fieldList["money_value"].setMoney(1234567, 2);
     fieldList["long_value"] = int64_t(12345678901234567);
@@ -115,7 +116,7 @@ TEST(SPTK_FieldList, dataTypes)
                  fieldList["date"].asDateTime().isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str());
 
     EXPECT_TRUE(fieldList["null"].isNull());
-    EXPECT_STREQ("1234", fieldList["text"].asString().c_str());
+    EXPECT_STREQ(testString, fieldList["text"].asString().c_str());
 
     EXPECT_DOUBLE_EQ(double(testInteger), fieldList["float_value"].asFloat());
     EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());

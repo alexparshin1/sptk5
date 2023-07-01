@@ -59,13 +59,14 @@ TEST(SPTK_Variant, copy_ctors)
 {
     constexpr double testDoubleValue {2.22};
     DateTime testDate("2018-02-01 09:11:14.345Z");
+    const char* testString = "A test";
 
     Variant v1(1);
     Variant v2(testDoubleValue);
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
-    Variant v6(Buffer((const uint8_t*) "A test", 6));
+    Variant v6(Buffer(bit_cast<const uint8_t*>(testString), 6));
     Variant v7(int64_t(1));
 
     v5.setNull(VariantDataType::VAR_STRING);
@@ -85,7 +86,7 @@ TEST(SPTK_Variant, copy_ctors)
                  v4c.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5c.isNull(), true);
     EXPECT_EQ(v5c.dataType(), VariantDataType::VAR_STRING);
-    EXPECT_STREQ(v6c.asString().c_str(), "A test");
+    EXPECT_STREQ(v6c.asString().c_str(), testString);
     EXPECT_EQ(v6c.dataType(), VariantDataType::VAR_BUFFER);
     EXPECT_EQ(int64_t(1), v1c.asInt64());
 }
@@ -93,13 +94,14 @@ TEST(SPTK_Variant, copy_ctors)
 TEST(SPTK_Variant, move_ctors)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
+    const char* testString = "A test";
 
     Variant v1(1);
     Variant v2(2.22);
     Variant v3("Test");
     Variant v4(testDate);
     Variant v5;
-    Variant v6(Buffer((const uint8_t*) "A test", 6));
+    Variant v6(Buffer(bit_cast<const uint8_t*>(testString), 6));
 
     v5.setNull(VariantDataType::VAR_STRING);
 
@@ -117,7 +119,7 @@ TEST(SPTK_Variant, move_ctors)
                  v4m.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5m.isNull(), true);
     EXPECT_EQ(v5m.dataType(), VariantDataType::VAR_STRING);
-    EXPECT_STREQ(v6m.asString().c_str(), "A test");
+    EXPECT_STREQ(v6m.asString().c_str(), testString);
     EXPECT_EQ(v6m.dataType(), VariantDataType::VAR_BUFFER);
 }
 
@@ -300,6 +302,8 @@ TEST(SPTK_Variant, toString)
 TEST(SPTK_Variant, money)
 {
     Variant money(10001234, 4);
+    const String testString {"A test"};
+
     EXPECT_DOUBLE_EQ((double) money.getMoney(), 1000.1234);
     EXPECT_EQ((int) money.getMoney(), 1000);
     EXPECT_EQ((int64_t) money.getMoney(), 1000);
@@ -316,7 +320,7 @@ TEST(SPTK_Variant, money)
     EXPECT_DOUBLE_EQ((double) money, 1234.5678);
     EXPECT_TRUE(money.dataType() == VariantDataType::VAR_MONEY);
 
-    Variant s((const uint8_t*) "test", 4);
+    Variant s(testString);
     s.setMoney(1234567, 4);
     EXPECT_DOUBLE_EQ((double) s.getMoney(), 123.4567);
 }
@@ -327,7 +331,7 @@ TEST(SPTK_Variant, setBuffer)
     Buffer externalBuffer("External Data");
 
     Variant v;
-    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_BUFFER);
+    v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_BUFFER);
     EXPECT_EQ(v.dataType(), VariantDataType::VAR_BUFFER);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
@@ -336,7 +340,7 @@ TEST(SPTK_Variant, setBuffer)
     EXPECT_STREQ(testString.c_str(), v.asString().c_str());
 
     v.setNull();
-    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_STRING);
+    v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_STRING);
     EXPECT_EQ(v.dataType(), VariantDataType::VAR_STRING);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<String>().c_str());
@@ -345,7 +349,7 @@ TEST(SPTK_Variant, setBuffer)
     EXPECT_STREQ(testString.c_str(), v.asString().c_str());
 
     v.setNull();
-    v.setBuffer((const uint8_t*) testString.data(), testString.size(), sptk::VariantDataType::VAR_TEXT);
+    v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_TEXT);
     EXPECT_EQ(v.dataType(), VariantDataType::VAR_TEXT);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
@@ -359,7 +363,7 @@ TEST(SPTK_Variant, externalBuffer)
     Buffer externalBuffer("External Data");
     Variant v;
     v.setExternalBuffer(externalBuffer.data(), externalBuffer.size(), VariantDataType::VAR_BUFFER);
-    EXPECT_EQ(externalBuffer.c_str(), (const char*) v.getExternalBuffer());
+    EXPECT_EQ(externalBuffer.c_str(), bit_cast<const char*>(v.getExternalBuffer()));
 }
 
 TEST(SPTK_Variant, json)
@@ -388,7 +392,8 @@ TEST(SPTK_Variant, bool)
     Variant v2(true);
     EXPECT_TRUE(v2);
 
-    Variant v3((const uint8_t*) "test", 4);
+    const char* testString("Test");
+    Variant v3(bit_cast<const uint8_t*>(testString), 4);
     v3.setBool(true);
     EXPECT_TRUE(v3);
 }

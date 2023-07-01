@@ -35,7 +35,7 @@ static const String testString("0123456789ABCDEF");
 
 TEST(SPTK_BufferStorage, constructors)
 {
-    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
+    BufferStorage testStorage1(bit_cast<const uint8_t*>(testString.c_str()), testString.length());
 
     BufferStorage testStorage2(testStorage1);
     EXPECT_EQ(testStorage2.size(), 16U);
@@ -48,7 +48,7 @@ TEST(SPTK_BufferStorage, constructors)
 
 TEST(SPTK_BufferStorage, assignments)
 {
-    BufferStorage testStorage1((const uint8_t*) testString.c_str(), testString.length());
+    BufferStorage testStorage1(bit_cast<const uint8_t*>(testString.c_str()), testString.length());
 
     BufferStorage testStorage2;
     testStorage2 = testStorage1;

@@ -58,7 +58,7 @@ TEST(SPTK_Exception, throwException)
     }
 }
 
-TEST(SPTK_HttpException, throw)
+TEST(SPTK_HttpException, throwException)
 {
     constexpr size_t firstErrorCode = 400;
     constexpr size_t maxErrorCode = 512;

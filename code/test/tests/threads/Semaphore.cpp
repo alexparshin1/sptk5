@@ -81,7 +81,6 @@ static void waitPerformance(bool withTimeout)
         semaphore.post();
     }
     stopWatch.stop();
-    auto scheduleTime = stopWatch.seconds();
 
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)

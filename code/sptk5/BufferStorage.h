@@ -26,9 +26,10 @@
 
 #pragma once
 
+#include <cstdlib>
+#include <cstring>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
-#include <string.h>
 
 namespace sptk {
 
@@ -49,8 +50,8 @@ public:
      * Creates an empty buffer.
      */
     BufferStorage()
-        : m_buffer(16)
     {
+        reallocate(16);
     }
 
     /**
@@ -61,29 +62,68 @@ public:
      * @param sz                Buffer size to be pre-allocated
      */
     explicit BufferStorage(size_t sz)
-        : m_buffer(sz + 1)
     {
+        reallocate(sz + 1);
     }
 
     /**
      * Copy constructor
      * @param bufferStorage     Other object
      */
-    BufferStorage(const BufferStorage& bufferStorage) = default;
+    BufferStorage(const BufferStorage& bufferStorage)
+        : m_size(bufferStorage.m_size)
+    {
+        reallocate(bufferStorage.size());
+        memcpy(m_buffer, bufferStorage.m_buffer, bufferStorage.size());
+    }
 
     /**
      * Move constructor
      * @param bufferStorage     Other object
      */
-    BufferStorage(BufferStorage&& bufferStorage) noexcept = default;
+    BufferStorage(BufferStorage&& bufferStorage) noexcept
+        : m_buffer(bufferStorage.m_buffer)
+        , m_allocated(bufferStorage.m_allocated)
+        , m_size(bufferStorage.m_size)
+    {
+        bufferStorage.m_buffer = nullptr;
+        bufferStorage.m_allocated = 0;
+        bufferStorage.m_size = 0;
+    }
 
     /**
      * Destructor
      */
-    virtual ~BufferStorage() = default;
+    virtual ~BufferStorage()
+    {
+        free(m_buffer);
+    }
 
-    BufferStorage& operator=(const BufferStorage& bufferStorage) = default;
-    BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept = default;
+    BufferStorage& operator=(const BufferStorage& bufferStorage)
+    {
+        if (this != &bufferStorage)
+        {
+            m_size = bufferStorage.m_size;
+            reallocate(m_size);
+            memcpy(m_buffer, bufferStorage.m_buffer, m_size);
+        }
+        return *this;
+    }
+
+    BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept
+    {
+        if (this != &bufferStorage)
+        {
+            free(m_buffer);
+            m_buffer = bufferStorage.m_buffer;
+            m_allocated = bufferStorage.m_allocated;
+            m_size = bufferStorage.m_size;
+            bufferStorage.m_buffer = nullptr;
+            bufferStorage.m_allocated = 0;
+            bufferStorage.m_size = 0;
+        }
+        return *this;
+    }
 
     /**
      * Constructor
@@ -105,31 +145,31 @@ public:
      */
     uint8_t* data()
     {
-        return m_buffer.data();
+        return m_buffer;
     }
 
     /**
      * Returns pointer on the data buffer.
      */
-    const uint8_t* data() const
+    [[nodiscard]] const uint8_t* data() const
     {
-        return m_buffer.data();
+        return m_buffer;
     }
 
     /**
      * Returns const char pointer on the data buffer.
      */
-    const char* c_str() const
+    [[nodiscard]] const char* c_str() const
     {
-        return (const char*) m_buffer.data();
+        return (const char*) m_buffer;
     }
 
     /**
      * Returns true if number of bytes in buffer is zero.
      */
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
-        return m_bytes == 0;
+        return m_size == 0;
     }
 
     /**
@@ -140,7 +180,7 @@ public:
      */
     virtual void checkSize(size_t sz)
     {
-        if (sz + 1 >= m_buffer.size())
+        if (sz >= m_allocated)
         {
             adjustSize(sz);
         }
@@ -167,13 +207,13 @@ public:
      */
     void set(const BufferStorage& data)
     {
-        if (data.m_bytes == 0)
+        if (data.m_size == 0)
         {
-            m_bytes = 0;
+            m_size = 0;
         }
         else
         {
-            _set(data.m_buffer.data(), data.m_bytes);
+            _set(data.m_buffer, data.m_size);
         }
     }
 
@@ -194,7 +234,7 @@ public:
      */
     size_t capacity() const
     {
-        return m_buffer.size() - 1;
+        return m_allocated;
     }
 
     /**
@@ -203,7 +243,7 @@ public:
      */
     size_t size() const
     {
-        return m_bytes;
+        return m_size;
     }
 
     /**
@@ -212,28 +252,27 @@ public:
      */
     size_t bytes() const
     {
-        return m_bytes;
+        return m_size;
     }
 
     /**
      * Sets the size of the data stored
-     * @param b                 New size of the buffer
+     * @param newSize                 New size of the buffer
      */
-    void bytes(size_t b)
+    void bytes(size_t newSize)
     {
-        if (m_bytes == b)
+        if (m_size == newSize)
         {
             return;
         }
 
-        if (b + 1 > m_buffer.size())
+        if (newSize >= m_allocated)
         {
-            m_buffer.resize(b + 1);
+            reallocate(newSize);
         }
 
-        m_bytes = b;
-        m_buffer[b] = 0;
-        return;
+        m_size = newSize;
+        m_buffer[newSize] = 0;
     }
 
     /**
@@ -295,24 +334,13 @@ protected:
      * Allocate memory
      * @param size              Number of bytes for new buffer
      */
-    void allocate(size_t size)
-    {
-        m_buffer.resize(size + 1);
-        m_bytes = 0;
-        m_buffer[size] = 0;
-    }
-
-    /**
-     * Allocate memory
-     * @param size              Number of bytes for new buffer
-     */
     void allocate(const uint8_t* data, size_t size)
     {
-        m_buffer.resize(size + 1);
-        m_bytes = size;
+        reallocate(size);
+        m_size = size;
         if (data != nullptr && size != 0)
         {
-            memcpy(m_buffer.data(), data, size);
+            memcpy(m_buffer, data, size);
         }
         m_buffer[size] = 0;
     }
@@ -323,33 +351,30 @@ protected:
      */
     void reallocate(size_t size)
     {
-        m_buffer.resize(size + 1);
-        if (m_bytes > size)
+        auto* newBuffer = static_cast<uint8_t*>(realloc(m_buffer, size + 1));
+        if (newBuffer == nullptr)
         {
-            m_bytes = size;
+            throw Exception("Not enough memory");
+        }
+        m_buffer = newBuffer;
+        if (m_size > size)
+        {
+            m_size = size;
         }
         m_buffer[size] = 0;
-    }
-
-    /**
-     * Free memory
-     */
-    void deallocate() noexcept
-    {
-        m_buffer.resize(1);
-        m_buffer[0] = 0;
-        m_bytes = 0;
+        m_allocated = size;
     }
 
     void init(const uint8_t* data, size_t size, size_t bytes)
     {
         allocate(data, size);
-        m_bytes = bytes;
+        m_size = bytes;
     }
 
 private:
-    std::vector<uint8_t> m_buffer; ///< Actual storage
-    size_t m_bytes {0};            ///< Actual size of the data in buffer
+    uint8_t* m_buffer {nullptr}; ///< Actual storage
+    size_t m_allocated {0};      ///< Alocated size
+    size_t m_size {0};           ///< Actual size of the data in buffer
 
 
     /**

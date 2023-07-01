@@ -588,7 +588,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     Strings usedClasses;
     for (const auto& [name, complexType]: m_complexTypeIndex.complexTypes())
     {
-        SourceModule sourceModule("C" + complexType->name(), sourceDirectory);
+        SourceModule sourceModule(String("C") + complexType->name(), sourceDirectory);
         sourceModule.open();
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());

@@ -140,7 +140,6 @@ TEST(SPTK_CommandLine, printHelp)
 {
     auto commandLine = createTestCommandLine();
 
-    stringstream output;
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
                       CommandLineTestData::testCommandLineArgs.data());
 

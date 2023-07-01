@@ -25,8 +25,6 @@
 */
 
 #include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <fstream>
 
 #include <sptk5/Exception.h>

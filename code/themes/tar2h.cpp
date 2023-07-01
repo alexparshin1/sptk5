@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <sptk5/sptk.h>
+#include <stdio.h>
 
 #ifdef _WIN32
 #include <io.h>
@@ -16,7 +16,10 @@ int main(int argc, char** argv)
     {
         if (argc != 3)
         {
-            fprintf(stderr, "Usage: tar2h <input file> valuename.\n");
+            COUT("Create C++ header file content for the theme tar archive,"
+                 << " presented as a variable definition." << endl
+                 << endl);
+            CERR("Usage: tar2h <input file> <variable name>" << endl);
             return 1;
         }
 
@@ -36,7 +39,9 @@ int main(int argc, char** argv)
         {
             str << "0x" << hex << setw(2) << ", " << (unsigned) x[i];
             if (!(i & 0xf))
-            { str << endl; }
+            {
+                str << endl;
+            }
         }
         str << "};" << endl;
         COUT(str.str());

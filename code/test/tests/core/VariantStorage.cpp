@@ -342,11 +342,11 @@ TEST(SPTK_VariantStorage, externalBuffer)
     EXPECT_EQ(VariantDataType::VAR_BYTE_POINTER, variantStorage.type().type);
     EXPECT_EQ(4, variantStorage.type().size);
     EXPECT_EQ(true, variantStorage.type().isExternalBuffer);
-    EXPECT_EQ(testBytes.data(), (const uint8_t*) variantStorage);
+    EXPECT_EQ(testBytes.data(), (const uint8_t*) (variantStorage));
     EXPECT_FALSE(variantStorage.isNull());
 
     variantStorage = 1;
-    variantStorage.setExternalBuffer((const uint8_t*) testText, strlen(testText), VariantDataType::VAR_STRING);
+    variantStorage.setExternalBuffer(bit_cast<const uint8_t*>(testText), strlen(testText), VariantDataType::VAR_STRING);
     EXPECT_EQ(VariantDataType::VAR_STRING, variantStorage.type().type);
     EXPECT_EQ(strlen(testText), variantStorage.type().size);
     EXPECT_EQ(true, variantStorage.type().isExternalBuffer);

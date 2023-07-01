@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <sptk5/Buffer.h>
 
+#include "sptk5/StopWatch.h"
+#include "sptk5/cthreads"
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -186,4 +188,66 @@ TEST(SPTK_Buffer, hexDump)
 
     Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
     EXPECT_TRUE(output == expected);
+}
+
+TEST(SPTK_Buffer, createPerformance)
+{
+    constexpr size_t count = 1000000;
+
+    StopWatch stopWatch;
+
+    stopWatch.start();
+    for (size_t i = 0; i < count; ++i)
+    {
+        Buffer buffer(testPhrase);
+        buffer.checkSize(1024);
+        buffer.checkSize(16384);
+    }
+    stopWatch.stop();
+    auto duration = stopWatch.milliseconds();
+    COUT("sptk::Buffer: " << duration << "ms" << endl);
+
+    stopWatch.start();
+    for (size_t i = 0; i < count; ++i)
+    {
+        string buffer(testPhrase);
+        buffer.resize(1024);
+        buffer.resize(16384);
+    }
+    stopWatch.stop();
+    duration = stopWatch.milliseconds();
+    COUT("std::string: " << duration << "ms" << endl);
+
+    stopWatch.start();
+    for (size_t i = 0; i < count; ++i)
+    {
+        vector<char> buffer(testPhrase.length());
+        memcpy(buffer.data(), testPhrase.c_str(), testPhrase.length());
+        buffer.resize(1024);
+        buffer.resize(16384);
+    }
+    stopWatch.stop();
+    duration = stopWatch.milliseconds();
+    COUT("std::vector: " << duration << "ms" << endl);
+
+    stopWatch.start();
+    for (size_t i = 0; i < count; ++i)
+    {
+        char* buffer = bit_cast<char*>(malloc(testPhrase.length() + 1));
+        memcpy(buffer, testPhrase.c_str(), testPhrase.length());
+        auto temp = bit_cast<char*>(realloc(buffer, 1024));
+        if (temp != nullptr)
+        {
+            buffer = temp;
+        }
+        temp = bit_cast<char*>(realloc(buffer, 16384));
+        if (temp != nullptr)
+        {
+            buffer = temp;
+        }
+        free(buffer);
+    }
+    stopWatch.stop();
+    duration = stopWatch.milliseconds();
+    COUT("malloc: " << duration << "ms" << endl);
 }

@@ -42,22 +42,21 @@ void BufferStorage::_set(const uint8_t* data, size_t size)
     checkSize(size + 1);
     if (data != nullptr && size > 0)
     {
-        memcpy(m_buffer.data(), data, size);
-        m_bytes = size;
+        memcpy(m_buffer, data, size);
+        m_size = size;
     }
     else
     {
-        m_bytes = 0;
+        m_size = 0;
     }
-    m_buffer[size] = 0;
+    m_buffer[m_size] = 0;
 }
 
 void BufferStorage::append(char chr)
 {
-    checkSize(m_bytes + 2);
-    m_buffer[m_bytes] = chr;
-    ++m_bytes;
-    m_buffer[m_bytes] = 0;
+    checkSize(m_size + 2);
+    m_buffer[m_size] = chr;
+    m_buffer[++m_size] = 0;
 }
 
 void BufferStorage::append(const char* data, size_t size)
@@ -67,12 +66,12 @@ void BufferStorage::append(const char* data, size_t size)
         size = strlen(data);
     }
 
-    checkSize(m_bytes + size + 1);
+    checkSize(m_size + size + 1);
     if (data != nullptr)
     {
-        memcpy(m_buffer.data() + m_bytes, data, size);
-        m_bytes += size;
-        m_buffer[m_bytes] = 0;
+        memcpy(m_buffer + m_size, data, size);
+        m_size += size;
+        m_buffer[m_size] = 0;
     }
 }
 
@@ -83,12 +82,12 @@ void BufferStorage::append(const uint8_t* data, size_t size)
         return;
     }
 
-    checkSize(m_bytes + size + 1);
+    checkSize(m_size + size + 1);
     if (data != nullptr)
     {
-        memcpy(m_buffer.data() + m_bytes, data, size);
-        m_bytes += size;
-        m_buffer[m_bytes] = 0;
+        memcpy(m_buffer + m_size, data, size);
+        m_size += size;
+        m_buffer[m_size] = 0;
     }
 }
 
@@ -96,22 +95,22 @@ void BufferStorage::reset(size_t size)
 {
     checkSize(size + 1);
     m_buffer[0] = 0;
-    m_bytes = 0;
+    m_size = 0;
 }
 
 void BufferStorage::fill(char chr, size_t count)
 {
     checkSize(count + 1);
-    memset(m_buffer.data(), chr, count);
-    m_bytes = count;
-    m_buffer[m_bytes] = 0;
+    memset(m_buffer, chr, count);
+    m_size = count;
+    m_buffer[m_size] = 0;
 }
 
 void BufferStorage::erase(size_t offset, size_t length)
 {
-    if (offset + length >= m_bytes)
+    if (offset + length >= m_size)
     {
-        m_bytes = offset;
+        m_size = offset;
     }
 
     if (length == 0)
@@ -120,18 +119,17 @@ void BufferStorage::erase(size_t offset, size_t length)
     } // Nothing to do
 
     const size_t moveOffset = offset + length;
-    const size_t moveLength = m_bytes - moveOffset;
+    const size_t moveLength = m_size - moveOffset;
 
-    if (offset + length > m_bytes)
+    if (offset + length > m_size)
     {
-        length = m_bytes - offset;
+        length = m_size - offset;
     }
 
     if (length > 0)
     {
-        memmove(m_buffer.data() + offset, m_buffer.data() + offset + length, moveLength);
+        memmove(m_buffer + offset, m_buffer + offset + length, moveLength);
+        m_size -= length;
+        m_buffer[m_size] = 0;
     }
-
-    m_bytes -= length;
-    m_buffer[m_bytes] = 0;
 }
