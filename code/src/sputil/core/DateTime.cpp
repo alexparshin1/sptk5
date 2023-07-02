@@ -204,7 +204,7 @@ void DateTimeFormat::init() noexcept
     atime.tm_sec = 59;
     atime.tm_wday = 0; // Sunday
 
-#ifdef __linux__
+#ifdef __unix__
     // For unknown reason this call of setlocale() under Windows makes
     // calls of sprintf to produce access violations. If you know why please
     // tell me.

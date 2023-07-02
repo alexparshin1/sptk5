@@ -157,7 +157,7 @@ ELSE ()
     ENDIF ()
 
     IF (UNIX)
-        LINK_LIBRARIES(pthread rt dl stdc++fs)
+        LINK_LIBRARIES(pthread rt dl)
         IF (BUILD_WITH_COVERAGE)
             LINK_LIBRARIES(gcov)
         ENDIF ()

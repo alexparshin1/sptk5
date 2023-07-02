@@ -34,6 +34,14 @@
 
 #endif
 
+#if defined(__FreeBSD__) || defined(__NetBSD__)
+/**
+ * BSD compiler flag
+ */
+#define __BSD__
+
+#endif
+
 #ifndef __UNIX_COMPILER__
 #if defined(SP_DLL) && defined(WIN32)
 #ifdef SP_LIBRARY

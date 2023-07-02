@@ -56,11 +56,17 @@ String SystemException::osError()
     // Get Unix errno-based error
     constexpr size_t maxErrorLength {256};
     array<char, maxErrorLength> osError {};
+
+#ifdef __BSD__
+    strerror_r(errno, osError.data(), maxErrorLength);
+#else
     if (const char* error = strerror_r(errno, osError.data(), maxErrorLength);
         error != nullptr)
     {
         return error;
     }
+#endif
+
     return osError.data();
 #endif
 }
