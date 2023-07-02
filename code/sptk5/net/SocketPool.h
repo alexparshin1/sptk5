@@ -64,11 +64,10 @@ namespace sptk {
 /**
  * Socket event types
  */
-struct SocketEventType
-{
-    bool m_data:1;   ///< Socket has data available to read
-    bool m_hangup:1; ///< Peer closed connection
-    bool m_error:1;  ///< Connection error
+struct SocketEventType {
+    bool m_data : 1;   ///< Socket has data available to read
+    bool m_hangup : 1; ///< Peer closed connection
+    bool m_error : 1;  ///< Connection error
 };
 
 /**
@@ -162,7 +161,7 @@ private:
 #ifdef _WIN32
     HANDLE m_pool {INVALID_EPOLL};
 #else
-    SocketType m_pool {INVALID_EPOLL};
+    SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
 
     /**

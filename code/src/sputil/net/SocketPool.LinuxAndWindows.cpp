@@ -33,16 +33,6 @@
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(SocketEventCallback eventsCallback)
-    : m_eventsCallback(std::move(eventsCallback))
-{
-}
-
-SocketPool::~SocketPool()
-{
-    close();
-}
-
 void SocketPool::open()
 {
     const scoped_lock lock(*this);
@@ -56,7 +46,7 @@ void SocketPool::open()
 
     if (m_pool == INVALID_EPOLL)
     {
-        throw SystemException("epoll_create1");
+        throw SystemException("Can't create epoll");
     }
 }
 
@@ -79,15 +69,15 @@ void SocketPool::close()
 
 void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
-    const lock_guard lock(*this);
-    const uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-
     auto socketFD = socket.fd();
     if (socketFD == INVALID_SOCKET)
     {
         throw Exception("Socket is closed");
     }
 
+    const scoped_lock lock(*this);
+
+    const uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
     auto event = make_shared<epoll_event>();
     event->data.ptr = const_cast<uint8_t*>(userData);
     event->events = eventMask;
@@ -125,14 +115,6 @@ void SocketPool::forgetSocket(Socket& socket)
     }
 }
 
-bool SocketPool::hasSocket(Socket& socket)
-{
-    const scoped_lock lock(*this);
-
-    auto itor = m_socketData.find(&socket);
-    return itor != m_socketData.end();
-}
-
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
     const int eventCount = epoll_wait(m_pool, m_events.data(), maxEvents, (int) timeout.count());
@@ -159,9 +141,4 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     }
 
     return true;
-}
-
-bool SocketPool::active() const
-{
-    return m_pool != INVALID_EPOLL;
 }
