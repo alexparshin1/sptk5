@@ -161,6 +161,9 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
             return VariantDataType::VAR_INT;
 
         case MYSQL_TYPE_LONG:
+            return VariantDataType::VAR_INT;
+
+        case MYSQL_TYPE_LONGLONG:
             return VariantDataType::VAR_INT64;
 
         case MYSQL_TYPE_FLOAT:
@@ -183,10 +186,7 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
         case MYSQL_TYPE_TIMESTAMP:
             return VariantDataType::VAR_DATE_TIME;
 
-        case MYSQL_TYPE_LONGLONG:
-            return VariantDataType::VAR_INT64;
-
-            // Anything we don't know about - treat as string
+        // Anything we don't know about - treat as string
         default:
             return VariantDataType::VAR_STRING;
     }
@@ -401,8 +401,9 @@ void MySQLStatement::bindResult(FieldList& fields)
         {
             fieldLength = FETCH_BUFFER;
         }
-        fields.push_back(make_shared<MySQLStatementField>(columnName, (int) columnIndex, fieldMetadata->type, fieldType,
-                                                          (int) fieldLength));
+
+        auto field = make_shared<MySQLStatementField>(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength);
+        fields.push_back(field);
     }
 
     if (statement() != nullptr)
@@ -449,9 +450,13 @@ void MySQLStatement::bindResult(FieldList& fields)
 
                     // Fixed length buffer - long integers
                 case MYSQL_TYPE_LONG:
+                    bind.buffer = (void*) &field->get<int>();
+                    bind.buffer_length = sizeof(int);
+                    break;
+
                 case MYSQL_TYPE_LONGLONG:
                     bind.buffer = (void*) &field->get<int64_t>();
-                    bind.buffer_length = sizeof(uint64_t);
+                    bind.buffer_length = sizeof(int64_t);
                     break;
 
                     // Using temp buffer of the size defined by field size
@@ -615,9 +620,9 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
         switch (fieldType)
         {
-
             case VariantDataType::VAR_BOOL:
             case VariantDataType::VAR_INT:
+            case VariantDataType::VAR_INT64:
                 field->setDataSize(dataLength);
                 break;
 
@@ -634,10 +639,6 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
                 fieldSizeChanged = bindVarCharField(bind, field, (size_t) fieldIndex, dataLength);
-                break;
-
-            case VariantDataType::VAR_INT64:
-                field->setDataSize(dataLength);
                 break;
 
             default:

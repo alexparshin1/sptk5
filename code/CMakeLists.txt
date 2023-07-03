@@ -151,7 +151,7 @@ ELSE ()
     ENDIF ()
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O2)
+        #ADD_DEFINITIONS(-O2)
     ELSE ()
         ADD_DEFINITIONS(-O3)
     ENDIF ()

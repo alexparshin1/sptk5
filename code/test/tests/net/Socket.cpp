@@ -69,5 +69,5 @@ TEST(SPTK_Socket, option)
 
     socket.setOption(SOL_SOCKET, SO_REUSEADDR, 1);
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
-    EXPECT_EQ(value, 1);
+    EXPECT_TRUE(value != 0);
 }

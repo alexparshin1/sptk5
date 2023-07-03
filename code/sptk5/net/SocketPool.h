@@ -54,7 +54,7 @@ using SocketEvent = epoll_event;
 #else
 // BSD
 #include <sys/event.h>
-using SocketEvent = kevent;
+using SocketEvent = struct kevent;
 
 #endif
 #endif
@@ -179,7 +179,7 @@ private:
     /**
      * Events received by epoll
      */
-    std::array<epoll_event, maxEvents> m_events {};
+    std::array<SocketEvent, maxEvents> m_events {};
 };
 
 } // namespace sptk
