@@ -59,7 +59,7 @@ void SocketPool::close()
         return;
     }
 
-    ::close(m_pool);
+    ::shutdown(m_pool, SHUT_RDWR);
 
     m_socketData.clear();
     m_pool = INVALID_SOCKET;
@@ -75,8 +75,8 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     const scoped_lock lock(*this);
 
-    auto event = make_shared<kevent>();
-    EV_SET(event.get(), socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, userData);
+    auto event = make_shared<SocketEvent>();
+    EV_SET(event.get(), socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
 
     int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
     if (rc == -1)
@@ -105,7 +105,7 @@ void SocketPool::forgetSocket(Socket& socket)
     auto event = itor->second;
     m_socketData.erase(itor);
 
-    int socketFD = socket.handle();
+    int socketFD = socket.fd();
     EV_SET(event.get(), socketFD, 0, EV_DELETE, 0, 0, 0);
 
     if (int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
@@ -115,30 +115,32 @@ void SocketPool::forgetSocket(Socket& socket)
     }
 }
 
-constexpr int MAXEVENTS = 16;
-
-void SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
+bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 {
     static const struct timespec timeout = {time_t(timeoutMS.count() / 1000),
                                             long((timeoutMS.count() % 1000) * 1000000)};
-    struct kevent events[MAXEVENTS];
 
-    int eventCount = kevent(m_pool, NULL, 0, events, MAXEVENTS, &timeout);
+    int eventCount = kevent(m_pool, NULL, 0, m_events.data(), maxEvents, &timeout);
     if (eventCount < 0)
     {
-        throw SystemException("Error waiting for socket activity");
+        if (m_pool == INVALID_SOCKET)
+        {
+            return false;
+        }
+        return true;
     }
 
     for (int i = 0; i < eventCount; i++)
     {
-        struct kevent& event = events[i];
-        if (event.flags & EV_EOF)
-        {
-            m_eventsCallback(event.udata, SocketEventType::CONNECTION_CLOSED);
-        }
-        else
-        {
-            m_eventsCallback(event.udata, SocketEventType::HAS_DATA);
-        }
+        struct kevent& event = m_events[i];
+
+        SocketEventType eventType {};
+        eventType.m_data = event.data > 0;
+        eventType.m_hangup = event.flags & EV_EOF;
+        eventType.m_error = event.flags & EV_ERROR;
+
+        m_eventsCallback((const uint8_t*) event.udata, eventType);
     }
+
+    return true;
 }
