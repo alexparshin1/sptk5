@@ -563,7 +563,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 
 void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantDataType fieldType)
 {
-    auto* field = dynamic_cast<MySQLStatementField*>(_field);
+    auto* field = static_cast<MySQLStatementField*>(_field);
     if (mysqlTime.day == 0 && mysqlTime.month == 0)
     {
         // Date returned as 0000-00-00
@@ -580,7 +580,7 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
 
 void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 {
-    auto* field = dynamic_cast<MySQLStatementField*>(_field);
+    auto* field = static_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL)
     {
         const double value = string2double((char*) bind.buffer);
