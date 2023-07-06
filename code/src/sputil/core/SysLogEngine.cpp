@@ -153,7 +153,7 @@ void SysLogEngine::setupEventSource() const
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
-    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, static_cast<BYTE*>(buffer), &len);
+    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, bit_cast<BYTE*>(buffer), &len);
     if (rc != ERROR_SUCCESS)
     {
 

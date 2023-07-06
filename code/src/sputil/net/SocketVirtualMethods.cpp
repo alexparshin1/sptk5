@@ -412,7 +412,11 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
 
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
+#ifdef _WIN32
+    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
+#else
     auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_NOSIGNAL);
+#endif
     return res;
 }
 
@@ -432,9 +436,15 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         int bytes;
         if (peer != nullptr)
         {
+#ifdef _WIN32
+            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, 0,
+                                 bit_cast<const sockaddr*>(peer),
+                                 sizeof(sockaddr_in));
+#else
             bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
                                  bit_cast<const sockaddr*>(peer),
                                  sizeof(sockaddr_in));
+#endif
         }
         else
         {
