@@ -258,7 +258,7 @@ public:
      */
     explicit operator String() const
     {
-        return {(const char*) data(), bytes()};
+        return {c_str(), bytes()};
     }
 
     static VariantDataType variantDataType()

@@ -147,7 +147,7 @@ public:
     template<typename T>
     BufferStorage(const T* data, size_t sz)
     {
-        allocate((const uint8_t*) data, sz);
+        allocate(std::bit_cast<const uint8_t*>(data), sz);
     }
 
     /**
@@ -171,7 +171,7 @@ public:
      */
     [[nodiscard]] const char* c_str() const
     {
-        return (const char*) m_buffer;
+        return std::bit_cast<const char*>(m_buffer);
     }
 
     /**
@@ -206,7 +206,7 @@ public:
     template<typename T>
     void set(const T* data, size_t sz)
     {
-        _set((const uint8_t*) data, sz);
+        _set(std::bit_cast<const uint8_t*>(data), sz);
     }
 
     /**
@@ -235,14 +235,14 @@ public:
      */
     void set(const String& data)
     {
-        _set((const uint8_t*) data.c_str(), data.length());
+        _set(std::bit_cast<const uint8_t*>(data.c_str()), data.length());
     }
 
     /**
      * Returns the size of memory allocated for the data buffer
      * @returns buffer size
      */
-    size_t capacity() const
+    [[nodiscard]] size_t capacity() const
     {
         return m_allocated;
     }
@@ -251,7 +251,7 @@ public:
      * Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t size() const
+    [[nodiscard]] size_t size() const
     {
         return m_size;
     }
@@ -260,7 +260,7 @@ public:
      * Returns the size of data in the data buffer
      * @returns data size
      */
-    size_t bytes() const
+    [[nodiscard]] size_t bytes() const
     {
         return m_size;
     }
@@ -361,7 +361,7 @@ protected:
      */
     void reallocate(size_t size)
     {
-        auto* newBuffer = static_cast<uint8_t*>(realloc(m_buffer, size + 1));
+        auto* newBuffer = std::bit_cast<uint8_t*>(realloc(m_buffer, size + 1));
         if (newBuffer == nullptr)
         {
             throw Exception("Not enough memory");
