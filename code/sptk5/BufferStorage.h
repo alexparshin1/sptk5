@@ -99,17 +99,27 @@ public:
         free(m_buffer);
     }
 
-    BufferStorage& operator=(const BufferStorage& bufferStorage)
+    /**
+     * @brief Copy assignment
+     * @param other            Other object
+     * @return
+     */
+    BufferStorage& operator=(const BufferStorage& other)
     {
-        if (this != &bufferStorage)
+        if (this != &other)
         {
-            m_size = bufferStorage.m_size;
+            m_size = other.m_size;
             reallocate(m_size);
-            memcpy(m_buffer, bufferStorage.m_buffer, m_size);
+            memcpy(m_buffer, other.m_buffer, m_size);
         }
         return *this;
     }
 
+    /**
+     * @brief Move assignment
+     * @param other            Other object
+     * @return
+     */
     BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept
     {
         if (this != &bufferStorage)
