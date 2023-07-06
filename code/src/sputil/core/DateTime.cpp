@@ -676,7 +676,7 @@ DateTime::DateTime(const char* dat)
     }
 
     Buffer s1(dat);
-    char* s2 = strpbrk((char*) s1.data(), " T");
+    char* s2 = strpbrk(bit_cast<char*>(s1.c_str()), " T");
     if (s2 != nullptr)
     {
         *s2 = 0;
@@ -983,11 +983,6 @@ String DateTime::format(Format dtFormat, size_t arg)
 char DateTime::dateSeparator()
 {
     return _dateSeparator;
-}
-
-char DateTime::timeSeparator()
-{
-    return _timeSeparator;
 }
 
 double sptk::duration2seconds(const DateTime::duration& duration)

@@ -161,11 +161,6 @@ public:
     static char dateSeparator();
 
     /**
-     * System's time separator
-     */
-    static char timeSeparator();
-
-    /**
      * Returns system's time mode.
      */
     static bool time24Mode();
