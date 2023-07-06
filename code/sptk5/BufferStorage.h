@@ -31,6 +31,10 @@
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
+#ifndef _WIN32
+#include <bit>
+#endif
+
 namespace sptk {
 
 /**
