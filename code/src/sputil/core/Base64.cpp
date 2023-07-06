@@ -150,7 +150,7 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
             char_array_3[1] = uint8_t((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
             char_array_3[2] = uint8_t((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
 
-            dest.append((char*) char_array_3.data(), 3);
+            dest.append(char_array_3.data(), 3);
             index = 0;
         }
     }
