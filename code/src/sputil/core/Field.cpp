@@ -88,7 +88,7 @@ String Field::asString() const
         case VariantDataType::VAR_BUFFER:
             if (isExternalBuffer())
             {
-                result = (const char*) get<const uint8_t*>();
+                result = bit_cast<const char*>(get<const uint8_t*>());
             }
             else if (dataType() == VariantDataType::VAR_STRING)
             {
@@ -110,7 +110,7 @@ String Field::asString() const
             break;
 
         case VariantDataType::VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", (const void*) get<const uint8_t*>());
+            len = snprintf(print_buffer.data(), maxPrintLength, "%p", bit_cast<const void*>(get<const uint8_t*>()));
             result.assign(print_buffer.data(), len);
             break;
 
