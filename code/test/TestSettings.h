@@ -4,7 +4,7 @@
 
 namespace sptk {
 
-class TestSettings
+class SP_EXPORT TestSettings
 {
 public:
     void load(std::filesystem::path settingsFile);
