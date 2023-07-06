@@ -116,31 +116,80 @@ public:
      */
     SNode& pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
+    /**
+     * @brief Get node attributes
+     * @return node attributes
+     */
     Attributes& attributes();
 
+    /**
+     * @brief Get node attributes
+     * @return node attributes
+     */
     const Attributes& attributes() const;
 
+    /**
+     * @brief Get node value as string
+     * @param name             Optional node name
+     * @return node value
+     */
     String getString(const String& name = "") const;
 
+    /**
+     * @brief Get node value as text
+     * @param name             Optional node name
+     * @return node value
+     */
     String getText(const String& name = "") const;
 
+    /**
+     * @brief Get node value as number
+     * @param name             Optional node name
+     * @return node value
+     */
     double getNumber(const String& name = "") const;
 
+    /**
+     * @brief Get node value as boolean
+     * @param name             Optional node name
+     * @return node value
+     */
     bool getBoolean(const String& name = "") const;
 
+    /**
+     * @brief Get child nodes
+     * @param name             Optional node name
+     * @return child nodes
+     */
     const Nodes& nodes(const String& name = "") const;
 
+    /**
+     * @brief Get node value
+     * @return node value
+     */
     const Variant& getValue() const
     {
         return m_value;
     }
 
+    /**
+     * @brief Set node value
+     * @tparam T                Data type
+     * @param value             Node value
+     */
     template<typename T>
     void set(const T& value)
     {
         m_value = value;
     }
 
+    /**
+     * @brief Set node value
+     * @tparam T                Data type
+     * @param name              Node name
+     * @param value             Node value
+     * @return node
+     */
     template<typename T>
     SNode& set(const String& name, const T& value)
     {
@@ -151,19 +200,48 @@ public:
         return node;
     }
 
+    /**
+     * @brief Remove node
+     * @param name             Node name
+     * @return true if node was removed
+     */
     bool remove(const String& name);
 
+    /**
+     * @brief Remove node
+     * @param node              Node to remove
+     * @return true if node was removed
+     */
     bool remove(const SNode& node);
 
+    /**
+     * @brief Find existing node or create a new one
+     * @param name              Node name
+     * @return node
+     */
     SNode& findOrCreate(const String& name);
 
+    /**
+     * Find first node matching name
+     * @param name              Node name to match
+     * @param searchMode        Search mode
+     * @return
+     */
     SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
 
+    /**
+     * @brief Get parent node
+     * @return
+     */
     SNode& parent()
     {
         return m_parent;
     }
 
+    /**
+     * @brief Get parent node
+     * @return
+     */
     const SNode& parent() const
     {
         return m_parent;
