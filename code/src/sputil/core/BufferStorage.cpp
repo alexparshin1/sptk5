@@ -29,6 +29,22 @@
 using namespace std;
 using namespace sptk;
 
+void BufferStorage::reallocate(size_t size)
+{
+    auto* newBuffer = std::bit_cast<uint8_t*>(realloc(m_buffer, size + 1));
+    if (newBuffer == nullptr)
+    {
+        throw Exception("Not enough memory");
+    }
+    m_buffer = newBuffer;
+    if (m_size > size)
+    {
+        m_size = size;
+    }
+    m_buffer[size] = 0;
+    m_allocated = size;
+}
+
 void BufferStorage::adjustSize(size_t size)
 {
     constexpr size_t sizeGranularity {32};

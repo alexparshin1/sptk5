@@ -363,21 +363,7 @@ protected:
      * Reallocate memory
      * @param size              Number of bytes for new buffer
      */
-    void reallocate(size_t size)
-    {
-        auto* newBuffer = std::bit_cast<uint8_t*>(realloc(m_buffer, size + 1));
-        if (newBuffer == nullptr)
-        {
-            throw Exception("Not enough memory");
-        }
-        m_buffer = newBuffer;
-        if (m_size > size)
-        {
-            m_size = size;
-        }
-        m_buffer[size] = 0;
-        m_allocated = size;
-    }
+    void reallocate(size_t size);
 
     void init(const uint8_t* data, size_t size, size_t bytes)
     {
