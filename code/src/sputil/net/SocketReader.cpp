@@ -145,7 +145,11 @@ size_t SocketReader::bufferedRead(uint8_t* destination, size_t size)
     }
 
     // copy data to destination, advance the read offset
-    memcpy(destination, data() + m_readOffset, size_t(bytesToRead));
+    if (destination)
+    {
+        memcpy(destination, data() + m_readOffset, size_t(bytesToRead));
+    }
+
     m_readOffset += bytesToRead;
 
     return bytesToRead;
@@ -212,8 +216,11 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
     }
 
     // copy data to destination, advance the read offset
-    memcpy(destination, readPosition, size_t(bytesToRead));
-    destination[bytesToRead] = 0;
+    if (destination)
+    {
+        memcpy(destination, readPosition, size_t(bytesToRead));
+        destination[bytesToRead] = 0;
+    }
 
     m_readOffset += uint32_t(bytesToRead);
 
