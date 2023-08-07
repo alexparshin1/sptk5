@@ -144,6 +144,8 @@ public:
         m_alignment = al;
     }
 
+    using Field::operator=;
+
 protected:
     /**
      * Set field type

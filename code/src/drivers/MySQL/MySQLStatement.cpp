@@ -52,6 +52,8 @@ public:
     {
     }
 
+    using DatabaseField::operator=;
+
     void bindCallbacks(MYSQL_BIND* bind)
     {
         bind->length = &m_cbLength;

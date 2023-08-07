@@ -304,6 +304,8 @@ public:
         return "WSString";
     }
 
+    using WSBasicType::operator String;
+
     /**
      * @brief   Default data type
      * @details Used in clear operations
@@ -378,14 +380,6 @@ public:
         return *this;
     }
 
-    /**
-     * Conversion operator
-     */
-    operator String() const override
-    {
-        return value().asString();
-    }
-
     const char* getString() const
     {
         return value().getString();
@@ -427,6 +421,8 @@ public:
     {
         value().setBool(_value);
     }
+
+    using WSBasicType::operator String;
 
     /**
      * Return class name
@@ -517,6 +513,8 @@ public:
     {
         value().setDateTime(_value, true);
     }
+
+    using WSBasicType::operator String;
 
     /**
      * Return class name
@@ -623,6 +621,8 @@ public:
     {
         value().setDateTime(_value);
     }
+
+    using WSBasicType::operator String;
 
     /**
      * Return class name
@@ -731,6 +731,8 @@ public:
         value().setFloat(_value);
     }
 
+    using WSBasicType::operator String;
+
     /**
      * Return class name
      */
@@ -820,6 +822,8 @@ public:
     {
         value().setInteger(_value);
     }
+
+    using WSBasicType::operator String;
 
     /**
      * Return class name

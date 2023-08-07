@@ -191,6 +191,15 @@ public:
     /**
      * Assignment operation
      */
+    Field& operator=(const MoneyData& value) override
+    {
+        setMoney(value.quantity, value.scale);
+        return *this;
+    }
+
+    /**
+     * Assignment operation
+     */
     Field& operator=(const uint8_t* value) override
     {
         setImagePtr(value);

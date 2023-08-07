@@ -110,6 +110,15 @@ public:
     /**
      * Assign operator
      */
+    QueryParameter& operator=(bool v)
+    {
+        setBool(v);
+        return *this;
+    }
+
+    /**
+     * Assign operator
+     */
     QueryParameter& operator=(int16_t v)
     {
         setInteger(v);
@@ -164,7 +173,7 @@ public:
     /**
      * Assign operator
      */
-    QueryParameter& operator=(const std::string& s)
+    QueryParameter& operator=(const sptk::String& s) override
     {
         setString(s.c_str(), s.length());
         return *this;
@@ -176,6 +185,15 @@ public:
     QueryParameter& operator=(const DateTime& dt) override
     {
         setDateTime(dt);
+        return *this;
+    }
+
+    /**
+     * Assign operator
+     */
+    QueryParameter& operator=(const MoneyData& value) override
+    {
+        setMoney(value.quantity, value.scale);
         return *this;
     }
 

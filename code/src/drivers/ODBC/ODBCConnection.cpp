@@ -51,6 +51,7 @@ public:
         : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
     {
     }
+    using DatabaseField::operator=;
 };
 
 } // namespace sptk
