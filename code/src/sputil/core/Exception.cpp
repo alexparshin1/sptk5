@@ -27,6 +27,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
+#include <cstring>
 #include <utility>
 
 using namespace std;
@@ -38,13 +39,13 @@ Exception::Exception(String text, const std::source_location& location, String d
     , m_description(std::move(description))
     , m_fullMessage(m_text)
 {
-    const RegularExpression matchFileName(R"(([^\\\/]+[\\\/][^\\\/]+)$)");
-    String fileName(m_location.file_name());
-    if (auto matches = matchFileName.m(m_location.file_name());
-        !matches.empty())
+    const char* pos = strrchr(m_location.file_name(), '/');
+    if (pos == nullptr)
     {
-        fileName = matches[0].value;
+        pos = strrchr(m_location.file_name(), '\\');
     }
+
+    String fileName = pos != nullptr ? pos + 1 : m_location.file_name();
     m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_location.line())) + ")";
 
     if (!m_description.empty())

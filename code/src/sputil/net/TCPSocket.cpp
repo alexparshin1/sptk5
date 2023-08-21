@@ -70,7 +70,7 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
 
     if (getHostUnlocked().hostname().empty())
     {
-        throw Exception("Please, define the host name");
+        throw ConnectionException("Please, define the host name");
     }
 
     if (proxy() != nullptr)

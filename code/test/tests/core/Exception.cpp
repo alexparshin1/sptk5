@@ -40,7 +40,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in core/Exception.cpp(39)", e.what());
+        EXPECT_STREQ("Test exception in Exception.cpp(39)", e.what());
     }
 
     try
@@ -52,7 +52,7 @@ TEST(SPTK_Exception, throwException)
 #ifdef _WIN32
         EXPECT_STREQ("Test exception in core\\Exception.cpp(48). This happens sometimes.", e.what());
 #else
-        EXPECT_STREQ("Test exception in core/Exception.cpp(48). This happens sometimes.", e.what());
+        EXPECT_STREQ("Test exception in Exception.cpp(48). This happens sometimes.", e.what());
 #endif
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
@@ -78,7 +78,7 @@ TEST(SPTK_HttpException, throwException)
 #ifdef _WIN32
             EXPECT_STREQ("Something happened in core\\Exception.cpp(74). This happens sometimes.", e.what());
 #else
-            EXPECT_STREQ("Something happened in core/Exception.cpp(74). This happens sometimes.", e.what());
+            EXPECT_STREQ("Something happened in Exception.cpp(74). This happens sometimes.", e.what());
 #endif
             EXPECT_STREQ("Something happened", e.message().c_str());
             EXPECT_EQ(size_t(code), e.statusCode());
