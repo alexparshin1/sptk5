@@ -110,7 +110,7 @@ TEST(SPTK_SocketEvents, minimal)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, (uint8_t*) &socket);
+        socketEvents.add(socket, (uint8_t*) &socket, false);
 
         socketReader = make_shared<SocketReader>(socket);
 
@@ -154,7 +154,7 @@ TEST(SPTK_SocketEvents, performance)
         auto socket = make_shared<TCPSocket>();
         socket->open(Host("theater", 80));
         sockets.push_back(socket);
-        socketEvents.add(*socket, nullptr);
+        socketEvents.add(*socket, nullptr, false);
     }
 
     StopWatch stopWatch;
@@ -163,7 +163,7 @@ TEST(SPTK_SocketEvents, performance)
     for (const auto& socket: sockets)
     {
         socketEvents.remove(*socket);
-        socketEvents.add(*socket, nullptr);
+        socketEvents.add(*socket, nullptr, false);
     }
     stopWatch.stop();
 

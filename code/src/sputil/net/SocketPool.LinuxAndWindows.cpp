@@ -67,7 +67,7 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool edgeTrigerred)
 {
     auto socketFD = socket.fd();
     if (socketFD == INVALID_SOCKET)
@@ -77,7 +77,12 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     const scoped_lock lock(*this);
 
-    const uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    if (edgeTrigerred)
+    {
+        eventMask |= EPOLLET;
+    }
+
     auto event = make_shared<epoll_event>();
     event->data.ptr = const_cast<uint8_t*>(userData);
     event->events = eventMask;

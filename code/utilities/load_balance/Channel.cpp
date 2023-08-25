@@ -42,8 +42,8 @@ void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Ho
     m_destination.bind(interfaceAddress.c_str(), 0);
     m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
 
-    m_sourceEvents.add(m_source, (uint8_t*) this);
-    m_destinationEvents.add(m_destination, (uint8_t*) this);
+    m_sourceEvents.add(m_source, (uint8_t*) this, false);
+    m_destinationEvents.add(m_destination, (uint8_t*) this, false);
 }
 
 void Channel::close()

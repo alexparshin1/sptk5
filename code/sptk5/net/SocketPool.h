@@ -131,11 +131,12 @@ public:
     void close();
 
     /**
-     * Add socket to monitored pool
+     * @brief Add socket to monitored pool
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
+     * @param edgeTrigerred     If true, use edge-triggered events
      */
-    void watchSocket(Socket& socket, const uint8_t* userData);
+    void watchSocket(Socket& socket, const uint8_t* userData, bool edgeTrigerred = false);
 
     /**
      * Remove socket from monitored pool

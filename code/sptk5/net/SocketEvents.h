@@ -65,10 +65,11 @@ public:
 
     /**
      * Add socket to collection and start monitoring its events
-     * @param socket	            Socket to monitor
-     * @param userData	            User data to pass into callback function
+     * @param socket	        Socket to monitor
+     * @param userData	        User data to pass into callback function
+     * @param edgeTrigerred     If true, use edge-triggered events
      */
-    void add(Socket& socket, const uint8_t* userData);
+    void add(Socket& socket, const uint8_t* userData, bool edgeTrigerred = false);
 
     /**
      * Remove socket from collection and stop monitoring its events
