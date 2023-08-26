@@ -32,7 +32,7 @@
 #include <sptk5/Exception.h>
 #include <sptk5/net/Socket.h>
 #include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Flag.h>
+#include <sptk5/threads/Counter.h>
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
@@ -111,7 +111,7 @@ private:
     std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
     std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 
-    Flag m_started;          ///< Is watching started?
+    Counter m_started;       ///< Is watching started?
     bool m_shutdown {false}; ///< Is watching shutdown?
 };
 

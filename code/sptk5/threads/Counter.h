@@ -24,90 +24,104 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <mutex>
-#include <sptk5/threads/Flag.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
-using namespace chrono;
+#include <chrono>
+#include <condition_variable>
+#include <sptk5/DateTime.h>
+#include <sptk5/Exception.h>
+#include <sptk5/sptk.h>
 
-Flag::Flag(bool startingValue)
-    : m_value(startingValue)
+namespace sptk {
+
+/**
+ * @addtogroup threads Thread Classes
+ * @{
+ */
+
+/**
+ * @brief Generic counter class
+ */
+class SP_EXPORT Counter
 {
-}
+public:
+    /**
+     * @brief Constructor
+     *
+     * Creates counter with starting value
+     * @param startingValue     Starting counter value
+     */
+    explicit Counter(size_t startingValue = 0);
 
-Flag::~Flag()
-{
-    terminate();
-    do
+    /**
+     * @brief Destructor
+     */
+    virtual ~Counter();
+
+    /**
+     * @brief Get the counter value
+     */
+    size_t get() const;
+
+    /**
+     * @brief Set the counter value
+     * @param value             New counter value
+     */
+    void set(size_t value);
+
+    /**
+     * @brief Increment the counter value
+     * @param value             Increment value
+     * @return new counter value
+     */
+    size_t increment(size_t value = 1);
+
+    /**
+     * @brief Increment the counter value
+     * @param value             Increment value
+     * @return new counter value
+     */
+    size_t decrement(size_t value = 1);
+
+    /**
+     * @brief Adaptor
+     */
+    operator size_t() const
     {
-        const scoped_lock lock(m_lockMutex);
-        m_condition.notify_one();
-    } while (waiters() > 0);
-}
-
-void Flag::terminate()
-{
-    const scoped_lock lock(m_lockMutex);
-    m_terminated = true;
-}
-
-size_t Flag::waiters() const
-{
-    const scoped_lock lock(m_lockMutex);
-    return m_waiters;
-}
-
-bool Flag::get() const
-{
-    const scoped_lock lock(m_lockMutex);
-    return m_value;
-}
-
-void Flag::set(bool value)
-{
-    const scoped_lock lock(m_lockMutex);
-    if (m_value != value)
-    {
-        m_value = value;
-        m_condition.notify_one();
-    }
-}
-
-bool Flag::wait_for(bool value, chrono::milliseconds timeout)
-{
-    auto timeoutAt = DateTime::Now() + timeout;
-    return wait_until(value, timeoutAt);
-}
-
-bool Flag::wait_until(bool value, const DateTime& timeoutAt)
-{
-    unique_lock lock(m_lockMutex);
-
-    ++m_waiters;
-
-    // Wait until semaphore value is greater than 0
-    while (!m_terminated)
-    {
-        if (!m_condition.wait_until(lock,
-                                    timeoutAt.timePoint(),
-                                    [this, value]() {
-                                        return m_value == value;
-                                    }))
-        {
-            if (timeoutAt < DateTime::Now())
-            {
-                --m_waiters;
-                return false;
-            }
-        }
-        else
-        {
-            break;
-        }
+        return get();
     }
 
-    --m_waiters;
+    /**
+     * @brief Assignment
+     */
+    Counter& operator=(size_t value)
+    {
+        set(value);
+        return *this;
+    }
 
-    return true;
-}
+    /**
+     * @brief Wait until the counter has the value
+     * @param value             Value to wait for
+     * @param timeout           Wait timeout
+     * @return true if counter received the value, or false if timeout occurs
+     */
+    bool wait_for(size_t value, std::chrono::milliseconds timeout);
+
+    /**
+     * @brief Wait until the counter has the value
+     * @param value             Value to wait for
+     * @param timeoutAt           Wait timeout
+     * @return true if counter received the value, or false if timeout occurs
+     */
+    bool wait_until(size_t value, const DateTime& timeoutAt);
+
+private:
+    mutable std::mutex m_lockMutex;      ///< Mutex that protects counter operations
+    std::condition_variable m_condition; ///< Mutex condition
+    size_t m_counter {false};            ///< Counter value
+};
+/**
+ * @}
+ */
+} // namespace sptk

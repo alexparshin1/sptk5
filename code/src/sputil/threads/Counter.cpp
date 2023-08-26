@@ -24,122 +24,82 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <mutex>
+#include <sptk5/threads/Counter.h>
 
-#include <chrono>
-#include <condition_variable>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/sptk.h>
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-namespace sptk {
-
-/**
- * @addtogroup threads Thread Classes
- * @{
- */
-
-/**
- * Generic flag class
- */
-class SP_EXPORT Flag
+Counter::Counter(size_t startingValue)
+    : m_counter(startingValue)
 {
-public:
-    /**
-     * Constructor
-     *
-     * Creates flag with starting value (default false)
-     * @param startingValue     Starting flag value
-     */
-    explicit Flag(bool startingValue = false);
+}
 
-    /**
-     * Destructor
-     */
-    virtual ~Flag();
+Counter::~Counter()
+{
+    const scoped_lock lock(m_lockMutex);
+    m_condition.notify_all();
+}
 
-    /**
-     * Get the flag value
-     * @param value             New flag value
-     */
-    bool get() const;
+size_t Counter::get() const
+{
+    const scoped_lock lock(m_lockMutex);
+    return m_counter;
+}
 
-    /**
-     * Set the flag value
-     * @param value             New flag value
-     */
-    void set(bool value);
-
-    /**
-     * Adaptor
-     */
-    operator bool() const
+void Counter::set(size_t value)
+{
+    const scoped_lock lock(m_lockMutex);
+    if (m_counter != value)
     {
-        return get();
+        m_counter = value;
+        m_condition.notify_all();
     }
+}
 
-    /**
-     * Assignment
-     */
-    Flag& operator=(bool value)
+bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
+{
+    unique_lock lock(m_lockMutex);
+
+    // Wait until semaphore value is greater than 0
+    return m_condition.wait_for(lock,
+                                timeout,
+                                [this, value]() {
+                                    return m_counter == value;
+                                });
+}
+
+bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
+{
+    unique_lock lock(m_lockMutex);
+
+    // Wait until semaphore value is greater than 0
+    return m_condition.wait_until(lock,
+                                  timeoutAt.timePoint(),
+                                  [this, value]() {
+                                      return m_counter == value;
+                                  });
+}
+
+size_t Counter::increment(size_t value)
+{
+    const scoped_lock lock(m_lockMutex);
+    if (value != 0)
     {
-        set(value);
-        return *this;
+        m_counter += value;
+        m_condition.notify_all();
     }
+    return m_counter;
+}
 
-    /**
-     * Wait until the flag has the value
-     * @param value             Value to wait for
-     * @param timeout           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
-     */
-    bool wait_for(bool value, std::chrono::milliseconds timeout);
-
-    /**
-     * Wait until the flag has the value
-     * @param value             Value to wait for
-     * @param timeoutAt           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
-     */
-    bool wait_until(bool value, const DateTime& timeoutAt);
-
-private:
-    /**
-     * Mutex object
-     */
-    mutable std::mutex m_lockMutex;
-
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
-
-    /**
-     * Flag value
-     */
-    bool m_value {false};
-
-    /**
-     * Number of waiters
-     */
-    size_t m_waiters {0};
-
-    /**
-     * Terminated flag
-     */
-    bool m_terminated {false};
-
-    /**
-     * Terminate flag usage
-     */
-    void terminate();
-
-    /**
-     * Current number of waiters
-     */
-    size_t waiters() const;
-};
-/**
- * @}
- */
-} // namespace sptk
+size_t Counter::decrement(size_t value)
+{
+    const scoped_lock lock(m_lockMutex);
+    if (value <= m_counter)
+    {
+        m_counter -= value;
+        m_condition.notify_all();
+    }
+    return m_counter;
+}

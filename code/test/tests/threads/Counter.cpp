@@ -26,50 +26,54 @@
 
 #include <gtest/gtest.h>
 #include <mutex>
-#include <sptk5/threads/Flag.h>
+#include <sptk5/threads/Counter.h>
 
 using namespace std;
 using namespace chrono;
 using namespace sptk;
 
-TEST(SPTK_Flag, ctor)
+// @brief Test that default counter value
+TEST(SPTK_Counter, ctor)
 {
-    Flag flag;
-    EXPECT_EQ(flag.get(), false);
+    Counter flag1;
+    EXPECT_EQ(flag1.get(), 0);
+
+    Counter flag2(1);
+    EXPECT_EQ(flag2.get(), 1);
 }
 
-TEST(SPTK_Flag, waitFor)
+TEST(SPTK_Counter, waitFor)
 {
-    Flag flag;
+    Counter counter;
 
     constexpr milliseconds timeout(10);
-    bool result = flag.wait_for(true, timeout);
-    EXPECT_EQ(flag.get(), false);
+    bool result = counter.wait_for(1, timeout);
+    EXPECT_EQ(counter.get(), 0);
     EXPECT_EQ(result, false);
 
-    result = flag.wait_for(false, timeout);
-    EXPECT_EQ(flag.get(), false);
+    result = counter.wait_for(0, timeout);
+    EXPECT_EQ(result, true);
+
+    counter.increment();
+
+    result = counter.wait_for(1, timeout);
+    EXPECT_EQ(counter.get(), 1);
+    EXPECT_EQ(result, true);
+
+    counter.decrement();
+
+    result = counter.wait_for(0, timeout);
+    EXPECT_EQ(counter.get(), 0);
     EXPECT_EQ(result, true);
 }
 
-TEST(SPTK_Flag, setWaitFor)
+TEST(SPTK_Counter, adaptorAndAssignment)
 {
-    Flag flag;
+    Counter flag;
 
-    flag.set(true);
-    constexpr milliseconds timeout(10);
-    bool result = flag.wait_for(true, timeout);
-    EXPECT_EQ(flag.get(), true);
-    EXPECT_EQ(result, true);
-}
+    flag = 1;
+    EXPECT_EQ((size_t) flag, 1);
 
-TEST(SPTK_Flag, adaptorAndAssignment)
-{
-    Flag flag;
-
-    flag = true;
-    EXPECT_EQ((bool) flag, true);
-
-    flag = false;
-    EXPECT_EQ((bool) flag, false);
+    flag = 0;
+    EXPECT_EQ((size_t) flag, 0);
 }
