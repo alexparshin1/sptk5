@@ -55,8 +55,7 @@ public:
      * @param timeout	            Timeout in event monitoring loop
      */
     SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(
-                     100));
+                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
 
     /**
      * Destructor
@@ -67,9 +66,9 @@ public:
      * Add socket to collection and start monitoring its events
      * @param socket	        Socket to monitor
      * @param userData	        User data to pass into callback function
-     * @param edgeTrigerred     If true, use edge-triggered events
+     * @param triggerMode       Trigger mode
      */
-    void add(Socket& socket, const uint8_t* userData, bool edgeTrigerred = false);
+    void add(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
 
     /**
      * Remove socket from collection and stop monitoring its events

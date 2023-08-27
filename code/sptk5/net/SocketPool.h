@@ -93,6 +93,16 @@ class SP_EXPORT SocketPool
 {
 public:
     /**
+     * @brief Socket event trigger mode
+     */
+    enum class TriggerMode
+    {
+        EdgeTriggered,  ///< Execute callback once upon data arrival
+        LevelTriggered, ///< Execute callback after each data arrival
+        OneShot         ///< Execute callback once and stop monitoring
+    };
+
+    /**
      * Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      */
@@ -136,7 +146,7 @@ public:
      * @param userData          User data to pass to callback function
      * @param edgeTrigerred     If true, use edge-triggered events
      */
-    void watchSocket(Socket& socket, const uint8_t* userData, bool edgeTrigerred = false);
+    void watchSocket(Socket& socket, const uint8_t* userData, TriggerMode triggerMode);
 
     /**
      * Remove socket from monitored pool
@@ -173,7 +183,7 @@ private:
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<Socket*, std::shared_ptr<SocketEvent>> m_socketData;
+    std::map<Socket*, SocketEvent> m_socketData;
 
     static const int maxEvents = 128;
 

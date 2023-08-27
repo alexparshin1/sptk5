@@ -28,8 +28,6 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketPool.h>
 
-#include <utility>
-
 using namespace std;
 using namespace sptk;
 
@@ -67,7 +65,7 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool edgeTrigerred)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode)
 {
     auto socketFD = socket.fd();
     if (socketFD == INVALID_SOCKET)
@@ -78,16 +76,20 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool edgeT
     const scoped_lock lock(*this);
 
     uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-    if (edgeTrigerred)
+    if (triggerMode == SocketPool::TriggerMode::EdgeTriggered)
     {
         eventMask |= EPOLLET;
     }
+    else if (triggerMode == SocketPool::TriggerMode::OneShot)
+    {
+        eventMask |= EPOLLONESHOT;
+    }
 
-    auto event = make_shared<epoll_event>();
-    event->data.ptr = const_cast<uint8_t*>(userData);
-    event->events = eventMask;
+    auto& event = m_socketData[&socket];
+    event.data.ptr = bit_cast<uint8_t*>(userData);
+    event.events = eventMask;
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, event.get()) == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, &event) == -1)
     {
         if (m_pool == INVALID_EPOLL)
         {
@@ -96,8 +98,6 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool edgeT
 
         throw SystemException("Can't add socket to SocketPool");
     }
-
-    m_socketData[&socket] = event;
 }
 
 void SocketPool::forgetSocket(Socket& socket)
@@ -110,14 +110,14 @@ void SocketPool::forgetSocket(Socket& socket)
         return;
     }
 
-    auto event = itor->second;
-    m_socketData.erase(itor);
-
-    if (socket.active() &&
-        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), event.get()) == -1)
+    if (auto& event = itor->second;
+        socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1)
     {
+        m_socketData.erase(itor);
         throw SystemException("Can't remove socket from epoll");
     }
+
+    m_socketData.erase(itor);
 }
 
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)

@@ -62,7 +62,7 @@ void SocketEvents::stop()
     }
 }
 
-void SocketEvents::add(Socket& socket, const uint8_t* userData, bool edgeTrigerred)
+void SocketEvents::add(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode)
 {
     if (!running())
     {
@@ -74,7 +74,7 @@ void SocketEvents::add(Socket& socket, const uint8_t* userData, bool edgeTrigerr
         run();
         m_started.wait_for(true, seconds(1));
     }
-    m_socketPool.watchSocket(socket, userData, edgeTrigerred);
+    m_socketPool.watchSocket(socket, userData, triggerMode);
 }
 
 void SocketEvents::remove(Socket& socket)
