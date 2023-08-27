@@ -73,8 +73,6 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool
         throw Exception("Socket is closed");
     }
 
-    const scoped_lock lock(*this);
-
     uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
     if (triggerMode == SocketPool::TriggerMode::EdgeTriggered)
     {
@@ -84,6 +82,8 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool
     {
         eventMask |= EPOLLONESHOT;
     }
+
+    const scoped_lock lock(*this);
 
     auto& event = m_socketData[&socket];
     event.data.ptr = bit_cast<uint8_t*>(userData);
