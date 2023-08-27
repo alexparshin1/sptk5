@@ -86,6 +86,11 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool
     const scoped_lock lock(*this);
 
     auto& event = m_socketData[&socket];
+    if (event.events != 0)
+    {
+        // Socket is already being monitored
+        return;
+    }
     event.data.ptr = bit_cast<uint8_t*>(userData);
     event.events = eventMask;
 
