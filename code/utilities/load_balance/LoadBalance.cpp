@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
+SocketEventAction LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
@@ -38,13 +38,15 @@ void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType e
     {
         channel->close();
         delete channel;
-        return;
     }
-
-    channel->copyData(channel->source(), channel->destination());
+    else
+    {
+        channel->copyData(channel->source(), channel->destination());
+    }
+    return SocketEventAction::Continue;
 }
 
-void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
+SocketEventAction LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
@@ -52,10 +54,12 @@ void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventT
     {
         channel->close();
         delete channel;
-        return;
     }
-
-    channel->copyData(channel->destination(), channel->source());
+    else
+    {
+        channel->copyData(channel->destination(), channel->source());
+    }
+    return SocketEventAction::Continue;
 }
 
 LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)

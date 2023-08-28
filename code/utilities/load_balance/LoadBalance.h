@@ -46,9 +46,9 @@ class LoadBalance
 
     void threadFunction() override;
 
-    static void sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static SocketEventAction sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
 
-    static void destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static SocketEventAction destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
 
 public:
     LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);

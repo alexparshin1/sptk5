@@ -90,6 +90,8 @@ TEST(SPTK_SocketEvents, minimal)
             {
                 COUT("Socket closed" << endl);
             }
+
+            return SocketEventAction::Continue;
         };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
@@ -146,6 +148,7 @@ TEST(SPTK_SocketEvents, performance)
     SocketEvents socketEvents("test events",
                               [](const uint8_t*, SocketEventType) {
                                   // No need to do anything for this test
+                                  return SocketEventAction::Continue;
                               });
 
     const size_t maxSockets = 1024;

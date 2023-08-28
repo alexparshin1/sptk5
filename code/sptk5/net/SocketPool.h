@@ -67,6 +67,13 @@ public:
     bool m_enabled {true};
 };
 
+enum class SocketEventAction
+{
+    Continue,
+    Disable,
+    Forget
+};
+
 /**
  * Socket event types
  */
@@ -79,7 +86,7 @@ struct SocketEventType {
 /**
  * Type definition of socket event callback function
  */
-using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<SocketEventAction(const uint8_t* userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
