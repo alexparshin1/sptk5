@@ -37,7 +37,7 @@ SocketEvents::SocketEvents(const String& name, const SocketEventCallback& events
     , m_socketPool(eventsCallback)
     , m_timeout(timeout)
 {
-    m_socketPool.open();
+    Thread::run();
 }
 
 SocketEvents::~SocketEvents()
@@ -62,35 +62,9 @@ void SocketEvents::stop()
     }
 }
 
-void SocketEvents::add(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode)
-{
-    if (!running())
-    {
-        const scoped_lock lock(m_mutex);
-        if (m_shutdown)
-        {
-            throw Exception("SocketEvents already stopped");
-        }
-        run();
-        m_started.wait_for(true, seconds(1));
-    }
-    m_socketPool.watchSocket(socket, userData, triggerMode);
-}
-
-void SocketEvents::remove(Socket& socket)
-{
-    m_socketPool.forgetSocket(socket);
-}
-
-bool SocketEvents::has(Socket& socket)
-{
-    return m_socketPool.hasSocket(socket);
-}
-
 void SocketEvents::threadFunction()
 {
     m_socketPool.open();
-    m_started = true;
     while (!terminated())
     {
         try
@@ -106,13 +80,6 @@ void SocketEvents::threadFunction()
         }
     }
     m_socketPool.close();
-}
-
-void SocketEvents::terminate()
-{
-    Thread::terminate();
-    const scoped_lock lock(m_mutex);
-    m_shutdown = true;
 }
 
 size_t SocketEvents::size() const

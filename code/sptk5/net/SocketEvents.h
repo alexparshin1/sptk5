@@ -68,29 +68,33 @@ public:
      * @param userData	        User data to pass into callback function
      * @param triggerMode       Trigger mode
      */
-    void add(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
+    void add(Socket& socket, const uint8_t* userData)
+    {
+        m_socketPool.watchSocket(socket, userData);
+    }
 
     /**
      * Remove socket from collection and stop monitoring its events
      * @param socket	            Socket to remove
      */
-    void remove(Socket& socket);
+    void remove(Socket& socket)
+    {
+        m_socketPool.forgetSocket(socket);
+    }
 
     /**
      * Check if socket is already being monitored
      * @param socket	            Socket to check
      */
-    bool has(Socket& socket);
+    bool has(Socket& socket)
+    {
+        return m_socketPool.hasSocket(socket);
+    }
 
     /**
      * Stop socket events manager and wait until it joins.
      */
     void stop();
-
-    /**
-     * Terminate socket events manager and continue.
-     */
-    void terminate() override;
 
     /**
      * Get the size of socket collection
@@ -109,9 +113,6 @@ private:
     SocketPool m_socketPool;             ///< OS-specific event manager
     std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
     std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
-
-    Counter m_started;       ///< Is watching started?
-    bool m_shutdown {false}; ///< Is watching shutdown?
 };
 
 } // namespace sptk

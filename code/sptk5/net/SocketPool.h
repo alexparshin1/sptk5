@@ -41,7 +41,7 @@
 #include <WinSock2.h>
 #include <Windows.h>
 #include <wepoll.h>
-using SocketEvent = epoll_event;
+using SocketEventBase = epoll_event;
 
 #else
 
@@ -49,17 +49,23 @@ using SocketEvent = epoll_event;
 // Linux
 #include <sys/epoll.h>
 
-using SocketEvent = epoll_event;
+using SocketEventBase = epoll_event;
 
 #else
 // BSD
 #include <sys/event.h>
-using SocketEvent = struct kevent;
+using SocketEventBase = struct kevent;
 
 #endif
 #endif
 
 namespace sptk {
+
+class SocketEvent : public SocketEventBase
+{
+public:
+    bool m_enabled {true};
+};
 
 /**
  * Socket event types
@@ -146,7 +152,7 @@ public:
      * @param userData          User data to pass to callback function
      * @param edgeTrigerred     If true, use edge-triggered events
      */
-    void watchSocket(Socket& socket, const uint8_t* userData, TriggerMode triggerMode);
+    void watchSocket(Socket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from monitored pool
@@ -159,6 +165,18 @@ public:
      * @param socket            Socket
      */
     bool hasSocket(Socket& socket);
+
+    /**
+     * @brief Enable socket events if socket is already being monitored
+     * @param socket            Socket
+     */
+    void enableSocketEvents(Socket& socket);
+
+    /**
+     * @brief Disable socket events if socket is already being monitored
+     * @param socket            Socket
+     */
+    void disableSocketEvents(Socket& socket);
 
     /**
      * @return true if socket pool is active
@@ -190,7 +208,7 @@ private:
     /**
      * Events received by epoll
      */
-    std::array<SocketEvent, maxEvents> m_events {};
+    std::array<SocketEventBase, maxEvents> m_events {};
 };
 
 } // namespace sptk

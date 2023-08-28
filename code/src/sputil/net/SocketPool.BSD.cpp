@@ -75,10 +75,10 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     const scoped_lock lock(*this);
 
-    auto event = make_shared<SocketEvent>();
-    EV_SET(event.get(), socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
+    auto& event = m_socketData[&socket];
+    EV_SET(&event, socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
 
-    int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
+    int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
     if (rc == -1)
     {
         if (m_pool == INVALID_SOCKET)
@@ -88,8 +88,6 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
         throw SystemException("Can't add socket to kqueue");
     }
-
-    m_socketData[&socket] = event;
 }
 
 void SocketPool::forgetSocket(Socket& socket)

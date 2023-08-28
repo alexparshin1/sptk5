@@ -65,24 +65,8 @@ void SocketPool::close()
     m_socketData.clear();
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool::TriggerMode triggerMode)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
-    auto socketFD = socket.fd();
-    if (socketFD == INVALID_SOCKET)
-    {
-        throw Exception("Socket is closed");
-    }
-
-    uint32_t eventMask = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-    if (triggerMode == SocketPool::TriggerMode::EdgeTriggered)
-    {
-        eventMask |= EPOLLET;
-    }
-    else if (triggerMode == SocketPool::TriggerMode::OneShot)
-    {
-        eventMask |= EPOLLONESHOT;
-    }
-
     const scoped_lock lock(*this);
 
     auto& event = m_socketData[&socket];
@@ -92,16 +76,26 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, SocketPool
         return;
     }
     event.data.ptr = bit_cast<uint8_t*>(userData);
-    event.events = eventMask;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFD, &event) == -1)
+    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
     {
-        if (m_pool == INVALID_EPOLL)
+        switch (errno)
         {
-            throw SystemException("SocketPool is not open");
+            case EBADF:
+                if (m_pool == INVALID_EPOLL)
+                {
+                    throw SystemException("SocketPool is not open");
+                }
+                throw SystemException("Socket is closed");
+            case EINVAL:
+                throw Exception("Invalid event");
+            case EEXIST:
+                // Socket is already being monitored
+                break;
+            default:
+                throw SystemException("Can't add socket to epoll");
         }
-
-        throw SystemException("Can't add socket to SocketPool");
     }
 }
 
