@@ -143,6 +143,83 @@ TEST(SPTK_SocketEvents, minimal)
     }
 }
 
+TEST(SPTK_SocketEvents, disableEvents)
+{
+    Semaphore eventReceived;
+    shared_ptr<SocketReader> socketReader;
+
+    auto eventsCallback =
+        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
+            Buffer line;
+
+            if (eventType.m_data)
+            {
+                while (socketReader->readLine(line, '\n') != 0)
+                {
+                    eventReceived.post();
+                    COUT("Client received: " << line.c_str() << endl);
+                }
+            }
+
+            if (eventType.m_hangup)
+            {
+                COUT("Socket closed" << endl);
+            }
+
+            return SocketEventAction::Disable;
+        };
+
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
+
+    Buffer buffer;
+
+    try
+    {
+        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        echoServer.onConnection(echoTestFunction);
+        echoServer.listen(testEchoServerPort);
+
+        Strings testRows({"Hello, World!",
+                          "This is a test of SocketEvents class.",
+                          "Using simple echo server to support data flow.",
+                          "The session is terminated when this row is received"});
+
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
+
+        socketEvents.add(socket, (uint8_t*) &socket);
+
+        socketReader = make_shared<SocketReader>(socket);
+
+        for (const auto& row: testRows)
+        {
+            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
+            if (bytes != row.length() || bytes2 != 1)
+            {
+                FAIL() << "Client can't send data";
+            }
+        }
+
+        size_t receivedEventCount {0};
+        while (eventReceived.wait_for(chrono::milliseconds(100)))
+        {
+            receivedEventCount++;
+        }
+
+        EXPECT_EQ(1, receivedEventCount);
+
+        socketEvents.remove(socket);
+        socket.close();
+
+        EXPECT_EQ(4u, receivedEventCount);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
 TEST(SPTK_SocketEvents, performance)
 {
     SocketEvents socketEvents("test events",

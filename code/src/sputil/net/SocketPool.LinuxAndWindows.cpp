@@ -119,14 +119,23 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 
     for (int i = 0; i < eventCount; ++i)
     {
-        const epoll_event& event = m_events[i];
+        epoll_event& event = m_events[i];
         SocketEventType eventType {};
 
         eventType.m_data = event.events & EPOLLIN;
         eventType.m_hangup = event.events & (EPOLLHUP | EPOLLRDHUP);
         eventType.m_error = event.events & EPOLLERR;
 
-        m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), eventType);
+        auto eventAction = m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), eventType);
+        if (eventAction == SocketEventAction::Disable) {
+            // Disable events for the socket
+            COUT("DISABLE" << endl);
+            event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+            if (epoll_ctl(m_pool, EPOLL_CTL_MOD, event.data.fd, &event) == -1)
+            {
+                processError(errno);
+            }
+        }
     }
 
     return true;
