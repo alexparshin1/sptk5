@@ -80,22 +80,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
     {
-        switch (errno)
-        {
-            case EBADF:
-                if (m_pool == INVALID_EPOLL)
-                {
-                    throw SystemException("SocketPool is not open");
-                }
-                throw SystemException("Socket is closed");
-            case EINVAL:
-                throw Exception("Invalid event");
-            case EEXIST:
-                // Socket is already being monitored
-                break;
-            default:
-                throw SystemException("Can't add socket to epoll");
-        }
+        processError(errno);
     }
 }
 
@@ -145,4 +130,45 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     }
 
     return true;
+}
+
+void SocketPool::enableSocketEvents(Socket& socket)
+{
+    const scoped_lock lock(*this);
+
+    auto& event = m_socketData[&socket];
+    if (event.events == 0)
+    {
+        // Socket is not being monitored
+        return;
+    }
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+
+    if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
+    {
+        processError(errno);
+    }
+}
+
+void SocketPool::processError(int error) const
+{
+    switch (errno)
+    {
+        case EBADF:
+            if (m_pool == INVALID_EPOLL)
+            {
+                throw SystemException("SocketPool is not open");
+            }
+            throw SystemException("Socket is closed");
+
+        case EINVAL:
+            throw Exception("Invalid event");
+
+        case EEXIST:
+            // Socket is already being monitored
+            break;
+
+        default:
+            throw SystemException("Can't add or remove socket to/from epoll");
+    }
 }

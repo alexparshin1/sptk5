@@ -216,6 +216,9 @@ private:
      * Events received by epoll
      */
     std::array<SocketEventBase, maxEvents> m_events {};
+
+    void processError(int error) const;
+
 };
 
 } // namespace sptk

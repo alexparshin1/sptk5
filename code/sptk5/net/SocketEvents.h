@@ -50,9 +50,9 @@ class SP_EXPORT SocketEvents
 public:
     /**
      * Constructor
-     * @param name                  Logical name for event manager (also the thread name)
-     * @param eventsCallback        Callback function called for socket events
-     * @param timeout	            Timeout in event monitoring loop
+     * @param name               Logical name for event manager (also the thread name)
+     * @param eventsCallback     Callback function called for socket events
+     * @param timeout            Timeout in event monitoring loop
      */
     SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
                  std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
@@ -64,9 +64,9 @@ public:
 
     /**
      * Add socket to collection and start monitoring its events
-     * @param socket	        Socket to monitor
-     * @param userData	        User data to pass into callback function
-     * @param triggerMode       Trigger mode
+     * @param socket             Socket to monitor
+     * @param userData           User data to pass into callback function
+     * @param triggerMode        Trigger mode
      */
     void add(Socket& socket, const uint8_t* userData)
     {
@@ -75,7 +75,7 @@ public:
 
     /**
      * Remove socket from collection and stop monitoring its events
-     * @param socket	            Socket to remove
+     * @param socket             Socket to remove
      */
     void remove(Socket& socket)
     {
@@ -84,11 +84,20 @@ public:
 
     /**
      * Check if socket is already being monitored
-     * @param socket	            Socket to check
+     * @param socket             Socket to check
      */
     bool has(Socket& socket)
     {
         return m_socketPool.hasSocket(socket);
+    }
+
+    /**
+     * @brief Enable socket events if socket is already being monitored
+     * @param socket             Socket to check
+     */
+    void enableSocketEvents(Socket& socket)
+    {
+        m_socketPool.enableSocketEvents(socket);
     }
 
     /**
