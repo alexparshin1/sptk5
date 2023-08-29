@@ -42,7 +42,6 @@ namespace sptk {
  * Thread-safe socket reader.
  */
 class SP_EXPORT SocketReader
-    : public Buffer
 {
 public:
     /**
@@ -51,6 +50,11 @@ public:
      * @param bufferSize        The desirable size of the internal buffer
      */
     explicit SocketReader(TCPSocket& socket, size_t bufferSize = 16384);
+
+    /**
+     * Destructor
+     */
+    virtual ~SocketReader() = default;
 
     /**
      * Clears read buffer
@@ -142,6 +146,7 @@ private:
     mutable std::mutex m_mutex; ///< Mutex protecting read operations
     TCPSocket& m_socket;        ///< Socket to read from
     size_t m_readOffset {0};    ///< Current offset in the read buffer
+    Buffer m_buffer;            ///< Read buffer
 
     /**
      * Performs buffered read
