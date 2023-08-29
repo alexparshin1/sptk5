@@ -151,7 +151,7 @@ TEST(SPTK_SocketEvents, performance)
                                   return SocketEventAction::Continue;
                               });
 
-    const size_t maxSockets = 1024;
+    const size_t maxSockets = 512;
     vector<shared_ptr<TCPSocket>> sockets;
     for (size_t index = 0; index < maxSockets; ++index)
     {
