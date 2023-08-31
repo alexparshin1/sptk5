@@ -151,9 +151,9 @@ ELSE ()
     ENDIF ()
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O2)
+        ADD_DEFINITIONS(-O2 -mtune=native -march=native)
     ELSE ()
-        ADD_DEFINITIONS(-O3)
+        ADD_DEFINITIONS(-O3 -mtune=native -march=native)
     ENDIF ()
 
     IF (UNIX)
@@ -367,7 +367,7 @@ IF (WIN32)
             "${ProgramFilesX86}/Windows Kits/*/bin/*/x64"
             "${ProgramFiles}/Windows Kits/10/bin/*/x64"
             "${ProgramFilesX86}/Windows Kits/10/bin/*/x64"
-            )
+    )
     IF (MC_COMPILER)
         MESSAGE("Windows SDK mc:     found")
     ELSE (MC_COMPILER)

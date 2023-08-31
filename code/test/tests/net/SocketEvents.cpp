@@ -158,6 +158,7 @@ TEST(SPTK_SocketEvents, disableEvents)
                 {
                     eventReceived.post();
                     COUT("Client received: " << line.c_str() << endl);
+                    return SocketEventAction::Disable;
                 }
             }
 
@@ -166,7 +167,12 @@ TEST(SPTK_SocketEvents, disableEvents)
                 COUT("Socket closed" << endl);
             }
 
-            return SocketEventAction::Disable;
+            if (eventType.m_error)
+            {
+                COUT("Socket error" << endl);
+            }
+
+            return SocketEventAction::Continue;
         };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
@@ -249,5 +255,16 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
+                     << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
+
+    stopWatch.start();
+    for (const auto& socket: sockets)
+    {
+        socketEvents.enableSocketEvents(*socket);
+        socketEvents.disableSocketEvents(*socket);
+    }
+    stopWatch.stop();
+
+    COUT("Executed " << maxSockets << " enable/disable socket events ops: "
                      << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
 }

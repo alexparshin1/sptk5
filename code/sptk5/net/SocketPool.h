@@ -217,7 +217,7 @@ private:
      */
     std::array<SocketEventBase, maxEvents> m_events {};
 
-    void processError(int error) const;
+    void processError(int error, const String& operation) const;
 };
 
 } // namespace sptk

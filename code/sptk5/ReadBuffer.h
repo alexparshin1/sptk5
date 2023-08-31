@@ -38,20 +38,6 @@ namespace sptk {
  */
 class SP_EXPORT ReadBuffer : public Buffer
 {
-    size_t m_readOffset {0}; ///< read offset
-
-    /**
-     * Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size
-     */
-    void compact()
-    {
-        if (m_readOffset >= bytes() * 3 / 4)
-        {
-            erase(0, m_readOffset);
-            m_readOffset = 0;
-        }
-    }
-
 public:
     using Buffer::Buffer;
 
@@ -123,6 +109,21 @@ public:
     size_t readOffset() const
     {
         return m_readOffset;
+    }
+
+private:
+    size_t m_readOffset {0}; ///< read offset
+
+    /**
+     * Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size
+     */
+    void compact()
+    {
+        if (m_readOffset >= bytes() * 3 / 4)
+        {
+            erase(0, m_readOffset);
+            m_readOffset = 0;
+        }
     }
 };
 

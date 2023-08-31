@@ -81,7 +81,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
     {
-        processError(errno);
+        processError(errno, "add socket to SocketEvents");
     }
 }
 
@@ -142,11 +142,10 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
         if (eventAction == SocketEventAction::Disable)
         {
             // Disable events for the socket
-            COUT("DISABLE" << endl);
             event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
             if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event) == -1)
             {
-                processError(errno);
+                processError(errno, "disable socket events");
             }
         }
     }
@@ -162,7 +161,7 @@ void SocketPool::enableSocketEvents(Socket& socket)
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
     {
-        processError(errno);
+        processError(errno, "enable socket events");
     }
 }
 
@@ -174,11 +173,11 @@ void SocketPool::disableSocketEvents(Socket& socket)
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
     {
-        processError(errno);
+        processError(errno, "disable socket events");
     }
 }
 
-void SocketPool::processError(int error) const
+void SocketPool::processError(int error, const String& operation) const
 {
     switch (error)
     {
@@ -197,6 +196,6 @@ void SocketPool::processError(int error) const
             break;
 
         default:
-            throw SystemException("Can't add or remove socket to/from epoll");
+            throw SystemException("Can't " + operation);
     }
 }
