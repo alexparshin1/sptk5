@@ -208,7 +208,7 @@ private:
     /**
      * Map of sockets to corresponding user data
      */
-    std::map<Socket*, SocketEvent> m_socketData;
+    std::map<Socket*, const uint8_t*> m_socketData;
 
     static const int maxEvents = 128;
 
@@ -218,7 +218,6 @@ private:
     std::array<SocketEventBase, maxEvents> m_events {};
 
     void processError(int error) const;
-
 };
 
 } // namespace sptk

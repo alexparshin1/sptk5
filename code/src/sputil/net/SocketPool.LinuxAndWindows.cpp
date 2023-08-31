@@ -69,13 +69,14 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    auto& event = m_socketData[&socket];
-    if (event.events != 0)
+    const auto& [itor, inserted] = m_socketData.emplace(&socket, userData);
+    if (!inserted)
     {
-        // Socket is already being monitored
         return;
     }
-    event.data.ptr = bit_cast<uint8_t*>(userData);
+
+    SocketEvent event;
+    event.data.ptr = bit_cast<uint8_t*>(&socket);
     event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
@@ -94,14 +95,16 @@ void SocketPool::forgetSocket(Socket& socket)
         return;
     }
 
-    if (auto& event = itor->second;
-        socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1)
-    {
-        m_socketData.erase(itor);
-        throw SystemException("Can't remove socket from epoll");
-    }
-
     m_socketData.erase(itor);
+
+    SocketEvent event;
+    if (socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1)
+    {
+        if (errno != ENOENT)
+        {
+            throw SystemException("Can't remove socket from epoll");
+        }
+    }
 }
 
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
@@ -126,12 +129,22 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
         eventType.m_hangup = event.events & (EPOLLHUP | EPOLLRDHUP);
         eventType.m_error = event.events & EPOLLERR;
 
-        auto eventAction = m_eventsCallback(static_cast<uint8_t*>(event.data.ptr), eventType);
-        if (eventAction == SocketEventAction::Disable) {
+        auto* socket = bit_cast<Socket*>(event.data.ptr);
+
+        auto itor = m_socketData.find(socket);
+        if (itor == m_socketData.end())
+        {
+            continue;
+        }
+        const auto* userData = itor->second;
+
+        auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
+        if (eventAction == SocketEventAction::Disable)
+        {
             // Disable events for the socket
             COUT("DISABLE" << endl);
             event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-            if (epoll_ctl(m_pool, EPOLL_CTL_MOD, event.data.fd, &event) == -1)
+            if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event) == -1)
             {
                 processError(errno);
             }
@@ -143,15 +156,21 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 
 void SocketPool::enableSocketEvents(Socket& socket)
 {
-    const scoped_lock lock(*this);
-
-    auto& event = m_socketData[&socket];
-    if (event.events == 0)
-    {
-        // Socket is not being monitored
-        return;
-    }
+    SocketEvent event;
+    event.data.ptr = bit_cast<uint8_t*>(&socket);
     event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+
+    if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
+    {
+        processError(errno);
+    }
+}
+
+void SocketPool::disableSocketEvents(Socket& socket)
+{
+    SocketEvent event;
+    event.data.ptr = bit_cast<uint8_t*>(&socket);
+    event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
     {
@@ -161,7 +180,7 @@ void SocketPool::enableSocketEvents(Socket& socket)
 
 void SocketPool::processError(int error) const
 {
-    switch (errno)
+    switch (error)
     {
         case EBADF:
             if (m_pool == INVALID_EPOLL)

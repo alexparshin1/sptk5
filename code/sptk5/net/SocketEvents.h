@@ -101,6 +101,15 @@ public:
     }
 
     /**
+     * @brief Disable socket events if socket is already being monitored
+     * @param socket             Socket to check
+     */
+    void disableSocketEvents(Socket& socket)
+    {
+        m_socketPool.disableSocketEvents(socket);
+    }
+
+    /**
      * Stop socket events manager and wait until it joins.
      */
     void stop();
