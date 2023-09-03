@@ -83,7 +83,7 @@ private:
 
     [[nodiscard]] BROTLI_BOOL HasMoreInput() const
     {
-        return inputData.eof() ? BROTLI_FALSE : BROTLI_TRUE;
+        return inputData.empty() ? BROTLI_FALSE : BROTLI_TRUE;
     }
 
     void ProvideInput()

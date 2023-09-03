@@ -97,7 +97,7 @@ public:
     /**
      * @return true if there are no available bytes to read
      */
-    bool eof() const
+    bool empty() const
     {
         return readOffset() >= bytes();
     }

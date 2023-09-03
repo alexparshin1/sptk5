@@ -212,6 +212,8 @@ private:
 
     static const int maxEvents = 128;
 
+    uint32_t m_triggerMode {0};
+
     /**
      * Events received by epoll
      */

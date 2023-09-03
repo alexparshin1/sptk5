@@ -40,6 +40,7 @@ void SocketPool::open()
         return;
     }
 
+    m_triggerMode = EPOLLET;
     m_pool = epoll_create1(0);
 
     if (m_pool == INVALID_EPOLL)
@@ -77,7 +78,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | m_triggerMode;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
     {
@@ -157,7 +158,7 @@ void SocketPool::enableSocketEvents(Socket& socket)
 {
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | m_triggerMode;
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
     {
