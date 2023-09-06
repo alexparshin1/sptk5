@@ -122,11 +122,15 @@ protected:
         }
     }
 
+public:
+    uint16_t port() const;
+
 private:
     mutable std::mutex m_mutex;
     TCPServer& m_server;                             ///< Parent server object
     STCPSocket m_socket;                             ///< Connection socket
     String m_address;                                ///< Incoming connection IP address
+    uint16_t m_port {0};                             ///< Incoming connection port
     size_t m_serial {0};                             ///< Connection serial number
     Type m_type;                                     ///< Connection type (TCP or SSL)
     ServerConnection::Function m_connectionFunction; ///< Function that is executed for each client connection
