@@ -40,7 +40,6 @@ void SocketPool::open()
         return;
     }
 
-    m_triggerMode = EPOLLET;
     m_pool = epoll_create1(0);
 
     if (m_pool == INVALID_EPOLL)
@@ -78,7 +77,11 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | m_triggerMode;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    if (m_triggerMode == TriggerMode::EdgeTriggered)
+    {
+        event.events |= EPOLLET;
+    }
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
     {
@@ -99,12 +102,9 @@ void SocketPool::forgetSocket(Socket& socket)
     m_socketData.erase(itor);
 
     SocketEvent event;
-    if (socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1)
+    if (socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1 && errno != ENOENT)
     {
-        if (errno != ENOENT)
-        {
-            throw SystemException("Can't remove socket from epoll");
-        }
+        throw SystemException("Can't remove socket from epoll");
     }
 }
 
@@ -158,7 +158,11 @@ void SocketPool::enableSocketEvents(Socket& socket)
 {
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR | m_triggerMode;
+    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    if (m_triggerMode == TriggerMode::EdgeTriggered)
+    {
+        event.events |= EPOLLET;
+    }
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
     {

@@ -94,7 +94,7 @@ TEST(SPTK_SocketEvents, minimal)
             return SocketEventAction::Continue;
         };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100), SocketPool::TriggerMode::EdgeTriggered);
 
     Buffer buffer;
 
@@ -175,7 +175,7 @@ TEST(SPTK_SocketEvents, disableEvents)
             return SocketEventAction::Continue;
         };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100));
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100), SocketPool::TriggerMode::EdgeTriggered);
 
     Buffer buffer;
 
@@ -228,11 +228,12 @@ TEST(SPTK_SocketEvents, disableEvents)
 
 TEST(SPTK_SocketEvents, performance)
 {
-    SocketEvents socketEvents("test events",
-                              [](const uint8_t*, SocketEventType) {
-                                  // No need to do anything for this test
-                                  return SocketEventAction::Continue;
-                              });
+    SocketEvents socketEvents(
+        "test events",
+        [](const uint8_t*, SocketEventType) {
+            // No need to do anything for this test
+            return SocketEventAction::Continue;
+        });
 
     const size_t maxSockets = 512;
     vector<shared_ptr<TCPSocket>> sockets;

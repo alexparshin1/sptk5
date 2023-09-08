@@ -29,8 +29,9 @@
 using namespace std;
 using namespace sptk;
 
-SocketPool::SocketPool(SocketEventCallback eventsCallback)
+SocketPool::SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode)
     : m_eventsCallback(std::move(eventsCallback))
+    , m_triggerMode(triggerMode)
 {
     open();
 }

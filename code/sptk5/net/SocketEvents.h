@@ -55,7 +55,8 @@ public:
      * @param timeout            Timeout in event monitoring loop
      */
     SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100));
+                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
+                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
 
     /**
      * Destructor

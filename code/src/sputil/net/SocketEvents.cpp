@@ -32,9 +32,9 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, milliseconds timeout)
+SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, std::chrono::milliseconds timeout, SocketPool::TriggerMode triggerMode)
     : Thread(name)
-    , m_socketPool(eventsCallback)
+    , m_socketPool(eventsCallback, triggerMode)
     , m_timeout(timeout)
 {
     Thread::run();

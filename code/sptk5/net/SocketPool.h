@@ -110,16 +110,15 @@ public:
      */
     enum class TriggerMode
     {
-        EdgeTriggered,  ///< Execute callback once upon data arrival
-        LevelTriggered, ///< Execute callback after each data arrival
-        OneShot         ///< Execute callback once and stop monitoring
+        EdgeTriggered, ///< Execute callback once upon data arrival
+        LevelTriggered ///< Execute callback after each data arrival
     };
 
     /**
      * Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      */
-    explicit SocketPool(SocketEventCallback eventsCallback);
+    explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode);
 
     /**
      * Deleted copy constructor
@@ -157,7 +156,6 @@ public:
      * @brief Add socket to monitored pool
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
-     * @param edgeTrigerred     If true, use edge-triggered events
      */
     void watchSocket(Socket& socket, const uint8_t* userData);
 
@@ -212,7 +210,7 @@ private:
 
     static const int maxEvents = 128;
 
-    uint32_t m_triggerMode {0};
+    TriggerMode m_triggerMode;
 
     /**
      * Events received by epoll
