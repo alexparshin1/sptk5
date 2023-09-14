@@ -143,7 +143,7 @@ void SocketPool::processError(int error, const String& operation) const
     switch (error)
     {
         case EBADF:
-            if (m_pool == INVALID_EPOLL)
+            if (m_pool == -1)
             {
                 throw SystemException("SocketPool is not open");
             }
