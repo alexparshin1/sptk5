@@ -84,15 +84,6 @@ public:
     }
 
     /**
-     * Check if socket is already being monitored
-     * @param socket             Socket to check
-     */
-    bool has(Socket& socket)
-    {
-        return m_socketPool.hasSocket(socket);
-    }
-
-    /**
      * @brief Enable socket events if socket is already being monitored
      * @param socket             Socket to check
      */

@@ -41,14 +41,6 @@ SocketPool::~SocketPool()
     close();
 }
 
-bool SocketPool::hasSocket(Socket& socket)
-{
-    const scoped_lock lock(*this);
-
-    auto itor = m_socketData.find(&socket);
-    return itor != m_socketData.end();
-}
-
 bool SocketPool::active() const
 {
     return m_pool != INVALID_EPOLL;

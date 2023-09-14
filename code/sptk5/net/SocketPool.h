@@ -166,12 +166,6 @@ public:
     void forgetSocket(Socket& socket);
 
     /**
-     * Check if socket is already being monitored
-     * @param socket            Socket
-     */
-    bool hasSocket(Socket& socket);
-
-    /**
      * @brief Enable socket events if socket is already being monitored
      * @param socket            Socket
      */

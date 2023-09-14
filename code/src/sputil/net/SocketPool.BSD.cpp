@@ -67,16 +67,10 @@ void SocketPool::close()
 
 void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
-    auto socketFD = socket.fd();
-    if (socketFD == INVALID_SOCKET)
-    {
-        throw Exception("Socket is closed");
-    }
-
     const scoped_lock lock(*this);
 
-    auto& event = m_socketData[&socket];
-    EV_SET(&event, socketFD, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
+    struct kevent event {};
+    EV_SET(&event, socket.fd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
 
     int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
     if (rc == -1)
@@ -94,19 +88,10 @@ void SocketPool::forgetSocket(Socket& socket)
 {
     const scoped_lock lock(*this);
 
-    auto itor = m_socketData.find(&socket);
-    if (itor == m_socketData.end())
-    {
-        return;
-    }
+    struct kevent event {};
+    EV_SET(&event, socket.fd(), 0, EV_DELETE, 0, 0, 0);
 
-    auto event = itor->second;
-    m_socketData.erase(itor);
-
-    int socketFD = socket.fd();
-    EV_SET(event.get(), socketFD, 0, EV_DELETE, 0, 0, 0);
-
-    if (int rc = kevent(m_pool, event.get(), 1, NULL, 0, NULL);
+    if (int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
         rc == -1)
     {
         throw SystemException("Can't remove socket from kqueue");
@@ -141,4 +126,37 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
     }
 
     return true;
+}
+
+void SocketPool::enableSocketEvents(Socket& socket)
+{
+    throw Exception("Not supported on this OS");
+}
+
+void SocketPool::disableSocketEvents(Socket& socket)
+{
+    throw Exception("Not supported on this OS");
+}
+
+void SocketPool::processError(int error, const String& operation) const
+{
+    switch (error)
+    {
+        case EBADF:
+            if (m_pool == INVALID_EPOLL)
+            {
+                throw SystemException("SocketPool is not open");
+            }
+            throw SystemException("Socket is closed");
+
+        case EINVAL:
+            throw Exception("Invalid event");
+
+        case EEXIST:
+            // Socket is already being monitored
+            break;
+
+        default:
+            throw SystemException("Can't " + operation);
+    }
 }
