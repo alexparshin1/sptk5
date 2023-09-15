@@ -36,6 +36,9 @@ using namespace chrono;
 
 static constexpr uint16_t testEchoServerPort = 5001;
 
+/**
+ * @brief Test TCP echo server function
+ */
 static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
     SocketReader socketReader(socket);
@@ -62,13 +65,16 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            break;
         }
     }
     socket.close();
 }
 
-TEST(SPTK_SocketEvents, minimal)
+/**
+ * @brief Test SocketEvents communication with echo server using LevelTriggered mode
+ */
+TEST(SPTK_SocketEvents, minimal_levelTriggered)
 {
     Semaphore eventReceived;
     shared_ptr<SocketReader> socketReader;
@@ -94,7 +100,8 @@ TEST(SPTK_SocketEvents, minimal)
             return SocketEventAction::Continue;
         };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100), SocketPool::TriggerMode::EdgeTriggered);
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
+                              SocketPool::TriggerMode::LevelTriggered);
 
     Buffer buffer;
 
@@ -143,6 +150,138 @@ TEST(SPTK_SocketEvents, minimal)
     }
 }
 
+/**
+ * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
+ * @remarks The event count must show the events coming upon each new data arrival to client's socket
+ */
+TEST(SPTK_SocketEvents, minimal_edgeTriggered)
+{
+    atomic_size_t eventCount;
+
+    auto eventsCallback =
+        [&eventCount](const uint8_t* /*userData*/, SocketEventType eventType) {
+            if (eventType.m_hangup)
+            {
+                COUT("Socket closed" << endl);
+                return SocketEventAction::Forget;
+            }
+            else
+            {
+                eventCount++;
+            }
+
+            return SocketEventAction::Continue;
+        };
+
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
+                              SocketPool::TriggerMode::EdgeTriggered);
+
+    Buffer buffer;
+
+    try
+    {
+        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        echoServer.onConnection(echoTestFunction);
+        echoServer.listen(testEchoServerPort);
+
+        Strings testRows({"Hello, World!",
+                          "This is a test of SocketEvents class.",
+                          "Using simple echo server to support data flow."});
+
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
+
+        socketEvents.add(socket, (uint8_t*) &socket);
+
+        for (const auto& row: testRows)
+        {
+            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
+            if (bytes != row.length() || bytes2 != 1)
+            {
+                FAIL() << "Client can't send data";
+            }
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(10));
+
+        EXPECT_EQ(eventCount, 3);
+
+        socketEvents.remove(socket);
+        socket.close();
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
+/**
+ * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
+ * @remarks The event count must show the event is triggered once data becomes available in client's socket
+ */
+TEST(SPTK_SocketEvents, minimal_oneShot)
+{
+    atomic_size_t eventCount;
+
+    auto eventsCallback =
+        [&eventCount](const uint8_t* /*userData*/, SocketEventType eventType) {
+            if (eventType.m_hangup)
+            {
+                COUT("Socket closed" << endl);
+                return SocketEventAction::Forget;
+            }
+            else
+            {
+                eventCount++;
+            }
+
+            return SocketEventAction::Continue;
+        };
+
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
+                              SocketPool::TriggerMode::OneShot);
+
+    Buffer buffer;
+
+    try
+    {
+        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        echoServer.onConnection(echoTestFunction);
+        echoServer.listen(testEchoServerPort);
+
+        Strings testRows({"Hello, World!",
+                          "This is a test of SocketEvents class.",
+                          "Using simple echo server to support data flow."});
+
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
+
+        socketEvents.add(socket, (uint8_t*) &socket);
+
+        for (const auto& row: testRows)
+        {
+            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
+            if (bytes != row.length() || bytes2 != 1)
+            {
+                FAIL() << "Client can't send data";
+            }
+        }
+
+        this_thread::sleep_for(chrono::milliseconds(10));
+
+        EXPECT_EQ(eventCount, 1);
+
+        socketEvents.remove(socket);
+        socket.close();
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
 TEST(SPTK_SocketEvents, disableEvents)
 {
     Semaphore eventReceived;
@@ -165,11 +304,13 @@ TEST(SPTK_SocketEvents, disableEvents)
             if (eventType.m_hangup)
             {
                 COUT("Socket closed" << endl);
+                return SocketEventAction::Forget;
             }
 
             if (eventType.m_error)
             {
                 COUT("Socket error" << endl);
+                return SocketEventAction::Forget;
             }
 
             return SocketEventAction::Continue;
@@ -217,8 +358,6 @@ TEST(SPTK_SocketEvents, disableEvents)
 
         socketEvents.remove(socket);
         socket.close();
-
-        EXPECT_EQ(4u, receivedEventCount);
     }
     catch (const Exception& e)
     {

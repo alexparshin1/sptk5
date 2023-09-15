@@ -78,9 +78,16 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
     event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-    if (m_triggerMode == TriggerMode::EdgeTriggered)
+    switch (m_triggerMode)
     {
-        event.events |= EPOLLET;
+        case TriggerMode::EdgeTriggered:
+            event.events |= EPOLLET;
+            break;
+        case TriggerMode::OneShot:
+            event.events |= EPOLLONESHOT;
+            break;
+        case TriggerMode::LevelTriggered:
+            break;
     }
 
     if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
@@ -159,9 +166,16 @@ void SocketPool::enableSocketEvents(Socket& socket)
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
     event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-    if (m_triggerMode == TriggerMode::EdgeTriggered)
+    switch (m_triggerMode)
     {
-        event.events |= EPOLLET;
+        case TriggerMode::EdgeTriggered:
+            event.events |= EPOLLET;
+            break;
+        case TriggerMode::OneShot:
+            event.events |= EPOLLONESHOT;
+            break;
+        case TriggerMode::LevelTriggered:
+            break;
     }
 
     if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)

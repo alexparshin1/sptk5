@@ -110,8 +110,9 @@ public:
      */
     enum class TriggerMode
     {
-        EdgeTriggered, ///< Execute callback once upon data arrival
-        LevelTriggered ///< Execute callback after each data arrival
+        EdgeTriggered, ///< Execute callback once upon new data arrival
+        OneShot,       ///< Execute callback once when data becomes available
+        LevelTriggered ///< Execute callback periodically while data is available
     };
 
     /**
