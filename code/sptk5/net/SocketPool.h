@@ -167,18 +167,6 @@ public:
     void forgetSocket(Socket& socket);
 
     /**
-     * @brief Enable socket events if socket is already being monitored
-     * @param socket            Socket
-     */
-    void enableSocketEvents(Socket& socket);
-
-    /**
-     * @brief Disable socket events if socket is already being monitored
-     * @param socket            Socket
-     */
-    void disableSocketEvents(Socket& socket);
-
-    /**
      * @return true if socket pool is active
      */
     [[nodiscard]] bool active() const;

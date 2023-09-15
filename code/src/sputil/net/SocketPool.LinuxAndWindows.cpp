@@ -161,41 +161,6 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     return true;
 }
 
-void SocketPool::enableSocketEvents(Socket& socket)
-{
-    SocketEvent event;
-    event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-    switch (m_triggerMode)
-    {
-        case TriggerMode::EdgeTriggered:
-            event.events |= EPOLLET;
-            break;
-        case TriggerMode::OneShot:
-            event.events |= EPOLLONESHOT;
-            break;
-        case TriggerMode::LevelTriggered:
-            break;
-    }
-
-    if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
-    {
-        processError(errno, "enable socket events");
-    }
-}
-
-void SocketPool::disableSocketEvents(Socket& socket)
-{
-    SocketEvent event;
-    event.data.ptr = bit_cast<uint8_t*>(&socket);
-    event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-
-    if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
-    {
-        processError(errno, "disable socket events");
-    }
-}
-
 void SocketPool::processError(int error, const String& operation) const
 {
     switch (error)

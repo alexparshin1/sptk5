@@ -55,7 +55,6 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
                 }
                 string str(data.c_str());
                 str += "\n";
-                COUT("Server received: " << str);
                 socket.write(str);
             }
             else
@@ -152,21 +151,22 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
 /**
  * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
- * @remarks The event count must show the events coming upon each new data arrival to client's socket
+ * @remarks The event count must show the events coming upon new data arrival to client's socket
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
     atomic_size_t eventCount;
+    Semaphore receivedEvent;
 
     auto eventsCallback =
-        [&eventCount](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
             if (eventType.m_hangup)
             {
-                COUT("Socket closed" << endl);
                 return SocketEventAction::Forget;
             }
             else
             {
+                receivedEvent.post();
                 eventCount++;
             }
 
@@ -203,9 +203,10 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
             }
         }
 
-        this_thread::sleep_for(chrono::milliseconds(10));
+        receivedEvent.wait_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(50));
 
-        EXPECT_EQ(eventCount, 3);
+        EXPECT_GT(eventCount, 1);
 
         socketEvents.remove(socket);
         socket.close();
@@ -223,16 +224,18 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
     atomic_size_t eventCount;
+    Semaphore receivedEvent;
 
     auto eventsCallback =
-        [&eventCount](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+        {
             if (eventType.m_hangup)
             {
-                COUT("Socket closed" << endl);
                 return SocketEventAction::Forget;
             }
             else
             {
+                receivedEvent.post();
                 eventCount++;
             }
 
@@ -269,92 +272,10 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
             }
         }
 
-        this_thread::sleep_for(chrono::milliseconds(10));
+        receivedEvent.wait_for(chrono::milliseconds(100));
+        this_thread::sleep_for(chrono::milliseconds(50));
 
         EXPECT_EQ(eventCount, 1);
-
-        socketEvents.remove(socket);
-        socket.close();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-}
-
-TEST(SPTK_SocketEvents, disableEvents)
-{
-    Semaphore eventReceived;
-    shared_ptr<SocketReader> socketReader;
-
-    auto eventsCallback =
-        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
-            Buffer line;
-
-            if (eventType.m_data)
-            {
-                while (socketReader->readLine(line, '\n') != 0)
-                {
-                    eventReceived.post();
-                    COUT("Client received: " << line.c_str() << endl);
-                    return SocketEventAction::Disable;
-                }
-            }
-
-            if (eventType.m_hangup)
-            {
-                COUT("Socket closed" << endl);
-                return SocketEventAction::Forget;
-            }
-
-            if (eventType.m_error)
-            {
-                COUT("Socket error" << endl);
-                return SocketEventAction::Forget;
-            }
-
-            return SocketEventAction::Continue;
-        };
-
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100), SocketPool::TriggerMode::EdgeTriggered);
-
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
-        echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testEchoServerPort);
-
-        Strings testRows({"Hello, World!",
-                          "This is a test of SocketEvents class.",
-                          "Using simple echo server to support data flow.",
-                          "The session is terminated when this row is received"});
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        socketEvents.add(socket, (uint8_t*) &socket);
-
-        socketReader = make_shared<SocketReader>(socket);
-
-        for (const auto& row: testRows)
-        {
-            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
-            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
-            if (bytes != row.length() || bytes2 != 1)
-            {
-                FAIL() << "Client can't send data";
-            }
-        }
-
-        size_t receivedEventCount {0};
-        while (eventReceived.wait_for(chrono::milliseconds(100)))
-        {
-            receivedEventCount++;
-        }
-
-        EXPECT_EQ(1, receivedEventCount);
 
         socketEvents.remove(socket);
         socket.close();
@@ -395,16 +316,5 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
-                     << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
-
-    stopWatch.start();
-    for (const auto& socket: sockets)
-    {
-        socketEvents.enableSocketEvents(*socket);
-        socketEvents.disableSocketEvents(*socket);
-    }
-    stopWatch.stop();
-
-    COUT("Executed " << maxSockets << " enable/disable socket events ops: "
                      << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
 }

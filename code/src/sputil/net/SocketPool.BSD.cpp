@@ -134,43 +134,8 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
         eventType.m_hangup = event.flags & EV_EOF;
         eventType.m_error = event.flags & EV_ERROR;
 
-        cout << "Have events: data " << event.data << endl;
-
         m_eventsCallback((const uint8_t*) event.udata, eventType);
     }
 
     return true;
-}
-
-void SocketPool::enableSocketEvents(Socket& socket)
-{
-    throw Exception("Not supported on this OS");
-}
-
-void SocketPool::disableSocketEvents(Socket& socket)
-{
-    throw Exception("Not supported on this OS");
-}
-
-void SocketPool::processError(int error, const String& operation) const
-{
-    switch (error)
-    {
-        case EBADF:
-            if (m_pool == INVALID_SOCKET)
-            {
-                throw SystemException("SocketPool is not open");
-            }
-            throw SystemException("Socket is closed");
-
-        case EINVAL:
-            throw Exception("Invalid event");
-
-        case EEXIST:
-            // Socket is already being monitored
-            break;
-
-        default:
-            throw SystemException("Can't " + operation);
-    }
 }
