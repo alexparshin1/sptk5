@@ -70,7 +70,19 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     const scoped_lock lock(*this);
 
     struct kevent event {};
-    EV_SET(&event, socket.fd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, (void*) userData);
+    auto eventFlags = EV_ADD | EV_ENABLE;
+    switch (m_triggerMode)
+    {
+        case TriggerMode::EdgeTriggered:
+            eventFlags |= EV_CLEAR;
+            break;
+        case TriggerMode::OneShot:
+            eventFlags |= EV_ONESHOT;
+            break;
+        case TriggerMode::LevelTriggered:
+            break;
+    }
+    EV_SET(&event, socket.fd(), EVFILT_READ, eventFlags, 0, 0, (void*) userData);
 
     int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
     if (rc == -1)
@@ -122,6 +134,8 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
         eventType.m_hangup = event.flags & EV_EOF;
         eventType.m_error = event.flags & EV_ERROR;
 
+        cout << "Have events: data " << event.data << endl;
+
         m_eventsCallback((const uint8_t*) event.udata, eventType);
     }
 
@@ -143,7 +157,7 @@ void SocketPool::processError(int error, const String& operation) const
     switch (error)
     {
         case EBADF:
-            if (m_pool == -1)
+            if (m_pool == INVALID_SOCKET)
             {
                 throw SystemException("SocketPool is not open");
             }
