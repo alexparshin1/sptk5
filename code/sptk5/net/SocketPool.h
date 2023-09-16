@@ -184,21 +184,10 @@ private:
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback m_eventsCallback;
-
-    /**
-     * Map of sockets to corresponding user data
-     */
-    std::map<Socket*, const uint8_t*> m_socketData;
-
-    static const int maxEvents = 128;
-
-    TriggerMode m_triggerMode;
-
-    /**
-     * Events received by epoll
-     */
-    std::array<SocketEventBase, maxEvents> m_events {};
+    SocketEventCallback m_eventsCallback;               ///< Sockets event callback function
+    static const int maxEvents = 128;                   ///< Maximum number of socket events per poll
+    TriggerMode m_triggerMode;                          ///< Socket event trigger mode
+    std::array<SocketEventBase, maxEvents> m_events {}; ///< Socket events received by epoll
 
     void processError(int error, const String& operation) const;
 };

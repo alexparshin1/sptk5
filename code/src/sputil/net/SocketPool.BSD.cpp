@@ -37,6 +37,8 @@ using namespace sptk;
 
 void SocketPool::open()
 {
+    const scoped_lock lock(*this);
+
     if (m_pool != INVALID_SOCKET)
     {
         return;
@@ -69,7 +71,8 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    struct kevent event {};
+    struct kevent event {
+    };
     auto eventFlags = EV_ADD | EV_ENABLE;
     switch (m_triggerMode)
     {
@@ -100,7 +103,8 @@ void SocketPool::forgetSocket(Socket& socket)
 {
     const scoped_lock lock(*this);
 
-    struct kevent event {};
+    struct kevent event {
+    };
     EV_SET(&event, socket.fd(), 0, EV_DELETE, 0, 0, 0);
 
     if (int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
@@ -112,6 +116,8 @@ void SocketPool::forgetSocket(Socket& socket)
 
 bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 {
+    const scoped_lock lock(*this);
+
     static const struct timespec timeout = {time_t(timeoutMS.count() / 1000),
                                             long((timeoutMS.count() % 1000) * 1000000)};
 

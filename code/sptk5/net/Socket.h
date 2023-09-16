@@ -43,6 +43,8 @@ namespace sptk {
  */
 class SP_EXPORT Socket : public SocketVirtualMethods
 {
+    friend class SocketPool;
+
 public:
     /**
      * Get socket internal (OS) handle
@@ -336,8 +338,30 @@ protected:
     static void cleanup() noexcept;
 #endif
 
+    /**
+     * @brief Get socket event data, used by SocketPool class
+     * @return Socket event data
+     */
+    const uint8_t* getSocketEventData() const
+    {
+        std::scoped_lock lock(m_mutex);
+        return m_socketEventData;
+    }
+
+    /**
+     * @brief Set socket event data, used by SocketPool class
+     * @param socketEventData   Socket event data
+     */
+    void setSocketEventData(const uint8_t* socketEventData)
+    {
+        std::scoped_lock lock(m_mutex);
+        m_socketEventData = socketEventData;
+    }
+
+
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects host data
+    mutable std::mutex m_mutex;       ///< Mutex that protects host data
+    const uint8_t* m_socketEventData; ///< Socket event data, used by SocketPool
 };
 
 /**

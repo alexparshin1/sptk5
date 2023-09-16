@@ -61,19 +61,13 @@ void SocketPool::close()
 #endif
         m_pool = INVALID_EPOLL;
     }
-
-    m_socketData.clear();
 }
 
 void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    const auto& [itor, inserted] = m_socketData.emplace(&socket, userData);
-    if (!inserted)
-    {
-        return;
-    }
+    socket.setSocketEventData(userData);
 
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
@@ -99,14 +93,6 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 void SocketPool::forgetSocket(Socket& socket)
 {
     const lock_guard lock(*this);
-
-    auto itor = m_socketData.find(&socket);
-    if (itor == m_socketData.end())
-    {
-        return;
-    }
-
-    m_socketData.erase(itor);
 
     SocketEvent event;
     if (socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1 && errno != ENOENT)
@@ -138,13 +124,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
         eventType.m_error = event.events & EPOLLERR;
 
         auto* socket = bit_cast<Socket*>(event.data.ptr);
-
-        auto itor = m_socketData.find(socket);
-        if (itor == m_socketData.end())
-        {
-            continue;
-        }
-        const auto* userData = itor->second;
+        const auto* userData = socket->getSocketEventData();
 
         auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
         if (eventAction == SocketEventAction::Disable)
