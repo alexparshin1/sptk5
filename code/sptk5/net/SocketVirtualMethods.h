@@ -112,7 +112,7 @@ protected:
      * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param timeout           Connection timeout. If 0 then wait forever.
      */
-    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0));
+    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0), bool reusePort = true);
 
     /**
      * Opens the client socket connection by host and port
@@ -154,14 +154,15 @@ protected:
      * Binds the socket to port
      * @param address           Local IP address, or NULL if any
      * @param portNumber        The port number, or 0 if any
+     * @param reusePort         If true then set SO_REUSEPORT
      */
-    void bindUnlocked(const char* address, uint32_t portNumber);
+    void bindUnlocked(const char* address, uint32_t portNumber, bool reusePort = false);
 
     /**
      * Opens the server socket connection on port (binds/listens)
      * @param portNumber        The port number
      */
-    void listenUnlocked(uint16_t portNumber);
+    void listenUnlocked(uint16_t portNumber, bool reusePort);
 
     /**
      * Close socket

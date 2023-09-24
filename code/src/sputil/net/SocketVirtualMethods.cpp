@@ -45,7 +45,7 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 }
 
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
-                                               std::chrono::milliseconds timeout)
+                                               std::chrono::milliseconds timeout, bool reusePort)
 {
     auto timeoutMS = (int) timeout.count();
 
@@ -100,7 +100,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
             break;
 
         case OpenMode::BIND:
-            if (m_type != SOCK_DGRAM)
+            if (reusePort)
             {
 #ifndef _WIN32
                 setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
@@ -230,7 +230,7 @@ SocketType SocketVirtualMethods::detachUnlocked()
     return socketFd;
 }
 
-void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber)
+void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber, bool reusePort)
 {
     if (m_socketFd == INVALID_SOCKET)
     {
@@ -255,11 +255,16 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 
     addr.sin_port = htons(uint16_t(portNumber));
 
+    if (reusePort)
+    {
+        setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
+    }
+
     if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 
-void SocketVirtualMethods::listenUnlocked(uint16_t portNumber)
+void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
 {
     if (portNumber != 0)
     {
@@ -273,7 +278,7 @@ void SocketVirtualMethods::listenUnlocked(uint16_t portNumber)
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(m_host.port());
 
-    openAddressUnlocked(addr, OpenMode::BIND);
+    openAddressUnlocked(addr, OpenMode::BIND, chrono::milliseconds(0), reusePort);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)

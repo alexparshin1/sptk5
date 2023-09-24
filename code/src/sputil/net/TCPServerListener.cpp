@@ -102,7 +102,7 @@ void TCPServerListener::listen()
 {
     if (!running())
     {
-        m_listenerSocket.listen();
+        m_listenerSocket.listen(0, true);
         run();
     }
 }

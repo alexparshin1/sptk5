@@ -127,7 +127,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
     {
         TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testTcpEchoServerPort);
+        echoServer.listen(testTcpEchoServerPort, 4);
 
         TCPSocket socket;
         SocketReader socketReader(socket);

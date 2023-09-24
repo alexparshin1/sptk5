@@ -152,20 +152,22 @@ public:
      * Binds the socket to port
      * @param address           Local IP address, or NULL if any
      * @param portNumber        The port number, or 0 if any
+     * @param reusePort         If true then set SO_REUSEPORT
      */
-    void bind(const char* address, uint32_t portNumber)
+    void bind(const char* address, uint32_t portNumber, bool reusePort = false)
     {
-        bindUnlocked(address, portNumber);
+        bindUnlocked(address, portNumber, reusePort);
     }
 
     /**
      * Opens the server socket connection on port (binds/listens)
      * @param portNumber        The port number
+     * @param reusePort         If true then set SO_REUSEPORT on listener socket
      */
-    void listen(uint16_t portNumber = 0)
+    void listen(uint16_t portNumber = 0, bool reusePort = true)
     {
         const std::scoped_lock lock(m_mutex);
-        listenUnlocked(portNumber);
+        listenUnlocked(portNumber, reusePort);
     }
 
     /**

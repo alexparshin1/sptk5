@@ -158,8 +158,9 @@ public:
     /**
      * Starts listener
      * @param port              Listener port number
+     * @param threadCount       Number of listener threads
      */
-    void listen(uint16_t port);
+    void listen(uint16_t port, uint16_t threadCount = 1);
 
     /**
      * Stops listener
@@ -171,7 +172,7 @@ public:
      */
     bool active() const
     {
-        return m_listenerThread != nullptr;
+        return !m_listenerThreads.empty();
     }
 
     /**
@@ -251,14 +252,15 @@ protected:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
-    mutable std::mutex m_mutex;                          ///< Mutex protecting internal data
-    std::shared_ptr<TCPServerListener> m_listenerThread; ///< Server listener
-    std::shared_ptr<Logger> m_logger;                    ///< Optional logger
-    std::shared_ptr<SSLKeys> m_sslKeys;                  ///< Optional SSL keys. Only used for SSL server.
-    Host m_host;                                         ///< This host
-    LogDetails m_logDetails;                             ///< Log details
-    ServerConnection::Type m_connectionType;             ///< Connection type (TCP or SSL)
-    ServerConnection::Function m_connectionFunction;     ///< User-defined function that is called upon client connection to server
+    using STCPServerListener = std::shared_ptr<TCPServerListener>;
+    mutable std::mutex m_mutex;                        ///< Mutex protecting internal data
+    std::vector<STCPServerListener> m_listenerThreads; ///< Server listener threads
+    std::shared_ptr<Logger> m_logger;                  ///< Optional logger
+    std::shared_ptr<SSLKeys> m_sslKeys;                ///< Optional SSL keys. Only used for SSL server.
+    Host m_host;                                       ///< This host
+    LogDetails m_logDetails;                           ///< Log details
+    ServerConnection::Type m_connectionType;           ///< Connection type (TCP or SSL)
+    ServerConnection::Function m_connectionFunction;   ///< User-defined function that is called upon client connection to server
 };
 
 /**

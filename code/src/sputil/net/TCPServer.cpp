@@ -104,18 +104,26 @@ const Host& TCPServer::host() const
 void TCPServer::host(const Host& host)
 {
     const scoped_lock lock(m_mutex);
-    if (!m_listenerThread)
+    if (!m_listenerThreads.empty())
     {
-        m_host = host;
+        throw Exception("Can't change host while listening");
     }
+    m_host = host;
 }
 
-void TCPServer::listen(uint16_t port)
+void TCPServer::listen(uint16_t port, uint16_t threadCount)
 {
+    if (threadCount == 0)
+        threadCount = 1;
+
     const scoped_lock lock(m_mutex);
     m_host.port(port);
-    m_listenerThread = make_shared<TCPServerListener>(this, port);
-    m_listenerThread->listen();
+    for (uint16_t i = 0; i < threadCount; ++i)
+    {
+        auto listenerThread = make_shared<TCPServerListener>(this, port);
+        listenerThread->listen();
+        m_listenerThreads.push_back(listenerThread);
+    }
 }
 
 bool TCPServer::allowConnection(sockaddr_in*)
@@ -125,13 +133,17 @@ bool TCPServer::allowConnection(sockaddr_in*)
 
 void TCPServer::stop()
 {
-    if (m_listenerThread)
+    const scoped_lock lock(m_mutex);
+
+    if (!m_listenerThreads.empty())
     {
-        m_listenerThread->stop();
-        m_listenerThread.reset();
+        for (const auto& listenerThread: m_listenerThreads)
+        {
+            listenerThread->stop();
+        }
+        m_listenerThreads.clear();
     }
 
-    const scoped_lock lock(m_mutex);
     ThreadPool::stop();
 }
 
