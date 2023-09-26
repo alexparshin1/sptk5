@@ -69,42 +69,42 @@ enum class LogPriority
     /**
      * Debug message priority
      */
-    DEBUG = LOG_DEBUG,
+    Debug = LOG_DEBUG,
 
     /**
      * Information message priority
      */
-    INFO = LOG_INFO,
+    Info = LOG_INFO,
 
     /**
      * Notice message priority
      */
-    NOTICE = LOG_NOTICE,
+    Notice = LOG_NOTICE,
 
     /**
      * Warning message priority
      */
-    WARNING = LOG_WARNING,
+    Warning = LOG_WARNING,
 
     /**
      * Error message priority
      */
-    ERR = LOG_ERR,
+    Error = LOG_ERR,
 
     /**
      * Critical message priority
      */
-    CRITICAL = LOG_CRIT,
+    Critical = LOG_CRIT,
 
     /**
      * Alert message priority
      */
-    ALERT = LOG_ALERT,
+    Alert = LOG_ALERT,
 
     /**
      * Panic message priority
      */
-    PANIC = LOG_EMERG
+    Panic = LOG_EMERG
 };
 
 /**

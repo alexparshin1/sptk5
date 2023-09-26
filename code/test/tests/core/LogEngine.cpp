@@ -66,30 +66,30 @@ TEST(SPTK_LogEngine, options)
 
 TEST(SPTK_LogEngine, priorities)
 {
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::DEBUG).c_str(), "DEBUG");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::INFO).c_str(), "INFO");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::NOTICE).c_str(), "NOTICE");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::WARNING).c_str(), "WARNING");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::ERR).c_str(), "ERROR");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::CRITICAL).c_str(), "CRITICAL");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::ALERT).c_str(), "ALERT");
-    EXPECT_STREQ(LogEngine::priorityName(LogPriority::PANIC).c_str(), "PANIC");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Debug).c_str(), "DEBUG");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Info).c_str(), "Info");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Notice).c_str(), "NOTICE");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Warning).c_str(), "WARNING");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Error).c_str(), "ERROR");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Critical).c_str(), "Critical");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Alert).c_str(), "Alert");
+    EXPECT_STREQ(LogEngine::priorityName(LogPriority::Panic).c_str(), "Panic");
 
-    EXPECT_EQ(LogEngine::priorityFromName("DEBUG"), LogPriority::DEBUG);
-    EXPECT_EQ(LogEngine::priorityFromName("info"), LogPriority::INFO);
-    EXPECT_EQ(LogEngine::priorityFromName("Notice"), LogPriority::NOTICE);
-    EXPECT_EQ(LogEngine::priorityFromName("WARNING"), LogPriority::WARNING);
-    EXPECT_EQ(LogEngine::priorityFromName("ERROR"), LogPriority::ERR);
-    EXPECT_EQ(LogEngine::priorityFromName("CRITICAL"), LogPriority::CRITICAL);
-    EXPECT_EQ(LogEngine::priorityFromName("ALERT"), LogPriority::ALERT);
-    EXPECT_EQ(LogEngine::priorityFromName("PANIC"), LogPriority::PANIC);
+    EXPECT_EQ(LogEngine::priorityFromName("DEBUG"), LogPriority::Debug);
+    EXPECT_EQ(LogEngine::priorityFromName("info"), LogPriority::Info);
+    EXPECT_EQ(LogEngine::priorityFromName("Notice"), LogPriority::Notice);
+    EXPECT_EQ(LogEngine::priorityFromName("WARNING"), LogPriority::Warning);
+    EXPECT_EQ(LogEngine::priorityFromName("ERROR"), LogPriority::Error);
+    EXPECT_EQ(LogEngine::priorityFromName("Critical"), LogPriority::Critical);
+    EXPECT_EQ(LogEngine::priorityFromName("Alert"), LogPriority::Alert);
+    EXPECT_EQ(LogEngine::priorityFromName("Panic"), LogPriority::Panic);
 }
 
 TEST(SPTK_LogEngine, message)
 {
     auto logEngine = make_shared<TestLogEngine>();
     logEngine->option(LogEngine::Option::STDOUT, true);
-    logEngine->minPriority(LogPriority::DEBUG);
+    logEngine->minPriority(LogPriority::Debug);
 
     Logger logger(*logEngine);
 
@@ -99,18 +99,18 @@ TEST(SPTK_LogEngine, message)
     logger.warning("warning message");
     logger.error("error message");
     logger.critical("critical message");
-    logger.log(LogPriority::ALERT, "alert message");
-    logger.log(LogPriority::PANIC, "panic message");
+    logger.log(LogPriority::Alert, "alert message");
+    logger.log(LogPriority::Panic, "panic message");
 
     this_thread::sleep_for(chrono::milliseconds(10));
     logEngine.reset();
 
-    EXPECT_EQ(TestLogEngine::storage[0].priority, LogPriority::DEBUG);
+    EXPECT_EQ(TestLogEngine::storage[0].priority, LogPriority::Debug);
     EXPECT_STREQ(TestLogEngine::storage[0].message.c_str(), "debug message");
 
-    EXPECT_EQ(TestLogEngine::storage[1].priority, LogPriority::INFO);
+    EXPECT_EQ(TestLogEngine::storage[1].priority, LogPriority::Info);
     EXPECT_STREQ(TestLogEngine::storage[1].message.c_str(), "info message");
 
-    EXPECT_EQ(TestLogEngine::storage[6].priority, LogPriority::ALERT);
+    EXPECT_EQ(TestLogEngine::storage[6].priority, LogPriority::Alert);
     EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
 }

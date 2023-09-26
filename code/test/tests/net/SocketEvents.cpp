@@ -106,9 +106,9 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
     try
     {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testEchoServerPort);
+        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",
@@ -180,9 +180,9 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 
     try
     {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testEchoServerPort);
+        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",
@@ -227,8 +227,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
     Semaphore receivedEvent;
 
     auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
-        {
+        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
             if (eventType.m_hangup)
             {
                 return SocketEventAction::Forget;
@@ -249,9 +248,9 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
 
     try
     {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testEchoServerPort);
+        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",

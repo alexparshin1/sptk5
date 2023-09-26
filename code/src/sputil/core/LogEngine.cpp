@@ -79,49 +79,51 @@ String LogEngine::priorityName(LogPriority prt)
 {
     switch (prt)
     {
-        case LogPriority::DEBUG:
+        using enum LogPriority;
+        case Debug:
             return "DEBUG";
-        case LogPriority::INFO:
-            return "INFO";
-        case LogPriority::NOTICE:
+        case Info:
+            return "Info";
+        case Notice:
             return "NOTICE";
-        case LogPriority::WARNING:
+        case Warning:
             return "WARNING";
-        case LogPriority::ERR:
+        case Error:
             return "ERROR";
-        case LogPriority::CRITICAL:
-            return "CRITICAL";
-        case LogPriority::ALERT:
-            return "ALERT";
+        case Critical:
+            return "Critical";
+        case Alert:
+            return "Alert";
         default:
-            return "PANIC";
+            return "Panic";
     }
 }
 
 LogPriority LogEngine::priorityFromName(const String& prt)
 {
-    static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
+    static const Strings priorityNames("DEBUG|Info|NOTICE|WARNING|ERROR|Critical|Alert|Panic", "|");
 
     switch (priorityNames.indexOf(prt.toUpperCase()))
     {
+        using enum LogPriority;
         case 0:
-            return LogPriority::DEBUG;
+            return Debug;
         case 1:
-            return LogPriority::INFO;
+            return Info;
         case 2:
-            return LogPriority::NOTICE;
+            return Notice;
         case 3:
-            return LogPriority::WARNING;
+            return Warning;
         case 4:
-            return LogPriority::ERR;
+            return Error;
         case 5:
-            return LogPriority::CRITICAL;
+            return Critical;
         case 6:
-            return LogPriority::ALERT;
+            return Alert;
         case 7:
-            return LogPriority::PANIC;
+            return Panic;
         default:
-            return LogPriority::DEBUG;
+            return Debug;
     }
 }
 
@@ -170,7 +172,7 @@ void LogEngine::threadFunction()
                 messagePrefix += "[" + priorityName(message->priority) + "] ";
             }
 
-            if (message->priority <= LogPriority::ERR)
+            if (message->priority <= LogPriority::Error)
             {
                 CERR(messagePrefix.c_str() << message->message.c_str() << endl
                                            << flush);

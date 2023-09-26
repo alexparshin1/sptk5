@@ -101,16 +101,16 @@ int main()
             tasks.push_back(std::move(task));
         }
 
-        sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
+        sharedLog.log(LogPriority::Notice, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-        sharedLog.log(LogPriority::NOTICE, "Starting all tasks.");
+        sharedLog.log(LogPriority::Notice, "Starting all tasks.");
         for (auto& task: tasks)
         {
             threadPool.execute(std::move(task));
         }
         tasks.clear();
 
-        sharedLog.log(LogPriority::NOTICE, to_string(tasks.size()) + " tasks are running.");
+        sharedLog.log(LogPriority::Notice, to_string(tasks.size()) + " tasks are running.");
 
         // Let the tasks start and print start message
         this_thread::sleep_for(chrono::milliseconds(100));
@@ -120,22 +120,22 @@ int main()
             intQueue.push_back(value);
         }
 
-        sharedLog.log(LogPriority::NOTICE, "Waiting 1 seconds while tasks are running..");
+        sharedLog.log(LogPriority::Notice, "Waiting 1 seconds while tasks are running..");
         this_thread::sleep_for(chrono::milliseconds(1000));
 
-        sharedLog.log(LogPriority::NOTICE, "Sending 'terminate' signal to all the tasks.");
+        sharedLog.log(LogPriority::Notice, "Sending 'terminate' signal to all the tasks.");
         for (auto& task: taskPointers)
         {
             task->terminate();
         }
         this_thread::sleep_for(chrono::seconds(1));
 
-        sharedLog.log(LogPriority::NOTICE, "Thread pool has " + to_string(threadPool.size()) + " threads");
+        sharedLog.log(LogPriority::Notice, "Thread pool has " + to_string(threadPool.size()) + " threads");
 
-        sharedLog.log(LogPriority::NOTICE, "Stopping thread pool...");
+        sharedLog.log(LogPriority::Notice, "Stopping thread pool...");
         threadPool.stop();
 
-        sharedLog.log(LogPriority::NOTICE, "Deleting all the tasks.");
+        sharedLog.log(LogPriority::Notice, "Deleting all the tasks.");
 
         tasks.clear();
 

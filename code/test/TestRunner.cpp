@@ -58,12 +58,12 @@ class StubServer
 {
 public:
     StubServer()
-        : TCPServer("test", ServerConnection::Type::TCP)
+        : TCPServer("test")
     {
     }
 
 protected:
-    UServerConnection createConnection(SocketType, const sockaddr_in*) override
+    UServerConnection createConnection(ServerConnection::Type connectionType, SocketType, const sockaddr_in*) override
     {
         return nullptr;
     }

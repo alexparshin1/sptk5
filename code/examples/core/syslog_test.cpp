@@ -51,8 +51,8 @@ int main()
 
         COUT("Sending 'Hello, World!' to the log.." << endl);
         sysLog.info("Hello, World! Welcome to SPTK.");
-        authLog.log(LogPriority::ALERT, "This is SPTK test message");
-        sysLog.log(LogPriority::WARNING, "Eating too much nuts will turn you into HappySquirrel!");
+        authLog.log(LogPriority::Alert, "This is SPTK test message");
+        sysLog.log(LogPriority::Warning, "Eating too much nuts will turn you into HappySquirrel!");
     }
     catch (const Exception& e)
     {

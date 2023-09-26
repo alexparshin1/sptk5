@@ -18,7 +18,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gmock">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmockd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -28,7 +28,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -42,7 +41,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gmock/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmockd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -52,7 +51,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -66,7 +64,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gmock_main">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_main.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -76,7 +74,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -90,7 +87,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gmock_main/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_main.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgmock_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -100,7 +97,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -114,7 +110,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -124,7 +120,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -136,7 +131,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtestd.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -146,7 +141,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -158,7 +152,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_main.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -168,7 +162,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -180,7 +173,7 @@
 				</MakeCommands>
 			</Target>
 			<Target title="gtest_main/fast">
-				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_main.so" prefix_auto="0" extension_auto="0"/>
+				<Option output="/home/alexeyp/workspace/sptk5/code/lib/libgtest_maind.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
@@ -190,7 +183,6 @@
 					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/opt/oracle/instantclient_18_3/sdk/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>

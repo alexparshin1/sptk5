@@ -41,6 +41,7 @@ WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddre
     {
         m_options.paths.staticFilesDirectory += "/";
     }
+
     if (!m_options.paths.wsRequestPage.startsWith("/"))
     {
         m_options.paths.wsRequestPage = "/" + m_options.paths.wsRequestPage;

@@ -32,7 +32,7 @@ using namespace sptk;
 
 WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                        const WSConnection::Options& options)
-    : TCPServer(services.get("").title(), ServerConnection::Type::SSL, threadCount, &logger, options.logDetails)
+    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
     , m_services(services)
     , m_logger(logger)
     , m_options(options)
@@ -46,13 +46,15 @@ WSListener::WSListener(const WSServices& services, LogEngine& logger, const Stri
     {
         m_options.paths.htmlIndexPage = "index.html";
     }
+
     if (m_options.paths.wsRequestPage.empty())
     {
         m_options.paths.wsRequestPage = "request";
     }
 }
 
-UServerConnection WSListener::createConnection(SocketType connectionSocket, const sockaddr_in* peer)
+UServerConnection WSListener::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
+    m_options.encrypted = connectionType == ServerConnection::Type::SSL;
     return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
 }

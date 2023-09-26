@@ -141,7 +141,7 @@ public:
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
      */
-    TCPServer(const String& listenerName, ServerConnection::Type connectionType, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
+    TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
               const LogDetails& logDetails = LogDetails());
 
     /**
@@ -160,7 +160,7 @@ public:
      * @param port              Listener port number
      * @param threadCount       Number of listener threads
      */
-    void listen(uint16_t port, uint16_t threadCount = 1);
+    void listen(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount = 1);
 
     /**
      * Stops listener
@@ -236,10 +236,11 @@ protected:
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
+     * @param connectionType    Connection type
      * @param connectionSocket  Already accepted incoming connection socket
      * @param peer              Incoming connection information
      */
-    virtual UServerConnection createConnection(SocketType connectionSocket, const sockaddr_in* peer);
+    virtual UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer);
 
     /**
      * Thread event callback function

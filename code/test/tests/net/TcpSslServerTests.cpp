@@ -125,9 +125,10 @@ TEST(SPTK_TCPServer, tcpMinimal)
 
     try
     {
-        TCPServer echoServer("TestServer", ServerConnection::Type::TCP);
+        TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(testTcpEchoServerPort, 4);
+        echoServer.listen(ServerConnection::Type::TCP, testTcpEchoServerPort, 4);
+        echoServer.listen(ServerConnection::Type::SSL, testSslEchoServerPort, 4);
 
         TCPSocket socket;
         SocketReader socketReader(socket);
@@ -173,13 +174,14 @@ TEST(SPTK_TCPServer, sslMinimal)
 
     try
     {
-        TCPServer echoServer("TestServer", ServerConnection::Type::SSL);
+        TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
 
         auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
         echoServer.setSSLKeys(keys);
 
-        echoServer.listen(testSslEchoServerPort);
+        echoServer.listen(ServerConnection::Type::TCP, testTcpEchoServerPort);
+        echoServer.listen(ServerConnection::Type::SSL, testSslEchoServerPort);
         this_thread::sleep_for(smallDelay);
 
         SSLSocket socket;
@@ -219,7 +221,7 @@ TEST(SPTK_TCPServer, sslMinimal)
 
 static shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType)
 {
-    auto pushTcpServer = make_shared<TCPServer>("Performance Test Server", connectionType);
+    auto pushTcpServer = make_shared<TCPServer>("Performance Test Server");
 
     pushTcpServer->onConnection(performanceTestFunction);
 
@@ -227,12 +229,10 @@ static shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type co
     {
         auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
         pushTcpServer->setSSLKeys(keys);
-        pushTcpServer->listen(testSslEchoServerPort);
     }
-    else
-    {
-        pushTcpServer->listen(testTcpEchoServerPort);
-    }
+
+    pushTcpServer->listen(ServerConnection::Type::TCP, testTcpEchoServerPort);
+    pushTcpServer->listen(ServerConnection::Type::SSL, testSslEchoServerPort);
 
     return pushTcpServer;
 }

@@ -54,7 +54,7 @@ public:
      * @param server CTCPServer*, TCP server created connection
      * @param port int, Listener port number
      */
-    TCPServerListener(TCPServer* server, uint16_t port);
+    TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType);
 
     /**
      * Thread function
@@ -82,9 +82,10 @@ public:
     void stop();
 
 private:
-    std::shared_ptr<TCPServer> m_server; ///< TCP server created connection
-    TCPSocket m_listenerSocket;          ///< Listener socket
-    String m_error;                      ///< Last socket error
+    std::shared_ptr<TCPServer> m_server;     ///< TCP server created connection
+    TCPSocket m_listenerSocket;              ///< Listener socket
+    String m_error;                          ///< Last socket error
+    ServerConnection::Type m_connectionType; ///< Connection type
 
     void acceptConnection(std::chrono::milliseconds timeout); ///< Accept connection
 };

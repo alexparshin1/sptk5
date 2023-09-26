@@ -31,12 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port)
+TCPServerListener::TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType)
     : Thread("CTCPServer::Listener")
     , m_server(shared_ptr<TCPServer>(server,
                                      [this](const TCPServer*) {
                                          stop();
                                      }))
+    , m_connectionType(connectionType)
 {
     m_listenerSocket.host(Host("localhost", port));
 }
@@ -51,7 +52,7 @@ void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
         {
             if (m_server->allowConnection(&connectionInfo))
             {
-                auto connection = m_server->createConnection(connectionFD, &connectionInfo);
+                auto connection = m_server->createConnection(m_connectionType, connectionFD, &connectionInfo);
                 if (connection)
                 {
                     m_server->execute(std::move(connection));
@@ -70,7 +71,7 @@ void TCPServerListener::acceptConnection(std::chrono::milliseconds timeout)
     }
     catch (const Exception& e)
     {
-        m_server->log(LogPriority::ERR, e.what());
+        m_server->log(LogPriority::Error, e.what());
     }
 }
 
@@ -94,7 +95,7 @@ void TCPServerListener::threadFunction()
     }
     catch (const Exception& e)
     {
-        m_server->log(LogPriority::ERR, e.what());
+        m_server->log(LogPriority::Error, e.what());
     }
 }
 

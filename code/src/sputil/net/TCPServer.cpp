@@ -68,13 +68,12 @@ String LogDetails::toString(const String& delimiter) const
     return names.join(delimiter.c_str());
 }
 
-TCPServer::TCPServer(const String& listenerName, ServerConnection::Type connectionType, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
+TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
     : ThreadPool((uint32_t) threadLimit,
                  chrono::minutes(1),
                  listenerName,
                  logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr)
     , m_logDetails(logDetails)
-    , m_connectionType(connectionType)
 {
     if (logEngine != nullptr)
     {
@@ -111,7 +110,7 @@ void TCPServer::host(const Host& host)
     m_host = host;
 }
 
-void TCPServer::listen(uint16_t port, uint16_t threadCount)
+void TCPServer::listen(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount)
 {
     if (threadCount == 0)
         threadCount = 1;
@@ -120,7 +119,7 @@ void TCPServer::listen(uint16_t port, uint16_t threadCount)
     m_host.port(port);
     for (uint16_t i = 0; i < threadCount; ++i)
     {
-        auto listenerThread = make_shared<TCPServerListener>(this, port);
+        auto listenerThread = make_shared<TCPServerListener>(this, port, connectionType);
         listenerThread->listen();
         m_listenerThreads.push_back(listenerThread);
     }
@@ -168,9 +167,9 @@ void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-UServerConnection TCPServer::createConnection(SocketType connectionSocket, const sockaddr_in* peer)
+UServerConnection TCPServer::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
-    if (m_connectionType == ServerConnection::Type::TCP)
+    if (connectionType == ServerConnection::Type::TCP)
     {
         return make_unique<TCPServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }

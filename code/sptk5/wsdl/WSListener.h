@@ -69,10 +69,11 @@ protected:
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
+     * @param connectionType        Incoming connection type
      * @param connectionSocket      Already accepted incoming connection socket
      * @param peer                  Incoming connection information
      */
-    UServerConnection createConnection(SocketType connectionSocket, const sockaddr_in* peer) override;
+    UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer) override;
 
 private:
     mutable std::mutex m_mutex;      ///< Mutex that protects internal data

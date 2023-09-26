@@ -62,9 +62,9 @@ TEST(SPTK_FileLogEngine, testLogPriorities)
 {
     FileLogEngine logEngine(logFileName);
 
-    testPriority(logEngine, LogPriority::DEBUG, 5);
-    testPriority(logEngine, LogPriority::INFO, 4);
-    testPriority(logEngine, LogPriority::ERR, 2);
+    testPriority(logEngine, LogPriority::Debug, 5);
+    testPriority(logEngine, LogPriority::Info, 4);
+    testPriority(logEngine, LogPriority::Error, 2);
 }
 
 TEST(SPTK_FileLogEngine, performance)

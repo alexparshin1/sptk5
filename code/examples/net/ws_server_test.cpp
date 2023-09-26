@@ -64,7 +64,7 @@ int main()
         WSConnection::Options options(paths);
         WSServices services(request);
         WSListener server(services, log, hostname, 32, options);
-        server.listen(8000);
+        server.listen(ServerConnection::Type::TCP, 8000);
         while (true)
         {
             this_thread::sleep_for(chrono::milliseconds(1000));
