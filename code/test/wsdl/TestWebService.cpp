@@ -228,7 +228,7 @@ shared_ptr<TestListener> createTestListener(bool encrypted)
     auto testListener = make_shared<TestListener>(services, options, encrypted);
 
     // Start Web Service listener
-    testListener->listen(ServerConnection::Type::TCP, testListener->servicePort);
+    testListener->addListener(ServerConnection::Type::TCP, testListener->servicePort);
 
     return testListener;
 }

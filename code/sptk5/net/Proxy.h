@@ -36,7 +36,7 @@ class TCPSocket;
 class SP_EXPORT Proxy
 {
 public:
-    Proxy(const Host& host, const String& username = "", const String& password = "");
+    Proxy(Host host, String username = "", String password = "");
     virtual ~Proxy() = default;
     virtual SocketType connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
 

@@ -362,8 +362,8 @@ protected:
 
 
 private:
-    mutable std::mutex m_mutex;       ///< Mutex that protects host data
-    const uint8_t* m_socketEventData; ///< Socket event data, used by SocketPool
+    mutable std::mutex m_mutex;                 ///< Mutex that protects host data
+    const uint8_t* m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
 };
 
 /**

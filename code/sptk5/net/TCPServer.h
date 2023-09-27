@@ -34,6 +34,7 @@
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
+#include <utility>
 
 namespace sptk {
 
@@ -77,8 +78,8 @@ public:
      * Constructor
      * @param details           Log details
      */
-    explicit LogDetails(const MessageDetails& details)
-        : m_details(details)
+    explicit LogDetails(MessageDetails details)
+        : m_details(std::move(details))
     {
     }
 
@@ -131,7 +132,6 @@ class SP_EXPORT TCPServer
     : public ThreadPool
 {
     friend class TCPServerListener;
-
     friend class ServerConnection;
 
 public:
@@ -141,8 +141,8 @@ public:
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
      */
-    TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
-              const LogDetails& logDetails = LogDetails());
+    explicit TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
+                       const LogDetails& logDetails = LogDetails());
 
     /**
      * Destructor
@@ -156,27 +156,34 @@ public:
     const Host& host() const;
 
     /**
-     * Starts listener
+     * @brief Start TCP or SSL listener on the selected port
+     * @param connectionType    Listener connection type
      * @param port              Listener port number
      * @param threadCount       Number of listener threads
      */
-    void listen(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount = 1);
+    void addListener(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount = 1);
 
     /**
-     * Stops listener
+     * @brief Remove listener on the selected port
+     * @param port              Listener port number
+     */
+    void removeListener(uint16_t port);
+
+    /**
+     * @brief Stop and remove all listeners
      */
     void stop() override;
 
     /**
-     * Returns server state
+     * @brief Get server state
      */
     bool active() const
     {
-        return !m_listenerThreads.empty();
+        return !m_portListeners.empty();
     }
 
     /**
-     * Server operation log
+     * @brief Log server message
      * @param priority          Log message priority
      * @param message           Log message
      */
@@ -188,26 +195,29 @@ public:
         }
     }
 
+    /**
+     * @brief Get server log details
+     * @return current log details
+     */
     const LogDetails& logDetails() const
     {
         return m_logDetails;
     }
 
     /**
-     * Set SSL keys for SSL connections (encrypted mode only)
-     * @param sslKeys            SSL keys info
+     * @brief Set SSL keys for SSL connections (encrypted mode only)
+     * @param sslKeys           SSL keys info
      */
     void setSSLKeys(std::shared_ptr<SSLKeys> sslKeys);
 
     /**
-     * Get SSL keys for SSL connections (encrypted mode only)
+     * @brief Get SSL keys for SSL connections (encrypted mode only)
      * @return SSL keys info
      */
     const SSLKeys& getSSLKeys() const;
 
     /**
-     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
-     *
+     * @brief Create connection thread derived from TCPServerConnection or SSLServerConnection
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
      * @param function          User-defined function that is called upon client connection to server
@@ -216,15 +226,14 @@ public:
 
 protected:
     /**
-     * Modify server host.
+     * @brief Modify server host.
      * If listener is already active, don't modify exiting server host.
      * @param host              Server host
      */
     void host(const Host& host);
 
     /**
-     * Screens incoming connection request
-     *
+     * @brief Screen incoming connection request
      * Method is called right after connection request is accepted,
      * and allows ignoring unwanted connections. By default simply returns true (allow).
      * @param connectionRequest Incoming connection information
@@ -232,8 +241,7 @@ protected:
     virtual bool allowConnection(sockaddr_in* connectionRequest);
 
     /**
-     * Creates connection thread derived from TCPServerConnection or SSLServerConnection
-     *
+     * @brief Create connection thread derived from TCPServerConnection or SSLServerConnection
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
      * @param connectionType    Connection type
@@ -253,15 +261,15 @@ protected:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
-    using STCPServerListener = std::shared_ptr<TCPServerListener>;
-    mutable std::mutex m_mutex;                        ///< Mutex protecting internal data
-    std::vector<STCPServerListener> m_listenerThreads; ///< Server listener threads
-    std::shared_ptr<Logger> m_logger;                  ///< Optional logger
-    std::shared_ptr<SSLKeys> m_sslKeys;                ///< Optional SSL keys. Only used for SSL server.
-    Host m_host;                                       ///< This host
-    LogDetails m_logDetails;                           ///< Log details
-    ServerConnection::Type m_connectionType;           ///< Connection type (TCP or SSL)
-    ServerConnection::Function m_connectionFunction;   ///< User-defined function that is called upon client connection to server
+    using UListener = std::unique_ptr<TCPServerListener>;
+    using Listeners = std::vector<UListener>;
+    mutable std::mutex m_mutex;                      ///< Mutex protecting internal data
+    std::map<uint16_t, Listeners> m_portListeners;   ///< Server port listeners
+    std::shared_ptr<Logger> m_logger;                ///< Optional logger
+    std::shared_ptr<SSLKeys> m_sslKeys;              ///< Optional SSL keys. Only used for SSL server.
+    Host m_host;                                     ///< This host
+    LogDetails m_logDetails;                         ///< Log details
+    ServerConnection::Function m_connectionFunction; ///< User-defined function that is called upon client connection to server
 };
 
 /**

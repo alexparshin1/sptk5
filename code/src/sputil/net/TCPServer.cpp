@@ -26,9 +26,11 @@
 
 #include <sptk5/cutils>
 
+#include "sptk5/net/TCPServer.h"
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerConnection.h>
 #include <sptk5/net/TCPServerListener.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -103,26 +105,49 @@ const Host& TCPServer::host() const
 void TCPServer::host(const Host& host)
 {
     const scoped_lock lock(m_mutex);
-    if (!m_listenerThreads.empty())
+    if (!m_portListeners.empty())
     {
         throw Exception("Can't change host while listening");
     }
     m_host = host;
 }
 
-void TCPServer::listen(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount)
+void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount)
 {
+    scoped_lock lock(m_mutex);
+
+    auto& listenerThreads = m_portListeners[port];
+    if (!listenerThreads.empty())
+    {
+        throw Exception("Port is already used");
+    }
+
     if (threadCount == 0)
         threadCount = 1;
 
-    const scoped_lock lock(m_mutex);
     m_host.port(port);
     for (uint16_t i = 0; i < threadCount; ++i)
     {
-        auto listenerThread = make_shared<TCPServerListener>(this, port, connectionType);
+        auto listenerThread = make_unique<TCPServerListener>(this, port, connectionType);
         listenerThread->listen();
-        m_listenerThreads.push_back(listenerThread);
+        listenerThreads.push_back(std::move(listenerThread));
     }
+}
+
+void TCPServer::removeListener(uint16_t port)
+{
+    scoped_lock lock(m_mutex);
+
+    auto& listenerThreads = m_portListeners[port];
+
+    for (const auto& listenerThread: listenerThreads)
+    {
+        listenerThread->stop();
+    }
+
+    listenerThreads.clear();
+
+    m_portListeners.erase(port);
 }
 
 bool TCPServer::allowConnection(sockaddr_in*)
@@ -134,13 +159,16 @@ void TCPServer::stop()
 {
     const scoped_lock lock(m_mutex);
 
-    if (!m_listenerThreads.empty())
+    if (!m_portListeners.empty())
     {
-        for (const auto& listenerThread: m_listenerThreads)
+        for (const auto& [port, listenerThreads]: m_portListeners)
         {
-            listenerThread->stop();
+            for (const auto& listenerThread: listenerThreads)
+            {
+                listenerThread->stop();
+            }
         }
-        m_listenerThreads.clear();
+        m_portListeners.clear();
     }
 
     ThreadPool::stop();

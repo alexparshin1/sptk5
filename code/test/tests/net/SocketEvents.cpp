@@ -62,7 +62,7 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
                 break;
             }
         }
-        catch (const Exception& e)
+        catch (const Exception&)
         {
             break;
         }
@@ -108,7 +108,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
     {
         TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
+        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",
@@ -182,7 +182,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
     {
         TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
+        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",
@@ -250,7 +250,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
     {
         TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.listen(ServerConnection::Type::TCP, testEchoServerPort);
+        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
         Strings testRows({"Hello, World!",
                           "This is a test of SocketEvents class.",

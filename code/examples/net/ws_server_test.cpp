@@ -55,8 +55,8 @@ int main()
         Logger logger(log);
 
         char hostname[128];
-        int rc = gethostname(hostname, sizeof(hostname));
-        if (rc != 0)
+        if (int rc = gethostname(hostname, sizeof(hostname));
+            rc != 0)
         {
             throw SystemException("Can't get hostname");
         }
@@ -64,7 +64,7 @@ int main()
         WSConnection::Options options(paths);
         WSServices services(request);
         WSListener server(services, log, hostname, 32, options);
-        server.listen(ServerConnection::Type::TCP, 8000);
+        server.addListener(ServerConnection::Type::TCP, 8000);
         while (true)
         {
             this_thread::sleep_for(chrono::milliseconds(1000));
