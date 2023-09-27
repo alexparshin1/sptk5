@@ -58,3 +58,8 @@ UServerConnection WSListener::createConnection(ServerConnection::Type connection
     m_options.encrypted = connectionType == ServerConnection::Type::SSL;
     return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
 }
+
+const WSConnection::Options& WSListener::getOptions() const
+{
+    return m_options;
+}

@@ -62,6 +62,8 @@ public:
      */
     WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
                const WSConnection::Options& options);
+    
+    const WSConnection::Options& getOptions() const;
 
 protected:
     /**
