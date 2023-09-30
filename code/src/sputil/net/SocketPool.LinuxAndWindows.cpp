@@ -80,7 +80,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
         case TriggerMode::OneShot:
             event.events |= EPOLLONESHOT;
             break;
-        case TriggerMode::LevelTriggered:
+        default:
             break;
     }
 
@@ -90,14 +90,14 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     }
 }
 
-void SocketPool::forgetSocket(Socket& socket)
+void SocketPool::forgetSocket(const Socket& socket)
 {
     const lock_guard lock(*this);
 
     SocketEvent event;
-    if (socket.active() && epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event) == -1 && errno != ENOENT)
+    if (socket.active())
     {
-        throw SystemException("Can't remove socket from epoll");
+        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event);
     }
 }
 
@@ -123,7 +123,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
         eventType.m_hangup = event.events & (EPOLLHUP | EPOLLRDHUP);
         eventType.m_error = event.events & EPOLLERR;
 
-        auto* socket = bit_cast<Socket*>(event.data.ptr);
+        const auto* socket = bit_cast<const Socket*>(event.data.ptr);
         const auto* userData = socket->getSocketEventData();
 
         auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);

@@ -164,7 +164,7 @@ public:
      * Remove socket from monitored pool
      * @param socket            Socket from this pool
      */
-    void forgetSocket(Socket& socket);
+    void forgetSocket(const Socket& socket);
 
     /**
      * @return true if socket pool is active
