@@ -101,7 +101,7 @@ String LogEngine::priorityName(LogPriority prt)
 
 LogPriority LogEngine::priorityFromName(const String& prt)
 {
-    static const Strings priorityNames("DEBUG|Info|NOTICE|WARNING|ERROR|Critical|Alert|Panic", "|");
+    static const Strings priorityNames("DEBUG|INFO|NOTICE|WARNING|ERROR|CRITICAL|ALERT|PANIC", "|");
 
     switch (priorityNames.indexOf(prt.toUpperCase()))
     {
