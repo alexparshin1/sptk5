@@ -38,20 +38,6 @@ class CachedSSLContext
     static std::mutex m_mutex;
     static CachedSSLContextMap m_contexts;
 
-    /**
-     * Makes SSL context ident, used as cache index, from keys definition
-     * @param keyFileName           Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
-	 * @return						SSL context ident
-     */
-    static String makeIdent(const String& keyFileName = "", const String& certificateFileName = "",
-                            const String& password = "",
-                            const String& caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0, const String& cipherList = "ALL");
-
 public:
     /**
      * @brief Loads private key and certificate(s)

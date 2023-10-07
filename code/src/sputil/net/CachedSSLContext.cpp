@@ -52,22 +52,3 @@ SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipher
 
     return context;
 }
-
-String CachedSSLContext::makeIdent(const String& keyFileName, const String& certificateFileName,
-                                   const String& /*private key password*/,
-                                   const String& caFileName, int verifyMode, int verifyDepth, const String& cipherList)
-{
-    Buffer buffer;
-    buffer.append(keyFileName);
-    buffer.append('~');
-    buffer.append(certificateFileName);
-    buffer.append('~');
-    buffer.append(caFileName);
-    buffer.append('~');
-    buffer.append(int2string(verifyMode));
-    buffer.append('~');
-    buffer.append(int2string(verifyDepth));
-    buffer.append(cipherList);
-    buffer.append('~');
-    return {buffer.c_str(), buffer.size()};
-}
