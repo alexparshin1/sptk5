@@ -29,6 +29,7 @@
 #include <sptk5/net/TCPServerListener.h>
 
 #include "sptk5/net/SocketReader.h"
+#include <future>
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -41,6 +42,23 @@ static constexpr uint16_t testSslEchoServerPort = 3002;
 
 static const size_t packetsInTest = 100000;
 static const size_t packetSize = 50;
+
+class TestSSLServer : public TCPServer
+{
+public:
+    TestSSLServer();
+    ~TestSSLServer() override = default;
+
+private:
+    std::future<void> m_writer;
+    SynchronizedQueue<Buffer> echoQueue;
+};
+
+TestSSLServer::TestSSLServer()
+    : TCPServer("localhost", testSslEchoServerPort)
+{
+}
+
 
 static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
