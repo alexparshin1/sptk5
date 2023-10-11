@@ -28,7 +28,6 @@
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerListener.h>
 
-#include "sptk5/net/SocketReader.h"
 #include <future>
 #include <gtest/gtest.h>
 
@@ -60,29 +59,43 @@ TestSSLServer::TestSSLServer()
 }
 
 
-static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
+static Buffer makePacket()
 {
-    const uint8_t eightBits = 255;
-    Buffer data(packetSize);
+    const uint8_t fiveBits = 0x3F;
+    Buffer data;
 
+    data.append("BOF", 3);
+    data.append(packetSize);
     for (size_t i = 0; i < packetSize; ++i)
     {
-        data[i] = uint8_t(i % eightBits);
+        data.append(uint8_t(i % fiveBits + 32));
     }
-    data.bytes(packetSize);
 
+    return data;
+}
+
+static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
+{
+    Buffer data;
     StopWatch stopWatch;
     stopWatch.start();
 
-    const auto* dataPtr = data.data();
     for (size_t packetNumber = 0; packetNumber < packetsInTest; ++packetNumber)
     {
         try
         {
-            auto res = (int) socket.write(dataPtr, packetSize);
-            if (res < 0)
+            if (socket.readyToRead(chrono::milliseconds(1000)))
             {
-                throwSocketError("Error writing to socket");
+                auto res = socket.read(data, packetSize + 3 + sizeof(size_t));
+                if (res < packetSize + 3 + sizeof(size_t))
+                {
+                    throwSocketError("Error reading from socket");
+                }
+                res = (int) socket.write(data);
+                if (res < 0)
+                {
+                    throwSocketError("Error writing to socket");
+                }
             }
         }
         catch (const Exception& e)
@@ -126,15 +139,25 @@ template<typename T>
 size_t readAllPackets(T& reader, size_t readSize)
 {
     auto readBuffer = make_shared<Buffer>(readSize);
+    Buffer bof(3);
 
     size_t packetCount = 0;
     for (; packetCount < packetsInTest; ++packetCount)
     {
-        if (reader.read(readBuffer->data(), 1) == 0 ||
-            reader.read(readBuffer->data(), 3) == 0 ||
-            reader.read(readBuffer->data(), readSize - 4) == 0)
+        size_t thisPacketSize = 0;
+        if (reader.read(bof, 3) == 0 ||
+            reader.read((uint8_t*) &thisPacketSize, sizeof(size_t)) == 0 ||
+            reader.read(readBuffer->data(), thisPacketSize) == 0)
         {
             break;
+        }
+        if (String(bof) != "BOF")
+        {
+            cerr << "Invalid data: expected BOF got '" << String(bof) << "'" << endl;
+        }
+        if (thisPacketSize != packetSize)
+        {
+            cerr << "Invalid packet size: expected " << packetSize << " got " << thisPacketSize << endl;
         }
     }
 
@@ -167,8 +190,27 @@ static void testTransferPerformance(ServerConnection::Type connectionType, const
 
     socket->open(Host("localhost", serverPortNumber));
 
+    auto readerThread = async(launch::async,
+                              [socket, readSize] {
+                                  return readAllPackets(*socket, readSize);
+                              });
+
+    auto writerThread = async(launch::async,
+                              [socket] {
+                                  Buffer packet = makePacket();
+                                  for (size_t i = 0; i < packetsInTest; ++i)
+                                  {
+                                      socket->write(packet);
+                                  }
+                              });
+
     stopWatch.start();
-    size_t packetCount = readAllPackets(*socket, readSize);
+
+    readerThread.wait();
+    writerThread.wait();
+
+    size_t packetCount = readerThread.get();
+
     stopWatch.stop();
 
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
