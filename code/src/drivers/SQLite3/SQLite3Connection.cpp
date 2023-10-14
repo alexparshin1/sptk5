@@ -45,6 +45,7 @@ public:
         : DatabaseField(fieldName, fieldColumn, 0, VariantDataType::VAR_BUFFER, 0, 0)
     {
     }
+    using DatabaseField::operator=;
 };
 
 } // namespace sptk
