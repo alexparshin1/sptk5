@@ -74,8 +74,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
         initConnection();
 
-        string connectionError;
-        const DatabaseConnectionString& connString = connectionString();
+        const auto& connString = connectionString();
         if (mysql_real_connect(m_connection.get(),
                                connString.hostName().c_str(),
                                connString.userName().c_str(),
@@ -85,7 +84,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
                                nullptr,
                                CLIENT_MULTI_RESULTS) == nullptr)
         {
-            connectionError = mysql_error(m_connection.get());
+            String connectionError = mysql_error(m_connection.get());
             m_connection.reset();
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
         }
@@ -166,7 +165,7 @@ void MySQLConnection::queryCloseStmt(Query* query)
     const scoped_lock lock(m_mutex);
     try
     {
-        auto* statement = (MySQLStatement*) query->statement();
+        auto* statement = bit_cast<MySQLStatement*>(query->statement());
         if (statement != nullptr)
         {
             statement->close();
@@ -174,7 +173,7 @@ void MySQLConnection::queryCloseStmt(Query* query)
     }
     catch (const Exception& e)
     {
-        THROW_QUERY_ERROR(query, e.what())
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
@@ -188,7 +187,7 @@ void MySQLConnection::queryPrepare(Query* query)
 
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (MySQLStatement*) query->statement();
+    auto* statement = bit_cast<MySQLStatement*>(query->statement());
     if (statement != nullptr)
     {
         try
@@ -199,7 +198,7 @@ void MySQLConnection::queryPrepare(Query* query)
         }
         catch (const Exception& e)
         {
-            THROW_QUERY_ERROR(query, e.what())
+            THROW_QUERY_ERROR(query, e.what());
         }
     }
 }
@@ -207,7 +206,7 @@ void MySQLConnection::queryPrepare(Query* query)
 int MySQLConnection::queryColCount(Query* query)
 {
     int colCount = 0;
-    const auto* statement = (MySQLStatement*) query->statement();
+    const auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
         if (statement == nullptr)
@@ -218,7 +217,7 @@ int MySQLConnection::queryColCount(Query* query)
     }
     catch (const Exception& e)
     {
-        THROW_QUERY_ERROR(query, e.what())
+        THROW_QUERY_ERROR(query, e.what());
     }
     return colCount;
 }
@@ -227,7 +226,7 @@ void MySQLConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (MySQLStatement*) query->statement();
+    auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
         if (statement == nullptr)
@@ -238,13 +237,13 @@ void MySQLConnection::queryBindParameters(Query* query)
     }
     catch (const Exception& e)
     {
-        THROW_QUERY_ERROR(query, e.what())
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
 void MySQLConnection::queryExecute(Query* query)
 {
-    auto* statement = (MySQLStatement*) query->statement();
+    auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
         if (statement == nullptr)
@@ -255,7 +254,7 @@ void MySQLConnection::queryExecute(Query* query)
     }
     catch (const Exception& e)
     {
-        THROW_QUERY_ERROR(query, e.what())
+        THROW_QUERY_ERROR(query, e.what());
     }
 }
 
@@ -285,7 +284,7 @@ void MySQLConnection::queryOpen(Query* query)
         queryBindParameters(query);
     }
 
-    auto* statement = (MySQLStatement*) query->statement();
+    auto* statement = bit_cast<MySQLStatement*>(query->statement());
 
     queryExecute(query);
     if (auto fieldCount = (short) queryColCount(query); fieldCount < 1)
@@ -307,13 +306,13 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     const scoped_lock lock(m_mutex);
 
     try
     {
-        auto* statement = (MySQLStatement*) query->statement();
+        auto* statement = bit_cast<MySQLStatement*>(query->statement());
 
         statement->fetch();
         if (statement->eof())
@@ -486,5 +485,5 @@ void* mysql_create_connection(const char* connectionString, size_t connectionTim
 
 void mysql_destroy_connection(void* connection)
 {
-    MySQLConnection::s_mysqlConnections.erase((MySQLConnection*) connection);
+    MySQLConnection::s_mysqlConnections.erase(bit_cast<MySQLConnection*>(connection));
 }

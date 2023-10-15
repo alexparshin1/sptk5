@@ -352,7 +352,7 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
     statement->clearRows();
 }
 
@@ -366,7 +366,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
 
     PostgreSQLParamValues& params = statement->paramValues();
     params.setParameters(query->params());
@@ -396,7 +396,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
 int PostgreSQLConnection::queryColCount(Query* query)
 {
-    const auto* statement = (PostgreSQLStatement*) query->statement();
+    const auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
 
     return (int) statement->colCount();
 }
@@ -405,7 +405,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
     const CParamVector& params = paramValues.params();
 
@@ -453,7 +453,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     if (!error.empty())
     {
         statement->clear();
-        THROW_QUERY_ERROR(query, error)
+        THROW_QUERY_ERROR(query, error);
     }
 }
 
@@ -461,7 +461,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
     const CParamVector& params = paramValues.params();
     uint32_t paramNumber = 0;
@@ -503,7 +503,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
     if (!error.empty())
     {
         statement->clear();
-        THROW_QUERY_ERROR(query, error)
+        THROW_QUERY_ERROR(query, error);
     }
 }
 
@@ -623,7 +623,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
         queryExecDirect(query);
     }
 
-    const auto* statement = (const PostgreSQLStatement*) query->statement();
+    const auto* statement = bit_cast<const PostgreSQLStatement*>(query->statement());
 
     auto count = (short) queryColCount(query);
     if (count < 1)
@@ -672,42 +672,42 @@ inline bool readBool(const char* data)
 
 inline int16_t readInt2(const char* data)
 {
-    return (int16_t) ntohs(*(const uint16_t*) data);
+    return (int16_t) ntohs(*bit_cast<const uint16_t*>(data));
 }
 
 inline int32_t readInt4(const char* data)
 {
-    return (int32_t) ntohl(*(const uint32_t*) data);
+    return (int32_t) ntohl(*bit_cast<const uint32_t*>(data));
 }
 
 inline int64_t readInt8(const char* data)
 {
-    return (int64_t) ntohq(*(const uint64_t*) data);
+    return bit_cast<int64_t>(ntohq(*bit_cast<const uint64_t*>(data)));
 }
 
 inline float readFloat4(const char* data)
 {
-    uint32_t value = ntohl(*(const uint32_t*) data);
+    uint32_t value = ntohl(*bit_cast<const uint32_t*>(data));
     void* ptr = &value;
-    return *(float*) ptr;
+    return *bit_cast<float*>(ptr);
 }
 
 inline double readFloat8(const char* data)
 {
-    uint64_t value = ntohq(*(const uint64_t*) data);
+    uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
     void* ptr = &value;
-    return *(double*) ptr;
+    return *bit_cast<double*>(ptr);
 }
 
 inline DateTime readDate(const char* data)
 {
-    const auto dateTime = (int32_t) ntohl(*(const uint32_t*) data);
+    const auto dateTime = (int32_t) ntohl(*bit_cast<const uint32_t*>(data));
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
 inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
-    uint64_t value = ntohq(*(const uint64_t*) data);
+    uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
 
     if (integerTimestamps)
     {
@@ -716,7 +716,7 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps)
     }
 
     void* ptr = &value;
-    const double seconds = *(double*) ptr;
+    const double seconds = *bit_cast<double*>(ptr);
     DateTime dateTime = epochDate + chrono::seconds((int) seconds);
     return dateTime;
 }
@@ -724,10 +724,10 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 // Converts internal NUMERIC Postgresql binary to long double
 inline MoneyData readNumericToScaledInteger(const char* numeric)
 {
-    auto ndigits = (int16_t) ntohs(*(const uint16_t*) numeric);
-    auto weight = (int16_t) ntohs(*(const uint16_t*) (numeric + 2));
-    auto sign = (int16_t) ntohs(*(const uint16_t*) (numeric + 4));
-    uint16_t dscale = ntohs(*(const uint16_t*) (numeric + 6));
+    auto ndigits = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric));
+    auto weight = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric + 2));
+    auto sign = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric + 4));
+    uint16_t dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
     if (dscale > 16)
     {
@@ -749,7 +749,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; ++i)
     {
-        auto digit = (int16_t) ntohs(*(const uint16_t*) numeric);
+        auto digit = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric));
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -823,13 +823,13 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
         uint32_t lowerBound;
     };
 
-    auto* arrayHeader = (PGArrayHeader*) data;
+    auto* arrayHeader = bit_cast<PGArrayHeader*>(data);
     arrayHeader->dimensionNumber = ntohl(arrayHeader->dimensionNumber);
     arrayHeader->hasNull = ntohl(arrayHeader->hasNull);
     arrayHeader->elementType = ntohl(arrayHeader->elementType);
     data += sizeof(PGArrayHeader);
 
-    auto* dimensions = (PGArrayDimension*) data;
+    auto* dimensions = bit_cast<PGArrayDimension*>(data);
     data += arrayHeader->dimensionNumber * sizeof(PGArrayDimension);
 
     stringstream output;
@@ -846,7 +846,7 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
                 output << ",";
             }
 
-            const uint32_t dataSize = ntohl(*(const uint32_t*) data);
+            const uint32_t dataSize = ntohl(*bit_cast<const uint32_t*>(data));
             data += sizeof(uint32_t);
 
             switch ((PostgreSQLDataType) arrayHeader->elementType)
@@ -902,11 +902,11 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (PostgreSQLStatement*) query->statement();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
     if (statement == nullptr)
     {
         throw DatabaseException("Statement isn't open");
@@ -921,25 +921,23 @@ void PostgreSQLConnection::queryFetch(Query* query)
     }
 
     auto fieldCount = (int) query->fieldCount();
-    int dataLength = 0;
 
     if (fieldCount == 0)
     {
         return;
     }
 
-    DatabaseField* field = nullptr;
     const PGresult* stmt = statement->stmt();
     auto currentRow = (int) statement->currentRow();
 
     for (int column = 0; column < fieldCount; ++column)
     {
+        auto* field = bit_cast<DatabaseField*>(&(*query)[column]);
         try
         {
-            field = (DatabaseField*) &(*query)[column];
             auto fieldType = (PostgreSQLDataType) field->fieldType();
 
-            dataLength = PQgetlength(stmt, currentRow, column);
+            int dataLength = PQgetlength(stmt, currentRow, column);
 
             if (dataLength == 0)
             {
@@ -960,7 +958,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 else
                 {
                     static array<char, 2> emptyString {};
-                    field->setExternalBuffer((uint8_t*) emptyString.data(), 0,
+                    field->setExternalBuffer(bit_cast<uint8_t*>(emptyString.data()), 0,
                                              dataType); // External string
                 }
             }
@@ -1000,7 +998,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PostgreSQLDataType::BYTEA:
-                        field->setExternalBuffer((uint8_t*) data, (size_t) dataLength,
+                        field->setExternalBuffer(bit_cast<uint8_t*>(data), (size_t) dataLength,
                                                  VariantDataType::VAR_BUFFER); // External buffer
                         break;
 
@@ -1028,7 +1026,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setExternalBuffer((uint8_t*) data, size_t(dataLength),
+                        field->setExternalBuffer(bit_cast<uint8_t*>(data), size_t(dataLength),
                                                  VariantDataType::VAR_STRING); // External string
                         break;
                 }
@@ -1036,7 +1034,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
         }
         catch (const Exception& e)
         {
-            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
+            THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }
@@ -1284,5 +1282,5 @@ void* postgresql_create_connection(const char* connectionString, size_t connecti
 
 void postgresql_destroy_connection(void* connection)
 {
-    PostgreSQLConnection::s_postgresqlConnections.erase((PostgreSQLConnection*) connection);
+    PostgreSQLConnection::s_postgresqlConnections.erase(bit_cast<PostgreSQLConnection*>(connection));
 }

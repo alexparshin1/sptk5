@@ -206,7 +206,7 @@ void OracleConnection::queryFreeStmt(Query* query)
 void OracleConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
-    auto* statement = (OracleStatement*) query->statement();
+    auto* statement = bit_cast<OracleStatement*>(query->statement());
     if (statement)
     {
         statement->close();
@@ -217,7 +217,7 @@ void OracleConnection::queryPrepare(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (OracleStatement*) query->statement();
+    auto* statement = bit_cast<OracleStatement*>(query->statement());
     statement->enumerateParams(query->params());
     if (query->bulkMode())
     {
@@ -260,7 +260,7 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
 
 int OracleConnection::queryColCount(Query* query)
 {
-    const auto* statement = (OracleStatement*) query->statement();
+    const auto* statement = bit_cast<OracleStatement*>(query->statement());
     if (statement == nullptr)
     {
         throwException<DatabaseException>("Query not opened");
@@ -275,7 +275,7 @@ void OracleConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (OracleStatement*) query->statement();
+    auto* statement = bit_cast<OracleStatement*>(query->statement());
     if (!statement)
     {
         throw DatabaseException("Query not prepared");
@@ -354,7 +354,7 @@ void OracleConnection::queryExecute(Query* query)
 {
     try
     {
-        auto* statement = (OracleStatement*) query->statement();
+        auto* statement = bit_cast<OracleStatement*>(query->statement());
         if (!statement)
         {
             throw Exception("Query is not prepared");
@@ -404,7 +404,7 @@ void OracleConnection::queryOpen(Query* query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    auto* statement = (OracleStatement*) query->statement();
+    auto* statement = bit_cast<OracleStatement*>(query->statement());
 
     queryExecute(query);
     if (queryColCount(query) < 1)
@@ -436,7 +436,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
     {
         auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
         const int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
-        string columnName = metaData.getString(MetaData::ATTR_NAME);
+        String columnName(metaData.getString(MetaData::ATTR_NAME));
         const int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
@@ -493,11 +493,11 @@ void Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int co
 void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active())
-        THROW_QUERY_ERROR(query, "Dataset isn't open")
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
 
     const scoped_lock lock(m_mutex);
 
-    auto* statement = (OracleStatement*) query->statement();
+    auto* statement = bit_cast<OracleStatement*>(query->statement());
 
     try
     {
@@ -505,7 +505,7 @@ void OracleConnection::queryFetch(Query* query)
     }
     catch (const oracle::occi::SQLException& e)
     {
-        THROW_QUERY_ERROR(query, e.what())
+        THROW_QUERY_ERROR(query, e.what());
     }
 
     if (statement->eof())
@@ -521,13 +521,12 @@ void OracleConnection::queryFetch(Query* query)
     }
 
     ResultSet* resultSet = statement->resultSet();
-    DatabaseField* field = nullptr;
     for (unsigned fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
+        auto* field = bit_cast<DatabaseField*>(&(*query)[fieldIndex]);
+
         try
         {
-            field = (DatabaseField*) &(*query)[fieldIndex];
-
             // Result set column index starts from 1
             auto columnIndex = fieldIndex + 1;
 
@@ -591,11 +590,11 @@ void OracleConnection::queryFetch(Query* query)
         }
         catch (const Exception& e)
         {
-            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
+            THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
         catch (const SQLException& e)
         {
-            THROW_QUERY_ERROR(query, "Can't read field " << field->fieldName() << ": " << e.what())
+            THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
 }
@@ -761,7 +760,7 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
             case VariantDataType::VAR_TEXT:
                 if (value.dataSize())
                 {
-                    insertQuery.param(i).setBuffer((const uint8_t*) value.getText(), value.dataSize(),
+                    insertQuery.param(i).setBuffer(bit_cast<const uint8_t*>(value.getText()), value.dataSize(),
                                                    VariantDataType::VAR_TEXT);
                 }
                 else
@@ -913,5 +912,5 @@ map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleC
 
 [[maybe_unused]] void oracle_destroy_connection(void* connection)
 {
-    OracleConnection::s_oracleConnections.erase((OracleConnection*) connection);
+    OracleConnection::s_oracleConnections.erase(bit_cast<OracleConnection*>(connection));
 }

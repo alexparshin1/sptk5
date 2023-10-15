@@ -26,19 +26,20 @@
 
 #ifndef WIN32
 #include <arpa/inet.h>
-#include <cstdint>
 #else
 #include <cstdint>
 #include <windows.h>
 #endif
+
+#include <bit>
 
 namespace sptk {
 
 uint64_t htonq(uint64_t val)
 {
     uint64_t result {0};
-    const auto* src = (uint32_t*) (void*) &val;
-    auto* dst = (uint32_t*) (void*) &result;
+    const auto* src = std::bit_cast<uint32_t*>(&val);
+    auto* dst = std::bit_cast<uint32_t*>(&result);
     dst[0] = htonl(src[1]);
     dst[1] = htonl(src[0]);
     return result;
@@ -47,17 +48,17 @@ uint64_t htonq(uint64_t val)
 uint64_t ntohq(uint64_t val)
 {
     uint64_t result {0};
-    const auto* src = (uint32_t*) (void*) &val;
-    auto* dst = (uint32_t*) (void*) &result;
+    const auto* src = std::bit_cast<uint32_t*>(&val);
+    auto* dst = std::bit_cast<uint32_t*>(&result);
     dst[0] = htonl(src[1]);
     dst[1] = htonl(src[0]);
     return result;
 }
 
-void htonq_inplace(const uint64_t* in, uint64_t* out)
+void htonq_inplace(const uint64_t* input, uint64_t* output)
 {
-    const auto* src = (uint32_t*) (void*) in;
-    auto* dst = (uint32_t*) (void*) out;
+    const auto* src = std::bit_cast<uint32_t*>(input);
+    auto* dst = std::bit_cast<uint32_t*>(output);
     dst[1] = htonl(src[0]);
     dst[0] = htonl(src[1]);
 }

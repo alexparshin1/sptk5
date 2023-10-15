@@ -525,16 +525,12 @@ private:
 
 using SQuery = std::shared_ptr<Query>;
 
+[[noreturn]] void THROW_QUERY_ERROR(const Query* query, const String& error, std::source_location location = std::source_location::current());
+
 /**
  * @}
  */
 
-#define THROW_QUERY_ERROR(query, error)                                                     \
-    {                                                                                       \
-        std::stringstream err;                                                              \
-        err << error;                                                                       \
-        throw sptk::DatabaseException(err.str(), source_location::current(), query->sql()); \
-    }
 
 constexpr int FETCH_BUFFER_SIZE = 1024;
 
