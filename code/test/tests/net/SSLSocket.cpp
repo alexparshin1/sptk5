@@ -25,7 +25,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/net/SSLSocket.h>
+#include <sptk5/cnet>
 #include <sptk5/threads/Thread.h>
 
 using namespace std;
@@ -47,4 +47,36 @@ TEST(SPTK_SSLSocket, connect)
     {
         FAIL() << e.what();
     }
+}
+
+TEST(SPTK_SSLSocket, httpConnect)
+{
+    constexpr uint16_t sslPort {443};
+    const Host yahoo("www.yahoo.com", sslPort);
+    sockaddr_in address {};
+    yahoo.getAddress(address);
+
+    auto socket = make_shared<SSLSocket>();
+
+    EXPECT_NO_THROW(socket->open(yahoo));
+    EXPECT_TRUE(socket->active());
+
+    HttpConnect http(*socket);
+    Buffer output;
+
+    constexpr int minStatusCode {500};
+    int statusCode {minStatusCode};
+    try
+    {
+        statusCode = http.cmd_get("/", HttpParams(), output);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+    EXPECT_EQ(200, statusCode);
+    EXPECT_STREQ("OK", http.statusText().c_str());
+
+    String data(output.c_str(), output.bytes());
+    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }

@@ -128,7 +128,8 @@ void HttpReader::readHttpHeaders()
 
         if (header.empty())
         {
-            throw Exception("Empty HTTP header");
+            continue;
+            //throw Exception("Empty HTTP header");
         }
 
 

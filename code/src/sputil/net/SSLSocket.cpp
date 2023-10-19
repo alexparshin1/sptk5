@@ -354,8 +354,11 @@ size_t SSLSocket::getSocketBytesUnlocked() const
 {
     if (m_ssl != nullptr)
     {
-        int64_t dummy = 0;
-        SSL_read(m_ssl, &dummy, 0);
+        if (Socket::getSocketBytesUnlocked() > 0)
+        {
+            int64_t dummy = 0;
+            SSL_read(m_ssl, &dummy, 0);
+        }
         return (uint32_t) SSL_pending(m_ssl);
     }
     return 0;
@@ -412,7 +415,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
         return 0;
     }
 
-    const auto* ptr = (const char*) buffer;
+    const auto* ptr = bit_cast<const char*>(buffer);
     auto totalLen = (uint32_t) len;
     for (;;)
     {
