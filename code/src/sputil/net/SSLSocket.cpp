@@ -437,13 +437,35 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
             continue;
         }
 
-        if (const int32_t errorCode = SSL_get_error(m_ssl, result);
-            errorCode != SSL_ERROR_WANT_READ && errorCode != SSL_ERROR_WANT_WRITE && errorCode != SSL_ERROR_NONE)
+        if (!active())
         {
-            throw Exception(getSSLError("writing to SSL connection", errorCode));
+            throw Exception("Socket is closed");
         }
 
-        constexpr auto smallDelay = chrono::milliseconds(10);
-        this_thread::sleep_for(smallDelay);
+        constexpr auto timeout = chrono::seconds(1);
+
+        switch (auto errorCode = SSL_get_error(m_ssl, result))
+        {
+            case SSL_ERROR_WANT_READ:
+                if (!readyToReadUnlocked(chrono::milliseconds(timeout)))
+                {
+                    throw Exception("SSL write timeout");
+                }
+                break;
+            case SSL_ERROR_WANT_WRITE:
+                if (!readyToWriteUnlocked(chrono::milliseconds(timeout)))
+                {
+                    throw Exception("SSL write timeout");
+                }
+                break;
+            case SSL_ERROR_NONE:
+                // No error, just retry
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+                // peer disconnected
+                return 0;
+            default:
+                throw Exception(getSSLError("writing to SSL connection fd=" + to_string(getSocketFdUnlocked()), errorCode));
+        }
     }
 }

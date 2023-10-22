@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <future>
 #include <gtest/gtest.h>
 #include <sptk5/cnet>
 #include <sptk5/threads/Thread.h>
@@ -56,27 +57,46 @@ TEST(SPTK_SSLSocket, httpConnect)
     sockaddr_in address {};
     yahoo.getAddress(address);
 
-    auto socket = make_shared<SSLSocket>();
-
-    EXPECT_NO_THROW(socket->open(yahoo));
-    EXPECT_TRUE(socket->active());
-
-    HttpConnect http(*socket);
-    Buffer output;
-
-    constexpr int minStatusCode {500};
-    int statusCode {minStatusCode};
-    try
+    vector<future<tuple<String, String>>> tasks;
+    for (int i = 0; i < 2; i++)
     {
-        statusCode = http.cmd_get("/", HttpParams(), output);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
-    EXPECT_EQ(200, statusCode);
-    EXPECT_STREQ("OK", http.statusText().c_str());
+        auto task = async(launch::async, [&]() {
+            Buffer output;
+            String result {"OK"};
+            try
+            {
+                auto socket = make_shared<SSLSocket>();
 
-    String data(output.c_str(), output.bytes());
-    EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
+                socket->open(yahoo);
+                HttpConnect http(*socket);
+
+                auto statusCode = http.cmd_get("/", HttpParams(), output);
+                if (statusCode != 200)
+                {
+                    result = http.statusText().c_str();
+                }
+            }
+            catch (const Exception& e)
+            {
+                result = e.what();
+            }
+            return make_tuple(result, (String) output);
+        });
+
+        tasks.push_back(std::move(task));
+    }
+
+    for (auto& task: tasks)
+    {
+        if (task.wait_for(chrono::seconds(3)) == future_status::timeout)
+        {
+            FAIL() << "Timeout";
+        }
+        else
+        {
+            auto result = task.get();
+            EXPECT_STREQ("OK", get<0>(result).c_str());
+            EXPECT_TRUE(get<1>(result).toLowerCase().find("</html>") != string::npos);
+        }
+    }
 }
