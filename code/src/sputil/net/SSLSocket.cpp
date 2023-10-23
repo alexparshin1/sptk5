@@ -31,6 +31,7 @@
 #include <openssl/err.h>
 #include <sptk5/net/CachedSSLContext.h>
 
+#include "sptk5/SystemException.h"
 #include <utility>
 
 using namespace std;
@@ -459,6 +460,8 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
             case SSL_ERROR_ZERO_RETURN:
                 // peer disconnected
                 return 0;
+            case SSL_ERROR_SYSCALL:
+                throw SystemException("Error writing to SSL connection");
             default:
                 if (!active())
                 {
