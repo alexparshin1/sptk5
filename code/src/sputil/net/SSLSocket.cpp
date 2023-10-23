@@ -437,11 +437,6 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
             continue;
         }
 
-        if (!active())
-        {
-            throw Exception("Socket is closed");
-        }
-
         constexpr auto timeout = chrono::seconds(1);
 
         switch (auto errorCode = SSL_get_error(m_ssl, result))
@@ -465,6 +460,10 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
                 // peer disconnected
                 return 0;
             default:
+                if (!active())
+                {
+                    throw Exception("Error writing to SSL connection: Socket is closed");
+                }
                 throw Exception(getSSLError("writing to SSL connection fd=" + to_string(getSocketFdUnlocked()), errorCode));
         }
     }
