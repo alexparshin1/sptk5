@@ -489,6 +489,7 @@ void throwSocketError(const String& operation, const std::source_location& locat
 #else
     // strerror_r() doesn't work here
     errorStr = strerror(errno);
+    CERR("ERRNO is " << errno << endl);
 #endif
     if (errno == EAGAIN)
     {

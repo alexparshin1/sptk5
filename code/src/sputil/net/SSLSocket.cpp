@@ -200,7 +200,7 @@ void SSLSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMod
 
 bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
 {
-    int result = sslConnect();
+    const int result = sslConnect();
     if (result == 1)
     {
         return true;
