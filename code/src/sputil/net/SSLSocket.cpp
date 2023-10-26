@@ -154,7 +154,7 @@ SSLSocket::SSLSocket(String cipherList)
 
 SSLSocket::~SSLSocket()
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
     if (m_ssl != nullptr)
     {
         SSL_free(m_ssl);
@@ -179,20 +179,11 @@ void SSLSocket::initContextAndSocket()
 {
     m_sslContext = CachedSSLContext::get(m_keys, m_cipherList);
 
-    if (m_ssl != nullptr)
-    {
-        SSL_free(m_ssl);
-    }
-
-    m_ssl = SSL_new(m_sslContext->handle());
+    sslNew();
 
     if (!m_sniHostName.empty())
     {
-        if (auto result = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
-            !result)
-        {
-            throwSSLError("SSL_set_tlsext_host_name", result);
-        }
+        sslSetExtHostName();
     }
 }
 
@@ -208,22 +199,21 @@ void SSLSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMod
 {
     TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout);
 
-    const scoped_lock lock(*this);
-
     sslConnectUnlocked(_blockingMode, timeout);
 }
 
 bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
 {
-    const int result = SSL_connect(m_ssl);
+    int result = sslConnect();
     if (result == 1)
     {
         return true;
     } // connected
+
     if (result <= 0)
     {
         const chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-        const int errorCode = SSL_get_error(m_ssl, result);
+        int errorCode = sslGetErrorCode(result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToReadUnlocked(nextTimeout))
@@ -250,11 +240,11 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
     const DateTime started = DateTime::Now();
     const DateTime timeoutAt(started + timeout);
 
-    SSL_set_fd(m_ssl, SOCKET_CAST getSocketFdUnlocked());
+    sslSetFd(getSocketFdUnlocked());
 
     if (timeout == chrono::milliseconds(0))
     {
-        if (const int result = SSL_connect(m_ssl);
+        if (const int result = sslConnect();
             result <= 0)
         {
             closeUnlocked();
@@ -274,7 +264,7 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
 
 void SSLSocket::closeUnlocked()
 {
-    SSL_set_fd(m_ssl, -1);
+    sslSetFd(-1);
     TCPSocket::closeUnlocked();
 }
 
@@ -286,10 +276,10 @@ void SSLSocket::attachUnlocked(SocketType socketHandle, bool accept)
     {
         TCPSocket::attachUnlocked(socketHandle, false);
 
-        if (const auto result = SSL_set_fd(m_ssl, SOCKET_CAST socketHandle);
+        if (const auto result = sslSetFd(socketHandle);
             result <= 0)
         {
-            const auto errorCode = SSL_get_error(m_ssl, result);
+            const auto errorCode = sslGetErrorCode(result);
             const auto error = getSSLError("SSL_accept", errorCode);
             throw ConnectionException(error);
         }
@@ -305,7 +295,7 @@ void SSLSocket::attachUnlocked(SocketType socketHandle, bool accept)
     if (const int result = SSL_accept(m_ssl);
         result <= 0)
     {
-        const auto errorCode = SSL_get_error(m_ssl, result);
+        const auto errorCode = sslGetErrorCode(result);
         const auto error = getSSLError("SSL_accept", errorCode);
 
         // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
@@ -377,7 +367,7 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, size_t len)
             return result;
         }
 
-        const int error = SSL_get_error(m_ssl, result);
+        const int error = sslGetErrorCode(result);
         switch (error)
         {
             case SSL_ERROR_WANT_READ:
@@ -440,18 +430,18 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
 
         constexpr auto timeout = chrono::seconds(1);
 
-        switch (auto errorCode = SSL_get_error(m_ssl, result))
+        switch (auto errorCode = sslGetErrorCode(result))
         {
             case SSL_ERROR_WANT_READ:
                 if (!readyToReadUnlocked(chrono::milliseconds(timeout)))
                 {
-                    throw Exception("SSL write timeout");
+                    throw Exception("SSL write timeout (wait for read)");
                 }
                 break;
             case SSL_ERROR_WANT_WRITE:
                 if (!readyToWriteUnlocked(chrono::milliseconds(timeout)))
                 {
-                    throw Exception("SSL write timeout");
+                    throw Exception("SSL write timeout (wait for write)");
                 }
                 break;
             case SSL_ERROR_NONE:
@@ -470,4 +460,43 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
                 throw Exception(getSSLError("writing to SSL connection fd=" + to_string(getSocketFdUnlocked()), errorCode));
         }
     }
+}
+
+void SSLSocket::sslNew()
+{
+    scoped_lock lock(m_mutex);
+    if (m_ssl != nullptr)
+    {
+        SSL_free(m_ssl);
+    }
+    m_ssl = SSL_new(m_sslContext->handle());
+}
+
+int SSLSocket::sslSetFd(SocketType fd) const
+{
+    scoped_lock lock(m_mutex);
+    return SSL_set_fd(m_ssl, fd);
+}
+
+void SSLSocket::sslSetExtHostName() const
+{
+    scoped_lock lock(m_mutex);
+    if (auto result = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
+        !result)
+    {
+        throwSSLError("SSL_set_tlsext_host_name", result);
+    }
+}
+
+int SSLSocket::sslConnect() const
+{
+    scoped_lock lock(m_mutex);
+    const int result = SSL_connect(m_ssl);
+    return result;
+}
+
+int SSLSocket::sslGetErrorCode(int result) const
+{
+    const int errorCode = SSL_get_error(m_ssl, result);
+    return errorCode;
 }

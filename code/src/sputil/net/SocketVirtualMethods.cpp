@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketVirtualMethods.h>
 
@@ -470,12 +471,14 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
 void throwSocketError(const String& operation, const std::source_location& location)
 {
     string errorStr;
+
 #ifdef _WIN32
     constexpr int maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
 
     LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
+
     if (dw != 0)
     {
         FormatMessage(
@@ -486,7 +489,13 @@ void throwSocketError(const String& operation, const std::source_location& locat
 #else
     // strerror_r() doesn't work here
     errorStr = strerror(errno);
+    CERR("ERRNO is " << errno << endl);
 #endif
+    if (errno == EAGAIN)
+    {
+        throw RepeatOperationException(operation + ": " + errorStr, location);
+    }
+
     if (!errorStr.empty())
     {
         throw Exception(operation + ": " + errorStr, location);

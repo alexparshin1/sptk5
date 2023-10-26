@@ -165,6 +165,7 @@ protected:
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
 private:
+    mutable std::mutex m_mutex;              ///< Mutex that protects access to m_ssl
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
     SSL* m_ssl {nullptr};                    ///< SSL socket
     SSLKeys m_keys;                          ///< SSL keys info
@@ -175,6 +176,12 @@ private:
     void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
+
+    void sslNew();
+    int sslSetFd(SocketType fd) const;
+    void sslSetExtHostName() const;
+    int sslConnect() const;
+    int sslGetErrorCode(int result) const;
 };
 
 /**
