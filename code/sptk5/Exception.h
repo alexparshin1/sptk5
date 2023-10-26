@@ -106,6 +106,17 @@ public:
 };
 
 /**
+ * @brief Repeat operation exception
+ *
+ * Thrown when operation should be repeated.
+ */
+class SP_EXPORT RepeatOperationException : public Exception
+{
+public:
+    using Exception::Exception;
+};
+
+/**
  * @brief Timeout exception
  *
  * Thrown when timeout error occurs.

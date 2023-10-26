@@ -136,10 +136,10 @@ protected:
     /**
      * Get error description for SSL error code
      * @param function          SSL function
-     * @param SSLError          Error code returned by SSL_get_error() result
+     * @param openSSLError          Error code returned by SSL_get_error() result
      * @return Error description
      */
-    virtual String getSSLError(const std::string& function, int32_t SSLError) const;
+    virtual String sslGetErrorString(const String& function, int32_t openSSLError) const;
 
     /**
      * Attaches socket handle
@@ -165,6 +165,7 @@ protected:
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
 private:
+    mutable std::mutex m_mutex;              ///< Mutex that protects access to m_ssl
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
     SSL* m_ssl {nullptr};                    ///< SSL socket
     SSLKeys m_keys;                          ///< SSL keys info
@@ -175,6 +176,17 @@ private:
     void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
+
+    void sslNew();
+    int sslSetFd(SocketType fd) const;
+    void sslSetExtHostName() const;
+    int sslConnect() const;
+    int sslGetErrorCode(int result) const;
+    void sslFree() const;
+    int sslAccept() const;
+    int sslRead(uint8_t* buffer, size_t len) const;
+    int sslWrite(const uint8_t* buffer, size_t len) const;
+    int sslPending() const;
 };
 
 /**
