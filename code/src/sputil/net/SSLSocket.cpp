@@ -179,7 +179,11 @@ void SSLSocket::initContextAndSocket()
 
     if (!m_sniHostName.empty())
     {
-        sslSetExtHostName();
+        if (auto result = sslSetExtHostName();
+            !result)
+        {
+            throwSSLError("SSL_set_tlsext_host_name", result);
+        }
     }
 }
 
@@ -228,6 +232,7 @@ bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
             return false; // continue attempts
         }
     }
+
     throwSSLError("SSL_connect", result);
 }
 
@@ -479,14 +484,10 @@ int SSLSocket::sslSetFd(SocketType fd) const
     return SSL_set_fd(m_ssl, fd);
 }
 
-void SSLSocket::sslSetExtHostName() const
+int SSLSocket::sslSetExtHostName() const
 {
     scoped_lock lock(m_mutex);
-    if (auto result = (int) SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
-        !result)
-    {
-        throwSSLError("SSL_set_tlsext_host_name", result);
-    }
+    return SSL_set_tlsext_host_name(m_ssl, m_sniHostName.c_str());
 }
 
 int SSLSocket::sslConnect() const

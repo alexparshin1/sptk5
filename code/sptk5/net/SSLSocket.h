@@ -179,7 +179,7 @@ private:
 
     void sslNew();
     int sslSetFd(SocketType fd) const;
-    void sslSetExtHostName() const;
+    int sslSetExtHostName() const;
     int sslConnect() const;
     int sslGetErrorCode(int result) const;
     void sslFree() const;
