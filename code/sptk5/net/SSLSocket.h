@@ -169,20 +169,18 @@ private:
     SharedSSLContext m_sslContext {nullptr}; ///< SSL context
     SSL* m_ssl {nullptr};                    ///< SSL socket
     SSLKeys m_keys;                          ///< SSL keys info
-
-    String m_sniHostName; ///< SNI host name (optional)
-    String m_cipherList;  ///< Cipher List, the default is "ALL"
-
-    void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
+    String m_sniHostName;                    ///< SNI host name (optional)
+    String m_cipherList;                     ///< Cipher List, the default is "ALL"
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
 
+    void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
     void sslNew();
+    void sslFree() const;
     int sslSetFd(SocketType fd) const;
     int sslSetExtHostName() const;
     int sslConnect() const;
     int sslGetErrorCode(int result) const;
-    void sslFree() const;
     int sslAccept() const;
     int sslRead(uint8_t* buffer, size_t len) const;
     int sslWrite(const uint8_t* buffer, size_t len) const;
