@@ -489,13 +489,18 @@ void throwSocketError(const String& operation, const std::source_location& locat
 #else
     // strerror_r() doesn't work here
     errorStr = strerror(errno);
-    CERR("ERRNO is " << errno << endl);
 #endif
-    if (errno == EAGAIN)
+    switch (errno)
     {
-        throw RepeatOperationException(operation + ": " + errorStr, location);
+        case EBADF:
+        case EPIPE:
+            throw ConnectionException(operation + ": " + errorStr, location);
+        case EAGAIN:
+            throw RepeatOperationException(operation + ": " + errorStr, location);
     }
 
+    CERR("ERRNO is " << errno << endl);
+    
     if (!errorStr.empty())
     {
         throw Exception(operation + ": " + errorStr, location);
