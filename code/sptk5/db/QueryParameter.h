@@ -110,7 +110,7 @@ public:
     /**
      * Assign operator
      */
-    QueryParameter& operator=(bool v) override
+    QueryParameter& operator=(bool v)
     {
         setBool(v);
         return *this;
