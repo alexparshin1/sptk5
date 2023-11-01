@@ -8,25 +8,24 @@ we recommend this tutorial as a starting point.
 
 To complete this tutorial, you'll need:
 
-* A compatible operating system (e.g. Linux, macOS, Windows).
-* A compatible C++ compiler that supports at least C++11.
-* [Bazel](https://bazel.build/), the preferred build system used by the
-  GoogleTest team.
+*   A compatible operating system (e.g. Linux, macOS, Windows).
+*   A compatible C++ compiler that supports at least C++14.
+*   [Bazel](https://bazel.build/), the preferred build system used by the
+    GoogleTest team.
 
 See [Supported Platforms](platforms.md) for more information about platforms
 compatible with GoogleTest.
 
 If you don't already have Bazel installed, see the
-[Bazel installation guide](https://docs.bazel.build/versions/master/install.html).
+[Bazel installation guide](https://bazel.build/install).
 
-{: .callout .note}
-Note: The terminal commands in this tutorial show a Unix shell prompt, but the
-commands work on the Windows command line as well.
+{: .callout .note} Note: The terminal commands in this tutorial show a Unix
+shell prompt, but the commands work on the Windows command line as well.
 
 ## Set up a Bazel workspace
 
 A
-[Bazel workspace](https://docs.bazel.build/versions/master/build-ref.html#workspace)
+[Bazel workspace](https://docs.bazel.build/versions/main/build-ref.html#workspace)
 is a directory on your filesystem that you use to manage source files for the
 software you want to build. Each workspace directory has a text file named
 `WORKSPACE` which may be empty, or may contain references to external
@@ -40,9 +39,9 @@ $ mkdir my_workspace && cd my_workspace
 
 Next, you’ll create the `WORKSPACE` file to specify dependencies. A common and
 recommended way to depend on GoogleTest is to use a
-[Bazel external dependency](https://docs.bazel.build/versions/master/external.html)
+[Bazel external dependency](https://docs.bazel.build/versions/main/external.html)
 via the
-[`http_archive` rule](https://docs.bazel.build/versions/master/repo/http.html#http_archive).
+[`http_archive` rule](https://docs.bazel.build/versions/main/repo/http.html#http_archive).
 To do this, in the root directory of your workspace (`my_workspace/`), create a
 file named `WORKSPACE` with the following contents:
 
@@ -51,28 +50,16 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 http_archive(
   name = "com_google_googletest",
-  urls = ["https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip"],
-  strip_prefix = "googletest-609281088cfefc76f9d0ce82e1ff6c30cc3591e5",
+  urls = ["https://github.com/google/googletest/archive/5ab508a01f9eb089207ee87fd547d290da39d015.zip"],
+  strip_prefix = "googletest-5ab508a01f9eb089207ee87fd547d290da39d015",
 )
 ```
 
 The above configuration declares a dependency on GoogleTest which is downloaded
 as a ZIP archive from GitHub. In the above example,
-`609281088cfefc76f9d0ce82e1ff6c30cc3591e5` is the Git commit hash of the
+`5ab508a01f9eb089207ee87fd547d290da39d015` is the Git commit hash of the
 GoogleTest version to use; we recommend updating the hash often to point to the
-latest version.
-
-Bazel also needs a dependency on the
-[`rules_cc` repository](https://github.com/bazelbuild/rules_cc) to build C++
-code, so add the following to the `WORKSPACE` file:
-
-```
-http_archive(
-  name = "rules_cc",
-  urls = ["https://github.com/bazelbuild/rules_cc/archive/40548a2974f1aea06215272d9c2b47a14a24e556.zip"],
-  strip_prefix = "rules_cc-40548a2974f1aea06215272d9c2b47a14a24e556",
-)
-```
+latest version. Use a recent hash on the `main` branch.
 
 Now you're ready to build C++ code that uses GoogleTest.
 
@@ -104,8 +91,6 @@ To build the code, create a file named `BUILD` in the same directory with the
 following contents:
 
 ```
-load("@rules_cc//cc:defs.bzl", "cc_test")
-
 cc_test(
   name = "hello_test",
   size = "small",
@@ -118,15 +103,22 @@ This `cc_test` rule declares the C++ test binary you want to build, and links to
 GoogleTest (`//:gtest_main`) using the prefix you specified in the `WORKSPACE`
 file (`@com_google_googletest`). For more information about Bazel `BUILD` files,
 see the
-[Bazel C++ Tutorial](https://docs.bazel.build/versions/master/tutorial/cpp.html).
+[Bazel C++ Tutorial](https://docs.bazel.build/versions/main/tutorial/cpp.html).
+
+{: .callout .note}
+NOTE: In the example below, we assume Clang or GCC and set `--cxxopt=-std=c++14`
+to ensure that GoogleTest is compiled as C++14 instead of the compiler's default
+setting (which could be C++11). For MSVC, the equivalent would be
+`--cxxopt=/std:c++14`. See [Supported Platforms](platforms.md) for more details
+on supported language versions.
 
 Now you can build and run your test:
 
 <pre>
-<strong>my_workspace$ bazel test --test_output=all //:hello_test</strong>
-Info: Analyzed target //:hello_test (26 packages loaded, 362 targets configured).
-Info: Found 1 test target...
-Info: From Testing //:hello_test:
+<strong>my_workspace$ bazel test --cxxopt=-std=c++14 --test_output=all //:hello_test</strong>
+INFO: Analyzed target //:hello_test (26 packages loaded, 362 targets configured).
+INFO: Found 1 test target...
+INFO: From Testing //:hello_test:
 ==================== Test output for //:hello_test:
 Running main() from gmock_main.cc
 [==========] Running 1 test from 1 test suite.
@@ -142,12 +134,12 @@ Running main() from gmock_main.cc
 ================================================================================
 Target //:hello_test up-to-date:
   bazel-bin/hello_test
-Info: Elapsed time: 4.190s, Critical Path: 3.05s
-Info: 27 processes: 8 internal, 19 linux-sandbox.
-Info: Build completed successfully, 27 total actions
+INFO: Elapsed time: 4.190s, Critical Path: 3.05s
+INFO: 27 processes: 8 internal, 19 linux-sandbox.
+INFO: Build completed successfully, 27 total actions
 //:hello_test                                                     PASSED in 0.1s
 
-Info: Build completed successfully, 27 total actions
+INFO: Build completed successfully, 27 total actions
 </pre>
 
 Congratulations! You've successfully built and run a test binary using
@@ -155,7 +147,7 @@ GoogleTest.
 
 ## Next steps
 
-* [Check out the Primer](primer.md) to start learning how to write simple
-  tests.
-* [See the code samples](samples.md) for more examples showing how to use a
-  variety of GoogleTest features.
+*   [Check out the Primer](primer.md) to start learning how to write simple
+    tests.
+*   [See the code samples](samples.md) for more examples showing how to use a
+    variety of GoogleTest features.
