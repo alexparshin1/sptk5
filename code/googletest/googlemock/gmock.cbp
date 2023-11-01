@@ -5,7 +5,7 @@
 		<Option title="gmock"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\sptk5\;CMake Files\googletest\;CMake Files\googletest\googlemock\;CMake Files\googletest\googlemock\cmake\;CMake Files\googletest\googletest\;CMake Files\googletest\googletest\cmake\;CMake Files\src\;CMake Files\src\sputil\;CMake Files\src\sptk\;CMake Files\src\spdb\;CMake Files\src\drivers\;CMake Files\src\wsdl\;CMake Files\examples\;CMake Files\examples\jwt\;CMake Files\examples\database\;CMake Files\examples\threads\;CMake Files\examples\core\;CMake Files\examples\datasources\;CMake Files\examples\net\;CMake Files\utilities\;CMake Files\utilities\load_balance\;CMake Files\test\;CMake Files\test\wsdl\;CMake Files\test\wsdl\Service\;CMake Files\packages\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\sptk5\;CMake Files\googletest\;CMake Files\googletest\googlemock\;CMake Files\googletest\googlemock\cmake\;CMake Files\googletest\googletest\;CMake Files\googletest\googletest\cmake\;CMake Files\themes\;CMake Files\src\;CMake Files\src\sputil\;CMake Files\src\sptk\;CMake Files\src\spdb\;CMake Files\src\drivers\;CMake Files\src\wsdl\;CMake Files\examples\;CMake Files\examples\jwt\;CMake Files\examples\database\;CMake Files\examples\threads\;CMake Files\examples\core\;CMake Files\examples\datasources\;CMake Files\examples\net\;CMake Files\examples\gui\;CMake Files\utilities\;CMake Files\utilities\load_balance\;CMake Files\test\;CMake Files\test\wsdl\;CMake Files\test\wsdl\Service\;CMake Files\packages\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -25,9 +25,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -48,9 +48,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
@@ -71,9 +71,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -94,9 +94,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googlemock"/>
@@ -117,9 +117,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -138,9 +138,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -159,9 +159,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -180,9 +180,9 @@
 				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DGTEST_CREATE_SHARED_LIBRARY=1"/>
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/."/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code"/>
-					<Add directory="/usr/include/oracle/21/client64"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest/include"/>
 					<Add directory="/home/alexeyp/workspace/sptk5/code/googletest/googletest"/>
 				</Compiler>
@@ -230,6 +230,9 @@
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindOracle.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
+		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindPCRE.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/cmake/FindPCRE2.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
@@ -272,6 +275,9 @@
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/googletest/googletest/cmake/internal_utils.cmake">
 			<Option virtualFolder="CMake Files\googletest\googletest\cmake\"/>
 		</Unit>
+		<Unit filename="/home/alexeyp/workspace/sptk5/code/themes/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\themes\"/>
+		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/src/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\src\"/>
 		</Unit>
@@ -310,6 +316,9 @@
 		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/examples/net/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\examples\net\"/>
+		</Unit>
+		<Unit filename="/home/alexeyp/workspace/sptk5/code/examples/gui/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\examples\gui\"/>
 		</Unit>
 		<Unit filename="/home/alexeyp/workspace/sptk5/code/utilities/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\utilities\"/>

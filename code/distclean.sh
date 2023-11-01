@@ -9,8 +9,6 @@ do
     [ -d $dname ] && rm -rf $dname
 done
 
-rm -rf Release Debug
-
 [ -f CMakeCache.txt ] && rm CMakeCache.txt
 
 for file in Makefile install_manifest.txt cmake_install.cmake cmake_uninstall.cmake compile_commands.json *.deb install_manifest*.txt
