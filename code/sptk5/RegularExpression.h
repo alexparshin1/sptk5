@@ -222,7 +222,7 @@ public:
      * @param pattern           PCRE pattern
      * @param options           Pattern options
      */
-    explicit RegularExpression(String pattern, const String& options = "");
+    explicit RegularExpression(std::string_view pattern, std::string_view options = "");
 
     /**
      * Returns true if text matches with regular expression

@@ -195,13 +195,13 @@ public:
      * Returns concatenated string
      * @param delimiter         Delimiter
      */
-    [[nodiscard]] String join(const String& delimiter) const;
+    [[nodiscard]] String join(std::string_view delimiter) const;
 
     /**
      * Returns strings matching regex pattern
      * @param pattern           Regex pattern
      */
-    [[nodiscard]] Strings grep(const String& pattern) const;
+    [[nodiscard]] Strings grep(std::string_view pattern) const;
 
     /**
      * Sort strings inside this object

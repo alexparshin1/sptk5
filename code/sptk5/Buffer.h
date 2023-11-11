@@ -140,7 +140,7 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void append(const char* data, size_t sz = 0) override
+    void append(const char* data, size_t sz = std::numeric_limits<size_t>::max()) override
     {
         BufferStorage::append(data, sz);
     }

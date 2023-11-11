@@ -59,5 +59,6 @@ STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eve
 
 void Timer::cancel() const
 {
+    m_timerThread->terminate();
     m_timerThread->clear();
 }

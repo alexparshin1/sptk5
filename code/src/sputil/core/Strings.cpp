@@ -196,7 +196,7 @@ void Strings::loadFromFile(const std::filesystem::path& fileName)
     splitByDelimiter(*this, text, delimiter.c_str());
 }
 
-String Strings::join(const String& delimiter) const
+String Strings::join(std::string_view delimiter) const
 {
     stringstream result;
     bool first = true;
@@ -215,7 +215,7 @@ String Strings::join(const String& delimiter) const
     return result.str();
 }
 
-Strings Strings::grep(const String& pattern) const
+Strings Strings::grep(std::string_view pattern) const
 {
     const RegularExpression regularExpression(pattern);
 

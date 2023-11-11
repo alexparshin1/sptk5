@@ -27,7 +27,6 @@
 #include <future>
 #include <regex>
 #include <sptk5/cutils>
-#include <utility>
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
@@ -141,7 +140,7 @@ void RegularExpression::compile()
     {
         array<PCRE2_UCHAR, 256> buffer {};
         pcre2_get_error_message(errorNumber, buffer.data(), sizeof(buffer));
-        throw Exception((const char*) buffer.data());
+        throw Exception(static_cast<const char*>(buffer.data()));
     }
 
     m_pcre = shared_ptr<PCREHandle>(pcre,
@@ -182,8 +181,8 @@ void RegularExpression::compile()
     m_captureCount = getCaptureCount();
 }
 
-RegularExpression::RegularExpression(String pattern, const String& options)
-    : m_pattern(std::move(pattern))
+RegularExpression::RegularExpression(std::string_view pattern, std::string_view options)
+    : m_pattern(pattern.data(), pattern.size())
 {
     for (auto ch: options)
     {

@@ -103,7 +103,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     socklen_t len = sizeof(clientInfo);
     if (!blockingMode())
     {
-        clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
+        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>( &clientInfo), &len);
         if (clientSocketFD > 0)
         {
             return true;
@@ -116,7 +116,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
 
     if (readyToRead(timeout))
     {
-        clientSocketFD = ::accept(fd(), (struct sockaddr*) &clientInfo, &len);
+        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
         if (clientSocketFD > 0)
         {
             return true;

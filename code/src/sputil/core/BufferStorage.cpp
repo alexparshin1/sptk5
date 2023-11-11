@@ -77,7 +77,7 @@ void BufferStorage::append(char chr)
 
 void BufferStorage::append(const char* data, size_t size)
 {
-    if (size == 0)
+    if (size == numeric_limits<size_t>::max())
     {
         size = strlen(data);
     }
