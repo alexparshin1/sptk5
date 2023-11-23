@@ -232,7 +232,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     if (rc >= 0)
     {
-        memcpy((uint8_t*) matchData.matches.data(), ovector, sizeof(pcre_offset_t) * 2 * rc);
+        memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
         offset = ovector[1];
         return size_t(rc); // match count
     }
