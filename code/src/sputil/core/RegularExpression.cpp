@@ -140,7 +140,7 @@ void RegularExpression::compile()
     {
         array<PCRE2_UCHAR, 256> buffer {};
         pcre2_get_error_message(errorNumber, buffer.data(), sizeof(buffer));
-        throw Exception(static_cast<const char*>(buffer.data()));
+        throw Exception(bit_cast<const char*>(buffer.data()));
     }
 
     m_pcre = shared_ptr<PCREHandle>(pcre,
