@@ -11,3 +11,5 @@ do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh
 done
+
+rsync -av /build/output/* /var/www/html/sptk/download/

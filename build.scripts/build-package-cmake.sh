@@ -11,6 +11,8 @@ VERSION=$(head -1 /build/scripts/VERSION)
 RELEASE="1"
 PACKAGE_NAME="SPTK-$VERSION"
 
+DOWNLOAD_DIRNAME=$OS_NAME-$OS_VERSION
+OS_TYPE="$OS_NAME-$OS_VERSION"
 case $OS_NAME in
     ubuntu)
         OS_TYPE="ubuntu-$OS_VERSION"
@@ -23,11 +25,6 @@ case $OS_NAME in
 
     fedora)
         OS_TYPE="fc$OS_VERSION"
-        ;;
-
-    *)
-        OS_TYPE="$OS_NAME-$OS_VERSION"
-        DOWNLOAD_DIRNAME=$OS_NAME-$OS_VERSION
         ;;
 esac
 
