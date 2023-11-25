@@ -18,10 +18,7 @@ case $OS_NAME in
 
     ol)
         OS_TYPE="$PLATFORM"
-        ;;
-
-    centos)
-        OS_TYPE="el$OS_VERSION"
+        DOWNLOAD_DIRNAME="oraclelinux9"
         ;;
 
     fedora)
@@ -30,6 +27,7 @@ case $OS_NAME in
 
     *)
         OS_TYPE="$OS_NAME-$OS_VERSION"
+        DOWNLOAD_DIRNAME=$OS_NAME-$OS_VERSION
         ;;
 esac
 
@@ -49,10 +47,12 @@ src_name="/build/output/${VERSION}/sptk_${VERSION}"
 cmake . -DCMAKE_INSTALL_PREFIX=/usr/local -DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j6 package install || exit 1
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
+OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
+mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
 do
     name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
-    mv $fname /build/output/$VERSION/$name
+    mv $fname $OUTPUT_DIR/$name || exit 1
 done
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
