@@ -52,7 +52,7 @@ mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
 do
     name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
-    mv $fname $OUTPUT_DIR/$name || exit 1
+    mv $fname $OUTPUT_DIR/$name
 done
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
