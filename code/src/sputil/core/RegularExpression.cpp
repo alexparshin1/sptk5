@@ -140,7 +140,7 @@ void RegularExpression::compile()
     {
         array<PCRE2_UCHAR, 256> buffer {};
         pcre2_get_error_message(errorNumber, buffer.data(), sizeof(buffer));
-        throw Exception(static_cast<const char*>(buffer.data()));
+        throw Exception(bit_cast<const char*>(buffer.data()));
     }
 
     m_pcre = shared_ptr<PCREHandle>(pcre,
@@ -232,7 +232,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     if (rc >= 0)
     {
-        memcpy((uint8_t*) matchData.matches.data(), ovector, sizeof(pcre_offset_t) * 2 * rc);
+        memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
         offset = ovector[1];
         return size_t(rc); // match count
     }
