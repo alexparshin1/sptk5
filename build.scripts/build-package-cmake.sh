@@ -2,17 +2,23 @@
 
 OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
 OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
+OS_CODENAME=$(grep -E '^VERSION_CODENAME=' /etc/os-release | sed -re 's/^.*=(\w+)?.*$/\1/')  #'
 PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')  #'
 
-echo $OS_NAME $OS_VERSION
-cat /etc/os-release
-echo
+OS_FULLNAME=$OS_NAME
+if [ "$OS_NAME" = "ol" ]; then
+    OS_FULLNAME="oraclelinux"
+fi
+
+if [ "$OS_CODENAME" = "" ]; then
+    OS_CODENAME=$OS_VERSION
+fi
 
 VERSION=$(head -1 /build/scripts/VERSION)
 RELEASE="1"
 PACKAGE_NAME="SPTK-$VERSION"
 
-DOWNLOAD_DIRNAME=$OS_NAME-$OS_VERSION
+DOWNLOAD_DIRNAME=$OS_NAME-$OS_CODENAME
 OS_TYPE="$OS_NAME-$OS_VERSION"
 case $OS_NAME in
     ubuntu)
@@ -60,6 +66,12 @@ cat /etc/hosts
 pwd
 cd $CWD/test && ./sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
 RC=$?
+
+if [ $RC != 0 ];
+    echo "/build/farm/logs/unit_tests.$OS_TYPE.log" > /build/farm/logs/failed.log
+else
+    rm /build/farm/logs/failed.log
+fi
 
 cd $CWD
 ./distclean.sh
