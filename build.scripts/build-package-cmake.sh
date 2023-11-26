@@ -5,6 +5,7 @@ OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//;
 PLATFORM=$(grep -E '^PLATFORM_ID=' /etc/os-release | sed -re 's/^.*:(\w+).*$/\1/')  #'
 
 echo $OS_NAME $OS_VERSION
+cat /etc/os-release
 echo
 
 VERSION=$(head -1 /build/scripts/VERSION)
