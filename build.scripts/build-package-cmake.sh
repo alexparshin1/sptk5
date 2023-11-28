@@ -43,7 +43,9 @@ cd /build/$PACKAGE_NAME
 CWD=`pwd`
 ./distclean.sh
 
-src_name="/build/output/${VERSION}/sptk_${VERSION}"
+TAR_DIR="/build/output/${VERSION}/tar"
+mkdir -p "$TAR_DIR"
+src_name="$TAR_DIR/sptk_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
