@@ -143,7 +143,7 @@ public:
          * Get unnamed groups.
          * @return const reference to unnamed groups object
          */
-        const std::vector<Group>& groups() const
+        [[nodiscard]] const std::vector<Group>& groups() const
         {
             return m_groups;
         }
@@ -152,7 +152,7 @@ public:
          * Get named groups.
          * @return const reference to named groups object
          */
-        const std::map<String, Group>& namedGroups() const
+        [[nodiscard]] const std::map<String, Group>& namedGroups() const
         {
             return m_namedGroups;
         }
@@ -160,7 +160,7 @@ public:
         /**
          * @return true if there are no matched groups
          */
-        bool empty() const
+        [[nodiscard]] bool empty() const
         {
             return m_groups.empty();
         }
@@ -200,11 +200,6 @@ public:
         }
 
     private:
-        /**
-         * Clear groups
-         */
-        void clear();
-
         std::vector<Group> m_groups;           ///< Unnamed groups
         std::map<String, Group> m_namedGroups; ///< Named groups
         static const Group emptyGroup;         ///< Empty group to return if group can't be found
