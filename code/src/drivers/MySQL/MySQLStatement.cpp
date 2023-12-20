@@ -46,8 +46,7 @@ class sptk::MySQLStatementField
     : public DatabaseField
 {
 public:
-    MySQLStatementField(const string& fieldName, int /*fieldColumn*/, enum_field_types fieldType, VariantDataType dataType,
-                        int fieldSize)
+    MySQLStatementField(const string& fieldName, enum_field_types fieldType, VariantDataType dataType, int fieldSize)
         : DatabaseField(fieldName, static_cast<int>(fieldType), dataType, fieldSize)
     {
     }
@@ -404,7 +403,7 @@ void MySQLStatement::bindResult(FieldList& fields)
             fieldLength = FETCH_BUFFER;
         }
 
-        auto field = make_shared<MySQLStatementField>(columnName, static_cast<int>(columnIndex), fieldMetadata->type, fieldType, static_cast<int>(fieldLength));
+        auto field = make_shared<MySQLStatementField>(columnName, fieldMetadata->type, fieldType, static_cast<int>(fieldLength));
         fields.push_back(field);
     }
 

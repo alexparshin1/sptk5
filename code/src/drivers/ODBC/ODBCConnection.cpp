@@ -48,8 +48,7 @@ class ODBCField
     friend class ODBCConnection;
 
 public:
-    ODBCField(const string& fieldName, int /*fieldColumn*/, int fieldType, VariantDataType dataType, int fieldLength,
-              int fieldScale)
+    ODBCField(const string& fieldName, int fieldType, VariantDataType dataType, int fieldLength, int fieldScale)
         : DatabaseField(fieldName, fieldType, dataType, fieldLength, fieldScale)
     {
     }
@@ -631,7 +630,7 @@ void ODBCConnection::parseColumns(Query* query, int count)
             columnScale = 0;
         }
 
-        auto field = make_shared<ODBCField>(columnNameStr.str(), column, cType, dataType, columnLength, columnScale);
+        auto field = make_shared<ODBCField>(columnNameStr.str(), cType, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }

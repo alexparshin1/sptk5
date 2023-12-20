@@ -41,8 +41,8 @@ class SQLite3Field
     friend class SQLite3Connection;
 
 public:
-    SQLite3Field(const std::string& fieldName, int fieldColumn)
-        : DatabaseField(fieldName, fieldColumn, 0, VariantDataType::VAR_BUFFER, 0, 0)
+    explicit SQLite3Field(const std::string& fieldName)
+        : DatabaseField(fieldName, 0, VariantDataType::VAR_BUFFER, 0, 0)
     {
     }
     using DatabaseField::operator=;
@@ -410,7 +410,7 @@ void SQLite3Connection::queryOpen(Query* query)
             columnName = "column_" + to_string(column);
         }
 
-        auto field = make_shared<SQLite3Field>(columnName, column);
+        auto field = make_shared<SQLite3Field>(columnName);
         query->fields().push_back(field);
     }
 

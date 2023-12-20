@@ -418,7 +418,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
             auto field = dynamic_pointer_cast<DatabaseField>(fields.findField(parameter->name()));
             if (!field)
             {
-                field = make_shared<DatabaseField>(parameter->name(), (int) fields.size(), OCCIANYDATA,
+                field = make_shared<DatabaseField>(parameter->name(), OCCIANYDATA,
                                                    parameter->dataType(), 256);
                 fields.push_back(field);
             }

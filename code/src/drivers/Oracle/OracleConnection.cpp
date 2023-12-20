@@ -453,7 +453,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         }
 
         const VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
-        auto field = make_shared<DatabaseField>(columnName, columnIndex, columnType, dataType, columnDataSize,
+        auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
                                                 columnScale);
         query->fields().push_back(field);
 
