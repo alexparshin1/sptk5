@@ -25,8 +25,8 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/md5.h>
 #include <sptk5/Printer.h>
+#include <sptk5/md5.h>
 #include <sptk5/net/SmtpConnect.h>
 
 using namespace std;
@@ -49,7 +49,7 @@ TEST(SPTK_SmtpConnect, minimal)
         smtp.cmd_auth(username, password);
         smtp.subject("SPTK SMTP test");
         smtp.from("Some developer <somebody@nowhere.net>");
-        smtp.to("someone@nowhere.net");
+        smtp.to("alexeyp@gmail.com");
         smtp.body("Hello, World!", true);
         COUT("Sending email.. " << flush);
         smtp.cmd_send();

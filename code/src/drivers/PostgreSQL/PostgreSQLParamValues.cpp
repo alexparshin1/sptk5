@@ -92,8 +92,8 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQ
 {
     double value = param->asFloat();
     void* ptr = &value;
-    auto* uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-    *uptrBuffer64 = htonq(*(uint64_t*) ptr);
+    auto* uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
+    *uptrBuffer64 = htonq(*bit_cast<uint64_t*>(ptr));
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PostgreSQLDataType::FLOAT8);
 }
 
@@ -128,7 +128,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 break;
 
             case VariantDataType::VAR_INT:
-                uptrBuffer = (uint32_t*) param->conversionBuffer();
+                uptrBuffer = bit_cast<uint32_t*>(param->conversionBuffer());
                 *uptrBuffer = htonl((uint32_t) param->get<int>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1,
                                   PostgreSQLDataType::INT4);
@@ -139,12 +139,12 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 if (m_int64timestamps)
                 {
                     int64_t dt = days * secondsPerDay * microsecondsInSecond;
-                    htonq_inplace((uint64_t*) &dt, (uint64_t*) param->conversionBuffer());
+                    htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 else
                 {
                     double dt = double(days) * double(secondsPerDay);
-                    htonq_inplace((uint64_t*) (void*) &dt, (uint64_t*) param->conversionBuffer());
+                    htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::TIMESTAMP);
@@ -154,19 +154,19 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 mcs = chrono::duration_cast<chrono::microseconds>(param->get<DateTime>() - epochDate).count();
                 if (m_int64timestamps)
                 {
-                    htonq_inplace((uint64_t*) &mcs, (uint64_t*) param->conversionBuffer());
+                    htonq_inplace(bit_cast<uint64_t*>(&mcs), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 else
                 {
                     double dt = double(mcs) / double(microsecondsInSecond);
-                    htonq_inplace((uint64_t*) (void*) &dt, (uint64_t*) param->conversionBuffer());
+                    htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::TIMESTAMP);
                 break;
 
             case VariantDataType::VAR_INT64:
-                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
+                uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
                 *uptrBuffer64 = htonq((uint64_t) param->get<int64_t>());
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::INT8);
@@ -177,27 +177,27 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 break;
 
             case VariantDataType::VAR_FLOAT:
-                uptrBuffer64 = (uint64_t*) param->conversionBuffer();
-                *uptrBuffer64 = htonq(*(const uint64_t*) &param->get<double>());
+                uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
+                *uptrBuffer64 = htonq(*bit_cast<const uint64_t*>(&param->get<double>()));
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::FLOAT8);
                 break;
 
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
-                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 0,
+                setParameterValue(paramIndex, bit_cast<const uint8_t*>(param->getText()), (unsigned) param->dataSize(), 0,
                                   PostgreSQLDataType::VARCHAR);
                 break;
 
             case VariantDataType::VAR_BUFFER:
-                setParameterValue(paramIndex, (const uint8_t*) param->getText(), (unsigned) param->dataSize(), 1,
-                                  PostgreSQLDataType::BYTEA);
+                setParameterValue(paramIndex, bit_cast<const uint8_t*>(param->getText()),
+                                  (unsigned) param->dataSize(), 1, PostgreSQLDataType::BYTEA);
                 break;
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
-                    param->name() + "'");
+                    format("Unsupported parameter type({}) for parameter '{}'",
+                           to_string((int) param->dataType()), param->name().c_str()));
         }
     }
 }

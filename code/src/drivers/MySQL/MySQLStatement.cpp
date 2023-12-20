@@ -88,7 +88,7 @@ MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool aut
 {
     if (autoPrepare)
     {
-        auto* stmt = mysql_stmt_init((MYSQL*) connection->handle());
+        auto* stmt = mysql_stmt_init(bit_cast<MYSQL*>(connection->handle()));
         m_stmt = shared_ptr<MYSQL_STMT>(stmt, [](auto* ptr) {
             mysql_stmt_close(ptr);
         });
@@ -272,7 +272,7 @@ void MySQLStatement::setParameterValues()
                 }
                 else
                 {
-                    bind.buffer = (void*) param->get<String>().c_str();
+                    bind.buffer = bit_cast<void*>(param->get<String>().c_str());
                 }
                 break;
 
@@ -285,7 +285,7 @@ void MySQLStatement::setParameterValues()
                 }
                 else
                 {
-                    bind.buffer = (void*) param->getText();
+                    bind.buffer = bit_cast<void*>(param->getText());
                 }
                 break;
 
@@ -413,7 +413,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex)
         {
-            auto* field = static_cast<MySQLStatementField*>(&fields[(int) columnIndex]);
+            auto* field = dynamic_cast<MySQLStatementField*>(&fields[(int) columnIndex]);
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = static_cast<enum_field_types>(field->fieldType());
@@ -469,7 +469,7 @@ void MySQLStatement::bindResult(FieldList& fields)
                     // Variable length buffer - will be extended during fetch if needed
                 default:
                     bind.buffer_length = field->fieldSize();
-                    bind.buffer = (void*) field->getText();
+                    bind.buffer = bit_cast<void*>(field->getText());
                     break;
             }
 
@@ -502,7 +502,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
 
-        auto* field = static_cast<MySQLStatementField*>(&fields[fieldIndex]);
+        auto* field = dynamic_cast<MySQLStatementField*>(&fields[fieldIndex]);
 
         const VariantDataType fieldType = field->dataType();
 
@@ -564,7 +564,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 
 void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantDataType fieldType)
 {
-    auto* field = static_cast<MySQLStatementField*>(_field);
+    auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (mysqlTime.day == 0 && mysqlTime.month == 0)
     {
         // Date returned as 0000-00-00
@@ -581,7 +581,7 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
 
 void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 {
-    auto* field = static_cast<MySQLStatementField*>(_field);
+    auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL)
     {
         const double value = string2double(static_cast<char*>(bind.buffer));
@@ -605,7 +605,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
     bool fieldSizeChanged = false;
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
-        auto* field = static_cast<MySQLStatementField*>(&fields[fieldIndex]);
+        auto* field = dynamic_cast<MySQLStatementField*>(&fields[fieldIndex]);
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         const VariantDataType fieldType = field->dataType();

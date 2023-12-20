@@ -826,7 +826,7 @@ void ODBCConnection::queryFetch(Query* query)
     {
         try
         {
-            field = static_cast<ODBCField*>(&(*query)[column]);
+            field = dynamic_cast<ODBCField*>(&(*query)[column]);
             auto fieldType = (int16_t) field->fieldType();
 
             ++column;

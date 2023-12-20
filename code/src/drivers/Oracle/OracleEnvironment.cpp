@@ -53,7 +53,7 @@ oracle::occi::Connection* OracleEnvironment::createConnection(const DatabaseConn
     {
         host += ":" + int2string(connectionString.portNumber());
     }
-    if (connectionString.databaseName().length())
+    if (!connectionString.databaseName().empty())
     {
         host += "/" + connectionString.databaseName();
     }

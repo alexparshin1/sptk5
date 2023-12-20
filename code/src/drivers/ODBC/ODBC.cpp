@@ -147,7 +147,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     m_connectString = ConnectionString;
 
     constexpr short bufferLength = 2048;
-    array<uint8_t, bufferLength> buff;
+    array<uint8_t, bufferLength> buff {};
     SWORD bufflen = 0;
 
 #ifdef WIN32
@@ -171,7 +171,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    array<uint8_t*, bufferLength> driverDescription;
+    array<uint8_t*, bufferLength> driverDescription {};
     SQLSMALLINT descriptionLength = 0;
     rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))

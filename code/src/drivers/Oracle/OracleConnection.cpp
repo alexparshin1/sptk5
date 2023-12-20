@@ -69,7 +69,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
     if (!active())
     {
         setInTransaction(false);
-        if (newConnectionString.length())
+        if (!newConnectionString.empty())
         {
             connectionString(DatabaseConnectionString(newConnectionString));
         }
