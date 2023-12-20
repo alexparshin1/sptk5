@@ -44,17 +44,17 @@ public:
         return m_items.begin();
     }
 
-    const_iterator begin() const
+    [[nodiscard]] const_iterator begin() const
     {
         return m_items.begin();
     }
 
-    iterator end()
+    [[nodiscard]] iterator end()
     {
         return m_items.end();
     }
 
-    const_iterator end() const
+    [[nodiscard]] const_iterator end() const
     {
         return m_items.end();
     }
@@ -64,18 +64,18 @@ public:
         m_items.clear();
     }
 
-    String get(const String& name, const String& defaultValue = "") const;
+    [[nodiscard]] String get(const String& name, const String& defaultValue = "") const;
 
-    bool have(const String& name) const;
+    [[nodiscard]] bool have(const String& name) const;
 
     Attributes& set(const String& name, const String& value);
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return m_items.empty();
     }
 
-    size_t size() const
+    [[nodiscard]] size_t size() const
     {
         return m_items.size();
     }

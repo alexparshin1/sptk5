@@ -88,7 +88,7 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
         }
         else if (connectionAddress->sin_family == AF_INET6)
         {
-            const auto* connectionAddress6 = (const sockaddr_in6*) connectionAddress;
+            const auto* connectionAddress6 = bit_cast<const sockaddr_in6*>(connectionAddress);
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
             m_port = ntohs(connectionAddress6->sin6_port);
         }

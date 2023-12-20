@@ -261,6 +261,6 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << endl
             << "--" << boundary << "--" << endl;
 
-    buffer.set((const uint8_t*) message.str().c_str(), (uint32_t) message.str().length());
+    buffer.set(bit_cast<const uint8_t*>(message.str().c_str()), (uint32_t) message.str().length());
     buffer.saveToFile("/tmp/mimed.txt");
 }

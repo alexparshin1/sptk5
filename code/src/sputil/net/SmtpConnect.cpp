@@ -105,7 +105,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
         m_log->debug("[SEND] " + cmd);
     }
     cmd += "\r\n";
-    write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.length());
+    write(bit_cast<const uint8_t*>(cmd.c_str()), (uint32_t) cmd.length());
 }
 
 int SmtpConnect::command(const String& cmd, bool encodeCommand, bool decodeResponse)
@@ -130,7 +130,7 @@ String SmtpConnect::mime(const String& str)
 {
     String result;
     Buffer src;
-    src.set((const uint8_t*) str.c_str(), (uint32_t) str.length());
+    src.set(bit_cast<const uint8_t*>(str.c_str()), (uint32_t) str.length());
     Base64::encode(result, src);
     return result;
 }

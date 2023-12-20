@@ -203,10 +203,6 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
 
         if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DURATION))
         {
-            if (listStarted)
-            {
-                logMessage << ", ";
-            }
             listStarted = true;
             logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.milliseconds() << " ms";
         }

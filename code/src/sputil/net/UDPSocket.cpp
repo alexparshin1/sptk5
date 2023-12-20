@@ -41,11 +41,12 @@ size_t UDPSocket::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
     sockaddr_in6 addr {};
     if (from == nullptr)
     {
-        from = (sockaddr_in*) &addr;
+        from = bit_cast<sockaddr_in*>(&addr);
     }
 
     socklen_t addrLength = sizeof(sockaddr_in);
-    auto bytes = recvfrom(getSocketFdUnlocked(), (char*) buffer, (int) size, 0, (sockaddr*) from, &addrLength);
+    auto bytes = recvfrom(getSocketFdUnlocked(), bit_cast<char*>(buffer), (int) size, 0,
+                          bit_cast<sockaddr*>(from), &addrLength);
     if (bytes == -1)
         throwSocketError("Can't read from socket");
     return (size_t) bytes;

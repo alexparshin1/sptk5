@@ -142,7 +142,7 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
     {
         const Buffer usernameAndPassword(m_username + ":" + m_password);
         Buffer encodedUsernameAndPassword;
-        Base64::encode(encodedUsernameAndPassword, (const uint8_t*) usernameAndPassword.c_str(),
+        Base64::encode(encodedUsernameAndPassword, bit_cast<const uint8_t*>(usernameAndPassword.c_str()),
                        usernameAndPassword.bytes());
         socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
     }
@@ -177,7 +177,6 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
     AutoProxyOptions.fAutoLogonIfChallenged = TRUE;
 
     // Call WinHttpGetProxyForUrl with our target URL
-    char proxy[256] {};
     char userName[256] {};
     char passWord[256] {};
     DWORD size = sizeof(password);
@@ -189,6 +188,7 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
         if (ProxyInfo.lpszProxy == nullptr)
             return false;
 
+        char proxy[256] {};
         wcstombs(proxy, ProxyInfo.lpszProxy, sizeof(proxy));
         host = Host(proxy);
 

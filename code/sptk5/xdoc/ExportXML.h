@@ -24,11 +24,6 @@ public:
 
     void saveAttributes(const Node* node, Buffer& buffer);
 
-    int indentSpaces() const
-    {
-        return m_indentSpaces;
-    }
-
 private:
     int m_indentSpaces {2};
     XMLDocType m_docType;

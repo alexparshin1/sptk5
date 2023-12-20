@@ -102,7 +102,7 @@ String ImapConnect::sendCommand(const String& cmd)
     {
         throw Exception("Socket isn't open");
     }
-    write((const uint8_t*) command.c_str(), (uint32_t) command.length());
+    write(bit_cast<const uint8_t*>(command.c_str()), (uint32_t) command.length());
     return ident;
 }
 

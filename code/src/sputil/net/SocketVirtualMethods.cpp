@@ -69,7 +69,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
             if (timeoutMS != 0)
             {
                 setBlockingModeUnlocked(false);
-                result = connect(m_socketFd, (const sockaddr*) &addr, sizeof(sockaddr_in));
+                result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
                 switch (result)
                 {
                     case ENETUNREACH:
@@ -96,7 +96,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
             }
             else
             {
-                result = connect(m_socketFd, (const sockaddr*) &addr, sizeof(sockaddr_in));
+                result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             }
             break;
 
@@ -110,7 +110,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
 #endif
             }
             currentOperation = "bind";
-            result = ::bind(m_socketFd, (const sockaddr*) &addr, sizeof(sockaddr_in));
+            result = ::bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
                 result = ::listen(m_socketFd, SOMAXCONN);
@@ -180,9 +180,9 @@ void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 }
 
 #ifdef _WIN32
-#define VALUE_TYPE(val) (char*) (val)
+#define VALUE_TYPE(val) bit_cast<char*>((val))
 #else
-#define VALUE_TYPE(val) (void*) (val)
+#define VALUE_TYPE(val) bit_cast<void*>((val))
 #endif
 
 void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
@@ -204,7 +204,7 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
     uint32_t bytes = 0;
     if (
 #ifdef _WIN32
-        const int32_t result = ioctlsocket(m_socketFd, FIONREAD, (u_long*) &bytes);
+        const int32_t result = ioctlsocket(m_socketFd, FIONREAD, bit_cast<u_long*>(&bytes));
 #else
         const int32_t result = ioctl(m_socketFd, FIONREAD, &bytes);
 #endif
@@ -265,7 +265,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 #endif
     }
 
-    if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
+    if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
 }
 

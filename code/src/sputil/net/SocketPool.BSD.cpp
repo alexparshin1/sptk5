@@ -85,7 +85,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
         case TriggerMode::LevelTriggered:
             break;
     }
-    EV_SET(&event, socket.fd(), EVFILT_READ, eventFlags, 0, 0, (void*) userData);
+    EV_SET(&event, socket.fd(), EVFILT_READ, eventFlags, 0, 0, bit_cast<void*>(userData));
 
     int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
     if (rc == -1)
@@ -140,7 +140,7 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
         eventType.m_hangup = event.flags & EV_EOF;
         eventType.m_error = event.flags & EV_ERROR;
 
-        m_eventsCallback((const uint8_t*) event.udata, eventType);
+        m_eventsCallback(bit_cast<const uint8_t*>(event.udata), eventType);
     }
 
     return true;

@@ -60,7 +60,7 @@ SSLContext::SSLContext(const String& cipherList)
         SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str());
     }
     SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
-    SSL_CTX_set_session_id_context(m_ctx.get(), (const unsigned char*) &s_server_session_id_context,
+    SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
                                    sizeof s_server_session_id_context);
 }
 
@@ -72,7 +72,7 @@ SSL_CTX* SSLContext::handle()
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int /*rwflag*/, void* userdata)
 {
-    snprintf(replyBuffer, size_t(replySize), "%s", (char*) userdata);
+    snprintf(replyBuffer, size_t(replySize), "%s", bit_cast<char*>(userdata));
     replyBuffer[replySize - 1] = '\0';
     return (int) strlen(replyBuffer);
 }
@@ -91,7 +91,7 @@ void SSLContext::loadKeys(const SSLKeys& keys)
 
     // Define password for auto-answer in callback function
     SSL_CTX_set_default_passwd_cb(m_ctx.get(), passwordReplyCallback);
-    SSL_CTX_set_default_passwd_cb_userdata(m_ctx.get(), (void*) m_password.c_str());
+    SSL_CTX_set_default_passwd_cb_userdata(m_ctx.get(), bit_cast<void*>(m_password.c_str()));
     if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), keys.privateKeyFileName().c_str(), SSL_FILETYPE_PEM) <= 0)
     {
         throwError("Can't use private key file " + keys.privateKeyFileName());

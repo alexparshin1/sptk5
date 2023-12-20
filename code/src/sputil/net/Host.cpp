@@ -84,7 +84,7 @@ Host::Host(const sockaddr_in6* addressAndPort)
     constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
-    memcpy((sockaddr_in6*) m_address.data(), addressAndPort6, addressLen);
+    memcpy(bit_cast<sockaddr_in6*>(m_address.data()), addressAndPort6, addressLen);
     m_port = htons(ip_v6().sin6_port);
 
     setHostNameFromAddress(addressLen);
@@ -95,10 +95,10 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
     array<char, NI_MAXHOST> hostBuffer {};
     array<char, NI_MAXSERV> addressBuffer {};
 #ifdef _WIN32
-    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(), sizeof(addressBuffer), 0) == 0)
+    if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(), sizeof(addressBuffer), 0) == 0)
         m_hostname = hostBuffer.data();
 #else
-    if (getnameinfo((const sockaddr*) m_address.data(), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
+    if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
                     sizeof(addressBuffer), 0) ==
         0)
     {
@@ -203,7 +203,7 @@ void Host::getHostAddress()
     }
 
     memset(&m_address, 0, sizeof(m_address));
-    memcpy(&m_address, (struct sockaddr_in*) result->ai_addr, result->ai_addrlen);
+    memcpy(&m_address, bit_cast<struct sockaddr_in*>(result->ai_addr), result->ai_addrlen);
 
     freeaddrinfo(result);
 #endif
@@ -229,11 +229,11 @@ String Host::toString(bool forceAddress) const
         // Get the pointer to the address itself, different fields in IPv4 and IPv6
         if (any().sa_family == AF_INET)
         {
-            addr = (void*) &(ip_v4().sin_addr);
+            addr = bit_cast<void*>(&(ip_v4().sin_addr));
         }
         else
         {
-            addr = (void*) &(ip_v6().sin6_addr);
+            addr = bit_cast<void*>(&(ip_v6().sin6_addr));
         }
 
         if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)

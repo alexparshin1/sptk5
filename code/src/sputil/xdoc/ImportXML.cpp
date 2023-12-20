@@ -296,7 +296,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
     XMLDocType* doctype = &docType();
     Buffer buffer(_buffer);
 
-    for (char* nodeStart = strchr((char*) buffer.data(), '<'); nodeStart != nullptr;)
+    for (char* nodeStart = strchr(bit_cast<char*>(buffer.data()), '<'); nodeStart != nullptr;)
     {
         auto* nameStart = nodeStart + 1;
         char* nameEnd = strpbrk(nameStart + 1, "?/\r\n <>");
