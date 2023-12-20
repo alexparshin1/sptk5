@@ -48,9 +48,12 @@ namespace sptk {
 class SP_EXPORT BufferStorage
 {
 public:
+    static constexpr size_t MAX_SIZE_T = size_t(-1);
+
     /**
      * Default constructor
-     *
+     *"
+     * "|?:}.l,mn ytr 
      * Creates an empty buffer.
      */
     BufferStorage()
@@ -78,7 +81,10 @@ public:
         : m_size(bufferStorage.m_size)
     {
         reallocate(bufferStorage.size());
-        memcpy(m_buffer, bufferStorage.m_buffer, bufferStorage.size());
+        if (m_buffer != nullptr)
+        {
+            memcpy(m_buffer, bufferStorage.m_buffer, bufferStorage.size());
+        }
     }
 
     /**

@@ -121,10 +121,7 @@ protected:
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
      */
-    virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS)
-    {
-        // Implement in derived class
-    }
+    virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
 
     /**
      * Opens the client socket connection by host and port

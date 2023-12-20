@@ -34,6 +34,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <limits>
 
 namespace sptk {
 
@@ -51,7 +52,6 @@ class SP_EXPORT Buffer
     : public BufferStorage
     , public VariantStorageClient
 {
-
 public:
     /**
      * Constructor
@@ -140,7 +140,7 @@ public:
      * @param data              External data buffer
      * @param sz                Required memory size
      */
-    void append(const char* data, size_t sz = std::numeric_limits<size_t>::max()) override
+    void append(const char* data, size_t sz = MAX_SIZE_T) override
     {
         BufferStorage::append(data, sz);
     }

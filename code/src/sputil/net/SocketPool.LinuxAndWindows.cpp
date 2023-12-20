@@ -75,7 +75,11 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     switch (m_triggerMode)
     {
         case TriggerMode::EdgeTriggered:
+#ifdef _WIN32
+            throw Exception("Edge triggered mode isn't supported on Windows");
+#else
             event.events |= EPOLLET;
+#endif
             break;
         case TriggerMode::OneShot:
             event.events |= EPOLLONESHOT;

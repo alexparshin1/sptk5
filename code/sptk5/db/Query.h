@@ -525,7 +525,7 @@ private:
 
 using SQuery = std::shared_ptr<Query>;
 
-[[noreturn]] void THROW_QUERY_ERROR(const Query* query, const String& error, std::source_location location = std::source_location::current());
+[[noreturn]] SP_EXPORT void THROW_QUERY_ERROR(const Query* query, const String& error, std::source_location location = std::source_location::current());
 
 /**
  * @}

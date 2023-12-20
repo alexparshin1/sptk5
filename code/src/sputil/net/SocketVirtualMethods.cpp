@@ -258,7 +258,11 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 
     if (reusePort)
     {
+#ifdef _WIN32
+        setOptionUnlocked(SOL_SOCKET, SO_REUSEADDR, 1);
+#else
         setOptionUnlocked(SOL_SOCKET, SO_REUSEPORT, 1);
+#endif
     }
 
     if (::bind(m_socketFd, (sockaddr*) &addr, sizeof(addr)) != 0)
@@ -476,7 +480,6 @@ void throwSocketError(const String& operation, const std::source_location& locat
     constexpr int maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
 
-    LPCTSTR lpMsgBuf = nullptr;
     const DWORD dw = GetLastError();
 
     if (dw != 0)

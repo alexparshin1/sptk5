@@ -117,7 +117,7 @@ Host::Host(const Host& other)
 
 Host::Host(Host&& other) noexcept
     : m_hostname(exchange(other.m_hostname, ""))
-    , m_port(exchange(other.m_port, 0))
+    , m_port(other.m_port)
 {
     const scoped_lock lock(other.m_mutex);
     memcpy(&m_address, &other.m_address, sizeof(m_address));

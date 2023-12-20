@@ -32,15 +32,20 @@ using namespace sptk;
 
 #ifdef _WIN32
 static int m_socketCount;
-static bool m_inited(false);
+static bool m_initted(false);
 #endif
+
+void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds)
+{
+    // Implement in derived class
+}
 
 #ifdef _WIN32
 void Socket::init() noexcept
 {
-    if (m_inited)
+    if (m_initted)
         return;
-    m_inited = true;
+    m_initted = true;
     WSADATA wsaData = {};
     const WORD wVersionRequested = MAKEWORD(2, 0);
     WSAStartup(wVersionRequested, &wsaData);
@@ -48,7 +53,7 @@ void Socket::init() noexcept
 
 void Socket::cleanup() noexcept
 {
-    m_inited = false;
+    m_initted = false;
     WSACleanup();
 }
 #endif

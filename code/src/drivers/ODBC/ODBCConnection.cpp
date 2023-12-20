@@ -48,9 +48,9 @@ class ODBCField
     friend class ODBCConnection;
 
 public:
-    ODBCField(const string& fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
+    ODBCField(const string& fieldName, int /*fieldColumn*/, int fieldType, VariantDataType dataType, int fieldLength,
               int fieldScale)
-        : DatabaseField(fieldName, fieldColumn, fieldType, dataType, fieldLength, fieldScale)
+        : DatabaseField(fieldName, fieldType, dataType, fieldLength, fieldScale)
     {
     }
     using DatabaseField::operator=;
@@ -489,7 +489,7 @@ void ODBC_queryBindParameter(const Query* query, QueryParameter* param)
                 buff = bit_cast<void*>(param->getText());
 #ifdef _WIN32
                 param->callbackLength() = (long) len;
-                cbValue = static_cast<SQLLEN*>(&param->callbackLength());
+                cbValue = bit_cast<SQLLEN*>(&param->callbackLength());
 #else
                 param->callbackLength() = len;
                 cbValue = &param->callbackLength();

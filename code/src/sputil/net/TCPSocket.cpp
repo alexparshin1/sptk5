@@ -33,7 +33,7 @@ using namespace sptk;
 
 #ifdef _WIN32
 static int m_socketCount;
-static bool m_inited(false);
+static bool m_initted(false);
 #endif
 
 void TCPSocket::handleReadFromSocketErrorUnlocked(int error)

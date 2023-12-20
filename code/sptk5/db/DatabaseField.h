@@ -54,13 +54,12 @@ public:
     /**
      * Constructor
      * @param fieldName			Field name
-     * @param fieldColumn		Field column number
      * @param fieldType			Database field type
      * @param dataType			Variant data type
      * @param fieldLength		Database field length
      * @param fieldScale		Database field scale
      */
-    DatabaseField(std::string_view fieldName, int fieldColumn, int fieldType, VariantDataType dataType, int fieldLength,
+    DatabaseField(std::string_view fieldName, int fieldType, VariantDataType dataType, int fieldLength,
                   int fieldScale = 4);
 
     /**

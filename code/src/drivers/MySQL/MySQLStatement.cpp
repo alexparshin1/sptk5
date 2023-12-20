@@ -46,9 +46,9 @@ class sptk::MySQLStatementField
     : public DatabaseField
 {
 public:
-    MySQLStatementField(const string& fieldName, int fieldColumn, enum_field_types fieldType, VariantDataType dataType,
+    MySQLStatementField(const string& fieldName, int /*fieldColumn*/, enum_field_types fieldType, VariantDataType dataType,
                         int fieldSize)
-        : DatabaseField(fieldName, fieldColumn, (int) fieldType, dataType, fieldSize)
+        : DatabaseField(fieldName, static_cast<int>(fieldType), dataType, fieldSize)
     {
     }
 
@@ -115,9 +115,9 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
 
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
     timestamp.decodeDate(&year, &month, &day, &weekDay, &yearDay);
-    mysqlDate.year = (unsigned) year;
-    mysqlDate.month = (unsigned) month;
-    mysqlDate.day = (unsigned) day;
+    mysqlDate.year = static_cast<unsigned>(year);
+    mysqlDate.month = static_cast<unsigned>(month);
+    mysqlDate.day = static_cast<unsigned>(day);
     if (timeType == VariantDataType::VAR_DATE)
     {
         mysqlDate.time_type = MYSQL_TIMESTAMP_DATE;
@@ -125,10 +125,10 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
     else
     {
         timestamp.decodeTime(&hour, &minute, &second, &msecond);
-        mysqlDate.hour = (unsigned) hour;
-        mysqlDate.minute = (unsigned) minute;
-        mysqlDate.second = (unsigned) second;
-        mysqlDate.second_part = (unsigned) msecond;
+        mysqlDate.hour = static_cast<unsigned>(hour);
+        mysqlDate.minute = static_cast<unsigned>(minute);
+        mysqlDate.second = static_cast<unsigned>(second);
+        mysqlDate.second_part = static_cast<unsigned>(msecond);
         mysqlDate.time_type = MYSQL_TIMESTAMP_DATETIME;
     }
 }
@@ -247,26 +247,26 @@ void MySQLStatement::setParameterValues()
         {
             case VariantDataType::VAR_BOOL:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->get<bool>();
+                bind.buffer = static_cast<void*>(&param->get<bool>());
                 break;
 
             case VariantDataType::VAR_INT:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->get<int>();
+                bind.buffer = static_cast<void*>(&param->get<int>());
                 break;
 
             case VariantDataType::VAR_FLOAT:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->get<double>();
+                bind.buffer = static_cast<void*>(&param->get<double>());
                 break;
 
             case VariantDataType::VAR_INT64:
                 m_paramLengths[paramIndex] = 0;
-                bind.buffer = (void*) &param->get<int64_t>();
+                bind.buffer = static_cast<void*>(&param->get<int64_t>());
                 break;
 
             case VariantDataType::VAR_STRING:
-                m_paramLengths[paramIndex] = ULONG_CAST(param->dataSize());
+                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -279,7 +279,7 @@ void MySQLStatement::setParameterValues()
 
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                m_paramLengths[paramIndex] = ULONG_CAST(param->dataSize());
+                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -293,20 +293,20 @@ void MySQLStatement::setParameterValues()
             case VariantDataType::VAR_DATE:
             case VariantDataType::VAR_DATE_TIME:
                 m_paramLengths[paramIndex] = sizeof(MYSQL_TIME);
-                bind.buffer = (void*) param->conversionBuffer();
+                bind.buffer = static_cast<void*>(param->conversionBuffer());
                 if (param->isNull())
                 {
                     m_paramLengths[paramIndex] = 0;
                 }
                 else
                 {
-                    dateTimeToMySQLDate(*(MYSQL_TIME*) bind.buffer, param->get<DateTime>(), param->dataType());
+                    dateTimeToMySQLDate(*static_cast<MYSQL_TIME*>(bind.buffer), param->get<DateTime>(), param->dataType());
                 }
                 break;
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
+                    "Unsupported parameter type(" + to_string(static_cast<int>(param->dataType())) + ") for parameter '" +
                     param->name() + "'");
         }
 
@@ -330,7 +330,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), ULONG_CAST(sql.length())) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), static_cast<unsigned long>(sql.length())) != 0)
     {
         throwMySQLError();
     }
@@ -398,13 +398,13 @@ void MySQLStatement::bindResult(FieldList& fields)
         }
 
         const VariantDataType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
-        auto fieldLength = (unsigned) fieldMetadata->length;
+        auto fieldLength = static_cast<unsigned>(fieldMetadata->length);
         if (fieldLength > FETCH_BUFFER)
         {
             fieldLength = FETCH_BUFFER;
         }
 
-        auto field = make_shared<MySQLStatementField>(columnName, (int) columnIndex, fieldMetadata->type, fieldType, (int) fieldLength);
+        auto field = make_shared<MySQLStatementField>(columnName, static_cast<int>(columnIndex), fieldMetadata->type, fieldType, static_cast<int>(fieldLength));
         fields.push_back(field);
     }
 
@@ -414,30 +414,30 @@ void MySQLStatement::bindResult(FieldList& fields)
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex)
         {
-            auto* field = (MySQLStatementField*) &fields[(int) columnIndex];
+            auto* field = static_cast<MySQLStatementField*>(&fields[(int) columnIndex]);
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
-            bind.buffer_type = (enum_field_types) field->fieldType();
+            bind.buffer_type = static_cast<enum_field_types>(field->fieldType());
 
             switch (bind.buffer_type)
             {
                 // Fixed length buffer - integers
                 case MYSQL_TYPE_BIT:
                 case MYSQL_TYPE_TINY:
-                    bind.buffer = (void*) &field->get<bool>();
+                    bind.buffer = static_cast<void*>(&field->get<bool>());
                     bind.buffer_length = sizeof(bool);
                     break;
 
                 case MYSQL_TYPE_SHORT:
                 case MYSQL_TYPE_YEAR:
-                    bind.buffer = (void*) &field->get<int>();
+                    bind.buffer = static_cast<void*>(&field->get<int>());
                     bind.buffer_length = sizeof(int32_t);
                     break;
 
                     // Fixed length buffer - floats
                 case MYSQL_TYPE_FLOAT:
                 case MYSQL_TYPE_DOUBLE:
-                    bind.buffer = (void*) &field->get<double>();
+                    bind.buffer = static_cast<void*>(&field->get<double>());
                     bind.buffer_length = sizeof(double);
                     break;
 
@@ -446,25 +446,25 @@ void MySQLStatement::bindResult(FieldList& fields)
                 case MYSQL_TYPE_DATETIME:
                 case MYSQL_TYPE_TIME:
                 case MYSQL_TYPE_TIMESTAMP:
-                    bind.buffer = (void*) &field->getTimeBuffer();
+                    bind.buffer = static_cast<void*>(&field->getTimeBuffer());
                     bind.buffer_length = sizeof(MYSQL_TIME);
                     break;
 
                     // Fixed length buffer - long integers
                 case MYSQL_TYPE_LONG:
-                    bind.buffer = (void*) &field->get<int>();
+                    bind.buffer = static_cast<void*>(&field->get<int>());
                     bind.buffer_length = sizeof(int);
                     break;
 
                 case MYSQL_TYPE_LONGLONG:
-                    bind.buffer = (void*) &field->get<int64_t>();
+                    bind.buffer = static_cast<void*>(&field->get<int64_t>());
                     bind.buffer_length = sizeof(int64_t);
                     break;
 
                     // Using temp buffer of the size defined by field size
                 case MYSQL_TYPE_NEWDECIMAL:
                     bind.buffer_length = field->fieldSize();
-                    bind.buffer = (void*) field->getTempBuffer();
+                    bind.buffer = static_cast<void*>(field->getTempBuffer());
                     break;
 
                     // Variable length buffer - will be extended during fetch if needed
@@ -497,13 +497,13 @@ void MySQLStatement::readResultRow(FieldList& fields)
 
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 {
-    auto fieldCount = (int) fields.size();
+    auto fieldCount = static_cast<int>(fields.size());
     const auto* lengths = mysql_fetch_lengths(m_result.get());
 
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
 
-        auto* field = (MySQLStatementField*) &fields[fieldIndex];
+        auto* field = static_cast<MySQLStatementField*>(&fields[fieldIndex]);
 
         const VariantDataType fieldType = field->dataType();
 
@@ -515,7 +515,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
             continue;
         }
 
-        auto dataLength = (uint32_t) lengths[fieldIndex];
+        auto dataLength = static_cast<uint32_t>(lengths[fieldIndex]);
 
         switch (fieldType)
         {
@@ -558,7 +558,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             default:
-                throwException<DatabaseException>("Unsupported Variant type: " + int2string((int) fieldType));
+                throwException<DatabaseException>("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
         }
     }
 }
@@ -573,8 +573,8 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
     }
     else
     {
-        const DateTime dt(short(mysqlTime.year), short(mysqlTime.month), short(mysqlTime.day),
-                          short(mysqlTime.hour), short(mysqlTime.minute), short(mysqlTime.second));
+        const DateTime dt(static_cast<short>(mysqlTime.year), static_cast<short>(mysqlTime.month), static_cast<short>(mysqlTime.day),
+                          static_cast<short>(mysqlTime.hour), static_cast<short>(mysqlTime.minute), static_cast<short>(mysqlTime.second));
         field->setDateTime(dt, fieldType == VariantDataType::VAR_DATE);
         field->setDataSize(sizeof(int64_t));
     }
@@ -585,15 +585,15 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
     auto* field = static_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL)
     {
-        const double value = string2double((char*) bind.buffer);
+        const double value = string2double(static_cast<char*>(bind.buffer));
         field->setFloat(value);
     }
     else
     {
-        auto dataLength = (uint32_t) * (bind.length);
+        auto dataLength = static_cast<uint32_t>(*(bind.length));
         if (dataLength == sizeof(float))
         {
-            const float value = *(float*) bind.buffer;
+            const float value = *static_cast<float*>(bind.buffer);
             field->setFloat(value);
         }
         field->setDataSize(dataLength);
@@ -602,11 +602,11 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
-    auto fieldCount = (int) fields.size();
+    auto fieldCount = static_cast<int>(fields.size());
     bool fieldSizeChanged = false;
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
-        auto* field = (MySQLStatementField*) &fields[fieldIndex];
+        auto* field = static_cast<MySQLStatementField*>(&fields[fieldIndex]);
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
 
         const VariantDataType fieldType = field->dataType();
@@ -618,7 +618,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             continue;
         }
 
-        auto dataLength = (uint32_t) * (bind.length);
+        auto dataLength = static_cast<uint32_t>(*(bind.length));
 
         switch (fieldType)
         {
@@ -630,7 +630,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
             case VariantDataType::VAR_DATE:
             case VariantDataType::VAR_DATE_TIME:
-                decodeMySQLTime(field, *(MYSQL_TIME*) bind.buffer, fieldType);
+                decodeMySQLTime(field, *static_cast<MYSQL_TIME*>(bind.buffer), fieldType);
                 break;
 
             case VariantDataType::VAR_FLOAT:
@@ -640,11 +640,11 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                fieldSizeChanged = bindVarCharField(bind, field, (size_t) fieldIndex, dataLength);
+                fieldSizeChanged = bindVarCharField(bind, field, static_cast<size_t>(fieldIndex), dataLength);
                 break;
 
             default:
-                throwException<DatabaseException>("Unsupported Variant type: " + int2string((int) fieldType));
+                throwException<DatabaseException>("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
         }
     }
 
@@ -671,15 +671,15 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
             field->checkSize(dataLength);
         }
         bind.buffer = field->get<Buffer>().data();
-        bind.buffer_length = ULONG_CAST(field->bufferSize());
-        if (mysql_stmt_fetch_column(statement(), &bind, (unsigned) fieldIndex, 0) != 0)
+        bind.buffer_length = static_cast<unsigned long>(field->bufferSize());
+        if (mysql_stmt_fetch_column(statement(), &bind, static_cast<unsigned>(fieldIndex), 0) != 0)
         {
             throwMySQLError();
         }
         fieldSizeChanged = true;
     }
 
-    ((char*) bind.buffer)[dataLength] = 0;
+    static_cast<char*>(bind.buffer)[dataLength] = 0;
     field->setDataSize(dataLength);
 
     return fieldSizeChanged;

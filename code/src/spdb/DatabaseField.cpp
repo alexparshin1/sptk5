@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-DatabaseField::DatabaseField(string_view fName, int fieldColumn, int fieldType,
+DatabaseField::DatabaseField(string_view fName, int fieldType,
                              VariantDataType dataType, int fieldLength, int fieldScale)
     : Field(fName.data())
     , m_fldType(fieldType)

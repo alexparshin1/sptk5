@@ -265,7 +265,7 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
 
 void SSLSocket::closeUnlocked()
 {
-    sslSetFd(-1);
+    sslSetFd(SocketType(-1));
     TCPSocket::closeUnlocked();
 }
 
@@ -481,7 +481,7 @@ void SSLSocket::sslFree() const
 int SSLSocket::sslSetFd(SocketType fd) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_set_fd(m_ssl, fd);
+    return SSL_set_fd(m_ssl, (int)fd);
 }
 
 int SSLSocket::sslSetExtHostName() const
