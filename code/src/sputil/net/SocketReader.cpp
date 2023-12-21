@@ -182,7 +182,7 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
     }
 
     char* carriageReturn = nullptr;
-    size_t len {0};
+    size_t len;
     if (delimiter == 0)
     {
         len = strlen(readPosition);

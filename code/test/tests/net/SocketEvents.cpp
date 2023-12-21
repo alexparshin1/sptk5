@@ -43,7 +43,8 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
 {
     SocketReader socketReader(socket);
     Buffer data;
-    while (!task.terminated())
+    bool terminated = false;
+    while (!task.terminated() && !terminated)
     {
         try
         {
@@ -59,12 +60,12 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
             }
             else
             {
-                break;
+                terminated = true;
             }
         }
         catch (const Exception&)
         {
-            break;
+            terminated = true;
         }
     }
     socket.close();
@@ -118,13 +119,13 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, (uint8_t*) &socket);
+        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
 
         socketReader = make_shared<SocketReader>(socket);
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
             auto bytes2 = socket.write((const uint8_t*) "\n", 1);
             if (bytes != row.length() || bytes2 != 1)
             {
@@ -155,7 +156,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
-    atomic_size_t eventCount;
+    atomic_size_t eventCount {0};
     Semaphore receivedEvent;
 
     auto eventsCallback =
@@ -191,11 +192,11 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, (uint8_t*) &socket);
+        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
             auto bytes2 = socket.write((const uint8_t*) "\n", 1);
             if (bytes != row.length() || bytes2 != 1)
             {
@@ -223,7 +224,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
-    atomic_size_t eventCount;
+    atomic_size_t eventCount {0};
     Semaphore receivedEvent;
 
     auto eventsCallback =
@@ -259,11 +260,11 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, (uint8_t*) &socket);
+        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write((const uint8_t*) row.c_str(), row.length());
+            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
             auto bytes2 = socket.write((const uint8_t*) "\n", 1);
             if (bytes != row.length() || bytes2 != 1)
             {

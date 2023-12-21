@@ -97,6 +97,8 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
     const auto& paths = document.root()->pushNode("paths");
     for (const auto& [operationName, operation]: operations)
     {
+        using enum Node::Type;
+
         const auto& operationElement = paths->pushNode("/" + operation.m_input->name(), Node::Type::Object);
         const auto& postElement = operationElement->pushNode("post");
 
@@ -114,9 +116,9 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         }
         if (authMethod != AuthMethod::NONE)
         {
-            const auto& securityObject = postElement->pushNode("security", Node::Type::Array);
-            const auto& securityMechanism = securityObject->pushNode("", Node::Type::Object);
-            securityMechanism->pushNode(authMethodName(authMethod), Node::Type::Array);
+            const auto& securityObject = postElement->pushNode("security", Array);
+            const auto& securityMechanism = securityObject->pushNode("", Object);
+            securityMechanism->pushNode(authMethodName(authMethod), Array);
         }
 
         if (auto dtor = documentation.find(operation.m_input->name());
@@ -127,17 +129,17 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
         postElement->set("operationId", operationName);
 
-        const auto& requestBody = postElement->pushNode("requestBody", Node::Type::Object);
-        const auto& content = requestBody->pushNode("content", Node::Type::Object);
-        const auto& data = content->pushNode("application/json", Node::Type::Object);
-        const auto& schema = data->pushNode("schema", Node::Type::Object);
+        const auto& requestBody = postElement->pushNode("requestBody", Object);
+        const auto& content = requestBody->pushNode("content", Object);
+        const auto& data = content->pushNode("application/json", Object);
+        const auto& schema = data->pushNode("schema", Object);
         const String ref = "#/components/schemas/" + operation.m_input->name();
         schema->set("$ref", ref);
 
-        const auto& responsesElement = postElement->pushNode("responses", Node::Type::Object);
+        const auto& responsesElement = postElement->pushNode("responses", Object);
         for (const auto& [name, description]: possibleResponses)
         {
-            const auto& response = responsesElement->pushNode(name, Node::Type::Object);
+            const auto& response = responsesElement->pushNode(name, Object);
             response->set("description", description);
         }
     }
@@ -157,18 +159,20 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         {"integer", {"integer", "int64"}},
         {"double", {"number", "double"}}};
 
+    using enum Node::Type;
+
     // Create components object
-    const auto& components = document.root()->pushNode("components", Node::Type::Object);
-    const auto& schemas = components->pushNode("schemas", Node::Type::Object);
+    const auto& components = document.root()->pushNode("components", Object);
+    const auto& schemas = components->pushNode("schemas", Object);
     for (const auto& [complexTypeName, complexTypeInfo]: complexTypes)
     {
-        const auto& complexType = schemas->pushNode(complexTypeInfo->name(), Node::Type::Object);
+        const auto& complexType = schemas->pushNode(complexTypeInfo->name(), Object);
         complexType->set("type", "object");
-        const auto& properties = complexType->pushNode("properties", Node::Type::Object);
+        const auto& properties = complexType->pushNode("properties", Object);
         Strings requiredProperties;
         for (const auto& ctypeProperty: complexTypeInfo->sequence())
         {
-            const auto& property = properties->pushNode(ctypeProperty->name(), Node::Type::Object);
+            const auto& property = properties->pushNode(ctypeProperty->name(), Object);
             parseClassName(ctypeProperty, property);
 
             if (ctypeProperty->multiplicity() != WSMultiplicity::ZERO_OR_ONE)
@@ -180,10 +184,10 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         }
         if (!requiredProperties.empty())
         {
-            const auto& required = complexType->pushNode("required", Node::Type::Array);
+            const auto& required = complexType->pushNode("required", Array);
             for (const auto& property: requiredProperties)
             {
-                const auto& element = required->pushNode("", Node::Type::Text);
+                const auto& element = required->pushNode("", Text);
                 element->set(property);
             }
         }
@@ -191,12 +195,12 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
 
     const auto& securitySchemas = components->pushNode("securitySchemes");
     const auto& basicAuth = securitySchemas->pushNode("basicAuth",
-                                                      Node::Type::Object); // arbitrary name for the security scheme
+                                                      Object); // arbitrary name for the security scheme
     basicAuth->set("type", "http");
     basicAuth->set("scheme", "basic");
 
     const auto& bearerAuth = securitySchemas->pushNode("bearerAuth",
-                                                       Node::Type::Object); // arbitrary name for the security scheme
+                                                       Object); // arbitrary name for the security scheme
     bearerAuth->set("type", "http");
     bearerAuth->set("scheme", "bearer");
     bearerAuth->set("bearerFormat", "JWT"); // optional, arbitrary value for documentation purposes
@@ -247,8 +251,10 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
     }
 }
 
-void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, const SNode& property) const
+void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypeProperty, const SNode& property)
 {
+    using enum Node::Type;
+
     auto restriction = ctypeProperty->restriction();
     if (restriction)
     {
@@ -258,10 +264,10 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
         }
         else if (!restriction->enumeration().empty())
         {
-            const auto& enumArray = property->pushNode("enum", Node::Type::Array);
+            const auto& enumArray = property->pushNode("enum", Array);
             for (const auto& str: restriction->enumeration())
             {
-                const auto& element = enumArray->pushNode("", Node::Type::Text);
+                const auto& element = enumArray->pushNode("", Text);
                 element->set(str);
             }
         }
@@ -270,16 +276,18 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
 
 void OpenApiGenerator::parseRestrictionPatterns(const SNode& property, const SWSRestriction& restriction)
 {
+    using enum Node::Type;
+
     if (restriction->patterns().size() == 1)
     {
         property->set("pattern", restriction->patterns()[0].pattern());
     }
     else
     {
-        const auto& oneOf = property->pushNode("oneOf", Node::Type::Array);
+        const auto& oneOf = property->pushNode("oneOf", Array);
         for (const auto& regex: restriction->patterns())
         {
-            const auto& patternElement = oneOf->pushNode("", Node::Type::Object);
+            const auto& patternElement = oneOf->pushNode("", Object);
             patternElement->set("pattern", regex.pattern());
         }
     }
@@ -287,28 +295,32 @@ void OpenApiGenerator::parseRestrictionPatterns(const SNode& property, const SWS
 
 OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
 {
+    using enum AuthMethod;
+
     if (auth == "none")
     {
-        return AuthMethod::NONE;
+        return NONE;
     }
     if (auth == "basic")
     {
-        return AuthMethod::BASIC;
+        return BASIC;
     }
     if (auth == "bearer")
     {
-        return AuthMethod::BEARER;
+        return BEARER;
     }
     throw Exception("Auth method '" + auth + "' is not supported");
 }
 
 String OpenApiGenerator::authMethodName(AuthMethod auth)
 {
+    using enum AuthMethod;
+
     switch (auth)
     {
-        case AuthMethod::BASIC:
+        case BASIC:
             return "basicAuth";
-        case AuthMethod::BEARER:
+        case BEARER:
             return "bearerAuth";
         default:
             return "none";

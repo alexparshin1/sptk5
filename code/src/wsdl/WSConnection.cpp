@@ -34,7 +34,7 @@ using namespace sptk;
 WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options)
     : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
     , m_services(services)
-    , m_logger(logEngine, "(" + to_string(serial()) + ") ")
+    , m_logger(logEngine, format("({}) ", serial()))
     , m_options(std::move(options))
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))

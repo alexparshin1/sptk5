@@ -37,6 +37,8 @@ static const RegularExpression StringIsFloat(R"(^[+\-]?(0|[1-9]\d*)(\.\d*)?(e[+\
 
 void WSBasicType::exportTo(const SNode& parent, const char* _name) const
 {
+    using enum VariantDataType;
+
     const String elementName = _name == nullptr ? name() : _name;
     if (const String text(isNull() ? "" : asString());
         m_optional && (isNull() || text.empty()))
@@ -52,16 +54,16 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
         }
         switch (dataType())
         {
-            case VariantDataType::VAR_BOOL:
+            case VAR_BOOL:
                 parent->set(elementName, m_value.asBool());
                 break;
-            case VariantDataType::VAR_INT:
+            case VAR_INT:
                 parent->set(elementName, m_value.asInteger());
                 break;
-            case VariantDataType::VAR_INT64:
+            case VAR_INT64:
                 parent->set(elementName, m_value.asInt64());
                 break;
-            case VariantDataType::VAR_FLOAT:
+            case VAR_FLOAT:
                 parent->set(elementName, m_value.asFloat());
                 break;
             default:
@@ -73,16 +75,16 @@ void WSBasicType::exportTo(const SNode& parent, const char* _name) const
     {
         switch (dataType())
         {
-            case VariantDataType::VAR_BOOL:
+            case VAR_BOOL:
                 parent->pushValue(m_value.asBool());
                 break;
-            case VariantDataType::VAR_INT:
+            case VAR_INT:
                 parent->pushValue(m_value.asInteger());
                 break;
-            case VariantDataType::VAR_INT64:
+            case VAR_INT64:
                 parent->pushValue(m_value.asInt64());
                 break;
-            case VariantDataType::VAR_FLOAT:
+            case VAR_FLOAT:
                 parent->pushValue(m_value.asFloat());
                 break;
             default:

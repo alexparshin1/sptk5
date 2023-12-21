@@ -49,7 +49,7 @@ String Url::encode(const String& str)
     array<char, bufferSize> hexBuffer {};
     Buffer buffer(cnt * 3 + 1);
     buffer.data();
-    int len {0};
+    int len;
     while (*src != 0)
     {
         if (isalnum(*src) != 0)

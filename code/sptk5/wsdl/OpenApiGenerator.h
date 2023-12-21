@@ -123,7 +123,7 @@ private:
 
     static void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property);
 
-    void parseRestriction(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property) const;
+    static void parseRestriction(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property);
 
     static void parseRestrictionPatterns(const xdoc::SNode& property, const SWSRestriction& restriction);
 };

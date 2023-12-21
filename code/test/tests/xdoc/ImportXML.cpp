@@ -187,19 +187,15 @@ TEST(SPTK_XDocument, parseXML)
     const auto bodyElement = document.root()->findFirst("soap:Body", SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
-    EXPECT_EQ(Node::Node::Type::Object, bodyElement->type());
+    EXPECT_EQ(Node::Type::Object, bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->nodes().size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    SNode methodElement = nullptr;
-    for (const auto& node: bodyElement->nodes())
-    {
-        if (node->type() == Node::Node::Type::Object)
-        {
-            methodElement = node;
-            break;
-        }
-    }
+    auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node) {
+        return node->type() == Node::Type::Object;
+    });
+
+    SNode methodElement = itor != bodyElement->nodes().end() ? *itor : nullptr;
     EXPECT_TRUE(methodElement != nullptr);
     EXPECT_EQ(2, (int) methodElement->nodes().size());
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
