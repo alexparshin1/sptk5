@@ -71,6 +71,7 @@
 #endif
 
 #include <sptk5/sptk-config.h>
+#include <limits>
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #include <winsock2.h>
