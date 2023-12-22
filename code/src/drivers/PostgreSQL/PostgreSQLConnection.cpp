@@ -87,7 +87,7 @@ public:
         m_currentRow = -1;
     }
 
-    void stmt(PGresult* result, unsigned rows, unsigned cols = unsigned(-1))
+    void stmt(PGresult* result, unsigned rows, unsigned cols = static_cast<unsigned>(-1))
     {
         if (m_stmt)
         {
@@ -95,11 +95,11 @@ public:
         }
         m_stmt = result;
 
-        m_rows = (int) rows;
+        m_rows = static_cast<int>(rows);
 
-        if (cols != unsigned(-1))
+        if (cols != static_cast<unsigned>(-1))
         {
-            m_cols = (int) cols;
+            m_cols = static_cast<int>(cols);
         }
 
         m_currentRow = -1;
@@ -127,12 +127,12 @@ public:
 
     [[nodiscard]] unsigned currentRow() const
     {
-        return (unsigned) m_currentRow;
+        return static_cast<unsigned>(m_currentRow);
     }
 
     [[nodiscard]] unsigned colCount() const
     {
-        return (unsigned) m_cols;
+        return static_cast<unsigned>(m_cols);
     }
 
     PostgreSQLParamValues& paramValues()
@@ -374,13 +374,13 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     const Oid* paramTypes = params.types();
     const unsigned paramCount = params.size();
 
-    auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), (int) paramCount,
+    auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), static_cast<int>(paramCount),
                            paramTypes);
 
     checkError(m_connect, stmt, "PREPARE");
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    auto fieldCount = (unsigned) PQnfields(stmt2);
+    auto fieldCount = static_cast<unsigned>(PQnfields(stmt2));
 
     if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
     {
@@ -398,7 +398,7 @@ int PostgreSQLConnection::queryColCount(Query* query)
 {
     const auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
 
-    return (int) statement->colCount();
+    return static_cast<int>(statement->colCount());
 }
 
 void PostgreSQLConnection::queryBindParameters(Query* query)
@@ -423,7 +423,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
         resultFormat = 0;
     } // VOID result or NO results, using text format
 
-    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), (int) paramValues.size(),
+    PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
                                     (const char* const*) paramValues.values(),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
@@ -437,7 +437,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
             break;
 
         case PGRES_TUPLES_OK:
-            statement->stmt(stmt, (unsigned) PQntuples(stmt));
+            statement->stmt(stmt, static_cast<unsigned>(PQntuples(stmt)));
             break;
 
         case PGRES_EMPTY_QUERY:
@@ -473,7 +473,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
     }
 
     const int resultFormat = 1; // Results are presented in binary format
-    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), (int) paramValues.size(), paramValues.types(),
+    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
                                   (const char* const*) paramValues.values(),
                                   paramValues.lengths(), paramValues.formats(), resultFormat);
 
@@ -487,7 +487,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
             break;
 
         case PGRES_TUPLES_OK:
-            statement->stmt(stmt, (unsigned) PQntuples(stmt), (unsigned) PQnfields(stmt));
+            statement->stmt(stmt, static_cast<unsigned>(PQntuples(stmt)), static_cast<unsigned>(PQnfields(stmt)));
             break;
 
         case PGRES_EMPTY_QUERY:
@@ -588,7 +588,7 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreS
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type(" + to_string((int) dataType) + ") for parameter '" +
+                "Unsupported parameter type(" + to_string(static_cast<int>(dataType)) + ") for parameter '" +
                 paramName + "'");
     }
 }
@@ -625,7 +625,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
 
     const auto* statement = bit_cast<const PostgreSQLStatement*>(query->statement());
 
-    auto count = (short) queryColCount(query);
+    auto count = static_cast<short>(queryColCount(query));
     if (count < 1)
     {
         return;
@@ -650,11 +650,11 @@ void PostgreSQLConnection::queryOpen(Query* query)
                 columnName << "column" << setw(2) << (column + 1);
             }
 
-            auto dataType = (PostgreSQLDataType) PQftype(stmt, column);
+            auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
             VariantDataType fieldType = VariantDataType::VAR_NONE;
             PostgreTypeToCType(dataType, fieldType);
             const int fieldLength = PQfsize(stmt, column);
-            auto field = make_shared<DatabaseField>(columnName.str(), (int) dataType, fieldType, fieldLength);
+            auto field = make_shared<DatabaseField>(columnName.str(), static_cast<int>(dataType), fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }
@@ -667,17 +667,17 @@ void PostgreSQLConnection::queryOpen(Query* query)
 namespace {
 inline bool readBool(const char* data)
 {
-    return *data != char(0);
+    return *data != static_cast<char>(0);
 }
 
 inline int16_t readInt2(const char* data)
 {
-    return (int16_t) ntohs(*bit_cast<const uint16_t*>(data));
+    return static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(data)));
 }
 
 inline int32_t readInt4(const char* data)
 {
-    return (int32_t) ntohl(*bit_cast<const uint32_t*>(data));
+    return static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
 }
 
 inline int64_t readInt8(const char* data)
@@ -701,7 +701,7 @@ inline double readFloat8(const char* data)
 
 inline DateTime readDate(const char* data)
 {
-    const auto dateTime = (int32_t) ntohl(*bit_cast<const uint32_t*>(data));
+    const auto dateTime = static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
@@ -717,16 +717,16 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 
     void* ptr = &value;
     const double seconds = *bit_cast<double*>(ptr);
-    DateTime dateTime = epochDate + chrono::seconds((int) seconds);
+    DateTime dateTime = epochDate + chrono::seconds(static_cast<int>(seconds));
     return dateTime;
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
 inline MoneyData readNumericToScaledInteger(const char* numeric)
 {
-    auto ndigits = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric));
-    auto weight = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric + 2));
-    auto sign = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric + 4));
+    auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
+    auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
+    auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
     uint16_t dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
     if (dscale > 16)
@@ -749,7 +749,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; ++i)
     {
-        auto digit = (int16_t) ntohs(*bit_cast<const uint16_t*>(numeric));
+        auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
 
         value = value * 10000 + digit;
         if (digitWeight < 0)
@@ -805,7 +805,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
         value = -value;
     }
 
-    MoneyData moneyData(value, uint8_t(dscale));
+    MoneyData moneyData(value, static_cast<uint8_t>(dscale));
 
     return moneyData;
 }
@@ -849,7 +849,7 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
             const uint32_t dataSize = ntohl(*bit_cast<const uint32_t*>(data));
             data += sizeof(uint32_t);
 
-            switch ((PostgreSQLDataType) arrayHeader->elementType)
+            switch (static_cast<PostgreSQLDataType>(arrayHeader->elementType))
             {
                 case PostgreSQLDataType::INT2:
                     output << readInt2(data);
@@ -920,7 +920,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
         return;
     }
 
-    auto fieldCount = (int) query->fieldCount();
+    auto fieldCount = static_cast<int>(query->fieldCount());
 
     if (fieldCount == 0)
     {
@@ -928,14 +928,14 @@ void PostgreSQLConnection::queryFetch(Query* query)
     }
 
     const PGresult* stmt = statement->stmt();
-    auto currentRow = (int) statement->currentRow();
+    auto currentRow = static_cast<int>(statement->currentRow());
 
     for (int column = 0; column < fieldCount; ++column)
     {
         auto* field = bit_cast<DatabaseField*>(&(*query)[column]);
         try
         {
-            auto fieldType = (PostgreSQLDataType) field->fieldType();
+            auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
 
             int dataLength = PQgetlength(stmt, currentRow, column);
 
@@ -945,8 +945,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
                 PostgreTypeToCType(fieldType, dataType);
 
                 bool isNull = true;
-                if ((int) dataType & ((int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT |
-                                      (int) VariantDataType::VAR_BUFFER))
+                if (static_cast<int>(dataType) & (static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT) |
+                                                  static_cast<int>(VariantDataType::VAR_BUFFER)))
                 {
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
                 }
@@ -998,7 +998,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case PostgreSQLDataType::BYTEA:
-                        field->setExternalBuffer(bit_cast<uint8_t*>(data), (size_t) dataLength,
+                        field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
                                                  VariantDataType::VAR_BUFFER); // External buffer
                         break;
 
@@ -1026,7 +1026,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     default:
-                        field->setExternalBuffer(bit_cast<uint8_t*>(data), size_t(dataLength),
+                        field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
                                                  VariantDataType::VAR_STRING); // External string
                         break;
                 }
@@ -1115,15 +1115,15 @@ void appendTSV(Buffer& dest, const VariantVector& row)
         }
         else
         {
-            dest.append(char('\t'));
+            dest.append(static_cast<char>('\t'));
         }
         if (value.isNull())
         {
             dest.append("\\N", 2);
             continue;
         }
-        if ((int) value.dataType() &
-            ((int) VariantDataType::VAR_BUFFER | (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT))
+        if (static_cast<int>(value.dataType()) &
+            (static_cast<int>(VariantDataType::VAR_BUFFER) | static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT)))
         {
             dest.append(escapeSQLString(value.asString(), true));
         }
@@ -1132,7 +1132,7 @@ void appendTSV(Buffer& dest, const VariantVector& row)
             dest.append(value.asString());
         }
     }
-    dest.append(char('\n'));
+    dest.append(static_cast<char>('\n'));
 }
 } // namespace
 
@@ -1152,7 +1152,7 @@ void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& co
         appendTSV(buffer, row);
     }
 
-    if (PQputCopyData(m_connect, buffer.c_str(), (int) buffer.bytes()) != 1)
+    if (PQputCopyData(m_connect, buffer.c_str(), static_cast<int>(buffer.bytes())) != 1)
     {
         String error = "COPY command send data failed: ";
         error += PQerrorMessage(m_connect);

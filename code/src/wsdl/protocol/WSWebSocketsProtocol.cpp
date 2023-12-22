@@ -257,7 +257,7 @@ RequestInfo WSWebSocketsProtocol::process()
             Buffer message;
             if (socket().read(message, available) != available)
             {
-                throwException<Exception>("Incomplete read");
+                throw Exception("Incomplete read");
             }
 
             WSWebSocketsMessage msg;

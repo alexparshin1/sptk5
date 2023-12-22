@@ -129,7 +129,7 @@ xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNam
     auto soapBody = soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body");
     if (!soapBody)
     {
-        throwException<Exception>("Can't find SOAP Body node in incoming request");
+        throw Exception("Can't find SOAP Body node in incoming request");
     }
 
     return soapBody;
@@ -160,13 +160,13 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
 
         if (soapEnvelope == nullptr)
         {
-            throwException<Exception>("Can't find SOAP Envelope node");
+            throw Exception("Can't find SOAP Envelope node");
         }
 
         auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
         if (!soapBody || soapBody->nodes().empty())
         {
-            throwException<Exception>("Can't find request node");
+            throw Exception("Can't find request node");
         }
 
         xmlRequestNode = soapBody->nodes().front();
@@ -202,7 +202,7 @@ void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMeth
 
 String WSRequest::tagName(const String& nodeName)
 {
-    auto pos = nodeName.find(':');
+    const auto pos = nodeName.find(':');
     if (pos == string::npos)
     {
         return {};
@@ -212,7 +212,7 @@ String WSRequest::tagName(const String& nodeName)
 
 String WSRequest::nameSpace(const String& nodeName)
 {
-    auto pos = nodeName.find(':');
+    const auto pos = nodeName.find(':');
     if (pos == string::npos)
     {
         return {};

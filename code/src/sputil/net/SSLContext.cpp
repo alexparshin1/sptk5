@@ -45,7 +45,7 @@ void SSLContext::throwError(const String& humanDescription)
     {
         errorStr += string("(): ") + reason;
     }
-    throwException<Exception>(humanDescription + "\n" + errorStr);
+    throw Exception(humanDescription + "\n" + errorStr);
 }
 
 SSLContext::SSLContext(const String& cipherList)
@@ -72,9 +72,9 @@ SSL_CTX* SSLContext::handle()
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int /*rwflag*/, void* userdata)
 {
-    snprintf(replyBuffer, size_t(replySize), "%s", bit_cast<char*>(userdata));
+    snprintf(replyBuffer, static_cast<size_t>(replySize), "%s", bit_cast<char*>(userdata));
     replyBuffer[replySize - 1] = '\0';
-    return (int) strlen(replyBuffer);
+    return static_cast<int>(strlen(replyBuffer));
 }
 
 void SSLContext::loadKeys(const SSLKeys& keys)

@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/SystemException.h>
 #include <sptk5/net/Socket.h>
 
 using namespace std;
@@ -47,7 +46,7 @@ void Socket::init() noexcept
         return;
     m_initted = true;
     WSADATA wsaData = {};
-    const WORD wVersionRequested = MAKEWORD(2, 0);
+    constexpr WORD wVersionRequested = MAKEWORD(2, 0);
     WSAStartup(wVersionRequested, &wsaData);
 }
 

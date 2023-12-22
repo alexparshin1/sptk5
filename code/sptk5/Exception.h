@@ -260,15 +260,6 @@ public:
 };
 
 /**
- * @brief Throws exception with file name and line number
- */
-template<typename ExceptionType>
-[[noreturn]] SP_EXPORT void throwException(const String& error, const std::source_location& location = std::source_location::current())
-{
-    throw ExceptionType(error, location);
-}
-
-/**
  * @}
  */
 } // namespace sptk

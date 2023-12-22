@@ -45,8 +45,8 @@ Exception::Exception(String text, const std::source_location& location, String d
         pos = strrchr(m_location.file_name(), '\\');
     }
 
-    String fileName = pos != nullptr ? pos + 1 : m_location.file_name();
-    m_fullMessage += " in " + fileName + "(" + int2string(uint32_t(m_location.line())) + ")";
+    const String fileName = pos != nullptr ? pos + 1 : m_location.file_name();
+    m_fullMessage += " in " + fileName + "(" + int2string(static_cast<uint32_t>(m_location.line())) + ")";
 
     if (!m_description.empty())
     {
@@ -140,7 +140,7 @@ String HTTPException::httpResponseStatus(size_t statusCode)
         {510, "Not Extended"},
         {511, "Network Authentication Required"}};
 
-    auto itor = statusCodeInfo.find(statusCode);
+    const auto itor = statusCodeInfo.find(statusCode);
     if (itor == statusCodeInfo.end())
     {
         return "Unknown";

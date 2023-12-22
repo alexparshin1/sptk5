@@ -55,7 +55,7 @@ DatabaseField::DatabaseField(string_view fName, int fieldType,
         case VAR_FLOAT:
             Variant::setFloat(0);
             view().width = 16;
-            view().precision = (unsigned) fieldScale;
+            view().precision = static_cast<unsigned>(fieldScale);
             break;
 
         case VAR_STRING:
@@ -66,8 +66,8 @@ DatabaseField::DatabaseField(string_view fName, int fieldType,
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
-            Variant::setBuffer((const uint8_t*) "", 1, VAR_BUFFER);
-            checkSize((size_t) fieldLength + 1);
+            Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, VAR_BUFFER);
+            checkSize(static_cast<size_t>(fieldLength) + 1);
             view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
             break;
 
@@ -85,7 +85,7 @@ DatabaseField::DatabaseField(string_view fName, int fieldType,
 
         default:
             Variant::setString("");
-            checkSize((size_t) fieldLength + 1);
+            checkSize(static_cast<size_t>(fieldLength) + 1);
             view().width = fieldLength;
             break;
     }

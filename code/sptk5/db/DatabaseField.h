@@ -44,7 +44,6 @@ namespace sptk {
  *
  * A special variation of CField to support database field essentials
  */
-
 class SP_EXPORT DatabaseField
     : public Field
 {
@@ -52,7 +51,7 @@ class SP_EXPORT DatabaseField
 
 public:
     /**
-     * Constructor
+     * @brief Constructor
      * @param fieldName			Field name
      * @param fieldType			Database field type
      * @param dataType			Variant data type
@@ -76,7 +75,6 @@ public:
      * The internal buffer is not modified, only the data size is set.
      * @param sz				Data size (in bytes)
      */
-
     void setDataSize(size_t sz)
     {
         dataSize(sz);
@@ -92,16 +90,15 @@ public:
     }
 
     /**
-     * Reports field size
+     * @brief Reports field size
      */
-
     uint32_t fieldSize() const
     {
         return (uint32_t) m_fldSize;
     }
 
     /**
-     * Column display format
+     * @brief Column display format
      * @return Column display format
      */
     String displayFormat() const
@@ -110,7 +107,7 @@ public:
     }
 
     /**
-     * Set column display format
+     * @brief Set column display format
      */
     void displayFormat(const String& format)
     {
@@ -118,7 +115,7 @@ public:
     }
 
     /**
-     * Column alignment
+     * @brief Column alignment
      * @return Column alignment
      */
     int alignment() const
@@ -127,7 +124,7 @@ public:
     }
 
     /**
-     * Set column alignment
+     * @brief Set column alignment
      */
     void alignment(int al)
     {
@@ -138,7 +135,7 @@ public:
 
 protected:
     /**
-     * Set field type
+     * @brief Set field type
      * @param fieldType         Field type
      * @param fieldLength       Field length
      * @param fieldScale        Field scale

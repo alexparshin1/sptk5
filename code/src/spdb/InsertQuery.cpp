@@ -54,7 +54,7 @@ void InsertQuery::sql(const String& _sql)
 {
     if (!database())
     {
-        throwException<Exception>("Database connection is not defined yet");
+        throw Exception("Database connection is not defined yet");
     }
     Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
 }
@@ -69,13 +69,13 @@ void InsertQuery::exec()
             param("last_id").setOutput();
             param("last_id").setNull(VariantDataType::VAR_INT);
             open();
-            m_id = (uint64_t) (*this)[0].asInteger();
+            m_id = static_cast<uint64_t>((*this)[0].asInteger());
             close();
             break;
 
         case DatabaseConnectionType::POSTGRES:
             open();
-            m_id = (uint64_t) (*this)[0].asInteger();
+            m_id = static_cast<uint64_t>((*this)[0].asInteger());
             close();
             break;
 
@@ -86,7 +86,7 @@ void InsertQuery::exec()
                 m_lastInsertedId = make_shared<Query>(database(), "SELECT LAST_INSERT_ID()");
             }
             m_lastInsertedId->open();
-            m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
+            m_id = static_cast<uint64_t>((*m_lastInsertedId)[0].asInteger());
             m_lastInsertedId->close();
             break;
         case DatabaseConnectionType::MSSQL_ODBC:
@@ -96,11 +96,11 @@ void InsertQuery::exec()
                 m_lastInsertedId = make_shared<Query>(database(), "SELECT @@IDENTITY");
             }
             m_lastInsertedId->open();
-            m_id = (uint64_t) (*m_lastInsertedId)[0].asInteger();
+            m_id = static_cast<uint64_t>((*m_lastInsertedId)[0].asInteger());
             m_lastInsertedId->close();
             break;
         default:
-            throwException<Exception>("Unsupported database connection type");
+            throw Exception("Unsupported database connection type");
     }
 }
 

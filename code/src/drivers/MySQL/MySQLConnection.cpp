@@ -113,7 +113,7 @@ void MySQLConnection::executeCommand(const String& command)
         open();
     }
 
-    if (mysql_real_query(m_connection.get(), command.c_str(), ULONG_CAST(command.length())) != 0)
+    if (mysql_real_query(m_connection.get(), command.c_str(), static_cast<unsigned long>(command.length())) != 0)
         throwMySQLException(m_connection, "Can't execute " + command);
 }
 
@@ -132,7 +132,7 @@ void MySQLConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
     {
-        throwException<DatabaseException>("Transaction isn't started.");
+        throw DatabaseException("Transaction isn't started.");
     }
 
     const char* action = commit ? "COMMIT" : "ROLLBACK";
@@ -213,7 +213,7 @@ int MySQLConnection::queryColCount(Query* query)
         {
             throw DatabaseException("Query not opened");
         }
-        colCount = (int) statement->colCount();
+        colCount = static_cast<int>(statement->colCount());
     }
     catch (const Exception& e)
     {
@@ -287,7 +287,7 @@ void MySQLConnection::queryOpen(Query* query)
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
 
     queryExecute(query);
-    if (auto fieldCount = (short) queryColCount(query); fieldCount < 1)
+    if (auto fieldCount = static_cast<short>(queryColCount(query)); fieldCount < 1)
     {
         return;
     }
@@ -372,7 +372,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
         query.open();
         while (!query.eof())
         {
-            objects.push_back(query[uint32_t(0)].asString());
+            objects.push_back(query[static_cast<uint32_t>(0)].asString());
             query.next();
         }
         query.close();

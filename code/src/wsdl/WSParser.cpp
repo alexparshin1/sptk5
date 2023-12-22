@@ -42,10 +42,10 @@ void replaceFile(const String& fileName, const stringstream& fileData)
     Buffer newData(fileData.str());
     if (newData.empty())
     {
-        newData.set((const uint8_t*) "", 1);
+        newData.set(reinterpret_cast<const uint8_t*>(""), 1);
     }
 
-    Buffer oldData((const uint8_t*) "", 1);
+    Buffer oldData(reinterpret_cast<const uint8_t*>(""), 1);
     try
     {
         oldData.loadFromFile(fileName.c_str());
@@ -70,7 +70,7 @@ void WSParser::clear()
 
 void WSParser::parseElement(const xdoc::SNode& elementNode)
 {
-    auto elementName = elementNode->attributes().get("name");
+    const auto elementName = elementNode->attributes().get("name");
     auto elementType = elementNode->attributes().get("type");
 
     if (const size_t namespacePos = elementType.find(':');
@@ -107,7 +107,7 @@ void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 
     if (WSParserComplexType::findSimpleType(simpleTypeName))
     {
-        throwException<Exception>("Duplicate simpleType definition: " + simpleTypeName);
+        throw Exception("Duplicate simpleType definition: " + simpleTypeName);
     }
 
     WSParserComplexType::SimpleTypeElements[simpleTypeName] = simpleTypeElement;
@@ -130,10 +130,10 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
         complexTypes.contains(complexTypeName))
     {
-        throwException<Exception>("Duplicate complexType definition: " + complexTypeName);
+        throw Exception("Duplicate complexType definition: " + complexTypeName);
     }
 
-    auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
+    const auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
     m_complexTypeIndex.addType(complexTypeName, complexType);
     complexType->parse();
 }
@@ -189,7 +189,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
     if (found)
     {
-        auto operationName = operationNode->attributes().get("name");
+        const auto operationName = operationNode->attributes().get("name");
         m_operations[operationName] = operation;
     }
 }
@@ -242,16 +242,18 @@ void WSParser::parse(const filesystem::path& wsdlFile)
         m_location = address->attributes().get("location");
     }
 
-    auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
+    const auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
-        throwException<Exception>("Can't find xsd:schema element");
+    {
+        throw Exception("Can't find xsd:schema element");
+    }
 
     parseSchema(schemaElement);
 
-    auto portElement = wsdlXML.root()->findFirst("wsdl:portType");
+    const auto portElement = wsdlXML.root()->findFirst("wsdl:portType");
     if (portElement == nullptr)
     {
-        throwException<Exception>("Can't find wsdl:portType element");
+        throw Exception("Can't find wsdl:portType element");
     }
 
     if (const auto descriptionElement = portElement->findFirst("wsdl:documentation");
@@ -274,7 +276,7 @@ String capitalize(const String& name)
     Strings parts(lowerCase(name), "_");
     for (auto& part: parts)
     {
-        part[0] = (char) toupper(part[0]);
+        part[0] = static_cast<char>(toupper(part[0]));
     }
     return parts.join("");
 }

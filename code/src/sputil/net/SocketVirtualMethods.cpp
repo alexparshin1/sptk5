@@ -48,7 +48,7 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
                                                std::chrono::milliseconds timeout, bool reusePort)
 {
-    auto timeoutMS = (int) timeout.count();
+    auto timeoutMS = static_cast<int>(timeout.count());
 
     if (activeUnlocked())
     {
@@ -243,7 +243,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 
     sockaddr_in addr = {};
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    addr.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
 
     if (address == nullptr)
     {
@@ -254,7 +254,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
         addr.sin_addr.s_addr = inet_addr(address);
     }
 
-    addr.sin_port = htons(uint16_t(portNumber));
+    addr.sin_port = htons(static_cast<uint16_t>(portNumber));
 
     if (reusePort)
     {
@@ -279,7 +279,7 @@ void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
     sockaddr_in addr = {};
 
     memset(&addr, 0, sizeof(addr));
-    addr.sin_family = (SOCKET_ADDRESS_FAMILY) m_domain;
+    addr.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(m_host.port());
 
@@ -298,7 +298,7 @@ constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
 
 bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 {
-    const auto timeoutMS = (int) timeout.count();
+    const auto timeoutMS = static_cast<int>(timeout.count());
 
     if (m_socketFd == INVALID_SOCKET)
     {
@@ -343,7 +343,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 
 bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeout)
 {
-    const auto timeoutMS = (int) timeout.count();
+    const auto timeoutMS = static_cast<int>(timeout.count());
 #ifdef _WIN32
     WSAPOLLFD fdarray {};
     fdarray.fd = m_socketFd;
@@ -385,7 +385,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
+    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
     auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_DONTWAIT);
 #endif
@@ -394,10 +394,10 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
         constexpr chrono::seconds timeout(30);
         if (readyToReadUnlocked(timeout))
         {
-            result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
+            result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
         }
     }
-    return (size_t) result;
+    return static_cast<size_t>(result);
 }
 
 size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
@@ -406,24 +406,24 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0,
+        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0,
                                  bit_cast<sockaddr*>(from), &fromLength);
     }
     else
     {
-        bytes = (int) ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) size, 0);
+        bytes = (int) ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0);
     }
 
     if (bytes == -1)
         throwSocketError("Can't read from socket");
 
-    return (size_t) bytes;
+    return static_cast<size_t>(bytes);
 }
 
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, 0);
+    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
     auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_NOSIGNAL);
 #endif
@@ -434,20 +434,20 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
 {
     const auto* ptr = buffer;
 
-    if ((int) size == -1)
+    if (static_cast<int>(size) == -1)
     {
         size = strlen(bit_cast<const char*>(buffer));
     }
 
     const size_t total = size;
-    auto remaining = (int) size;
+    auto remaining = static_cast<int>(size);
     while (remaining > 0)
     {
         int bytes;
         if (peer != nullptr)
         {
 #ifdef _WIN32
-            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, 0,
+            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), 0,
                                  bit_cast<const sockaddr*>(peer),
                                  sizeof(sockaddr_in));
 #else
@@ -458,7 +458,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            bytes = (int) sendUnlocked(ptr, (int32_t) size);
+            bytes = static_cast<int>(sendUnlocked(ptr, (int32_t) size));
         }
 
         if (bytes == -1)
@@ -500,6 +500,7 @@ void throwSocketError(const String& operation, const std::source_location& locat
             throw ConnectionException(operation + ": Connection is closed", location);
         case EAGAIN:
             throw RepeatOperationException(operation + ": " + errorStr, location);
+        default: break;
     }
 
     CERR("ERRNO is " << errno << endl);

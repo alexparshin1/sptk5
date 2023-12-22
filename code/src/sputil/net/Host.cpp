@@ -33,10 +33,6 @@
 using namespace std;
 using namespace sptk;
 
-#ifdef _WIN32
-static Socket initializer; // Needed for WinSock2 initialization
-#endif
-
 Host::Host() noexcept
 {
     memset(&m_address, 0, sizeof(m_address));
@@ -169,7 +165,7 @@ void Host::setPort(uint16_t port)
 void Host::getHostAddress()
 {
 #ifdef _WIN32
-    struct hostent* host_info = gethostbyname(m_hostname.c_str());
+    const struct hostent* host_info = gethostbyname(m_hostname.c_str());
     if (host_info == nullptr)
         throwSocketError("Can't get host info for " + m_hostname);
 
@@ -184,6 +180,8 @@ void Host::getHostAddress()
             break;
         case AF_INET6:
             memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
+            break;
+        default: 
             break;
     }
 #else

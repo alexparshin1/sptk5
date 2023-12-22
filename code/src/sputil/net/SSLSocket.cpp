@@ -265,7 +265,7 @@ void SSLSocket::sslConnectUnlocked(bool _blockingMode, const milliseconds& timeo
 
 void SSLSocket::closeUnlocked()
 {
-    sslSetFd(SocketType(-1));
+    sslSetFd(static_cast<SocketType>(-1));
     TCPSocket::closeUnlocked();
 }
 
@@ -349,7 +349,7 @@ size_t SSLSocket::getSocketBytesUnlocked() const
         uint8_t dummy = 0;
         sslRead(&dummy, 0);
     }
-    return (uint32_t) sslPending();
+    return static_cast<uint32_t>(sslPending());
 }
 
 size_t SSLSocket::recvUnlocked(uint8_t* buffer, size_t len)
@@ -404,7 +404,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
     }
 
     const auto* ptr = buffer;
-    auto totalLen = (uint32_t) len;
+    auto totalLen = static_cast<uint32_t>(len);
     for (;;)
     {
         size_t writeLen = totalLen;
@@ -481,7 +481,7 @@ void SSLSocket::sslFree() const
 int SSLSocket::sslSetFd(SocketType fd) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_set_fd(m_ssl, (int)fd);
+    return SSL_set_fd(m_ssl, static_cast<int>(fd));
 }
 
 int SSLSocket::sslSetExtHostName() const
@@ -505,13 +505,13 @@ int SSLSocket::sslAccept() const
 int SSLSocket::sslRead(uint8_t* buffer, size_t len) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_read(m_ssl, buffer, (int) len);
+    return SSL_read(m_ssl, buffer, static_cast<int>(len));
 }
 
 int SSLSocket::sslWrite(const uint8_t* buffer, size_t len) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_write(m_ssl, buffer, (int) len);
+    return SSL_write(m_ssl, buffer, static_cast<int>(len));
 }
 
 int SSLSocket::sslPending() const

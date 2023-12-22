@@ -135,7 +135,7 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
 void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement<MySQLConnection, MYSQL_STMT>::enumerateParams(queryParams);
-    auto paramCount = enumeratedParams().size();
+    const auto paramCount = enumeratedParams().size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
     MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
@@ -233,7 +233,7 @@ void MySQLStatement::setParameterValues()
 {
     static my_bool nullValue = true;
 
-    auto paramCount = enumeratedParams().size();
+    const auto paramCount = enumeratedParams().size();
     for (unsigned paramIndex = 0; paramIndex < paramCount; ++paramIndex)
     {
         auto* param = enumeratedParams()[paramIndex].get();
@@ -381,7 +381,6 @@ void MySQLStatement::bindResult(FieldList& fields)
         return;
     }
 
-    String columnName;
     for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex)
     {
         const MYSQL_FIELD* fieldMetadata = mysql_fetch_field(m_result.get());
@@ -390,7 +389,7 @@ void MySQLStatement::bindResult(FieldList& fields)
             throwMySQLError();
         }
 
-        columnName = fieldMetadata->name;
+        String columnName = fieldMetadata->name;
         if (columnName.empty())
         {
             columnName = "column_" + to_string(columnIndex + 1);
@@ -413,7 +412,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex)
         {
-            auto* field = dynamic_cast<MySQLStatementField*>(&fields[(int) columnIndex]);
+            auto* field = dynamic_cast<MySQLStatementField*>(&fields[static_cast<int>(columnIndex)]);
             MYSQL_BIND& bind = m_fieldBuffers[columnIndex];
 
             bind.buffer_type = static_cast<enum_field_types>(field->fieldType());
@@ -496,7 +495,7 @@ void MySQLStatement::readResultRow(FieldList& fields)
 
 void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 {
-    auto fieldCount = static_cast<int>(fields.size());
+    const auto fieldCount = static_cast<int>(fields.size());
     const auto* lengths = mysql_fetch_lengths(m_result.get());
 
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
@@ -514,7 +513,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
             continue;
         }
 
-        auto dataLength = static_cast<uint32_t>(lengths[fieldIndex]);
+        const auto dataLength = static_cast<uint32_t>(lengths[fieldIndex]);
 
         switch (fieldType)
         {
@@ -549,7 +548,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                field->setBuffer((const uint8_t*) data, dataLength, fieldType);
+                field->setBuffer(reinterpret_cast<const uint8_t*>(data), dataLength, fieldType);
                 break;
 
             case VariantDataType::VAR_INT64:
@@ -557,7 +556,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             default:
-                throwException<DatabaseException>("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
+                throw DatabaseException("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
         }
     }
 }
@@ -589,7 +588,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
     }
     else
     {
-        auto dataLength = static_cast<uint32_t>(*(bind.length));
+        const auto dataLength = static_cast<uint32_t>(*(bind.length));
         if (dataLength == sizeof(float))
         {
             const float value = *static_cast<float*>(bind.buffer);
@@ -601,7 +600,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, MYSQL_BIND& bind)
 
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
-    auto fieldCount = static_cast<int>(fields.size());
+    const auto fieldCount = static_cast<int>(fields.size());
     bool fieldSizeChanged = false;
     for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
@@ -617,7 +616,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
             continue;
         }
 
-        auto dataLength = static_cast<uint32_t>(*(bind.length));
+        const auto dataLength = static_cast<uint32_t>(*(bind.length));
 
         switch (fieldType)
         {
@@ -643,7 +642,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                 break;
 
             default:
-                throwException<DatabaseException>("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
+                throw DatabaseException("Unsupported Variant type: " + int2string(static_cast<int>(fieldType)));
         }
     }
 
@@ -701,8 +700,7 @@ void MySQLStatement::fetch()
 {
     if (statement() != nullptr)
     {
-        const int rc = mysql_stmt_fetch(statement());
-        switch (rc)
+        switch (mysql_stmt_fetch(statement()))
         {
             case 0:                    // Successful, the data has been fetched to application data buffers
             case MYSQL_DATA_TRUNCATED: // Successful, but one or mode fields were truncated

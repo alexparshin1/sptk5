@@ -45,7 +45,7 @@ void QueryParameterList::add(const SQueryParameter& item)
 
 SQueryParameter QueryParameterList::find(const String& paramName)
 {
-    auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
     {
@@ -57,11 +57,11 @@ SQueryParameter QueryParameterList::find(const String& paramName)
 
 QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
     {
-        throwException<Exception>("Invalid parameter name: " + paramName);
+        throw Exception("Invalid parameter name: " + paramName);
     }
 
     return *itor->second;
@@ -79,7 +79,7 @@ size_t QueryParameterList::size() const
 
 void QueryParameterList::remove(size_t i)
 {
-    auto itor = m_items.begin() + (int) i;
+    const auto itor = m_items.begin() + static_cast<int>(i);
     const SQueryParameter item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
@@ -100,7 +100,7 @@ void QueryParameterList::enumerate(CParamVector& params) const
     {
         const auto& bindIndex = param->m_bindParamIndexes;
 
-        for (auto index: bindIndex)
+        for (const auto index: bindIndex)
         {
             if (index >= params.size())
             {
