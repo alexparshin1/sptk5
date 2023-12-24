@@ -96,7 +96,7 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
                     m_connection->terminateStatement(createLobTable);
                     m_connection.reset();
                 }
-                throwException<DatabaseException>(string("Can't create connection: ") + e.what());
+                throw DatabaseException(string("Can't create connection: ") + e.what());
             }
         }
         m_connection->terminateStatement(createLobTable);
@@ -111,7 +111,7 @@ void OracleConnection::closeDatabase()
     }
     catch (const SQLException& e)
     {
-        throwException<DatabaseException>(string("Can't close connection: ") + e.what());
+        throw DatabaseException(string("Can't close connection: ") + e.what());
     }
 }
 
@@ -150,7 +150,9 @@ void OracleConnection::driverBeginTransaction()
     }
 
     if (getInTransaction())
-        throwException<DatabaseException>("Transaction already started.");
+    {
+        throw DatabaseException("Transaction already started.");
+    }
 
     setInTransaction(true);
 }
@@ -158,7 +160,9 @@ void OracleConnection::driverBeginTransaction()
 void OracleConnection::driverEndTransaction(bool commit)
 {
     if (!getInTransaction())
-        throwException<DatabaseException>("Transaction isn't started.");
+    {
+        throw DatabaseException("Transaction isn't started.");
+    }
 
     string action;
     try
@@ -176,7 +180,7 @@ void OracleConnection::driverEndTransaction(bool commit)
     }
     catch (const SQLException& e)
     {
-        throwException<DatabaseException>((action + " failed: ") + e.what());
+        throw DatabaseException((action + " failed: ") + e.what());
     }
 
     setInTransaction(false);
@@ -263,7 +267,7 @@ int OracleConnection::queryColCount(Query* query)
     const auto* statement = bit_cast<OracleStatement*>(query->statement());
     if (statement == nullptr)
     {
-        throwException<DatabaseException>("Query not opened");
+        throw DatabaseException("Query not opened");
     }
     else
     {
@@ -276,7 +280,7 @@ void OracleConnection::queryBindParameters(Query* query)
     const scoped_lock lock(m_mutex);
 
     auto* statement = bit_cast<OracleStatement*>(query->statement());
-    if (!statement)
+    if (statement == nullptr)
     {
         throw DatabaseException("Query not prepared");
     }
@@ -327,7 +331,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
     switch (dataType)
     {
         case VariantDataType::VAR_NONE:
-            throwException<DatabaseException>("Data type is not defined");
+            throw DatabaseException("Data type is not defined");
         case VariantDataType::VAR_INT:
             return (Type) SQLT_INT;
         case VariantDataType::VAR_FLOAT:
@@ -346,7 +350,7 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
         case VariantDataType::VAR_BOOL:
             return OCCIINT;
         default:
-            throwException<DatabaseException>("Unsupported SPTK data type: " + to_string((int) dataType));
+            throw DatabaseException("Unsupported SPTK data type: " + to_string((int) dataType));
     }
 }
 
@@ -355,7 +359,7 @@ void OracleConnection::queryExecute(Query* query)
     try
     {
         auto* statement = bit_cast<OracleStatement*>(query->statement());
-        if (!statement)
+        if (statement == nullptr)
         {
             throw Exception("Query is not prepared");
         }
@@ -375,7 +379,7 @@ void OracleConnection::queryExecute(Query* query)
     }
     catch (const SQLException& e)
     {
-        throwException<DatabaseException>(e.what());
+        throw DatabaseException(e.what());
     }
 }
 
@@ -391,7 +395,7 @@ void OracleConnection::queryOpen(Query* query)
         return;
     }
 
-    if (!query->statement())
+    if (query->statement() == nullptr)
     {
         queryAllocStmt(query);
     }
@@ -515,7 +519,7 @@ void OracleConnection::queryFetch(Query* query)
     }
 
     auto fieldCount = query->fieldCount();
-    if (!fieldCount)
+    if (fieldCount == 0)
     {
         return;
     }
@@ -669,7 +673,7 @@ void OracleConnection::bulkInsert(const String& _tableName, const Strings& colum
 
     String schema;
     String tableName;
-    auto matches = matchTableAndSchema.m(_tableName.toUpperCase());
+    const auto matches = matchTableAndSchema.m(_tableName.toUpperCase());
     if (!matches[0].value.empty())
     {
         schema = matches[0].value;
@@ -702,9 +706,9 @@ void OracleConnection::bulkInsert(const String& _tableName, const Strings& colum
     QueryColumnTypeSizeMap columnTypeSizeMap;
     while (!tableColumnsQuery.eof())
     {
-        auto columnName = column_name.asString();
-        auto columnType = data_type.asString();
-        auto maxDataLength = (size_t) data_length.asInteger();
+        const auto columnName = column_name.asString();
+        const auto columnType = data_type.asString();
+        const auto maxDataLength = (size_t) data_length.asInteger();
         QueryColumnTypeSize columnTypeSize = {};
         columnTypeSize.type = VariantDataType::VAR_STRING;
         columnTypeSize.length = 0;
@@ -730,9 +734,9 @@ void OracleConnection::bulkInsert(const String& _tableName, const Strings& colum
     QueryColumnTypeSizeVector columnTypeSizeVector;
     for (const auto& columnName: columnNames)
     {
-        auto column = columnTypeSizeMap.find(upperCase(columnName));
+        const auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
-            throwException<DatabaseException>(
+            throw DatabaseException(
                 "Column '" + columnName + "' doesn't belong to table " + tableName);
         columnTypeSizeVector.push_back(column->second);
     }

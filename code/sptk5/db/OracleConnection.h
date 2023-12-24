@@ -261,7 +261,7 @@ private:
  * @param oracleType        Oracle native type
  * @returns Variant type
  */
-VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
+[[nodiscard]] VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
 
 /**
  * @brief Translates CVariant type to Oracle native type

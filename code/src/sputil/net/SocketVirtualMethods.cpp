@@ -58,7 +58,9 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
     // Create a new socket
     m_socketFd = socket(m_domain, m_type, m_protocol);
     if (m_socketFd == INVALID_SOCKET)
+    {
         throwSocketError("Can't create socket");
+    }
 
     int result = 0;
     const char* currentOperation = "connect";
@@ -189,14 +191,18 @@ void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) c
 {
     const socklen_t len = sizeof(int);
     if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), len) != 0)
+    {
         throwSocketError("Can't set socket option");
+    }
 }
 
 void SocketVirtualMethods::getOptionUnlocked(int level, int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_socketFd, level, option, VALUE_TYPE(&value), &len) != 0)
+    {
         throwSocketError("Can't get socket option");
+    }
 }
 
 size_t SocketVirtualMethods::getSocketBytesUnlocked() const
@@ -209,8 +215,9 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
         const int32_t result = ioctl(m_socketFd, FIONREAD, &bytes);
 #endif
         result < 0)
+    {
         return 0;
-
+    }
     return bytes;
 }
 
@@ -238,7 +245,9 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
         // Create a new socket
         m_socketFd = socket(m_domain, m_type, m_protocol);
         if (m_socketFd == INVALID_SOCKET)
+        {
             throwSocketError("Can't create socket");
+        }
     }
 
     sockaddr_in addr = {};
@@ -266,7 +275,9 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
     }
 
     if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    {
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
+    }
 }
 
 void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
@@ -332,7 +343,9 @@ bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
     pfd.events = POLLIN;
     const int result = poll(&pfd, 1, timeoutMS);
     if (result < 0)
+    {
         throwSocketError("Can't read from socket");
+    }
     if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
     {
         throw ConnectionException("Connection closed");
@@ -415,7 +428,9 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     }
 
     if (bytes == -1)
+    {
         throwSocketError("Can't read from socket");
+    }
 
     return static_cast<size_t>(bytes);
 }
@@ -472,7 +487,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     return total;
 }
 
-void throwSocketError(const String& operation, const std::source_location& location)
+void throwSocketError(const String& message, const std::source_location& location)
 {
     string errorStr;
 
@@ -497,9 +512,9 @@ void throwSocketError(const String& operation, const std::source_location& locat
     {
         case EPIPE:
         case EBADF:
-            throw ConnectionException(operation + ": Connection is closed", location);
+            throw ConnectionException(message + ": Connection is closed", location);
         case EAGAIN:
-            throw RepeatOperationException(operation + ": " + errorStr, location);
+            throw RepeatOperationException(message + ": " + errorStr, location);
         default: break;
     }
 
@@ -507,7 +522,7 @@ void throwSocketError(const String& operation, const std::source_location& locat
 
     if (!errorStr.empty())
     {
-        throw Exception(operation + ": " + errorStr, location);
+        throw Exception(message + ": " + errorStr, location);
     }
 }
 

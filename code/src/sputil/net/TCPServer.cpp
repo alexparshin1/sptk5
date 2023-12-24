@@ -48,7 +48,7 @@ LogDetails::LogDetails(const Strings& details)
 {
     for (const auto& detailName: details)
     {
-        auto itor = detailNames.find(detailName);
+        const auto itor = detailNames.find(detailName);
         if (itor == detailNames.end())
         {
             continue;
@@ -123,7 +123,9 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
     }
 
     if (threadCount == 0)
+    {
         threadCount = 1;
+    }
 
     m_host.port(port);
     for (uint16_t i = 0; i < threadCount; ++i)
@@ -136,7 +138,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
 
 void TCPServer::removeListener(uint16_t port)
 {
-    scoped_lock lock(m_mutex);
+    const scoped_lock lock(m_mutex);
 
     auto& listenerThreads = m_portListeners[port];
 
