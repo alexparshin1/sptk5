@@ -130,6 +130,11 @@ public:
      */
     void critical(const String& message);
 
+    void prefix(const String& prefix)
+    {
+        m_prefix = prefix;
+    }
+
 private:
     /**
      * The actual log to store messages to (destination log)

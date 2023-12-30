@@ -299,30 +299,31 @@ VariantDataType sptk::OracleTypeToVariantType(Type oracleType, int scale)
 {
     switch (oracleType)
     {
+        using enum sptk::VariantDataType;
         case Type(SQLT_NUM):
-            return scale == 0 ? VariantDataType::VAR_INT : VariantDataType::VAR_FLOAT;
+            return scale == 0 ? VAR_INT : VAR_FLOAT;
         case Type(SQLT_INT):
-            return VariantDataType::VAR_INT;
+            return VAR_INT;
         case Type(SQLT_UIN):
-            return VariantDataType::VAR_INT64;
+            return VAR_INT64;
         case Type(SQLT_DAT):
         case Type(SQLT_DATE):
-            return VariantDataType::VAR_DATE;
+            return VAR_DATE;
         case Type(SQLT_FLT):
         case Type(SQLT_BFLOAT):
         case Type(SQLT_BDOUBLE):
-            return VariantDataType::VAR_FLOAT;
+            return VAR_FLOAT;
         case Type(SQLT_BLOB):
-            return VariantDataType::VAR_BUFFER;
+            return VAR_BUFFER;
         case Type(SQLT_CLOB):
-            return VariantDataType::VAR_TEXT;
+            return VAR_TEXT;
         case Type(SQLT_TIME):
         case Type(SQLT_TIME_TZ):
         case Type(SQLT_TIMESTAMP):
         case Type(SQLT_TIMESTAMP_TZ):
-            return VariantDataType::VAR_DATE_TIME;
+            return VAR_DATE_TIME;
         default:
-            return VariantDataType::VAR_STRING;
+            return VAR_STRING;
     }
 }
 
@@ -330,27 +331,28 @@ Type sptk::VariantTypeToOracleType(VariantDataType dataType)
 {
     switch (dataType)
     {
-        case VariantDataType::VAR_NONE:
+        using enum sptk::VariantDataType;
+        case VAR_NONE:
             throw DatabaseException("Data type is not defined");
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return (Type) SQLT_INT;
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return OCCIBDOUBLE;
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             return OCCICHAR;
-        case VariantDataType::VAR_TEXT:
+        case VAR_TEXT:
             return OCCICLOB;
-        case VariantDataType::VAR_BUFFER:
+        case VAR_BUFFER:
             return OCCIBLOB;
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return OCCIDATE;
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return OCCITIMESTAMP;
-        case VariantDataType::VAR_INT64:
-        case VariantDataType::VAR_BOOL:
+        case VAR_INT64:
+        case VAR_BOOL:
             return OCCIINT;
         default:
-            throw DatabaseException("Unsupported SPTK data type: " + to_string((int) dataType));
+            throw DatabaseException(format("Unsupported SPTK data type: {}", (int) dataType));
     }
 }
 
@@ -444,10 +446,7 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         const int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
-            const auto maxColumnNameLength = 31;
-            array<char, maxColumnNameLength> alias {};
-            snprintf(alias.data(), sizeof(alias) - 1, "column_%02i", int(columnIndex + 1));
-            columnName = alias.data();
+            columnName = format("column_{}", columnIndex + 1);
         }
 
         if (columnType == OCCI_SQLT_LNG && columnDataSize == 0)
@@ -497,7 +496,9 @@ void Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int co
 void OracleConnection::queryFetch(Query* query)
 {
     if (!query->active())
+    {
         THROW_QUERY_ERROR(query, "Dataset isn't open");
+    }
 
     const scoped_lock lock(m_mutex);
 
@@ -638,19 +639,20 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     objects.clear();
     switch (objectType)
     {
-        case DatabaseObjectType::PROCEDURES:
+        using enum sptk::DatabaseObjectType;
+        case PROCEDURES:
             objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'PROCEDURE'";
             break;
-        case DatabaseObjectType::FUNCTIONS:
+        case FUNCTIONS:
             objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'FUNCTION'";
             break;
-        case DatabaseObjectType::TABLES:
+        case TABLES:
             objectsSQL = "SELECT table_name FROM user_tables";
             break;
-        case DatabaseObjectType::VIEWS:
+        case VIEWS:
             objectsSQL = "SELECT view_name FROM sys.all_views";
             break;
-        case DatabaseObjectType::DATABASES:
+        case DATABASES:
             objectsSQL = "SELECT username FROM all_users";
             break;
         default:
@@ -666,14 +668,14 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
     query.close();
 }
 
-void OracleConnection::bulkInsert(const String& _tableName, const Strings& columnNames,
+void OracleConnection::bulkInsert(const String& fullTableName, const Strings& columnNames,
                                   const vector<VariantVector>& data)
 {
     const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
 
     String schema;
     String tableName;
-    const auto matches = matchTableAndSchema.m(_tableName.toUpperCase());
+    const auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
     if (!matches[0].value.empty())
     {
         schema = matches[0].value;
@@ -736,8 +738,10 @@ void OracleConnection::bulkInsert(const String& _tableName, const Strings& colum
     {
         const auto column = columnTypeSizeMap.find(upperCase(columnName));
         if (column == columnTypeSizeMap.end())
+        {
             throw DatabaseException(
                 "Column '" + columnName + "' doesn't belong to table " + tableName);
+        }
         columnTypeSizeVector.push_back(column->second);
     }
 
@@ -761,18 +765,19 @@ void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
         const auto& value = row[i];
         switch (columnTypeSizeVector[i].type)
         {
-            case VariantDataType::VAR_TEXT:
+            using enum sptk::VariantDataType;
+            case VAR_TEXT:
                 if (value.dataSize())
                 {
                     insertQuery.param(i).setBuffer(bit_cast<const uint8_t*>(value.getText()), value.dataSize(),
-                                                   VariantDataType::VAR_TEXT);
+                                                   VAR_TEXT);
                 }
                 else
                 {
-                    insertQuery.param(i).setNull(VariantDataType::VAR_TEXT);
+                    insertQuery.param(i).setNull(VAR_TEXT);
                 }
                 break;
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_DATE_TIME:
                 insertQuery.param(i).setDateTime(value.get<DateTime>());
                 break;
             default:
@@ -790,13 +795,10 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    const auto maxParamMarkLength = 16;
-    array<char, maxParamMarkLength> mark {};
-    snprintf(mark.data(), sizeof(mark) - 1, ":%i", paramIndex + 1);
-    return string(mark.data());
+    return format(":{}", paramIndex + 1);
 }
 
-void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void OracleConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
     static const RegularExpression matchStatementEnd("(;\\s*)$");
     static const RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
@@ -807,7 +809,7 @@ void OracleConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
     Strings statements;
     string statement;
     bool routineStarted = false;
-    for (const auto& aRow: sqlBatch)
+    for (const auto& aRow: batchSQL)
     {
         String row = trim(aRow);
         if (row.empty() || matchCommentRow.matches(row))
