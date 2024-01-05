@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,110 +24,94 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <mutex>
+#include <sptk5/threads/Semaphore.h>
 
-#include <atomic>
-#include <chrono>
-#include <condition_variable>
-#include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
-#include <sptk5/sptk.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * @addtogroup threads Thread Classes
- * @{
- */
-
-/**
- * @brief Generic unnamed semaphore class
- */
-class SP_EXPORT Semaphore
+Semaphore::Semaphore(size_t startingValue, size_t maxValue)
+    : m_value(startingValue)
+    , m_maxValue(maxValue)
 {
-    /**
-     * Mutex object
-     */
-    mutable std::mutex m_lockMutex;
+}
 
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
+Semaphore::~Semaphore()
+{
+    terminate();
+    do
+    {
+        post();
+    } while (waiters() > 0);
+}
 
-    /**
-     * Semaphore value
-     */
-    size_t m_value {0};
+void Semaphore::terminate()
+{
+    scoped_lock lock(m_lockMutex);
+    m_terminated = true;
+}
 
-    /**
-     * Semaphore max value
-     */
-    size_t m_maxValue {0};
+size_t Semaphore::waiters() const
+{
+    scoped_lock lock(m_lockMutex);
+    return m_waiters;
+}
 
-    /**
-     * Number of waiters
-     */
-    size_t m_waiters {0};
+void Semaphore::post()
+{
+    scoped_lock lock(m_lockMutex);
+    if (m_maxValue == 0 || m_value < m_maxValue)
+    {
+        ++m_value;
+        m_condition.notify_one();
+    }
+}
 
-    /**
-     * Terminated flag
-     */
-    bool m_terminated {false};
+void Semaphore::set(size_t value)
+{
+    scoped_lock lock(m_lockMutex);
+    if (m_value != value && (m_maxValue == 0 || value < m_maxValue))
+    {
+        m_value = value;
+        m_condition.notify_one();
+    }
+}
 
-    void terminate();
+bool Semaphore::wait_for(chrono::milliseconds timeout)
+{
+    auto timeoutAt = DateTime::Now() + timeout;
+    return wait_until(timeoutAt);
+}
 
-    /**
-     * Current number of waiters
-     */
-    size_t waiters() const;
+bool Semaphore::wait_until(DateTime timeoutAt)
+{
+    unique_lock lock(m_lockMutex);
 
-public:
-    /**
-     * @brief Constructor
-     *
-     * Creates semaphore with starting value (default 0)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
-     */
-    explicit Semaphore(size_t startingValue = 0, size_t maxValue = 0);
+    ++m_waiters;
 
-    /**
-     * @brief Destructor
-     */
-    virtual ~Semaphore();
+    // Wait until semaphore value is greater than 0
+    while (!m_terminated)
+    {
+        if (!m_condition.wait_until(lock,
+                                    timeoutAt.timePoint(),
+                                    [this]() {
+                                        return m_value > 0;
+                                    }))
+        {
+            if (timeoutAt < DateTime::Now())
+            {
+                --m_waiters;
+                return false;
+            }
+        }
+        else
+        {
+            break;
+        }
+    }
 
-    /**
-     * @brief Set the semaphore value
-     */
-    void set(size_t value);
+    --m_value;
+    --m_waiters;
 
-    /**
-     * @brief Post the semaphore
-     *
-     * The semaphore value is increased by one.
-     */
-    void post();
-
-    /**
-     * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
-     *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Wait timeout
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
-     */
-    bool wait_for(std::chrono::milliseconds timeout);
-
-    /**
-     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
-     *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Timeout moment
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
-     */
-    bool wait_until(DateTime timeout);
-};
-/**
- * @}
- */
-} // namespace sptk
+    return true;
+}

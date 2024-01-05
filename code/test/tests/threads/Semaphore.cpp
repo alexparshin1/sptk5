@@ -87,11 +87,11 @@ static void waitPerformance(bool withTimeout)
     {
         if (withTimeout)
         {
-            semaphore.wait_for(chrono::microseconds(1));
+            semaphore.wait_for(chrono::milliseconds(1));
         }
         else
         {
-            semaphore.wait();
+            semaphore.wait_for(chrono::minutes(1));
         }
     }
     stopWatch.stop();
