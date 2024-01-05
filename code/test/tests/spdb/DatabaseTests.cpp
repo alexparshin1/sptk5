@@ -62,6 +62,7 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 
     for (int i = 0; i < 2; ++i)
     {
+        using enum sptk::DatabaseObjectType;
         const DatabaseConnection databaseConnection = connectionPool.getConnection();
 #ifdef USE_GTEST
         EXPECT_STREQ(databaseConnection->connectionString().toString().c_str(), connectionString.toString().c_str());
@@ -78,11 +79,11 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
         }
 
         Strings objects;
-        databaseConnection->objectList(DatabaseObjectType::TABLES, objects);
-        databaseConnection->objectList(DatabaseObjectType::DATABASES, objects);
-        databaseConnection->objectList(DatabaseObjectType::FUNCTIONS, objects);
-        databaseConnection->objectList(DatabaseObjectType::PROCEDURES, objects);
-        databaseConnection->objectList(DatabaseObjectType::VIEWS, objects);
+        databaseConnection->objectList(TABLES, objects);
+        databaseConnection->objectList(DATABASES, objects);
+        databaseConnection->objectList(FUNCTIONS, objects);
+        databaseConnection->objectList(PROCEDURES, objects);
+        databaseConnection->objectList(VIEWS, objects);
         databaseConnection->close();
     }
 }
@@ -445,7 +446,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
         auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         if (count != maxRecords)
         {
-            throw Exception("count != " + to_string(maxRecords) + " after commit)");
+            throw Exception(format("count != {} after commit", maxRecords));
         }
     }
     else
@@ -488,7 +489,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
     if (auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         count != maxRecords)
     {
-        throw Exception("count " + to_string(count) + " != " + to_string(maxRecords));
+        throw Exception(format("count {} != {}", count, maxRecords));
     }
     return maxRecords;
 }
@@ -587,14 +588,15 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     switch (databaseConnection->connectionType())
     {
-        case DatabaseConnectionType::MYSQL:
-        case DatabaseConnectionType::POSTGRES:
+        using enum sptk::DatabaseConnectionType;
+        case MYSQL:
+        case POSTGRES:
             idDefinition = "id serial";
             break;
-        case DatabaseConnectionType::MSSQL_ODBC:
+        case MSSQL_ODBC:
             idDefinition = "id int identity";
             break;
-        case DatabaseConnectionType::ORACLE:
+        case ORACLE:
             idDefinition = "id int";
             break;
         default:
@@ -875,11 +877,12 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     for (const auto& row: data)
     {
+        using enum sptk::VariantDataType;
         // Insert all nulls
-        insertData.param("id").setNull(VariantDataType::VAR_INT);
-        insertData.param("name").setNull(VariantDataType::VAR_STRING);
-        insertData.param("position").setNull(VariantDataType::VAR_STRING);
-        insertData.param("hired").setNull(VariantDataType::VAR_STRING);
+        insertData.param("id").setNull(VAR_INT);
+        insertData.param("name").setNull(VAR_STRING);
+        insertData.param("position").setNull(VAR_STRING);
+        insertData.param("hired").setNull(VAR_STRING);
         insertData.exec();
 
         // Insert data row

@@ -404,7 +404,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
         if (auto matches = matchDelimiterChange.m(row); matches)
         {
             auto delimiter = matches[0].value;
-            delimiter = matchEscapeChars.s(delimiter, "\\\\1");
+            delimiter = matchEscapeChars.s(delimiter, R"(\\1)");
             matchStatementEnd = make_shared<RegularExpression>("(" + delimiter + ")(\\s*|-- .*)$");
             statement = "";
             continue;

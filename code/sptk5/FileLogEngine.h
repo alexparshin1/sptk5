@@ -74,7 +74,7 @@ public:
 private:
     std::filesystem::path m_fileName; ///< Log file name
     std::ofstream m_fileStream;       ///< Log file stream
-    void close();
+    void close() override;
 };
 /**
  * @}

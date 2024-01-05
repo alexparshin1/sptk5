@@ -112,29 +112,6 @@ public:
     /**
      * Pops a data item from the queue
      *
-     * If queue is empty then waits until a new item pushed to the queue,
-     * or until wakeup() is called.
-     * Returns false if queue is empty after wakeup() call.
-     * @param item              A queue item (output)
-     */
-    bool pop_front(T& item)
-    {
-        m_semaphore.wait();
-
-        std::scoped_lock lock(m_mutex);
-        if (!m_queue.empty())
-        {
-            item = std::move(m_queue.front());
-            m_queue.pop_front();
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Pops a data item from the queue
-     *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A queue item (output)
@@ -152,29 +129,6 @@ public:
                 return true;
             }
         }
-        return false;
-    }
-
-    /**
-     * Pops a data item from the queue
-     *
-     * If queue is empty then waits until a new item pushed to the queue,
-     * or until wakeup() is called.
-     * Returns false if queue is empty after wakeup() call.
-     * @param item              A queue item (output)
-     */
-    bool pop_back(T& item)
-    {
-        m_semaphore.wait();
-
-        std::scoped_lock lock(m_mutex);
-        if (!m_queue.empty())
-        {
-            item = std::move(m_queue.back());
-            m_queue.pop_back();
-            return true;
-        }
-
         return false;
     }
 
