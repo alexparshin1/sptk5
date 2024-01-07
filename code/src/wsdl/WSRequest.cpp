@@ -41,7 +41,7 @@ void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSp
         {
             continue;
         }
-        auto tagname = WSRequest::tagName(attr);
+        const auto tagname = WSRequest::tagName(attr);
         nameSpaces[tagname] = WSNameSpace(tagname, value);
     }
 }
@@ -52,7 +52,7 @@ void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlC
 {
     try
     {
-        auto itor = m_requestMethods.find(requestName);
+        const auto itor = m_requestMethods.find(requestName);
         if (itor == m_requestMethods.end())
         {
             throw SOAPException("Request '" + requestName + "' is not defined in this service");
@@ -82,17 +82,18 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
     // Error handling
     if (xmlContent)
     {
+        using enum sptk::xdoc::Node::Type;
         const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
-        String soap_namespace = WSParser::get_namespace(soapBody->name());
-        if (!soap_namespace.empty())
+        String soapNamespace = WSParser::getNamespace(soapBody->name());
+        if (!soapNamespace.empty())
         {
-            soap_namespace += ":";
+            soapNamespace += ":";
         }
-        const auto& faultNode = soapBody->pushNode(soap_namespace + "Fault", xdoc::Node::Type::Object);
-        const auto& faultCodeNode = faultNode->pushNode("faultcode", xdoc::Node::Type::Text);
-        faultCodeNode->set(soap_namespace + "Client");
-        const auto& faultStringNode = faultNode->pushNode("faultstring", xdoc::Node::Type::Text);
+        const auto& faultNode = soapBody->pushNode(soapNamespace + "Fault", Object);
+        const auto& faultCodeNode = faultNode->pushNode("faultcode", Text);
+        faultCodeNode->set(soapNamespace + "Client");
+        const auto& faultStringNode = faultNode->pushNode("faultstring", Text);
         faultStringNode->set(error);
     }
     else
@@ -113,11 +114,11 @@ void WSRequest::logError(const String& requestName, const String& error, int err
         Logger logger(*m_logEngine);
         if (errorCode != 0)
         {
-            logger.error(requestName + ": " + to_string(errorCode) + " " + error);
+            logger.error(format("{}: {} {}", requestName.c_str(), errorCode, error.c_str()));
         }
         else
         {
-            logger.error(requestName + ": " + error);
+            logger.error(format("{}: {}", requestName.c_str(), error.c_str()));
         }
     }
 }
@@ -148,7 +149,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         map<String, WSNameSpace> allNamespaces;
         for (const auto& node: xmlContent->nodes())
         {
-            if (WSParser::strip_namespace(node->name()).toLowerCase() == "envelope")
+            if (WSParser::stripNamespace(node->name()).toLowerCase() == "envelope")
             {
                 soapEnvelope = node;
                 const String nameSpaceAlias = nameSpace(node->name());
@@ -163,7 +164,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
             throw Exception("Can't find SOAP Envelope node");
         }
 
-        auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
+        const auto soapBody = findSoapBody(soapEnvelope, soapNamespace);
         if (!soapBody || soapBody->nodes().empty())
         {
             throw Exception("Can't find request node");
@@ -175,17 +176,17 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         const String nameSpaceAlias = nameSpace(xmlRequestNode->name());
         extractNameSpaces(xmlRequestNode, allNamespaces);
 
-        if (auto itor = allNamespaces.find(nameSpaceAlias);
+        if (const auto itor = allNamespaces.find(nameSpaceAlias);
             itor == allNamespaces.end())
         {
-            requestNameSpace = WSNameSpace(WSParser::get_namespace(xmlRequestNode->name()));
+            requestNameSpace = WSNameSpace(WSParser::getNamespace(xmlRequestNode->name()));
         }
         else
         {
             requestNameSpace = itor->second;
         }
 
-        requestName = WSParser::strip_namespace(xmlRequestNode->name());
+        requestName = WSParser::stripNamespace(xmlRequestNode->name());
     }
     else
     {
@@ -203,19 +204,11 @@ void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMeth
 String WSRequest::tagName(const String& nodeName)
 {
     const auto pos = nodeName.find(':');
-    if (pos == string::npos)
-    {
-        return {};
-    }
-    return nodeName.substr(pos + 1);
+    return pos == string::npos? "": nodeName.substr(pos + 1);
 }
 
 String WSRequest::nameSpace(const String& nodeName)
 {
     const auto pos = nodeName.find(':');
-    if (pos == string::npos)
-    {
-        return {};
-    }
-    return nodeName.substr(0, pos);
+    return pos == string::npos? "": nodeName.substr(0, pos);
 }

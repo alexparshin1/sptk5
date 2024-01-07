@@ -74,7 +74,7 @@ public:
 
         [[nodiscard]] const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
         {
-            auto itor = m_elements.find(elementName);
+            const auto itor = m_elements.find(elementName);
             if (itor == m_elements.end())
             {
                 throw Exception(context + ": Element '" + elementName + "' not found");
@@ -90,7 +90,7 @@ public:
         [[nodiscard]] SWSParserComplexType complexType(const sptk::String& elementName,
                                                        const sptk::String& context) const
         {
-            auto itor = m_complexTypes.find(elementName);
+            const auto itor = m_complexTypes.find(elementName);
             if (itor == m_complexTypes.end())
             {
                 throw Exception(context + ": Complex type '" + elementName + "' not found");
@@ -163,13 +163,13 @@ public:
      * Utility function that removes namespace from the element name
      * @param name              Element name
      */
-    static String strip_namespace(const String& name);
+    static String stripNamespace(const String& name);
 
     /**
      * Utility function that returns namespace from the element name
      * @param name              Element name
      */
-    static String get_namespace(const String& name);
+    static String getNamespace(const String& name);
 
     const String& description() const;
 
