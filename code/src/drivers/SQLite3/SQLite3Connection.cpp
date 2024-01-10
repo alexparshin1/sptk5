@@ -332,8 +332,8 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
                 default:
                     throw DatabaseException(
-                        "Unsupported parameter type(" + to_string((int) param->dataType()) + ") for parameter '" +
-                        param->name() + "'");
+                        vformat("Unsupported parameter type ({}) for parameter '{}'",
+                                make_format_args((int) param->dataType(), param->name().c_str())));
             }
         }
 
@@ -342,8 +342,8 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
             const String error = sqlite3_errmsg(m_connect.get());
             sqlite3_finalize(stmt);
             throw DatabaseException(
-                error + ", in binding parameter '" + param->name() + "'", source_location::current(),
-                query->sql());
+                vformat("{}, in binding parameter '{}'", make_format_args(error.c_str(), param->name().c_str())),
+                source_location::current(), query->sql());
         }
     }
 }
@@ -407,7 +407,7 @@ void SQLite3Connection::queryOpen(Query* query)
         String columnName(sqlite3_column_name(stmt, column - 1));
         if (columnName.empty())
         {
-            columnName = "column_" + to_string(column);
+            columnName = format("column_{}", column);
         }
 
         auto field = make_shared<SQLite3Field>(columnName);
@@ -484,10 +484,10 @@ void SQLite3Connection::queryFetch(Query* query)
     {
         try
         {
-            field = (SQLite3Field*) &(*query)[column];
+            field = bit_cast<SQLite3Field*>(&(*query)[column]);
 
             auto fieldType = (short) field->fieldType();
-            if (fieldType == 0 || fieldType == 5)
+            if (fieldType == 0 || fieldType == SQLITE_NULL)
             {
                 fieldType = (short) sqlite3_column_type(statement, int(column));
                 field->setFieldType(fieldType, 0, 0);
@@ -499,7 +499,6 @@ void SQLite3Connection::queryFetch(Query* query)
             {
                 switch (fieldType)
                 {
-
                     case SQLITE_INTEGER:
                         field->setInt64(sqlite3_column_int64(statement, int(column)));
                         break;
@@ -534,9 +533,10 @@ void SQLite3Connection::queryFetch(Query* query)
         }
         catch (const Exception& e)
         {
+            const auto fieldName = field != nullptr ? field->fieldName() : "";
             throw DatabaseException(
-                "Can't read field " + field->fieldName() + "\n" + string(e.what()), source_location::current(),
-                query->sql());
+                vformat("Can't read field '{}': {}", make_format_args(fieldName.c_str(), e.what())),
+                source_location::current(), query->sql());
         }
     }
 }
