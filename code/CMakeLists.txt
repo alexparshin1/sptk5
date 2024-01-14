@@ -257,6 +257,15 @@ IF (USE_ORACLE)
     ELSE (Oracle_FOUND)
         MESSAGE("Oracle support:     don't compile")
     ENDIF (Oracle_FOUND)
+
+    FIND_PACKAGE(OCI QUIET)
+    IF (OCI_FOUND)
+        MESSAGE("OCI support:        compile")
+        SET(ORACLE_OCI_FLAG "1")
+        SET(ORACLE_OCI_DEFINE "#define HAVE_ORACLE_OCI")
+    ELSE (OCI_FOUND)
+        MESSAGE("OCI support:        don't compile")
+    ENDIF (OCI_FOUND)
 ENDIF (USE_ORACLE)
 
 SET(MYSQL_FLAG "0")
@@ -418,6 +427,7 @@ ELSE (ZLIB_FOUND)
     SET(ZLIB_FLAG "0")
 ENDIF (ZLIB_FOUND)
 
+
 FIND_PACKAGE(Brotli QUIET)
 SET(BROTLI_DEFINE "// Brotli is not used")
 SET(BROTLI_FLAG "0")
@@ -485,6 +495,8 @@ INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR} googletest/googletest/include)
 
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
+ADD_SUBDIRECTORY(ocitest)
+
 ADD_SUBDIRECTORY(sptk5)
 
 IF (USE_GTEST)
@@ -521,6 +533,7 @@ ENDIF ()
 IF (BUILD_PACKAGE)
     ADD_SUBDIRECTORY(packages)
 ENDIF ()
+
 
 FILE(GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL(FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
