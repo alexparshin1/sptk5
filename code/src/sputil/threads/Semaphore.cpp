@@ -79,8 +79,32 @@ void Semaphore::set(size_t value)
 
 bool Semaphore::wait_for(chrono::milliseconds timeout)
 {
-    auto timeoutAt = DateTime::Now() + timeout;
-    return wait_until(timeoutAt);
+    unique_lock lock(m_lockMutex);
+
+    ++m_waiters;
+
+    // Wait until semaphore value is greater than 0
+    while (!m_terminated)
+    {
+        if (!m_condition.wait_for(lock,
+                                    timeout,
+                                    [this]() {
+                                        return m_value > 0;
+                                    }))
+        {
+            --m_waiters;
+            return false;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    --m_value;
+    --m_waiters;
+
+    return true;
 }
 
 bool Semaphore::wait_until(DateTime timeoutAt)

@@ -194,8 +194,8 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-    std::shared_ptr<ORACLE_OCI> m_connection; ///< OracleOci database connection
-    mutable std::mutex m_mutex;          ///< Mutex that protects access to data members
+    std::shared_ptr<OCI_Connection> m_connection; ///< OracleOci database connection
+    mutable std::mutex m_mutex;                   ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to OracleOci server
