@@ -26,18 +26,12 @@
 
 #pragma once
 
-#include <sptk5/db/PoolDatabaseConnection.h>
+#include "PoolDatabaseConnection.h"
+#include "ocilib.hpp"
 
-#ifdef HAVE_MYSQL
+#ifdef HAVE_ORACLE_OCI
 
 #include <mutex>
-#include <sptk5/db/MySQLStatement.h>
-
-#ifdef _WIN32
-#define ULONG_CAST (unsigned long)
-#else
-#define ULONG_CAST
-#endif
 
 namespace sptk {
 
@@ -47,27 +41,23 @@ namespace sptk {
  */
 
 /**
- * @brief MySQL database connection
+ * @brief Oracle (OCI) database connection
  */
-class SP_EXPORT MySQLConnection
+class SP_EXPORT OracleOciConnection
     : public PoolDatabaseConnection
 {
     friend class Query;
-
-    friend class MySQLStatement;
+    friend class OracleOciStatement;
 
 public:
     /**
-     * @brief Returns the MySQL connection object
+     * @brief Returns the OracleOci connection object
      */
-    MYSQL* connection() const
-    {
-        return m_connection.get();
-    }
+    OCI_Connection* connection() const;
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The MySQL connection string
+     * @param connectionString  The OracleOci connection string
      */
     void _openDatabase(const String& connectionString) override;
 
@@ -84,23 +74,20 @@ public:
     /**
      * @brief Constructor
      *
-     * Typical connection string is something like: "dbname='my_db' host='my_hostname' port=5142" and so on.
+     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
      * For more information please refer to:
      * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
      * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString  The MySQL connection string
+     * @param connectionString  The OracleOci connection string
      */
-    explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::minutes(1));
+    explicit OracleOciConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::minutes(1));
 
-    MySQLConnection(const MySQLConnection&) = delete;
+    OracleOciConnection(const OracleOciConnection&) = delete;
+    OracleOciConnection(OracleOciConnection&&) = delete;
+    OracleOciConnection& operator=(const OracleOciConnection&) = delete;
+    OracleOciConnection& operator=(OracleOciConnection&&) = delete;
 
-    MySQLConnection(MySQLConnection&&) = delete;
-
-    MySQLConnection& operator=(const MySQLConnection&) = delete;
-
-    MySQLConnection& operator=(MySQLConnection&&) = delete;
-
-    ~MySQLConnection() override = default;
+    ~OracleOciConnection() override = default;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -118,7 +105,7 @@ public:
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the MySQL driver description for the active connection
+     * @brief Returns the OracleOci driver description for the active connection
      */
     String driverDescription() const override;
 
@@ -132,7 +119,7 @@ public:
     /**
      * @brief All active connections
      */
-    static std::map<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
+    static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_mysqlConnections;
 
 protected:
     /**
@@ -153,17 +140,17 @@ protected:
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an MySQL statement
+     * Allocates an OracleOci statement
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an MySQL statement
+     * Deallocates an OracleOci statement
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an MySQL statement
+     * Closes an OracleOci statement
      */
     void queryCloseStmt(Query* query) override;
 
@@ -207,16 +194,16 @@ protected:
     String paramMark(unsigned paramIndex) override;
 
 private:
-    std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
+    std::shared_ptr<ORACLE_OCI> m_connection; ///< OracleOci database connection
     mutable std::mutex m_mutex;          ///< Mutex that protects access to data members
 
     /**
-     * @brief Init connection to MySQL server
+     * @brief Init connection to OracleOci server
      */
     void initConnection();
 
     /**
-     * @brief Execute MySQL command
+     * @brief Execute OracleOci command
      */
     void executeCommand(const String& command);
 };
@@ -228,6 +215,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT void mysql_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* oracle_oci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT void oracle_oci_destroy_connection(void* connection);
 }

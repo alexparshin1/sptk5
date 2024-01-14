@@ -1,8 +1,8 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+║                        SIMPLY POWERFUL TOOLKIT (SPTK)                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,34 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <sptk5/cutils>
+#include <sptk5/db/OracleOciConnection.h>
+#include <sptk5/db/Query.h>
 
-constexpr const char* VERSION = "@VERSION@";
-constexpr const char* THEMES_PREFIX = "@THEMES_PREFIX@";
+using namespace std;
+using namespace sptk;
 
-@FLTK_DEFINE@
-@ODBC_DEFINE@
-@SQLITE3_DEFINE@
-@POSTGRESQL_DEFINE@
-@FIREBIRD_DEFINE@
-@EPOLL_DEFINE@
-
-@MYSQL_DEFINE@
-@MARIADB_DEFINE@
-@MYSQL_HAS_MY_BOOL_DEFINE@
-
-@ORACLE_DEFINE@
-@ORACLE_OCI_DEFINE@
-@ASPELL_DEFINE@
-@PCRE_DEFINE@
-@PCRE2_DEFINE@
-@OPENSSL_DEFINE@
-@ZLIB_DEFINE@
-@BROTLI_DEFINE@
-
-@NEW_ABI_DEFINE@
-@GTEST_DEFINE@
-
-constexpr const char* TEST_DIRECTORY = "@TEST_DIRECTORY@";    ///< Directory that contains data, used in unit tests
-
-@BUILD_TEST_WS_DEFINE@
+OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
+    : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
+{
+}

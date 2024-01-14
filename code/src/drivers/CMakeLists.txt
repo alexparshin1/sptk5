@@ -94,6 +94,29 @@ IF (ORACLE_FLAG)
         ARCHIVE DESTINATION lib COMPONENT db_oracle)
 ENDIF (ORACLE_FLAG)
 
+IF (ORACLE_OCI_FLAG)
+    ADD_LIBRARY (spdb5_oracle_oci ${DRIVER_LIBRARY_TYPE}
+            OracleOCI/OracleOciConnection.cpp
+    )
+
+    # Oracle uses old C++ ABI
+    #TARGET_COMPILE_OPTIONS (spdb5_oracle_oci PUBLIC -D_GLIBCXX_USE_CXX11_ABI=0)
+
+    SET_TARGET_PROPERTIES(spdb5_oracle_oci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
+
+    IF (SET_RPATH)
+        SET_TARGET_PROPERTIES(spdb5_oracle_oci PROPERTIES INSTALL_RPATH "" )
+    ENDIF ()
+
+    TARGET_LINK_LIBRARIES (spdb5_oracle_oci spdb5 sputil5 ${Oracle_LIBRARIES})
+
+    INSTALL(
+            TARGETS spdb5_oracle_oci
+            RUNTIME DESTINATION bin COMPONENT db_oracle_oci
+            LIBRARY DESTINATION lib COMPONENT db_oracle_oci
+            ARCHIVE DESTINATION lib COMPONENT db_oracle_oci)
+ENDIF (ORACLE_OCI_FLAG)
+
 IF (MYSQL_FLAG)
     ADD_LIBRARY (spdb5_mysql ${DRIVER_LIBRARY_TYPE}
             MySQL/MySQLStatement.cpp
