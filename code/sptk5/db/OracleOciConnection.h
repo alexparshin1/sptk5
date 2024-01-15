@@ -51,27 +51,6 @@ class SP_EXPORT OracleOciConnection
 
 public:
     /**
-     * @brief Returns the OracleOci connection object
-     */
-    OCI_Connection* connection() const;
-
-    /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The OracleOci connection string
-     */
-    void _openDatabase(const String& connectionString) override;
-
-    /**
-     * @brief Executes SQL batch file
-     *
-     * Queries are executed in not prepared mode.
-     * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            If not nullptr, store errors here instead of exceptions
-     */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
-
-    /**
      * @brief Constructor
      *
      * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
@@ -87,12 +66,33 @@ public:
     OracleOciConnection& operator=(const OracleOciConnection&) = delete;
     OracleOciConnection& operator=(OracleOciConnection&&) = delete;
 
-    ~OracleOciConnection() override = default;
+    ~OracleOciConnection() override;
+
+    /**
+     * @brief Returns the OracleOci connection object
+     */
+    OCI_Connection* connection() const;
+
+    /**
+     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @param connectionString  The OracleOci connection string
+     */
+    void _openDatabase(const String& connectionString) override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
      */
     void closeDatabase() override;
+
+    /**
+     * @brief Executes SQL batch file
+     *
+     * Queries are executed in not prepared mode.
+     * Syntax of the SQL batch file is matching the native for the database.
+     * @param batchSQL          SQL batch file
+     * @param errors            If not nullptr, store errors here instead of exceptions
+     */
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
      * @brief Returns true if database is opened

@@ -59,7 +59,8 @@ enum class DatabaseConnectionType : uint16_t
     SQLITE3 = 8,       ///< SQLite3
     FIREBIRD = 16,     ///< Firebird
     GENERIC_ODBC = 32, ///< Generic ODBC
-    MSSQL_ODBC = 64    ///< MS SQL ODBC
+    MSSQL_ODBC = 64,    ///< MS SQL ODBC
+    ORACLE_OCI = 128,        ///< Oracle OCILib
 };
 
 /**
