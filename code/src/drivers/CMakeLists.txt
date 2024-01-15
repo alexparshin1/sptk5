@@ -76,9 +76,6 @@ IF (ORACLE_FLAG)
             Oracle/OracleBulkInsertQuery.cpp
     )
 
-    # Oracle uses old C++ ABI
-    #TARGET_COMPILE_OPTIONS (spdb5_oracle PUBLIC -D_GLIBCXX_USE_CXX11_ABI=0)
-
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
@@ -97,6 +94,7 @@ ENDIF (ORACLE_FLAG)
 IF (ORACLE_OCI_FLAG)
     ADD_LIBRARY (spdb5_oracle_oci ${DRIVER_LIBRARY_TYPE}
             OracleOCI/OracleOciConnection.cpp
+            OracleOCI/OracleOciStatement.cpp
     )
 
     # Oracle uses old C++ ABI

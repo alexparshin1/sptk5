@@ -87,6 +87,7 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
             auto oracleService = format("{}:{}/{}", dbConnectionString.hostName().c_str(),
                                         dbConnectionString.portNumber(), dbConnectionString.databaseName().c_str());
             m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
+            m_connection->SetAutoCommit(true);
         }
         catch (const ocilib::Exception& e)
         {
@@ -125,7 +126,8 @@ DBHandle OracleOciConnection::handle() const
 
 String OracleOciConnection::driverDescription() const
 {
-    return PoolDatabaseConnection::driverDescription();
+    auto driverVersion = format("OracleOci {}.{}", Environment::GetCompileMajorVersion(), Environment::GetCompileMinorVersion());
+    return driverVersion;
 }
 
 void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& objects)
@@ -134,12 +136,21 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
 
 void OracleOciConnection::driverBeginTransaction()
 {
+    m_connection->SetAutoCommit(false);
     PoolDatabaseConnection::driverBeginTransaction();
 }
 
 void OracleOciConnection::driverEndTransaction(bool commit)
 {
-    PoolDatabaseConnection::driverEndTransaction(commit);
+    if (commit)
+    {
+        m_connection->Commit();
+    }
+    else
+    {
+        m_connection->Rollback();
+    }
+    m_connection->SetAutoCommit(true);
 }
 
 void OracleOciConnection::queryAllocStmt(Query* query)
