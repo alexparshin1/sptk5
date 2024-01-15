@@ -1,4 +1,5 @@
 #include "ocilib.hpp"
+#include "sptk5/db/OracleOciStatement.h"
 #include <iostream>
 #include <sptk5/db/OracleOciConnection.h>
 
@@ -13,13 +14,20 @@ int main()
         //Environment::Initialize();
 
         const String connectionString("oracleoci://gtest:test#123@theater:1521/xe");
-        OracleOciConnection oracleOciConnection(connectionString, chrono::seconds(10));
+        OracleOciConnection connection(connectionString, chrono::seconds(10));
 
-        oracleOciConnection._openDatabase(connectionString);
+        connection._openDatabase(connectionString);
 
-        Connection con("theater:1521/xe", "gtest", "test#123");
+        OracleOciStatement stmt(&connection, "select 1 from dual");
+        stmt.execute(false);
 
-        Statement st(con);
+        auto rset = stmt.resultSet();
+        while (rset.Next())
+        {
+            std::cout << "# " << rset.Get<int>(1) << std::endl;
+        }
+
+        Statement st(*connection.connection());
         st.Execute("select 1 from dual");
 
         Resultset rs = st.GetResultset();

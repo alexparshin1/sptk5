@@ -363,44 +363,18 @@ void OracleOciStatement::execute(bool inTransaction)
         statement()->setAutoCommit(!inTransaction);
         state().transaction = inTransaction;
     }
-
-    if (m_resultSet)
-    {
-        close();
-    }
+    */
 
     state().eof = true;
     state().columnCount = 0;
 
-    auto rc = statement()->execute();
-    if (rc == Statement::RESULT_SET_AVAILABLE)
+    statement()->Execute(m_sql);
+    auto resultSet = statement()->GetResultset();
+    if (resultSet)
     {
-
         state().eof = false;
-
-        m_resultSet = statement()->getResultSet();
-
-        const vector<MetaData> resultSetMetaData = m_resultSet->getColumnListMetaData();
-
-        state().columnCount = (unsigned) resultSetMetaData.size();
-
-        unsigned columnIndex = 1;
-        for (const MetaData& metaData: resultSetMetaData)
-        {
-            // If resultSet contains cursor, use that cursor as resultSet
-            if (metaData.getInt(MetaData::ATTR_DATA_TYPE) == SQLT_RSET)
-            {
-                m_resultSet->next();
-                ResultSet* resultSet = m_resultSet->getCursor(columnIndex);
-                m_resultSet->cancel();
-                m_resultSet = resultSet;
-                state().columnCount = (unsigned) m_resultSet->getColumnListMetaData().size();
-                break;
-            }
-            ++columnIndex;
-        }
+        state().columnCount = (unsigned) resultSet.GetColumnCount();
     }
-     */
 }
 
 void OracleOciStatement::getBLOBOutputParameter(unsigned int index, const SDatabaseField& field) const
@@ -527,18 +501,13 @@ void OracleOciStatement::getDateOutputParameter(unsigned int index, const SDatab
 
 void OracleOciStatement::close()
 {
-    if (m_resultSet)
-    {
-        //m_resultSet->Cancel();
-    }
-
-    m_resultSet = nullptr;
 }
 
 void OracleOciStatement::fetch()
 {
-    if (m_resultSet)
+    auto resultSet = m_ociStatement->GetResultset();
+    if (resultSet)
     {
-        //state().eof = (m_resultSet->Next() == ResultSet::END_OF_FETCH);
+        state().eof = !resultSet.Next();
     }
 }

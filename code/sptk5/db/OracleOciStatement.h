@@ -114,9 +114,9 @@ public:
     /**
      * Returns result set (if returned by a statement)
      */
-    ResultSet* resultSet()
+    ResultSet resultSet()
     {
-        return m_resultSet;
+        return m_ociStatement->GetResultset();
     }
 
     void getOutputParameters(FieldList& fields);
@@ -126,7 +126,6 @@ private:
     String m_sql;                               ///< SQL
     Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
     Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
-    ResultSet* m_resultSet {nullptr};           ///< Result set (if returned by statement)
 
     /*
      * Index of output parameters
