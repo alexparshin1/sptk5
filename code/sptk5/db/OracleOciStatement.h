@@ -120,6 +120,7 @@ public:
     }
 
     void getOutputParameters(FieldList& fields);
+    void enumerateParams(QueryParameterList& queryParams) override;
 
 private:
     std::shared_ptr<Statement> m_ociStatement;  ///< Statement

@@ -27,6 +27,7 @@
 #include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/OracleOciConnection.h>
+#include <sptk5/db/OracleOciStatement.h>
 #include <sptk5/db/Query.h>
 
 using namespace std;
@@ -106,7 +107,14 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
 
 void OracleOciConnection::closeDatabase()
 {
-    PoolDatabaseConnection::closeDatabase();
+    try
+    {
+        m_connection.reset();
+    }
+    catch (const ocilib::Exception& e)
+    {
+        throw DatabaseException(string("Can't close connection: ") + e.what());
+    }
 }
 
 void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
@@ -155,27 +163,91 @@ void OracleOciConnection::driverEndTransaction(bool commit)
 
 void OracleOciConnection::queryAllocStmt(Query* query)
 {
+    auto stmt = make_shared<OracleOciStatement>(this, query->sql());
+    querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
 void OracleOciConnection::queryFreeStmt(Query* query)
 {
+    const scoped_lock lock(m_mutex);
+    querySetStmt(query, nullptr);
+    querySetPrepared(query, false);
 }
 
 void OracleOciConnection::queryCloseStmt(Query* query)
 {
+    const scoped_lock lock(m_mutex);
+    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    if (statement)
+    {
+        statement->close();
+    }
 }
 
 void OracleOciConnection::queryPrepare(Query* query)
 {
+    const scoped_lock lock(m_mutex);
+
+    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    statement->enumerateParams(query->params());
+    /*
+    if (query->bulkMode())
+    {
+        const CParamVector& enumeratedParams = statement->enumeratedParams();
+        Statement* stmt = statement->stmt();
+        const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
+        if (bulkInsertQuery == nullptr)
+        {
+            throw Exception("Not a bulk query");
+        }
+        const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
+        setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
+        stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
+    }
+     */
+    querySetPrepared(query, true);
 }
 
 void OracleOciConnection::queryExecute(Query* query)
 {
+    try
+    {
+        auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+        if (statement == nullptr)
+        {
+            throw Exception("Query is not prepared");
+        }
+        /*
+        if (query->bulkMode())
+        {
+            const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
+            if (bulkInsertQuery == nullptr)
+            {
+                throw Exception("Query is not COracleBulkInsertQuery");
+            }
+            statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
+        }
+        else
+         */
+        {
+            statement->execute(getInTransaction());
+        }
+    }
+    catch (const ocilib::Exception& e)
+    {
+        throw DatabaseException(e.what());
+    }
 }
 
 int OracleOciConnection::queryColCount(Query* query)
 {
-    return 0;
+    const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    if (statement == nullptr)
+    {
+        throw DatabaseException("Query not opened");
+    }
+    const auto resultSet = statement->statement()->GetResultset();
+    return resultSet.GetColumnCount();
 }
 
 void OracleOciConnection::queryBindParameters(Query* query)

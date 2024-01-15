@@ -511,3 +511,8 @@ void OracleOciStatement::fetch()
         state().eof = !resultSet.Next();
     }
 }
+
+void OracleOciStatement::enumerateParams(QueryParameterList& queryParams)
+{
+    DatabaseStatement::enumerateParams(queryParams);
+}
