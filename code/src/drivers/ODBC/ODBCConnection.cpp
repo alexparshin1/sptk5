@@ -1014,7 +1014,8 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
     if (SQLAllocStmt(this->handle(), &stmt) != SQL_SUCCESS)
     {
-        throw DatabaseException("ODBCConnection::SQLAllocStmt");
+        auto error = queryError(SQLHSTMT(0));
+        throw DatabaseException("ODBCConnection::SQLAllocStmt: " + error);
     }
 
     switch (objectType)

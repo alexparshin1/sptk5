@@ -24,16 +24,24 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/OracleOciConnection.h>
 #include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
+using namespace ocilib;
 
 OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE_OCI, connectTimeout)
 {
+    static mutex initializeMutex;
+    scoped_lock lock(initializeMutex);
+    if (!ocilib::Environment::Initialized())
+    {
+        ocilib::Environment::Initialize();
+    }
 }
 
 OracleOciConnection::~OracleOciConnection()
@@ -57,14 +65,42 @@ OracleOciConnection::~OracleOciConnection()
     }
 }
 
-OCI_Connection* OracleOciConnection::connection() const
+Connection* OracleOciConnection::connection() const
 {
-    return nullptr;
+    return m_connection.get();
 }
 
-void OracleOciConnection::_openDatabase(const String& connectionString)
+void OracleOciConnection::_openDatabase(const String& newConnectionString)
 {
-    PoolDatabaseConnection::_openDatabase(connectionString);
+    if (!active())
+    {
+        setInTransaction(false);
+        if (!newConnectionString.empty())
+        {
+            connectionString(DatabaseConnectionString(newConnectionString));
+        }
+
+        //Statement* createLobTable = nullptr;
+        try
+        {
+            DatabaseConnectionString dbConnectionString = connectionString();
+            auto oracleService = format("{}:{}/{}", dbConnectionString.hostName().c_str(),
+                                        dbConnectionString.portNumber(), dbConnectionString.databaseName().c_str());
+            m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
+        }
+        catch (const ocilib::Exception& e)
+        {
+            if (strstr(e.what(), "already used") == nullptr)
+            {
+                if (m_connection)
+                {
+                    //m_connection->terminateStatement(createLobTable);
+                    m_connection.reset();
+                }
+                throw DatabaseException(string("Can't create connection: ") + e.what());
+            }
+        }
+    }
 }
 
 void OracleOciConnection::closeDatabase()
@@ -79,7 +115,7 @@ void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* erro
 
 bool OracleOciConnection::active() const
 {
-    return PoolDatabaseConnection::active();
+    return (bool) m_connection;
 }
 
 DBHandle OracleOciConnection::handle() const
@@ -154,4 +190,9 @@ void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16
 String OracleOciConnection::paramMark(unsigned int paramIndex)
 {
     return PoolDatabaseConnectionQueryMethods::paramMark(paramIndex);
+}
+
+String OracleOciConnection::queryError(const Query* query) const
+{
+    return String();
 }
