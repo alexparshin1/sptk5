@@ -279,3 +279,17 @@ String OracleOciConnection::queryError(const Query* query) const
 {
     return String();
 }
+
+map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
+
+[[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+{
+    auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
+    return connection.get();
+}
+
+[[maybe_unused]] void oracleoci_destroy_connection(void* connection)
+{
+    OracleOciConnection::s_oracleOciConnections.erase(bit_cast<OracleOciConnection*>(connection));
+}

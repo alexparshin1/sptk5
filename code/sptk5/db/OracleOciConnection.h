@@ -119,7 +119,7 @@ public:
     /**
      * @brief All active connections
      */
-    static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_mysqlConnections;
+    static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
 
 protected:
     /**
@@ -215,6 +215,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* oracle_oci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT void oracle_oci_destroy_connection(void* connection);
+SP_DRIVER_EXPORT void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT void oracleoci_destroy_connection(void* connection);
 }

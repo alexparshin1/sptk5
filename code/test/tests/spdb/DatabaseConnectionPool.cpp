@@ -448,6 +448,62 @@ TEST(SPTK_OracleConnection, BLOB)
 
 #endif
 
+//───────────────────────────────── Oracle OCILib ──────────────────────────────────────
+#ifdef HAVE_ORACLE_OCI
+
+TEST(SPTK_OracleOciConnection, connect)
+{
+    testConnect("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, DDL)
+{
+    testDDL("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, bulkInsert)
+{
+    testBulkInsert("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, bulkInsertPerformance)
+{
+    testBulkInsertPerformance("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, queryParameters)
+{
+    testQueryParameters("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, dates)
+{
+    testQueryDateAndTimestamp("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, transaction)
+{
+    testTransaction("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, select)
+{
+    testSelect("OracleOCI");
+    testInvalidQuery("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, insertQuery)
+{
+    testInsertQuery("OracleOCI");
+}
+
+TEST(SPTK_OracleOciConnection, BLOB)
+{
+    testBlobInsertAndSelect("OracleOCI");
+}
+
+#endif
+
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
 #ifdef HAVE_ODBC
 

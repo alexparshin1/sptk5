@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
     tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
     tests.addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost/tmp/test.sqlite3"));
+    tests.addDatabaseConnection(DatabaseConnectionString("oracleoci://gtest:test#123@oracledb:1521/xe"));
 
     return tests.runAllTests();
 }
