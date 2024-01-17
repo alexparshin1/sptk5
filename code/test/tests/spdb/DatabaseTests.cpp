@@ -129,6 +129,7 @@ static const map<String, String> dateFieldTypes = {
     {"postgresql", "DATE"},
     {"mssql", "DATE"},
     {"oracle", "DATE"},
+    {"oracleoci", "DATE"},
     {"sqlite3", "VARCHAR(10)"}};
 
 static const map<String, String> dateTimeFieldTypes = {
@@ -136,6 +137,7 @@ static const map<String, String> dateTimeFieldTypes = {
     {"postgresql", "TIMESTAMP"},
     {"mssql", "DATETIME2"},
     {"oracle", "TIMESTAMP"},
+    {"oracleoci", "TIMESTAMP"},
     {"sqlite3", "VARCHAR(30)"}};
 
 static const map<String, String> boolFieldTypes = {
@@ -143,6 +145,7 @@ static const map<String, String> boolFieldTypes = {
     {"postgresql", "BOOL"},
     {"mssql", "BIT"},
     {"oracle", "NUMBER(1)"},
+    {"oracleoci", "NUMBER(1)"},
     {"sqlite3", "INT"},
 };
 
@@ -151,6 +154,7 @@ static const map<String, String> textFieldTypes = {
     {"postgresql", "TEXT"},
     {"mssql", "NVARCHAR(MAX)"},
     {"oracle", "CLOB"},
+    {"oracleoci", "CLOB"},
     {"sqlite3", "TEXT"}};
 
 static const map<String, String> blobFieldTypes = {
@@ -158,6 +162,7 @@ static const map<String, String> blobFieldTypes = {
     {"postgresql", "BYTEA"},
     {"mssql", "VARBINARY(MAX)"},
     {"oracle", "BLOB"},
+    {"oracleoci", "BLOB"},
     {"sqlite3", "TEXT"}};
 
 static String fieldType(const String& fieldType, const String& driverName)
@@ -535,7 +540,8 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
 
 void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
 {
-    auto itor = blobFieldTypes.find(databaseConnection->connectionString().driverName());
+    auto driverName = databaseConnection->connectionString().driverName();
+    auto itor = blobFieldTypes.find(driverName);
     if (itor == blobFieldTypes.end())
     {
         throw Exception("BLOB data type mapping is not defined for the test");
