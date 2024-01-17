@@ -325,7 +325,7 @@ void ODBCConnection::queryExecute(Query* query)
         THROW_QUERY_ERROR(query, queryError(query));
 }
 
-int ODBCConnection::queryColCount(Query* query)
+size_t ODBCConnection::queryColCount(Query* query)
 {
     const scoped_lock lock(*m_connect);
 
@@ -669,7 +669,7 @@ void ODBCConnection::queryOpen(Query* query)
 
     queryExecute(query);
 
-    const int count = queryColCount(query);
+    const auto count = queryColCount(query);
     if (count < 1)
     {
         queryCloseStmt(query);
@@ -1014,7 +1014,7 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
     if (SQLAllocStmt(this->handle(), &stmt) != SQL_SUCCESS)
     {
-        auto error = queryError(SQLHSTMT(0));
+        auto error = queryError(SQLHSTMT(nullptr));
         throw DatabaseException("ODBCConnection::SQLAllocStmt: " + error);
     }
 

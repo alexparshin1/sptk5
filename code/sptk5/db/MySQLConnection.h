@@ -180,7 +180,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int queryColCount(Query* query) override;
+    size_t queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query

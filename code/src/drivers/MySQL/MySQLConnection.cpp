@@ -203,9 +203,9 @@ void MySQLConnection::queryPrepare(Query* query)
     }
 }
 
-int MySQLConnection::queryColCount(Query* query)
+size_t MySQLConnection::queryColCount(Query* query)
 {
-    int colCount = 0;
+    size_t colCount = 0;
     const auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
@@ -213,7 +213,7 @@ int MySQLConnection::queryColCount(Query* query)
         {
             throw DatabaseException("Query not opened");
         }
-        colCount = static_cast<int>(statement->colCount());
+        colCount = statement->colCount();
     }
     catch (const Exception& e)
     {

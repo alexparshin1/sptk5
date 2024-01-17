@@ -158,7 +158,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int queryColCount(Query* query) override;
+    size_t queryColCount(Query* query) override;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes

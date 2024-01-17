@@ -167,7 +167,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    int queryColCount(Query* query) override;
+    size_t queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
@@ -197,15 +197,6 @@ private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
     mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
 
-    /**
-     * @brief Init connection to OracleOci server
-     */
-    void initConnection();
-
-    /**
-     * @brief Execute OracleOci command
-     */
-    void executeCommand(const String& command);
     void createQueryFieldsFromMetadata(Query* query, ocilib::Resultset resultSet);
 };
 /**

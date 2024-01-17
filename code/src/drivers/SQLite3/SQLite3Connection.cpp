@@ -256,7 +256,7 @@ void SQLite3Connection::queryExecute(Query* query)
     }
 }
 
-int SQLite3Connection::queryColCount(Query* query)
+size_t SQLite3Connection::queryColCount(Query* query)
 {
     const scoped_lock lock(m_mutex);
 

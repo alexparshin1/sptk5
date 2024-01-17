@@ -394,11 +394,11 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     querySetPrepared(query, true);
 }
 
-int PostgreSQLConnection::queryColCount(Query* query)
+size_t PostgreSQLConnection::queryColCount(Query* query)
 {
     const auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
 
-    return static_cast<int>(statement->colCount());
+    return statement->colCount();
 }
 
 void PostgreSQLConnection::queryBindParameters(Query* query)

@@ -262,7 +262,7 @@ void OracleConnection::setMaxParamSizes(const CParamVector& enumeratedParams, St
     }
 }
 
-int OracleConnection::queryColCount(Query* query)
+size_t OracleConnection::queryColCount(Query* query)
 {
     const auto* statement = bit_cast<OracleStatement*>(query->statement());
     if (statement == nullptr)
@@ -271,7 +271,7 @@ int OracleConnection::queryColCount(Query* query)
     }
     else
     {
-        return (int) statement->colCount();
+        return statement->colCount();
     }
 }
 

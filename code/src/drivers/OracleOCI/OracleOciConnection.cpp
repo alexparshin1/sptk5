@@ -239,7 +239,7 @@ void OracleOciConnection::queryExecute(Query* query)
     }
 }
 
-int OracleOciConnection::queryColCount(Query* query)
+size_t OracleOciConnection::queryColCount(Query* query)
 {
     const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
     if (statement == nullptr)
@@ -247,6 +247,10 @@ int OracleOciConnection::queryColCount(Query* query)
         throw DatabaseException("Query not opened");
     }
     const auto resultSet = statement->statement()->GetResultset();
+    if (!resultSet)
+    {
+        return 0;
+    }
     return resultSet.GetColumnCount();
 }
 
@@ -321,7 +325,7 @@ VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scal
             return VAR_STRING;
     }
 }
-}
+} // namespace
 
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset resultSet)
 {
@@ -349,8 +353,6 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
         auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
                                                 columnScale);
         query->fields().push_back(field);
-
-        ++columnIndex;
     }
 }
 

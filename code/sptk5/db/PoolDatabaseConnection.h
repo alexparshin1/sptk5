@@ -59,8 +59,8 @@ enum class DatabaseConnectionType : uint16_t
     SQLITE3 = 8,       ///< SQLite3
     FIREBIRD = 16,     ///< Firebird
     GENERIC_ODBC = 32, ///< Generic ODBC
-    MSSQL_ODBC = 64,    ///< MS SQL ODBC
-    ORACLE_OCI = 128,        ///< Oracle OCILib
+    MSSQL_ODBC = 64,   ///< MS SQL ODBC
+    ORACLE_OCI = 128,  ///< Oracle OCILib
 };
 
 /**
@@ -157,7 +157,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    virtual int queryColCount(Query* query) = 0;
+    virtual size_t queryColCount(Query* query) = 0;
 
     /**
      * In a dataset returned by a query, retrieves the column attributes
