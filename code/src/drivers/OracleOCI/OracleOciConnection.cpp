@@ -256,6 +256,102 @@ void OracleOciConnection::queryBindParameters(Query* query)
 
 void OracleOciConnection::queryOpen(Query* query)
 {
+    if (!active())
+    {
+        open();
+    }
+
+    if (query->active())
+    {
+        return;
+    }
+
+    if (query->statement() == nullptr)
+    {
+        queryAllocStmt(query);
+    }
+
+    if (!query->prepared())
+    {
+        queryPrepare(query);
+    }
+
+    // Bind parameters also executes a query
+    queryBindParameters(query);
+
+    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+
+    queryExecute(query);
+    if (queryColCount(query) < 1)
+    {
+        statement->getOutputParameters(query->fields());
+        return;
+    }
+    else
+    {
+        querySetActive(query, true);
+        if (query->fieldCount() == 0)
+        {
+            const scoped_lock lock(m_mutex);
+            auto resultSet = statement->resultSet();
+            createQueryFieldsFromMetadata(query, resultSet);
+        }
+    }
+
+    querySetEof(query, statement->eof());
+
+    queryFetch(query);
+}
+
+namespace {
+VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
+{
+    switch (oracleType.GetValue())
+    {
+        using enum sptk::VariantDataType;
+        case OCI_CDT_NUMERIC:
+            return scale == 0 ? VAR_INT64 : VAR_FLOAT;
+        case OCI_CDT_DATETIME:
+            return VAR_DATE;
+        case OCI_CDT_LOB:
+            return VAR_BUFFER;
+        case OCI_CDT_BOOLEAN:
+            return VAR_BOOL;
+        default:
+            return VAR_STRING;
+    }
+}
+}
+
+void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset resultSet)
+{
+    unsigned columnCount = resultSet.GetColumnCount();
+    for (size_t columnIndex = 0; columnIndex < columnCount; ++columnIndex)
+    {
+        auto column = resultSet.GetColumn(columnIndex + 1);
+        auto columnType = column.GetType();
+        auto columnSqlType = column.GetSQLType();
+        const int columnScale = column.GetScale();
+        String columnName(column.GetName());
+        const int columnDataSize = column.GetSize();
+        if (columnName.empty())
+        {
+            columnName = format("column_{}", columnIndex + 1);
+        }
+
+        if (columnType == OCI_CDT_LONG && columnDataSize == 0)
+        {
+            const auto maxColumnSize = 16384;
+            //resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
+        }
+
+        const VariantDataType dataType = OracleOciTypeToVariantType(columnType, columnScale);
+        auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
+                                                columnScale);
+        query->fields().push_back(field);
+
+        ++columnIndex;
+    }
 }
 
 void OracleOciConnection::queryFetch(Query* query)

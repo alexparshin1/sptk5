@@ -11,8 +11,6 @@ int main()
 {
     try
     {
-        //Environment::Initialize();
-
         const String connectionString("oracleoci://gtest:test#123@theater:1521/xe");
         OracleOciConnection connection(connectionString, chrono::seconds(10));
 

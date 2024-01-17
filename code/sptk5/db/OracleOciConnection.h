@@ -206,6 +206,7 @@ private:
      * @brief Execute OracleOci command
      */
     void executeCommand(const String& command);
+    void createQueryFieldsFromMetadata(Query* query, ocilib::Resultset resultSet);
 };
 /**
  * @}
