@@ -34,6 +34,13 @@ using namespace std;
 using namespace sptk;
 using namespace ocilib;
 
+namespace {
+void OracleOci_readTimestamp(Resultset resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
+} // namespace
+
 OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE_OCI, connectTimeout)
 {
@@ -190,6 +197,12 @@ void OracleOciConnection::queryPrepare(Query* query)
 
     auto* statement = bit_cast<OracleOciStatement*>(query->statement());
     statement->enumerateParams(query->params());
+
+    if (!query->prepared())
+    {
+        statement->statement()->Prepare(query->sql());
+        querySetPrepared(query, true);
+    }
     /*
     if (query->bulkMode())
     {
@@ -256,6 +269,22 @@ size_t OracleOciConnection::queryColCount(Query* query)
 
 void OracleOciConnection::queryBindParameters(Query* query)
 {
+    const scoped_lock lock(m_mutex);
+
+    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    if (statement == nullptr)
+    {
+        throw DatabaseException("Query not prepared");
+    }
+
+    try
+    {
+        statement->setParameterValues();
+    }
+    catch (const ocilib::Exception& e)
+    {
+        throw DatabaseException(e.what());
+    }
 }
 
 void OracleOciConnection::queryOpen(Query* query)
@@ -307,8 +336,7 @@ void OracleOciConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-namespace {
-VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
+VariantDataType OracleOciConnection::OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
 {
     switch (oracleType.GetValue())
     {
@@ -316,7 +344,8 @@ VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scal
         case OCI_CDT_NUMERIC:
             return scale == 0 ? VAR_INT64 : VAR_FLOAT;
         case OCI_CDT_DATETIME:
-            return VAR_DATE;
+        case OCI_CDT_TIMESTAMP:
+            return VAR_DATE_TIME;
         case OCI_CDT_LOB:
             return VAR_BUFFER;
         case OCI_CDT_BOOLEAN:
@@ -325,7 +354,33 @@ VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scal
             return VAR_STRING;
     }
 }
-} // namespace
+
+DataType OracleOciConnection::VariantTypeToOracleOciType(VariantDataType dataType)
+{
+    switch (dataType)
+    {
+        using enum sptk::VariantDataType;
+        case VAR_NONE:
+            throw DatabaseException("Data type is not defined");
+        case VAR_INT:
+        case VAR_FLOAT:
+        case VAR_INT64:
+            return TypeNumeric;
+        case VAR_STRING:
+            return TypeString;
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            return TypeLob;
+        case VAR_DATE:
+            return TypeDate;
+        case VAR_DATE_TIME:
+            return TypeTimestamp;
+        case VAR_BOOL:
+            return TypeBoolean;
+        default:
+            throw DatabaseException(format("Unsupported SPTK data type: {}", (int) dataType));
+    }
+}
 
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset resultSet)
 {
@@ -342,13 +397,13 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
         {
             columnName = format("column_{}", columnIndex + 1);
         }
-
+        /*
         if (columnType == OCI_CDT_LONG && columnDataSize == 0)
         {
             const auto maxColumnSize = 16384;
-            //resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
+            resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
         }
-
+*/
         const VariantDataType dataType = OracleOciTypeToVariantType(columnType, columnScale);
         auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
                                                 columnScale);
@@ -358,6 +413,90 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
 
 void OracleOciConnection::queryFetch(Query* query)
 {
+    if (!query->active())
+    {
+        THROW_QUERY_ERROR(query, "Dataset isn't open");
+    }
+
+    const scoped_lock lock(m_mutex);
+
+    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    auto resultSet = statement->resultSet();
+    if (!resultSet)
+    {
+        querySetEof(query, true);
+        return;
+    }
+
+    auto fieldCount = query->fieldCount();
+    if (fieldCount == 0)
+    {
+        querySetEof(query, true);
+        return;
+    }
+
+    for (unsigned fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
+    {
+        auto* field = bit_cast<DatabaseField*>(&(*query)[fieldIndex]);
+
+        try
+        {
+            // Result set column index starts from 1
+            auto columnIndex = fieldIndex + 1;
+            auto dataType = field->dataType();
+
+            if (resultSet.IsColumnNull(columnIndex))
+            {
+                field->setNull(dataType);
+                continue;
+            }
+
+            switch (field->dataType())
+            {
+                case VariantDataType::VAR_INT:
+                    field->setInteger(resultSet.Get<int>(columnIndex));
+                    break;
+
+                case VariantDataType::VAR_INT64:
+                    field->setInt64(resultSet.Get<Blong>(columnIndex));
+                    break;
+
+                case VariantDataType::VAR_FLOAT:
+                    field->setFloat(resultSet.Get<double>(columnIndex));
+                    break;
+
+                case VariantDataType::VAR_DATE:
+                    OracleOci_readDate(resultSet, field, columnIndex);
+                    break;
+
+                case VariantDataType::VAR_DATE_TIME:
+                    OracleOci_readTimestamp(resultSet, field, columnIndex);
+                    break;
+
+                case VariantDataType::VAR_BUFFER:
+                    OracleOci_readBLOB(resultSet, field, columnIndex);
+                    break;
+
+                case VariantDataType::VAR_TEXT:
+                    OracleOci_readCLOB(resultSet, field, columnIndex);
+                    break;
+
+                default:
+                    field->setString(resultSet.Get<string>(columnIndex));
+                    break;
+            }
+        }
+        catch (const Exception& e)
+        {
+            THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
+        }
+        catch (const ocilib::Exception& e)
+        {
+            THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
+        }
+    }
+
+    resultSet.Next();
 }
 
 void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
@@ -370,13 +509,44 @@ void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16
 
 String OracleOciConnection::paramMark(unsigned int paramIndex)
 {
-    return PoolDatabaseConnectionQueryMethods::paramMark(paramIndex);
+    return format(":{}", paramIndex + 1);
 }
 
 String OracleOciConnection::queryError(const Query* query) const
 {
     return String();
 }
+
+namespace {
+void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+{
+    auto date = resultSet.Get<Date>(columnIndex);
+    field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), date.GetHours(), date.GetMinutes(), date.GetSeconds()), false);
+}
+
+void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+{
+    auto date = resultSet.Get<Date>(columnIndex);
+    field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), short(0), short(0), short(0)), true);
+}
+
+void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+{
+    auto clob = resultSet.Get<Clob>(columnIndex);
+    constexpr size_t SizeBuffer = 16 * 1024 * 1024;
+    auto clobData = clob.Read(SizeBuffer);
+    field->setBuffer((const uint8_t*) clobData.data(), clobData.size(), VariantDataType::VAR_TEXT);
+}
+
+void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+{
+    auto blob = resultSet.Get<Blob>(columnIndex);
+    size_t SizeBuffer = 2048;
+    auto blobData = blob.Read(SizeBuffer);
+    field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_TEXT);
+}
+
+} // namespace
 
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 

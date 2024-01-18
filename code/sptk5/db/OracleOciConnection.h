@@ -71,7 +71,7 @@ public:
     /**
      * @brief Returns the OracleOci connection object
      */
-    ocilib::Connection* connection() const;
+    [[nodiscard]] ocilib::Connection* connection() const;
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
@@ -97,17 +97,17 @@ public:
     /**
      * @brief Returns true if database is opened
      */
-    bool active() const override;
+    [[nodiscard]] bool active() const override;
 
     /**
      * @brief Returns the database connection handle
      */
-    DBHandle handle() const override;
+    [[nodiscard]] DBHandle handle() const override;
 
     /**
      * @brief Returns the OracleOci driver description for the active connection
      */
-    String driverDescription() const override;
+    [[nodiscard]] String driverDescription() const override;
 
     /**
      * @brief Lists database objects
@@ -115,6 +115,9 @@ public:
      * @param objects           Object list (output)
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
+
+    [[nodiscard]] static VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale);
+    [[nodiscard]] static ocilib::DataType VariantTypeToOracleOciType(VariantDataType dataType);
 
     /**
      * @brief All active connections
@@ -137,7 +140,7 @@ protected:
     /**
      * Retrieves an error (if any) after executing a statement
      */
-    String queryError(const Query* query) const override;
+    [[nodiscard]] String queryError(const Query* query) const override;
 
     /**
      * Allocates an OracleOci statement
@@ -167,7 +170,7 @@ protected:
     /**
      * Counts columns of the dataset (if any) returned by query
      */
-    size_t queryColCount(Query* query) override;
+    [[nodiscard]] size_t queryColCount(Query* query) override;
 
     /**
      * Binds the parameters to the query
@@ -191,7 +194,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0
      */
-    String paramMark(unsigned paramIndex) override;
+    [[nodiscard]] String paramMark(unsigned paramIndex) override;
 
 private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection

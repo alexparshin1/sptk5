@@ -101,29 +101,22 @@ void OracleOciStatement::setBlobParameter(uint32_t parameterIndex, unsigned char
 
 void OracleOciStatement::setParameterValues()
 {
-    /*
     m_outputParamIndex.clear();
 
     unsigned parameterIndex = 1;
+    auto* stmt = statement();
     for (const auto& parameterPtr: enumeratedParams())
     {
         QueryParameter& parameter = *parameterPtr;
         VariantDataType& paramDataType = parameter.binding().m_dataType;
 
         paramDataType = parameter.dataType();
-
-        if (!parameter.isOutput() && parameter.isNull())
-        {
-            const Type nativeType = VariantTypeToOracleOciType(parameter.binding().m_dataType);
-            statement()->setNull(parameterIndex, nativeType);
-            ++parameterIndex;
-            continue;
-        }
+        auto paramMark = ":" + to_string(parameterIndex);
 
         switch (paramDataType)
         {
             case VariantDataType::VAR_INT: ///< Integer
-                setIntParamValue(parameterIndex, parameter);
+                setIntParamValue(paramMark, parameterIndex, parameter);
                 break;
 
             case VariantDataType::VAR_FLOAT: ///< Floating-point (double)
@@ -131,7 +124,7 @@ void OracleOciStatement::setParameterValues()
                 break;
 
             case VariantDataType::VAR_STRING: ///< String pointer
-                setStringParamValue(parameterIndex, parameter);
+                setStringParamValue(paramMark, parameterIndex, parameter);
                 break;
 
             case VariantDataType::VAR_TEXT: ///< String pointer, corresponding to CLOB in database
@@ -163,24 +156,30 @@ void OracleOciStatement::setParameterValues()
                     "Unsupported parameter type(" + to_string((int) parameter.dataType()) + ") for parameter '" +
                     parameter.name() + "'");
         }
+
+        if (!parameter.isOutput() && parameter.isNull())
+        {
+            stmt->GetBind(paramMark).SetDataNull(true);
+            ++parameterIndex;
+            continue;
+        }
+
         ++parameterIndex;
     }
-     */
 }
 
-void OracleOciStatement::setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
+void OracleOciStatement::setIntParamValue(const ostring& parameterMark, unsigned int parameterIndex, const QueryParameter& parameter)
 {
-    /*
     if (parameter.isOutput())
     {
-        statement()->registerOutParam(parameterIndex, OCCIINT);
-        m_outputParamIndex.push_back(parameterIndex);
+        //statement()->registerOutParam(parameterIndex, OCCIINT);
+        //m_outputParamIndex.push_back(parameterIndex);
     }
     else
     {
-        statement()->setInt(parameterIndex, parameter.asInteger());
+        int value = parameter.asInteger();
+        statement()->Bind(parameterMark, value, BindInfo::BindDirectionValues::In);
     }
-     */
 }
 
 void OracleOciStatement::setFloatParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
@@ -198,7 +197,7 @@ void OracleOciStatement::setFloatParamValue(unsigned int parameterIndex, const Q
      */
 }
 
-void OracleOciStatement::setStringParamValue(unsigned int parameterIndex, const QueryParameter& parameter)
+void OracleOciStatement::setStringParamValue(const ostring& paramMark, unsigned int parameterIndex, const QueryParameter& parameter)
 {
     /*
     if (parameter.isOutput())
@@ -207,10 +206,11 @@ void OracleOciStatement::setStringParamValue(unsigned int parameterIndex, const 
         m_outputParamIndex.push_back(parameterIndex);
     }
     else
+*/
     {
-        statement()->setString(parameterIndex, parameter.asString());
+        auto value = ostring(parameter.asString());
+        statement()->Bind(paramMark, value, static_cast<unsigned int>(value.size()), BindInfo::BindDirectionValues::In);
     }
-     */
 }
 
 void OracleOciStatement::setBooleanParamValue(unsigned int parameterIndex, const QueryParameter& parameter)

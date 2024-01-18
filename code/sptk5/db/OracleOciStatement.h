@@ -49,7 +49,6 @@ class OracleOciStatement
 public:
     using Connection = ocilib::Connection; ///< OracleOci connection type
     using Statement = ocilib::Statement;   ///< OracleOci statement type
-    using ResultSet = ocilib::Resultset;   ///< OracleOci result set type
 
     /**
      * Constructor
@@ -114,7 +113,7 @@ public:
     /**
      * Returns result set (if returned by a statement)
      */
-    ResultSet resultSet()
+    ocilib::Resultset resultSet()
     {
         return m_ociStatement->GetResultset();
     }
@@ -127,6 +126,7 @@ private:
     String m_sql;                               ///< SQL
     Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
     Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
+    bool m_prepared {false};                    ///< True if statement is prepared
 
     /*
      * Index of output parameters
@@ -210,7 +210,7 @@ private:
      * @param parameterIndex    Parameter number
      * @param parameter         Query parameter
      */
-    void setStringParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+    void setStringParamValue(const ocilib::ostring& paramMark, unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
      * Set float parameter value
@@ -224,7 +224,7 @@ private:
      * @param parameterIndex    Parameter number
      * @param parameter         Query parameter
      */
-    void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
+    void setIntParamValue(const ocilib::ostring& parameterMark, unsigned int parameterIndex, const QueryParameter& parameter);
 
     void getDateOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
