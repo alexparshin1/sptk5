@@ -1,75 +1,75 @@
-SET (DRIVER_LIBRARY_TYPE SHARED)
+SET(DRIVER_LIBRARY_TYPE SHARED)
 
 IF (DRIVER_LIBRARY_TYPE STREQUAL "SHARED")
-  ADD_DEFINITIONS (-DSP_DRIVER_LIBRARY)
-ENDIF(DRIVER_LIBRARY_TYPE STREQUAL "SHARED")
+    ADD_DEFINITIONS(-DSP_DRIVER_LIBRARY)
+ENDIF (DRIVER_LIBRARY_TYPE STREQUAL "SHARED")
 
 # ODBC support library
 IF (ODBC_FLAG)
-    ADD_LIBRARY (spdb5_odbc ${DRIVER_LIBRARY_TYPE} ODBC/ODBC.cpp ODBC/ODBCConnection.cpp)
+    ADD_LIBRARY(spdb5_odbc ${DRIVER_LIBRARY_TYPE} ODBC/ODBC.cpp ODBC/ODBCConnection.cpp)
 
     SET_TARGET_PROPERTIES(spdb5_odbc PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_odbc PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_odbc PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
     TARGET_LINK_LIBRARIES(spdb5_odbc spdb5 sputil5 ${ODBC_LIBRARY})
 
     INSTALL(
-        TARGETS spdb5_odbc
-        RUNTIME DESTINATION bin COMPONENT db_odbc
-        LIBRARY DESTINATION lib COMPONENT db_odbc
-        ARCHIVE DESTINATION lib COMPONENT db_odbc)
+            TARGETS spdb5_odbc
+            RUNTIME DESTINATION bin COMPONENT db_odbc
+            LIBRARY DESTINATION lib COMPONENT db_odbc
+            ARCHIVE DESTINATION lib COMPONENT db_odbc)
 ENDIF (ODBC_FLAG)
 
 # SQLite3 support library
-SET (SQLITE3_SOURCES)
+SET(SQLITE3_SOURCES)
 IF (SQLITE3_FLAG)
-    ADD_LIBRARY (spdb5_sqlite3 ${DRIVER_LIBRARY_TYPE} SQLite3/SQLite3Connection.cpp)
+    ADD_LIBRARY(spdb5_sqlite3 ${DRIVER_LIBRARY_TYPE} SQLite3/SQLite3Connection.cpp)
 
     SET_TARGET_PROPERTIES(spdb5_sqlite3 PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_sqlite3 PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_sqlite3 PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
     TARGET_LINK_LIBRARIES(spdb5_sqlite3 spdb5 sputil5 ${SQLITE3_LIBRARY})
 
     INSTALL(
-        TARGETS spdb5_sqlite3
-        RUNTIME DESTINATION bin COMPONENT db_sqlite3
-        LIBRARY DESTINATION lib COMPONENT db_sqlite3
-        ARCHIVE DESTINATION lib COMPONENT db_sqlite3)
+            TARGETS spdb5_sqlite3
+            RUNTIME DESTINATION bin COMPONENT db_sqlite3
+            LIBRARY DESTINATION lib COMPONENT db_sqlite3
+            ARCHIVE DESTINATION lib COMPONENT db_sqlite3)
 ENDIF (SQLITE3_FLAG)
 
-SET (POSTGRESQL_SOURCES)
+SET(POSTGRESQL_SOURCES)
 IF (POSTGRESQL_FLAG)
-    ADD_LIBRARY (spdb5_postgresql ${DRIVER_LIBRARY_TYPE}
-        PostgreSQL/PostgreSQLConnection.cpp
-        PostgreSQL/PostgreSQLParamValues.cpp
-        PostgreSQL/htonq.cpp
+    ADD_LIBRARY(spdb5_postgresql ${DRIVER_LIBRARY_TYPE}
+            PostgreSQL/PostgreSQLConnection.cpp
+            PostgreSQL/PostgreSQLParamValues.cpp
+            PostgreSQL/htonq.cpp
     )
 
     SET_TARGET_PROPERTIES(spdb5_postgresql PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_postgresql PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_postgresql PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
-    INCLUDE_DIRECTORIES (${PostgreSQL_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(${PostgreSQL_INCLUDE_DIR})
 
     TARGET_LINK_LIBRARIES(spdb5_postgresql spdb5 sputil5 ${PostgreSQL_LIBRARY})
 
     INSTALL(
-        TARGETS spdb5_postgresql
-        RUNTIME DESTINATION bin COMPONENT db_postgresql
-        LIBRARY DESTINATION lib COMPONENT db_postgresql
-        ARCHIVE DESTINATION lib COMPONENT db_postgresql)
+            TARGETS spdb5_postgresql
+            RUNTIME DESTINATION bin COMPONENT db_postgresql
+            LIBRARY DESTINATION lib COMPONENT db_postgresql
+            ARCHIVE DESTINATION lib COMPONENT db_postgresql)
 ENDIF (POSTGRESQL_FLAG)
 
 IF (ORACLE_FLAG)
-    ADD_LIBRARY (spdb5_oracle ${DRIVER_LIBRARY_TYPE}
+    ADD_LIBRARY(spdb5_oracle ${DRIVER_LIBRARY_TYPE}
             Oracle/OracleEnvironment.cpp
             Oracle/OracleStatement.cpp
             Oracle/OracleConnection.cpp
@@ -79,31 +79,32 @@ IF (ORACLE_FLAG)
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
-    TARGET_LINK_LIBRARIES (spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
+    TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
 
     INSTALL(
-        TARGETS spdb5_oracle
-        RUNTIME DESTINATION bin COMPONENT db_oracle
-        LIBRARY DESTINATION lib COMPONENT db_oracle
-        ARCHIVE DESTINATION lib COMPONENT db_oracle)
+            TARGETS spdb5_oracle
+            RUNTIME DESTINATION bin COMPONENT db_oracle
+            LIBRARY DESTINATION lib COMPONENT db_oracle
+            ARCHIVE DESTINATION lib COMPONENT db_oracle)
 ENDIF (ORACLE_FLAG)
 
 IF (ORACLE_OCI_FLAG)
-    ADD_LIBRARY (spdb5_oracleoci ${DRIVER_LIBRARY_TYPE}
+    ADD_LIBRARY(spdb5_oracleoci ${DRIVER_LIBRARY_TYPE}
             OracleOCI/OracleOciConnection.cpp
             OracleOCI/OracleOciStatement.cpp
+            OracleOCI/OracleOciParameterBuffer.cpp
     )
 
     SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
-    TARGET_LINK_LIBRARIES (spdb5_oracleoci spdb5 sputil5 ${OCI_LIBRARY})
+    TARGET_LINK_LIBRARIES(spdb5_oracleoci spdb5 sputil5 ${OCI_LIBRARY})
 
     INSTALL(
             TARGETS spdb5_oracleoci
@@ -113,7 +114,7 @@ IF (ORACLE_OCI_FLAG)
 ENDIF (ORACLE_OCI_FLAG)
 
 IF (MYSQL_FLAG)
-    ADD_LIBRARY (spdb5_mysql ${DRIVER_LIBRARY_TYPE}
+    ADD_LIBRARY(spdb5_mysql ${DRIVER_LIBRARY_TYPE}
             MySQL/MySQLStatement.cpp
             MySQL/MySQLConnection.cpp
     )
@@ -121,16 +122,16 @@ IF (MYSQL_FLAG)
     SET_TARGET_PROPERTIES(spdb5_mysql PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
 
     IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_mysql PROPERTIES INSTALL_RPATH "" )
+        SET_TARGET_PROPERTIES(spdb5_mysql PROPERTIES INSTALL_RPATH "")
     ENDIF ()
 
-    INCLUDE_DIRECTORIES (${MySQL_INCLUDE_DIR})
+    INCLUDE_DIRECTORIES(${MySQL_INCLUDE_DIR})
 
-    TARGET_LINK_LIBRARIES (spdb5_mysql spdb5 sputil5 ${MySQL_LIBRARY})
+    TARGET_LINK_LIBRARIES(spdb5_mysql spdb5 sputil5 ${MySQL_LIBRARY})
 
     INSTALL(
-        TARGETS spdb5_mysql
-        RUNTIME DESTINATION bin COMPONENT db_mysql
-        LIBRARY DESTINATION lib COMPONENT db_mysql
-        ARCHIVE DESTINATION lib COMPONENT db_mysql)
+            TARGETS spdb5_mysql
+            RUNTIME DESTINATION bin COMPONENT db_mysql
+            LIBRARY DESTINATION lib COMPONENT db_mysql
+            ARCHIVE DESTINATION lib COMPONENT db_mysql)
 ENDIF (MYSQL_FLAG)

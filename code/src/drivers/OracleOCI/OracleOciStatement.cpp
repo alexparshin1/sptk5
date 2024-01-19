@@ -105,6 +105,9 @@ void OracleOciStatement::setParameterValues()
 
     unsigned parameterIndex = 1;
     auto* stmt = statement();
+
+    auto performBinding = m_parameterBinding.empty();
+
     for (const auto& parameterPtr: enumeratedParams())
     {
         QueryParameter& parameter = *parameterPtr;
@@ -113,49 +116,13 @@ void OracleOciStatement::setParameterValues()
         paramDataType = parameter.dataType();
         auto paramMark = ":" + to_string(parameterIndex);
 
-        switch (paramDataType)
+        if (performBinding)
         {
-            case VariantDataType::VAR_INT: ///< Integer
-                setIntParamValue(paramMark, parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_FLOAT: ///< Floating-point (double)
-                setFloatParamValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_STRING: ///< String pointer
-                setStringParamValue(paramMark, parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_TEXT: ///< String pointer, corresponding to CLOB in database
-                setCLOBParameterValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_BUFFER: ///< Data pointer, corresponding to BLOB in database
-                setBLOBParameterValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_DATE: ///< DateTime (double)
-                setDateParameterValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_DATE_TIME: ///< DateTime (double)
-                setDateTimeParameterValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_INT64: ///< 64bit integer
-                setInt64ParamValue(parameterIndex, parameter);
-                break;
-
-            case VariantDataType::VAR_BOOL: ///< Boolean
-                setBooleanParamValue(parameterIndex, parameter);
-                break;
-
-            default:
-                throw DatabaseException(
-                    "Unsupported parameter type(" + to_string((int) parameter.dataType()) + ") for parameter '" +
-                    parameter.name() + "'");
+            m_parameterBinding.emplace_back(paramDataType);
+            m_parameterBinding.back().bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
         }
+
+        m_parameterBinding[parameterIndex - 1].setValue(parameter);
 
         if (!parameter.isOutput() && parameter.isNull())
         {
@@ -168,7 +135,7 @@ void OracleOciStatement::setParameterValues()
     }
 }
 
-void OracleOciStatement::setIntParamValue(const ostring& parameterMark, unsigned int parameterIndex, const QueryParameter& parameter)
+void OracleOciStatement::setIntParamValue(const ostring& parameterMark, unsigned int parameterIndex, QueryParameter& parameter)
 {
     if (parameter.isOutput())
     {
@@ -177,7 +144,7 @@ void OracleOciStatement::setIntParamValue(const ostring& parameterMark, unsigned
     }
     else
     {
-        int value = parameter.asInteger();
+        auto& value = parameter.get<int>();
         statement()->Bind(parameterMark, value, BindInfo::BindDirectionValues::In);
     }
 }
@@ -368,7 +335,7 @@ void OracleOciStatement::execute(bool inTransaction)
     state().eof = true;
     state().columnCount = 0;
 
-    statement()->Execute(m_sql);
+    statement()->ExecutePrepared();
     auto resultSet = statement()->GetResultset();
     if (resultSet)
     {
@@ -515,4 +482,5 @@ void OracleOciStatement::fetch()
 void OracleOciStatement::enumerateParams(QueryParameterList& queryParams)
 {
     DatabaseStatement::enumerateParams(queryParams);
+    m_parameterBinding.clear();
 }

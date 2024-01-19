@@ -320,7 +320,7 @@ void MySQLStatement::setParameterValues()
         bind.error = nullptr;
     }
 
-    // Bind the buffers
+    // bind the buffers
     if (mysql_stmt_bind_param(statement(), &m_paramBuffers[0]) != 0)
     {
         throwMySQLError();
@@ -408,7 +408,7 @@ void MySQLStatement::bindResult(FieldList& fields)
 
     if (statement() != nullptr)
     {
-        // Bind initialized fields to MySQL bind buffers
+        // bind initialized fields to MySQL bind buffers
         m_fieldBuffers.resize(state().columnCount);
         for (unsigned columnIndex = 0; columnIndex < state().columnCount; ++columnIndex)
         {

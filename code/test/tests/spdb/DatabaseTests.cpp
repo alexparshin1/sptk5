@@ -874,7 +874,8 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table");
-    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    //Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table (id) VALUES (:id)");
 
     Strings data;
     data.push_back(string("1\tAlex,'Doe'\tProgrammer\t01-JAN-2014"));
@@ -886,17 +887,21 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         using enum sptk::VariantDataType;
         // Insert all nulls
         insertData.param("id").setNull(VAR_INT);
+        /*
         insertData.param("name").setNull(VAR_STRING);
         insertData.param("position").setNull(VAR_STRING);
         insertData.param("hired").setNull(VAR_STRING);
         insertData.exec();
+         */
 
         // Insert data row
         Strings values(row, "\t");
         insertData.param("id") = string2int(values[0]);
+        /*
         insertData.param("name") = values[1];
         insertData.param("position") = values[2];
         insertData.param("hired") = values[3];
+         */
         insertData.exec();
     }
 

@@ -309,7 +309,7 @@ void OracleOciConnection::queryOpen(Query* query)
         queryPrepare(query);
     }
 
-    // Bind parameters also executes a query
+    // bind parameters also executes a query
     queryBindParameters(query);
 
     auto* statement = bit_cast<OracleOciStatement*>(query->statement());

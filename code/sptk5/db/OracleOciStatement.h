@@ -33,6 +33,7 @@
 #include <string>
 
 #include "DatabaseField.h"
+#include "OracleOciParameterBuffer.h"
 #include <sptk5/FieldList.h>
 #include <sptk5/db/DatabaseStatement.h>
 
@@ -127,6 +128,7 @@ private:
     Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
     Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
     bool m_prepared {false};                    ///< True if statement is prepared
+    std::vector<OracleOciParameterBuffer> m_parameterBinding;
 
     /*
      * Index of output parameters
@@ -224,7 +226,7 @@ private:
      * @param parameterIndex    Parameter number
      * @param parameter         Query parameter
      */
-    void setIntParamValue(const ocilib::ostring& parameterMark, unsigned int parameterIndex, const QueryParameter& parameter);
+    void setIntParamValue(const ocilib::ostring& parameterMark, unsigned int parameterIndex, QueryParameter& parameter);
 
     void getDateOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
