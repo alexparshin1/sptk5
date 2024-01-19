@@ -20,6 +20,10 @@ public:
     static constexpr unsigned MaxStringLength = 2048;
 
     OracleOciParameterBuffer(VariantDataType type);
+    OracleOciParameterBuffer(const OracleOciParameterBuffer&) = delete;
+    OracleOciParameterBuffer(OracleOciParameterBuffer&&) = delete;
+    OracleOciParameterBuffer& operator=(const OracleOciParameterBuffer&) = delete;
+    OracleOciParameterBuffer& operator=(OracleOciParameterBuffer&&) = delete;
     ~OracleOciParameterBuffer();
 
     void bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, ocilib::BindInfo::BindDirectionValues bindDirection);

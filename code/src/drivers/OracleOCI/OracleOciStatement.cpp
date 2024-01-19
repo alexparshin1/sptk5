@@ -118,11 +118,12 @@ void OracleOciStatement::setParameterValues()
 
         if (performBinding)
         {
-            m_parameterBinding.emplace_back(paramDataType);
-            m_parameterBinding.back().bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
+            auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType);
+            paramBuffer->bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
+            m_parameterBinding.push_back(paramBuffer);
         }
 
-        m_parameterBinding[parameterIndex - 1].setValue(parameter);
+        m_parameterBinding[parameterIndex - 1]->setValue(parameter);
 
         if (!parameter.isOutput() && parameter.isNull())
         {

@@ -128,7 +128,7 @@ private:
     Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
     Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
     bool m_prepared {false};                    ///< True if statement is prepared
-    std::vector<OracleOciParameterBuffer> m_parameterBinding;
+    std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;
 
     /*
      * Index of output parameters

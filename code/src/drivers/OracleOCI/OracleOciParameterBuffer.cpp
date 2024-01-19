@@ -85,7 +85,6 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             throw Exception("Unknown parameter data type.");
     }
 }
-
 void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, ocilib::BindInfo::BindDirectionValues bindDirection)
 {
     switch (m_bindType)
