@@ -158,9 +158,9 @@ public:
     static void testBLOB(const DatabaseConnectionString& connectionString);
 
     /**
-	 * Global database tests collection
-	 */
-    static DatabaseTests& tests();
+     * Global database tests collection
+     */
+    [[nodiscard]] static DatabaseTests& tests();
 
 private:
     /**

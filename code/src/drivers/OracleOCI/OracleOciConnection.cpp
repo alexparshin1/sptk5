@@ -465,7 +465,7 @@ void OracleOciConnection::queryFetch(Query* query)
                     break;
 
                 case VariantDataType::VAR_INT64:
-                    field->setInt64(resultSet.Get<Blong>(columnIndex));
+                    field->setInt64(resultSet.Get<big_int>(columnIndex));
                     break;
 
                 case VariantDataType::VAR_FLOAT:
@@ -549,8 +549,15 @@ void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int 
 {
     auto blob = resultSet.Get<Blob>(columnIndex);
     size_t SizeBuffer = 2048;
-    auto blobData = blob.Read(SizeBuffer);
-    field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_TEXT);
+    if (blob.IsNull())
+    {
+        field->setNull(VariantDataType::VAR_BUFFER);
+    }
+    else
+    {
+        auto blobData = blob.Read(SizeBuffer);
+        field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_BUFFER);
+    }
 }
 
 } // namespace

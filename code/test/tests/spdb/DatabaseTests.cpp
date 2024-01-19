@@ -927,6 +927,10 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         Strings row;
         for (const auto& field: selectData.fields())
         {
+            if (field->isNull())
+            {
+                throw Exception("Field " + field->fieldName() + " is null but value is expected");
+            }
             row.push_back(field->asString().trim());
         }
         printRows.push_back(row.join("|"));
