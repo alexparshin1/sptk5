@@ -886,12 +886,10 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         using enum sptk::VariantDataType;
         // Insert all nulls
         insertData.param("id").setNull(VAR_INT);
-        /*
         insertData.param("name").setNull(VAR_STRING);
         insertData.param("position").setNull(VAR_STRING);
         insertData.param("hired").setNull(VAR_STRING);
         insertData.exec();
-         */
 
         // Insert data row
         Strings values(row, "\t");

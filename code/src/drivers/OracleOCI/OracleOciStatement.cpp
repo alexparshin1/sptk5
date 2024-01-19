@@ -125,11 +125,9 @@ void OracleOciStatement::setParameterValues()
 
         m_parameterBinding[parameterIndex - 1]->setValue(parameter);
 
-        if (!parameter.isOutput() && parameter.isNull())
+        if (!parameter.isOutput())
         {
-            stmt->GetBind(paramMark).SetDataNull(true);
-            ++parameterIndex;
-            continue;
+            stmt->GetBind(paramMark).SetDataNull(parameter.isNull());
         }
 
         ++parameterIndex;
