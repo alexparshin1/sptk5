@@ -89,7 +89,7 @@ public:
     {
         CREATE,  ///< Only create (Typical UDP connectionless socket)
         CONNECT, ///< Connect (Typical TCP connection socket)
-        BIND     ///< bind (TCP listener)
+        BIND     ///< Bind (TCP listener)
     };
 
     /**

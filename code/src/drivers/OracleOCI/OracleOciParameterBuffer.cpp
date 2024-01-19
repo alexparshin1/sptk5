@@ -79,7 +79,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             {
                 throw Exception("Parameter data size is too big.");
             }
-            setValue(value.asString());
+            setValue<ocilib::ostring>(value.asString());
             break;
         default:
             throw Exception("Unknown parameter data type.");

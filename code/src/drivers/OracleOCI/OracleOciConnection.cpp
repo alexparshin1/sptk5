@@ -200,8 +200,15 @@ void OracleOciConnection::queryPrepare(Query* query)
 
     if (!query->prepared())
     {
-        statement->statement()->Prepare(query->sql());
-        querySetPrepared(query, true);
+        try
+        {
+            statement->statement()->Prepare(query->sql());
+            querySetPrepared(query, true);
+        }
+        catch (const ocilib::Exception& e)
+        {
+            THROW_QUERY_ERROR(query, e.what());
+        }
     }
     /*
     if (query->bulkMode())
@@ -309,7 +316,7 @@ void OracleOciConnection::queryOpen(Query* query)
         queryPrepare(query);
     }
 
-    // bind parameters also executes a query
+    // Bind parameters also executes a query
     queryBindParameters(query);
 
     auto* statement = bit_cast<OracleOciStatement*>(query->statement());
@@ -385,14 +392,14 @@ DataType OracleOciConnection::VariantTypeToOracleOciType(VariantDataType dataTyp
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset resultSet)
 {
     unsigned columnCount = resultSet.GetColumnCount();
-    for (size_t columnIndex = 0; columnIndex < columnCount; ++columnIndex)
+    for (unsigned columnIndex = 0; columnIndex < columnCount; ++columnIndex)
     {
         auto column = resultSet.GetColumn(columnIndex + 1);
         auto columnType = column.GetType();
         auto columnSqlType = column.GetSQLType();
         const int columnScale = column.GetScale();
         String columnName(column.GetName());
-        const int columnDataSize = column.GetSize();
+        const auto columnDataSize = column.GetSize();
         if (columnName.empty())
         {
             columnName = format("column_{}", columnIndex + 1);
