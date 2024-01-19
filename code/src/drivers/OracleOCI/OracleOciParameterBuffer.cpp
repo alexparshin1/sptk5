@@ -15,8 +15,8 @@ using namespace sptk;
 
 OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type)
     : m_bindType(type)
-    , m_bindBuffer(nullptr)
 {
+    ocilib::ostring* str = nullptr;
     switch (m_bindType)
     {
         using enum VariantDataType;
@@ -24,15 +24,29 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type)
             m_bindBuffer = makeBuffer<int>();
             break;
         case VAR_INT64:
+            m_bindBuffer = makeBuffer<big_int>();
+            break;
         case VAR_FLOAT:
             m_bindBuffer = makeBuffer<double>();
             break;
-        case VAR_STRING: {
-            auto* str = new ocilib::ostring();
+        case VAR_STRING:
+            str = new ocilib::ostring();
             str->reserve(MaxStringLength);
             m_bindBuffer = bit_cast<uint8_t*>(str);
             break;
-        }
+        case VAR_BOOL:
+            m_bindBuffer = makeBuffer<bool>();
+            break;
+        case VAR_DATE_TIME:
+        case VAR_DATE:
+            m_bindBuffer = makeBuffer<ocilib::Date>();
+            break;
+        case VariantDataType::VAR_TEXT:
+            m_bindBuffer = makeBuffer<ocilib::Clob>();
+            break;
+        case VariantDataType::VAR_BUFFER:
+            m_bindBuffer = makeBuffer<ocilib::Blob>();
+            break;
         default:
             throw Exception("Unknown parameter data type.");
     }
@@ -47,11 +61,26 @@ OracleOciParameterBuffer::~OracleOciParameterBuffer()
             deleteBuffer<int>(m_bindBuffer);
             break;
         case VAR_INT64:
+            deleteBuffer<big_int>(m_bindBuffer);
+            break;
         case VAR_FLOAT:
             deleteBuffer<double>(m_bindBuffer);
             break;
         case VAR_STRING:
-            delete bit_cast<ocilib::ostring*>(m_bindBuffer);
+            deleteBuffer<ocilib::ostring>(m_bindBuffer);
+            break;
+        case VAR_BOOL:
+            deleteBuffer<bool>(m_bindBuffer);
+            break;
+        case VAR_DATE_TIME:
+        case VAR_DATE:
+            deleteBuffer<ocilib::Date>(m_bindBuffer);
+            break;
+        case VAR_TEXT:
+            deleteBuffer<ocilib::Clob>(m_bindBuffer);
+            break;
+        case VAR_BUFFER:
+            deleteBuffer<ocilib::Blob>(m_bindBuffer);
             break;
         default:
             break;
@@ -71,6 +100,8 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             setValue(value.asInteger());
             break;
         case VAR_INT64:
+            setValue<big_int>(value.asInt64());
+            break;
         case VAR_FLOAT:
             setValue(value.asFloat());
             break;
@@ -81,10 +112,53 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             }
             setValue<ocilib::ostring>(value.asString());
             break;
+        case VAR_BOOL:
+            setValue<bool>(value.asBool());
+            break;
+        case VAR_DATE_TIME: {
+            ocilib::Date date;
+            auto dateValue = value.asDateTime();
+            short year;
+            short month;
+            short day;
+            short hour;
+            short minute;
+            short wday;
+            short yearDate;
+            dateValue.decodeDate(&year, &month, &day, &wday, &yearDate, false);
+            short second;
+            short millisecond;
+            dateValue.decodeTime(&hour, &minute, &second, &millisecond, false);
+            date.SetDateTime(year, month, day, hour, minute, second);
+            setValue<ocilib::Date>(date);
+            break;
+        }
+        case VAR_DATE: {
+            ocilib::Date date;
+            auto dateValue = value.asDateTime();
+            short year;
+            short month;
+            short day;
+            short wday;
+            short yearDate;
+            dateValue.decodeDate(&year, &month, &day, &wday, &yearDate, false);
+            date.SetDateTime(year, month, day, 0, 0, 0);
+            setValue<ocilib::Date>(date);
+            break;
+        }
+        case VAR_TEXT:
+            getValue<ocilib::Clob>().Write(value.getText());
+            break;
+        case VAR_BUFFER: {
+            vector<uint8_t> view(value.getText(), value.getText() + value.dataSize());
+            getValue<ocilib::Blob>().Write(view);
+            break;
+        }
         default:
             throw Exception("Unknown parameter data type.");
     }
 }
+
 void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, ocilib::BindInfo::BindDirectionValues bindDirection)
 {
     switch (m_bindType)
@@ -94,11 +168,26 @@ void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::o
             statement.Bind(parameterMark, getValue<int>(), bindDirection);
             break;
         case VAR_INT64:
+            statement.Bind(parameterMark, getValue<big_int>(), bindDirection);
+            break;
         case VAR_FLOAT:
             statement.Bind(parameterMark, getValue<double>(), bindDirection);
             break;
         case VAR_STRING:
             statement.Bind(parameterMark, getValue<ocilib::ostring>(), MaxStringLength, bindDirection);
+            break;
+        case VAR_BOOL:
+            statement.Bind(parameterMark, getValue<bool>(), bindDirection);
+            break;
+        case VAR_DATE_TIME:
+        case VAR_DATE:
+            statement.Bind(parameterMark, getValue<ocilib::Date>(), bindDirection);
+            break;
+        case VAR_TEXT:
+            statement.Bind(parameterMark, getValue<ocilib::Clob>(), bindDirection);
+            break;
+        case VAR_BUFFER:
+            statement.Bind(parameterMark, getValue<ocilib::Blob>(), bindDirection);
             break;
         default:
             throw Exception("Unknown parameter data type.");

@@ -19,7 +19,7 @@ class OracleOciParameterBuffer
 public:
     static constexpr unsigned MaxStringLength = 2048;
 
-    OracleOciParameterBuffer(VariantDataType type);
+    explicit OracleOciParameterBuffer(VariantDataType type);
     OracleOciParameterBuffer(const OracleOciParameterBuffer&) = delete;
     OracleOciParameterBuffer(OracleOciParameterBuffer&&) = delete;
     OracleOciParameterBuffer& operator=(const OracleOciParameterBuffer&) = delete;
@@ -35,7 +35,6 @@ public:
     }
 
     void setValue(const QueryParameter& value);
-
     template<typename T>
     void setValue(const T& value)
     {
@@ -43,12 +42,14 @@ public:
         bindValue = value;
     }
 
+    void setClobValue(ocilib::Clob clob, const std::string& value);
+
 private:
     VariantDataType m_bindType;
-    uint8_t* m_bindBuffer;
+    uint8_t* m_bindBuffer {nullptr};
 
     template<typename T>
-    uint8_t* makeBuffer()
+    [[nodiscard]] uint8_t* makeBuffer()
     {
         return std::bit_cast<uint8_t*>(new T);
     }
