@@ -144,10 +144,12 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             break;
         }
         case VAR_TEXT:
+            getValue<ocilib::Clob>().Truncate(0);
             getValue<ocilib::Clob>().Write(value.getText());
             break;
         case VAR_BUFFER: {
             vector<uint8_t> view(value.getText(), value.getText() + value.dataSize());
+            getValue<ocilib::Blob>().Truncate(0);
             getValue<ocilib::Blob>().Write(view);
             break;
         }

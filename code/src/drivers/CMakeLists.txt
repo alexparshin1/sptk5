@@ -96,6 +96,8 @@ IF (ORACLE_OCI_FLAG)
             OracleOCI/OracleOciConnection.cpp
             OracleOCI/OracleOciStatement.cpp
             OracleOCI/OracleOciParameterBuffer.cpp
+            OracleOCI/OracleOciDatabaseField.cpp
+            ../../sptk5/db/OracleOciDatabaseField.h
     )
 
     SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})

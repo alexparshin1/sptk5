@@ -401,7 +401,9 @@ void DatabaseTests::verifyInsertedRow(const Row& row, const Buffer& clob, Query&
     EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
     EXPECT_FLOAT_EQ((float) row.price, (float) select["price"].asFloat());
     EXPECT_EQ(clob.size(), select["txt"].asString().length());
-    EXPECT_STREQ(clob.c_str(), select["txt"].asString().c_str());
+
+    auto receivedClob = Buffer(select["txt"].asString());
+    EXPECT_EQ(clob, receivedClob);
 }
 
 void DatabaseTests::createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection)

@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/OracleOciDatabaseField.h"
 #include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/OracleOciConnection.h>
@@ -412,8 +413,9 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
         }
 */
         const VariantDataType dataType = OracleOciTypeToVariantType(columnType, columnScale);
-        auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
-                                                columnScale);
+        auto field = make_shared<OracleOciDatabaseField>(
+            columnName, columnType, dataType, columnDataSize,
+            columnScale, columnSqlType);
         query->fields().push_back(field);
     }
 }
@@ -449,7 +451,7 @@ void OracleOciConnection::queryFetch(Query* query)
 
     for (unsigned fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
-        auto* field = bit_cast<DatabaseField*>(&(*query)[fieldIndex]);
+        auto* field = dynamic_cast<OracleOciDatabaseField*>(&(*query)[fieldIndex]);
 
         try
         {
@@ -486,7 +488,22 @@ void OracleOciConnection::queryFetch(Query* query)
                     break;
 
                 case VariantDataType::VAR_BUFFER:
-                    OracleOci_readBLOB(resultSet, field, columnIndex);
+                    switch (field->fieldType())
+                    {
+                        case OCI_CDT_LOB:
+                            if (field->sqlType() == "clob")
+                            {
+                                OracleOci_readCLOB(resultSet, field, columnIndex);
+                            }
+                            else
+                            {
+                                OracleOci_readBLOB(resultSet, field, columnIndex);
+                            }
+                            break;
+                        case OCI_CDT_TEXT:
+                            field->setString(resultSet.Get<string>(columnIndex));
+                            break;
+                    }
                     break;
 
                 case VariantDataType::VAR_TEXT:
