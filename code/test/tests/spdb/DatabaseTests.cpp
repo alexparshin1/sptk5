@@ -220,8 +220,9 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     createTable.exec();
 
-    const String testDate = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015"
-                                                                                                   : "2015-06-01";
+    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
+    const String testDate = isOracle ? "01-JUN-2015" : "2015-06-01";
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
     insert1.exec();
     Query insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
@@ -277,7 +278,9 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     constexpr size_t dateAndTimeLength = 19;
     auto testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
 
-    const String testDateStr = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ? "01-JUN-2015 11:22:33" : "2015-06-01 11:22:33";
+    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
+    const String testDateStr = isOracle ? "01-JUN-2015 11:22:33" : "2015-06-01 11:22:33";
 
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
     insert1.exec();

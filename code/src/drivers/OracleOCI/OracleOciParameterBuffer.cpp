@@ -179,12 +179,9 @@ void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::o
             statement.Bind(parameterMark, getValue<int>(), bindDirection);
             break;
         case VAR_DATE_TIME:
-        case VAR_DATE: {
-            auto& date = getValue<ocilib::Date>();
-            cout << date.ToString() << endl;
+        case VAR_DATE:
             statement.Bind(parameterMark, getValue<ocilib::Date>(), bindDirection);
-        }
-        break;
+            break;
         case VAR_TEXT:
             statement.Bind(parameterMark, getValue<ocilib::Clob>(), bindDirection);
             break;

@@ -37,6 +37,7 @@ using namespace ocilib;
 
 namespace {
 void OracleOci_readTimestamp(Resultset resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readDateTime(Resultset resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
 void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
 void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
 void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
@@ -89,7 +90,6 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        //Statement* createLobTable = nullptr;
         try
         {
             DatabaseConnectionString dbConnectionString = connectionString();
@@ -104,7 +104,6 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
             {
                 if (m_connection)
                 {
-                    //m_connection->terminateStatement(createLobTable);
                     m_connection.reset();
                 }
                 throw DatabaseException(string("Can't create connection: ") + e.what());
@@ -153,7 +152,6 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
 void OracleOciConnection::driverBeginTransaction()
 {
     m_connection->SetAutoCommit(false);
-    PoolDatabaseConnection::driverBeginTransaction();
 }
 
 void OracleOciConnection::driverEndTransaction(bool commit)
@@ -484,7 +482,18 @@ void OracleOciConnection::queryFetch(Query* query)
                     break;
 
                 case VariantDataType::VAR_DATE_TIME:
-                    OracleOci_readTimestamp(resultSet, field, columnIndex);
+                    if (field->sqlType() == "timestamp")
+                    {
+                        OracleOci_readTimestamp(resultSet, field, columnIndex);
+                    }
+                    else if (field->sqlType() == "datetime")
+                    {
+                        OracleOci_readDate(resultSet, field, columnIndex);
+                    }
+                    else
+                    {
+                        OracleOci_readDateTime(resultSet, field, columnIndex);
+                    }
                     break;
 
                 case VariantDataType::VAR_BUFFER:
@@ -547,6 +556,27 @@ String OracleOciConnection::queryError(const Query* query) const
 namespace {
 void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
 {
+    auto date = resultSet.Get<Timestamp>(columnIndex);
+    if (date.IsNull())
+    {
+        field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
+    }
+    else
+    {
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
+        int millisecond = 0;
+        date.GetDateTime(year, month, day, hour, minute, second, millisecond);
+        field->setDateTime(DateTime(year, month, day, hour, minute, second), false);
+    }
+}
+
+void OracleOci_readDateTime(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+{
     auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
     {
@@ -554,7 +584,14 @@ void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned
     }
     else
     {
-        field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), date.GetHours(), date.GetMinutes(), date.GetSeconds()), false);
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
+        date.GetDateTime(year, month, day, hour, minute, second);
+        field->setDateTime(DateTime(year, month, day, hour, minute, second), false);
     }
 }
 
@@ -567,7 +604,11 @@ void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int 
     }
     else
     {
-        field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), short(0), short(0), short(0)), true);
+        int year = 0;
+        int month = 0;
+        int day = 0;
+        date.GetDate(year, month, day);
+        field->setDateTime(DateTime(year, month, day, short(0), short(0), short(0)), true);
     }
 }
 
