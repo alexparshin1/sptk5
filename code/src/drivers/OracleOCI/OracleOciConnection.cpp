@@ -244,7 +244,7 @@ void OracleOciConnection::queryExecute(Query* query)
             const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
             if (bulkInsertQuery == nullptr)
             {
-                throw Exception("Query is not COracleBulkInsertQuery");
+                throw Exception("Query is not OracleBulkInsertQuery");
             }
             statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
         }
