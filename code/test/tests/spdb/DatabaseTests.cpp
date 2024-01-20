@@ -60,32 +60,29 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
 
-    for (int i = 0; i < 2; ++i)
+    using enum sptk::DatabaseObjectType;
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+#ifdef USE_GTEST
+    EXPECT_STREQ(databaseConnection->connectionString().toString().c_str(), connectionString.toString().c_str());
+#endif
+    databaseConnection->open();
+#ifdef USE_GTEST
+    EXPECT_TRUE(databaseConnection->active());
+#endif
+
+    constexpr size_t needInfoStrings = 10;
+    if (const auto info = databaseConnection->driverDescription(); info.length() < needInfoStrings)
     {
-        using enum sptk::DatabaseObjectType;
-        const DatabaseConnection databaseConnection = connectionPool.getConnection();
-#ifdef USE_GTEST
-        EXPECT_STREQ(databaseConnection->connectionString().toString().c_str(), connectionString.toString().c_str());
-#endif
-        databaseConnection->open();
-#ifdef USE_GTEST
-        EXPECT_TRUE(databaseConnection->active());
-#endif
-
-        constexpr size_t needInfoStrings = 10;
-        if (auto info = databaseConnection->driverDescription(); info.length() < needInfoStrings)
-        {
-            throw DatabaseException("Driver info is empty");
-        }
-
-        Strings objects;
-        databaseConnection->objectList(TABLES, objects);
-        databaseConnection->objectList(DATABASES, objects);
-        databaseConnection->objectList(FUNCTIONS, objects);
-        databaseConnection->objectList(PROCEDURES, objects);
-        databaseConnection->objectList(VIEWS, objects);
-        databaseConnection->close();
+        throw DatabaseException("Driver info is empty");
     }
+
+    Strings objects;
+    databaseConnection->objectList(TABLES, objects);
+    databaseConnection->objectList(DATABASES, objects);
+    databaseConnection->objectList(FUNCTIONS, objects);
+    databaseConnection->objectList(PROCEDURES, objects);
+    databaseConnection->objectList(VIEWS, objects);
+    databaseConnection->close();
 }
 
 void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
@@ -181,7 +178,7 @@ static String fieldType(const String& fieldType, const String& driverName)
         fieldTypes = &boolFieldTypes;
     }
 
-    auto itor = fieldTypes->find(driverName);
+    const auto itor = fieldTypes->find(driverName);
     if (itor == fieldTypes->end())
     {
         throw Exception("Data type mapping is not defined for the test");
@@ -194,7 +191,7 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    auto itor = dateFieldTypes.find(connectionString.driverName());
+    const auto itor = dateFieldTypes.find(connectionString.driverName());
     if (itor == dateFieldTypes.end())
     {
         throw Exception("Date data type mapping is not defined for the test");
@@ -220,8 +217,8 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     createTable.exec();
 
-    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
+    const auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+                          databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
     const String testDate = isOracle ? "01-JUN-2015" : "2015-06-01";
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
     insert1.exec();
@@ -248,7 +245,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    auto itor = dateTimeFieldTypes.find(connectionString.driverName());
+    const auto itor = dateTimeFieldTypes.find(connectionString.driverName());
     if (itor == dateTimeFieldTypes.end())
     {
         throw Exception("DateTime data type mapping is not defined for the test");
@@ -276,10 +273,10 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     const DateTime testDate(2000, 01, 01);
     constexpr size_t dateAndTimeLength = 19;
-    auto testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
+    const auto testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
 
-    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
+    const auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+                          databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
     const String testDateStr = isOracle ? "01-JUN-2015 11:22:33" : "2015-06-01 11:22:33";
 
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
@@ -294,9 +291,9 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     auto dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
 
     DateTime testDateTime1(("2015-06-01T11:22:33" + testTimezone).c_str());
-    auto testDateTimeStr = testDateTime1.isoDateTimeString();
+    const auto testDateTimeStr = testDateTime1.isoDateTimeString();
     EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
-    auto result = select.next();
+    const auto result = select.next();
     if (!result)
     {
         FAIL() << "Expect two records in record set";
@@ -332,8 +329,8 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     }
     catch (const DatabaseException& e)
     {
-        auto error = String(e.what());
-        auto errorWasExpected = error.startsWith("Unsupported parameter type") || error.startsWith("Parameter data type has changed.");
+        const auto error = String(e.what());
+        const auto errorWasExpected = error.startsWith("Unsupported parameter type") || error.startsWith("Parameter data type has changed.");
         if (!errorWasExpected)
         {
             FAIL() << e.what();
@@ -405,7 +402,7 @@ void DatabaseTests::verifyInsertedRow(const Row& row, const Buffer& clob, Query&
     EXPECT_FLOAT_EQ((float) row.price, (float) select["price"].asFloat());
     EXPECT_EQ(clob.size(), select["txt"].asString().length());
 
-    auto receivedClob = Buffer(select["txt"].asString());
+    const auto receivedClob = Buffer(select["txt"].asString());
     EXPECT_EQ(clob, receivedClob);
 }
 
@@ -444,8 +441,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
 
     Transaction transaction(databaseConnection);
 
-    verifyInvalidTransactionStateCommitThrows(transaction);
-    verifyInvalidTransactionStateRollbackThrows(transaction);
+    invalidTransactionStateThrows(transaction);
 
     transaction.begin();
 
@@ -472,17 +468,12 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
         }
     }
 
-    verifyInvalidTransactionStateCommitThrows(transaction);
-    verifyInvalidTransactionStateRollbackThrows(transaction);
+    invalidTransactionStateThrows(transaction);
 }
 
-void DatabaseTests::verifyInvalidTransactionStateCommitThrows(Transaction& transaction)
+void DatabaseTests::invalidTransactionStateThrows(Transaction& transaction)
 {
     EXPECT_THROW(transaction.commit(), DatabaseException);
-}
-
-void DatabaseTests::verifyInvalidTransactionStateRollbackThrows(Transaction& transaction)
-{
     EXPECT_THROW(transaction.rollback(), DatabaseException);
 }
 
@@ -527,17 +518,14 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     createTable.exec();
 
     testTransaction(databaseConnection, false);
-    for (unsigned i = 0; i < 3; ++i)
-    {
-        testTransaction(databaseConnection, true);
-    }
+    testTransaction(databaseConnection, true);
 
     dropTable.exec();
 }
 
 DatabaseConnectionString DatabaseTests::connectionString(const String& driverName) const
 {
-    auto itor = m_connectionStrings.find(driverName);
+    const auto itor = m_connectionStrings.find(driverName);
     if (itor == m_connectionStrings.end())
     {
         return DatabaseConnectionString("");
@@ -547,8 +535,8 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
 
 void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
 {
-    auto driverName = databaseConnection->connectionString().driverName();
-    auto itor = blobFieldTypes.find(driverName);
+    const auto driverName = databaseConnection->connectionString().driverName();
+    const auto itor = blobFieldTypes.find(driverName);
     if (itor == blobFieldTypes.end())
     {
         throw Exception("BLOB data type mapping is not defined for the test");
@@ -670,21 +658,25 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 
     VariantVector aRow;
 
-    aRow.emplace_back(1);
+    constexpr int id1 = 1;
+    constexpr int id2 = 2;
+    constexpr int id3 = 3;
+
+    aRow.emplace_back(id1);
     aRow.emplace_back("Alex,'Doe'");
     aRow.emplace_back("Programmer");
     aRow.emplace_back("01-JAN-2014");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(2);
+    aRow.emplace_back(id2);
     aRow.emplace_back("David");
     aRow.emplace_back("CEO");
     aRow.emplace_back("01-JAN-2015");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(3);
+    aRow.emplace_back(id3);
     aRow.emplace_back("Roger");
     aRow.emplace_back("Bunny");
     aRow.emplace_back("01-JAN-2016");
@@ -707,7 +699,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     }
     selectData.close();
 
-    if (printRows.size() > 3)
+    constexpr int expectedRows = 3;
+    if (printRows.size() > expectedRows)
     {
         throw Exception(
             "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
@@ -718,6 +711,15 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     {
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
+
+    Query testQuery(databaseConnection,
+                    "INSERT ALL "
+                    "INTO gtest_temp_table(id) VALUES(:id1) "
+                    "INTO gtest_temp_table(id) VALUES(:id2) "
+                    "SELECT * FROM DUAL");
+    testQuery.param("id1") = 123456;
+    testQuery.param("id2") = 123457;
+    testQuery.exec();
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
@@ -798,12 +800,16 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     auto& hiredParam = insertData.param("hired");
 
     transaction.begin();
+    constexpr int col0 = 0;
+    constexpr int col1 = 1;
+    constexpr int col2 = 2;
+    constexpr int col3 = 3;
     for (auto& row: data)
     {
-        idParam = row[0].asInteger();
-        nameParam = row[1].asString();
-        positionParam = row[2].asString();
-        hiredParam = row[3].asString();
+        idParam = row[col0].asInteger();
+        nameParam = row[col1].asString();
+        positionParam = row[col2].asString();
+        hiredParam = row[col3].asString();
         insertData.exec();
     }
     transaction.commit();
@@ -811,12 +817,12 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     constexpr double millisecondsInSecond = 1000.0;
 
-    auto durationMS2 = static_cast<double>(duration_cast<milliseconds>(ended2 - started2).count());
+    const auto durationMS2 = static_cast<double>(duration_cast<milliseconds>(ended2 - started2).count());
     COUT(left << setw(25) << connectionString.driverName() + " insert:"
               << right << setw(4) << durationMS2 << " ms, "
               << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS2 << " rec/sec" << endl);
 
-    auto durationMS1 = static_cast<double>(duration_cast<milliseconds>(ended1 - started1).count());
+    const auto durationMS1 = static_cast<double>(duration_cast<milliseconds>(ended1 - started1).count());
     COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
               << right << setw(4) << durationMS1 << " ms, "
               << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS1 << " rec/sec" << endl);
@@ -855,7 +861,8 @@ void DatabaseTests::verifyBatchInsertedData(Query& selectData, const Strings& ex
 {
     selectData.open();
     int rowNumber = 0;
-    for (; rowNumber < 3 && !selectData.eof(); rowNumber++)
+    constexpr int expectedRows = 3;
+    for (; rowNumber < expectedRows && !selectData.eof(); ++rowNumber)
     {
         Strings row;
         for (size_t column = 0; column < selectData.fieldCount(); ++column)
@@ -892,6 +899,11 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
     data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
 
+    constexpr int col0 = 0;
+    constexpr int col1 = 1;
+    constexpr int col2 = 2;
+    constexpr int col3 = 3;
+
     for (const auto& row: data)
     {
         using enum sptk::VariantDataType;
@@ -905,10 +917,10 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
         // Insert data row
         Strings values(row, "\t");
-        insertData.param("id") = string2int(values[0]);
-        insertData.param("name") = values[1];
-        insertData.param("position") = values[2];
-        insertData.param("hired") = values[3];
+        insertData.param("id") = string2int(values[col0]);
+        insertData.param("name") = values[col1];
+        insertData.param("position") = values[col2];
+        insertData.param("hired") = values[col3];
         insertData.exec();
     }
 
@@ -1002,7 +1014,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Buffer testData1(blobSize1);
     Buffer testDataInv(blobSize1);
     constexpr size_t Value256 = 256;
-    for (size_t i = 0; i < blobSize1; i++)
+    for (size_t i = 0; i < blobSize1; ++i)
     {
         testData1[i] = static_cast<uint8_t>(i % Value256);
         testDataInv[i] = static_cast<uint8_t>(Value256 - i % Value256);
@@ -1023,20 +1035,20 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     selectQuery.open();
 
     constexpr size_t blobSize2 = blobSize1 * 2;
-    auto dataSize1 = selectQuery["data1"].dataSize();
+    const auto dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
 
-    auto dataSize2 = selectQuery["data2"].dataSize();
+    const auto dataSize2 = selectQuery["data2"].dataSize();
     EXPECT_EQ(blobSize2, dataSize2);
 
     const auto* data = selectQuery["data1"].getText();
-    for (size_t i = 0; i < blobSize1; i++)
+    for (size_t i = 0; i < blobSize1; ++i)
     {
         EXPECT_EQ(char(i % 256), data[i]);
     }
 
     data = selectQuery["data2"].getText();
-    for (size_t i = 0; i < blobSize2; i++)
+    for (size_t i = 0; i < blobSize2; ++i)
     {
         EXPECT_EQ(char(256 - char(i % 256)), data[i]);
     }

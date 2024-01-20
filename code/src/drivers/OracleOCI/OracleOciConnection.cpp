@@ -24,23 +24,23 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/OracleOciBulkInsertQuery.h"
 #include "sptk5/db/OracleOciDatabaseField.h"
 #include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/OracleOciConnection.h>
 #include <sptk5/db/OracleOciStatement.h>
-#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
 using namespace ocilib;
 
 namespace {
-void OracleOci_readTimestamp(Resultset resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readDateTime(Resultset resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void OracleOci_readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 } // namespace
 
 OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
@@ -126,7 +126,101 @@ void OracleOciConnection::closeDatabase()
 
 void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
-    PoolDatabaseConnection::executeBatchSQL(batchSQL, errors);
+    static const RegularExpression matchStatementEnd("(;\\s*)$");
+    static const RegularExpression matchRoutineStart("^CREATE (OR REPLACE )?(FUNCTION|TRIGGER)", "i");
+    static const RegularExpression matchGo("^/\\s*$");
+    static const RegularExpression matchShowErrors("^SHOW\\s+ERRORS", "i");
+    static const RegularExpression matchCommentRow("^\\s*--");
+
+    Strings statements;
+    string statement;
+    bool routineStarted = false;
+    for (const auto& aRow: batchSQL)
+    {
+        String row = trim(aRow);
+        if (row.empty() || matchCommentRow.matches(row))
+        {
+            continue;
+        }
+
+        if (!routineStarted)
+        {
+            row = trim(row);
+            if (row.empty())
+            {
+                continue;
+            }
+            if (matchShowErrors.matches(row))
+            {
+                continue;
+            }
+        }
+
+        if (matchRoutineStart.matches(row))
+        {
+            routineStarted = true;
+        }
+
+        if (!routineStarted && matchStatementEnd.matches(row))
+        {
+            row = matchStatementEnd.s(row, "");
+            statement += row;
+            statements.push_back(trim(statement));
+            statement = "";
+            continue;
+        }
+
+        if (matchGo.matches(row))
+        {
+            routineStarted = false;
+            statements.push_back(trim(statement));
+            statement = "";
+            continue;
+        }
+
+        statement += row + "\n";
+    }
+
+    if (!trim(statement).empty())
+    {
+        statements.push_back(statement);
+    }
+
+    executeMultipleStatements(statements, errors);
+}
+
+void OracleOciConnection::executeMultipleStatements(const Strings& statements, Strings* errors)
+{
+    for (const auto& stmt: statements)
+    {
+        try
+        {
+            Query query(this, stmt, false);
+            query.exec();
+        }
+        catch (const Exception& e)
+        {
+            if (errors)
+            {
+                errors->push_back(e.what() + String(": ") + stmt);
+            }
+            else
+            {
+                throw;
+            }
+        }
+        catch (const ocilib::Exception& e)
+        {
+            if (errors)
+            {
+                errors->push_back(e.what() + String(": ") + stmt);
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
 }
 
 bool OracleOciConnection::active() const
@@ -147,6 +241,37 @@ String OracleOciConnection::driverDescription() const
 
 void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& objects)
 {
+    string objectsSQL;
+    objects.clear();
+    switch (objectType)
+    {
+        using enum sptk::DatabaseObjectType;
+        case PROCEDURES:
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'PROCEDURE'";
+            break;
+        case FUNCTIONS:
+            objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'FUNCTION'";
+            break;
+        case TABLES:
+            objectsSQL = "SELECT table_name FROM user_tables";
+            break;
+        case VIEWS:
+            objectsSQL = "SELECT view_name FROM sys.all_views";
+            break;
+        case DATABASES:
+            objectsSQL = "SELECT username FROM all_users";
+            break;
+        default:
+            throw Exception("Not implemented yet");
+    }
+    Query query(this, objectsSQL);
+    query.open();
+    while (!query.eof())
+    {
+        objects.push_back(query[uint32_t(0)].asString());
+        query.next();
+    }
+    query.close();
 }
 
 void OracleOciConnection::driverBeginTransaction()
@@ -210,21 +335,6 @@ void OracleOciConnection::queryPrepare(Query* query)
             THROW_QUERY_ERROR(query, e.what());
         }
     }
-    /*
-    if (query->bulkMode())
-    {
-        const CParamVector& enumeratedParams = statement->enumeratedParams();
-        Statement* stmt = statement->stmt();
-        const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-        if (bulkInsertQuery == nullptr)
-        {
-            throw Exception("Not a bulk query");
-        }
-        const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
-        stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
-    }
-     */
     querySetPrepared(query, true);
 }
 
@@ -237,21 +347,7 @@ void OracleOciConnection::queryExecute(Query* query)
         {
             throw Exception("Query is not prepared");
         }
-        /*
-        if (query->bulkMode())
-        {
-            const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-            if (bulkInsertQuery == nullptr)
-            {
-                throw Exception("Query is not OracleBulkInsertQuery");
-            }
-            statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
-        }
-        else
-         */
-        {
-            statement->execute(getInTransaction());
-        }
+        statement->execute(getInTransaction());
     }
     catch (const ocilib::Exception& e)
     {
@@ -324,7 +420,6 @@ void OracleOciConnection::queryOpen(Query* query)
     queryExecute(query);
     if (queryColCount(query) < 1)
     {
-        statement->getOutputParameters(query->fields());
         return;
     }
     else
@@ -333,7 +428,7 @@ void OracleOciConnection::queryOpen(Query* query)
         if (query->fieldCount() == 0)
         {
             const scoped_lock lock(m_mutex);
-            auto resultSet = statement->resultSet();
+            const auto resultSet = statement->resultSet();
             createQueryFieldsFromMetadata(query, resultSet);
         }
     }
@@ -343,7 +438,7 @@ void OracleOciConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-VariantDataType OracleOciConnection::OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
+VariantDataType OracleOciConnection::oracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
 {
     switch (oracleType.GetValue())
     {
@@ -362,34 +457,7 @@ VariantDataType OracleOciConnection::OracleOciTypeToVariantType(ocilib::DataType
     }
 }
 
-DataType OracleOciConnection::VariantTypeToOracleOciType(VariantDataType dataType)
-{
-    switch (dataType)
-    {
-        using enum sptk::VariantDataType;
-        case VAR_NONE:
-            throw DatabaseException("Data type is not defined");
-        case VAR_INT:
-        case VAR_FLOAT:
-        case VAR_INT64:
-            return TypeNumeric;
-        case VAR_STRING:
-            return TypeString;
-        case VAR_TEXT:
-        case VAR_BUFFER:
-            return TypeLob;
-        case VAR_DATE:
-            return TypeDate;
-        case VAR_DATE_TIME:
-            return TypeTimestamp;
-        case VAR_BOOL:
-            return TypeBoolean;
-        default:
-            throw DatabaseException(format("Unsupported SPTK data type: {}", (int) dataType));
-    }
-}
-
-void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset resultSet)
+void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resultset& resultSet)
 {
     unsigned columnCount = resultSet.GetColumnCount();
     for (unsigned columnIndex = 0; columnIndex < columnCount; ++columnIndex)
@@ -404,14 +472,8 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
         {
             columnName = format("column_{}", columnIndex + 1);
         }
-        /*
-        if (columnType == OCI_CDT_LONG && columnDataSize == 0)
-        {
-            const auto maxColumnSize = 16384;
-            resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
-        }
-        */
-        const VariantDataType dataType = OracleOciTypeToVariantType(columnType, columnScale);
+
+        const VariantDataType dataType = oracleOciTypeToVariantType(columnType, columnScale);
         auto field = make_shared<OracleOciDatabaseField>(
             columnName, columnType, dataType, columnDataSize,
             columnScale, columnSqlType);
@@ -441,7 +503,7 @@ void OracleOciConnection::queryFetch(Query* query)
         querySetEof(query, true);
     }
 
-    auto fieldCount = query->fieldCount();
+    const auto fieldCount = query->fieldCount();
     if (fieldCount == 0)
     {
         querySetEof(query, true);
@@ -455,8 +517,8 @@ void OracleOciConnection::queryFetch(Query* query)
         try
         {
             // Result set column index starts from 1
-            auto columnIndex = fieldIndex + 1;
-            auto dataType = field->dataType();
+            const auto columnIndex = fieldIndex + 1;
+            const auto dataType = field->dataType();
 
             if (resultSet.IsColumnNull(columnIndex))
             {
@@ -513,6 +575,8 @@ void OracleOciConnection::queryFetch(Query* query)
                         case OCI_CDT_TEXT:
                             field->setString(resultSet.Get<string>(columnIndex));
                             break;
+                        default:
+                            throw DatabaseException("Unsupported buffer type");
                     }
                     break;
 
@@ -538,10 +602,12 @@ void OracleOciConnection::queryFetch(Query* query)
 
 void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
+    notImplemented("queryColAttributes");
 }
 
 void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
 {
+    notImplemented("queryColAttributes");
 }
 
 String OracleOciConnection::paramMark(unsigned int paramIndex)
@@ -551,11 +617,11 @@ String OracleOciConnection::paramMark(unsigned int paramIndex)
 
 String OracleOciConnection::queryError(const Query* query) const
 {
-    return String();
+    return {};
 }
 
 namespace {
-void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+void OracleOci_readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Timestamp>(columnIndex);
     if (date.IsNull())
@@ -572,11 +638,11 @@ void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned
         int second = 0;
         int millisecond = 0;
         date.GetDateTime(year, month, day, hour, minute, second, millisecond);
-        field->setDateTime(DateTime(year, month, day, hour, minute, second), false);
+        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second)), false);
     }
 }
 
-void OracleOci_readDateTime(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+void OracleOci_readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
@@ -592,11 +658,13 @@ void OracleOci_readDateTime(Resultset resultSet, DatabaseField* field, unsigned 
         int minute = 0;
         int second = 0;
         date.GetDateTime(year, month, day, hour, minute, second);
-        field->setDateTime(DateTime(year, month, day, hour, minute, second), false);
+        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
+                                    static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second)),
+                           false);
     }
 }
 
-void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+void OracleOci_readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
@@ -609,11 +677,11 @@ void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int 
         int month = 0;
         int day = 0;
         date.GetDate(year, month, day);
-        field->setDateTime(DateTime(year, month, day, short(0), short(0), short(0)), true);
+        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0)), true);
     }
 }
 
-void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+void OracleOci_readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto clob = resultSet.Get<Clob>(columnIndex);
     if (clob.IsNull())
@@ -627,7 +695,7 @@ void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int 
     }
 }
 
-void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
+void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto blob = resultSet.Get<Blob>(columnIndex);
     if (blob.IsNull())
@@ -643,16 +711,147 @@ void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int 
 
 } // namespace
 
+void OracleOciConnection::bulkInsert(const String& fullTableName, const Strings& columnNames,
+                                     const vector<VariantVector>& data)
+{
+    const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
+
+    String schema;
+    String tableName;
+    const auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
+    if (!matches[0].value.empty())
+    {
+        schema = matches[0].value;
+        schema = schema.substr(0, schema.length() - 1);
+    }
+    tableName = matches[1].value;
+
+    stringstream columnsInfoSQL;
+    columnsInfoSQL << "SELECT column_name, data_type, data_length FROM ";
+    if (schema.empty())
+    {
+        // User' database table
+        columnsInfoSQL << "user_tab_columns WHERE table_name = :table_name";
+    }
+    else
+    {
+        columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
+    }
+
+    Query tableColumnsQuery(this, columnsInfoSQL.str());
+    tableColumnsQuery.param("table_name") = upperCase(tableName);
+    if (!schema.empty())
+    {
+        tableColumnsQuery.param("schema") = schema;
+    }
+    tableColumnsQuery.open();
+    const Field& column_name = tableColumnsQuery["column_name"];
+    const Field& data_type = tableColumnsQuery["data_type"];
+    const Field& data_length = tableColumnsQuery["data_length"];
+    QueryColumnTypeSizeMap columnTypeSizeMap;
+    while (!tableColumnsQuery.eof())
+    {
+        const auto columnName = column_name.asString();
+        const auto columnType = data_type.asString();
+        const auto maxDataLength = (size_t) data_length.asInteger();
+        QueryColumnTypeSize columnTypeSize = {};
+        columnTypeSize.type = VariantDataType::VAR_STRING;
+        columnTypeSize.length = 0;
+        if (columnType.find("LOB") != string::npos)
+        {
+            constexpr size_t defaultTextSize = 65536;
+            columnTypeSize.type = VariantDataType::VAR_TEXT;
+            columnTypeSize.length = defaultTextSize;
+        }
+        else if (columnType.find("CHAR") != string::npos)
+        {
+            columnTypeSize.length = maxDataLength;
+        }
+        else if (columnType.find("TIMESTAMP") != string::npos)
+        {
+            columnTypeSize.type = VariantDataType::VAR_DATE_TIME;
+        }
+        columnTypeSizeMap[columnName] = columnTypeSize;
+        tableColumnsQuery.fetch();
+    }
+    tableColumnsQuery.close();
+
+    bool wasInTransaction = inTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    QueryColumnTypeSizeVector columnTypeSizeVector;
+    for (const auto& columnName: columnNames)
+    {
+        const auto column = columnTypeSizeMap.find(upperCase(columnName));
+        if (column == columnTypeSizeMap.end())
+        {
+            throw DatabaseException(
+                "Column '" + columnName + "' doesn't belong to table " + tableName);
+        }
+        columnTypeSizeVector.push_back(column->second);
+    }
+
+    OracleOciBulkInsertQuery insertQuery(this,
+                                         "INSERT INTO " + tableName + "(" + columnNames.join(",") +
+                                             ") VALUES (:" + columnNames.join(",:") + ")",
+                                         data.size(),
+                                         columnTypeSizeMap);
+    for (const auto& row: data)
+    {
+        bulkInsertSingleRow(columnNames, columnTypeSizeVector, insertQuery, row);
+    }
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
+void OracleOciConnection::bulkInsertSingleRow(const Strings& columnNames,
+                                              const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                                              OracleOciBulkInsertQuery& insertQuery, const VariantVector& row)
+{
+    for (size_t i = 0; i < columnNames.size(); ++i)
+    {
+        const auto& value = row[i];
+        switch (columnTypeSizeVector[i].type)
+        {
+            using enum sptk::VariantDataType;
+            case VAR_TEXT:
+                if (value.dataSize())
+                {
+                    insertQuery.param(i).setBuffer(bit_cast<const uint8_t*>(value.getText()), value.dataSize(),
+                                                   VAR_TEXT);
+                }
+                else
+                {
+                    insertQuery.param(i).setNull(VAR_TEXT);
+                }
+                break;
+            case VAR_DATE_TIME:
+                insertQuery.param(i).setDateTime(value.get<DateTime>());
+                break;
+            default:
+                insertQuery.param(i).setString(value.asString());
+                break;
+        }
+    }
+    insertQuery.execNext();
+}
+
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 
-[[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] [[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
     return connection.get();
 }
 
-[[maybe_unused]] void oracleoci_destroy_connection(void* connection)
+[[maybe_unused]] [[maybe_unused]] void oracleoci_destroy_connection(void* connection)
 {
     OracleOciConnection::s_oracleOciConnections.erase(bit_cast<OracleOciConnection*>(connection));
 }

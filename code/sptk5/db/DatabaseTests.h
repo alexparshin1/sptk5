@@ -217,8 +217,7 @@ private:
     static void verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
     static void verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
     static size_t insertRecordsInTransaction(const DatabaseConnection& databaseConnection);
-    static void verifyInvalidTransactionStateCommitThrows(Transaction& transaction);
-    static void verifyInvalidTransactionStateRollbackThrows(Transaction& transaction);
+    static void invalidTransactionStateThrows(Transaction& transaction);
 };
 
 } // namespace sptk

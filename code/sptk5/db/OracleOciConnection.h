@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include "OracleOciBulkInsertQuery.h"
 #include "PoolDatabaseConnection.h"
 #include "ocilib.hpp"
 
@@ -116,13 +117,14 @@ public:
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
-    [[nodiscard]] static VariantDataType OracleOciTypeToVariantType(ocilib::DataType oracleType, int scale);
-    [[nodiscard]] static ocilib::DataType VariantTypeToOracleOciType(VariantDataType dataType);
+    [[nodiscard]] static VariantDataType oracleOciTypeToVariantType(ocilib::DataType oracleType, int scale);
 
     /**
      * @brief All active connections
      */
     static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
+
+    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
 
 protected:
     /**
@@ -200,7 +202,10 @@ private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
     mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
 
-    void createQueryFieldsFromMetadata(Query* query, ocilib::Resultset resultSet);
+    void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
+    static void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
+                                    OracleOciBulkInsertQuery& insertQuery, const VariantVector& row);
+    void executeMultipleStatements(const Strings& statements, Strings* errors);
 };
 /**
  * @}
@@ -210,6 +215,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT void oracleoci_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void oracleoci_destroy_connection(void* connection);
 }
