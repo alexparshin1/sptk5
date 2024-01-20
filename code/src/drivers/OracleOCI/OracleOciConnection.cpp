@@ -202,6 +202,7 @@ void OracleOciConnection::queryPrepare(Query* query)
         try
         {
             statement->statement()->Prepare(query->sql());
+            statement->bindParameters();
             querySetPrepared(query, true);
         }
         catch (const ocilib::Exception& e)
@@ -409,7 +410,7 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, Resultset 
             const auto maxColumnSize = 16384;
             resultSet->setMaxColumnSize(columnIndex + 1, maxColumnSize);
         }
-*/
+        */
         const VariantDataType dataType = OracleOciTypeToVariantType(columnType, columnScale);
         auto field = make_shared<OracleOciDatabaseField>(
             columnName, columnType, dataType, columnDataSize,

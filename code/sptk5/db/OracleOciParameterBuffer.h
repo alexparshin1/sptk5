@@ -27,6 +27,7 @@ public:
     ~OracleOciParameterBuffer();
 
     void bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, ocilib::BindInfo::BindDirectionValues bindDirection);
+    void bindOutput(ocilib::Statement statement, const ocilib::ostring& parameterMark);
 
     template<typename T>
     T& getValue()

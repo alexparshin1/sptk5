@@ -93,6 +93,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
     {
         throw DatabaseException("Parameter data type has changed.");
     }
+
     switch (m_bindType)
     {
         using enum VariantDataType;
@@ -187,6 +188,41 @@ void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::o
             break;
         case VAR_BUFFER:
             statement.Bind(parameterMark, getValue<ocilib::Blob>(), bindDirection);
+            break;
+        default:
+            throw Exception("Unknown parameter data type.");
+    }
+}
+
+void OracleOciParameterBuffer::bindOutput(ocilib::Statement statement, const ocilib::ostring& parameterMark)
+{
+    switch (m_bindType)
+    {
+        using enum VariantDataType;
+        case VAR_INT:
+            statement.Register<int>(parameterMark);
+            break;
+        case VAR_INT64:
+            statement.Register<big_int>(parameterMark);
+            break;
+        case VAR_FLOAT:
+            statement.Register<double>(parameterMark);
+            break;
+        case VAR_STRING:
+            statement.Register<ocilib::ostring>(parameterMark, 256);
+            break;
+        case VAR_BOOL:
+            statement.Register<int>(parameterMark);
+            break;
+        case VAR_DATE_TIME:
+        case VAR_DATE:
+            statement.Register<ocilib::Date>(parameterMark);
+            break;
+        case VAR_TEXT:
+            statement.Register<ocilib::Clob>(parameterMark);
+            break;
+        case VAR_BUFFER:
+            statement.Register<ocilib::Blob>(parameterMark);
             break;
         default:
             throw Exception("Unknown parameter data type.");

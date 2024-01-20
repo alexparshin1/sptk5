@@ -37,6 +37,7 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
         case DatabaseConnectionType::POSTGRES:
             return sql + " RETURNING " + idFieldName;
         case DatabaseConnectionType::ORACLE:
+        case DatabaseConnectionType::ORACLE_OCI:
             return sql + " RETURNING " + idFieldName + " INTO :last_id";
         default:
             break;
@@ -66,8 +67,9 @@ void InsertQuery::exec()
     {
 
         case DatabaseConnectionType::ORACLE:
+        case DatabaseConnectionType::ORACLE_OCI:
             param("last_id").setOutput();
-            param("last_id").setNull(VariantDataType::VAR_INT);
+            param("last_id").setNull(VariantDataType::VAR_INT64);
             open();
             m_id = static_cast<uint64_t>((*this)[0].asInteger());
             close();

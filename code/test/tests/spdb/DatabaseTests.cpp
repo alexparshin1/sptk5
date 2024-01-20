@@ -610,6 +610,7 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
             idDefinition = "id int identity";
             break;
         case ORACLE:
+        case ORACLE_OCI:
             idDefinition = "id int";
             break;
         default:
@@ -634,7 +635,9 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     createTable.exec();
 
-    if (databaseConnection->connectionType() == DatabaseConnectionType::ORACLE)
+    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
+    if (isOracle)
     {
         createOracleAutoIncrement(databaseConnection, "gtest_temp_table2", "id");
     }

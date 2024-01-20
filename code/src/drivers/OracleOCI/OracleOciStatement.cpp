@@ -100,14 +100,17 @@ void OracleOciStatement::setBlobParameter(uint32_t parameterIndex, unsigned char
      */
 }
 
-void OracleOciStatement::setParameterValues()
+void OracleOciStatement::bindParameters()
 {
-    m_outputParamIndex.clear();
+    if (!m_parameterBinding.empty())
+    {
+        return;
+    }
 
     unsigned parameterIndex = 1;
     auto* stmt = statement();
 
-    auto performBinding = m_parameterBinding.empty();
+    m_outputParamIndex.clear();
 
     for (const auto& parameterPtr: enumeratedParams())
     {
@@ -117,12 +120,34 @@ void OracleOciStatement::setParameterValues()
         paramDataType = parameter.dataType();
         auto paramMark = ":" + to_string(parameterIndex);
 
-        if (performBinding)
+        auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
+        if (!parameter.isOutput())
         {
-            auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
             paramBuffer->bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
-            m_parameterBinding.push_back(paramBuffer);
         }
+        else
+        {
+            paramBuffer->bindOutput(*stmt, paramMark);
+            m_outputParamIndex.push_back(parameterIndex);
+        }
+        m_parameterBinding.push_back(paramBuffer);
+
+        ++parameterIndex;
+    }
+}
+
+void OracleOciStatement::setParameterValues()
+{
+    unsigned parameterIndex = 1;
+    auto* stmt = statement();
+
+    for (const auto& parameterPtr: enumeratedParams())
+    {
+        QueryParameter& parameter = *parameterPtr;
+        VariantDataType& paramDataType = parameter.binding().m_dataType;
+
+        paramDataType = parameter.dataType();
+        auto paramMark = ":" + to_string(parameterIndex);
 
         m_parameterBinding[parameterIndex - 1]->setValue(parameter);
 
@@ -140,7 +165,8 @@ void OracleOciStatement::setIntParamValue(const ostring& parameterMark, unsigned
     if (parameter.isOutput())
     {
         //statement()->registerOutParam(parameterIndex, OCCIINT);
-        //m_outputParamIndex.push_back(parameterIndex);
+        m_outputParamIndex.push_back(parameterIndex);
+        statement()->Register<int>(parameterMark);
     }
     else
     {

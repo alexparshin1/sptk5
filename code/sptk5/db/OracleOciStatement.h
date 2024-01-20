@@ -47,6 +47,8 @@ class OracleOciConnection;
 class OracleOciStatement
     : public DatabaseStatement<OracleOciConnection, ocilib::Statement>
 {
+    friend class OracleOciConnection;
+
 public:
     using Connection = ocilib::Connection; ///< OracleOci connection type
     using Statement = ocilib::Statement;   ///< OracleOci statement type
@@ -121,6 +123,9 @@ public:
 
     void getOutputParameters(FieldList& fields);
     void enumerateParams(QueryParameterList& queryParams) override;
+
+protected:
+    void bindParameters();
 
 private:
     std::shared_ptr<Connection> m_ociConnection; ///< Connection
