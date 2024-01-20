@@ -123,11 +123,12 @@ public:
     void enumerateParams(QueryParameterList& queryParams) override;
 
 private:
-    std::shared_ptr<Statement> m_ociStatement;  ///< Statement
-    String m_sql;                               ///< SQL
-    Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
-    Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
-    bool m_prepared {false};                    ///< True if statement is prepared
+    std::shared_ptr<Connection> m_ociConnection; ///< Connection
+    std::shared_ptr<Statement> m_ociStatement;   ///< Statement
+    String m_sql;                                ///< SQL
+    Statement* m_createClobStatement {nullptr};  ///< Statement for creating CLOBs
+    Statement* m_createBlobStatement {nullptr};  ///< Statement for creating BLOBs
+    bool m_prepared {false};                     ///< True if statement is prepared
     std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;
 
     /*

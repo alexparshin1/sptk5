@@ -59,14 +59,19 @@ DatabaseField::DatabaseField(string_view fName, int fieldType,
             break;
 
         case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
-            if (dataType == VAR_STRING && fieldLength == 0)
+            if (fieldLength == 0)
             {
                 fieldLength = 256;
                 m_fldSize = fieldLength;
             }
             Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, VAR_BUFFER);
+            checkSize(static_cast<size_t>(fieldLength) + 1);
+            view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
+            break;
+
+        case VAR_TEXT:
+        case VAR_BUFFER:
+            Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, dataType);
             checkSize(static_cast<size_t>(fieldLength) + 1);
             view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
             break;

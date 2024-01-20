@@ -19,7 +19,7 @@ class OracleOciParameterBuffer
 public:
     static constexpr unsigned MaxStringLength = 2048;
 
-    explicit OracleOciParameterBuffer(VariantDataType type);
+    explicit OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection);
     OracleOciParameterBuffer(const OracleOciParameterBuffer&) = delete;
     OracleOciParameterBuffer(OracleOciParameterBuffer&&) = delete;
     OracleOciParameterBuffer& operator=(const OracleOciParameterBuffer&) = delete;
@@ -52,6 +52,12 @@ private:
     [[nodiscard]] uint8_t* makeBuffer()
     {
         return std::bit_cast<uint8_t*>(new T);
+    }
+
+    template<typename T, typename P>
+    [[nodiscard]] uint8_t* makeBuffer(const P& parameter)
+    {
+        return std::bit_cast<uint8_t*>(new T(parameter));
     }
 
     template<typename T>

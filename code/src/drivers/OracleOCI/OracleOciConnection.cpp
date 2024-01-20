@@ -356,7 +356,7 @@ VariantDataType OracleOciConnection::OracleOciTypeToVariantType(ocilib::DataType
         case OCI_CDT_LOB:
             return VAR_BUFFER;
         case OCI_CDT_BOOLEAN:
-            return VAR_BOOL;
+            return VAR_INT;
         default:
             return VAR_STRING;
     }
@@ -435,6 +435,11 @@ void OracleOciConnection::queryFetch(Query* query)
         return;
     }
 
+    if (!resultSet.Next())
+    {
+        querySetEof(query, true);
+    }
+
     auto fieldCount = query->fieldCount();
     if (fieldCount == 0)
     {
@@ -458,7 +463,7 @@ void OracleOciConnection::queryFetch(Query* query)
                 continue;
             }
 
-            switch (field->dataType())
+            switch (dataType)
             {
                 case VariantDataType::VAR_INT:
                     field->setInteger(resultSet.Get<int>(columnIndex));
@@ -502,8 +507,6 @@ void OracleOciConnection::queryFetch(Query* query)
             THROW_QUERY_ERROR(query, "Can't read field " + field->fieldName() + ": " + string(e.what()));
         }
     }
-
-    resultSet.Next();
 }
 
 void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
@@ -528,34 +531,53 @@ namespace {
 void OracleOci_readTimestamp(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
-    field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), date.GetHours(), date.GetMinutes(), date.GetSeconds()), false);
+    if (date.IsNull())
+    {
+        field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
+    }
+    else
+    {
+        field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), date.GetHours(), date.GetMinutes(), date.GetSeconds()), false);
+    }
 }
 
 void OracleOci_readDate(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
-    field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), short(0), short(0), short(0)), true);
+    if (date.IsNull())
+    {
+        field->setNull(sptk::VariantDataType::VAR_DATE);
+    }
+    else
+    {
+        field->setDateTime(DateTime(date.GetYear(), date.GetMonth(), date.GetDay(), short(0), short(0), short(0)), true);
+    }
 }
 
 void OracleOci_readCLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto clob = resultSet.Get<Clob>(columnIndex);
-    constexpr size_t SizeBuffer = 16 * 1024 * 1024;
-    auto clobData = clob.Read(SizeBuffer);
-    field->setBuffer((const uint8_t*) clobData.data(), clobData.size(), VariantDataType::VAR_TEXT);
+    if (clob.IsNull())
+    {
+        field->setNull(VariantDataType::VAR_TEXT);
+    }
+    else
+    {
+        auto clobData = clob.Read(clob.GetLength());
+        field->setBuffer((const uint8_t*) clobData.data(), clobData.size(), VariantDataType::VAR_TEXT);
+    }
 }
 
 void OracleOci_readBLOB(Resultset resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto blob = resultSet.Get<Blob>(columnIndex);
-    size_t SizeBuffer = 2048;
     if (blob.IsNull())
     {
         field->setNull(VariantDataType::VAR_BUFFER);
     }
     else
     {
-        auto blobData = blob.Read(SizeBuffer);
+        auto blobData = blob.Read(blob.GetLength());
         field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_BUFFER);
     }
 }

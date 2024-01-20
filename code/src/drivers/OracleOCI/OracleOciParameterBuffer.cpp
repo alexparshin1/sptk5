@@ -13,7 +13,7 @@
 using namespace std;
 using namespace sptk;
 
-OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type)
+OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection)
     : m_bindType(type)
 {
     ocilib::ostring* str = nullptr;
@@ -35,17 +35,17 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type)
             m_bindBuffer = bit_cast<uint8_t*>(str);
             break;
         case VAR_BOOL:
-            m_bindBuffer = makeBuffer<bool>();
+            m_bindBuffer = makeBuffer<int>();
             break;
         case VAR_DATE_TIME:
         case VAR_DATE:
-            m_bindBuffer = makeBuffer<ocilib::Date>();
+            m_bindBuffer = makeBuffer<ocilib::Date>(true);
             break;
         case VariantDataType::VAR_TEXT:
-            m_bindBuffer = makeBuffer<ocilib::Clob>();
+            m_bindBuffer = makeBuffer<ocilib::Clob>(*connection);
             break;
         case VariantDataType::VAR_BUFFER:
-            m_bindBuffer = makeBuffer<ocilib::Blob>();
+            m_bindBuffer = makeBuffer<ocilib::Blob>(*connection);
             break;
         default:
             throw Exception("Unknown parameter data type.");
@@ -91,7 +91,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
 {
     if (value.dataType() != m_bindType)
     {
-        throw Exception("Parameter data type has changed.");
+        throw DatabaseException("Parameter data type has changed.");
     }
     switch (m_bindType)
     {
@@ -113,7 +113,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             setValue<ocilib::ostring>(value.asString());
             break;
         case VAR_BOOL:
-            setValue<bool>(value.asBool());
+            getValue<int>() = value.asBool();
             break;
         case VAR_DATE_TIME: {
             ocilib::Date date;
@@ -129,12 +129,10 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             short second;
             short millisecond;
             dateValue.decodeTime(&hour, &minute, &second, &millisecond, false);
-            date.SetDateTime(year, month, day, hour, minute, second);
-            setValue<ocilib::Date>(date);
+            getValue<ocilib::Date>().SetDateTime(year, month, day, hour, minute, second);
             break;
         }
         case VAR_DATE: {
-            ocilib::Date date;
             auto dateValue = value.asDateTime();
             short year;
             short month;
@@ -142,8 +140,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             short wday;
             short yearDate;
             dateValue.decodeDate(&year, &month, &day, &wday, &yearDate, false);
-            date.SetDateTime(year, month, day, 0, 0, 0);
-            setValue<ocilib::Date>(date);
+            getValue<ocilib::Date>().SetDateTime(year, month, day, 0, 0, 0);
             break;
         }
         case VAR_TEXT:
@@ -177,12 +174,15 @@ void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::o
             statement.Bind(parameterMark, getValue<ocilib::ostring>(), MaxStringLength, bindDirection);
             break;
         case VAR_BOOL:
-            statement.Bind(parameterMark, getValue<bool>(), bindDirection);
+            statement.Bind(parameterMark, getValue<int>(), bindDirection);
             break;
         case VAR_DATE_TIME:
-        case VAR_DATE:
+        case VAR_DATE: {
+            auto& date = getValue<ocilib::Date>();
+            cout << date.ToString() << endl;
             statement.Bind(parameterMark, getValue<ocilib::Date>(), bindDirection);
-            break;
+        }
+        break;
         case VAR_TEXT:
             statement.Bind(parameterMark, getValue<ocilib::Clob>(), bindDirection);
             break;

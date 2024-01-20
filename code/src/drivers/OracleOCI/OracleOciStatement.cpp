@@ -33,6 +33,7 @@ using namespace ocilib;
 
 OracleOciStatement::OracleOciStatement(OracleOciConnection* connection, const string& sql)
     : DatabaseStatement<OracleOciConnection, ocilib::Statement>(connection)
+    , m_ociConnection(connection->m_connection)
     , m_ociStatement(make_shared<Statement>(*connection->connection()))
     , m_sql(sql)
 {
@@ -118,7 +119,7 @@ void OracleOciStatement::setParameterValues()
 
         if (performBinding)
         {
-            auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType);
+            auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
             paramBuffer->bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
             m_parameterBinding.push_back(paramBuffer);
         }
