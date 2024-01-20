@@ -878,7 +878,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     Query emptyQuery(databaseConnection);
 
-    //EXPECT_THROW(emptyQuery.exec(), DatabaseException);
+    EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
     Query selectNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NULL");
     Query selectNotNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NOT NULL");
@@ -892,14 +892,14 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     for (const auto& row: data)
     {
         using enum sptk::VariantDataType;
-        /*
+
         // Insert all nulls
         insertData.param("id").setNull(VAR_INT);
         insertData.param("name").setNull(VAR_STRING);
         insertData.param("position").setNull(VAR_STRING);
         insertData.param("hired").setNull(VAR_STRING);
         insertData.exec();
-        */
+
         // Insert data row
         Strings values(row, "\t");
         insertData.param("id") = string2int(values[0]);
@@ -908,7 +908,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         insertData.param("hired") = values[3];
         insertData.exec();
     }
-    /*
+
     try
     {
         selectNotNullData.next();
@@ -918,11 +918,10 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     {
         COUT("");
     }
-*/
+
     constexpr size_t expectedRecordCount = 3;
     size_t recordCount = 0;
 
-    /*
     selectNullData.open();
     while (!selectNullData.eof())
     {
@@ -939,7 +938,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     }
     selectNullData.close();
     EXPECT_EQ(expectedRecordCount, recordCount);
-*/
+
     selectNotNullData.open();
     Strings printRows;
     recordCount = 0;
