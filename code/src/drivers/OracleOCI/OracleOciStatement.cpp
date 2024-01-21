@@ -54,37 +54,35 @@ OracleOciStatement::~OracleOciStatement()
 
 void OracleOciStatement::bindParameters()
 {
-    if (!m_parameterBinding.empty())
+    if (m_parameterBinding.empty())
     {
-        return;
-    }
+        unsigned parameterIndex = 1;
+        auto* stmt = statement();
 
-    unsigned parameterIndex = 1;
-    auto* stmt = statement();
+        m_outputParamIndex.clear();
 
-    m_outputParamIndex.clear();
-
-    for (const auto& parameterPtr: enumeratedParams())
-    {
-        QueryParameter& parameter = *parameterPtr;
-        VariantDataType& paramDataType = parameter.binding().m_dataType;
-
-        paramDataType = parameter.dataType();
-        const auto paramMark = format(":{}", parameterIndex);
-
-        auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
-        if (!parameter.isOutput())
+        for (const auto& parameterPtr: enumeratedParams())
         {
-            paramBuffer->bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
-        }
-        else
-        {
-            paramBuffer->bindOutput(*stmt, paramMark);
-            m_outputParamIndex.push_back(parameterIndex);
-        }
-        m_parameterBinding.push_back(paramBuffer);
+            QueryParameter& parameter = *parameterPtr;
+            VariantDataType& paramDataType = parameter.binding().m_dataType;
 
-        ++parameterIndex;
+            paramDataType = parameter.dataType();
+            const auto paramMark = format(":{}", parameterIndex);
+
+            const auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
+            if (!parameter.isOutput())
+            {
+                paramBuffer->bind(*stmt, paramMark, BindInfo::BindDirectionValues::In);
+            }
+            else
+            {
+                paramBuffer->bindOutput(*stmt, paramMark);
+                m_outputParamIndex.push_back(parameterIndex);
+            }
+            m_parameterBinding.push_back(paramBuffer);
+
+            ++parameterIndex;
+        }
     }
 }
 
@@ -112,47 +110,8 @@ void OracleOciStatement::setParameterValues()
     }
 }
 
-void OracleOciStatement::execBulk(bool inTransaction, bool lastIteration)
-{
-    /*
-    // If statement is inside the transaction, it shouldn't be in auto-commit mode
-    if (inTransaction != state().transaction)
-    {
-        statement()->setAutoCommit(!inTransaction);
-        state().transaction = inTransaction;
-    }
-
-    if (m_resultSet)
-    {
-        close();
-    }
-
-    state().eof = true;
-    state().columnCount = 0;
-
-    if (lastIteration)
-    {
-        statement()->execute();
-    }
-    else
-    {
-        statement()->addIteration();
-    }
-     */
-}
-
-
 void OracleOciStatement::execute(bool inTransaction)
 {
-    /*
-    // If statement is inside the transaction, it shouldn't be in auto-commit mode
-    if (inTransaction != state().transaction)
-    {
-        statement()->setAutoCommit(!inTransaction);
-        state().transaction = inTransaction;
-    }
-    */
-
     state().eof = true;
     state().columnCount = 0;
 
@@ -161,7 +120,7 @@ void OracleOciStatement::execute(bool inTransaction)
     if (resultSet)
     {
         state().eof = false;
-        state().columnCount = (unsigned) resultSet.GetColumnCount();
+        state().columnCount = resultSet.GetColumnCount();
     }
 }
 

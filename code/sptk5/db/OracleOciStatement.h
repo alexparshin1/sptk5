@@ -97,13 +97,6 @@ public:
     void execute(bool inTransaction) override;
 
     /**
-     * Executes statement in bulk mode
-     * @param inTransaction bool, True if statement is executed from transaction
-     * @param lastIteration bool, True if bulk operation is completed (all iterations added)
-     */
-    void execBulk(bool inTransaction, bool lastIteration);
-
-    /**
      * Closes statement and releases allocated resources
      */
     void close() override;
