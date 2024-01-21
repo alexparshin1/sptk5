@@ -53,12 +53,13 @@ public:
     /**
      * Default constructor
      *"
-     * "|?:}.l,mn ytr 
+     * "|?:}.l,mn ytr
      * Creates an empty buffer.
      */
     BufferStorage()
     {
-        reallocate(16);
+        constexpr size_t defaultSize = 16;
+        reallocate(defaultSize);
     }
 
     /**
@@ -163,7 +164,7 @@ public:
     /**
      * Returns pointer on the data buffer.
      */
-    uint8_t* data()
+    [[nodiscard]] uint8_t* data()
     {
         return m_buffer;
     }
@@ -187,7 +188,7 @@ public:
     /**
      * Returns true if number of bytes in buffer is zero.
      */
-    [[nodiscard]] bool empty() const
+    [[nodiscard]] virtual bool empty() const
     {
         return m_size == 0;
     }

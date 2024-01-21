@@ -702,8 +702,8 @@ void MySQLStatement::fetch()
     {
         switch (mysql_stmt_fetch(statement()))
         {
-            case 0:                    // Successful, the data has been fetched to application data buffers
-            case MYSQL_DATA_TRUNCATED: // Successful, but one or mode fields were truncated
+            case 0:                    // successful, the data has been fetched to application data buffers
+            case MYSQL_DATA_TRUNCATED: // successful, but one or mode fields were truncated
                 state().eof = false;
                 break;
 

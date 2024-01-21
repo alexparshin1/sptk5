@@ -1,5 +1,8 @@
 #!/bin/bash
 
+./distclean.sh
+cmake .
+
 export PATH=/opt/sonar-scanner/bin:/usr/lib/ccache:$PATH
 
 CORES=$(grep 'cpu MHz' /proc/cpuinfo | wc -l)
@@ -18,3 +21,5 @@ OPTIONS="${OPTIONS} -Dsonar.cfamily.cache.enabled=true -Dsonar.cfamily.cache.pat
 
 sonar-scanner ${BPROXY} ${OPTIONS} -Dsonar.cfamily.build-wrapper-output=bw-output  -Dsonar.report.export.path=sonar-report.json
 echo Completed: $(date)
+
+./distclean.sh

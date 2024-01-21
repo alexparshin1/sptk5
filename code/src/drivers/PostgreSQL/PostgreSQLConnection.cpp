@@ -47,9 +47,7 @@ public:
     {
         if (prepared)
         {
-            stringstream str;
-            str << "S" << setfill('0') << setw(4) << index;
-            m_stmtName = str.str();
+            m_stmtName = format("S{:05}", index);
             ++index;
         }
     }
@@ -179,11 +177,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
 namespace {
 inline string csParam(const string& name, const string& value)
 {
-    if (!value.empty())
-    {
-        return name + "=" + value + " ";
-    }
-    return "";
+    return value.empty() ? "" : name + "=" + value + " ";
 }
 } // namespace
 
@@ -507,7 +501,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
     }
 }
 
-void PostgreSQLConnection::PostgreTypeToCType(PostgreSQLDataType postgreType, VariantDataType& dataType)
+void PostgreSQLConnection::postgreTypeToVariantType(PostgreSQLDataType postgreType, VariantDataType& dataType)
 {
     switch (postgreType)
     {
@@ -550,8 +544,8 @@ void PostgreSQLConnection::PostgreTypeToCType(PostgreSQLDataType postgreType, Va
     }
 }
 
-void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType,
-                                              const String& paramName)
+void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType,
+                                                    const String& paramName)
 {
     switch (dataType)
     {
@@ -588,8 +582,8 @@ void PostgreSQLConnection::CTypeToPostgreType(VariantDataType dataType, PostgreS
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type(" + to_string(static_cast<int>(dataType)) + ") for parameter '" +
-                paramName + "'");
+                format("Unsupported parameter type {} for parameter '{}'",
+                       static_cast<int>(dataType), paramName.c_str()));
     }
 }
 
@@ -639,22 +633,21 @@ void PostgreSQLConnection::queryOpen(Query* query)
         // Reading the column attributes
         const PGresult* stmt = statement->stmt();
 
-        stringstream columnName;
-        columnName.fill('0');
+        String columnName;
         for (short column = 0; column < count; ++column)
         {
-            columnName.str(PQfname(stmt, column));
+            columnName = PQfname(stmt, column);
 
-            if (columnName.str().empty())
+            if (columnName.empty())
             {
-                columnName << "column" << setw(2) << (column + 1);
+                columnName = format("column{:02}", column + 1);
             }
 
             auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
             VariantDataType fieldType = VariantDataType::VAR_NONE;
-            PostgreTypeToCType(dataType, fieldType);
+            postgreTypeToVariantType(dataType, fieldType);
             const int fieldLength = PQfsize(stmt, column);
-            auto field = make_shared<DatabaseField>(columnName.str(), static_cast<int>(dataType), fieldType, fieldLength);
+            auto field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }
@@ -665,7 +658,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
 }
 
 namespace {
-inline bool readBool(const char* data)
+[[nodiscard]] inline bool readBool(const char* data)
 {
     return *data != static_cast<char>(0);
 }
@@ -902,8 +895,9 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
 void PostgreSQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
+    {
         THROW_QUERY_ERROR(query, "Dataset isn't open");
-
+    }
     const scoped_lock lock(m_mutex);
 
     auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
@@ -942,7 +936,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
             if (dataLength == 0)
             {
                 VariantDataType dataType {VariantDataType::VAR_NONE};
-                PostgreTypeToCType(fieldType, dataType);
+                postgreTypeToVariantType(fieldType, dataType);
 
                 bool isNull = true;
                 if (static_cast<int>(dataType) & (static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT) |

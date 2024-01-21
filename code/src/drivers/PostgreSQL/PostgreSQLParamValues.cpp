@@ -41,7 +41,7 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
         const auto& param = m_params[i];
         const VariantDataType ptype = param->dataType();
         PostgreSQLDataType pgDataType;
-        PostgreSQLConnection::CTypeToPostgreType(ptype, pgDataType, param->name());
+        PostgreSQLConnection::variantTypeToPostgreType(ptype, pgDataType, param->name());
         m_types[i] = (Oid) pgDataType;
 
         if (((int) ptype &

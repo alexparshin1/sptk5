@@ -97,7 +97,7 @@ public:
     /**
      * @return true if there are no available bytes to read
      */
-    bool empty() const
+    bool empty() const override
     {
         return readOffset() >= bytes();
     }
