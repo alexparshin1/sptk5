@@ -74,17 +74,14 @@ void OracleOciGroupInsert::insertRows(const vector<VariantVector>& rows)
 
 void OracleOciGroupInsert::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
 {
-    size_t rowNumber = 0;
+    size_t parameterIndex = 0;
+    size_t columnCount = startRow->size();
     for (auto row = startRow; row != end; ++row)
     {
-        size_t columnNumber = 0;
-        for (const auto& columnName: m_columnNames)
+        for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
         {
-            auto paramName = format("{}_{}", columnName.c_str(), rowNumber);
-            insertQuery.param(paramName) = (*row)[columnNumber];
-            ++columnNumber;
+            insertQuery.param(parameterIndex++) = (*row)[columnNumber];
         }
-        ++rowNumber;
     }
     insertQuery.exec();
 }
