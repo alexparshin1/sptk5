@@ -16,7 +16,7 @@ using namespace sptk;
 OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection)
     : m_bindType(type)
 {
-    ocilib::ostring* str = nullptr;
+    ocilib::ostring* str;
     switch (m_bindType)
     {
         using enum VariantDataType;
@@ -30,9 +30,8 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const s
             m_bindBuffer = makeBuffer<double>();
             break;
         case VAR_STRING:
-            str = new ocilib::ostring();
-            str->reserve(MaxStringLength);
-            m_bindBuffer = bit_cast<uint8_t*>(str);
+            m_bindBuffer = makeBuffer<ocilib::ostring>();
+            getValue<ocilib::ostring>().reserve(MaxStringLength);
             break;
         case VAR_BOOL:
             m_bindBuffer = makeBuffer<int>();
@@ -117,8 +116,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             getValue<int>() = value.asBool();
             break;
         case VAR_DATE_TIME: {
-            ocilib::Date date;
-            auto dateValue = value.asDateTime();
+            const auto dateValue = value.asDateTime();
             short year;
             short month;
             short day;
@@ -134,7 +132,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             break;
         }
         case VAR_DATE: {
-            auto dateValue = value.asDateTime();
+            const auto dateValue = value.asDateTime();
             short year;
             short month;
             short day;
@@ -149,7 +147,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             getValue<ocilib::Clob>().Write(value.getText());
             break;
         case VAR_BUFFER: {
-            vector<uint8_t> view(value.getText(), value.getText() + value.dataSize());
+            const vector<uint8_t> view(value.getText(), value.getText() + value.dataSize());
             getValue<ocilib::Blob>().Truncate(0);
             getValue<ocilib::Blob>().Write(view);
             break;
@@ -194,7 +192,7 @@ void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::o
     }
 }
 
-void OracleOciParameterBuffer::bindOutput(ocilib::Statement statement, const ocilib::ostring& parameterMark)
+void OracleOciParameterBuffer::bindOutput(ocilib::Statement statement, const ocilib::ostring& parameterMark) const
 {
     switch (m_bindType)
     {
@@ -209,7 +207,7 @@ void OracleOciParameterBuffer::bindOutput(ocilib::Statement statement, const oci
             statement.Register<double>(parameterMark);
             break;
         case VAR_STRING:
-            statement.Register<ocilib::ostring>(parameterMark, 256);
+            statement.Register<ocilib::ostring>(parameterMark, 4000);
             break;
         case VAR_BOOL:
             statement.Register<int>(parameterMark);

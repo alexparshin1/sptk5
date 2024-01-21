@@ -17,7 +17,7 @@ namespace sptk {
 class OracleOciGroupInsert
 {
 public:
-    OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, size_t groupSize);
+    OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize);
 
     void insertRows(const std::vector<VariantVector>& rows);
 
@@ -25,11 +25,11 @@ private:
     Query m_insertQuery;
     Strings m_columnNames;
     String m_tableName;
-    size_t m_groupSize;
+    unsigned m_groupSize;
     OracleOciConnection* m_connection {nullptr};
 
-    [[nodiscard]] static String makeInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize);
-    void insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end);
+    [[nodiscard]] static String makeInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    static void insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end);
 };
 
 } // namespace sptk

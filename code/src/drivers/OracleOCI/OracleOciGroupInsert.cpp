@@ -12,7 +12,7 @@
 using namespace std;
 using namespace sptk;
 
-OracleOciGroupInsert::OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, size_t groupSize)
+OracleOciGroupInsert::OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
     : m_insertQuery(connection, makeInsertSQL(tableName, columnNames, groupSize))
     , m_columnNames(columnNames)
     , m_tableName(tableName)
@@ -21,7 +21,7 @@ OracleOciGroupInsert::OracleOciGroupInsert(OracleOciConnection* connection, cons
 {
 }
 
-String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize)
+String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
 {
     stringstream sql;
 
@@ -51,13 +51,13 @@ String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const String
 
 void OracleOciGroupInsert::insertRows(const vector<VariantVector>& rows)
 {
-    size_t fullGroupCount = rows.size() / m_groupSize;
-    size_t remainder = rows.size() % m_groupSize;
+    unsigned fullGroupCount = rows.size() / m_groupSize;
+    unsigned remainder = rows.size() % m_groupSize;
 
     auto firstRow = rows.begin();
     if (fullGroupCount > 0)
     {
-        for (size_t groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
+        for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
         {
             insertGroupRows(m_insertQuery, firstRow, firstRow + m_groupSize);
             firstRow += m_groupSize;

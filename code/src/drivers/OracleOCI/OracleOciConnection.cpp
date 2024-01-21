@@ -696,7 +696,7 @@ void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
     else
     {
         auto clobData = clob.Read((unsigned) clob.GetLength());
-        field->setBuffer((const uint8_t*) clobData.data(), clobData.size(), VariantDataType::VAR_TEXT);
+        field->setBuffer(bit_cast<const uint8_t*>(clobData.data()), clobData.size(), VariantDataType::VAR_TEXT);
     }
 }
 
@@ -710,7 +710,7 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
     else
     {
         auto blobData = blob.Read((unsigned) blob.GetLength());
-        field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_BUFFER);
+        field->setBuffer(bit_cast<const uint8_t*>(blobData.data()), blobData.size(), VariantDataType::VAR_BUFFER);
     }
 }
 

@@ -126,6 +126,7 @@ void OracleOciStatement::execute(bool inTransaction)
 
 void OracleOciStatement::close()
 {
+    // Nothing to do.
 }
 
 void OracleOciStatement::fetch()
