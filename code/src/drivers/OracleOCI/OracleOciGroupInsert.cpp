@@ -51,7 +51,7 @@ String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const String
 
 void OracleOciGroupInsert::insertRows(const vector<VariantVector>& rows)
 {
-    unsigned fullGroupCount = rows.size() / m_groupSize;
+    auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
     unsigned remainder = rows.size() % m_groupSize;
 
     auto firstRow = rows.begin();
@@ -80,7 +80,8 @@ void OracleOciGroupInsert::insertGroupRows(Query& insertQuery, std::vector<Varia
     {
         for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
         {
-            insertQuery.param(parameterIndex++) = (*row)[columnNumber];
+            insertQuery.param(parameterIndex) = (*row)[columnNumber];
+            ++parameterIndex;
         }
     }
     insertQuery.exec();

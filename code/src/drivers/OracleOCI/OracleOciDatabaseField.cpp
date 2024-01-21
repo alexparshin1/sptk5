@@ -6,10 +6,6 @@
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
-//
-// Created by alexeyp on 20/01/24.
-//
-
 
 #include "sptk5/db/OracleOciDatabaseField.h"
 

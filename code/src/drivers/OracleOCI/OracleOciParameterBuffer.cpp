@@ -16,7 +16,6 @@ using namespace sptk;
 OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection)
     : m_bindType(type)
 {
-    ocilib::ostring* str;
     switch (m_bindType)
     {
         using enum VariantDataType;

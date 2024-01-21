@@ -46,11 +46,11 @@ OracleStatement::~OracleStatement()
     if (statement() != nullptr)
     {
         Connection* connection = statement()->getConnection();
-        if (m_createClobStatement)
+        if (m_createClobStatement != nullptr)
         {
             connection->terminateStatement(m_createClobStatement);
         }
-        if (m_createBlobStatement)
+        if (m_createBlobStatement != nullptr)
         {
             connection->terminateStatement(m_createBlobStatement);
         }
@@ -62,7 +62,7 @@ void OracleStatement::setClobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (connection())
     {
-        if (!m_createClobStatement)
+        if (m_createClobStatement == nullptr)
         {
             m_createClobStatement =
                 connection()->createStatement(
@@ -84,7 +84,7 @@ void OracleStatement::setBlobParameter(uint32_t parameterIndex, unsigned char* d
 {
     if (connection())
     {
-        if (!m_createBlobStatement)
+        if (m_createBlobStatement == nullptr)
         {
             m_createBlobStatement =
                 connection()->createStatement(
@@ -124,46 +124,48 @@ void OracleStatement::setParameterValues()
 
         switch (paramDataType)
         {
-            case VariantDataType::VAR_INT: ///< Integer
+            using enum sptk::VariantDataType;
+            case VAR_INT: ///< Integer
                 setIntParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_FLOAT: ///< Floating-point (double)
+            case VAR_FLOAT: ///< Floating-point (double)
                 setFloatParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_STRING: ///< String pointer
+            case VAR_STRING: ///< String pointer
                 setStringParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_TEXT: ///< String pointer, corresponding to CLOB in database
+            case VAR_TEXT: ///< String pointer, corresponding to CLOB in database
                 setCLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_BUFFER: ///< Data pointer, corresponding to BLOB in database
+            case VAR_BUFFER: ///< Data pointer, corresponding to BLOB in database
                 setBLOBParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_DATE: ///< DateTime (double)
+            case VAR_DATE: ///< DateTime (double)
                 setDateParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_DATE_TIME: ///< DateTime (double)
+            case VAR_DATE_TIME: ///< DateTime (double)
                 setDateTimeParameterValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_INT64: ///< 64bit integer
+            case VAR_INT64: ///< 64bit integer
                 setInt64ParamValue(parameterIndex, parameter);
                 break;
 
-            case VariantDataType::VAR_BOOL: ///< Boolean
+            case VAR_BOOL: ///< Boolean
                 setBooleanParamValue(parameterIndex, parameter);
                 break;
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string((int) parameter.dataType()) + ") for parameter '" +
-                    parameter.name() + "'");
+                    format("Unsupported parameter type {} for parameter '{}'",
+                           (int) parameter.dataType(),
+                           parameter.name().c_str()));
         }
         ++parameterIndex;
     }
@@ -418,35 +420,37 @@ void OracleStatement::getOutputParameters(FieldList& fields)
             auto field = dynamic_pointer_cast<DatabaseField>(fields.findField(parameter->name()));
             if (!field)
             {
+                constexpr int MaxDataSize = 4000;
                 field = make_shared<DatabaseField>(parameter->name(), OCCIANYDATA,
-                                                   parameter->dataType(), 256);
+                                                   parameter->dataType(), MaxDataSize);
                 fields.push_back(field);
             }
 
             switch (parameter->dataType())
             {
-                case VariantDataType::VAR_INT:
-                case VariantDataType::VAR_INT64:
+                using enum sptk::VariantDataType;
+                case VAR_INT:
+                case VAR_INT64:
                     field->setInteger(statement()->getInt(index));
                     break;
 
-                case VariantDataType::VAR_FLOAT:
+                case VAR_FLOAT:
                     field->setFloat(statement()->getDouble(index));
                     break;
 
-                case VariantDataType::VAR_DATE:
+                case VAR_DATE:
                     getDateOutputParameter(index, field);
                     break;
 
-                case VariantDataType::VAR_DATE_TIME:
+                case VAR_DATE_TIME:
                     getDateTimeOutputParameter(index, field);
                     break;
 
-                case VariantDataType::VAR_BUFFER:
+                case VAR_BUFFER:
                     getBLOBOutputParameter(index, field);
                     break;
 
-                case VariantDataType::VAR_TEXT:
+                case VAR_TEXT:
                     getCLOBOutputParameter(index, field);
                     break;
 
