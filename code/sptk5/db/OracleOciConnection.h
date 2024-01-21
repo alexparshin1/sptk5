@@ -203,8 +203,6 @@ private:
     mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
 
     void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
-    static void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                    OracleOciBulkInsertQuery& insertQuery, const VariantVector& row);
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 };
 /**

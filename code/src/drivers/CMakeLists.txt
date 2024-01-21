@@ -98,6 +98,7 @@ IF (ORACLE_OCI_FLAG)
             OracleOCI/OracleOciParameterBuffer.cpp
             OracleOCI/OracleOciDatabaseField.cpp
             OracleOCI/OracleOciBulkInsertQuery.cpp
+            OracleOCI/OracleOciGroupInsert.cpp
     )
 
     SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})

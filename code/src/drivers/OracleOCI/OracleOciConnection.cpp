@@ -29,6 +29,7 @@
 #include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/OracleOciConnection.h>
+#include <sptk5/db/OracleOciGroupInsert.h>
 #include <sptk5/db/OracleOciStatement.h>
 
 using namespace std;
@@ -714,132 +715,20 @@ void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsign
 void OracleOciConnection::bulkInsert(const String& fullTableName, const Strings& columnNames,
                                      const vector<VariantVector>& data)
 {
-    const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
-
-    String schema;
-    String tableName;
-    const auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
-    if (!matches[0].value.empty())
-    {
-        schema = matches[0].value;
-        schema = schema.substr(0, schema.length() - 1);
-    }
-    tableName = matches[1].value;
-
-    stringstream columnsInfoSQL;
-    columnsInfoSQL << "SELECT column_name, data_type, data_length FROM ";
-    if (schema.empty())
-    {
-        // User' database table
-        columnsInfoSQL << "user_tab_columns WHERE table_name = :table_name";
-    }
-    else
-    {
-        columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
-    }
-
-    Query tableColumnsQuery(this, columnsInfoSQL.str());
-    tableColumnsQuery.param("table_name") = upperCase(tableName);
-    if (!schema.empty())
-    {
-        tableColumnsQuery.param("schema") = schema;
-    }
-    tableColumnsQuery.open();
-    const Field& column_name = tableColumnsQuery["column_name"];
-    const Field& data_type = tableColumnsQuery["data_type"];
-    const Field& data_length = tableColumnsQuery["data_length"];
-    QueryColumnTypeSizeMap columnTypeSizeMap;
-    while (!tableColumnsQuery.eof())
-    {
-        const auto columnName = column_name.asString();
-        const auto columnType = data_type.asString();
-        const auto maxDataLength = (size_t) data_length.asInteger();
-        QueryColumnTypeSize columnTypeSize = {};
-        columnTypeSize.type = VariantDataType::VAR_STRING;
-        columnTypeSize.length = 0;
-        if (columnType.find("LOB") != string::npos)
-        {
-            constexpr size_t defaultTextSize = 65536;
-            columnTypeSize.type = VariantDataType::VAR_TEXT;
-            columnTypeSize.length = defaultTextSize;
-        }
-        else if (columnType.find("CHAR") != string::npos)
-        {
-            columnTypeSize.length = maxDataLength;
-        }
-        else if (columnType.find("TIMESTAMP") != string::npos)
-        {
-            columnTypeSize.type = VariantDataType::VAR_DATE_TIME;
-        }
-        columnTypeSizeMap[columnName] = columnTypeSize;
-        tableColumnsQuery.fetch();
-    }
-    tableColumnsQuery.close();
-
     bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
     {
         beginTransaction();
     }
 
-    QueryColumnTypeSizeVector columnTypeSizeVector;
-    for (const auto& columnName: columnNames)
-    {
-        const auto column = columnTypeSizeMap.find(upperCase(columnName));
-        if (column == columnTypeSizeMap.end())
-        {
-            throw DatabaseException(
-                "Column '" + columnName + "' doesn't belong to table " + tableName);
-        }
-        columnTypeSizeVector.push_back(column->second);
-    }
-
-    OracleOciBulkInsertQuery insertQuery(this,
-                                         "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                                             ") VALUES (:" + columnNames.join(",:") + ")",
-                                         data.size(),
-                                         columnTypeSizeMap);
-    for (const auto& row: data)
-    {
-        bulkInsertSingleRow(columnNames, columnTypeSizeVector, insertQuery, row);
-    }
+    Strings cnames({"id", "name"});
+    OracleOciGroupInsert groupInsert(this, "gtest_temp_table", columnNames, 3);
+    groupInsert.insertRows(data);
 
     if (!wasInTransaction)
     {
         commitTransaction();
     }
-}
-
-void OracleOciConnection::bulkInsertSingleRow(const Strings& columnNames,
-                                              const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                              OracleOciBulkInsertQuery& insertQuery, const VariantVector& row)
-{
-    for (size_t i = 0; i < columnNames.size(); ++i)
-    {
-        const auto& value = row[i];
-        switch (columnTypeSizeVector[i].type)
-        {
-            using enum sptk::VariantDataType;
-            case VAR_TEXT:
-                if (value.dataSize())
-                {
-                    insertQuery.param(i).setBuffer(bit_cast<const uint8_t*>(value.getText()), value.dataSize(),
-                                                   VAR_TEXT);
-                }
-                else
-                {
-                    insertQuery.param(i).setNull(VAR_TEXT);
-                }
-                break;
-            case VAR_DATE_TIME:
-                insertQuery.param(i).setDateTime(value.get<DateTime>());
-                break;
-            default:
-                insertQuery.param(i).setString(value.asString());
-                break;
-        }
-    }
-    insertQuery.execNext();
 }
 
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;

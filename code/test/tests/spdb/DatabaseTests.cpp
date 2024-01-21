@@ -27,8 +27,6 @@
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
-#include <sptk5/db/Query.h>
-
 #include <sptk5/db/InsertQuery.h>
 
 #ifdef USE_GTEST
@@ -320,7 +318,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     insertDataIntoTempTable(clob, insert);
 
     Variant ident;
-    ident.setImagePtr((const uint8_t*) &ident);
+    ident.setImagePtr(bit_cast<const uint8_t*>(&ident));
     insert.param("id") = ident;
     try
     {
@@ -371,7 +369,7 @@ void DatabaseTests::insertDataIntoTempTable(Buffer& clob, Query& insert)
         insert.param("name") = row.name;
         insert.param("price") = row.price;
         insert.param("enabled").setBool(true);
-        insert.param("txt").setBuffer((const uint8_t*) clob.data(), clob.size(), VariantDataType::VAR_TEXT);
+        insert.param("txt").setBuffer(bit_cast<const uint8_t*>(clob.data()), clob.size(), VariantDataType::VAR_TEXT);
         insert.exec();
     }
 }
@@ -574,7 +572,7 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
 
 void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& databaseConnection)
 {
-    auto itor = dateTimeFieldTypes.find(databaseConnection->connectionString().driverName());
+    const auto itor = dateTimeFieldTypes.find(databaseConnection->connectionString().driverName());
     if (itor == dateTimeFieldTypes.end())
     {
         throw Exception("DateTime data type mapping is not defined for the test");
@@ -623,9 +621,8 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     createTable.exec();
 
-    auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-                    databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
-    if (isOracle)
+    if (databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
+        databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI)
     {
         createOracleAutoIncrement(databaseConnection, "gtest_temp_table2", "id");
     }
@@ -644,7 +641,7 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 }
 
 static const string expectedBulkInsertResult(
-    "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016");
+    "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016 # 4|Teddy|Bear|01-JAN-2017 # 5|Santa|Claus|01-JAN-2018");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
@@ -661,6 +658,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     constexpr int id1 = 1;
     constexpr int id2 = 2;
     constexpr int id3 = 3;
+    constexpr int id4 = 4;
+    constexpr int id5 = 5;
 
     aRow.emplace_back(id1);
     aRow.emplace_back("Alex,'Doe'");
@@ -682,6 +681,20 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     aRow.emplace_back("01-JAN-2016");
     data.push_back(aRow);
 
+    aRow.clear();
+    aRow.emplace_back(id4);
+    aRow.emplace_back("Teddy");
+    aRow.emplace_back("Bear");
+    aRow.emplace_back("01-JAN-2017");
+    data.push_back(aRow);
+
+    aRow.clear();
+    aRow.emplace_back(id5);
+    aRow.emplace_back("Santa");
+    aRow.emplace_back("Claus");
+    aRow.emplace_back("01-JAN-2018");
+    data.push_back(aRow);
+
     const Strings columnNames({"id", "name", "position_name", "hire_date"});
     databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);
 
@@ -699,8 +712,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     }
     selectData.close();
 
-    constexpr int expectedRows = 3;
-    if (printRows.size() > expectedRows)
+    if (constexpr int expectedRows = 5;
+        printRows.size() != expectedRows)
     {
         throw Exception(
             "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
@@ -709,17 +722,10 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     const String actualResult(printRows.join(" # "));
     if (actualResult != expectedBulkInsertResult)
     {
+        cout << "Actual result: " << actualResult << endl;
+        cout << "Expected result: " << expectedBulkInsertResult << endl;
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
-
-    Query testQuery(databaseConnection,
-                    "INSERT ALL "
-                    "INTO gtest_temp_table(id) VALUES(:id1) "
-                    "INTO gtest_temp_table(id) VALUES(:id2) "
-                    "SELECT * FROM DUAL");
-    testQuery.param("id1") = 123456;
-    testQuery.param("id2") = 123457;
-    testQuery.exec();
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
@@ -898,6 +904,8 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     data.push_back(string("1\tAlex,'Doe'\tProgrammer\t01-JAN-2014"));
     data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
     data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
+    data.push_back(string("4\tTeddy\tBear\t01-JAN-2017"));
+    data.push_back(string("5\tSanta\tClaus\t01-JAN-2018"));
 
     constexpr int col0 = 0;
     constexpr int col1 = 1;
@@ -934,7 +942,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
         COUT("");
     }
 
-    constexpr size_t expectedRecordCount = 3;
+    constexpr size_t expectedRecordCount = 5;
     size_t recordCount = 0;
 
     selectNullData.open();
@@ -997,7 +1005,7 @@ size_t DatabaseTests::countRowsInTable(const DatabaseConnection& databaseConnect
 {
     Query select(databaseConnection, "SELECT count(*) cnt FROM " + table);
     select.open();
-    auto count = (size_t) select["cnt"].asInteger();
+    const auto count = (size_t) select["cnt"].asInteger();
     select.close();
 
     return count;

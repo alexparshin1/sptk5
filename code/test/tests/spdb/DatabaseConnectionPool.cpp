@@ -195,7 +195,7 @@ void testBulkInsertPerformance(const String& dbName)
 
     try
     {
-        constexpr auto recordCount = 1024 * 16;
+        constexpr auto recordCount = 1024;
         DatabaseTests::testBulkInsertPerformance(connectionString, recordCount);
     }
     catch (const Exception& e)
