@@ -97,7 +97,6 @@ IF (ORACLE_OCI_FLAG)
             OracleOCI/OracleOciStatement.cpp
             OracleOCI/OracleOciParameterBuffer.cpp
             OracleOCI/OracleOciDatabaseField.cpp
-            OracleOCI/OracleOciBulkInsertQuery.cpp
             OracleOCI/OracleOciGroupInsert.cpp
     )
 

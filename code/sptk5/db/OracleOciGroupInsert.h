@@ -10,6 +10,7 @@
 #pragma once
 
 #include <sptk5/db/OracleOciConnection.h>
+#include <sptk5/db/Query.h>
 
 namespace sptk {
 

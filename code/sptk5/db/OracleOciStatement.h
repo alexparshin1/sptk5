@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include <occi.h>
-
 #include <cstdio>
 #include <list>
 #include <string>

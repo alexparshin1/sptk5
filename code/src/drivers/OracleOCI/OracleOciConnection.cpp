@@ -37,18 +37,18 @@ using namespace sptk;
 using namespace ocilib;
 
 namespace {
-void OracleOci_readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
-void OracleOci_readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
+void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 } // namespace
 
 OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE_OCI, connectTimeout)
 {
     static mutex initializeMutex;
-    scoped_lock lock(initializeMutex);
+    const scoped_lock lock(initializeMutex);
     if (!ocilib::Environment::Initialized())
     {
         ocilib::Environment::Initialize();
@@ -229,11 +229,6 @@ bool OracleOciConnection::active() const
     return (bool) m_connection;
 }
 
-DBHandle OracleOciConnection::handle() const
-{
-    return PoolDatabaseConnection::handle();
-}
-
 String OracleOciConnection::driverDescription() const
 {
     auto driverVersion = format("OracleOci {}.{}", Environment::GetCompileMajorVersion(), Environment::GetCompileMinorVersion());
@@ -364,11 +359,8 @@ size_t OracleOciConnection::queryColCount(Query* query)
         throw DatabaseException("Query not opened");
     }
     const auto resultSet = statement->statement()->GetResultset();
-    if (!resultSet)
-    {
-        return 0;
-    }
-    return resultSet.GetColumnCount();
+    const size_t columnCount = resultSet ? resultSet.GetColumnCount() : 0;
+    return columnCount;
 }
 
 void OracleOciConnection::queryBindParameters(Query* query)
@@ -416,7 +408,7 @@ void OracleOciConnection::queryOpen(Query* query)
     // Bind parameters also executes a query
     queryBindParameters(query);
 
-    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
 
     queryExecute(query);
     if (queryColCount(query) < 1)
@@ -441,21 +433,27 @@ void OracleOciConnection::queryOpen(Query* query)
 
 VariantDataType OracleOciConnection::oracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
 {
+    VariantDataType dataType {VariantDataType::VAR_STRING};
     switch (oracleType.GetValue())
     {
         using enum sptk::VariantDataType;
         case OCI_CDT_NUMERIC:
-            return scale == 0 ? VAR_INT64 : VAR_FLOAT;
+            dataType = scale == 0 ? VAR_INT64 : VAR_FLOAT;
+            break;
         case OCI_CDT_DATETIME:
         case OCI_CDT_TIMESTAMP:
-            return VAR_DATE_TIME;
+            dataType = VAR_DATE_TIME;
+            break;
         case OCI_CDT_LOB:
-            return VAR_BUFFER;
+            dataType = VAR_BUFFER;
+            break;
         case OCI_CDT_BOOLEAN:
-            return VAR_INT;
+            dataType = VAR_INT;
+            break;
         default:
-            return VAR_STRING;
+            break;
     }
+    return dataType;
 }
 
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resultset& resultSet)
@@ -529,60 +527,28 @@ void OracleOciConnection::queryFetch(Query* query)
 
             switch (dataType)
             {
-                case VariantDataType::VAR_INT:
+                using enum sptk::VariantDataType;
+                case VAR_INT:
                     field->setInteger(resultSet.Get<int>(columnIndex));
                     break;
 
-                case VariantDataType::VAR_INT64:
+                case VAR_INT64:
                     field->setInt64(resultSet.Get<big_int>(columnIndex));
                     break;
 
-                case VariantDataType::VAR_FLOAT:
+                case VAR_FLOAT:
                     field->setFloat(resultSet.Get<double>(columnIndex));
                     break;
 
-                case VariantDataType::VAR_DATE:
-                    OracleOci_readDate(resultSet, field, columnIndex);
+                case VAR_DATE:
+                case VAR_DATE_TIME:
+                    readDateTimeOrTimestamp(resultSet, field, columnIndex);
                     break;
 
-                case VariantDataType::VAR_DATE_TIME:
-                    if (field->sqlType() == "timestamp")
-                    {
-                        OracleOci_readTimestamp(resultSet, field, columnIndex);
-                    }
-                    else if (field->sqlType() == "datetime")
-                    {
-                        OracleOci_readDate(resultSet, field, columnIndex);
-                    }
-                    else
-                    {
-                        OracleOci_readDateTime(resultSet, field, columnIndex);
-                    }
-                    break;
-
-                case VariantDataType::VAR_BUFFER:
-                    switch (field->fieldType())
-                    {
-                        case OCI_CDT_LOB:
-                            if (field->sqlType() == "clob")
-                            {
-                                OracleOci_readCLOB(resultSet, field, columnIndex);
-                            }
-                            else
-                            {
-                                OracleOci_readBLOB(resultSet, field, columnIndex);
-                            }
-                            break;
-                        case OCI_CDT_TEXT:
-                            field->setString(resultSet.Get<string>(columnIndex));
-                            break;
-                        default:
-                            throw DatabaseException("Unsupported buffer type");
-                    }
-                    break;
-
-                case VariantDataType::VAR_TEXT:
-                    OracleOci_readCLOB(resultSet, field, columnIndex);
+                case VAR_BUFFER:
+                case VAR_TEXT:
+                case VAR_STRING:
+                    readBuffer(resultSet, field, columnIndex);
                     break;
 
                 default:
@@ -601,12 +567,50 @@ void OracleOciConnection::queryFetch(Query* query)
     }
 }
 
+void OracleOciConnection::readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
+{
+    if (field->sqlType() == "timestamp")
+    {
+        readTimestamp(resultSet, field, columnIndex);
+    }
+    else if (field->sqlType() == "datetime")
+    {
+        readDate(resultSet, field, columnIndex);
+    }
+    else
+    {
+        readDateTime(resultSet, field, columnIndex);
+    }
+}
+
+void OracleOciConnection::readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
+{
+    switch (field->fieldType())
+    {
+        case OCI_CDT_LOB:
+            if (field->sqlType() == "clob")
+            {
+                readCLOB(resultSet, field, columnIndex);
+            }
+            else
+            {
+                readBLOB(resultSet, field, columnIndex);
+            }
+            break;
+        case OCI_CDT_TEXT:
+            field->setString(resultSet.Get<string>(columnIndex));
+            break;
+        default:
+            throw DatabaseException("Unsupported buffer type");
+    }
+}
+
 void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
 {
     notImplemented("queryColAttributes");
 }
 
-void OracleOciConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len)
+void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 {
     notImplemented("queryColAttributes");
 }
@@ -622,7 +626,7 @@ String OracleOciConnection::queryError(const Query* query) const
 }
 
 namespace {
-void OracleOci_readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Timestamp>(columnIndex);
     if (date.IsNull())
@@ -643,7 +647,7 @@ void OracleOci_readTimestamp(const Resultset& resultSet, DatabaseField* field, u
     }
 }
 
-void OracleOci_readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex)
+void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
@@ -665,7 +669,7 @@ void OracleOci_readDateTime(const Resultset& resultSet, sptk::DatabaseField* fie
     }
 }
 
-void OracleOci_readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
@@ -682,7 +686,7 @@ void OracleOci_readDate(const Resultset& resultSet, DatabaseField* field, unsign
     }
 }
 
-void OracleOci_readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto clob = resultSet.Get<Clob>(columnIndex);
     if (clob.IsNull())
@@ -691,12 +695,12 @@ void OracleOci_readCLOB(const Resultset& resultSet, DatabaseField* field, unsign
     }
     else
     {
-        auto clobData = clob.Read(clob.GetLength());
+        auto clobData = clob.Read((unsigned) clob.GetLength());
         field->setBuffer((const uint8_t*) clobData.data(), clobData.size(), VariantDataType::VAR_TEXT);
     }
 }
 
-void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto blob = resultSet.Get<Blob>(columnIndex);
     if (blob.IsNull())
@@ -705,24 +709,23 @@ void OracleOci_readBLOB(const Resultset& resultSet, DatabaseField* field, unsign
     }
     else
     {
-        auto blobData = blob.Read(blob.GetLength());
+        auto blobData = blob.Read((unsigned) blob.GetLength());
         field->setBuffer((const uint8_t*) blobData.data(), blobData.size(), VariantDataType::VAR_BUFFER);
     }
 }
 
 } // namespace
 
-void OracleOciConnection::bulkInsert(const String& fullTableName, const Strings& columnNames,
+void OracleOciConnection::bulkInsert(const String& tableName, const Strings& columnNames,
                                      const vector<VariantVector>& data)
 {
-    bool wasInTransaction = inTransaction();
+    const bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
     {
         beginTransaction();
     }
 
-    Strings cnames({"id", "name"});
-    OracleOciGroupInsert groupInsert(this, "gtest_temp_table", columnNames, 3);
+    OracleOciGroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
     groupInsert.insertRows(data);
 
     if (!wasInTransaction)
@@ -735,7 +738,7 @@ map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::
 
 [[maybe_unused]] [[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    const auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
     return connection.get();
 }

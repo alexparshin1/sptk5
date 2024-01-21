@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include "OracleOciBulkInsertQuery.h"
 #include "PoolDatabaseConnection.h"
 #include "ocilib.hpp"
 
@@ -40,6 +39,8 @@ namespace sptk {
  * @addtogroup Database Database Support
  * @{
  */
+
+class OracleOciDatabaseField;
 
 /**
  * @brief Oracle (OCI) database connection
@@ -99,11 +100,6 @@ public:
      * @brief Returns true if database is opened
      */
     [[nodiscard]] bool active() const override;
-
-    /**
-     * @brief Returns the database connection handle
-     */
-    [[nodiscard]] DBHandle handle() const override;
 
     /**
      * @brief Returns the OracleOci driver description for the active connection
@@ -202,8 +198,10 @@ private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
     mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
 
-    void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
+    static void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
     void executeMultipleStatements(const Strings& statements, Strings* errors);
+    static void readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
+    static void readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
 };
 /**
  * @}
