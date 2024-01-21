@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/db/OracleOciBulkInsertQuery.h"
 #include "sptk5/db/OracleOciDatabaseField.h"
 #include <format>
 #include <sptk5/cutils>

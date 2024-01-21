@@ -48,7 +48,6 @@ String Url::encode(const String& str)
     constexpr int bufferSize = 5;
     array<char, bufferSize> hexBuffer {};
     Buffer buffer(cnt * 3 + 1);
-    buffer.data();
     int len;
     while (*src != 0)
     {

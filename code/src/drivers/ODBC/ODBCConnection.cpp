@@ -261,7 +261,8 @@ void ODBCConnection::queryPrepare(Query* query)
 
     query->fields().clear();
 
-    char* sql = query->sql().empty() ? nullptr : query->sql().data();
+    string buffer(query->sql()); // For some reason, SQLPrepare doesn't work correctly without this copy when using cxx11 ABI
+    const auto* sql = buffer.c_str();
     if (!successful(SQLPrepare(query->statement(), bit_cast<SQLCHAR*>(sql), SQL_NTS)))
     {
         THROW_QUERY_ERROR(query, queryError(query));

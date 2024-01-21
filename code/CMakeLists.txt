@@ -141,7 +141,7 @@ ELSE ()
         SET(NEW_ABI_FLAG "1")
         SET(NEW_ABI_DEFINE "#define USE_NEW_ABI")
         MESSAGE("GCC ABI:            1")
-        ADD_DEFINITIONS(-D_GLIBCXX_USE_CXX11_ABI=1)
+        #ADD_DEFINITIONS(-D_GLIBCXX_USE_CXX11_ABI=1)
     ELSE ()
         # For Oracle client libraries, we need compatibility with old ABI
         SET(NEW_ABI_FLAG "0")
