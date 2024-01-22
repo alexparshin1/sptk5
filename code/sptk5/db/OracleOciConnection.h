@@ -77,9 +77,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The OracleOci connection string
+     * @param newConnectionString The OracleOci connection string
      */
-    void _openDatabase(const String& connectionString) override;
+    void _openDatabase(const String& newConnectionString) override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.

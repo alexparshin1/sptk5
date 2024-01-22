@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/cutils>
+#include <sptk5/db/GroupInsert.h>
 #include <sptk5/db/OracleConnection.h>
 
 using namespace std;
@@ -223,19 +224,6 @@ void OracleConnection::queryPrepare(Query* query)
 
     auto* statement = bit_cast<OracleStatement*>(query->statement());
     statement->enumerateParams(query->params());
-    if (query->bulkMode())
-    {
-        const CParamVector& enumeratedParams = statement->enumeratedParams();
-        Statement* stmt = statement->stmt();
-        const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-        if (bulkInsertQuery == nullptr)
-        {
-            throw Exception("Not a bulk query");
-        }
-        const QueryColumnTypeSizeMap& columnTypeSizes = bulkInsertQuery->columnTypeSizes();
-        setMaxParamSizes(enumeratedParams, stmt, columnTypeSizes);
-        stmt->setMaxIterations((unsigned) bulkInsertQuery->batchSize());
-    }
     querySetPrepared(query, true);
 }
 
@@ -365,19 +353,7 @@ void OracleConnection::queryExecute(Query* query)
         {
             throw Exception("Query is not prepared");
         }
-        if (query->bulkMode())
-        {
-            const auto* bulkInsertQuery = dynamic_cast<OracleBulkInsertQuery*>(query);
-            if (bulkInsertQuery == nullptr)
-            {
-                throw Exception("Query is not COracleBulkInsertQuery");
-            }
-            statement->execBulk(getInTransaction(), bulkInsertQuery->lastIteration());
-        }
-        else
-        {
-            statement->execute(getInTransaction());
-        }
+        statement->execute(getInTransaction());
     }
     catch (const SQLException& e)
     {
@@ -671,121 +647,19 @@ void OracleConnection::objectList(DatabaseObjectType objectType, Strings& object
 void OracleConnection::bulkInsert(const String& fullTableName, const Strings& columnNames,
                                   const vector<VariantVector>& data)
 {
-    const RegularExpression matchTableAndSchema(R"(^(\S+\.)?(\S+)$)");
-
-    String schema;
-    String tableName;
-    const auto matches = matchTableAndSchema.m(fullTableName.toUpperCase());
-    if (!matches[0].value.empty())
+    const bool wasInTransaction = inTransaction();
+    if (!wasInTransaction)
     {
-        schema = matches[0].value;
-        schema = schema.substr(0, schema.length() - 1);
-    }
-    tableName = matches[1].value;
-
-    stringstream columnsInfoSQL;
-    columnsInfoSQL << "SELECT column_name, data_type, data_length FROM ";
-    if (schema.empty())
-    {
-        // User' database table
-        columnsInfoSQL << "user_tab_columns WHERE table_name = :table_name";
-    }
-    else
-    {
-        columnsInfoSQL << "all_tab_columns WHERE owner = :schema AND table_name = :table_name";
+        beginTransaction();
     }
 
-    Query tableColumnsQuery(this, columnsInfoSQL.str());
-    tableColumnsQuery.param("table_name") = upperCase(tableName);
-    if (!schema.empty())
-    {
-        tableColumnsQuery.param("schema") = schema;
-    }
-    tableColumnsQuery.open();
-    const Field& column_name = tableColumnsQuery["column_name"];
-    const Field& data_type = tableColumnsQuery["data_type"];
-    const Field& data_length = tableColumnsQuery["data_length"];
-    QueryColumnTypeSizeMap columnTypeSizeMap;
-    while (!tableColumnsQuery.eof())
-    {
-        const auto columnName = column_name.asString();
-        const auto columnType = data_type.asString();
-        const auto maxDataLength = (size_t) data_length.asInteger();
-        QueryColumnTypeSize columnTypeSize = {};
-        columnTypeSize.type = VariantDataType::VAR_STRING;
-        columnTypeSize.length = 0;
-        if (columnType.find("LOB") != string::npos)
-        {
-            constexpr size_t defaultTextSize = 65536;
-            columnTypeSize.type = VariantDataType::VAR_TEXT;
-            columnTypeSize.length = defaultTextSize;
-        }
-        else if (columnType.find("CHAR") != string::npos)
-        {
-            columnTypeSize.length = maxDataLength;
-        }
-        else if (columnType.find("TIMESTAMP") != string::npos)
-        {
-            columnTypeSize.type = VariantDataType::VAR_DATE_TIME;
-        }
-        columnTypeSizeMap[columnName] = columnTypeSize;
-        tableColumnsQuery.fetch();
-    }
-    tableColumnsQuery.close();
+    GroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
+    groupInsert.insertRows(data);
 
-    QueryColumnTypeSizeVector columnTypeSizeVector;
-    for (const auto& columnName: columnNames)
+    if (!wasInTransaction)
     {
-        const auto column = columnTypeSizeMap.find(upperCase(columnName));
-        if (column == columnTypeSizeMap.end())
-        {
-            throw DatabaseException(
-                "Column '" + columnName + "' doesn't belong to table " + tableName);
-        }
-        columnTypeSizeVector.push_back(column->second);
+        commitTransaction();
     }
-
-    OracleBulkInsertQuery insertQuery(this,
-                                      "INSERT INTO " + tableName + "(" + columnNames.join(",") +
-                                          ") VALUES (:" + columnNames.join(",:") + ")",
-                                      data.size(),
-                                      columnTypeSizeMap);
-    for (const auto& row: data)
-    {
-        bulkInsertSingleRow(columnNames, columnTypeSizeVector, insertQuery, row);
-    }
-}
-
-void OracleConnection::bulkInsertSingleRow(const Strings& columnNames,
-                                           const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                           OracleBulkInsertQuery& insertQuery, const VariantVector& row)
-{
-    for (size_t i = 0; i < columnNames.size(); ++i)
-    {
-        const auto& value = row[i];
-        switch (columnTypeSizeVector[i].type)
-        {
-            using enum sptk::VariantDataType;
-            case VAR_TEXT:
-                if (value.dataSize())
-                {
-                    insertQuery.param(i).setBuffer(bit_cast<const uint8_t*>(value.getText()), value.dataSize(),
-                                                   VAR_TEXT);
-                }
-                else
-                {
-                    insertQuery.param(i).setNull(VAR_TEXT);
-                }
-                break;
-            case VAR_DATE_TIME:
-                insertQuery.param(i).setDateTime(value.get<DateTime>());
-                break;
-            default:
-                insertQuery.param(i).setString(value.asString());
-                break;
-        }
-    }
-    insertQuery.execNext();
 }
 
 String OracleConnection::driverDescription() const

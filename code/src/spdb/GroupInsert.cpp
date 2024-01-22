@@ -7,13 +7,13 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
-#include <sptk5/db/OracleOciGroupInsert.h>
+#include "sptk5/db/GroupInsert.h"
 
 using namespace std;
 using namespace sptk;
 
-OracleOciGroupInsert::OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
-    : m_insertQuery(connection, makeInsertSQL(tableName, columnNames, groupSize))
+GroupInsert::GroupInsert(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
+    : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, columnNames, groupSize))
     , m_columnNames(columnNames)
     , m_tableName(tableName)
     , m_groupSize(groupSize)
@@ -21,7 +21,23 @@ OracleOciGroupInsert::OracleOciGroupInsert(OracleOciConnection* connection, cons
 {
 }
 
-String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
+String GroupInsert::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const Strings& columnNames, unsigned groupSize)
+{
+    String sql;
+    switch (connectionType)
+    {
+        using enum DatabaseConnectionType;
+        case ORACLE:
+        case ORACLE_OCI:
+            sql = GroupInsert::makeOracleInsertSQL(tableName, columnNames, groupSize);
+            break;
+        default:
+            throw Exception("Unsupported database type");
+    }
+    return sql;
+}
+
+String GroupInsert::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
 {
     stringstream sql;
 
@@ -49,7 +65,7 @@ String OracleOciGroupInsert::makeInsertSQL(const String& tableName, const String
     return sql.str();
 }
 
-void OracleOciGroupInsert::insertRows(const vector<VariantVector>& rows)
+void GroupInsert::insertRows(const vector<VariantVector>& rows)
 {
     auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
     unsigned remainder = rows.size() % m_groupSize;
@@ -67,12 +83,12 @@ void OracleOciGroupInsert::insertRows(const vector<VariantVector>& rows)
     if (remainder > 0)
     {
         // Last group
-        Query insertQuery(m_connection, makeInsertSQL(m_tableName, m_columnNames, remainder));
+        Query insertQuery(m_connection, makeInsertSQL(DatabaseConnectionType::ORACLE, m_tableName, m_columnNames, remainder));
         insertGroupRows(insertQuery, firstRow, firstRow + remainder);
     }
 }
 
-void OracleOciGroupInsert::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
+void GroupInsert::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
 {
     size_t parameterIndex = 0;
     size_t columnCount = startRow->size();

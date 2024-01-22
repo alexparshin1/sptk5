@@ -34,7 +34,6 @@
 #include "DatabaseField.h"
 #include <sptk5/db/OracleEnvironment.h>
 #include <sptk5/db/OracleStatement.h>
-#include <src/drivers/Oracle/OracleBulkInsertQuery.h>
 
 namespace sptk {
 
@@ -251,9 +250,6 @@ private:
                                  const QueryColumnTypeSizeMap& columnTypeSizes);
 
     static void createQueryFieldsFromMetadata(Query* query, oracle::occi::ResultSet* resultSet);
-
-    static void bulkInsertSingleRow(const Strings& columnNames, const QueryColumnTypeSizeVector& columnTypeSizeVector,
-                                    sptk::OracleBulkInsertQuery& insertQuery, const VariantVector& row);
 };
 
 /**

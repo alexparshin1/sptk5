@@ -27,8 +27,8 @@
 #include "sptk5/db/OracleOciDatabaseField.h"
 #include <format>
 #include <sptk5/cutils>
+#include <sptk5/db/GroupInsert.h>
 #include <sptk5/db/OracleOciConnection.h>
-#include <sptk5/db/OracleOciGroupInsert.h>
 #include <sptk5/db/OracleOciStatement.h>
 
 using namespace std;
@@ -488,7 +488,7 @@ void OracleOciConnection::queryFetch(Query* query)
 
     const scoped_lock lock(m_mutex);
 
-    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
     auto resultSet = statement->resultSet();
     if (!resultSet)
     {
@@ -724,7 +724,7 @@ void OracleOciConnection::bulkInsert(const String& tableName, const Strings& col
         beginTransaction();
     }
 
-    OracleOciGroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
+    GroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
     groupInsert.insertRows(data);
 
     if (!wasInTransaction)
@@ -735,14 +735,14 @@ void OracleOciConnection::bulkInsert(const String& tableName, const Strings& col
 
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 
-[[maybe_unused]] [[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
     return connection.get();
 }
 
-[[maybe_unused]] [[maybe_unused]] void oracleoci_destroy_connection(void* connection)
+[[maybe_unused]] void oracleoci_destroy_connection(void* connection)
 {
     OracleOciConnection::s_oracleOciConnections.erase(bit_cast<OracleOciConnection*>(connection));
 }

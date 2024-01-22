@@ -73,7 +73,6 @@ IF (ORACLE_FLAG)
             Oracle/OracleEnvironment.cpp
             Oracle/OracleStatement.cpp
             Oracle/OracleConnection.cpp
-            Oracle/OracleBulkInsertQuery.cpp
     )
 
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
@@ -97,7 +96,6 @@ IF (ORACLE_OCI_FLAG)
             OracleOCI/OracleOciStatement.cpp
             OracleOCI/OracleOciParameterBuffer.cpp
             OracleOCI/OracleOciDatabaseField.cpp
-            OracleOCI/OracleOciGroupInsert.cpp
     )
 
     SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})

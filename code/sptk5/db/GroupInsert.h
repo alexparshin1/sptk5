@@ -9,15 +9,14 @@
 
 #pragma once
 
-#include <sptk5/db/OracleOciConnection.h>
 #include <sptk5/db/Query.h>
 
 namespace sptk {
 
-class OracleOciGroupInsert
+class GroupInsert
 {
 public:
-    OracleOciGroupInsert(OracleOciConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize);
+    GroupInsert(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize);
 
     void insertRows(const std::vector<VariantVector>& rows);
 
@@ -26,9 +25,10 @@ private:
     Strings m_columnNames;
     String m_tableName;
     unsigned m_groupSize;
-    OracleOciConnection* m_connection {nullptr};
+    PoolDatabaseConnection* m_connection;
 
-    [[nodiscard]] static String makeInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
     static void insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end);
 };
 
