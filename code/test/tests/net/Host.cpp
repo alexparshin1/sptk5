@@ -60,7 +60,7 @@ TEST(SPTK_Host, ctorAddress)
 
 TEST(SPTK_Host, ctorAddressStruct)
 {
-    const String testHostAndPort {"bitbucket.com:80"};
+    const String testHostAndPort {"docs.oasis-open.org:443"};
     const Host host1(testHostAndPort);
 
     sockaddr_in address {};

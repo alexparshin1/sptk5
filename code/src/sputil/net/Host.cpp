@@ -95,8 +95,7 @@ void Host::setHostNameFromAddress(socklen_t addressLen)
         m_hostname = hostBuffer.data();
 #else
     if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
-                    sizeof(addressBuffer), 0) ==
-        0)
+                    sizeof(addressBuffer), 0) == 0)
     {
         m_hostname = String(hostBuffer.data());
     }
@@ -181,7 +180,7 @@ void Host::getHostAddress()
         case AF_INET6:
             memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
             break;
-        default: 
+        default:
             break;
     }
 #else
@@ -210,50 +209,48 @@ void Host::getHostAddress()
 String Host::toString(bool forceAddress) const
 {
     const scoped_lock lock(m_mutex);
-    std::stringstream str;
+    String str;
 
-    if (m_hostname.empty())
+    if (!m_hostname.empty())
     {
-        return "";
-    }
-
-    String address;
-    if (forceAddress)
-    {
-        constexpr int maxBufferSize = 128;
-        array<char, maxBufferSize> buffer {};
-
-        const void* addr;
-        // Get the pointer to the address itself, different fields in IPv4 and IPv6
-        if (any().sa_family == AF_INET)
+        String address;
+        if (forceAddress)
         {
-            addr = bit_cast<void*>(&(ip_v4().sin_addr));
+            constexpr int maxBufferSize = 128;
+            array<char, maxBufferSize> buffer {};
+
+            const void* addr;
+            // Get the pointer to the address itself, different fields in IPv4 and IPv6
+            if (any().sa_family == AF_INET)
+            {
+                addr = bit_cast<void*>(&(ip_v4().sin_addr));
+            }
+            else
+            {
+                addr = bit_cast<void*>(&(ip_v6().sin6_addr));
+            }
+
+            if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
+            {
+                throw SystemException("Can't print IP address");
+            }
+
+            address = String(buffer.data());
         }
         else
         {
-            addr = bit_cast<void*>(&(ip_v6().sin6_addr));
+            address = m_hostname;
         }
 
-        if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
+        if (any().sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
         {
-            throw SystemException("Can't print IP address");
+            str = format("[{}]:{}", address.c_str(), m_port);
         }
-
-        address = String(buffer.data());
-    }
-    else
-    {
-        address = m_hostname;
+        else
+        {
+            str = format("{}:{}", address.c_str(), m_port);
+        }
     }
 
-    if (any().sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
-    {
-        str << "[" << address << "]:" << m_port;
-    }
-    else
-    {
-        str << address << ":" << m_port;
-    }
-
-    return str.str();
+    return str;
 }

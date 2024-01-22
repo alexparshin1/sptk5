@@ -519,11 +519,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 DatabaseConnectionString DatabaseTests::connectionString(const String& driverName) const
 {
     const auto itor = m_connectionStrings.find(driverName);
-    if (itor == m_connectionStrings.end())
-    {
-        return DatabaseConnectionString("");
-    }
-    return itor->second;
+    return itor == m_connectionStrings.end() ? DatabaseConnectionString("") : itor->second;
 }
 
 void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
@@ -818,15 +814,15 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     constexpr double millisecondsInSecond = 1000.0;
 
-    const auto durationMS2 = static_cast<double>(duration_cast<milliseconds>(ended2 - started2).count());
+    const auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
     COUT(left << setw(25) << connectionString.driverName() + " insert:"
-              << right << setw(4) << durationMS2 << " ms, "
-              << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS2 << " rec/sec" << endl);
+              << right << setw(6) << durationMS2 << " ms, "
+              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS2 << " rec/sec" << endl);
 
-    const auto durationMS1 = static_cast<double>(duration_cast<milliseconds>(ended1 - started1).count());
+    const auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
     COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
-              << right << setw(4) << durationMS1 << " ms, "
-              << setprecision(1) << fixed << setw(8) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS1 << " rec/sec" << endl);
+              << right << setw(6) << durationMS1 << " ms, "
+              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS1 << " rec/sec" << endl);
 }
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)
