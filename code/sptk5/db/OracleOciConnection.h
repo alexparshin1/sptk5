@@ -211,6 +211,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* oracleoci_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void oracleoci_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void oracle_destroy_connection(void* connection);
 }

@@ -453,53 +453,53 @@ TEST(SPTK_OracleConnection, BLOB)
 
 TEST(SPTK_OracleOciConnection, connect)
 {
-    testConnect("OracleOCI");
+    testConnect("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, DDL)
 {
-    testDDL("OracleOCI");
+    testDDL("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, bulkInsert)
 {
-    testBulkInsert("OracleOCI");
+    testBulkInsert("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, bulkInsertPerformance)
 {
-    testBulkInsertPerformance("OracleOCI");
+    testBulkInsertPerformance("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, queryParameters)
 {
-    testQueryParameters("OracleOCI");
+    testQueryParameters("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, dates)
 {
-    testQueryDateAndTimestamp("OracleOCI");
+    testQueryDateAndTimestamp("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, transaction)
 {
-    testTransaction("OracleOCI");
+    testTransaction("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, select)
 {
-    testSelect("OracleOCI");
-    testInvalidQuery("OracleOCI");
+    testSelect("Oracle");
+    testInvalidQuery("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, insertQuery)
 {
-    testInsertQuery("OracleOCI");
+    testInsertQuery("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, BLOB)
 {
-    testBlobInsertAndSelect("OracleOCI");
+    testBlobInsertAndSelect("Oracle");
 }
 
 #endif

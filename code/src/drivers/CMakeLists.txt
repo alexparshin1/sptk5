@@ -68,50 +68,14 @@ IF (POSTGRESQL_FLAG)
             ARCHIVE DESTINATION lib COMPONENT db_postgresql)
 ENDIF (POSTGRESQL_FLAG)
 
-IF (ORACLE_FLAG)
-    ADD_LIBRARY(spdb5_oracle ${DRIVER_LIBRARY_TYPE}
-            Oracle/OracleEnvironment.cpp
-            Oracle/OracleStatement.cpp
-            Oracle/OracleConnection.cpp
-    )
-
-    SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
-
-    IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES INSTALL_RPATH "")
-    ENDIF ()
-
-    TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
-
-    INSTALL(
-            TARGETS spdb5_oracle
-            RUNTIME DESTINATION bin COMPONENT db_oracle
-            LIBRARY DESTINATION lib COMPONENT db_oracle
-            ARCHIVE DESTINATION lib COMPONENT db_oracle)
-ENDIF (ORACLE_FLAG)
-
 IF (ORACLE_OCI_FLAG)
-    ADD_LIBRARY(spdb5_oracleoci ${DRIVER_LIBRARY_TYPE}
-            OracleOCI/OracleOciConnection.cpp
-            OracleOCI/OracleOciStatement.cpp
-            OracleOCI/OracleOciParameterBuffer.cpp
-            OracleOCI/OracleOciDatabaseField.cpp
-    )
-
-    SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
-
-    IF (SET_RPATH)
-        SET_TARGET_PROPERTIES(spdb5_oracleoci PROPERTIES INSTALL_RPATH "")
-    ENDIF ()
-
-    TARGET_LINK_LIBRARIES(spdb5_oracleoci spdb5 sputil5 ${OCI_LIBRARY})
-
-    INSTALL(
-            TARGETS spdb5_oracleoci
-            RUNTIME DESTINATION bin COMPONENT db_oracleoci
-            LIBRARY DESTINATION lib COMPONENT db_oracleoci
-            ARCHIVE DESTINATION lib COMPONENT db_oracleoci)
+    ADD_SUBDIRECTORY(OracleOCI)
+ELSE (ORACLE_OCI_FLAG)
+    IF (ORACLE_FLAG)
+        ADD_SUBDIRECTORY(Oracle)
+    ENDIF (ORACLE_FLAG)
 ENDIF (ORACLE_OCI_FLAG)
+
 
 IF (MYSQL_FLAG)
     ADD_LIBRARY(spdb5_mysql ${DRIVER_LIBRARY_TYPE}
