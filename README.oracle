@@ -1,0 +1,13 @@
+SPTK supports Oracle driver if Oracle client is installed.
+
+Using Oracle client on Linux directly requires building SPTK using old cxx ABI. That option may be selected using ccmake:
+
+cmake .
+ccmake .
+
+This also means that the projects that use SPTK will also need to use old cxx ABI.
+If that isn't a good option AND you need to use Oracle than you can install OCILib and reconfigure SPTK to use new cxx ABI.
+
+The OCILib can be downloaded here:
+
+https://vrogier.github.io/ocilib/download
