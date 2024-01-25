@@ -50,7 +50,7 @@ SET(TEST_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/test)
 SET(CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 IF (UNIX)
-    OPTION(USE_NEW_ABI "Use new GCC ABI" OFF)
+    OPTION(USE_NEW_ABI "Use new GCC ABI" ON)
 ENDIF ()
 
 OPTION(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." ON)
@@ -150,7 +150,7 @@ ELSE ()
     ENDIF ()
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #ADD_DEFINITIONS(-O2 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O2 -mtune=native -march=native)
     ELSE ()
         ADD_DEFINITIONS(-O3 -mtune=native -march=native)
     ENDIF ()
