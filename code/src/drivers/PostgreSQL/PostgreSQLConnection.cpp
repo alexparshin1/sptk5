@@ -47,8 +47,7 @@ public:
     {
         if (prepared)
         {
-            m_stmtName = format("S{:05}", index);
-            ++index;
+            m_stmtName = format("S{:05}", nextIndex());
         }
     }
 
@@ -133,7 +132,7 @@ public:
         return static_cast<unsigned>(m_cols);
     }
 
-    PostgreSQLParamValues& paramValues()
+    [[nodiscard]] PostgreSQLParamValues& paramValues()
     {
         return m_paramValues;
     }
@@ -142,14 +141,22 @@ private:
     PGconn* m_connect {nullptr};
     PGresult* m_stmt {nullptr};
     String m_stmtName;
-    static unsigned index;
     int m_rows {0};
     int m_cols {0};
     int m_currentRow {0};
     PostgreSQLParamValues m_paramValues;
+
+    static unsigned nextIndex();
 };
 
-unsigned PostgreSQLStatement::index;
+unsigned PostgreSQLStatement::nextIndex()
+{
+    static mutex amutex;
+    static unsigned index = 0;
+
+    const scoped_lock lock(amutex);
+    return index++;
+}
 
 } // namespace sptk
 
@@ -505,41 +512,43 @@ void PostgreSQLConnection::postgreTypeToVariantType(PostgreSQLDataType postgreTy
 {
     switch (postgreType)
     {
-        case PostgreSQLDataType::BOOLEAN:
-            dataType = VariantDataType::VAR_BOOL;
+        using enum sptk::VariantDataType;
+        using enum PostgreSQLDataType;
+        case BOOLEAN:
+            dataType = VAR_BOOL;
             return;
 
-        case PostgreSQLDataType::OID:
-        case PostgreSQLDataType::INT2:
-        case PostgreSQLDataType::INT4:
-            dataType = VariantDataType::VAR_INT;
+        case OID:
+        case INT2:
+        case INT4:
+            dataType = VAR_INT;
             return;
 
-        case PostgreSQLDataType::INT8:
-            dataType = VariantDataType::VAR_INT64;
+        case INT8:
+            dataType = VAR_INT64;
             return;
 
-        case PostgreSQLDataType::NUMERIC:
-        case PostgreSQLDataType::FLOAT4:
-        case PostgreSQLDataType::FLOAT8:
-            dataType = VariantDataType::VAR_FLOAT;
+        case NUMERIC:
+        case FLOAT4:
+        case FLOAT8:
+            dataType = VAR_FLOAT;
             return;
 
-        case PostgreSQLDataType::BYTEA:
-            dataType = VariantDataType::VAR_BUFFER;
+        case BYTEA:
+            dataType = VAR_BUFFER;
             return;
 
-        case PostgreSQLDataType::DATE:
-            dataType = VariantDataType::VAR_DATE;
+        case DATE:
+            dataType = VAR_DATE;
             return;
 
-        case PostgreSQLDataType::TIME:
-        case PostgreSQLDataType::TIMESTAMP:
-            dataType = VariantDataType::VAR_DATE_TIME;
+        case TIME:
+        case TIMESTAMP:
+            dataType = VAR_DATE_TIME;
             return;
 
         default:
-            dataType = VariantDataType::VAR_STRING;
+            dataType = VAR_STRING;
             return;
     }
 }
@@ -549,36 +558,38 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
 {
     switch (dataType)
     {
-        case VariantDataType::VAR_INT:
-            postgreType = PostgreSQLDataType::INT4;
-            return; ///< Integer 4 bytes
+        using enum PostgreSQLDataType;
+        using enum sptk::VariantDataType;
+        case VAR_INT:
+            postgreType = INT4;
+            break; ///< Integer 4 bytes
 
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_FLOAT:
-            postgreType = PostgreSQLDataType::FLOAT8;
-            return; ///< Floating-point (double)
+        case VAR_MONEY:
+        case VAR_FLOAT:
+            postgreType = FLOAT8;
+            break; ///< Floating-point (double)
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-            postgreType = PostgreSQLDataType::VARCHAR;
-            return; ///< Varchar
+        case VAR_STRING:
+        case VAR_TEXT:
+            postgreType = VARCHAR;
+            break; ///< Varchar
 
-        case VariantDataType::VAR_BUFFER:
-            postgreType = PostgreSQLDataType::BYTEA;
-            return; ///< Bytea
+        case VAR_BUFFER:
+            postgreType = BYTEA;
+            break; ///< Bytea
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
-            postgreType = PostgreSQLDataType::TIMESTAMP;
-            return; ///< Timestamp
+        case VAR_DATE:
+        case VAR_DATE_TIME:
+            postgreType = TIMESTAMP;
+            break; ///< Timestamp
 
-        case VariantDataType::VAR_INT64:
-            postgreType = PostgreSQLDataType::INT8;
-            return; ///< Integer 8 bytes
+        case VAR_INT64:
+            postgreType = INT8;
+            break; ///< Integer 8 bytes
 
-        case VariantDataType::VAR_BOOL:
-            postgreType = PostgreSQLDataType::BOOLEAN;
-            return; ///< Boolean
+        case VAR_BOOL:
+            postgreType = BOOLEAN;
+            break; ///< Boolean
 
         default:
             throw DatabaseException(
@@ -935,12 +946,13 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
             if (dataLength == 0)
             {
-                VariantDataType dataType {VariantDataType::VAR_NONE};
+                using enum sptk::VariantDataType;
+                VariantDataType dataType {VAR_NONE};
                 postgreTypeToVariantType(fieldType, dataType);
 
                 bool isNull = true;
-                if (static_cast<int>(dataType) & (static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT) |
-                                                  static_cast<int>(VariantDataType::VAR_BUFFER)))
+                if (static_cast<int>(dataType) & (static_cast<int>(VAR_STRING) | static_cast<int>(VAR_TEXT) |
+                                                  static_cast<int>(VAR_BUFFER)))
                 {
                     isNull = PQgetisnull(stmt, currentRow, column) == 1;
                 }
@@ -962,60 +974,61 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
                 switch (fieldType)
                 {
-                    case PostgreSQLDataType::BOOLEAN:
+                    using enum PostgreSQLDataType;
+                    case BOOLEAN:
                         field->setBool(readBool(data));
                         break;
 
-                    case PostgreSQLDataType::INT2:
+                    case INT2:
                         field->setInteger(readInt2(data));
                         break;
 
-                    case PostgreSQLDataType::OID:
-                    case PostgreSQLDataType::INT4:
+                    case OID:
+                    case INT4:
                         field->setInteger(readInt4(data));
                         break;
 
-                    case PostgreSQLDataType::INT8:
+                    case INT8:
                         field->setInt64(readInt8(data));
                         break;
 
-                    case PostgreSQLDataType::FLOAT4:
+                    case FLOAT4:
                         field->setFloat(readFloat4(data));
                         break;
 
-                    case PostgreSQLDataType::FLOAT8:
+                    case FLOAT8:
                         field->setFloat(readFloat8(data));
                         break;
 
-                    case PostgreSQLDataType::NUMERIC:
+                    case NUMERIC:
                         field->setMoney(readNumericToScaledInteger(data));
                         break;
 
-                    case PostgreSQLDataType::BYTEA:
+                    case BYTEA:
                         field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
                                                  VariantDataType::VAR_BUFFER); // External buffer
                         break;
 
-                    case PostgreSQLDataType::DATE:
+                    case DATE:
                         field->setDateTime(readDate(data));
                         break;
 
-                    case PostgreSQLDataType::TIMESTAMPTZ:
-                    case PostgreSQLDataType::TIMESTAMP:
+                    case TIMESTAMPTZ:
+                    case TIMESTAMP:
                         field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64));
                         break;
 
-                    case PostgreSQLDataType::CHAR_ARRAY:
-                    case PostgreSQLDataType::INT2_VECTOR:
-                    case PostgreSQLDataType::INT2_ARRAY:
-                    case PostgreSQLDataType::INT4_ARRAY:
-                    case PostgreSQLDataType::TEXT_ARRAY:
-                    case PostgreSQLDataType::VARCHAR_ARRAY:
-                    case PostgreSQLDataType::INT8_ARRAY:
-                    case PostgreSQLDataType::FLOAT4_ARRAY:
-                    case PostgreSQLDataType::FLOAT8_ARRAY:
-                    case PostgreSQLDataType::TIMESTAMP_ARRAY:
-                    case PostgreSQLDataType::TIMESTAMPTZ_ARRAY:
+                    case CHAR_ARRAY:
+                    case INT2_VECTOR:
+                    case INT2_ARRAY:
+                    case INT4_ARRAY:
+                    case TEXT_ARRAY:
+                    case VARCHAR_ARRAY:
+                    case INT8_ARRAY:
+                    case FLOAT4_ARRAY:
+                    case FLOAT8_ARRAY:
+                    case TIMESTAMP_ARRAY:
+                    case TIMESTAMPTZ_ARRAY:
                         decodeArray(data, field, m_timestampsFormat);
                         break;
 
@@ -1092,9 +1105,7 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    array<char, 16> mark {};
-    snprintf(mark.data(), sizeof(mark), "$%i", paramIndex + 1);
-    return {mark.data()};
+    return format("${}", paramIndex + 1);
 }
 
 namespace {
@@ -1165,9 +1176,9 @@ void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& co
     PQclear(res);
 }
 
-void PostgreSQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
-    const Strings statements = extractStatements(sqlBatch);
+    const Strings statements = extractStatements(batchSQL);
 
     for (const auto& stmt: statements)
     {
