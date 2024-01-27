@@ -34,10 +34,11 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
 {
     switch (connectionType)
     {
-        case DatabaseConnectionType::POSTGRES:
+        using enum DatabaseConnectionType;
+        case POSTGRES:
             return sql + " RETURNING " + idFieldName;
-        case DatabaseConnectionType::ORACLE:
-        case DatabaseConnectionType::ORACLE_OCI:
+        case ORACLE:
+        case ORACLE_OCI:
             return sql + " RETURNING " + idFieldName + " INTO :last_id";
         default:
             break;

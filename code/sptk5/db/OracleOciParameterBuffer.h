@@ -43,8 +43,6 @@ public:
         bindValue = value;
     }
 
-    void setClobValue(ocilib::Clob clob, const std::string& value);
-
 private:
     VariantDataType m_bindType;
     uint8_t* m_bindBuffer {nullptr};

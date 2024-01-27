@@ -80,7 +80,7 @@ bool Flag::wait_for(bool value, chrono::milliseconds timeout)
     return wait_until(value, timeoutAt);
 }
 
-bool Flag::wait_until(bool value, DateTime timeoutAt)
+bool Flag::wait_until(bool value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
