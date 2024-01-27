@@ -516,40 +516,40 @@ void PostgreSQLConnection::postgreTypeToVariantType(PostgreSQLDataType postgreTy
         using enum PostgreSQLDataType;
         case BOOLEAN:
             dataType = VAR_BOOL;
-            return;
+            break;
 
         case OID:
         case INT2:
         case INT4:
             dataType = VAR_INT;
-            return;
+            break;
 
         case INT8:
             dataType = VAR_INT64;
-            return;
+            break;
 
         case NUMERIC:
         case FLOAT4:
         case FLOAT8:
             dataType = VAR_FLOAT;
-            return;
+            break;
 
         case BYTEA:
             dataType = VAR_BUFFER;
-            return;
+            break;
 
         case DATE:
             dataType = VAR_DATE;
-            return;
+            break;
 
         case TIME:
         case TIMESTAMP:
             dataType = VAR_DATE_TIME;
-            return;
+            break;
 
         default:
             dataType = VAR_STRING;
-            return;
+            break;
     }
 }
 
@@ -712,17 +712,21 @@ inline DateTime readDate(const char* data)
 inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
     uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
+    DateTime result;
+    chrono::microseconds epochOffset;
 
     if (integerTimestamps)
     {
         // time is in usecs
-        return epochDate + chrono::microseconds(value);
+        epochOffset = chrono::microseconds(value);
     }
-
-    void* ptr = &value;
-    const double seconds = *bit_cast<double*>(ptr);
-    DateTime dateTime = epochDate + chrono::seconds(static_cast<int>(seconds));
-    return dateTime;
+    else
+    {
+        void* ptr = &value;
+        const double seconds = *bit_cast<double*>(ptr);
+        epochOffset = chrono::seconds(static_cast<int>(seconds));
+    }
+    return epochDate + epochOffset;
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
@@ -733,42 +737,46 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
     uint16_t dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
-    if (dscale > 16)
+    if (constexpr auto maxDscale = 16;
+        dscale > maxDscale)
     {
-        dscale = 16;
+        dscale = maxDscale;
     }
 
-    numeric += 8;
+    constexpr auto digitsOffset = 8;
+    numeric += digitsOffset;
     int64_t value = 0;
 
+    constexpr auto scaleShift = 4;
     int scale = 0;
     if (weight < 0)
     {
         for (int i = 0; i < -(weight + 1); ++i)
         {
-            scale += 4;
+            scale += scaleShift;
         }
     }
 
+    constexpr auto digitMultiplier = 10000;
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; ++i)
     {
         auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
 
-        value = value * 10000 + digit;
+        value = value * digitMultiplier + digit;
         if (digitWeight < 0)
         {
-            scale += 4;
+            scale += scaleShift;
         }
 
         --digitWeight;
         numeric += 2;
     }
 
-    while (scale < dscale - 4)
+    while (scale < dscale - scaleShift)
     {
-        value *= 10000;
-        scale += 4;
+        value *= digitMultiplier;
+        scale += scaleShift;
     }
 
     switch (scale - dscale)
@@ -855,38 +863,39 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
 
             switch (static_cast<PostgreSQLDataType>(arrayHeader->elementType))
             {
-                case PostgreSQLDataType::INT2:
+                using enum PostgreSQLDataType;
+                case INT2:
                     output << readInt2(data);
                     break;
 
-                case PostgreSQLDataType::INT4:
+                case INT4:
                     output << readInt4(data);
                     break;
 
-                case PostgreSQLDataType::INT8:
+                case INT8:
                     output << readInt8(data);
                     break;
 
-                case PostgreSQLDataType::FLOAT4:
+                case FLOAT4:
                     output << readFloat4(data);
                     break;
 
-                case PostgreSQLDataType::FLOAT8:
+                case FLOAT8:
                     output << readFloat8(data);
                     break;
 
-                case PostgreSQLDataType::TEXT:
-                case PostgreSQLDataType::CHAR:
-                case PostgreSQLDataType::VARCHAR:
+                case TEXT:
+                case CHAR:
+                case VARCHAR:
                     output << string(data, dataSize);
                     break;
 
-                case PostgreSQLDataType::DATE:
+                case DATE:
                     output << readDate(data).dateString();
                     break;
 
-                case PostgreSQLDataType::TIMESTAMPTZ:
-                case PostgreSQLDataType::TIMESTAMP:
+                case TIMESTAMPTZ:
+                case TIMESTAMP:
                     output << readTimestamp(data, timestampFormat ==
                                                       PostgreSQLConnection::TimestampFormat::INT64)
                                   .dateString();
@@ -937,7 +946,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     for (int column = 0; column < fieldCount; ++column)
     {
-        auto* field = bit_cast<DatabaseField*>(&(*query)[column]);
+        auto* field = bit_cast<DatabaseField*>(&(*query)[size_t(column)]);
         try
         {
             auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
@@ -1120,7 +1129,7 @@ void appendTSV(Buffer& dest, const VariantVector& row)
         }
         else
         {
-            dest.append(static_cast<char>('\t'));
+            dest.append('\t');
         }
         if (value.isNull())
         {
@@ -1137,7 +1146,7 @@ void appendTSV(Buffer& dest, const VariantVector& row)
             dest.append(value.asString());
         }
     }
-    dest.append(static_cast<char>('\n'));
+    dest.append('\n');
 }
 } // namespace
 

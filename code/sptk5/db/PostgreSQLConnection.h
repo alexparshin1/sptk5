@@ -87,9 +87,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The PostgreSQL connection string
+     * @param newConnectionString  The PostgreSQL connection string
      */
-    void _openDatabase(const String& connectionString) override;
+    void _openDatabase(const String& newConnectionString) override;
 
     /**
      * @brief Executes bulk inserts of data from memory buffer
