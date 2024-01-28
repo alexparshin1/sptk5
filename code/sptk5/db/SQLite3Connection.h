@@ -172,9 +172,9 @@ protected:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The SQLite3 connection string
+     * @param newConnectionString  The SQLite3 connection string
      */
-    void _openDatabase(const String& connectionString) override;
+    void _openDatabase(const String& newConnectionString) override;
 
     /**
      * @brief Executes SQL batch file
@@ -205,6 +205,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3DestroyConnection(void* connection);
 }

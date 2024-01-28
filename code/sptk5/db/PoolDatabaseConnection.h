@@ -75,24 +75,6 @@ enum class DatabaseObjectType : uint8_t
     DATABASES   ///< Available databases
 };
 
-/**
- * Column type and size structure
- */
-struct QueryColumnTypeSize {
-    VariantDataType type; ///< Column type
-    size_t length;        ///< Column data size
-};
-
-/**
- * Vector of column type and size structures
- */
-using QueryColumnTypeSizeVector = std::vector<QueryColumnTypeSize>;
-
-/**
- * Map of column names to column type and size structures
- */
-using QueryColumnTypeSizeMap = std::map<std::string, QueryColumnTypeSize, std::less<>>;
-
 class SP_EXPORT PoolDatabaseConnectionQueryMethods
 {
     friend class Query;
@@ -262,9 +244,9 @@ public:
      * Opens the database connection
      *
      * If unsuccessful throws an exception.
-     * @param connectionString  The ODBC connection string
+     * @param newConnectionString  The ODBC connection string
      */
-    void open(const String& connectionString = "");
+    void open(const String& newConnectionString = "");
 
     /**
      * Closes the database connection. If unsuccessful throws an exception.
@@ -274,17 +256,17 @@ public:
     /**
      * Returns true if database is opened
      */
-    virtual bool active() const;
+    [[nodiscard]] virtual bool active() const;
 
     /**
      * Returns the database connection handle
      */
-    virtual DBHandle handle() const;
+    [[nodiscard]] virtual DBHandle handle() const;
 
     /**
      * Returns the connection string
      */
-    const DatabaseConnectionString& connectionString() const
+    [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
         return m_connString;
     }
@@ -298,7 +280,7 @@ public:
     /**
      * Returns driver-specific connection string
      */
-    virtual String nativeConnectionString() const
+    [[nodiscard]] virtual String nativeConnectionString() const
     {
         return "";
     }
@@ -306,7 +288,7 @@ public:
     /**
      * Returns the connection type
      */
-    virtual DatabaseConnectionType connectionType() const
+    [[nodiscard]] virtual DatabaseConnectionType connectionType() const
     {
         return m_connType;
     }
@@ -314,7 +296,7 @@ public:
     /**
      * Returns the driver description
      */
-    virtual String driverDescription() const
+    [[nodiscard]] virtual String driverDescription() const
     {
         return m_driverDescription;
     }
@@ -337,7 +319,7 @@ public:
     /**
      * Reports true if in transaction
      */
-    bool inTransaction() const
+    [[nodiscard]] bool inTransaction() const
     {
         return m_inTransaction;
     }
@@ -386,7 +368,7 @@ public:
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
 protected:
-    bool getInTransaction() const;
+    [[nodiscard]] bool getInTransaction() const;
 
     void setInTransaction(bool inTransaction);
 
@@ -404,9 +386,9 @@ protected:
      * Opens the database connection.
      *
      * This method should be overwritten in derived classes
-     * @param connectionString  The ODBC connection string
+     * @param newConnectionString  The ODBC connection string
      */
-    virtual void _openDatabase(const String& connectionString);
+    virtual void _openDatabase(const String& newConnectionString);
 
     /**
      * Closes the database connection.
@@ -448,21 +430,10 @@ protected:
     }
 
     /**
-     * Create and execute single query to insert multiple records
-     * @param tableName         Table name
-     * @param columnNames       Column names
-     * @param begin             Data rows begin iterator
-     * @param end               Data rows end iterator (not included into query)
-     */
-    void bulkInsertRecords(const String& tableName, const Strings& columnNames,
-                           const std::vector<VariantVector>::const_iterator& begin,
-                           const std::vector<VariantVector>::const_iterator& end);
-
-    /**
      * Return connection timeout
      * @return connection timeout
      */
-    std::chrono::seconds connectTimeout() const
+    [[nodiscard]] std::chrono::seconds connectTimeout() const
     {
         return m_connectionTimeout;
     }

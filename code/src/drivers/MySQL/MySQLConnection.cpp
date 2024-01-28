@@ -24,9 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/GroupInsert.h"
 #include <sptk5/cutils>
 #include <sptk5/db/MySQLConnection.h>
-#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
@@ -58,7 +58,7 @@ void MySQLConnection::initConnection()
     }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
-    size_t connectionTimeoutSeconds = connectTimeout().count();
+    auto connectionTimeoutSeconds = connectTimeout().count();
     mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 
@@ -113,8 +113,10 @@ void MySQLConnection::executeCommand(const String& command)
         open();
     }
 
-    if (mysql_real_query(m_connection.get(), command.c_str(), static_cast<unsigned long>(command.length())) != 0)
+    if (mysql_real_query(m_connection.get(), command.c_str(), command.length()) != 0)
+    {
         throwMySQLException(m_connection, "Can't execute " + command);
+    }
 }
 
 void MySQLConnection::driverBeginTransaction()
@@ -306,7 +308,9 @@ void MySQLConnection::queryOpen(Query* query)
 void MySQLConnection::queryFetch(Query* query)
 {
     if (!query->active())
+    {
         THROW_QUERY_ERROR(query, "Dataset isn't open");
+    }
 
     const scoped_lock lock(m_mutex);
 
@@ -383,7 +387,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
 }
 
-void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
+void MySQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
     auto matchStatementEnd = make_shared<RegularExpression>("(;\\s*)$");
 
@@ -393,7 +397,7 @@ void MySQLConnection::executeBatchSQL(const Strings& sqlBatch, Strings* errors)
 
     Strings statements;
     String statement;
-    for (auto row: sqlBatch)
+    for (auto row: batchSQL)
     {
         row = row.trim();
         if (row.empty() || matchCommentRow.matches(row))
@@ -476,14 +480,14 @@ void MySQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 
 map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
 
-void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* mysqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     MySQLConnection::s_mysqlConnections[connection.get()] = connection;
     return connection.get();
 }
 
-void mysql_destroy_connection(void* connection)
+[[maybe_unused]] void mysqlDestroyConnection(void* connection)
 {
     MySQLConnection::s_mysqlConnections.erase(bit_cast<MySQLConnection*>(connection));
 }

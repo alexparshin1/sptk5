@@ -28,9 +28,9 @@
 
 #ifdef HAVE_SQLITE3
 
+#include "sptk5/db/GroupInsert.h"
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
-#include <sptk5/db/Query.h>
 #include <sptk5/db/SQLite3Connection.h>
 
 namespace sptk {
@@ -262,7 +262,7 @@ size_t SQLite3Connection::queryColCount(Query* query)
 
     auto* stmt = (SQLHSTMT) query->statement();
 
-    return sqlite3_column_count(stmt);
+    return (size_t) sqlite3_column_count(stmt);
 }
 
 void SQLite3Connection::queryBindParameters(Query* query)
@@ -541,14 +541,14 @@ void SQLite3Connection::queryFetch(Query* query)
     }
 }
 
-void SQLite3Connection::executeBatchSQL(const sptk::Strings& sqlBatch, Strings* errors)
+void SQLite3Connection::executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors)
 {
     static const RegularExpression matchStatementEnd("(;\\s*)$");
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
     string statement;
-    for (String row: sqlBatch)
+    for (String row: batchSQL)
     {
         row = trim(row);
         if (row.empty() || matchCommentRow.matches(row))
@@ -650,14 +650,14 @@ void SQLite3Connection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 
 map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
 
-[[maybe_unused]] void* sqlite3_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
     return connection.get();
 }
 
-[[maybe_unused]] void sqlite3_destroy_connection(void* connection)
+[[maybe_unused]] void sqlite3DestroyConnection(void* connection)
 {
     SQLite3Connection::s_sqlite3Connections.erase(bit_cast<SQLite3Connection*>(connection));
 }

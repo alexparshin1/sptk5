@@ -715,34 +715,16 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 
 } // namespace
 
-void OracleOciConnection::bulkInsert(const String& tableName, const Strings& columnNames,
-                                     const vector<VariantVector>& data)
-{
-    const bool wasInTransaction = inTransaction();
-    if (!wasInTransaction)
-    {
-        beginTransaction();
-    }
-
-    GroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
-    groupInsert.insertRows(data);
-
-    if (!wasInTransaction)
-    {
-        commitTransaction();
-    }
-}
-
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 
-[[maybe_unused]] void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
     return connection.get();
 }
 
-[[maybe_unused]] void oracle_destroy_connection(void* connection)
+[[maybe_unused]] void oracleDestroyConnection(void* connection)
 {
     OracleOciConnection::s_oracleOciConnections.erase(bit_cast<OracleOciConnection*>(connection));
 }

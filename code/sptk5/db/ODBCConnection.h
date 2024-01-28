@@ -78,7 +78,7 @@ public:
     /**
      * @brief Returns driver-specific connection string
      */
-    String nativeConnectionString() const override;
+    [[nodiscard]] String nativeConnectionString() const override;
 
     /**
      * @brief Closes the database connection. If unsuccessful throws an exception.
@@ -88,17 +88,17 @@ public:
     /**
      * @brief Returns true if database is opened
      */
-    bool active() const override;
+    [[nodiscard]] bool active() const override;
 
     /**
      * @brief Returns the database connection handle
      */
-    DBHandle handle() const override;
+    [[nodiscard]] DBHandle handle() const override;
 
     /**
      * @brief Returns the ODBC driver description for the active connection
      */
-    String driverDescription() const override;
+    [[nodiscard]] String driverDescription() const override;
 
     /**
      * @brief Lists database objects
@@ -188,12 +188,12 @@ protected:
     /**
      * Converts the native ODBC type into SPTK data type
      */
-    static void ODBCtypeToCType(int odbcType, int32_t& ctype, VariantDataType& dataType);
+    static void odbcTypeToCType(int32_t odbcType, int32_t& ctype, VariantDataType& dataType);
 
     /**
      * Returns the ODBC connection object
      */
-    ODBCConnectionBase* connection()
+    [[nodiscard]] ODBCConnectionBase* connection()
     {
         return m_connect.get();
     }
@@ -206,9 +206,9 @@ protected:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The ODBC connection string
+     * @param newConnectionString  The ODBC connection string
      */
-    void _openDatabase(const String& connectionString) override;
+    void _openDatabase(const String& newConnectionString) override;
 
     /**
      * @brief Executes SQL batch file
@@ -219,9 +219,6 @@ protected:
      * @param errors            If not nullptr, store errors here instead of exceptions
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
-
-    void bulkInsert(const String& tableName, const Strings& columnNames,
-                    const std::vector<VariantVector>& data) override;
 
 private:
     static constexpr size_t MAX_NAME_LEN = 256;
@@ -242,7 +239,7 @@ private:
      * @param query             Query object
      * @param count             Field count
      */
-    void parseColumns(Query* query, int count);
+    void parseColumns(Query* query, size_t count);
 
     SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::vector<SQLCHAR>& objectSchema, std::vector<SQLCHAR>& objectName, short& procedureType, SQLLEN& objectSchemaLength, SQLLEN& objectNameLength) const;
 };
@@ -253,6 +250,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* odbc_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void odbc_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* odbcCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void odbcDestroyConnection(void* connection);
 }

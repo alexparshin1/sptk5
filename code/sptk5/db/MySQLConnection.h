@@ -67,9 +67,9 @@ public:
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The MySQL connection string
+     * @param newConnectionString  The MySQL connection string
      */
-    void _openDatabase(const String& connectionString) override;
+    void _openDatabase(const String& newConnectionString) override;
 
     /**
      * @brief Executes SQL batch file
@@ -228,6 +228,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* mysql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT void mysql_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* mysqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void mysqlDestroyConnection(void* connection);
 }

@@ -102,38 +102,38 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    const String create_connectionFunctionName(driverNameLC + String("_create_connection"));
-    const String destroy_connectionFunctionName(driverNameLC + String("_destroy_connection"));
+    const auto createConnectionFunctionName = format("{}CreateConnection", driverNameLC.c_str());
+    const auto destroyConnectionFunctionName = format("{}DestroyConnection", driverNameLC.c_str());
 #ifdef WIN32
-    CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, create_connectionFunctionName.c_str());
+    CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, createConnectionFunctionName.c_str());
     if (!createConnection)
-        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + create_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + createConnectionFunctionName);
 
-    DestroyDriverInstance* destroyConnection = (DestroyDriverInstance*) GetProcAddress(handle, destroy_connectionFunctionName.c_str());
+    DestroyDriverInstance* destroyConnection = (DestroyDriverInstance*) GetProcAddress(handle, destroyConnectionFunctionName.c_str());
     if (!destroyConnection)
-        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + destroy_connectionFunctionName);
+        throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + destroyConnectionFunctionName);
 #else
     // reset errors
     dlerror();
 
     // load the symbols
-    void* ptr = dlsym(handle, create_connectionFunctionName.c_str());
-    auto* createConnection = (CreateDriverInstance*) ptr;
+    void* ptr = dlsym(handle, createConnectionFunctionName.c_str());
+    auto* createConnection = bit_cast<CreateDriverInstance*>(ptr);
 
     DestroyDriverInstance* destroyConnection;
-    const char* dlsym_error = dlerror();
-    if (dlsym_error == nullptr)
+    const char* dlsymError = dlerror();
+    if (dlsymError == nullptr)
     {
-        ptr = dlsym(handle, destroy_connectionFunctionName.c_str());
-        destroyConnection = (DestroyDriverInstance*) ptr;
-        dlsym_error = dlerror();
+        ptr = dlsym(handle, destroyConnectionFunctionName.c_str());
+        destroyConnection = bit_cast<DestroyDriverInstance*>(ptr);
+        dlsymError = dlerror();
     }
 
-    if (dlsym_error != nullptr)
+    if (dlsymError != nullptr)
     {
         m_createConnection = nullptr;
         dlclose(handle);
-        throw DatabaseException(String("Cannot load driver ") + driverNameLC + String(": ") + string(dlsym_error));
+        throw DatabaseException(String("Cannot load driver ") + driverNameLC + String(": ") + string(dlsymError));
     }
 
 #endif
@@ -178,7 +178,7 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
         m_connections.push_back(connection);
         return connection;
     }
-    m_pool.pop_front(connection, std::chrono::seconds(10));
+    m_pool.pop_front(connection, 10s);
     return connection;
 }
 

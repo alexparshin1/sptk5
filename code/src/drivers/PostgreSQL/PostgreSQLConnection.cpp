@@ -26,9 +26,10 @@
 
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
+#include "sptk5/db/GroupInsert.h"
+#include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
-#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
@@ -271,8 +272,7 @@ void checkError(const PGconn* conn, PGresult* res, const String& command,
     const auto statusCode = PQresultStatus(res);
     if (statusCode != expectedResult)
     {
-        String error = command + " command failed: ";
-        error += PQerrorMessage(conn);
+        auto error = format("{} command failed: {}", command.c_str(), PQerrorMessage(conn));
         PQclear(res);
         throw DatabaseException(error);
     }
@@ -770,7 +770,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
         }
 
         --digitWeight;
-        numeric += 2;
+        numeric += sizeof(int16_t);
     }
 
     while (scale < dscale - scaleShift)
@@ -779,34 +779,51 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
         scale += scaleShift;
     }
 
+    constexpr auto multiplier1M = 1000000;
+    constexpr auto multiplier100K = 100000;
+    constexpr auto multiplier10K = 10000;
+    constexpr auto multiplier1K = 1000;
+    constexpr auto multiplier100 = 100;
+    constexpr auto multiplier10 = 10;
+
+    constexpr auto scaleMinus6 = -6;
+    constexpr auto scaleMinus5 = -5;
+    constexpr auto scaleMinus4 = -4;
+    constexpr auto scaleMinus3 = -3;
+    constexpr auto scaleMinus2 = -2;
+    constexpr auto scaleMinus1 = -1;
+    constexpr auto scalePlus1 = 1;
+    constexpr auto scalePlus2 = 2;
+    constexpr auto scalePlus3 = 3;
+
     switch (scale - dscale)
     {
-        case -6:
-            value *= 1000000;
+        case scaleMinus6:
+            value *= multiplier1M;
             break;
-        case -5:
-            value *= 100000;
+        case scaleMinus5:
+            value *= multiplier100K;
             break;
-        case -4:
-            value *= 10000;
+        case scaleMinus4:
+            value *= multiplier10K;
             break;
-        case -3:
-            value *= 1000;
+        case scaleMinus3:
+            value *= multiplier1K;
             break;
-        case -2:
-            value *= 100;
+        case scaleMinus2:
+            value *= multiplier100;
             break;
-        case -1:
-            value *= 10;
+        case scaleMinus1:
+            value *= multiplier10;
             break;
-        case 1:
-            value /= 10;
+        case scalePlus1:
+            value /= multiplier10;
             break;
-        case 2:
-            value /= 100;
+        case scalePlus2:
+            value /= multiplier100;
             break;
-        case 3:
-            value /= 1000;
+        case scalePlus3:
+            value /= multiplier1K;
             break;
         default:
             break;
@@ -1117,74 +1134,6 @@ String PostgreSQLConnection::paramMark(unsigned paramIndex)
     return format("${}", paramIndex + 1);
 }
 
-namespace {
-void appendTSV(Buffer& dest, const VariantVector& row)
-{
-    bool firstValue = true;
-    for (const auto& value: row)
-    {
-        if (firstValue)
-        {
-            firstValue = false;
-        }
-        else
-        {
-            dest.append('\t');
-        }
-        if (value.isNull())
-        {
-            dest.append("\\N", 2);
-            continue;
-        }
-        if (static_cast<int>(value.dataType()) &
-            (static_cast<int>(VariantDataType::VAR_BUFFER) | static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT)))
-        {
-            dest.append(escapeSQLString(value.asString(), true));
-        }
-        else
-        {
-            dest.append(value.asString());
-        }
-    }
-    dest.append('\n');
-}
-} // namespace
-
-void PostgreSQLConnection::bulkInsert(const String& tableName, const Strings& columnNames,
-                                      const vector<VariantVector>& data)
-{
-    stringstream sql;
-    sql << "COPY " << tableName << "(" << columnNames.join(",") << ") FROM STDIN ";
-
-    PGresult* res = PQexec(m_connect, sql.str().c_str());
-    checkError(m_connect, res, "COPY", PGRES_COPY_IN);
-    PQclear(res);
-
-    Buffer buffer;
-    for (const auto& row: data)
-    {
-        appendTSV(buffer, row);
-    }
-
-    if (PQputCopyData(m_connect, buffer.c_str(), static_cast<int>(buffer.bytes())) != 1)
-    {
-        String error = "COPY command send data failed: ";
-        error += PQerrorMessage(m_connect);
-        throw DatabaseException(error);
-    }
-
-    if (PQputCopyEnd(m_connect, nullptr) != 1)
-    {
-        String error = "COPY command end copy failed: ";
-        error += PQerrorMessage(m_connect);
-        throw DatabaseException(error);
-    }
-
-    res = PQgetResult(m_connect);
-    checkError(m_connect, res, "COPY");
-    PQclear(res);
-}
-
 void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
     const Strings statements = extractStatements(batchSQL);
@@ -1287,14 +1236,14 @@ void PostgreSQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, i
 
 map<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
 
-void* postgresql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     PostgreSQLConnection::s_postgresqlConnections[connection.get()] = connection;
     return connection.get();
 }
 
-void postgresql_destroy_connection(void* connection)
+[[maybe_unused]] void postgresqlDestroyConnection(void* connection)
 {
     PostgreSQLConnection::s_postgresqlConnections.erase(bit_cast<PostgreSQLConnection*>(connection));
 }

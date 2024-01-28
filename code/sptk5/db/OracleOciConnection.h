@@ -120,8 +120,6 @@ public:
      */
     static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
 
-    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) override;
-
 protected:
     /**
      * @brief Begins the transaction
@@ -211,6 +209,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT [[maybe_unused]] void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void oracle_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void oracleDestroyConnection(void* connection);
 }

@@ -106,6 +106,7 @@ ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         ADD_DEFINITIONS(
                 -fPIC
+                -fsanitize=address
                 -Wall -pedantic
                 -Wno-c++98-compat
                 -Wno-c++98-compat-pedantic

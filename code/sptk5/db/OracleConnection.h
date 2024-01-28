@@ -274,6 +274,6 @@ OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 #endif
 
 extern "C" {
-[[maybe_unused]] SP_DRIVER_EXPORT void* oracle_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-[[maybe_unused]] SP_DRIVER_EXPORT void oracle_destroy_connection(void* connection);
+[[maybe_unused]] SP_DRIVER_EXPORT void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+[[maybe_unused]] SP_DRIVER_EXPORT void oracleDestroyConnection(void* connection);
 }

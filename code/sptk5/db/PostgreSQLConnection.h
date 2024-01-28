@@ -92,19 +92,6 @@ public:
     void _openDatabase(const String& newConnectionString) override;
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
-     *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     */
-    void bulkInsert(const String& tableName, const Strings& columnNames,
-                    const std::vector<VariantVector>& data) override;
-
-    /**
      * @brief Executes SQL batch file
      *
      * Queries are executed in not prepared mode.
@@ -244,15 +231,6 @@ protected:
      */
     String paramMark(unsigned paramIndex) override;
 
-    /**
-     * Connection timestamp format
-     * @return Connection timestamp format
-     */
-    TimestampFormat timestampsFormat() const
-    {
-        return m_timestampsFormat;
-    }
-
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     void queryExecDirect(const Query* query);
@@ -271,6 +249,6 @@ private:
 #endif
 
 extern "C" {
-SP_DRIVER_EXPORT void* postgresql_create_connection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT void postgresql_destroy_connection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
+SP_DRIVER_EXPORT [[maybe_unused]] void postgresqlDestroyConnection(void* connection);
 }

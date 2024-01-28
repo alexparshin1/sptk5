@@ -24,18 +24,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/GroupInsert.h"
 #include <sptk5/cutils>
-#include <sptk5/db/PoolDatabaseConnection.h>
-#include <sptk5/db/Query.h>
 
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& _connectionString, DatabaseConnectionType connectionType, chrono::seconds connectTimeout)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, chrono::seconds connectTimeout)
     : m_connType(connectionType)
     , m_connectionTimeout(connectTimeout)
 {
-    connectionString(DatabaseConnectionString(_connectionString));
+    this->connectionString(DatabaseConnectionString(connectionString));
 }
 
 PoolDatabaseConnection::~PoolDatabaseConnection()
@@ -205,80 +204,21 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     return output;
 }
 
-// Note: end row is not included
-void PoolDatabaseConnection::bulkInsertRecords(
-    const String& tableName, const Strings& columnNames,
-    const vector<VariantVector>::const_iterator& begin, const vector<VariantVector>::const_iterator& end)
-{
-    stringstream sql;
-    sql << "INSERT INTO " << tableName << " (" << columnNames.join(",") << ") VALUES ";
-    for (auto itor = begin; itor != end; ++itor)
-    {
-        const VariantVector& row = *itor;
-        if (itor != begin)
-        {
-            sql << ", ";
-        }
-        sql << "(";
-        bool firstValue = true;
-        for (const auto& value: row)
-        {
-            if (firstValue)
-            {
-                firstValue = false;
-            }
-            else
-            {
-                sql << ", ";
-            }
-            if (value.isNull())
-            {
-                sql << "NULL";
-                continue;
-            }
-            switch (value.dataType())
-            {
-                case VariantDataType::VAR_BOOL:
-                    sql << "true";
-                    break;
-                case VariantDataType::VAR_STRING:
-                case VariantDataType::VAR_TEXT:
-                    sql << "'" << escapeSQLString(value.asString(), false) << "'";
-                    break;
-                case VariantDataType::VAR_DATE_TIME:
-                    sql << "'" << value.asDateTime().dateString(DateTime::PF_RFC_DATE) << " "
-                        << value.asDateTime().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << "'";
-                    break;
-                default:
-                    sql << "'" << value.asString() << "'";
-                    break;
-            }
-        }
-        sql << ")";
-    }
-    sql << ";" << endl;
-    Query insertRows(this, sql.str(), false);
-    insertRows.exec();
-}
-
 void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
                                         const vector<VariantVector>& data)
 {
-    const auto recordsInBatch = 16;
-    auto begin = data.begin();
-    auto end = data.begin();
-    for (; end != data.end(); ++end)
+    const bool wasInTransaction = inTransaction();
+    if (!wasInTransaction)
     {
-        if (end - begin > recordsInBatch)
-        {
-            bulkInsertRecords(tableName, columnNames, begin, end);
-            begin = end;
-        }
+        beginTransaction();
     }
 
-    if (begin != end)
+    GroupInsert groupInsert(this, tableName, columnNames, 100);
+    groupInsert.insertRows(data);
+
+    if (!wasInTransaction)
     {
-        bulkInsertRecords(tableName, columnNames, begin, end);
+        commitTransaction();
     }
 }
 

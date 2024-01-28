@@ -29,6 +29,8 @@ private:
 
     [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
     static void insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end);
 };
 

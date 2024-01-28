@@ -31,6 +31,14 @@ String GroupInsert::makeInsertSQL(DatabaseConnectionType connectionType, const S
         case ORACLE_OCI:
             sql = GroupInsert::makeOracleInsertSQL(tableName, columnNames, groupSize);
             break;
+        case POSTGRES:
+        case MYSQL:
+        case MSSQL_ODBC:
+            sql = GroupInsert::makeGenericInsertSQL(tableName, columnNames, groupSize);
+            break;
+        case SQLITE3:
+            sql = GroupInsert::makeSqlite3InsertSQL(tableName, columnNames, groupSize);
+            break;
         default:
             throw Exception("Unsupported database type");
     }
@@ -65,6 +73,87 @@ String GroupInsert::makeOracleInsertSQL(const String& tableName, const Strings& 
     return sql.str();
 }
 
+String GroupInsert::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+{
+    stringstream sql;
+
+    sql << "INSERT INTO " << tableName << "\n";
+    sql << "     SELECT ";
+
+    bool first = true;
+    for (const auto& column: columnNames)
+    {
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            sql << ", ";
+        }
+        sql << ":" << column << "_0 AS " << column;
+    }
+    sql << "\n";
+
+    for (size_t rowNumber = 1; rowNumber < groupSize; ++rowNumber)
+    {
+        sql << "UNION ALL SELECT ";
+
+        first = true;
+        for (const auto& column: columnNames)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                sql << ",";
+            }
+            sql << ":" << column << "_" << rowNumber;
+        }
+
+        sql << "\n";
+    }
+
+    return sql.str();
+}
+
+String GroupInsert::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+{
+    stringstream sql;
+
+    sql << "INSERT INTO " << tableName << "(" << columnNames.join(",") << ")\n";
+    sql << "VALUES\n";
+
+    for (size_t rowNumber = 0; rowNumber < groupSize; ++rowNumber)
+    {
+        if (rowNumber > 0)
+        {
+            sql << ",\n";
+        }
+
+        sql << "  (";
+
+        bool first = true;
+        for (const auto& column: columnNames)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                sql << ",";
+            }
+            sql << ":" << column << "_" << rowNumber;
+        }
+
+        sql << ")";
+    }
+    return sql.str();
+}
+
 void GroupInsert::insertRows(const vector<VariantVector>& rows)
 {
     auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
@@ -83,7 +172,8 @@ void GroupInsert::insertRows(const vector<VariantVector>& rows)
     if (remainder > 0)
     {
         // Last group
-        Query insertQuery(m_connection, makeInsertSQL(DatabaseConnectionType::ORACLE, m_tableName, m_columnNames, remainder));
+        auto databaseConnectionType = m_connection->connectionType();
+        Query insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_columnNames, remainder));
         insertGroupRows(insertQuery, firstRow, firstRow + remainder);
     }
 }
