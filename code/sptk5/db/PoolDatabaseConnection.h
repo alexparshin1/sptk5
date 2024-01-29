@@ -350,8 +350,8 @@ public:
      *
      * Data is deleted the fastest possible way.
      * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
+     * @param keyColumnName     List of table columns to populate
+     * @param keys              Data for bulk insert
      */
     virtual void bulkDelete(const String& tableName, const String& keyColumnName,
                             const VariantVector& keys);

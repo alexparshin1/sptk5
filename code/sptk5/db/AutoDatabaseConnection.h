@@ -177,11 +177,9 @@ public:
     }
 
     /**
-     * Executes bulk inserts of data from memory buffer
+     * @brief Executes bulk inserts of data from vector of rows.
      *
-     * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
-     * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
+     * Data is inserted the fastest possible way.
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
@@ -189,6 +187,17 @@ public:
     void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) const
     {
         m_connection->bulkInsert(tableName, columnNames, data);
+    }
+
+    /**
+     * @brief Executes bulk delete of rows by the keys.
+     * @param tableName         Table name to insert into
+     * @param keyColumnName     List of table columns to populate
+     * @param keys              Data for bulk insert
+     */
+    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
+    {
+        m_connection->bulkDelete(tableName, keyColumnName, keys);
     }
 
     /**
