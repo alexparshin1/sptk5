@@ -14,6 +14,7 @@ using namespace sptk;
 
 BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
     : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, columnNames, groupSize))
+    , m_deleteQuery(connection, makeGenericDeleteSQL(tableName, columnNames[0], groupSize))
     , m_columnNames(columnNames)
     , m_tableName(tableName)
     , m_groupSize(groupSize)
@@ -173,7 +174,6 @@ String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& ke
         }
 
         sql << ":" << keyColumnName << "_" << keyNumber;
-
     }
 
     sql << "\n)\n";
@@ -215,7 +215,7 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     {
         for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
         {
-            deleteGroupRows(m_insertQuery, firstKey, firstKey + m_groupSize);
+            deleteGroupRows(m_deleteQuery, firstKey, firstKey + m_groupSize);
             firstKey += m_groupSize;
         }
     }
@@ -223,9 +223,8 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     if (remainder > 0)
     {
         // Last group
-        auto databaseConnectionType = m_connection->connectionType();
-        Query insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_columnNames, remainder));
-        deleteGroupRows(insertQuery, firstKey, firstKey + remainder);
+        Query deleteQuery(m_connection, makeGenericDeleteSQL(m_tableName, m_columnNames[0], remainder));
+        deleteGroupRows(deleteQuery, firstKey, firstKey + remainder);
     }
 }
 

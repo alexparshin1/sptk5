@@ -718,8 +718,14 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
 
-    VariantVector keys({id1, id2, id3, id4, id5});
+    const VariantVector keys({id1, id2, id3, id4, id5});
     databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
+
+    Query countRows(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
+    countRows.open();
+    const auto rowCount = countRows[0].asInteger();
+    countRows.close();
+    EXPECT_EQ(0, rowCount);
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
@@ -773,8 +779,12 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
 
     vector<VariantVector> data;
+    VariantVector keys;
+    keys.reserve(recordCount);
     for (size_t i = 1; i <= recordCount; ++i)
     {
+        keys.push_back((int) i);
+
         VariantVector arow;
         arow.emplace_back(int(i));
         arow.emplace_back("Alex,'Doe'");
@@ -783,22 +793,26 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         data.push_back(std::move(arow));
     }
 
-    Transaction transaction(databaseConnection);
-
-    transaction.begin();
-    const DateTime started1("now");
+    StopWatch stopWatch;
+    stopWatch.start();
     const Strings columnNames({"id", "name", "position_name", "hire_date"});
     databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);
-    const DateTime ended1("now");
-    transaction.commit();
+    stopWatch.stop();
+    const auto bulkInsertDurationMS = stopWatch.milliseconds();
 
-    const DateTime started2("now");
+    stopWatch.start();
+    databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
+    stopWatch.stop();
+    const auto bulkDeleteDurationMS = stopWatch.milliseconds();
+
+    stopWatch.start();
 
     auto& idParam = insertData.param("id");
     auto& nameParam = insertData.param("name");
     auto& positionParam = insertData.param("position");
     auto& hiredParam = insertData.param("hired");
 
+    Transaction transaction(databaseConnection);
     transaction.begin();
     constexpr int col0 = 0;
     constexpr int col1 = 1;
@@ -813,19 +827,20 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         insertData.exec();
     }
     transaction.commit();
-    const DateTime ended2("now");
+    stopWatch.stop();
+    const auto insertDurationMS = stopWatch.milliseconds();
 
-    constexpr double millisecondsInSecond = 1000.0;
-
-    const auto durationMS2 = duration_cast<milliseconds>(ended2 - started2).count();
     COUT(left << setw(25) << connectionString.driverName() + " insert:"
-              << right << setw(6) << durationMS2 << " ms, "
-              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS2 << " rec/sec" << endl);
+              << right << setw(8) << insertDurationMS << " ms, "
+              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / insertDurationMS << "K rec/sec" << endl);
 
-    const auto durationMS1 = duration_cast<milliseconds>(ended1 - started1).count();
     COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
-              << right << setw(6) << durationMS1 << " ms, "
-              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) * millisecondsInSecond / durationMS1 << " rec/sec" << endl);
+              << right << setw(8) << bulkInsertDurationMS << " ms, "
+              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / bulkInsertDurationMS << "K rec/sec" << endl);
+
+    COUT(left << setw(25) << connectionString.driverName() + " bulk delete:"
+              << right << setw(8) << bulkDeleteDurationMS << " ms, "
+              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / bulkDeleteDurationMS << "K rec/sec" << endl);
 }
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)

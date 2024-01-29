@@ -215,8 +215,8 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& 
         beginTransaction();
     }
 
-    BulkQuery groupInsert(this, tableName, columnNames, 100);
-    groupInsert.insertRows(data);
+    BulkQuery bulkQuery(this, tableName, columnNames, 50);
+    bulkQuery.insertRows(data);
 
     if (!wasInTransaction)
     {
@@ -232,8 +232,8 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
         beginTransaction();
     }
 
-    BulkQuery groupInsert(this, tableName, {keyColumnName}, 100);
-    //groupInsert.insertRows(data);
+    BulkQuery bulkQuery(this, tableName, {keyColumnName}, 50);
+    bulkQuery.deleteRows(keys);
 
     if (!wasInTransaction)
     {
