@@ -151,7 +151,7 @@ ELSE ()
     ENDIF ()
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #ADD_DEFINITIONS(-O2 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O2 -mtune=native -march=native)
     ELSE ()
         ADD_DEFINITIONS(-O3 -mtune=native -march=native)
     ENDIF ()
