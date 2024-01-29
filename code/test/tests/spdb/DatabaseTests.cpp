@@ -710,8 +710,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
             "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
     }
 
-    const String actualResult(printRows.join(" # "));
-    if (actualResult != expectedBulkInsertResult)
+    if (const String actualResult(printRows.join(" # "));
+        actualResult != expectedBulkInsertResult)
     {
         cout << "Actual result: " << actualResult << endl;
         cout << "Expected result: " << expectedBulkInsertResult << endl;
@@ -783,7 +783,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     keys.reserve(recordCount);
     for (size_t i = 1; i <= recordCount; ++i)
     {
-        keys.push_back((int) i);
+        keys.emplace_back((int) i);
 
         VariantVector arow;
         arow.emplace_back(int(i));
