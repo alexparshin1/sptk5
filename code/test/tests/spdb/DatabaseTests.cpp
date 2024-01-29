@@ -830,17 +830,28 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     stopWatch.stop();
     const auto insertDurationMS = stopWatch.milliseconds();
 
-    COUT(left << setw(25) << connectionString.driverName() + " insert:"
-              << right << setw(8) << insertDurationMS << " ms, "
-              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / insertDurationMS << "K rec/sec" << endl);
+    stopWatch.start();
+    transaction.begin();
+    Query deleteQuery(databaseConnection, "DELETE FROM gtest_temp_table WHERE id=:id");
+    for (const auto& key: keys) {
+        deleteQuery.param("id") = key;
+        deleteQuery.exec();
+    }
+    transaction.commit();
+    stopWatch.stop();
+    const auto deleteDurationMS = stopWatch.milliseconds();
 
-    COUT(left << setw(25) << connectionString.driverName() + " bulk insert:"
-              << right << setw(8) << bulkInsertDurationMS << " ms, "
-              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / bulkInsertDurationMS << "K rec/sec" << endl);
+    auto printResults = [&](const String& operation, double durationMs) {
+        COUT(left << fixed << setw(25) << connectionString.driverName() << setw(14) << operation
+                  << right << setw(8) << setprecision(1) << durationMs << " ms, "
+                  << setprecision(2) << fixed << setw(10) << static_cast<double>(data.size()) / durationMs << "K rec/sec" << endl);
+    };
 
-    COUT(left << setw(25) << connectionString.driverName() + " bulk delete:"
-              << right << setw(8) << bulkDeleteDurationMS << " ms, "
-              << setprecision(1) << fixed << setw(10) << static_cast<double>(data.size()) / bulkDeleteDurationMS << "K rec/sec" << endl);
+    printResults("insert", insertDurationMS);
+    printResults("bulk insert", bulkInsertDurationMS);
+    printResults("delete", deleteDurationMS);
+    printResults("bulk delete", bulkDeleteDurationMS);
+    COUT(endl);
 }
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)
