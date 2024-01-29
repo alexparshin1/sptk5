@@ -26,7 +26,7 @@
 
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
-#include "sptk5/db/GroupInsert.h"
+#include "sptk5/db/BulkQuery.h"
 #include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>

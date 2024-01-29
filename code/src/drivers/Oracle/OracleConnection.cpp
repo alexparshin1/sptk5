@@ -25,7 +25,7 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/db/GroupInsert.h>
+#include <sptk5/db/BulkQuery.h>
 #include <sptk5/db/OracleConnection.h>
 
 using namespace std;
@@ -653,7 +653,7 @@ void OracleConnection::bulkInsert(const String& fullTableName, const Strings& co
         beginTransaction();
     }
 
-    GroupInsert groupInsert(this, "gtest_temp_table", columnNames, 100);
+    BulkQuery groupInsert(this, "gtest_temp_table", columnNames, 100);
     groupInsert.insertRows(data);
 
     if (!wasInTransaction)

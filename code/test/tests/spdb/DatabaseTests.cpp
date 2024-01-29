@@ -717,6 +717,9 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         cout << "Expected result: " << expectedBulkInsertResult << endl;
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
+
+    VariantVector keys({id1, id2, id3, id4, id5});
+    databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)

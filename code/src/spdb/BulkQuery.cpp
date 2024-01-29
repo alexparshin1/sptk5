@@ -7,12 +7,12 @@
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
 
-#include "sptk5/db/GroupInsert.h"
+#include "sptk5/db/BulkQuery.h"
 
 using namespace std;
 using namespace sptk;
 
-GroupInsert::GroupInsert(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
+BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize)
     : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, columnNames, groupSize))
     , m_columnNames(columnNames)
     , m_tableName(tableName)
@@ -21,7 +21,7 @@ GroupInsert::GroupInsert(PoolDatabaseConnection* connection, const String& table
 {
 }
 
-String GroupInsert::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const Strings& columnNames, unsigned groupSize)
+String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const Strings& columnNames, unsigned groupSize)
 {
     String sql;
     switch (connectionType)
@@ -29,15 +29,15 @@ String GroupInsert::makeInsertSQL(DatabaseConnectionType connectionType, const S
         using enum DatabaseConnectionType;
         case ORACLE:
         case ORACLE_OCI:
-            sql = GroupInsert::makeOracleInsertSQL(tableName, columnNames, groupSize);
+            sql = BulkQuery::makeOracleInsertSQL(tableName, columnNames, groupSize);
             break;
         case POSTGRES:
         case MYSQL:
         case MSSQL_ODBC:
-            sql = GroupInsert::makeGenericInsertSQL(tableName, columnNames, groupSize);
+            sql = BulkQuery::makeGenericInsertSQL(tableName, columnNames, groupSize);
             break;
         case SQLITE3:
-            sql = GroupInsert::makeSqlite3InsertSQL(tableName, columnNames, groupSize);
+            sql = BulkQuery::makeSqlite3InsertSQL(tableName, columnNames, groupSize);
             break;
         default:
             throw Exception("Unsupported database type");
@@ -45,7 +45,7 @@ String GroupInsert::makeInsertSQL(DatabaseConnectionType connectionType, const S
     return sql;
 }
 
-String GroupInsert::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
+String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
 {
     stringstream sql;
 
@@ -73,7 +73,7 @@ String GroupInsert::makeOracleInsertSQL(const String& tableName, const Strings& 
     return sql.str();
 }
 
-String GroupInsert::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
 {
     stringstream sql;
 
@@ -119,7 +119,7 @@ String GroupInsert::makeSqlite3InsertSQL(const String& tableName, const Strings&
     return sql.str();
 }
 
-String GroupInsert::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
 {
     stringstream sql;
 
@@ -154,7 +154,34 @@ String GroupInsert::makeGenericInsertSQL(const String& tableName, const Strings&
     return sql.str();
 }
 
-void GroupInsert::insertRows(const vector<VariantVector>& rows)
+String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, unsigned int groupSize)
+{
+    stringstream sql;
+
+    sql << "DELETE FROM " << tableName << " WHERE " << keyColumnName << " IN (";
+
+    for (size_t keyNumber = 0; keyNumber < groupSize; ++keyNumber)
+    {
+        if (keyNumber % 10 == 0)
+        {
+            sql << "\n  ";
+        }
+
+        if (keyNumber > 0)
+        {
+            sql << ", ";
+        }
+
+        sql << ":" << keyColumnName << "_" << keyNumber;
+
+    }
+
+    sql << "\n)\n";
+
+    return sql.str();
+}
+
+void BulkQuery::insertRows(const vector<VariantVector>& rows)
 {
     auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
     unsigned remainder = rows.size() % m_groupSize;
@@ -178,7 +205,31 @@ void GroupInsert::insertRows(const vector<VariantVector>& rows)
     }
 }
 
-void GroupInsert::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
+void BulkQuery::deleteRows(const VariantVector& keys)
+{
+    auto fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
+    unsigned remainder = keys.size() % m_groupSize;
+
+    auto firstKey = keys.begin();
+    if (fullGroupCount > 0)
+    {
+        for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
+        {
+            deleteGroupRows(m_insertQuery, firstKey, firstKey + m_groupSize);
+            firstKey += m_groupSize;
+        }
+    }
+
+    if (remainder > 0)
+    {
+        // Last group
+        auto databaseConnectionType = m_connection->connectionType();
+        Query insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_columnNames, remainder));
+        deleteGroupRows(insertQuery, firstKey, firstKey + remainder);
+    }
+}
+
+void BulkQuery::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
 {
     size_t parameterIndex = 0;
     size_t columnCount = startRow->size();
@@ -191,4 +242,15 @@ void GroupInsert::insertGroupRows(Query& insertQuery, std::vector<VariantVector>
         }
     }
     insertQuery.exec();
+}
+
+void BulkQuery::deleteGroupRows(Query& deleteQuery, VariantVector::const_iterator startKey, VariantVector::const_iterator end)
+{
+    size_t parameterIndex = 0;
+    for (auto key = startKey; key != end; ++key)
+    {
+        deleteQuery.param(parameterIndex) = *key;
+        ++parameterIndex;
+    }
+    deleteQuery.exec();
 }

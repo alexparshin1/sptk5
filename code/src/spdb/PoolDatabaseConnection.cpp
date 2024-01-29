@@ -24,7 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/db/GroupInsert.h"
+#include "sptk5/db/PoolDatabaseConnection.h"
+#include "sptk5/db/BulkQuery.h"
+
 #include <sptk5/cutils>
 
 using namespace std;
@@ -213,8 +215,25 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& 
         beginTransaction();
     }
 
-    GroupInsert groupInsert(this, tableName, columnNames, 100);
+    BulkQuery groupInsert(this, tableName, columnNames, 100);
     groupInsert.insertRows(data);
+
+    if (!wasInTransaction)
+    {
+        commitTransaction();
+    }
+}
+
+void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
+{
+    const bool wasInTransaction = inTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
+    }
+
+    BulkQuery groupInsert(this, tableName, {keyColumnName}, 100);
+    //groupInsert.insertRows(data);
 
     if (!wasInTransaction)
     {

@@ -13,15 +13,17 @@
 
 namespace sptk {
 
-class GroupInsert
+class BulkQuery
 {
 public:
-    GroupInsert(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize);
+    BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const Strings& columnNames, unsigned groupSize);
 
     void insertRows(const std::vector<VariantVector>& rows);
+    void deleteRows(const VariantVector& keys);
 
 private:
     Query m_insertQuery;
+    Query m_deleteQuery;
     Strings m_columnNames;
     String m_tableName;
     unsigned m_groupSize;
@@ -31,7 +33,9 @@ private:
     [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, unsigned int groupSize);
     static void insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end);
+    static void deleteGroupRows(Query& insertQuery, VariantVector::const_iterator startKey, VariantVector::const_iterator end);
 };
 
 } // namespace sptk

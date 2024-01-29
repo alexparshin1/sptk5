@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/db/GroupInsert.h"
+#include "sptk5/db/BulkQuery.h"
 #include <sptk5/cutils>
 #include <sptk5/db/MySQLConnection.h>
 

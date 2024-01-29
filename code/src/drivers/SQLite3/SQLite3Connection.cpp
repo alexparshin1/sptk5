@@ -28,7 +28,7 @@
 
 #ifdef HAVE_SQLITE3
 
-#include "sptk5/db/GroupInsert.h"
+#include "sptk5/db/BulkQuery.h"
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/SQLite3Connection.h>

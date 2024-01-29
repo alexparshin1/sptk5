@@ -27,7 +27,7 @@
 #include "sptk5/db/OracleOciDatabaseField.h"
 #include <format>
 #include <sptk5/cutils>
-#include <sptk5/db/GroupInsert.h>
+#include <sptk5/db/BulkQuery.h>
 #include <sptk5/db/OracleOciConnection.h>
 #include <sptk5/db/OracleOciStatement.h>
 
