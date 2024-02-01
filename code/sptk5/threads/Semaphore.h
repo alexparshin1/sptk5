@@ -26,12 +26,12 @@
 
 #pragma once
 
-#include <atomic>
-#include <chrono>
-#include <condition_variable>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
+
+#include <chrono>
+#include <semaphore>
 
 namespace sptk {
 
@@ -45,69 +45,38 @@ namespace sptk {
  */
 class SP_EXPORT Semaphore
 {
-    /**
-     * Mutex object
-     */
-    mutable std::mutex m_lockMutex;
-
-    /**
-     * Mutex condition object
-     */
-    std::condition_variable m_condition;
-
-    /**
-     * Semaphore value
-     */
-    size_t m_value {0};
-
-    /**
-     * Semaphore max value
-     */
-    size_t m_maxValue {0};
-
-    /**
-     * Number of waiters
-     */
-    size_t m_waiters {0};
-
-    /**
-     * Terminated flag
-     */
-    bool m_terminated {false};
-
-    void terminate();
-
-    /**
-     * Current number of waiters
-     */
-    size_t waiters() const;
-
 public:
-    /**
-     * @brief Constructor
-     *
-     * Creates semaphore with starting value (default 0)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
-     */
-    explicit Semaphore(size_t startingValue = 0, size_t maxValue = 0);
-
-    /**
-     * @brief Destructor
-     */
-    virtual ~Semaphore();
-
-    /**
-     * @brief Set the semaphore value
-     */
-    void set(size_t value);
-
     /**
      * @brief Post the semaphore
      *
      * The semaphore value is increased by one.
      */
-    void post();
+    void post()
+    {
+        m_value.release();
+    }
+
+    /**
+     * @brief Check if semaphore value is greater than zero
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * Otherwise, exits immediately.
+     * @return true if semaphore was posted (signaled)
+     */
+    bool check()
+    {
+        return m_value.try_acquire();
+    }
+
+    /**
+     * @brief Wait until semaphore value is greater than zero
+     *
+     * Decreases semaphore value by one and returns true.
+     */
+    void wait()
+    {
+        return m_value.acquire();
+    }
 
     /**
      * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
@@ -116,16 +85,37 @@ public:
      * @param timeout           Wait timeout
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait_for(std::chrono::milliseconds timeout);
+    bool wait_for(std::chrono::microseconds timeout)
+    {
+        return m_value.try_acquire_for(timeout);
+    }
 
     /**
      * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
      *
      * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Timeout moment
+     * @param timeoutAt           Timeout moment
      * @return true if semaphore was posted (signaled), or false if timeout occurs
      */
-    bool wait_until(DateTime timeout);
+    bool wait_until(const DateTime& timeoutAt)
+    {
+        return wait_until(timeoutAt.timePoint());
+    }
+
+    /**
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     *
+     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment
+     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     */
+    bool wait_until(const DateTime::time_point& timeoutAt)
+    {
+        return m_value.try_acquire_until(timeoutAt);
+    }
+
+private:
+    std::counting_semaphore<0x7FFFFFFF> m_value {0};
 };
 /**
  * @}
