@@ -47,6 +47,15 @@ class SP_EXPORT Semaphore
 {
 public:
     /**
+     * @brief Constructor
+     * @param initialValue      Initial semaphore value
+     */
+    explicit Semaphore(int initialValue = 0)
+        : m_value(initialValue)
+    {
+    }
+
+    /**
      * @brief Post the semaphore
      *
      * The semaphore value is increased by one.
@@ -115,7 +124,7 @@ public:
     }
 
 private:
-    std::counting_semaphore<0x7FFFFFFF> m_value {0};
+    std::counting_semaphore<0x7FFFFFFF> m_value;
 };
 /**
  * @}

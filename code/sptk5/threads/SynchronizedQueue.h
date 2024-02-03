@@ -61,8 +61,9 @@ public:
      */
     void push_back(T&& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue.push_back(std::move(data));
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -76,8 +77,9 @@ public:
      */
     void push_front(T&& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue.push_front(std::move(data));
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -90,8 +92,9 @@ public:
      */
     void push_back(const T& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue.push_back(data);
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -104,8 +107,9 @@ public:
      */
     void push_front(const T& data)
     {
-        std::scoped_lock lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         m_queue.push_front(data);
+        lock.unlock();
         m_semaphore.post();
     }
 
@@ -121,7 +125,7 @@ public:
     {
         if (m_semaphore.wait_for(timeout))
         {
-            std::scoped_lock lock(m_mutex);
+            std::unique_lock lock(m_mutex);
             if (!m_queue.empty())
             {
                 item = std::move(m_queue.front());
@@ -144,7 +148,7 @@ public:
     {
         if (m_semaphore.wait_for(timeout))
         {
-            std::scoped_lock lock(m_mutex);
+            std::unique_lock lock(m_mutex);
             if (!m_queue.empty())
             {
                 item = std::move(m_queue.back());
