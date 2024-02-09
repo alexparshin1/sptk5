@@ -29,6 +29,8 @@
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
+#include <utility>
+
 namespace sptk {
 
 /**
@@ -59,8 +61,8 @@ public:
      * Constructor
      * @param connectionString  Database connection string
      */
-    explicit DatabaseConnectionString(const String& connectionString = "")
-        : m_connectionString(connectionString)
+    explicit DatabaseConnectionString(String connectionString = "")
+        : m_connectionString(std::move(connectionString))
     {
         if (!m_connectionString.empty())
         {
@@ -83,12 +85,12 @@ public:
     /**
      * Returns connection string
      */
-    String toString() const;
+    [[nodiscard]] String toString() const;
 
     /**
      * Returns driver name
      */
-    const String& driverName() const
+    [[nodiscard]] const String& driverName() const
     {
         return m_driverName;
     }
@@ -96,7 +98,7 @@ public:
     /**
      * Returns host name
      */
-    const String& hostName() const
+    [[nodiscard]] const String& hostName() const
     {
         return m_hostName;
     }
@@ -104,7 +106,7 @@ public:
     /**
      * Returns user name
      */
-    const String& userName() const
+    [[nodiscard]] const String& userName() const
     {
         return m_userName;
     }
@@ -112,7 +114,7 @@ public:
     /**
      * Returns user password
      */
-    const String& password() const
+    [[nodiscard]] const String& password() const
     {
         return m_password;
     }
@@ -120,7 +122,7 @@ public:
     /**
      * Returns database name
      */
-    const String& databaseName() const
+    [[nodiscard]] const String& databaseName() const
     {
         return m_databaseName;
     }
@@ -128,7 +130,7 @@ public:
     /**
      * Returns schema name
      */
-    const String& schema() const
+    [[nodiscard]] const String& schema() const
     {
         return m_schema;
     }
@@ -136,7 +138,7 @@ public:
     /**
      * Returns server port number
      */
-    uint16_t portNumber() const
+    [[nodiscard]] uint16_t portNumber() const
     {
         return m_portNumber;
     }
@@ -164,12 +166,12 @@ public:
      * @param name              Parameter name
      * @return parameter value
      */
-    String parameter(const String& name) const;
+    [[nodiscard]] String parameter(const String& name) const;
 
     /**
      * Is connection string empty?
      */
-    bool empty() const;
+    [[nodiscard]] bool empty() const;
 
 protected:
     /**
@@ -223,8 +225,6 @@ private:
      */
     String m_driverName;
 };
-
-using SDatabaseConnectionString = std::shared_ptr<DatabaseConnectionString>;
 
 /**
  * @}

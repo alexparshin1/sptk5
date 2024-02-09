@@ -75,7 +75,7 @@ public:
      * queue item availability.
      * @param data T&&, A data item
      */
-    void push_front(T&& data)
+    [[maybe_unused]] void push_front(T&& data)
     {
         std::unique_lock lock(m_mutex);
         m_queue.push_front(std::move(data));
@@ -105,7 +105,7 @@ public:
      * queue item availability.
      * @param data const T&, A data item
      */
-    void push_front(const T& data)
+    [[maybe_unused]] void push_front(const T& data)
     {
         std::unique_lock lock(m_mutex);
         m_queue.push_front(data);
@@ -144,7 +144,7 @@ public:
      * @param item T&, A queue item (output)
      * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
      */
-    bool pop_back(T& item, std::chrono::milliseconds timeout)
+    [[maybe_unused]] bool pop_back(T& item, std::chrono::milliseconds timeout)
     {
         if (m_semaphore.wait_for(timeout))
         {
