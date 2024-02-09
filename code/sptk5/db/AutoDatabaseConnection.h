@@ -102,7 +102,7 @@ public:
     /**
      * Returns true if database is opened
      */
-    bool active() const
+    [[nodiscard]] bool active() const
     {
         return m_connection != nullptr && m_connection->active();
     }
@@ -110,7 +110,7 @@ public:
     /**
      * Returns the connection string
      */
-    const DatabaseConnectionString& connectionString() const
+    [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
         return m_connection->connectionString();
     }
@@ -118,7 +118,7 @@ public:
     /**
      * Returns the connection type
      */
-    DatabaseConnectionType connectionType() const
+    [[nodiscard]] DatabaseConnectionType connectionType() const
     {
         return m_connection->connectionType();
     }
@@ -126,7 +126,7 @@ public:
     /**
      * Returns the driver description
      */
-    String driverDescription() const
+    [[nodiscard]] String driverDescription() const
     {
         return m_connection->driverDescription();
     }
@@ -153,14 +153,6 @@ public:
     void rollbackTransaction() const
     {
         m_connection->rollbackTransaction();
-    }
-
-    /**
-     * Reports true if in transaction
-     */
-    int inTransaction() const
-    {
-        return m_connection->inTransaction();
     }
 
     /**

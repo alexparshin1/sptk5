@@ -42,6 +42,7 @@ DatabaseTests DatabaseTests::_databaseTests;
 vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
+    connectionStrings.reserve(m_connectionStrings.size());
     for (const auto& [name, connectionString]: m_connectionStrings)
     {
         connectionStrings.push_back(connectionString);
