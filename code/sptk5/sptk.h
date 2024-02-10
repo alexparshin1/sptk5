@@ -49,11 +49,14 @@
 #else
 #define SP_EXPORT __declspec(dllimport)
 #endif
+#define WS_EXPORT __declspec(dllexport)
 #else
 #define SP_EXPORT
+#define WS_EXPORT
 #endif
 #else
 #define SP_EXPORT ///< DLL/SO classes load attributes
+#define WS_EXPORT
 #endif
 
 #ifndef __UNIX_COMPILER__

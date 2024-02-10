@@ -31,7 +31,6 @@
 #include <sptk5/wsdl/WSParser.h>
 
 #include <fstream>
-#include <bit>
 
 using namespace std;
 using namespace sptk;
@@ -333,7 +332,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << " * Web Service application derives its service class from this class" << endl;
     output << " * by overriding abstract methods" << endl;
     output << " */" << endl;
-    output << "class " << serviceClassName << " : public sptk::WSRequest" << endl;
+    output << "class WS_EXPORT " << serviceClassName << " : public sptk::WSRequest" << endl;
     output << "{" << endl;
     output << "public:" << endl;
     output << "    /**" << endl;

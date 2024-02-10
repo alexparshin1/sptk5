@@ -1,4 +1,12 @@
 FILE(GLOB SPUTIL_SOURCES core/*.cpp jwt/*.cpp net/*.cpp xdoc/*.cpp tar/*.cpp tar/*.h threads/*.cpp)
+FILE(GLOB SPUTIL_INCLUDE_FILES 
+    ${SPTK_INCLUDE_DIR}/*.h 
+    ${SPTK_INCLUDE_DIR}/jwt/*.h
+    ${SPTK_INCLUDE_DIR}/net*.h
+    ${SPTK_INCLUDE_DIR}/xdoc/*.h
+    ${SPTK_INCLUDE_DIR}/tar/*.h
+    ${SPTK_INCLUDE_DIR}/threads/*.h
+)
 SET(SPUTIL_SOURCES ${SPUTIL_SOURCES} ${SPUTL_INCLUDE_FILES})
 
 FILE(GLOB CONDITIONAL_SOURCES net/SocketPool.* core/ZLib.cpp core/Brotli.cpp core/RegularExpression.cpp)

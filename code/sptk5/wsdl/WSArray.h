@@ -38,7 +38,7 @@ namespace sptk {
  * Wrapper for WSDL array type
  */
 template<typename T>
-class SP_EXPORT WSArray
+class WS_EXPORT WSArray
     : public WSType
 {
 public:
