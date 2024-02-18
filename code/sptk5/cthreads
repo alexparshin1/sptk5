@@ -30,6 +30,7 @@
 
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/Semaphore.h>
+#include <sptk5/threads/SmartLock.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedMap.h>
 #include <sptk5/threads/SynchronizedQueue.h>

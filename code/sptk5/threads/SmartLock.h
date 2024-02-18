@@ -26,19 +26,35 @@
 
 #pragma once
 
-#include <sptk5/cutils>
+#include <atomic>
+#include <mutex>
+#include <source_location>
+#include <string>
 
 namespace sptk {
 
-class DebugMutex
+/**
+ * @brief Mutex that stores lock location information
+ */
+class SmartMutex
 {
 public:
+    /**
+     * @brief Lock mutex and stor lock location
+     * @param sourceLocation    Lock location
+     */
     void lock(std::source_location sourceLocation)
     {
         m_mutex.lock();
         m_lockLocation = sourceLocation;
     }
 
+    /**
+     * @brief Try to lock mutex and store lock location
+     * @param timeout           Lock timeout
+     * @param sourceLocation    Lock location
+     * @return
+     */
     bool try_lock_for(std::chrono::milliseconds timeout, std::source_location sourceLocation)
     {
         if (m_mutex.try_lock_for(timeout))
@@ -49,42 +65,51 @@ public:
         return false;
     }
 
+    /**
+     * @brief Unlock mutex
+     */
     void unlock()
     {
         m_mutex.unlock();
     }
 
-    std::string location() const
-    {
-        return m_lockLocation.file_name() + std::string(":") + std::to_string(m_lockLocation.line());
-    }
+    /**
+     * @return Locl location as string
+     */
+    std::string location() const;
 
 private:
-    std::source_location m_lockLocation;
-    std::timed_mutex m_mutex;
+    std::source_location m_lockLocation; ///< Lock location
+    std::timed_mutex m_mutex;            ///< Mutex
 };
 
-class DebugLock
+/**
+ * @brief Debug lock that stores the location of the successful lock
+ */
+class SmartLock
 {
 public:
     /**
      * @brief Constructor
+     * @param mutex             Mutex
+     * @param timeout           Lock timeout
+     * @param sourceLocation    Lock location
      */
-    explicit DebugLock(DebugMutex& mutex,
+    explicit SmartLock(SmartMutex& mutex,
                        std::chrono::milliseconds timeout = std::chrono::seconds(10),
                        std::source_location sourceLocation = std::source_location::current())
         : m_mutex(mutex)
     {
         if (!m_mutex.try_lock_for(timeout, sourceLocation))
         {
-            m_locked = false;
-            throw std::runtime_error("Failed to acquire lock at " + std::string(sourceLocation.file_name()) +
-                                     ":" + std::to_string(sourceLocation.line()) +
-                                     ": locked by another thread at" + m_mutex.location());
+            throwTimeout(sourceLocation);
         }
     }
 
-    ~DebugLock()
+    /**
+     * Destructor that unlocks the mutex if it was locked
+     */
+    ~SmartLock()
     {
         if (m_locked)
         {
@@ -93,8 +118,9 @@ public:
     }
 
 private:
-    bool m_locked {true};
-    DebugMutex& m_mutex;
+    std::atomic_bool m_locked {true};                                    ///< Mutex was locked flag
+    SmartMutex& m_mutex;                                                 ///< Mutex
+    [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout
 };
 
 } // namespace sptk
