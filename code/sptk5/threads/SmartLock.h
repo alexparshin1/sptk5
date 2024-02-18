@@ -76,7 +76,7 @@ public:
     /**
      * @return Locl location as string
      */
-    std::string location() const;
+    [[nodiscard]] std::string location() const;
 
 private:
     std::source_location m_lockLocation; ///< Lock location
