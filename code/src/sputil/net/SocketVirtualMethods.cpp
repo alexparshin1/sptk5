@@ -48,7 +48,7 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
                                                std::chrono::milliseconds timeout, bool reusePort)
 {
-    auto timeoutMS = static_cast<int>(timeout.count());
+    const auto timeoutMS = static_cast<int>(timeout.count());
 
     if (activeUnlocked())
     {
@@ -63,7 +63,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
     }
 
     int result = 0;
-    const char* currentOperation = "connect";
+    auto currentOperation = "connect";
 
     switch (openMode)
     {
@@ -112,10 +112,10 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
 #endif
             }
             currentOperation = "bind";
-            result = ::bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+            result = bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
-                result = ::listen(m_socketFd, SOMAXCONN);
+                result = listen(m_socketFd, SOMAXCONN);
                 currentOperation = "listen";
             }
             break;
@@ -189,7 +189,7 @@ void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 
 void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
 {
-    const socklen_t len = sizeof(int);
+    constexpr socklen_t len = sizeof(int);
     if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), len) != 0)
     {
         throwSocketError("Can't set socket option");
@@ -274,7 +274,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 #endif
     }
 
-    if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    if (bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
     }
@@ -317,23 +317,25 @@ bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
     }
 
 #ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_socketFd;
-    fdarray.events = POLLRDNORM;
-    int result = WSAPoll(&fdarray, 1, timeoutMS);
-    switch (result)
+    WSAPOLLFD fdArray {};
+    fdArray.fd = m_socketFd;
+    fdArray.events = POLLRDNORM;
+    switch (WSAPoll(&fdArray, 1, timeoutMS))
     {
         case 0:
             return false;
         case 1:
-            if (fdarray.revents & POLLRDNORM)
+            if (fdArray.revents & POLLRDNORM)
+            {
                 return true;
-            if (fdarray.revents & POLLHUP)
+            }
+            if (fdArray.revents & POLLHUP)
+            {
                 throw ConnectionException("Connection closed");
+            }
             break;
         default:
-            throwSocketError("WSAPoll error");
-            break;
+            throw ConnectionException("Connection closed");
     }
     return false;
 #else
@@ -358,18 +360,22 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 #ifdef _WIN32
-    WSAPOLLFD fdarray {};
-    fdarray.fd = m_socketFd;
-    fdarray.events = POLLWRNORM;
-    switch (WSAPoll(&fdarray, 1, timeoutMS))
+    WSAPOLLFD fdArray {};
+    fdArray.fd = m_socketFd;
+    fdArray.events = POLLWRNORM;
+    switch (WSAPoll(&fdArray, 1, timeoutMS))
     {
         case 0:
             return false;
         case 1:
-            if (fdarray.revents & POLLWRNORM)
+            if (fdArray.revents & POLLWRNORM)
+            {
                 return true;
-            if (fdarray.revents & POLLHUP)
+            }
+            if (fdArray.revents & POLLHUP)
+            {
                 throw ConnectionException("Connection closed");
+            }
             break;
         default:
             throwSocketError("WSAPoll error");
@@ -398,7 +404,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeou
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+    auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
     auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_DONTWAIT);
 #endif
@@ -407,7 +413,7 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
         constexpr chrono::seconds timeout(30);
         if (readyToReadUnlocked(timeout))
         {
-            result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+            result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
         }
     }
     return static_cast<size_t>(result);
@@ -419,12 +425,12 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
-        bytes = (int) ::recvfrom(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0,
-                                 bit_cast<sockaddr*>(from), &fromLength);
+        bytes = recvfrom(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0,
+                         bit_cast<sockaddr*>(from), &fromLength);
     }
     else
     {
-        bytes = (int) ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0);
+        bytes = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(size), 0);
     }
 
     if (bytes == -1)
@@ -438,7 +444,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
 #ifdef _WIN32
-    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+    auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
     auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_NOSIGNAL);
 #endif
@@ -462,9 +468,9 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         if (peer != nullptr)
         {
 #ifdef _WIN32
-            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), 0,
-                                 bit_cast<const sockaddr*>(peer),
-                                 sizeof(sockaddr_in));
+            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), 0,
+                           bit_cast<const sockaddr*>(peer),
+                           sizeof(sockaddr_in));
 #else
             bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
                                  bit_cast<const sockaddr*>(peer),
@@ -473,7 +479,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            bytes = static_cast<int>(sendUnlocked(ptr, (int32_t) size));
+            bytes = static_cast<int>(sendUnlocked(ptr, static_cast<int32_t>(size)));
         }
 
         if (bytes == -1)
@@ -501,7 +507,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
     {
         FormatMessage(
             FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) buffer.data(), maxMessageSize, nullptr);
+            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer.data(), maxMessageSize, nullptr);
         errorStr = buffer.data();
     }
 #else
@@ -514,8 +520,10 @@ void throwSocketError(const String& message, const std::source_location& locatio
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
         case EAGAIN:
+        case EINPROGRESS:
             throw RepeatOperationException(message + ": " + errorStr, location);
-        default: break;
+        default:
+            break;
     }
 
     CERR("ERRNO is " << errno << endl);

@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
     TestRunner tests(argc, argv);
 
     filesystem::path executablePath(argv[0]);
-    auto settingsPath = executablePath.replace_filename("settings.txt");
+    const auto settingsPath = executablePath.replace_filename("settings.txt");
     g_testSettings->load(settingsPath);
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
