@@ -58,11 +58,12 @@ public:
     /**
      * @brief Post the semaphore
      *
-     * The semaphore value is increased by one.
+     * The semaphore value is increased by count.
+     * @param count             Count to increase the semaphore.
      */
-    void post()
+    void post(size_t count = 1)
     {
-        m_value.release();
+        m_value.release(count);
     }
 
     /**
