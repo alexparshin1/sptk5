@@ -63,7 +63,7 @@ public:
      */
     void post(size_t count = 1)
     {
-        m_value.release(count);
+        m_value.release((ptrdiff_t) count);
     }
 
     /**
@@ -85,7 +85,7 @@ public:
      */
     void wait()
     {
-        return m_value.acquire();
+        m_value.acquire();
     }
 
     /**
@@ -125,7 +125,8 @@ public:
     }
 
 private:
-    std::counting_semaphore<0x7FFFFFFF> m_value;
+    static constexpr auto MaxSemaphoreValue = 0x7FFFFFFF;
+    std::counting_semaphore<MaxSemaphoreValue> m_value;
 };
 /**
  * @}
