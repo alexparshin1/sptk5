@@ -200,7 +200,7 @@ void OracleOciConnection::executeMultipleStatements(const Strings& statements, S
         }
         catch (const Exception& e)
         {
-            if (errors)
+            if (errors != nullptr)
             {
                 errors->push_back(e.what() + String(": ") + stmt);
             }
