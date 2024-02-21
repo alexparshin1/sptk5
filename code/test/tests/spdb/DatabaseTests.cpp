@@ -33,6 +33,8 @@
 #include <gtest/gtest.h>
 #endif
 
+#include <format>
+
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -102,7 +104,9 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     {
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
+        {
             CERR(e.what() << endl);
+        }
     }
 
     createTable.exec();
@@ -287,18 +291,17 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     DateTime testDateTime1(("2015-06-01T11:22:33" + testTimezone).c_str());
     const auto testDateTimeStr = testDateTime1.isoDateTimeString();
     EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
-    const auto result = select.next();
-    if (!result)
+
+    if (const auto result = select.next();
+        !result)
     {
         FAIL() << "Expect two records in record set";
     }
-    else
-    {
-        dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
-        testDateTime1 = DateTime(("2015-06-01T11:22:33" + testTimezone).c_str());
-        EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
-        select.close();
-    }
+
+    dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
+    testDateTime1 = DateTime(("2015-06-01T11:22:33" + testTimezone).c_str());
+    EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
+    select.close();
 }
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
@@ -556,7 +559,9 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
     {
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
+        {
             CERR(e.what() << endl);
+        }
     }
 
     createTable.exec();
@@ -608,7 +613,9 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
     {
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
+        {
             CERR(e.what() << endl);
+        }
     }
 
     createTable.exec();
@@ -834,7 +841,8 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     stopWatch.start();
     transaction.begin();
     Query deleteQuery(databaseConnection, "DELETE FROM gtest_temp_table WHERE id=:id");
-    for (const auto& key: keys) {
+    for (const auto& key: keys)
+    {
         deleteQuery.param("id") = key;
         deleteQuery.exec();
     }
@@ -970,13 +978,15 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectNullData.eof())
     {
         // Check if all fields are NULLs
-        for (const auto& field: selectNullData.fields())
-        {
-            if (!field->isNull())
-            {
-                throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
-            }
-        }
+        ranges::for_each(selectNullData.fields(),
+                         [](const auto& field) {
+                             if (!field->isNull())
+                             {
+                                 throw Exception(format("Field {} = [{}] but null is expected",
+                                                        field->fieldName().c_str(), field->asString().c_str()));
+                             }
+                         });
+
         selectNullData.next();
         ++recordCount;
     }

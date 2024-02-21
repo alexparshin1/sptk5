@@ -24,8 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#ifndef __CUTILS_H__
-#define __CUTILS_H__
+#pragma once
 
 #include <sptk5/Buffer.h>
 #include <sptk5/DataSource.h>
@@ -43,5 +42,3 @@
 #include <sptk5/md5.h>
 
 #include <sptk5/xdoc/Document.h>
-
-#endif
