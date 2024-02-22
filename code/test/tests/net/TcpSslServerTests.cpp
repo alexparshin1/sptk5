@@ -36,10 +36,12 @@ using namespace sptk;
 
 #ifdef USE_GTEST
 
-static constexpr uint16_t testTcpEchoServerPort = 3001;
-static constexpr uint16_t testSslEchoServerPort = 3002;
+namespace {
 
-static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
+constexpr uint16_t testTcpEchoServerPort = 3001;
+constexpr uint16_t testSslEchoServerPort = 3002;
+
+void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
     SocketReader reader(socket);
 
@@ -66,16 +68,16 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what() << '\n');
         }
     }
     socket.close();
 }
 
-static const size_t packetsInTest = 100000;
-static const size_t packetSize = 50;
+const size_t packetsInTest = 100000;
+const size_t packetSize = 50;
 
-static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
+void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
     constexpr uint8_t eightBits = 255;
     Buffer data(packetSize);
@@ -94,7 +96,7 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     {
         try
         {
-            if (const auto res = static_cast<int>(socket.write(dataPtr, packetSize)); 
+            if (const auto res = static_cast<int>(socket.write(dataPtr, packetSize));
                 res < 0)
             {
                 throwSocketError("Error writing to socket");
@@ -102,22 +104,24 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what() << '\n');
         }
     }
     stopWatch.stop();
 
     COUT("Sent " << packetsInTest << " packets at the rate " << fixed << setprecision(2) << packetsInTest / stopWatch.seconds() << "/s, or "
-                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
+                 << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n");
 
 
     if (constexpr chrono::seconds timeout(10);
         !socket.readyToRead(timeout))
     {
-        CERR("Timeout waiting for response" << endl);
+        CERR("Timeout waiting for response\n");
     }
     socket.close();
 }
+
+} // namespace
 
 TEST(SPTK_TCPServer, tcpMinimal)
 {
@@ -218,7 +222,8 @@ TEST(SPTK_TCPServer, sslMinimal)
     }
 }
 
-static shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType)
+namespace {
+shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType)
 {
     auto pushTcpServer = make_shared<TCPServer>("Performance Test Server");
 
@@ -257,14 +262,14 @@ size_t readAllPackets(T& reader, size_t readSize)
     return packetCount;
 }
 
-static void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
+void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
 {
-    COUT(testLabel << " received " << packetCount << " packets at the rate " << fixed << setprecision(2) << packetCount / stopWatch.seconds() << "/s, or "
-                   << packetCount * readSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl
-                   << endl);
+    COUT(testLabel << " received " << packetCount
+                   << " packets at the rate " << fixed << setprecision(2) << static_cast<double>(packetCount) / stopWatch.seconds() << "/s, or "
+                   << static_cast<double>(packetCount * readSize) / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n\n");
 }
 
-static void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType);
 
@@ -287,6 +292,7 @@ static void testTransferPerformance(ServerConnection::Type connectionType, const
 
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 }
+} // namespace
 
 TEST(SPTK_TCPServer, tcpTransferPerformance)
 {
