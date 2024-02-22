@@ -63,7 +63,7 @@ public:
     }
 
 protected:
-    UServerConnection createConnection(ServerConnection::Type connectionType, SocketType, const sockaddr_in*) override
+    UServerConnection createConnection(ServerConnection::Type, SocketType, const sockaddr_in*) override
     {
         return nullptr;
     }

@@ -45,6 +45,7 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
 {
     SocketReader reader(socket);
 
+    COUT("Server connection started\n");
     Buffer data;
     while (!task.terminated())
     {
@@ -61,29 +62,27 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
                 str += "\n";
                 socket.write(str);
             }
-            else
-            {
-                break;
-            }
         }
         catch (const Exception& e)
         {
             CERR(e.what() << '\n');
+            break;
         }
     }
     socket.close();
+    COUT("Server connection closed\n");
 }
 
-const size_t packetsInTest = 100000;
-const size_t packetSize = 50;
+constexpr size_t packetsInTest = 100000;
+constexpr size_t packetSize = 50;
 
 void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
-    constexpr uint8_t eightBits = 255;
     Buffer data(packetSize);
 
     for (size_t i = 0; i < packetSize; ++i)
     {
+        constexpr uint8_t eightBits = 255;
         data[i] = static_cast<uint8_t>(i % eightBits);
     }
     data.bytes(packetSize);
@@ -112,7 +111,6 @@ void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const S
     COUT("Sent " << packetsInTest << " packets at the rate " << fixed << setprecision(2) << packetsInTest / stopWatch.seconds() << "/s, or "
                  << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n");
 
-
     if (constexpr chrono::seconds timeout(10);
         !socket.readyToRead(timeout))
     {
@@ -138,11 +136,11 @@ TEST(SPTK_TCPServer, tcpMinimal)
 
         socket.open(Host("localhost", testTcpEchoServerPort));
 
-        const Strings rows("Hello, World!\n"
-                           "This is a test of TCPServer class.\n"
-                           "Using simple echo server to verify data flow.\n"
-                           "The session is terminated when this row is received",
-                           "\n");
+        const Strings rows({ "Hello, World!",
+                                 "This is a test of TCPServer class.",
+                                 "Using simple echo server to verify data flow.",
+                                 "The session is terminated when this row is received.",
+                            });
 
         this_thread::sleep_for(5ms);
 
@@ -158,9 +156,11 @@ TEST(SPTK_TCPServer, tcpMinimal)
             EXPECT_STREQ(row.c_str(), buffer.c_str());
             ++rowCount;
         }
-        EXPECT_EQ(4, rowCount);
 
+        EXPECT_EQ(4, rowCount);
         socket.close();
+
+        COUT("Client connection closed\n");
 
         echoServer.stop();
     }
