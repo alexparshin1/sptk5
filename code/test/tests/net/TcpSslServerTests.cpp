@@ -77,12 +77,12 @@ static const size_t packetSize = 50;
 
 static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
 {
-    const uint8_t eightBits = 255;
+    constexpr uint8_t eightBits = 255;
     Buffer data(packetSize);
 
     for (size_t i = 0; i < packetSize; ++i)
     {
-        data[i] = uint8_t(i % eightBits);
+        data[i] = static_cast<uint8_t>(i % eightBits);
     }
     data.bytes(packetSize);
 
@@ -94,8 +94,8 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
     {
         try
         {
-            auto res = (int) socket.write(dataPtr, packetSize);
-            if (res < 0)
+            if (const auto res = static_cast<int>(socket.write(dataPtr, packetSize)); 
+                res < 0)
             {
                 throwSocketError("Error writing to socket");
             }
@@ -111,7 +111,7 @@ static void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, 
                  << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s" << endl);
 
 
-    if (const chrono::seconds timeout(10);
+    if (constexpr chrono::seconds timeout(10);
         !socket.readyToRead(timeout))
     {
         CERR("Timeout waiting for response" << endl);
@@ -127,8 +127,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
     {
         TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort, 4);
-        echoServer.addListener(ServerConnection::Type::SSL, testSslEchoServerPort, 4);
+        echoServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
 
         TCPSocket socket;
         SocketReader socketReader(socket);
@@ -141,14 +140,14 @@ TEST(SPTK_TCPServer, tcpMinimal)
                            "The session is terminated when this row is received",
                            "\n");
 
-        this_thread::sleep_for(chrono::milliseconds(5));
+        this_thread::sleep_for(5ms);
 
         int rowCount = 0;
         for (const auto& row: rows)
         {
             socket.write(row + "\n");
             buffer.bytes(0);
-            if (socketReader.readyToRead(chrono::seconds(3)))
+            if (socketReader.readyToRead(3s))
             {
                 socketReader.readLine(buffer);
             }

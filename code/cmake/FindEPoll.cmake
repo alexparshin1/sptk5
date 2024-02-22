@@ -1,16 +1,16 @@
 IF (WIN32)
 
    SET (EPOLL_POSSIBLE_INCLUDE_PATHS
-        $ENV{SystemDrive}/*/include
-        $ENV{ProgramFiles}/*/include
-        "$ENV{ProgramFiles} (x86)/*/include"
-        $ENV{ProgramW6432}/*/include)
+        $ENV{SystemDrive}/wepoll/include
+        $ENV{SystemDrive}/*/wepoll/include
+        $ENV{ProgramFiles}/wepoll/include
+        $ENV{ProgramW6432}/wepoll/include)
 
    SET (EPOLL_POSSIBLE_LIB_PATHS
-        $ENV{SystemDrive}/*/lib
-        $ENV{ProgramFiles}/*/lib
-        "$ENV{ProgramFiles} (x86)/*/lib"
-        $ENV{ProgramW6432}/*/lib)
+        $ENV{SystemDrive}/wepoll/lib
+        $ENV{SystemDrive}/*/wepoll/lib
+        $ENV{ProgramFiles}/wepoll/lib
+        $ENV{ProgramW6432}/wepoll/lib)
 
    SET (EPOLL_NAME wepoll)
 

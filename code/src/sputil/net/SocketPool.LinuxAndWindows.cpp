@@ -79,12 +79,12 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
             throw Exception("Edge triggered mode isn't supported on Windows");
 #else
             event.events |= EPOLLET;
-#endif
             break;
+#endif
         case TriggerMode::OneShot:
             event.events |= EPOLLONESHOT;
             break;
-        default:
+        case TriggerMode::LevelTriggered:
             break;
     }
 
@@ -121,23 +121,25 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     for (int i = 0; i < eventCount; ++i)
     {
         epoll_event& event = m_events[i];
-        SocketEventType eventType {};
 
+        SocketEventType eventType;
         eventType.m_data = event.events & EPOLLIN;
         eventType.m_hangup = event.events & (EPOLLHUP | EPOLLRDHUP);
         eventType.m_error = event.events & EPOLLERR;
 
-        const auto* socket = bit_cast<const Socket*>(event.data.ptr);
-        const auto* userData = socket->getSocketEventData();
-
-        auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
-        if (eventAction == SocketEventAction::Disable)
+        if (const auto* socket = bit_cast<const Socket*>(event.data.ptr))
         {
-            // Disable events for the socket
-            event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-            if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event) == -1)
+            const auto* userData = socket->getSocketEventData();
+
+            if (const auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType); 
+                eventAction == SocketEventAction::Disable)
             {
-                processError(errno, "disable socket events");
+                // Disable events for the socket
+                event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+                if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event) == -1)
+                {
+                    processError(errno, "disable socket events");
+                }
             }
         }
     }
