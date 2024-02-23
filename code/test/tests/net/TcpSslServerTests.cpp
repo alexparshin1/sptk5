@@ -34,8 +34,6 @@
 using namespace std;
 using namespace sptk;
 
-#ifdef USE_GTEST
-
 namespace {
 
 constexpr uint16_t testTcpEchoServerPort = 3001;
@@ -173,19 +171,18 @@ TEST(SPTK_TCPServer, tcpMinimal)
 TEST(SPTK_TCPServer, sslMinimal)
 {
     Buffer buffer;
-    const chrono::milliseconds smallDelay(100);
 
     try
     {
         TCPServer echoServer("TestServer");
         echoServer.onConnection(echoTestFunction);
 
-        auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+        const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
         echoServer.setSSLKeys(keys);
 
         echoServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
         echoServer.addListener(ServerConnection::Type::SSL, testSslEchoServerPort);
-        this_thread::sleep_for(smallDelay);
+        this_thread::sleep_for(100ms);
 
         SSLSocket socket;
         SocketReader socketReader(socket);
@@ -203,7 +200,7 @@ TEST(SPTK_TCPServer, sslMinimal)
         {
             socket.write(row + "\n");
             buffer.bytes(0);
-            if (socketReader.readyToRead(chrono::seconds(3)))
+            if (socketReader.readyToRead(3s))
             {
                 socketReader.readLine(buffer);
             }
@@ -231,7 +228,7 @@ shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectio
 
     if (connectionType == ServerConnection::Type::SSL)
     {
-        auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+        const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
         pushTcpServer->setSSLKeys(keys);
     }
 
@@ -244,7 +241,7 @@ shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectio
 template<typename T>
 size_t readAllPackets(T& reader, size_t readSize)
 {
-    auto readBuffer = make_shared<Buffer>(readSize);
+    const auto readBuffer = make_shared<Buffer>(readSize);
 
     size_t packetCount = 0;
     for (; packetCount < packetsInTest; ++packetCount)
@@ -276,18 +273,18 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
     constexpr size_t readSize {packetSize};
     StopWatch stopWatch;
 
-    shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
-                                       ? make_shared<TCPSocket>()
-                                       : make_shared<SSLSocket>();
+    const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
+                                             ? make_shared<TCPSocket>()
+                                             : make_shared<SSLSocket>();
 
-    auto serverPortNumber = connectionType == ServerConnection::Type::TCP
-                                ? testTcpEchoServerPort
-                                : testSslEchoServerPort;
+    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
+                                      ? testTcpEchoServerPort
+                                      : testSslEchoServerPort;
 
     socket->open(Host("localhost", serverPortNumber));
 
     stopWatch.start();
-    size_t packetCount = readAllPackets(*socket, readSize);
+    const size_t packetCount = readAllPackets(*socket, readSize);
     stopWatch.stop();
 
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
@@ -318,34 +315,36 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
     }
 }
 
-static void testReaderTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+namespace {
+void testReaderTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType);
 
-    shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
-                                       ? make_shared<TCPSocket>()
-                                       : make_shared<SSLSocket>();
+    const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
+                                             ? make_shared<TCPSocket>()
+                                             : make_shared<SSLSocket>();
 
-    auto serverPortNumber = connectionType == ServerConnection::Type::TCP
-                                ? testTcpEchoServerPort
-                                : testSslEchoServerPort;
+    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
+                                      ? testTcpEchoServerPort
+                                      : testSslEchoServerPort;
 
     socket->open(Host("localhost", serverPortNumber));
 
-    const size_t readerBufferSize = 2048;
+    constexpr size_t readerBufferSize = 2048;
     SocketReader socketReader(*socket, readerBufferSize);
 
     constexpr size_t readSize {packetSize};
 
     StopWatch stopWatch;
     stopWatch.start();
-    size_t packetCount = readAllPackets(socketReader, readSize);
+    const size_t packetCount = readAllPackets(socketReader, readSize);
     stopWatch.stop();
 
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 
     socket->close();
 }
+} // namespace
 
 TEST(SPTK_TCPServer, tcpReaderTransferPerformance)
 {
@@ -371,4 +370,3 @@ TEST(SPTK_TCPServer, sslReaderTransferPerformance)
     }
 }
 
-#endif

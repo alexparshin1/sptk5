@@ -32,14 +32,16 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+#ifndef _WIN32
+string delimiter = "/";
+#else
+string delimiter = "\\";
+#endif
+}
+
 TEST(SPTK_Exception, throwException)
 {
-#ifndef _WIN32
-    string delimiter = "/";
-#else
-    string delimiter = "\\";
-#endif
-
     try
     {
         throw Exception("Test exception");
@@ -66,7 +68,7 @@ TEST(SPTK_HttpException, throwException)
     constexpr size_t maxErrorCode = 512;
     for (size_t code = firstErrorCode; code < maxErrorCode; ++code)
     {
-        auto expectedStatus = HTTPException::httpResponseStatus(code);
+        const auto expectedStatus = HTTPException::httpResponseStatus(code);
         if (expectedStatus.empty())
         {
             continue;
@@ -77,13 +79,9 @@ TEST(SPTK_HttpException, throwException)
         }
         catch (const HTTPException& e)
         {
-#ifdef _WIN32
-            EXPECT_STREQ("Something happened in core\\Exception.cpp(74). This happens sometimes.", e.what());
-#else
-            EXPECT_STREQ("Something happened in Exception.cpp(74). This happens sometimes.", e.what());
-#endif
+            EXPECT_STREQ(("Something happened in core" + delimiter + "Exception.cpp(78). This happens sometimes.").c_str(), e.what());
             EXPECT_STREQ("Something happened", e.message().c_str());
-            EXPECT_EQ(size_t(code), e.statusCode());
+            EXPECT_EQ(code, e.statusCode());
             EXPECT_EQ(expectedStatus, e.statusText());
         }
     }
