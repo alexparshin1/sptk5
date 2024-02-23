@@ -36,7 +36,7 @@ namespace sptk {
 /**
  * @brief Mutex that stores lock location information
  */
-class SmartMutex
+class SP_EXPORT SmartMutex
 {
 public:
     /**
@@ -86,7 +86,7 @@ private:
 /**
  * @brief Debug lock that stores the location of the successful lock
  */
-class SmartLock
+class SP_EXPORT SmartLock
 {
 public:
     /**

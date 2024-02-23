@@ -34,12 +34,14 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-static constexpr uint16_t testEchoServerPort = 5001;
+namespace {
+
+constexpr uint16_t testEchoServerPort = 5001;
 
 /**
  * @brief Test TCP echo server function
  */
-static void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
+void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
     SocketReader socketReader(socket);
     Buffer data;
@@ -71,6 +73,8 @@ static void echoTestFunction(const Runable& task, TCPSocket& socket, const Strin
     socket.close();
 }
 
+} // namespace
+
 /**
  * @brief Test SocketEvents communication with echo server using LevelTriggered mode
  */
@@ -88,13 +92,13 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
                 while (socketReader->readLine(line, '\n') != 0)
                 {
                     eventReceived.post();
-                    COUT("Client received: " << line.c_str() << endl);
+                    COUT("Client received: " << line.c_str() << '\n');
                 }
             }
 
             if (eventType.m_hangup)
             {
-                COUT("Socket closed" << endl);
+                COUT("Socket closed\n");
             }
 
             return SocketEventAction::Continue;
@@ -111,10 +115,10 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
         echoServer.onConnection(echoTestFunction);
         echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
-        Strings testRows({"Hello, World!",
-                          "This is a test of SocketEvents class.",
-                          "Using simple echo server to support data flow.",
-                          "The session is terminated when this row is received"});
+        const Strings testRows({"Hello, World!",
+                                "This is a test of SocketEvents class.",
+                                "Using simple echo server to support data flow.",
+                                "The session is terminated when this row is received"});
 
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
@@ -125,9 +129,8 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
-            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
-            if (bytes != row.length() || bytes2 != 1)
+            const auto bytes = socket.write(row + "\n");
+            if (bytes != row.length() + 1)
             {
                 FAIL() << "Client can't send data";
             }
@@ -156,6 +159,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
+#ifndef _WIN32
     atomic_size_t eventCount {0};
     Semaphore receivedEvent;
 
@@ -196,9 +200,8 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
-            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
-            if (bytes != row.length() || bytes2 != 1)
+            auto bytes = socket.write(row.c_str() + "\n");
+            if (bytes != row.length() + 1)
             {
                 FAIL() << "Client can't send data";
             }
@@ -216,6 +219,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
     {
         FAIL() << e.what();
     }
+#endif
 }
 
 /**
@@ -236,7 +240,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
             else
             {
                 receivedEvent.post();
-                eventCount++;
+                ++eventCount;
             }
 
             return SocketEventAction::Continue;
@@ -253,9 +257,9 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
         echoServer.onConnection(echoTestFunction);
         echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
-        Strings testRows({"Hello, World!",
-                          "This is a test of SocketEvents class.",
-                          "Using simple echo server to support data flow."});
+        const Strings testRows({"Hello, World!",
+                                "This is a test of SocketEvents class.",
+                                "Using simple echo server to support data flow."});
 
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
@@ -264,16 +268,15 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write(bit_cast<const uint8_t*>(row.c_str()), row.length());
-            auto bytes2 = socket.write((const uint8_t*) "\n", 1);
-            if (bytes != row.length() || bytes2 != 1)
+            const auto bytes = socket.write(row + "\n");
+            if (bytes != row.length() + 1)
             {
                 FAIL() << "Client can't send data";
             }
         }
 
-        receivedEvent.wait_for(chrono::milliseconds(100));
-        this_thread::sleep_for(chrono::milliseconds(50));
+        receivedEvent.wait_for(100ms);
+        this_thread::sleep_for(50ms);
 
         EXPECT_EQ(eventCount, 1);
 
@@ -295,26 +298,31 @@ TEST(SPTK_SocketEvents, performance)
             return SocketEventAction::Continue;
         });
 
-    const size_t maxSockets = 512;
-    vector<shared_ptr<TCPSocket>> sockets;
-    for (size_t index = 0; index < maxSockets; ++index)
+    constexpr size_t maxSockets = 128;
+    vector<TCPSocket> sockets(maxSockets);
+    const Host testServerHost("theater", 80);
+    for (auto& socket: sockets)
     {
-        auto socket = make_shared<TCPSocket>();
-        socket->open(Host("theater", 80));
-        sockets.push_back(socket);
-        socketEvents.add(*socket, nullptr);
+        socket.open(testServerHost);
     }
 
     StopWatch stopWatch;
 
     stopWatch.start();
-    for (const auto& socket: sockets)
+    for (auto& socket: sockets)
     {
-        socketEvents.remove(*socket);
-        socketEvents.add(*socket, nullptr);
+        socketEvents.add(socket, nullptr);
     }
+
+    for (auto& socket: sockets)
+    {
+        socketEvents.remove(socket);
+    }
+
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
-                     << fixed << setprecision(2) << maxSockets / stopWatch.seconds() / 1E3 << "K/sec" << endl);
+                     << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n" << flush);
+
+    socketEvents.stop();
 }

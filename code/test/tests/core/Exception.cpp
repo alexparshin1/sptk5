@@ -34,13 +34,19 @@ using namespace sptk;
 
 TEST(SPTK_Exception, throwException)
 {
+#ifndef _WIN32
+    string delimiter = "/";
+#else
+    string delimiter = "\\";
+#endif
+
     try
     {
         throw Exception("Test exception");
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in Exception.cpp(39)", e.what());
+        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(45)").c_str(), e.what());
     }
 
     try
@@ -49,11 +55,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-#ifdef _WIN32
-        EXPECT_STREQ("Test exception in core\\Exception.cpp(48). This happens sometimes.", e.what());
-#else
-        EXPECT_STREQ("Test exception in Exception.cpp(48). This happens sometimes.", e.what());
-#endif
+        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(54). This happens sometimes.").c_str(), e.what());
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
 }

@@ -87,7 +87,7 @@ public:
     /**
      * @brief Returns complete text of exception
      */
-    const char* what() const DOESNT_THROW override;
+    const char* what() const noexcept override;
 
     /**
      * @brief Returns exception message without file name, line number, or description

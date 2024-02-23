@@ -27,26 +27,23 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
-#include <cstring>
+#include <format>
 #include <utility>
 
 using namespace std;
 using namespace sptk;
 
-Exception::Exception(String text, const std::source_location& location, String description) DOESNT_THROW
+Exception::Exception(String text, const std::source_location& location, String description) noexcept
     : m_location(location)
     , m_text(std::move(text))
     , m_description(std::move(description))
     , m_fullMessage(m_text)
 {
-    const char* pos = strrchr(m_location.file_name(), '/');
-    if (pos == nullptr)
-    {
-        pos = strrchr(m_location.file_name(), '\\');
-    }
+    filesystem::path filePath = m_location.file_name();
 
-    const String fileName = pos != nullptr ? pos + 1 : m_location.file_name();
-    m_fullMessage += " in " + fileName + "(" + int2string(static_cast<uint32_t>(m_location.line())) + ")";
+    const String fileName = filePath.filename().string();
+    filePath = filePath.parent_path().filename() / fileName.c_str();
+    m_fullMessage += format(" in {}({})", filePath.string(), m_location.line());
 
     if (!m_description.empty())
     {
