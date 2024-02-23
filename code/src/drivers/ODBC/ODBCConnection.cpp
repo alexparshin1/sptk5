@@ -293,7 +293,20 @@ void ODBCConnection::queryExecute(Query* query)
 
     if (result == SQL_NEED_DATA)
     {
-        THROW_QUERY_ERROR(query, "Invalid data size");
+        size_t paramNumber = -1;
+        while (result = SQLParamData(query->statement(), (SQLPOINTER*) &paramNumber) == SQL_NEED_DATA)
+        {
+            QueryParameter* parameter = &query->param(paramNumber - 1);
+            auto len = static_cast<SQLLEN>(parameter->dataSize());
+            auto buff = bit_cast<SQLPOINTER>(parameter->getText());
+            result = SQLPutData( query->statement(), buff, len );
+            if (result != SQL_SUCCESS) {
+                break;
+            }
+        }
+        if (result == SQL_SUCCESS) {
+            return;
+        }
     }
 
     constexpr int diagRecordSize = 16;
@@ -503,6 +516,11 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
                 parameter->callbackLength() = len;
                 cbValue = &parameter->callbackLength();
 #endif
+                if (len >= 256)
+                {
+                    *cbValue = SQL_DATA_AT_EXEC; //SQL_LEN_DATA_AT_EXEC(parameter->dataSize());
+                    buff = (SQLPOINTER) paramNumber;
+                }
                 break;
 
             default:
