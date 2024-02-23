@@ -49,7 +49,6 @@ void SocketEvents::stop()
 {
     try
     {
-        m_socketPool.close();
         if (running())
         {
             terminate();
@@ -58,7 +57,7 @@ void SocketEvents::stop()
     }
     catch (const Exception& e)
     {
-        CERR(e.message() << endl);
+        CERR(e.message() << '\n');
     }
 }
 
@@ -76,7 +75,7 @@ void SocketEvents::threadFunction()
         }
         catch (const Exception& e)
         {
-            CERR(e.message() << endl);
+            CERR(e.message() << '\n');
         }
     }
     m_socketPool.close();
