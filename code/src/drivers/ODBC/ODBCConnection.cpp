@@ -27,7 +27,6 @@
 #include "sptk5/db/BulkQuery.h"
 #include <array>
 #include <format>
-#include <iomanip>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
@@ -308,7 +307,7 @@ void ODBCConnection::queryExecute(Query* query)
                              &textLength);
 
     Strings errors;
-    const SQLSMALLINT recordNumber = 1;
+    constexpr SQLSMALLINT recordNumber = 1;
     while (successful(result))
     {
         result = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
@@ -394,7 +393,7 @@ bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& date
         {
             dateTime.decodeTime(bit_cast<int16_t*>(&timestampStruct->hour), bit_cast<int16_t*>(&timestampStruct->minute), bit_cast<int16_t*>(&timestampStruct->second), &milliseconds);
         }
-        const int msInSecond = 1000;
+        constexpr int msInSecond = 1000;
         timestampStruct->fraction = static_cast<SQLUINTEGER>(milliseconds * msInSecond);
         return true;
     }
@@ -403,15 +402,15 @@ bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& date
 
 void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 {
-    static const int dateAccuracy = 19;
+    static constexpr int dateAccuracy = 19;
     static SQLLEN cbNullValue = SQL_NULL_DATA;
 
-    const VariantDataType ptype = parameter->dataType();
+    const VariantDataType variantDataType = parameter->dataType();
     for (unsigned j = 0; j < parameter->bindCount(); ++j)
     {
         int16_t paramType;
         int16_t valueType;
-        const int16_t scale = 0;
+        constexpr int16_t scale = 0;
         void* buff;
         SQLLEN len = 0;
         const auto paramNumber = static_cast<int16_t>(parameter->bindIndex(j) + 1);
@@ -423,8 +422,8 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
             len = 0;
         }
 
-        const int16_t inputOutputMode = SQL_PARAM_INPUT;
-        switch (ptype)
+        constexpr int16_t inputOutputMode = SQL_PARAM_INPUT;
+        switch (variantDataType)
         {
             case VariantDataType::VAR_BOOL:
                 paramType = SQL_C_BIT;
