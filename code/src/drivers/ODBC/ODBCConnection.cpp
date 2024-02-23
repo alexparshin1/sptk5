@@ -413,6 +413,24 @@ bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& date
     return false;
 }
 
+namespace {
+inline void bindLOB(QueryParameter* parameter, unsigned paramNumber, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& cbValue)
+{
+    len = static_cast<SQLLEN>(parameter->dataSize());
+    buff = bit_cast<void*>(parameter->getText());
+#ifdef _WIN32
+    cbValue = bit_cast<SQLLEN*>(&parameter->callbackLength());
+#else
+    cbValue = &parameter->callbackLength();
+#endif
+    if (len >= 256)
+    {
+        *cbValue = SQL_DATA_AT_EXEC; //SQL_LEN_DATA_AT_EXEC(parameter->dataSize());
+        buff = (SQLPOINTER) paramNumber;
+    }
+}
+}
+
 void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 {
     static constexpr int dateAccuracy = 19;
@@ -470,10 +488,9 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
                 break;
 
             case VariantDataType::VAR_TEXT:
-                len = static_cast<long>(parameter->dataSize());
                 paramType = SQL_C_CHAR;
                 valueType = SQL_WLONGVARCHAR;
-                buff = bit_cast<void*>(parameter->getText());
+                bindLOB(parameter, paramNumber, buff, len, cbValue);
                 break;
 
             case VariantDataType::VAR_DATE:
@@ -507,20 +524,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
             case VariantDataType::VAR_BUFFER:
                 paramType = SQL_C_BINARY;
                 valueType = SQL_LONGVARBINARY;
-                len = static_cast<SQLLEN>(parameter->dataSize());
-                buff = bit_cast<void*>(parameter->getText());
-#ifdef _WIN32
-                parameter->callbackLength() = static_cast<long>(len);
-                cbValue = bit_cast<SQLLEN*>(&parameter->callbackLength());
-#else
-                parameter->callbackLength() = len;
-                cbValue = &parameter->callbackLength();
-#endif
-                if (len >= 256)
-                {
-                    *cbValue = SQL_DATA_AT_EXEC; //SQL_LEN_DATA_AT_EXEC(parameter->dataSize());
-                    buff = (SQLPOINTER) paramNumber;
-                }
+                bindLOB(parameter, paramNumber, buff, len, cbValue);
                 break;
 
             default:
