@@ -48,7 +48,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(45)").c_str(), e.what());
+        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(47)").c_str(), e.what());
     }
 
     try
@@ -57,7 +57,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(54). This happens sometimes.").c_str(), e.what());
+        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(56). This happens sometimes.").c_str(), e.what());
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
 }

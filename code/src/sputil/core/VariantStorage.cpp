@@ -294,8 +294,11 @@ void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, V
     {
         setStorageClient(nullptr);
     }
-    const VariantType variantType {type, false, true, dataSize};
+
+    VariantType variantType {type, false, true};
+    variantType.size = dataSize;
     setType(variantType);
+
     value().asBytePointer = aValue;
 }
 

@@ -178,7 +178,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what() << '\n');
     }
 }
 
@@ -272,7 +272,7 @@ void checkError(const PGconn* conn, PGresult* res, const String& command,
     const auto statusCode = PQresultStatus(res);
     if (statusCode != expectedResult)
     {
-        auto error = format("{} command failed: {}", command.c_str(), PQerrorMessage(conn));
+        const auto error = format("{} command failed: {}", command.c_str(), PQerrorMessage(conn));
         PQclear(res);
         throw DatabaseException(error);
     }
@@ -335,8 +335,8 @@ String PostgreSQLConnection::queryError(const Query*) const
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
-                                                 query->autoPrepare());
+    const auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
+                                                       query->autoPrepare());
     querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
@@ -630,8 +630,8 @@ void PostgreSQLConnection::queryOpen(Query* query)
 
     const auto* statement = bit_cast<const PostgreSQLStatement*>(query->statement());
 
-    auto count = static_cast<short>(queryColCount(query));
-    if (count < 1)
+    const auto columnCount = static_cast<short>(queryColCount(query));
+    if (columnCount < 1)
     {
         return;
     }
@@ -644,10 +644,9 @@ void PostgreSQLConnection::queryOpen(Query* query)
         // Reading the column attributes
         const PGresult* stmt = statement->stmt();
 
-        String columnName;
-        for (short column = 0; column < count; ++column)
+        for (short column = 0; column < columnCount; ++column)
         {
-            columnName = PQfname(stmt, column);
+            String columnName = PQfname(stmt, column);
 
             if (columnName.empty())
             {
@@ -732,9 +731,9 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 // Converts internal NUMERIC Postgresql binary to long double
 inline MoneyData readNumericToScaledInteger(const char* numeric)
 {
-    auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
-    auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
-    auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
+    const auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
+    const auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
+    const auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
     uint16_t dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
     if (constexpr auto maxDscale = 16;
@@ -761,7 +760,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     int16_t digitWeight = weight;
     for (int i = 0; i < ndigits; ++i)
     {
-        auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
+        const auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
 
         value = value * digitMultiplier + digit;
         if (digitWeight < 0)
@@ -951,7 +950,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
         return;
     }
 
-    auto fieldCount = static_cast<int>(query->fieldCount());
+    const auto fieldCount = static_cast<int>(query->fieldCount());
 
     if (fieldCount == 0)
     {
@@ -959,16 +958,16 @@ void PostgreSQLConnection::queryFetch(Query* query)
     }
 
     const PGresult* stmt = statement->stmt();
-    auto currentRow = static_cast<int>(statement->currentRow());
+    const auto currentRow = static_cast<int>(statement->currentRow());
 
     for (int column = 0; column < fieldCount; ++column)
     {
         auto* field = bit_cast<DatabaseField*>(&(*query)[size_t(column)]);
         try
         {
-            auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
+            const auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
 
-            int dataLength = PQgetlength(stmt, currentRow, column);
+            const int dataLength = PQgetlength(stmt, currentRow, column);
 
             if (dataLength == 0)
             {
@@ -1238,7 +1237,7 @@ map<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnectio
 
 [[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    const auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     PostgreSQLConnection::s_postgresqlConnections[connection.get()] = connection;
     return connection.get();
 }
