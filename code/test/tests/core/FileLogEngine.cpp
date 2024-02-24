@@ -31,32 +31,37 @@
 using namespace std;
 using namespace sptk;
 
-static const filesystem::path logFileName("/tmp/file_log_test.tmp");
+namespace {
 
-static void logMessages(LogEngine& logEngine)
+const filesystem::path logFileName("/tmp/file_log_test.tmp");
+
+void logMessages(LogEngine& logEngine)
 {
-    auto logger = make_shared<Logger>(logEngine, "(Test application) ");
+    const auto logger = make_shared<Logger>(logEngine, "(Test application) ");
     logger->debug("Test started");
     logger->critical("Critical message");
     logger->error("Error message");
     logger->warning("Warning message");
     logger->info("Test completed");
 
-    this_thread::sleep_for(chrono::milliseconds(50));
+    this_thread::sleep_for(100ms);
 }
 
-static void testPriority(LogEngine& logEngine, LogPriority priority, size_t expectedMessageCount)
+void testPriority(FileLogEngine& logEngine, LogPriority priority, size_t expectedMessageCount)
 {
     logEngine.reset();
     logEngine.minPriority(priority);
 
     logMessages(logEngine);
+    logEngine.flush();
 
     Strings content;
     content.loadFromFile(logFileName);
 
     EXPECT_EQ(expectedMessageCount, content.size());
 }
+
+} // namespace
 
 TEST(SPTK_FileLogEngine, testLogPriorities)
 {
@@ -80,5 +85,5 @@ TEST(SPTK_FileLogEngine, performance)
     }
     stopWatch.stop();
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
-                   << messageCount / (int) stopWatch.milliseconds() << " msgs/sec)" << endl);
+                   << static_cast<double>(messageCount) / stopWatch.milliseconds() << " msgs/sec)\n");
 }

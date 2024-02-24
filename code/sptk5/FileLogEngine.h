@@ -65,6 +65,11 @@ public:
     void saveMessage(const Logger::Message& message) override;
 
     /**
+     * @brief Flush file data to disk
+     */
+    void flush();
+
+    /**
      * Restarts the log
      *
      * The current log content is cleared. The file is recreated.

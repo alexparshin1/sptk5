@@ -83,6 +83,11 @@ FileLogEngine::FileLogEngine(const filesystem::path& fileName)
 {
 }
 
+void FileLogEngine::flush()
+{
+    m_fileStream.flush();
+}
+
 void FileLogEngine::reset()
 {
     const scoped_lock lock(masterLock());
