@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(string_view str)
-    : BufferStorage((const uint8_t*) str.data(), str.length())
+    : BufferStorage(bit_cast<const uint8_t*>(str.data()), str.length())
 {
 }
 
@@ -53,11 +53,11 @@ void Buffer::loadFromFile(const std::filesystem::path& fileName)
         throw Exception("Can't get file size for '" + fileName.string() + "'");
     }
 
-    auto size = (size_t) fileStat.st_size;
+    const auto size = static_cast<size_t>(fileStat.st_size);
 
     reset(size + 1);
     bytes(fread(data(), 1, size, file));
-    auto result = fclose(file);
+    const auto result = fclose(file);
     if (result != 0)
     {
         throw SystemException("Can't close file " + fileName.string());
@@ -73,8 +73,8 @@ void Buffer::saveToFile(const std::filesystem::path& fileName) const
         throw SystemException("Can't open file " + fileName.string() + " for writing");
     }
 
-    auto rc1 = fwrite(data(), bytes(), 1, file);
-    auto rc2 = fclose(file);
+    const auto rc1 = fwrite(data(), bytes(), 1, file);
+    const auto rc2 = fclose(file);
     if (rc1 != 1 || rc2 != 0)
     {
         throw SystemException("Can't close file " + fileName.string());
@@ -83,14 +83,14 @@ void Buffer::saveToFile(const std::filesystem::path& fileName) const
 
 Buffer& Buffer::operator=(const String& other)
 {
-    set((const uint8_t*) other.c_str(), other.length());
+    set(bit_cast<const uint8_t*>(other.c_str()), other.length());
 
     return *this;
 }
 
 Buffer& Buffer::operator=(const char* str)
 {
-    set((const uint8_t*) str, strlen(str));
+    set(bit_cast<const uint8_t*>(str), strlen(str));
 
     return *this;
 }
@@ -113,7 +113,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
     }
 
     const char fillChar = stream.fill('0');
-    auto old_settings = stream.flags();
+    const auto old_settings = stream.flags();
 
     size_t offset = 0;
 
@@ -153,7 +153,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
             {
                 stream << " ";
             }
-            auto testChar = buffer[rowOffset];
+            const auto testChar = buffer[rowOffset];
             if (testChar >= ' ')
             {
                 stream << buffer[rowOffset];
@@ -164,7 +164,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
             }
         }
 
-        stream << endl;
+        stream << '\n';
         offset += bytesInRow;
     }
 

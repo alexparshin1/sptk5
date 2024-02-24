@@ -21,6 +21,12 @@ IF (GTEST_FLAG)
     IF (BUILD_TEST_WS)
         TARGET_LINK_LIBRARIES(sptk_unit_tests WebServiceUnitTests)
     ENDIF ()
+
+FILE(COPY        ${CMAKE_SOURCE_DIR}/test/settings.txt
+     DESTINATION ${CMAKE_BINARY_DIR}/test/${CMAKE_BUILD_TYPE})
+FILE(COPY        ${CMAKE_SOURCE_DIR}/test/data
+     DESTINATION ${CMAKE_BINARY_DIR}/test/${CMAKE_BUILD_TYPE})
+
 ENDIF ()
 
 IF (BUILD_TEST_WS)
