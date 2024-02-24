@@ -167,7 +167,7 @@ void ODBCConnection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 namespace {
-[[nodiscard]] inline bool successful(int ret)
+[[nodiscard]] bool successful(int ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
@@ -260,8 +260,12 @@ void ODBCConnection::queryPrepare(Query* query)
 
     query->fields().clear();
 
-    auto buffer(query->sql()); // For some reason, SQLPrepare doesn't work correctly without this copy when using cxx11 ABI
+    const auto buffer(query->sql()); // For some reason, SQLPrepare doesn't work correctly without this copy when using cxx11 ABI
     const auto* sql = buffer.c_str();
+    if (buffer.empty())
+    {
+        THROW_QUERY_ERROR(query, "PREPARE command failed: EMPTY QUERY");
+    }
     if (!successful(SQLPrepare(query->statement(), bit_cast<SQLCHAR*>(sql), SQL_NTS)))
     {
         THROW_QUERY_ERROR(query, queryError(query));
@@ -293,19 +297,25 @@ void ODBCConnection::queryExecute(Query* query)
 
     if (result == SQL_NEED_DATA)
     {
-        size_t paramNumber = -1;
-        while (result = SQLParamData(query->statement(), (SQLPOINTER*) &paramNumber) == SQL_NEED_DATA)
+        QueryParameter* parameter;
+        while (true)
         {
-            QueryParameter* parameter = &query->param(paramNumber - 1);
-            auto len = static_cast<SQLLEN>(parameter->dataSize());
-            auto buff = bit_cast<SQLPOINTER>(parameter->getText());
-            result = SQLPutData( query->statement(), buff, len );
-            if (result != SQL_SUCCESS) {
-                break;
+            result = SQLParamData(query->statement(), bit_cast<SQLPOINTER*>(&parameter));
+            if (result == SQL_NEED_DATA)
+            {
+               const auto len = static_cast<SQLLEN>(parameter->dataSize());
+               const auto buff = bit_cast<SQLPOINTER>(parameter->getText());
+               if (SQLPutData(query->statement(), buff, len) != SQL_SUCCESS)
+               {
+                   break;
+               }
+               continue;
             }
-        }
-        if (result == SQL_SUCCESS) {
-            return;
+            if (result == SQL_SUCCESS)
+            {
+                return;
+            }
+            break;
         }
     }
 
@@ -414,7 +424,7 @@ bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& date
 }
 
 namespace {
-inline void bindLOB(QueryParameter* parameter, unsigned paramNumber, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& cbValue)
+void bindLOB(QueryParameter* parameter, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& cbValue)
 {
     len = static_cast<SQLLEN>(parameter->dataSize());
     buff = bit_cast<void*>(parameter->getText());
@@ -425,8 +435,8 @@ inline void bindLOB(QueryParameter* parameter, unsigned paramNumber, SQLPOINTER&
 #endif
     if (len >= 256)
     {
-        *cbValue = SQL_DATA_AT_EXEC; //SQL_LEN_DATA_AT_EXEC(parameter->dataSize());
-        buff = (SQLPOINTER) paramNumber;
+        *cbValue = SQL_LEN_DATA_AT_EXEC(static_cast<SQLLEN>(parameter->dataSize()));
+        buff = static_cast<SQLPOINTER>(parameter);
     }
 }
 }
@@ -490,7 +500,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
             case VariantDataType::VAR_TEXT:
                 paramType = SQL_C_CHAR;
                 valueType = SQL_WLONGVARCHAR;
-                bindLOB(parameter, paramNumber, buff, len, cbValue);
+                bindLOB(parameter, buff, len, cbValue);
                 break;
 
             case VariantDataType::VAR_DATE:
@@ -524,7 +534,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
             case VariantDataType::VAR_BUFFER:
                 paramType = SQL_C_BINARY;
                 valueType = SQL_LONGVARBINARY;
-                bindLOB(parameter, paramNumber, buff, len, cbValue);
+                bindLOB(parameter, buff, len, cbValue);
                 break;
 
             default:
@@ -1042,7 +1052,7 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
     if (SQLAllocStmt(this->handle(), &stmt) != SQL_SUCCESS)
     {
-        auto error = queryError(SQLHSTMT(nullptr));
+        const auto error = queryError(SQLHSTMT(nullptr));
         throw DatabaseException("ODBCConnection::SQLAllocStmt: " + error);
     }
 

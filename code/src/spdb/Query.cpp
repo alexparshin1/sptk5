@@ -384,5 +384,5 @@ void sptk::THROW_QUERY_ERROR(const Query* query, const String& error, std::sourc
 {
     std::stringstream err;
     err << error;
-    throw sptk::DatabaseException(err.str(), location, query->sql());
+    throw DatabaseException(err.str(), location, query->sql());
 }
