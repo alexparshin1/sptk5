@@ -37,9 +37,9 @@ using namespace sptk;
 
 TEST(SPTK_SynchronizedQueue, tasks)
 {
-    const size_t maxNumbers = 100;
-    const size_t maxTasks = 10;
-    const chrono::milliseconds timeout(1000);
+    constexpr size_t maxNumbers = 100;
+    constexpr size_t maxTasks = 5;
+    constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int> queue;
 
     vector<future<int>> tasks;
@@ -58,7 +58,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
                 {
                     break;
                 }
-                this_thread::sleep_for(chrono::milliseconds(10));
+                this_thread::sleep_for(10ms);
             }
             return sum;
         });
@@ -75,11 +75,11 @@ TEST(SPTK_SynchronizedQueue, tasks)
     }
 
     int actualSum = 0;
-    int expectedSumPerTask = expectedSum / (int) maxTasks;
+    const int expectedSumPerTask = expectedSum / static_cast<int>(maxTasks);
     for (auto& task: tasks)
     {
         task.wait_for(chrono::milliseconds(200));
-        auto sum = task.get();
+        const auto sum = task.get();
         actualSum += sum;
         // Expect tasks doing about the same amount of work
         EXPECT_NEAR(expectedSumPerTask, sum, 100);
@@ -90,8 +90,8 @@ TEST(SPTK_SynchronizedQueue, tasks)
 
 TEST(SPTK_SynchronizedQueue, performance)
 {
-    const size_t maxNumbers = 10000;
-    const chrono::milliseconds timeout(1000);
+    constexpr size_t maxNumbers = 10000;
+    constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int> queue;
 
     StopWatch stopWatch;
@@ -124,11 +124,11 @@ TEST(SPTK_SynchronizedQueue, performance)
 
 TEST(SPTK_SynchronizedQueue, for_each)
 {
-    const size_t maxNumbers = 10;
+    constexpr size_t maxNumbers = 10;
     SynchronizedQueue<int> queue;
 
     int actualSum = 0;
-    for (size_t index = 1; index < maxNumbers; ++index)
+    for (int index = 1; index < maxNumbers; ++index)
     {
         queue.push_back(index);
         if (index < 5)
