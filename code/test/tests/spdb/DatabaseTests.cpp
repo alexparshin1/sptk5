@@ -872,7 +872,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table ORDER BY 1");
 
     const Strings batchSQL {
-        "INSERT INTO gtest_temp_table VALUES (1, 'Jonh', 'CEO', '2020-01-02');",
+        "INSERT INTO gtest_temp_table VALUES (1, 'John', 'CEO', '2020-01-02');",
         "INSERT INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
         "INSERT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
 
@@ -881,7 +881,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
         "INVENT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
 
     const Strings expectedResults {
-        "1,Jonh,CEO,2020-01-02",
+        "1,John,CEO,2020-01-02",
         "2,Jane,CFO,2021-02-03",
         "3,William,CIO,2022-03-04"};
 
@@ -936,14 +936,13 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     data.push_back(string("4\tTeddy\tBear\t01-JAN-2017"));
     data.push_back(string("5\tSanta\tClaus\t01-JAN-2018"));
 
-    constexpr int col0 = 0;
-    constexpr int col1 = 1;
-    constexpr int col2 = 2;
-    constexpr int col3 = 3;
-
     for (const auto& row: data)
     {
-        using enum sptk::VariantDataType;
+        constexpr int col0 = 0;
+        constexpr int col1 = 1;
+        constexpr int col2 = 2;
+        constexpr int col3 = 3;
+        using enum VariantDataType;
 
         // Insert all nulls
         insertData.param("id").setNull(VAR_INT);
