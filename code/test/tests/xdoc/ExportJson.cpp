@@ -25,7 +25,6 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/String.h>
 #include <sptk5/cutils>
 
 using namespace std;
