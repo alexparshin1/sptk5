@@ -59,7 +59,7 @@ void MySQLConnection::initConnection()
     }
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
-    auto connectionTimeoutSeconds = connectTimeout().count();
+    const auto connectionTimeoutSeconds = connectTimeout().count();
     mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 
@@ -85,7 +85,7 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
                                nullptr,
                                CLIENT_MULTI_RESULTS) == nullptr)
         {
-            String connectionError = mysql_error(m_connection.get());
+            const String connectionError = mysql_error(m_connection.get());
             m_connection.reset();
             throw DatabaseException("Can't connect to MySQL: " + connectionError);
         }
@@ -99,7 +99,7 @@ void MySQLConnection::closeDatabase()
 
 DBHandle MySQLConnection::handle() const
 {
-    return (DBHandle) m_connection.get();
+    return bit_cast<DBHandle>(m_connection.get());
 }
 
 bool MySQLConnection::active() const
@@ -152,7 +152,7 @@ String MySQLConnection::queryError(const Query* query) const
 void MySQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
-    auto stmt = reinterpret_pointer_cast<uint8_t>(make_shared<MySQLStatement>(this, query->sql(), query->autoPrepare()));
+    const auto stmt = reinterpret_pointer_cast<uint8_t>(make_shared<MySQLStatement>(this, query->sql(), query->autoPrepare()));
     querySetStmt(query, stmt);
 }
 
@@ -290,7 +290,7 @@ void MySQLConnection::queryOpen(Query* query)
     auto* statement = bit_cast<MySQLStatement*>(query->statement());
 
     queryExecute(query);
-    if (auto fieldCount = static_cast<short>(queryColCount(query)); fieldCount < 1)
+    if (const auto fieldCount = static_cast<short>(queryColCount(query)); fieldCount < 1)
     {
         return;
     }
@@ -366,8 +366,6 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
         case DatabaseObjectType::DATABASES:
             objectsSQL =
                 "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
-            break;
-        default:
             break;
     }
 
@@ -483,7 +481,7 @@ map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConne
 
 [[maybe_unused]] void* mysqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    const auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     MySQLConnection::s_mysqlConnections[connection.get()] = connection;
     return connection.get();
 }

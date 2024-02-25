@@ -98,7 +98,7 @@ IF (WIN32)
             -DGTEST_LANG_CXX11=1
     )
     ADD_COMPILE_OPTIONS(/wd4275 /std:c++20 /W4)
-    LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp)
+    LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp crypt32 secur32 shlwapi)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         ADD_DEFINITIONS(
