@@ -28,6 +28,20 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketPool.h>
 
+#ifdef _WIN32
+#include <wepoll.h>
+#else
+#include <sys/epoll.h>
+#endif
+
+using SocketEventBase = epoll_event;
+
+class SocketEvent : public SocketEventBase
+{
+public:
+    bool m_enabled {true};
+};
+
 using namespace std;
 using namespace sptk;
 
@@ -107,7 +121,8 @@ void SocketPool::forgetSocket(const Socket& socket)
 
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
-    const int eventCount = epoll_wait(m_pool, m_events.data(), maxEvents, (int) timeout.count());
+    std::array<epoll_event, maxEvents> events {};
+    const int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
         if (m_pool == INVALID_EPOLL)
@@ -120,7 +135,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 
     for (int i = 0; i < eventCount; ++i)
     {
-        epoll_event& event = m_events[i];
+        auto& event = events[i];
 
         SocketEventType eventType;
         eventType.m_data = event.events & EPOLLIN;

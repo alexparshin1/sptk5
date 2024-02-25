@@ -30,6 +30,7 @@
 #include <iostream>
 #include <signal.h>
 #include <string.h>
+#include <sys/event.h>
 #include <unistd.h>
 
 using namespace std;
@@ -121,6 +122,7 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
     static const struct timespec timeout = {time_t(timeoutMS.count() / 1000),
                                             long((timeoutMS.count() % 1000) * 1000000)};
 
+    std::array<struct kevent, maxEvents> events {};
     int eventCount = kevent(m_pool, NULL, 0, m_events.data(), maxEvents, &timeout);
     if (eventCount < 0)
     {
