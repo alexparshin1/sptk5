@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <format>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/threads/Thread.h>
 
@@ -140,11 +141,11 @@ mutex* CSSLLibraryLoader::m_locks;
 
 [[maybe_unused]] CSSLLibraryLoader CSSLLibraryLoader::m_loader;
 
-void SSLSocket::throwSSLError(const String& function, int resultCode) const
+void SSLSocket::throwSSLError(const String& function, int resultCode, source_location location) const
 {
     const int errorCode = sslGetErrorCode(resultCode);
     auto error = sslGetErrorString(function.c_str(), errorCode);
-    throw Exception(error);
+    throw Exception(error, location);
 }
 
 SSLSocket::SSLSocket(String cipherList)
@@ -157,16 +158,29 @@ SSLSocket::~SSLSocket()
     sslFree();
 }
 
+void checkFileExists(const String& filename)
+{
+    if (!filename.empty() && !filesystem::exists(filename.c_str()))
+    {
+        throw Exception(format("File {} doesn't exis", filename.c_str()));
+    }
+}
+
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
     if (fd() != INVALID_SOCKET)
     {
         throw Exception("Can't set keys on opened socket");
     }
+
+    checkFileExists(m_keys.caFileName());
+    checkFileExists(m_keys.certificateFileName());
+    checkFileExists(m_keys.privateKeyFileName());
+
     m_keys = keys;
 }
 
-void SSLSocket::setSNIHostName(const String& sniHostName)
+[[maybe_unused]] void SSLSocket::setSNIHostName(const String& sniHostName)
 {
     m_sniHostName = sniHostName;
 }

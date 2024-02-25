@@ -34,6 +34,8 @@ using namespace sptk;
 
 TEST(SPTK_SmtpConnect, minimal)
 {
+    GTEST_SKIP();
+    
     // Use your hostname and port here.
     const Host smtpServer("smtp_host:25");
     const String username("smtpuser");

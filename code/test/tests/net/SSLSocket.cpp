@@ -27,7 +27,6 @@
 #include <future>
 #include <gtest/gtest.h>
 #include <sptk5/cnet>
-#include <sptk5/threads/Thread.h>
 
 using namespace std;
 using namespace sptk;
@@ -41,7 +40,7 @@ TEST(SPTK_SSLSocket, connect)
     try
     {
         sslSocket.loadKeys(keys); // Optional step - not required for Google connect
-        sslSocket.open(Host("www.google.com:443"));
+        sslSocket.open(Host("www.msn.com:443"));
         sslSocket.close();
     }
     catch (const Exception& e)

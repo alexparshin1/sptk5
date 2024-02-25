@@ -108,11 +108,9 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
         Timer timer;
 
         vector<STimerEvent> createdEvents;
-        constexpr milliseconds repeatInterval {20};
-        constexpr milliseconds testInterval {110};
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            auto event = timer.repeat(repeatInterval,
+            auto event = timer.repeat(20ms,
                                       [&totalEvents, &eventCounterMutex] {
                                           const scoped_lock lock(eventCounterMutex);
                                           totalEvents++;
@@ -120,7 +118,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
             createdEvents.push_back(event);
         }
 
-        this_thread::sleep_for(testInterval);
+        this_thread::sleep_for(110ms);
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
@@ -128,7 +126,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
             event->cancel();
         }
 
-        this_thread::sleep_for(repeatInterval);
+        this_thread::sleep_for(20ms);
 
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
     }

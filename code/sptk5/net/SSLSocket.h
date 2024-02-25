@@ -52,7 +52,7 @@ public:
      * @param function          SSL function name
      * @param resultCode        SSL function return code
      */
-    [[noreturn]] void throwSSLError(const String& function, int resultCode) const;
+    [[noreturn]] void throwSSLError(const String& function, int resultCode, std::source_location location = std::source_location::current()) const;
 
     /**
      * Constructor
@@ -83,7 +83,7 @@ public:
      * This method only affects next connection.
      * @param sniHostName           SNI host name
      */
-    void setSNIHostName(const String& sniHostName);
+    [[maybe_unused]] void setSNIHostName(const String& sniHostName);
 
     /**
      * Returns SSL handle

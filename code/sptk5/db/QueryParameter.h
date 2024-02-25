@@ -55,7 +55,7 @@ public:
     /**
      * Returns internal parameter binding count
      */
-    uint32_t bindCount() const;
+    [[nodiscard]] uint32_t bindCount() const;
 
     /**
      * Returns the parameter bing position by index in the binding list
@@ -95,7 +95,7 @@ public:
     /**
      * Returns parameter name
      */
-    String name() const;
+    [[nodiscard]] String name() const;
 
     /**
      * Set parameter type to output
@@ -253,7 +253,7 @@ public:
     /**
      * Returns true if parameter is output parameter
      */
-    bool isOutput() const
+    [[nodiscard]] bool isOutput() const
     {
         return m_binding.m_output;
     }
@@ -262,7 +262,7 @@ public:
      * The last successfull binding information
      * @return binding information
      */
-    QueryParameterBinding& binding()
+    [[nodiscard]] QueryParameterBinding& binding()
     {
         return m_binding;
     }

@@ -87,22 +87,22 @@ public:
     /**
      * @brief Returns complete text of exception
      */
-    const char* what() const noexcept override;
+    [[nodiscard]] const char* what() const noexcept override;
 
     /**
      * @brief Returns exception message without file name, line number, or description
      */
-    String message() const;
+    [[nodiscard]] String message() const;
 
     /**
      * @brief Returns exception location
      */
-    std::source_location location() const;
+    [[nodiscard]] std::source_location location() const;
 
     /**
      * @brief Returns exception description
      */
-    String description() const;
+    [[nodiscard]] String description() const;
 };
 
 /**
@@ -130,7 +130,7 @@ public:
      * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    TimeoutException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
+    [[maybe_unused]] TimeoutException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -153,7 +153,7 @@ public:
      * @param location          The location where exception occurs
      * @param description       The optional description information
      */
-    ConnectionException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
+    explicit ConnectionException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
      * @brief Copy constructor
@@ -237,7 +237,7 @@ public:
      * Get HTTP status code
      * @return HTTP status code
      */
-    size_t statusCode() const
+    [[nodiscard]] size_t statusCode() const
     {
         return m_statusCode;
     }
@@ -246,7 +246,7 @@ public:
      * Get HTTP status text
      * @return HTTP status text
      */
-    String statusText() const
+    [[nodiscard]] String statusText() const
     {
         return m_statusText;
     }
@@ -256,7 +256,7 @@ public:
      * @param statusCode
      * @return
      */
-    static String httpResponseStatus(size_t statusCode);
+    [[nodiscard]] static String httpResponseStatus(size_t statusCode);
 };
 
 /**

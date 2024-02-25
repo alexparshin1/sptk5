@@ -71,7 +71,7 @@ String Exception::description() const
     return m_description;
 }
 
-TimeoutException::TimeoutException(const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+[[maybe_unused]] TimeoutException::TimeoutException(const String& text, const std::source_location& location, const String& description) DOESNT_THROW
     : Exception(text, location, description)
 {
 }

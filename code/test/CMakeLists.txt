@@ -26,6 +26,8 @@ FILE(COPY        ${CMAKE_SOURCE_DIR}/test/settings.txt
      DESTINATION ${CMAKE_BINARY_DIR}/test)
 FILE(COPY        ${CMAKE_SOURCE_DIR}/test/data
      DESTINATION ${CMAKE_BINARY_DIR}/test)
+FILE(COPY        ${CMAKE_SOURCE_DIR}/test/keys
+     DESTINATION ${CMAKE_BINARY_DIR}/test)
 
 ENDIF ()
 

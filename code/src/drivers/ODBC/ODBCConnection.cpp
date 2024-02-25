@@ -303,13 +303,13 @@ void ODBCConnection::queryExecute(Query* query)
             result = SQLParamData(query->statement(), bit_cast<SQLPOINTER*>(&parameter));
             if (result == SQL_NEED_DATA)
             {
-               const auto len = static_cast<SQLLEN>(parameter->dataSize());
-               const auto buff = bit_cast<SQLPOINTER>(parameter->getText());
-               if (SQLPutData(query->statement(), buff, len) != SQL_SUCCESS)
-               {
-                   break;
-               }
-               continue;
+                const auto len = static_cast<SQLLEN>(parameter->dataSize());
+                const auto buff = bit_cast<SQLPOINTER>(parameter->getText());
+                if (SQLPutData(query->statement(), buff, len) != SQL_SUCCESS)
+                {
+                    break;
+                }
+                continue;
             }
             if (result == SQL_SUCCESS)
             {
@@ -439,7 +439,7 @@ void bindLOB(QueryParameter* parameter, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& 
         buff = static_cast<SQLPOINTER>(parameter);
     }
 }
-}
+} // namespace
 
 void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 {
@@ -651,14 +651,7 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
             dataType = VariantDataType::VAR_TEXT;
         }
 
-        if (!columnName.empty())
-        {
-            columnNameStr = columnName.data();
-        }
-        else
-        {
-            columnNameStr = format("column{:02}", column);
-        }
+        columnNameStr = columnName.data();
 
         if (columnLength > FETCH_BUFFER_SIZE)
         {
@@ -670,7 +663,7 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
             columnScale = 0;
         }
 
-        auto field = make_shared<ODBCField>(columnNameStr, cType, dataType, columnLength, columnScale);
+        auto field = make_shared<ODBCField>(columnName.data(), cType, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }

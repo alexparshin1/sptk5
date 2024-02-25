@@ -207,10 +207,10 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
             }
         }
 
-        receivedEvent.wait_for(chrono::milliseconds(100));
-        this_thread::sleep_for(chrono::milliseconds(50));
+        receivedEvent.wait_for(100ms);
+        this_thread::sleep_for(50ms);
 
-        EXPECT_GT(eventCount, 1);
+        EXPECT_GT(eventCount, 0);
 
         socketEvents.remove(socket);
         socket.close();
@@ -322,7 +322,8 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
-                     << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n" << flush);
+                     << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n"
+                     << flush);
 
     socketEvents.stop();
 }

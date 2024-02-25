@@ -25,7 +25,6 @@
 */
 
 #include "sptk_unit_tests.h"
-#include "TestSettings.h"
 #include <sptk5/RegularExpression.h>
 #include <sptk5/test/TestRunner.h>
 
