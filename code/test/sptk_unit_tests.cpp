@@ -35,7 +35,7 @@ using namespace sptk;
 void atesting()
 {
     vector<RegularExpression> values;
-    RegularExpression x("");
+    const RegularExpression x("");
     values.push_back(x);
     values.emplace_back("xxx");
 }
@@ -44,9 +44,7 @@ int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
 
-    filesystem::path executablePath(argv[0]);
-    const auto settingsPath = executablePath.replace_filename("settings.txt");
-    g_testSettings->load(settingsPath);
+    g_testSettings->load("settings.txt");
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));

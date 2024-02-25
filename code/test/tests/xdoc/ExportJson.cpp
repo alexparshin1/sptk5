@@ -32,6 +32,8 @@ using namespace sptk;
 
 TEST(SPTK_XDocument, xmlToJson)
 {
+    auto cwd = filesystem::current_path();
+
     xdoc::Document document;
     Buffer buffer;
 

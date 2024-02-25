@@ -54,21 +54,21 @@ TEST(SPTK_XmlXMLDocType, parseEntity)
 
 TEST(SPTK_XmlXMLDocType, decodeEncodeEntities)
 {
-    String testString1("<'test1'> value");
-    String testString2(R"(<v a='test1'>value</v>)");
+    const String testString1("<'test1'> value");
+    const String testString2(R"(<v a='test1'>value</v>)");
 
     Buffer encoded;
     Buffer decoded;
-    xdoc::XMLDocType docType("x");
+    XMLDocType docType("x");
 
     docType.encodeEntities(testString1.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.size(), decoded);
+    docType.decodeEntities(encoded.c_str(), static_cast<uint32_t>(encoded.size()), decoded);
     EXPECT_STREQ(testString1.c_str(), decoded.c_str());
 
     encoded.reset();
     decoded.reset();
 
     docType.encodeEntities(testString2.c_str(), encoded);
-    docType.decodeEntities(encoded.c_str(), (uint32_t) encoded.size(), decoded);
+    docType.decodeEntities(encoded.c_str(), static_cast<uint32_t>(encoded.size()), decoded);
     EXPECT_STREQ(testString2.c_str(), decoded.c_str());
 }
