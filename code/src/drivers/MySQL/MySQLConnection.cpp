@@ -25,7 +25,6 @@
 */
 
 #include "sptk5/db/BulkQuery.h"
-#include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/MySQLConnection.h>
 
@@ -146,7 +145,7 @@ void MySQLConnection::driverEndTransaction(bool commit)
 //-----------------------------------------------------------------------------------------------
 String MySQLConnection::queryError(const Query* query) const
 {
-    return format("{}, query: {}", mysql_error(m_connection.get()), query->sql().c_str());
+    return mysql_error(m_connection.get()) + string(", query: ") + query->sql();
 }
 
 void MySQLConnection::queryAllocStmt(Query* query)

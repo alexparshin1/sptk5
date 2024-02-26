@@ -35,37 +35,12 @@
 #include <mutex>
 
 #ifdef _WIN32
-
-// Windows
 #include <WS2tcpip.h>
 #include <WinSock2.h>
 #include <Windows.h>
-#include <wepoll.h>
-using SocketEventBase = epoll_event;
-
-#else
-
-#if __linux__ == 1
-// Linux
-#include <sys/epoll.h>
-
-using SocketEventBase = epoll_event;
-
-#else
-// BSD
-#include <sys/event.h>
-using SocketEventBase = struct kevent;
-
-#endif
 #endif
 
 namespace sptk {
-
-class SocketEvent : public SocketEventBase
-{
-public:
-    bool m_enabled {true};
-};
 
 enum class SocketEventAction
 {
@@ -187,7 +162,6 @@ private:
     SocketEventCallback m_eventsCallback;               ///< Sockets event callback function
     static const int maxEvents = 128;                   ///< Maximum number of socket events per poll
     TriggerMode m_triggerMode;                          ///< Socket event trigger mode
-    std::array<SocketEventBase, maxEvents> m_events {}; ///< Socket events received by epoll
 
     void processError(int error, const String& operation) const;
 };

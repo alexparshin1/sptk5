@@ -27,11 +27,11 @@
 #include <sptk5/Exception.h>
 #include <sptk5/RegularExpression.h>
 
-#include <format>
 #include <utility>
 
 using namespace std;
 using namespace sptk;
+
 
 Exception::Exception(String text, const std::source_location& location, String description) noexcept
     : m_location(location)
@@ -43,7 +43,7 @@ Exception::Exception(String text, const std::source_location& location, String d
 
     const String fileName = filePath.filename().string();
     filePath = filePath.parent_path().filename() / fileName.c_str();
-    m_fullMessage += format(" in {}({})", filePath.string(), m_location.line());
+    m_fullMessage += " in " + filePath.string() + "(" + to_string(m_location.line()) + ")";
 
     if (!m_description.empty())
     {
