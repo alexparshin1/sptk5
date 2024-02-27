@@ -303,6 +303,18 @@ public:
         return getBlockingModeUnlocked();
     }
 
+#ifdef _WIN32
+    /**
+     * WinSock initialization
+     */
+    static void init() noexcept;
+
+    /**
+     * WinSock cleanup
+     */
+    static void cleanup() noexcept;
+#endif
+
 protected:
     /**
      * Get socket domain type
@@ -327,18 +339,6 @@ protected:
     {
         return getProtocolUnlocked();
     }
-
-#ifdef _WIN32
-    /**
-     * WinSock initialization
-     */
-    static void init() noexcept;
-
-    /**
-     * WinSock cleanup
-     */
-    static void cleanup() noexcept;
-#endif
 
     /**
      * @brief Get socket event data, used by SocketPool class

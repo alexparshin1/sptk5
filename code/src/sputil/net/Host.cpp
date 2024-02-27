@@ -33,8 +33,25 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+void checkSocketsInitialized()
+{
+#ifdef _WIN32
+    static mutex initMutex;
+    static bool initialized = false;
+    scoped_lock lock(initMutex);
+    if (!initialized)
+    {
+        Socket::init();
+        initialized = true;
+    }
+#endif
+}
+}
+
 Host::Host() noexcept
 {
+    checkSocketsInitialized();
     memset(&m_address, 0, sizeof(m_address));
 }
 
@@ -42,20 +59,21 @@ Host::Host(String hostname, uint16_t port)
     : m_hostname(std::move(hostname))
     , m_port(port)
 {
+    checkSocketsInitialized();
     getHostAddress();
     setPort(m_port);
 }
 
 Host::Host(const String& hostAndPort)
 {
+    checkSocketsInitialized();
     const RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
-    auto matches = matchHost.m(hostAndPort);
-    if (matches)
+    if (const auto matches = matchHost.m(hostAndPort))
     {
         m_hostname = matches[0].value;
         if (matches.groups().size() > 1)
         {
-            m_port = (uint16_t) string2int(matches[1].value.substr(1));
+            m_port = static_cast<uint16_t>(string2int(matches[1].value.substr(1)));
         }
         getHostAddress();
         setPort(m_port);
@@ -68,6 +86,7 @@ Host::Host(const String& hostAndPort)
 
 Host::Host(const sockaddr_in* addressAndPort)
 {
+    checkSocketsInitialized();
     constexpr socklen_t addressLen = sizeof(sockaddr_in);
     memcpy(m_address.data(), addressAndPort, addressLen);
     m_port = htons(ip_v4().sin_port);
@@ -77,6 +96,7 @@ Host::Host(const sockaddr_in* addressAndPort)
 
 Host::Host(const sockaddr_in6* addressAndPort)
 {
+    checkSocketsInitialized();
     constexpr socklen_t addressLen = sizeof(sockaddr_in6);
 
     const auto* addressAndPort6 = addressAndPort;
@@ -151,10 +171,10 @@ void Host::setPort(uint16_t port)
     switch (any().sa_family)
     {
         case AF_INET:
-            ip_v4().sin_port = htons(uint16_t(m_port));
+            ip_v4().sin_port = htons(m_port);
             break;
         case AF_INET6:
-            ip_v6().sin6_port = htons(uint16_t(m_port));
+            ip_v6().sin6_port = htons(m_port);
             break;
         default:
             break;
@@ -163,27 +183,6 @@ void Host::setPort(uint16_t port)
 
 void Host::getHostAddress()
 {
-#ifdef _WIN32
-    const struct hostent* host_info = gethostbyname(m_hostname.c_str());
-    if (host_info == nullptr)
-        throwSocketError("Can't get host info for " + m_hostname);
-
-    const scoped_lock lock(m_mutex);
-    memset(&m_address, 0, sizeof(m_address));
-    any().sa_family = host_info->h_addrtype;
-
-    switch (any().sa_family)
-    {
-        case AF_INET:
-            memcpy(&ip_v4().sin_addr, host_info->h_addr, size_t(host_info->h_length));
-            break;
-        case AF_INET6:
-            memcpy(&ip_v6().sin6_addr, host_info->h_addr, size_t(host_info->h_length));
-            break;
-        default:
-            break;
-    }
-#else
     const scoped_lock lock(m_mutex);
 
     struct addrinfo hints = {};
@@ -203,7 +202,6 @@ void Host::getHostAddress()
     memcpy(&m_address, bit_cast<struct sockaddr_in*>(result->ai_addr), result->ai_addrlen);
 
     freeaddrinfo(result);
-#endif
 }
 
 String Host::toString(bool forceAddress) const
