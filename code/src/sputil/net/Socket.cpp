@@ -30,8 +30,7 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static int m_socketCount;
-static bool m_initted(false);
+static atomic_bool winsockInitted(false);
 #endif
 
 void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds)
@@ -42,9 +41,9 @@ void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono
 #ifdef _WIN32
 void Socket::init() noexcept
 {
-    if (m_initted)
+    if (winsockInitted)
         return;
-    m_initted = true;
+    winsockInitted = true;
     WSADATA wsaData = {};
     constexpr WORD wVersionRequested = MAKEWORD(2, 0);
     WSAStartup(wVersionRequested, &wsaData);
@@ -52,7 +51,7 @@ void Socket::init() noexcept
 
 void Socket::cleanup() noexcept
 {
-    m_initted = false;
+    winsockInitted = false;
     WSACleanup();
 }
 #endif
@@ -63,7 +62,6 @@ Socket::Socket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
 {
 #ifdef _WIN32
     init();
-    m_socketCount++;
 #endif
 }
 

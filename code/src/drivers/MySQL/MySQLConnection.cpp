@@ -381,7 +381,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
     catch (const Exception& e)
     {
-        CERR("Error fetching system info: " << e.what() << endl);
+        CERR("Error fetching system info: " << e.what() << '\n');
     }
 }
 
