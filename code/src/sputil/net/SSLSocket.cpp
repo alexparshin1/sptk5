@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <format>
 #include <sptk5/net/SSLSocket.h>
 #include <sptk5/threads/Thread.h>
 
@@ -38,12 +37,6 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
-
-#ifndef _WIN32
-#define SOCKET_CAST
-#else
-#define SOCKET_CAST (int)
-#endif
 
 // OpenSSL library initialization
 class CSSLLibraryLoader
@@ -162,7 +155,7 @@ void checkFileExists(const String& filename)
 {
     if (!filename.empty() && !filesystem::exists(filename.c_str()))
     {
-        throw Exception(format("File {} doesn't exis", filename.c_str()));
+        throw Exception("File " + filename + " doesn't exist");
     }
 }
 

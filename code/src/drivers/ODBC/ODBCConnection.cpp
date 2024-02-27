@@ -26,7 +26,6 @@
 
 #include "sptk5/db/BulkQuery.h"
 #include <array>
-#include <format>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/ODBCConnection.h>
@@ -539,8 +538,8 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 
             default:
                 throw DatabaseException(
-                    format("Unsupported parameter type {} for parameter '{}'",
-                           static_cast<int>(parameter->dataType()), parameter->name().c_str()));
+                    "Unsupported parameter type " + to_string(static_cast<int>(parameter->dataType())) +
+                    " for parameter '" + parameter->name() + "'");
         }
 
         const auto resultCode = SQLBindParameter(query->statement(), static_cast<SQLUSMALLINT>(paramNumber), inputOutputMode, paramType, valueType,
@@ -548,7 +547,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
         if (resultCode != SQL_SUCCESS)
         {
             parameter->binding().reset(false);
-            THROW_QUERY_ERROR(query, format("Can't bind parameter {}", paramNumber));
+            THROW_QUERY_ERROR(query, "Can't bind parameter " + to_string(paramNumber));
         }
     }
 }

@@ -33,8 +33,6 @@
 #include <gtest/gtest.h>
 #endif
 
-#include <format>
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
@@ -451,7 +449,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
         auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         if (count != maxRecords)
         {
-            throw Exception(format("count != {} after commit", maxRecords));
+            throw Exception("count != " + to_string(maxRecords) + "after commit");
         }
     }
     else
@@ -489,7 +487,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
     if (auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         count != maxRecords)
     {
-        throw Exception(format("count {} != {}", count, maxRecords));
+        throw Exception("count " + to_string(count) + " != " + to_string(maxRecords));
     }
     return maxRecords;
 }
@@ -981,8 +979,7 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
                          [](const auto& field) {
                              if (!field->isNull())
                              {
-                                 throw Exception(format("Field {} = [{}] but null is expected",
-                                                        field->fieldName().c_str(), field->asString().c_str()));
+                                 throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
                              }
                          });
 

@@ -27,7 +27,6 @@
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
 #include "sptk5/db/BulkQuery.h"
-#include <format>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseField.h>
 
@@ -48,7 +47,7 @@ public:
     {
         if (prepared)
         {
-            m_stmtName = format("S{:05}", nextIndex());
+            m_stmtName = "S" + to_string(nextIndex());
         }
     }
 
@@ -272,7 +271,7 @@ void checkError(const PGconn* conn, PGresult* res, const String& command,
     const auto statusCode = PQresultStatus(res);
     if (statusCode != expectedResult)
     {
-        const auto error = format("{} command failed: {}", command.c_str(), PQerrorMessage(conn));
+        const auto error = command + " command failed: " + string(PQerrorMessage(conn));
         PQclear(res);
         throw DatabaseException(error);
     }
@@ -593,8 +592,8 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
 
         default:
             throw DatabaseException(
-                format("Unsupported parameter type {} for parameter '{}'",
-                       static_cast<int>(dataType), paramName.c_str()));
+                "Unsupported parameter type " + to_string(static_cast<int>(dataType)) + 
+                    " for parameter '" + paramName + "'");
     }
 }
 
@@ -650,7 +649,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
 
             if (columnName.empty())
             {
-                columnName = format("column{:02}", column + 1);
+                columnName = "column_" + to_string(column + 1);
             }
 
             auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
@@ -1130,7 +1129,7 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    return format("${}", paramIndex + 1);
+    return "$" + to_string(paramIndex + 1);
 }
 
 void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
