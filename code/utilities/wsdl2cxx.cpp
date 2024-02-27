@@ -36,17 +36,14 @@ using namespace sptk;
 
 void help()
 {
-    COUT("WSDL to C++ prototype parser. (C) 2012-2023 Alexey Parshin" << endl
-                                                                      << endl);
-    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation." << endl);
-    COUT("Usage:" << endl
-                  << endl);
-    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]" << endl
-                                                                   << endl);
-    COUT("Parameters:" << endl);
-    COUT("WSDL file         WSDL file that defines Web Service" << endl);
-    COUT("output directory  Directory where generated files will be stored" << endl);
-    COUT("header file       File that contains text too be added at the start of generated files" << endl);
+    COUT("WSDL to C++ prototype parser. (C) 2012-2023 Alexey Parshin\n\n");
+    COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation.\n");
+    COUT("Usage:\n\n");
+    COUT("  wsdl2cxx <WSDL file> [output directory [header file]]\n\n");
+    COUT("Parameters:\n");
+    COUT("WSDL file         WSDL file that defines Web Service\n");
+    COUT("output directory  Directory where generated files will be stored\n");
+    COUT("header file       File that contains text too be added at the start of generated files\n");
 }
 
 #ifdef _WIN32
@@ -120,7 +117,8 @@ auto parseOperationsAuth(const String& operationsAuth)
     return output;
 }
 
-static bool createDirectory(const String& directory)
+namespace {
+bool createDirectory(const String& directory)
 {
     try
     {
@@ -128,24 +126,25 @@ static bool createDirectory(const String& directory)
     }
     catch (const filesystem::filesystem_error& e)
     {
-        CERR("Can't create output directory '" << directory << "': " << e.what() << endl);
+        CERR("Can't create output directory '" << directory << "': " << e.what() << '\n');
         return false;
     }
     return true;
 }
+} // namespace
 
 int main(int argc, const char* argv[])
 {
-    AppCommandLine commandLine;
     int rc = 0;
 
     try
     {
+        AppCommandLine commandLine;
         size_t screenColumns = 80;
         if (const auto* colsStr = getenv("COLS");
             colsStr != nullptr)
         {
-            screenColumns = (size_t) string2int(colsStr);
+            screenColumns = static_cast<size_t>(string2int(colsStr));
         }
 
         commandLine.init(argc, argv);
@@ -156,9 +155,9 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        filesystem::path wsdlFile = commandLine.arguments().front().c_str();
-        auto quiet = commandLine.hasOption("quiet");
-        auto verbose = commandLine.hasOption("verbose");
+        const filesystem::path wsdlFile = commandLine.arguments().front().c_str();
+        const auto quiet = commandLine.hasOption("quiet");
+        const auto verbose = commandLine.hasOption("verbose");
 
         WSParser wsParser;
 
@@ -168,8 +167,8 @@ int main(int argc, const char* argv[])
             outputDirectory = ".";
         }
 
-        auto headerFile = commandLine.getOptionValue("cxx-header").trim();
-        auto serviceNamespace = commandLine.getOptionValue("cxx-namespace").trim();
+        const auto headerFile = commandLine.getOptionValue("cxx-header").trim();
+        const auto serviceNamespace = commandLine.getOptionValue("cxx-namespace").trim();
 
         if (outputDirectory != "." && access(outputDirectory.c_str(), 0) < 0 && !createDirectory(outputDirectory))
         {
@@ -178,10 +177,10 @@ int main(int argc, const char* argv[])
 
         if (!quiet && verbose)
         {
-            COUT("Input WSDL file:             " << wsdlFile << endl);
-            COUT("Generate files to directory: " << wsdlFile << endl);
+            COUT("Input WSDL file:             " << wsdlFile << '\n');
+            COUT("Generate files to directory: " << wsdlFile << '\n');
             if (!headerFile.empty())
-                COUT("Using C++ header file:       " << headerFile << endl);
+                COUT("Using C++ header file:       " << headerFile << '\n');
         }
 
         OpenApiGenerator::Options options;
@@ -195,7 +194,7 @@ int main(int argc, const char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what() << '\n');
         rc = 1;
     }
 

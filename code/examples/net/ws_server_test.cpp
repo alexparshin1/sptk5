@@ -72,8 +72,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << endl
-                                      << "Exiting." << endl);
+        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
         return 1;
     }
     COUT("Server session closed" << endl);

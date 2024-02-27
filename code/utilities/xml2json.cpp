@@ -6,17 +6,13 @@ using namespace sptk;
 
 void printHelp(const String& progName, const String& error = "")
 {
-    COUT("Convertor of XML to JSON and back"
-         << endl
-         << endl
-         << "Syntax:" << endl
-         << progName << " <filename>" << endl
-         << endl);
+    COUT("Convertor of XML to JSON and back\n\n"
+         << "Syntax:\n"
+         << progName << " <filename>\n\n");
     if (!error.empty())
     {
-        COUT("Error: "
-             << error << endl
-             << endl);
+        CERR("Error: "
+             << error << "\n\n");
     }
 }
 
@@ -28,20 +24,20 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
-    RegularExpression matchExtension(R"(^(.*)\.(xml|json)$)", "i");
-    auto matches = matchExtension.m(argv[1]);
+    const RegularExpression matchExtension(R"(^(.*)\.(xml|json)$)", "i");
+    const auto matches = matchExtension.m(argv[1]);
     if (!matches)
     {
         printHelp(argv[0], "Invalid file extension");
         return 1;
     }
 
-    auto extension = matches[1].value.toLowerCase();
+    const auto extension = matches[1].value.toLowerCase();
 
-    xdoc::Document document;
-    Buffer documentData;
     try
     {
+        const xdoc::Document document;
+        Buffer documentData;
         documentData.loadFromFile(argv[1]);
         document.load(documentData);
         String outputFileName;

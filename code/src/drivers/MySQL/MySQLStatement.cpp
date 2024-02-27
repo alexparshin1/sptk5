@@ -110,7 +110,7 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
     short hour = 0;
     short minute = 0;
     short second = 0;
-    short msecond = 0;
+    short millisecond = 0;
 
     memset(&mysqlDate, 0, sizeof(MYSQL_TIME));
     timestamp.decodeDate(&year, &month, &day, &weekDay, &yearDay);
@@ -123,11 +123,11 @@ void MySQLStatement::dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& 
     }
     else
     {
-        timestamp.decodeTime(&hour, &minute, &second, &msecond);
+        timestamp.decodeTime(&hour, &minute, &second, &millisecond);
         mysqlDate.hour = static_cast<unsigned>(hour);
         mysqlDate.minute = static_cast<unsigned>(minute);
         mysqlDate.second = static_cast<unsigned>(second);
-        mysqlDate.second_part = static_cast<unsigned>(msecond);
+        mysqlDate.second_part = static_cast<unsigned>(millisecond);
         mysqlDate.time_type = MYSQL_TIMESTAMP_DATETIME;
     }
 }
@@ -138,7 +138,7 @@ void MySQLStatement::enumerateParams(QueryParameterList& queryParams)
     const auto paramCount = enumeratedParams().size();
     m_paramBuffers.resize(paramCount);
     m_paramLengths.resize(paramCount);
-    MYSQL_BIND* paramBuffers = &m_paramBuffers[0];
+    MYSQL_BIND* paramBuffers = m_paramBuffers.data();
     if (paramCount != 0)
     {
         memset(paramBuffers, 0, sizeof(MYSQL_BIND) * paramCount);
@@ -159,8 +159,6 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
 
         case MYSQL_TYPE_SHORT:
         case MYSQL_TYPE_YEAR:
-            return VariantDataType::VAR_INT;
-
         case MYSQL_TYPE_LONG:
             return VariantDataType::VAR_INT;
 
@@ -321,7 +319,7 @@ void MySQLStatement::setParameterValues()
     }
 
     // Bind the buffers
-    if (mysql_stmt_bind_param(statement(), &m_paramBuffers[0]) != 0)
+    if (mysql_stmt_bind_param(statement(), m_paramBuffers.data()) != 0)
     {
         throwMySQLError();
     }
@@ -474,7 +472,7 @@ void MySQLStatement::bindResult(FieldList& fields)
 
             field->bindCallbacks(&bind);
         }
-        if (mysql_stmt_bind_result(statement(), &m_fieldBuffers[0]) != 0)
+        if (mysql_stmt_bind_result(statement(), m_fieldBuffers.data()) != 0)
         {
             throwMySQLError();
         }
