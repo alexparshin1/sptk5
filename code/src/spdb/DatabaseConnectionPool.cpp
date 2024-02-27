@@ -102,8 +102,8 @@ void DatabaseConnectionPool::load()
 #endif
 
     // Creating the driver instance
-    const auto createConnectionFunctionName = format("{}CreateConnection", driverNameLC.c_str());
-    const auto destroyConnectionFunctionName = format("{}DestroyConnection", driverNameLC.c_str());
+    const auto createConnectionFunctionName = driverNameLC + "CreateConnection";
+    const auto destroyConnectionFunctionName = driverNameLC + "DestroyConnection";
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, createConnectionFunctionName.c_str());
     if (!createConnection)

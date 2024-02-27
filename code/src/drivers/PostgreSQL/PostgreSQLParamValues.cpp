@@ -196,8 +196,8 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             default:
                 throw DatabaseException(
-                    format("Unsupported parameter type({}) for parameter '{}'",
-                           to_string((int) param->dataType()), param->name().c_str()));
+                    "Unsupported parameter type(" + to_string((int) param->dataType()) +
+                    ") for parameter '" + param->name() + "'");
         }
     }
 }

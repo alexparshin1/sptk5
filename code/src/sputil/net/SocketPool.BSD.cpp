@@ -64,7 +64,6 @@ void SocketPool::close()
 
     ::shutdown(m_pool, SHUT_RDWR);
 
-    m_socketData.clear();
     m_pool = INVALID_SOCKET;
 }
 
@@ -100,7 +99,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     }
 }
 
-void SocketPool::forgetSocket(Socket& socket)
+void SocketPool::forgetSocket(const Socket& socket)
 {
     const scoped_lock lock(*this);
 
@@ -123,7 +122,7 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
                                             long((timeoutMS.count() % 1000) * 1000000)};
 
     std::array<struct kevent, maxEvents> events {};
-    int eventCount = kevent(m_pool, NULL, 0, m_events.data(), maxEvents, &timeout);
+    int eventCount = kevent(m_pool, NULL, 0, events.data(), maxEvents, &timeout);
     if (eventCount < 0)
     {
         if (m_pool == INVALID_SOCKET)
@@ -135,7 +134,7 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
 
     for (int i = 0; i < eventCount; i++)
     {
-        struct kevent& event = m_events[i];
+        auto& event = events[i];
 
         SocketEventType eventType {};
         eventType.m_data = event.data > 0;

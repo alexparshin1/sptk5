@@ -114,11 +114,11 @@ void WSRequest::logError(const String& requestName, const String& error, int err
         Logger logger(*m_logEngine);
         if (errorCode != 0)
         {
-            logger.error(format("{}: {} {}", requestName.c_str(), errorCode, error.c_str()));
+            logger.error(requestName + ": " + requestName.c_str() + to_string(errorCode) + " " + error);
         }
         else
         {
-            logger.error(format("{}: {}", requestName.c_str(), error.c_str()));
+            logger.error(requestName + ": " + error);
         }
     }
 }

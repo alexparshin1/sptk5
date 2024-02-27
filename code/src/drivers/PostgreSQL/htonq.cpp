@@ -25,6 +25,7 @@
 */
 
 #ifndef WIN32
+#include <cstdint>
 #include <arpa/inet.h>
 #else
 #include <cstdint>

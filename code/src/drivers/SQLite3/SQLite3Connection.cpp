@@ -332,8 +332,8 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
                 default:
                     throw DatabaseException(
-                        vformat("Unsupported parameter type ({}) for parameter '{}'",
-                                make_format_args((int) param->dataType(), param->name().c_str())));
+                            "Unsupported parameter type (" + to_string((int) param->dataType()) +
+                            ") for parameter '" + param->name() + "'");
             }
         }
 
@@ -342,7 +342,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
             const String error = sqlite3_errmsg(m_connect.get());
             sqlite3_finalize(stmt);
             throw DatabaseException(
-                vformat("{}, in binding parameter '{}'", make_format_args(error.c_str(), param->name().c_str())),
+                error + ", in binding parameter '" + param->name() + "'",
                 source_location::current(), query->sql());
         }
     }
@@ -407,7 +407,7 @@ void SQLite3Connection::queryOpen(Query* query)
         String columnName(sqlite3_column_name(stmt, column - 1));
         if (columnName.empty())
         {
-            columnName = format("column_{}", column);
+            columnName = "column_" + to_string(column);
         }
 
         auto field = make_shared<SQLite3Field>(columnName);
@@ -535,7 +535,7 @@ void SQLite3Connection::queryFetch(Query* query)
         {
             const auto fieldName = field != nullptr ? field->fieldName() : "";
             throw DatabaseException(
-                vformat("Can't read field '{}': {}", make_format_args(fieldName.c_str(), e.what())),
+                "Can't read field '" + fieldName + "': " + string(e.what()),
                 source_location::current(), query->sql());
         }
     }
