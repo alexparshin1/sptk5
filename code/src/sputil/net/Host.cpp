@@ -47,7 +47,7 @@ void checkSocketsInitialized()
     }
 #endif
 }
-}
+} // namespace
 
 Host::Host() noexcept
 {
@@ -242,11 +242,11 @@ String Host::toString(bool forceAddress) const
 
         if (any().sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
         {
-            str = format("[{}]:{}", address.c_str(), m_port);
+            str = "[" + address + "]:" + to_string(m_port);
         }
         else
         {
-            str = format("{}:{}", address.c_str(), m_port);
+            str = address + ":" + to_string(m_port);
         }
     }
 
