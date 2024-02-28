@@ -210,7 +210,7 @@ void OracleOciConnection::executeMultipleStatements(const Strings& statements, S
         }
         catch (const ocilib::Exception& e)
         {
-            if (errors)
+            if (errors != nullptr)
             {
                 errors->push_back(e.what() + String(": ") + stmt);
             }
@@ -303,7 +303,7 @@ void OracleOciConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
     auto* statement = bit_cast<OracleOciStatement*>(query->statement());
-    if (statement)
+    if (statement != nullptr)
     {
         statement->close();
     }
@@ -413,15 +413,13 @@ void OracleOciConnection::queryOpen(Query* query)
     {
         return;
     }
-    else
+
+    querySetActive(query, true);
+    if (query->fieldCount() == 0)
     {
-        querySetActive(query, true);
-        if (query->fieldCount() == 0)
-        {
-            const scoped_lock lock(m_mutex);
-            const auto resultSet = statement->resultSet();
-            createQueryFieldsFromMetadata(query, resultSet);
-        }
+        const scoped_lock lock(m_mutex);
+        const auto resultSet = statement->resultSet();
+        createQueryFieldsFromMetadata(query, resultSet);
     }
 
     querySetEof(query, statement->eof());
