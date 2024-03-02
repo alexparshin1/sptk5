@@ -27,6 +27,8 @@
 #include "sptk5/net/SSLKeys.h"
 #include <sptk5/Buffer.h>
 
+#include <openssl/ssl.h>
+
 using namespace std;
 using namespace sptk;
 

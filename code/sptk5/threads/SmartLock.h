@@ -96,7 +96,7 @@ public:
      * @param sourceLocation    Lock location
      */
     explicit SmartLock(SmartMutex& mutex,
-                       std::chrono::milliseconds timeout = std::chrono::seconds(10),
+                       std::chrono::milliseconds timeout = std::chrono::seconds(5),
                        std::source_location sourceLocation = std::source_location::current())
         : m_mutex(mutex)
     {

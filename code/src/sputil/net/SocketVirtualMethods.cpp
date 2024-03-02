@@ -516,6 +516,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
 #endif
     switch (errno)
     {
+        case 0:
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);

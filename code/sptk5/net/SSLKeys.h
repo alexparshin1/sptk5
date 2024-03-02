@@ -30,7 +30,6 @@
 #include <sptk5/sptk.h>
 
 #include <mutex>
-#include <openssl/ssl.h>
 
 namespace sptk {
 
@@ -53,11 +52,11 @@ public:
      * @param certificateFileName   Certificate file name
      * @param password              Key file password
      * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE, or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
+     * @param verifyMode            Ether SSL_VERIFY_NONE (default), or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
     SSLKeys(String privateKeyFileName, String certificateFileName, String password = "",
-            String caFileName = "", int verifyMode = SSL_VERIFY_NONE, int verifyDepth = 0);
+            String caFileName = "", int verifyMode = 0, int verifyDepth = 0);
 
     /**
      * Copy constructor
@@ -120,7 +119,7 @@ private:
     String m_certificateFileName;
     String m_password;
     String m_caFileName;
-    int m_verifyMode {SSL_VERIFY_NONE};
+    int m_verifyMode {0};
     int m_verifyDepth {0};
 
     /**
