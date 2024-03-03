@@ -13,7 +13,7 @@ TARGET_LINK_LIBRARIES (bulk_insert_test sputil5 spdb5)
 
 IF (SQLITE3_LIBRARY)
   ADD_EXECUTABLE (sqlite3_test sqlite3_test.cpp)
-  TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5)
+  TARGET_LINK_LIBRARIES (sqlite3_test sputil5 spdb5 spdb5_sqlite3)
 
   INSTALL(
     TARGETS sqlite3_test

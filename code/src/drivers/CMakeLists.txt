@@ -36,11 +36,11 @@ IF (SQLITE3_FLAG)
 
     TARGET_LINK_LIBRARIES(spdb5_sqlite3 spdb5 sputil5 ${SQLITE3_LIBRARY})
 
-    INSTALL(
-            TARGETS spdb5_sqlite3
+    INSTALL(TARGETS spdb5_sqlite3
             RUNTIME DESTINATION bin COMPONENT db_sqlite3
             LIBRARY DESTINATION lib COMPONENT db_sqlite3
             ARCHIVE DESTINATION lib COMPONENT db_sqlite3)
+
 ENDIF (SQLITE3_FLAG)
 
 SET(POSTGRESQL_SOURCES)

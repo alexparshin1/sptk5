@@ -68,7 +68,7 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
             db->commitTransaction();
         }
         step6Query.open();
-        counter = step6Query[uint32_t(0)].asInteger();
+        counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT(endl
              << "        The temp table now has " << counter << " records.." << endl);
@@ -83,7 +83,7 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
 
 int main()
 {
-    DatabaseConnectionPool connectionPool("sqlite3://localhost/demo_db.sqlite3");
+    DatabaseConnectionPool connectionPool("sqlite3://localhost/tmp/demo_db.sqlite3");
     DatabaseConnection db = connectionPool.getConnection();
 
     try
