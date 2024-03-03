@@ -1,0 +1,2 @@
+#define WEPOLL_INTERNAL
+#define WEPOLL_INTERNAL_EXTERN extern

@@ -29,7 +29,7 @@
 #include <sptk5/net/SocketPool.h>
 
 #ifdef _WIN32
-#include <wepoll.h>
+#include "../wepoll/wepoll.h"
 #else
 #include <sys/epoll.h>
 #endif

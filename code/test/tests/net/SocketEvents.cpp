@@ -38,11 +38,15 @@ namespace {
 
 constexpr uint16_t testEchoServerPort = 5001;
 
+TCPSocket* echoSocket;
+
 /**
  * @brief Test TCP echo server function
  */
 void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
 {
+    echoSocket = &socket;
+
     SocketReader socketReader(socket);
     Buffer data;
     bool terminated = false;
@@ -326,4 +330,65 @@ TEST(SPTK_SocketEvents, performance)
                      << flush);
 
     socketEvents.stop();
+}
+
+/**
+ * @brief Test SocketEvents communication with echo server using LevelTriggered mode
+ */
+TEST(SPTK_SocketEvents, hangup)
+{
+    Semaphore socketHangupEvent;
+    shared_ptr<SocketReader> socketReader;
+
+    auto eventsCallback =
+        [&socketHangupEvent, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
+            Buffer line;
+
+            if (eventType.m_hangup)
+            {
+                socketHangupEvent.post();
+            }
+
+            return SocketEventAction::Continue;
+        };
+
+    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
+                              SocketPool::TriggerMode::LevelTriggered);
+
+    Buffer buffer;
+
+    try
+    {
+        TCPServer echoServer("TestServer");
+        echoServer.onConnection(echoTestFunction);
+        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
+
+        const Strings testRows({"Hello, World!",
+                                "This is a test of SocketEvents class.",
+                                "Using simple echo server to support data flow.",
+                                "The session is terminated when this row is received"});
+
+        TCPSocket socket;
+        socket.open(Host("localhost", testEchoServerPort));
+
+        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+
+        const auto bytes = socket.write("Test\n");
+        if (bytes <= 0)
+        {
+            FAIL() << "Client can't send data";
+        }
+
+        this_thread::sleep_for(10ms);
+        echoSocket->close();
+
+        const auto hangupReceived = socketHangupEvent.wait_for(100ms);
+        EXPECT_TRUE(hangupReceived);
+
+        socketEvents.remove(socket);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
 }
