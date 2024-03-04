@@ -1,0 +1,6 @@
+ADD_LIBRARY(sqlite3 STATIC sqlite3.c sqlite3.h)
+INSTALL(TARGETS sqlite3
+        RUNTIME DESTINATION bin COMPONENT db_sqlite3
+        LIBRARY DESTINATION lib COMPONENT db_sqlite3
+        ARCHIVE DESTINATION lib COMPONENT db_sqlite3)
+
