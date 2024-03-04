@@ -89,24 +89,24 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
     auto eventsCallback =
         [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
-            Buffer line;
+        Buffer line;
 
-            if (eventType.m_data)
+        if (eventType.m_data)
+        {
+            while (socketReader->readLine(line, '\n') != 0)
             {
-                while (socketReader->readLine(line, '\n') != 0)
-                {
-                    eventReceived.post();
-                    COUT("Client received: " << line.c_str() << '\n');
-                }
+                eventReceived.post();
+                COUT("Client received: " << line.c_str() << '\n');
             }
+        }
 
-            if (eventType.m_hangup)
-            {
-                COUT("Socket closed\n");
-            }
+        if (eventType.m_hangup)
+        {
+            COUT("Socket closed\n");
+        }
 
-            return SocketEventAction::Continue;
-        };
+        return SocketEventAction::Continue;
+    };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
                               SocketPool::TriggerMode::LevelTriggered);
@@ -140,7 +140,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
             }
         }
 
-        size_t receivedEventCount {0};
+        size_t receivedEventCount{0};
         while (eventReceived.wait_for(chrono::milliseconds(100)))
         {
             receivedEventCount++;
@@ -164,23 +164,23 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
 #ifndef _WIN32
-    atomic_size_t eventCount {0};
+    atomic_size_t eventCount{0};
     Semaphore receivedEvent;
 
     auto eventsCallback =
         [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
-            if (eventType.m_hangup)
-            {
-                return SocketEventAction::Forget;
-            }
-            else
-            {
-                receivedEvent.post();
-                eventCount++;
-            }
+        if (eventType.m_hangup)
+        {
+            return SocketEventAction::Forget;
+        }
+        else
+        {
+            receivedEvent.post();
+            eventCount++;
+        }
 
-            return SocketEventAction::Continue;
-        };
+        return SocketEventAction::Continue;
+    };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
                               SocketPool::TriggerMode::EdgeTriggered);
@@ -232,23 +232,23 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
-    atomic_size_t eventCount {0};
+    atomic_size_t eventCount{0};
     Semaphore receivedEvent;
 
     auto eventsCallback =
         [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
-            if (eventType.m_hangup)
-            {
-                return SocketEventAction::Forget;
-            }
-            else
-            {
-                receivedEvent.post();
-                ++eventCount;
-            }
+        if (eventType.m_hangup)
+        {
+            return SocketEventAction::Forget;
+        }
+        else
+        {
+            receivedEvent.post();
+            ++eventCount;
+        }
 
-            return SocketEventAction::Continue;
-        };
+        return SocketEventAction::Continue;
+    };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
                               SocketPool::TriggerMode::OneShot);
@@ -302,7 +302,7 @@ TEST(SPTK_SocketEvents, performance)
             return SocketEventAction::Continue;
         });
 
-    constexpr size_t maxSockets = 128;
+    constexpr size_t maxSockets = 1024;
     vector<TCPSocket> sockets(maxSockets);
     const Host testServerHost("theater", 80);
     for (auto& socket: sockets)
@@ -326,8 +326,8 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
-                     << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n"
-                     << flush);
+        << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n"
+        << flush);
 
     socketEvents.stop();
 }
@@ -341,16 +341,16 @@ TEST(SPTK_SocketEvents, hangup)
     shared_ptr<SocketReader> socketReader;
 
     auto eventsCallback =
-        [&socketHangupEvent, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
-            Buffer line;
+        [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
+        Buffer line;
 
-            if (eventType.m_hangup)
-            {
-                socketHangupEvent.post();
-            }
+        if (eventType.m_hangup)
+        {
+            socketHangupEvent.post();
+        }
 
-            return SocketEventAction::Continue;
-        };
+        return SocketEventAction::Continue;
+    };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
                               SocketPool::TriggerMode::LevelTriggered);
