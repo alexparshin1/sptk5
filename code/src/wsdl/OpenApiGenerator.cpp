@@ -114,6 +114,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         {
             authMethod = m_options.defaultAuthMethod;
         }
+
         if (authMethod != AuthMethod::NONE)
         {
             const auto& securityObject = postElement->pushNode("security", Array);
@@ -141,6 +142,14 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         {
             const auto& response = responsesElement->pushNode(name, Object);
             response->set("description", description);
+            if (name == "200")
+            {
+                const auto& content = response->pushNode("content", Object);
+                const auto& data = content->pushNode("application/json", Object);
+                const auto& schema = data->pushNode("schema", Object);
+                const String ref = "#/components/schemas/" + operation.m_output->name();
+                schema->set("$ref", ref);
+            }
         }
     }
 }
