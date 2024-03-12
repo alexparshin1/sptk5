@@ -103,7 +103,7 @@ int main()
 
         COUT("Ok.\nStep 2: Inserting data into the table.. ");
 
-        // The following example shows how to use the paramaters,
+        // The following example shows how to use the parameters,
         // addressing them by name
         step2Query.param("person_id") = 1;
         step2Query.param("person_name") = "John Doe";
