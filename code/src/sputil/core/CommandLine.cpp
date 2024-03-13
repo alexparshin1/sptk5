@@ -433,7 +433,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
             // Short option name(s)
             for (unsigned j = 1; j < arg.length(); ++j)
             {
-                const string opt = "-" + arg.substr(j, j + 1);
+                const string opt = string("-") + arg.substr(j, j + 1);
                 digestedArgs.push_back(opt);
             }
             continue;

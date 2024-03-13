@@ -99,7 +99,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
     {
         using enum Node::Type;
 
-        const auto& operationElement = paths->pushNode("/" + operation.m_input->name(), Node::Type::Object);
+        const auto& operationElement = paths->pushNode(string("/") + operation.m_input->name(), Node::Type::Object);
         const auto& postElement = operationElement->pushNode("post");
 
         // Define operation security
@@ -134,7 +134,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
         const auto& content = requestBody->pushNode("content", Object);
         const auto& data = content->pushNode("application/json", Object);
         const auto& schema = data->pushNode("schema", Object);
-        const String ref = "#/components/schemas/" + operation.m_input->name();
+        const String ref = string("#/components/schemas/") + operation.m_input->name();
         schema->set("$ref", ref);
 
         const auto& responsesElement = postElement->pushNode("responses", Object);
@@ -147,7 +147,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
                 const auto& content = response->pushNode("content", Object);
                 const auto& data = content->pushNode("application/json", Object);
                 const auto& schema = data->pushNode("schema", Object);
-                const String ref = "#/components/schemas/" + operation.m_output->name();
+                const String ref = string("#/components/schemas/") + operation.m_output->name();
                 schema->set("$ref", ref);
             }
         }
@@ -245,7 +245,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
     }
     else if (className.startsWith("C"))
     {
-        className = "#/components/schemas/" + className.substr(1);
+        className = string("#/components/schemas/") + className.substr(1);
         if ((int) ctypeProperty->multiplicity() &
             ((int) WSMultiplicity::ZERO_OR_MORE | (int) WSMultiplicity::ONE_OR_MORE))
         { //array
@@ -318,7 +318,7 @@ OpenApiGenerator::AuthMethod OpenApiGenerator::authMethod(const String& auth)
     {
         return BEARER;
     }
-    throw Exception("Auth method '" + auth + "' is not supported");
+    throw Exception(string("Auth method '") + auth + string("' is not supported"));
 }
 
 String OpenApiGenerator::authMethodName(AuthMethod auth)
