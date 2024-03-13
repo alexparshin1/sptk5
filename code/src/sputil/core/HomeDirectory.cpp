@@ -37,7 +37,7 @@ String HomeDirectory::location()
         hdir = ".";
     String homeDir = trim(hdir);
     if (homeDir.empty())
-        homeDir = String(".");
+        homeDir = ".";
     homeDir += "/";
 #else
     char* hdrive = getenv("HOMEDRIVE");

@@ -112,7 +112,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
 #endif
             }
             currentOperation = "bind";
-            result = bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+            result = bind(m_socketFd.load(), bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
                 result = listen(m_socketFd, SOMAXCONN);
@@ -274,7 +274,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
 #endif
     }
 
-    if (bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    if (bind(m_socketFd.load(), bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
     }
