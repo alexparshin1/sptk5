@@ -124,7 +124,7 @@ TEST(SPTK_SynchronizedQueue, performance)
 
 TEST(SPTK_SynchronizedQueue, for_each)
 {
-    constexpr size_t maxNumbers = 10;
+    constexpr int maxNumbers = 10;
     SynchronizedQueue<int> queue;
 
     int actualSum = 0;
