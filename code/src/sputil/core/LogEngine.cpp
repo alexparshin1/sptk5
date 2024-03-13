@@ -169,7 +169,7 @@ void LogEngine::threadFunction()
 
             if (option(Option::PRIORITY))
             {
-                messagePrefix += "[" + priorityName(message->priority) + "] ";
+                messagePrefix += string("[") + priorityName(message->priority) + string("] ");
             }
 
             if (message->priority <= LogPriority::Error)
