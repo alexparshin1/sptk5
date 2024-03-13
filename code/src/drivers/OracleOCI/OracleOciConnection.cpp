@@ -92,8 +92,8 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
         try
         {
             DatabaseConnectionString dbConnectionString = connectionString();
-            auto oracleService = format("{}:{}/{}", dbConnectionString.hostName().c_str(),
-                                        dbConnectionString.portNumber(), dbConnectionString.databaseName().c_str());
+            auto oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
+                                 dbConnectionString.databaseName();
             m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
             m_connection->SetAutoCommit(true);
         }
@@ -229,8 +229,9 @@ bool OracleOciConnection::active() const
 
 String OracleOciConnection::driverDescription() const
 {
-    auto driverVersion = format("OracleOci {}.{}", Environment::GetCompileMajorVersion(), Environment::GetCompileMinorVersion());
-    return driverVersion;
+    stringstream driverVersion;
+    driverVersion << "OracleOci " << Environment::GetCompileMajorVersion() << "." << Environment::GetCompileMinorVersion();
+    return driverVersion.str();
 }
 
 void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& objects)
@@ -465,7 +466,7 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resu
         const auto columnDataSize = column.GetSize();
         if (columnName.empty())
         {
-            columnName = format("column_{}", columnIndex + 1);
+            columnName = "column_" + to_string(columnIndex + 1);
         }
 
         const VariantDataType dataType = oracleOciTypeToVariantType(columnType, columnScale);
@@ -613,7 +614,7 @@ void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, in
 
 String OracleOciConnection::paramMark(unsigned int paramIndex)
 {
-    return format(":{}", paramIndex + 1);
+    return ":" + to_string(paramIndex + 1);
 }
 
 String OracleOciConnection::queryError(const Query* query) const

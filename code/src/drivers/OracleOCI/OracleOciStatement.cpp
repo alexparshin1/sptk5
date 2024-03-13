@@ -67,7 +67,7 @@ void OracleOciStatement::bindParameters()
             VariantDataType& paramDataType = parameter.binding().m_dataType;
 
             paramDataType = parameter.dataType();
-            const auto paramMark = format(":{}", parameterIndex);
+            const auto paramMark = ":" + to_string(parameterIndex);
 
             const auto paramBuffer = make_shared<OracleOciParameterBuffer>(paramDataType, m_ociConnection);
             if (!parameter.isOutput())
@@ -97,7 +97,7 @@ void OracleOciStatement::setParameterValues()
         VariantDataType& paramDataType = parameter.binding().m_dataType;
 
         paramDataType = parameter.dataType();
-        const auto paramMark = format(":{}", parameterIndex);
+        const auto paramMark = ":" + to_string(parameterIndex);
 
         m_parameterBinding[parameterIndex - 1]->setValue(parameter);
 
