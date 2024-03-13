@@ -69,7 +69,7 @@ pwd
 cd $CWD/test && ./sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
 RC=$?
 
-if [ $RC != 0 ];
+if [ $RC != 0 ]; then
     echo "/build/farm/logs/unit_tests.$OS_TYPE.log" > /build/farm/logs/failed.log
 else
     rm /build/farm/logs/failed.log
