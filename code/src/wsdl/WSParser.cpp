@@ -304,14 +304,14 @@ String WSParser::getNamespace(const String& name)
 
 void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
 {
-    const string serviceClassName = string("C") + capitalize(m_serviceName) + string("ServiceBase");
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     output << "// Web Service " << m_serviceName << " definition" << endl
                       << endl;
     output << "#pragma once" << endl;
 
     output << "#include \""
-           << "C" << capitalize(m_serviceName) << "WSDL.h\"" << endl;
+                      << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     output << "#include <sptk5/wsdl/WSRequest.h>" << endl;
     output << "#include <sptk5/net/HttpAuthentication.h>" << endl
                       << endl;
@@ -412,7 +412,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
 
 void WSParser::generateImplementation(ostream& output) const
 {
-    const string serviceClassName = string("C") + capitalize(m_serviceName) + string("ServiceBase");
+    const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
     for (const auto& [name, operation]: m_operations)
@@ -445,8 +445,8 @@ void WSParser::generateImplementation(ostream& output) const
     for (const auto& [name, operation]: m_operations)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
-        const auto inputType = string("C") + operation.m_input->name();
-        const auto outputType = string("C") + operation.m_output->name();
+        const auto inputType = "C" + operation.m_input->name();
+        const auto outputType = "C" + operation.m_output->name();
         output << "        {\"" << requestName << "\", " << endl
                               << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
                               << "            {" << endl
@@ -525,8 +525,8 @@ void WSParser::generateImplementation(ostream& output) const
                               << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
                               << endl;
 
-        const auto inputType = string("C") + operation.m_input->name();
-        const auto outputType = string("C") + operation.m_output->name();
+        const auto inputType = "C" + operation.m_input->name();
+        const auto outputType = "C" + operation.m_output->name();
         output << "{\n"
                               << "    function<void(const " << inputType << "&, " << outputType
                               << "&, HttpAuthentication*)> method =" << endl
@@ -572,7 +572,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         externalHeader.set("");
     }
 
-    const String serviceClassName = string("C") + capitalize(m_serviceName) + string("ServiceBase");
+    const String serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
     if (verbose)
     {
         COUT("Creating service class " << serviceClassName);
@@ -586,7 +586,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     cmakeLists << "  " << sourceDirectory << "/" << serviceClassName << ".cpp "
                << sourceDirectory << "/" << serviceClassName << ".h" << endl;
 
-    const String wsdlFileName = string("C") + capitalize(m_serviceName) + string("WSDL");
+    const String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
     cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
                << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
 
@@ -596,7 +596,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         SourceModule sourceModule(String("C") + complexType->name(), sourceDirectory);
         sourceModule.open();
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
-        usedClasses.push_back(string("C") + complexType->name());
+        usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
                    << sourceDirectory << "/C" << complexType->name() << ".h" << endl;
         sourceModule.writeOutputFiles();
@@ -650,7 +650,7 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
         externalHeader.loadFromFile(headerFile.c_str());
     }
 
-    const String baseFileName = string("C") + capitalize(m_serviceName) + string("WSDL");
+    const String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
     const String wsdlFileName = sourceDirectory + "/" + baseFileName;
 
     stringstream wsdlHeader;

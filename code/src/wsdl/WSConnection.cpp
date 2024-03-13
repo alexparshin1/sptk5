@@ -34,7 +34,7 @@ using namespace sptk;
 WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options)
     : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
     , m_services(services)
-    , m_logger(logEngine, String("(") + to_string(serial()) + String(") "))
+    , m_logger(logEngine, "(" + to_string(serial()) + ") ")
     , m_options(std::move(options))
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
@@ -44,7 +44,7 @@ WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddre
 
     if (!m_options.paths.wsRequestPage.startsWith("/"))
     {
-        m_options.paths.wsRequestPage = string("/") + m_options.paths.wsRequestPage;
+        m_options.paths.wsRequestPage = "/" + m_options.paths.wsRequestPage;
     }
 }
 
@@ -134,7 +134,7 @@ void WSConnection::processSingleConnection(bool& done)
 
     if (processed)
     {
-        m_logger.debug(string("Processed ") + protocolName);
+        m_logger.debug("Processed " + protocolName);
         return;
     }
 
@@ -170,7 +170,7 @@ void WSConnection::run()
         {
             if (!terminated())
             {
-                m_logger.error(String("Error in incoming connection: ") + String(e.what()));
+                m_logger.error("Error in incoming connection: " + String(e.what()));
             }
         }
     }
@@ -235,7 +235,7 @@ bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers
     if (const String contentLength = headers["Content-Length"];
         requestType == "GET" && contentLength.empty())
     {
-        headers["Content-Length"] = string("0");
+        headers["Content-Length"] = "0";
     }
 
     const bool closeConnection = headers["Connection"].toLowerCase() == "close";

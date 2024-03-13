@@ -42,7 +42,7 @@ void SourceModule::open()
 {
     if (m_path.empty())
     {
-        m_path = string(".");
+        m_path = ".";
     }
     m_header.str("");
     m_source.str("");
@@ -64,7 +64,7 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
 
     if (m_path.empty())
     {
-        m_path = string(".");
+        m_path = ".";
     }
 
     const String fileName = m_path + "/" + fileNameAndExtension;
