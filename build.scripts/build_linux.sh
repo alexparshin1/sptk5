@@ -1,9 +1,9 @@
 BUILD_ROOT=$(pwd)
 
-cd git/sptk5
+cd $BUILD_ROOT/git/sptk5
 git reset --hard && git pull > /dev/null
 
-cd git/smq
+cd $BUILD_ROOT/git/smq
 git reset --hard && git pull > /dev/null
 
 cd $BUILD_ROOT
