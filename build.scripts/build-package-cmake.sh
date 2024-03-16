@@ -20,7 +20,7 @@ if [ "$OS_CODENAME" = "" ]; then
     OS_CODENAME=$OS_VERSION
 fi
 
-VERSION=$(head -1 /build/scripts/VERSION)
+VERSION=$(head -1 /build/scripts/${PACKAGE}_VERSION)
 RELEASE="1"
 PACKAGE_NAME="$PACKAGE-$VERSION"
 
