@@ -13,8 +13,7 @@ rsync -av git/xmq/ XMQ-0.9.0 > /dev/null
 for dname in /home/alexeyp/Docker/Dockerfile.*
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh XMQ
+    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK XMQ
     exit 0
 done
 
