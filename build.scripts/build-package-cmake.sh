@@ -1,5 +1,11 @@
 #!/bin/bash
 
+PACKAGE=$1
+if [ ! "$PACKAGE" = "SPTK" ] [ ! "$PACKAGE" = "SMQ" ] &&; then
+    echo "Please provide package name, SPTK or SMQ"
+    exit 1
+fi
+
 OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
 OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
 OS_CODENAME=$(grep -E '^VERSION_CODENAME=' /etc/os-release | sed -re 's/^.*=(\w+)?.*$/\1/')  #'
