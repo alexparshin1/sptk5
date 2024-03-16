@@ -59,8 +59,13 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
-#cmake . -DCMAKE_INSTALL_PREFIX=/usr -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=OFF && make -j4 package || exit 1
-cmake . -DCMAKE_INSTALL_PREFIX=/usr/local -DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=ON && make -j6 package install || exit 1
+if [ $PACKAGE = "SPTK" ]; then
+    BUILD_OPTIONS="-DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF"
+else
+    BUILD_OPTIONS=""
+fi
+
+cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package install || exit 1
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
 ls -l /usr/local/lib
