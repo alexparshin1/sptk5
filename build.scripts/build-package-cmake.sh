@@ -1,8 +1,8 @@
 #!/bin/bash
 
 PACKAGE=$1
-if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "SMQ" ]; then
-    echo "Please provide package name, SPTK or SMQ"
+if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
+    echo "Please provide package name, SPTK or XMQ"
     exit 1
 fi
 
@@ -67,8 +67,8 @@ do
         name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
         lcPACKAGE="sptk"
     else
-        name=$(echo $fname | sed -re 's/SMQ.*Linux-/smq-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
-        lcPACKAGE="smq"
+        name=$(echo $fname | sed -re 's/XMQ.*Linux-/xmq-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+        lcPACKAGE="xmq"
     fi
     mv $fname $OUTPUT_DIR/$name
 done
@@ -78,7 +78,7 @@ echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_m
 
 cat /etc/hosts
 pwd
-cd $CWD/test && ./sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
+cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
 RC=$?
 
 if [ $RC != 0 ]; then
