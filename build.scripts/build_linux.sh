@@ -13,7 +13,9 @@ rsync -av git/smq/ SMQ-0.9.0 > /dev/null
 for dname in /home/alexeyp/Docker/Dockerfile.*
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK1
+    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK
+    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SMQ
+    exit 0
 done
 
 rsync -av /build/output/* /var/www/html/sptk/download/

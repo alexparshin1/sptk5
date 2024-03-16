@@ -22,7 +22,7 @@ fi
 
 VERSION=$(head -1 /build/scripts/VERSION)
 RELEASE="1"
-PACKAGE_NAME="SPTK-$VERSION"
+PACKAGE_NAME="$PACKAGE-$VERSION"
 
 DOWNLOAD_DIRNAME=$OS_NAME-$OS_CODENAME
 OS_TYPE="$OS_NAME-$OS_VERSION"
@@ -51,7 +51,7 @@ CWD=`pwd`
 
 TAR_DIR="/build/output/${VERSION}/tar"
 mkdir -p "$TAR_DIR"
-src_name="$TAR_DIR/sptk_${VERSION}"
+src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
@@ -63,7 +63,13 @@ OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
 do
-    name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+    if [ $PACKAGE = "SPTK" ]; then
+        name=$(echo $fname | sed -re 's/SPTK.*Linux-/sptk-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+        lcPACKAGE="sptk"
+    else
+        name=$(echo $fname | sed -re 's/SMQ.*Linux-/smq-/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+        lcPACKAGE="smq"
+    fi
     mv $fname $OUTPUT_DIR/$name
 done
 
@@ -76,9 +82,9 @@ cd $CWD/test && ./sptk_unit_tests 2>&1 > /build/farm/logs/unit_tests.$OS_TYPE.lo
 RC=$?
 
 if [ $RC != 0 ]; then
-    echo "/build/farm/logs/unit_tests.$OS_TYPE.log" > /build/farm/logs/failed.log
+    echo "/build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/farm/logs/${lcPACKAGE}_failed.log
 else
-    rm /build/farm/logs/failed.log
+    rm /build/farm/logs/${lcPACKAGE}_failed.log
 fi
 
 cd $CWD
