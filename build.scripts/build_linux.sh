@@ -1,10 +1,10 @@
 BUILD_ROOT=$(pwd)
 
-cd $BUILD_ROOT/git/sptk5
-git reset --hard && git pull > /dev/null
+#cd $BUILD_ROOT/git/sptk5
+#git reset --hard && git pull > /dev/null
 
-cd $BUILD_ROOT/git/xmq
-git reset --hard && git pull > /dev/null
+#cd $BUILD_ROOT/git/xmq
+#git reset --hard && git pull > /dev/null
 
 cd $BUILD_ROOT
 rsync -av git/sptk5/code/ SPTK-5.6.0 > /dev/null

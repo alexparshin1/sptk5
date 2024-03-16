@@ -1,5 +1,7 @@
 #!/bin/bash
 
+for PACKAGE in $@; do
+
 PACKAGE=$1
 if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
     echo "Please provide package name, SPTK or XMQ"
@@ -81,7 +83,7 @@ echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_m
 
 cat /etc/hosts
 pwd
-cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log  # --gtest_filter=SPTK_Oracle*
+cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
 RC=$?
 
 if [ $RC != 0 ]; then
@@ -92,5 +94,7 @@ fi
 
 cd $CWD
 ./distclean.sh
+
+done
 
 exit $RC
