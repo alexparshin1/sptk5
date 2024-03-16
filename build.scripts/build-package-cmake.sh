@@ -2,7 +2,6 @@
 
 for PACKAGE in $@; do
 
-PACKAGE=$1
 if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
     echo "Please provide package name, SPTK or XMQ"
     exit 1
@@ -43,10 +42,13 @@ case $OS_NAME in
         ;;
 esac
 
-echo OS_NAME:  $OS_NAME
-echo PLATFORM: $PLATFORM
-
-cd /build/$PACKAGE_NAME
+echo
+echo ──────────────────────────────────────────────────────────────────
+echo OS_NAME:   $OS_NAME
+echo PLATFORM:  $PLATFORM
+echo PACKAGE:   $PACKAGE_NAME
+echo ──────────────────────────────────────────────────────────────────
+cd /build/$PACKAGE_NAME || exit
 
 CWD=`pwd`
 ./distclean.sh
