@@ -59,6 +59,9 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 cmake . -DCMAKE_INSTALL_PREFIX=/usr/local -DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF -DUSE_NEW_ABI=ON && make -j6 package install || exit 1
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
+ls -l /usr/local/lib
+ls -l /usr/local/include
+
 OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
