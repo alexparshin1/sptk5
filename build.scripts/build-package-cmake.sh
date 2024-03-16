@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PACKAGE=$1
-if [ ! "$PACKAGE" = "SPTK" ] [ ! "$PACKAGE" = "SMQ" ] &&; then
+if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "SMQ" ]; then
     echo "Please provide package name, SPTK or SMQ"
     exit 1
 fi
