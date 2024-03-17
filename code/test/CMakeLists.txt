@@ -13,7 +13,11 @@ IF (GTEST_FLAG)
     ADD_EXECUTABLE(sptk_unit_tests sptk_unit_tests.cpp)
     TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 sptest gtest)
 
-    INSTALL(TARGETS sptk_unit_tests RUNTIME DESTINATION bin LIBRARY DESTINATION lib ARCHIVE DESTINATION lib)
+    INSTALL(TARGETS sptk_unit_tests
+            RUNTIME DESTINATION bin COMPONENT unit_tests
+            LIBRARY DESTINATION lib COMPONENT unit_tests
+            ARCHIVE DESTINATION lib COMPONENT unit_tests)
+
     IF (SET_RPATH)
         SET_TARGET_PROPERTIES(sptk_unit_tests PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/bin")
     ENDIF ()
