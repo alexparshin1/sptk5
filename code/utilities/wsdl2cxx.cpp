@@ -135,12 +135,13 @@ bool createDirectory(const String& directory)
 
 int main(int argc, const char* argv[])
 {
-    int rc = 0;
+    int exitCode = 0;
 
     try
     {
         AppCommandLine commandLine;
-        size_t screenColumns = 80;
+        constexpr size_t defaultScreenColumns = 80;
+        size_t screenColumns = defaultScreenColumns;
         if (const auto* colsStr = getenv("COLS");
             colsStr != nullptr)
         {
@@ -195,8 +196,8 @@ int main(int argc, const char* argv[])
     catch (const Exception& e)
     {
         CERR(e.what() << '\n');
-        rc = 1;
+        exitCode = 1;
     }
 
-    return rc;
+    return exitCode;
 }
