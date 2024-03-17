@@ -66,6 +66,7 @@ else
 fi
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
+ls *.deb
 ./install_local_packages.sh
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
