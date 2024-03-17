@@ -98,7 +98,7 @@ private:
      * @param document          Output JSON
      * @param complexTypes      Service types
      */
-    void createComponents(xdoc::Document& document, const WSComplexTypeMap& complexTypes) const;
+    static void createComponents(xdoc::Document& document, const WSComplexTypeMap& complexTypes);
 
     /**
      * Create paths object of OpenAPI service description
