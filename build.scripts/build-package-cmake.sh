@@ -69,8 +69,8 @@ cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && mak
 ./install_local_packages.sh
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
-ls -l /usr/local/lib
-ls -l /usr/local/include
+ls -l /usr/lib/libsp*
+ls -l /usr/include/sptk5
 
 OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
