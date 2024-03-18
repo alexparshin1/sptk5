@@ -59,7 +59,7 @@ OPTION(USE_OPENSSL "Build OpenSSL support library" ON)
 OPTION(USE_ORACLE "Build Oracle support library" ON)
 OPTION(USE_POSTGRESQL "Build PostgreSQL support library" ON)
 OPTION(USE_SQLITE3 "Build SQLite3 support library" ON)
-OPTION(USE_GTEST "Build Google Test unit tests" ON)
+OPTION(USE_GTEST "Build SPTK unit tests" ON)
 
 OPTION(USE_PCRE "Use PCRE library" ON)
 OPTION(USE_BROTLI "Use Brotli library" ON)
@@ -527,7 +527,7 @@ IF (SQLITE3_FLAG AND WIN32)
 ENDIF ()
 
 
-IF (USE_GTEST)
+IF (USE_GTEST AND WIN32)
     SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     ADD_SUBDIRECTORY(googletest)
     IF (WIN32)
