@@ -214,7 +214,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
         receivedEvent.wait_for(100ms);
         this_thread::sleep_for(50ms);
 
-        EXPECT_GT(eventCount, 0);
+        EXPECT_GT(eventCount, 0u);
 
         socketEvents.remove(socket);
         socket.close();
@@ -282,7 +282,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
         receivedEvent.wait_for(100ms);
         this_thread::sleep_for(50ms);
 
-        EXPECT_EQ(eventCount, 1);
+        EXPECT_EQ(eventCount, 1u);
 
         socketEvents.remove(socket);
         socket.close();

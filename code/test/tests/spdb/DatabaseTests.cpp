@@ -763,7 +763,7 @@ void DatabaseTests::verifyTableNoBlobs(const DatabaseConnection& databaseConnect
 {
     Query select(databaseConnection, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
     select.open();
-    size_t recordCount = 0;
+    int recordCount = 0;
     while (!select.eof())
     {
         ++recordCount;

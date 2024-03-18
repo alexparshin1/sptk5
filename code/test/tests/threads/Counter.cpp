@@ -48,7 +48,7 @@ TEST(SPTK_Counter, waitFor)
 
     constexpr milliseconds timeout(10);
     bool result = counter.wait_for(1, timeout);
-    EXPECT_EQ(counter.get(), 0);
+    EXPECT_EQ(counter.get(), false);
     EXPECT_EQ(result, false);
 
     result = counter.wait_for(0, timeout);
@@ -57,13 +57,13 @@ TEST(SPTK_Counter, waitFor)
     counter.increment();
 
     result = counter.wait_for(1, timeout);
-    EXPECT_EQ(counter.get(), 1);
+    EXPECT_EQ(counter.get(), true);
     EXPECT_EQ(result, true);
 
     counter.decrement();
 
     result = counter.wait_for(0, timeout);
-    EXPECT_EQ(counter.get(), 0);
+    EXPECT_EQ(counter.get(), false);
     EXPECT_EQ(result, true);
 }
 
@@ -72,8 +72,8 @@ TEST(SPTK_Counter, adaptorAndAssignment)
     Counter flag;
 
     flag = 1;
-    EXPECT_EQ((size_t) flag, 1);
+    EXPECT_EQ((size_t) flag, true);
 
     flag = 0;
-    EXPECT_EQ((size_t) flag, 0);
+    EXPECT_EQ((size_t) flag, false);
 }
