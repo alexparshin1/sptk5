@@ -5,6 +5,10 @@ IF (GTEST_FLAG)
     SET_TARGET_PROPERTIES(sptest PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
     TARGET_LINK_LIBRARIES(sptest sputil5 spdb5 spwsdl5 gtest)
 
+    IF (BUILD_TEST_WS)
+        add_subdirectory(wsdl)
+    ENDIF ()
+
     IF (SET_RPATH)
         SET_TARGET_PROPERTIES(sptest PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
     ENDIF ()
@@ -34,6 +38,3 @@ FILE(COPY        ${CMAKE_SOURCE_DIR}/test/keys
 
 ENDIF ()
 
-IF (BUILD_TEST_WS)
-    add_subdirectory(wsdl)
-ENDIF ()
