@@ -36,10 +36,10 @@ using namespace sptk;
 TEST(SPTK_Counter, ctor)
 {
     Counter flag1;
-    EXPECT_EQ(flag1.get(), 0);
+    EXPECT_EQ(flag1.get(), false);
 
     Counter flag2(1);
-    EXPECT_EQ(flag2.get(), 1);
+    EXPECT_EQ(flag2.get(), true);
 }
 
 TEST(SPTK_Counter, waitFor)

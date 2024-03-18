@@ -7,8 +7,8 @@ BUILD_ROOT=$(pwd)
 #git reset --hard && git pull > /dev/null
 
 cd $BUILD_ROOT
-#rsync -av git/sptk5/code/ SPTK-5.6.0 > /dev/null
-#rsync -av git/xmq/ XMQ-0.9.0 > /dev/null
+rsync -av git/sptk5/code/ SPTK-5.6.0 > /dev/null
+rsync -av git/xmq/ XMQ-0.9.0 > /dev/null
 
 #for dname in /home/alexeyp/Docker/Dockerfile.*
 for dname in /home/alexeyp/Docker/Dockerfile.fedora35
