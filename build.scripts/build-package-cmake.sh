@@ -66,12 +66,12 @@ else
 fi
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
-ls *.deb
+
 ./install_local_packages.sh
 mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
 
-ls -l /usr/lib/libsp*
-ls -l /usr/include/sptk5
+ls -l /usr/lib/libsp* /usr/include/sptk5 /sur/bin/sp*
+exit 0
 
 OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
