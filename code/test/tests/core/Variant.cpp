@@ -85,9 +85,9 @@ TEST(SPTK_Variant, copy_ctors)
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4c.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5c.isNull(), true);
-    EXPECT_EQ(v5c.dataType(), VariantDataType::VAR_STRING);
+    EXPECT_TRUE(v5c.dataType() == VariantDataType::VAR_STRING);
     EXPECT_STREQ(v6c.asString().c_str(), testString);
-    EXPECT_EQ(v6c.dataType(), VariantDataType::VAR_BUFFER);
+    EXPECT_TRUE(v6c.dataType() == VariantDataType::VAR_BUFFER);
     EXPECT_EQ(int64_t(1), v1c.asInt64());
 }
 
@@ -118,9 +118,9 @@ TEST(SPTK_Variant, move_ctors)
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v4m.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_EQ(v5m.isNull(), true);
-    EXPECT_EQ(v5m.dataType(), VariantDataType::VAR_STRING);
+    EXPECT_TRUE(v5m.dataType() == VariantDataType::VAR_STRING);
     EXPECT_STREQ(v6m.asString().c_str(), testString);
-    EXPECT_EQ(v6m.dataType(), VariantDataType::VAR_BUFFER);
+    EXPECT_TRUE(v6m.dataType() == VariantDataType::VAR_BUFFER);
 }
 
 TEST(SPTK_Variant, assigns)
@@ -312,7 +312,7 @@ TEST(SPTK_Variant, money)
 
     money.setMoney(200055, 2);
     EXPECT_STREQ(money.asString().c_str(), "2000.55");
-    EXPECT_EQ(VariantDataType::VAR_MONEY, Variant::nameType("money"));
+    EXPECT_TRUE(VariantDataType::VAR_MONEY == Variant::nameType("money"));
     EXPECT_STREQ("money", Variant::typeName(VariantDataType::VAR_MONEY).c_str());
 
     MoneyData value {12345678, 4};
@@ -332,7 +332,7 @@ TEST(SPTK_Variant, setBuffer)
 
     Variant v;
     v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_BUFFER);
-    EXPECT_EQ(v.dataType(), VariantDataType::VAR_BUFFER);
+    EXPECT_TRUE(v.dataType() == VariantDataType::VAR_BUFFER);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
     EXPECT_STREQ(testString.c_str(), v.getString());
@@ -341,7 +341,7 @@ TEST(SPTK_Variant, setBuffer)
 
     v.setNull();
     v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_STRING);
-    EXPECT_EQ(v.dataType(), VariantDataType::VAR_STRING);
+    EXPECT_TRUE(v.dataType() == VariantDataType::VAR_STRING);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<String>().c_str());
     EXPECT_STREQ(testString.c_str(), v.getString());
@@ -350,7 +350,7 @@ TEST(SPTK_Variant, setBuffer)
 
     v.setNull();
     v.setBuffer(bit_cast<const uint8_t*>(testString.data()), testString.size(), sptk::VariantDataType::VAR_TEXT);
-    EXPECT_EQ(v.dataType(), VariantDataType::VAR_TEXT);
+    EXPECT_TRUE(v.dataType() == VariantDataType::VAR_TEXT);
     EXPECT_EQ(testString.size(), v.dataSize());
     EXPECT_STREQ(testString.c_str(), v.get<Buffer>().c_str());
     EXPECT_STREQ(testString.c_str(), v.getString());

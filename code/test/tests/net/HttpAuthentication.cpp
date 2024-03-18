@@ -61,7 +61,7 @@ TEST(SPTK_HttpAuthentication, basic)
     const auto& auth = test.getData();
     EXPECT_STREQ(auth->getString("username").c_str(), "Aladdin");
     EXPECT_STREQ(auth->getString("password").c_str(), "OpenSesame");
-    EXPECT_EQ(test.type(), HttpAuthentication::Type::BASIC);
+    EXPECT_TRUE(test.type() == HttpAuthentication::Type::BASIC);
 }
 
 TEST(SPTK_HttpAuthentication, bearer)
@@ -73,5 +73,5 @@ TEST(SPTK_HttpAuthentication, bearer)
     EXPECT_STREQ(auth->getString("iat").c_str(), "1594642696");
     EXPECT_STREQ(auth->getString("iss").c_str(), "https://test.com");
     EXPECT_STREQ(auth->getString("exp").c_str(), "1594642697");
-    EXPECT_EQ(test.type(), HttpAuthentication::Type::BEARER);
+    EXPECT_TRUE(test.type() == HttpAuthentication::Type::BEARER);
 }

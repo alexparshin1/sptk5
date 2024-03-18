@@ -75,14 +75,14 @@ TEST(SPTK_LogEngine, priorities)
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Alert).c_str(), "Alert");
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Panic).c_str(), "Panic");
 
-    EXPECT_EQ(LogEngine::priorityFromName("DEBUG"), LogPriority::Debug);
-    EXPECT_EQ(LogEngine::priorityFromName("info"), LogPriority::Info);
-    EXPECT_EQ(LogEngine::priorityFromName("Notice"), LogPriority::Notice);
-    EXPECT_EQ(LogEngine::priorityFromName("WARNING"), LogPriority::Warning);
-    EXPECT_EQ(LogEngine::priorityFromName("ERROR"), LogPriority::Error);
-    EXPECT_EQ(LogEngine::priorityFromName("Critical"), LogPriority::Critical);
-    EXPECT_EQ(LogEngine::priorityFromName("Alert"), LogPriority::Alert);
-    EXPECT_EQ(LogEngine::priorityFromName("Panic"), LogPriority::Panic);
+    EXPECT_TRUE(LogEngine::priorityFromName("DEBUG") == LogPriority::Debug);
+    EXPECT_TRUE(LogEngine::priorityFromName("info") == LogPriority::Info);
+    EXPECT_TRUE(LogEngine::priorityFromName("Notice") == LogPriority::Notice);
+    EXPECT_TRUE(LogEngine::priorityFromName("WARNING") == LogPriority::Warning);
+    EXPECT_TRUE(LogEngine::priorityFromName("ERROR") == LogPriority::Error);
+    EXPECT_TRUE(LogEngine::priorityFromName("Critical") == LogPriority::Critical);
+    EXPECT_TRUE(LogEngine::priorityFromName("Alert") == LogPriority::Alert);
+    EXPECT_TRUE(LogEngine::priorityFromName("Panic") == LogPriority::Panic);
 }
 
 TEST(SPTK_LogEngine, message)
@@ -105,12 +105,12 @@ TEST(SPTK_LogEngine, message)
     this_thread::sleep_for(chrono::milliseconds(10));
     logEngine.reset();
 
-    EXPECT_EQ(TestLogEngine::storage[0].priority, LogPriority::Debug);
+    EXPECT_TRUE(TestLogEngine::storage[0].priority == LogPriority::Debug);
     EXPECT_STREQ(TestLogEngine::storage[0].message.c_str(), "debug message");
 
-    EXPECT_EQ(TestLogEngine::storage[1].priority, LogPriority::Info);
+    EXPECT_TRUE(TestLogEngine::storage[1].priority == LogPriority::Info);
     EXPECT_STREQ(TestLogEngine::storage[1].message.c_str(), "info message");
 
-    EXPECT_EQ(TestLogEngine::storage[6].priority, LogPriority::Alert);
+    EXPECT_TRUE(TestLogEngine::storage[6].priority == LogPriority::Alert);
     EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
 }

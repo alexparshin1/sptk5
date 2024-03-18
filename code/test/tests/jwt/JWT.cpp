@@ -51,7 +51,7 @@ TEST(SPTK_JWT, dup)
     EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
 
     EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
-    EXPECT_EQ(JWT::Algorithm::NONE, jwt.get_alg()) << "Got incorrect alogorithm";
+    EXPECT_TRUE(JWT::Algorithm::NONE == jwt.get_alg()) << "Got incorrect alogorithm";
 
     now = time(nullptr);
     jwt.set("iat", (int) now);
@@ -71,7 +71,7 @@ TEST(SPTK_JWT, dup_signed)
     const JWT newJWT(jwt);
     auto val = (String) newJWT.get("iss");
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
-    EXPECT_EQ(JWT::Algorithm::HS256, jwt.get_alg()) << "Failed jwt_get_alg()";
+    EXPECT_TRUE(JWT::Algorithm::HS256 == jwt.get_alg()) << "Failed jwt_get_alg()";
 }
 
 
@@ -86,7 +86,7 @@ TEST(SPTK_JWT, decode)
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
-    EXPECT_EQ(JWT::Algorithm::NONE, alg) << "Failed jwt_get_alg()";
+    EXPECT_TRUE(JWT::Algorithm::NONE == alg) << "Failed jwt_get_alg()";
 }
 
 

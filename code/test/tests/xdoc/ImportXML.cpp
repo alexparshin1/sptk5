@@ -187,7 +187,7 @@ TEST(SPTK_XDocument, parseXML)
     const auto bodyElement = document.root()->findFirst("soap:Body", SearchMode::Recursive);
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
-    EXPECT_EQ(Node::Type::Object, bodyElement->type());
+    EXPECT_TRUE(Node::Type::Object == bodyElement->type());
     EXPECT_EQ(1, (int) bodyElement->nodes().size());
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 

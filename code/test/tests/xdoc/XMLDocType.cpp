@@ -37,17 +37,17 @@ TEST(SPTK_XmlXMLDocType, parseEntity)
 
     entity.parse(R"(<!ENTITY file_pic SYSTEM "file.jpg" NDATA jpg>)");
     EXPECT_STREQ(entity.name.c_str(), "file_pic");
-    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
+    EXPECT_TRUE(entity.type == Entity::Type::SYSTEM);
     EXPECT_STREQ(entity.resource.c_str(), "file.jpg");
 
     entity.parse(R"(<!ENTITY % lists "ul | ol")");
     EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::Type::SYSTEM);
+    EXPECT_TRUE(entity.type == Entity::Type::SYSTEM);
     EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
 
     entity.parse(R"(<!ENTITY % lists PUBLIC list_id "ul | ol")");
     EXPECT_STREQ(entity.name.c_str(), "%lists");
-    EXPECT_EQ(entity.type, Entity::Type::PUBLIC);
+    EXPECT_TRUE(entity.type == Entity::Type::PUBLIC);
     EXPECT_STREQ(entity.id.c_str(), "list_id");
     EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
 }

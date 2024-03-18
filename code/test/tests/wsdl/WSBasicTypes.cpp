@@ -69,7 +69,7 @@ void loadScriptAttackData()
 TEST(SPTK_WSBasicTypes, defaultType)
 {
     WSInteger field1("field1", true);
-    EXPECT_EQ(field1.dataType(), VariantDataType::VAR_INT);
+    EXPECT_TRUE(field1.dataType() == VariantDataType::VAR_INT);
 }
 
 TEST(SPTK_WSBasicTypes, fieldNames)
