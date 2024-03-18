@@ -772,7 +772,7 @@ void DatabaseTests::verifyTableNoBlobs(const DatabaseConnection& databaseConnect
         EXPECT_STREQ(expectedName, select[1].asString().trim().c_str());
         select.next();
     }
-    EXPECT_EQ(2U, recordCount);
+    EXPECT_EQ(2, recordCount);
 }
 
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
