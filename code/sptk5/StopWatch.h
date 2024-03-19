@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <functional>
 #include <sptk5/DateTime.h>
 
 namespace sptk {
@@ -38,6 +39,28 @@ class SP_EXPORT StopWatch
     DateTime m_started {"now"}; ///< Start time
     DateTime m_ended;           ///< Stop time
 public:
+    /**
+     * Constructor
+     */
+    StopWatch() = default;
+
+    /**
+     * @brief Constructor that measures action execution time
+     * @tparam Action           Measured action function type
+     * @param action            Measured action
+     */
+    template<class Action>
+    explicit StopWatch(const Action& action)
+    {
+        action();
+        stop();
+    }
+
+    /**
+     * Destructor
+     */
+    ~StopWatch() = default;
+
     /**
      * Set stopwatch start time
      */
