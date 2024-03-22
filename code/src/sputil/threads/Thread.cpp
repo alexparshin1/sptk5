@@ -41,11 +41,13 @@ Thread::Thread(String name, vector<int> ignoreSignals)
 
 void Thread::terminate()
 {
+    const scoped_lock lock(m_mutex);
     m_terminated = true;
 }
 
 bool Thread::terminated()
 {
+    const scoped_lock lock(m_mutex);
     return m_terminated;
 }
 

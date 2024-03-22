@@ -39,6 +39,7 @@ Timer::Timer()
 Timer::~Timer()
 {
     cancel();
+    m_timerThread->join();
 }
 
 STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const
