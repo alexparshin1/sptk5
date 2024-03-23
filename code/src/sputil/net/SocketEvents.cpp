@@ -47,17 +47,20 @@ SocketEvents::~SocketEvents()
 
 void SocketEvents::stop()
 {
-    try
+    if (!terminated())
     {
-        if (running())
+        try
         {
-            terminate();
-            join();
+            if (running())
+            {
+                terminate();
+                join();
+            }
         }
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.message() << '\n');
+        catch (const Exception& e)
+        {
+            CERR(e.message() << '\n');
+        }
     }
 }
 

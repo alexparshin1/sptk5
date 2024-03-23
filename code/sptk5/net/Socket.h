@@ -175,6 +175,7 @@ public:
      */
     void close()
     {
+        const std::scoped_lock lock(m_mutex);
         closeUnlocked();
     }
 
