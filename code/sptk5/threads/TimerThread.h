@@ -65,7 +65,7 @@ protected:
 
     /**
      * @brief Wait for the next event in the queue
-     * @return
+     * @return timer event if any
      */
     STimerEvent waitForEvent();
 
@@ -77,9 +77,9 @@ protected:
 private:
     using EventMap = std::multimap<long, STimerEvent>;
 
-    Semaphore m_semaphore; ///< Semaphore to wait for events
-    std::mutex m_scheduledMutex;
-    EventMap m_scheduledEvents;
+    std::mutex m_scheduledMutex; ///< Mutex that protects scheduled events
+    Semaphore m_semaphore;       ///< Semaphore to wait for events
+    EventMap m_scheduledEvents;  ///< Scheduled events
 
     /**
      * @brief Get next scheduled event

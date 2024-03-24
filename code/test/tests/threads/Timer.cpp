@@ -83,7 +83,7 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     size_t counter = 0;
     Timer timer;
 
-    constexpr milliseconds repeatInterval {10};
+    constexpr auto repeatInterval {10ms};
     timer.repeat(
         repeatInterval,
         [&counter, &counterMutex]() {
@@ -96,6 +96,34 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
 
     const scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, size_t(2));
+}
+
+TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
+{
+    mutex counterMutex;
+    size_t counter = 0;
+    Timer timer;
+
+    constexpr auto repeatInterval {10ms};
+    timer.repeat(
+        repeatInterval,
+        [&counter, &counterMutex]() {
+            const scoped_lock lock(counterMutex);
+            ++counter;
+        },
+        2);
+    timer.repeat(
+        repeatInterval,
+        [&counter, &counterMutex]() {
+            const scoped_lock lock(counterMutex);
+            ++counter;
+        },
+        2);
+
+    this_thread::sleep_for(repeatInterval * 4);
+
+    const scoped_lock lock(counterMutex);
+    EXPECT_EQ(counter, size_t(4));
 }
 
 TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
@@ -130,6 +158,30 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 
         EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
     }
+}
+
+TEST(SPTK_Timer, repeatCancel) /* NOLINT */
+{
+    atomic_int totalEvents(0);
+
+    Timer timer;
+
+    vector<STimerEvent> createdEvents;
+    auto event = timer.repeat(10ms,
+                              [&totalEvents] {
+                                  totalEvents++;
+                              });
+
+    this_thread::sleep_for(100ms);
+    EXPECT_NEAR(9, totalEvents, 2);
+    event->cancel();
+
+    this_thread::sleep_for(1ms);
+    totalEvents = 0;
+
+    this_thread::sleep_for(100ms);
+
+    EXPECT_EQ(0, totalEvents);
 }
 
 TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
