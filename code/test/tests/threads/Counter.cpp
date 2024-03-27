@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/StopWatch.h"
+#include "sptk5/cutils"
 #include <gtest/gtest.h>
 #include <mutex>
 #include <sptk5/threads/Counter.h>
@@ -65,6 +67,25 @@ TEST(SPTK_Counter, waitFor)
     result = counter.wait_for(0, timeout);
     EXPECT_EQ(counter.get(), false);
     EXPECT_EQ(result, true);
+}
+
+TEST(SPTK_Counter, waitForPerformance)
+{
+    Counter counter;
+
+    constexpr auto iterations = 10000000;
+
+    StopWatch stopWatch(
+        [&counter] {
+            for (int i = 0; i < iterations; ++i)
+            {
+                counter.wait_for(0, 10ms);
+            }
+        });
+
+    COUT("Executed " << iterations << " counter waits for " << stopWatch.seconds() << "ms, "
+                     << fixed << setprecision(1) << iterations / 1E6 / stopWatch.seconds() << "M/sec"
+                     << endl);
 }
 
 TEST(SPTK_Counter, adaptorAndAssignment)

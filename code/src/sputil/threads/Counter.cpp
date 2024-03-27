@@ -62,7 +62,12 @@ bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
 {
     unique_lock lock(m_lockMutex);
 
-    // Wait until semaphore value is greater than 0
+    if (m_counter == value)
+    {
+        return true;
+    }
+
+    // Wait until m_counter is matching the value
     return m_condition.wait_for(lock,
                                 timeout,
                                 [this, value]() {
