@@ -24,10 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <errno.h>
 #include <sptk5/Printer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketVirtualMethods.h>
-
 #ifndef _WIN32
 
 #include <sys/poll.h>
@@ -520,6 +520,11 @@ void throwSocketError(const String& message, const std::source_location& locatio
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
+        case ECONNABORTED:
+        case ECONNRESET:
+            throw ConnectionException(message + ": Connection is by other peer", location);
+        case ECONNREFUSED:
+            throw ConnectionException(message + ": Connection is refused", location);
         case EAGAIN:
         case EINPROGRESS:
             throw RepeatOperationException(message + ": " + errorStr, location);
