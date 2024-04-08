@@ -121,7 +121,7 @@ String TCPServerListener::error() const
 void TCPServerListener::stop()
 {
     terminate();
+    m_listenerSocket.close();
     join();
     const scoped_lock lock(*this);
-    m_listenerSocket.close();
 }
