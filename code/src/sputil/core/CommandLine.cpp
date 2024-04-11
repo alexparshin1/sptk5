@@ -348,6 +348,11 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
     }
 }
 
+void CommandLine::addNote(const String& title, const String& text)
+{
+    m_notes.emplace_back(title, text);
+}
+
 Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
 {
     Strings args;
@@ -634,6 +639,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     printCommands(onlyForCommand, screenColumns, nameColumns, sortedCommands, helpTextColumns);
     printOptions(onlyForCommand, screenColumns, nameColumns, sortedOptions, helpTextColumns);
+    printNotes(screenColumns);
 }
 
 void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
@@ -686,4 +692,20 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 void CommandLine::printVersion() const
 {
     COUT(m_programVersion << endl);
+}
+
+void CommandLine::printNotes(size_t screenColumns) const
+{
+    if (!m_notes.empty())
+    {
+        COUT(endl
+             << "Notes:" << endl);
+        printLine(singleLine, screenColumns);
+        for (const auto& [title, text]: m_notes)
+        {
+            COUT(endl
+                 << upperCase(title) << endl
+                 << text << endl);
+        }
+    }
 }

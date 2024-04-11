@@ -108,6 +108,11 @@ public:
                       const Strings& sortedOptions, size_t helpTextColumns) const;
 
     /**
+     * @brief Print notes
+     */
+    void printNotes(size_t screenColumns) const;
+
+    /**
      * Constructor
      * @param programVersion        Program version and copyright message (for help only).
      * @param description           Program description (for help only).
@@ -147,6 +152,13 @@ public:
      * @param helpText          Help (description) for the element
      */
     void defineArgument(const String& fullName, const String& helpText);
+
+    /**
+     * @brief Add a note.
+     * @param title             Argument/command name
+     * @param text              Help (description) for the element
+     */
+    void addNote(const String& title, const String& text);
 
     /**
      * Parses actual command line arguments.
@@ -450,6 +462,7 @@ private:
     Strings m_arguments;                                          ///< Received arguments.
     std::filesystem::path m_executablePath;                       ///< Executable path, from argv[0]
     std::list<std::shared_ptr<CommandLineElement>> m_allElements; ///< All defined elements.
+    std::list<std::pair<String, String>> m_notes;                 ///< Notes.
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
