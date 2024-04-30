@@ -75,7 +75,7 @@ bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
                                 });
 }
 
-bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
+[[maybe_unused]] bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
