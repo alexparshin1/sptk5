@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -88,7 +88,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     Buffer buff(bufferSize);
     struct passwd pw {
     };
-    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    if (struct passwd * pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -99,7 +99,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
 
     struct group gr {
     };
-    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    if (struct group * gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,8 +25,8 @@
 */
 
 #ifndef WIN32
-#include <cstdint>
 #include <arpa/inet.h>
+#include <cstdint>
 #else
 #include <cstdint>
 #include <windows.h>

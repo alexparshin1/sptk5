@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -200,7 +200,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
         {
             matchedPosition = pathElement.nodePosition - 1;
         }
-        
+
         if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
         {
             return;

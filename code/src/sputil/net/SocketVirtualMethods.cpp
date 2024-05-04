@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -421,6 +421,11 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 
 size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
+    if (size == 0)
+    {
+        return 0;
+    }
+
     int bytes;
     if (from != nullptr)
     {

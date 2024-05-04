@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -146,7 +146,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
         {
             const auto* userData = socket->getSocketEventData();
 
-            if (const auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType); 
+            if (const auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
                 eventAction == SocketEventAction::Disable)
             {
                 // Disable events for the socket

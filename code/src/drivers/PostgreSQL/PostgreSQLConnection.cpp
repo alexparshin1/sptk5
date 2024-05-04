@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -592,7 +592,7 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type " + to_string(static_cast<int>(dataType)) + 
+                "Unsupported parameter type " + to_string(static_cast<int>(dataType)) +
                     " for parameter '" + paramName + "'");
     }
 }

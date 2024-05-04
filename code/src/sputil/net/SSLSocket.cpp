@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -361,7 +361,10 @@ size_t SSLSocket::getSocketBytesUnlocked() const
 
 size_t SSLSocket::recvUnlocked(uint8_t* buffer, size_t len)
 {
-    static const chrono::seconds readTimeout(30);
+    if (len == 0)
+    {
+        return 0;
+    }
 
     for (;;)
     {
@@ -376,14 +379,14 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, size_t len)
         {
             case SSL_ERROR_WANT_READ:
                 // No data available yet
-                if (!readyToReadUnlocked(readTimeout))
+                if (!readyToReadUnlocked(30s))
                 {
                     throw Exception("SSL read timeout");
                 }
                 break;
             case SSL_ERROR_WANT_WRITE:
                 // The socket is busy
-                if (!readyToWriteUnlocked(readTimeout))
+                if (!readyToWriteUnlocked(30s))
                 {
                     throw Exception("SSL write timeout");
                 }

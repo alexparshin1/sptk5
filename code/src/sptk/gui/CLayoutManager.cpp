@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@ class CLayoutManagerInitializer
 public:
     CLayoutManagerInitializer() noexcept;
 };
-}
+} // namespace sptk
 
 const CLayoutManagerInitializer staticData;
 
@@ -88,7 +88,8 @@ CLayoutManagerInitializer::CLayoutManagerInitializer() noexcept
 }
 
 CLayoutManager::CLayoutManager(Fl_Group* group, int layoutSize, CLayoutAlign ca)
-    : CLayoutClient(group, layoutSize, ca), m_group(group)
+    : CLayoutClient(group, layoutSize, ca)
+    , m_group(group)
 {
     m_frame = nullptr;
     m_layoutSpacing = 3;
@@ -508,8 +509,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             if (widget->parent() != m_group)
             {
-                m_group->add
-                           (widget);
+                m_group->add(widget);
             }
         }
         m_group->end();

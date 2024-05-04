@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -39,16 +39,16 @@ public:
 };
 } // namespace sptk
 
-#define COUT(a)                                                  \
-    do                                                           \
-    {                                                            \
+#define COUT(a)                                                        \
+    do                                                                 \
+    {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cout << a << std::flush;                            \
+        std::cout << a << std::flush;                                  \
     } while (false)
 
-#define CERR(a)                                                  \
-    do                                                           \
-    {                                                            \
+#define CERR(a)                                                        \
+    do                                                                 \
+    {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cerr << a;                                          \
+        std::cerr << a;                                                \
     } while (false)

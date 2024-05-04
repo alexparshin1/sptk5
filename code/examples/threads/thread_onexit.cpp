@@ -4,7 +4,7 @@
 ║                       thread_onexit.cpp - description                        ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  begin                Thursday May 25 2000                                   ║
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -29,16 +29,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sptk5/cutils>
 #include <sptk5/cthreads>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-class CMyThread: public Thread
+class CMyThread : public Thread
 {
 public:
-
     // Constructor
     CMyThread(string threadName);
     ~CMyThread();
@@ -48,8 +47,8 @@ public:
     virtual void onThreadExit();
 };
 
-CMyThread::CMyThread(string threadName) :
-        Thread(threadName)
+CMyThread::CMyThread(string threadName)
+    : Thread(threadName)
 {
     // Put anything you need here to define your actual thread
     COUT(name() << " thread: created" << endl);
@@ -65,7 +64,8 @@ void CMyThread::threadFunction()
 {
     COUT(name() << " thread: started" << endl);
     int i = 0;
-    while (!terminated()) {
+    while (!terminated())
+    {
         COUT("Output " << i << " from " << name() << endl);
         i++;
         msleep(1010);
@@ -81,8 +81,8 @@ void CMyThread::onThreadExit()
 
 int main(int, char*[])
 {
-    CMyThread *thread1 = new CMyThread("Mr. Nice");
-    CMyThread *thread2 = new CMyThread("Mr. Naughty");
+    CMyThread* thread1 = new CMyThread("Mr. Nice");
+    CMyThread* thread2 = new CMyThread("Mr. Naughty");
 
     thread1->run();
     thread2->run();
