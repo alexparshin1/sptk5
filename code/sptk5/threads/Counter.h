@@ -114,7 +114,7 @@ public:
      * @param timeoutAt           Wait timeout
      * @return true if counter received the value, or false if timeout occurs
      */
-    bool wait_until(size_t value, const DateTime& timeoutAt);
+    [[maybe_unused]] bool wait_until(size_t value, const DateTime& timeoutAt);
 
 private:
     mutable std::mutex m_lockMutex;      ///< Mutex that protects counter operations
