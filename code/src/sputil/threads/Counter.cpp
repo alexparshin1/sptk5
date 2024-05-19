@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -75,7 +75,7 @@ bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
                                 });
 }
 
-bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
+[[maybe_unused]] bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 

@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -159,9 +159,9 @@ private:
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback m_eventsCallback;               ///< Sockets event callback function
-    static const int maxEvents = 128;                   ///< Maximum number of socket events per poll
-    TriggerMode m_triggerMode;                          ///< Socket event trigger mode
+    SocketEventCallback m_eventsCallback; ///< Sockets event callback function
+    static const int maxEvents = 128;     ///< Maximum number of socket events per poll
+    TriggerMode m_triggerMode;            ///< Socket event trigger mode
 
     void processError(int error, const String& operation) const;
 };

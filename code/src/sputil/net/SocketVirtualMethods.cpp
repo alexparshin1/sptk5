@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -24,10 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <errno.h>
 #include <sptk5/Printer.h>
 #include <sptk5/SystemException.h>
 #include <sptk5/net/SocketVirtualMethods.h>
+
 #ifndef _WIN32
 
 #include <sys/poll.h>
@@ -421,6 +421,11 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 
 size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
 {
+    if (size == 0)
+    {
+        return 0;
+    }
+
     int bytes;
     if (from != nullptr)
     {
@@ -520,9 +525,13 @@ void throwSocketError(const String& message, const std::source_location& locatio
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
+        case ENETDOWN:
+        case ENETRESET:
+        case ENETUNREACH:
+            throw ConnectionException(message + ": Network error", location);
         case ECONNABORTED:
         case ECONNRESET:
-            throw ConnectionException(message + ": Connection is by other peer", location);
+            throw ConnectionException(message + ": Connection is terminated", location);
         case ECONNREFUSED:
             throw ConnectionException(message + ": Connection is refused", location);
         case EAGAIN:

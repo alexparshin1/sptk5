@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2023 Alexey Parshin. All rights reserved.       ║
+║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -25,7 +25,7 @@
 */
 
 #ifndef __THEMEUTILS_H__
-#define    __THEMEUTILS_H__
+#define __THEMEUTILS_H__
 
 #include <sptk5/sptk.h>
 
@@ -60,10 +60,11 @@ SP_EXPORT CPngImage* loadValidatePNGImage(const string& fileName, bool externalF
         return img;
     }
     catch (...)
-    {}
+    {
+    }
     return nullptr;
 }
 
-}
+} // namespace sptk
 
-#endif    /* _THEMEUTILS_H */
+#endif /* _THEMEUTILS_H */
