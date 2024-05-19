@@ -80,10 +80,10 @@ public:
 
     /**
      * prints a line of characters
-     * @param ch                Character to print
+     * @param fillChar                Character to print
      * @param count             Number of characters to print
      */
-    static void printLine(const String& ch, size_t count);
+    static void printLine(const String& fillChar, size_t count);
 
     /**
      * Print help on commands
@@ -466,7 +466,7 @@ private:
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 
-    void readOption(const Strings& digestedArgs, size_t& i);
+    void readOption(const Strings& digestedArgs, size_t& argumentIndex);
 };
 
 /**

@@ -135,6 +135,8 @@ public:
         m_prefix = prefix;
     }
 
+    bool has(LogPriority logPriority) const;
+
 private:
     /**
      * The actual log to store messages to (destination log)

@@ -32,9 +32,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
-#include <limits>
 
 namespace sptk {
 
@@ -53,11 +53,13 @@ class SP_EXPORT Buffer
     , public VariantStorageClient
 {
 public:
+    static constexpr size_t defaultBufferSize = 16;
+
     /**
      * Constructor
      * @param size              Pre-allocated buffer size
      */
-    explicit Buffer(size_t size = 16)
+    explicit Buffer(size_t size = defaultBufferSize)
         : BufferStorage(size)
     {
     }
@@ -69,11 +71,11 @@ public:
      * The data is copied inside the buffer.
      * The return of the bytes() method will be the input data size.
      * @param data              Data buffer
-     * @param sz                Data buffer size
+     * @param bufferSize                Data buffer size
      */
     template<typename T>
-    Buffer(const T* data, size_t sz)
-        : BufferStorage(data, sz)
+    Buffer(const T* data, size_t bufferSize)
+        : BufferStorage(data, bufferSize)
     {
     }
 
@@ -126,35 +128,35 @@ public:
      * Appends a single char to the current buffer.
      *
      * Allocates memory if needed.
-     * @param ch                Single character
+     * @param singleChar                Single character
      */
-    void append(char ch) override
+    void append(char singleChar) override
     {
-        BufferStorage::append(ch);
+        BufferStorage::append(singleChar);
     }
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size bufferSize to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param bufferSize                Required memory size
      */
-    void append(const char* data, size_t sz = MAX_SIZE_T) override
+    void append(const char* data, size_t bufferSize = MAX_SIZE_T) override
     {
-        BufferStorage::append(data, sz);
+        BufferStorage::append(data, bufferSize);
     }
 
     /**
-     * Appends the external data of size sz to the current buffer.
+     * Appends the external data of size bufferSize to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param sz                Required memory size
+     * @param bufferSize                Required memory size
      */
-    void append(const uint8_t* data, size_t sz) override
+    void append(const uint8_t* data, size_t bufferSize) override
     {
-        BufferStorage::append(data, sz);
+        BufferStorage::append(data, bufferSize);
     }
 
     /**
@@ -177,7 +179,7 @@ public:
      */
     void append(const std::string& str)
     {
-        return append(str.c_str(), str.length());
+        append(str.c_str(), str.length());
     }
 
     /**
@@ -188,7 +190,7 @@ public:
      */
     void append(const String& str)
     {
-        return append(str.c_str(), str.length());
+        append(str.c_str(), str.length());
     }
 
     /**
@@ -199,7 +201,7 @@ public:
      */
     void append(const Buffer& buffer)
     {
-        return append(buffer.data(), buffer.bytes());
+        append(buffer.data(), buffer.bytes());
     }
 
     /**

@@ -449,9 +449,9 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
     return digestedArgs;
 }
 
-void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
+void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
 {
-    const String& arg = digestedArgs[i];
+    const String& arg = digestedArgs[argumentIndex];
     String value;
     if (arg.startsWith("-"))
     {
@@ -473,12 +473,12 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& i)
         }
         if (element->hasValue())
         {
-            ++i;
-            if (i >= digestedArgs.size())
+            ++argumentIndex;
+            if (argumentIndex >= digestedArgs.size())
             {
                 throw Exception("Command line parameter " + arg + " should have value");
             }
-            value = digestedArgs[i];
+            value = digestedArgs[argumentIndex];
             element->validate(value);
             m_values[element->name()] = value;
         }
@@ -501,11 +501,11 @@ void CommandLine::init(size_t argc, const char** argv)
     const Strings arguments = preprocessArguments(args);
     const Strings digestedArgs = rewriteArguments(arguments);
 
-    size_t i = 0;
-    while (i < digestedArgs.size())
+    size_t argumentIndex = 0;
+    while (argumentIndex < digestedArgs.size())
     {
-        readOption(digestedArgs, i);
-        ++i;
+        readOption(digestedArgs, argumentIndex);
+        ++argumentIndex;
     }
 }
 
@@ -540,12 +540,12 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& ch, size_t count)
+void CommandLine::printLine(const String& fillChar, size_t count)
 {
     stringstream temp;
     for (size_t i = 0; i < count; ++i)
     {
-        temp << ch;
+        temp << fillChar;
     }
     COUT(temp.str() << endl);
 }
@@ -594,10 +594,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         {
             continue;
         }
-        if (nameColumns < commandName.length())
-        {
-            nameColumns = commandName.length();
-        }
+        nameColumns = max(nameColumns, commandName.length());
     }
 
     Strings sortedOptions;
@@ -624,10 +621,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         }
 
         const size_t width = optionTemplate->printableName().length();
-        if (nameColumns < width)
-        {
-            nameColumns = width;
-        }
+        nameColumns = std::max(nameColumns, width);
     }
 
     const size_t helpTextColumns = screenColumns - (nameColumns + 2);

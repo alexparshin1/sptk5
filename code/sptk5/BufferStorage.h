@@ -71,7 +71,10 @@ public:
      */
     explicit BufferStorage(size_t sz)
     {
-        reallocate(sz + 1);
+        if (sz)
+        {
+            reallocate(sz + 1);
+        }
     }
 
     /**

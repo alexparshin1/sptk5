@@ -214,7 +214,7 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
+    size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
     {
         return readUnlocked(buffer, size, from);
     }
@@ -228,7 +228,7 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
      * Reads data from the socket into memory buffer
@@ -239,7 +239,7 @@ public:
      * @param from              The source address
      * @returns the number of bytes read from the socket
      */
-    [[nodiscard]] size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     template<typename T>
     size_t read(T& value, sockaddr_in* from = nullptr)

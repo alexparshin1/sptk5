@@ -47,21 +47,8 @@ SocketEvents::~SocketEvents()
 
 void SocketEvents::stop()
 {
-    if (!terminated())
-    {
-        try
-        {
-            if (running())
-            {
-                terminate();
-                join();
-            }
-        }
-        catch (const Exception& e)
-        {
-            CERR(e.message() << '\n');
-        }
-    }
+    terminate();
+    join();
 }
 
 void SocketEvents::threadFunction()

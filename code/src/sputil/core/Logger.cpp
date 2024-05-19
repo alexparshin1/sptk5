@@ -82,3 +82,8 @@ void Logger::critical(const String& message)
     auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + message);
     m_destination.log(std::move(msg));
 }
+
+bool Logger::has(LogPriority logPriority) const
+{
+    return m_destination.minPriority() >= logPriority;
+}

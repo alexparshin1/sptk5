@@ -151,6 +151,11 @@ void LogEngine::threadFunction()
             continue;
         }
 
+        if (terminated())
+        {
+            break;
+        }
+        
         saveMessage(*message);
 
         if (option(Option::STDOUT))
