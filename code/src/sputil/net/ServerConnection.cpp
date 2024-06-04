@@ -50,6 +50,12 @@ TCPSocket& ServerConnection::socket() const
     return *m_socket;
 }
 
+STCPSocket ServerConnection::getSocket() const
+{
+    const scoped_lock lock(m_mutex);
+    return m_socket;
+}
+
 STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 {
     const scoped_lock lock(m_mutex);

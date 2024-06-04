@@ -283,6 +283,7 @@ public:
      */
     [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout)
     {
+        const std::scoped_lock lock(m_mutex);
         return readyToReadUnlocked(timeout);
     }
 

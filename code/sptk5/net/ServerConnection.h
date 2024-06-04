@@ -81,6 +81,12 @@ public:
     TCPSocket& socket() const;
 
     /**
+     * Access to internal socket for derived classes
+     * @return internal socket
+     */
+    STCPSocket getSocket() const;
+
+    /**
      * Parent TCP server reference
      * @return
      */
