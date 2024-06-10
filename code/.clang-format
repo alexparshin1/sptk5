@@ -3,6 +3,7 @@ BasedOnStyle: LLVM
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: true
 AlignOperands: Align
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
@@ -24,8 +25,10 @@ BraceWrapping:
   AfterFunction: true
   AfterNamespace: false
   AfterUnion: true
+  AfterStruct: true
   BeforeCatch: true
   BeforeElse: true
+  BeforeLambdaBody: true
   IndentBraces: false
   SplitEmptyFunction: true
   SplitEmptyRecord: true

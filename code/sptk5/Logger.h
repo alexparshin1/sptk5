@@ -49,21 +49,22 @@ class LogEngine;
  * into the same destination log.
  * The log options defining message format and min priority are used
  * from destination log.
- * @see CBaseLog for more information about basic log abilities.
+ * @see BaseLog for more information about basic log abilities.
  */
 class SP_EXPORT Logger
 {
 public:
     /**
-     * Log message
+     * @brief Log message
      */
-    struct Message {
-        DateTime timestamp {"now"}; ///< Message timestamp
-        LogPriority priority;       ///< Message priority
-        String message;             ///< Message text
+    struct Message
+    {
+        DateTime    timestamp {"now"}; ///< Message timestamp
+        LogPriority priority;          ///< Message priority
+        String      message;           ///< Message text
 
         /**
-         * Constructor
+         * @brief Constructor
          * @param priority       Message priority
          * @param message        Message text
          */
@@ -88,62 +89,78 @@ public:
     }
 
     /**
-     * Log message with any priority
+     * @brief Log message with any priority
      * @param priority          Message priority
      * @param message           Message text
      */
     void log(LogPriority priority, const String& message);
 
     /**
-     * Log message with debug priority
+     * @brief Log message with debug priority
      * @param message           Message text
      */
     void debug(const String& message);
 
     /**
-     * Log message with info priority
+     * @brief Log message with info priority
      * @param message           Message text
      */
     void info(const String& message);
 
     /**
-     * Log message with notice priority
+     * @brief Log message with notice priority
      * @param message           Message text
      */
     void notice(const String& message);
 
     /**
-     * Log message with warning priority
+     * @brief Log message with warning priority
      * @param message           Message text
      */
     void warning(const String& message);
 
     /**
-     * Log message with error priority
+     * @brief Log message with error priority
      * @param message           Message text
      */
     void error(const String& message);
 
     /**
-     * Log message with critical priority
+     * @brief Log message with critical priority
      * @param message           Message text
      */
     void critical(const String& message);
 
+    /**
+     * @brief Set log message prefix
+     * @param prefix            Message prefix
+     */
     void prefix(const String& prefix)
     {
         m_prefix = prefix;
     }
 
+    /**
+     * @brief Get log message prefix
+     * @param prefix            Message prefix
+     */
+    String prefix() const
+    {
+        const std::lock_guard lock(m_mutex);
+        return m_prefix;
+    }
+
+    /**
+     * @brief Test if a log priority is enabled
+     * @param logPriority       Log priority
+     * @return true if the priority is enabled
+     */
     bool has(LogPriority logPriority) const;
 
 private:
-    /**
-     * The actual log to store messages to (destination log)
-     */
-    LogEngine& m_destination;
-    String m_prefix;
-    std::mutex m_mutex;
+    mutable std::mutex m_mutex;       ///< Mutex that protects access to member variables
+    LogEngine&         m_destination; ///< The actual log to store messages to (destination log)
+    String             m_prefix;      ///< Log message prefix
 };
 
 using SLogger = std::shared_ptr<Logger>;
