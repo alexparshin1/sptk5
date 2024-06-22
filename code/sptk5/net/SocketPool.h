@@ -52,7 +52,8 @@ enum class SocketEventAction
 /**
  * Socket event types
  */
-struct SocketEventType {
+struct SocketEventType
+{
     bool m_data : 1;   ///< Socket has data available to read
     bool m_hangup : 1; ///< Peer closed connection
     bool m_error : 1;  ///< Connection error
@@ -139,7 +140,7 @@ public:
      * Remove socket from monitored pool
      * @param socket            Socket from this pool
      */
-    void forgetSocket(const Socket& socket);
+    void forgetSocket(Socket& socket);
 
     /**
      * @return true if socket pool is active
@@ -159,11 +160,13 @@ private:
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback m_eventsCallback; ///< Sockets event callback function
-    static const int maxEvents = 128;     ///< Maximum number of socket events per poll
-    TriggerMode m_triggerMode;            ///< Socket event trigger mode
+    SocketEventCallback               m_eventsCallback; ///< Sockets event callback function
+    static const int                  maxEvents = 128;  ///< Maximum number of socket events per poll
+    TriggerMode                       m_triggerMode;    ///< Socket event trigger mode
+    std::map<Socket*, const uint8_t*> m_userData;       ///< User data related to socket
 
-    void processError(int error, const String& operation) const;
+    void              processError(int error, const String& operation) const;
+    SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);
 };
 
 } // namespace sptk

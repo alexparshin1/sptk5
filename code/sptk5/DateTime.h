@@ -85,10 +85,10 @@ protected:
     static void isDaylightSavingsTime(int savingsTime);
 
 private:
-    static bool _time24Mode;
-    static String _timeZoneName;
+    static bool                 _time24Mode;
+    static String               _timeZoneName;
     static std::chrono::minutes _timeZoneOffset;
-    static int _isDaylightSavingsTime;
+    static int                  _isDaylightSavingsTime;
 };
 
 
@@ -108,17 +108,17 @@ public:
     /**
      * Clock used by DateTime
      */
-    using clock = std::chrono::system_clock;
+    using clock = std::chrono::high_resolution_clock;
 
     /**
      * DateTime::time_point type definition
      */
-    using time_point = std::chrono::system_clock::time_point;
+    using time_point = clock::time_point;
 
     /**
      * DateTime::duration type definition
      */
-    using duration = std::chrono::system_clock::duration;
+    using duration = clock::duration;
 
     /**
      * Time print accuracy
@@ -355,17 +355,17 @@ public:
 private:
     time_point m_dateTime; ///< Actual date and time value
 
-    static String _dateFormat;      ///< System's date format
-    static String _fullTimeFormat;  ///< System's time format
-    static String _shortTimeFormat; ///< System's time format
-    static String _datePartsOrder;  ///< System's date parts order
-    static char _dateSeparator;     ///< System's date separator
-    static char _timeSeparator;     ///< System's time separator
-    static Strings _weekDayNames;   ///< The locale-defined weekday names
-    static Strings _monthNames;     ///< The locale-defined weekday names
+    static String  _dateFormat;      ///< System's date format
+    static String  _fullTimeFormat;  ///< System's time format
+    static String  _shortTimeFormat; ///< System's time format
+    static String  _datePartsOrder;  ///< System's date parts order
+    static char    _dateSeparator;   ///< System's date separator
+    static char    _timeSeparator;   ///< System's time separator
+    static Strings _weekDayNames;    ///< The locale-defined weekday names
+    static Strings _monthNames;      ///< The locale-defined weekday names
 };
 
-SP_EXPORT int operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT int  operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
 
 /**

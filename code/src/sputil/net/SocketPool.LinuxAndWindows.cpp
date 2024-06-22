@@ -81,7 +81,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    socket.setSocketEventData(userData);
+    m_userData[&socket] = userData;
 
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
@@ -108,7 +108,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     }
 }
 
-void SocketPool::forgetSocket(const Socket& socket)
+void SocketPool::forgetSocket(Socket& socket)
 {
     const lock_guard lock(*this);
 
@@ -117,37 +117,47 @@ void SocketPool::forgetSocket(const Socket& socket)
     {
         epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event);
     }
+
+    m_userData.erase(&socket);
+}
+
+SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType eventType)
+{
+    const uint8_t* userData;
+    {
+        const lock_guard lock(*this);
+        auto             iterator = m_userData.find(socket);
+        if (iterator == m_userData.end())
+        {
+            return SocketEventAction::Disable;
+        }
+        userData = iterator->second;
+    }
+    return m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
 }
 
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
     std::array<epoll_event, maxEvents> events {};
-    const int eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
+    const int                          eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
     if (eventCount < 0)
     {
-        if (m_pool == INVALID_EPOLL)
-        {
-            return false;
-        }
-
-        return true;
+        return m_pool != INVALID_EPOLL;
     }
 
     for (int i = 0; i < eventCount; ++i)
     {
         auto& event = events[i];
 
-        SocketEventType eventType;
-        eventType.m_data = event.events & EPOLLIN;
-        eventType.m_hangup = event.events & (EPOLLHUP | EPOLLRDHUP);
-        eventType.m_error = event.events & EPOLLERR;
+        SocketEventType eventType {
+            .m_data = (event.events & EPOLLIN) != 0,
+            .m_hangup = (event.events & (EPOLLHUP | EPOLLRDHUP)) != 0,
+            .m_error = (event.events & EPOLLERR) != 0,
+        };
 
-        if (const auto* socket = bit_cast<const Socket*>(event.data.ptr))
+        if (auto* socket = bit_cast<Socket*>(event.data.ptr))
         {
-            const auto* userData = socket->getSocketEventData();
-
-            if (const auto eventAction = m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
-                eventAction == SocketEventAction::Disable)
+            if (executeEventAction(socket, eventType) == SocketEventAction::Disable)
             {
                 // Disable events for the socket
                 event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
