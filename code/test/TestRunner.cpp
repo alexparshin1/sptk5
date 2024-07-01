@@ -73,20 +73,20 @@ protected:
 // Otherwise, Visual Studio doesn't include any tests
 void stub()
 {
-    const DateTime dateTime;
-    const JWT jwt;
+    const DateTime          dateTime;
+    const JWT               jwt;
     const RegularExpression regexp(".*");
-    const CommandLine cmd("", "", "");
-    const DirectoryDS dir("");
-    const ThreadPool threads(1, std::chrono::milliseconds(), "test", nullptr);
-    const Timer timer;
-    const MD5 md5;
-    const StubServer tcpServer;
-    const Tar tar;
-    const FieldList fieldList(false);
-    const Variant variant;
+    const CommandLine       cmd("", "", "");
+    const DirectoryDS       dir("");
+    const ThreadPool        threads(1, std::chrono::milliseconds(), "test", nullptr);
+    const Timer             timer;
+    const MD5               md5;
+    const StubServer        tcpServer;
+    const Tar               tar;
+    const FieldList         fieldList(false);
+    const Variant           variant;
 
-    SSLSocket socket;
+    SSLSocket         socket;
     const HttpConnect connect(socket);
 
     const string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -94,10 +94,10 @@ void stub()
     const string iv("0123456789012345");
 
     const Buffer intext(text);
-    Buffer outtext;
+    Buffer       outtext;
     Crypt::encrypt(outtext, intext, key, iv);
 
-    Buffer buffer1;
+    Buffer       buffer1;
     const Buffer buffer2("xxx");
     Base64::encode(buffer1, buffer2);
 
@@ -162,7 +162,7 @@ int TestRunner::runAllTests()
     }
 
     vector<char*> argv(m_argv, m_argv + m_argc);
-    String filter;
+    String        filter;
 
     if (!excludeDBDriverPatterns.empty())
     {
@@ -191,7 +191,7 @@ int TestRunner::runAllTests()
         }
     }
 
-    ::testing::InitGoogleTest(&m_argc, argv.data());
+    ::testing::InitGoogleTest(&m_argc, m_argv);
 
     return RUN_ALL_TESTS();
 }

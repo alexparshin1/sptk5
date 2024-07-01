@@ -85,7 +85,7 @@ const Attributes& Node::attributes() const
     return m_attributes;
 }
 
-SNode& Node::findOrCreate(const String& name)
+SNode Node::findOrCreate(const String& name)
 {
     if (name.empty())
     {
@@ -147,7 +147,7 @@ SNode Node::findFirst(const String& name, SearchMode searchMode) const
     return nullptr;
 }
 
-SNode& Node::pushNode(const String& name, Type type)
+SNode Node::pushNode(const String& name, Type type)
 {
     using enum Type;
     if (m_type == Null)
@@ -282,26 +282,26 @@ void Node::clear()
     m_attributes.clear();
 }
 
-SNode& xdoc::Node::pushValue(const String& name, const Variant& value, Node::Type type)
+SNode xdoc::Node::pushValue(const String& name, const Variant& value, Node::Type type)
 {
     Node::Type actualType(type);
     if (type == Node::Type::Null && !value.isNull())
     {
         actualType = variantTypeToNodeType(value.dataType());
     }
-    auto& node = pushNode(name, actualType);
+    auto node = pushNode(name, actualType);
     node->m_value = value;
     return node;
 }
 
-SNode& xdoc::Node::pushValue(const Variant& value, Node::Type type)
+SNode xdoc::Node::pushValue(const Variant& value, Node::Type type)
 {
     Node::Type actualType(type);
     if (type == Node::Type::Null && !value.isNull())
     {
         actualType = variantTypeToNodeType(value.dataType());
     }
-    auto& node = pushNode("", actualType);
+    auto node = pushNode("", actualType);
     node->m_value = value;
     return node;
 }

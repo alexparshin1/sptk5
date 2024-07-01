@@ -33,7 +33,7 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const s
             getValue<ocilib::ostring>().reserve(MaxStringLength);
             break;
         case VAR_BOOL:
-            m_bindBuffer = makeBuffer<int>();
+            m_bindBuffer = makeBuffer<int32_t>();
             break;
         case VAR_DATE_TIME:
         case VAR_DATE:
@@ -68,7 +68,7 @@ OracleOciParameterBuffer::~OracleOciParameterBuffer()
             deleteBuffer<ocilib::ostring>(m_bindBuffer);
             break;
         case VAR_BOOL:
-            deleteBuffer<bool>(m_bindBuffer);
+            deleteBuffer<int32_t>(m_bindBuffer);
             break;
         case VAR_DATE_TIME:
         case VAR_DATE:
@@ -116,13 +116,13 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             break;
         case VAR_DATE_TIME: {
             const auto dateValue = value.asDateTime();
-            short year;
-            short month;
-            short day;
-            short hour;
-            short minute;
-            short wday;
-            short yearDate;
+            short      year;
+            short      month;
+            short      day;
+            short      hour;
+            short      minute;
+            short      wday;
+            short      yearDate;
             dateValue.decodeDate(&year, &month, &day, &wday, &yearDate, false);
             short second;
             short millisecond;
@@ -132,11 +132,11 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
         }
         case VAR_DATE: {
             const auto dateValue = value.asDateTime();
-            short year;
-            short month;
-            short day;
-            short wday;
-            short yearDate;
+            short      year;
+            short      month;
+            short      day;
+            short      wday;
+            short      yearDate;
             dateValue.decodeDate(&year, &month, &day, &wday, &yearDate, false);
             getValue<ocilib::Date>().SetDateTime(year, month, day, 0, 0, 0);
             break;

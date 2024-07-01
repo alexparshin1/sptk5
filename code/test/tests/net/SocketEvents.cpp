@@ -48,8 +48,8 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
     echoSocket = &socket;
 
     SocketReader socketReader(socket);
-    Buffer data;
-    bool terminated = false;
+    Buffer       data;
+    bool         terminated = false;
     while (!task.terminated() && !terminated)
     {
         try
@@ -84,11 +84,12 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
  */
 TEST(SPTK_SocketEvents, minimal_levelTriggered)
 {
-    Semaphore eventReceived;
+    Semaphore                eventReceived;
     shared_ptr<SocketReader> socketReader;
 
     auto eventsCallback =
-        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType)
+    {
         Buffer line;
 
         if (eventType.m_data)
@@ -140,12 +141,13 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
             }
         }
 
-        size_t receivedEventCount{0};
+        size_t receivedEventCount {0};
         while (eventReceived.wait_for(chrono::milliseconds(100)))
         {
             receivedEventCount++;
         }
 
+        echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
         socket.close();
 
@@ -164,11 +166,12 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
 #ifndef _WIN32
-    atomic_size_t eventCount{0};
-    Semaphore receivedEvent;
+    atomic_size_t eventCount {0};
+    Semaphore     receivedEvent;
 
     auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+    {
         if (eventType.m_hangup)
         {
             return SocketEventAction::Forget;
@@ -216,6 +219,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 
         EXPECT_GT(eventCount, 0u);
 
+        echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
         socket.close();
     }
@@ -232,11 +236,12 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
-    atomic_size_t eventCount{0};
-    Semaphore receivedEvent;
+    atomic_size_t eventCount {0};
+    Semaphore     receivedEvent;
 
     auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+    {
         if (eventType.m_hangup)
         {
             return SocketEventAction::Forget;
@@ -284,6 +289,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
 
         EXPECT_EQ(eventCount, 1u);
 
+        echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
         socket.close();
     }
@@ -297,14 +303,15 @@ TEST(SPTK_SocketEvents, performance)
 {
     SocketEvents socketEvents(
         "test events",
-        [](const uint8_t*, SocketEventType) {
+        [](const uint8_t*, SocketEventType)
+        {
             // No need to do anything for this test
             return SocketEventAction::Continue;
         });
 
-    constexpr size_t maxSockets = 1024;
+    constexpr size_t  maxSockets = 1024;
     vector<TCPSocket> sockets(maxSockets);
-    const Host testServerHost("theater", 80);
+    const Host        testServerHost("theater", 80);
     for (auto& socket: sockets)
     {
         socket.open(testServerHost);
@@ -326,8 +333,8 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.stop();
 
     COUT("Executed " << maxSockets << " add/remove socket ops: "
-        << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n"
-        << flush);
+                     << fixed << setprecision(2) << maxSockets / stopWatch.milliseconds() << "K/sec\n"
+                     << flush);
 
     socketEvents.stop();
 }
@@ -337,11 +344,12 @@ TEST(SPTK_SocketEvents, performance)
  */
 TEST(SPTK_SocketEvents, hangup)
 {
-    Semaphore socketHangupEvent;
+    Semaphore                socketHangupEvent;
     shared_ptr<SocketReader> socketReader;
 
     auto eventsCallback =
-        [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType) {
+        [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+    {
         Buffer line;
 
         if (eventType.m_hangup)
@@ -385,6 +393,7 @@ TEST(SPTK_SocketEvents, hangup)
         const auto hangupReceived = socketHangupEvent.wait_for(100ms);
         EXPECT_TRUE(hangupReceived);
 
+        echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
     }
     catch (const Exception& e)

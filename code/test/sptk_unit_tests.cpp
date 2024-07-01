@@ -34,7 +34,7 @@ using namespace sptk;
 void atesting()
 {
     vector<RegularExpression> values;
-    const RegularExpression x("");
+    const RegularExpression   x("");
     values.push_back(x);
     values.emplace_back("xxx");
 }
@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
 
+    g_testSettings = make_shared<TestSettings>();
     g_testSettings->load("settings.txt");
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));

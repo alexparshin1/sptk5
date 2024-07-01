@@ -95,7 +95,7 @@ public:
         m_type = type;
     }
 
-    SNode& pushNode(const String& name, Type type = Type::Null);
+    SNode pushNode(const String& name, Type type = Type::Null);
 
     /**
      * @brief   Push named property to object
@@ -105,7 +105,7 @@ public:
      * @param type              Optional type
      * @return created node
      */
-    SNode& pushValue(const String& name, const Variant& value, Node::Type type = Node::Type::Null);
+    SNode pushValue(const String& name, const Variant& value, Node::Type type = Node::Type::Null);
 
     /**
      * @brief   Push value to array
@@ -114,7 +114,7 @@ public:
      * @param type              Optional type
      * @return created node
      */
-    SNode& pushValue(const Variant& value, Node::Type type = Node::Type::Null);
+    SNode pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
     /**
      * @brief Get node attributes
@@ -191,9 +191,9 @@ public:
      * @return node
      */
     template<typename T>
-    SNode& set(const String& name, const T& value)
+    SNode set(const String& name, const T& value)
     {
-        auto& node = findOrCreate(name);
+        auto node = findOrCreate(name);
         node->m_value = value;
         node->type(variantTypeToNodeType(node->m_value.dataType()));
 
@@ -219,7 +219,7 @@ public:
      * @param name              Node name
      * @return node
      */
-    SNode& findOrCreate(const String& name);
+    SNode findOrCreate(const String& name);
 
     /**
      * Find first node matching name
@@ -233,16 +233,7 @@ public:
      * @brief Get parent node
      * @return
      */
-    SNode& parent()
-    {
-        return m_parent;
-    }
-
-    /**
-     * @brief Get parent node
-     * @return
-     */
-    const SNode& parent() const
+    const SNode parent() const
     {
         return m_parent;
     }
@@ -278,12 +269,12 @@ public:
     static void clone(const SNode& destination, const SNode& source);
 
 private:
-    SNode m_parent {nullptr};
-    String m_name;
-    Type m_type {Type::Null};
-    Variant m_value;
+    SNode      m_parent {nullptr};
+    String     m_name;
+    Type       m_type {Type::Null};
+    Variant    m_value;
     Attributes m_attributes;
-    Nodes m_nodes;
+    Nodes      m_nodes;
 
     static Type variantTypeToNodeType(VariantDataType type);
 };

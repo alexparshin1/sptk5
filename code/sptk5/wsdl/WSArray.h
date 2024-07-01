@@ -184,7 +184,7 @@ public:
     String asString() const override
     {
         xdoc::Document document;
-        Buffer buffer;
+        Buffer         buffer;
         exportTo(document.root());
         const auto& arrayNode = document.root()->findFirst(name());
         arrayNode->exportTo(xdoc::DataFormat::JSON, buffer, false);
@@ -199,7 +199,7 @@ public:
     void exportTo(const xdoc::SNode& output, const char* name = nullptr) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
-        auto& arrayNode = output->pushNode(this->name(), xdoc::Node::Type::Array);
+        auto        arrayNode = output->pushNode(this->name(), xdoc::Node::Type::Array);
         for (const auto& element: m_array)
         {
             element.exportTo(arrayNode, itemName);

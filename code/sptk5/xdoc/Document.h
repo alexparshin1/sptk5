@@ -38,6 +38,11 @@ public:
     {
     }
 
+    ~Document()
+    {
+        clear();
+    }
+
     void clear() const
     {
         m_root->clear();
@@ -67,7 +72,7 @@ public:
         m_root->exportTo(dataFormat, data, formatted);
     }
 
-    [[maybe_unused]] [[nodiscard]] SNode& findOrCreate(const String& name)
+    [[nodiscard]] SNode findOrCreate(const String& name)
     {
         return m_root->findOrCreate(name);
     }
