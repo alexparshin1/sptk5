@@ -85,6 +85,7 @@ public:
      */
     LogEngine& destination()
     {
+        const std::lock_guard lock(m_mutex);
         return m_destination;
     }
 
@@ -137,6 +138,7 @@ public:
      */
     void prefix(const String& prefix)
     {
+        const std::lock_guard lock(m_mutex);
         m_prefix = prefix;
     }
 

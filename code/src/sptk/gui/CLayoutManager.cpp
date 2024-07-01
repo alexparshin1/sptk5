@@ -34,7 +34,7 @@ using namespace std;
 using namespace sptk;
 
 createControlCallbackMap CLayoutManager::controlCreator;
-map<string, Fl_Boxtype> CLayoutManager::m_boxTypeNames;
+map<string, Fl_Boxtype>  CLayoutManager::m_boxTypeNames;
 
 namespace sptk {
 class CLayoutManagerInitializer
@@ -182,17 +182,17 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
     for (;;)
     {
-        int xx = x + frame_dx;
-        int yy = y + frame_dy;
-        int ww = w - frame_dw;
-        int hh = h - frame_dh;
-        int preferred_w;
-        int preferred_h;
-        Fl_Widget* clientWidget = nullptr;
-        auto cnt = (unsigned) m_group->children();
-        bool extended = false;
+        int            xx = x + frame_dx;
+        int            yy = y + frame_dy;
+        int            ww = w - frame_dw;
+        int            hh = h - frame_dh;
+        int            preferred_w;
+        int            preferred_h;
+        Fl_Widget*     clientWidget = nullptr;
+        auto           cnt = (unsigned) m_group->children();
+        bool           extended = false;
         CLayoutClient* ca;
-        unsigned layoutWidgets = 0;
+        unsigned       layoutWidgets = 0;
         for (unsigned i = 0; i < cnt; i++)
         {
             Fl_Widget* widget = m_group->child(i);
@@ -464,7 +464,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         auto itor = groupNode->nodes().begin();
         for (; itor != groupNode->nodes().end(); ++itor)
         {
-            auto& widgetNode = *itor;
+            auto&  widgetNode = *itor;
             string widgetType = widgetNode->name();
 
             auto cctor = controlCreator.find(widgetType);
@@ -474,8 +474,8 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             } // the widget type isn't supported
 
             createControlCallback& creator = cctor->second;
-            CLayoutClient* layoutClient = creator(widgetNode);
-            Fl_Widget* widget = layoutClient->m_widget;
+            CLayoutClient*         layoutClient = creator(widgetNode);
+            Fl_Widget*             widget = layoutClient->m_widget;
 
             if (!widgetNode->nodes().empty())
             {
@@ -518,10 +518,10 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         map<string, xdoc::SNode> xmlControls;
         map<string, xdoc::SNode> xmlGroups;
-        auto itor = groupNode->nodes().begin();
+        auto                     itor = groupNode->nodes().begin();
         for (; itor != groupNode->nodes().end(); ++itor)
         {
-            auto& node = *itor;
+            auto&  node = *itor;
             String label = (String) node->attributes().get("label");
             if (label.empty())
             {
@@ -602,7 +602,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         groupLayoutClient->save(groupNode, xmlMode);
     }
-    auto childCount = (unsigned) m_group->children();
+    auto  childCount = (unsigned) m_group->children();
     auto* scroll = dynamic_cast<CScroll*>(m_group);
     if (scroll)
     {
@@ -618,7 +618,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             auto* layoutClient = dynamic_cast<CLayoutClient*>(widget);
             if (layoutClient)
             {
-                auto& node = groupNode->pushNode(layoutClient->className());
+                auto node = groupNode->pushNode(layoutClient->className());
                 if (layoutManager)
                 {
                     layoutManager->saveLayout(node, xmlMode);
