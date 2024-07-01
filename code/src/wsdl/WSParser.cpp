@@ -39,8 +39,8 @@ namespace {
 void replaceFile(const String& fileName, const stringstream& fileData)
 {
     const uint8_t empty = 0;
-    const String str = fileData.str();
-    Buffer newData(fileData.str());
+    const String  str = fileData.str();
+    Buffer        newData(fileData.str());
     if (newData.empty())
     {
         newData.set(&empty, 1);
@@ -72,7 +72,7 @@ void WSParser::clear()
 void WSParser::parseElement(const xdoc::SNode& elementNode)
 {
     const auto elementName = elementNode->attributes().get("name");
-    auto elementType = elementNode->attributes().get("type");
+    auto       elementType = elementNode->attributes().get("type");
 
     if (const size_t namespacePos = elementType.find(':');
         namespacePos != string::npos)
@@ -164,7 +164,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
     }
 
     WSOperation operation = {};
-    bool found = false;
+    bool        found = false;
     for (const auto& element: operationNode->nodes())
     {
         auto message = element->attributes().get("message");
@@ -197,7 +197,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
 void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    for (const auto simpleTypeNodes = schemaElement->select("//xsd:simpleType");
+    for (const auto  simpleTypeNodes = schemaElement->select("//xsd:simpleType");
          const auto& element: simpleTypeNodes)
     {
         if (element->name() == "xsd:simpleType")
@@ -206,7 +206,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
         }
     }
 
-    for (auto complexTypeNodes = schemaElement->select("//xsd:complexType");
+    for (auto  complexTypeNodes = schemaElement->select("//xsd:complexType");
          auto& element: complexTypeNodes)
     {
         if (element->name() == "xsd:complexType")
@@ -229,7 +229,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     m_wsdlFile = wsdlFile.string();
 
     xdoc::Document wsdlXML;
-    Buffer buffer;
+    Buffer         buffer;
     buffer.loadFromFile(wsdlFile);
     wsdlXML.load(buffer);
 
@@ -307,14 +307,14 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     output << "// Web Service " << m_serviceName << " definition" << endl
-                      << endl;
+           << endl;
     output << "#pragma once" << endl;
 
     output << "#include \""
-                      << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
+           << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
     output << "#include <sptk5/wsdl/WSRequest.h>" << endl;
     output << "#include <sptk5/net/HttpAuthentication.h>" << endl
-                      << endl;
+           << endl;
 
     output << "// This Web Service types" << endl;
     for (const auto& usedClass: usedClasses)
@@ -324,7 +324,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << endl;
 
     output << "namespace " << m_serviceNamespace << " {" << endl
-                      << endl;
+           << endl;
 
     output << "/**" << endl;
     output << " * Base class for service method." << endl;
@@ -340,13 +340,13 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "     * @param logEngine        Optional log engine for error messages" << endl;
     output << "     */" << endl;
     output << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);" << endl
-                      << endl;
+           << endl;
 
     output << "    /**" << endl;
     output << "     * Destructor" << endl;
     output << "     */" << endl;
     output << "    ~" << serviceClassName << "() override = default;" << endl
-                      << endl;
+           << endl;
 
     output << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
     output << "    // Application must overwrite these methods with processing of corresponding" << endl;
@@ -382,10 +382,10 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "     * @return original WSDL file content" << endl;
     output << "     */" << endl;
     output << "    sptk::String wsdl() const override;" << endl
-                      << endl;
+           << endl;
 
     output << "private:" << endl
-                      << endl;
+           << endl;
     for (const auto& [name, operation]: m_operations)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
@@ -396,17 +396,17 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
         output << "     * @param requestNameSpace Request SOAP element namespace" << endl;
         output << "     */" << endl;
         output << "    void process_" << requestName
-                          << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
-                          << endl
-                          << endl;
+               << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
+               << endl
+               << endl;
     }
     output << "};" << endl
-                      << endl;
+           << endl;
     output << "using S"
-                      << capitalize(m_serviceName) + "ServiceBase = "
-                      << "std::shared_ptr<" << serviceClassName << ">;"
-                      << endl
-                      << endl;
+           << capitalize(m_serviceName) + "ServiceBase = "
+           << "std::shared_ptr<" << serviceClassName << ">;"
+           << endl
+           << endl;
     output << "}" << endl;
 }
 
@@ -420,7 +420,7 @@ void WSParser::generateImplementation(ostream& output) const
         const String requestName = stripNamespace(operation.m_input->name());
         serviceOperations.push_back(requestName);
     }
-    const String operationNames = serviceOperations.join("|");
+    const String         operationNames = serviceOperations.join("|");
     const WSMessageIndex serviceOperationsIndex(serviceOperations);
 
     output << "#include \"" << serviceClassName << ".h\"" << endl;
@@ -428,19 +428,19 @@ void WSParser::generateImplementation(ostream& output) const
     output << "#include <sptk5/wsdl/WSMessageIndex.h>" << endl;
     output << "#include <functional>" << endl;
     output << "#include <set>" << endl
-                          << endl;
+           << endl;
 
     output << "using namespace std;" << endl;
     output << "using namespace placeholders;" << endl;
     output << "using namespace sptk;" << endl;
     output << "using namespace " << m_serviceNamespace << ";" << endl
-                          << endl;
+           << endl;
 
     output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
     output << ": WSRequest(logEngine)" << endl;
     output << "{" << endl;
     output << "    map<String, RequestMethod> requestMethods {" << endl
-                          << endl;
+           << endl;
     const auto lastOperationName = m_operations.rbegin()->first;
     for (const auto& [name, operation]: m_operations)
     {
@@ -448,70 +448,70 @@ void WSParser::generateImplementation(ostream& output) const
         const auto inputType = "C" + operation.m_input->name();
         const auto outputType = "C" + operation.m_output->name();
         output << "        {\"" << requestName << "\", " << endl
-                              << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
-                              << "            {" << endl
-                              << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);" << endl
-                              << "            }}";
+               << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
+               << "            {" << endl
+               << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);" << endl
+               << "            }}";
         if (name != lastOperationName)
         {
             output << ",";
         }
         output << endl
-                              << endl;
+               << endl;
     }
     output << "    };" << endl;
     output << "    setRequestMethods(std::move(requestMethods));" << endl;
     output << "}" << endl
-                          << endl;
+           << endl;
 
     output << endl
-                          << "template <class InputData, class OutputData>\n"
-                             "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
-                             "{\n"
-                             "   const String requestName = InputData::classId();\n"
-                             "   const String responseName = OutputData::classId();\n"
-                             "   String ns(requestNameSpace.getAlias());\n"
-                             "   InputData inputData((ns + \":\" + requestName).c_str());\n"
-                             "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
-                             "   try {\n"
-                             "      inputData.load(requestNode);\n"
-                             "   }"
-                             "   catch (const Exception& e) {\n"
-                             "      // Can't parse input data\n"
-                             "      constexpr int badRequest = 400;\n"
-                             "      throw HTTPException(badRequest, e.what());\n"
-                             "   }\n"
-                             "   const auto& soapBody = requestNode->parent();\n"
-                             "   soapBody->clearChildren();\n"
-                             "   method(inputData, outputData, authentication);\n"
-                             "   auto& response = soapBody->pushNode(ns + \":\" + responseName);\n"
-                             "   response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
-                             "   outputData.unload(response);\n"
-                             "}\n\n"
+           << "template <class InputData, class OutputData>\n"
+              "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+              "{\n"
+              "   const String requestName = InputData::classId();\n"
+              "   const String responseName = OutputData::classId();\n"
+              "   String ns(requestNameSpace.getAlias());\n"
+              "   InputData inputData((ns + \":\" + requestName).c_str());\n"
+              "   OutputData outputData((ns + \":\" + responseName).c_str());\n"
+              "   try {\n"
+              "      inputData.load(requestNode);\n"
+              "   }"
+              "   catch (const Exception& e) {\n"
+              "      // Can't parse input data\n"
+              "      constexpr int badRequest = 400;\n"
+              "      throw HTTPException(badRequest, e.what());\n"
+              "   }\n"
+              "   const auto& soapBody = requestNode->parent();\n"
+              "   soapBody->clearChildren();\n"
+              "   method(inputData, outputData, authentication);\n"
+              "   const auto response = soapBody->pushNode(ns + \":\" + responseName);\n"
+              "   response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
+              "   outputData.unload(response);\n"
+              "}\n\n"
 
-                             "template <class InputData, class OutputData>\n"
-                             "void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentication,\n"
-                             "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
-                             "{\n"
-                             "   InputData inputData;\n"
-                             "   OutputData outputData;\n"
-                             "   try {\n"
-                             "      inputData.load(request);\n"
-                             "   }\n"
-                             "   catch (const Exception& e) {\n"
-                             "      // Can't parse input data\n"
-                             "      constexpr int badRequest = 400;\n"
-                             "      throw HTTPException(badRequest, e.what());\n"
-                             "   }\n"
-                             "   method(inputData, outputData, authentication);\n"
-                             "   request->clear();\n"
-                             "   outputData.unload(request);\n"
-                             "}\n\n";
+              "template <class InputData, class OutputData>\n"
+              "void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentication,\n"
+              "                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)\n"
+              "{\n"
+              "   InputData inputData;\n"
+              "   OutputData outputData;\n"
+              "   try {\n"
+              "      inputData.load(request);\n"
+              "   }\n"
+              "   catch (const Exception& e) {\n"
+              "      // Can't parse input data\n"
+              "      constexpr int badRequest = 400;\n"
+              "      throw HTTPException(badRequest, e.what());\n"
+              "   }\n"
+              "   method(inputData, outputData, authentication);\n"
+              "   request->clear();\n"
+              "   outputData.unload(request);\n"
+              "}\n\n";
 
     for (const auto& [operationName, operation]: m_operations)
     {
         Strings nameParts(operation.m_input->name(), ":");
-        String requestName;
+        String  requestName;
         if (nameParts.size() == 1)
         {
             requestName = nameParts[0];
@@ -522,26 +522,26 @@ void WSParser::generateImplementation(ostream& output) const
         }
         output << endl;
         output << "void " << serviceClassName << "::process_" << requestName
-                              << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
-                              << endl;
+               << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
+               << endl;
 
         const auto inputType = "C" + operation.m_input->name();
         const auto outputType = "C" + operation.m_output->name();
         output << "{\n"
-                              << "    function<void(const " << inputType << "&, " << outputType
-                              << "&, HttpAuthentication*)> method =" << endl
-                              << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
-                              << "        {" << endl
-                              << "            " << operationName << "(request, response, auth);" << endl
-                              << "        };" << endl
-                              << endl
-                              << "    if (xmlNode)\n"
-                              << "        processAnyRequest<" << inputType << "," << outputType
-                              << ">(xmlNode, authentication, requestNameSpace, method);\n"
-                              << "    else\n"
-                              << "        processAnyRequest<" << inputType << "," << outputType
-                              << ">(jsonNode, authentication, method);\n"
-                              << "}\n";
+               << "    function<void(const " << inputType << "&, " << outputType
+               << "&, HttpAuthentication*)> method =" << endl
+               << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
+               << "        {" << endl
+               << "            " << operationName << "(request, response, auth);" << endl
+               << "        };" << endl
+               << endl
+               << "    if (xmlNode)\n"
+               << "        processAnyRequest<" << inputType << "," << outputType
+               << ">(xmlNode, authentication, requestNameSpace, method);\n"
+               << "    else\n"
+               << "        processAnyRequest<" << inputType << "," << outputType
+               << ">(jsonNode, authentication, method);\n"
+               << "}\n";
     }
     output << endl;
     output << "String " << serviceClassName << "::wsdl() const" << endl;
@@ -622,7 +622,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
     const OpenApiGenerator openApiGenerator(m_serviceName, m_description, "1.0.0", {m_location}, options);
-    auto openApiFileName = options.openApiFile;
+    auto                   openApiFileName = options.openApiFile;
     if (openApiFileName.empty())
     {
         openApiFileName = m_wsdlFile.replace("\\.wsdl$", "") + ".json";
