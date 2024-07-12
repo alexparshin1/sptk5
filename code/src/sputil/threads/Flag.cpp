@@ -39,31 +39,24 @@ Flag::Flag(bool startingValue)
 Flag::~Flag()
 {
     terminate();
-    unique_lock lock(m_lockMutex);
     m_condition.notify_all();
 }
 
 void Flag::terminate()
 {
-    unique_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     m_terminated = true;
-}
-
-size_t Flag::waiters() const
-{
-    unique_lock lock(m_lockMutex);
-    return m_waiters;
 }
 
 bool Flag::get() const
 {
-    unique_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     return m_value;
 }
 
 void Flag::set(bool value)
 {
-    unique_lock lock(m_lockMutex);
+    lock_guard lock(m_lockMutex);
     if (m_value != value)
     {
         m_value = value;
@@ -81,8 +74,6 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
-    ++m_waiters;
-
     // Wait until semaphore value is greater than 0
     while (!m_terminated)
     {
@@ -95,7 +86,6 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
         {
             if (timeoutAt < DateTime::Now())
             {
-                --m_waiters;
                 return false;
             }
         }
@@ -104,8 +94,6 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
             break;
         }
     }
-
-    --m_waiters;
 
     return true;
 }

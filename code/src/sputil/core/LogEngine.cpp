@@ -59,7 +59,7 @@ void LogEngine::shutdown()
 
 void LogEngine::option(Option option, bool flag)
 {
-    const std::scoped_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
     if (flag)
     {
         m_options.insert(option);
@@ -72,7 +72,7 @@ void LogEngine::option(Option option, bool flag)
 
 bool LogEngine::option(Option option) const
 {
-    const std::scoped_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
     return m_options.contains(option);
 }
 
@@ -204,7 +204,7 @@ void LogEngine::threadFunction()
 void LogEngine::terminate()
 {
     {
-        scoped_lock lock(m_mutex);
+        const lock_guard lock(m_mutex);
         m_terminated = true;
     }
     m_messages.wakeup();
