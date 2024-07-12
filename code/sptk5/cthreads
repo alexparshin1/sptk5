@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include <sptk5/threads/Flag.h>
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/Semaphore.h>
 #include <sptk5/threads/SmartLock.h>

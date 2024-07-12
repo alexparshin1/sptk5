@@ -24,10 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <future>
 #include <gtest/gtest.h>
 #include <mutex>
-#include <sptk5/threads/Counter.h>
-#include <sptk5/threads/Flag.h>
+#include <sptk5/cthreads>
 
 using namespace std;
 using namespace chrono;
@@ -71,4 +71,33 @@ TEST(SPTK_Flag, adaptorAndAssignment)
 
     flag = false;
     EXPECT_EQ((bool) flag, false);
+}
+
+TEST(SPTK_Flag, signalOtherThread)
+{
+    Flag flag;
+
+    flag.set(false);
+
+    auto task1 = async(launch::async,
+                       [&flag]
+                       {
+                           if (flag.wait_for(true, 100ms))
+                           {
+                               COUT("Received true" << endl);
+                           }
+                           else
+                           {
+                               CERR("Timeout" << endl);
+                           }
+                       });
+
+    auto task2 = async(launch::async,
+                       [&flag]
+                       {
+                           flag.set(true);
+                       });
+
+    EXPECT_TRUE(task1.wait_for(110ms) == future_status::ready);
+    task2.wait();
 }
