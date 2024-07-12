@@ -43,11 +43,11 @@ TEST(SPTK_Flag, waitFor)
 {
     Flag flag;
 
-    bool result = flag.wait_for(true, milliseconds(10));
+    bool result = flag.wait_for(true, 10ms);
     EXPECT_EQ(flag.get(), false);
     EXPECT_EQ(result, false);
 
-    result = flag.wait_for(false, milliseconds(10));
+    result = flag.wait_for(false, 10ms);
     EXPECT_EQ(flag.get(), false);
     EXPECT_EQ(result, true);
 }
@@ -57,7 +57,7 @@ TEST(SPTK_Flag, setWaitFor)
     Flag flag;
 
     flag.set(true);
-    bool result = flag.wait_for(true, milliseconds(10));
+    bool result = flag.wait_for(true, 10ms);
     EXPECT_EQ(flag.get(), true);
     EXPECT_EQ(result, true);
 }
