@@ -206,6 +206,7 @@ protected:
      */
     bool terminated() const
     {
+        std::scoped_lock lock(m_mutex);
         return m_terminated;
     }
 
@@ -230,7 +231,7 @@ private:
      */
     std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
-    std::atomic_bool m_terminated {false};
+    bool m_terminated {false};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

@@ -31,16 +31,17 @@ using namespace sptk;
 
 LogEngine::LogEngine(const String&)
 {
-    m_saveMessageThread = jthread([this]() {
-        try
-        {
-            threadFunction();
-        }
-        catch (const Exception& exception)
-        {
-            CERR(exception.what() << endl);
-        }
-    });
+    m_saveMessageThread = jthread([this]()
+                                  {
+                                      try
+                                      {
+                                          threadFunction();
+                                      }
+                                      catch (const Exception& exception)
+                                      {
+                                          CERR(exception.what() << endl);
+                                      }
+                                  });
 }
 
 LogEngine::~LogEngine()
@@ -155,7 +156,7 @@ void LogEngine::threadFunction()
         {
             break;
         }
-        
+
         saveMessage(*message);
 
         if (option(Option::STDOUT))
@@ -202,7 +203,10 @@ void LogEngine::threadFunction()
 
 void LogEngine::terminate()
 {
-    m_terminated = true;
+    {
+        scoped_lock lock(m_mutex);
+        m_terminated = true;
+    }
     m_messages.wakeup();
     if (m_saveMessageThread.joinable())
     {
