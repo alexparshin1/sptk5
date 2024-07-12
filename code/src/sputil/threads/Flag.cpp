@@ -39,38 +39,35 @@ Flag::Flag(bool startingValue)
 Flag::~Flag()
 {
     terminate();
-    do
-    {
-        scoped_lock lock(m_lockMutex);
-        m_condition.notify_one();
-    } while (waiters() > 0);
+    unique_lock lock(m_lockMutex);
+    m_condition.notify_all();
 }
 
 void Flag::terminate()
 {
-    scoped_lock lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
     m_terminated = true;
 }
 
 size_t Flag::waiters() const
 {
-    scoped_lock lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
     return m_waiters;
 }
 
 bool Flag::get() const
 {
-    scoped_lock lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
     return m_value;
 }
 
 void Flag::set(bool value)
 {
-    scoped_lock lock(m_lockMutex);
+    unique_lock lock(m_lockMutex);
     if (m_value != value)
     {
         m_value = value;
-        m_condition.notify_one();
+        m_condition.notify_all();
     }
 }
 
@@ -91,7 +88,8 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
     {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
-                                    [this, value]() {
+                                    [this, value]()
+                                    {
                                         return m_value == value;
                                     }))
         {
