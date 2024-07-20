@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
         String host;
         String portStr;
 
-        COUT("Testing SMTP connectivity." << endl);
+        COUT("Testing SMTP connectivity.");
 
         if (argc == 3)
         {
@@ -78,8 +78,8 @@ int main(int argc, char* argv[])
         }
         else
         {
-            COUT("Please provide server hostname/port, user credentials, ad destination email address." << endl);
-            COUT("You can also use command line arguments:" << endl);
+            COUT("Please provide server hostname/port, user credentials, ad destination email address.");
+            COUT("You can also use command line arguments:");
             COUT("  ./smtp_connect [username:password@]<hostname>[:port] <email address>" << endl
                                                                                           << endl);
 
@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
             port = 25;
         }
 
-        COUT("\nTrying to connect to SMTP server.." << endl);
+        COUT("\nTrying to connect to SMTP server..");
 
         SMTP.host(Host(host, port));
         if (!user.empty() && !password.empty())
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
             SMTP.cmd_auth(user, password);
         } // Supported methods are login and plain
 
-        COUT(SMTP.response().join("\n") << endl);
+        COUT(SMTP.response().join("\n"));
 
         SMTP.subject("Test e-mail");
         SMTP.from("Me <" + email + ">");
@@ -125,13 +125,13 @@ int main(int argc, char* argv[])
             "<HTML><BODY>Hello, <b>my friend!</b><br><br>\n\nIf you received this e-mail it means the SMTP module works just fine.<br><br>\n\nSincerely, SPTK.<br>\n</BODY></HTML>",
             true);
 
-        COUT("\nSending test message.." << endl);
+        COUT("\nSending test message..");
         SMTP.cmd_send();
-        COUT(SMTP.response().join("\n") << endl);
+        COUT(SMTP.response().join("\n"));
 
-        COUT("\nClosing SMTP connection.." << endl);
+        COUT("\nClosing SMTP connection..");
         SMTP.cmd_quit();
-        COUT(SMTP.response().join("\n") << endl);
+        COUT(SMTP.response().join("\n"));
 
         COUT(endl
              << "Message sent. Please, check your mail in " << email << endl);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

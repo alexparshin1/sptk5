@@ -54,7 +54,7 @@ void SocketReader::close()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 

@@ -39,7 +39,7 @@ LogEngine::LogEngine(const String&)
                                       }
                                       catch (const Exception& exception)
                                       {
-                                          CERR(exception.what() << endl);
+                                          CERR(exception.what());
                                       }
                                   });
 }

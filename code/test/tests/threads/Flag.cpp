@@ -84,11 +84,11 @@ TEST(SPTK_Flag, signalOtherThread)
                        {
                            if (flag.wait_for(true, 100ms))
                            {
-                               COUT("Received true" << endl);
+                               COUT("Received true");
                            }
                            else
                            {
-                               CERR("Timeout" << endl);
+                               CERR("Timeout");
                            }
                        });
 

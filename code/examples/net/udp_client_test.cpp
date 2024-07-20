@@ -61,6 +61,6 @@ int main()
         return 1;
     }
 
-    COUT("Exiting" << endl);
+    COUT("Exiting");
     return 0;
 }

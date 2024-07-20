@@ -43,12 +43,12 @@ public:
     do                                                                 \
     {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cout << a << std::flush;                                  \
+        std::cout << a << "\n" << std::flush;                                  \
     } while (false)
 
 #define CERR(a)                                                        \
     do                                                                 \
     {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cerr << a;                                                \
+        std::cerr << a << "\n";                                                \
     } while (false)

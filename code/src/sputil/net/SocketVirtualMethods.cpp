@@ -541,7 +541,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
             break;
     }
 
-    CERR("ERRNO is " << errno << endl);
+    CERR("ERRNO is " << errno);
 
     if (!errorStr.empty())
     {

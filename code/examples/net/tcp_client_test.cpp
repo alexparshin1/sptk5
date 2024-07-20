@@ -47,7 +47,7 @@ int main()
         String data;
 
         clientReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << "\n");
+        COUT("Receiving: " << data.c_str());
 
         data = "Several copies of a single string";
         COUT("Sending:   test data\n");
@@ -57,7 +57,7 @@ int main()
         client.write("EOD\n");
 
         clientReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << "\n");
+        COUT("Receiving: " << data.c_str());
 
         COUT("Sending:   EOS\n");
         client.write("EOS\n");

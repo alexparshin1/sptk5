@@ -158,7 +158,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
         {
             COUT(left << setw((int) nameWidth) << "");
         }
-        COUT("  " << helpRow << endl);
+        COUT("  " << helpRow);
     }
 
     if (!optionDefaultValue.empty())
@@ -547,7 +547,7 @@ void CommandLine::printLine(const String& fillChar, size_t count)
     {
         temp << fillChar;
     }
-    COUT(temp.str() << endl);
+    COUT(temp.str());
 }
 
 void CommandLine::printHelp(size_t screenColumns) const
@@ -559,13 +559,13 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 {
     if (!onlyForCommand.empty() && !m_argumentTemplates.contains(onlyForCommand))
     {
-        CERR("Command '" << onlyForCommand << "' is not defined" << endl);
+        CERR("Command '" << onlyForCommand << "' is not defined");
         return;
     }
 
     printVersion();
     printLine(doubleLine, screenColumns);
-    COUT(m_description << endl);
+    COUT(m_description);
 
     COUT(endl
          << "Syntax:" << endl);
@@ -576,7 +576,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     {
         commandLinePrototype = commandLinePrototype.replace("<command>", onlyForCommand);
     }
-    COUT(commandLinePrototype << endl);
+    COUT(commandLinePrototype);
 
     // Find out space needed for command and option names
     constexpr size_t minimalWidth {10};
@@ -627,7 +627,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     const size_t helpTextColumns = screenColumns - (nameColumns + 2);
     if (helpTextColumns < minimalWidth)
     {
-        CERR("Can't print help information - the screen width is too small" << endl);
+        CERR("Can't print help information - the screen width is too small");
         return;
     }
 
@@ -685,7 +685,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
 
 void CommandLine::printVersion() const
 {
-    COUT(m_programVersion << endl);
+    COUT(m_programVersion);
 }
 
 void CommandLine::printNotes(size_t screenColumns) const

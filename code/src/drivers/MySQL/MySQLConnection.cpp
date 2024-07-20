@@ -113,7 +113,7 @@ void MySQLConnection::executeCommand(const String& command)
         open();
     }
 
-    if (mysql_real_query(m_connection.get(), command.c_str(), command.length()) != 0)
+    if (mysql_real_query(m_connection.get(), command.c_str(), static_cast<unsigned>(command.length())) != 0)
     {
         throwMySQLException(m_connection, "Can't execute " + command);
     }

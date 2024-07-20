@@ -82,7 +82,7 @@ TEST(SPTK_Brotli, performance)
 
     constexpr auto megabyte = double(1024 * 1024);
 
-    COUT("Brotli compressor:" << endl);
+    COUT("Brotli compressor:");
     COUT("Compressed " << fixed << setprecision(2)
                        << data.bytes() / 1024 << "K bytes to " << compressed.bytes() / 1024 << "K bytes for "
                        << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / megabyte << " Mb/s)"

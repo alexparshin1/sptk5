@@ -65,7 +65,7 @@ void SocketEvents::threadFunction()
         }
         catch (const Exception& e)
         {
-            CERR(e.message() << endl);
+            CERR(e.message());
         }
     }
     m_socketPool.close();

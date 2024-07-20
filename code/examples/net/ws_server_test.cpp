@@ -36,7 +36,7 @@ class StubRequest
     : public WSRequest
 {
 protected:
-    void requestBroker(const String& requestName, const xdoc::SNode&, const xdoc::SNode& jsonNode, HttpAuthentication*,
+    void requestBroker(const String&, const xdoc::SNode&, const xdoc::SNode&, HttpAuthentication*,
                        const WSNameSpace&) override
     {
         // Not used in this test
@@ -75,6 +75,6 @@ int main()
         CERR("Exception was caught: " << e.what() << "\nExiting.\n");
         return 1;
     }
-    COUT("Server session closed" << endl);
+    COUT("Server session closed");
     return 0;
 }

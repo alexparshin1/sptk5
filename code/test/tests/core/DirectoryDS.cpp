@@ -54,7 +54,7 @@ public:
         }
         catch (const filesystem_error& e)
         {
-            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what() << endl);
+            CERR("Can't create temp directory " << dir.filename().string() << ": " << e.what());
             return;
         }
 

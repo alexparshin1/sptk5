@@ -26,6 +26,8 @@
 
 #include "sptk5/StopWatch.h"
 #include "sptk5/net/TCPServer.h"
+
+#include <fcntl.h>
 #include <gtest/gtest.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/SocketReader.h>
@@ -400,4 +402,25 @@ TEST(SPTK_SocketEvents, hangup)
     {
         FAIL() << e.what();
     }
+}
+
+TEST(SPTK_SocketEvents, MonitorFile)
+{
+    SocketEvents socketEvents("File monitor",
+                              [](const uint8_t* userData, SocketEventType eventType)
+                              {
+                                  COUT("File has data");
+                                  return SocketEventAction::Continue;
+                              });
+
+    FILE*  f = fopen("test.txt", "w+t");
+    string data("Some data");
+    fwrite(data.c_str(), data.length(), 1, f);
+    fclose(f);
+
+    int    fd = open("test.txt", O_RDONLY);
+    Socket sock;
+    sock.attach(fd, false);
+    socketEvents.add(sock, nullptr);
+    this_thread::sleep_for(10s);
 }

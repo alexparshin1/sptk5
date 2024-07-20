@@ -94,7 +94,7 @@ TEST(SPTK_ZLib, performance)
     stopWatch.stop();
 
     constexpr auto bytesInMB = 1E6;
-    COUT("ZLib compressor:" << endl);
+    COUT("ZLib compressor:");
     COUT("Compressed " << data.bytes() << " bytes to " << compressed.bytes() << " bytes for "
                        << stopWatch.seconds() << " seconds (" << data.bytes() / stopWatch.seconds() / bytesInMB << " Mb/s)"
                        << endl);
