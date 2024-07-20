@@ -621,7 +621,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
         }
 
         const size_t width = optionTemplate->printableName().length();
-        nameColumns = std::max(nameColumns, width);
+        nameColumns = nameColumns < width ? width : nameColumns;
     }
 
     const size_t helpTextColumns = screenColumns - (nameColumns + 2);
