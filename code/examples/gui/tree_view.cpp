@@ -50,7 +50,7 @@ void changed_cb(Fl_Widget*, void*)
 {
     CTreeItem* item = tree->selected();
     if (item)
-        COUT(item->label().c_str() << endl);
+        COUT(item->label().c_str());
 }
 
 void add_item_cb(Fl_Widget*, void*)
@@ -85,7 +85,7 @@ void add_item_cb(Fl_Widget*, void*)
     if (dlg.showModal())
     {
         CTreeItem* node = nullptr;
-        int mode = int(typeCombo.data()) + int(modeCombo.data()) * 2;
+        int        mode = int(typeCombo.data()) + int(modeCombo.data()) * 2;
         switch (mode)
         {
             case 3: // add folder to the root
@@ -210,7 +210,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

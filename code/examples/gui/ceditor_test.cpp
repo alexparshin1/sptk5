@@ -45,9 +45,9 @@
 using namespace std;
 using namespace sptk;
 
-int changed = 0;
-char filename[256] = "";
-char title[256];
+int             changed = 0;
+char            filename[256] = "";
+char            title[256];
 Fl_Text_Buffer* textbuf = nullptr;
 
 // Syntax highlighting stuff...
@@ -155,11 +155,11 @@ int compare_keywords(const void* a, const void* b)
 
 void style_parse(const char* text, char* style, int length)
 {
-    char current;
-    int col;
-    int last;
-    char buf[255];
-    char* bufptr;
+    char        current;
+    int         col;
+    int         last;
+    char        buf[255];
+    char*       bufptr;
     const char* temp;
 
     for (current = *style, col = 0, last = 0; length > 0; length--, text++)
@@ -364,9 +364,9 @@ void style_update(
     const char* /*deletedText*/, // I - Text that was deleted
     void* cbArg)
 {                // I - Callback data
-    int start;   // Start of text
-    int end;     // End of text
-    char last;   // Last style on line
+    int   start; // Start of text
+    int   end;   // End of text
+    char  last;  // Last style on line
     char* style; // Style data
     char* text;  // Text data
 
@@ -458,8 +458,8 @@ public:
     ~EditorWindow() override;
 
     CWindow* replace_dlg;
-    CInput* replace_find;
-    CInput* replace_with;
+    CInput*  replace_find;
+    CInput*  replace_with;
     CButton* replace_all;
     CButton* replace_next;
     CButton* replace_cancel;
@@ -467,7 +467,7 @@ public:
     CBox* cursor_position {nullptr};
 
     CEditor* editor;
-    string search;
+    string   search;
 };
 
 EditorWindow::EditorWindow(int w, int h, const char* t)
@@ -584,7 +584,7 @@ void delete_cb(Fl_Widget*, void*)
 
 void find_cb(Fl_Widget* w, void* v)
 {
-    auto* e = (EditorWindow*) v;
+    auto*       e = (EditorWindow*) v;
     const char* val;
 
     val = fl_input("Search String:", e->search.c_str());
@@ -624,8 +624,8 @@ void find2_cb(Fl_Widget* w, void* v)
 void cursor_cb(Fl_Widget* w, void*)
 {
     auto* e = (EditorWindow*) w->window();
-    int row;
-    int col;
+    int   row;
+    int   col;
     e->editor->cursorRowCol(row, col);
     e->cursor_position->data(String("Row " + int2string(row) + ", Col " + int2string(col)));
     e->relayout();
@@ -768,7 +768,7 @@ void replace_cb(Fl_Widget*, void* v)
 
 void replace2_cb(Fl_Widget*, void* v)
 {
-    auto* e = (EditorWindow*) v;
+    auto*  e = (EditorWindow*) v;
     String find = e->replace_find->data().asString();
     String replace = e->replace_with->data().asString();
 
@@ -802,7 +802,7 @@ void replace2_cb(Fl_Widget*, void* v)
 
 void replall_cb(Fl_Widget*, void* v)
 {
-    auto* e = (EditorWindow*) v;
+    auto*  e = (EditorWindow*) v;
     String find = e->replace_find->data().asString();
     String replace = e->replace_with->data().asString();
 
@@ -994,7 +994,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

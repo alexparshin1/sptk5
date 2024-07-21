@@ -19,7 +19,7 @@ int main(int argc, char** argv)
             COUT("Create C++ header file content for the theme tar archive,"
                  << " presented as a variable definition." << endl
                  << endl);
-            CERR("Usage: tar2h <input file> <variable name>" << endl);
+            CERR("Usage: tar2h <input file> <variable name>");
             return 1;
         }
 
@@ -28,8 +28,8 @@ int main(int argc, char** argv)
 
         size_t dataSize = data.bytes();
 
-        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";" << endl);
-        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {" << endl);
+        COUT("static size_t " << argv[2] << "_len = " << dataSize << ";");
+        COUT("static unsigned char " << argv[2] << "[" << dataSize << "] = {");
 
         const auto* x = (const unsigned char*) data.c_str();
 
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

@@ -66,11 +66,11 @@ OracleOciConnection::~OracleOciConnection()
     }
     catch (const sptk::Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
     catch (const ocilib::Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 

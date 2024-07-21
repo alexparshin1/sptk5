@@ -180,13 +180,11 @@ void LogEngine::threadFunction()
 
             if (message->priority <= LogPriority::Error)
             {
-                CERR(messagePrefix.c_str() << message->message.c_str() << endl
-                                           << flush);
+                CERR(messagePrefix.c_str() << message->message.c_str());
             }
             else
             {
-                COUT(messagePrefix.c_str() << message->message.c_str() << endl
-                                           << flush);
+                COUT(messagePrefix.c_str() << message->message.c_str());
             }
         }
     }

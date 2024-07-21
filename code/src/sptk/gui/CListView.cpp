@@ -483,7 +483,7 @@ int CListView::item_height(unsigned index) const
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     return 0;

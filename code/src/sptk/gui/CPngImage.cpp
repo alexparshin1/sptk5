@@ -43,15 +43,15 @@ using namespace std;
 
 typedef struct
 {
-    unsigned read_offset;
+    unsigned      read_offset;
     const Buffer* buffer;
 } CMemHandle;
 
 static void png_read(png_structp pp, png_bytep buf, png_size_t len)
 {
-    auto* p = (CMemHandle*) png_get_io_ptr(pp);
+    auto*         p = (CMemHandle*) png_get_io_ptr(pp);
     const Buffer* buffer = p->buffer;
-    png_size_t tail = buffer->bytes() - p->read_offset;
+    png_size_t    tail = buffer->bytes() - p->read_offset;
     if (len > tail)
     {
         len = tail;
@@ -62,12 +62,12 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len)
 
 void CPngImage::load(const Buffer& imagedata)
 {
-    int i;
-    int channels;
-    png_structp pp;  // PNG read pointer
-    png_infop info;  // PNG info pointer
-    png_bytep* rows; // PNG row pointers
-    CMemHandle p;
+    int         i;
+    int         channels;
+    png_structp pp;   // PNG read pointer
+    png_infop   info; // PNG info pointer
+    png_bytep*  rows; // PNG row pointers
+    CMemHandle  p;
 
     pp = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     info = png_create_info_struct(pp);
@@ -92,9 +92,9 @@ void CPngImage::load(const Buffer& imagedata)
         channels = 1;
     }
 
-    int num_trans = 0;
+    int           num_trans = 0;
     png_color_16p trans_color;
-    png_bytep trans_alpha;
+    png_bytep     trans_alpha;
     png_get_tRNS(pp, info, &trans_alpha, &num_trans, &trans_color);
     if ((color_type & PNG_COLOR_MASK_ALPHA) || num_trans)
     {
@@ -187,7 +187,7 @@ CPngImage::CPngImage(const String& fileName)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 
@@ -210,12 +210,12 @@ subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned wi
     {
         height = (unsigned) image->h() - offsetY;
     }
-    unsigned bytesPerRow = image->w() * image->d();
-    unsigned newBytesPerRow = width * image->d();
-    unsigned totalBytes = height * newBytesPerRow;
+    unsigned     bytesPerRow = image->w() * image->d();
+    unsigned     newBytesPerRow = width * image->d();
+    unsigned     totalBytes = height * newBytesPerRow;
     const uchar* imageArray = image->array;
-    auto* newArray = new uchar[totalBytes];
-    auto* newImage = new Fl_RGB_Image(newArray, width, height, image->d());
+    auto*        newArray = new uchar[totalBytes];
+    auto*        newImage = new Fl_RGB_Image(newArray, width, height, image->d());
     newImage->alloc_array = 1;
 
     const uchar* imageRow = imageArray + offsetY * bytesPerRow + offsetX * image->d();
@@ -236,7 +236,7 @@ void CPngImage::cutStretchDraw(
         return;
     }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
-    auto* stretched = (Fl_RGB_Image*) img->copy(destW, destH);
+    auto*         stretched = (Fl_RGB_Image*) img->copy(destW, destH);
     stretched->draw(destX, destY);
     delete img;
     delete stretched;

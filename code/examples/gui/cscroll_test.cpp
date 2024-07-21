@@ -83,7 +83,7 @@ int main()
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto* ps = new CPackedStrings(4, rowData);
+            auto*  ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -93,7 +93,7 @@ int main()
         // buttons use the default alignment for buttons -
         // CLayoutAlign::RIGHT, and the text/icon defined by the
         // button kind.
-        CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
+        CGroup  buttonGroup("", 10, CLayoutAlign::BOTTOM);
         CButton exitButton(CButtonKind::EXIT_BUTTON);
         exitButton.callback(exit_cb);
         buttonGroup.end();
@@ -108,7 +108,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

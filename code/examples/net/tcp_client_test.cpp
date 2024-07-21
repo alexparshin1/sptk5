@@ -36,7 +36,7 @@ int main()
 {
     try
     {
-        TCPSocket client;
+        TCPSocket    client;
         SocketReader clientReader(client);
 
         client.host(Host("localhost", 3000));
@@ -64,7 +64,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught:" << e.what() << "\nExiting.\n");
+        CERR("Exception was caught:" << e.what() << "\nExiting.");
     }
 
     COUT("Exiting\n");

@@ -489,7 +489,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl);
+                    CERR(e.what());
                 }
             }
             else
@@ -504,7 +504,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                 }
                 catch (const Exception& e)
                 {
-                    CERR(e.what() << endl);
+                    CERR(e.what());
                 }
             }
             if (widget->parent() != m_group)
@@ -561,7 +561,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl);
+                CERR(e.what());
             }
             try
             {
@@ -584,7 +584,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl);
+                CERR(e.what());
             }
         }
     }
@@ -647,7 +647,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 }
@@ -671,7 +671,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
 
         if (recursive)
@@ -686,7 +686,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
             }
             catch (const Exception& e)
             {
-                CERR(e.what() << endl);
+                CERR(e.what());
             }
         }
     }

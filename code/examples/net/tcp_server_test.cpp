@@ -81,7 +81,7 @@ int main()
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
-        SocketType clientSocketFD;
+        SocketType  clientSocketFD;
         sockaddr_in clientInfo {};
 
         server.listen();
@@ -100,7 +100,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
+        CERR("Exception was caught: " << e.what() << "\nExiting.");
     }
     COUT("Server session closed\n");
     return 0;

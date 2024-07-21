@@ -68,7 +68,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
+        CERR("Exception was caught: " << e.what() << "\nExiting.");
         return 1;
     }
 

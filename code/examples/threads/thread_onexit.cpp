@@ -51,31 +51,31 @@ CMyThread::CMyThread(string threadName)
     : Thread(threadName)
 {
     // Put anything you need here to define your actual thread
-    COUT(name() << " thread: created" << endl);
+    COUT(name() << " thread: created");
 }
 
 CMyThread::~CMyThread()
 {
-    COUT(name() << " thread: destroyed" << endl);
+    COUT(name() << " thread: destroyed");
 }
 
 // The thread function. Prints a message once a second till terminated
 void CMyThread::threadFunction()
 {
-    COUT(name() << " thread: started" << endl);
+    COUT(name() << " thread: started");
     int i = 0;
     while (!terminated())
     {
-        COUT("Output " << i << " from " << name() << endl);
+        COUT("Output " << i << " from " << name());
         i++;
         msleep(1010);
     }
-    COUT(name() + " thread: terminated" << endl);
+    COUT(name() + " thread: terminated");
 }
 
 void CMyThread::onThreadExit()
 {
-    COUT(name() << " thread: no longer executing" << endl);
+    COUT(name() << " thread: no longer executing");
     delete this;
 }
 
@@ -87,7 +87,7 @@ int main(int, char*[])
     thread1->run();
     thread2->run();
 
-    COUT("Waiting 5 seconds while threads are running.." << endl);
+    COUT("Waiting 5 seconds while threads are running..");
 
     Thread::msleep(5000);
 

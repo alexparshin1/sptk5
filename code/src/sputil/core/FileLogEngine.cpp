@@ -76,7 +76,7 @@ void FileLogEngine::saveMessage(const Logger::Message& message)
 
         if (m_fileStream.bad())
         {
-            CERR("Can't write to file " << m_fileName.string().c_str() << '\n');
+            CERR("Can't write to file " << m_fileName.string().c_str());
         }
     }
 }

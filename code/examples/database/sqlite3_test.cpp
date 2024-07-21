@@ -69,7 +69,7 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
     }
     catch (const Exception& e)
     {
-        CERR("Error: " << e.what() << '\n');
+        CERR("Error: " << e.what());
     }
 
     return true;
@@ -78,7 +78,7 @@ int testTransactions(DatabaseConnection db, const String& tableName, bool rollba
 int main()
 {
     DatabaseConnectionPool connectionPool("sqlite3://localhost/tmp/demo_db.sqlite3");
-    DatabaseConnection db = connectionPool.getConnection();
+    DatabaseConnection     db = connectionPool.getConnection();
 
     try
     {
@@ -168,7 +168,7 @@ int main()
         while (!step3Query.eof())
         {
 
-            int id = idField.asInteger();
+            int  id = idField.asInteger();
             auto name = nameField.asString();
             auto position = positionField.asString();
 
@@ -191,9 +191,9 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << '\n');
-        CERR("Sorry, you have to fix your database or database connection.\n");
-        CERR("Please, read the README.txt for more information.\n");
+        CERR("\nError: " << e.what());
+        CERR("Sorry, you have to fix your database or database connection.");
+        CERR("Please, read the README.txt for more information.");
     }
 
     return 0;

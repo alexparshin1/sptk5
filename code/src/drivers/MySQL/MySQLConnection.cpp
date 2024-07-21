@@ -49,7 +49,8 @@ void MySQLConnection::initConnection()
 
     const scoped_lock lock(libraryInitMutex);
     m_connection = shared_ptr<MYSQL>(mysql_init(nullptr),
-                                     [](auto* connection) {
+                                     [](auto* connection)
+                                     {
                                          mysql_close(connection);
                                      });
     if (m_connection == nullptr)
@@ -207,7 +208,7 @@ void MySQLConnection::queryPrepare(Query* query)
 
 size_t MySQLConnection::queryColCount(Query* query)
 {
-    size_t colCount = 0;
+    size_t      colCount = 0;
     const auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {
@@ -381,7 +382,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
     catch (const Exception& e)
     {
-        CERR("Error fetching system info: " << e.what() << '\n');
+        CERR("Error fetching system info: " << e.what());
     }
 }
 
@@ -394,7 +395,7 @@ void MySQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    String statement;
+    String  statement;
     for (auto row: batchSQL)
     {
         row = row.trim();
