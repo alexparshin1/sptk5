@@ -26,6 +26,8 @@
 
 #include "sptk5/StopWatch.h"
 #include "sptk5/net/TCPServer.h"
+
+#include <fcntl.h>
 #include <gtest/gtest.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/SocketReader.h>

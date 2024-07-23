@@ -36,7 +36,7 @@ class StubRequest
     : public WSRequest
 {
 protected:
-    void requestBroker(const String& requestName, const xdoc::SNode&, const xdoc::SNode& jsonNode, HttpAuthentication*,
+    void requestBroker(const String&, const xdoc::SNode&, const xdoc::SNode&, HttpAuthentication*,
                        const WSNameSpace&) override
     {
         // Not used in this test
@@ -50,9 +50,9 @@ int main()
 {
     try
     {
-        auto request = make_shared<StubRequest>();
+        auto         request = make_shared<StubRequest>();
         SysLogEngine log("ws_server_test");
-        Logger logger(log);
+        Logger       logger(log);
 
         char hostname[128];
         if (int rc = gethostname(hostname, sizeof(hostname));
@@ -60,10 +60,10 @@ int main()
         {
             throw SystemException("Can't get hostname");
         }
-        WSConnection::Paths paths("index.html", "request", "/var/lib/pgman/webapp");
+        WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
         WSConnection::Options options(paths);
-        WSServices services(request);
-        WSListener server(services, log, hostname, 32, options);
+        WSServices            services(request);
+        WSListener            server(services, log, hostname, 32, options);
         server.addListener(ServerConnection::Type::TCP, 8000);
         while (true)
         {
@@ -72,9 +72,9 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
+        CERR("Exception was caught: " << e.what() << "\nExiting.");
         return 1;
     }
-    COUT("Server session closed" << endl);
+    COUT("Server session closed");
     return 0;
 }

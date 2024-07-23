@@ -126,7 +126,7 @@ bool createDirectory(const String& directory)
     }
     catch (const filesystem::filesystem_error& e)
     {
-        CERR("Can't create output directory '" << directory << "': " << e.what() << '\n');
+        CERR("Can't create output directory '" << directory << "': " << e.what());
         return false;
     }
     return true;
@@ -139,9 +139,9 @@ int main(int argc, const char* argv[])
 
     try
     {
-        AppCommandLine commandLine;
+        AppCommandLine   commandLine;
         constexpr size_t defaultScreenColumns = 80;
-        size_t screenColumns = defaultScreenColumns;
+        size_t           screenColumns = defaultScreenColumns;
         if (const auto* colsStr = getenv("COLS");
             colsStr != nullptr)
         {
@@ -157,8 +157,8 @@ int main(int argc, const char* argv[])
         }
 
         const filesystem::path wsdlFile = commandLine.arguments().front().c_str();
-        const auto quiet = commandLine.hasOption("quiet");
-        const auto verbose = commandLine.hasOption("verbose");
+        const auto             quiet = commandLine.hasOption("quiet");
+        const auto             verbose = commandLine.hasOption("verbose");
 
         WSParser wsParser;
 
@@ -195,7 +195,7 @@ int main(int argc, const char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << '\n');
+        CERR(e.what());
         exitCode = 1;
     }
 

@@ -31,16 +31,17 @@ using namespace sptk;
 
 LogEngine::LogEngine(const String&)
 {
-    m_saveMessageThread = jthread([this]() {
-        try
-        {
-            threadFunction();
-        }
-        catch (const Exception& exception)
-        {
-            CERR(exception.what() << endl);
-        }
-    });
+    m_saveMessageThread = jthread([this]()
+                                  {
+                                      try
+                                      {
+                                          threadFunction();
+                                      }
+                                      catch (const Exception& exception)
+                                      {
+                                          CERR(exception.what());
+                                      }
+                                  });
 }
 
 LogEngine::~LogEngine()
@@ -58,7 +59,7 @@ void LogEngine::shutdown()
 
 void LogEngine::option(Option option, bool flag)
 {
-    const std::scoped_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
     if (flag)
     {
         m_options.insert(option);
@@ -71,7 +72,7 @@ void LogEngine::option(Option option, bool flag)
 
 bool LogEngine::option(Option option) const
 {
-    const std::scoped_lock lock(m_mutex);
+    const lock_guard lock(m_mutex);
     return m_options.contains(option);
 }
 
@@ -155,7 +156,7 @@ void LogEngine::threadFunction()
         {
             break;
         }
-        
+
         saveMessage(*message);
 
         if (option(Option::STDOUT))
@@ -179,13 +180,11 @@ void LogEngine::threadFunction()
 
             if (message->priority <= LogPriority::Error)
             {
-                CERR(messagePrefix.c_str() << message->message.c_str() << endl
-                                           << flush);
+                CERR(messagePrefix.c_str() << message->message.c_str());
             }
             else
             {
-                COUT(messagePrefix.c_str() << message->message.c_str() << endl
-                                           << flush);
+                COUT(messagePrefix.c_str() << message->message.c_str());
             }
         }
     }
@@ -202,7 +201,10 @@ void LogEngine::threadFunction()
 
 void LogEngine::terminate()
 {
-    m_terminated = true;
+    {
+        const lock_guard lock(m_mutex);
+        m_terminated = true;
+    }
     m_messages.wakeup();
     if (m_saveMessageThread.joinable())
     {

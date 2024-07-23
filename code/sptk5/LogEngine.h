@@ -100,7 +100,7 @@ public:
      */
     void options(const std::set<Option>& ops)
     {
-        const std::scoped_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         m_options = ops;
     }
 
@@ -110,7 +110,7 @@ public:
      */
     std::set<Option> options() const
     {
-        const std::scoped_lock lock(m_mutex);
+        const std::lock_guard lock(m_mutex);
         return m_options;
     }
 
@@ -206,6 +206,7 @@ protected:
      */
     bool terminated() const
     {
+        const std::lock_guard lock(m_mutex);
         return m_terminated;
     }
 
@@ -230,7 +231,7 @@ private:
      */
     std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
-    std::atomic_bool m_terminated {false};
+    bool m_terminated {false};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

@@ -96,7 +96,7 @@ static void waitPerformance(bool withTimeout)
     }
     stopWatch.stop();
 
-    COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << (int) iterations / stopWatch.milliseconds() / 1000 << "M/sec" << endl);
+    COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << (int) iterations / stopWatch.milliseconds() / 1000 << "M/sec");
 }
 
 TEST(SPTK_Semaphore, waitPerformance)

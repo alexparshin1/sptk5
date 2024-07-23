@@ -100,7 +100,7 @@ int main()
 
         db->bulkInsert(tableName, columnNames, data);
 
-        COUT("Ok.\nStep 3: Selecting the information through the field iterator .." << endl);
+        COUT("Ok.\nStep 3: Selecting the information through the field iterator ..");
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -135,20 +135,20 @@ int main()
                 fieldIndex++;
             }
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl);
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date);
 
             step3Query.fetch();
         }
         step3Query.close();
 
         step4Query.open();
-        COUT("Ok." << endl);
+        COUT("Ok.");
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << endl);
-        CERR("\nSorry, you have to fix your database connection." << endl);
-        CERR("Please, read the README.txt for more information." << endl);
+        CERR("\nError: " << e.what());
+        CERR("\nSorry, you have to fix your database connection.");
+        CERR("Please, read the README.txt for more information.");
     }
 
     return 0;

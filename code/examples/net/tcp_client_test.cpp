@@ -36,7 +36,7 @@ int main()
 {
     try
     {
-        TCPSocket client;
+        TCPSocket    client;
         SocketReader clientReader(client);
 
         client.host(Host("localhost", 3000));
@@ -47,7 +47,7 @@ int main()
         String data;
 
         clientReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << "\n");
+        COUT("Receiving: " << data.c_str());
 
         data = "Several copies of a single string";
         COUT("Sending:   test data\n");
@@ -57,14 +57,14 @@ int main()
         client.write("EOD\n");
 
         clientReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << "\n");
+        COUT("Receiving: " << data.c_str());
 
         COUT("Sending:   EOS\n");
         client.write("EOS\n");
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught:" << e.what() << "\nExiting.\n");
+        CERR("Exception was caught:" << e.what() << "\nExiting.");
     }
 
     COUT("Exiting\n");

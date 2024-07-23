@@ -47,7 +47,7 @@ TEST(SPTK_SmtpConnect, minimal)
     {
         COUT("Connecting to " << smtpServer.toString() << ".. " << flush);
         smtp.open(smtpServer);
-        COUT(" Connected" << endl);
+        COUT(" Connected");
         smtp.cmd_auth(username, password);
         smtp.subject("SPTK SMTP test");
         smtp.from("Some developer <somebody@nowhere.net>");

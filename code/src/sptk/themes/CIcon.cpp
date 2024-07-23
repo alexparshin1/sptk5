@@ -123,7 +123,7 @@ void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 }

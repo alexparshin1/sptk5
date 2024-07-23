@@ -99,7 +99,7 @@ void Thread::run()
             }
             catch (const Exception& e)
             {
-                CERR("Exception in thread '" << name() << "': " << e.what() << endl);
+                CERR("Exception in thread '" << name() << "': " << e.what());
             }
         });
 }

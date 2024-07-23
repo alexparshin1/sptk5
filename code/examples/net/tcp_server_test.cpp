@@ -54,7 +54,7 @@ void processConnection(TCPSocket& server, SocketType clientSocketFD)
                 {
                     break;
                 }
-                COUT("Receiving: " << data.c_str() << endl);
+                COUT("Receiving: " << data.c_str());
             }
         } while (data != "EOD");
 
@@ -63,13 +63,13 @@ void processConnection(TCPSocket& server, SocketType clientSocketFD)
 
         // End of session
         socketReader.readLine(data);
-        COUT("Receiving: " << data.c_str() << endl);
+        COUT("Receiving: " << data.c_str());
 
         server.close();
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 
@@ -81,7 +81,7 @@ int main()
         TCPSocket server;
         server.host(Host("localhost", 3000));
 
-        SocketType clientSocketFD;
+        SocketType  clientSocketFD;
         sockaddr_in clientInfo {};
 
         server.listen();
@@ -95,12 +95,12 @@ int main()
         }
         else
         {
-            CERR("Timeout waiting for connection to test server" << endl);
+            CERR("Timeout waiting for connection to test server");
         }
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught: " << e.what() << "\nExiting.\n");
+        CERR("Exception was caught: " << e.what() << "\nExiting.");
     }
     COUT("Server session closed\n");
     return 0;

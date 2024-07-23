@@ -63,7 +63,7 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << '\n');
+            CERR(e.what());
             break;
         }
     }
@@ -101,7 +101,7 @@ void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const S
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << '\n');
+            CERR(e.what());
         }
     }
     stopWatch.stop();
@@ -112,7 +112,7 @@ void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const S
     if (constexpr chrono::seconds timeout(10);
         !socket.readyToRead(timeout))
     {
-        CERR("Timeout waiting for response\n");
+        CERR("Timeout waiting for response");
     }
     socket.close();
 }
@@ -129,16 +129,17 @@ TEST(SPTK_TCPServer, tcpMinimal)
         echoServer.onConnection(echoTestFunction);
         echoServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
 
-        TCPSocket socket;
+        TCPSocket    socket;
         SocketReader socketReader(socket);
 
         socket.open(Host("localhost", testTcpEchoServerPort));
 
-        const Strings rows({ "Hello, World!",
-                                 "This is a test of TCPServer class.",
-                                 "Using simple echo server to verify data flow.",
-                                 "The session is terminated when this row is received.",
-                            });
+        const Strings rows({
+            "Hello, World!",
+            "This is a test of TCPServer class.",
+            "Using simple echo server to verify data flow.",
+            "The session is terminated when this row is received.",
+        });
 
         this_thread::sleep_for(5ms);
 
@@ -184,7 +185,7 @@ TEST(SPTK_TCPServer, sslMinimal)
         echoServer.addListener(ServerConnection::Type::SSL, testSslEchoServerPort);
         this_thread::sleep_for(100ms);
 
-        SSLSocket socket;
+        SSLSocket    socket;
         SocketReader socketReader(socket);
 
         socket.open(Host("localhost", testSslEchoServerPort));
@@ -271,7 +272,7 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
     auto pushTcpServer = makePerformanceTestServer(connectionType);
 
     constexpr size_t readSize {packetSize};
-    StopWatch stopWatch;
+    StopWatch        stopWatch;
 
     const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
                                              ? make_shared<TCPSocket>()
@@ -331,7 +332,7 @@ void testReaderTransferPerformance(ServerConnection::Type connectionType, const 
     socket->open(Host("localhost", serverPortNumber));
 
     constexpr size_t readerBufferSize = 2048;
-    SocketReader socketReader(*socket, readerBufferSize);
+    SocketReader     socketReader(*socket, readerBufferSize);
 
     constexpr size_t readSize {packetSize};
 

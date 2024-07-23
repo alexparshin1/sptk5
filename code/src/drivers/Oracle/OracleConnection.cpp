@@ -57,11 +57,11 @@ OracleConnection::~OracleConnection()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
     catch (const SQLException& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 
@@ -79,7 +79,8 @@ void OracleConnection::_openDatabase(const String& newConnectionString)
         try
         {
             m_connection = shared_ptr<Connection>(m_environment.createConnection(connectionString()),
-                                                  [this](Connection* ptr) {
+                                                  [this](Connection* ptr)
+                                                  {
                                                       disconnectAllQueries();
                                                       m_environment.terminateConnection(ptr);
                                                   });
@@ -129,7 +130,7 @@ bool OracleConnection::active() const
 String OracleConnection::nativeConnectionString() const
 {
     // Connection string in format: host[:port][/instance]
-    stringstream connectionString;
+    stringstream                    connectionString;
     const DatabaseConnectionString& connString = PoolDatabaseConnection::connectionString();
     connectionString << connString.hostName();
     if (connString.portNumber())
@@ -211,7 +212,7 @@ void OracleConnection::queryFreeStmt(Query* query)
 void OracleConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
-    auto* statement = bit_cast<OracleStatement*>(query->statement());
+    auto*             statement = bit_cast<OracleStatement*>(query->statement());
     if (statement)
     {
         statement->close();
@@ -400,7 +401,7 @@ void OracleConnection::queryOpen(Query* query)
         if (query->fieldCount() == 0)
         {
             const scoped_lock lock(m_mutex);
-            ResultSet* resultSet = statement->resultSet();
+            ResultSet*        resultSet = statement->resultSet();
             createQueryFieldsFromMetadata(query, resultSet);
         }
     }
@@ -413,12 +414,12 @@ void OracleConnection::queryOpen(Query* query)
 void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* resultSet)
 {
     const vector<MetaData> resultSetMetaData = resultSet->getColumnListMetaData();
-    unsigned columnIndex = 0;
+    unsigned               columnIndex = 0;
     for (const MetaData& metaData: resultSetMetaData)
     {
-        auto columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
+        auto      columnType = (Type) metaData.getInt(MetaData::ATTR_DATA_TYPE);
         const int columnScale = metaData.getInt(MetaData::ATTR_SCALE);
-        String columnName(metaData.getString(MetaData::ATTR_NAME));
+        String    columnName(metaData.getString(MetaData::ATTR_NAME));
         const int columnDataSize = metaData.getInt(MetaData::ATTR_DATA_SIZE);
         if (columnName.empty())
         {
@@ -432,8 +433,8 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
         }
 
         const VariantDataType dataType = OracleTypeToVariantType(columnType, columnScale);
-        auto field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
-                                                columnScale);
+        auto                  field = make_shared<DatabaseField>(columnName, columnType, dataType, columnDataSize,
+                                                                 columnScale);
         query->fields().push_back(field);
 
         ++columnIndex;
@@ -443,13 +444,13 @@ void OracleConnection::createQueryFieldsFromMetadata(Query* query, ResultSet* re
 namespace {
 void Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int year = 0;
-    unsigned month = 0;
-    unsigned day = 0;
-    unsigned hour = 0;
-    unsigned min = 0;
-    unsigned sec = 0;
-    unsigned ms = 0;
+    int             year = 0;
+    unsigned        month = 0;
+    unsigned        day = 0;
+    unsigned        hour = 0;
+    unsigned        min = 0;
+    unsigned        sec = 0;
+    unsigned        ms = 0;
     const Timestamp timestamp = resultSet->getTimestamp(columnIndex);
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);
@@ -458,7 +459,7 @@ void Oracle_readTimestamp(ResultSet* resultSet, DatabaseField* field, unsigned i
 
 void Oracle_readDate(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    int year = 0;
+    int      year = 0;
     unsigned month = 0;
     unsigned day = 0;
     unsigned hour = 0;
@@ -584,7 +585,7 @@ namespace {
 void Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
-    Clob clob = resultSet->getClob(columnIndex);
+    Clob  clob = resultSet->getClob(columnIndex);
     clob.open(OCCI_LOB_READONLY);
     // Attention: clob stored as wide char
     const unsigned clobChars = clob.length();
@@ -599,7 +600,7 @@ void Oracle_readCLOB(ResultSet* resultSet, DatabaseField* field, unsigned int co
 void Oracle_readBLOB(ResultSet* resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     auto& buffer = field->get<Buffer>();
-    Blob blob = resultSet->getBlob(columnIndex);
+    Blob  blob = resultSet->getBlob(columnIndex);
     blob.open(OCCI_LOB_READONLY);
     const unsigned bytes = blob.length();
     field->checkSize(bytes);
@@ -681,8 +682,8 @@ void OracleConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    string statement;
-    bool routineStarted = false;
+    string  statement;
+    bool    routineStarted = false;
     for (const auto& aRow: batchSQL)
     {
         String row = trim(aRow);

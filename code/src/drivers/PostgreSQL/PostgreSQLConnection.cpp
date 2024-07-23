@@ -35,7 +35,7 @@ using namespace sptk;
 
 namespace sptk {
 
-constexpr int hoursPerDay = 24;
+constexpr int  hoursPerDay = 24;
 const DateTime epochDate(2000, 1, 1);
 
 class PostgreSQLStatement
@@ -58,7 +58,7 @@ public:
         if (stmt() != nullptr && !name().empty())
         {
             const String deallocateCommand = "DEALLOCATE \"" + name() + "\"";
-            PGresult* res = PQexec(m_connect, deallocateCommand.c_str());
+            PGresult*    res = PQexec(m_connect, deallocateCommand.c_str());
             PQclear(res);
         }
 
@@ -138,12 +138,12 @@ public:
     }
 
 private:
-    PGconn* m_connect {nullptr};
-    PGresult* m_stmt {nullptr};
-    String m_stmtName;
-    int m_rows {0};
-    int m_cols {0};
-    int m_currentRow {0};
+    PGconn*               m_connect {nullptr};
+    PGresult*             m_stmt {nullptr};
+    String                m_stmtName;
+    int                   m_rows {0};
+    int                   m_cols {0};
+    int                   m_currentRow {0};
     PostgreSQLParamValues m_paramValues;
 
     static unsigned nextIndex();
@@ -151,7 +151,7 @@ private:
 
 unsigned PostgreSQLStatement::nextIndex()
 {
-    static mutex amutex;
+    static mutex    amutex;
     static unsigned index = 0;
 
     const scoped_lock lock(amutex);
@@ -177,7 +177,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << '\n');
+        CERR(e.what());
     }
 }
 
@@ -190,7 +190,7 @@ inline string csParam(const string& name, const string& value)
 
 String PostgreSQLConnection::nativeConnectionString() const
 {
-    String port;
+    String                          port;
     const DatabaseConnectionString& connString = connectionString();
 
     if (connString.portNumber() != 0)
@@ -371,7 +371,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     PostgreSQLParamValues& params = statement->paramValues();
     params.setParameters(query->params());
 
-    const Oid* paramTypes = params.types();
+    const Oid*     paramTypes = params.types();
     const unsigned paramCount = params.size();
 
     auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), static_cast<int>(paramCount),
@@ -380,7 +380,7 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     checkError(m_connect, stmt, "PREPARE");
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    auto fieldCount = static_cast<unsigned>(PQnfields(stmt2));
+    auto      fieldCount = static_cast<unsigned>(PQnfields(stmt2));
 
     if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
     {
@@ -405,9 +405,9 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
+    auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
-    const CParamVector& params = paramValues.params();
+    const CParamVector&    params = paramValues.params();
 
     uint32_t paramNumber = 0;
     for (const auto& param: params)
@@ -461,10 +461,10 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
+    auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
-    const CParamVector& params = paramValues.params();
-    uint32_t paramNumber = 0;
+    const CParamVector&    params = paramValues.params();
+    uint32_t               paramNumber = 0;
 
     for (const auto& param: params)
     {
@@ -593,7 +593,7 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
         default:
             throw DatabaseException(
                 "Unsupported parameter type " + to_string(static_cast<int>(dataType)) +
-                    " for parameter '" + paramName + "'");
+                " for parameter '" + paramName + "'");
     }
 }
 
@@ -652,11 +652,11 @@ void PostgreSQLConnection::queryOpen(Query* query)
                 columnName = "column_" + to_string(column + 1);
             }
 
-            auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
+            auto            dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
             VariantDataType fieldType = VariantDataType::VAR_NONE;
             postgreTypeToVariantType(dataType, fieldType);
             const int fieldLength = PQfsize(stmt, column);
-            auto field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
+            auto      field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }
@@ -690,14 +690,14 @@ inline int64_t readInt8(const char* data)
 inline float readFloat4(const char* data)
 {
     uint32_t value = ntohl(*bit_cast<const uint32_t*>(data));
-    void* ptr = &value;
+    void*    ptr = &value;
     return *bit_cast<float*>(ptr);
 }
 
 inline double readFloat8(const char* data)
 {
     uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
-    void* ptr = &value;
+    void*    ptr = &value;
     return *bit_cast<double*>(ptr);
 }
 
@@ -709,8 +709,8 @@ inline DateTime readDate(const char* data)
 
 inline DateTime readTimestamp(const char* data, bool integerTimestamps)
 {
-    uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
-    DateTime result;
+    uint64_t             value = ntohq(*bit_cast<const uint64_t*>(data));
+    DateTime             result;
     chrono::microseconds epochOffset;
 
     if (integerTimestamps)
@@ -720,7 +720,7 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps)
     }
     else
     {
-        void* ptr = &value;
+        void*        ptr = &value;
         const double seconds = *bit_cast<double*>(ptr);
         epochOffset = chrono::seconds(static_cast<int>(seconds));
     }
@@ -733,7 +733,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     const auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
     const auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
     const auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
-    uint16_t dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
+    uint16_t   dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
     if (constexpr auto maxDscale = 16;
         dscale > maxDscale)
@@ -746,7 +746,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     int64_t value = 0;
 
     constexpr auto scaleShift = 4;
-    int scale = 0;
+    int            scale = 0;
     if (weight < 0)
     {
         for (int i = 0; i < -(weight + 1); ++i)
@@ -756,7 +756,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     }
 
     constexpr auto digitMultiplier = 10000;
-    int16_t digitWeight = weight;
+    int16_t        digitWeight = weight;
     for (int i = 0; i < ndigits; ++i)
     {
         const auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
@@ -839,13 +839,15 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
 
 void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
 {
-    struct PGArrayHeader {
+    struct PGArrayHeader
+    {
         uint32_t dimensionNumber;
         uint32_t hasNull;
         uint32_t elementType;
     };
 
-    struct PGArrayDimension {
+    struct PGArrayDimension
+    {
         uint32_t elementCount;
         uint32_t lowerBound;
     };
@@ -957,7 +959,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
     }
 
     const PGresult* stmt = statement->stmt();
-    const auto currentRow = static_cast<int>(statement->currentRow());
+    const auto      currentRow = static_cast<int>(statement->currentRow());
 
     for (int column = 0; column < fieldCount; ++column)
     {
@@ -1075,7 +1077,7 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
     const string tablesSQL("SELECT table_schema || '.' || table_name "
                            "FROM information_schema.tables "
                            "WHERE table_schema NOT IN ('information_schema','pg_catalog') ");
-    string objectsSQL;
+    string       objectsSQL;
     objects.clear();
 
     switch (objectType)
@@ -1164,8 +1166,8 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     static const RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
     static const RegularExpression matchCommentRow(R"(^\s*--)");
 
-    Strings statements;
-    String delimiter;
+    Strings      statements;
+    String       delimiter;
     stringstream statement;
 
     bool functionHeader = false;

@@ -98,7 +98,7 @@ void CColumnList::load(const xdoc::SNode& node)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 }
@@ -113,13 +113,13 @@ void CColumnList::save(const xdoc::SNode& node) const
         try
         {
             const CColumn& column = (*this)[i];
-            const auto& columnNode = node->pushNode("column");
+            const auto&    columnNode = node->pushNode("column");
             column.save(columnNode);
             columnNode->attributes().set("index", to_string(i));
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 }

@@ -43,7 +43,7 @@ void exit_cb(Fl_Widget* w, void*)
 
 void theme_cb(Fl_Widget* w, void*)
 {
-    auto* themesCombo = (CComboBox*) w;
+    auto*  themesCombo = (CComboBox*) w;
     String themeName = themesCombo->data().asString();
 
     CThemes::set(themeName);
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
         Fl::visual(FL_DOUBLE | FL_INDEX);
 
         xdoc::Document doc;
-        CWindow w(550, 450, "SPTK themes test");
+        CWindow        w(550, 450, "SPTK themes test");
 
         w.layoutSpacing(10);
 
@@ -95,13 +95,13 @@ int main(int argc, char** argv)
 
         char buffer1[20];
         char buffer2[20];
-        int maxItems = 20;
+        int  maxItems = 20;
         for (int a = 0; a < maxItems; a++)
         {
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", maxItems - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto* ps = new CPackedStrings(4, rowData);
+            auto*  ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
         buttonGroup.box(FL_DOWN_BOX);
 
         CComboBox themesCombo("Theme:", 350, CLayoutAlign::LEFT);
-        Strings themes = CThemes::availableThemes();
+        Strings   themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(70);
@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

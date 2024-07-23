@@ -76,11 +76,11 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
 
         double durationSec = duration2seconds(ended - started);
 
-        COUT("\nPerformance Test: " << count / durationSec << " TPS" << endl);
+        COUT("\nPerformance Test: " << count / durationSec << " TPS");
     }
     catch (const Exception& e)
     {
-        CERR("Error: " << e.what() << endl);
+        CERR("Error: " << e.what());
     }
 
     return true;
@@ -120,7 +120,7 @@ int testTransactions(const DatabaseConnection& db, const string& tableName, bool
     }
     catch (const Exception& e)
     {
-        CERR("Error: " << e.what() << endl);
+        CERR("Error: " << e.what());
     }
 
     return true;
@@ -164,37 +164,37 @@ int main(int argc, const char* argv[])
                            << endl);
             COUT("odbc_test [connection string]" << endl
                                                  << endl);
-            COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>," << endl);
+            COUT("Connection string has format: odbc://[user:password]@<odbc_dsn>,");
             COUT("for instance:" << endl
                                  << endl);
-            COUT("  odbc://alex:secret@mydsn" << endl);
+            COUT("  odbc://alex:secret@mydsn");
             return 1;
         }
 
         DatabaseConnectionPool connectionPool(connectString);
         DatabaseConnection db = connectionPool.getConnection();
 
-        COUT("Openning the database, using connection string " << connectString << ":" << endl);
+        COUT("Openning the database, using connection string " << connectString << ":");
 
         db->open();
 
         String tableName = "test_table";
 
-        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
+        COUT("Ok.\nDriver description: " << db->driverDescription());
 
         DatabaseObjectType objectTypes[] = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS, DatabaseObjectType::PROCEDURES};
         string objectTypeNames[] = {"tables", "views", "stored procedures"};
 
         for (unsigned i = 0; i < 3; i++)
         {
-            COUT("-------------------------------------------------" << endl);
-            COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
+            COUT("-------------------------------------------------");
+            COUT("First 10 " << objectTypeNames[i] << " in the database:");
             Strings objectList;
             db->objectList(objectTypes[i], objectList);
             for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-                COUT("  " << objectList[j] << endl);
+                COUT("  " << objectList[j]);
         }
-        COUT("-------------------------------------------------" << endl);
+        COUT("-------------------------------------------------");
 
         // Defining the queries
         Query step2Query(db, "INSERT INTO " + tableName + " VALUES(:person_id, :person_name, :position_name)");
@@ -240,7 +240,7 @@ int main(int argc, const char* argv[])
         position_param.setNull(); // This is the way to set field to NULL
         step2Query.exec();
 
-        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
+        COUT("Ok.\nStep 3: Selecting the information the slow way ..");
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -254,13 +254,13 @@ int main(int argc, const char* argv[])
             String name = step3Query[1].asString();
             String position = step3Query[2].asString();
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position);
 
             step3Query.fetch();
         }
         step3Query.close();
 
-        COUT("Ok.\nStep 4: Selecting the information the fast way .." << endl);
+        COUT("Ok.\nStep 4: Selecting the information the fast way ..");
         step3Query.param("some_id") = 1;
         step3Query.open();
 
@@ -276,7 +276,7 @@ int main(int argc, const char* argv[])
             auto name = nameField.asString();
             auto position = positionField.asString();
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position << endl);
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position);
 
             step3Query.fetch();
         }
@@ -293,13 +293,13 @@ int main(int argc, const char* argv[])
 
         COUT("Ok.\nStep 5: Closing the database.. ");
         db->close();
-        COUT("Ok." << endl);
+        COUT("Ok.");
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << endl);
-        CERR("\nSorry, you have to fix your database connection." << endl);
-        CERR("Please, read the README.txt for more information." << endl);
+        CERR("\nError: " << e.what());
+        CERR("\nSorry, you have to fix your database connection.");
+        CERR("Please, read the README.txt for more information.");
     }
 
     this_thread::sleep_for(chrono::milliseconds(1000));

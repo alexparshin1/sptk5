@@ -74,7 +74,7 @@ bool testTransactions(const DatabaseConnection& db, const string& tableName, boo
     }
     catch (const Exception& e)
     {
-        CERR("Error: " << e.what() << endl);
+        CERR("Error: " << e.what());
     }
 
     return true;
@@ -101,7 +101,7 @@ void testBLOBs(PoolDatabaseConnection* db)
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true);
@@ -137,8 +137,8 @@ void printDatabaseObjects(const DatabaseConnection& db)
 
     for (unsigned i = 0; i < 3; i++)
     {
-        COUT("-------------------------------------------------" << endl);
-        COUT("First 10 " << objectTypeNames[i] << " in the database:" << endl);
+        COUT("-------------------------------------------------");
+        COUT("First 10 " << objectTypeNames[i] << " in the database:");
         Strings objectList;
         try
         {
@@ -146,12 +146,12 @@ void printDatabaseObjects(const DatabaseConnection& db)
         }
         catch (const Exception& e)
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
         for (unsigned j = 0; j < objectList.size() && j < 10; j++)
-            COUT("  " << objectList[j] << endl);
+            COUT("  " << objectList[j]);
     }
-    COUT("-------------------------------------------------" << endl);
+    COUT("-------------------------------------------------");
 }
 
 void createTempTable(const DatabaseConnection& db, const String& tableName)
@@ -219,10 +219,10 @@ int testDatabase(const string& connectionString)
     try
     {
         COUT("==========================================\n");
-        COUT("Connection string: " << connectionString << "\n");
+        COUT("Connection string: " << connectionString);
         COUT("Opening the database.. ");
         db->open();
-        COUT("Ok.\nDriver description: " << db->driverDescription() << endl);
+        COUT("Ok.\nDriver description: " << db->driverDescription());
         printDatabaseObjects(db);
 
         // Defining the statements
@@ -290,7 +290,7 @@ int testDatabase(const string& connectionString)
         rate_param.setNull();
         insertRecordQuery.exec();
 
-        COUT("Ok.\nStep 3: Selecting the information the slow way .." << endl);
+        COUT("Ok.\nStep 3: Selecting the information the slow way ..");
         selectRecordsQuery.open();
 
         while (!selectRecordsQuery.eof())
@@ -316,13 +316,13 @@ int testDatabase(const string& connectionString)
             auto date = fieldToString(selectRecordsQuery[3]);
             auto rate = fieldToString(selectRecordsQuery[4]);
 
-            COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate << endl);
+            COUT(" | " << setw(40) << name << " | " << setw(20) << position_name << " | " << date << " | " << rate);
 
             selectRecordsQuery.fetch();
         }
         selectRecordsQuery.close();
 
-        COUT("Ok.\nStep 4: Selecting the information through the field iterator .." << endl);
+        COUT("Ok.\nStep 4: Selecting the information through the field iterator ..");
         selectRecordsQuery.open();
 
         while (!selectRecordsQuery.eof())
@@ -356,13 +356,13 @@ int testDatabase(const string& connectionString)
                 fieldIndex++;
             }
 
-            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date << endl);
+            COUT(setw(4) << id << " | " << setw(20) << name << " | " << position_name << " | " << hire_date);
 
             selectRecordsQuery.fetch();
         }
         selectRecordsQuery.close();
 
-        COUT("Ok.\nStep 5: Selecting the information the fast way .." << endl);
+        COUT("Ok.\nStep 5: Selecting the information the fast way ..");
         selectRecordsQuery.open();
 
         // First, find the field references by name or by number
@@ -381,7 +381,7 @@ int testDatabase(const string& connectionString)
             auto hire_date = dateField.asString();
             auto rate = rateField.asString();
 
-            COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate << endl);
+            COUT(setw(7) << id << " | " << setw(40) << name << " | " << setw(20) << position_name << " | " << hire_date << " | " << rate);
 
             selectRecordsQuery.fetch();
         }
@@ -390,14 +390,14 @@ int testDatabase(const string& connectionString)
         COUT("Ok.\n***********************************************\nTesting the transactions.\n");
 
         COUT(endl);
-        COUT("- Start transaction, delete all records from test table, then rollback:" << endl);
-        COUT("  After the test, table should have same number of records as before test." << endl);
+        COUT("- Start transaction, delete all records from test table, then rollback:");
+        COUT("  After the test, table should have same number of records as before test.");
         testTransactions(db, tableName, true);
 
         COUT(endl
              << endl);
-        COUT("- Start transaction, delete all records from test table, then rollback:" << endl);
-        COUT("  After the test, table should have no records." << endl);
+        COUT("- Start transaction, delete all records from test table, then rollback:");
+        COUT("  After the test, table should have no records.");
         testTransactions(db, tableName, false);
         COUT(endl);
 
@@ -406,7 +406,7 @@ int testDatabase(const string& connectionString)
     }
     catch (const Exception& e)
     {
-        CERR("\nError: " << e.what() << endl);
+        CERR("\nError: " << e.what());
         return 1;
     }
 
@@ -521,13 +521,13 @@ int main(int argc, const char* argv[])
             }
         }
 
-        COUT("Connection string: " << connectionString << endl);
+        COUT("Connection string: " << connectionString);
 
         return testDatabase(connectionString);
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

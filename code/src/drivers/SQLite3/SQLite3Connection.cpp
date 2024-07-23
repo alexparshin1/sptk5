@@ -70,7 +70,7 @@ void SQLite3Connection::closeAndClean()
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }
 

@@ -55,7 +55,7 @@ TEST(SPTK_HttpProxy, connect)
     auto matches = matchProxy.m(proxy);
     if (!matches)
     {
-        CERR("Can't parse proxy from environment variable" << endl);
+        CERR("Can't parse proxy from environment variable");
         return;
     }
 
@@ -95,7 +95,7 @@ TEST(SPTK_HttpProxy, connect)
             throw Exception(http.statusText());
         }
 
-        COUT(output.c_str() << endl);
+        COUT(output.c_str());
     }
     catch (const Exception& e)
     {

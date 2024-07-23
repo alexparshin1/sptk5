@@ -103,7 +103,7 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 
@@ -208,7 +208,7 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     createTable.exec();
@@ -262,7 +262,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     createTable.exec();
@@ -423,7 +423,7 @@ void DatabaseTests::createTempTable(const DatabaseConnectionString& connectionSt
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     createTable.exec();
@@ -507,7 +507,7 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 
     createTable.exec();
@@ -558,7 +558,7 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 
@@ -612,7 +612,7 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
         const RegularExpression matchTableNotExists("not exist|unknown table", "i");
         if (!matchTableNotExists.matches(e.what()))
         {
-            CERR(e.what() << endl);
+            CERR(e.what());
         }
     }
 
@@ -1115,7 +1115,7 @@ void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& database
     }
     catch (const Exception& e)
     {
-        COUT(e.what() << endl);
+        COUT(e.what());
     }
 
     Query createSequence(databaseConnection, "CREATE SEQUENCE " + sequenceName + " START WITH 1 INCREMENT BY 1 NOMAXVALUE");
@@ -1136,6 +1136,6 @@ void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& database
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
     }
 }

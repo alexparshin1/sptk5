@@ -242,7 +242,7 @@ TEST(SPTK_XDocument, exportToJSON)
     Buffer output;
     document.exportTo(DataFormat::JSON, output, true);
 
-    COUT(output.c_str() << endl);
+    COUT(output.c_str());
 }
 
 TEST(SPTK_XDocument, loadFormattedXML)

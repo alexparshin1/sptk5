@@ -105,7 +105,7 @@ TEST(SPTK_SynchronizedQueue, performance)
         actualSum += value;
     }
     stopWatch.stop();
-    COUT("Pushed " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second" << endl);
+    COUT("Pushed " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second");
 
     stopWatch.start();
     int receivedSum = 0;
@@ -117,7 +117,7 @@ TEST(SPTK_SynchronizedQueue, performance)
         }
     }
     stopWatch.stop();
-    COUT("Popped " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second" << endl);
+    COUT("Popped " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second");
 
     EXPECT_EQ(actualSum, receivedSum);
 }

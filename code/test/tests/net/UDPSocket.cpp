@@ -82,7 +82,7 @@ public:
             }
             catch (const Exception& e)
             {
-                COUT("Server: " << e.what() << endl);
+                COUT("Server: " << e.what());
                 break;
             }
         }
@@ -122,7 +122,7 @@ TEST(SPTK_UDPSocket, minimal)
             {
                 buffer.bytes(bytes);
             }
-            COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Received " << bytes << " bytes: " << buffer.c_str() << endl);
+            COUT(DateTime::Now().timeString(0, DateTime::PrintAccuracy::MILLISECONDS) << " Received " << bytes << " bytes: " << buffer.c_str());
         }
         EXPECT_STREQ(row.c_str(), buffer.c_str());
         ++rowCount;

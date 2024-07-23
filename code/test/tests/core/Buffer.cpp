@@ -205,7 +205,7 @@ TEST(SPTK_Buffer, createPerformance)
     }
     stopWatch.stop();
     auto duration = stopWatch.milliseconds();
-    COUT("sptk::Buffer: " << duration << "ms" << endl);
+    COUT("sptk::Buffer: " << duration << "ms");
 
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)
@@ -216,7 +216,7 @@ TEST(SPTK_Buffer, createPerformance)
     }
     stopWatch.stop();
     duration = stopWatch.milliseconds();
-    COUT("std::string: " << duration << "ms" << endl);
+    COUT("std::string: " << duration << "ms");
 
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)
@@ -228,7 +228,7 @@ TEST(SPTK_Buffer, createPerformance)
     }
     stopWatch.stop();
     duration = stopWatch.milliseconds();
-    COUT("std::vector: " << duration << "ms" << endl);
+    COUT("std::vector: " << duration << "ms");
 
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)
@@ -249,5 +249,5 @@ TEST(SPTK_Buffer, createPerformance)
     }
     stopWatch.stop();
     duration = stopWatch.milliseconds();
-    COUT("malloc: " << duration << "ms" << endl);
+    COUT("malloc: " << duration << "ms");
 }

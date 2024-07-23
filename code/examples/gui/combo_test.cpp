@@ -36,7 +36,7 @@ void theme_cb(Fl_Widget* w, void*)
 {
     try
     {
-        auto* themesCombo = (CComboBox*) w;
+        auto*  themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CEvent::DATA_CHANGED)
@@ -69,31 +69,31 @@ void combo_cb(Fl_Widget* w, void*)
     switch (control->eventType())
     {
         case CEvent::FOCUS:
-            COUT("Got focus" << endl);
+            COUT("Got focus");
             break;
         case CEvent::UNFOCUS:
-            COUT("Lost focus" << endl);
+            COUT("Lost focus");
             break;
         case CEvent::DATA_CHANGED:
-            COUT("Data Changed" << endl);
+            COUT("Data Changed");
             break;
         case CEvent::ADD_ITEM:
-            COUT("Add Item Command" << endl);
+            COUT("Add Item Command");
             break;
         case CEvent::EDIT_ITEM:
-            COUT("Edit Item Command" << endl);
+            COUT("Edit Item Command");
             break;
         case CEvent::DELETE_ITEM:
-            COUT("Delete Item Command" << endl);
+            COUT("Delete Item Command");
             break;
         case CEvent::MOUSE_CLICK:
-            COUT("Mouse Click" << endl);
+            COUT("Mouse Click");
             break;
         case CEvent::MOUSE_DOUBLE_CLICK:
-            COUT("Mouse Double Click" << endl);
+            COUT("Mouse Double Click");
             break;
         case CEvent::KEYBOARD:
-            COUT("Keyboard Key Pressed" << endl);
+            COUT("Keyboard Key Pressed");
             break;
         default:
             break;
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 200, CLayoutAlign::LEFT);
-        Strings themes = CThemes::availableThemes();
+        Strings   themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);
         themesCombo.data("Default");
@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
 }

@@ -108,7 +108,7 @@ public:
     /**
      * Clock used by DateTime
      */
-    using clock = std::chrono::high_resolution_clock;
+    using clock = std::chrono::system_clock;
 
     /**
      * DateTime::time_point type definition

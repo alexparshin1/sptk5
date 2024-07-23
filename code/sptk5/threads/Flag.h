@@ -135,11 +135,6 @@ private:
      * Terminate flag usage
      */
     void terminate();
-
-    /**
-     * Current number of waiters
-     */
-    size_t waiters() const;
 };
 /**
  * @}

@@ -51,7 +51,7 @@ int main(int, const char**)
             client.write((const uint8_t*) "GET /\n", 6);
             clientReader.readLine(buffer, '\n');
             COUT("Receiving: ");
-            COUT(buffer.data() << endl);
+            COUT(buffer.data());
             client.close();
             this_thread::sleep_for(chrono::milliseconds(3000));
         }
@@ -63,6 +63,6 @@ int main(int, const char**)
         return 1;
     }
 
-    CERR("Exiting" << endl);
+    CERR("Exiting");
     return 0;
 }

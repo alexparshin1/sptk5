@@ -39,29 +39,29 @@ int main()
     {
         semaphore.post();
 
-        COUT("Semaphore posted       (Ok)" << endl);
+        COUT("Semaphore posted       (Ok)");
 
         if (semaphore.wait_for(chrono::seconds(1)))
         {
-            COUT("Semaphore was posted   (Ok)" << endl);
+            COUT("Semaphore was posted   (Ok)");
         }
         else
         {
-            COUT("Semaphore wait timeout (Error)" << endl);
+            COUT("Semaphore wait timeout (Error)");
         }
 
         if (semaphore.wait_for(chrono::seconds(1)))
         {
-            COUT("Semaphore was posted   (Error)" << endl);
+            COUT("Semaphore was posted   (Error)");
         }
         else
         {
-            COUT("Semaphore wait timeout (Ok)" << endl);
+            COUT("Semaphore wait timeout (Ok)");
         }
     }
     catch (const Exception& e)
     {
-        CERR(e.what() << endl);
+        CERR(e.what());
         return 1;
     }
     return 0;

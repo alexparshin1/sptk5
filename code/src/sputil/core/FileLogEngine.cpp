@@ -36,11 +36,16 @@ FileLogEngine::~FileLogEngine()
 
 void FileLogEngine::saveMessage(const Logger::Message& message)
 {
+    if (terminated())
+    {
+        return;
+    }
+
     const auto options = this->options();
 
-    const scoped_lock lock(masterLock());
+    const lock_guard lock(masterLock());
 
-    if (options.contains(Option::ENABLE) && !terminated())
+    if (options.contains(Option::ENABLE))
     {
         if (!m_fileStream.is_open())
         {
@@ -69,9 +74,9 @@ void FileLogEngine::saveMessage(const Logger::Message& message)
 
         m_fileStream << message.message << '\n';
 
-        if (m_fileStream.bad() && !terminated())
+        if (m_fileStream.bad())
         {
-            CERR("Can't write to file " << m_fileName.string().c_str() << '\n');
+            CERR("Can't write to file " << m_fileName.string().c_str());
         }
     }
 }
@@ -90,7 +95,7 @@ void FileLogEngine::flush()
 
 void FileLogEngine::reset()
 {
-    const scoped_lock lock(masterLock());
+    const lock_guard lock(masterLock());
 
     if (m_fileStream.is_open())
     {
@@ -111,7 +116,7 @@ void FileLogEngine::reset()
 
 void FileLogEngine::close()
 {
-    const scoped_lock lock(masterLock());
+    const lock_guard lock(masterLock());
     if (m_fileStream.is_open())
     {
         m_fileStream.flush();
