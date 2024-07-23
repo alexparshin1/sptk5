@@ -78,7 +78,7 @@ public:
      * @param destination       Destination logger
      * @param prefix            Optional log message prefix
      */
-    Logger(LogEngine& destination, String prefix = "");
+    explicit Logger(LogEngine& destination, std::string_view prefix = "");
 
     /**
      * @brief Returns log engine (destination logger)
@@ -146,7 +146,7 @@ public:
      * @brief Get log message prefix
      * @param prefix            Message prefix
      */
-    String prefix() const
+    std::string_view prefix() const
     {
         const std::lock_guard lock(m_mutex);
         return m_prefix;
@@ -162,7 +162,7 @@ public:
 private:
     mutable std::mutex m_mutex;       ///< Mutex that protects access to member variables
     LogEngine&         m_destination; ///< The actual log to store messages to (destination log)
-    String             m_prefix;      ///< Log message prefix
+    std::string        m_prefix;      ///< Log message prefix
 };
 
 using SLogger = std::shared_ptr<Logger>;

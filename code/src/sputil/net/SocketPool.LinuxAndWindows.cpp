@@ -161,10 +161,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
             {
                 // Disable events for the socket
                 event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-                if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event) == -1)
-                {
-                    processError(errno, "disable socket events");
-                }
+                epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event);
             }
         }
     }

@@ -35,9 +35,9 @@ Logger::Message::Message(LogPriority priority, String message)
 {
 }
 
-Logger::Logger(LogEngine& destination, String prefix)
+Logger::Logger(LogEngine& destination, std::string_view prefix)
     : m_destination(destination)
-    , m_prefix(std::move(prefix))
+    , m_prefix(prefix)
 {
 }
 
