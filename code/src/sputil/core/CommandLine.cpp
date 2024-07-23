@@ -149,16 +149,17 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
     bool firstRow = true;
     for (const string& helpRow: helpText)
     {
+        stringstream str;
         if (firstRow)
         {
-            COUT(left << setw((int) nameWidth) << printableName());
+            str << left << setw((int) nameWidth) << printableName();
             firstRow = false;
         }
         else
         {
-            COUT(left << setw((int) nameWidth) << "");
+            str << left << setw((int) nameWidth) << "";
         }
-        COUT("  " << helpRow);
+        COUT(str.str() << "  " << helpRow);
     }
 
     if (!optionDefaultValue.empty())
@@ -168,8 +169,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
         {
             printDefaultValue = "'" + optionDefaultValue + "'";
         }
-        COUT(left << setw((int) nameWidth) << ""
-                  << "  The default value is " + printDefaultValue + "." << endl);
+        COUT(left << setw((int) nameWidth) << "" << "  The default value is " + printDefaultValue + ".");
     }
 }
 //=============================================================================
@@ -218,7 +218,7 @@ String CommandLine::CommandLineOption::printableName() const
 //=============================================================================
 
 CommandLine::CommandLineParameter::CommandLineParameter(const String& name, const String& shortName,
-                                                        String valueInfo,
+                                                        String        valueInfo,
                                                         const String& validateValue, const Visibility& useWithCommands,
                                                         const String& help)
     : CommandLineElement(name, shortName, help, useWithCommands)
@@ -366,8 +366,8 @@ Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
 
     // Pre-process command line arguments
     Strings arguments;
-    String quote;
-    String quotedString;
+    String  quote;
+    String  quotedString;
     for (auto& arg: args)
     {
         const String digestedArg = preprocessArgument(arg, quote, quotedString);
@@ -452,7 +452,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
 {
     const String& arg = digestedArgs[argumentIndex];
-    String value;
+    String        value;
     if (arg.startsWith("-"))
     {
         String optionName;
@@ -580,8 +580,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     // Find out space needed for command and option names
     constexpr size_t minimalWidth {10};
-    size_t nameColumns = minimalWidth;
-    Strings sortedCommands;
+    size_t           nameColumns = minimalWidth;
+    Strings          sortedCommands;
 
     for (const auto& [argumentName, value]: m_argumentTemplates)
     {
@@ -646,7 +646,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
         printLine(singleLine, screenColumns);
         for (const String& optionName: sortedOptions)
         {
-            auto itor = m_optionTemplates.find(optionName);
+            auto       itor = m_optionTemplates.find(optionName);
             const auto optionTemplate = itor->second;
             if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
             {
