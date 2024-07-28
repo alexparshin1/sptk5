@@ -39,8 +39,8 @@ int SSLContext::s_server_session_id_context = 1;
 void SSLContext::throwError(const String& humanDescription)
 {
     const unsigned long error = ERR_get_error();
-    const auto* reason = ERR_reason_error_string(error);
-    string errorStr = ERR_error_string(error, nullptr);
+    const auto*         reason = ERR_reason_error_string(error);
+    string              errorStr = ERR_error_string(error, nullptr);
     if (reason != nullptr)
     {
         errorStr += string("(): ") + reason;
@@ -48,10 +48,11 @@ void SSLContext::throwError(const String& humanDescription)
     throw Exception(humanDescription + "\n" + errorStr);
 }
 
-SSLContext::SSLContext(const String& cipherList)
+SSLContext::SSLContext(const String& cipherList, bool tlsOnly)
 {
     m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
-                                [this](SSL_CTX* context) {
+                                [this](SSL_CTX* context)
+                                {
                                     const scoped_lock lock(*this);
                                     SSL_CTX_free(context);
                                 });
@@ -62,6 +63,11 @@ SSLContext::SSLContext(const String& cipherList)
     SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
     SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
                                    sizeof s_server_session_id_context);
+    if (tlsOnly)
+    {
+        const long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
+        SSL_CTX_set_options(m_ctx.get(), flags);
+    }
 }
 
 SSL_CTX* SSLContext::handle()

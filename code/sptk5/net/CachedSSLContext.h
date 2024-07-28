@@ -35,7 +35,7 @@ class CachedSSLContext
 {
     using CachedSSLContextMap = std::map<String, SharedSSLContext>;
 
-    static std::mutex m_mutex;
+    static std::mutex          m_mutex;
     static CachedSSLContextMap m_contexts;
 
 public:
@@ -48,9 +48,10 @@ public:
      * If private key is protected with password, then password can be supplied to auto-answer.
      * @param keys				Keys
 	 * @param cipherList		Cipher list
+     * @param tlsOnly 			Use only TLS
      * @return					Shared SSL context
      */
-    static SharedSSLContext get(const SSLKeys& keys, const String& cipherList);
+    static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
 };
 
 } // namespace sptk

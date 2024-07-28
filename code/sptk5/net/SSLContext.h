@@ -42,34 +42,35 @@ namespace sptk {
  */
 
 /**
- * SSL connection context
+ * @brief SSL connection context
  */
 class SSLContext : public std::mutex
 {
-    std::shared_ptr<SSL_CTX> m_ctx; ///< SSL connection context
-    String m_password;              ///< Password for auto-answer in callback function
-    static int s_server_session_id_context;
+    std::shared_ptr<SSL_CTX> m_ctx;      ///< SSL connection context
+    String                   m_password; ///< Password for auto-answer in callback function
+    static int               s_server_session_id_context;
 
     /**
-     * Password auto-reply callback function
+     * @brief Password auto-reply callback function
      */
     static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
 
     /**
-     * Throw SSL error
+     * @brief Throw SSL error
      * @param humanDescription  Human-readable error description
      */
     [[noreturn]] static void throwError(const String& humanDescription);
 
 public:
     /**
-     * Constructor
+     * @brief Constructor
 	 * @param cipherList		Cipher list. Use "ALL" if not known.
+     * @param tlsOnly           Use TLS only
      */
-    explicit SSLContext(const String& cipherList);
+    explicit SSLContext(const String& cipherList, bool tlsOnly = false);
 
     /**
-     * Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s)
      *
      * Private key and certificates must be encoded with PEM format.
      * A single file containing private key and certificate can be used by supplying it for both,
@@ -80,7 +81,7 @@ public:
     void loadKeys(const SSLKeys& keys);
 
     /**
-     * Returns SSL context handle
+     * @brief Returns SSL context handle
      */
     SSL_CTX* handle();
 };

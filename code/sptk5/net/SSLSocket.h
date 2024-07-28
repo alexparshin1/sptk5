@@ -48,27 +48,29 @@ class SP_EXPORT SSLSocket : public TCPSocket
 {
 public:
     /**
-     * Throws SSL error based on SSL function return code
+     * @brief Throws SSL error based on SSL function return code
      * @param function          SSL function name
      * @param resultCode        SSL function return code
+     * @param location          Location of the error, defaults to the current source location
      */
     [[noreturn]] void throwSSLError(const String& function, int resultCode, std::source_location location = std::source_location::current()) const;
 
     /**
-     * Constructor
+     * @brief Constructor
 	 * @param cipherList		Optional cipher list
+     * @param tlsOnly           TLS only mode
      */
-    explicit SSLSocket(String cipherList = "ALL");
+    explicit SSLSocket(String cipherList = "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4", bool tlsOnly = false);
 
     /**
-     * Destructor
+     * @brief Destructor
      */
     ~SSLSocket() override;
 
     /**
-     * Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s)
      *
-     * Key should be loaded once before the connection. There is no need to load keys for any consequent connection
+     * Keys should be loaded once before the connection. There is no need to load keys for any consequent connection
      * with the same keys.
      * Private key and certificates must be encoded with PEM format.
      * A single file containing private key and certificate can be used by supplying it for both,
@@ -79,14 +81,14 @@ public:
     void loadKeys(const SSLKeys& keys);
 
     /**
-     * Set SNI host name.
+     * @brief Set SNI host name.
      * This method only affects next connection.
      * @param sniHostName           SNI host name
      */
     [[maybe_unused]] void setSNIHostName(const String& sniHostName);
 
     /**
-     * Returns SSL handle
+     * @brief Returns SSL handle
      */
     SSL* handle()
     {
@@ -94,7 +96,7 @@ public:
     }
 
     /**
-     * Reads data from SSL socket
+     * @brief Reads data from SSL socket
      * @param buffer            Destination buffer
      * @param size              Destination buffer size
      * @return the number of bytes read from the socket
@@ -103,17 +105,17 @@ public:
 
 protected:
     /**
-     * Initialize SSL context and socket structures
+     * @brief Initialize SSL context and socket structures
      */
     void initContextAndSocket();
 
     /**
-     * Returns number of bytes available for read
+     * @brief Returns number of bytes available for read
      */
     size_t getSocketBytesUnlocked() const override;
 
     /**
-     * opens the socket connection by host and port
+     * @brief Opens the socket connection by host and port
      *
      * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
      * They could be defined by previous calls of  open(), port(), or host() methods.
@@ -125,7 +127,7 @@ protected:
     void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
-     * Opens the client socket connection by host and port
+     * @brief Opens the client socket connection by host and port
      * @param address               Address and port
      * @param openMode              Socket open mode
      * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
@@ -134,7 +136,7 @@ protected:
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
 
     /**
-     * Get error description for SSL error code
+     * @brief Get error description for SSL error code
      * @param function          SSL function
      * @param openSSLError          Error code returned by SSL_get_error() result
      * @return Error description
@@ -142,7 +144,7 @@ protected:
     virtual String sslGetErrorString(const String& function, int32_t openSSLError) const;
 
     /**
-     * Attaches socket handle
+     * @brief Attaches socket handle
      *
      * This method is designed to only attach socket handles obtained with accept().
      * @param socketHandle          External socket handle.
@@ -150,14 +152,14 @@ protected:
     void attachUnlocked(SocketType socketHandle, bool accept) override;
 
     /**
-     * Closes the socket connection
+     * @brief Closes the socket connection
      *
      * This method is not thread-safe.
      */
     void closeUnlocked() override;
 
     /**
-     * Sends data through SSL socket
+     * @brief Sends data through SSL socket
      * @param buffer            Send buffer
      * @param len               Send data length
      * @return the number of bytes sent the socket
@@ -165,26 +167,27 @@ protected:
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
 private:
-    mutable std::mutex m_mutex;              ///< Mutex that protects access to m_ssl
-    SharedSSLContext m_sslContext {nullptr}; ///< SSL context
-    SSL* m_ssl {nullptr};                    ///< SSL socket
-    SSLKeys m_keys;                          ///< SSL keys info
-    String m_sniHostName;                    ///< SNI host name (optional)
-    String m_cipherList;                     ///< Cipher List, the default is "ALL"
+    mutable std::mutex m_mutex;                ///< Mutex that protects access to m_ssl
+    SharedSSLContext   m_sslContext {nullptr}; ///< SSL context
+    SSL*               m_ssl {nullptr};        ///< SSL socket
+    SSLKeys            m_keys;                 ///< SSL keys info
+    String             m_sniHostName;          ///< SNI host name (optional)
+    String             m_cipherList;           ///< Cipher List
+    bool               m_tlsOnly {false};      ///< TLS only mode
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
 
     void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
     void sslNew();
     void sslFree() const;
-    int sslSetFd(SocketType fd) const;
-    int sslSetExtHostName() const;
-    int sslConnect() const;
-    int sslGetErrorCode(int result) const;
-    int sslAccept() const;
-    int sslRead(uint8_t* buffer, size_t len) const;
-    int sslWrite(const uint8_t* buffer, size_t len) const;
-    int sslPending() const;
+    int  sslSetFd(SocketType fd) const;
+    int  sslSetExtHostName() const;
+    int  sslConnect() const;
+    int  sslGetErrorCode(int result) const;
+    int  sslAccept() const;
+    int  sslRead(uint8_t* buffer, size_t len) const;
+    int  sslWrite(const uint8_t* buffer, size_t len) const;
+    int  sslPending() const;
 };
 
 /**

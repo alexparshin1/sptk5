@@ -137,12 +137,13 @@ mutex* CSSLLibraryLoader::m_locks;
 void SSLSocket::throwSSLError(const String& function, int resultCode, source_location location) const
 {
     const int errorCode = sslGetErrorCode(resultCode);
-    auto error = sslGetErrorString(function.c_str(), errorCode);
+    auto      error = sslGetErrorString(function.c_str(), errorCode);
     throw Exception(error, location);
 }
 
-SSLSocket::SSLSocket(String cipherList)
+SSLSocket::SSLSocket(String cipherList, bool tlsOnly)
     : m_cipherList(std::move(cipherList))
+    , m_tlsOnly(tlsOnly)
 {
 }
 
@@ -180,7 +181,7 @@ void SSLSocket::loadKeys(const SSLKeys& keys)
 
 void SSLSocket::initContextAndSocket()
 {
-    m_sslContext = CachedSSLContext::get(m_keys, m_cipherList);
+    m_sslContext = CachedSSLContext::get(m_keys, m_cipherList, m_tlsOnly);
 
     sslNew();
 
@@ -220,7 +221,7 @@ bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
     if (result <= 0)
     {
         const chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-        int errorCode = sslGetErrorCode(result);
+        int                        errorCode = sslGetErrorCode(result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToReadUnlocked(nextTimeout))
@@ -414,7 +415,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, size_t len)
     }
 
     const auto* ptr = buffer;
-    auto totalLen = static_cast<uint32_t>(len);
+    auto        totalLen = static_cast<uint32_t>(len);
     for (;;)
     {
         size_t writeLen = totalLen;
