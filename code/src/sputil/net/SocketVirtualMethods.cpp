@@ -62,7 +62,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
         throwSocketError("Can't create socket");
     }
 
-    int result = 0;
+    int  result = 0;
     auto currentOperation = "connect";
 
     switch (openMode)
@@ -72,14 +72,17 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
             {
                 setBlockingModeUnlocked(false);
                 result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
-                switch (result)
+                if (result == -1)
                 {
-                    case ENETUNREACH:
-                        throw Exception("Network unreachable");
-                    case ECONNREFUSED:
-                        throw Exception("Connection refused");
-                    default:
-                        break;
+                    switch (errno)
+                    {
+                        case ENETUNREACH:
+                            throw Exception("Network unreachable");
+                        case ECONNREFUSED:
+                            throw Exception("Connection refused");
+                        default:
+                            break;
+                    }
                 }
                 try
                 {
@@ -466,7 +469,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     }
 
     const size_t total = size;
-    auto remaining = static_cast<int>(size);
+    auto         remaining = static_cast<int>(size);
     while (remaining > 0)
     {
         int bytes;
@@ -503,7 +506,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
     string errorStr;
 
 #ifdef _WIN32
-    constexpr int maxMessageSize {256};
+    constexpr int               maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
 
     const DWORD dw = GetLastError();
