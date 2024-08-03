@@ -33,7 +33,7 @@ using namespace sptk;
 static atomic_bool winsockInitted(false);
 #endif
 
-void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds)
+void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds, const char* clientBindAddress)
 {
     // Implement in derived class
 }
@@ -44,7 +44,7 @@ void Socket::init() noexcept
     if (winsockInitted)
         return;
     winsockInitted = true;
-    WSADATA wsaData = {};
+    WSADATA        wsaData = {};
     constexpr WORD wVersionRequested = MAKEWORD(2, 0);
     WSAStartup(wVersionRequested, &wsaData);
 }

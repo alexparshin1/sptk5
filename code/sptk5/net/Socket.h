@@ -128,11 +128,12 @@ public:
      * @param openMode          Socket open mode
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
+     * @param clientBindAddress
      */
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
-              std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
+              std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
     {
-        openUnlocked(host, openMode, blockingMode, timeoutMS);
+        openUnlocked(host, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
     /**
@@ -141,11 +142,13 @@ public:
      * @param openMode          Socket open mode
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     * @param clientBindAddress Client bind address
      */
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
-              bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0))
+              bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0),
+              const char* clientBindAddress = nullptr)
     {
-        openUnlocked(address, openMode, blockingMode, timeoutMS);
+        openUnlocked(address, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
 
     /**
@@ -365,8 +368,8 @@ protected:
 
 
 private:
-    mutable std::mutex m_mutex;                 ///< Mutex that protects host data
-    const uint8_t* m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
+    mutable std::mutex m_mutex;                     ///< Mutex that protects host data
+    const uint8_t*     m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
 };
 
 /**

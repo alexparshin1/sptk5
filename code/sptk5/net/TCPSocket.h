@@ -117,8 +117,10 @@ protected:
      * @param openMode          Socket open mode
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
+     * @param clientBindAddress Client bind IP address
      */
-    void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeout) override;
+    void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
+                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -126,9 +128,10 @@ protected:
      * @param openMode          Socket open mode
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeout           Connection timeout. The default is 0 (wait forever)
+     * @param clientBindAddress Client bind IP address
      */
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                      std::chrono::milliseconds timeout) override;
+                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
 
     /**
      * Reads data from the socket

@@ -46,7 +46,8 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 }
 
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
-                                               std::chrono::milliseconds timeout, bool reusePort)
+                                               std::chrono::milliseconds timeout, bool reusePort,
+                                               const char* clientBindAddress)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 
@@ -68,6 +69,11 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
     switch (openMode)
     {
         case OpenMode::CONNECT:
+            if (clientBindAddress != nullptr)
+            {
+                bindUnlocked(clientBindAddress, 0, reusePort);
+            }
+
             if (timeoutMS != 0)
             {
                 setBlockingModeUnlocked(false);
@@ -89,6 +95,11 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
                     if (!readyToWriteUnlocked(timeout))
                     {
                         throw Exception("Connection timeout");
+                    }
+                    getOptionUnlocked(SOL_SOCKET, SO_ERROR, result);
+                    if (result != 0)
+                    {
+                        throwSocketError("Can't connect");
                     }
                 }
                 catch (const Exception&)

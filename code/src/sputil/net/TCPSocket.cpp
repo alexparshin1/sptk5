@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static int m_socketCount;
+static int  m_socketCount;
 static bool m_initted(false);
 #endif
 
@@ -61,7 +61,8 @@ TCPSocket::~TCPSocket()
     TCPSocket::close();
 }
 
-void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode, std::chrono::milliseconds timeout)
+void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode,
+                             chrono::milliseconds timeout, const char* clientBindAddress)
 {
     if (!_host.hostname().empty())
     {
@@ -83,14 +84,14 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
         sockaddr_in addr = {};
         getHostUnlocked().getAddress(addr);
 
-        openUnlocked(addr, openMode, _blockingMode, timeout);
+        openUnlocked(addr, openMode, _blockingMode, timeout, clientBindAddress);
     }
 }
 
 void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                             chrono::milliseconds timeoutMS)
+                             chrono::milliseconds timeoutMS, const char* clientBindAddress)
 {
-    openAddressUnlocked(address, openMode, timeoutMS);
+    openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
 
     if (!_blockingMode)
     {
@@ -103,7 +104,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     socklen_t len = sizeof(clientInfo);
     if (!blockingMode())
     {
-        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>( &clientInfo), &len);
+        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
         if (clientSocketFD > 0)
         {
             return true;

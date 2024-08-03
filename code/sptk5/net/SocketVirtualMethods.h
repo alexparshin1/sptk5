@@ -111,8 +111,12 @@ protected:
      * @param addr              Defines socket address/port information
      * @param openMode          SOM_CREATE for UDP socket, SOM_BIND for the server socket, and SOM_CONNECT for the client socket
      * @param timeout           Connection timeout. If 0 then wait forever.
+     * @param reusePort         If true, reuse port.
+     * @param clientBindAddress Client bind IP address
      */
-    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE, std::chrono::milliseconds timeout = std::chrono::milliseconds(0), bool reusePort = true);
+    void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE,
+                             std::chrono::milliseconds timeout = std::chrono::milliseconds(0),
+                             bool reusePort = true, const char* clientBindAddress = nullptr);
 
     /**
      * Opens the client socket connection by host and port
@@ -120,8 +124,10 @@ protected:
      * @param openMode          Socket open mode
      * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
+     * @param clientBindAddress Client bind IP address
      */
-    virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode, std::chrono::milliseconds timeoutMS);
+    virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
+                              std::chrono::milliseconds timeoutMS, const char* clientBindAddress);
 
     /**
      * Opens the client socket connection by host and port
@@ -129,11 +135,12 @@ protected:
      * @param openMode          Socket open mode
      * @param blockMode         Socket blocking (true) on non-blocking (false) mode
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
+     * @param clientBindAddress Client bind IP address
      */
     virtual void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode,
-                              std::chrono::milliseconds timeoutMS)
+                              std::chrono::milliseconds timeoutMS, const char* clientBindAddress)
     {
-        openAddressUnlocked(address, openMode, timeoutMS);
+        openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
         setBlockingModeUnlocked(blockMode);
     }
 
@@ -319,11 +326,11 @@ protected:
 
 private:
     std::atomic<SocketType> m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    std::atomic<int32_t> m_domain;                       ///< Socket domain type
-    std::atomic<int32_t> m_type;                         ///< Socket type
-    std::atomic<int32_t> m_protocol;                     ///< Socket protocol
-    Host m_host;                                         ///< Host
-    std::atomic<bool> m_blockingMode {false};            ///< Blocking mode flag
+    std::atomic<int32_t>    m_domain;                    ///< Socket domain type
+    std::atomic<int32_t>    m_type;                      ///< Socket type
+    std::atomic<int32_t>    m_protocol;                  ///< Socket protocol
+    Host                    m_host;                      ///< Host
+    std::atomic<bool>       m_blockingMode {false};      ///< Blocking mode flag
 };
 
 /**
