@@ -30,10 +30,12 @@ using namespace std;
 using namespace sptk;
 
 #ifdef _WIN32
-static atomic_bool winsockInitted(false);
+namespace {
+atomic_bool winsockInitialized(false);
+}
 #endif
 
-void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds, const char* clientBindAddress)
+void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds, const char*)
 {
     // Implement in derived class
 }
@@ -41,9 +43,9 @@ void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono
 #ifdef _WIN32
 void Socket::init() noexcept
 {
-    if (winsockInitted)
+    if (winsockInitialized)
         return;
-    winsockInitted = true;
+    winsockInitialized = true;
     WSADATA        wsaData = {};
     constexpr WORD wVersionRequested = MAKEWORD(2, 0);
     WSAStartup(wVersionRequested, &wsaData);
@@ -51,7 +53,7 @@ void Socket::init() noexcept
 
 void Socket::cleanup() noexcept
 {
-    winsockInitted = false;
+    winsockInitialized = false;
     WSACleanup();
 }
 #endif
