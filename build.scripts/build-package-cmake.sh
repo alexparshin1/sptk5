@@ -4,6 +4,8 @@
 
 for PACKAGE in $@; do
 
+══════════════════════════ $PACKAGE ════════════════════════════
+
 if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
     echo "Please provide package name, SPTK or XMQ"
     exit 1
