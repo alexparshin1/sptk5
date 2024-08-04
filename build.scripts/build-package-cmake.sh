@@ -2,6 +2,8 @@
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
 for PACKAGE in $@; do
 
 echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
