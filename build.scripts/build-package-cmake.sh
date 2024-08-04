@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Build scroipt for building either SPTK or XMQ packages in Docker environment
+
 for PACKAGE in $@; do
 
 if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then

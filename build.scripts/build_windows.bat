@@ -1,3 +1,4 @@
+REM Build SPTK installer in Windows
 @echo off
 
 cd "C:\Users\alexe\workspace\sptk5"
