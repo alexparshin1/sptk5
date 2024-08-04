@@ -2,8 +2,6 @@
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-
 for PACKAGE in $@; do
 
 echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
@@ -71,7 +69,8 @@ else
     BUILD_OPTIONS=""
 fi
 
-cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
+export LD_LIBRARY_PATH=/usr/local/lib
+cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
 
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
