@@ -101,13 +101,13 @@ echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_m
 
 cat /etc/hosts
 pwd
-cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
 RC=$?
 
 if [ $RC != 0 ]; then
-    echo "/build/farm/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/farm/logs/${lcPACKAGE}_failed.log
+    echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.log
 else
-    rm /build/farm/logs/${lcPACKAGE}_failed.log
+    rm /build/logs/${lcPACKAGE}_failed.log
 fi
 
 cd $CWD
