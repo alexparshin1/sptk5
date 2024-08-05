@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+rsync -avz /build/etc/xmq /etc/
+
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
 for PACKAGE in $@; do
@@ -69,8 +72,8 @@ else
     BUILD_OPTIONS=""
 fi
 
-export LD_LIBRARY_PATH=/usr/local/lib
-cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
+./distclean.sh
+cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
 
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
