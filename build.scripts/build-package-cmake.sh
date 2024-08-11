@@ -2,9 +2,11 @@
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+
 for PACKAGE in $@; do
 
-echo ══════════════════════════ $PACKAGE ════════════════════════════
+echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
 
 if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
     echo "Please provide package name, SPTK or XMQ"
@@ -57,7 +59,7 @@ cd /build/$PACKAGE_NAME || exit
 CWD=`pwd`
 ./distclean.sh
 
-TAR_DIR="/build/output/${VERSION}/tar"
+TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
 mkdir -p "$TAR_DIR"
 src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
@@ -71,13 +73,14 @@ fi
 
 cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
 
+BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
-mkdir -p /build/output/$VERSION/ && chmod 777 /build/output/$VERSION/ || exit 1
+mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
 #ls -l /usr/lib/libsp* /usr/include/sptk5 /usr/bin/sp*
 #exit 0
 
-OUTPUT_DIR=/build/output/$VERSION/$DOWNLOAD_DIRNAME
+OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
 do
@@ -107,6 +110,7 @@ fi
 
 cd $CWD
 ./distclean.sh
+chown -R alexeyp *
 
 done
 
