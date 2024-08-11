@@ -8,8 +8,8 @@ git pull > /dev/null
 cd $BUILD_ROOT
 rsync -av git/xmq/ $XMQ_DIR > /dev/null
 
-#for dname in /home/alexeyp/Docker/Dockerfile.*
-for dname in /home/alexeyp/Docker/Dockerfile.debian-bookworm
+for dname in /home/alexeyp/Docker/Dockerfile.*
+#for dname in /home/alexeyp/Docker/Dockerfile.debian-bookworm
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     docker run --rm -v /build:/build -it builder-$name /build/scripts/build-xmq-cmake.sh XMQ
