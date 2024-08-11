@@ -81,6 +81,8 @@ BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
+wsdl2cxx
+
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
