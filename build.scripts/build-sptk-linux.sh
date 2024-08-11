@@ -13,7 +13,7 @@ rsync -av git/sptk5/code/ $SPTK_DIR > /dev/null
 rsync -av git/xmq/ $XMQ_DIR > /dev/null
 
 #for dname in /home/alexeyp/Docker/Dockerfile.*
-for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-mantic
+for dname in /home/alexeyp/Docker/Dockerfile.debian-bookworm
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK

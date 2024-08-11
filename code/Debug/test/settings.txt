@@ -1,4 +1,0 @@
-{
-    "smtp_user": "smtpuser",
-    "smtp_password": "secret"
-}
