@@ -3,7 +3,7 @@
 ./distclean.sh
 cmake .
 
-export PATH=~/local/sona/bin:/opt/sonar-scanner/bin:/usr/lib/ccache:$PATH
+export PATH=~/local/sonar/bin:/opt/sonar-scanner/bin:/usr/lib/ccache:$PATH
 
 CORES=$(grep 'cpu MHz' /proc/cpuinfo | wc -l)
 sed -i "s/sonar.cfamily.threads=.*$/sonar.cfamily.threads=$CORES/" sonar-project.properties
