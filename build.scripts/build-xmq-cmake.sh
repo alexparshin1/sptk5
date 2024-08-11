@@ -66,10 +66,6 @@ TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
 
 ${PACKAGE_MANAGER} install -y ${SPTK_OUTPUT_DIR}/${OS_NAME}-${OS_CODENAME}/*
 
-wsdl2cxx --help
-
-exit 1
-
 CWD=`pwd`
 ./distclean.sh
 
