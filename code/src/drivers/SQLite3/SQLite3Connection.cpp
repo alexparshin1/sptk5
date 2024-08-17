@@ -96,12 +96,13 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
         }
 
         sqlite3* connect = nullptr;
-        if (sqlite3_open(nativeConnectionString().c_str(), &connect) != 0)
+        const auto dbFileName = this->nativeConnectionString();
+        if (sqlite3_open(dbFileName.c_str(), &connect) != 0)
         {
             const String error = sqlite3_errmsg(connect);
             sqlite3_close(connect);
             m_connect.reset();
-            throw DatabaseException(error);
+            throw DatabaseException(error + " '" + dbFileName + "'");
         }
 
         m_connect = shared_ptr<sqlite3>(connect,
