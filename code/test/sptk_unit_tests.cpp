@@ -33,14 +33,6 @@
 using namespace std;
 using namespace sptk;
 
-void atesting()
-{
-    vector<RegularExpression> values;
-    const RegularExpression   x("");
-    values.push_back(x);
-    values.emplace_back("xxx");
-}
-
 void loadSettings()
 {
     g_testSettings = make_shared<TestSettings>();
