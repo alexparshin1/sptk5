@@ -3,16 +3,12 @@
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 rsync -avz /build/etc/xmq /etc/
 
-# Build scroipt for building either SPTK or XMQ packages in Docker environment
+# Build script for building XMQ packages in Docker environment.
+# The SPTK packages are expected to be already built.
 
-for PACKAGE in $@; do
+PACKAGE=XMQ
 
 echo ═════════════════════════════ $PACKAGE ═══════════════════════════════
-
-if [ ! "$PACKAGE" = "SPTK" ] && [ ! "$PACKAGE" = "XMQ" ]; then
-    echo "Please provide package name, SPTK or XMQ"
-    exit 1
-fi
 
 OS_NAME=$(grep -E "^ID=" /etc/os-release | sed -re 's/^ID=//; s/"//g')
 OS_VERSION=$(grep -E "^VERSION_ID=" /etc/os-release | sed -re 's/^VERSION_ID=//; s/"//g')
@@ -35,17 +31,24 @@ PACKAGE_NAME="$PACKAGE-$VERSION"
 DOWNLOAD_DIRNAME=$OS_NAME-$OS_CODENAME
 OS_TYPE="$OS_NAME-$OS_VERSION"
 case $OS_NAME in
+    debian)
+        PACKAGE_MANAGER="apt"
+        ;;
+
     ubuntu)
         OS_TYPE="ubuntu-$OS_VERSION"
+        PACKAGE_MANAGER="apt"
         ;;
 
     ol)
         OS_TYPE="$PLATFORM"
         DOWNLOAD_DIRNAME="oraclelinux9"
+        PACKAGE_MANAGER="yum"
         ;;
 
     fedora)
         OS_TYPE="fc$OS_VERSION"
+        PACKAGE_MANAGER="yum"
         ;;
 esac
 
@@ -57,31 +60,28 @@ echo PACKAGE:   $PACKAGE_NAME
 echo ──────────────────────────────────────────────────────────────────
 cd /build/$PACKAGE_NAME || exit
 
+SPTK_OUTPUT_DIR=/build/output/SPTK-5.6.1
+BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
+TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
+
+PACKAGE_DIR=${SPTK_OUTPUT_DIR}/${OS_NAME}-${OS_CODENAME}
+${PACKAGE_MANAGER} install -y $PACKAGE_DIR/*
+
 CWD=`pwd`
 ./distclean.sh
 
-TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
 mkdir -p "$TAR_DIR"
 src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
-if [ $PACKAGE = "SPTK" ]; then
-    BUILD_OPTIONS="-DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF"
-else
-    BUILD_OPTIONS=""
-fi
+BUILD_OPTIONS=""
 
 ./distclean.sh
-#cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
-cmake . $BUILD_OPTIONS && make -j6 package || exit 1
-./distclean.sh
+cmake . -DCMAKE_INSTALL_PREFIX:PATH=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
 
-BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
-
-wsdl2cxx
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
@@ -117,7 +117,5 @@ fi
 cd $CWD
 ./distclean.sh
 chown -R alexeyp *
-
-done
 
 exit $RC

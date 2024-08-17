@@ -25,6 +25,8 @@
 */
 
 #include "sptk_unit_tests.h"
+#include "sptk5/cdatabase"
+#include <fstream>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/test/TestRunner.h>
 
@@ -39,12 +41,26 @@ void atesting()
     values.emplace_back("xxx");
 }
 
+void loadSettings()
+{
+    g_testSettings = make_shared<TestSettings>();
+    if (!filesystem::exists("settings.txt"))
+    {
+        COUT("File settings.txt not found. Creating the default version of this file.");
+        ofstream out("settings.txt");
+        out << "{\n"
+            << "  \"smtp_server\": \"localhost\",\n"
+            << "  \"smtp_user\": \"smtpuser\",\n"
+            << "  \"smtp_password\": \"secret\"\n"
+            << "}\n";
+        out.close();
+    }
+    g_testSettings->load("settings.txt");
+}
+
 int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
-
-    g_testSettings = make_shared<TestSettings>();
-    g_testSettings->load("settings.txt");
 
     tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
     tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
