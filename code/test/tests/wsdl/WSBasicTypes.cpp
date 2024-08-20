@@ -68,7 +68,7 @@ void loadScriptAttackData()
 
 TEST(SPTK_WSBasicTypes, defaultType)
 {
-    WSInteger field1("field1", true);
+    const WSInteger field1("field1", true);
     EXPECT_TRUE(field1.dataType() == VariantDataType::VAR_INT);
 }
 
@@ -90,20 +90,20 @@ TEST(SPTK_WSBasicTypes, array)
     array.emplace_back(1);
     array.emplace_back(2);
     array.emplace_back(3);
-    EXPECT_EQ(array.size(), size_t(3));
+    EXPECT_EQ(array.size(), static_cast<size_t>(3));
 
     WSArray<WSInteger> array2(array);
-    EXPECT_EQ(array2.size(), size_t(3));
+    EXPECT_EQ(array2.size(), static_cast<size_t>(3));
     EXPECT_EQ(array2[1].asInteger(), 2);
 
     WSArray<WSInteger> array3;
     array3 = array;
-    EXPECT_EQ(array3.size(), size_t(3));
+    EXPECT_EQ(array3.size(), static_cast<size_t>(3));
     EXPECT_EQ(array3[1].asInteger(), 2);
 
     WSArray<WSInteger> array4;
     array4 = std::move(array);
-    EXPECT_EQ(array4.size(), size_t(3));
+    EXPECT_EQ(array4.size(), static_cast<size_t>(3));
     EXPECT_EQ(array4[1].asInteger(), 2);
 }
 
@@ -113,13 +113,13 @@ TEST(SPTK_WSBasicTypes, arrayName)
     array.emplace_back(1);
     array.emplace_back(2);
     array.emplace_back(3);
-    EXPECT_EQ(array.size(), size_t(3));
+    EXPECT_EQ(array.size(), static_cast<size_t>(3));
 
     WSArray<WSInteger> array2("array2");
 
     array2 = array;
 
-    EXPECT_EQ(array2.size(), size_t(3));
+    EXPECT_EQ(array2.size(), static_cast<size_t>(3));
     EXPECT_STREQ(array2.name().c_str(), "array2");
 }
 
@@ -264,7 +264,7 @@ TEST(SPTK_WSBasicTypes, loadDouble)
 
     auto textNode2 = root->set("integerText", testIntegerValueStr);
     wsDouble.load(textNode2, false);
-    EXPECT_EQ(wsDouble.asFloat(), double(testIntValue));
+    EXPECT_EQ(wsDouble.asFloat(), static_cast<double>(testIntValue));
 
     auto textNode3 = root->set("doubleText", testDoubleValueStr);
     wsDouble.load(textNode3, false);
@@ -282,7 +282,7 @@ TEST(SPTK_WSBasicTypes, loadValue)
     wsString.load(root->findFirst("string"), true);
     EXPECT_STREQ(wsString.asString().c_str(), "Hello, World!");
 
-    std::string largeData(300, 'x');
+    const std::string largeData(300, 'x');
     root->set("string", largeData);
     wsString.load(root->findFirst("string"), true);
     EXPECT_TRUE(wsString.isNull());
@@ -339,11 +339,11 @@ TEST(SPTK_WSBasicTypes, exportValue)
     WSInteger integer;
     integer = testIntegerValue;
     integer.exportTo(root, "integer");
-    EXPECT_DOUBLE_EQ(root->getNumber("integer"), double(testIntegerValue));
+    EXPECT_DOUBLE_EQ(root->getNumber("integer"), static_cast<double>(testIntegerValue));
 
     integer = testIntegerValue64;
     integer.exportTo(root, "integer");
-    EXPECT_DOUBLE_EQ(root->getNumber("integer"), double(testIntegerValue64));
+    EXPECT_DOUBLE_EQ(root->getNumber("integer"), static_cast<double>(testIntegerValue64));
 
     WSDouble wsDouble;
     wsDouble = testDoubleValue;
@@ -363,7 +363,7 @@ TEST(SPTK_WSBasicTypes, exportValueToArray)
     constexpr double testDoubleValue = 1234.567;
 
     xdoc::Document document;
-    const auto& root = document.root();
+    const auto&    root = document.root();
 
     const auto& array = root->pushValue("array", Node::Type::Array);
 
@@ -389,11 +389,11 @@ TEST(SPTK_WSBasicTypes, exportValueToArray)
     WSInteger integer;
     integer = testIntegerValue;
     integer.exportTo(array);
-    EXPECT_DOUBLE_EQ(array->nodes()[4]->getNumber(), double(testIntegerValue));
+    EXPECT_DOUBLE_EQ(array->nodes()[4]->getNumber(), static_cast<double>(testIntegerValue));
 
     integer = testIntegerValue64;
     integer.exportTo(array);
-    EXPECT_DOUBLE_EQ(array->nodes()[5]->getNumber(), double(testIntegerValue64));
+    EXPECT_DOUBLE_EQ(array->nodes()[5]->getNumber(), static_cast<double>(testIntegerValue64));
 
     WSDouble wsDouble;
     wsDouble = testDoubleValue;

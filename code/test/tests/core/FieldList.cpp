@@ -55,7 +55,7 @@ TEST(SPTK_FieldList, push_back)
     fieldList["value"] = testInteger;
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
-    EXPECT_EQ(testInteger, (int32_t) fieldList["value"]);
+    EXPECT_EQ(testInteger, static_cast<int32_t>(fieldList["value"]));
 }
 
 TEST(SPTK_FieldList, move)
@@ -70,7 +70,7 @@ TEST(SPTK_FieldList, move)
     FieldList fieldList2 = std::move(fieldList);
 
     EXPECT_STREQ("id", fieldList2["name"].asString().c_str());
-    EXPECT_EQ(testInteger, (int32_t) fieldList2["value"]);
+    EXPECT_EQ(testInteger, static_cast<int32_t>(fieldList2["value"]));
 }
 
 TEST(SPTK_FieldList, dataTypes)
@@ -97,13 +97,13 @@ TEST(SPTK_FieldList, dataTypes)
     fieldList["date"] = testDate;
     fieldList["null"].setNull(VariantDataType::VAR_STRING);
     fieldList["text"].setBuffer(bit_cast<const uint8_t*>(testString), strlen(testString) + 1, VariantDataType::VAR_BUFFER);
-    fieldList["float_value"] = double(testInteger);
+    fieldList["float_value"] = static_cast<double>(testInteger);
     fieldList["money_value"].setMoney(1234567, 2);
-    fieldList["long_value"] = int64_t(12345678901234567);
+    fieldList["long_value"] = static_cast<int64_t>(12345678901234567);
 
     EXPECT_STREQ("id", fieldList["name"].asString().c_str());
 
-    EXPECT_EQ(testInteger, (int32_t) fieldList["value"]);
+    EXPECT_EQ(testInteger, static_cast<int32_t>(fieldList["value"]));
     EXPECT_STREQ("12345", fieldList["value"].asString().c_str());
 
     EXPECT_TRUE(fieldList["online"].asBool());
@@ -118,15 +118,15 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_TRUE(fieldList["null"].isNull());
     EXPECT_STREQ(testString, fieldList["text"].asString().c_str());
 
-    EXPECT_DOUBLE_EQ(double(testInteger), fieldList["float_value"].asFloat());
+    EXPECT_DOUBLE_EQ(static_cast<double>(testInteger), fieldList["float_value"].asFloat());
     EXPECT_STREQ("12345.000", fieldList["float_value"].asString().c_str());
 
     EXPECT_DOUBLE_EQ(12345.67, fieldList["money_value"].asFloat());
     EXPECT_STREQ("12345.67", fieldList["money_value"].asString().c_str());
 
-    EXPECT_EQ(int64_t(12345678901234567), fieldList["long_value"].asInt64());
+    EXPECT_EQ(static_cast<int64_t>(12345678901234567), fieldList["long_value"].asInt64());
     EXPECT_STREQ("12345678901234567", fieldList["long_value"].asString().c_str());
-    EXPECT_DOUBLE_EQ(double(12345678901234567), fieldList["long_value"].asFloat());
+    EXPECT_DOUBLE_EQ(static_cast<double>(12345678901234567), fieldList["long_value"].asFloat());
 }
 
 TEST(SPTK_FieldList, toXml)

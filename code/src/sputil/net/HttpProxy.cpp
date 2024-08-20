@@ -101,8 +101,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     while (buffer.bytes() > 1)
     {
         socketReader.readLine(buffer);
-        auto matches = matchResponseHeader.m(buffer.c_str());
-        if (matches)
+        if (auto matches = matchResponseHeader.m(buffer.c_str()))
         {
             if (matches[0].value.toLowerCase() == "content-length")
             {
@@ -118,7 +117,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     // Read response body (if any)
     if (contentLength > 0)
     {
-        socketReader.read(buffer, (size_t) contentLength);
+        socketReader.read(buffer, static_cast<size_t>(contentLength));
     }
     else
     {
@@ -228,7 +227,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
         return false;
     }
 
-    if (auto parts = matchProxy.m(proxyEnv); parts)
+    if (const auto parts = matchProxy.m(proxyEnv); parts)
     {
         proxyUser = parts[2].value;
         proxyPassword = parts[3].value.empty() ? "" : parts[3].value.substr(1);

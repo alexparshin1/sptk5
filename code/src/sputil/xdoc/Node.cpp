@@ -110,7 +110,7 @@ SNode Node::findOrCreate(const String& name)
         }
     }
 
-    auto newNode = make_shared<Node>(name);
+    const auto newNode = make_shared<Node>(name);
     newNode->m_parent = shared_from_this();
     m_nodes.push_back(newNode);
     return m_nodes.back();
@@ -161,7 +161,7 @@ SNode Node::pushNode(const String& name, Type type)
             m_type = Object;
         }
     }
-    auto node = make_shared<Node>(name, type);
+    const auto node = make_shared<Node>(name, type);
     m_nodes.push_back(node);
     node->m_parent = shared_from_this();
     return m_nodes.back();
@@ -178,10 +178,10 @@ String Node::getString(const String& name) const
 
     if (node->type() == Type::Number)
     {
-        auto doubleValue = node->m_value.asFloat();
+        const auto doubleValue = node->m_value.asFloat();
 
-        if (auto intValue = node->m_value.asInt64();
-            doubleValue == double(intValue))
+        if (const auto intValue = node->m_value.asInt64();
+            doubleValue == static_cast<double>(intValue))
         {
             return int2string(intValue);
         }
@@ -259,7 +259,7 @@ bool Node::getBoolean(const String& name) const
 
 const Node::Nodes& Node::nodes(const String& name) const
 {
-    static const Nodes emptyNodes;
+    static constexpr Nodes emptyNodes;
 
     if (name.empty())
     {
@@ -350,12 +350,12 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        auto node = shared_from_this();
+        const auto node = shared_from_this();
         importJson(node, data);
     }
     else
     {
-        auto node = shared_from_this();
+        const auto node = shared_from_this();
         importXML(node, data, xmlKeepFormatting);
     }
 }
@@ -367,12 +367,12 @@ void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormattin
     clear();
     if (dataFormat == DataFormat::JSON)
     {
-        auto node = shared_from_this();
+        const auto node = shared_from_this();
         importJson(node, input);
     }
     else
     {
-        auto node = shared_from_this();
+        const auto node = shared_from_this();
         importXML(node, input, xmlKeepFormatting);
     }
 }
@@ -419,7 +419,7 @@ Node::Vector Node::select(const String& xpath)
     Node::Vector selectedNodes;
 
     selectedNodes.clear();
-    auto node = shared_from_this();
+    const auto node = shared_from_this();
     NodeSearchAlgorithms::select(selectedNodes, node, xpath);
 
     return selectedNodes;

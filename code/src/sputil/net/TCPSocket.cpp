@@ -135,7 +135,7 @@ size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
     int error = 0;
     do
     {
-        receivedBytes = (int) recvUnlocked(destination, size);
+        receivedBytes = static_cast<int>(recvUnlocked(destination, size));
 
         if (receivedBytes == -1)
         {

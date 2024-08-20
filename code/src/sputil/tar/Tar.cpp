@@ -48,7 +48,7 @@ void Tar::clear()
 
 const ArchiveFile& Tar::file(const String& fileName) const
 {
-    auto itor = m_files.find(fileName);
+    const auto itor = m_files.find(fileName);
     if (itor == m_files.end())
     {
         throw Exception("File '" + fileName + "' isn't found");
@@ -87,7 +87,7 @@ unsigned readOctalNumber(Field& field, const String& fieldName)
 {
     constexpr int octal = 8;
     errno = 0;
-    auto value = (unsigned) strtoul(data(field), nullptr, octal);
+    const auto value = static_cast<unsigned>(strtoul(data(field), nullptr, octal));
     if (errno != 0)
     {
         throw Exception("Invalid octal number for " + fieldName);
@@ -112,7 +112,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
     offset += TAR_BLOCK_SIZE;
 
-    auto type = (ArchiveFile::Type) header->typeflag;
+    auto type = static_cast<ArchiveFile::Type>(header->typeflag);
 
     size_t contentLength = 0;
     if (type == ArchiveFile::Type::REGULAR_FILE || type == ArchiveFile::Type::REGULAR_FILE2)
@@ -120,9 +120,9 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         contentLength = readOctalNumber(header->size, "size");
     }
 
-    auto mode = (int) readOctalNumber(header->mode, "mode");
-    auto uid = (int) readOctalNumber(header->uid, "uid");
-    auto gid = (int) readOctalNumber(header->gid, "gid");
+    auto mode = static_cast<int>(readOctalNumber(header->mode, "mode"));
+    const auto uid = static_cast<int>(readOctalNumber(header->uid, "uid"));
+    const auto gid = static_cast<int>(readOctalNumber(header->gid, "gid"));
 
     const time_t mtime = readOctalNumber(header->mtime, "mtime");
     auto dateTime = DateTime::convertCTime(mtime);
@@ -141,7 +141,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
 
     const ArchiveFile::Ownership ownership {uid, gid, uname, gname};
-    auto file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
+    const auto file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
 
     m_files[fname.string()] = file;
 
@@ -168,8 +168,8 @@ void Tar::save(const String& tarFileName) const
         {
             const size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
             const Buffer padding(paddingLength);
-            archive.write(archiveFile->c_str(), (int) archiveFile->size());
-            archive.write(padding.c_str(), (int) paddingLength);
+            archive.write(archiveFile->c_str(), static_cast<int>(archiveFile->size()));
+            archive.write(padding.c_str(), static_cast<int>(paddingLength));
         }
     }
     archive.close();

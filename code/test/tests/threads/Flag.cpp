@@ -35,7 +35,7 @@ using namespace sptk;
 
 TEST(SPTK_Flag, ctor)
 {
-    Flag flag;
+    const Flag flag;
     EXPECT_EQ(flag.get(), false);
 }
 
@@ -57,7 +57,7 @@ TEST(SPTK_Flag, setWaitFor)
     Flag flag;
 
     flag.set(true);
-    bool result = flag.wait_for(true, 10ms);
+    const bool result = flag.wait_for(true, 10ms);
     EXPECT_EQ(flag.get(), true);
     EXPECT_EQ(result, true);
 }
@@ -67,10 +67,10 @@ TEST(SPTK_Flag, adaptorAndAssignment)
     Flag flag;
 
     flag = true;
-    EXPECT_EQ((bool) flag, true);
+    EXPECT_EQ(static_cast<bool>(flag), true);
 
     flag = false;
-    EXPECT_EQ((bool) flag, false);
+    EXPECT_EQ(static_cast<bool>(flag), false);
 }
 
 TEST(SPTK_Flag, signalOtherThread)
@@ -79,7 +79,7 @@ TEST(SPTK_Flag, signalOtherThread)
 
     flag.set(false);
 
-    auto task1 = async(launch::async,
+    const auto task1 = async(launch::async,
                        [&flag]
                        {
                            if (flag.wait_for(true, 100ms))
@@ -92,7 +92,7 @@ TEST(SPTK_Flag, signalOtherThread)
                            }
                        });
 
-    auto task2 = async(launch::async,
+    const auto task2 = async(launch::async,
                        [&flag]
                        {
                            flag.set(true);

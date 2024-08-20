@@ -40,17 +40,17 @@ void Entity::parse(const String& entityTag)
     id = "";
     resource = "";
 
-    auto matches = matchEntity.m(entityTag);
+    const auto matches = matchEntity.m(entityTag);
     if (matches)
     {
-        auto percents = matches["percent"].value;
+        const auto percents = matches["percent"].value;
         name = matches["name"].value;
         if (!percents.empty())
         {
             name = "%" + name;
         }
 
-        if (auto typeAndId = matches["type"].value;
+        if (const auto typeAndId = matches["type"].value;
             typeAndId == " SYSTEM")
         {
             type = Type::SYSTEM;
@@ -106,7 +106,7 @@ const char xml_shortcut[] = "&<>'\"";
 
 class XMLEntityCache
 {
-    CEntityMap m_hash;
+    CEntityMap           m_hash;
     map<int, CEntityMap> m_replacementMaps;
 
 public:
@@ -121,7 +121,7 @@ public:
 
     [[nodiscard]] const struct entity* find(const String& ent) const
     {
-        if (auto itor = m_hash.find(ent);
+        if (const auto itor = m_hash.find(ent);
             itor != m_hash.end())
         {
             return itor->second;
@@ -137,8 +137,8 @@ const struct entity* XMLEntityCache::encode(const char* str) const
     auto maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); ++maps)
     {
-        const int len = maps->first;
-        const String fragment(str, size_t(len));
+        const int         len = maps->first;
+        const String fragment(str, static_cast<size_t>(len));
         const CEntityMap& replacements = maps->second;
         auto itor = replacements.find(fragment);
         if (itor != replacements.end())
@@ -158,7 +158,7 @@ void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
 
     auto* start = (char*) buffer.data();
     auto* ptr = start;
-    while (*ptr != char(0))
+    while (*ptr != static_cast<char>(0))
     {
         char* ent_start = strchr(ptr, '&');
         if (ent_start == nullptr)
@@ -169,7 +169,7 @@ void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
         auto* ent_end = strchr(ent_start + 1, ';');
         if (ent_end != nullptr)
         {
-            if (auto len = uint32_t(ent_start - start);
+            if (const auto len = static_cast<uint32_t>(ent_start - start);
                 len != 0)
             {
                 ret.append(start, len);
@@ -189,7 +189,7 @@ char* XMLDocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* 
 {
     const char ch = *ent_end;
     *ent_end = 0;
-    uint32_t replacementLength = 0;
+    uint32_t    replacementLength = 0;
     const char* rep = this->getReplacement(ent_start + 1, replacementLength);
     *ent_end = ch;
     if (rep != nullptr)
@@ -218,9 +218,9 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos != nullptr)
         {
-            auto index = uint32_t(strchr(xml_shortcut, *pos) - xml_shortcut);
+            const auto index = static_cast<uint32_t>(strchr(xml_shortcut, *pos) - xml_shortcut);
             const entity* ent = table + index;
-            if (auto tailBytes = uint32_t(pos - ptr);
+            if (const auto tailBytes = static_cast<uint32_t>(pos - ptr);
                 tailBytes != 0)
             {
                 dst->append(ptr, tailBytes);
@@ -252,11 +252,11 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
         for (; itor != m_entities.end(); ++itor)
         {
             const String& val = itor->second;
-            auto len = (uint32_t) val.length();
+            const auto len = static_cast<uint32_t>(val.length());
             const char* pos = strstr(ptr, val.c_str());
             while (pos != nullptr)
             {
-                dst->append(ptr, uint32_t(pos - ptr));
+                dst->append(ptr, static_cast<uint32_t>(pos - ptr));
                 dst->append('&');
                 dst->append(itor->first);
                 dst->append(';');
@@ -301,7 +301,7 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
         if (isdigit(*ptr) != 0)
         {
             constexpr int decimal {10};
-            m_replacementBuffer[0] = (char) strtol(ptr, nullptr, decimal);
+            m_replacementBuffer[0] = static_cast<char>(strtol(ptr, nullptr, decimal));
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
             return m_replacementBuffer.data();
@@ -314,17 +314,17 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
     if (const struct entity* entity = xml_entities.find(name);
         entity != nullptr)
     {
-        replacementLength = uint32_t(entity->replacement_len);
+        replacementLength = static_cast<uint32_t>(entity->replacement_len);
         result = entity->replacement;
     }
     else
     {
         // Find in custom attributes
-        auto itor = m_entities.find(name);
+        const auto itor = m_entities.find(name);
         if (itor != m_entities.end())
         {
             const String& rep = itor->second;
-            replacementLength = (uint32_t) rep.length();
+            replacementLength = static_cast<uint32_t>(rep.length());
             result = rep.c_str();
         }
     }

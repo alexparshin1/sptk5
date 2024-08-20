@@ -34,7 +34,7 @@ namespace {
 
 DataFormat autoDetectFormat(const char* data)
 {
-    switch (auto skip = strspn(data, "\n\r\t ");
+    switch (const auto skip = strspn(data, "\n\r\t ");
             data[skip])
     {
         case '<':

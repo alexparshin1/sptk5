@@ -111,7 +111,7 @@ void WSString::load(const SNode& attr, bool nullLargeData)
     }
     else
     {
-        auto str = attr->getString();
+        const auto str = attr->getString();
         owaspCheck(str);
         value().setString(str);
     }
@@ -330,13 +330,13 @@ void WSInteger::load(const SNode& attr, bool)
     {
         if (attr->type() == Node::Type::Number)
         {
-            value().setInt64((int64_t) attr->getNumber());
+            value().setInt64(static_cast<int64_t>(attr->getNumber()));
             return;
         }
 
         if (attr->type() == Node::Type::Text)
         {
-            auto textValue = attr->getText();
+            const auto textValue = attr->getText();
 
             if (optional() && textValue.empty())
             {
@@ -346,7 +346,7 @@ void WSInteger::load(const SNode& attr, bool)
 
             if (StringIsInteger.m(textValue))
             {
-                value().setInt64((int64_t) attr->getNumber());
+                value().setInt64(static_cast<int64_t>(attr->getNumber()));
                 return;
             }
         }
@@ -389,7 +389,7 @@ String sptk::wsTypeIdToName(const String& typeIdName)
 {
     static const RegularExpression matchClassName("^\\d+C([A-Z]\\S+)$");
 
-    if (auto matches = matchClassName.m(typeIdName);
+    if (const auto matches = matchClassName.m(typeIdName);
         matches)
     {
         return matches.groups()[0].value;

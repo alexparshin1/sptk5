@@ -115,7 +115,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         stream << "\"value\":" << spacing;
     }
 
-    auto saveFlags = stream.flags();
+    const auto saveFlags = stream.flags();
 
     double dNumber;
     int64_t iNumber;
@@ -124,7 +124,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         case Node::Type::Number:
             iNumber = node->getValue().asInt64();
             dNumber = node->getValue().asFloat();
-            if (double(iNumber) == dNumber)
+            if (static_cast<double>(iNumber) == dNumber)
             {
                 stream << fixed << iNumber;
             }

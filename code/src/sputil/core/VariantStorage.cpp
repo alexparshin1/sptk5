@@ -4,7 +4,7 @@ using namespace std;
 using namespace sptk;
 
 static constexpr int BUFFER_TYPES =
-    (int) VariantDataType::VAR_STRING | (int) VariantDataType::VAR_TEXT | (int) VariantDataType::VAR_BUFFER | (int) VariantDataType::VAR_IMAGE_PTR;
+    static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT) | static_cast<int>(VariantDataType::VAR_BUFFER) | static_cast<int>(VariantDataType::VAR_IMAGE_PTR);
 
 BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     : m_type(other.m_type)
@@ -65,7 +65,7 @@ BaseVariantStorage::BaseVariantStorage(double value)
 
 BaseVariantStorage::BaseVariantStorage(Buffer&& buffer)
 {
-    auto buff = make_shared<Buffer>();
+    const auto buff = make_shared<Buffer>();
     *buff = std::move(buffer);
     m_class = buff;
     m_type.type = VariantDataType::VAR_BUFFER;
@@ -269,7 +269,7 @@ VariantStorage& VariantStorage::operator=(double aValue)
 
 VariantStorage& VariantStorage::operator=(Buffer&& buffer)
 {
-    auto valueSize = buffer.size();
+    const auto valueSize = buffer.size();
     if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
         setStorageClient(make_shared<Buffer>(std::move(buffer)));
@@ -285,7 +285,7 @@ VariantStorage& VariantStorage::operator=(Buffer&& buffer)
 
 void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, VariantDataType type)
 {
-    if (((int) type & BUFFER_TYPES) == 0)
+    if ((static_cast<int>(type) & BUFFER_TYPES) == 0)
     {
         throw Exception("Invalid buffer type");
     }

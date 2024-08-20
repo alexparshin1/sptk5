@@ -34,8 +34,8 @@ using namespace sptk;
 
 TEST(SPTK_BulkInsert, escapeSqlString)
 {
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    String escapedString = escapeSQLString(sourceString, false);
+    const String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    const String escapedString = escapeSQLString(sourceString, false);
     EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
 }
 
@@ -43,7 +43,7 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
 {
     constexpr auto maxCount = 100000;
     constexpr auto mcsInSecond = 1E6;
-    String sourceString = "Hello, 'World'.\n\rLet's go\n";
+    const String sourceString = "Hello, 'World'.\n\rLet's go\n";
     StopWatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxCount; ++i)

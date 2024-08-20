@@ -47,7 +47,7 @@ public:
     explicit TempDirectory(const String& _path)
         : m_path(_path.c_str())
     {
-        path dir = m_path / "dir1";
+        const path dir = m_path / "dir1";
         try
         {
             create_directories(dir);
@@ -59,7 +59,7 @@ public:
         }
 
         constexpr size_t charCount {10};
-        Buffer buffer;
+        Buffer           buffer;
         buffer.fill('X', charCount);
         buffer.saveToFile((m_path / "file1").c_str());
         buffer.saveToFile((m_path / "file2").c_str());
@@ -94,7 +94,7 @@ TEST(SPTK_DirectoryDS, open)
     }
     directoryDS.close();
 
-    EXPECT_EQ(size_t(5), files.size());
+    EXPECT_EQ(static_cast<size_t>(5), files.size());
     EXPECT_EQ(10, files["file1"]);
 }
 
@@ -124,6 +124,6 @@ TEST(SPTK_DirectoryDS, patterns)
     }
     directoryDS.close();
 
-    EXPECT_EQ(size_t(2), files.size());
+    EXPECT_EQ(static_cast<size_t>(2), files.size());
     EXPECT_EQ(10, files["file1"]);
 }

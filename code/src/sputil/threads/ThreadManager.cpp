@@ -110,7 +110,7 @@ void ThreadManager::manage(const SThread& thread)
     if (thread)
     {
         const scoped_lock lock(m_mutex);
-        auto itor = ranges::find(m_runningThreads, thread);
+        const auto itor = ranges::find(m_runningThreads, thread);
         if (itor == m_runningThreads.end())
         {
             thread->setThreadManager(this);
@@ -130,10 +130,10 @@ void ThreadManager::destroyThread(const Thread* thread)
                 return thread == aThread.get();
             };
 
-        auto itor = ranges::find_if(m_runningThreads, matchThread);
+        const auto itor = ranges::find_if(m_runningThreads, matchThread);
         if (itor != m_runningThreads.end())
         {
-            auto matchedThread = *itor;
+            const auto matchedThread = *itor;
             m_runningThreads.erase(itor);
             m_terminatedThreads.push_back(matchedThread);
         }

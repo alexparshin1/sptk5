@@ -95,7 +95,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        sqlite3* connect = nullptr;
+        sqlite3*   connect = nullptr;
         const auto dbFileName = this->nativeConnectionString();
         if (sqlite3_open(dbFileName.c_str(), &connect) != 0)
         {
@@ -106,7 +106,8 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
         }
 
         m_connect = shared_ptr<sqlite3>(connect,
-                                        [this](const sqlite3*) {
+                                        [this](const sqlite3*)
+                                        {
                                             closeAndClean();
                                         });
 
@@ -227,18 +228,19 @@ void SQLite3Connection::queryPrepare(Query* query)
     SQLHSTMT hStmt = nullptr;
 
     if (const char* pzTail = nullptr;
-        sqlite3_prepare_v2(m_connect.get(), query->sql().c_str(), int(query->sql().length()), &hStmt, &pzTail) !=
+        sqlite3_prepare_v2(m_connect.get(), query->sql().c_str(), static_cast<int>(query->sql().length()), &hStmt, &pzTail) !=
         SQLITE_OK)
     {
         const char* errorMsg = sqlite3_errmsg(m_connect.get());
         throw DatabaseException(errorMsg, source_location::current(), query->sql());
     }
 
-    auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
-                                         [](StmtHandle ptr) {
-                                             auto* stmt = (SQLHSTMT) ptr;
-                                             sqlite3_finalize(stmt);
-                                         });
+    const auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
+                                               [](StmtHandle ptr)
+                                               {
+                                                   auto* stmt = (SQLHSTMT) ptr;
+                                                   sqlite3_finalize(stmt);
+                                               });
     querySetStmt(query, statement);
     if (!statement)
     {
@@ -263,7 +265,7 @@ size_t SQLite3Connection::queryColCount(Query* query)
 
     auto* stmt = (SQLHSTMT) query->statement();
 
-    return (size_t) sqlite3_column_count(stmt);
+    return static_cast<size_t>(sqlite3_column_count(stmt));
 }
 
 void SQLite3Connection::queryBindParameters(Query* query)
@@ -282,14 +284,14 @@ void SQLite3Connection::queryBindParameters(Query* query)
 
 void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) const
 {
-    auto* stmt = (SQLHSTMT) query->statement();
-    QueryParameter* param = &query->param(paramNumber);
+    auto*                 stmt = (SQLHSTMT) query->statement();
+    QueryParameter*       param = &query->param(paramNumber);
     const VariantDataType ptype = param->dataType();
 
     for (unsigned j = 0; j < param->bindCount(); ++j)
     {
-        int res;
-        auto paramBindNumber = short(param->bindIndex(j) + 1);
+        int        res;
+        const auto paramBindNumber = static_cast<short>(param->bindIndex(j) + 1);
 
         if (param->isNull())
         {
@@ -322,19 +324,19 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
                 case VAR_STRING:
                 case VAR_TEXT:
-                    res = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
+                    res = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), static_cast<int>(param->dataSize()),
                                             nullptr);
                     break;
 
                 case VAR_BUFFER:
-                    res = sqlite3_bind_blob(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
+                    res = sqlite3_bind_blob(stmt, paramBindNumber, param->getString(), static_cast<int>(param->dataSize()),
                                             nullptr);
                     break;
 
                 default:
                     throw DatabaseException(
-                            "Unsupported parameter type (" + to_string((int) param->dataType()) +
-                            ") for parameter '" + param->name() + "'");
+                        "Unsupported parameter type (" + to_string(static_cast<int>(param->dataType())) +
+                        ") for parameter '" + param->name() + "'");
             }
         }
 
@@ -353,8 +355,8 @@ int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParam
 {
     const auto dt = param->get<DateTime>();
     param->setString(dt.isoDateTimeString());
-    auto rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), int(param->dataSize()),
-                                nullptr);
+    const auto rc = sqlite3_bind_text(stmt, paramBindNumber, param->getString(), static_cast<int>(param->dataSize()),
+                                      nullptr);
     return rc;
 }
 
@@ -383,7 +385,7 @@ void SQLite3Connection::queryOpen(Query* query)
     queryBindParameters(query);
     queryExecute(query);
 
-    auto count = (short) queryColCount(query);
+    const auto count = static_cast<short>(queryColCount(query));
 
     query->fields().clear();
 
@@ -428,7 +430,7 @@ uint32_t trimField(char* str, uint32_t length)
         return 0;
     }
 
-    char* p = str + length - 1;
+    char*      p = str + length - 1;
     const char ch = str[0];
     str[0] = '!';
 
@@ -445,7 +447,7 @@ uint32_t trimField(char* str, uint32_t length)
     }
 
     str[0] = ch;
-    return uint32_t(p - str);
+    return static_cast<uint32_t>(p - str);
 }
 } // namespace
 
@@ -473,7 +475,7 @@ void SQLite3Connection::queryFetch(Query* query)
             throw DatabaseException(queryError(query), source_location::current(), query->sql());
     }
 
-    auto fieldCount = query->fieldCount();
+    const auto fieldCount = query->fieldCount();
     if (fieldCount == 0)
     {
         return;
@@ -487,35 +489,34 @@ void SQLite3Connection::queryFetch(Query* query)
         {
             field = bit_cast<SQLite3Field*>(&(*query)[column]);
 
-            auto fieldType = (short) field->fieldType();
+            auto fieldType = static_cast<short>(field->fieldType());
             if (fieldType == 0 || fieldType == SQLITE_NULL)
             {
-                fieldType = (short) sqlite3_column_type(statement, int(column));
+                fieldType = static_cast<short>(sqlite3_column_type(statement, int(column)));
                 field->setFieldType(fieldType, 0, 0);
             }
 
-            auto dataLength = (uint32_t) sqlite3_column_bytes(statement, int(column));
-
-            if (dataLength != 0)
+            if (auto dataLength = static_cast<uint32_t>(sqlite3_column_bytes(statement, int(column)));
+                dataLength != 0)
             {
                 switch (fieldType)
                 {
                     case SQLITE_INTEGER:
-                        field->setInt64(sqlite3_column_int64(statement, int(column)));
+                        field->setInt64(sqlite3_column_int64(statement, static_cast<int>(column)));
                         break;
 
                     case SQLITE_FLOAT:
-                        field->setFloat(sqlite3_column_double(statement, int(column)));
+                        field->setFloat(sqlite3_column_double(statement, static_cast<int>(column)));
                         break;
 
                     case SQLITE_TEXT:
-                        field->setBuffer(sqlite3_column_text(statement, int(column)), dataLength,
+                        field->setBuffer(sqlite3_column_text(statement, static_cast<int>(column)), dataLength,
                                          VariantDataType::VAR_BUFFER);
                         dataLength = trimField(bit_cast<char*>(field->get<Buffer>().data()), dataLength);
                         break;
 
                     case SQLITE_BLOB:
-                        field->setBuffer(bit_cast<const uint8_t*>(sqlite3_column_blob(statement, int(column))), dataLength,
+                        field->setBuffer(bit_cast<const uint8_t*>(sqlite3_column_blob(statement, static_cast<int>(column))), dataLength,
                                          VariantDataType::VAR_BUFFER);
                         break;
 
@@ -548,7 +549,7 @@ void SQLite3Connection::executeBatchSQL(const sptk::Strings& batchSQL, Strings* 
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    string statement;
+    string  statement;
     for (String row: batchSQL)
     {
         row = trim(row);
@@ -627,7 +628,7 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
 
     while (!query.eof())
     {
-        objects.push_back(query[uint32_t(0)].asString());
+        objects.push_back(query[static_cast<uint32_t>(0)].asString());
         query.next();
     }
 
@@ -653,7 +654,7 @@ map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqli
 
 [[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
-    auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
+    const auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
     return connection.get();
 }

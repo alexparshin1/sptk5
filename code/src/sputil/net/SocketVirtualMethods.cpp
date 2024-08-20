@@ -420,7 +420,7 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
 #ifdef _WIN32
     auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
-    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_DONTWAIT);
+    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_DONTWAIT);
 #endif
     if (result == -1)
     {
@@ -465,7 +465,7 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 #ifdef _WIN32
     auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
-    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), (int32_t) len, MSG_NOSIGNAL);
+    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_NOSIGNAL);
 #endif
     return res;
 }
@@ -491,9 +491,9 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
                            bit_cast<const sockaddr*>(peer),
                            sizeof(sockaddr_in));
 #else
-            bytes = (int) sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
+            bytes = static_cast<int>(sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
                                  bit_cast<const sockaddr*>(peer),
-                                 sizeof(sockaddr_in));
+                                 sizeof(sockaddr_in)));
 #endif
         }
         else

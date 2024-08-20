@@ -61,7 +61,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
 
         xdoc::Document error;
         error.root()->set("error", errorText);
-        error.root()->set("status_code", (int) e.statusCode());
+        error.root()->set("status_code", static_cast<int>(e.statusCode()));
         error.root()->set("status_text", e.statusText());
         error.exportTo(xdoc::DataFormat::JSON, output, true);
     }
@@ -87,7 +87,7 @@ void substituteHostname(Buffer& page, const Host& host)
 {
     xdoc::Document wsdl;
     wsdl.load(page);
-    auto node = wsdl.root()->findFirst("soap:address");
+    const auto node = wsdl.root()->findFirst("soap:address");
     if (node == nullptr)
     {
         throw Exception("Can't find <soap:address> in WSDL file");
@@ -258,7 +258,7 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
 {
     shared_ptr<HttpAuthentication> authentication;
 
-    if (auto itor = headers().find("authorization");
+    if (const auto itor = headers().find("authorization");
         itor != headers().end())
     {
         const String value(itor->second);
@@ -276,7 +276,7 @@ int WSWebServiceProtocol::getContentLength()
         contentLength = 0;
     }
 
-    if (auto itor = headers().find("Content-Length");
+    if (const auto itor = headers().find("Content-Length");
         itor != headers().end())
     {
         contentLength = string2int(itor->second);

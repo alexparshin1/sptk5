@@ -42,12 +42,12 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
         const VariantDataType ptype = param->dataType();
         PostgreSQLDataType pgDataType;
         PostgreSQLConnection::variantTypeToPostgreType(ptype, pgDataType, param->name());
-        m_types[i] = (Oid) pgDataType;
+        m_types[i] = static_cast<Oid>(pgDataType);
 
-        if (((int) ptype &
-             ((int) VAR_INT | (int) VAR_INT64 | (int) VAR_FLOAT |
-              (int) VAR_BUFFER | (int) VAR_DATE |
-              (int) VAR_DATE_TIME)) != 0)
+        if ((static_cast<int>(ptype) &
+             (static_cast<int>(VAR_INT) | static_cast<int>(VAR_INT64) | static_cast<int>(VAR_FLOAT) |
+              static_cast<int>(VAR_BUFFER) | static_cast<int>(VAR_DATE) |
+              static_cast<int>(VAR_DATE_TIME))) != 0)
         {
             m_formats[i] = 1; // Binary format
         }
@@ -129,7 +129,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT:
                 uptrBuffer = bit_cast<uint32_t*>(param->conversionBuffer());
-                *uptrBuffer = htonl((uint32_t) param->get<int>());
+                *uptrBuffer = htonl(static_cast<uint32_t>(param->get<int>()));
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int32_t), 1,
                                   PostgreSQLDataType::INT4);
                 break;
@@ -143,7 +143,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 }
                 else
                 {
-                    double dt = double(days) * double(secondsPerDay);
+                    double dt = static_cast<double>(days) * static_cast<double>(secondsPerDay);
                     htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -158,7 +158,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 }
                 else
                 {
-                    double dt = double(mcs) / double(microsecondsInSecond);
+                    double dt = static_cast<double>(mcs) / static_cast<double>(microsecondsInSecond);
                     htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -167,7 +167,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_INT64:
                 uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
-                *uptrBuffer64 = htonq((uint64_t) param->get<int64_t>());
+                *uptrBuffer64 = htonq(static_cast<uint64_t>(param->get<int64_t>()));
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
                                   PostgreSQLDataType::INT8);
                 break;
@@ -185,18 +185,18 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             case VariantDataType::VAR_STRING:
             case VariantDataType::VAR_TEXT:
-                setParameterValue(paramIndex, bit_cast<const uint8_t*>(param->getText()), (unsigned) param->dataSize(), 0,
+                setParameterValue(paramIndex, bit_cast<const uint8_t*>(param->getText()), static_cast<unsigned>(param->dataSize()), 0,
                                   PostgreSQLDataType::VARCHAR);
                 break;
 
             case VariantDataType::VAR_BUFFER:
                 setParameterValue(paramIndex, bit_cast<const uint8_t*>(param->getText()),
-                                  (unsigned) param->dataSize(), 1, PostgreSQLDataType::BYTEA);
+                                  static_cast<unsigned>(param->dataSize()), 1, PostgreSQLDataType::BYTEA);
                 break;
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string((int) param->dataType()) +
+                    "Unsupported parameter type(" + to_string(static_cast<int>(param->dataType())) +
                     ") for parameter '" + param->name() + "'");
         }
     }

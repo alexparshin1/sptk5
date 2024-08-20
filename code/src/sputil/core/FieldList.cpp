@@ -53,14 +53,13 @@ Field& FieldList::push_back(const String& fname, bool checkDuplicates)
 {
     if (checkDuplicates)
     {
-        auto pfld = findField(fname);
-        if (pfld)
+        if (const auto pfld = findField(fname))
         {
             throw Exception("Attempt to duplicate field name");
         }
     }
 
-    auto field = make_shared<Field>(fname);
+    const auto field = make_shared<Field>(fname);
 
     m_list.push_back(field);
 
@@ -88,8 +87,8 @@ SField FieldList::findField(const String& fname) const
 {
     if (m_index)
     {
-        auto itor = m_index->find(fname);
-        if (itor != m_index->end())
+        if (const auto itor = m_index->find(fname);
+            itor != m_index->end())
         {
             return itor->second;
         }

@@ -64,12 +64,12 @@ TEST(SPTK_SSLSocket, httpConnect)
             String result {"OK"};
             try
             {
-                auto socket = make_shared<SSLSocket>();
+                const auto socket = make_shared<SSLSocket>();
 
                 socket->open(yahoo);
                 HttpConnect http(*socket);
 
-                auto statusCode = http.cmd_get("/", HttpParams(), output);
+                const auto statusCode = http.cmd_get("/", HttpParams(), output);
                 if (statusCode != 200)
                 {
                     result = http.statusText().c_str();
@@ -79,7 +79,7 @@ TEST(SPTK_SSLSocket, httpConnect)
             {
                 result = e.what();
             }
-            return make_tuple(result, (String) output);
+            return make_tuple(result, static_cast<String>(output));
         });
 
         tasks.push_back(std::move(task));

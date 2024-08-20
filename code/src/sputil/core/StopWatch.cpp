@@ -48,6 +48,6 @@ double StopWatch::seconds() const
 double StopWatch::milliseconds() const
 {
     constexpr double microsecondsInMillisecond = 1000.0;
-    return (double) chrono::duration_cast<chrono::microseconds>(m_ended - m_started).count() /
+    return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_ended - m_started).count()) /
            microsecondsInMillisecond;
 }

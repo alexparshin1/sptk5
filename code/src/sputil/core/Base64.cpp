@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-static const array<char, 64> B64Chars = {
+static constexpr array B64Chars = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
@@ -44,7 +44,7 @@ inline uint8_t base64chars(int chr)
 void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
 {
     const auto* current = bufSource;
-    auto outputLen = size_t(len / 3 * 4);
+    auto        outputLen = static_cast<size_t>(len / 3 * 4);
     if ((len % 3) != 0)
     {
         outputLen += 4;
@@ -54,16 +54,16 @@ void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
 
     while (len >= 3)
     {
-        *output = base64chars((int(current[0]) & 0xFC) >> 2);
+        *output = base64chars((static_cast<int>(current[0]) & 0xFC) >> 2);
         ++output;
 
-        *output = base64chars(((int(current[0]) & 0x03) << 4) | ((int(current[1]) & 0xF0) >> 4));
+        *output = base64chars(((static_cast<int>(current[0]) & 0x03) << 4) | ((static_cast<int>(current[1]) & 0xF0) >> 4));
         ++output;
 
-        *output = base64chars(((int(current[1]) & 0x0F) << 2) | ((int(current[2]) & 0xC0) >> 6));
+        *output = base64chars(((static_cast<int>(current[1]) & 0x0F) << 2) | ((static_cast<int>(current[2]) & 0xC0) >> 6));
         ++output;
 
-        *output = base64chars(int(current[2]) & 0x3F);
+        *output = base64chars(static_cast<int>(current[2]) & 0x3F);
         ++output;
 
         len -= 3;
@@ -73,20 +73,20 @@ void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
     /// Now we should clean up remainder
     if (len > 0)
     {
-        *output = base64chars((int) current[0] >> 2);
+        *output = base64chars(static_cast<int>(current[0]) >> 2);
         ++output;
         if (len > 1)
         {
-            *output = base64chars((((int) current[0] & 0x03) << 4) | (((int) current[1] & 0xF0) >> 4));
+            *output = base64chars(((static_cast<int>(current[0]) & 0x03) << 4) | ((static_cast<int>(current[1]) & 0xF0) >> 4));
             ++output;
-            *output = base64chars(((int) current[1] & 0x0f) << 2);
+            *output = base64chars((static_cast<int>(current[1]) & 0x0f) << 2);
             ++output;
             *output = '=';
             ++output;
         }
         else
         {
-            *output = base64chars(((int) current[0] & 0x03) << 4);
+            *output = base64chars((static_cast<int>(current[0]) & 0x03) << 4);
             ++output;
             *output = '=';
             ++output;
@@ -126,29 +126,29 @@ inline bool is_base64(uint8_t chr) noexcept
 size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 {
     size_t in_len = encoded_string.size();
-    int index = 0;
-    int in_ = 0;
+    int               index = 0;
+    int               in_ = 0;
     array<uint8_t, 4> char_array_4 {};
     array<uint8_t, 3> char_array_3 {};
 
     dest.reset();
 
-    while (in_len && (encoded_string[in_] != '=') && is_base64((uint8_t) encoded_string[in_]))
+    while (in_len && (encoded_string[in_] != '=') && is_base64(static_cast<uint8_t>(encoded_string[in_])))
     {
         --in_len;
-        char_array_4[index] = (uint8_t) encoded_string[in_];
+        char_array_4[index] = static_cast<uint8_t>(encoded_string[in_]);
         ++index;
         ++in_;
         if (index == 4)
         {
             for (index = 0; index < 4; ++index)
             {
-                char_array_4[index] = (uint8_t) base64_chars.find((char) char_array_4[index]);
+                char_array_4[index] = static_cast<uint8_t>(base64_chars.find((char) char_array_4[index]));
             }
 
-            char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
-            char_array_3[1] = uint8_t((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
-            char_array_3[2] = uint8_t((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
+            char_array_3[0] = static_cast<uint8_t>(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
+            char_array_3[1] = static_cast<uint8_t>((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
+            char_array_3[2] = static_cast<uint8_t>((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
 
             dest.append(char_array_3.data(), 3);
             index = 0;
@@ -165,16 +165,16 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
         for (j = 0; j < 4; ++j)
         {
-            char_array_4[j] = (uint8_t) base64_chars.find((char) char_array_4[j]);
+            char_array_4[j] = static_cast<uint8_t>(base64_chars.find((char) char_array_4[j]));
         }
 
-        char_array_3[0] = uint8_t(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
-        char_array_3[1] = uint8_t((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
-        char_array_3[2] = uint8_t((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
+        char_array_3[0] = static_cast<uint8_t>(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
+        char_array_3[1] = static_cast<uint8_t>((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
+        char_array_3[2] = static_cast<uint8_t>((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
 
         for (j = 0; (j < index - 1); ++j)
         {
-            dest.append((char) char_array_3[j]);
+            dest.append(static_cast<char>(char_array_3[j]));
         }
     }
 

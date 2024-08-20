@@ -49,8 +49,8 @@ TEST(SPTK_ReadBuffer, read)
         buffer.append(i);
     }
 
-    EXPECT_EQ(size_t(27), buffer.available());
-    EXPECT_EQ(size_t(0), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(27), buffer.available());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
 
     for (int i = 0; i < dataLength; ++i)
     {
@@ -64,6 +64,6 @@ TEST(SPTK_ReadBuffer, read)
         }
     }
 
-    EXPECT_EQ(size_t(0), buffer.available());
-    EXPECT_EQ(size_t(0), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.available());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
 }

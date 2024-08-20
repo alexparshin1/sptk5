@@ -188,7 +188,7 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
         {
             auto remoteIp = address();
 
-            if (auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
+            if (const auto remoteIpHeader = httpReader.httpHeader("Remote-Ip");
                 remoteIp == "127.0.0.1" && !remoteIpHeader.empty())
             {
                 remoteIp = remoteIpHeader;
@@ -285,7 +285,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
 
 void WSConnection::respondToOptions(const HttpHeaders& headers) const
 {
-    auto itor = headers.find("origin");
+    const auto itor = headers.find("origin");
     auto origin = itor->second;
     Buffer response;
 
@@ -322,7 +322,7 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     if (options.encrypted)
     {
         const auto& sslKeys = server.getSSLKeys();
-        auto socket = make_shared<SSLSocket>();
+        const auto socket = make_shared<SSLSocket>();
         socket->loadKeys(sslKeys);
         setSocket(socket);
     }

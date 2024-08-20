@@ -88,7 +88,7 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
 {
     // Converting JSON request to XML request
     xdoc::Document jsonContent;
-    Strings pathElements(url.path(), "/");
+    const Strings pathElements(url.path(), "/");
     const String method(*pathElements.rbegin());
     const auto& xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
@@ -124,7 +124,7 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
     }
 
     String methodName;
-    if (auto pos = xmlRequest->name().find(':');
+    if (const auto pos = xmlRequest->name().find(':');
         pos == string::npos)
     {
         methodName = xmlRequest->name();
@@ -149,8 +149,8 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, const xdoc::SNode&
     contentType = "text/xml; charset=utf-8";
     try
     {
-        auto pXmlContent = requestIsJSON ? nullptr : xmlContent;
-        auto pJsonContent = requestIsJSON ? jsonContent : nullptr;
+        const auto pXmlContent = requestIsJSON ? nullptr : xmlContent;
+        const auto pJsonContent = requestIsJSON ? jsonContent : nullptr;
         auto& service = m_services.get(m_url.location());
         service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
         if (requestIsJSON)
@@ -182,7 +182,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
     }
     else
     {
-        Strings pathElements(m_url.path(), "/");
+        const Strings pathElements(m_url.path(), "/");
         const String method(*pathElements.rbegin());
 
         try

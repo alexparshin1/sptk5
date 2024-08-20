@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
             cin >> email;
         }
 
-        auto port = (uint16_t) string2int(portStr);
+        auto port = static_cast<uint16_t>(string2int(portStr));
         if (port < 1)
         {
             port = 25;

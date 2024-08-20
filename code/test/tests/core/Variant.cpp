@@ -67,7 +67,7 @@ TEST(SPTK_Variant, copy_ctors)
     Variant v4(testDate);
     Variant v5;
     Variant v6(Buffer(bit_cast<const uint8_t*>(testString), 6));
-    Variant v7(int64_t(1));
+    Variant v7(static_cast<int64_t>(1));
 
     v5.setNull(VariantDataType::VAR_STRING);
 
@@ -88,7 +88,7 @@ TEST(SPTK_Variant, copy_ctors)
     EXPECT_TRUE(v5c.dataType() == VariantDataType::VAR_STRING);
     EXPECT_STREQ(v6c.asString().c_str(), testString);
     EXPECT_TRUE(v6c.dataType() == VariantDataType::VAR_BUFFER);
-    EXPECT_EQ(int64_t(1), v1c.asInt64());
+    EXPECT_EQ(static_cast<int64_t>(1), v1c.asInt64());
 }
 
 TEST(SPTK_Variant, move_ctors)
@@ -131,26 +131,26 @@ TEST(SPTK_Variant, assigns)
     Variant v1;
 
     v = 1;
-    EXPECT_EQ(1, (int) v);
+    EXPECT_EQ(1, static_cast<int>(v));
     EXPECT_EQ(1, v.asInteger());
     EXPECT_EQ(1, v.asInt64());
     EXPECT_EQ(1, v.get<int>());
 
-    v = int64_t(1);
-    EXPECT_EQ(1, (int64_t) v);
+    v = static_cast<int64_t>(1);
+    EXPECT_EQ(1, static_cast<int64_t>(v));
     EXPECT_EQ(1, v.asInt64());
     EXPECT_EQ(1, v.asInteger());
     EXPECT_EQ(1, v.get<int64_t>());
 
     v = 2.22;
-    EXPECT_DOUBLE_EQ(2.22, (double) v);
+    EXPECT_DOUBLE_EQ(2.22, static_cast<double>(v));
     EXPECT_DOUBLE_EQ(2.22, v.asFloat());
     EXPECT_DOUBLE_EQ(2.22, v.get<double>());
     EXPECT_EQ(2, v.asInteger());
     EXPECT_EQ(2, v.asInt64());
 
     v = "Test";
-    EXPECT_STREQ("Test", ((String) v).c_str());
+    EXPECT_STREQ("Test", static_cast<String>(v).c_str());
     EXPECT_STREQ("Test", v.asString().c_str());
     EXPECT_STREQ("Test", v.getString());
 
@@ -163,21 +163,21 @@ TEST(SPTK_Variant, assigns)
     v = testDate;
 
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
-                 ((DateTime) v).isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
+                 static_cast<DateTime>(v).isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     EXPECT_STREQ("2018-02-01T09:11:14.345Z",
                  v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     v = true;
     EXPECT_TRUE(v);
-    EXPECT_TRUE((bool) v);
+    EXPECT_TRUE(static_cast<bool>(v));
     EXPECT_TRUE(v.get<bool>());
     EXPECT_DOUBLE_EQ(v.asInteger(), 1);
     EXPECT_EQ(v.asInt64(), 1L);
 
     v = false;
     EXPECT_FALSE(v);
-    EXPECT_FALSE((bool) v);
+    EXPECT_FALSE(static_cast<bool>(v));
     EXPECT_FALSE(v.get<bool>());
     EXPECT_DOUBLE_EQ(v.asInteger(), 0);
     EXPECT_EQ(v.asInt64(), 0L);
@@ -276,10 +276,10 @@ TEST(SPTK_Variant, toString)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
-    Variant v1(1);
-    Variant v2(2.22);
+    Variant  v1(1);
+    Variant  v2(2.22);
     Variant v3("Test");
-    Variant v4(testDate);
+    Variant  v4(testDate);
     Variant v5;
     DateTime dt;
     String dtStr;
@@ -301,13 +301,13 @@ TEST(SPTK_Variant, toString)
 
 TEST(SPTK_Variant, money)
 {
-    Variant money(10001234, 4);
+    Variant      money(10001234, 4);
     const String testString {"A test"};
 
-    EXPECT_DOUBLE_EQ((double) money.getMoney(), 1000.1234);
-    EXPECT_EQ((int) money.getMoney(), 1000);
-    EXPECT_EQ((int64_t) money.getMoney(), 1000);
-    EXPECT_TRUE((bool) money.getMoney());
+    EXPECT_DOUBLE_EQ(static_cast<double>(money.getMoney()), 1000.1234);
+    EXPECT_EQ(static_cast<int>(money.getMoney()), 1000);
+    EXPECT_EQ(static_cast<int64_t>(money.getMoney()), 1000);
+    EXPECT_TRUE(static_cast<bool>(money.getMoney()));
     EXPECT_STREQ(money.asString().c_str(), "1000.1234");
 
     money.setMoney(200055, 2);
@@ -317,12 +317,12 @@ TEST(SPTK_Variant, money)
 
     MoneyData value {12345678, 4};
     money.setMoney(value);
-    EXPECT_DOUBLE_EQ((double) money, 1234.5678);
+    EXPECT_DOUBLE_EQ(static_cast<double>(money), 1234.5678);
     EXPECT_TRUE(money.dataType() == VariantDataType::VAR_MONEY);
 
     Variant s(testString);
     s.setMoney(1234567, 4);
-    EXPECT_DOUBLE_EQ((double) s.getMoney(), 123.4567);
+    EXPECT_DOUBLE_EQ(static_cast<double>(s.getMoney()), 123.4567);
 }
 
 TEST(SPTK_Variant, setBuffer)
@@ -372,7 +372,7 @@ TEST(SPTK_Variant, json)
     const char* json = R"({ "value": 12345 })";
     xdoc::Document document;
     document.load(json);
-    auto node = document.root()->findFirst("value");
+    const auto node = document.root()->findFirst("value");
 
     Variant v;
     v.load(node);
@@ -386,10 +386,10 @@ TEST(SPTK_Variant, json)
 
 TEST(SPTK_Variant, bool)
 {
-    Variant v1(false);
+    const Variant v1(false);
     EXPECT_FALSE(v1);
 
-    Variant v2(true);
+    const Variant v2(true);
     EXPECT_TRUE(v2);
 
     const char* testString("Test");
@@ -403,7 +403,7 @@ TEST(SPTK_Variant, xml)
     const char* xml = "<value>12345</value>";
     xdoc::Document document;
     document.load(xml);
-    auto node = document.root()->findFirst("value");
+    const auto node = document.root()->findFirst("value");
 
     Variant v;
     v.load(node);

@@ -361,7 +361,7 @@ size_t ODBCConnection::queryColCount(Query* query)
         THROW_QUERY_ERROR(query, queryError(query));
     }
 
-    return (size_t) count;
+    return static_cast<size_t>(count);
 }
 
 void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
@@ -814,7 +814,7 @@ SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUS
     const SQLRETURN resultCode = SQLGetData(statement, column, fieldType, (SQLPOINTER) &timestampStruct, 0, &dataLength);
     if (dataLength > 0)
     {
-        const DateTime dateTime(timestampStruct.year, (short) timestampStruct.month, (short) timestampStruct.day, (short) timestampStruct.hour, (short) timestampStruct.minute, (short) timestampStruct.second);
+        const DateTime dateTime(timestampStruct.year, static_cast<short>(timestampStruct.month), static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour), static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second));
         field->setDateTime(dateTime, field->dataType() == VariantDataType::VAR_DATE);
     }
     return resultCode;
@@ -1044,7 +1044,7 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
 
     if (SQLAllocStmt(this->handle(), &stmt) != SQL_SUCCESS)
     {
-        const auto error = queryError(SQLHSTMT(nullptr));
+        const auto error = queryError(static_cast<SQLHSTMT>(nullptr));
         throw DatabaseException("ODBCConnection::SQLAllocStmt: " + error);
     }
 

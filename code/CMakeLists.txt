@@ -151,7 +151,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O2 -mtune=native -march=native)
+        #ADD_DEFINITIONS(-O2 -mtune=native -march=native)
         #ADD_DEFINITIONS(-fsanitize=address)
         #LINK_LIBRARIES(asan)
     ELSE ()

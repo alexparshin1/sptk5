@@ -50,7 +50,7 @@ public:
     Context(ReadBuffer& inputBuffer, Buffer& outputBuffer)
         : inputData(inputBuffer)
         , outputData(outputBuffer)
-        , input_file_length((int64_t) inputBuffer.size())
+        , input_file_length(static_cast<int64_t>(inputBuffer.size()))
         , next_out(output)
     {
     }
@@ -64,7 +64,7 @@ public:
 private:
     /* Parameters */
     static constexpr int highQuality = 9;
-    int quality = highQuality;
+    int                  quality = highQuality;
 
     array<uint8_t, kBufferSize * 2> buffer {};
 
@@ -99,7 +99,7 @@ private:
 
     void WriteOutput()
     {
-        auto out_size = (size_t) (next_out - output);
+        const auto out_size = static_cast<size_t>(next_out - output);
         if (out_size > 0)
         {
             outputData.append(output, out_size);
@@ -123,7 +123,7 @@ private:
 BrotliEncoderState* Context::createEncoderInstance() const
 {
     auto* instance = BrotliEncoderCreateInstance(nullptr, nullptr, nullptr);
-    BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, (uint32_t) quality);
+    BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, static_cast<uint32_t>(quality));
 
     /* 0, or not specified by user; could be chosen by compressor. */
     uint32_t _lgwin = DEFAULT_LGWIN;
@@ -131,7 +131,7 @@ BrotliEncoderState* Context::createEncoderInstance() const
     if (input_file_length >= 0)
     {
         _lgwin = BROTLI_MIN_WINDOW_BITS;
-        while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < (uint64_t) input_file_length)
+        while (BROTLI_MAX_BACKWARD_LIMIT(_lgwin) < static_cast<uint64_t>(input_file_length))
         {
             ++_lgwin;
             if (_lgwin == BROTLI_MAX_WINDOW_BITS)
@@ -144,8 +144,8 @@ BrotliEncoderState* Context::createEncoderInstance() const
 
     if (input_file_length > 0)
     {
-        constexpr uint32_t maxHintSize = uint32_t(-1) / 2;
-        const uint32_t size_hint = input_file_length < maxHintSize ? (uint32_t) input_file_length : maxHintSize;
+        constexpr uint32_t maxHintSize = static_cast<uint32_t>(-1) / 2;
+        const uint32_t size_hint = input_file_length < maxHintSize ? static_cast<uint32_t>(input_file_length) : maxHintSize;
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 
@@ -223,7 +223,7 @@ void Context::DecompressFile(BrotliDecoderState* state)
 void Brotli::compress(Buffer& dest, const Buffer& src)
 {
     ReadBuffer input(src.data(), src.bytes());
-    auto context = make_shared<Context>(input, dest);
+    const auto context = make_shared<Context>(input, dest);
 
     auto* state = context->createEncoderInstance();
 
@@ -234,7 +234,7 @@ void Brotli::compress(Buffer& dest, const Buffer& src)
 void Brotli::decompress(Buffer& dest, const Buffer& src)
 {
     ReadBuffer input(src.data(), src.bytes());
-    auto context = make_shared<Context>(input, dest);
+    const auto context = make_shared<Context>(input, dest);
 
     BrotliDecoderState* state = BrotliDecoderCreateInstance(nullptr, nullptr, nullptr);
     if (!state)

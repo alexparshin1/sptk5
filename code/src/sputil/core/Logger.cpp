@@ -41,43 +41,43 @@ Logger::Logger(LogEngine& destination, std::string_view prefix)
 {
 }
 
-void Logger::log(LogPriority priority, const String& message)
+void Logger::log(LogPriority priority, const String& message) const
 {
     auto msg = make_unique<Message>(priority, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::debug(const String& message)
+void Logger::debug(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::info(const String& message)
+void Logger::info(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Info, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::notice(const String& message)
+void Logger::notice(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Notice, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::warning(const String& message)
+void Logger::warning(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Warning, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::error(const String& message)
+void Logger::error(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Error, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
-void Logger::critical(const String& message)
+void Logger::critical(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + message);
     m_destination.log(std::move(msg));

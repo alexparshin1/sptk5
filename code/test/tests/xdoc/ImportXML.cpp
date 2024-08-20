@@ -66,9 +66,9 @@ static void verifyDocument(Document& document)
     EXPECT_STREQ("John", nameNode->getText().c_str());
     EXPECT_STREQ("president", nameNode->attributes().get("position").c_str());
 
-    EXPECT_EQ(33, (int) document.root()->getNumber("age"));
+    EXPECT_EQ(33, static_cast<int>(document.root()->getNumber("age")));
     EXPECT_DOUBLE_EQ(36.6, document.root()->getNumber("temperature"));
-    EXPECT_DOUBLE_EQ(1519005758, (int) (document.root()->getNumber("timestamp") / 1000));
+    EXPECT_DOUBLE_EQ(1519005758, static_cast<int>(document.root()->getNumber("timestamp") / 1000));
 
     const auto textNode = document.findFirst("text");
     EXPECT_STREQ("Once upon a time, in a far away kingdom", textNode->getText().c_str());
@@ -148,7 +148,7 @@ TEST(SPTK_XDocument, removeNodes)
 
 TEST(SPTK_XDocument, saveXml1)
 {
-    Document document;
+    const Document document;
     document.load(testREST);
 
     Buffer buffer;
@@ -188,16 +188,16 @@ TEST(SPTK_XDocument, parseXML)
     if (bodyElement == nullptr)
         FAIL() << "Node soap:Body not found";
     EXPECT_TRUE(Node::Type::Object == bodyElement->type());
-    EXPECT_EQ(1, (int) bodyElement->nodes().size());
+    EXPECT_EQ(1, static_cast<int>(bodyElement->nodes().size()));
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node) {
+    const auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node) {
         return node->type() == Node::Type::Object;
     });
 
-    SNode methodElement = itor != bodyElement->nodes().end() ? *itor : nullptr;
+    const SNode methodElement = itor != bodyElement->nodes().end() ? *itor : nullptr;
     EXPECT_TRUE(methodElement != nullptr);
-    EXPECT_EQ(2, (int) methodElement->nodes().size());
+    EXPECT_EQ(2, static_cast<int>(methodElement->nodes().size()));
     EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
 }
 
@@ -217,7 +217,7 @@ TEST(SPTK_XDocument, brokenXML)
 
 TEST(SPTK_XDocument, unicodeAndSpacesXML)
 {
-    Document document;
+    const Document document;
 
     try
     {
@@ -235,8 +235,8 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
 
 TEST(SPTK_XDocument, exportToJSON)
 {
-    Buffer input(testXML);
-    Document document;
+    const Buffer   input(testXML);
+    const Document document;
     document.load(input);
 
     Buffer output;
@@ -250,7 +250,7 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer input;
     input.loadFromFile("data/content2.xml");
 
-    Document document;
+    const Document document;
     document.load(input, true);
 
     Buffer output;
@@ -262,7 +262,7 @@ TEST(SPTK_XDocument, getText)
 {
     Document document;
     document.load(testOO, true);
-    auto text = document.root()->getText();
+    const auto text = document.root()->getText();
     EXPECT_STREQ(text.c_str(), "Fig. PE 6.1.2 ImportAudio File");
 }
 
@@ -272,11 +272,11 @@ TEST(SPTK_XDocument, unquotedXmlAttributes)
     Document document;
     document.load(unquotedAttributesXml, true);
 
-    auto firstName = document.root()->findFirst("name");
+    const auto firstName = document.root()->findFirst("name");
     EXPECT_TRUE(firstName != nullptr);
     EXPECT_STREQ("Alex", firstName->attributes().get("value").c_str());
 
-    auto lastName = document.root()->findFirst("last_name");
+    const auto lastName = document.root()->findFirst("last_name");
     EXPECT_TRUE(lastName != nullptr);
     EXPECT_STREQ("Doe", lastName->attributes().get("value").c_str());
 }
@@ -292,7 +292,7 @@ TEST(SPTK_XDocument, htmlAutoCloseTags)
     Document document;
     document.load(htmlAutoCloseTagsHtml, true);
 
-    auto head = document.root()->findFirst("head");
+    const auto head = document.root()->findFirst("head");
     for (const auto& meta: head->nodes())
     {
         if (meta->name() == "meta")

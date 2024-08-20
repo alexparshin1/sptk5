@@ -87,22 +87,22 @@ inline MD5::uint4 MD5::rotate_left(uint4 x, int n)
 // Rotation is separate from addition to prevent recomputation.
 inline void MD5::FF(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac)
 {
-    a = rotate_left(a + F(b, c, d) + x + ac, int(s)) + b;
+    a = rotate_left(a + F(b, c, d) + x + ac, static_cast<int>(s)) + b;
 }
 
 inline void MD5::GG(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac)
 {
-    a = rotate_left(a + G(b, c, d) + x + ac, int(s)) + b;
+    a = rotate_left(a + G(b, c, d) + x + ac, static_cast<int>(s)) + b;
 }
 
 inline void MD5::HH(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac)
 {
-    a = rotate_left(a + H(b, c, d) + x + ac, int(s)) + b;
+    a = rotate_left(a + H(b, c, d) + x + ac, static_cast<int>(s)) + b;
 }
 
 inline void MD5::II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac)
 {
-    a = rotate_left(a + I(b, c, d) + x + ac, int(s)) + b;
+    a = rotate_left(a + I(b, c, d) + x + ac, static_cast<int>(s)) + b;
 }
 
 //////////////////////////////////////////////
@@ -119,7 +119,7 @@ MD5::MD5()
 MD5::MD5(const Buffer& data)
 {
     init();
-    update(data.c_str(), (size_type) data.bytes());
+    update(data.c_str(), static_cast<size_type>(data.bytes()));
     finalize();
 }
 
@@ -147,8 +147,8 @@ void MD5::decode(uint4* output, const uint1* input, size_type len)
     size_t i = 0;
     for (size_t j = 0; j < len; j += 4)
     {
-        output[i] = ((uint4) input[j]) | (((uint4) input[j + 1]) << 8) |
-                    (((uint4) input[j + 2]) << 16) | (((uint4) input[j + 3]) << 24);
+        output[i] = static_cast<uint4>(input[j]) | (static_cast<uint4>(input[j + 1]) << 8) |
+                    (static_cast<uint4>(input[j + 2]) << 16) | (static_cast<uint4>(input[j + 3]) << 24);
         ++i;
     }
 }
@@ -367,11 +367,11 @@ sptk::String MD5::hexDigest() const
     auto* ptr = buf.data();
     for (const auto& digestElement: digest)
     {
-        auto high = (int) digestElement >> 4;
-        auto low = (int) digestElement & 0xF;
-        *ptr = char(high > 9 ? high - 10 + 'a' : high + '0');
+        const auto high = static_cast<int>(digestElement) >> 4;
+        const auto low = static_cast<int>(digestElement) & 0xF;
+        *ptr = static_cast<char>(high > 9 ? high - 10 + 'a' : high + '0');
         ++ptr;
-        *ptr = char(low > 9 ? low - 10 + 'a' : low + '0');
+        *ptr = static_cast<char>(low > 9 ? low - 10 + 'a' : low + '0');
         ++ptr;
     }
     buf[32] = 0;
@@ -381,7 +381,7 @@ sptk::String MD5::hexDigest() const
 
 String sptk::md5(const Buffer& data)
 {
-    auto md5 = MD5(data);
+    const auto md5 = MD5(data);
 
     return md5.hexDigest();
 }
@@ -389,7 +389,7 @@ String sptk::md5(const Buffer& data)
 String sptk::md5(const String& data)
 {
     const Buffer buffer(data);
-    auto md5 = MD5(buffer);
+    const auto md5 = MD5(buffer);
 
     return md5.hexDigest();
 }

@@ -66,7 +66,7 @@ TEST(SPTK_HttpAuthentication, basic)
 
 TEST(SPTK_HttpAuthentication, bearer)
 {
-    auto token = makeJWT();
+    const auto token = makeJWT();
     HttpAuthentication test("Bearer " + token);
     const auto& auth = test.getData();
 

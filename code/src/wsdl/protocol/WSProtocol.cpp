@@ -31,7 +31,7 @@ using namespace sptk;
 
 String WSProtocol::header(const String& name)
 {
-    auto itor = m_headers.find(name);
+    const auto itor = m_headers.find(name);
     if (itor == m_headers.end())
     {
         return "";

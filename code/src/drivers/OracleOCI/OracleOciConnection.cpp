@@ -91,7 +91,7 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
 
         try
         {
-            DatabaseConnectionString dbConnectionString = connectionString();
+            const DatabaseConnectionString dbConnectionString = connectionString();
             auto oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
                                  dbConnectionString.databaseName();
             m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
@@ -224,7 +224,7 @@ void OracleOciConnection::executeMultipleStatements(const Strings& statements, S
 
 bool OracleOciConnection::active() const
 {
-    return (bool) m_connection;
+    return static_cast<bool>(m_connection);
 }
 
 String OracleOciConnection::driverDescription() const
@@ -263,7 +263,7 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
     query.open();
     while (!query.eof())
     {
-        objects.push_back(query[uint32_t(0)].asString());
+        objects.push_back(query[static_cast<uint32_t>(0)].asString());
         query.next();
     }
     query.close();
@@ -289,7 +289,7 @@ void OracleOciConnection::driverEndTransaction(bool commit)
 
 void OracleOciConnection::queryAllocStmt(Query* query)
 {
-    auto stmt = make_shared<OracleOciStatement>(this, query->sql());
+    const auto stmt = make_shared<OracleOciStatement>(this, query->sql());
     querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
@@ -455,7 +455,7 @@ VariantDataType OracleOciConnection::oracleOciTypeToVariantType(ocilib::DataType
 
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resultset& resultSet)
 {
-    unsigned columnCount = resultSet.GetColumnCount();
+    const unsigned columnCount = resultSet.GetColumnCount();
     for (unsigned columnIndex = 0; columnIndex < columnCount; ++columnIndex)
     {
         auto column = resultSet.GetColumn(columnIndex + 1);
@@ -625,7 +625,7 @@ String OracleOciConnection::queryError(const Query* query) const
 namespace {
 void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    auto date = resultSet.Get<Timestamp>(columnIndex);
+    const auto date = resultSet.Get<Timestamp>(columnIndex);
     if (date.IsNull())
     {
         field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
@@ -646,7 +646,7 @@ void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned in
 
 void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex)
 {
-    auto date = resultSet.Get<Date>(columnIndex);
+    const auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
     {
         field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
@@ -668,7 +668,7 @@ void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsign
 
 void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    auto date = resultSet.Get<Date>(columnIndex);
+    const auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
     {
         field->setNull(sptk::VariantDataType::VAR_DATE);
@@ -692,7 +692,7 @@ void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
     }
     else
     {
-        auto clobData = clob.Read((unsigned) clob.GetLength());
+        auto clobData = clob.Read(static_cast<unsigned>(clob.GetLength()));
         field->setBuffer(bit_cast<const uint8_t*>(clobData.data()), clobData.size(), VariantDataType::VAR_TEXT);
     }
 }
@@ -706,7 +706,7 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
     }
     else
     {
-        auto blobData = blob.Read((unsigned) blob.GetLength());
+        auto blobData = blob.Read(static_cast<unsigned>(blob.GetLength()));
         field->setBuffer(bit_cast<const uint8_t*>(blobData.data()), blobData.size(), VariantDataType::VAR_BUFFER);
     }
 }

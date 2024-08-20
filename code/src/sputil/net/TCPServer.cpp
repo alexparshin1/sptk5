@@ -71,7 +71,7 @@ String LogDetails::toString(const String& delimiter) const
 }
 
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
-    : ThreadPool((uint32_t) threadLimit,
+    : ThreadPool(static_cast<uint32_t>(threadLimit),
                  chrono::minutes(1),
                  listenerName,
                  logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr)

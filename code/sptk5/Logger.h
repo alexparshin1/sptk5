@@ -94,43 +94,43 @@ public:
      * @param priority          Message priority
      * @param message           Message text
      */
-    void log(LogPriority priority, const String& message);
+    void log(LogPriority priority, const String& message) const;
 
     /**
      * @brief Log message with debug priority
      * @param message           Message text
      */
-    void debug(const String& message);
+    void debug(const String& message) const;
 
     /**
      * @brief Log message with info priority
      * @param message           Message text
      */
-    void info(const String& message);
+    void info(const String& message) const;
 
     /**
      * @brief Log message with notice priority
      * @param message           Message text
      */
-    void notice(const String& message);
+    void notice(const String& message) const;
 
     /**
      * @brief Log message with warning priority
      * @param message           Message text
      */
-    void warning(const String& message);
+    void warning(const String& message) const;
 
     /**
      * @brief Log message with error priority
      * @param message           Message text
      */
-    void error(const String& message);
+    void error(const String& message) const;
 
     /**
      * @brief Log message with critical priority
      * @param message           Message text
      */
-    void critical(const String& message);
+    void critical(const String& message) const;
 
     /**
      * @brief Set log message prefix

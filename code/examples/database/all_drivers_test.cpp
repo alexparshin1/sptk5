@@ -43,7 +43,7 @@ bool testTransactions(const DatabaseConnection& db, const string& tableName, boo
         Query step6Query(db, "SELECT count(*) FROM " + tableName, true);
 
         step6Query.open();
-        int counter = step6Query[uint32_t(0)].asInteger();
+        int counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT("\n        The table has " << counter << " records.");
 
@@ -53,7 +53,7 @@ bool testTransactions(const DatabaseConnection& db, const string& tableName, boo
         step5Query.exec();
 
         step6Query.open();
-        counter = step6Query[uint32_t(0)].asInteger();
+        counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records.");
 
@@ -68,7 +68,7 @@ bool testTransactions(const DatabaseConnection& db, const string& tableName, boo
             db->commitTransaction();
         }
         step6Query.open();
-        counter = step6Query[uint32_t(0)].asInteger();
+        counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records.");
     }
@@ -131,7 +131,7 @@ void testBLOBs(PoolDatabaseConnection* db)
 
 void printDatabaseObjects(const DatabaseConnection& db)
 {
-    vector<DatabaseObjectType> objectTypes = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS,
+    const vector<DatabaseObjectType> objectTypes = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS,
                                               DatabaseObjectType::PROCEDURES};
     const Strings objectTypeNames = {"tables", "views", "stored procedures"};
 
@@ -249,7 +249,7 @@ int testDatabase(const string& connectionString)
 
         // Here is the example of using parameters by index.
         // This is the even faster than stream
-        insertRecordQuery.param(size_t(0)) = 3;
+        insertRecordQuery.param(static_cast<size_t>(0)) = 3;
         insertRecordQuery.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         insertRecordQuery.param(2).setNull(VariantDataType::VAR_STRING);
         insertRecordQuery.param(3).setDateTime(DateTime::Now(), true);
@@ -366,7 +366,7 @@ int testDatabase(const string& connectionString)
         selectRecordsQuery.open();
 
         // First, find the field references by name or by number
-        const Field& idField = selectRecordsQuery[uint32_t(0)];
+        const Field& idField = selectRecordsQuery[static_cast<uint32_t>(0)];
         const Field& nameField = selectRecordsQuery["name"];
         const Field& positionNameField = selectRecordsQuery["position_name"];
         const Field& dateField = selectRecordsQuery["hire_date"];

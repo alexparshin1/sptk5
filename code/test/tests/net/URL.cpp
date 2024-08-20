@@ -45,7 +45,7 @@ TEST(SPTK_URL, minimal) /* NOLINT */
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
 
-    EXPECT_EQ(url.params().size(), size_t(0));
+    EXPECT_EQ(url.params().size(), static_cast<size_t>(0));
 
     EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
@@ -59,7 +59,7 @@ TEST(SPTK_URL, local) /* NOLINT */
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
 
-    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_EQ(url.params().size(), static_cast<size_t>(2));
     EXPECT_STREQ(url.params().get("action").c_str(), "view");
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 
@@ -76,7 +76,7 @@ TEST(SPTK_URL, all) /* NOLINT */
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
     EXPECT_STREQ(url.location().c_str(), "/daily");
 
-    EXPECT_EQ(url.params().size(), size_t(2));
+    EXPECT_EQ(url.params().size(), static_cast<size_t>(2));
     EXPECT_STREQ(url.params().get("action").c_str(), "view");
     EXPECT_STREQ(url.params().get("id").c_str(), "1");
 

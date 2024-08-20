@@ -74,8 +74,8 @@ string ContentTypes::type(const string& fileName)
         {
             return "application/octet-stream";
         }
-        const auto itor = m_contentTypes.find(extension);
-        if (itor != m_contentTypes.end())
+        if (const auto itor = m_contentTypes.find(extension);
+            itor != m_contentTypes.end())
         {
             return itor->second;
         }
@@ -122,7 +122,7 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
 void BaseMailConnect::mimeMessage(Buffer& buffer)
 {
     static const char* boundary = "--MESSAGE-MIME-BOUNDARY--";
-    stringstream message;
+    stringstream       message;
 
     if (!m_from.empty())
     {
@@ -145,26 +145,26 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "Subject: " << m_subject << endl;
 
     const DateTime date = DateTime::Now();
-    short year {0};
-    short month {0};
-    short day {0};
-    short weekDay {0};
-    short yearDay {0};
-    short hour {0};
-    short minute {0};
-    short second {0};
-    short millisecond {0};
+    short          year {0};
+    short          month {0};
+    short          day {0};
+    short          weekDay {0};
+    short          yearDay {0};
+    short          hour {0};
+    short          minute {0};
+    short          second {0};
+    short          millisecond {0};
 
     date.decodeDate(&year, &month, &day, &weekDay, &yearDay);
     date.decodeTime(&hour, &minute, &second, &millisecond);
 
-    constexpr int maxDateBuffer = 128;
-    constexpr int sixtySeconds = 60;
+    constexpr int              maxDateBuffer = 128;
+    constexpr int              sixtySeconds = 60;
     array<char, maxDateBuffer> dateBuffer = {};
-    const char* sign = "-";
-    auto tzOffset = (int) TimeZone::offset().count();
-    auto offsetHours = TimeZone::offset().count() / sixtySeconds;
-    auto offsetMinutes = TimeZone::offset().count() % sixtySeconds;
+    const char*                sign = "-";
+    const auto                 tzOffset = static_cast<int>(TimeZone::offset().count());
+    auto                       offsetHours = TimeZone::offset().count() / sixtySeconds;
+    const auto                 offsetMinutes = TimeZone::offset().count() % sixtySeconds;
     if (tzOffset >= 0)
     {
         sign = "+";
@@ -178,14 +178,14 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
                              "Date: %s, %i %s %04i %02i:%02i:%02i %s%02i%02i (%s)",
                              date.dayOfWeekName().substr(0, 3).c_str(),
                              day,
-                             DateTime::format(DateTime::Format::MONTH_NAME, size_t(month) - 1).substr(0, 3).c_str(),
+                             DateTime::format(DateTime::Format::MONTH_NAME, static_cast<size_t>(month) - 1).substr(0, 3).c_str(),
                              year,
                              hour, minute, second,
                              sign,
-                             (int) offsetHours, (int) offsetMinutes,
+                             static_cast<int>(offsetHours), static_cast<int>(offsetMinutes),
                              TimeZone::name().c_str());
 
-    message << String(dateBuffer.data(), (size_t) len) << endl;
+    message << String(dateBuffer.data(), static_cast<size_t>(len)) << endl;
 
     message << "MIME-Version: 1.0" << endl;
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << endl
@@ -235,7 +235,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
 
     for (const Strings strings(m_attachments, ";");
-         const auto& attachment: strings)
+         const auto&   attachment: strings)
     {
         String attachmentAlias(attachment);
         const char* separator = "\\";
@@ -245,7 +245,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
         }
         Strings attachmentParts(attachment, separator);
 
-        if (auto attachmentPartsCount = (uint32_t) attachmentParts.size(); attachmentPartsCount > 1)
+        if (const auto attachmentPartsCount = static_cast<uint32_t>(attachmentParts.size()); attachmentPartsCount > 1)
         {
             attachmentAlias = attachmentParts[attachmentPartsCount - 1].c_str();
         }
@@ -261,6 +261,6 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << endl
             << "--" << boundary << "--" << endl;
 
-    buffer.set(bit_cast<const uint8_t*>(message.str().c_str()), (uint32_t) message.str().length());
+    buffer.set(bit_cast<const uint8_t*>(message.str().c_str()), static_cast<uint32_t>(message.str().length()));
     buffer.saveToFile("/tmp/mimed.txt");
 }

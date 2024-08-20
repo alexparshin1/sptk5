@@ -73,7 +73,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
         relativeFileName = relpath;
     }
 
-    m_mode = (int) status.permissions();
+    m_mode = static_cast<int>(status.permissions());
 
     const filesystem::file_time_type ftime = filesystem::last_write_time(path);
     const time_t mtime = to_time_t(ftime);
@@ -94,8 +94,8 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     }
 
     m_ownership.uname = pw.pw_name;
-    m_ownership.uid = (int) pw.pw_uid;
-    m_ownership.gid = (int) pw.pw_gid;
+    m_ownership.uid = static_cast<int>(pw.pw_uid);
+    m_ownership.gid = static_cast<int>(pw.pw_gid);
 
     struct group gr {
     };
@@ -159,10 +159,10 @@ void ArchiveFile::makeHeader()
     snprintf(m_header->mode.data(), sizeof(m_header->mode), "%07o", m_mode);
     snprintf(m_header->uid.data(), sizeof(m_header->uid), "%07o", m_ownership.uid);
     snprintf(m_header->gid.data(), sizeof(m_header->gid), "%07o", m_ownership.gid);
-    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", (unsigned) size());
-    snprintf(m_header->mtime.data(), sizeof(m_header->mtime), "%011o", (unsigned) (time_t) m_mtime);
+    snprintf(m_header->size.data(), sizeof(m_header->size), "%011o", static_cast<unsigned>(size()));
+    snprintf(m_header->mtime.data(), sizeof(m_header->mtime), "%011o", static_cast<unsigned>((time_t) m_mtime));
 
-    m_header->typeflag = (char) m_type;
+    m_header->typeflag = static_cast<char>(m_type);
 
     if (m_type == ArchiveFile::Type::SYM_LINK)
     {

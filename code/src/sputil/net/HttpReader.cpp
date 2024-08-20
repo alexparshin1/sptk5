@@ -61,7 +61,7 @@ bool HttpReader::readStatus()
         }
     }
 
-    auto matches = m_matchProtocolAndResponseCode.m(status);
+    const auto matches = m_matchProtocolAndResponseCode.m(status);
     if (!matches)
     {
         m_readerState = State::READ_ERROR;
@@ -88,7 +88,7 @@ bool HttpReader::readHttpRequest()
     }
 
     const RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
-    if (auto matches = parseProtocol.m(request); matches)
+    if (const auto matches = parseProtocol.m(request); matches)
     {
         m_requestType = matches[0].value.toUpperCase();
         m_requestURL = matches[1].value;
@@ -152,7 +152,7 @@ void HttpReader::readHttpHeaders()
     auto itor = m_httpHeaders.find("content-length");
     if (itor != m_httpHeaders.end())
     {
-        m_contentLength = (size_t) string2int(itor->second);
+        m_contentLength = static_cast<size_t>(string2int(itor->second));
     }
 
     itor = m_httpHeaders.find("transfer-encoding");
@@ -184,7 +184,7 @@ size_t readAndAppend(SocketReader& socketReader, Buffer& output, size_t bytesToR
     size_t readBytes = socketReader.read(buffer, bytesToRead);
     if (readBytes == 0)
     { // 0 bytes case is a workaround for OpenSSL
-        readBytes = (int) socketReader.read(buffer, bytesToRead);
+        readBytes = static_cast<int>(socketReader.read(buffer, bytesToRead));
     }
 
     output.append(buffer);
@@ -209,7 +209,7 @@ size_t readChunk(SocketReader& socketReader, Buffer& m_output)
     }
 
     errno = 0;
-    auto chunkSize = (size_t) strtol(chunkSizeStr.c_str(), nullptr, 16);
+    const auto chunkSize = static_cast<size_t>(strtol(chunkSizeStr.c_str(), nullptr, 16));
     if (errno != 0)
     {
         throw Exception("Strange chunk size: '" + chunkSizeStr + "'");
@@ -249,7 +249,7 @@ void HttpReader::readDataChunk(bool& done)
 
     if (!m_contentIsChunked)
     {
-        const auto readBytes = (int) readAndAppend(*this, m_output, bytesToRead);
+        const auto readBytes = static_cast<int>(readAndAppend(*this, m_output, bytesToRead));
         m_contentReceivedLength += readBytes;
         if (m_contentLength > 0 && m_contentReceivedLength >= m_contentLength)
         { // No more data
@@ -265,7 +265,7 @@ void HttpReader::readDataChunk(bool& done)
 
     if (!done)
     {
-        const auto readBytes = (int) availableBytes();
+        const auto readBytes = static_cast<int>(availableBytes());
         if (readBytes == 0 && m_output.bytes() > 13)
         {
             const size_t tailOffset = m_output.bytes() - 13;
@@ -386,7 +386,7 @@ String HttpReader::httpHeader(const String& headerName) const
 {
     const scoped_lock lock(m_mutex);
 
-    auto itor = m_httpHeaders.find(lowerCase(headerName));
+    const auto itor = m_httpHeaders.find(lowerCase(headerName));
     if (itor == m_httpHeaders.end())
     {
         return "";

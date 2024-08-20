@@ -55,7 +55,7 @@ void DatabaseConnectionString::parse()
         hostAndPort.push_back("");
     }
     m_hostName = hostAndPort[0];
-    m_portNumber = (uint16_t) string2int(hostAndPort[1], 0);
+    m_portNumber = static_cast<uint16_t>(string2int(hostAndPort[1], 0));
     m_userName = url.username();
     m_password = url.password();
 
@@ -125,7 +125,7 @@ String DatabaseConnectionString::toString() const
 
 String DatabaseConnectionString::parameter(const String& name) const
 {
-    auto itor = m_parameters.find(name);
+    const auto itor = m_parameters.find(name);
     if (itor == m_parameters.end())
     {
         return "";

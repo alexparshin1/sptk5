@@ -44,12 +44,12 @@ TEST(SPTK_Semaphore, waitAndPost)
     DateTime started = DateTime::Now();
     semaphore.wait_for(interval);
     DateTime ended = DateTime::Now();
-    EXPECT_NEAR(100, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 50);
+    EXPECT_NEAR(100, static_cast<int>(chrono::duration_cast<chrono::milliseconds>(ended - started).count()), 50);
 
     semaphore.post();
     started = ended;
     ended = DateTime::Now();
-    EXPECT_NEAR(0, (int) chrono::duration_cast<chrono::milliseconds>(ended - started).count(), 50);
+    EXPECT_NEAR(0, static_cast<int>(chrono::duration_cast<chrono::milliseconds>(ended - started).count()), 50);
 }
 
 TEST(SPTK_Semaphore, threads)
@@ -57,7 +57,7 @@ TEST(SPTK_Semaphore, threads)
     constexpr chrono::milliseconds timeout(1000);
     Semaphore semaphore;
 
-    auto poster = async([&semaphore]() {
+    const auto poster = async([&semaphore]() {
         semaphore.post();
     });
 
@@ -96,7 +96,7 @@ static void waitPerformance(bool withTimeout)
     }
     stopWatch.stop();
 
-    COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << (int) iterations / stopWatch.milliseconds() / 1000 << "M/sec");
+    COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << static_cast<int>(iterations) / stopWatch.milliseconds() / 1000 << "M/sec");
 }
 
 TEST(SPTK_Semaphore, waitPerformance)

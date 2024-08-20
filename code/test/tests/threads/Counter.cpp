@@ -37,10 +37,10 @@ using namespace sptk;
 // @brief Test that default counter value
 TEST(SPTK_Counter, ctor)
 {
-    Counter flag1;
+    const Counter flag1;
     EXPECT_EQ(flag1.get(), false);
 
-    Counter flag2(1);
+    const Counter flag2(1);
     EXPECT_EQ(flag2.get(), true);
 }
 
@@ -75,7 +75,7 @@ TEST(SPTK_Counter, waitForPerformance)
 
     constexpr auto iterations = 10000000;
 
-    StopWatch stopWatch(
+    const StopWatch stopWatch(
         [&counter] {
             for (int i = 0; i < iterations; ++i)
             {
@@ -93,8 +93,8 @@ TEST(SPTK_Counter, adaptorAndAssignment)
     Counter flag;
 
     flag = 1;
-    EXPECT_EQ((size_t) flag, true);
+    EXPECT_EQ(static_cast<size_t>(flag), true);
 
     flag = 0;
-    EXPECT_EQ((size_t) flag, false);
+    EXPECT_EQ(static_cast<size_t>(flag), false);
 }

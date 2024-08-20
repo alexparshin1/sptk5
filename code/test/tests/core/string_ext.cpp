@@ -42,6 +42,6 @@ TEST(SPTK_string_ext, to_string)
 
 TEST(SPTK_string_ext, capitalizeWords)
 {
-    auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
+    const auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
     EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
 }

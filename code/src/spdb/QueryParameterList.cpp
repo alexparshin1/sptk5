@@ -98,9 +98,8 @@ void QueryParameterList::enumerate(CParamVector& params) const
 
     for (const auto& param: m_items)
     {
-        const auto& bindIndex = param->m_bindParamIndexes;
-
-        for (const auto index: bindIndex)
+        for (const auto& bindIndex = param->m_bindParamIndexes;
+             const auto index: bindIndex)
         {
             if (index >= params.size())
             {

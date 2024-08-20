@@ -188,7 +188,7 @@ public:
         exportTo(document.root());
         const auto& arrayNode = document.root()->findFirst(name());
         arrayNode->exportTo(xdoc::DataFormat::JSON, buffer, false);
-        return (String) buffer;
+        return static_cast<String>(buffer);
     }
 
     /**

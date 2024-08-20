@@ -54,7 +54,7 @@ TEST(SPTK_String, in)
 TEST(SPTK_String, split)
 {
     Strings words(testString.split("[\\s]+"));
-    EXPECT_EQ(size_t(4), words.size());
+    EXPECT_EQ(static_cast<size_t>(4), words.size());
     EXPECT_STREQ("This", words[0].c_str());
     EXPECT_STREQ("test", words[3].c_str());
 }
@@ -74,6 +74,6 @@ TEST(SPTK_String, replace)
 
 TEST(SPTK_String, trim)
 {
-    String testString2(" \n\r\t" + testString + "\n\r\t ");
+    const String testString2(" \n\r\t" + testString + "\n\r\t ");
     EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
 }

@@ -34,10 +34,10 @@ using namespace sptk;
 
 TEST(SPTK_DatabaseConnectionString, ctorSimple)
 {
-    DatabaseConnectionString empty;
+    const DatabaseConnectionString empty;
     EXPECT_TRUE(empty.empty());
 
-    DatabaseConnectionString simple("postgres://localhost/dbname");
+    const DatabaseConnectionString simple("postgres://localhost/dbname");
     EXPECT_STREQ("postgresql", simple.driverName().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
@@ -51,7 +51,7 @@ TEST(SPTK_DatabaseConnectionString, errorHandling)
 
 TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
 {
-    DatabaseConnectionString simple("postgresql://localhost/dbname/schema");
+    const DatabaseConnectionString simple("postgresql://localhost/dbname/schema");
     EXPECT_STREQ("postgresql", simple.driverName().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
@@ -60,7 +60,7 @@ TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
 
 TEST(SPTK_DatabaseConnectionString, ctorFull)
 {
-    DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
+    const DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
     EXPECT_STREQ("auser", simple.userName().c_str());
     EXPECT_STREQ("apassword", simple.password().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
@@ -75,8 +75,8 @@ TEST(SPTK_DatabaseConnectionString, ctorFull)
 
 TEST(SPTK_DatabaseConnectionString, ctorCopy)
 {
-    DatabaseConnectionString source("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
-    DatabaseConnectionString simple(source);
+    const DatabaseConnectionString source("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
+    const DatabaseConnectionString simple(source);
     EXPECT_STREQ("auser", simple.userName().c_str());
     EXPECT_STREQ("apassword", simple.password().c_str());
     EXPECT_STREQ("localhost", simple.hostName().c_str());
@@ -89,7 +89,7 @@ TEST(SPTK_DatabaseConnectionString, ctorCopy)
 
 TEST(SPTK_DatabaseConnectionString, toString)
 {
-    String connectionString("postgresql://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
-    DatabaseConnectionString simple(connectionString);
+    const String connectionString("postgresql://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
+    const DatabaseConnectionString simple(connectionString);
     EXPECT_STREQ(connectionString.c_str(), simple.toString().c_str());
 }

@@ -61,23 +61,23 @@ bool ImapDS::open()
 
             if (m_fetchbody)
             {
-                m_imap.cmd_fetch_message((int32_t) msg_id, df);
+                m_imap.cmd_fetch_message(static_cast<int32_t>(msg_id), df);
             }
             else
             {
-                m_imap.cmd_fetch_headers((int32_t) msg_id, df);
+                m_imap.cmd_fetch_headers(static_cast<int32_t>(msg_id), df);
             }
 
             auto fld = make_shared<Field>("msg_id");
             fld->view().width = 0;
-            fld->setInteger((int32_t) msg_id);
+            fld->setInteger(static_cast<int32_t>(msg_id));
             df.push_back(fld);
 
             push_back(std::move(df));
 
             if (m_callback != nullptr)
             {
-                m_callback(total_messages, (int) msg_id);
+                m_callback(total_messages, static_cast<int>(msg_id));
             }
         }
         if (m_callback != nullptr)

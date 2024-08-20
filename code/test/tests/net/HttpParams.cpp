@@ -50,10 +50,10 @@ TEST(SPTK_HttpParams, decode)
     HttpParams httpParams;
     httpParams["noise"] = "noise";
 
-    Buffer encoded(gtestURLencoded);
+    const Buffer encoded(gtestURLencoded);
     httpParams.decode(encoded);
     EXPECT_STREQ("1234", httpParams["id"].c_str());
     EXPECT_STREQ("John Doe", httpParams["name"].c_str());
     EXPECT_STREQ(R"(["book","pen"])", httpParams["items"].c_str());
-    EXPECT_EQ(size_t(3), httpParams.size());
+    EXPECT_EQ(static_cast<size_t>(3), httpParams.size());
 }

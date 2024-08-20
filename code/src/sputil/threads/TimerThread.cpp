@@ -108,7 +108,7 @@ STimerEvent TimerThread::nextEvent()
     const scoped_lock lock(m_scheduledMutex);
     while (!m_scheduledEvents.empty())
     {
-        auto itor = m_scheduledEvents.begin();
+        const auto itor = m_scheduledEvents.begin();
         if (!itor->second->cancelled())
         {
             return itor->second;
@@ -124,7 +124,7 @@ void TimerThread::popFrontEvent()
     const scoped_lock lock(m_scheduledMutex);
     if (!m_scheduledEvents.empty())
     {
-        auto itor = m_scheduledEvents.begin();
+        const auto itor = m_scheduledEvents.begin();
         m_scheduledEvents.erase(itor);
     }
 }

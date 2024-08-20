@@ -76,7 +76,7 @@ void HttpConnect::sendCommand(const String& cmd)
         throw Exception("Server is busy");
     }
 
-    m_socket.write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.length());
+    m_socket.write((const uint8_t*) cmd.c_str(), static_cast<uint32_t>(cmd.length()));
 }
 
 void HttpConnect::sendCommand(const Buffer& cmd)
@@ -86,7 +86,7 @@ void HttpConnect::sendCommand(const Buffer& cmd)
         throw Exception("Socket isn't open");
     }
 
-    m_socket.write((const uint8_t*) cmd.c_str(), (uint32_t) cmd.bytes());
+    m_socket.write((const uint8_t*) cmd.c_str(), static_cast<uint32_t>(cmd.bytes()));
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
@@ -229,7 +229,7 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 
     if (!putData.empty())
     {
-        headers.push_back("Content-Length: " + int2string((uint32_t) putData.bytes()));
+        headers.push_back("Content-Length: " + int2string(static_cast<uint32_t>(putData.bytes())));
     }
 
     string command = headers.join("\r\n") + "\r\n\r\n";

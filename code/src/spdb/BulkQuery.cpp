@@ -183,8 +183,8 @@ String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& ke
 
 void BulkQuery::insertRows(const vector<VariantVector>& rows)
 {
-    auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
-    unsigned remainder = rows.size() % m_groupSize;
+    const auto fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
+    const unsigned remainder = rows.size() % m_groupSize;
 
     auto firstRow = rows.begin();
     if (fullGroupCount > 0)
@@ -199,7 +199,7 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows)
     if (remainder > 0)
     {
         // Last group
-        auto databaseConnectionType = m_connection->connectionType();
+        const auto databaseConnectionType = m_connection->connectionType();
         Query insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_columnNames, remainder));
         insertGroupRows(insertQuery, firstRow, firstRow + remainder);
     }
@@ -207,8 +207,8 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows)
 
 void BulkQuery::deleteRows(const VariantVector& keys)
 {
-    auto fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
-    unsigned remainder = keys.size() % m_groupSize;
+    const auto fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
+    const unsigned remainder = keys.size() % m_groupSize;
 
     auto firstKey = keys.begin();
     if (fullGroupCount > 0)
@@ -231,7 +231,7 @@ void BulkQuery::deleteRows(const VariantVector& keys)
 void BulkQuery::insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end)
 {
     size_t parameterIndex = 0;
-    size_t columnCount = startRow->size();
+    const size_t columnCount = startRow->size();
     for (auto row = startRow; row != end; ++row)
     {
         for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)

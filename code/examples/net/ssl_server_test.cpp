@@ -66,7 +66,7 @@ void readAndReply(SSLSocket& socket)
 void processConnection(SocketType clientSocketFD)
 {
     SSLSocket connection;
-    SSLKeys keys("key.pem", "cert.pem", "");
+    const SSLKeys keys("key.pem", "cert.pem", "");
     connection.loadKeys(keys);
     try
     {
@@ -82,7 +82,7 @@ void processConnection(SocketType clientSocketFD)
 
 int main(int argc, const char* argv[])
 {
-    int port = string2int(argv[1]);
+    const int port = string2int(argv[1]);
 
     if (argc != 2 || port == 0)
     {
@@ -106,7 +106,7 @@ int main(int argc, const char* argv[])
 
             if (server.accept(clientSocketFD, clientInfo, acceptTimeout))
             {
-                COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << (unsigned) ntohs(clientInfo.sin_port));
+                COUT("Connection: " << inet_ntoa(clientInfo.sin_addr) << static_cast<unsigned>(ntohs(clientInfo.sin_port)));
 
                 processConnection(clientSocketFD);
             }

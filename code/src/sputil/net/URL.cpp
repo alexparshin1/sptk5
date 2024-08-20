@@ -34,7 +34,7 @@ namespace {
 bool nextToken(const String& url, size_t& start, const String& delimiter, String& value)
 {
     value = "";
-    if (auto end = url.find(delimiter, start);
+    if (const auto end = url.find(delimiter, start);
         end != string::npos)
     {
         value = url.substr(start, end - start);
@@ -54,7 +54,7 @@ URL::URL(const String& url)
     nextToken(url, start, "@", credentials);
     if (!credentials.empty())
     {
-        auto pos = credentials.find(":");
+        const auto pos = credentials.find(":");
         if (pos == string::npos)
         {
             m_username = credentials;
@@ -121,7 +121,7 @@ String URL::location() const
 {
     static const RegularExpression matchLocation(R"(^(.+)\/[^/]+$)");
 
-    auto matches = matchLocation.m(m_path);
+    const auto matches = matchLocation.m(m_path);
     if (!matches)
     {
         return "";

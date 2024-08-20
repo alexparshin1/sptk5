@@ -103,10 +103,10 @@ TEST(SPTK_ThreadPool, run)
     for (const auto& task: taskPointers)
         EXPECT_NEAR(20, task->count(), 10);
 
-    EXPECT_EQ(size_t(5), threadPool->size());
+    EXPECT_EQ(static_cast<size_t>(5), threadPool->size());
 
     threadPool->stop();
-    EXPECT_EQ(size_t(0), threadPool->size());
+    EXPECT_EQ(static_cast<size_t>(0), threadPool->size());
 
     threadPool.reset();
 }

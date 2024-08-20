@@ -42,7 +42,7 @@ int hexCharToInt(unsigned char character)
 
 String Url::encode(const String& str)
 {
-    auto cnt = (uint32_t) str.length();
+    const auto cnt = static_cast<uint32_t>(str.length());
     const char* src = str.c_str();
 
     constexpr int bufferSize = 5;
@@ -67,8 +67,8 @@ String Url::encode(const String& str)
                     buffer.append(*src);
                     break;
                 default:
-                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", (unsigned char) *src);
-                    buffer.append(hexBuffer.data(), (size_t) len);
+                    len = snprintf(hexBuffer.data(), sizeof(hexBuffer), "%%%02X", static_cast<unsigned char>(*src));
+                    buffer.append(hexBuffer.data(), static_cast<size_t>(len));
                     break;
             }
         }
@@ -94,7 +94,7 @@ String Url::decode(const String& str)
 
             case '%':
                 ++src;
-                dest = char(hexCharToInt((unsigned char) *src) * base16 + hexCharToInt((unsigned char) src[1]));
+                dest = static_cast<char>(hexCharToInt((unsigned char) *src) * base16 + hexCharToInt((unsigned char) src[1]));
                 buffer.append(dest);
                 src += 2;
                 break;
@@ -155,7 +155,7 @@ void HttpParams::encode(Buffer& result) const
 
 String HttpParams::get(const String& paramName) const
 {
-    auto itor = find(paramName);
+    const auto itor = find(paramName);
     if (itor == end())
     {
         return "";
@@ -165,6 +165,6 @@ String HttpParams::get(const String& paramName) const
 
 bool HttpParams::has(const String& paramName) const
 {
-    auto itor = find(paramName);
+    const auto itor = find(paramName);
     return itor != end();
 }

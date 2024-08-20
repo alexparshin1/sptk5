@@ -43,7 +43,7 @@ bool DataSource::save()
 
 void DataSource::exportRowTo(const xdoc::SNode& node, bool compactXmlMode, bool nullLargeData)
 {
-    auto cnt = fieldCount();
+    const auto cnt = fieldCount();
     for (size_t i = 0; i < cnt; ++i)
     {
         const Field& field = operator[](i);

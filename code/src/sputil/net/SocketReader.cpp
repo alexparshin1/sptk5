@@ -80,7 +80,7 @@ size_t SocketReader::readFromSocket()
     do
     {
         error = 0;
-        auto receivedBytes = (int) m_socket.read(m_buffer.data(), m_buffer.capacity());
+        const auto receivedBytes = static_cast<int>(m_socket.read(m_buffer.data(), m_buffer.capacity()));
         if (receivedBytes == -1)
         {
             m_buffer.bytes(0);
@@ -92,7 +92,7 @@ size_t SocketReader::readFromSocket()
         }
         else
         {
-            m_buffer.bytes((size_t) receivedBytes);
+            m_buffer.bytes(static_cast<size_t>(receivedBytes));
         }
     } while (error == EAGAIN);
 
@@ -147,7 +147,7 @@ size_t SocketReader::bufferedRead(uint8_t* destination, size_t size)
     // copy data to destination, advance the read offset
     if (destination)
     {
-        memcpy(destination, m_buffer.data() + m_readOffset, size_t(bytesToRead));
+        memcpy(destination, m_buffer.data() + m_readOffset, static_cast<size_t>(bytesToRead));
     }
 
     m_readOffset += bytesToRead;
@@ -204,7 +204,7 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
     if (len < size)
     {
         eol = true;
-        bytesToRead = (int) len;
+        bytesToRead = static_cast<int>(len);
         if (delimiter == 0)
         {
             ++bytesToRead;
@@ -218,13 +218,13 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
     // copy data to destination, advance the read offset
     if (destination)
     {
-        memcpy(destination, readPosition, size_t(bytesToRead));
+        memcpy(destination, readPosition, static_cast<size_t>(bytesToRead));
         destination[bytesToRead] = 0;
     }
 
-    m_readOffset += uint32_t(bytesToRead);
+    m_readOffset += static_cast<uint32_t>(bytesToRead);
 
-    return eol ? -(int) bytesToRead : (int) bytesToRead;
+    return eol ? -static_cast<int>(bytesToRead) : static_cast<int>(bytesToRead);
 }
 
 size_t SocketReader::read(uint8_t* destination, size_t size)
@@ -234,7 +234,7 @@ size_t SocketReader::read(uint8_t* destination, size_t size)
     while (totalReceived < size)
     {
         const auto bytesToRead = size - totalReceived;
-        const auto bytes = bufferedRead(destination, size_t(bytesToRead));
+        const auto bytes = bufferedRead(destination, static_cast<size_t>(bytesToRead));
 
         if (bytes == 0)
         { // No more data
@@ -255,13 +255,13 @@ size_t SocketReader::readLine(uint8_t* destination, size_t size, char delimiter)
 
     while (eol == 0)
     {
-        const int bytesToRead = int(size) - total;
+        const int bytesToRead = static_cast<int>(size) - total;
         if (bytesToRead <= 0)
         {
             return size;
         }
 
-        int bytes = bufferedReadLine(destination, size_t(bytesToRead), delimiter);
+        int bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter);
 
         if (bytes == 0)
         { // No more data
@@ -277,13 +277,13 @@ size_t SocketReader::readLine(uint8_t* destination, size_t size, char delimiter)
         total += bytes;
         destination += bytes;
     }
-    return size_t(total - eol);
+    return static_cast<size_t>(total - eol);
 }
 
 size_t SocketReader::availableBytes() const
 {
     scoped_lock const lock(m_mutex);
-    auto available = m_buffer.bytes() - m_readOffset;
+    auto              available = m_buffer.bytes() - m_readOffset;
     if (available == 0)
     {
         available = m_socket.socketBytes();
@@ -295,7 +295,7 @@ bool SocketReader::canRead(size_t bytesToRead) const
 {
     scoped_lock const lock(m_mutex);
 
-    auto available = m_buffer.bytes() - m_readOffset;
+    const auto available = m_buffer.bytes() - m_readOffset;
     if (available >= bytesToRead)
     {
         return true;
@@ -308,7 +308,7 @@ bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
 {
     scoped_lock const lock(m_mutex);
 
-    if (auto availableBytes = m_buffer.bytes() - m_readOffset;
+    if (const auto availableBytes = m_buffer.bytes() - m_readOffset;
         availableBytes > 0)
     {
         return true;
@@ -321,7 +321,7 @@ size_t SocketReader::read(Buffer& destinationBuffer, size_t size)
 {
     scoped_lock const lock(m_mutex);
     destinationBuffer.checkSize(size);
-    auto bytes = read(destinationBuffer.data(), size);
+    const auto bytes = read(destinationBuffer.data(), size);
     destinationBuffer.bytes(bytes);
     return bytes;
 }
@@ -330,7 +330,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 {
     scoped_lock const lock(m_mutex);
     size_t total = 0;
-    int eol = 0;
+    int               eol = 0;
 
     if (!m_socket.active())
     {
@@ -339,16 +339,16 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 
     while (eol == 0)
     {
-        auto bytesToRead = int(destinationBuffer.capacity() - total - 1);
-        if (bytesToRead <= (int) readBytesLWM)
+        auto bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
+        if (bytesToRead <= static_cast<int>(readBytesLWM))
         {
             destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
-            bytesToRead = int(destinationBuffer.capacity() - total - 1);
+            bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
         }
 
         auto* destination = destinationBuffer.data() + total;
 
-        int bytes = bufferedReadLine(destination, size_t(bytesToRead), delimiter);
+        int bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter);
         if (bytes == 0)
         { // No more data
             break;
@@ -360,7 +360,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
             bytes = -bytes;
         }
 
-        total += size_t(bytes);
+        total += static_cast<size_t>(bytes);
     }
     destinationBuffer.data()[total] = 0;
     destinationBuffer.bytes(total);
@@ -370,7 +370,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
 size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
 {
     Buffer buffer;
-    auto bytes = readLine(buffer, delimiter);
+    const auto bytes = readLine(buffer, delimiter);
     if (bytes > 0)
     {
         destinationBuffer.assign(buffer.c_str(), bytes - 1);

@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-Buffer::Buffer(string_view str)
+Buffer::Buffer(const string_view str)
     : BufferStorage(bit_cast<const uint8_t*>(str.data()), str.length())
 {
 }
@@ -57,8 +57,8 @@ void Buffer::loadFromFile(const std::filesystem::path& fileName)
 
     reset(size + 1);
     bytes(fread(data(), 1, size, file));
-    const auto result = fclose(file);
-    if (result != 0)
+    if (const auto result = fclose(file);
+        result != 0)
     {
         throw SystemException("Can't close file " + fileName.string());
     }
@@ -74,8 +74,8 @@ void Buffer::saveToFile(const std::filesystem::path& fileName) const
     }
 
     const auto rc1 = fwrite(data(), bytes(), 1, file);
-    const auto rc2 = fclose(file);
-    if (rc1 != 1 || rc2 != 0)
+    if (const auto rc2 = fclose(file);
+        rc1 != 1 || rc2 != 0)
     {
         throw SystemException("Can't close file " + fileName.string());
     }
@@ -153,8 +153,8 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
             {
                 stream << " ";
             }
-            const auto testChar = buffer[rowOffset];
-            if (testChar >= ' ')
+            if (const auto testChar = buffer[rowOffset];
+                testChar >= ' ')
             {
                 stream << buffer[rowOffset];
             }

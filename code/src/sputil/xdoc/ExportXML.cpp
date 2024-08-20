@@ -49,7 +49,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
     {
         if (formatted && indent > 0)
         {
-            buffer.append(indentsString.c_str(), size_t(indent));
+            buffer.append(indentsString.c_str(), static_cast<size_t>(indent));
         }
         appendNodeNameAndAttributes(node, nodeName, buffer);
     }
@@ -57,12 +57,12 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
     {
         if (formatted && parentSubnodesCount > 1)
         {
-            buffer.append(indentsString.c_str(), size_t(indent));
+            buffer.append(indentsString.c_str(), static_cast<size_t>(indent));
         }
     }
 
-    const auto& subNodes = node->nodes();
-    if (!subNodes.empty())
+    if (const auto& subNodes = node->nodes();
+    !subNodes.empty())
     {
         if (isNode)
         {
@@ -120,9 +120,9 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
 {
     if (node->type() == Node::Type::Number)
     {
-        auto dvalue = node->getValue().asFloat();
-        auto lvalue = long(dvalue);
-        if (dvalue == double(lvalue))
+        const auto dvalue = node->getValue().asFloat();
+        const auto lvalue = static_cast<long>(dvalue);
+        if (dvalue == static_cast<double>(lvalue))
         {
             buffer.append(to_string(lvalue));
         }
@@ -196,7 +196,7 @@ void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatte
     if (const bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
         formatted && indent > 0 && !lastSubNodeIsText)
     {
-        buffer.append(indentsString.c_str(), size_t(indent));
+        buffer.append(indentsString.c_str(), static_cast<size_t>(indent));
     }
 
     // output closing tag

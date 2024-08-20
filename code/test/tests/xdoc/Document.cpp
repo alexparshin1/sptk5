@@ -44,7 +44,7 @@ void verifyDocument(xdoc::Document& document)
 {
     const auto& root = *document.root();
     EXPECT_STREQ("John", root.getString("name").c_str());
-    EXPECT_EQ(33, (int) root.getNumber("age"));
+    EXPECT_EQ(33, static_cast<int>(root.getNumber("age")));
     EXPECT_DOUBLE_EQ(33.6, root.getNumber("temperature"));
     EXPECT_STREQ("1519005758000", root.getString("timestamp").c_str());
     EXPECT_DOUBLE_EQ(1519005758000L, root.getNumber("timestamp"));
@@ -70,7 +70,7 @@ void verifyDocument(xdoc::Document& document)
 
 TEST(SPTK_XDocument, load)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
     verifyDocument(document);
@@ -85,7 +85,7 @@ static const String testXmlDocument(
 
 TEST(SPTK_XDocument, clone)
 {
-    Buffer input(testXmlDocument);
+    const Buffer input(testXmlDocument);
     xdoc::Document document;
     document.load(input);
 
@@ -100,7 +100,7 @@ TEST(SPTK_XDocument, clone)
 
 TEST(SPTK_XDocument, clone2)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -113,7 +113,7 @@ TEST(SPTK_XDocument, clone2)
 
 TEST(SPTK_XDocument, add)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -138,7 +138,7 @@ TEST(SPTK_XDocument, add)
     objectData.set("height", testInteger);
     objectData.set("weight", testDouble2);
 
-    EXPECT_EQ(1, (int) root.getNumber("int"));
+    EXPECT_EQ(1, static_cast<int>(root.getNumber("int")));
     EXPECT_DOUBLE_EQ(testDouble1, root.getNumber("double"));
     EXPECT_STREQ("Test", root.getString("string").c_str());
     EXPECT_TRUE(root.getBoolean("bool1"));
@@ -149,7 +149,8 @@ TEST(SPTK_XDocument, add)
     skills.resize(array.size());
 
     ranges::transform(array, skills.begin(),
-                      [](const xdoc::SNode& skill) {
+                      [](const xdoc::SNode& skill)
+                      {
                           return skill->getString();
                       });
 
@@ -163,7 +164,7 @@ TEST(SPTK_XDocument, add)
 
 TEST(SPTK_XDocument, remove)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -181,7 +182,7 @@ TEST(SPTK_XDocument, remove)
 
 TEST(SPTK_XDocument, clear)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -189,12 +190,12 @@ TEST(SPTK_XDocument, clear)
     const auto& root = *document.root();
     EXPECT_TRUE(root.type() == Node::Type::Object);
     EXPECT_FALSE(root.findFirst("address"));
-    EXPECT_EQ(root.nodes().size(), size_t(0));
+    EXPECT_EQ(root.nodes().size(), static_cast<size_t>(0));
 }
 
 TEST(SPTK_XDocument, exportToBuffer)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -207,7 +208,7 @@ TEST(SPTK_XDocument, exportToBuffer)
 
 TEST(SPTK_XDocument, copyCtor)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -219,7 +220,7 @@ TEST(SPTK_XDocument, copyCtor)
 
 TEST(SPTK_XDocument, moveCtor)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -230,7 +231,7 @@ TEST(SPTK_XDocument, moveCtor)
 
 TEST(SPTK_XDocument, copyAssign)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -244,7 +245,7 @@ TEST(SPTK_XDocument, copyAssign)
 
 TEST(SPTK_XDocument, moveAssign)
 {
-    Buffer input(testJSON);
+    const Buffer input(testJSON);
     xdoc::Document document;
     document.load(input);
 
@@ -257,7 +258,7 @@ TEST(SPTK_XDocument, moveAssign)
 
 TEST(SPTK_XDocument, truncated)
 {
-    xdoc::Document document;
+    const xdoc::Document document;
     const String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
     const Buffer input(truncatedJSON);
     try
@@ -301,7 +302,7 @@ TEST(SPTK_XDocument, errors)
 
     try
     {
-        Buffer input(testJSON);
+        const Buffer input(testJSON);
         document.load(input);
         auto element = document.root()->findFirst("nothing");
         if (element != nullptr)
@@ -364,7 +365,7 @@ TEST(SPTK_XDocument, performance)
     StopWatch stopWatch;
     stopWatch.start();
 
-    xdoc::Document document1;
+    const xdoc::Document document1;
     document1.load(buffer);
 
     stopWatch.stop();
@@ -375,7 +376,7 @@ TEST(SPTK_XDocument, performance)
 TEST(SPTK_XDocument, exportText)
 {
     xdoc::Document document;
-    auto testNode = document.root()->pushNode("test");
+    const auto testNode = document.root()->pushNode("test");
     auto textNode = testNode->set("#text", "ttt");
 
     Buffer output;

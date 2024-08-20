@@ -64,8 +64,8 @@ TEST(SPTK_Field, money)
     constexpr int64_t testInt64 = 12345678901;
     constexpr int scaleDigits = 8;
 
-    MoneyData money1(testLong, scaleDigits);
-    MoneyData money2(-testLong, scaleDigits);
+    const MoneyData money1(testLong, scaleDigits);
+    const MoneyData money2(-testLong, scaleDigits);
     Field field1("f1");
 
     field1.setMoney(money1);

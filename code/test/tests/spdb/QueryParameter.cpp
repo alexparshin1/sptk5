@@ -32,7 +32,7 @@ using namespace sptk;
 
 TEST(SPTK_QueryParameter, minimal)
 {
-    QueryParameter param1("param1");
+    const QueryParameter param1("param1");
 
     EXPECT_STREQ(param1.name().c_str(), "param1");
 }

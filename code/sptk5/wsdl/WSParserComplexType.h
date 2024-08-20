@@ -162,7 +162,7 @@ public:
      */
     bool isArray() const
     {
-        return ((int) m_multiplicity & ((int) WSMultiplicity::ZERO_OR_MORE | (int) WSMultiplicity::ONE_OR_MORE)) != 0;
+        return (static_cast<int>(m_multiplicity) & (static_cast<int>(WSMultiplicity::ZERO_OR_MORE) | static_cast<int>(WSMultiplicity::ONE_OR_MORE))) != 0;
     }
 
     /**

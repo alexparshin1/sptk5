@@ -46,7 +46,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         return;
     }
 
-    auto param = output.find(paramName);
+    const auto param = output.find(paramName);
     if (param)
     {
         *param = elementOrAttribute->value();
@@ -183,7 +183,7 @@ bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType
         else
         {
             Document document;
-            auto json = inputField->asString();
+            const auto json = inputField->asString();
             document.load(json);
             field->load(document.root());
         }
@@ -216,7 +216,7 @@ void WSComplexType::unload(const SNode& output) const
         // Unload attributes
         fields.forEach([output](const WSType* field) {
             if (!field->isNull())
-            {
+                           {
                 output->attributes().set(field->name(), field->asString());
             }
             return true;
@@ -248,7 +248,7 @@ void WSComplexType::unload(QueryParameterList& output) const
         }
         else
         {
-            auto param = output.find(field->name());
+            const auto param = output.find(field->name());
             if (param)
             {
                 *param = field->asString();

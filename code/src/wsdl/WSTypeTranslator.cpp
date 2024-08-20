@@ -43,7 +43,7 @@ const std::map<String, String> WSTypeTranslator::wsTypeToCxxTypeMap {
 
 String WSTypeTranslator::toCxxType(const String& wsType, const String& defaultType)
 {
-    auto itor = wsTypeToCxxTypeMap.find(wsType);
+    const auto itor = wsTypeToCxxTypeMap.find(wsType);
     if (itor == wsTypeToCxxTypeMap.end())
     {
         return defaultType;

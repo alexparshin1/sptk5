@@ -36,7 +36,7 @@ TEST(SPTK_HttpConnect, get)
 {
     const Host google("www.sptk.net:80");
 
-    auto socket = make_shared<TCPSocket>();
+    const auto socket = make_shared<TCPSocket>();
 
     EXPECT_NO_THROW(socket->open(google));
     EXPECT_TRUE(socket->active());
@@ -57,6 +57,6 @@ TEST(SPTK_HttpConnect, get)
     EXPECT_EQ(200, statusCode);
     EXPECT_STREQ("OK", http.statusText().c_str());
 
-    String data(output.c_str(), output.bytes());
+    const String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }

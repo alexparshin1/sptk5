@@ -43,8 +43,8 @@ TEST(SPTK_Timer, repeat) /* NOLINT */
         constexpr milliseconds repeatInterval {20};
         constexpr milliseconds sleepInterval {105};
 
-        auto event = timer.repeat(repeatInterval,
-                                  [&eventSet]() {
+        const auto event = timer.repeat(repeatInterval,
+                                        [&eventSet]() {
                                       ++eventSet;
                                   });
 
@@ -60,7 +60,7 @@ const int MAX_EVENT_COUNTER = 10;
 TEST(SPTK_Timer, fireOnce) /* NOLINT */
 {
     mutex counterMutex;
-    size_t counter = 1;
+    size_t      counter = 1;
     const Timer timer;
 
     constexpr milliseconds delayInterval {10};
@@ -74,19 +74,20 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
     this_thread::sleep_for(delayInterval * 2);
 
     const scoped_lock lock(counterMutex);
-    EXPECT_EQ(counter, size_t(2));
+    EXPECT_EQ(counter, static_cast<size_t>(2));
 }
 
 TEST(SPTK_Timer, repeatTwice) /* NOLINT */
 {
     mutex counterMutex;
     size_t counter = 0;
-    Timer timer;
+    const Timer timer;
 
     constexpr auto repeatInterval {10ms};
     timer.repeat(
         repeatInterval,
-        [&counter, &counterMutex]() {
+        [&counter, &counterMutex]()
+        {
             const scoped_lock lock(counterMutex);
             ++counter;
         },
@@ -95,14 +96,14 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     this_thread::sleep_for(repeatInterval * 4);
 
     const scoped_lock lock(counterMutex);
-    EXPECT_EQ(counter, size_t(2));
+    EXPECT_EQ(counter, static_cast<size_t>(2));
 }
 
 TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
 {
     mutex counterMutex;
     size_t counter = 0;
-    Timer timer;
+    const Timer timer;
 
     constexpr auto repeatInterval {10ms};
     timer.repeat(
@@ -123,7 +124,7 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
     this_thread::sleep_for(repeatInterval * 4);
 
     const scoped_lock lock(counterMutex);
-    EXPECT_EQ(counter, size_t(4));
+    EXPECT_EQ(counter, static_cast<size_t>(4));
 }
 
 TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
@@ -133,7 +134,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 
     if (DateTime::Now() > DateTime()) // always true
     {
-        Timer timer;
+        const Timer timer;
 
         vector<STimerEvent> createdEvents;
         for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
@@ -150,7 +151,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 
         for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
         {
-            auto event = createdEvents[eventIndex];
+            const auto event = createdEvents[eventIndex];
             event->cancel();
         }
 
@@ -164,10 +165,10 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
 {
     atomic_int totalEvents(0);
 
-    Timer timer;
+    const Timer timer;
 
     vector<STimerEvent> createdEvents;
-    auto event = timer.repeat(10ms,
+    const auto event = timer.repeat(10ms,
                               [&totalEvents] {
                                   totalEvents++;
                               });
@@ -186,7 +187,7 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
 
 TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 {
-    Timer timer;
+    const Timer timer;
     constexpr size_t maxEvents = 100000;
     vector<STimerEvent> createdEvents;
 

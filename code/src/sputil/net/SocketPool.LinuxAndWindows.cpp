@@ -126,7 +126,7 @@ SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType
     const uint8_t* userData;
     {
         const lock_guard lock(*this);
-        auto             iterator = m_userData.find(socket);
+        const auto       iterator = m_userData.find(socket);
         if (iterator == m_userData.end())
         {
             return SocketEventAction::Disable;
@@ -139,7 +139,7 @@ SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 {
     std::array<epoll_event, maxEvents> events {};
-    const int                          eventCount = epoll_wait(m_pool, events.data(), maxEvents, (int) timeout.count());
+    const int                          eventCount = epoll_wait(m_pool, events.data(), maxEvents, static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
@@ -149,7 +149,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
     {
         auto& event = events[i];
 
-        SocketEventType eventType {
+        const SocketEventType eventType {
             .m_data = (event.events & EPOLLIN) != 0,
             .m_hangup = (event.events & (EPOLLHUP | EPOLLRDHUP)) != 0,
             .m_error = (event.events & EPOLLERR) != 0,

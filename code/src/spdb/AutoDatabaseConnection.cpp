@@ -44,7 +44,7 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
     }
 }
 
-PoolDatabaseConnection* AutoDatabaseConnection::connection()
+PoolDatabaseConnection* AutoDatabaseConnection::connection() const
 {
     return m_connection.get();
 }

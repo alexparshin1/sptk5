@@ -46,7 +46,8 @@ uint64_t ntoh64(uint64_t data)
         u64
     };
 
-    struct IntConvert {
+    struct IntConvert
+    {
         VarType type;
         union
         {
@@ -78,12 +79,12 @@ void WSWebSocketsMessage::decode(const char* incomingData)
 
     const auto* ptr = (const uint8_t*) incomingData;
 
-    m_finalMessage = ((int) *ptr & finalBitMask) != 0;
-    m_opcode = OpCode((int) *ptr & opcodeBitMask);
+    m_finalMessage = (static_cast<int>(*ptr) & finalBitMask) != 0;
+    m_opcode = static_cast<OpCode>((int) *ptr & opcodeBitMask);
 
     ++ptr;
-    const bool masked = ((int) *ptr & maskedBitMask) != 0;
-    auto payloadLength = uint64_t((int) *ptr & payloadLengthBitMask);
+    const bool masked = (static_cast<int>(*ptr) & maskedBitMask) != 0;
+    auto       payloadLength = static_cast<uint64_t>((int) *ptr & payloadLengthBitMask);
     switch (payloadLength)
     {
         case lengthIsTwoBytes:
@@ -114,7 +115,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         size_t j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i)
         {
-            auto unmaskedByte = uint8_t((int) ptr[i] ^ mask[i % 4]);
+            const auto unmaskedByte = static_cast<uint8_t>((int) ptr[i] ^ mask[i % 4]);
             if (m_opcode == OpCode::CONNECTION_CLOSE && i < 2)
             {
                 statusCodeBuffer[i] = unmaskedByte;
@@ -147,22 +148,22 @@ void WSWebSocketsMessage::encode(const String& payload, OpCode opcode, bool fina
 
     auto* ptr = output.data();
 
-    *ptr = (int) opcode & 0xF;
+    *ptr = static_cast<int>(opcode) & 0xF;
     if (finalMessage)
     {
-        *ptr = (uint8_t) ((int) *ptr | finalBitMask);
+        *ptr = static_cast<uint8_t>((int) *ptr | finalBitMask);
     }
 
     ++ptr;
 
     if (payload.length() < 126)
     {
-        *ptr = (uint8_t) payload.length();
+        *ptr = static_cast<uint8_t>(payload.length());
         ++ptr;
     }
     else if (payload.length() <= 32767)
     {
-        *(uint16_t*) ptr = htons((uint16_t) payload.length());
+        *(uint16_t*) ptr = htons(static_cast<uint16_t>(payload.length()));
         ptr += 2;
     }
     else
@@ -265,12 +266,12 @@ RequestInfo WSWebSocketsProtocol::process()
 
             if (msg.opcode() == WSWebSocketsMessage::OpCode::CONNECTION_CLOSE)
             {
-                replyCloseConnectionRequest((uint16_t) msg.statusCode(), "Connection closed by client request");
+                replyCloseConnectionRequest(static_cast<uint16_t>(msg.statusCode()), "Connection closed by client request");
                 connectionCloseRequestReplied = true;
                 break;
             }
 
-            COUT((int) msg.opcode() << ": " << msg.payload().c_str());
+            COUT(static_cast<int>(msg.opcode()) << ": " << msg.payload().c_str());
 
             WSWebSocketsMessage::encode("Hello", WSWebSocketsMessage::OpCode::TEXT, true, message);
             socket().write(message);

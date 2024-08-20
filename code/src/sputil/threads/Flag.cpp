@@ -66,7 +66,7 @@ void Flag::set(bool value)
 
 bool Flag::wait_for(bool value, chrono::milliseconds timeout)
 {
-    auto timeoutAt = DateTime::Now() + timeout;
+    const auto timeoutAt = DateTime::Now() + timeout;
     return wait_until(value, timeoutAt);
 }
 

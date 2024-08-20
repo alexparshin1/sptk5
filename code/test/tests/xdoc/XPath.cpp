@@ -47,13 +47,13 @@ TEST(SPTK_XDocument, select)
     document.load(testXML1);
 
     auto elementSet = document.root()->select("/AAA");
-    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
 
     elementSet = document.root()->select("/AAA/CCC");
-    EXPECT_EQ(size_t(2), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(2), elementSet.size());
 
     elementSet = document.root()->select("/AAA/DDD/BBB");
-    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
 }
 
 TEST(SPTK_XDocument, parent)
@@ -78,10 +78,10 @@ TEST(SPTK_XDocument, select2)
     document.load(testXML2);
 
     auto elementSet = document.root()->select("//BBB");
-    EXPECT_EQ(size_t(5), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(5), elementSet.size());
 
     elementSet = document.root()->select("//DDD/BBB");
-    EXPECT_EQ(size_t(3), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(3), elementSet.size());
 }
 
 TEST(SPTK_XDocument, select3)
@@ -94,10 +94,10 @@ TEST(SPTK_XDocument, select3)
     document.exportTo(DataFormat::XML, buff, false);
 
     auto elementSet = document.root()->select("/AAA/CCC/DDD/*");
-    EXPECT_EQ(size_t(4), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(4), elementSet.size());
 
     elementSet = document.root()->select("//*");
-    EXPECT_EQ(size_t(17), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(17), elementSet.size());
 }
 
 TEST(SPTK_XDocument, select4)
@@ -107,11 +107,11 @@ TEST(SPTK_XDocument, select4)
     document.load(testXML4);
 
     auto elementSet = document.root()->select("/AAA/BBB[1]");
-    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
     EXPECT_STREQ("1", elementSet[0]->getString().c_str());
 
     elementSet = document.root()->select("/AAA/BBB[last()]");
-    EXPECT_EQ(size_t(1), elementSet.size());
+    EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
     EXPECT_STREQ("4", elementSet[0]->getString().c_str());
 }
 
@@ -121,11 +121,11 @@ TEST(SPTK_XDocument, select5)
 
     document.load(testXML5);
 
-    auto elementSet = document.root()->select("//BBB[@id=002]");
-    EXPECT_EQ(size_t(1), elementSet.size());
+    const auto elementSet = document.root()->select("//BBB[@id=002]");
+    EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
     EXPECT_STREQ("2", elementSet[0]->getString().c_str());
 
-    auto elementSet2 = document.root()->select("//BBB[@id=003]");
-    EXPECT_EQ(size_t(1), elementSet2.size());
+    const auto elementSet2 = document.root()->select("//BBB[@id=003]");
+    EXPECT_EQ(static_cast<size_t>(1), elementSet2.size());
     EXPECT_STREQ("3", elementSet2[0]->getString().c_str());
 }

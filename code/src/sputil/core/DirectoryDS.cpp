@@ -158,7 +158,7 @@ bool DirectoryDS::open()
         for (const char* dirName: {".", ".."})
         {
             FieldList fields(false);
-            fields.push_back(" ", false).setImageNdx((uint32_t) CSmallPixmapType::SXPM_FOLDER);
+            fields.push_back(" ", false).setImageNdx(static_cast<uint32_t>(CSmallPixmapType::SXPM_FOLDER));
             fields.push_back("Name", false) = dirName;
             fields.push_back("Size", false) = "";
             fields.push_back("Type", false) = "Directory";
@@ -217,7 +217,7 @@ FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file
     }
 
     FieldList fields(false);
-    fields.push_back(" ", false).setImageNdx((uint32_t) pixmapType);
+    fields.push_back(" ", false).setImageNdx(static_cast<uint32_t>(pixmapType));
     fields.push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
     {
@@ -225,18 +225,18 @@ FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file
     }
     else
     {
-        fields.push_back("Size", false) = (int64_t) file_size(file.path());
+        fields.push_back("Size", false) = static_cast<int64_t>(file_size(file.path()));
     }
     fields.push_back("Type", false) = modeName;
 
     fields.push_back("Modified", false) = modificationTime;
-    fields.push_back("", false) = (int32_t) index; // Fake key value
+    fields.push_back("", false) = static_cast<int32_t>(index); // Fake key value
     ++index;
 
     if (access(file.path().filename().string().c_str(), R_OK) != 0)
     {
-        fields[uint32_t(0)].view().flags = FL_ALIGN_LEFT;
-        fields[uint32_t(1)].view().flags = FL_ALIGN_LEFT;
+        fields[static_cast<uint32_t>(0)].view().flags = FL_ALIGN_LEFT;
+        fields[static_cast<uint32_t>(1)].view().flags = FL_ALIGN_LEFT;
     }
 
     return fields;

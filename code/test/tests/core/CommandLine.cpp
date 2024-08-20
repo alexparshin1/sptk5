@@ -71,8 +71,8 @@ shared_ptr<CommandLine> createTestCommandLine()
 
 TEST(SPTK_CommandLine, Visibility)
 {
-    CommandLine::Visibility visibility1("");
-    CommandLine::Visibility visibility2("^\\d+$");
+    const CommandLine::Visibility visibility1("");
+    const CommandLine::Visibility visibility2("^\\d+$");
 
     EXPECT_TRUE(visibility1.any());
     EXPECT_TRUE(visibility2.matches("123"));
@@ -80,7 +80,7 @@ TEST(SPTK_CommandLine, Visibility)
 
 TEST(SPTK_CommandLine, CommandLineElement)
 {
-    CommandLine::CommandLineElement testElement("test", "t", "short help", CommandLine::Visibility("^test|not-test$"));
+    const CommandLine::CommandLineElement testElement("test", "t", "short help", CommandLine::Visibility("^test|not-test$"));
 
     EXPECT_FALSE(testElement.hasValue());
     EXPECT_TRUE(testElement.useWithCommand("not-test"));
@@ -88,11 +88,11 @@ TEST(SPTK_CommandLine, CommandLineElement)
 
 TEST(SPTK_CommandLine, ctor)
 {
-    auto commandLine = createTestCommandLine();
+    const auto commandLine = createTestCommandLine();
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
                       CommandLineTestData::testCommandLineArgs.data());
 
-    EXPECT_EQ(size_t(1), commandLine->arguments().size());
+    EXPECT_EQ(static_cast<size_t>(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
     EXPECT_STREQ("80", commandLine->getOptionValue("port2").c_str());
@@ -107,7 +107,7 @@ TEST(SPTK_CommandLine, ctor)
 
 TEST(SPTK_CommandLine, wrongArgumentValue)
 {
-    auto commandLine = createTestCommandLine();
+    const auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
         commandLine->init(CommandLineTestData::testCommandLineArgs2.size(),
@@ -117,7 +117,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
 
 TEST(SPTK_CommandLine, wrongOption)
 {
-    auto commandLine = createTestCommandLine();
+    const auto commandLine = createTestCommandLine();
 
     EXPECT_THROW(
         commandLine->init(CommandLineTestData::testCommandLineArgs3.size(),
@@ -127,7 +127,7 @@ TEST(SPTK_CommandLine, wrongOption)
 
 TEST(SPTK_CommandLine, setOption)
 {
-    auto commandLine = createTestCommandLine();
+    const auto commandLine = createTestCommandLine();
 
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
                       CommandLineTestData::testCommandLineArgs.data());
@@ -138,7 +138,7 @@ TEST(SPTK_CommandLine, setOption)
 
 TEST(SPTK_CommandLine, printHelp)
 {
-    auto commandLine = createTestCommandLine();
+    const auto commandLine = createTestCommandLine();
 
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
                       CommandLineTestData::testCommandLineArgs.data());

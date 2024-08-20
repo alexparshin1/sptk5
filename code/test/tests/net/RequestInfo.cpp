@@ -71,7 +71,7 @@ TEST(SPTK_RequestInfo, Message)
     auto output = message.output(outputEncodings);
     auto decoded = decode(output, message.contentEncoding());
 
-    Buffer urlEncoded(Url::encode(testData.c_str()));
+    const Buffer urlEncoded(Url::encode(testData.c_str()));
     message.input(urlEncoded, "x-www-form-urlencoded");
     output = message.output(outputEncodings);
     decoded = decode(output, message.contentEncoding());

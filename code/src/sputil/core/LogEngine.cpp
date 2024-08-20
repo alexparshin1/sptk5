@@ -169,7 +169,7 @@ void LogEngine::threadFunction()
 
             if (option(Option::TIME))
             {
-                auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+                const auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
                 messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
             }
 

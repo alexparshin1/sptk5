@@ -58,7 +58,7 @@ void ODBCEnvironment::allocEnv()
         throw DatabaseException("Can't allocate ODBC environment");
     }
 
-    m_hEnvironment = shared_ptr<uint8_t>((uint8_t*) hEnvironment,
+    m_hEnvironment = shared_ptr<uint8_t>(static_cast<uint8_t*>(hEnvironment),
                                          [this](uint8_t* env) {
                                              const scoped_lock lck(*this);
                                              SQLFreeEnv(env);
@@ -92,11 +92,11 @@ void ODBCConnectionBase::allocConnect()
         throw DatabaseException(errorInformation("Can't alloc connection"));
     }
 
-    m_hConnection = shared_ptr<uint8_t>((uint8_t*) hConnection,
+    m_hConnection = shared_ptr<uint8_t>(static_cast<uint8_t*>(hConnection),
                                         [this](uint8_t* ptr) {
                                             if (m_connected)
                                             {
-                                                SQLHDBC conn(ptr);
+                                                const SQLHDBC conn(ptr);
                                                 SQLDisconnect(conn);
                                                 SQLFreeHandle(SQL_HANDLE_DBC, conn);
                                                 m_connected = false;
@@ -228,7 +228,7 @@ void ODBCConnectionBase::execQuery(const char* query)
     }
 
     if (Buffer queryBuffer((const uint8_t*) query, strlen(query));
-        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), (SQLINTEGER) queryBuffer.size())))
+        !Successful(SQLExecDirect(hstmt, queryBuffer.data(), static_cast<SQLINTEGER>(queryBuffer.size()))))
     {
         SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
         throw Exception("Can't execute query: " + String(query));
@@ -283,20 +283,20 @@ String sptk::removeDriverIdentification(const char* error)
         p = p1 + 1;
     }
 
-    auto len = (int) strlen(p);
+    auto len = static_cast<int>(strlen(p));
 
     p1 = strstr(p, "sqlerrm(");
     if (p1 != nullptr)
     {
         p = p1 + 8;
-        len = (int) strlen(p);
+        len = static_cast<int>(strlen(p));
         if (p[len - 1] == ')')
         {
             --len;
         }
     }
 
-    return {p, size_t(len)};
+    return {p, static_cast<size_t>(len)};
 }
 
 string extract_error(

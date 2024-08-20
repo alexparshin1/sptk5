@@ -394,7 +394,7 @@ void DatabaseTests::verifyInsertedRow(const Row& row, const Buffer& clob, Query&
     EXPECT_EQ(row.id, select["id"].asInteger());
     EXPECT_EQ(row.ssid, select["ssid"].asInt64());
     EXPECT_STREQ(row.name.c_str(), select["name"].asString().c_str());
-    EXPECT_FLOAT_EQ((float) row.price, (float) select["price"].asFloat());
+    EXPECT_FLOAT_EQ(static_cast<float>(row.price), static_cast<float>(select["price"].asFloat()));
     EXPECT_EQ(clob.size(), select["txt"].asString().length());
 
     const auto receivedClob = Buffer(select["txt"].asString());
@@ -446,7 +446,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
     {
         transaction.commit();
 
-        auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
+        const auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         if (count != maxRecords)
         {
             throw Exception("count != " + to_string(maxRecords) + "after commit");
@@ -456,7 +456,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
     {
         transaction.rollback();
 
-        auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
+        const auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         if (count != 0)
         {
             throw Exception("count != 0 (after rollback)");
@@ -484,7 +484,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
     }
 
 
-    if (auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
+    if (const auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         count != maxRecords)
     {
         throw Exception("count " + to_string(count) + " != " + to_string(maxRecords));
@@ -629,12 +629,12 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
     query.param("name") = "Alex";
     query.exec();
     auto recordId = query.id();
-    EXPECT_EQ(recordId, uint64_t(1));
+    EXPECT_EQ(recordId, static_cast<uint64_t>(1));
 
     query.param("name") = "David";
     query.exec();
     recordId = query.id();
-    EXPECT_EQ(recordId, uint64_t(2));
+    EXPECT_EQ(recordId, static_cast<uint64_t>(2));
 }
 
 static const string expectedBulkInsertResult(
@@ -789,10 +789,10 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     keys.reserve(recordCount);
     for (size_t i = 1; i <= recordCount; ++i)
     {
-        keys.emplace_back((int) i);
+        keys.emplace_back(static_cast<int>(i));
 
         VariantVector arow;
-        arow.emplace_back(int(i));
+        arow.emplace_back(static_cast<int>(i));
         arow.emplace_back("Alex,'Doe'");
         arow.emplace_back("Programmer");
         arow.emplace_back("01-JAN-2014");
@@ -1032,7 +1032,7 @@ size_t DatabaseTests::countRowsInTable(const DatabaseConnection& databaseConnect
 {
     Query select(databaseConnection, "SELECT count(*) cnt FROM " + table);
     select.open();
-    const auto count = (size_t) select["cnt"].asInteger();
+    const auto count = static_cast<size_t>(select["cnt"].asInteger());
     select.close();
 
     return count;
@@ -1079,13 +1079,13 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     const auto* data = selectQuery["data1"].getText();
     for (size_t i = 0; i < blobSize1; ++i)
     {
-        EXPECT_EQ(char(i % 256), data[i]);
+        EXPECT_EQ(static_cast<char>(i % 256), data[i]);
     }
 
     data = selectQuery["data2"].getText();
     for (size_t i = 0; i < blobSize2; ++i)
     {
-        EXPECT_EQ(char(256 - char(i % 256)), data[i]);
+        EXPECT_EQ(static_cast<char>(256 - char(i % 256)), data[i]);
     }
 
     selectQuery.close();

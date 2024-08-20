@@ -40,23 +40,23 @@ TEST(SPTK_JWT, dup)
     time_t now = 0;
     int valint = 0;
 
-    JWT jwt;
+    const JWT jwt;
 
     jwt.set("iss", "test");
-    auto val = (String) jwt.get("iss");
+    auto val = static_cast<String>(jwt.get("iss"));
     EXPECT_FALSE(val.empty()) << "Can't get grant for first JWT";
 
     const JWT newJWT(jwt);
-    val = (String) newJWT.get("iss");
+    val = static_cast<String>(newJWT.get("iss"));
     EXPECT_FALSE(val.empty()) << "Can't get grant for second JWT";
 
     EXPECT_STREQ("test", val.c_str()) << "Got incorrect grant";
     EXPECT_TRUE(JWT::Algorithm::NONE == jwt.get_alg()) << "Got incorrect alogorithm";
 
     now = time(nullptr);
-    jwt.set("iat", (int) now);
+    jwt.set("iat", static_cast<int>(now));
 
-    valint = (int) jwt.get("iat");
+    valint = static_cast<int>(jwt.get("iat"));
     EXPECT_EQ((long) now, valint) << "Failed jwt_get_grant_int()";
 }
 
@@ -69,7 +69,7 @@ TEST(SPTK_JWT, dup_signed)
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     const JWT newJWT(jwt);
-    auto val = (String) newJWT.get("iss");
+    const auto val = static_cast<String>(newJWT.get("iss"));
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
     EXPECT_TRUE(JWT::Algorithm::HS256 == jwt.get_alg()) << "Failed jwt_get_alg()";
 }
@@ -82,7 +82,7 @@ TEST(SPTK_JWT, decode)
         "cmUuY29tIiwic3ViIjoidXNlcjAifQ.";
     JWT::Algorithm alg = JWT::Algorithm::NONE;
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
 
     EXPECT_NO_THROW(jwt->decode(token)) << "Failed jwt_decode()";
     alg = jwt->get_alg();
@@ -96,7 +96,7 @@ TEST(SPTK_JWT, decode_invalid_final_dot)
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
 }
 
@@ -107,7 +107,7 @@ TEST(SPTK_JWT, decode_invalid_alg)
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
@@ -118,7 +118,7 @@ TEST(SPTK_JWT, decode_invalid_typ)
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
@@ -130,7 +130,7 @@ TEST(SPTK_JWT, decode_invalid_head)
         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
@@ -141,7 +141,7 @@ TEST(SPTK_JWT, decode_alg_none_with_key)
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
 }
 
@@ -152,7 +152,7 @@ TEST(SPTK_JWT, decode_invalid_body)
                         "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ.";
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
@@ -165,7 +165,7 @@ TEST(SPTK_JWT, decode_hs256)
 
     const String key256("012345678901234567890123456789XY");
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
 }
 
@@ -174,13 +174,13 @@ TEST(SPTK_JWT, decode_hs384)
 {
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-                        "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
+                         "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
                         "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
-                        "GgU6LOe4";
+                         "GgU6LOe4";
     const String key384("aaaabbbbccccddddeeeeffffg"
                         "ggghhhhiiiijjjjkkkkllll");
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
     EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
 }
 
@@ -195,7 +195,7 @@ TEST(SPTK_JWT, decode_hs512)
     const String key512("012345678901234567890123456789XY"
                         "012345678901234567890123456789XY");
 
-    auto jwt = make_shared<JWT>();
+    const auto jwt = make_shared<JWT>();
 
     try
     {
@@ -215,9 +215,9 @@ TEST(SPTK_JWT, encode_hs256_decode)
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
     constexpr int secondsInDay = 86400;
-    jwt.set("iat", (int) time(nullptr));
+    jwt.set("iat", static_cast<int>(time(nullptr)));
     jwt.set("iss", "https://test.com");
-    jwt.set("exp", (int) time(nullptr) + secondsInDay);
+    jwt.set("exp", static_cast<int>(time(nullptr)) + secondsInDay);
 
     const auto& info = jwt.grants.root()->pushNode("info");
     info->set("company", "Linotex");

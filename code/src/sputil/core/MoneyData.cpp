@@ -37,7 +37,7 @@ const array<int64_t, numberOfDividers> MoneyData::dividers = {
 
 MoneyData::operator double() const
 {
-    return double(quantity) / double(dividers[scale]);
+    return static_cast<double>(quantity) / static_cast<double>(dividers[scale]);
 }
 
 MoneyData::operator int64_t() const
@@ -47,7 +47,7 @@ MoneyData::operator int64_t() const
 
 MoneyData::operator int32_t() const
 {
-    return int(quantity / dividers[scale]);
+    return static_cast<int>(quantity / dividers[scale]);
 }
 
 MoneyData::operator bool() const

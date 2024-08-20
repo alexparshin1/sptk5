@@ -68,7 +68,7 @@ TEST(SPTK_DateTime, isoTimeString)
 {
     const String input("2018-01-01T11:22:33");
     const DateTime dateTime1(input.c_str());
-    COUT((String) dateTime1);
+    COUT(static_cast<String>(dateTime1));
     const String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
     EXPECT_TRUE(output.startsWith(input));
 }
@@ -129,7 +129,7 @@ TEST(SPTK_DateTime, formatDate)
 {
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
-    auto t = (time_t) dateTime;
+    const auto t = static_cast<time_t>(dateTime);
     tm tt {};
     localtime_r(&t, &tt);
 
@@ -144,7 +144,7 @@ TEST(SPTK_DateTime, formatTime)
 {
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
-    auto t = (time_t) dateTime;
+    const auto t = static_cast<time_t>(dateTime);
     tm tt {};
     gmtime_r(&t, &tt);
 
@@ -159,7 +159,7 @@ TEST(SPTK_DateTime, formatTime)
 
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    auto tzOffsetMinutes = (int) TimeZone::offset().count();
+    auto tzOffsetMinutes = static_cast<int>(TimeZone::offset().count());
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)
@@ -176,10 +176,10 @@ TEST(SPTK_DateTime, formatDateTime2)
         tzOffsetStr << "Z";
     }
 
-    const String tzOffset(tzOffsetStr.str());
+    const String   tzOffset(tzOffsetStr.str());
     const DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
 
-    auto t = (time_t) dateTime;
+    const auto t = static_cast<time_t>(dateTime);
     tm tt {};
     localtime_r(&t, &tt);
 
@@ -202,9 +202,9 @@ TEST(SPTK_DateTime, parsePerformance)
     }
 
     const DateTime ended("now");
-    const double durationSec = double(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
+    const double durationSec = static_cast<double>(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
 
-    COUT("Performed " << size_t(maxTests / millisecondsInSecond / durationSec) << "K parses/sec");
+    COUT("Performed " << static_cast<size_t>(maxTests / millisecondsInSecond / durationSec) << "K parses/sec");
 }
 
 TEST(SPTK_DateTime, timezoneFormats1)

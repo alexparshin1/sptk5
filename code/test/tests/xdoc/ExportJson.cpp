@@ -34,7 +34,7 @@ TEST(SPTK_XDocument, xmlToJson)
 {
     auto cwd = filesystem::current_path();
 
-    xdoc::Document document;
+    const xdoc::Document document;
     Buffer buffer;
 
     buffer.loadFromFile("data/menu.xml");

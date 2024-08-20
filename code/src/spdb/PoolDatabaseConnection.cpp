@@ -27,6 +27,7 @@
 #include "sptk5/db/PoolDatabaseConnection.h"
 #include "sptk5/db/BulkQuery.h"
 
+#include <ranges>
 #include <sptk5/cutils>
 
 using namespace std;
@@ -51,7 +52,7 @@ void PoolDatabaseConnection::connectionString(const DatabaseConnectionString& co
 
 void PoolDatabaseConnectionQueryMethods::disconnectAllQueries()
 {
-    for (const auto& [query, statement]: m_queryList)
+    for (const auto& query: views::keys(m_queryList))
     {
         try
         {
@@ -77,7 +78,7 @@ void PoolDatabaseConnection::setInTransaction(bool inTransaction)
 
 bool PoolDatabaseConnectionQueryMethods::linkQuery(Query* query)
 {
-    if (auto itor = m_queryList.find(query);
+    if (const auto itor = m_queryList.find(query);
         itor == m_queryList.end())
     {
         m_queryList[query] = nullptr;

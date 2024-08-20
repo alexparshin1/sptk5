@@ -75,7 +75,7 @@ public:
     /**
      * Returns database connection acquired from the connection pool
      */
-    PoolDatabaseConnection* connection();
+    PoolDatabaseConnection* connection() const;
 
     /**
      * Opens the database connection

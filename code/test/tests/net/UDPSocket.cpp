@@ -62,7 +62,7 @@ public:
     void threadFunction() override
     {
         constexpr chrono::seconds timeout {5};
-        DateTime stopTime = DateTime::Now() + timeout;
+        const DateTime stopTime = DateTime::Now() + timeout;
         Buffer data(bufferSize);
         while (!terminated() && DateTime::Now() < stopTime)
         {
@@ -71,7 +71,7 @@ public:
                 if (socket.readyToRead(readTimeout))
                 {
                     sockaddr_in from {};
-                    size_t sz = socket.read(data.data(), bufferSize, &from);
+                    const size_t sz = socket.read(data.data(), bufferSize, &from);
                     if (sz == 0)
                     {
                         return;

@@ -62,7 +62,7 @@ void ImapConnect::getResponse(const String& ident)
         }
         if (longLine.find(ident) == 0)
         {
-            auto p = (uint32_t) ident.length();
+            auto p = static_cast<uint32_t>(ident.length());
             while (longLine[p] == ' ')
             {
                 ++p;
@@ -96,13 +96,13 @@ String ImapConnect::sendCommand(const String& cmd)
     String command(cmd);
     array<char, 10> id_str {};
     const int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
-    String ident(id_str.data(), (size_t) len);
+    String ident(id_str.data(), static_cast<size_t>(len));
     command = ident + cmd + "\n";
     if (!active())
     {
         throw Exception("Socket isn't open");
     }
-    write(bit_cast<const uint8_t*>(command.c_str()), (uint32_t) command.length());
+    write(bit_cast<const uint8_t*>(command.c_str()), static_cast<uint32_t>(command.length()));
     return ident;
 }
 
@@ -138,7 +138,7 @@ void ImapConnect::cmd_login(const String& user, const String& password)
 
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    const String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string((uint32_t) message.bytes()) + "}";
+    const String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string(static_cast<uint32_t>(message.bytes())) + "}";
     const String ident = sendCommand(cmd);
     getResponse(ident);
     write(message.data(), message.bytes());
@@ -297,7 +297,7 @@ DateTime decodeDate(const String& dt)
         *p2 = 0;
     }
     const DateTime time(p1);
-    const DateTime date((short) year, (short) month, (short) mday);
+    const DateTime date(static_cast<short>(year), static_cast<short>(month), static_cast<short>(mday));
     return date + time.timePoint().time_since_epoch();
 }
 } // namespace
@@ -356,7 +356,7 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
 
     for (i = 0; i < results.size(); ++i)
     {
-        Field& field = results[int(i)];
+        Field& field = results[static_cast<int>(i)];
         if (field.dataType() == VariantDataType::VAR_NONE)
         {
             field.setString("");

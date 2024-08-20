@@ -105,7 +105,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
         m_log->debug("[SEND] " + cmd);
     }
     cmd += "\r\n";
-    write(bit_cast<const uint8_t*>(cmd.c_str()), (uint32_t) cmd.length());
+    write(bit_cast<const uint8_t*>(cmd.c_str()), static_cast<uint32_t>(cmd.length()));
 }
 
 int SmtpConnect::command(const String& cmd, bool encodeCommand, bool decodeResponse)
@@ -123,14 +123,14 @@ String SmtpConnect::mime(const Buffer& buffer)
 {
     Buffer result;
     Base64::encode(result, buffer);
-    return (String) result;
+    return static_cast<String>(result);
 }
 
 String SmtpConnect::mime(const String& str)
 {
     String result;
     Buffer src;
-    src.set(bit_cast<const uint8_t*>(str.c_str()), (uint32_t) str.length());
+    src.set(bit_cast<const uint8_t*>(str.c_str()), static_cast<uint32_t>(str.length()));
     Base64::encode(result, src);
     return result;
 }
@@ -249,7 +249,7 @@ void SmtpConnect::sendMessage()
     String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
     Strings recipients(rcpts, ";");
-    auto cnt = (uint32_t) recipients.size();
+    const auto cnt = static_cast<uint32_t>(recipients.size());
     for (uint32_t i = 0; i < cnt; ++i)
     {
         if (trim(recipients[i]).empty())

@@ -39,7 +39,7 @@ static const filesystem::path tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
 {
-    Buffer buffer1(testPhrase);
+    const Buffer buffer1(testPhrase);
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
@@ -48,7 +48,7 @@ TEST(SPTK_Buffer, create)
 TEST(SPTK_Buffer, copyCtor)
 {
     auto buffer1 = make_shared<Buffer>(testPhrase);
-    Buffer buffer2(*buffer1);
+    const Buffer buffer2(*buffer1);
     buffer1.reset();
 
     EXPECT_STREQ(testPhrase.c_str(), buffer2.c_str());
@@ -106,7 +106,7 @@ TEST(SPTK_Buffer, append)
 
 TEST(SPTK_Buffer, saveLoadFile)
 {
-    Buffer buffer1(testPhrase);
+    const Buffer buffer1(testPhrase);
     Buffer buffer2;
 
     buffer1.saveToFile(tempFileName);
@@ -125,7 +125,7 @@ TEST(SPTK_Buffer, fill)
     buffer1.fill('#', repeatCharCount);
 
     EXPECT_STREQ("############", buffer1.c_str());
-    EXPECT_EQ(size_t(12), buffer1.bytes());
+    EXPECT_EQ(static_cast<size_t>(12), buffer1.bytes());
 }
 
 TEST(SPTK_Buffer, reset)
@@ -135,7 +135,7 @@ TEST(SPTK_Buffer, reset)
     buffer1.reset();
 
     EXPECT_STREQ("", buffer1.c_str());
-    EXPECT_EQ(size_t(0), buffer1.bytes());
+    EXPECT_EQ(static_cast<size_t>(0), buffer1.bytes());
     EXPECT_TRUE(buffer1.capacity() > 0);
 }
 
@@ -151,9 +151,9 @@ TEST(SPTK_Buffer, erase)
 
 TEST(SPTK_Buffer, compare)
 {
-    Buffer buffer1(testPhrase);
-    Buffer buffer2(testPhrase);
-    Buffer buffer3("something else");
+    const Buffer buffer1(testPhrase);
+    const Buffer buffer2(testPhrase);
+    const Buffer buffer3("something else");
 
     EXPECT_TRUE(buffer1 == buffer2);
     EXPECT_FALSE(buffer1 != buffer2);
@@ -186,7 +186,7 @@ TEST(SPTK_Buffer, hexDump)
     stringstream stream;
     stream << hex << buffer;
 
-    Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
+    const Strings output(stream.str(), "\n\r", Strings::SplitMode::ANYCHAR);
     EXPECT_TRUE(output == expected);
 }
 

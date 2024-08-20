@@ -59,7 +59,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
     // Compress until end of file
     do
     {
-        auto bytesToRead = uInt(src.bytes() - readPosition);
+        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;
@@ -118,7 +118,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
     // Decompress until deflate stream ends or end of file
     do
     {
-        auto bytesToRead = uInt(src.bytes() - readPosition);
+        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;

@@ -94,8 +94,8 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
     out.checkSize(EVP_MAX_MD_SIZE);
 
     unsigned len = 0;
-    HMAC(algorithm, key.c_str(), (int) key.length(),
-         (const unsigned char*) str, (int) strlen(str), out.data(),
+    HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
+         (const unsigned char*) str, static_cast<int>(strlen(str)), out.data(),
          &len);
     out.bytes(len);
 }
@@ -103,7 +103,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
     array<unsigned char, EVP_MAX_MD_SIZE> res {};
-    unsigned int res_len = 0;
+    unsigned int                          res_len = 0;
     const EVP_MD* algorithm = nullptr;
     int len = 0;
     Buffer readBuf;
@@ -141,19 +141,19 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     BIO_push(b64, bmem);
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
-    HMAC(algorithm, key.c_str(), (int) key.length(),
-         (const unsigned char*) head, (int) strlen(head), res.data(), &res_len);
+    HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
+         (const unsigned char*) head, static_cast<int>(strlen(head)), res.data(), &res_len);
 
-    BIO_write(b64, res.data(), (int) res_len);
+    BIO_write(b64, res.data(), static_cast<int>(res_len));
 
     BIO_flush(b64);
 
     len = BIO_pending(bmem);
     if (len >= 0)
     {
-        readBuf.checkSize(size_t(len) + 1);
+        readBuf.checkSize(static_cast<size_t>(len) + 1);
         len = BIO_read(bmem, readBuf.data(), len);
-        readBuf.bytes(size_t(len));
+        readBuf.bytes(static_cast<size_t>(len));
         readBuf[len] = 0;
 
         jwt_base64uri_encode(readBuf);
@@ -241,7 +241,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
     try
     {
-        bufkey = BIO_new_mem_buf((void*) key.c_str(), (int) key.length());
+        bufkey = BIO_new_mem_buf((void*) key.c_str(), static_cast<int>(key.length()));
         if (bufkey == nullptr)
         {
             SIGN_ERROR(ENOMEM);
@@ -256,7 +256,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             SIGN_ERROR(EINVAL);
         }
 
-        int pkey_type = EVP_PKEY_id(pkey);
+        const int pkey_type = EVP_PKEY_id(pkey);
         if (pkey_type != type)
         {
             SIGN_ERROR(EINVAL);
@@ -320,21 +320,21 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
                 SIGN_ERROR(ENOMEM);
             }
 
-            degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
+            degree = static_cast<unsigned>(EC_GROUP_get_degree(EC_KEY_get0_group(ec_key)));
 
             EC_KEY_free(ec_key);
 
             /* Get the sig from the DER encoded version. */
-            unsigned char* sig = nullptr;
-            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, (long) slen);
+            const unsigned char* sig = nullptr;
+            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, static_cast<long>(slen));
             if (ec_sig == nullptr)
             {
                 SIGN_ERROR(ENOMEM);
             }
 
             ECDSA_SIG_get0(ec_sig, &ec_sig_r, &ec_sig_s);
-            r_len = (unsigned) BN_num_bytes(ec_sig_r);
-            s_len = (unsigned) BN_num_bytes(ec_sig_s);
+            r_len = static_cast<unsigned>(BN_num_bytes(ec_sig_r));
+            s_len = static_cast<unsigned>(BN_num_bytes(ec_sig_s));
             bn_len = (degree + 7) / 8;
             if ((r_len > bn_len) || (s_len > bn_len))
             {
@@ -454,12 +454,12 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64);
     auto* sig_ptr = sig_buffer.data();
-    auto slen = (int) sig_buffer.bytes();
+    auto slen = static_cast<int>(sig_buffer.bytes());
 
     string error;
     try
     {
-        bufkey = BIO_new_mem_buf((void*) key.c_str(), (int) key.length());
+        bufkey = BIO_new_mem_buf((void*) key.c_str(), static_cast<int>(key.length()));
         if (bufkey == nullptr)
         {
             VERIFY_ERROR(ENOMEM);
@@ -474,7 +474,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
             VERIFY_ERROR(EINVAL);
         }
 
-        int pkey_type = EVP_PKEY_id(pkey);
+        const int pkey_type = EVP_PKEY_id(pkey);
         if (pkey_type != type)
         {
             VERIFY_ERROR(EINVAL);
@@ -483,7 +483,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
         /* Convert EC sigs back to ASN1. */
         if (pkey_type == EVP_PKEY_EC)
         {
-            unsigned degree = 0;
+            unsigned       degree = 0;
             unsigned bn_len = 0;
             unsigned char* p = nullptr;
             EC_KEY* ec_key = nullptr;
@@ -501,18 +501,18 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
                 VERIFY_ERROR(ENOMEM);
             }
 
-            degree = (unsigned) EC_GROUP_get_degree(EC_KEY_get0_group(ec_key));
+            degree = static_cast<unsigned>(EC_GROUP_get_degree(EC_KEY_get0_group(ec_key)));
 
             EC_KEY_free(ec_key);
 
             bn_len = (degree + 7) / 8;
-            if ((bn_len * 2) != (unsigned) slen)
+            if ((bn_len * 2) != static_cast<unsigned>(slen))
             {
                 VERIFY_ERROR(EINVAL);
             }
 
-            auto* ec_sig_r = BN_bin2bn(sig_ptr, (int) bn_len, nullptr);
-            auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, (int) bn_len, nullptr);
+            auto* ec_sig_r = BN_bin2bn(sig_ptr, static_cast<int>(bn_len), nullptr);
+            auto* ec_sig_s = BN_bin2bn(sig_ptr + bn_len, static_cast<int>(bn_len), nullptr);
             if (ec_sig_r == nullptr || ec_sig_s == nullptr)
             {
                 VERIFY_ERROR(EINVAL);
@@ -521,7 +521,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
             ECDSA_SIG_set0(ec_sig, ec_sig_r, ec_sig_s);
 
             slen = i2d_ECDSA_SIG(ec_sig, nullptr);
-            sig_buffer.checkSize((size_t) slen);
+            sig_buffer.checkSize(static_cast<size_t>(slen));
             sig_ptr = sig_buffer.data();
 
             p = sig_ptr;
@@ -552,7 +552,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
         }
 
         /* Now check the sig for validity. */
-        if (EVP_DigestVerifyFinal(mdctx, sig_ptr, (unsigned) slen) != 1)
+        if (EVP_DigestVerifyFinal(mdctx, sig_ptr, static_cast<unsigned>(slen)) != 1)
         {
             VERIFY_ERROR(EINVAL);
         }

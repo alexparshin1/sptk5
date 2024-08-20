@@ -57,7 +57,7 @@ int testPerformance(DatabaseConnection db, const string& tableName, bool rollbac
         size_t count = 1000;
         for (size_t i = 0; i < count; i++)
         {
-            insertQuery.param((std::size_t) 0) = int(i);
+            insertQuery.param(static_cast<std::size_t>(0)) = static_cast<int>(i);
             insertQuery.param("person_name") = "John Doe";
             insertQuery.param("position_name") = "lead engineer";
             insertQuery.exec();
@@ -99,7 +99,7 @@ int testTransactions(const DatabaseConnection& db, const string& tableName, bool
         step5Query.exec();
 
         step6Query.open();
-        int counter = step6Query[uint32_t(0)].asInteger();
+        int counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records ..");
 
@@ -114,7 +114,7 @@ int testTransactions(const DatabaseConnection& db, const string& tableName, bool
             db->commitTransaction();
         }
         step6Query.open();
-        counter = step6Query[uint32_t(0)].asInteger();
+        counter = step6Query[static_cast<uint32_t>(0)].asInteger();
         step6Query.close();
         COUT("\n        The table now has " << counter << " records..");
     }
@@ -217,7 +217,7 @@ int main(int argc, const char* argv[])
         // Params should come in the exact order as they are defined in the query
         // Here is the example of using parameters by index.
         // This is the even faster than stream
-        step2Query.param(size_t(0)) = 3;
+        step2Query.param(static_cast<size_t>(0)) = 3;
         step2Query.param(1) = "Anonymous";
         step2Query.param(2) = "Manager";
         step2Query.exec();
@@ -265,7 +265,7 @@ int main(int argc, const char* argv[])
         step3Query.open();
 
         // First, find the field references by name or by number
-        Field& idField = step3Query[uint32_t(0)];
+        Field& idField = step3Query[static_cast<uint32_t>(0)];
         Field& nameField = step3Query["name"];
         Field& positionField = step3Query["position"];
 

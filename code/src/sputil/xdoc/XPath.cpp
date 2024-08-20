@@ -38,7 +38,7 @@ void makeCriteria(XPathElement& pathElement)
 
     const String& criteria = pathElement.criteria;
 
-    if (auto matches = matchAttribute.m(pathElement.criteria);
+    if (const auto matches = matchAttribute.m(pathElement.criteria);
         matches)
     {
         pathElement.attributeName = matches["attribute"].value;
@@ -63,14 +63,14 @@ void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
     static const RegularExpression matchPathElement(
         R"((?<type>(descendant|parent)::)?(?<element>([\w\-_:]+|\*))(?<option>\[.*\])?)");
 
-    auto matches = matchPathElement.m(pathElementStr);
+    const auto matches = matchPathElement.m(pathElementStr);
     if (!matches)
     {
         throw Exception("Invalid XML path element: " + pathElementStr);
     }
 
-    auto pathElementType = matches["type"].value;
-    auto pathElementName = matches["element"].value;
+    const auto pathElementType = matches["type"].value;
+    const auto pathElementName = matches["element"].value;
 
     // Compensating bug in PCRE
     auto option = matches["option"].value;
@@ -162,7 +162,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
                                                const vector<XPathElement>& pathElements, int pathPosition,
                                                const String& starPointer, Node::Vector& matchedNodes, bool descendants)
 {
-    const XPathElement& pathElement = pathElements[size_t(pathPosition)];
+    const XPathElement& pathElement = pathElements[static_cast<size_t>(pathPosition)];
 
     for (const auto& node: thisNode->nodes())
     {
@@ -194,18 +194,18 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
         int matchedPosition;
         if (pathElement.nodePosition < 0)
         {
-            matchedPosition = int(matchedNodes.size() + pathElement.nodePosition);
+            matchedPosition = static_cast<int>(matchedNodes.size() + pathElement.nodePosition);
         }
         else
         {
             matchedPosition = pathElement.nodePosition - 1;
         }
 
-        if (matchedPosition < 0 || matchedPosition >= (int) matchedNodes.size())
+        if (matchedPosition < 0 || matchedPosition >= static_cast<int>(matchedNodes.size()))
         {
             return;
         }
-        auto anode = matchedNodes[matchedPosition];
+        const auto anode = matchedNodes[matchedPosition];
         matchedNodes.clear();
         matchedNodes.push_back(anode);
     }
@@ -230,9 +230,9 @@ void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
                                      const String& starPointer)
 {
     ++pathPosition;
-    if (pathPosition == (int) pathElements.size())
+    if (pathPosition == static_cast<int>(pathElements.size()))
     {
-        if (const XPathElement& pathElement = pathElements[size_t(pathPosition - 1)];
+        if (const XPathElement& pathElement = pathElements[static_cast<size_t>(pathPosition - 1)];
             !pathElement.elementName.empty())
         {
             nodes.push_back(thisNode);

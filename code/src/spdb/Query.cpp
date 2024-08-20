@@ -165,8 +165,8 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     if (*paramStart == '\'')
     {
         // Started string constant
-        const char* nextQuote = strchr(paramStart + 1, '\'');
-        if (nextQuote == nullptr)
+        if (const char* nextQuote = strchr(paramStart + 1, '\'');
+            nextQuote == nullptr)
         {
             // Quote opened but never closed?
             paramEnd = nullptr;
@@ -180,8 +180,8 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     else if (*paramStart == '-' && paramStart[1] == '-')
     {
         // Started inline comment '--comment text', jump to the end of comment
-        const char* endOfRow = strchr(paramStart + 1, '\n');
-        if (endOfRow == nullptr)
+        if (const char* endOfRow = strchr(paramStart + 1, '\n');
+            endOfRow == nullptr)
         {
             // Comment at the end of last row
             paramEnd = nullptr;
@@ -195,8 +195,8 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     else if (*paramStart == '/' && paramStart[1] == '*')
     {
         // Started C-style block comment, jump to the end of comment
-        const char* endOfRow = strstr(paramStart + 1, "*/");
-        if (endOfRow == nullptr)
+        if (const char* endOfRow = strstr(paramStart + 1, "*/");
+            endOfRow == nullptr)
         {
             // Comment never closed
             paramEnd = nullptr;

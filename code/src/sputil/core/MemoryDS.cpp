@@ -67,7 +67,7 @@ Field& MemoryDS::operator[](size_t index)
         throw Exception("At the end of the data");
     }
     auto& row = *m_current;
-    return row[(int) index];
+    return row[static_cast<int>(index)];
 }
 
 // read this field data into external value
@@ -76,7 +76,7 @@ bool MemoryDS::readField(const char* fieldName, Variant& fieldValue)
     const scoped_lock lock(m_mutex);
     try
     {
-        fieldValue = *(Variant*) &(*this)[fieldName];
+        fieldValue = *static_cast<Variant*>(&(*this)[fieldName]);
     }
     catch (const Exception&)
     {
@@ -141,7 +141,7 @@ bool MemoryDS::last()
     if (!m_list.empty())
     {
         m_current = m_list.end();
-        m_current--;
+        --m_current;
         return true;
     }
     m_current = m_list.end();

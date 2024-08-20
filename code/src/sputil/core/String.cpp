@@ -77,7 +77,7 @@ String String::replace(const String& pattern, const String& replacement) const
 
 String String::trim() const
 {
-    auto startPos = find_first_not_of(" \n\r\t\b");
+    const auto startPos = find_first_not_of(" \n\r\t\b");
     if (startPos == string::npos)
     {
         return {};

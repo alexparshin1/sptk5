@@ -73,14 +73,14 @@ TEST(SPTK_Brotli, performance)
 
     // Using uncompressed mplayer manual as test data
     data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
-    EXPECT_EQ(data.bytes(), size_t(345517));
+    EXPECT_EQ(data.bytes(), static_cast<size_t>(345517));
 
     StopWatch stopWatch;
     stopWatch.start();
     Brotli::compress(compressed, data);
     stopWatch.stop();
 
-    constexpr auto megabyte = double(1024 * 1024);
+    constexpr auto megabyte = static_cast<double>(1024 * 1024);
 
     COUT("Brotli compressor:");
     COUT("Compressed " << fixed << setprecision(2)

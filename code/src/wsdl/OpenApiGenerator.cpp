@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <ranges>
 #include <sptk5/cutils>
 #include <sptk5/wsdl/WSParser.h>
 #include <utility>
@@ -47,7 +48,7 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
-    for (const auto& [name, value]: m_options.operationsAuth)
+    for (const auto& name: views::keys(m_options.operationsAuth))
     {
         if (!operations.contains(name))
         {
@@ -60,7 +61,7 @@ void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& oper
     document.root()->set("openapi", "3.0.0");
 
     // Create info object
-    auto info = document.root()->pushNode("info");
+    const auto info = document.root()->pushNode("info");
     info->set("title", m_title);
     info->set("description", m_description);
     info->set("version", m_version);
@@ -233,7 +234,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
     if (className.startsWith("sptk::WS"))
     {
         className = className.replace("sptk::WS", "").toLowerCase();
-        auto ttor = wsTypesToOpenApiTypes.find(className);
+        const auto ttor = wsTypesToOpenApiTypes.find(className);
         if (ttor != wsTypesToOpenApiTypes.end())
         {
             property->set("type", ttor->second.type);
@@ -264,7 +265,7 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
 {
     using enum Node::Type;
 
-    auto restriction = ctypeProperty->restriction();
+    const auto restriction = ctypeProperty->restriction();
     if (restriction)
     {
         if (!restriction->patterns().empty())

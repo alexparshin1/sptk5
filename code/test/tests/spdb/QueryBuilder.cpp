@@ -35,7 +35,7 @@ using namespace sptk;
 
 TEST(SPTK_QueryBuilder, selectSQL)
 {
-    QueryBuilder queryBuilder(
+    const QueryBuilder queryBuilder(
         "employee", "id",
         {"first_name", "last_name", "position", "department_id"});
 
@@ -61,12 +61,12 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
     joins.emplace_back("d", Strings({"name department_name"}), "JOIN department d ON d.id = t.department_id");
     joins.emplace_back("c", Strings({"name country_name"}), "JOIN country c ON c.id = d.country_id");
 
-    QueryBuilder queryBuilder(
+    const QueryBuilder queryBuilder(
         "employee", "id",
         {"id", "first_name", "last_name", "position", "department_id"},
         joins);
 
-    auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"}, {}, false);
+    const auto selectSQL = queryBuilder.selectSQL({"c.name = 'Australia'"}, {}, false);
     EXPECT_STREQ(
         "SELECT t.id, t.first_name, t.last_name, t.position, t.department_id, d.name department_name, c.name country_name "
         "FROM employee t "
@@ -78,7 +78,7 @@ TEST(SPTK_QueryBuilder, selectJoinsSQL)
 
 TEST(SPTK_QueryBuilder, insertSQL)
 {
-    QueryBuilder queryBuilder(
+    const QueryBuilder queryBuilder(
         "employee", "id",
         {"id", "first_name", "last_name", "position", "department_id"});
 
@@ -95,7 +95,7 @@ TEST(SPTK_QueryBuilder, insertSQL)
 
 TEST(SPTK_QueryBuilder, updateSQL)
 {
-    QueryBuilder queryBuilder(
+    const QueryBuilder queryBuilder(
         "employee", "id",
         {"id", "first_name", "last_name", "position", "department_id"});
 
@@ -117,7 +117,7 @@ TEST(SPTK_QueryBuilder, updateSQL)
 
 TEST(SPTK_QueryBuilder, deleteSQL)
 {
-    QueryBuilder queryBuilder(
+    const QueryBuilder queryBuilder(
         "employee", "id",
         {"id", "first_name", "last_name", "position", "department_id"});
 

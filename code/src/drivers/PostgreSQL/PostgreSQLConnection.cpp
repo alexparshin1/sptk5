@@ -963,7 +963,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     for (int column = 0; column < fieldCount; ++column)
     {
-        auto* field = bit_cast<DatabaseField*>(&(*query)[size_t(column)]);
+        auto* field = bit_cast<DatabaseField*>(&(*query)[static_cast<size_t>(column)]);
         try
         {
             const auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());

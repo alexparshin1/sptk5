@@ -55,23 +55,23 @@ static constexpr short monthsInYear = 12;
 static const array<short, monthsInYear> gRegularYear = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static const array<short, monthsInYear> gLeapYear = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-String DateTime::_dateFormat;
-String DateTime::_datePartsOrder;
-String DateTime::_fullTimeFormat;
-String DateTime::_shortTimeFormat;
-char DateTime::_dateSeparator;
-char DateTime::_timeSeparator;
+String  DateTime::_dateFormat;
+String  DateTime::_datePartsOrder;
+String  DateTime::_fullTimeFormat;
+String  DateTime::_shortTimeFormat;
+char    DateTime::_dateSeparator;
+char    DateTime::_timeSeparator;
 Strings DateTime::_weekDayNames;
 Strings DateTime::_monthNames;
 
-bool TimeZone::_time24Mode;
-String TimeZone::_timeZoneName;
+bool    TimeZone::_time24Mode;
+String  TimeZone::_timeZoneName;
 minutes TimeZone::_timeZoneOffset;
-int TimeZone::_isDaylightSavingsTime;
+int     TimeZone::_isDaylightSavingsTime;
 
-constexpr int minutesInHour = 60;
-constexpr int secondsInMinute = 60;
-constexpr int tzMultiplier = 100;
+constexpr int    minutesInHour = 60;
+constexpr int    secondsInMinute = 60;
+constexpr int    tzMultiplier = 100;
 constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
 
@@ -82,7 +82,7 @@ namespace {
 int decodeTZOffset(const char* tzOffset)
 {
     const char* ptr = tzOffset;
-    int sign = 1;
+    int         sign = 1;
     switch (*ptr)
     {
         case 'Z':
@@ -103,8 +103,7 @@ int decodeTZOffset(const char* tzOffset)
     int hours;
     if (strlen(ptr) > 2)
     {
-        const char* ptr1 = strchr(ptr, ':');
-        if (ptr1 != nullptr)
+        if (const char* ptr1 = strchr(ptr, ':'))
         {
             minutes = string2int(ptr1 + 1);
             hours = string2int(ptr);
@@ -112,7 +111,7 @@ int decodeTZOffset(const char* tzOffset)
         else
         {
             constexpr int hundred {100};
-            const auto hoursAndMinutes = string2int(ptr);
+            const auto    hoursAndMinutes = string2int(ptr);
             hours = hoursAndMinutes / hundred;
             minutes = hoursAndMinutes % hundred;
         }
@@ -129,7 +128,7 @@ int decodeTZOffset(const char* tzOffset)
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
     // find a separator char
-    size_t separatorPos = dateOrTime.find_first_not_of("0123456789 ");
+    size_t     separatorPos = dateOrTime.find_first_not_of("0123456789 ");
     const char separator = dateOrTime[separatorPos];
 
     const auto* ptr = dateOrTime.c_str();
@@ -215,10 +214,10 @@ void DateTimeFormat::init() noexcept
 #endif
 
     // Build local data and time
-    constexpr int bufferLength {32};
+    constexpr int             bufferLength {32};
     array<char, bufferLength> dateBuffer = {};
     array<char, bufferLength> timeBuffer = {};
-    auto len = strftime(timeBuffer.data(), bufferLength - 1, "%X", &atime);
+    auto                      len = strftime(timeBuffer.data(), bufferLength - 1, "%X", &atime);
     timeBuffer[len] = 0;
     len = strftime(dateBuffer.data(), bufferLength - 1, "%x", &atime);
     dateBuffer[len] = 0;
@@ -273,11 +272,12 @@ void DateTimeFormat::init() noexcept
         len = static_cast<int>(ptr1 - ptr);
     }
 
-    TimeZone::timeZoneName(String(ptr, (unsigned) len));
+    TimeZone::timeZoneName(String(ptr, static_cast<unsigned>(len)));
 
-    const time_t timestamp = time(nullptr);
+    const time_t              timestamp = time(nullptr);
     array<char, bufferLength> buf {};
-    struct tm ltime {
+    struct tm                 ltime
+    {
     };
 #ifdef _WIN32
     localtime_s(&ltime, &timestamp);
@@ -285,7 +285,7 @@ void DateTimeFormat::init() noexcept
     localtime_r(&timestamp, &ltime);
 #endif
     strftime(buf.data(), bufferLength - 1, "%z", &ltime);
-    const int offset = string2int(buf.data());
+    const int  offset = string2int(buf.data());
     const auto offsetMinutes = minutes(offset % tzMultiplier);
     const auto offsetHours = hours(offset / tzMultiplier);
     TimeZone::isDaylightSavingsTime(ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst);
@@ -298,14 +298,14 @@ namespace {
 
 void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
                 short& dayOfYear,
-                bool gmt)
+                bool   gmt)
 {
     time_t aTime = DateTime::clock::to_time_t(timePoint);
 
     tm time = {};
     if (!gmt)
     {
-        aTime += (int) TimeZone::offset().count() * secondsInMinute;
+        aTime += static_cast<int>(TimeZone::offset().count()) * secondsInMinute;
     }
     gmtime_r(&aTime, &time);
 
@@ -354,23 +354,23 @@ short splitDateString(const char* dateString, short* datePart, char& actualDateS
     actualDateSeparator = 0;
 
     const char* ptr = dateString;
-    char* end = nullptr;
-    size_t partNumber = 0;
+    char*       end = nullptr;
+    size_t      partNumber = 0;
     for (; partNumber < 3; ++partNumber)
     {
         errno = 0;
-        datePart[partNumber] = (short) strtol(ptr, &end, base10);
+        datePart[partNumber] = static_cast<short>(strtol(ptr, &end, base10));
         if (errno)
         {
             throw Exception("Invalid date string");
         }
 
-        if (*end == char(0))
+        if (*end == static_cast<char>(0))
         {
             break;
         }
 
-        if (actualDateSeparator == char(0))
+        if (actualDateSeparator == static_cast<char>(0))
         {
             actualDateSeparator = *end;
         }
@@ -382,13 +382,13 @@ short splitDateString(const char* dateString, short* datePart, char& actualDateS
         ptr = end + 1;
     }
 
-    return (short) partNumber;
+    return static_cast<short>(partNumber);
 }
 
 short splitTimeString(const char* timeString, short* timePart)
 {
     static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d+)?)");
-    auto matches = matchTime.m(timeString);
+    const auto                     matches = matchTime.m(timeString);
     if (!matches)
     {
         throw Exception("Invalid time string");
@@ -407,10 +407,10 @@ short splitTimeString(const char* timeString, short* timePart)
         {
             ++value;
         } // Skip dot character
-        timePart[partNumber] = (short) strtol(value, nullptr, base10);
+        timePart[partNumber] = static_cast<short>(strtol(value, nullptr, base10));
     }
 
-    return (short) partNumber;
+    return static_cast<short>(partNumber);
 }
 
 short correctTwoDigitYear(short year)
@@ -437,9 +437,9 @@ void encodeTime(DateTime::time_point& timePoint, short hour, short minute, short
 
 void encodeTime(DateTime::time_point& dt, const char* tim)
 {
-    bool afternoon = false;
+    bool            afternoon = false;
     array<short, 4> timePart = {0, 0, 0, 0};
-    int tzOffsetMin = 0;
+    int             tzOffsetMin = 0;
 
     if (const char* p = strpbrk(tim, "apAPZ+-"); p != nullptr)
     {
@@ -464,7 +464,7 @@ void encodeTime(DateTime::time_point& dt, const char* tim)
             }
             p = strpbrk(p + 1, "Z+-");
         }
-        tzOffsetMin += (int) TimeZone::offset().count();
+        tzOffsetMin += static_cast<int>(TimeZone::offset().count());
     }
 
     if (const short partNumber = splitTimeString(tim, timePart.data());
@@ -476,7 +476,7 @@ void encodeTime(DateTime::time_point& dt, const char* tim)
 
     if (afternoon && timePart[0] != 12)
     {
-        timePart[0] = short(timePart[0] + 12);
+        timePart[0] = static_cast<short>(timePart[0] + 12);
     }
 
     encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
@@ -531,7 +531,7 @@ void encodeDate(DateTime::time_point& timePoint, const char* dat)
 
 void parseDate(const short* datePart, short& month, short& day, short& year)
 {
-    auto datePartsOrder(DateTime::format(DateTime::Format::DATE_PARTS_ORDER, 0));
+    const auto datePartsOrder(DateTime::format(DateTime::Format::DATE_PARTS_ORDER, 0));
     for (int ii = 0; ii < 3; ++ii)
     {
         switch (datePartsOrder[ii])
@@ -623,7 +623,7 @@ void DateTime::time24Mode(bool t24mode)
     DateTime::_timeSeparator = DateTimeFormat::parseDateOrTime(DateTime::_fullTimeFormat, timeBuffer);
     DateTime::_shortTimeFormat = DateTime::_fullTimeFormat;
 
-    if (auto pos = DateTime::_fullTimeFormat.find_last_of(DateTime::_timeSeparator); pos != string::npos)
+    if (const auto pos = DateTime::_fullTimeFormat.find_last_of(DateTime::_timeSeparator); pos != string::npos)
     {
         DateTime::_shortTimeFormat = DateTime::_fullTimeFormat.substr(0, pos);
     }
@@ -654,7 +654,7 @@ DateTime::DateTime(short year, short month, short day, short hour, short minute,
 
 DateTime::DateTime(const char* dat)
 {
-    if (dat == nullptr || *dat == char(0))
+    if (dat == nullptr || *dat == static_cast<char>(0))
     {
         return;
     }
@@ -669,14 +669,14 @@ DateTime::DateTime(const char* dat)
     {
         ++dat;
     }
-    if (*dat == char(0))
+    if (*dat == static_cast<char>(0))
     {
         m_dateTime = time_point();
         return;
     }
 
-    Buffer s1(dat);
-    char* s2 = strpbrk(bit_cast<char*>(s1.c_str()), " T");
+    const Buffer s1(dat);
+    char*        s2 = strpbrk(bit_cast<char*>(s1.c_str()), " T");
     if (s2 != nullptr)
     {
         *s2 = 0;
@@ -775,7 +775,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
     gmtime_r(&timestamp, &timeStructure);
 
     array<char, maxDateTimeStringLength> buffer {};
-    size_t len;
+    size_t                               len;
     if ((printFlags & PF_RFC_DATE) != 0)
     {
         len = strftime(buffer.data(), sizeof(buffer) - 1, "%F", &timeStructure);
@@ -796,7 +796,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
 
     ::decodeTime(m_dateTime, hour, minute, second, millisecond, (printFlags & PF_GMT) != 0);
     const char* appendix = nullptr;
-    bool amPm = (printFlags & PF_12HOURS) != 0;
+    bool        amPm = (printFlags & PF_12HOURS) != 0;
     if ((printFlags & PF_TIMEZONE) != 0)
     {
         amPm = false;
@@ -893,9 +893,9 @@ short DateTime::daysInMonth() const
 
 DateTime DateTime::date() const
 {
-    constexpr int hoursInDay = 24;
-    const duration sinceEpoch = m_dateTime.time_since_epoch();
-    const long days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
+    constexpr int    hoursInDay = 24;
+    const duration   sinceEpoch = m_dateTime.time_since_epoch();
+    const long       days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
     const time_point timePoint = time_point() + hours(days * hoursInDay);
     return DateTime(timePoint); // Sets the current date
 }
@@ -910,12 +910,12 @@ short DateTime::dayOfWeek() const
 
     ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
 
-    return short(weekDay);
+    return static_cast<short>(weekDay);
 }
 
 String DateTime::dayOfWeekName() const
 {
-    return DateTime::_weekDayNames[size_t(dayOfWeek())];
+    return DateTime::_weekDayNames[static_cast<size_t>(dayOfWeek())];
 }
 
 String DateTime::monthName() const
@@ -928,7 +928,7 @@ String DateTime::monthName() const
 
     ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
 
-    return DateTime::_monthNames[size_t(month) - 1];
+    return DateTime::_monthNames[static_cast<size_t>(month) - 1];
 }
 
 String DateTime::dateString(int printFlags) const
@@ -987,6 +987,6 @@ char DateTime::dateSeparator()
 
 double sptk::duration2seconds(const DateTime::duration& duration)
 {
-    auto intervalMs = (double) chrono::duration_cast<microseconds>(duration).count() / 1000.0;
+    const auto intervalMs = static_cast<double>(chrono::duration_cast<microseconds>(duration).count()) / 1000.0;
     return intervalMs / millisecondsInSecond;
 }

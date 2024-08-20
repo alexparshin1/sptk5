@@ -360,7 +360,7 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         const auto* tabptr = nameTable;
         for (int i = 0; i < nameCount; ++i)
         {
-            const auto n = static_cast<size_t>(((int) tabptr[0] << 8) | (int) tabptr[1]);
+            const auto n = static_cast<size_t>((static_cast<int>(tabptr[0]) << 8) | static_cast<int>(tabptr[1]));
             const String name(tabptr + 2, static_cast<size_t>(nameEntrySize - 3));
             if (const auto& match = matchData.matches[n]; match.m_start >= 0 && n < matchCount)
             {

@@ -40,7 +40,7 @@ const RegularExpression ImportXML::parseAttributes {R"(([\w\-_\.:]+)(\s*=\s*))",
 
 void ImportXML::processAttributes(Node& node, const char* ptr)
 {
-    auto matches = parseAttributes.m(ptr);
+    const auto matches = parseAttributes.m(ptr);
 
     for (auto itor = matches.groups().begin(); itor != matches.groups().end(); itor += 2)
     {
@@ -235,7 +235,7 @@ char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char*
         throw Exception("Invalid tag (started, not closed)");
     }
 
-    if (auto len = nodeEnd - tokenStart;
+    if (const auto len = nodeEnd - tokenStart;
         tokenStart[len - 1] == '/')
     {
         nodeEnd = tokenStart + len - 1;
@@ -351,7 +351,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
         {
             if (formatting == Mode::Compact)
             {
-                auto skipSpaces = strspn(textStart, "\n\r\t ");
+                const auto skipSpaces = strspn(textStart, "\n\r\t ");
                 textStart += skipSpaces;
             }
 
@@ -368,7 +368,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
     if (textStart != textTrail)
     {
         Buffer& decoded = m_decodeBuffer;
-        doctype->decodeEntities(textStart, uint32_t(textTrail - textStart), decoded);
+        doctype->decodeEntities(textStart, static_cast<uint32_t>(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.size());
 
         Node::Type nodeType = Node::Type::Text;

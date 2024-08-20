@@ -41,7 +41,7 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
 {
     const String requestName = InputData::classId();
     const String responseName = OutputData::classId();
-    String       ns(requestNameSpace.getAlias());
+    const String       ns(requestNameSpace.getAlias());
     InputData    inputData((ns + ":" + requestName).c_str());
     OutputData   outputData((ns + ":" + responseName).c_str());
     try

@@ -35,14 +35,14 @@ namespace {
 void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 {
     dest.clear();
-    const auto* pos = src.c_str();
+    const auto*  pos = src.c_str();
     size_t const delimiterLength = strlen(delimiter);
     while (true)
     {
         const auto* end = strstr(pos, delimiter);
         if (end != nullptr)
         {
-            dest.emplace_back(pos, size_t(end - pos));
+            dest.emplace_back(pos, static_cast<size_t>(end - pos));
             pos = end + delimiterLength;
         }
         else
@@ -129,8 +129,8 @@ void Strings::fromString(const String& src, const char* delimiter, SplitMode mod
 
 int Strings::indexOf(const String& needle) const
 {
-    int result = -1;
-    const_iterator constIterator;
+    int                    result = -1;
+    const_iterator         constIterator;
     const_reverse_iterator reverseIterator;
 
     switch (m_sorted)
@@ -139,21 +139,21 @@ int Strings::indexOf(const String& needle) const
             reverseIterator = lower_bound(rbegin(), rend(), needle);
             if (reverseIterator != rend() && *reverseIterator == needle)
             {
-                result = (int) distance(rbegin(), reverseIterator);
+                result = static_cast<int>(distance(rbegin(), reverseIterator));
             }
             break;
         case SortOrder::ASCENDING:
             constIterator = ranges::lower_bound(*this, needle);
             if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), constIterator);
+                result = static_cast<int>(distance(begin(), constIterator));
             }
             break;
         default:
             constIterator = ranges::find(*this, needle);
             if (constIterator != end() && *constIterator == needle)
             {
-                result = (int) distance(begin(), constIterator);
+                result = static_cast<int>(distance(begin(), constIterator));
             }
             break;
     }
@@ -178,7 +178,7 @@ void Strings::loadFromFile(const std::filesystem::path& fileName)
 
     clear();
     // Load text
-    String text(buffer.c_str(), buffer.bytes());
+    const String text(buffer.c_str(), buffer.bytes());
 
     // Determine delimiter
     String delimiter = "\n";

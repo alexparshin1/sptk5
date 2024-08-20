@@ -232,7 +232,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
     classDeclaration << "#pragma once" << endl;
     classDeclaration << endl;
 
-    auto usedClasses = getUsedClasses();
+    const auto usedClasses = getUsedClasses();
 
     printDeclarationIncludes(classDeclaration, usedClasses);
 
@@ -275,7 +275,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
             String cxxType = complexType->className();
             const string optional =
-                ((int) complexType->multiplicity() & (int) WSMultiplicity::ZERO_OR_ONE) != 0 ? ", true" : ", false";
+                (static_cast<int>(complexType->multiplicity()) & static_cast<int>(WSMultiplicity::ZERO_OR_ONE)) != 0 ? ", true" : ", false";
             if (complexType->isArray())
             {
                 cxxType = "sptk::WSArray<" + cxxType + ">";
@@ -370,7 +370,7 @@ String WSParserComplexType::makeTagName(const String& className)
 {
     String tagName = lowerCase(className.substr(1));
     const RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
-    if (auto words = matchWords.m(className.substr(1));
+    if (const auto words = matchWords.m(className.substr(1));
         words)
     {
         Strings wordList;
@@ -459,7 +459,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
     std::size_t restrictionIndex = 0;
     for (const auto& complexType: m_sequence)
     {
-        if (((int) complexType->multiplicity() & (int) WSMultiplicity::REQUIRED) != 0)
+        if ((static_cast<int>(complexType->multiplicity()) & static_cast<int>(WSMultiplicity::REQUIRED)) != 0)
         {
             requiredElements.push_back(complexType->name());
         }
@@ -525,7 +525,7 @@ String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
     {
         ++restrictionIndex;
         const String restrictionName = "restriction_" + int2string(restrictionIndex);
-        auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
+        const auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
         if (!restrictionCtor.empty())
         {
             if (restrictionIndex == 1)
@@ -591,7 +591,7 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
                                                           const Strings& attributeNames) const
 {
     auto tagName = makeTagName(className);
-    auto initializer = makeInitializer();
+    const auto initializer = makeInitializer();
 
     classImplementation << className << "::" << className << "(const char* elementName, bool optional)" << endl
                         << ": " << initializer.ctor.join(",\n  ") << endl
@@ -634,7 +634,7 @@ void WSParserComplexType::generate(ostream& classDeclaration, ostream& classImpl
 
 xdoc::SNode WSParserComplexType::findSimpleType(const String& typeName)
 {
-    auto itor = SimpleTypeElements.find(typeName);
+    const auto itor = SimpleTypeElements.find(typeName);
     if (itor == SimpleTypeElements.end())
     {
         return nullptr;

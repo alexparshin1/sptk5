@@ -45,7 +45,7 @@ ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdl
 void ThreadPool::createThread()
 {
     logThreadEvent("Creating worker thread", nullptr);
-    auto workerThread = make_shared<WorkerThread>(m_taskQueue, m_threadIdleTime);
+    const auto workerThread = make_shared<WorkerThread>(m_taskQueue, m_threadIdleTime);
     m_threadManager->manage(workerThread);
     workerThread->run();
     logThreadEvent("Started worker thread", workerThread.get());
@@ -84,7 +84,7 @@ void ThreadPool::execute(URunable task)
 
     constexpr std::chrono::milliseconds tenMilliseconds(10);
 
-    if (bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.wait_for(tenMilliseconds);
+    if (const bool needMoreThreads = m_threadManager->threadCount() == 0 || !m_availableThreads.wait_for(tenMilliseconds);
         needMoreThreads && (m_threadLimit == 0 || m_threadManager->threadCount() < m_threadLimit))
     {
         createThread();

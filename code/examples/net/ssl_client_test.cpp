@@ -40,7 +40,7 @@ int main(int, const char**)
         SSLSocket client;
         SocketReader clientReader(client);
 
-        SSLKeys keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
+        const SSLKeys keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
         client.loadKeys(keys);
         Buffer buffer;
 

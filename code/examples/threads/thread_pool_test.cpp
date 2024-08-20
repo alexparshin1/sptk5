@@ -124,7 +124,7 @@ int main()
         this_thread::sleep_for(chrono::milliseconds(1000));
 
         sharedLog.log(LogPriority::Notice, "Sending 'terminate' signal to all the tasks.");
-        for (auto& task: taskPointers)
+        for (const auto& task: taskPointers)
         {
             task->terminate();
         }

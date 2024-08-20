@@ -108,7 +108,7 @@ JWT::Algorithm JWT::str_alg(const char* alg)
         return Algorithm::INVAL;
     }
 
-    auto itor = algorithmInfo.find(upperCase(alg));
+    const auto itor = algorithmInfo.find(upperCase(alg));
     if (itor == algorithmInfo.end())
     {
         return Algorithm::INVAL;
@@ -158,7 +158,7 @@ long JWT::get_js_int(const xdoc::SNode& node, const String& key, bool* found)
         {
             *found = true;
         }
-        return (long) element->getNumber();
+        return static_cast<long>(element->getNumber());
     }
     return 0;
 }
@@ -324,7 +324,7 @@ void JWT::exportTo(ostream& output, bool pretty) const
 void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
     /* Decode based on RFC-4648 URI safe encoding. */
-    auto len = strlen(src);
+    const auto len = strlen(src);
     Buffer newData_buffer(len + 4);
     auto* newData = bit_cast<char*>(newData_buffer.data());
 
@@ -395,7 +395,7 @@ void sptk::jwt_base64uri_encode(Buffer& buffer)
         }
     }
 
-    buffer[outputIndex] = char(0);
+    buffer[outputIndex] = static_cast<char>(0);
     buffer.bytes(outputIndex);
 }
 

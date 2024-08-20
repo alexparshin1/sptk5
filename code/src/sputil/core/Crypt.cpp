@@ -45,13 +45,13 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * In this example we are using 256-bit AES (i.e. a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    if (const int minimalKeyLength = 32;
+    if (constexpr int minimalKeyLength = 32;
         key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    if (const int minimalIvLength = 16;
+    if (constexpr int minimalIvLength = 16;
         iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
@@ -75,7 +75,7 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
             inlen = TEXT_BLOCK;
         }
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_EncryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        if (EVP_EncryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, static_cast<int>(inlen)) != 1)
         {
             throw Exception("Error calling EVP_EncryptUpdate()");
         }
@@ -119,7 +119,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
             inlen = TEXT_BLOCK;
         }
         dest.checkSize(position + TEXT_BLOCK);
-        if (EVP_DecryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, (int) inlen) != 1)
+        if (EVP_DecryptUpdate(ctx, dest.data() + dest.bytes(), &len, intext, static_cast<int>(inlen)) != 1)
         {
             throw Exception("Error calling EVP_DecryptUpdate()");
         }

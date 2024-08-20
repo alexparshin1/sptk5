@@ -57,7 +57,7 @@ void OracleOciStatement::bindParameters()
     if (m_parameterBinding.empty())
     {
         unsigned parameterIndex = 1;
-        auto* stmt = statement();
+        const auto* stmt = statement();
 
         m_outputParamIndex.clear();
 
@@ -89,7 +89,7 @@ void OracleOciStatement::bindParameters()
 void OracleOciStatement::setParameterValues()
 {
     unsigned parameterIndex = 1;
-    auto* stmt = statement();
+    const auto* stmt = statement();
 
     for (const auto& parameterPtr: enumeratedParams())
     {

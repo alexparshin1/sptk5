@@ -38,25 +38,25 @@ static const String resultString("This is a test\rtext that contains several\rex
 TEST(SPTK_Strings, ctor)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
-    EXPECT_EQ(size_t(3), strings.size());
+    EXPECT_EQ(static_cast<size_t>(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
     const Strings strings2(strings);
-    EXPECT_EQ(size_t(3), strings2.size());
+    EXPECT_EQ(static_cast<size_t>(3), strings2.size());
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 
     strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
-    EXPECT_EQ(size_t(3), strings.size());
+    EXPECT_EQ(static_cast<size_t>(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 
     const Strings strings3({"1", "2", "3"});
-    EXPECT_EQ(size_t(3), strings3.size());
+    EXPECT_EQ(static_cast<size_t>(3), strings3.size());
     EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
 
     Strings numbers = {{"one", 3, 1},
                        {"two", 3, 2},
                        {"three", strlen("three"), 3}};
-    EXPECT_EQ(size_t(3), numbers.size());
+    EXPECT_EQ(static_cast<size_t>(3), numbers.size());
     EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
     EXPECT_EQ(2, numbers[1].ident());
 }
@@ -95,8 +95,8 @@ TEST(SPTK_Strings, grep)
     const Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
 
     const Strings group1 = strings.grep("text");
-    EXPECT_EQ(size_t(1), group1.size());
+    EXPECT_EQ(static_cast<size_t>(1), group1.size());
 
     const Strings group2 = strings.grep("text|rows");
-    EXPECT_EQ(size_t(2), group2.size());
+    EXPECT_EQ(static_cast<size_t>(2), group2.size());
 }

@@ -57,7 +57,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
 {
     stringstream error;
     error << message;
-    auto jsonLength = strlen(json);
+    const auto jsonLength = strlen(json);
     if (position > 0)
     {
         error << ", in position " << position;
@@ -71,7 +71,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
         error << " in context: '.." << String(contextStart, pretextLen) << ">" << json[position] << "<";
         size_t afterTextLength = ERROR_CONTEXT_CHARS / 2;
 
-        if (int(position) + afterTextLength > jsonLength)
+        if (static_cast<int>(position) + afterTextLength > jsonLength)
         {
             afterTextLength = jsonLength - position;
         }
@@ -83,9 +83,9 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
 
         error << "'";
     }
-    else if ((int) position < 0)
+    else if (static_cast<int>(position) < 0)
     {
-        error << ", after position " << -int(position);
+        error << ", after position " << -static_cast<int>(position);
     }
     throw Exception(error.str());
 }
@@ -126,7 +126,7 @@ void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
     // Check if there is trailing junk data
     while (*pos)
     {
-        if ((unsigned char) *pos > ' ')
+        if (static_cast<unsigned char>(*pos) > ' ')
         {
             throwError("Invalid character(s) after JSON data", json, strlen(json));
         }
@@ -138,7 +138,7 @@ namespace sptk::xdoc {
 
 inline void skipSpaces(const char* json, const char*& readPosition)
 {
-    while ((unsigned char) *readPosition <= ' ')
+    while (static_cast<unsigned char>(*readPosition) <= ' ')
     {
         if (*readPosition == 0)
         {
@@ -458,8 +458,8 @@ String codePointToUTF8(unsigned codePoint)
     {
         result.resize(3);
         result[2] = static_cast<char>(0x80 | (0x3f & codePoint));
-        result[1] = char(0x80 | static_cast<char>((0x3f & (codePoint >> 6))));
-        result[0] = char(0xE0 | static_cast<char>((0xf & (codePoint >> 12))));
+        result[1] = static_cast<char>(0x80 | static_cast<char>((0x3f & (codePoint >> 6))));
+        result[0] = static_cast<char>(0xE0 | static_cast<char>((0xf & (codePoint >> 12))));
     }
     else if (codePoint <= 0x10FFFF)
     {
@@ -526,7 +526,7 @@ String decode(const String& text)
                 break;
             case 'u':
                 ++pos;
-                ucharCode = (unsigned) strtol(text.substr(pos, 4).c_str(), nullptr, 16);
+                ucharCode = static_cast<unsigned>(strtol(text.substr(pos, 4).c_str(), nullptr, 16));
                 pos += 3;
                 result += codePointToUTF8(ucharCode);
                 break;

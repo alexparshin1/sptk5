@@ -73,7 +73,7 @@ atomic<size_t> ThreadManagerTestThread::joinCounter;
 TEST(SPTK_ThreadManager, minimal)
 {
     constexpr size_t maxThreads = 10;
-    auto threadManager = make_shared<ThreadManager>("Test Manager");
+    const auto threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
@@ -100,7 +100,7 @@ TEST(SPTK_ThreadManager, minimal)
 TEST(SPTK_ThreadManager, nextThread)
 {
     constexpr size_t maxThreads = 3;
-    auto threadManager = make_shared<ThreadManager>("Test Manager");
+    const auto threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
@@ -114,7 +114,7 @@ TEST(SPTK_ThreadManager, nextThread)
     Strings threadNames;
     for (size_t index = 0; index <= maxThreads; ++index)
     {
-        auto thread = threadManager->getNextThread();
+        const auto thread = threadManager->getNextThread();
         threadNames.push_back(thread->name());
     }
 

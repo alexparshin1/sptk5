@@ -209,7 +209,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 
         for (const auto& row: testRows)
         {
-            auto bytes = socket.write(row + "\n");
+            const auto bytes = socket.write(row + "\n");
             if (bytes != row.length() + 1)
             {
                 FAIL() << "Client can't send data";

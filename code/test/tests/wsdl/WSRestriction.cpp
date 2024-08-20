@@ -56,7 +56,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
     xdoc::Document document;
     document.load(coloursXML);
 
-    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
+    const auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
     const WSRestriction restrictions("Colours", simpleTypeElement);
 
@@ -85,7 +85,7 @@ TEST(SPTK_WSRestriction, parseInitials)
     xdoc::Document document;
     document.load(initialsXML);
 
-    auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
+    const auto simpleTypeElement = document.root()->findFirst("xsd:simpleType");
 
     const WSRestriction restrictions("Initials", simpleTypeElement);
 

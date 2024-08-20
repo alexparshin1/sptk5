@@ -901,7 +901,7 @@ public:
      */
     operator uint64_t() const
     {
-        return (uint64_t) value().asInt64();
+        return static_cast<uint64_t>(value().asInt64());
     }
 };
 

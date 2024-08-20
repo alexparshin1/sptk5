@@ -62,14 +62,14 @@ TEST(SPTK_MemoryDS, createAndVerify)
         ds.push_back(std::move(row));
     }
 
-    EXPECT_EQ(ds.recordCount(), size_t(3));
+    EXPECT_EQ(ds.recordCount(), static_cast<size_t>(3));
 
     ds.open();
 
     int i = 0;
     while (!ds.eof())
     {
-        EXPECT_EQ(ds.fieldCount(), size_t(2));
+        EXPECT_EQ(ds.fieldCount(), static_cast<size_t>(2));
         EXPECT_STREQ(ds["name"].asString().c_str(), people[i].name.c_str());
         EXPECT_EQ(ds["age"].asInteger(), people[i].age);
         ++i;

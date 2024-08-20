@@ -94,6 +94,7 @@ public:
     /**
      * Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
+     * @param triggerMode    Socket event trigger mode
      */
     explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode);
 

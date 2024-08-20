@@ -81,9 +81,9 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     JWT jwt;
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
-    jwt.set("iat", (int) time(nullptr));                // JWT issue time
+    jwt.set("iat", static_cast<int>(time(nullptr)));                // JWT issue time
     jwt.set("iss", "http://test.com");                  // JWT issuer
-    jwt.set("exp", (int) time(nullptr) + secondsInDay); // JWT expiration time
+    jwt.set("exp", static_cast<int>(time(nullptr)) + secondsInDay); // JWT expiration time
 
     // Add some description information that we may use later
     const auto& info = jwt.grants.root()->pushNode("info");
@@ -161,7 +161,7 @@ static Document make_send_request(const String& methodName, DataFormat dataForma
 
     if (dataFormat == DataFormat::XML)
     {
-        auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
+        const auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
         sendRequest.load(wrapper);
         requestNode = sendRequest.root()->findFirst("ns1:" + methodName);
     }
@@ -191,7 +191,7 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
     SNode responseNode = response.root();
     if (dataFormat == DataFormat::XML)
     {
-        auto bodyNode = responseNode->findFirst("soap:Body");
+        const auto bodyNode = responseNode->findFirst("soap:Body");
         responseNode = *bodyNode->nodes().begin();
     }
     return responseNode;
@@ -335,7 +335,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
  */
 TEST(SPTK_TestWebService, Hello_HTTP)
 {
-    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
         request_listener_test({"Hello"}, dataType, false);
     }
@@ -369,7 +369,7 @@ TEST(SPTK_TestWebService, Login)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 {
-    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
         request_listener_test(Strings("Login|AccountBalance", "|"), dataType, false);
     }
@@ -380,7 +380,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
  */
 TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 {
-    for (auto dataType: {DataFormat::JSON, DataFormat::XML})
+    for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
         request_listener_test(Strings("Login|AccountBalance", "|"), dataType, true);
     }
@@ -400,12 +400,12 @@ TEST(SPTK_WSGeneratedClasses, CopyConstructor)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
-    auto str = exportToString(login);
+    const auto str = exportToString(login);
 
     const CLogin login2(login);
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
-    auto str2 = exportToString(login2);
+    const auto str2 = exportToString(login2);
 
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
@@ -415,12 +415,12 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
-    auto str = exportToString(login);
+    const auto str = exportToString(login);
 
     const CLogin login2(std::move(login));
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
-    auto str2 = exportToString(login2);
+    const auto str2 = exportToString(login2);
 
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
@@ -430,13 +430,13 @@ TEST(SPTK_WSGeneratedClasses, CopyAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
-    auto str = exportToString(login);
+    const auto str = exportToString(login);
 
     CLogin login2;
     login2 = login;
     EXPECT_EQ(login.m_username.asString(), login2.m_username.asString());
     EXPECT_EQ(login.m_password.asString(), login2.m_password.asString());
-    auto str2 = exportToString(login2);
+    const auto str2 = exportToString(login2);
 
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
@@ -446,13 +446,13 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     CLogin login;
     login.m_username = "johnd";
     login.m_password = "secret";
-    auto str = exportToString(login);
+    const auto str = exportToString(login);
 
     CLogin login2;
     login2 = std::move(login);
     EXPECT_STREQ("johnd", login2.m_username.asString().c_str());
     EXPECT_STREQ("secret", login2.m_password.asString().c_str());
-    auto str2 = exportToString(login2);
+    const auto str2 = exportToString(login2);
 
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
@@ -544,14 +544,14 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_type = "abstract";
 
     Document xml;
-    auto loginNode = xml.root()->findOrCreate("login");
+    const auto loginNode = xml.root()->findOrCreate("login");
     login.unload(loginNode);
 
     Buffer buffer;
     xml.root()->exportTo(DataFormat::XML, buffer, false);
 
     // Exclude <?xml..?> from test
-    auto pos = testXML.find("?>") + 2;
+    const auto pos = testXML.find("?>") + 2;
     EXPECT_STREQ(buffer.c_str(), testXML.substr(pos).c_str());
 }
 
@@ -578,7 +578,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
 
     EXPECT_STREQ(buffer.c_str(), testJSON.c_str());
 
-    auto str = login.toString();
+    const auto str = login.toString();
     EXPECT_STREQ(str.c_str(), testJSON.c_str());
 }
 
@@ -595,7 +595,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
     login.m_type = "abstract";
 
     DatabaseConnectionPool pool("postgresql://localhost/test");
-    auto connection = pool.getConnection();
+    const auto connection = pool.getConnection();
     Query query(connection,
                 "SELECT * FROM test WHERE username = :username AND password = :password AND servers = :servers");
 

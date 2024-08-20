@@ -45,9 +45,9 @@ String Field::asString() const
 {
     constexpr int maxPrintLength = 64;
 
-    String result;
+    String                          result;
     array<char, maxPrintLength + 1> print_buffer {};
-    int len;
+    int                             len;
 
     if (isNull())
     {
@@ -129,16 +129,16 @@ String Field::epochDataToDateTimeString() const
 String Field::doubleDataToString() const
 {
     stringstream output;
-    output << fixed << setprecision((int) m_view.precision) << get<double>();
+    output << fixed << setprecision(static_cast<int>(m_view.precision)) << get<double>();
     return output.str();
 }
 
 void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo, bool nullLargeData) const
 {
     constexpr size_t minLargeFieldSize {256};
-    String value = asString();
 
-    if (!value.empty())
+    if (auto value = asString();
+        !value.empty())
     {
         xdoc::SNode element;
 
@@ -167,7 +167,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailed
         if (detailedInfo)
         {
             element->attributes().set("type", Variant::typeName(dataType()));
-            element->attributes().set("size", int2string((uint32_t) dataSize()));
+            element->attributes().set("size", int2string(static_cast<uint32_t>(dataSize())));
         }
     }
 }

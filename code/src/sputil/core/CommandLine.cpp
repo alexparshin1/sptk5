@@ -26,6 +26,7 @@
 
 #include <sptk5/CommandLine.h>
 
+#include <ranges>
 #include <utility>
 
 using namespace std;
@@ -152,12 +153,12 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
         stringstream str;
         if (firstRow)
         {
-            str << left << setw((int) nameWidth) << printableName();
+            str << left << setw(static_cast<int>(nameWidth)) << printableName();
             firstRow = false;
         }
         else
         {
-            str << left << setw((int) nameWidth) << "";
+            str << left << setw(static_cast<int>(nameWidth)) << "";
         }
         COUT(str.str() << "  " << helpRow);
     }
@@ -169,7 +170,8 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
         {
             printDefaultValue = "'" + optionDefaultValue + "'";
         }
-        COUT(left << setw((int) nameWidth) << "" << "  The default value is " + printDefaultValue + ".");
+        COUT(left << setw(static_cast<int>(nameWidth)) << ""
+                  << "  The default value is " + printDefaultValue + ".");
     }
 }
 //=============================================================================
@@ -293,7 +295,7 @@ void CommandLine::defineOption(const String& fullName, const String& shortName, 
         return;
     }
 
-    auto optionTemplate = make_shared<CommandLineOption>(fullName, shortName, useForCommands, help);
+    const auto optionTemplate = make_shared<CommandLineOption>(fullName, shortName, useForCommands, help);
     m_allElements.push_back(optionTemplate);
     if (!fullName.empty())
     {
@@ -314,8 +316,8 @@ void CommandLine::defineParameter(const String& fullName, const String& shortNam
         return;
     }
 
-    auto argumentTemplate = make_shared<CommandLineParameter>(fullName, shortName, valueName, validateValue,
-                                                              useForCommands, help);
+    const auto argumentTemplate = make_shared<CommandLineParameter>(fullName, shortName, valueName, validateValue,
+                                                                    useForCommands, help);
     m_allElements.push_back(argumentTemplate);
 
     String name;
@@ -342,7 +344,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
 {
     if (!fullName.empty())
     {
-        auto argumentTemplate = make_shared<CommandLineArgument>(fullName, helpText);
+        const auto argumentTemplate = make_shared<CommandLineArgument>(fullName, helpText);
         m_allElements.push_back(argumentTemplate);
         m_argumentTemplates[fullName] = argumentTemplate;
     }
@@ -370,8 +372,8 @@ Strings CommandLine::preprocessArguments(const vector<const char*>& argv)
     String  quotedString;
     for (auto& arg: args)
     {
-        const String digestedArg = preprocessArgument(arg, quote, quotedString);
-        if (!digestedArg.empty())
+        if (const String digestedArg = preprocessArgument(arg, quote, quotedString);
+            !digestedArg.empty())
         {
             arguments.push_back(digestedArg);
         }
@@ -452,7 +454,6 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
 {
     const String& arg = digestedArgs[argumentIndex];
-    String        value;
     if (arg.startsWith("-"))
     {
         String optionName;
@@ -466,7 +467,7 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
             // Short option name
             optionName = arg.substr(1);
         }
-        auto element = m_optionTemplates[optionName];
+        const auto element = m_optionTemplates[optionName];
         if (!element)
         {
             throw Exception("Command line option or parameter " + arg + " is not supported");
@@ -478,7 +479,7 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
             {
                 throw Exception("Command line parameter " + arg + " should have value");
             }
-            value = digestedArgs[argumentIndex];
+            const auto value = digestedArgs[argumentIndex];
             element->validate(value);
             m_values[element->name()] = value;
         }
@@ -511,7 +512,7 @@ void CommandLine::init(size_t argc, const char** argv)
 
 String CommandLine::getOptionValue(const String& name) const
 {
-    auto itor = m_values.find(name);
+    const auto itor = m_values.find(name);
     if (itor == m_values.end())
     {
         return "";
@@ -526,7 +527,7 @@ bool CommandLine::hasOption(const String& name) const
 
 void CommandLine::setOptionValue(const String& name, const String& value)
 {
-    auto element = m_optionTemplates[name];
+    const auto element = m_optionTemplates[name];
     if (!element)
     {
         throw Exception("Invalid option or parameter name: " + name);
@@ -583,7 +584,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     size_t           nameColumns = minimalWidth;
     Strings          sortedCommands;
 
-    for (const auto& [argumentName, value]: m_argumentTemplates)
+    for (const auto& argumentName: views::keys(m_argumentTemplates))
     {
         sortedCommands.push_back(argumentName);
     }
@@ -598,7 +599,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
 
     Strings sortedOptions;
-    for (const auto& [optionName, value]: m_optionTemplates)
+    for (const auto& optionName: views::keys(m_optionTemplates))
     {
         if (optionName.length() > 1)
         {
@@ -646,7 +647,7 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
         printLine(singleLine, screenColumns);
         for (const String& optionName: sortedOptions)
         {
-            auto       itor = m_optionTemplates.find(optionName);
+            const auto itor = m_optionTemplates.find(optionName);
             const auto optionTemplate = itor->second;
             if (!optionTemplate || !optionTemplate->useWithCommand(onlyForCommand))
             {
@@ -672,7 +673,7 @@ void CommandLine::printCommands(const String& onlyForCommand, size_t screenColum
         printLine(singleLine, screenColumns);
         for (const String& commandName: sortedCommands)
         {
-            auto argumentIterator = m_argumentTemplates.find(commandName);
+            const auto argumentIterator = m_argumentTemplates.find(commandName);
             if (!onlyForCommand.empty() && commandName != onlyForCommand)
             {
                 continue;

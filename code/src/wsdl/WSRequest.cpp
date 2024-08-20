@@ -66,8 +66,8 @@ void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlC
     }
     catch (const HTTPException& e)
     {
-        logError(requestName, e.what(), (int) e.statusCode());
-        handleError(xmlContent, jsonContent, e.what(), (int) e.statusCode());
+        logError(requestName, e.what(), static_cast<int>(e.statusCode()));
+        handleError(xmlContent, jsonContent, e.what(), static_cast<int>(e.statusCode()));
     }
     catch (const Exception& e)
     {

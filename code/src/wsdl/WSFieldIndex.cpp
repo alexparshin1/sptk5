@@ -78,7 +78,7 @@ WSType* WSFieldIndex::find(const String& name) const
 
 inline bool fieldTypeHas(WSFieldIndex::Group fieldType, WSFieldIndex::Group checkFor)
 {
-    return ((int) fieldType & (int) checkFor) != 0;
+    return (static_cast<int>(fieldType) & static_cast<int>(checkFor)) != 0;
 }
 
 void WSFieldIndex::forEach(const function<bool(WSType*)>& method, Group fieldType)
