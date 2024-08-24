@@ -69,7 +69,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
     switch (openMode)
     {
         case OpenMode::CONNECT:
-            if (clientBindAddress != nullptr)
+            if (clientBindAddress != nullptr && clientBindAddress[0] != 0)
             {
                 bindUnlocked(clientBindAddress, 0, reusePort);
             }
