@@ -24,103 +24,58 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/net/SSLKeys.h"
-#include <sptk5/Buffer.h>
+#pragma once
 
-using namespace std;
-using namespace sptk;
+#include <sptk5/cutils>
 
-SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
-                 String password, String caFileName, int verifyMode,
-                 int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName))
-    , m_certificateFileName(std::move(certificateFileName))
-    , m_password(std::move(password))
-    , m_caFileName(std::move(caFileName))
-    , m_verifyMode(verifyMode)
-    , m_verifyDepth(verifyDepth)
+#include <filesystem>
+#include <functional>
+#include <future>
+#include <vector>
+
+namespace sptk {
+
+class OsProcess
 {
-}
+public:
+    /**
+     * @brief Constructor
+     * @param command           Command to execute
+     */
+    OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData = nullptr);
 
-SSLKeys::SSLKeys(const SSLKeys& other)
-{
-    const scoped_lock lock(m_mutex);
-    assign(other);
-}
+    /**
+     * @brief Destructor
+     */
+    ~OsProcess();
 
-SSLKeys& SSLKeys::operator=(const SSLKeys& other)
-{
-    const scoped_lock lock(m_mutex, other.m_mutex);
-    if (&other == this)
-    {
-        return *this;
-    }
-    assign(other);
-    return *this;
-}
+    void start();
+    int  wait();
+    int  wait_for(std::chrono::milliseconds timeout);
 
-void SSLKeys::assign(const SSLKeys& other)
-{
-    m_privateKeyFileName = other.m_privateKeyFileName;
-    m_certificateFileName = other.m_certificateFileName;
-    m_password = other.m_password;
-    m_caFileName = other.m_caFileName;
-    m_verifyMode = other.m_verifyMode;
-    m_verifyDepth = other.m_verifyDepth;
-}
+private:
+    static constexpr size_t BufferSize = 1024;
+#ifdef _WIN32
+    using FileHandle = HANDLE;
+#else
+    using FileHandle = FILE*;
+#endif
+    std::mutex                               m_mutex;
+    sptk::String                             m_command;
+    std::function<void(const sptk::String&)> m_onData;
+    FileHandle                               m_stdout {};
+    FileHandle                               m_stdin {};
+    std::future<int>                         m_task;
+    std::atomic_bool                         m_terminated {false};
+#ifdef _WIN32
+    static sptk::String getErrorMessage(DWORD lastError);
+    PROCESS_INFORMATION m_ProcessInformation {};
+#endif
+    int  waitForData(std::chrono::milliseconds timeout);
+    void readData();
+    int  close();
+};
 
-String SSLKeys::privateKeyFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_privateKeyFileName;
-}
+using SOsProcess = std::shared_ptr<OsProcess>;
 
-String SSLKeys::certificateFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_certificateFileName;
-}
-
-String SSLKeys::password() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_password;
-}
-
-String SSLKeys::caFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_caFileName;
-}
-
-int SSLKeys::verifyMode() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyMode;
-}
-
-int SSLKeys::verifyDepth() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyDepth;
-}
-
-String SSLKeys::ident() const
-{
-    Buffer buffer;
-    buffer.append(m_privateKeyFileName);
-    buffer.append('~');
-    buffer.append(m_certificateFileName);
-    buffer.append('~');
-    buffer.append(m_caFileName);
-    buffer.append('~');
-    buffer.append(to_string(m_verifyMode));
-    buffer.append('~');
-    buffer.append(to_string(m_verifyDepth));
-    return {buffer.c_str(), buffer.size()};
-}
-
-bool SSLKeys::empty() const
-{
-    return m_certificateFileName.empty();
-}
+} // namespace sptk

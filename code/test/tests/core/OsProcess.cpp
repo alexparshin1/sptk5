@@ -24,103 +24,25 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/net/SSLKeys.h"
-#include <sptk5/Buffer.h>
+#include <gtest/gtest.h>
+#include <sptk5/OsProcess.h>
 
 using namespace std;
 using namespace sptk;
 
-SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
-                 String password, String caFileName, int verifyMode,
-                 int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName))
-    , m_certificateFileName(std::move(certificateFileName))
-    , m_password(std::move(password))
-    , m_caFileName(std::move(caFileName))
-    , m_verifyMode(verifyMode)
-    , m_verifyDepth(verifyDepth)
+TEST(SPTK_OsProcess, Execute)
 {
-}
-
-SSLKeys::SSLKeys(const SSLKeys& other)
-{
-    const scoped_lock lock(m_mutex);
-    assign(other);
-}
-
-SSLKeys& SSLKeys::operator=(const SSLKeys& other)
-{
-    const scoped_lock lock(m_mutex, other.m_mutex);
-    if (&other == this)
-    {
-        return *this;
-    }
-    assign(other);
-    return *this;
-}
-
-void SSLKeys::assign(const SSLKeys& other)
-{
-    m_privateKeyFileName = other.m_privateKeyFileName;
-    m_certificateFileName = other.m_certificateFileName;
-    m_password = other.m_password;
-    m_caFileName = other.m_caFileName;
-    m_verifyMode = other.m_verifyMode;
-    m_verifyDepth = other.m_verifyDepth;
-}
-
-String SSLKeys::privateKeyFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_privateKeyFileName;
-}
-
-String SSLKeys::certificateFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_certificateFileName;
-}
-
-String SSLKeys::password() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_password;
-}
-
-String SSLKeys::caFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_caFileName;
-}
-
-int SSLKeys::verifyMode() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyMode;
-}
-
-int SSLKeys::verifyDepth() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyDepth;
-}
-
-String SSLKeys::ident() const
-{
-    Buffer buffer;
-    buffer.append(m_privateKeyFileName);
-    buffer.append('~');
-    buffer.append(m_certificateFileName);
-    buffer.append('~');
-    buffer.append(m_caFileName);
-    buffer.append('~');
-    buffer.append(to_string(m_verifyMode));
-    buffer.append('~');
-    buffer.append(to_string(m_verifyDepth));
-    return {buffer.c_str(), buffer.size()};
-}
-
-bool SSLKeys::empty() const
-{
-    return m_certificateFileName.empty();
+#ifdef _WIN32
+    String command("cmd /?");
+#else
+    String command("ls -l");
+#endif
+    OsProcess osProcess(command,
+                        [](const String& text)
+                        {
+                            cout << text << flush;
+                        });
+    osProcess.start();
+    auto result = osProcess.wait();
+    COUT("result: " << result);
 }
