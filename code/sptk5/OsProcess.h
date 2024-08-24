@@ -34,13 +34,16 @@
 #include <vector>
 
 namespace sptk {
-
-class OsProcess
+	/**
+	 * @brief Asynchronously execute OS process, optionally capturing its output to callback function
+	 */
+	class SP_EXPORT OsProcess
 {
 public:
     /**
      * @brief Constructor
      * @param command           Command to execute
+     * @param onData            Optional callback function called upon process output
      */
     OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData = nullptr);
 
@@ -49,31 +52,45 @@ public:
      */
     ~OsProcess();
 
+    /**
+     * @brief Asynchronous start of the process
+     */
     void start();
+
+    /**
+     * @brief Wait until process exits
+     * @return process exit code
+     */
     int  wait();
-    int  wait_for(std::chrono::milliseconds timeout);
+
+    /**
+     * @brief Wait until process exits
+     * @param timeout           Maximum time to wait for process exit
+     * @return process exit code
+     */
+    int wait_for(std::chrono::milliseconds timeout);
 
 private:
-    static constexpr size_t BufferSize = 1024;
+    static constexpr size_t BufferSize = 16384; ///< Read buffer size
 #ifdef _WIN32
     using FileHandle = HANDLE;
 #else
     using FileHandle = FILE*;
 #endif
-    std::mutex                               m_mutex;
-    sptk::String                             m_command;
-    std::function<void(const sptk::String&)> m_onData;
-    FileHandle                               m_stdout {};
-    FileHandle                               m_stdin {};
-    std::future<int>                         m_task;
-    std::atomic_bool                         m_terminated {false};
+    std::mutex                               m_mutex; ///< Mutex that protects internal data
+    sptk::String                             m_command; ///< Process command
+    std::function<void(const sptk::String&)> m_onData;  ///< Optional callback function called on process output
+    FileHandle                               m_stdout {}; ///< Process stdout
+    FileHandle                               m_stdin {};  ///< Process stdin
+    std::future<int>                         m_task;      ///< Process execution task
+    std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
 #ifdef _WIN32
-    static sptk::String getErrorMessage(DWORD lastError);
-    PROCESS_INFORMATION m_ProcessInformation {};
+    static sptk::String getErrorMessage(DWORD lastError);          
+    PROCESS_INFORMATION m_ProcessInformation {}; ///< Process information (Windows only)
 #endif
-    int  waitForData(std::chrono::milliseconds timeout);
-    void readData();
-    int  close();
+    int  waitForData(std::chrono::milliseconds timeout); ///< Wait for process output
+    void readData();                                     ///< Read process output
+    int  close();                                        ///< Close all handles
 };
 
 using SOsProcess = std::shared_ptr<OsProcess>;
