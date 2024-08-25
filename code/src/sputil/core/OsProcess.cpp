@@ -50,7 +50,6 @@ void OsProcess::start()
 
 #ifdef _WIN32
     STARTUPINFO         si;
-    PROCESS_INFORMATION pi;
     SECURITY_ATTRIBUTES saAttr;
 
     ZeroMemory(&saAttr, sizeof(saAttr));
@@ -78,7 +77,7 @@ void OsProcess::start()
     si.hStdOutput = m_stdin;
     si.dwFlags |= STARTF_USESTDHANDLES;
 
-    ZeroMemory(&pi, sizeof(pi));
+    ZeroMemory(&m_processInformation, sizeof(m_processInformation));
 
     // Start the child process.
     if (!CreateProcessA(nullptr,          // No module name (use command line)
@@ -90,7 +89,7 @@ void OsProcess::start()
                         nullptr,          // Use parent's environment block
                         nullptr,          // Use parent's starting directory
                         &si,              // Pointer to STARTUPINFO structure
-                        &pi)              // Pointer to PROCESS_INFORMATION structure
+                        &m_processInformation) // Pointer to PROCESS_INFORMATION structure
     )
     {
         throw runtime_error("Can't start process");
@@ -108,9 +107,6 @@ void OsProcess::start()
                        return close();
                    });
 
-#ifdef _WIN32
-    WaitForSingleObject(pi.hProcess, INFINITE);
-#endif
 }
 
 int OsProcess::waitForData(std::chrono::milliseconds timeout)
@@ -127,11 +123,18 @@ int OsProcess::waitForData(std::chrono::milliseconds timeout)
         {
             return -1;
         }
+
         if (bytesAvailable > 0)
         {
             return static_cast<int>(bytesAvailable);
         }
-        this_thread::sleep_for(sleepTime);
+
+        if (WaitForSingleObject(m_processInformation.hProcess, static_cast<DWORD>(sleepTime.count())) == WAIT_OBJECT_0)
+        {
+            m_terminated = true;
+            break;
+        }
+
         totalWait += sleepTime;
     }
     return 0;
@@ -217,24 +220,26 @@ int OsProcess::wait_for(std::chrono::milliseconds timeout)
 int OsProcess::close()
 {
     lock_guard lock(m_mutex);
+    auto       exitCode = 0;
 #ifdef _WIN32
     if (m_stdout)
     {
         CloseHandle(m_stdout);
         CloseHandle(m_stdin);
-        m_stdin = 0;
-        m_stdout = 0;
+        m_stdin = nullptr;
+        m_stdout = nullptr;
     }
-    return 0;
+    DWORD dwExitCode = 0;
+    GetExitCodeProcess(m_processInformation.hProcess, &dwExitCode);
+    exitCode = static_cast<int>(dwExitCode);
 #else
-    auto exitCode = 0;
     if (m_stdout)
     {
         exitCode = pclose(m_stdout);
         m_stdout = nullptr;
     }
-    return exitCode;
 #endif
+    return exitCode;
 }
 
 #ifdef _WIN32

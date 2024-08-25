@@ -86,7 +86,7 @@ private:
     std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
 #ifdef _WIN32
     static sptk::String getErrorMessage(DWORD lastError);          
-    PROCESS_INFORMATION m_ProcessInformation {}; ///< Process information (Windows only)
+    PROCESS_INFORMATION m_processInformation {}; ///< Process information (Windows only)
 #endif
     int  waitForData(std::chrono::milliseconds timeout); ///< Wait for process output
     void readData();                                     ///< Read process output
