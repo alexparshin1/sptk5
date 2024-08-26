@@ -220,7 +220,10 @@ int OsProcess::wait_for(std::chrono::milliseconds timeout)
 int OsProcess::close()
 {
     lock_guard lock(m_mutex);
-    auto       exitCode = 0;
+
+    m_terminated = true;
+    auto exitCode = 0;
+
 #ifdef _WIN32
     if (m_stdout)
     {
