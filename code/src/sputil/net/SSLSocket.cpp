@@ -167,9 +167,9 @@ void SSLSocket::loadKeys(const SSLKeys& keys)
         throw Exception("Can't set keys on opened socket");
     }
 
-    checkFileExists(m_keys.caFileName());
-    checkFileExists(m_keys.certificateFileName());
-    checkFileExists(m_keys.privateKeyFileName());
+    checkFileExists(keys.caFileName());
+    checkFileExists(keys.certificateFileName());
+    checkFileExists(keys.privateKeyFileName());
 
     m_keys = keys;
 }
