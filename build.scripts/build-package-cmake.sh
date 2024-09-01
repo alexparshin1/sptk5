@@ -72,8 +72,7 @@ else
     BUILD_OPTIONS=""
 fi
 
-./distclean.sh
-#cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
+sh ./distclean.sh
 cmake . $BUILD_OPTIONS && make -j6 package || exit 1
 
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
@@ -81,7 +80,7 @@ sh ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
 #wsdl2cxx
-./distclean.sh
+sh ./distclean.sh
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
