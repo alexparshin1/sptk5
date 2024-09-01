@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/.sonar.login
+
 ./distclean.sh
 cmake .
 
@@ -14,7 +16,7 @@ build-wrapper-linux-x86-64 --out-dir bw-output make -j $CORES clean install
 OPTIONS="-Dsonar.projectKey=HappySquirrel_sptk5 -Dsonar.organization=happysquirrel-bitbucket -Dsonar.sources=."
 
 # Sonar connection
-OPTIONS="${OPTIONS} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=638f3e4b9ea57879e595dbfddb91d47c9a90bf64"
+OPTIONS="${OPTIONS} -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_KEY"
 
 # Cache options
 OPTIONS="${OPTIONS} -Dsonar.cfamily.cache.enabled=true -Dsonar.cfamily.cache.path=/home/alexeyp/.sonar/cache"
