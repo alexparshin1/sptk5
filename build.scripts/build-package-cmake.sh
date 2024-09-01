@@ -77,7 +77,7 @@ fi
 cmake . $BUILD_OPTIONS && make -j6 package || exit 1
 
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
-./install_local_packages.sh
+sh ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
 #wsdl2cxx
