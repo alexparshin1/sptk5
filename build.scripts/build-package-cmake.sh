@@ -67,7 +67,7 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
 if [ $PACKAGE = "SPTK" ]; then
-    BUILD_OPTIONS="-DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF install"
+    BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF"
 else
     BUILD_OPTIONS=""
 fi
@@ -75,14 +75,13 @@ fi
 ./distclean.sh
 #cmake . -DCMAKE_INSTALL_PREFIX=/usr/local $BUILD_OPTIONS -DUSE_NEW_ABI=ON && make -j6 package || exit 1
 cmake . $BUILD_OPTIONS && make -j6 package || exit 1
-./distclean.sh
 
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
-ls /usr/local/bin
-wsdl2cxx
+#wsdl2cxx
+./distclean.sh
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
@@ -102,11 +101,13 @@ do
 done
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
-echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host" >> /etc/hosts
+grep "10.1.1.242" /etc/hosts
+if [ $? == 1 ]; then
+    echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host" >> /etc/hosts
+fi
 
-cat /etc/hosts
-pwd
-cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
 RC=$?
 
 if [ $RC != 0 ]; then
