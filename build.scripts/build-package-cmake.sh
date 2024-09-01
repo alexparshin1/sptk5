@@ -75,9 +75,12 @@ fi
 sh ./distclean.sh
 cmake . $BUILD_OPTIONS && make -j6 package || exit 1
 
+echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 sh ./install_local_packages.sh
+ls -l /usr/local/bin /usr/local/lib
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
+echo ──────────────────────────────────────────────────────────────────
 
 #wsdl2cxx
 sh ./distclean.sh
@@ -97,6 +100,7 @@ do
     fi
     mv $fname $OUTPUT_DIR/$name
 done
+echo ──────────────────────────────────────────────────────────────────
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
 grep "10.1.1.242" /etc/hosts
