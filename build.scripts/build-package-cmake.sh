@@ -67,9 +67,9 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
 if [ $PACKAGE = "SPTK" ]; then
-    BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF"
+    BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local"
 else
-    BUILD_OPTIONS=""
+    BUILD_OPTIONS="-DCMAKE_INSTALL_PREFIX=/usr/local"
 fi
 
 ./distclean.sh
