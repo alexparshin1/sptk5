@@ -1,6 +1,8 @@
 #!/bin/bash
 
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+export PATH=/usr/local/bin:$PATH
+
 rsync -avz /build/etc/xmq /etc/
 
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
@@ -49,8 +51,6 @@ case $OS_NAME in
         ;;
 esac
 
-echo
-echo ──────────────────────────────────────────────────────────────────
 echo OS_NAME:   $OS_NAME
 echo PLATFORM:  $PLATFORM
 echo PACKAGE:   $PACKAGE_NAME
@@ -67,9 +67,9 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
 if [ $PACKAGE = "SPTK" ]; then
-    BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF"
+    BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local"
 else
-    BUILD_OPTIONS=""
+    BUILD_OPTIONS="-DCMAKE_INSTALL_PREFIX=/usr/local"
 fi
 
 sh ./distclean.sh
@@ -86,7 +86,6 @@ OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
 for fname in *.rpm *.deb
 do
-    echo "Created package name: $fname"
     if [ $PACKAGE = "SPTK" ]; then
         name=$(echo $fname | sed -re 's/^SPTK.*Linux/sptk/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
         lcPACKAGE="sptk"
@@ -106,7 +105,7 @@ if [ $? == 1 ]; then
 fi
 
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
 RC=$?
 
 if [ $RC != 0 ]; then
@@ -116,7 +115,7 @@ else
 fi
 
 cd $CWD
-./distclean.sh
+sh ./distclean.sh
 chown -R alexeyp *
 
 done
