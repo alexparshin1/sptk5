@@ -95,9 +95,9 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             connectionString(DatabaseConnectionString(newConnectionString));
         }
 
-        sqlite3*   connect = nullptr;
-        const auto dbFileName = this->nativeConnectionString();
-        if (sqlite3_open(dbFileName.c_str(), &connect) != 0)
+        sqlite3* connect = nullptr;
+        if (const auto dbFileName = this->nativeConnectionString();
+            sqlite3_open(dbFileName.c_str(), &connect) != 0)
         {
             const String error = sqlite3_errmsg(connect);
             sqlite3_close(connect);

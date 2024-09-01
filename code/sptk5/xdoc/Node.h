@@ -233,7 +233,7 @@ public:
      * @brief Get parent node
      * @return
      */
-    const SNode parent() const
+    SNode parent() const
     {
         return m_parent;
     }
