@@ -15,6 +15,6 @@ TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${OCI_LIBRARY})
 
 INSTALL(
         TARGETS spdb5_oracle
-        RUNTIME DESTINATION bin COMPONENT db_oracleoci
-        LIBRARY DESTINATION lib COMPONENT db_oracleoci
-        ARCHIVE DESTINATION lib COMPONENT db_oracleoci)
+        RUNTIME DESTINATION bin COMPONENT db_oracle
+        LIBRARY DESTINATION lib COMPONENT db_oracle
+        ARCHIVE DESTINATION lib COMPONENT db_oracle)
