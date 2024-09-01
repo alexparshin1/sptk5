@@ -67,7 +67,7 @@ src_name="$TAR_DIR/$PACKAGE_${VERSION}"
 [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
 
 if [ $PACKAGE = "SPTK" ]; then
-    BUILD_OPTIONS="-DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF"
+    BUILD_OPTIONS="-DUSE_GTEST=ON -DINSTALL_GTEST=ON -DBUILD_EXAMPLES=OFF install"
 else
     BUILD_OPTIONS=""
 fi
@@ -81,6 +81,7 @@ BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 ./install_local_packages.sh
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 
+ls /usr/local/bin
 wsdl2cxx
 
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
