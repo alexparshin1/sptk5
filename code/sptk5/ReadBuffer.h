@@ -119,7 +119,9 @@ private:
      */
     void compact()
     {
-        if (m_readOffset >= bytes() * 3 / 4)
+        constexpr auto multiplier = 3;
+        constexpr auto divider = 4;
+        if (m_readOffset >= bytes() * multiplier / divider)
         {
             erase(0, m_readOffset);
             m_readOffset = 0;
