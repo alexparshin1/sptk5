@@ -479,7 +479,7 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
             {
                 throw Exception("Command line parameter " + arg + " should have value");
             }
-            const auto value = digestedArgs[argumentIndex];
+            const auto& value = digestedArgs[argumentIndex];
             element->validate(value);
             m_values[element->name()] = value;
         }

@@ -51,6 +51,7 @@ static constexpr short lastCenturyYear = 1900;
 static constexpr short thisCenturyYear = 2000;
 static constexpr short base10 = 10;
 static constexpr short monthsInYear = 12;
+static constexpr short twelweHours = 12;
 
 static const array<short, monthsInYear> gRegularYear = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 static const array<short, monthsInYear> gLeapYear = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -276,9 +277,7 @@ void DateTimeFormat::init() noexcept
 
     const time_t              timestamp = time(nullptr);
     array<char, bufferLength> buf {};
-    struct tm                 ltime
-    {
-    };
+    struct tm                 ltime {};
 #ifdef _WIN32
     localtime_s(&ltime, &timestamp);
 #else
@@ -418,7 +417,8 @@ short correctTwoDigitYear(short year)
     if (constexpr short yearsOffset = 100;
         year < yearsOffset)
     {
-        if (year < 35)
+        if (constexpr auto maxShortYearThisCentury = 35;
+            year < maxShortYearThisCentury)
         {
             year = static_cast<short>(year + thisCenturyYear);
         }
@@ -474,9 +474,9 @@ void encodeTime(DateTime::time_point& dt, const char* tim)
         return;
     }
 
-    if (afternoon && timePart[0] != 12)
+    if (afternoon && timePart[0] != twelweHours)
     {
-        timePart[0] = static_cast<short>(timePart[0] + 12);
+        timePart[0] = static_cast<short>(timePart[0] + twelweHours);
     }
 
     encodeTime(dt, timePart[0], timePart[1], timePart[2], timePart[3]);
@@ -553,7 +553,9 @@ void parseDate(const short* datePart, short& month, short& day, short& year)
 
 int isLeapYear(const int16_t year)
 {
-    return ((year & 3) == 0 && year % 100) || ((year % 400) == 0);
+    constexpr auto oneHundredYears = 100;
+    constexpr auto fourHundredYears = 400;
+    return ((year & 3) == 0 && year % oneHundredYears) || ((year % fourHundredYears) == 0);
 }
 
 } // namespace
@@ -811,9 +813,9 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         {
             appendix = "AM";
         }
-        if (hour > 12)
+        if (hour > twelweHours)
         {
-            hour = static_cast<short>(hour % 12);
+            hour = static_cast<short>(hour % twelweHours);
         }
     }
 
@@ -910,7 +912,7 @@ short DateTime::dayOfWeek() const
 
     ::decodeDate(m_dateTime, year, month, day, weekDay, yearDay, false);
 
-    return static_cast<short>(weekDay);
+    return weekDay;
 }
 
 String DateTime::dayOfWeekName() const

@@ -134,7 +134,8 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
                 stream << " ";
             }
             const unsigned printChar = buffer[rowOffset];
-            stream << hex << setw(2) << printChar << " ";
+            constexpr auto charWidth = 2;
+            stream << hex << setw(charWidth) << printChar << " ";
         }
 
         while (printed < bytesInRow)
