@@ -445,8 +445,6 @@ void WSParser::generateImplementation(ostream& output) const
     for (const auto& [name, operation]: m_operations)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
-        const auto inputType = "C" + operation.m_input->name();
-        const auto outputType = "C" + operation.m_output->name();
         output << "        {\"" << requestName << "\", " << endl
                << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
                << "            {" << endl
