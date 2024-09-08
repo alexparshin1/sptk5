@@ -76,7 +76,11 @@ void printMessage(stringstream& logMessage, const String& prefix, const RequestI
 
 void WSConnection::processSingleConnection(bool& done)
 {
-    m_logger.debug("Processing connection");
+    auto logDebugMessages = m_logger.destination().minPriority() != LogPriority::Debug;
+    if (logDebugMessages)
+    {
+        m_logger.debug("Processing connection");
+    }
 
     if (constexpr chrono::seconds readTimeout30sec(30);
         !socket().readyToRead(readTimeout30sec) // Client communication timeout
@@ -84,14 +88,17 @@ void WSConnection::processSingleConnection(bool& done)
     {
         socket().close();
         done = true;
-        m_logger.debug("Client closed connection");
+        if (logDebugMessages)
+        {
+            m_logger.debug("Client closed connection");
+        }
         return;
     }
 
     StopWatch requestStopWatch;
     requestStopWatch.start();
 
-    Buffer contentBuffer;
+    Buffer     contentBuffer;
     HttpReader httpReader(socket(), contentBuffer, HttpReader::ReadMode::REQUEST);
 
     String protocolName = "http";
@@ -99,7 +106,7 @@ void WSConnection::processSingleConnection(bool& done)
     auto& headers = httpReader.getHttpHeaders();
 
     const String requestType = httpReader.getRequestType();
-    URL url(httpReader.getRequestURL());
+    URL          url(httpReader.getRequestURL());
 
     if (requestType == "OPTIONS")
     {
@@ -109,7 +116,10 @@ void WSConnection::processSingleConnection(bool& done)
             httpReader.close();
             done = true;
         }
-        m_logger.debug("Processed OPTIONS");
+        if (logDebugMessages)
+        {
+            m_logger.debug("Processed OPTIONS");
+        }
         return;
     }
 
@@ -134,7 +144,10 @@ void WSConnection::processSingleConnection(bool& done)
 
     if (processed)
     {
-        m_logger.debug("Processed " + protocolName);
+        if (logDebugMessages)
+        {
+            m_logger.debug("Processed " + protocolName);
+        }
         return;
     }
 
@@ -142,7 +155,7 @@ void WSConnection::processSingleConnection(bool& done)
 
     WSWebServiceProtocol protocol(httpReader, url, m_services, server().host(),
                                   m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
-    auto requestInfo = protocol.process();
+    auto                 requestInfo = protocol.process();
 
     if (closeConnection)
     {
@@ -152,7 +165,10 @@ void WSConnection::processSingleConnection(bool& done)
 
     requestStopWatch.stop();
 
-    logConnectionDetails(requestStopWatch, httpReader, requestInfo);
+    if (logDebugMessages)
+    {
+        logConnectionDetails(requestStopWatch, httpReader, requestInfo);
+    }
 }
 
 void WSConnection::run()
@@ -182,7 +198,7 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
     if (!m_options.logDetails.empty())
     {
         stringstream logMessage;
-        bool listStarted = false;
+        bool         listStarted = false;
 
         if (m_options.logDetails.has(LogDetails::MessageDetail::SOURCE_IP))
         {
@@ -251,7 +267,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
                                       HttpHeaders& headers) const
 {
     const String contentType = headers["Content-Type"];
-    bool processed = false;
+    bool         processed = false;
     if (contentType.find("/json") != string::npos || requestType == "POST")
     {
         protocolName = "rest";
@@ -286,8 +302,8 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
 void WSConnection::respondToOptions(const HttpHeaders& headers) const
 {
     const auto itor = headers.find("origin");
-    auto origin = itor->second;
-    Buffer response;
+    auto       origin = itor->second;
+    Buffer     response;
 
     response.append("HTTP/1.1 204 No Content\r\n");
 
@@ -322,7 +338,7 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     if (options.encrypted)
     {
         const auto& sslKeys = server.getSSLKeys();
-        const auto socket = make_shared<SSLSocket>();
+        const auto  socket = make_shared<SSLSocket>();
         socket->loadKeys(sslKeys);
         setSocket(socket);
     }
