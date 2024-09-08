@@ -56,12 +56,13 @@ public:
         Paths(Paths&& other) noexcept = default;
     };
 
-    struct Options {
-        Paths paths;
-        bool encrypted {false};
-        bool allowCors {false};
-        bool keepAlive {false};
-        bool suppressHttpStatus {false};
+    struct Options
+    {
+        Paths      paths;
+        bool       encrypted {false};
+        bool       allowCors {false};
+        bool       keepAlive {false};
+        bool       suppressHttpStatus {false};
         LogDetails logDetails;
 
         Options(const Paths& paths, bool encrypted = false)
@@ -91,10 +92,19 @@ public:
      */
     void run() override;
 
+    /**
+     * Set hangup state: read the data and close the connection
+     */
+    void setHangup()
+    {
+        m_isHangup = true;
+    }
+
 private:
     WSServices& m_services;
-    Logger m_logger;
-    Options m_options;
+    Logger      m_logger;
+    Options     m_options;
+    bool        m_isHangup {false};
 
     void respondToOptions(const HttpHeaders& headers) const;
 

@@ -39,8 +39,8 @@ WorkerThread::WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::mill
 
 void WorkerThread::threadFunction()
 {
-    constexpr chrono::seconds oneSecond(1);
-    chrono::milliseconds idleSeconds(0);
+    auto queueTimeout = 1s;
+    auto idleSeconds = 0s;
     while (!terminated())
     {
         if (idleSeconds >= m_maxIdleSeconds)
@@ -49,10 +49,10 @@ void WorkerThread::threadFunction()
         }
 
         URunable runable;
-        if (m_queue.pop_front(runable, oneSecond))
+        if (m_queue.pop_front(runable, queueTimeout))
         {
             setRunable(runable.get());
-            idleSeconds = chrono::milliseconds(0);
+            idleSeconds = 0s;
 
             try
             {
@@ -66,7 +66,7 @@ void WorkerThread::threadFunction()
         }
         else
         {
-            ++idleSeconds;
+            idleSeconds += queueTimeout;
         }
     }
 }
