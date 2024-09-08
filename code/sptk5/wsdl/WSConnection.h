@@ -93,6 +93,14 @@ public:
     void run() override;
 
     /**
+     * Get hangup state
+     */
+    bool isHangup() const
+    {
+        return m_isHangup;
+    }
+
+    /**
      * Set hangup state: read the data and close the connection
      */
     void setHangup()

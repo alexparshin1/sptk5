@@ -86,12 +86,7 @@ void WSConnection::processSingleConnection(bool& done)
         !socket().readyToRead(readTimeout30sec) // Client communication timeout
         || socket().socketBytes() == 0)         // Client closed connection
     {
-        socket().close();
         done = true;
-        if (logDebugMessages)
-        {
-            m_logger.debug("Client closed connection");
-        }
         return;
     }
 
