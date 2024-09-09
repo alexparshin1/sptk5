@@ -27,12 +27,10 @@
 #pragma once
 
 #include <bitset>
-#include <iostream>
 #include <set>
 #include <sptk5/Logger.h>
 #include <sptk5/net/SSLKeys.h>
 #include <sptk5/net/ServerConnection.h>
-#include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadPool.h>
 #include <utility>
 
@@ -119,7 +117,7 @@ public:
     }
 
 private:
-    MessageDetails m_details; ///< Log details set
+    MessageDetails                               m_details; ///< Log details set
     static const std::map<String, MessageDetail> detailNames;
 };
 
@@ -140,6 +138,7 @@ public:
      * @param listenerName      Logical name of the listener
      * @param threadLimit       Number of worker threads in thread pool
      * @param logEngine         Optional log engine
+     * @param logDetails        Log messages details
      */
     explicit TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
                        const LogDetails& logDetails = LogDetails());
@@ -167,7 +166,7 @@ public:
      * @brief Remove listener on the selected port
      * @param port              Listener port number
      */
-    void removeListener(uint16_t port);
+    [[maybe_unused]] void removeListener(uint16_t port);
 
     /**
      * @brief Stop and remove all listeners
@@ -199,7 +198,7 @@ public:
      * @brief Get server log details
      * @return current log details
      */
-    const LogDetails& logDetails() const
+    [[maybe_unused]] const LogDetails& logDetails() const
     {
         return m_logDetails;
     }
@@ -263,13 +262,13 @@ protected:
 private:
     using UListener = std::unique_ptr<TCPServerListener>;
     using Listeners = std::vector<UListener>;
-    mutable std::mutex m_mutex;                      ///< Mutex protecting internal data
-    std::map<uint16_t, Listeners> m_portListeners;   ///< Server port listeners
-    std::shared_ptr<Logger> m_logger;                ///< Optional logger
-    std::shared_ptr<SSLKeys> m_sslKeys;              ///< Optional SSL keys. Only used for SSL server.
-    Host m_host;                                     ///< This host
-    LogDetails m_logDetails;                         ///< Log details
-    ServerConnection::Function m_connectionFunction; ///< User-defined function that is called upon client connection to server
+    mutable std::mutex            m_mutex;              ///< Mutex protecting internal data
+    std::map<uint16_t, Listeners> m_portListeners;      ///< Server port listeners
+    std::shared_ptr<Logger>       m_logger;             ///< Optional logger
+    std::shared_ptr<SSLKeys>      m_sslKeys;            ///< Optional SSL keys. Only used for SSL server.
+    Host                          m_host;               ///< This host
+    LogDetails                    m_logDetails;         ///< Log details
+    ServerConnection::Function    m_connectionFunction; ///< User-defined function that is called upon client connection to server
 };
 
 /**

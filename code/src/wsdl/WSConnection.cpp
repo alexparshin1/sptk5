@@ -31,11 +31,13 @@
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options)
+WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
+                           Options options, const std::shared_ptr<sptk::Thread>& workerThread)
     : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
     , m_services(services)
     , m_logger(logEngine, "(" + to_string(serial()) + ") ")
     , m_options(std::move(options))
+    , m_workerThread(workerThread)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
     {
@@ -187,6 +189,11 @@ void WSConnection::run()
     }
 }
 
+[[maybe_unused]] shared_ptr<Thread> WSConnection::getWorkerThread() const
+{
+    return m_workerThread;
+}
+
 void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
                                         const RequestInfo& requestInfo)
 {
@@ -326,9 +333,9 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
-                                 WSServices& services,
-                                 LogEngine& logEngine, const Options& options)
-    : WSConnection(server, addr, services, logEngine, options)
+                                 WSServices& services, LogEngine& logEngine, const Options& options,
+                                 const std::shared_ptr<sptk::Thread>& workerThread)
+    : WSConnection(server, addr, services, logEngine, options, workerThread)
 {
     if (options.encrypted)
     {

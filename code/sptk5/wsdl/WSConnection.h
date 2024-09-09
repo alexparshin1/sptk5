@@ -32,6 +32,8 @@
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebSocketsProtocol.h>
 
+#include <utility>
+
 namespace sptk {
 
 class SP_EXPORT WSConnection
@@ -65,8 +67,8 @@ public:
         bool       suppressHttpStatus {false};
         LogDetails logDetails;
 
-        Options(const Paths& paths, bool encrypted = false)
-            : paths(paths)
+        explicit Options(Paths paths, bool encrypted = false)
+            : paths(std::move(paths))
             , encrypted(encrypted)
         {
         }
@@ -75,12 +77,14 @@ public:
     /**
      * Constructor
      * @param server            Server object
-     * @param connectionSocket  Incoming connection socket
-     * @param service           Web service object
+     * @param connectionAddress Incoming connection address
+     * @param services          Web services
      * @param logEngine         Logger engine
      * @param options           Connection options
+     * @param workerThread      Worker thread
      */
-    WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine, Options options);
+    WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
+                 Options options, const std::shared_ptr<sptk::Thread>& workerThread);
 
     /**
      * Destructor
@@ -95,7 +99,7 @@ public:
     /**
      * Get hangup state
      */
-    bool isHangup() const
+    [[maybe_unused]] bool isHangup() const
     {
         return m_isHangup;
     }
@@ -103,16 +107,19 @@ public:
     /**
      * Set hangup state: read the data and close the connection
      */
-    void setHangup()
+    [[maybe_unused]] void setHangup()
     {
         m_isHangup = true;
     }
 
+    [[maybe_unused]] std::shared_ptr<Thread> getWorkerThread() const;
+
 private:
-    WSServices& m_services;
-    Logger      m_logger;
-    Options     m_options;
-    bool        m_isHangup {false};
+    WSServices&                   m_services;
+    Logger                        m_logger;
+    Options                       m_options;
+    bool                          m_isHangup {false};
+    std::shared_ptr<sptk::Thread> m_workerThread;
 
     void respondToOptions(const HttpHeaders& headers) const;
 
@@ -141,9 +148,10 @@ public:
      * @param services          Registered services to process incoming connection
      * @param logEngine         Log engine
      * @param options           Connection options
+     * @param workerThread      Worker thread
      */
     WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
-                    LogEngine& logEngine, const Options& options);
+                    LogEngine& logEngine, const Options& options, const std::shared_ptr<sptk::Thread>& workerThread);
 
     /**
      * Destructor

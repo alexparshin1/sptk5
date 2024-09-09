@@ -56,7 +56,7 @@ WSListener::WSListener(const WSServices& services, LogEngine& logger, const Stri
 UServerConnection WSListener::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
     m_options.encrypted = connectionType == ServerConnection::Type::SSL;
-    return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
+    return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options, nullptr);
 }
 
 const WSConnection::Options& WSListener::getOptions() const
