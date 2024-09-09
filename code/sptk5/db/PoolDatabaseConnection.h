@@ -31,8 +31,6 @@
 #include <sptk5/Variant.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 
-#include <list>
-#include <set>
 #include <vector>
 
 namespace sptk {
@@ -157,12 +155,12 @@ protected:
     virtual void queryBindParameters(Query* query) = 0;
 
     /**
-     * Opens the query for reading data from the query' recordset
+     * Opens the query for reading data from the query's recordset
      */
     virtual void queryOpen(Query* query) = 0;
 
     /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * Reads data from the query's recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     virtual void queryFetch(Query* query) = 0;
 
@@ -367,7 +365,7 @@ public:
     virtual void executeBatchFile(const String& batchFileName, Strings* errors);
 
     /**
-     * Executes SQL batch queries
+     * @brief Executes SQL batch queries.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -388,6 +386,8 @@ protected:
      * DatabaseConnection. Instead, it is possible to create an instance of derived
      * classes.
      * @param connectionString  The connection string
+     * @param connectionType    The connection type
+     * @param connectTimeout    Connection timeout
      */
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, std::chrono::seconds connectTimeout);
 

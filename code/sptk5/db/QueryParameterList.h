@@ -105,7 +105,7 @@ public:
     /**
      * Returns parameter count
      */
-    size_t size() const;
+    [[nodiscard]] size_t size() const;
 
     /**
      * Returns the parameter pointers
@@ -126,7 +126,7 @@ public:
     /**
      * First parameter const iterator
      */
-    const_iterator begin() const
+    [[nodiscard]] const_iterator begin() const
     {
         return m_items.begin();
     }
@@ -142,7 +142,7 @@ public:
     /**
      * End const iterator
      */
-    const_iterator end() const
+    [[nodiscard]] const_iterator end() const
     {
         return m_items.end();
     }

@@ -28,10 +28,6 @@
 
 #include <mysql.h>
 
-#include <cstdio>
-#include <list>
-#include <string>
-
 #include <sptk5/db/DatabaseField.h>
 #include <sptk5/db/DatabaseStatement.h>
 
@@ -143,13 +139,13 @@ public:
     void fetch() override;
 
 private:
-    String m_sql;                                  ///< Statement SQL
-    std::vector<MYSQL_BIND> m_paramBuffers;        ///< Parameter binding buffers
-    std::vector<unsigned long> m_paramLengths;     ///< Parameter data lengths
-    std::vector<MYSQL_BIND> m_fieldBuffers;        ///< Fetch data buffers
-    std::shared_ptr<MYSQL_STMT> m_stmt;            ///< Connection statement
-    std::shared_ptr<MYSQL_RES> m_result {nullptr}; ///< Statement handle
-    MYSQL_ROW m_row {};                            ///< Fetch data row
+    String                      m_sql;              ///< Statement SQL
+    std::vector<MYSQL_BIND>     m_paramBuffers;     ///< Parameter binding buffers
+    std::vector<unsigned long>  m_paramLengths;     ///< Parameter data lengths
+    std::vector<MYSQL_BIND>     m_fieldBuffers;     ///< Fetch data buffers
+    std::shared_ptr<MYSQL_STMT> m_stmt;             ///< Connection statement
+    std::shared_ptr<MYSQL_RES>  m_result {nullptr}; ///< Statement handle
+    MYSQL_ROW                   m_row {};           ///< Fetch data row
 
     /**
      * Reads not prepared statement result row to query fields
@@ -173,11 +169,10 @@ private:
 
     /**
      * Convert MySQL float data to field
-     * @param _field             Output field
-     * @param bind         MySQL field bind
-     * @param fieldType         Field type (date or datetime)
+     * @param _field            Output field
+     * @param bind              MySQL field bind
      */
-    static void decodeMySQLFloat(Field* _field, MYSQL_BIND& bind);
+    static void decodeMySQLFloat(Field* _field, const MYSQL_BIND& bind);
 
     [[noreturn]] void throwMySQLError() const
     {

@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
 #include <sptk5/xdoc/ExportXML.h>
 
 using namespace std;
