@@ -277,6 +277,10 @@ const Node::Nodes& Node::nodes(const String& name) const
 void Node::clear()
 {
     type(Type::Object);
+    for (auto& node: m_nodes)
+    {
+        node->clear();
+    }
     m_nodes.clear();
     m_attributes.clear();
 }

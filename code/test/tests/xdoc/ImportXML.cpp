@@ -191,9 +191,10 @@ TEST(SPTK_XDocument, parseXML)
     EXPECT_EQ(1, static_cast<int>(bodyElement->nodes().size()));
     EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
 
-    const auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node) {
-        return node->type() == Node::Type::Object;
-    });
+    const auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node)
+                                      {
+                                          return node->type() == Node::Type::Object;
+                                      });
 
     const SNode methodElement = itor != bodyElement->nodes().end() ? *itor : nullptr;
     EXPECT_TRUE(methodElement != nullptr);
@@ -269,7 +270,7 @@ TEST(SPTK_XDocument, getText)
 TEST(SPTK_XDocument, unquotedXmlAttributes)
 {
     const Buffer unquotedAttributesXml(String("<data><name value=Alex type=first /><last_name value=Doe type=last/></data>"));
-    Document document;
+    Document     document;
     document.load(unquotedAttributesXml, true);
 
     const auto firstName = document.root()->findFirst("name");
