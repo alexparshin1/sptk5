@@ -350,7 +350,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
     }
 }
 
-void CommandLine::addNote(const String& title, const String& text)
+[[maybe_unused]] void CommandLine::addNote(const String& title, const String& text)
 {
     m_notes.emplace_back(title, text);
 }

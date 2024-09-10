@@ -74,8 +74,8 @@ public:
         [[nodiscard]] bool matches(const String& command) const;
 
     private:
-        bool m_inverted;                             ///< If true then expression should not match
-        std::shared_ptr<RegularExpression> m_regexp; ///< Regular expression for matching an argument(s)
+        bool                               m_inverted; ///< If true then expression should not match
+        std::shared_ptr<RegularExpression> m_regexp;   ///< Regular expression for matching an argument(s)
     };
 
     /**
@@ -143,7 +143,7 @@ public:
      * @param help              Help (description) for the element
      */
     void defineParameter(const String& fullName, const String& shortName, const String& valueName,
-                         const String& validateValue,
+                         const String&     validateValue,
                          const Visibility& useForCommands, const String& defaultValue, const String& help);
 
     /**
@@ -158,7 +158,7 @@ public:
      * @param title             Argument/command name
      * @param text              Help (description) for the element
      */
-    void addNote(const String& title, const String& text);
+    [[maybe_unused]] void addNote(const String& title, const String& text);
 
     /**
      * Parses actual command line arguments.
@@ -419,7 +419,7 @@ public:
          * @param help          Help (description) for the element
          */
         CommandLineParameter(const String& name, const String& shortName, String valueName,
-                             const String& validateValue,
+                             const String&     validateValue,
                              const Visibility& useWithCommands, const String& help);
 
         /**
@@ -444,25 +444,25 @@ public:
         Type type() const override;
 
     private:
-        String m_valueInfo;                                 ///< Value name, for using in help
+        String                             m_valueInfo;     ///< Value name, for using in help
         std::shared_ptr<RegularExpression> m_validateValue; ///< Value validation regular expression
     };
 
 private:
-    String m_programVersion;                                                 ///< Program version and copyright message (for help only).
-    String m_description;                                                    ///< Program description (for help only).
-    String m_commandLinePrototype;                                           ///< Command line prototype (for help only).
-    std::map<String, std::shared_ptr<CommandLineElement>> m_optionTemplates; ///< All the defined options.
+    String                                                m_programVersion;       ///< Program version and copyright message (for help only).
+    String                                                m_description;          ///< Program description (for help only).
+    String                                                m_commandLinePrototype; ///< Command line prototype (for help only).
+    std::map<String, std::shared_ptr<CommandLineElement>> m_optionTemplates;      ///< All the defined options.
 
     /**
      * All the defined arguments.
      */
     std::map<String, std::shared_ptr<CommandLineArgument>> m_argumentTemplates;
-    std::map<String, String> m_values;                            ///< Received option values.
-    Strings m_arguments;                                          ///< Received arguments.
-    std::filesystem::path m_executablePath;                       ///< Executable path, from argv[0]
-    std::list<std::shared_ptr<CommandLineElement>> m_allElements; ///< All defined elements.
-    std::list<std::pair<String, String>> m_notes;                 ///< Notes.
+    std::map<String, String>                               m_values;         ///< Received option values.
+    Strings                                                m_arguments;      ///< Received arguments.
+    std::filesystem::path                                  m_executablePath; ///< Executable path, from argv[0]
+    std::list<std::shared_ptr<CommandLineElement>>         m_allElements;    ///< All defined elements.
+    std::list<std::pair<String, String>>                   m_notes;          ///< Notes.
 
     static String preprocessArgument(String& arg, String& quote, String& quotedString);
 

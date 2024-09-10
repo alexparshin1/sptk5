@@ -80,7 +80,7 @@ public:
      * The start of un-read data
      * @return
      */
-    uint8_t* head()
+    [[maybe_unused]] uint8_t* head()
     {
         return data() + m_readOffset;
     }
@@ -89,7 +89,7 @@ public:
      * Get number of bytes, available for read
      * @return number of bytes, available for read
      */
-    size_t available() const
+    [[nodiscard]] size_t available() const
     {
         return bytes() - readOffset();
     }
@@ -97,7 +97,7 @@ public:
     /**
      * @return true if there are no available bytes to read
      */
-    bool empty() const override
+    [[nodiscard]] bool empty() const override
     {
         return readOffset() >= bytes();
     }
@@ -106,7 +106,7 @@ public:
      * Get internal read offset
      * @return internal read offset
      */
-    size_t readOffset() const
+    [[nodiscard]] size_t readOffset() const
     {
         return m_readOffset;
     }

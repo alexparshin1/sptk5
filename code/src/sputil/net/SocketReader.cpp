@@ -291,7 +291,7 @@ size_t SocketReader::availableBytes() const
     return available;
 }
 
-bool SocketReader::canRead(size_t bytesToRead) const
+[[maybe_unused]] bool SocketReader::canRead(size_t bytesToRead) const
 {
     scoped_lock const lock(m_mutex);
 

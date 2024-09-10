@@ -120,7 +120,7 @@ public:
      * @param bytesToRead       Bytes to read
      * @returns true if reader has at least number of bytes available to read
      */
-    [[nodiscard]] bool canRead(size_t bytesToRead) const;
+    [[maybe_unused]] [[nodiscard]] bool canRead(size_t bytesToRead) const;
 
     /**
      * Return true if there are bytes available to read
@@ -143,18 +143,10 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex protecting read operations
-    TCPSocket& m_socket;        ///< Socket to read from
-    size_t m_readOffset {0};    ///< Current offset in the read buffer
-    Buffer m_buffer;            ///< Read buffer
-
-    /**
-     * Performs buffered read
-     * @param destination       Destination buffer
-     * @param size              Size of the destination buffer
-     * @returns bytes read from the internal buffer
-     */
-    size_t read(uint8_t* destination, size_t size, char delimiter, bool read_line);
+    mutable std::mutex m_mutex;          ///< Mutex protecting read operations
+    TCPSocket&         m_socket;         ///< Socket to read from
+    size_t             m_readOffset {0}; ///< Current offset in the read buffer
+    Buffer             m_buffer;         ///< Read buffer
 
     /**
      * Performs buffered read
