@@ -178,10 +178,11 @@ void WSConnection::run()
         try
         {
             processSingleConnection(done);
+            break;
         }
         catch (const Exception& e)
         {
-            if (!terminated())
+            if (!terminated() && socket().active())
             {
                 m_logger.error("Error in incoming connection: " + String(e.what()));
             }

@@ -50,9 +50,19 @@ void WSServerThread::threadFunction()
             m_connectionQueue.pop_front(connection, 1s))
         {
             connection->execute();
+            if (connection->socket().socketBytes() > 4)
+            {
+                m_connectionQueue.push_back(connection);
+                continue;
+            }
             if (connection->isHangup())
             {
                 m_server->closeConnection(connection);
+                continue;
+            }
+            if (connection->socket().active())
+            {
+                m_server->watchConnection(connection);
             }
         }
     }
