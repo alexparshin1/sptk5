@@ -27,7 +27,7 @@
 */
 
 #include <sptk5/cutils>
-#include <sptk5/wsdl/WSListener.h>
+#include <sptk5/wsdl/WSServer.h>
 
 using namespace std;
 using namespace sptk;
@@ -63,7 +63,7 @@ int main()
         WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
         WSConnection::Options options(paths);
         WSServices            services(request);
-        WSListener            server(services, log, hostname, 32, options);
+        WSServer              server(services, log, hostname, 32, options);
         server.addListener(ServerConnection::Type::TCP, 8000);
         while (true)
         {

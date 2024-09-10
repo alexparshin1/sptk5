@@ -78,8 +78,6 @@ UServerConnection WSServer::createConnection(ServerConnection::Type connectionTy
 
     auto assignedThread = WSServerThreads::nextThread();
 
-    auto*      connectionPtr = new WSSSLConnection(*this, connectionSocket, peer, m_services,
-                                                   m_logger.destination(), m_options, assignedThread);
     const auto connection = make_shared<WSSSLConnection>(*this, connectionSocket, peer, m_services,
                                                          m_logger.destination(), m_options, assignedThread);
     watchConnection(connection);

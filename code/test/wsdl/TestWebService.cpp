@@ -28,7 +28,7 @@
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/wsdl/WSConnection.h>
-#include <sptk5/wsdl/WSListener.h>
+#include <sptk5/wsdl/WSServer.h>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
@@ -82,7 +82,7 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
     jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
 
     jwt.set("iat", static_cast<int>(time(nullptr)));                // JWT issue time
-    jwt.set("iss", "http://test.com");                  // JWT issuer
+    jwt.set("iss", "http://test.com");                              // JWT issuer
     jwt.set("exp", static_cast<int>(time(nullptr)) + secondsInDay); // JWT expiration time
 
     // Add some description information that we may use later
@@ -109,8 +109,8 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
     }
 
     const auto& token = authentication->getData();
-    const auto info = token->findFirst("info");
-    auto username = info->getString("username");
+    const auto  info = token->findFirst("info");
+    auto        username = info->getString("username");
 
     output.m_account_balance = testAmount;
 }
@@ -197,15 +197,15 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
     return responseNode;
 }
 
-class TestListener : public WSListener
+class TestListener : public WSServer
 {
 public:
-    uint16_t servicePort {11000};
+    uint16_t            servicePort {11000};
     shared_ptr<SSLKeys> sslKeys;
-    SysLogEngine logEngine {"TestWebService"};
+    SysLogEngine        logEngine {"TestWebService"};
 
     TestListener(const WSServices& services, const WSConnection::Options& options, bool encrypted)
-        : WSListener(services, logEngine, "localhost", 16, options)
+        : WSServer(services, logEngine, "localhost", 16, options)
     {
         if (encrypted)
         {
@@ -222,10 +222,10 @@ shared_ptr<TestListener> createTestListener(bool encrypted)
 
     // Define Web Service listener
     const WSConnection::Paths paths("index.html", "/test", ".");
-    WSConnection::Options options(paths);
+    WSConnection::Options     options(paths);
     options.encrypted = encrypted;
     const WSServices services(service);
-    auto testListener = make_shared<TestListener>(services, options, encrypted);
+    auto             testListener = make_shared<TestListener>(services, options, encrypted);
 
     // Start Web Service listener
     auto connectionType = encrypted ? ServerConnection::Type::SSL : ServerConnection::Type::TCP;
@@ -259,7 +259,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
 
         for (const auto& methodName: methodNames)
         {
-            Buffer sendRequestBuffer;
+            Buffer         sendRequestBuffer;
             const Document sendRequest = make_send_request(methodName, dataFormat);
             sendRequest.exportTo(dataFormat, sendRequestBuffer, true);
 
@@ -277,9 +277,9 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
             client->host(Host("localhost", testListener->servicePort));
             client->open();
 
-            HttpConnect httpClient(*client);
+            HttpConnect      httpClient(*client);
             const HttpParams httpParams {{"action", "view"}};
-            Buffer requestResponse;
+            Buffer           requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/" + serviceType;
             const int statusCode = httpClient.cmd_post("/" + methodName, httpParams, sendRequestBuffer,
                                                        requestResponse, {"gzip"},
@@ -388,7 +388,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
 
 static String exportToString(const WSComplexType& object)
 {
-    Buffer buffer;
+    Buffer         buffer;
     xdoc::Document document;
     object.exportTo(document.root());
     document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
@@ -543,7 +543,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     login.m_server_count = 2;
     login.m_type = "abstract";
 
-    Document xml;
+    Document   xml;
     const auto loginNode = xml.root()->findOrCreate("login");
     login.unload(loginNode);
 
@@ -595,9 +595,9 @@ TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
     login.m_type = "abstract";
 
     DatabaseConnectionPool pool("postgresql://localhost/test");
-    const auto connection = pool.getConnection();
-    Query query(connection,
-                "SELECT * FROM test WHERE username = :username AND password = :password AND servers = :servers");
+    const auto             connection = pool.getConnection();
+    Query                  query(connection,
+                                 "SELECT * FROM test WHERE username = :username AND password = :password AND servers = :servers");
 
     login.unload(query.params());
 
