@@ -39,13 +39,13 @@ namespace {
 constexpr uint16_t testTcpEchoServerPort = 3001;
 constexpr uint16_t testSslEchoServerPort = 3002;
 
-void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
+void echoTestFunction(ServerConnection& connection)
 {
-    SocketReader reader(socket);
+    SocketReader reader(connection.socket());
 
     COUT("Server connection started\n");
     Buffer data;
-    while (!task.terminated())
+    while (true)
     {
         try
         {
@@ -58,7 +58,7 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
 
                 string str(data.c_str());
                 str += "\n";
-                socket.write(str);
+                connection.socket().write(str);
             }
         }
         catch (const Exception& e)
@@ -67,14 +67,14 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
             break;
         }
     }
-    socket.close();
+    connection.socket().close();
     COUT("Server connection closed\n");
 }
 
 constexpr size_t packetsInTest = 100000;
 constexpr size_t packetSize = 50;
 
-void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const String& /*address*/)
+void performanceTestFunction(ServerConnection& serverConnection)
 {
     Buffer data(packetSize);
 
@@ -93,7 +93,7 @@ void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const S
     {
         try
         {
-            if (const auto res = static_cast<int>(socket.write(dataPtr, packetSize));
+            if (const auto res = static_cast<int>(serverConnection.socket().write(dataPtr, packetSize));
                 res < 0)
             {
                 throwSocketError("Error writing to socket");
@@ -110,11 +110,11 @@ void performanceTestFunction(const Runable& /*task*/, TCPSocket& socket, const S
                  << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n");
 
     if (constexpr chrono::seconds timeout(10);
-        !socket.readyToRead(timeout))
+        !serverConnection.socket().readyToRead(timeout))
     {
         CERR("Timeout waiting for response");
     }
-    socket.close();
+    serverConnection.socket().close();
 }
 
 } // namespace
