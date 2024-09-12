@@ -101,7 +101,7 @@ void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
     m_connectionMap.erase(connection.get());
 }
 
-const WSConnection::Options& WSServer::getOptions() const
+[[maybe_unused]] const WSConnection::Options& WSServer::getOptions() const
 {
     return m_options;
 }

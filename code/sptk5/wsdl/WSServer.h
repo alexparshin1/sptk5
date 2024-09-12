@@ -77,7 +77,7 @@ public:
      * @brief Get server options
      * @return Server options
      */
-    const WSConnection::Options& getOptions() const;
+    [[maybe_unused]] const WSConnection::Options& getOptions() const;
 
 protected:
     /**

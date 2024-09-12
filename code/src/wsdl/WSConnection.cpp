@@ -76,7 +76,7 @@ void printMessage(stringstream& logMessage, const String& prefix, const RequestI
 }
 } // namespace
 
-void WSConnection::processSingleConnection(bool& done)
+void WSConnection::processSingleConnection()
 {
     auto logDebugMessages = m_logger.destination().minPriority() != LogPriority::Debug;
     if (logDebugMessages)
@@ -88,7 +88,6 @@ void WSConnection::processSingleConnection(bool& done)
         !socket().readyToRead(readTimeout30sec) // Client communication timeout
         || socket().socketBytes() == 0)         // Client closed connection
     {
-        done = true;
         return;
     }
 
@@ -111,7 +110,6 @@ void WSConnection::processSingleConnection(bool& done)
         if (headers["Connection"].toLowerCase() == "close")
         {
             httpReader.close();
-            done = true;
         }
         if (logDebugMessages)
         {
@@ -157,7 +155,6 @@ void WSConnection::processSingleConnection(bool& done)
     if (closeConnection)
     {
         httpReader.close();
-        done = true;
     }
 
     requestStopWatch.stop();
@@ -170,15 +167,11 @@ void WSConnection::processSingleConnection(bool& done)
 
 void WSConnection::run()
 {
-    // Read request data
-    bool done {false};
-
-    while (!done && socket().active())
+    if (socket().active())
     {
         try
         {
-            processSingleConnection(done);
-            break;
+            processSingleConnection();
         }
         catch (const Exception& e)
         {
