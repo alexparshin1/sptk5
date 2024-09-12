@@ -24,9 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/RegularExpression.h"
 #include <future>
 #include <regex>
 #include <sptk5/cutils>
+
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
@@ -126,6 +128,8 @@ void RegularExpression::Groups::grow(size_t groupCount)
 
 void RegularExpression::compile()
 {
+    lock_guard lock(m_mutex);
+
 #ifdef HAVE_PCRE2
     int        errorNumber {0};
     PCRE2_SIZE errorOffset {0};
@@ -215,8 +219,18 @@ RegularExpression::RegularExpression(std::string_view pattern, std::string_view 
     compile();
 }
 
+RegularExpression::RegularExpression(const RegularExpression& other)
+    : m_pattern(other.m_pattern)
+    , m_global(other.m_global)
+    , m_options(other.m_options)
+{
+    compile();
+}
+
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
+    lock_guard lock(m_mutex);
+
     if (!m_pcre)
     {
         throw Exception(m_error);
@@ -604,7 +618,6 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
     bool replaced = false;
     return replaceAll(text, outputPattern, replaced);
 }
-
 const String& RegularExpression::pattern() const
 {
     return m_pattern;

@@ -94,8 +94,10 @@ void WSServer::watchConnection(const std::shared_ptr<WSConnection>& connection)
 
 void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
 {
-    m_socketEvents.remove(connection->socket());
     connection->close();
+
+    scoped_lock lock(m_mutex);
+    m_socketEvents.remove(connection->socket());
     m_connectionMap.erase(connection.get());
 }
 
