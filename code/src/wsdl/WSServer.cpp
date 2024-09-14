@@ -108,14 +108,20 @@ void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
 
 void WSServer::socketEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
-    auto* connectionPtr = bit_cast<WSConnection*>(userData);
-    auto  connectionIterator = m_connectionMap.find(connectionPtr);
-    if (connectionIterator == m_connectionMap.end())
-    {
-        return;
-    }
+    shared_ptr<WSConnection> connection;
 
-    auto connection = connectionIterator->second;
+    if (userData != nullptr)
+    {
+        scoped_lock lock(m_mutex);
+
+        auto* connectionPtr = bit_cast<WSConnection*>(userData);
+        auto  connectionIterator = m_connectionMap.find(connectionPtr);
+        if (connectionIterator == m_connectionMap.end())
+        {
+            return;
+        }
+        connection = connectionIterator->second;
+    }
 
     m_socketEvents.remove(connection->socket());
 

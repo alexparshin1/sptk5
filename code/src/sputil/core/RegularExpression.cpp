@@ -300,17 +300,23 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 #endif
 }
 
+MatchData RegularExpression::createMatchData() const
+{
+    lock_guard lock(m_mutex);
+    return MatchData(m_pcre.get(), m_captureCount);
+}
+
 bool RegularExpression::operator==(const String& text) const
 {
-    size_t    offset = 0;
-    MatchData matchData(m_pcre.get(), m_captureCount);
+    size_t offset = 0;
+    auto   matchData = createMatchData();
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t       offset = 0;
-    MatchData    matchData(m_pcre.get(), m_captureCount);
+    auto         matchData = createMatchData();
     const size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -318,8 +324,7 @@ bool RegularExpression::matches(const String& text) const
 RegularExpression::Groups RegularExpression::m(const String& text, size_t& offset) const
 {
     Groups matchedStrings;
-
-    MatchData matchData(m_pcre.get(), m_captureCount);
+    auto   matchData = createMatchData();
 
     bool first {true};
     do
