@@ -32,7 +32,10 @@ IF (OS_FLAVOUR STREQUAL "ol" OR OS_FLAVOUR STREQUAL "fedora" OR OS_FLAVOUR STREQ
 
     SET(CPACK_RPM_COMPRESSION_TYPE "xz")
     SET(CPACK_RPM_PACKAGE_AUTOREQ 0)
-    SET(CPACK_RPM_PACKAGE_REQUIRES "mariadb, sqlite, postgresql, pcre, unixODBC, fltk, aspell, brotli-devel, gtest-devel")
+    SET(CPACK_RPM_CORE_PACKAGE_REQUIRES "pcre, brotli-devel, gtest-devel")
+    SET(CPACK_RPM_DB_PACKAGE_REQUIRES "mariadb, sqlite, postgresql, unixODBC")
+    SET(CPACK_RPM_CORE_PACKAGE_REQUIRES "pcre, brotli-devel, gtest-devel")
+    SET(CPACK_RPM_GUI_PACKAGE_REQUIRES "fltk, aspell")
 ENDIF ()
 
 IF (OS_FLAVOUR STREQUAL "debian" OR OS_FLAVOUR STREQUAL "linuxmint" OR OS_FLAVOUR STREQUAL "ubuntu")
