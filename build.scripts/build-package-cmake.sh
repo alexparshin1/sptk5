@@ -63,8 +63,9 @@ CWD=`pwd`
 TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
 mkdir -p "$TAR_DIR"
 src_name="$TAR_DIR/$PACKAGE_${VERSION}"
-[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * > make_src_archives.log
-[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' > make_src_archives.log
+echo "Base tar name: ${src_name}" > make_src_archives.log
+[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * >> make_src_archives.log
+[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' >> make_src_archives.log
 
 if [ $PACKAGE = "SPTK" ]; then
     BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local"
@@ -75,9 +76,12 @@ fi
 sh ./distclean.sh
 cmake . $BUILD_OPTIONS && make -j6 package || exit 1
 
+echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 sh ./install_local_packages.sh
+ls -l /usr/local/bin /usr/local/lib
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
+echo ──────────────────────────────────────────────────────────────────
 
 #wsdl2cxx
 sh ./distclean.sh
@@ -97,6 +101,7 @@ do
     fi
     mv $fname $OUTPUT_DIR/$name
 done
+echo ──────────────────────────────────────────────────────────────────
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
 grep "10.1.1.242" /etc/hosts
@@ -105,7 +110,7 @@ if [ $? == 1 ]; then
 fi
 
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-cd $CWD/test && ./${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
 RC=$?
 
 if [ $RC != 0 ]; then
