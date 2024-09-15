@@ -58,7 +58,9 @@ IF (OS_FLAVOUR STREQUAL "debian" OR OS_FLAVOUR STREQUAL "linuxmint" OR OS_FLAVOU
     SET(CPACK_DEBIAN_UNIT_TESTS_FILE_NAME DEB-DEFAULT)
 
     SET(CPACK_DEBIAN_COMPRESSION_TYPE "xz")
-    SET(CPACK_DEBIAN_PACKAGE_DEPENDS "mariadb-client, sqlite3, postgresql, libpcre3, unixodbc, libfltk1.3, aspell, libbrotli-dev, libgtest-dev")
+    SET(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "libpcre3, libbrotli-dev, libgtest-dev")
+    SET(CPACK_DEBIAN_DB_PACKAGE_DEPENDS "mariadb-client, sqlite3, postgresql, unixodbc")
+    SET(CPACK_DEBIAN_GUI_PACKAGE_DEPENDS "libfltk1.3, aspell")
 ENDIF ()
 
 set(CPACK_ARCHIVE_COMPONENT_INSTALL 1)
