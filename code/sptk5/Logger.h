@@ -83,7 +83,7 @@ public:
     /**
      * @brief Returns log engine (destination logger)
      */
-    LogEngine& destination()
+    LogEngine& destination() const
     {
         const std::lock_guard lock(m_mutex);
         return m_destination;
@@ -144,7 +144,6 @@ public:
 
     /**
      * @brief Get log message prefix
-     * @param prefix            Message prefix
      */
     std::string_view prefix() const
     {

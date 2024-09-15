@@ -109,7 +109,7 @@ public:
          */
         Group() = default;
 
-        String value;            ///< Matched fragment of subject
+        String        value;     ///< Matched fragment of subject
         pcre_offset_t start {0}; ///< Start position of the matched fragment in subject
         pcre_offset_t end {0};   ///< End position of the matched fragment in subject
     };
@@ -200,9 +200,9 @@ public:
         }
 
     private:
-        std::vector<Group> m_groups;           ///< Unnamed groups
+        std::vector<Group>      m_groups;      ///< Unnamed groups
         std::map<String, Group> m_namedGroups; ///< Named groups
-        static const Group emptyGroup;         ///< Empty group to return if group can't be found
+        static const Group      emptyGroup;    ///< Empty group to return if group can't be found
     };
 
     /**
@@ -218,6 +218,8 @@ public:
      * @param options           Pattern options
      */
     explicit RegularExpression(std::string_view pattern, std::string_view options = "");
+
+    RegularExpression(const RegularExpression& other);
 
     /**
      * Returns true if text matches with regular expression
@@ -301,15 +303,14 @@ public:
     const String& pattern() const;
 
 private:
-    String m_pattern;      ///< Match pattern
-    bool m_global {false}; ///< Global match (g) or first match only
-    String m_error;        ///< Last pattern error (if any)
-
-    std::shared_ptr<PCREHandle> m_pcre;           ///< Compiled PCRE expression handle
-    std::shared_ptr<PCREExtraHandle> m_pcreExtra; ///< Compiled PCRE expression optimization (for faster execution)
-
-    uint32_t m_options {0};    ///< PCRE pattern options
-    size_t m_captureCount {0}; ///< RE' capture count
+    mutable std::mutex               m_mutex;
+    String                           m_pattern;          ///< Match pattern
+    bool                             m_global {false};   ///< Global match (g) or first match only
+    String                           m_error;            ///< Last pattern error (if any)
+    std::shared_ptr<PCREHandle>      m_pcre;             ///< Compiled PCRE expression handle
+    std::shared_ptr<PCREExtraHandle> m_pcreExtra;        ///< Compiled PCRE expression optimization (for faster execution)
+    uint32_t                         m_options {0};      ///< PCRE pattern options
+    size_t                           m_captureCount {0}; ///< RE' capture count
 
     /**
      * Initialize PCRE expression
@@ -351,8 +352,9 @@ private:
      */
     static size_t findNextPlaceholder(size_t pos, const String& outputPattern);
 
-    void extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
-                             size_t matchCount) const;
+    void      extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
+                                  size_t matchCount) const;
+    MatchData createMatchData() const;
 };
 
 using SRegularExpression = std::shared_ptr<RegularExpression>;

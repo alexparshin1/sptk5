@@ -44,7 +44,7 @@ OpenApiGenerator::OpenApiGenerator(String title, String description, String vers
 }
 
 void OpenApiGenerator::generate(std::ostream& output, const WSOperationMap& operations,
-                                const WSComplexTypeMap& complexTypes,
+                                const WSComplexTypeMap&         complexTypes,
                                 const std::map<String, String>& documentation) const
 {
     // Validate options
@@ -131,10 +131,10 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
         postElement->set("operationId", operationName);
 
-        const auto& requestBody = postElement->pushNode("requestBody", Object);
-        const auto& content = requestBody->pushNode("content", Object);
-        const auto& data = content->pushNode("application/json", Object);
-        const auto& schema = data->pushNode("schema", Object);
+        const auto&  requestBody = postElement->pushNode("requestBody", Object);
+        const auto&  content = requestBody->pushNode("content", Object);
+        const auto&  data = content->pushNode("application/json", Object);
+        const auto&  schema = data->pushNode("schema", Object);
         const String ref = "#/components/schemas/" + operation.m_input->name();
         schema->set("$ref", ref);
 
@@ -145,9 +145,9 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
             response->set("description", description);
             if (name == "200")
             {
-                const auto& responseContent = response->pushNode("responseContent", Object);
-                const auto& responseEncoding = responseContent->pushNode("application/json", Object);
-                const auto& responseSchema = responseEncoding->pushNode("responseSchema", Object);
+                const auto&  responseContent = response->pushNode("responseContent", Object);
+                const auto&  responseEncoding = responseContent->pushNode("application/json", Object);
+                const auto&  responseSchema = responseEncoding->pushNode("responseSchema", Object);
                 const String responseRef = "#/components/schemas/" + operation.m_output->name();
                 responseSchema->set("$responseRef", responseRef);
             }
@@ -157,7 +157,8 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
 void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeMap& complexTypes)
 {
-    struct OpenApiType {
+    struct OpenApiType
+    {
         String type;
         String format;
     };
@@ -179,7 +180,7 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         const auto& complexType = schemas->pushNode(complexTypeInfo->name(), Object);
         complexType->set("type", "object");
         const auto& properties = complexType->pushNode("properties", Object);
-        Strings requiredProperties;
+        Strings     requiredProperties;
         for (const auto& ctypeProperty: complexTypeInfo->sequence())
         {
             const auto& property = properties->pushNode(ctypeProperty->name(), Object);
@@ -218,7 +219,8 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
 
 void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty, const SNode& property)
 {
-    struct OpenApiType {
+    struct OpenApiType
+    {
         String type;
         String format;
     };
@@ -265,8 +267,7 @@ void OpenApiGenerator::parseRestriction(const SWSParserComplexType& ctypePropert
 {
     using enum Node::Type;
 
-    const auto restriction = ctypeProperty->restriction();
-    if (restriction)
+    if (const auto restriction = ctypeProperty->restriction())
     {
         if (!restriction->patterns().empty())
         {

@@ -26,9 +26,11 @@
 
 #pragma once
 
-#include "WSServices.h"
+#include "WSServerThread.h"
+
 #include <sptk5/cnet>
 #include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSRequest.h>
 
@@ -40,17 +42,20 @@ namespace sptk {
  */
 
 /**
- * Web Service Listener
+ * @brief Web Service Server
  *
  * Simple server to accept Web Service requests.
  * Actual request processing is implemented in Web Service request processor,
  * passed to constructor.
- * As a bonus, WSListener also serves static files, located in staticFilesDirectory.
+ * As a bonus, WSServer also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
  */
-class SP_EXPORT WSListener
+class SP_EXPORT WSServer
     : public TCPServer
+    , public WSServerThreads
 {
+    friend class WSServerThread;
+
 public:
     /**
      * Constructor
@@ -60,10 +65,19 @@ public:
      * @param threadCount           Max number of simultaneously running requests
      * @param options               Client connection options
      */
-    WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
-               const WSConnection::Options& options);
+    WSServer(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
+             const WSConnection::Options& options);
 
-    const WSConnection::Options& getOptions() const;
+    /**
+     * @brief Destructor
+     */
+    ~WSServer() override;
+
+    /**
+     * @brief Get server options
+     * @return Server options
+     */
+    [[maybe_unused]] const WSConnection::Options& getOptions() const;
 
 protected:
     /**
@@ -77,11 +91,46 @@ protected:
      */
     UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer) override;
 
+    /**
+     * @brief Terminate server
+     */
+    void terminate();
+
+protected:
+    /**
+     * @brief Start monitoring incoming connection's events
+     * @param connection        Client connection
+     */
+    void watchConnection(const std::shared_ptr<WSConnection>& connection);
+
+    /**
+     * @brief Stop monitoring incoming connection's events
+     * @param connection        Client connection
+     */
+    void ignoreConnection(const std::shared_ptr<WSConnection>& connection);
+
+    /**
+     * @brief Close client connection
+     * @param connection        Client connection
+     */
+    void closeConnection(const std::shared_ptr<WSConnection>& connection);
+
 private:
-    mutable std::mutex m_mutex;      ///< Mutex that protects internal data
-    WSServices m_services;           ///< Web Service request processor
-    Logger m_logger;                 ///< Logger object
-    WSConnection::Options m_options; ///< Client connection options
+    using SWSConnection = std::shared_ptr<WSConnection>;
+
+    mutable std::mutex                     m_mutex;         ///< Mutex that protects internal data
+    WSServices                             m_services;      ///< Web Service request processor
+    Logger                                 m_logger;        ///< Logger object
+    WSConnection::Options                  m_options;       ///< Client connection options
+    sptk::SocketEvents                     m_socketEvents;  ///< Socket events
+    std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections
+
+    /**
+     * @brief Socket event callback function
+     * @param userData          User data
+     * @param eventType         Event type
+     */
+    void socketEventCallback(const uint8_t* userData, SocketEventType eventType);
 };
 
 /**

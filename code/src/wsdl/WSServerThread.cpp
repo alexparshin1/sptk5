@@ -24,42 +24,87 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/wsdl/WSConnection.h"
-#include <sptk5/wsdl/WSListener.h>
+#include <sptk5/wsdl/WSServer.h>
 
 using namespace std;
 using namespace sptk;
 
-WSListener::WSListener(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
-                       const WSConnection::Options& options)
-    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
-    , m_services(services)
-    , m_logger(logger)
-    , m_options(options)
+namespace sptk {
+
+WSServerThread::WSServerThread(WSServer* server)
+    : Thread("WSServerThread")
+    , m_server(server)
 {
-    if (!hostname.empty())
-    {
-        host(Host(hostname));
-    }
+}
 
-    if (m_options.paths.htmlIndexPage.empty())
-    {
-        m_options.paths.htmlIndexPage = "index.html";
-    }
+WSServerThread::~WSServerThread()
+{
+    Thread::terminate();
+}
 
-    if (m_options.paths.wsRequestPage.empty())
+void WSServerThread::threadFunction()
+{
+    while (!terminated())
     {
-        m_options.paths.wsRequestPage = "request";
+        if (shared_ptr<WSConnection> connection;
+            m_connectionQueue.pop_front(connection, 1s))
+        {
+            connection->execute();
+            if (connection->socket().socketBytes() > 4)
+            {
+                m_connectionQueue.push_back(connection);
+                continue;
+            }
+            if (connection->isHangup())
+            {
+                m_server->closeConnection(connection);
+                continue;
+            }
+            if (connection->socket().active())
+            {
+                m_server->watchConnection(connection);
+            }
+        }
     }
 }
 
-UServerConnection WSListener::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
+void WSServerThread::queue(const shared_ptr<WSConnection>& connection)
 {
-    m_options.encrypted = connectionType == ServerConnection::Type::SSL;
-    return make_unique<WSSSLConnection>(*this, connectionSocket, peer, m_services, m_logger.destination(), m_options);
+    m_connectionQueue.push_back(connection);
 }
 
-const WSConnection::Options& WSListener::getOptions() const
+WSServerThreads::WSServerThreads(WSServer* server, size_t threadCount)
 {
-    return m_options;
+    scoped_lock lock(m_mutex);
+    m_threads.reserve(threadCount);
+    for (size_t i = 0; i < threadCount; ++i)
+    {
+        auto thread = make_shared<WSServerThread>(server);
+        m_threads.push_back(thread);
+        thread->run();
+    }
 }
+
+SWSServerThread WSServerThreads::nextThread()
+{
+    scoped_lock lock(m_mutex);
+    if (m_nextThreadIndex >= m_threads.size())
+    {
+        m_nextThreadIndex = 0;
+    }
+    auto thread = m_threads[m_nextThreadIndex];
+    ++m_nextThreadIndex;
+    return thread;
+}
+
+void WSServerThreads::terminate()
+{
+    scoped_lock lock(m_mutex);
+    for (auto& thread: m_threads)
+    {
+        thread->terminate();
+    }
+    m_threads.clear();
+}
+
+} // namespace sptk

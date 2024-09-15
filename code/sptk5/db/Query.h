@@ -63,7 +63,7 @@ public:
     /**
      * Returns query statement handle
      */
-    StmtHandle statement() const
+    [[nodiscard]] StmtHandle statement() const
     {
         return m_statement;
     }
@@ -73,7 +73,7 @@ public:
      *
      * If the flag is set the query would automatically call prepare() when needed.
      */
-    bool autoPrepare() const
+    [[nodiscard]] bool autoPrepare() const
     {
         return m_autoPrepare;
     }
@@ -81,7 +81,7 @@ public:
     /**
      * Reports if the query is opened
      */
-    bool active() const
+    [[nodiscard]] bool active() const
     {
         return m_active;
     }
@@ -89,7 +89,7 @@ public:
     /**
      * True if the statement is prepared
      */
-    bool prepared() const
+    [[nodiscard]] bool prepared() const
     {
         return m_prepared;
     }
@@ -97,7 +97,7 @@ public:
     /**
      * Returns true if there is no more rows in the recordset
      */
-    bool eof() const override
+    [[nodiscard]] bool eof() const override
     {
         return m_eof;
     }
@@ -106,7 +106,7 @@ public:
      * Return bulk mode flag
      * @return true for bulk mode
      */
-    bool bulkMode() const;
+    [[nodiscard]] bool bulkMode() const;
 
     /**
      * Connects a query to a database
@@ -124,7 +124,7 @@ public:
     /**
      * Returns the database the query is connected to
      */
-    PoolDatabaseConnection* database() const
+    [[nodiscard]] PoolDatabaseConnection* database() const
     {
         return m_db;
     }
@@ -199,7 +199,7 @@ protected:
         return m_sql;
     }
 
-    const String& getSQL() const
+    [[nodiscard]] const String& getSQL() const
     {
         return m_sql;
     }
@@ -287,12 +287,12 @@ public:
     /**
      * Field access by number, const version
      *
-     * Field index should be inside 0..fieldCount()-1
+     * Field index should be inside 0 and fieldCount()-1
      * @param fieldIndex        Field index
      */
     Field& operator[](size_t fieldIndex) override
     {
-        return m_fields[(int) fieldIndex];
+        return m_fields[static_cast<int>(fieldIndex)];
     }
 
     /**
@@ -307,7 +307,7 @@ public:
      * Returns field count in the recordset
      * @returns field count
      */
-    size_t fieldCount() const override
+    [[nodiscard]] size_t fieldCount() const override
     {
         return m_fields.size();
     }
@@ -421,7 +421,7 @@ public:
      *
      * Makes sense after the SQL query text is set.
      */
-    size_t paramCount() const
+    [[nodiscard]] size_t paramCount() const
     {
         return m_params.size();
     }
@@ -446,7 +446,7 @@ public:
      * @param paramName         Parameter name
      * @returns parameter reference
      */
-    QueryParameter& param(const String& paramName) const
+    [[nodiscard]] QueryParameter& param(const String& paramName) const
     {
         return m_params[paramName.c_str()];
     }
@@ -456,7 +456,7 @@ public:
      * @param paramIndex        Parameter index
      * @returns parameter reference
      */
-    QueryParameter& param(size_t paramIndex) const
+    [[nodiscard]] QueryParameter& param(size_t paramIndex) const
     {
         return m_params[paramIndex];
     }

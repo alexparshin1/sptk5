@@ -634,8 +634,6 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
     int32_t                   cType = 0;
     VariantDataType           dataType = VariantDataType::VAR_NONE;
 
-    string columnNameStr;
-
     constexpr int largeTextSize = 65536;
     constexpr int maxColumnScale = 20;
 
@@ -651,8 +649,6 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
         {
             dataType = VariantDataType::VAR_TEXT;
         }
-
-        columnNameStr = columnName.data();
 
         if (columnLength > FETCH_BUFFER_SIZE)
         {

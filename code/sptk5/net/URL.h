@@ -34,39 +34,46 @@ class SP_EXPORT URL
 {
 public:
     explicit URL(const String& url);
-    URL(String protocol, String path, const HttpParams& params);
     URL(const URL& other) = default;
 
     HttpParams& params()
     {
         return m_params;
     }
-    const HttpParams& params() const
+
+    [[nodiscard]] const HttpParams& params() const
     {
         return m_params;
     }
-    String protocol() const
+
+    [[nodiscard]] String protocol() const
     {
         return m_protocol;
     }
-    String username() const
+
+    [[nodiscard]] String username() const
     {
         return m_username;
     }
-    String password() const
+
+    [[nodiscard]] String password() const
     {
         return m_password;
     }
-    String hostAndPort() const
+
+    [[nodiscard]] String hostAndPort() const
     {
         return m_hostAndPort;
     }
-    String path() const
+
+    [[nodiscard]] String path() const
     {
         return m_path;
     }
-    String location() const;
-    String toString() const;
+
+    [[nodiscard]] String location() const;
+
+    [[nodiscard]] String toString() const;
 
     void path(const String& path)
     {
@@ -74,11 +81,11 @@ public:
     }
 
 private:
-    String m_protocol;
-    String m_username;
-    String m_password;
-    String m_hostAndPort;
-    String m_path;
+    String     m_protocol;
+    String     m_username;
+    String     m_password;
+    String     m_hostAndPort;
+    String     m_path;
     HttpParams m_params;
 };
 

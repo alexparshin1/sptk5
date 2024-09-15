@@ -350,7 +350,7 @@ void CommandLine::defineArgument(const String& fullName, const String& helpText)
     }
 }
 
-void CommandLine::addNote(const String& title, const String& text)
+[[maybe_unused]] void CommandLine::addNote(const String& title, const String& text)
 {
     m_notes.emplace_back(title, text);
 }
@@ -479,7 +479,7 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
             {
                 throw Exception("Command line parameter " + arg + " should have value");
             }
-            const auto value = digestedArgs[argumentIndex];
+            const auto& value = digestedArgs[argumentIndex];
             element->validate(value);
             m_values[element->name()] = value;
         }

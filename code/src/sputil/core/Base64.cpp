@@ -125,7 +125,7 @@ inline bool is_base64(uint8_t chr) noexcept
 
 size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 {
-    size_t in_len = encoded_string.size();
+    size_t            in_len = encoded_string.size();
     int               index = 0;
     int               in_ = 0;
     array<uint8_t, 4> char_array_4 {};
@@ -143,12 +143,12 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
         {
             for (index = 0; index < 4; ++index)
             {
-                char_array_4[index] = static_cast<uint8_t>(base64_chars.find((char) char_array_4[index]));
+                char_array_4[index] = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[index])));
             }
 
-            char_array_3[0] = static_cast<uint8_t>(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
-            char_array_3[1] = static_cast<uint8_t>((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
-            char_array_3[2] = static_cast<uint8_t>((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
+            char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));
+            char_array_3[1] = static_cast<uint8_t>(((static_cast<int>(char_array_4[1]) & 0xf) << 4) + ((static_cast<int>(char_array_4[2]) & 0x3c) >> 2));
+            char_array_3[2] = static_cast<uint8_t>(((static_cast<int>(char_array_4[2]) & 0x3) << 6) + static_cast<int>(char_array_4[3]));
 
             dest.append(char_array_3.data(), 3);
             index = 0;
@@ -165,12 +165,12 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
         for (j = 0; j < 4; ++j)
         {
-            char_array_4[j] = static_cast<uint8_t>(base64_chars.find((char) char_array_4[j]));
+            char_array_4[j] = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[j])));
         }
 
-        char_array_3[0] = static_cast<uint8_t>(((int) char_array_4[0] << 2) + (((int) char_array_4[1] & 0x30) >> 4));
-        char_array_3[1] = static_cast<uint8_t>((((int) char_array_4[1] & 0xf) << 4) + (((int) char_array_4[2] & 0x3c) >> 2));
-        char_array_3[2] = static_cast<uint8_t>((((int) char_array_4[2] & 0x3) << 6) + (int) char_array_4[3]);
+        char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));
+        char_array_3[1] = static_cast<uint8_t>(((static_cast<int>(char_array_4[1]) & 0xf) << 4) + ((static_cast<int>(char_array_4[2]) & 0x3c) >> 2));
+        char_array_3[2] = static_cast<uint8_t>(((static_cast<int>(char_array_4[2]) & 0x3) << 6) + static_cast<int>(char_array_4[3]));
 
         for (j = 0; (j < index - 1); ++j)
         {

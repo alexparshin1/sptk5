@@ -70,7 +70,8 @@ void BufferStorage::_set(const uint8_t* data, size_t size)
 
 void BufferStorage::append(char chr)
 {
-    checkSize(m_size + 2);
+    constexpr auto extraSpace = 2;
+    checkSize(m_size + extraSpace);
     m_buffer[m_size] = chr;
     m_buffer[++m_size] = 0;
 }

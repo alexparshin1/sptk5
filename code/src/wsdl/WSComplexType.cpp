@@ -31,10 +31,10 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-void WSComplexType::copyFrom(const WSComplexType& other)
+[[maybe_unused]] void WSComplexType::copyFrom(const WSComplexType& other)
 {
     xdoc::Document xml;
-    const auto& element = xml.root()->pushNode("temp");
+    const auto&    element = xml.root()->pushNode("temp");
     other.unload(element);
     load(element);
 }
@@ -63,7 +63,7 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         }
 
         const String elementName = name == nullptr ? this->name().c_str() : name;
-        xdoc::SNode element;
+        xdoc::SNode  element;
         if (parent->type() == Node::Type::Array)
         {
             element = parent->pushNode(elementName);
@@ -89,7 +89,7 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
     else
     {
         xdoc::Document outputXML;
-        const auto& element = outputXML.root()->pushNode("type");
+        const auto&    element = outputXML.root()->pushNode("type");
         unload(element);
         outputXML.exportTo(DataFormat::XML, output, formatted);
     }
@@ -146,9 +146,10 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
     _clear();
     setLoaded(true);
 
-    m_fields.forEach([&input, nullLargeData](WSType* field) {
-        return loadField(input, nullLargeData, field);
-    });
+    m_fields.forEach([&input, nullLargeData](WSType* field)
+                     {
+                         return loadField(input, nullLargeData, field);
+                     });
 
     checkRestrictions();
 }
@@ -182,7 +183,7 @@ bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType
         }
         else
         {
-            Document document;
+            Document   document;
             const auto json = inputField->asString();
             document.load(json);
             field->load(document.root());
@@ -195,14 +196,15 @@ bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType
 bool WSComplexType::isNull() const
 {
     bool hasValues = false;
-    m_fields.forEach([&hasValues](const WSType* field) {
-        if (field->isNull())
-        {
-            return true;
-        }
-        hasValues = true;
-        return false;
-    });
+    m_fields.forEach([&hasValues](const WSType* field)
+                     {
+                         if (field->isNull())
+                         {
+                             return true;
+                         }
+                         hasValues = true;
+                         return false;
+                     });
     return !hasValues;
 }
 
@@ -214,21 +216,23 @@ void WSComplexType::unload(const SNode& output) const
     if (fields.hasAttributes())
     {
         // Unload attributes
-        fields.forEach([output](const WSType* field) {
-            if (!field->isNull())
+        fields.forEach([output](const WSType* field)
+                       {
+                           if (!field->isNull())
                            {
-                output->attributes().set(field->name(), field->asString());
-            }
-            return true;
-        },
+                               output->attributes().set(field->name(), field->asString());
+                           }
+                           return true;
+                       },
                        WSFieldIndex::Group::ATTRIBUTES);
     }
 
     // Unload elements
-    fields.forEach([&output](const WSType* field) {
-        field->exportTo(output);
-        return true;
-    },
+    fields.forEach([&output](const WSType* field)
+                   {
+                       field->exportTo(output, nullptr);
+                       return true;
+                   },
                    WSFieldIndex::Group::ELEMENTS);
 }
 
@@ -240,21 +244,22 @@ void WSComplexType::unload(QueryParameterList& output) const
 #ifdef _WIN32
                        this,
 #endif
-                       &output](const WSType* field) {
-        if (const auto* inputField = dynamic_cast<const WSBasicType*>(field);
-            inputField != nullptr)
-        {
-            WSComplexType::unload(output, inputField->name().c_str(), inputField);
-        }
-        else
-        {
-            const auto param = output.find(field->name());
-            if (param)
-            {
-                *param = field->asString();
-            }
-        }
-        return true;
-    },
+                       &output](const WSType* field)
+                   {
+                       if (const auto* inputField = dynamic_cast<const WSBasicType*>(field);
+                           inputField != nullptr)
+                       {
+                           WSComplexType::unload(output, inputField->name().c_str(), inputField);
+                       }
+                       else
+                       {
+                           const auto param = output.find(field->name());
+                           if (param)
+                           {
+                               *param = field->asString();
+                           }
+                       }
+                       return true;
+                   },
                    WSFieldIndex::Group::ELEMENTS_AND_ATTRIBUTES);
 }

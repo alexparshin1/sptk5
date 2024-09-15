@@ -136,8 +136,7 @@ SNode Node::findFirst(const String& name, SearchMode searchMode) const
     {
         for (const auto& node: m_nodes)
         {
-            auto found = node->findFirst(name, searchMode);
-            if (found)
+            if (auto found = node->findFirst(name, searchMode))
             {
                 return found;
             }
@@ -278,6 +277,10 @@ const Node::Nodes& Node::nodes(const String& name) const
 void Node::clear()
 {
     type(Type::Object);
+    for (auto& node: m_nodes)
+    {
+        node->clear();
+    }
     m_nodes.clear();
     m_attributes.clear();
 }
@@ -326,15 +329,10 @@ bool Node::remove(const String& name)
 
 bool Node::remove(const SNode& _node)
 {
-    for (auto node = m_nodes.begin(); node != m_nodes.end(); ++node)
-    {
-        if ((*node).get() == _node.get())
-        {
-            m_nodes.erase(node);
-            return true;
-        }
-    }
-    return false;
+    return erase_if(m_nodes, [&](const auto& node)
+                    {
+                        return node.get() == _node.get();
+                    });
 }
 
 namespace {

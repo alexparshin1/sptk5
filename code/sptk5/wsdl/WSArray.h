@@ -42,7 +42,6 @@ class WS_EXPORT WSArray
     : public WSType
 {
 public:
-    using value_type = T;
     using iterator = typename std::vector<T>::iterator;
     using const_iterator = typename std::vector<T>::const_iterator;
 
@@ -78,7 +77,7 @@ public:
         return m_array.clear();
     }
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return m_array.empty();
     }
@@ -113,12 +112,12 @@ public:
         return m_array.end();
     }
 
-    T& front()
+    [[maybe_unused]] T& front()
     {
         return m_array.front();
     }
 
-    const T& front() const
+    [[maybe_unused]] const T& front() const
     {
         return m_array.front();
     }
@@ -153,6 +152,11 @@ public:
         m_array.emplace_back(std::move(value));
     }
 
+    [[maybe_unused]] void reserve(size_t sz)
+    {
+        m_array.reserve(sz);
+    }
+
     void resize(size_t sz)
     {
         m_array.resize(sz);
@@ -181,11 +185,11 @@ public:
     /**
      * Conversion to string
      */
-    String asString() const override
+    [[nodiscard]] String asString() const override
     {
         xdoc::Document document;
         Buffer         buffer;
-        exportTo(document.root());
+        exportTo(document.root(), nullptr);
         const auto& arrayNode = document.root()->findFirst(name());
         arrayNode->exportTo(xdoc::DataFormat::JSON, buffer, false);
         return static_cast<String>(buffer);
@@ -196,7 +200,7 @@ public:
      * @param parent            Parent XML element
      * @param name              Optional name for child element
      */
-    void exportTo(const xdoc::SNode& output, const char* name = nullptr) const override
+    void exportTo(const xdoc::SNode& output, const char* name) const override
     {
         const char* itemName = name == nullptr ? "item" : name;
         auto        arrayNode = output->pushNode(this->name(), xdoc::Node::Type::Array);

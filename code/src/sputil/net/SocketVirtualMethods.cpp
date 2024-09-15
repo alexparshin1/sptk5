@@ -29,10 +29,10 @@
 #include <sptk5/net/SocketVirtualMethods.h>
 
 #ifndef _WIN32
-
 #include <sys/poll.h>
-
 #endif
+
+#include <thread>
 
 using namespace std;
 
@@ -440,7 +440,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
         return 0;
     }
 
-    int bytes;
+    ssize_t bytes;
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
@@ -462,12 +462,24 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
 
 size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 {
+    while (true)
+    {
 #ifdef _WIN32
-    auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+        auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
-    auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_NOSIGNAL);
+        auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_NOSIGNAL);
 #endif
-    return res;
+        if (res == -1)
+        {
+            if (errno == EINTR || errno == EAGAIN || errno == EINPROGRESS)
+            {
+                this_thread::yield();
+                continue;
+            }
+            throwSocketError("Can't write to socket");
+        }
+        return res;
+    }
 }
 
 size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
@@ -492,18 +504,18 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
                            sizeof(sockaddr_in));
 #else
             bytes = static_cast<int>(sendto(m_socketFd, bit_cast<const char*>(ptr), (int32_t) size, MSG_NOSIGNAL,
-                                 bit_cast<const sockaddr*>(peer),
-                                 sizeof(sockaddr_in)));
+                                            bit_cast<const sockaddr*>(peer),
+                                            sizeof(sockaddr_in)));
 #endif
+            if (bytes == -1)
+            {
+                throwSocketError("Can't write to socket");
+            }
         }
         else
         {
-            bytes = static_cast<int>(sendUnlocked(ptr, static_cast<int32_t>(size)));
-        }
-
-        if (bytes == -1)
-        {
-            throwSocketError("Can't write to socket");
+            auto writeSize = remaining > 16384 ? 16384 : remaining;
+            bytes = static_cast<int>(sendUnlocked(ptr, static_cast<int32_t>(writeSize)));
         }
 
         remaining -= bytes;
@@ -539,10 +551,6 @@ void throwSocketError(const String& message, const std::source_location& locatio
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
-        case ENETDOWN:
-        case ENETRESET:
-        case ENETUNREACH:
-            throw ConnectionException(message + ": Network error", location);
         case ECONNABORTED:
         case ECONNRESET:
             throw ConnectionException(message + ": Connection is terminated", location);

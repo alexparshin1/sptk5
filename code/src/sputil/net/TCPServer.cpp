@@ -72,7 +72,7 @@ String LogDetails::toString(const String& delimiter) const
 
 TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
     : ThreadPool(static_cast<uint32_t>(threadLimit),
-                 chrono::minutes(1),
+                 60s,
                  listenerName,
                  logDetails.has(LogDetails::MessageDetail::THREAD_POOLING) ? logEngine : nullptr)
     , m_logDetails(logDetails)
@@ -82,9 +82,9 @@ TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* 
         m_logger = make_shared<Logger>(*logEngine);
     }
 
-    constexpr unsigned maxHostNameLength = 128;
+    constexpr unsigned             maxHostNameLength = 128;
     array<char, maxHostNameLength> hostname = {"localhost"};
-    const int result = gethostname(hostname.data(), sizeof(hostname));
+    const int                      result = gethostname(hostname.data(), sizeof(hostname));
     if (result == 0)
     {
         m_host = Host(hostname.data());
@@ -136,7 +136,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
     }
 }
 
-void TCPServer::removeListener(uint16_t port)
+[[maybe_unused]] void TCPServer::removeListener(uint16_t port)
 {
     const scoped_lock lock(m_mutex);
 

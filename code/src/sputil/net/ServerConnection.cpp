@@ -37,7 +37,7 @@ using namespace sptk;
 
 size_t ServerConnection::nextSerial()
 {
-    static mutex aMutex;
+    static mutex  aMutex;
     static size_t serial = 0;
 
     const scoped_lock lock(aMutex);
@@ -59,7 +59,7 @@ STCPSocket ServerConnection::getSocket() const
 STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 {
     const scoped_lock lock(m_mutex);
-    auto priorSocket = m_socket;
+    auto              priorSocket = m_socket;
     m_socket = socket;
     return priorSocket;
 }
@@ -83,7 +83,7 @@ ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_
 
 void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    constexpr int maxAddressSize {128};
+    constexpr int               maxAddressSize {128};
     array<char, maxAddressSize> address {"127.0.0.1"};
     if (connectionAddress)
     {
@@ -105,4 +105,13 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 uint16_t ServerConnection::port() const
 {
     return m_port;
+}
+
+void ServerConnection::close()
+{
+    const scoped_lock lock(m_mutex);
+    if (m_socket->active())
+    {
+        m_socket->close();
+    }
 }
