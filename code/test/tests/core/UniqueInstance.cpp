@@ -43,7 +43,7 @@ TEST(SPTK_UniqueInstance, create)
     EXPECT_TRUE(uniqueInstance.isUnique());
 
     // Simulate lock file with non-existing process
-    ofstream lockFile(uniqueInstance.lockFileName());
+    ofstream      lockFile(uniqueInstance.lockFileName());
     constexpr int testPID = 123456;
     lockFile << testPID;
     lockFile.close();
@@ -52,9 +52,9 @@ TEST(SPTK_UniqueInstance, create)
     EXPECT_TRUE(uniqueInstance2.isUnique());
 
     // Get pid of existing process
-    if (FILE* pipe1 = popen("pidof systemd", "r"); pipe1 != nullptr)
+    if (FILE* pipe1 = popen("bash -C sptk_unit_tests", "r"); pipe1 != nullptr)
     {
-        constexpr int bufferSize = 64;
+        constexpr int           bufferSize = 64;
         array<char, bufferSize> buffer {};
         if (const char* data = fgets(buffer.data(), sizeof(buffer), pipe1); data != nullptr)
         {
