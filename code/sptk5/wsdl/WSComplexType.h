@@ -53,7 +53,7 @@ public:
      * @param name              Element name
      * @param optional          Element optionality flag
      */
-    WSComplexType(const char* name, bool optional = false)
+    explicit WSComplexType(const char* name, bool optional = false)
         : WSType(name)
         , m_optional(optional)
     {
@@ -91,7 +91,7 @@ public:
     /**
      * Return class name
      */
-    String className() const override
+    [[nodiscard]] String className() const override
     {
         return "WSComplexType";
     }
@@ -108,7 +108,7 @@ public:
      * Copy data from other object
      * @param other             Object to copy from
      */
-    void copyFrom(const WSComplexType& other);
+    [[maybe_unused]] void copyFrom(const WSComplexType& other);
 
     /**
      * Loads type data from request XML node
@@ -156,12 +156,12 @@ public:
     /**
      * True if data was not loaded, or if all the fields are null.
      */
-    bool isNull() const override;
+    [[nodiscard]] bool isNull() const override;
 
     /**
      * True is element is optional
      */
-    virtual bool isOptional() const
+    [[nodiscard]] virtual bool isOptional() const
     {
         return m_optional;
     }
@@ -171,7 +171,7 @@ public:
      * @param asJSON            Output is JSON (true) or XML (false)
      * @return object presentation as JSON or XML string
      */
-    virtual String toString(bool asJSON = true, bool formatted = false) const;
+    [[nodiscard]] virtual String toString(bool asJSON = true, bool formatted = false) const;
 
     /**
      * Throw SOAPException is the object is null
@@ -183,7 +183,7 @@ public:
      * If object is exportable, it's included during export to JSON or XML
      * @param flag              Exportable flag
      */
-    void exportable(bool flag)
+    [[maybe_unused]] void exportable(bool flag)
     {
         m_exportable = flag;
     }
@@ -192,7 +192,7 @@ protected:
     /**
      * @return true if object is loaded
      */
-    bool loaded() const
+    [[nodiscard]] bool loaded() const
     {
         return m_loaded;
     }
@@ -211,13 +211,14 @@ protected:
      */
     virtual void _clear()
     {
-        m_fields.forEach([](WSType* field) {
-            field->clear();
-            return true;
-        });
+        m_fields.forEach([](WSType* field)
+                         {
+                             field->clear();
+                             return true;
+                         });
     }
 
-    const WSFieldIndex& getFields() const
+    [[nodiscard]] const WSFieldIndex& getFields() const
     {
         return m_fields;
     }
@@ -241,10 +242,10 @@ protected:
     }
 
 private:
-    bool m_optional {false};  ///< Element optionality flag
-    bool m_loaded {false};    ///< Is data loaded flag
-    bool m_exportable {true}; ///< Is this object exportable?
-    WSFieldIndex m_fields;    ///< All fields
+    bool         m_optional {false};  ///< Element optionality flag
+    bool         m_loaded {false};    ///< Is data loaded flag
+    bool         m_exportable {true}; ///< Is this object exportable?
+    WSFieldIndex m_fields;            ///< All fields
 
     static bool loadField(const FieldList& input, bool nullLargeData, WSType* field);
 };

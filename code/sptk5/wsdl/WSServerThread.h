@@ -42,7 +42,7 @@ public:
      * @brief Constructor
      * @param server        Web service server
      */
-    WSServerThread(WSServer* server);
+    explicit WSServerThread(WSServer* server);
 
     /**
      * @brief Destructor

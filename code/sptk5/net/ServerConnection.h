@@ -63,7 +63,7 @@ public:
         SSL
     };
 
-    using Function = std::function<void(const Runable& task, TCPSocket& socket, const String& address)>;
+    using Function = std::function<void(ServerConnection& socket)>;
 
     /**
      * Constructor
@@ -126,7 +126,7 @@ protected:
     {
         if (m_connectionFunction)
         {
-            m_connectionFunction(*this, socket(), address());
+            m_connectionFunction(*this);
         }
     }
 

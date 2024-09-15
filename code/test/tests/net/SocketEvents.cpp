@@ -45,14 +45,14 @@ TCPSocket* echoSocket;
 /**
  * @brief Test TCP echo server function
  */
-void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*address*/)
+void echoTestFunction(ServerConnection& serverConnection)
 {
-    echoSocket = &socket;
+    echoSocket = serverConnection.getSocket().get();
 
-    SocketReader socketReader(socket);
+    SocketReader socketReader(*echoSocket);
     Buffer       data;
     bool         terminated = false;
-    while (!task.terminated() && !terminated)
+    while (!terminated)
     {
         try
         {
@@ -64,7 +64,7 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
                 }
                 string str(data.c_str());
                 str += "\n";
-                socket.write(str);
+                echoSocket->write(str);
             }
             else
             {
@@ -76,7 +76,7 @@ void echoTestFunction(const Runable& task, TCPSocket& socket, const String& /*ad
             terminated = true;
         }
     }
-    socket.close();
+    echoSocket->close();
 }
 
 } // namespace

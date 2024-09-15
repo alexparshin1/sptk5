@@ -157,7 +157,7 @@ bool SocketPool::waitForEvents(chrono::milliseconds timeout)
 
         if (auto* socket = bit_cast<Socket*>(event.data.ptr))
         {
-            if (m_userData.contains(socket) && executeEventAction(socket, eventType) == SocketEventAction::Disable)
+            if (isSocketRegistered(socket) && executeEventAction(socket, eventType) == SocketEventAction::Disable)
             {
                 // Disable events for the socket
                 event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
