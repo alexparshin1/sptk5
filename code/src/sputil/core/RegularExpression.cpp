@@ -24,9 +24,11 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/RegularExpression.h"
 #include <future>
 #include <regex>
 #include <sptk5/cutils>
+
 
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
@@ -126,6 +128,8 @@ void RegularExpression::Groups::grow(size_t groupCount)
 
 void RegularExpression::compile()
 {
+    lock_guard lock(m_mutex);
+
 #ifdef HAVE_PCRE2
     int        errorNumber {0};
     PCRE2_SIZE errorOffset {0};
@@ -215,8 +219,18 @@ RegularExpression::RegularExpression(std::string_view pattern, std::string_view 
     compile();
 }
 
+RegularExpression::RegularExpression(const RegularExpression& other)
+    : m_pattern(other.m_pattern)
+    , m_global(other.m_global)
+    , m_options(other.m_options)
+{
+    compile();
+}
+
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
+    lock_guard lock(m_mutex);
+
     if (!m_pcre)
     {
         throw Exception(m_error);
@@ -286,17 +300,23 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 #endif
 }
 
+MatchData RegularExpression::createMatchData() const
+{
+    lock_guard lock(m_mutex);
+    return MatchData(m_pcre.get(), m_captureCount);
+}
+
 bool RegularExpression::operator==(const String& text) const
 {
-    size_t    offset = 0;
-    MatchData matchData(m_pcre.get(), m_captureCount);
+    size_t offset = 0;
+    auto   matchData = createMatchData();
     return nextMatch(text, offset, matchData) > 0;
 }
 
 bool RegularExpression::matches(const String& text) const
 {
     size_t       offset = 0;
-    MatchData    matchData(m_pcre.get(), m_captureCount);
+    auto         matchData = createMatchData();
     const size_t matchCount = nextMatch(text, offset, matchData);
     return matchCount > 0;
 }
@@ -304,8 +324,7 @@ bool RegularExpression::matches(const String& text) const
 RegularExpression::Groups RegularExpression::m(const String& text, size_t& offset) const
 {
     Groups matchedStrings;
-
-    MatchData matchData(m_pcre.get(), m_captureCount);
+    auto   matchData = createMatchData();
 
     bool first {true};
     do
@@ -604,7 +623,6 @@ String RegularExpression::s(const String& text, const String& outputPattern) con
     bool replaced = false;
     return replaceAll(text, outputPattern, replaced);
 }
-
 const String& RegularExpression::pattern() const
 {
     return m_pattern;

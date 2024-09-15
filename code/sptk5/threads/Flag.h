@@ -122,11 +122,6 @@ private:
     bool m_value {false};
 
     /**
-     * Number of waiters
-     */
-    size_t m_waiters {0};
-
-    /**
      * Terminated flag
      */
     bool m_terminated {false};

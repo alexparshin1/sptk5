@@ -168,6 +168,12 @@ private:
 
     void              processError(int error, const String& operation) const;
     SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);
+
+    bool isSocketRegistered(Socket* socket)
+    {
+        std::lock_guard lock(*this);
+        return m_userData.find(socket) != m_userData.end();
+    }
 };
 
 } // namespace sptk

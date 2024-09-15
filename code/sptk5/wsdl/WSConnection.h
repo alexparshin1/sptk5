@@ -130,7 +130,7 @@ private:
     void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
                               const RequestInfo& requestInfo);
 
-    void processSingleConnection(bool& done);
+    void processSingleConnection();
 };
 
 /**

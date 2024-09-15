@@ -168,6 +168,7 @@ ELSE ()
     ENDIF ()
 ENDIF ()
 
+#set(CMAKE_FIND_LIBRARY_SUFFIXES .a .lib .so .dll)
 
 IF (NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE Debug)
