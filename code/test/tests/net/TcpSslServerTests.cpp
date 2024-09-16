@@ -288,6 +288,8 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
     const size_t packetCount = readAllPackets(*socket, readSize);
     stopWatch.stop();
 
+    pushTcpServer->stop();
+
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 }
 } // namespace
