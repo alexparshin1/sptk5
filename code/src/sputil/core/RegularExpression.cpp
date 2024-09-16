@@ -238,8 +238,6 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
 #ifdef HAVE_PCRE2
 
-    const auto* ovector = pcre2_get_ovector_pointer(matchData.match_data.get());
-
     auto rc = pcre2_match(
         m_pcre.get(),               // the compiled pattern
         (PCRE2_SPTR) text.c_str(),  // the subject string
@@ -251,9 +249,17 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     if (rc >= 0)
     {
-        memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
-        offset = ovector[1];
-        return size_t(rc); // match count
+        auto* offsetVector = pcre2_get_ovector_pointer(matchData.match_data.get());
+        const auto* offsetsEnd = offsetVector + 2 * rc;
+        matchData.matches.reserve(rc);
+        matchData.matches.clear();
+        for (auto* offsetPair = offsetVector; offsetPair != offsetsEnd; offsetPair += 2)
+        {
+            matchData.matches.emplace_back(static_cast<pcre_offset_t>(*offsetPair), static_cast<pcre_offset_t>(*(offsetPair + 1)));
+        }
+        //memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
+        offset = offsetVector[1];
+        return static_cast<size_t>(rc); // match count
     }
 
     if (rc == PCRE2_ERROR_NOMATCH)

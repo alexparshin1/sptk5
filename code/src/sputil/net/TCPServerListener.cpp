@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
@@ -52,8 +51,7 @@ void TCPServerListener::acceptConnection(const std::chrono::milliseconds timeout
         {
             if (m_server->allowConnection(&connectionInfo))
             {
-                auto connection = m_server->createConnection(m_connectionType, connectionFD, &connectionInfo);
-                if (connection)
+                if (auto connection = m_server->createConnection(m_connectionType, connectionFD, &connectionInfo))
                 {
                     m_server->execute(std::move(connection));
                 }

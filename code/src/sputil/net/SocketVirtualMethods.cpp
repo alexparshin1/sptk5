@@ -301,14 +301,14 @@ void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
         m_host.port(portNumber);
     }
 
-    sockaddr_in addr = {};
+    sockaddr_in address = {};
 
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    addr.sin_port = htons(m_host.port());
+    memset(&address, 0, sizeof(address));
+    address.sin_family = static_cast<SOCKET_ADDRESS_FAMILY>(m_domain);
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
+    address.sin_port = htons(m_host.port());
 
-    openAddressUnlocked(addr, OpenMode::BIND, chrono::milliseconds(0), reusePort);
+    openAddressUnlocked(address, OpenMode::BIND, chrono::milliseconds(0), reusePort);
 }
 
 #if (__FreeBSD__ | __OpenBSD__)

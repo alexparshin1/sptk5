@@ -52,6 +52,7 @@ TEST(SPTK_SSLSocket, connect)
 TEST(SPTK_SSLSocket, httpConnect)
 {
     GTEST_SKIP();
+
     constexpr uint16_t sslPort {443};
     const Host yahoo("www.yahoo.com", sslPort);
     sockaddr_in address {};

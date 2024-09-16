@@ -2,6 +2,7 @@ IF (GTEST_FLAG)
     FILE(GLOB TEST_SOURCE_FILES *.cpp tests/*/*.cpp wsdl/*.cpp wsdl/Service/*.cpp)
 
     ADD_EXECUTABLE(sptk_unit_tests ${TEST_SOURCE_FILES})
+
     TARGET_LINK_LIBRARIES(sptk_unit_tests sputil5 spdb5 spwsdl5 gtest)
 
     INSTALL(TARGETS sptk_unit_tests
