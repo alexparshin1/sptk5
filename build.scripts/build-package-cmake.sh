@@ -60,12 +60,14 @@ cd /build/$PACKAGE_NAME || exit
 CWD=`pwd`
 ./distclean.sh
 
-TAR_DIR="/build/output/$PACKAGE-${VERSION}/tar"
-mkdir -p "$TAR_DIR"
-src_name="$TAR_DIR/$PACKAGE_${VERSION}"
-echo "Base tar name: ${src_name}" > make_src_archives.log
-[ ! -f ${src_name}.tgz ] && tar zcf ${src_name}.tgz --exclude-from=exclude_from_tarball.lst * >> make_src_archives.log
-[ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' >> make_src_archives.log
+if [ $PACKAGE = "SPTK" ]; then
+    TAR_DIR="/build/output/${PACKAGE}-${VERSION}/tar"
+    mkdir -p "${TAR_DIR}"
+    src_name="${TAR_DIR}/${PACKAGE_NAME}"
+    echo "Base tar name: ${src_name}" > make_src_archives.log
+    [ ! -f ${src_name}.txz ] && tar Jcf ${src_name}.txz --exclude-from=exclude_from_tarball.lst * >> make_src_archives.log
+    [ ! -f ${src_name}.zip ] && zip -r ${src_name}.zip * --exclude '@exclude_from_tarball.lst' >> make_src_archives.log
+fi
 
 if [ $PACKAGE = "SPTK" ]; then
     BUILD_OPTIONS="-DUSE_GTEST=ON -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=/usr/local"
@@ -79,28 +81,25 @@ cmake . $BUILD_OPTIONS && make -j6 package || exit 1
 echo ──────────────────────────────────────────────────────────────────
 BUILD_OUTPUT_DIR=/build/output/$PACKAGE-$VERSION
 sh ./install_local_packages.sh
-ls -l /usr/local/bin /usr/local/lib
 mkdir -p $BUILD_OUTPUT_DIR && chmod 777 $BUILD_OUTPUT_DIR || exit 1
 echo ──────────────────────────────────────────────────────────────────
 
-#wsdl2cxx
-sh ./distclean.sh
-
 OUTPUT_DIR=$BUILD_OUTPUT_DIR/$DOWNLOAD_DIRNAME
 mkdir -p $OUTPUT_DIR || exit 1
-for fname in *.rpm *.deb
+for fname in $(ls *.rpm *.deb)
 do
     if [ $PACKAGE = "SPTK" ]; then
-        name=$(echo $fname | sed -re 's/^SPTK.*Linux/sptk/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+        name=$(echo $fname | sed -re 's/^SPTK/sptk/;s/-Linux//')
         lcPACKAGE="sptk"
-        echo "SPTK package name: $name"
     else
-        name=$(echo $fname | sed -re 's/^XMQ.*Linux/xmq/' | sed -re "s/\.([a-z]+)$/-$VERSION.$OS_TYPE.\1/") #"
+        name=$(echo $fname | sed -re 's/^XMQ/xmq/;s/-Linux//')
         lcPACKAGE="xmq"
-        echo "XMQ package name: $name"
     fi
     mv $fname $OUTPUT_DIR/$name
 done
+
+sh ./distclean.sh
+
 echo ──────────────────────────────────────────────────────────────────
 
 export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}

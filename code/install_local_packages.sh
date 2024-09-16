@@ -15,7 +15,7 @@ for package_file in $(ls sptk-*.rpm); do
 done
 
 if [ ! "$PACKAGES" = "" ]; then
-    yum -y --skip-broken install $PACKAGES
+    yum -y install $PACKAGES
     rc=$?
     rm -f install_manifest_*
     exit $rc
