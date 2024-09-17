@@ -33,6 +33,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #ifdef HAVE_PCRE2
@@ -219,9 +220,31 @@ public:
      */
     explicit RegularExpression(std::string_view pattern, std::string_view options = "");
 
+    /**
+     * @brief Copy constructor
+     * @param other             Other object
+     */
     RegularExpression(const RegularExpression& other);
 
     /**
+     * @brief Move constructor
+     * @param other             Other object
+     */
+    RegularExpression(RegularExpression&& other) noexcept;
+
+    /**
+     * @brief Copy assignment
+     * @param other             Other object
+     */
+    RegularExpression& operator=(const RegularExpression& other);
+
+    /**
+     * @brief Move assignment
+     * @param other             Other object
+     */
+    RegularExpression& operator=(RegularExpression&& other) noexcept;
+
+	/**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found

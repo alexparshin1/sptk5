@@ -440,7 +440,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
         return 0;
     }
 
-    ssize_t bytes;
+    int bytes;
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);

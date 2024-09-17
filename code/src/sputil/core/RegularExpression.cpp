@@ -227,6 +227,42 @@ RegularExpression::RegularExpression(const RegularExpression& other)
     compile();
 }
 
+RegularExpression::RegularExpression(RegularExpression&& other) noexcept
+    : m_pattern(std::move(other.m_pattern))
+    , m_global(other.m_global)
+    , m_pcre(std::move(other.m_pcre))
+    , m_pcreExtra(std::move(other.m_pcreExtra))
+    , m_options(other.m_options)
+    , m_captureCount(other.m_captureCount)
+{
+}
+
+RegularExpression& RegularExpression::operator=(const RegularExpression& other)
+{
+    if (this != &other)
+    {
+        m_pattern = other.m_pattern;
+        m_global = other.m_global;
+        m_options = other.m_options;
+        compile();
+    }
+    return *this;
+}
+
+RegularExpression& RegularExpression::operator=(RegularExpression&& other) noexcept
+{
+    if (this != &other)
+    {
+        m_pattern = std::move(other.m_pattern);
+        m_global = other.m_global;
+        m_pcre = std::move(other.m_pcre);
+        m_pcreExtra = std::move(other.m_pcreExtra);
+        m_options = other.m_options;
+        m_captureCount = other.m_captureCount;
+    }
+    return *this;
+}
+
 size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchData& matchData) const
 {
     lock_guard lock(m_mutex);
