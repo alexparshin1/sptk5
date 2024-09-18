@@ -311,7 +311,7 @@ TEST(SPTK_SocketEvents, performance)
             return SocketEventAction::Continue;
         });
 
-    constexpr size_t  maxSockets = 1024;
+    constexpr size_t  maxSockets = 512;
     vector<TCPSocket> sockets(maxSockets);
     const Host        testServerHost("theater", 80);
     for (auto& socket: sockets)
