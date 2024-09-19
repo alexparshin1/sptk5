@@ -179,7 +179,6 @@ TEST(SPTK_TCPServer, sslMinimal)
         echoServer.onConnection(echoTestFunction);
 
         const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
-
         if (!filesystem::exists(keys->certificateFileName()))
         {
             GTEST_SKIP() << "Certificate file " << keys->certificateFileName() << " does not exist.";
@@ -197,9 +196,9 @@ TEST(SPTK_TCPServer, sslMinimal)
         socket.open(Host("localhost", testSslEchoServerPort));
 
         const Strings rows({"Hello, World!",
-                           "This is a test of TCPServer class.",
-                           "Using simple echo server to verify data flow.",
-                           "The session is terminated when this row is received"});
+                            "This is a test of TCPServer class.",
+                            "Using simple echo server to verify data flow.",
+                            "The session is terminated when this row is received"});
 
         int rowCount = 0;
         for (const auto& row: rows)
@@ -235,11 +234,18 @@ shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectio
     if (connectionType == ServerConnection::Type::SSL)
     {
         const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+        if (!filesystem::exists(keys->certificateFileName()))
+        {
+            CERR("Certificate file " << keys->certificateFileName() << " does not exist.");
+            return nullptr;
+        }
         pushTcpServer->setSSLKeys(keys);
+        pushTcpServer->addListener(ServerConnection::Type::SSL, testSslEchoServerPort);
     }
-
-    pushTcpServer->addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
-    pushTcpServer->addListener(ServerConnection::Type::SSL, testSslEchoServerPort);
+    else
+    {
+        pushTcpServer->addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
+    }
 
     return pushTcpServer;
 }

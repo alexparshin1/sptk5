@@ -35,6 +35,11 @@ using namespace chrono;
 TEST(SPTK_SSLSocket, connect)
 {
     const SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
+    if (!filesystem::exists(keys.certificateFileName()))
+    {
+        GTEST_SKIP() << "Certificate file " << keys.certificateFileName() << " does not exist.";
+    }
+
     SSLSocket sslSocket;
 
     try
@@ -54,35 +59,36 @@ TEST(SPTK_SSLSocket, httpConnect)
     GTEST_SKIP();
 
     constexpr uint16_t sslPort {443};
-    const Host yahoo("www.yahoo.com", sslPort);
-    sockaddr_in address {};
+    const Host         yahoo("www.yahoo.com", sslPort);
+    sockaddr_in        address {};
     yahoo.getAddress(address);
 
     vector<future<tuple<String, String>>> tasks;
     for (int i = 0; i < 2; i++)
     {
-        auto task = async(launch::async, [&]() {
-            Buffer output;
-            String result {"OK"};
-            try
-            {
-                const auto socket = make_shared<SSLSocket>();
+        auto task = async(launch::async, [&]()
+                          {
+                              Buffer output;
+                              String result {"OK"};
+                              try
+                              {
+                                  const auto socket = make_shared<SSLSocket>();
 
-                socket->open(yahoo);
-                HttpConnect http(*socket);
+                                  socket->open(yahoo);
+                                  HttpConnect http(*socket);
 
-                const auto statusCode = http.cmd_get("/", HttpParams(), output);
-                if (statusCode != 200)
-                {
-                    result = http.statusText().c_str();
-                }
-            }
-            catch (const Exception& e)
-            {
-                result = e.what();
-            }
-            return make_tuple(result, static_cast<String>(output));
-        });
+                                  const auto statusCode = http.cmd_get("/", HttpParams(), output);
+                                  if (statusCode != 200)
+                                  {
+                                      result = http.statusText().c_str();
+                                  }
+                              }
+                              catch (const Exception& e)
+                              {
+                                  result = e.what();
+                              }
+                              return make_tuple(result, static_cast<String>(output));
+                          });
 
         tasks.push_back(std::move(task));
     }

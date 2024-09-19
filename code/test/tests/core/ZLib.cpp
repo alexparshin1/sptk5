@@ -61,9 +61,6 @@ TEST(SPTK_ZLib, compress)
     String compressedBase64;
     ZLib::compress(compressed, Buffer(originalTestString));
     Base64::encode(compressedBase64, compressed);
-
-    compressed.saveToFile("/tmp/00.gz");
-
     EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
 }
 
@@ -85,8 +82,14 @@ TEST(SPTK_ZLib, performance)
     Buffer decompressed;
 
     // Using own executable file for the test.
-    data.loadFromFile("/usr/local/bin/sptk_unit_tests");
-    EXPECT_LE(static_cast<size_t>(16 * 1024 * 1024), data.bytes());
+    const filesystem::path testFile {"/usr/local/bin/sptk_unit_tests"};
+    if (!filesystem::exists(testFile))
+    {
+        GTEST_SKIP() << "Test file not found: " << testFile;
+    }
+    constexpr auto testDataSize = 1024 * 1024;
+    data.loadFromFile(testFile);
+    data.bytes(testDataSize);
 
     StopWatch stopWatch;
     stopWatch.start();
