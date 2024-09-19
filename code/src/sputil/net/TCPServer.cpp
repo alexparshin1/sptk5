@@ -207,10 +207,7 @@ UServerConnection TCPServer::createConnection(ServerConnection::Type connectionT
     {
         return make_unique<TCPServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
     }
-    else
-    {
-        return make_unique<SSLServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
-    }
+    return make_unique<SSLServerConnection>(*this, connectionSocket, peer, m_connectionFunction);
 }
 
 void TCPServer::onConnection(const ServerConnection::Function& function)

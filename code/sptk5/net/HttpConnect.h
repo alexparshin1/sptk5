@@ -52,7 +52,7 @@ public:
     /**
      * HTTP authorization
      */
-    class Authorization
+    class SP_EXPORT Authorization
     {
     public:
         /**
@@ -105,7 +105,7 @@ public:
         String m_value;  ///< Authorization data
     };
 
-    class BasicAuthorization : public Authorization
+    class SP_EXPORT BasicAuthorization : public Authorization
     {
     public:
         /**
@@ -119,7 +119,7 @@ public:
         }
     };
 
-    class BearerAuthorization : public Authorization
+    class SP_EXPORT BearerAuthorization : public Authorization
     {
     public:
         /**

@@ -5,9 +5,12 @@ convert_doxygen_to_javadoc.pl
 CPackConfig.cmake
 CPackSourceConfig.cmake
 generate_docs.sh
+install_local_packages.sh
 install_headers.sh
 install_themes.sh
 sonar-build.sh
 sonar-project.properties
 SPTK.cbp
 coverity-build.sh
+TestPlan.ods
+xmq.json

@@ -84,9 +84,9 @@ TEST(SPTK_ZLib, performance)
     Buffer compressed;
     Buffer decompressed;
 
-    // Using uncompressed mplayer manual as test data
-    data.loadFromFile(String(TEST_DIRECTORY) + "/data/mplayer.1");
-    EXPECT_EQ(data.bytes(), static_cast<size_t>(345517));
+    // Using own executable file for the test.
+    data.loadFromFile("/usr/local/bin/sptk_unit_tests");
+    EXPECT_LE(static_cast<size_t>(16 * 1024 * 1024), data.bytes());
 
     StopWatch stopWatch;
     stopWatch.start();

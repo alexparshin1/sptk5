@@ -11,7 +11,7 @@ IF (SET_RPATH)
     SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES INSTALL_RPATH "")
 ENDIF ()
 
-TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${OCI_LIBRARY})
+TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${OCI_LIBRARY} ${Oracle_LIBRARIES})
 
 INSTALL(
         TARGETS spdb5_oracle

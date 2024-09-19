@@ -851,14 +851,14 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     auto printResults = [&](const String& operation, double durationMs) {
         COUT(left << fixed << setw(25) << connectionString.driverName() << setw(14) << operation
                   << right << setw(8) << setprecision(1) << durationMs << " ms, "
-                  << setprecision(2) << fixed << setw(10) << static_cast<double>(data.size()) / durationMs << "K rec/sec" << endl);
+                  << setprecision(2) << fixed << setw(10) << static_cast<double>(data.size()) / durationMs << "K rec/sec");
     };
 
     printResults("insert", insertDurationMS);
     printResults("bulk insert", bulkInsertDurationMS);
     printResults("delete", deleteDurationMS);
     printResults("bulk delete", bulkDeleteDurationMS);
-    COUT(endl);
+    COUT("");
 }
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)

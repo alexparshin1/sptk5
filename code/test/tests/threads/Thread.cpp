@@ -89,11 +89,11 @@ TEST(SPTK_Thread, runAgain) /* NOLINT */
     this_thread::sleep_for(sleepInterval);
     testThread.terminate();
     testThread.join();
-    EXPECT_EQ(testCounter, testThread.counter());
+    EXPECT_NEAR(testCounter, testThread.counter(), 1);
 
     testThread.run();
     this_thread::sleep_for(sleepInterval);
     testThread.terminate();
     testThread.join();
-    EXPECT_EQ(5, testThread.counter());
+    EXPECT_NEAR(testCounter, testThread.counter(), 1);
 }

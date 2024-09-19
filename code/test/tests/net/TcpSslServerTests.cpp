@@ -196,11 +196,10 @@ TEST(SPTK_TCPServer, sslMinimal)
 
         socket.open(Host("localhost", testSslEchoServerPort));
 
-        const Strings rows("Hello, World!\n"
-                           "This is a test of TCPServer class.\n"
-                           "Using simple echo server to verify data flow.\n"
-                           "The session is terminated when this row is received",
-                           "\n");
+        const Strings rows({"Hello, World!",
+                           "This is a test of TCPServer class.",
+                           "Using simple echo server to verify data flow.",
+                           "The session is terminated when this row is received"});
 
         int rowCount = 0;
         for (const auto& row: rows)
@@ -293,6 +292,8 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
     stopWatch.start();
     const size_t packetCount = readAllPackets(*socket, readSize);
     stopWatch.stop();
+
+    pushTcpServer->stop();
 
     printPerformanceTestResult(testLabel, readSize, stopWatch, packetCount);
 }

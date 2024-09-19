@@ -1,18 +1,10 @@
 IF (WIN32)
    SET (PCRE2_POSSIBLE_INCLUDE_PATHS
-        $ENV{SystemDrive}/*/include
-        $ENV{ProgramFiles}/*/include
-        $ENV{ProgramFiles}/*/inc
-        $ENV{ProgramW6432}/*/include
-        $ENV{ProgramW6432}/*/inc)
+        $ENV{ProgramFiles}/PCRE2/include
+        $ENV{ProgramFiles\(x86\)}/PCRE2/include)
    SET (PCRE2_POSSIBLE_LIB_PATHS
-        $ENV{SystemDrive}/*/lib/x64
-        $ENV{ProgramFiles}/*/lib/x64
-        $ENV{SystemDrive}/*/lib
-        $ENV{ProgramFiles}/*/lib
-        $ENV{ProgramW6432}/*/lib/x64
-        $ENV{SystemDrive}/*/lib
-        $ENV{ProgramW6432}/*/lib)
+        $ENV{ProgramFiles}/PCRE2/lib
+        $ENV{ProgramFiles\(x86\)}/PCRE2/lib)
 ELSE (WIN32)
    SET (PCRE2_POSSIBLE_INCLUDE_PATHS
         $ENV{HOME}/local/include
@@ -24,8 +16,8 @@ ELSE (WIN32)
         /usr/lib /usr/lib/*)
 ENDIF (WIN32)
 
-FIND_PATH(PCRE2_INCLUDE_DIR pcre.h ${PCRE2_POSSIBLE_INCLUDE_PATHS})
-FIND_LIBRARY(PCRE2_LIBRARY NAMES pcre2-8 PATHS ${PCRE2_POSSIBLE_LIB_PATHS})
+FIND_PATH(PCRE2_INCLUDE_DIR pcre2.h ${PCRE2_POSSIBLE_INCLUDE_PATHS})
+FIND_LIBRARY(PCRE2_LIBRARY NAMES pcre2-8 pcre2-8-static PATHS ${PCRE2_POSSIBLE_LIB_PATHS})
 
 IF (PCRE2_INCLUDE_DIR AND PCRE2_LIBRARY)
    SET(PCRE2_FOUND TRUE)
