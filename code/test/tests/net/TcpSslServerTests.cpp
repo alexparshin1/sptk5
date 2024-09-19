@@ -179,6 +179,12 @@ TEST(SPTK_TCPServer, sslMinimal)
         echoServer.onConnection(echoTestFunction);
 
         const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
+
+        if (!filesystem::exists(keys->certificateFileName()))
+        {
+            GTEST_SKIP() << "Certificate file " << keys->certificateFileName() << " does not exist.";
+        }
+
         echoServer.setSSLKeys(keys);
 
         echoServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
