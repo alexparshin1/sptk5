@@ -25,6 +25,8 @@
 */
 
 #include "TestWebService.h"
+#include "test/TestData.h"
+
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/Query.h>
 #include <sptk5/wsdl/WSConnection.h>
@@ -210,7 +212,8 @@ public:
         if (encrypted)
         {
             servicePort = 11001;
-            sslKeys = make_shared<SSLKeys>("keys/test.key", "keys/test.cert");
+            const auto keysDirectory = TestData::SslKeysDirectory();
+            sslKeys = make_shared<SSLKeys>(keysDirectory / "test.key", keysDirectory / "test.cert");
             setSSLKeys(sslKeys);
         }
     }
@@ -256,9 +259,11 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
     try
     {
         const String serviceType = dataFormat == DataFormat::XML ? "xml" : "json";
+        COUT("Test " << serviceType << "service");
 
         for (const auto& methodName: methodNames)
         {
+            COUT("  service method: " << methodName);
             Buffer         sendRequestBuffer;
             const Document sendRequest = make_send_request(methodName, dataFormat);
             sendRequest.exportTo(dataFormat, sendRequestBuffer, true);
