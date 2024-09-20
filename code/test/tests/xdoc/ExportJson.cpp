@@ -32,10 +32,15 @@ using namespace sptk;
 
 TEST(SPTK_XDocument, xmlToJson)
 {
+    if (!filesystem::exists("data/menu.xml"))
+    {
+        GTEST_SKIP();
+    }
+
     auto cwd = filesystem::current_path();
 
     const xdoc::Document document;
-    Buffer buffer;
+    Buffer               buffer;
 
     buffer.loadFromFile("data/menu.xml");
 

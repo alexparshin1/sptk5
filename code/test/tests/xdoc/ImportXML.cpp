@@ -248,6 +248,11 @@ TEST(SPTK_XDocument, exportToJSON)
 
 TEST(SPTK_XDocument, loadFormattedXML)
 {
+    if (!filesystem::exists("data/content2.xml"))
+    {
+        GTEST_SKIP();
+    }
+
     Buffer input;
     input.loadFromFile("data/content2.xml");
 

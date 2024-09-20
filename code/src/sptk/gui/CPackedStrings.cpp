@@ -44,10 +44,10 @@ using namespace sptk;
 CPackedStrings::CPackedStrings(int cnt, const char* strings[])
 {
     // compute buffer size and offsets
-    int offsetsSpace = cnt * sizeof(uint16_t);
-    int sz = offsetsSpace + sizeof(uint16_t);
+    auto offsetsSpace = cnt * sizeof(uint16_t);
+    auto sz = offsetsSpace + sizeof(uint16_t);
 
-    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + cnt;
 
     flags = 0;
@@ -57,7 +57,7 @@ CPackedStrings::CPackedStrings(int cnt, const char* strings[])
     for (int i = 0; i < cnt; i++)
     {
         const char* s = strings[i];
-        auto l = uint16_t(strlen(s) + 1);
+        auto        l = uint16_t(strlen(s) + 1);
         offset[i] = uint16_t(sz);
         len[i] = l;
         sz += l;
@@ -84,7 +84,7 @@ CPackedStrings::CPackedStrings(const Strings& strings)
 CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
 {
     auto cnt = (int) fields.size();
-    int rcnt = cnt;
+    int  rcnt = cnt;
     if (keyField >= 0 && keyField < cnt)
     { // if keyField is used - do not store it as string
         rcnt -= 1;
@@ -94,16 +94,16 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     int offsetsSpace = rcnt * sizeof(uint16_t);
     int sz = offsetsSpace + sizeof(uint16_t);
 
-    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + rcnt;
 
     flags = 0;
     height = 0;
     m_data = nullptr;
 
-    int j = 0;
+    int      j = 0;
     uint64_t keyValue = 0;
-    Strings strings;
+    Strings  strings;
     {
         for (int i = 0; i < cnt; i++)
         {
@@ -179,9 +179,9 @@ CPackedStrings& CPackedStrings::operator=(const CPackedStrings& other)
 
 CPackedStrings& CPackedStrings::operator=(const Strings& strings)
 {
-    size_t cnt = strings.size();
-    auto offsetsSpace = int(cnt * sizeof(uint16_t));
-    auto* offset = (uint16_t*) alloca(offsetsSpace * 2);
+    size_t    cnt = strings.size();
+    auto      offsetsSpace = int(cnt * sizeof(uint16_t));
+    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + cnt;
 
     flags = 0;

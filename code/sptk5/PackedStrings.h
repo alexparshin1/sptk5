@@ -107,7 +107,7 @@ public:
     /**
      * Strings count
      */
-    uint16_t size() const
+    [[nodiscard]] uint16_t size() const
     {
         return *(uint16_t*) m_buffer;
     }
@@ -130,7 +130,7 @@ public:
     /**
      * Sets user_data as void *
      */
-    void user_data(void* d)
+    [[maybe_unused]] void user_data(void* d)
     {
         m_data = d;
     }
@@ -138,7 +138,7 @@ public:
     /**
      * Returns user_data as void *
      */
-    void* user_data() const
+    [[nodiscard]] void* user_data() const
     {
         return m_data;
     }
@@ -154,7 +154,7 @@ public:
     /**
      * Returns user_data as integer
      */
-    int32_t argument() const
+    [[nodiscard]] int32_t argument() const
     {
         return (int32_t) (uint64_t) m_data;
     }
@@ -162,12 +162,12 @@ public:
     /**
      * Row height for CListView
      */
-    unsigned char height;
+    unsigned char height {0};
 
     /**
      * Row flags for CListView
      */
-    unsigned char flags;
+    unsigned char flags {0};
 };
 /**
  * @}
