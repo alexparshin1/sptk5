@@ -51,6 +51,8 @@ CPackedStrings::CPackedStrings(int cnt, const char* strings[])
     auto*     offset = (uint16_t*) buffer.data();
     uint16_t* len = offset + cnt;
 
+    buffer.fill(0, offsetsSpace * sizeof(uint16_t));
+
     flags = 0;
     height = 0;
     m_data = nullptr;
