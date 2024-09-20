@@ -30,13 +30,13 @@
 using namespace std;
 using namespace sptk;
 
-SSLKeys::SSLKeys(String privateKeyFileName, String certificateFileName,
-                 String password, String caFileName, int verifyMode,
+SSLKeys::SSLKeys(filesystem::path privateKeyFileName, filesystem::path certificateFileName,
+                 String password, filesystem::path caFileName, int verifyMode,
                  int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName))
-    , m_certificateFileName(std::move(certificateFileName))
-    , m_password(std::move(password))
-    , m_caFileName(std::move(caFileName))
+    : m_privateKeyFileName(move(privateKeyFileName))
+    , m_certificateFileName(move(certificateFileName))
+    , m_password(move(password))
+    , m_caFileName(move(caFileName))
     , m_verifyMode(verifyMode)
     , m_verifyDepth(verifyDepth)
 {
@@ -69,13 +69,13 @@ void SSLKeys::assign(const SSLKeys& other)
     m_verifyDepth = other.m_verifyDepth;
 }
 
-String SSLKeys::privateKeyFileName() const
+filesystem::path SSLKeys::privateKeyFileName() const
 {
     const scoped_lock lock(m_mutex);
     return m_privateKeyFileName;
 }
 
-String SSLKeys::certificateFileName() const
+filesystem::path SSLKeys::certificateFileName() const
 {
     const scoped_lock lock(m_mutex);
     return m_certificateFileName;
@@ -87,7 +87,7 @@ String SSLKeys::password() const
     return m_password;
 }
 
-String SSLKeys::caFileName() const
+filesystem::path SSLKeys::caFileName() const
 {
     const scoped_lock lock(m_mutex);
     return m_caFileName;

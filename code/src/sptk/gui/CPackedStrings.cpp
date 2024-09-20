@@ -47,7 +47,8 @@ CPackedStrings::CPackedStrings(int cnt, const char* strings[])
     auto offsetsSpace = cnt * sizeof(uint16_t);
     auto sz = offsetsSpace + sizeof(uint16_t);
 
-    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
+    Buffer    buffer(offsetsSpace * sizeof(uint16_t));
+    auto*     offset = (uint16_t*) buffer.data();
     uint16_t* len = offset + cnt;
 
     flags = 0;
@@ -76,8 +77,10 @@ CPackedStrings::CPackedStrings(int cnt, const char* strings[])
 }
 
 CPackedStrings::CPackedStrings(const Strings& strings)
+    : m_size(0)
+    , m_buffer(nullptr)
+    , m_data(nullptr)
 {
-    m_buffer = nullptr;
     operator=(strings);
 }
 
@@ -86,13 +89,14 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     auto cnt = (int) fields.size();
     int  rcnt = cnt;
     if (keyField >= 0 && keyField < cnt)
-    { // if keyField is used - do not store it as string
+    {
+        // if keyField is used - do not store it as string
         rcnt -= 1;
     }
 
     // compute buffer size and offsets
-    int offsetsSpace = rcnt * sizeof(uint16_t);
-    int sz = offsetsSpace + sizeof(uint16_t);
+    auto offsetsSpace = rcnt * sizeof(uint16_t);
+    auto sz = offsetsSpace + sizeof(uint16_t);
 
     auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
     uint16_t* len = offset + rcnt;
@@ -188,7 +192,7 @@ CPackedStrings& CPackedStrings::operator=(const Strings& strings)
     height = 0;
     m_data = (void*) (uint64_t) strings.argument();
 
-    int sz = offsetsSpace + sizeof(uint16_t);
+    auto sz = offsetsSpace + sizeof(uint16_t);
 
     // compute buffer size and offsets
     for (size_t i = 0; i < cnt; i++)

@@ -24,6 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
+
 #include <future>
 #include <gtest/gtest.h>
 #include <sptk5/cnet>
@@ -34,7 +36,9 @@ using namespace chrono;
 
 TEST(SPTK_SSLSocket, connect)
 {
-    const SSLKeys keys(String(TEST_DIRECTORY) + "/keys/test.key", String(TEST_DIRECTORY) + "/keys/test.cert");
+    const auto    keyFile = TestData::SslKeysDirectory() / "test.key";
+    const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
+    const SSLKeys keys(keyFile, certFile);
     if (!filesystem::exists(keys.certificateFileName()))
     {
         GTEST_SKIP() << "Certificate file " << keys.certificateFileName() << " does not exist.";

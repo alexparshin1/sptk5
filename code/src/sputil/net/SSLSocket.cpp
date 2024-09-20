@@ -136,8 +136,8 @@ mutex* CSSLLibraryLoader::m_locks;
 
 void SSLSocket::throwSSLError(const String& function, int resultCode, source_location location) const
 {
-    const int errorCode = sslGetErrorCode(resultCode);
-    const auto      error = sslGetErrorString(function.c_str(), errorCode);
+    const int  errorCode = sslGetErrorCode(resultCode);
+    const auto error = sslGetErrorString(function.c_str(), errorCode);
     throw Exception(error, location);
 }
 
@@ -152,13 +152,15 @@ SSLSocket::~SSLSocket()
     sslFree();
 }
 
-void checkFileExists(const String& filename)
+namespace {
+void checkFileExists(const filesystem::path& filename)
 {
     if (!filename.empty() && !filesystem::exists(filename.c_str()))
     {
-        throw Exception("File " + filename + " doesn't exist");
+        throw Exception("File " + filename.string() + " doesn't exist");
     }
 }
+} // namespace
 
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
@@ -222,7 +224,7 @@ bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
     if (result <= 0)
     {
         const chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-        const int                        errorCode = sslGetErrorCode(result);
+        const int                  errorCode = sslGetErrorCode(result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToReadUnlocked(nextTimeout))

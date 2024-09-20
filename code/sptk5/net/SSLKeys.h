@@ -55,8 +55,8 @@ public:
      * @param verifyMode            Ether SSL_VERIFY_NONE (default), or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
      * @param verifyDepth           Connection verify depth
      */
-    SSLKeys(String privateKeyFileName, String certificateFileName, String password = "",
-            String caFileName = "", int verifyMode = 0, int verifyDepth = 0);
+    SSLKeys(std::filesystem::path privateKeyFileName, std::filesystem::path certificateFileName, String password = "",
+            std::filesystem::path caFileName = "", int verifyMode = 0, int verifyDepth = 0);
 
     /**
      * Copy constructor
@@ -84,12 +84,12 @@ public:
     /**
      * @return private key file name
      */
-    String privateKeyFileName() const;
+    std::filesystem::path privateKeyFileName() const;
 
     /**
      * @return certificate file name
      */
-    String certificateFileName() const;
+    std::filesystem::path certificateFileName() const;
 
     /**
      * @return private key password
@@ -99,7 +99,7 @@ public:
     /**
      * @return certificate authority file name
      */
-    String caFileName() const;
+    std::filesystem::path caFileName() const;
 
     /**
      * @return verify mode
@@ -114,13 +114,13 @@ public:
     bool empty() const;
 
 private:
-    mutable std::mutex m_mutex;
-    String m_privateKeyFileName;
-    String m_certificateFileName;
-    String m_password;
-    String m_caFileName;
-    int m_verifyMode {0};
-    int m_verifyDepth {0};
+    mutable std::mutex    m_mutex;
+    std::filesystem::path m_privateKeyFileName;
+    std::filesystem::path m_certificateFileName;
+    String                m_password;
+    std::filesystem::path m_caFileName;
+    int                   m_verifyMode {0};
+    int                   m_verifyDepth {0};
 
     /**
      * Assign keys from another object

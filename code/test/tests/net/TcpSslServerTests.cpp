@@ -26,9 +26,11 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/SSLServerConnection.h>
+#include <sptk5/net/SocketReader.h>
 #include <sptk5/net/TCPServerListener.h>
 
-#include "sptk5/net/SocketReader.h"
+#include "test/TestData.h"
+
 #include <gtest/gtest.h>
 
 using namespace std;
@@ -233,12 +235,13 @@ shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectio
 
     if (connectionType == ServerConnection::Type::SSL)
     {
-        const auto keys = make_shared<SSLKeys>(String(TEST_DIRECTORY) + "/keys/mycert.pem", String(TEST_DIRECTORY) + "/keys/mycert.pem");
-        if (!filesystem::exists(keys->certificateFileName()))
+        const auto certFile = TestData::SslKeysDirectory() / "mycert.pem";
+        if (!filesystem::exists(certFile))
         {
-            CERR("Certificate file " << keys->certificateFileName() << " does not exist.");
+            CERR("Certificate file " << certFile.string() << " does not exist.");
             return nullptr;
         }
+        const auto keys = make_shared<SSLKeys>(certFile, certFile);
         pushTcpServer->setSSLKeys(keys);
         pushTcpServer->addListener(ServerConnection::Type::SSL, testSslEchoServerPort);
     }

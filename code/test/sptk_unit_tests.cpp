@@ -25,30 +25,14 @@
 */
 
 #include "sptk_unit_tests.h"
-#include "sptk5/cdatabase"
-#include <fstream>
-#include <sptk5/RegularExpression.h>
+#include "test/TestData.h"
+#include <sptk5/cdatabase>
 #include <sptk5/test/TestRunner.h>
+
+#include <fstream>
 
 using namespace std;
 using namespace sptk;
-
-void loadSettings()
-{
-    g_testSettings = make_shared<TestSettings>();
-    if (!filesystem::exists("settings.txt"))
-    {
-        COUT("File settings.txt not found. Creating the default version of this file.");
-        ofstream out("settings.txt");
-        out << "{\n"
-            << "  \"smtp_server\": \"localhost\",\n"
-            << "  \"smtp_user\": \"smtpuser\",\n"
-            << "  \"smtp_password\": \"secret\"\n"
-            << "}\n";
-        out.close();
-    }
-    g_testSettings->load("settings.txt");
-}
 
 int main(int argc, char* argv[])
 {

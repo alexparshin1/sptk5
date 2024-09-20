@@ -24,11 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "test/TestData.h"
 #include <cmath>
 #include <gtest/gtest.h>
-#include <sptk5/Printer.h>
-#include <sptk5/Strings.h>
-#include <sptk5/xdoc/Document.h>
 
 using namespace std;
 using namespace sptk;
@@ -248,20 +246,21 @@ TEST(SPTK_XDocument, exportToJSON)
 
 TEST(SPTK_XDocument, loadFormattedXML)
 {
-    if (!filesystem::exists("data/content2.xml"))
+    auto testFile = TestData::DataDirectory() / "content2.xml";
+    if (!filesystem::exists(testFile))
     {
-        GTEST_SKIP();
+        GTEST_SKIP() << "File " << testFile.string() << " not found";
     }
 
     Buffer input;
-    input.loadFromFile("data/content2.xml");
+    input.loadFromFile(testFile);
 
     const Document document;
     document.load(input, true);
 
     Buffer output;
     document.exportTo(DataFormat::XML, output, false);
-    output.saveToFile("data/content2_exp.xml");
+    //output.saveToFile("data/content2_exp.xml");
 }
 
 TEST(SPTK_XDocument, getText)

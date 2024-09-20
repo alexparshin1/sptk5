@@ -25,24 +25,24 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/cutils>
+
+#include "test/TestData.h"
 
 using namespace std;
 using namespace sptk;
 
 TEST(SPTK_XDocument, xmlToJson)
 {
-    if (!filesystem::exists("data/menu.xml"))
+    auto testFile = TestData::DataDirectory() / "menu.xml";
+    if (!filesystem::exists(testFile))
     {
-        GTEST_SKIP();
+        GTEST_SKIP() << "File " << testFile.string() << " not found";
     }
-
-    auto cwd = filesystem::current_path();
 
     const xdoc::Document document;
     Buffer               buffer;
 
-    buffer.loadFromFile("data/menu.xml");
+    buffer.loadFromFile(testFile);
 
     document.load(buffer, false);
     document.exportTo(xdoc::DataFormat::JSON, buffer, true);
