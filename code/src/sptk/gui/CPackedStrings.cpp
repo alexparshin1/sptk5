@@ -100,8 +100,11 @@ CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
     auto offsetsSpace = rcnt * sizeof(uint16_t);
     auto sz = offsetsSpace + sizeof(uint16_t);
 
-    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
+    Buffer    buffer(offsetsSpace * sizeof(uint16_t));
+    auto*     offset = (uint16_t*) buffer.data();
     uint16_t* len = offset + rcnt;
+
+    buffer.fill(0, offsetsSpace * sizeof(uint16_t));
 
     flags = 0;
     height = 0;
