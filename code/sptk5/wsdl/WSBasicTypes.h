@@ -56,12 +56,28 @@ public:
     {
     }
 
+    /**
+     * @brief Copy constructor
+     * @param other             Other object
+     */
     WSBasicType(const WSBasicType& other) = default;
 
+    /**
+     * @brief Move constructor
+     * @param other             Other object
+     */
     WSBasicType(WSBasicType&& other) noexcept = default;
 
+    /**
+     * @brief Destructor
+     */
     ~WSBasicType() override = default;
 
+    /**
+     * @brief Copy assignment
+     * @param other             Other object
+     * @return self
+     */
     WSBasicType& operator=(const WSBasicType& other)
     {
         m_value = other.m_value;
@@ -69,6 +85,11 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Move assignment
+     * @param other             Other object
+     * @return self
+     */
     WSBasicType& operator=(WSBasicType&& other) noexcept
     {
         m_value = std::move(other.m_value);
@@ -77,7 +98,7 @@ public:
     }
 
     /**
-     * Return true if value is optional
+     * @brief Return true if value is optional
      * @return true if value is optional
      */
     bool optional() const
@@ -86,7 +107,7 @@ public:
     }
 
     /**
-     * Sets optionality flag
+     * @brief Sets optionality flag
      * @param opt               Element optionality flag
      */
     void optional(bool opt)
@@ -95,7 +116,7 @@ public:
     }
 
     /**
-     * Clears content (sets to NULL)
+     * @brief Clears content (sets to NULL)
      */
     void clear() override
     {
@@ -103,8 +124,9 @@ public:
     }
 
     /**
-     * Loads type data from request XML node
+     * @brief Loads type data from request XML node
      * @param attr              XML node
+     * @param nullLargeData     If true, null large data
      */
     void load(const xdoc::SNode& attr, bool nullLargeData) override
     {
@@ -119,7 +141,7 @@ public:
     }
 
     /**
-     * Loads type data from string
+     * @brief Loads type data from string
      * @param attr              A string
      */
     virtual void load(const String& attr)
@@ -128,7 +150,7 @@ public:
     }
 
     /**
-     * Loads type data from database field
+     * @brief Loads type data from database field
      * @param field             Database field
      */
     virtual void load(const Field& field)
@@ -137,7 +159,7 @@ public:
     }
 
     /**
-     * Returns element name
+     * @brief Returns element name
      */
     virtual operator String() const
     {
@@ -145,58 +167,93 @@ public:
     }
 
     /**
-     * Conversion to string
+     * @brief Conversion to string
      */
     String asString() const override
     {
         return m_value.asString();
     }
 
+    /**
+     * @brief Conversion to integer
+     */
     auto asInteger() const
     {
         return value().asInteger();
     }
 
+    /**
+     * @brief Conversion to integer
+     */
     auto asInt64() const
     {
         return value().asInt64();
     }
 
+    /**
+     * @brief Conversion to double
+     */
     auto asFloat() const
     {
         return value().asFloat();
     }
 
+    /**
+     * @brief Conversion to boolean
+     */
     auto asBool() const
     {
         return m_value.asBool();
     }
 
+    /**
+     * @brief Assign integer
+     * @param _value            Value
+     */
     void setInteger(int32_t _value)
     {
         m_value.setInteger(_value);
     }
 
+    /**
+     * @brief Assign integer
+     * @param _value            Value
+     */
     void setInt64(int64_t _value)
     {
         m_value.setInt64(_value);
     }
 
+    /**
+     * @brief Assign double
+     * @param _value            Value
+     */
     void setFloat(bool _value)
     {
         m_value.setFloat(_value);
     }
 
+    /**
+     * @brief Assign boolean
+     * @param _value            Value
+     */
     void setBool(bool _value)
     {
         m_value.setBool(_value);
     }
 
+    /**
+     * @brief Assign buffer
+     * @param _value            Value
+     */
     void setBuffer(const char* buffer, size_t size)
     {
         m_value.setBuffer((const uint8_t*) buffer, size, VariantDataType::VAR_BUFFER);
     }
 
+    /**
+     * @brief Check if value is null
+     */
     bool isNull() const override
     {
         return m_value.isNull();
@@ -208,26 +265,41 @@ public:
      */
     void throwIfNull(const String& parentTypeName) const;
 
+    /**
+     * @brief Get data size
+     */
     size_t dataSize() const
     {
         return m_value.dataSize();
     }
 
+    /**
+     * @brief Get data type
+     */
     VariantDataType dataType() const
     {
         return m_value.dataType();
     }
 
+    /**
+     * @brief Set null
+     */
     void setNull()
     {
         m_value.setNull(defaultDataType());
     }
 
+    /**
+     * @brief Get data as variant
+     */
     Variant& value()
     {
         return m_value;
     }
 
+    /**
+     * @brief Get data as variant
+     */
     const Variant& value() const
     {
         return m_value;
@@ -241,6 +313,10 @@ public:
     void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
 protected:
+    /**
+     * @brief Set null
+     * @param dataType          Data type
+     */
     void setNull(VariantDataType dataType)
     {
         m_value.setNull(dataType);
@@ -257,7 +333,7 @@ protected:
     }
 
 private:
-    Variant m_value;
+    Variant m_value;         ///< Data value
     bool m_optional {false}; ///< Element optionality flag
 };
 
@@ -269,7 +345,7 @@ class SP_EXPORT WSString
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor
      */
     WSString()
     {
@@ -277,7 +353,7 @@ public:
     }
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
@@ -288,7 +364,7 @@ public:
     }
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param value             Value
      */
     explicit WSString(const String& _value)
@@ -297,7 +373,7 @@ public:
     }
 
     /**
-     * Return class name
+     * @brief Return class name
      */
     String className() const override
     {
@@ -307,7 +383,7 @@ public:
     using WSBasicType::operator String;
 
     /**
-     * @brief   Default data type
+     * @brief Default data type
      * @details Used in clear operations
      * @return  Default data type for the class
      */
@@ -317,26 +393,27 @@ public:
     };
 
     /**
-     * Load data from XML node
+     * @brief Load data from XML node
      * @param attr              XML node
      * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
     void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
-     * Loads type data from string
+     * @brief Loads type data from string
      * @param attr              A string
      */
     void load(const String& attr) override;
 
     /**
-     * Loads type data from database field
+     * @brief Loads type data from database field
      * @param field             Database field
      */
     void load(const Field& field) override;
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSString& operator=(const char* _value)
     {
@@ -345,7 +422,8 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSString& operator=(const String& _value)
     {
@@ -354,7 +432,8 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSString& operator=(const Buffer& _value)
     {
@@ -363,7 +442,8 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSString& operator=(int32_t _value)
     {
@@ -372,7 +452,8 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSString& operator=(int64_t _value)
     {
@@ -380,6 +461,10 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Get data as string
+     * @return
+     */
     const char* getString() const
     {
         return value().getString();
@@ -525,7 +610,7 @@ public:
     }
 
     /**
-     * @brief   Default data type
+     * @brief Default data type
      * @details Used in clear operations
      * @return  Default data type for the class
      */
@@ -542,19 +627,20 @@ public:
     void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
-     * Load data from string
+     * @brief Load data from string
      * @param attr              A string
      */
     void load(const String& attr) override;
 
     /**
-     * Load data from database field
+     * @brief Load data from database field
      * @param field             Database field
      */
     void load(const Field& field) override;
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSDate& operator=(const DateTime& _value)
     {
@@ -563,7 +649,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     auto asDate() const
     {
@@ -571,7 +657,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     auto asDateTime() const
     {
@@ -579,7 +665,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator DateTime() const
     {
@@ -625,7 +711,7 @@ public:
     using WSBasicType::operator String;
 
     /**
-     * Return class name
+     * @brief Return class name
      */
     String className() const override
     {
@@ -643,31 +729,31 @@ public:
     };
 
     /**
-     * Load data from XML node
+     * @brief Load data from XML node
      * @param attr              XML node
      * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
     void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
-     * Load data from string
+     * @brief Load data from string
      * @param attr              A string
      */
     void load(const String& attr) override;
 
     /**
-     * Load data from database field
+     * @brief Load data from database field
      * @param field             Database field
      */
     void load(const Field& field) override;
 
     /**
-     * Better (than in base class) conversion method
+     * @brief Better (than in base class) conversion method
      */
     String asString() const override;
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     auto asDate() const
     {
@@ -675,7 +761,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     auto asDateTime() const
     {
@@ -683,7 +769,7 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
      */
     WSDateTime& operator=(const DateTime& _value)
     {
@@ -692,7 +778,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator DateTime() const
     {
@@ -708,7 +794,7 @@ class SP_EXPORT WSDouble
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor
      */
     WSDouble()
     {
@@ -716,7 +802,7 @@ public:
     }
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
@@ -726,6 +812,10 @@ public:
         setNull(VariantDataType::VAR_FLOAT);
     }
 
+    /**
+     * @brief Constructor
+     * @param _value            Value
+     */
     WSDouble(double _value)
     {
         value().setFloat(_value);
@@ -734,7 +824,7 @@ public:
     using WSBasicType::operator String;
 
     /**
-     * Return class name
+     * @brief Return class name
      */
     String className() const override
     {
@@ -752,26 +842,27 @@ public:
     };
 
     /**
-     * Load data from XML node
+     * @brief Load data from XML node
      * @param attr              XML node
      * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
     void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
-     * Load data from string
+     * @brief Load data from string
      * @param attr              A string
      */
     void load(const String& attr) override;
 
     /**
-     * Load data from database field
+     * @brief Load data from database field
      * @param field             Database field
      */
     void load(const Field& field) override;
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSDouble& operator=(double _value)
     {
@@ -780,7 +871,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator double() const
     {
@@ -796,7 +887,7 @@ class SP_EXPORT WSInteger
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor
      */
     WSInteger()
     {
@@ -804,7 +895,7 @@ public:
     }
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param name              WSDL element name
      * @param optional          Element optionality flag
      */
@@ -815,7 +906,7 @@ public:
     }
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param value             Value
      */
     WSInteger(int _value)
@@ -826,7 +917,7 @@ public:
     using WSBasicType::operator String;
 
     /**
-     * Return class name
+     * @brief Return class name
      */
     String className() const override
     {
@@ -844,26 +935,27 @@ public:
     };
 
     /**
-     * Load data from XML node
+     * @brief Load data from XML node
      * @param attr              XML node
      * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
     void load(const xdoc::SNode& attr, bool nullLargeData) override;
 
     /**
-     * Load data from string
+     * @brief Load data from string
      * @param attr              A string
      */
     void load(const String& attr) override;
 
     /**
-     * Load data from database field
+     * @brief Load data from database field
      * @param field             Database field
      */
     void load(const Field& field) override;
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
+     * @param _value            Value
      */
     WSInteger& operator=(int64_t _value)
     {
@@ -872,7 +964,7 @@ public:
     }
 
     /**
-     * Assignment operation
+     * @brief Assignment operation
      */
     WSInteger& operator=(int _value)
     {
@@ -881,7 +973,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator int32_t() const
     {
@@ -889,7 +981,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator int64_t() const
     {
@@ -897,7 +989,7 @@ public:
     }
 
     /**
-     * Conversion operator
+     * @brief Conversion operator
      */
     operator uint64_t() const
     {
@@ -906,7 +998,7 @@ public:
 };
 
 /**
- * Converts type id name to WS type name
+ * @brief Converts type id name to WS type name
  * @param typeId                Type id name, returned by typeid(<type>).name()
  * @return WS type name without leading 'C' character
  */
