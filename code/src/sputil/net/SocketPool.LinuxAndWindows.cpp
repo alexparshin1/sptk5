@@ -112,10 +112,9 @@ void SocketPool::forgetSocket(Socket& socket)
 {
     const lock_guard lock(*this);
 
-    SocketEvent event;
     if (socket.active())
     {
-        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), &event);
+        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), nullptr);
     }
 
     m_userData.erase(&socket);
