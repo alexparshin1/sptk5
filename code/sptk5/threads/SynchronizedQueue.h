@@ -49,10 +49,13 @@ template<class T>
 class SynchronizedQueue
 {
 public:
+    /**
+     * @brief Destructor
+     */
     virtual ~SynchronizedQueue() = default;
 
     /**
-     * Pushes a data item to the queue
+     * @brief Pushes a data item to the queue
      *
      * Item is moved inside the queue.
      * Automatically posts internal semaphore to indicate
@@ -68,7 +71,7 @@ public:
     }
 
     /**
-     * Pushes a data item to the queue
+     * @brief Pushes a data item to the queue
      *
      * Item is moved inside the queue.
      * Automatically posts internal semaphore to indicate
@@ -84,7 +87,7 @@ public:
     }
 
     /**
-     * Pushes a data item to the queue
+     * @brief Pushes a data item to the queue
      *
      * Automatically posts internal semaphore to indicate
      * queue item availability.
@@ -99,7 +102,7 @@ public:
     }
 
     /**
-     * Pushes a data item to the queue
+     * @brief Pushes a data item to the queue
      *
      * Automatically posts internal semaphore to indicate
      * queue item availability.
@@ -114,7 +117,7 @@ public:
     }
 
     /**
-     * Pops a data item from the queue
+     * @brief Pops a data item from the queue
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
@@ -137,7 +140,7 @@ public:
     }
 
     /**
-     * Pops a data item from the queue
+     * @brief Pops a data item from the queue
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
@@ -160,7 +163,7 @@ public:
     }
 
     /**
-     * Wakes up queue semaphore to interrupt waiting
+     * @brief Wakes up queue semaphore to interrupt waiting
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -170,7 +173,7 @@ public:
     }
 
     /**
-     * Returns true if the queue is empty
+     * @brief Returns true if the queue is empty
      */
     bool empty() const
     {
@@ -179,7 +182,7 @@ public:
     }
 
     /**
-     * Returns number of items in the queue
+     * @brief Returns number of items in the queue
      */
     size_t size() const
     {
@@ -188,7 +191,7 @@ public:
     }
 
     /**
-     * Removes all items from the queue
+     * @brief Removes all items from the queue
      */
     void clear()
     {
@@ -197,7 +200,7 @@ public:
     }
 
     /**
-     * Calls callbackFunction() for every list until false is returned
+     * @brief Calls callbackFunction() for every list until false is returned
      *
      * Current implementation does the job but isn't too efficient due to
      * std::deque class limitations.
@@ -226,17 +229,17 @@ public:
 
 private:
     /**
-     * Lock to synchronize queue operations
+     * @brief Lock to synchronize queue operations
      */
     mutable std::mutex m_mutex;
 
     /**
-     * Semaphore to waiting for an item if queue is empty
+     * @brief Semaphore to waiting for an item if queue is empty
      */
     Semaphore m_semaphore;
 
     /**
-     * Queue
+     * @brief Queue
      */
     std::deque<T> m_queue;
 };
