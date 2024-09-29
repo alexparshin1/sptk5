@@ -1,25 +1,36 @@
 BUILD_ROOT=$(pwd)
 
-SPTK_DIR=SPTK-5.6.2
-XMQ_DIR=XMQ-0.9.5
+TESTS=""
+if [ "$1" = "--no-tests" ]; then
+    TESTS=$1
+fi
+
+SPTK_VERSION=5.6.2
+XMQ_VERSION=0.9.6
+SPTK_DIR=SPTK-$SPTK_VERSION
+XMQ_DIR=XMQ-$XMQ_VERSION
 
 sudo rm -rf $SPTK_DIR $XMQ_DIR
 
 cd $BUILD_ROOT/git/sptk5/
 git pull > /dev/null
+git checkout $SPTK_VERSION
 
 cd $BUILD_ROOT/git/xmq
 git pull > /dev/null
+git checkout $XMQ_VERSION
 
 cd $BUILD_ROOT
 rsync -av git/sptk5/code/ $SPTK_DIR > /dev/null
 rsync -av git/xmq/ $XMQ_DIR > /dev/null
 
+rm -f logs/*.log
+
 #for dname in /home/alexeyp/Docker/Dockerfile.*
-for dname in /home/alexeyp/Docker/Dockerfile.fedora37
+for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-numbat
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh SPTK XMQ
+    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ
 done
 
 rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/

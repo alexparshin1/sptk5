@@ -5,6 +5,12 @@ export PATH=/usr/local/bin:$PATH
 
 rsync -avz /build/etc/xmq /etc/
 
+RUN_TESTS="true"
+if [ "$1" = "--no-tests" ]; then
+    RUN_TESTS="false"
+    shift
+fi
+
 # Build scroipt for building either SPTK or XMQ packages in Docker environment
 
 for PACKAGE in $@; do
@@ -102,20 +108,22 @@ sh ./distclean.sh
 
 echo ──────────────────────────────────────────────────────────────────
 
-export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
-grep "10.1.1.242" /etc/hosts
-if [ $? == 1 ]; then
-    echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host" >> /etc/hosts
-fi
+if [ $RUN_TESTS = "true" ]; then
+    export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
+    grep "10.1.1.242" /etc/hosts
+    if [ $? == 1 ]; then
+        echo "10.1.1.242  theater oracledb dbhost_oracle dbhost_mssql dbhost_pg dbhost_mysql smtp_host" >> /etc/hosts
+    fi
 
-export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
-RC=$?
+    export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+    cd $CWD/test && ${lcPACKAGE}_unit_tests 2>&1 > /build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log
+    RC=$?
 
-if [ $RC != 0 ]; then
-    echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.log
-else
-    rm /build/logs/${lcPACKAGE}_failed.log
+    if [ $RC != 0 ]; then
+        echo "/build/logs/${lcPACKAGE}_unit_tests.$OS_TYPE.log" > /build/logs/${lcPACKAGE}_failed.log
+    else
+        rm /build/logs/${lcPACKAGE}_failed.log
+    fi
 fi
 
 cd $CWD
