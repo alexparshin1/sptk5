@@ -511,7 +511,11 @@ ELSE ()
     SET(BUILD_TEST_WS "0")
 ENDIF ()
 
-INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR} googletest/googletest/include)
+INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
+
+IF(WIN32)
+    INCLUDE_DIRECTORIES(googletest/googletest/include)
+ENDIF()
 
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
