@@ -26,21 +26,22 @@
 
 #pragma once
 
-#include <functional>
 #include <sptk5/DateTime.h>
+
+#include <functional>
+#include <mutex>
 
 namespace sptk {
 
 /**
- * Simple stopwatch class useful in measuring time intervals
+ * @brief Simple stopwatch class useful in measuring time intervals
+ * This class is thread-safe.
  */
 class SP_EXPORT StopWatch
 {
-    DateTime m_started {"now"}; ///< Start time
-    DateTime m_ended;           ///< Stop time
 public:
     /**
-     * Constructor
+     * @brief Constructor
      */
     StopWatch() = default;
 
@@ -52,17 +53,18 @@ public:
     template<class Action>
     explicit StopWatch(const Action& action)
     {
+        start();
         action();
         stop();
     }
 
     /**
-     * Destructor
+     * @brief Destructor
      */
     ~StopWatch() = default;
 
     /**
-     * Set stopwatch start time
+     * @brief Set stopwatch start time
      */
     void start();
 
@@ -72,16 +74,21 @@ public:
     void stop();
 
     /**
-     * Get difference between stopwatch start and stop times in seconds
+     * @brief Get difference between stopwatch start and stop times in seconds
      * @return interval in seconds
      */
     double seconds() const;
 
     /**
-     * Get difference between stopwatch start and stop times in seconds
+     * @brief Get difference between stopwatch start and stop times in seconds
      * @return interval in seconds
      */
     double milliseconds() const;
+
+private:
+    mutable std::mutex m_mutex;           ///< Mutex that provides thread-safety
+    DateTime           m_started {"now"}; ///< Start time
+    DateTime           m_ended;           ///< Stop time
 };
 
 } // namespace sptk

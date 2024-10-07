@@ -31,23 +31,27 @@ using namespace sptk;
 
 void StopWatch::start()
 {
+    const scoped_lock lock(m_mutex);
     m_started = DateTime::Now();
     m_ended = m_started;
 }
 
 void StopWatch::stop()
 {
+    const scoped_lock lock(m_mutex);
     m_ended = DateTime::Now();
 }
 
 double StopWatch::seconds() const
 {
+    const scoped_lock lock(m_mutex);
     return duration2seconds(m_ended - m_started);
 }
 
 double StopWatch::milliseconds() const
 {
-    constexpr double microsecondsInMillisecond = 1000.0;
+    const scoped_lock lock(m_mutex);
+    constexpr double  microsecondsInMillisecond = 1000.0;
     return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_ended - m_started).count()) /
            microsecondsInMillisecond;
 }
