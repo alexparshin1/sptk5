@@ -152,11 +152,11 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #ADD_DEFINITIONS(-O2 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O1 -mtune=native -march=native)
         #ADD_DEFINITIONS(-fsanitize=address)
         #LINK_LIBRARIES(asan)
     ELSE ()
-        ADD_DEFINITIONS(-O3 -mtune=native -march=native)
+        ADD_DEFINITIONS(-Ofast -mtune=native -march=native)
     ENDIF ()
 
     IF (UNIX)
@@ -513,9 +513,9 @@ ENDIF ()
 
 INCLUDE_DIRECTORIES(${SPTK_SOURCE_DIR})
 
-IF(WIN32)
+IF (WIN32)
     INCLUDE_DIRECTORIES(googletest/googletest/include)
-ENDIF()
+ENDIF ()
 
 CONFIGURE_FILE("${SPTK_SOURCE_DIR}/sptk5/sptk-config.h.cmake" "${SPTK_SOURCE_DIR}/sptk5/sptk-config.h" @ONLY)
 
