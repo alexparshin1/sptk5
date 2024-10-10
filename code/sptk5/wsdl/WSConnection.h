@@ -27,6 +27,7 @@
 #pragma once
 
 #include "WSServices.h"
+#include "sptk5/net/SocketPool.h"
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
@@ -38,6 +39,7 @@ namespace sptk {
 
 class SP_EXPORT WSConnection
     : public ServerConnection
+    , public SocketEventData
 {
 public:
     class Paths

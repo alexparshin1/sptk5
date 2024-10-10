@@ -90,7 +90,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
     shared_ptr<SocketReader> socketReader;
 
     auto eventsCallback =
-        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&eventReceived, &socketReader](const shared_ptr<SocketEventData>& /*userData*/, SocketEventType eventType)
     {
         Buffer line;
 
@@ -130,7 +130,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+        socketEvents.add(socket, {});
 
         socketReader = make_shared<SocketReader>(socket);
 
@@ -172,7 +172,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
     Semaphore     receivedEvent;
 
     auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&eventCount, &receivedEvent](const shared_ptr<SocketEventData>& /*userData*/, SocketEventType eventType)
     {
         if (eventType.m_hangup)
         {
@@ -205,7 +205,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+        socketEvents.add(socket, {});
 
         for (const auto& row: testRows)
         {
@@ -242,7 +242,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
     Semaphore     receivedEvent;
 
     auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&eventCount, &receivedEvent](const shared_ptr<SocketEventData>& /*userData*/, SocketEventType eventType)
     {
         if (eventType.m_hangup)
         {
@@ -275,7 +275,7 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+        socketEvents.add(socket, {});
 
         for (const auto& row: testRows)
         {
@@ -305,7 +305,7 @@ TEST(SPTK_SocketEvents, performance)
 {
     SocketEvents socketEvents(
         "test events",
-        [](const uint8_t*, SocketEventType)
+        [](const shared_ptr<SocketEventData>&, SocketEventType)
         {
             // No need to do anything for this test
             return SocketEventAction::Continue;
@@ -350,7 +350,7 @@ TEST(SPTK_SocketEvents, hangup)
     shared_ptr<SocketReader> socketReader;
 
     auto eventsCallback =
-        [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&socketHangupEvent](const shared_ptr<SocketEventData>& /*userData*/, SocketEventType eventType)
     {
         Buffer line;
 
@@ -381,7 +381,7 @@ TEST(SPTK_SocketEvents, hangup)
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
 
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+        socketEvents.add(socket, {});
 
         const auto bytes = socket.write("Test\n");
         if (bytes <= 0)
