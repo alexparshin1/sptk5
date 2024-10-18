@@ -85,13 +85,16 @@ void HttpAuthentication::parse()
         else
         {
             constexpr int bearerLength = 6;
-            if (const String authMethod = m_authenticationHeader.substr(0, bearerLength);
-                authMethod.toLowerCase() == "bearer")
+            if (m_authenticationHeader.length() > 7)
             {
-                const auto aJwtData = make_shared<JWT>();
-                aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
-                m_jwtData = aJwtData;
-                m_type = Type::BEARER;
+                if (const String authMethod = m_authenticationHeader.substr(0, bearerLength);
+                    authMethod.toLowerCase() == "bearer")
+                {
+                    const auto aJwtData = make_shared<JWT>();
+                    aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
+                    m_jwtData = aJwtData;
+                    m_type = Type::BEARER;
+                }
             }
         }
     }

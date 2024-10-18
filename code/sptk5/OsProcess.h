@@ -34,10 +34,10 @@
 #include <vector>
 
 namespace sptk {
-	/**
+/**
 	 * @brief Asynchronously execute OS process, optionally capturing its output to callback function
 	 */
-	class SP_EXPORT OsProcess
+class SP_EXPORT OsProcess
 {
 public:
     /**
@@ -61,7 +61,7 @@ public:
      * @brief Wait until process exits
      * @return process exit code
      */
-    int  wait();
+    int wait();
 
     /**
      * @brief Wait until process exits
@@ -77,16 +77,16 @@ private:
 #else
     using FileHandle = FILE*;
 #endif
-    std::mutex                               m_mutex; ///< Mutex that protects internal data
-    sptk::String                             m_command; ///< Process command
-    std::function<void(const sptk::String&)> m_onData;  ///< Optional callback function called on process output
-    FileHandle                               m_stdout {}; ///< Process stdout
-    FileHandle                               m_stdin {};  ///< Process stdin
-    std::future<int>                         m_task;      ///< Process execution task
+    std::mutex                               m_mutex;              ///< Mutex that protects internal data
+    sptk::String                             m_command;            ///< Process command
+    std::function<void(const sptk::String&)> m_onData;             ///< Optional callback function called on process output
+    FileHandle                               m_stdout {};          ///< Process stdout
+    std::future<int>                         m_task;               ///< Process execution task
     std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
 #ifdef _WIN32
-    static sptk::String getErrorMessage(DWORD lastError);          
-    PROCESS_INFORMATION m_processInformation {}; ///< Process information (Windows only)
+    FileHandle          m_stdin {};                       ///< Process stdin
+    static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
+    PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
     int  waitForData(std::chrono::milliseconds timeout); ///< Wait for process output
     void readData();                                     ///< Read process output

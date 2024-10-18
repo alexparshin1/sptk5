@@ -33,10 +33,10 @@ using namespace sptk;
 SSLKeys::SSLKeys(filesystem::path privateKeyFileName, filesystem::path certificateFileName,
                  String password, filesystem::path caFileName, int verifyMode,
                  int verifyDepth)
-    : m_privateKeyFileName(move(privateKeyFileName))
-    , m_certificateFileName(move(certificateFileName))
-    , m_password(move(password))
-    , m_caFileName(move(caFileName))
+    : m_privateKeyFileName(std::move(privateKeyFileName))
+    , m_certificateFileName(std::move(certificateFileName))
+    , m_password(std::move(password))
+    , m_caFileName(std::move(caFileName))
     , m_verifyMode(verifyMode)
     , m_verifyDepth(verifyDepth)
 {

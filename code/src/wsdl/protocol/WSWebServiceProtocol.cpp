@@ -70,7 +70,7 @@ void WSWebServiceProtocol::generateFault(Buffer& output, HttpResponseStatus& htt
         contentType = "application/xml";
 
         xdoc::Document error;
-        const auto& xmlEnvelope = error.root()->pushNode("soap:Envelope");
+        const auto&    xmlEnvelope = error.root()->pushNode("soap:Envelope");
         xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
         const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
@@ -107,15 +107,15 @@ void substituteHostname(Buffer& page, const Host& host)
 
 RequestInfo WSWebServiceProtocol::process()
 {
-    constexpr int okResponseCode(200);
-    constexpr int httpErrorResponseCode(400);
-    constexpr int onlyPostResponseCode(405);
-    constexpr int invalidContentResponseCode(406);
-    constexpr int serverErrorResponseCode(500);
+    constexpr int             okResponseCode(200);
+    constexpr int             httpErrorResponseCode(400);
+    constexpr int             onlyPostResponseCode(405);
+    constexpr int             invalidContentResponseCode(406);
+    constexpr int             serverErrorResponseCode(500);
     constexpr chrono::seconds thirtySeconds(30);
 
     HttpResponseStatus httpStatus {okResponseCode, "OK"};
-    bool returnWSDL = false;
+    bool               returnWSDL = false;
 
     if (m_httpReader.getRequestType() != "POST")
     {
@@ -127,10 +127,10 @@ RequestInfo WSWebServiceProtocol::process()
 
     RequestInfo requestInfo;
 
-    String contentEncoding;
-    String contentType(m_httpReader.httpHeader("Content-Type"));
+    String     contentEncoding;
+    String     contentType(m_httpReader.httpHeader("Content-Type"));
     const bool urlEncoded = contentType.find("x-www-form-urlencoded") != string::npos;
-    bool requestIsJSON = true;
+    bool       requestIsJSON = true;
     if (urlEncoded)
     {
         contentEncoding = "x-www-form-urlencoded";
@@ -153,7 +153,7 @@ RequestInfo WSWebServiceProtocol::process()
 
     xdoc::Document xmlContent;
     xdoc::Document jsonContent;
-    xdoc::SNode responseNode;
+    xdoc::SNode    responseNode;
 
     if (startOfMessage != endOfMessage)
     {
@@ -263,6 +263,10 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
     {
         const String value(itor->second);
         authentication = make_shared<HttpAuthentication>(value);
+        if (authentication->type() == HttpAuthentication::Type::UNDEFINED)
+        {
+            authentication.reset();
+        }
     }
 
     return authentication;
