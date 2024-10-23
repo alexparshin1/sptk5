@@ -153,7 +153,6 @@ RequestInfo WSWebServiceProtocol::process()
 
     xdoc::Document xmlContent;
     xdoc::Document jsonContent;
-    xdoc::SNode    responseNode;
 
     if (startOfMessage != endOfMessage)
     {
@@ -162,11 +161,10 @@ RequestInfo WSWebServiceProtocol::process()
         {
             contentType = "application/xml; charset=utf-8";
             requestIsJSON = false;
-            responseNode = processXmlContent((const char*) startOfMessage, xmlContent.root());
+            processXmlContent((const char*) startOfMessage, xmlContent.root());
         }
         else if (*startOfMessage == '{' || *startOfMessage == '[')
         {
-            responseNode = jsonContent.root();
             contentType = "application/json; charset=utf-8";
             processJsonContent((const char*) startOfMessage, jsonContent.root(), requestInfo, httpStatus,
                                contentType);
@@ -270,20 +268,4 @@ shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
     }
 
     return authentication;
-}
-
-int WSWebServiceProtocol::getContentLength()
-{
-    int contentLength = -1; // Undefined
-    if (m_url.params().has("wsdl"))
-    {
-        contentLength = 0;
-    }
-
-    if (const auto itor = headers().find("Content-Length");
-        itor != headers().end())
-    {
-        contentLength = string2int(itor->second);
-    }
-    return contentLength;
 }

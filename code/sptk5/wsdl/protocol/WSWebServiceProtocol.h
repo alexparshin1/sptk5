@@ -72,16 +72,12 @@ protected:
     std::shared_ptr<HttpAuthentication> getAuthentication() override;
 
 private:
-    HttpReader& m_httpReader; ///< HTTP reader
-    ///< Web service
-    ///< Request URL
-    Host m_host;               ///< Listener's host
-    bool m_allowCORS;          ///< Allow CORS?
-    bool m_keepAlive;          ///< Allow keep-alive connections
-    bool m_suppressHttpStatus; ///< If true, then HTTP status is 202 Accepted even if HttpException raised
-    LogDetails m_logDetails;   ///< Log details
-
-    int getContentLength();
+    HttpReader& m_httpReader;         ///< HTTP reader
+    Host        m_host;               ///< Listener's host
+    bool        m_allowCORS;          ///< Allow CORS?
+    bool        m_keepAlive;          ///< Allow keep-alive connections
+    bool        m_suppressHttpStatus; ///< If true, then HTTP status is 202 Accepted even if HttpException raised
+    LogDetails  m_logDetails;         ///< Log details
 };
 
 /// @}

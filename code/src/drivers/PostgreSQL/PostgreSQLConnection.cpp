@@ -265,11 +265,10 @@ bool PostgreSQLConnection::active() const
 }
 
 namespace {
-void checkError(const PGconn* conn, PGresult* res, const String& command,
-                ExecStatusType expectedResult = PGRES_COMMAND_OK)
+void checkError(const PGconn* conn, PGresult* res, const String& command)
 {
     const auto statusCode = PQresultStatus(res);
-    if (statusCode != expectedResult)
+    if (statusCode != PGRES_COMMAND_OK)
     {
         const auto error = command + " command failed: " + string(PQerrorMessage(conn));
         PQclear(res);

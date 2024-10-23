@@ -74,12 +74,12 @@ public:
     /**
      * Returns true if terminate request is sent to runable
      */
-    bool terminated() const;
+    [[nodiscard]] bool terminated() const;
 
     /**
      * @return object name
      */
-    String name() const
+    [[nodiscard]] String name() const
     {
         return m_name;
     }
@@ -94,7 +94,7 @@ protected:
 
 private:
     std::atomic<bool> m_terminated {false}; ///< Flag indicating if task is terminated
-    String m_name;                          ///< Runable object name
+    String            m_name;               ///< Runable object name
 
     /**
      * Set runable to terminated
@@ -102,7 +102,6 @@ private:
      */
     void setTerminated(bool terminated);
 };
-;
 
 using SRunable = std::shared_ptr<Runable>;
 using URunable = std::unique_ptr<Runable>;

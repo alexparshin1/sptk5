@@ -75,7 +75,7 @@ public:
     /**
      * Returns database connection acquired from the connection pool
      */
-    PoolDatabaseConnection* connection() const;
+    [[nodiscard]] PoolDatabaseConnection* connection() const;
 
     /**
      * Opens the database connection
@@ -200,7 +200,7 @@ public:
      * @param batchFileName     SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
-    void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
+    [[maybe_unused]] void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
     {
         m_connection->executeBatchFile(batchFileName, errors);
     }

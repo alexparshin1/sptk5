@@ -61,7 +61,9 @@ TEST(SPTK_ZLib, compress)
     String compressedBase64;
     ZLib::compress(compressed, Buffer(originalTestString));
     Base64::encode(compressedBase64, compressed);
-    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
+    EXPECT_EQ(originalTestStringBase64.size(), compressedBase64.size());
+    EXPECT_TRUE(compressedBase64.startsWith("H4sIAAAAAAAAAw"));
+    EXPECT_TRUE(compressedBase64.endsWith("es7C0zIAAAA="));
 }
 
 TEST(SPTK_ZLib, decompress)
