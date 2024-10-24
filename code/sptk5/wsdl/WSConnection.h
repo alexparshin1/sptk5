@@ -101,18 +101,12 @@ public:
     /**
      * Get hangup state
      */
-    [[maybe_unused]] bool isHangup() const
-    {
-        return m_isHangup;
-    }
+    [[maybe_unused]] bool isHangup() const;
 
     /**
      * Set hangup state: read the data and close the connection
      */
-    [[maybe_unused]] void setHangup()
-    {
-        m_isHangup = true;
-    }
+    [[maybe_unused]] void setHangup();
 
     [[maybe_unused]] std::shared_ptr<Thread> getWorkerThread() const;
 

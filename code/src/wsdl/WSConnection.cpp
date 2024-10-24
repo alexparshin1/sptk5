@@ -344,3 +344,13 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     }
     socket().attach(connectionSocket, true);
 }
+
+[[maybe_unused]] bool WSConnection::isHangup() const
+{
+    return m_isHangup;
+}
+
+[[maybe_unused]] void WSConnection::setHangup()
+{
+    m_isHangup = true;
+}

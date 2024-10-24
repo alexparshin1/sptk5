@@ -59,7 +59,16 @@ RequestInfo WSStaticHttpProtocol::process()
         requestInfo.response.content().loadFromFile(fullPath.c_str());
         const Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
-        socket().write("Content-Type: text/html; charset=utf-8\n");
+        String contentType = "text/html";
+        if (fullPath.endsWith(".css"))
+        {
+            contentType = "text/css";
+        }
+        else if (fullPath.endsWith(".js"))
+        {
+            contentType = "text/javascript";
+        }
+        socket().write("Content-Type: " + contentType + "; charset=utf-8\n");
         if (!requestInfo.response.contentEncoding().empty())
         {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
