@@ -28,3 +28,14 @@
     text-decoration: none;
     background-color: white;
 }
+
+#fadein, #fadeout {
+    clear: both;
+    height: 5px;
+    padding: 0;
+    margin: 0;
+}
+
+#fadeout {
+    background: #ddd url(../images/fadeout.gif) repeat-x top;
+}

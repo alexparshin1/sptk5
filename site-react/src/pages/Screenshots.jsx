@@ -11,14 +11,6 @@ import save_as from "../screenshots/save_as.png";
 import sptk1 from "../screenshots/sptk1.png";
 import sptk2 from "../screenshots/sptk2.png";
 import sptk3 from "../screenshots/sptk3.png";
-import theme_blue from "../screenshots/theme_blue.png";
-import theme_dark from "../screenshots/theme_dark.png";
-import theme_default from "../screenshots/theme_default.png";
-import theme_e17 from "../screenshots/theme_e17.png";
-import theme_flat from "../screenshots/theme_flat.png";
-import theme_keramic from "../screenshots/theme_keramic.png";
-import theme_opera from "../screenshots/theme_opera.png";
-import theme_osx from "../screenshots/theme_osx.png";
 import tree from "../screenshots/tree.png";
 
 export default class Screenshots extends React.Component
@@ -26,11 +18,10 @@ export default class Screenshots extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
-            <div id="fadeout"></div>
-            <table className="screenshot-table" style={{width:"100%"}}>
+            <table className="screenshot-table" style={{width: "100%"}}>
                 <thead>
-                    <th style={{width:200}}/>
-                    <th/>
+                <th style={{width: 200}}/>
+                <th/>
                 </thead>
                 <tbody>
                 <tr>

@@ -16,8 +16,10 @@ export default class MainMenu extends React.Component
         this.state.counter = this.getCounter("/");
     }
 
-    getCounter(activePage) {
-        switch (activePage) {
+    getCounter(activePage)
+    {
+        switch (activePage)
+        {
             case "/":
             case "/home":
                 activePage = "/index";
@@ -38,7 +40,7 @@ export default class MainMenu extends React.Component
     renderMenuItem(link, text)
     {
         return <td key={"menu-item-" + link} className="MainMenuItem">
-            <NavLink to={link} onClick={()=>this.setActivePage(link)}>{text}</NavLink>
+            <NavLink to={link} onClick={() => this.setActivePage(link)}>{text}</NavLink>
         </td>;
     }
 
@@ -56,19 +58,23 @@ export default class MainMenu extends React.Component
         };
 
         let mainTabs = [];
-        for (let link in mainTabsData) {
+        for (let link in mainTabsData)
+        {
             mainTabs.push(this.renderMenuItem(link, mainTabsData[link]));
         }
 
-        return <div  style={{align: 'left'}}>
+        return <div style={{align: 'left'}}>
             <table className="MainMenu" style={{width: "100%"}}>
                 <tbody>
                 <tr>
                     {mainTabs}
-                    <td align="right" style={{width: "100%"}}>There were {this.state.counter} unique visitors to this page.</td>
+                    <td align="right" style={{width: "100%"}}>There were {this.state.counter} unique visitors to this
+                        page.
+                    </td>
                 </tr>
                 </tbody>
             </table>
+            <div id="fadeout"/>
         </div>;
     }
 }

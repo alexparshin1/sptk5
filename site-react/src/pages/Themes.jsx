@@ -15,11 +15,12 @@ export default class Themes extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
-            <div id="fadeout" style={{textAlign: "left", padding: 8}}>
-                Several examples of the SPTK themes. They are made as copies of the popular themes, developed by some other people.
+            <div style={{textAlign: "left", padding: 8}}>
+                Several examples of the SPTK themes. They are made as copies of the popular themes, developed by
+                some other people.
                 The screenshots below belong to the examples/cgroup_test.
             </div>
-            <table className="screenshot-table" style={{width:"100%"}}>
+            <table className="screenshot-table" style={{width: "100%"}}>
                 <tbody>
                 <tr>
                     <td>
@@ -59,6 +60,7 @@ export default class Themes extends React.Component
                 </tbody>
             </table>
 
-        </div>;
+        </div>
+            ;
     }
 }
