@@ -6,6 +6,7 @@ import {Route, Routes} from "react-router";
 import Home from "./pages/Home";
 import {BrowserRouter} from "react-router-dom";
 import Screenshots from "./pages/Screenshots";
+import Themes from "./pages/Themes";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
                   <Routes>
                       <Route path="/" Component={Home} />
                       <Route path="/screenshots" Component={Screenshots} />
+                      <Route path="/themes" Component={Themes} />
                   </Routes>
               </BrowserRouter>
           </div>

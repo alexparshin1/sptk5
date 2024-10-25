@@ -21,23 +21,11 @@ import theme_opera from "../screenshots/theme_opera.png";
 import theme_osx from "../screenshots/theme_osx.png";
 import tree from "../screenshots/tree.png";
 
-import cscroll_small from "../screenshots/small/cscroll.png";
-import db_combo_small from "../screenshots/small/db_combo.png";
-import dialog_small from "../screenshots/small/dialog.png";
-import dir_ds_small from "../screenshots/small/dir_ds.png";
-import imap_ds_small from "../screenshots/small/imap_ds.png";
-import radio_small from "../screenshots/small/radio.png";
-import save_as_small from "../screenshots/small/save_as.png";
-import sptk1_small from "../screenshots/small/sptk1.png";
-import sptk2_small from "../screenshots/small/sptk2.png";
-import sptk3_small from "../screenshots/small/sptk3.png";
-import tree_small from "../screenshots/small/tree.png";
-
 export default class Screenshots extends React.Component
 {
     render()
     {
-        return <div style={{align: 'left'}}>
+        return <div style={{align: "left", background: "#ddd"}}>
             <div id="fadeout"></div>
             <table className="screenshot-table" style={{width:"100%"}}>
                 <thead>
