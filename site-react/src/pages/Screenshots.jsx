@@ -20,8 +20,10 @@ export default class Screenshots extends React.Component
         return <div style={{align: "left", background: "#ddd"}}>
             <table className="screenshot-table" style={{width: "100%"}}>
                 <thead>
-                <th style={{width: 200}}/>
-                <th/>
+                <tr>
+                    <th style={{width: 200}}/>
+                    <th/>
+                </tr>
                 </thead>
                 <tbody>
                 <tr>
@@ -73,7 +75,7 @@ export default class Screenshots extends React.Component
                         <img src={radio} alt="" title=""/>
                     </td>
                     <td>
-                        CRadioButtons demo. Demonstartes how to create and use a group of radio buttons with optional
+                        CRadioButtons demo. Demonstrates how to create and use a group of radio buttons with optional
                         'Other' entry.
                     </td>
                 </tr>
