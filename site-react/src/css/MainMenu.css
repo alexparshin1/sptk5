@@ -1,0 +1,30 @@
+.MainMenu {
+    background-color: #ddd;
+    mso-cellspacing: 0;
+    padding: 0;
+    padding: 0px;
+    border-color: #B3B3B3;
+    border-width: 0px;
+    border-style: solid;
+}
+
+.MainMenuItem {
+    padding: 8px;
+    white-space: nowrap;
+    spacing: 0;
+}
+
+.MainMenuItem > a {
+    text-decoration: none;
+    color: black;
+}
+
+.MainMenuItem > a.active {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.MainMenuItem:has(> a.active) {
+    text-decoration: none;
+    background-color: white;
+}
