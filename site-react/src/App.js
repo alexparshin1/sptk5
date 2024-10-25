@@ -5,6 +5,7 @@ import MainMenu from "./pages/MainMenu";
 import {Route, Routes} from "react-router";
 import Home from "./pages/Home";
 import {BrowserRouter} from "react-router-dom";
+import Screenshots from "./pages/Screenshots";
 
 function App() {
   return (
@@ -15,7 +16,7 @@ function App() {
                   <MainMenu/>
                   <Routes>
                       <Route path="/" Component={Home} />
-                      <Route path="/home" Component={Home} />
+                      <Route path="/screenshots" Component={Screenshots} />
                   </Routes>
               </BrowserRouter>
           </div>

@@ -1,5 +1,5 @@
 import React from "react";
-import {Link, NavLink} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import ControlAPI from "../ControlAPI";
 import "../css/MainMenu.css";
 
@@ -26,7 +26,7 @@ export default class MainMenu extends React.Component
                 break;
         }
         let sptkCounterName = "alexeyp" + activePage + ".php";
-        let counter = ControlAPI.getRequest("counter.php", {countername: "alexeyp" + activePage + ".php", page: activePage});
+        let counter = ControlAPI.getRequest("counter.php", {countername: sptkCounterName});
         return counter.visitors;
     }
 

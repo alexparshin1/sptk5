@@ -1,0 +1,9 @@
+.screenshot-table > tbody > tr > td {
+    text-align: left;
+    padding: 10px;
+}
+
+.screenshot {
+    text-align: left;
+    padding: 8px;
+}
