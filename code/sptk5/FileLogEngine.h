@@ -67,7 +67,7 @@ public:
     /**
      * @brief Flush file data to disk
      */
-    void flush();
+    void flush() override;
 
     /**
      * Restarts the log
@@ -77,9 +77,9 @@ public:
     void reset() override;
 
 private:
-    std::filesystem::path m_fileName; ///< Log file name
-    std::ofstream m_fileStream;       ///< Log file stream
-    void close() override;
+    std::filesystem::path m_fileName;   ///< Log file name
+    std::ofstream         m_fileStream; ///< Log file stream
+    void                  close() override;
 };
 /**
  * @}

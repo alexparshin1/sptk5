@@ -143,12 +143,12 @@ void LogEngine::log(Logger::UMessage&& message)
 
 void LogEngine::threadFunction()
 {
-    const chrono::seconds timeout(1);
     while (!terminated())
     {
         Logger::UMessage message = nullptr;
-        if (!m_messages.pop_front(message, timeout))
+        if (!m_messages.pop_front(message, 100ms))
         {
+            flush();
             continue;
         }
 

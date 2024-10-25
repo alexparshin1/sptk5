@@ -210,6 +210,11 @@ protected:
         return m_terminated;
     }
 
+    virtual void flush()
+    {
+        // Implement in derived class
+    }
+
 private:
     /**
      * Mutex that protects internal data access
