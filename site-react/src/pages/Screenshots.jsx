@@ -18,6 +18,7 @@ export default class Screenshots extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <div id="fadeout"/>
             <table className="screenshot-table" style={{width: "100%"}}>
                 <thead>
                 <tr>

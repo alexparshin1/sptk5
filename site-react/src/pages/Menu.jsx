@@ -1,25 +1,41 @@
 import React from "react";
 import {NavLink} from "react-router-dom";
 import ControlAPI from "../ControlAPI";
-import "../css/MainMenu.css";
+import "../css/Menu.css";
 
-export default class MainMenu extends React.Component
+export default class Menu extends React.Component
 {
     state = {
         activePage: "/",
         counter: 0
     };
 
-    constructor()
+    constructor(props)
     {
         super();
         this.state.counter = this.getCounter("/");
+        if (props.menu === undefined) {
+            this.menuItems = {
+                "/": "Home",
+                "/screenshots": "Screenshots",
+                "/themes": "Themes",
+                "/documentation": "Documentation",
+                "/support": "Support",
+                "/xmq_about": "XMQ",
+                "/contact": "Contact",
+                "/download": "Download"
+            };
+            this.menuType = "main";
+        } else {
+            this.menuItems = props.menu;
+            this.menuType = "submenu";
+        }
+        this.onChange = props.onChange;
     }
 
     getCounter(activePage)
     {
-        switch (activePage)
-        {
+        switch (activePage) {
             case "/":
             case "/home":
                 activePage = "/index";
@@ -34,37 +50,28 @@ export default class MainMenu extends React.Component
 
     setActivePage(activePage)
     {
+        if (this.state.activePage !== activePage && this.onChange !== undefined) {
+            this.onChange(activePage);
+        }
         this.setState({activePage: activePage, counter: this.getCounter(activePage)});
     }
 
     renderMenuItem(link, text)
     {
-        return <td key={"menu-item-" + link} className="MainMenuItem">
+        return <td key={"menu-item-" + link} className="MenuItem">
             <NavLink to={link} onClick={() => this.setActivePage(link)}>{text}</NavLink>
         </td>;
     }
 
     render()
     {
-        let mainTabsData = {
-            "/": "Home",
-            "/screenshots": "Screenshots",
-            "/themes": "Themes",
-            "/documentation": "Documentation",
-            "/dbtools": "DB Tools",
-            "/support": "Support",
-            "/xmq": "XMQ",
-            "/download": "Contact"
-        };
-
         let mainTabs = [];
-        for (let link in mainTabsData)
-        {
-            mainTabs.push(this.renderMenuItem(link, mainTabsData[link]));
+        for (let link in this.menuItems) {
+            mainTabs.push(this.renderMenuItem(link, this.menuItems[link]));
         }
 
         return <div style={{align: 'left'}}>
-            <table className="MainMenu" style={{width: "100%"}}>
+            <table className="Menu" style={{width: "100%"}}>
                 <tbody>
                 <tr>
                     {mainTabs}
@@ -74,7 +81,6 @@ export default class MainMenu extends React.Component
                 </tr>
                 </tbody>
             </table>
-            <div id="fadeout"/>
         </div>;
     }
 }

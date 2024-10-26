@@ -15,6 +15,7 @@ export default class Themes extends React.Component
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <div id="fadeout"/>
             <div style={{textAlign: "left", padding: 8}}>
                 Several examples of the SPTK themes. They are made as copies of the popular themes, developed by
                 some other people.

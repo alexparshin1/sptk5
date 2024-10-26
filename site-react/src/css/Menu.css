@@ -1,4 +1,4 @@
-.MainMenu {
+.Menu {
     background-color: #ddd;
     mso-cellspacing: 0;
     padding: 0;
@@ -8,23 +8,23 @@
     border-style: solid;
 }
 
-.MainMenuItem {
+.MenuItem {
     padding: 8px;
     white-space: nowrap;
     spacing: 0;
 }
 
-.MainMenuItem > a {
+.MenuItem > a {
     text-decoration: none;
     color: black;
 }
 
-.MainMenuItem > a.active {
+.MenuItem > a.active {
     text-decoration: none;
     font-weight: bold;
 }
 
-.MainMenuItem:has(> a.active) {
+.MenuItem:has(> a.active) {
     text-decoration: none;
     background-color: #eee;
     border-bottom: #0000FF solid 2px;

@@ -10,6 +10,7 @@ export default class Documentation extends React.Component
     render()
     {
         return <div className="Documentation">
+            <div id="fadeout"/>
             <p>Currently, the following documentation is available:</p>
             <table className="DocumentationItem">
                 <tbody>
@@ -45,7 +46,7 @@ export default class Documentation extends React.Component
                 </tbody>
             </table>
 
-            <p class="notify">Please, consider the documentation unfinished. </p>
+            <p className="notify">Please, consider the documentation unfinished. </p>
         </div>;
     }
 }
