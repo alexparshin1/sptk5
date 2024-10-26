@@ -44,8 +44,8 @@ export default class XMQ_tests extends React.Component
                 The maximum number of clients is limited by the testing system:
                 <ul>
                     <li>XMQ server is running on Intel NUC 7 with 8 cores and 32GB memory.</li>
-                    <li>The testing utilities are running a VM configured to have 4 network interfaces.
-                        The VM is running on Intel NUC 7 with 8 cores and 32GB memory.
+                    <li>The test utilities are running on a VM configured to have 4 network interfaces.
+                        The VM is hosted on Intel NUC 7 with 8 cores and 32GB memory.
                     </li>
                 </ul>
             </p>
