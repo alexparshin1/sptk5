@@ -26,7 +26,8 @@
 
 .MainMenuItem:has(> a.active) {
     text-decoration: none;
-    background-color: white;
+    background-color: #eee;
+    border-bottom: #0000FF solid 2px;
 }
 
 #fadein, #fadeout {
