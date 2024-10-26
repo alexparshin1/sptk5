@@ -1,0 +1,14 @@
+.Documentation {
+    background-color: #ddd;
+    font-family: Verdana;
+    width: 100%;
+    vertical-align: top;
+    text-align: left;
+    padding: 10px;
+}
+
+.DocumentationItem > a {
+    color: #0000FF;
+    background-color: #ddd;
+    text-align: left;
+}
