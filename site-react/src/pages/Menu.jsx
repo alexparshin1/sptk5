@@ -14,7 +14,8 @@ export default class Menu extends React.Component
     {
         super();
         this.state.counter = this.getCounter("/");
-        if (props.menu === undefined) {
+        if (props.menu === undefined)
+        {
             this.menuItems = {
                 "/": "Home",
                 "/screenshots": "Screenshots",
@@ -26,7 +27,8 @@ export default class Menu extends React.Component
                 "/download": "Download"
             };
             this.menuType = "main";
-        } else {
+        } else
+        {
             this.menuItems = props.menu;
             this.menuType = "submenu";
         }
@@ -35,7 +37,8 @@ export default class Menu extends React.Component
 
     getCounter(activePage)
     {
-        switch (activePage) {
+        switch (activePage)
+        {
             case "/":
             case "/home":
                 activePage = "/index";
@@ -50,7 +53,8 @@ export default class Menu extends React.Component
 
     setActivePage(activePage)
     {
-        if (this.state.activePage !== activePage && this.onChange !== undefined) {
+        if (this.state.activePage !== activePage && this.onChange !== undefined)
+        {
             this.onChange(activePage);
         }
         this.setState({activePage: activePage, counter: this.getCounter(activePage)});
@@ -58,6 +62,12 @@ export default class Menu extends React.Component
 
     renderMenuItem(link, text)
     {
+        if (link === this.state.activePage)
+        {
+            return <td key={"menu-item-" + link} className="MenuItemSelected">
+                <NavLink to={link} onClick={() => this.setActivePage(link)}>{text}</NavLink>
+            </td>;
+        }
         return <td key={"menu-item-" + link} className="MenuItem">
             <NavLink to={link} onClick={() => this.setActivePage(link)}>{text}</NavLink>
         </td>;
@@ -66,7 +76,8 @@ export default class Menu extends React.Component
     render()
     {
         let mainTabs = [];
-        for (let link in this.menuItems) {
+        for (let link in this.menuItems)
+        {
             mainTabs.push(this.renderMenuItem(link, this.menuItems[link]));
         }
 

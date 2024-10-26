@@ -19,9 +19,21 @@
     color: black;
 }
 
-.MenuItem > a.active {
+.MenuItemSelected {
+    padding: 8px;
+    white-space: nowrap;
+    spacing: 0;
     text-decoration: none;
+    color: black;
     font-weight: bold;
+    text-decoration: none;
+    background-color: #eee;
+    border-bottom: #0000FF solid 2px;
+}
+
+.MenuItemSelected > a {
+    text-decoration: none;
+    color: black;
 }
 
 .MenuItem:has(> a.active) {
