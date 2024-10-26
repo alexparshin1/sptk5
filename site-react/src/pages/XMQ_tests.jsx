@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/Documentation.css";
 import Menu from "./Menu";
+import connectionsTest from "../images/tests/connections.png"
 
 export default class XMQ_tests extends React.Component
 {
@@ -48,6 +49,14 @@ export default class XMQ_tests extends React.Component
                     </li>
                 </ul>
             </p>
+
+            <h4>Connection Performance</h4>
+            <p>
+                Connect 100K clients using 100 threads.
+                Verify that there is no performance degradation with growing number of connected clients.
+                The used test utility is xmq_con.
+            </p>
+            <img src={connectionsTest} alt="Connection performance chart"/>
 
         </div>;
     }

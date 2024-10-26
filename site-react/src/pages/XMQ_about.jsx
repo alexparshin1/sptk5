@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/Documentation.css";
 import Menu from "./Menu";
+import {Link} from "react-router-dom";
 
 export default class XMQ_about extends React.Component
 {
@@ -20,28 +21,104 @@ export default class XMQ_about extends React.Component
             <Menu key="about-menu" menu={this.menuItems}/>
             <div id="fadeout"/>
 
+            <h3>Project Goals</h3>
             <p>
                 XMQ is a project aiming to create a fast and powerful MQTT server.
                 It supports persistent and non-persistent modes with several database backends.
+                The supported MQTT protocol versions are 3.1, 3.11, and 5.0.
                 It doesn't support clustering in the current version.
             </p>
+
+            <h3>Implementation</h3>
             <p>
-                XMQ is currently approaching version 1.0.
-                That means that server and test utilities are already working, and you can try them on your system.
+                XMQ server is written in C++ and uses SPTK class library for cross-platform
+                functionality.
+                It is accompanied by the test utilities that allow implementing various test scenarious.
+                The <Link to="/xmq_tests">test utilities</Link> are using standard MQTT protocols that allows comparing
+                XMQ with
+                other MQTT server.
             </p>
+
+            <h3>Supported Operating Systems</h3>
             <p>
                 The server supports Linux (.deb and .rpm flavours) and MS Windows (installer isn't yet
                 available).
                 BSD port is in the works, but the ETA is not available.
                 The binary files are available on Download page, along with SPTK downloads.
             </p>
+
+            <h3>The project progress</h3>
             <p>
-                At the current stage of development, XMQ server uses 300+ unit tests.
-                If you decide to give it a try, please email any bugs or shortcomings that you discover,
-                and I will do my best to resolve them.
-                For every noticeable bug, corresponding unit test will be added, to prevent it from happening in the
-                future.
+                Here are the list of XMQ features that are already implemented or
+                scheduled for implementation.
             </p>
+            <table cellPadding="4" cellSpacing="4">
+                <thead>
+                <tr>
+                    <th>feature</th>
+                    <th>status</th>
+                    <th>release (expected)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Queues</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>Topics</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>10,000 clients</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>200,000 clients</td>
+                    <td>Implemented</td>
+                    <td>0.9.6</td>
+                </tr>
+                <tr>
+                    <td>MQTT protocol (3/4/5)</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>MQTT protocol (QOS0, QOS1, QOS2)</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>Linux packages (.deb,.rpm)</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>Windows installer</td>
+                    <td>Scheduled</td>
+                    <td>(0.9.8)</td>
+                </tr>
+                <tr>
+                    <td>SSL encryption</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>Message persistence</td>
+                    <td>Implemented</td>
+                    <td>0.9.5</td>
+                </tr>
+                <tr>
+                    <td>Performance tests and compare</td>
+                    <td>Scheduled</td>
+                    <td>(0.9.7)</td>
+                </tr>
+                </tbody>
+            </table>
+
         </div>;
     }
 }
