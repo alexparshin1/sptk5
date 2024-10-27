@@ -1,15 +1,27 @@
 import React from "react";
 import "../css/Documentation.css";
+import Menu from "../components/Menu";
 
-export default class Documentation extends React.Component
+export default class SPTK_documentation extends React.Component
 {
     state = {
         fileName: ""
     };
 
+    constructor() {
+        super();
+        this.menuItems = {
+            "/sptk_about": "About",
+            "/sptk_screenshots": "Screenshots",
+            "/sptk_themes": "Themes",
+            "/sptk_documentation": "Documentation"
+        };
+    }
+
     render()
     {
         return <div className="Documentation">
+            <Menu key="about-menu" menu={this.menuItems}/>
             <div id="fadeout"/>
             <p>Currently, the following documentation is available:</p>
             <table className="DocumentationItem">

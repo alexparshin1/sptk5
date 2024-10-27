@@ -18,13 +18,10 @@ export default class Menu extends React.Component
         {
             this.menuItems = {
                 "/": "Home",
-                "/screenshots": "Screenshots",
-                "/themes": "Themes",
-                "/documentation": "Documentation",
-                "/support": "Support",
                 "/xmq_about": "XMQ",
-                "/contact": "Contact",
-                "/downloads": "Downloads"
+                "/sptk_about": "SPTK",
+                "/downloads": "Downloads",
+                "/support": "Support"
             };
             this.menuType = "main";
         } else

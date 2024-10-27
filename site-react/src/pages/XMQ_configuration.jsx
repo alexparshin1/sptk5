@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "./Menu";
+import Menu from "../components/Menu";
 
 export default class XMQ_configuration extends React.Component
 {

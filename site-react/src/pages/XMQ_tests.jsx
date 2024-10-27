@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "./Menu";
+import Menu from "../components/Menu";
 import connectionsTest from "../images/tests/connections.png"
 
 export default class XMQ_tests extends React.Component

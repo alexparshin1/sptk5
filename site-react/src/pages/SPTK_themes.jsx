@@ -9,12 +9,24 @@ import theme_flat from "../screenshots/theme_flat.png";
 import theme_keramic from "../screenshots/theme_keramic.png";
 import theme_opera from "../screenshots/theme_opera.png";
 import theme_osx from "../screenshots/theme_osx.png";
+import Menu from "../components/Menu";
 
-export default class Themes extends React.Component
+export default class SPTK_themes extends React.Component
 {
+    constructor()
+    {
+        super();
+        this.menuItems = {
+            "/sptk_about": "About",
+            "/sptk_screenshots": "Screenshots",
+            "/sptk_themes": "Themes",
+            "/sptk_documentation": "Documentation"
+        };
+    }
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <Menu key="about-menu" menu={this.menuItems}/>
             <div id="fadeout"/>
             <div style={{textAlign: "left", padding: 8}}>
                 Several examples of the SPTK themes. They are made as copies of the popular themes, developed by

@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "./Menu";
+import Menu from "../components/Menu";
 import {Link} from "react-router-dom";
 
 export default class XMQ_about extends React.Component

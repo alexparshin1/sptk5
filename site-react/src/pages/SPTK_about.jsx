@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "./Menu";
+import Menu from "../components/Menu";
 
 export default class SPTK_about extends React.Component
 {
@@ -23,10 +23,11 @@ export default class SPTK_about extends React.Component
 
             <h3>Project Goals</h3>
             <p>
-                SPTK is a cross-platform class library written in C++.
+                SPTK is an Open Source cross-platform class library written in C++.
                 It is implementing classes that are usually needed when a C++ application
                 should work in more than one operating system.
                 The range of classes includes GUI, threads, databases access, networking, etc.
+                The aim of the project is to keep it as compact as possible.
             </p>
 
             <h3>Supported Operating Systems</h3>

@@ -12,12 +12,25 @@ import sptk1 from "../screenshots/sptk1.png";
 import sptk2 from "../screenshots/sptk2.png";
 import sptk3 from "../screenshots/sptk3.png";
 import tree from "../screenshots/tree.png";
+import Menu from "../components/Menu";
 
-export default class Screenshots extends React.Component
+export default class SPTK_screenshots extends React.Component
 {
+    constructor()
+    {
+        super();
+        this.menuItems = {
+            "/sptk_about": "About",
+            "/sptk_screenshots": "Screenshots",
+            "/sptk_themes": "Themes",
+            "/sptk_documentation": "Documentation"
+        };
+    }
+
     render()
     {
         return <div style={{align: "left", background: "#ddd"}}>
+            <Menu key="about-menu" menu={this.menuItems}/>
             <div id="fadeout"/>
             <table className="screenshot-table" style={{width: "100%"}}>
                 <thead>
