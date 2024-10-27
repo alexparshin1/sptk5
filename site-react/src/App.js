@@ -13,6 +13,7 @@ import Support from "./pages/Support";
 import XMQ_about from "./pages/XMQ_about";
 import XMQ_tests from "./pages/XMQ_tests";
 import XMQ_configuration from "./pages/XMQ_configuration";
+import Downloads from "./pages/Downloads";
 
 function App()
 {
@@ -31,6 +32,7 @@ function App()
                         <Route path="/xmq_about" Component={XMQ_about}/>
                         <Route path="/xmq_tests" Component={XMQ_tests}/>
                         <Route path="/xmq_configuration" Component={XMQ_configuration}/>
+                        <Route path="/downloads" Component={Downloads}/>
                     </Routes>
                     <Footer/>
                 </BrowserRouter>

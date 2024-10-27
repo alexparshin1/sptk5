@@ -24,7 +24,7 @@ export default class Menu extends React.Component
                 "/support": "Support",
                 "/xmq_about": "XMQ",
                 "/contact": "Contact",
-                "/download": "Download"
+                "/downloads": "Downloads"
             };
             this.menuType = "main";
         } else

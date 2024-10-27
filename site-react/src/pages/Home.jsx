@@ -19,9 +19,10 @@ export default class Home extends React.Component
 
     render()
     {
-        let historyData = ControlAPI.getRequest("host_news_list.php");
+        let historyData = ControlAPI.getRequest("site_host_news_list.php");
         let history = [];
-        for (let i = 0; i < historyData.length; i++) {
+        for (let i = 0; i < historyData.length; i++)
+        {
             history.push(this.renderNewsItem(historyData[i]));
         }
 
