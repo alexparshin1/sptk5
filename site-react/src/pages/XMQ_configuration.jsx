@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/Documentation.css";
+import XMQ_interface from "../images/XMQ-interface.png";
 
 export default class XMQ_configuration extends React.Component
 {
@@ -11,6 +12,7 @@ export default class XMQ_configuration extends React.Component
                 Open the interface in the browser as http://xmq_host:18883, and provide an administrative
                 user credentials.
             </p>
+            <img src={XMQ_interface} alt="XMQ interface screenshot" title="XMQ interface" width="60%"/>
 
             <p>
                 The default administrative user name is admin and its password is also admin.
@@ -20,7 +22,7 @@ export default class XMQ_configuration extends React.Component
             </p>
 
             <p>
-                Most of the configuration parameter changes take effect immediately, unless the configuration
+                Most of the configuration changes take effect immediately, unless the configuration
                 interfaces tells you otherwise, in which case applying changes requires XMQ server restart.
             </p>
 
