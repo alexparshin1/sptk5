@@ -26,7 +26,7 @@ export default class Support extends React.Component
                 The following support services are currently offered:
             </p>
             <br/>
-            <table cellpadding="4" border="1">
+            <table style={{padding: 4, border: 1}}>
                 <thead>
                 <tr>
                     <th>Support Service</th>
@@ -74,7 +74,6 @@ export default class Support extends React.Component
                 If you need more information about XMQ or SPTK support, or different support options, please
                 contact <a href="mailto:alexeyp at gmail.com">SPTK project coordinator</a>.
             </p>
-        </div>
-            ;
+        </div>;
     }
 }

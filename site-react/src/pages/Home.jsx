@@ -21,13 +21,11 @@ export default class Home extends React.Component
     {
         let historyData = ControlAPI.getRequest("site_host_news_list.php");
         let history = [];
-        for (let i = 0; i < historyData.length; i++)
-        {
+        for (let i = 0; i < historyData.length; i++) {
             history.push(this.renderNewsItem(historyData[i]));
         }
 
         return <div key="home-page" className="Page">
-            <div key="home-page-fadeout" id="fadeout"/>
             <p>
                 This website contains two main products:
                 <ul>

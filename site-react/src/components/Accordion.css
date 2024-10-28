@@ -3,7 +3,7 @@
     flex-direction: column;
     padding: 4px;
     border-bottom-style: groove;
-    background-color: #DDF;
+    background-color: #DDD;
     text-align: left;
 }
 
@@ -21,16 +21,16 @@
 .AccordionItem {
     display: flex;
     flex-direction: column;
-    padding: 4px;
-    background-color: #EEF;
+    padding: 4px 4px 4px 16px;
+    background-color: #EEE;
     text-align: left;
 }
 
 .AccordionItemSelected {
     display: flex;
     flex-direction: column;
-    padding: 4px;
-    background-color: #EEF;
+    padding: 4px 4px 4px 16px;
+    background-color: #EEE;
     text-align: left;
     color: red;
 }

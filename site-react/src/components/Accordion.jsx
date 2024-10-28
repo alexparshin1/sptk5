@@ -1,5 +1,5 @@
 import React from "react";
-import {NavLink} from "react-router-dom";
+import {Navigate, NavLink} from "react-router-dom";
 import "./Accordion.css";
 
 /**
@@ -21,14 +21,16 @@ import "./Accordion.css";
  *  {title: "Group 3", items: [{title: "Documentation", link: "/documentation"}, {title: "Reference", link: "/reference"}]}
  * ]
  */
-export default class Accordion extends React.Component {
+export default class Accordion extends React.Component
+{
     state = {
         selectedGroup: "",
         dataVersion: 0
     };
 
 
-    constructor(props) {
+    constructor(props)
+    {
         super();
         this.menu = props.menu;
         this.onChange = props.onChange;
@@ -40,7 +42,8 @@ export default class Accordion extends React.Component {
         }
     }
 
-    onItemClick(link) {
+    onItemClick(link)
+    {
         this.selectedLinks[this.state.selectedGroup] = link;
         this.setState({dataVersion: this.state.dataVersion + 1});
         if (this.onChange) {
@@ -48,9 +51,10 @@ export default class Accordion extends React.Component {
         }
     }
 
-    renderGroup(group, groupIsSelected) {
+    renderGroup(group, groupIsSelected)
+    {
         if (!groupIsSelected) {
-            return <div className="AccordionGroup"
+            return <div key={"accordion-" + group.title} className="AccordionGroup"
                         onClick={() => this.setState({selectedGroup: group.title})}>{group.title}</div>;
         }
 
@@ -58,28 +62,28 @@ export default class Accordion extends React.Component {
         for (let item of group.items) {
             let itemIsSelected = item.link === this.selectedLinks[group.title];
             let itemClass = itemIsSelected ? "AccordionItemSelected" : "AccordionItem";
-            console.log(item.title, " ", itemClass);
             items.push(
-                <div className={itemClass}>
-                    <NavLink to={item.link}
+                <div key={item.title + "-item"} className={itemClass}>
+                    <NavLink key={item.title + "-navlink"} to={item.link}
                              onClick={() => this.onItemClick(item.link)}>{item.title}</NavLink>
                 </div>);
         }
-        return <div>
-            <div className="AccordionGroup"
+        return <div key={"accordion-group-" + group.title}>
+            <div key={"accordion-" + group.title} className="AccordionGroup"
                  onClick={() => this.setState({selectedGroup: group.title})}>{group.title}</div>
             {items}
         </div>;
     }
 
-    render() {
+    render()
+    {
         let groups = [];
         for (let group of this.menu) {
             groups.push(this.renderGroup(group, group.title === this.state.selectedGroup));
         }
-        return <div>
+        return <div key={"accordion"}>
             {groups}
-            <div>Selected: {this.state.selectedGroup}</div>
+            <Navigate key={"accordion-navigate"} to={this.selectedLinks[this.state.selectedGroup]} replace={true}/>
         </div>;
     }
 }

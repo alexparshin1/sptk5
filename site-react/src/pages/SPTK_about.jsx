@@ -1,26 +1,11 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "../components/Menu";
 
 export default class SPTK_about extends React.Component
 {
-    constructor()
-    {
-        super();
-        this.menuItems = {
-            "/sptk_about": "About",
-            "/sptk_screenshots": "Screenshots",
-            "/sptk_themes": "Themes",
-            "/sptk_documentation": "Documentation"
-        };
-    }
-
     render()
     {
         return <div className="SPTK" style={{textAlign: "left", padding: 8}}>
-            <Menu key="about-menu" menu={this.menuItems}/>
-            <div id="fadeout"/>
-
             <h3>Project Goals</h3>
             <p>
                 SPTK is an Open Source cross-platform class library written in C++.

@@ -1,25 +1,11 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "../components/Menu";
 
 export default class XMQ_configuration extends React.Component
 {
-    constructor()
-    {
-        super();
-        this.menuItems = {
-            "/xmq_about": "About",
-            "/xmq_tests": "Tests",
-            "/xmq_configuration": "Configuration"
-        };
-    }
-
     render()
     {
         return <div key="configuration-menu" className="XMQ" style={{textAlign: "left", padding: 8}}>
-            <Menu menu={this.menuItems}/>
-            <div id="fadeout"/>
-
             <p>
                 XMQ has configuration interface running on port 18883, as soon as XMQ server is started.
                 Open the interface in the browser as http://xmq_host:18883, and provide an administrative

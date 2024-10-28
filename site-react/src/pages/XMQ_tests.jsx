@@ -1,6 +1,5 @@
 import React from "react";
 import "../css/Documentation.css";
-import Menu from "../components/Menu";
 import connectionsTest from "../images/tests/connections.png"
 
 export default class XMQ_tests extends React.Component
@@ -18,9 +17,6 @@ export default class XMQ_tests extends React.Component
     render()
     {
         return <div key="test-menu" className="XMQ" style={{textAlign: "left", padding: 8}}>
-            <Menu menu={this.menuItems}/>
-            <div id="fadeout"/>
-
             <p>
                 The XMQ server provides several utilities that allow performing load testing of the following,
                 for N simultaneously running clients:
