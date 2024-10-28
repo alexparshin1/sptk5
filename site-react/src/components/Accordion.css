@@ -1,0 +1,36 @@
+.AccordionGroup {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    border-bottom-style: groove;
+    background-color: #DDF;
+    text-align: left;
+}
+
+.AccordionItem > a {
+    text-decoration: none;
+    color: black;
+}
+
+.AccordionItemSelected > a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+.AccordionItem {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    background-color: #EEF;
+    text-align: left;
+}
+
+.AccordionItemSelected {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    background-color: #EEF;
+    text-align: left;
+    color: red;
+}
