@@ -42,6 +42,15 @@ export default class Accordion extends React.Component
         }
     }
 
+    onGroupClick(title)
+    {
+        this.setState({selectedGroup: title});
+        if (this.onChange) {
+            let link = this.selectedLinks[title];
+            this.onChange(link);
+        }
+    }
+
     onItemClick(link)
     {
         this.selectedLinks[this.state.selectedGroup] = link;
@@ -55,7 +64,7 @@ export default class Accordion extends React.Component
     {
         if (!groupIsSelected) {
             return <div key={"accordion-" + group.title} className="AccordionGroup"
-                        onClick={() => this.setState({selectedGroup: group.title})}>{group.title}</div>;
+                        onClick={() => this.onGroupClick(group.title)}>{group.title}</div>;
         }
 
         let items = [];
