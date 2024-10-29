@@ -113,8 +113,8 @@ export default class Downloads extends React.Component
                 <table>
                     <thead>
                     <tr>
-                        <th style={{width: 350}}>File</th>
-                        <th style={{width: 100}}>Date</th>
+                        <th style={{width: 300}}>File</th>
+                        <th style={{width: 150}}>Date</th>
                         <th style={{width: 100}}>Size</th>
                         <th style={{width: 150}}>Required for XMQ</th>
                     </tr>
