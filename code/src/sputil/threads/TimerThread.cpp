@@ -84,14 +84,11 @@ void TimerThread::wakeUp()
 
 void TimerThread::schedule(const STimerEvent& event)
 {
-#ifndef _WIN32
-    const auto ticks = event->when().timePoint().time_since_epoch().count();
-#else
-    const auto ticks = (long) event->when().timePoint().time_since_epoch().count();
-#endif
+    const auto        ticks = event->when().timePoint();
     const scoped_lock lock(m_scheduledMutex);
-    const auto itor = m_scheduledEvents.emplace(ticks, event);
-    if (itor == m_scheduledEvents.begin())
+    bool isFront {false};
+    m_scheduledEvents.add(ticks, event, isFront);
+    if (isFront)
     {
         wakeUp();
     }
@@ -99,32 +96,15 @@ void TimerThread::schedule(const STimerEvent& event)
 
 void TimerThread::clear()
 {
-    const scoped_lock lock(m_scheduledMutex);
     m_scheduledEvents.clear();
 }
 
 STimerEvent TimerThread::nextEvent()
 {
-    const scoped_lock lock(m_scheduledMutex);
-    while (!m_scheduledEvents.empty())
-    {
-        const auto itor = m_scheduledEvents.begin();
-        if (!itor->second->cancelled())
-        {
-            return itor->second;
-        }
-        m_scheduledEvents.erase(itor);
-    }
-
-    return nullptr;
+    return m_scheduledEvents.front();
 }
 
 void TimerThread::popFrontEvent()
 {
-    const scoped_lock lock(m_scheduledMutex);
-    if (!m_scheduledEvents.empty())
-    {
-        const auto itor = m_scheduledEvents.begin();
-        m_scheduledEvents.erase(itor);
-    }
+    m_scheduledEvents.popFront();
 }

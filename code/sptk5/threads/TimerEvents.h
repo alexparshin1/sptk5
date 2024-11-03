@@ -25,69 +25,72 @@
 */
 
 #pragma once
+#include "TimerEvent.h"
 
-#include "TimerEvents.h"
-#include "sptk5/cthreads"
+#include <map>
+#include <sptk5/DateTime.h>
 
 namespace sptk {
+
 /**
-  * @brief Base class for Timer and IntervalTimer internal threads
-  */
-class TimerThread
-    : public Thread
+ * Thread-safe event map
+ */
+class SP_EXPORT TimerEvents
 {
 public:
     /**
-   * @brief Constructor
-   * @param threadName        Thread name
-   */
-    TimerThread();
-    ~TimerThread() override;
+     * @brief Add event
+     * @param timestamp     Event timestamp
+     * @param event         Event
+     * @param isFront       Out parameter: is event inserted at the front of the events
+     */
+    void add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event, bool& isFront)
+    {
+        std::lock_guard lock(m_mutex);
+        const auto      iterator = m_events.emplace(timestamp, event);
+        isFront = iterator == m_events.begin();
+    }
 
-    /**
-   * @brief Schedule an event
-   * @param event             Event
-   */
-  void schedule(const STimerEvent& event);
+    std::shared_ptr<TimerEvent> front()
+    {
+        std::lock_guard lock(m_mutex);
+        while (!m_events.empty())
+        {
+            const auto iterator = m_events.begin();
+            if (iterator->second->cancelled())
+            {
+                m_events.erase(iterator);
+            }
+            else
+            {
+                return m_events.begin()->second;
+            }
+        }
+        return {};
+    }
 
-  void clear();
+    void popFront()
+    {
+        std::lock_guard lock(m_mutex);
+        if (m_events.empty())
+        {
+            return;
+        }
+        auto iterator = m_events.begin();
+        m_events.erase(iterator);
+    }
 
-  /**
-   * @brief Terminate thread
-   */
-  void terminate() override;
+    void clear()
+    {
+        std::lock_guard lock(m_mutex);
+        m_events.clear();
+    }
 
- protected:
-  /**
-   * @brief Wake up (signal) semaphore
-   */
-  void wakeUp();
+private:
+    using EventMap = std::multimap<DateTime::time_point, std::shared_ptr<TimerEvent>>;
 
-  /**
-   * @brief Wait for the next event in the queue
-   * @return timer event if any
-   */
-  STimerEvent waitForEvent();
+    mutable std::mutex m_mutex; ///< Mutex that protects access to events collection
+    EventMap           m_events; ///< Events collection
+};
 
-  /**
-   * @brief Thread function
-   */
-  void threadFunction() override;
-
- private:
-  std::mutex m_scheduledMutex; ///< Mutex that protects scheduled events
-  Semaphore m_semaphore; ///< Semaphore to wait for events
-  TimerEvents m_scheduledEvents; ///< Scheduled events
-
-  /**
-   * @brief Get next scheduled event
-   * @return Event
-   */
-  STimerEvent nextEvent();
-
-  /**
-   * @brief Remove next scheduled event
-   */
-  void popFrontEvent();
- };
-} // namespace sptk
+} // sptk
