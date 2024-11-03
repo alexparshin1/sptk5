@@ -171,7 +171,7 @@ void OsProcess::readData()
 {
     array<char, BufferSize> buffer {};
 
-    while (!m_terminated)
+    while (!m_terminated && !feof(m_stdout))
     {
         auto bytesAvailable = waitForData(500ms);
         if (bytesAvailable == -1)
