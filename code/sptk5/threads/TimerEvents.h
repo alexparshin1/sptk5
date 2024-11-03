@@ -25,7 +25,7 @@
 */
 
 #pragma once
-#include "TimerEvent.h"
+#include <sptk5/threads/TimerEvent.h>
 
 #include <map>
 #include <sptk5/DateTime.h>
