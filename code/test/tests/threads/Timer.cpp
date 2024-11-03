@@ -40,12 +40,11 @@ TEST(SPTK_Timer, repeat) /* NOLINT */
 
         int eventSet(0);
 
-        constexpr milliseconds repeatInterval {20};
-        constexpr milliseconds sleepInterval {105};
+        constexpr milliseconds repeatInterval{20};
+        constexpr milliseconds sleepInterval{105};
 
         const auto event = timer.repeat(repeatInterval,
-                                        [&eventSet]()
-                                        {
+                                        [&eventSet]() {
                                             ++eventSet;
                                         });
 
@@ -60,18 +59,17 @@ const int MAX_EVENT_COUNTER = 10;
 
 TEST(SPTK_Timer, fireOnce) /* NOLINT */
 {
-    mutex       counterMutex;
-    size_t      counter = 1;
+    mutex counterMutex;
+    size_t counter = 1;
     const Timer timer;
 
-    constexpr milliseconds delayInterval {10};
+    constexpr milliseconds delayInterval{10};
     timer.fireAt(
-        DateTime::Now() + delayInterval,
-        [&counter, &counterMutex]()
-        {
-            const scoped_lock lock(counterMutex);
-            ++counter;
-        });
+            DateTime::Now() + delayInterval,
+            [&counter, &counterMutex]() {
+                const scoped_lock lock(counterMutex);
+                ++counter;
+            });
 
     this_thread::sleep_for(delayInterval * 2);
 
@@ -81,19 +79,18 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
 
 TEST(SPTK_Timer, repeatTwice) /* NOLINT */
 {
-    mutex       counterMutex;
-    size_t      counter = 0;
+    mutex counterMutex;
+    size_t counter = 0;
     const Timer timer;
 
-    constexpr auto repeatInterval {10ms};
+    constexpr auto repeatInterval{10ms};
     timer.repeat(
-        repeatInterval,
-        [&counter, &counterMutex]()
-        {
-            const scoped_lock lock(counterMutex);
-            ++counter;
-        },
-        2);
+            repeatInterval,
+            [&counter, &counterMutex]() {
+                const scoped_lock lock(counterMutex);
+                ++counter;
+            },
+            2);
 
     this_thread::sleep_for(repeatInterval * 4);
 
@@ -103,27 +100,25 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
 
 TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
 {
-    mutex       counterMutex;
-    size_t      counter = 0;
+    mutex counterMutex;
+    size_t counter = 0;
     const Timer timer;
 
-    constexpr auto repeatInterval {10ms};
+    constexpr auto repeatInterval{10ms};
     timer.repeat(
-        repeatInterval,
-        [&counter, &counterMutex]()
-        {
-            const scoped_lock lock(counterMutex);
-            ++counter;
-        },
-        2);
+            repeatInterval,
+            [&counter, &counterMutex]() {
+                const scoped_lock lock(counterMutex);
+                ++counter;
+            },
+            2);
     timer.repeat(
-        repeatInterval,
-        [&counter, &counterMutex]()
-        {
-            const scoped_lock lock(counterMutex);
-            ++counter;
-        },
-        2);
+            repeatInterval,
+            [&counter, &counterMutex]() {
+                const scoped_lock lock(counterMutex);
+                ++counter;
+            },
+            2);
 
     this_thread::sleep_for(repeatInterval * 4);
 
@@ -133,7 +128,7 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
 
 TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 {
-    int   totalEvents(0);
+    int totalEvents(0);
     mutex eventCounterMutex;
 
     if (DateTime::Now() > DateTime()) // always true
@@ -141,11 +136,9 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
         const Timer timer;
 
         vector<STimerEvent> createdEvents;
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
+        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             auto event = timer.repeat(20ms,
-                                      [&totalEvents, &eventCounterMutex]
-                                      {
+                                      [&totalEvents, &eventCounterMutex] {
                                           const scoped_lock lock(eventCounterMutex);
                                           totalEvents++;
                                       });
@@ -154,8 +147,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 
         this_thread::sleep_for(110ms);
 
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
+        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex) {
             const auto event = createdEvents[eventIndex];
             event->cancel();
         }
@@ -173,9 +165,8 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
     const Timer timer;
 
     vector<STimerEvent> createdEvents;
-    const auto          event = timer.repeat(10ms,
-                                             [&totalEvents]
-                                             {
+    const auto event = timer.repeat(10ms,
+                                    [&totalEvents] {
                                         totalEvents++;
                                     });
 
@@ -194,7 +185,7 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
 /**
  * Test that an event can be scheduled in front of event list.
  */
-TEST(SPTK_Timer, schedule) /* NOLINT */
+TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
 {
     DateTime timestamp1;
     DateTime timestamp2;
@@ -202,18 +193,16 @@ TEST(SPTK_Timer, schedule) /* NOLINT */
     const Timer timer;
 
     vector<STimerEvent> createdEvents;
-    const auto          started = DateTime::Now();
-    const auto          event1 = timer.fireAt(started + 1s,
-                                              [&timestamp1]
-                                              {
+    const auto started = DateTime::Now();
+    const auto event1 = timer.fireAt(started + 1s,
+                                     [&timestamp1] {
                                          timestamp1 = DateTime::Now();
                                      });
 
     this_thread::sleep_for(10ms);
 
     const auto event2 = timer.fireAt(started + 100ms,
-                                     [&timestamp2]
-                                     {
+                                     [&timestamp2] {
                                          timestamp2 = DateTime::Now();
                                      });
 
@@ -223,10 +212,40 @@ TEST(SPTK_Timer, schedule) /* NOLINT */
     EXPECT_TRUE(timestamp2 < timestamp1);
 }
 
+/**
+ * Test that an event can be scheduled in front of event list.
+ */
+TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
+{
+    const Timer timer;
+
+    constexpr size_t maxEvents = 100;
+    constexpr auto eventsInterval = 1000ms;
+    atomic_size_t totalEvents(0);
+
+    vector<STimerEvent> createdEvents;
+    const auto started = DateTime::Now();
+    const auto eventEnterval = eventsInterval / maxEvents;
+    const auto lastEventTimestamp = DateTime::Now() + eventEnterval * (maxEvents);
+
+    for (DateTime timestamp = lastEventTimestamp; timestamp > started; timestamp = timestamp - eventEnterval) {
+        const auto event = timer.fireAt(
+                lastEventTimestamp,
+                [&totalEvents] {
+                    ++totalEvents;
+                });
+        createdEvents.push_back(event);
+        this_thread::sleep_for(eventEnterval / 2);
+    }
+
+    this_thread::sleep_for(eventsInterval + eventEnterval);
+    EXPECT_EQ(totalEvents, createdEvents.size());
+}
+
 TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 {
-    const Timer         timer;
-    constexpr size_t    maxEvents = 100000;
+    const Timer timer;
+    constexpr size_t maxEvents = 100000;
     vector<STimerEvent> createdEvents;
 
     StopWatch stopwatch;
