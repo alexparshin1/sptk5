@@ -17,6 +17,8 @@ TimerEvent::TimerEvent(DateTime timestamp, Callback eventCallback, std::chrono::
 
 bool TimerEvent::fire()
 {
+    std::scoped_lock lock(m_mutex);
+
     try
     {
         if (m_callback)

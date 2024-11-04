@@ -132,12 +132,12 @@ protected:
     void setThreadManager(ThreadManager* threadManager);
 
 private:
-    mutable std::mutex m_mutex;               ///< Thread synchronization object
-    String m_name;                            ///< Thread name
-    std::shared_ptr<std::jthread> m_thread;   ///< Thread object
-    ThreadManager* m_threadManager {nullptr}; ///< Optional thread manager
-    bool m_terminated {false};                ///< If true then terminate() was called
-    std::vector<int> m_ignoreSignals;         ///< List of signals that should be ignored in the thread
+    mutable std::mutex            m_mutex;                   ///< Thread synchronization object
+    String                        m_name;                    ///< Thread name
+    std::shared_ptr<std::jthread> m_thread;                  ///< Thread object
+    ThreadManager*                m_threadManager {nullptr}; ///< Optional thread manager
+    bool                          m_terminated {false};      ///< If true then terminate() was called
+    std::vector<int>              m_ignoreSignals;           ///< List of signals that should be ignored in the thread
 };
 
 /**

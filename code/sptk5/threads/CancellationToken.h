@@ -66,7 +66,7 @@ public:
 
 private:
     mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool m_cancelled {false};
+    bool               m_cancelled {false};
 };
 
 } // namespace sptk

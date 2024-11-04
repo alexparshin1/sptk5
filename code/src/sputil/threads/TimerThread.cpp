@@ -41,29 +41,11 @@ TimerThread::~TimerThread()
     Thread::join();
 }
 
-STimerEvent TimerThread::waitForEvent()
-{
-    STimerEvent event = nextEvent();
-    if (!event)
-    {
-        m_semaphore.wait_for(100ms);
-        return nullptr;
-    }
-
-    if (m_semaphore.wait_until(event->when()))
-    {
-        return nullptr; // Wait interrupted
-    }
-
-    popFrontEvent();
-    return event;
-}
-
 void TimerThread::threadFunction()
 {
     while (!terminated())
     {
-        auto event = waitForEvent();
+        auto event = m_scheduledEvents.next();
         if (event && event->fire())
         {
             schedule(event);
@@ -74,37 +56,20 @@ void TimerThread::threadFunction()
 void TimerThread::terminate()
 {
     Thread::terminate();
-    m_semaphore.post();
+    m_scheduledEvents.wakeUp();
 }
 
 void TimerThread::wakeUp()
 {
-    m_semaphore.post();
+    m_scheduledEvents.wakeUp();
 }
 
 void TimerThread::schedule(const STimerEvent& event)
 {
-    const auto        ticks = event->when().timePoint();
-    const scoped_lock lock(m_scheduledMutex);
-    bool isFront {false};
-    m_scheduledEvents.add(ticks, event, isFront);
-    if (isFront)
-    {
-        wakeUp();
-    }
+    m_scheduledEvents.add(event->when().timePoint(), event);
 }
 
 void TimerThread::clear()
 {
     m_scheduledEvents.clear();
-}
-
-STimerEvent TimerThread::nextEvent()
-{
-    return m_scheduledEvents.front();
-}
-
-void TimerThread::popFrontEvent()
-{
-    m_scheduledEvents.popFront();
 }

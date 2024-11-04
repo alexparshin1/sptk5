@@ -70,11 +70,11 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex;
-    DateTime m_when;                            ///< Event serial and when the event has to fire next time.
-    std::chrono::milliseconds m_repeatInterval; ///< Event repeat interval
-    Callback m_callback;                        ///< Event callback function, defined when event is scheduled.
-    int m_repeatCount {0};                      ///< Number of event repeats, -1 means no limit.
+    mutable std::mutex        m_mutex;
+    DateTime                  m_when;            ///< Event serial and when the event has to fire next time.
+    std::chrono::milliseconds m_repeatInterval;  ///< Event repeat interval
+    Callback                  m_callback;        ///< Event callback function, defined when event is scheduled.
+    int                       m_repeatCount {0}; ///< Number of event repeats, -1 means no limit.
 };
 
 /**

@@ -25,10 +25,12 @@
 */
 
 #pragma once
+
+#include <sptk5/DateTime.h>
 #include <sptk5/threads/TimerEvent.h>
 
 #include <map>
-#include <sptk5/DateTime.h>
+#include <semaphore>
 
 namespace sptk {
 
@@ -42,55 +44,25 @@ public:
      * @brief Add event
      * @param timestamp     Event timestamp
      * @param event         Event
-     * @param isFront       Out parameter: is event inserted at the front of the events
      */
-    void add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event, bool& isFront)
-    {
-        std::lock_guard lock(m_mutex);
-        const auto      iterator = m_events.emplace(timestamp, event);
-        isFront = iterator == m_events.begin();
-    }
+    void add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event);
 
-    std::shared_ptr<TimerEvent> front()
-    {
-        std::lock_guard lock(m_mutex);
-        while (!m_events.empty())
-        {
-            const auto iterator = m_events.begin();
-            if (iterator->second->cancelled())
-            {
-                m_events.erase(iterator);
-            }
-            else
-            {
-                return m_events.begin()->second;
-            }
-        }
-        return {};
-    }
+    STimerEvent next();
 
-    void popFront()
-    {
-        std::lock_guard lock(m_mutex);
-        if (m_events.empty())
-        {
-            return;
-        }
-        auto iterator = m_events.begin();
-        m_events.erase(iterator);
-    }
+    void clear();
 
-    void clear()
-    {
-        std::lock_guard lock(m_mutex);
-        m_events.clear();
-    }
+    bool empty() const;
+
+    void wakeUp();
 
 private:
     using EventMap = std::multimap<DateTime::time_point, std::shared_ptr<TimerEvent>>;
 
-    mutable std::mutex m_mutex; ///< Mutex that protects access to events collection
+    mutable std::mutex m_mutex;  ///< Mutex that protects access to events collection
     EventMap           m_events; ///< Events collection
+    std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
+
+    STimerEvent front();
 };
 
-} // sptk
+} // namespace sptk

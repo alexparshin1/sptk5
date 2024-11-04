@@ -80,7 +80,7 @@ public:
 
 private:
     std::source_location m_lockLocation; ///< Lock location
-    std::timed_mutex m_mutex;            ///< Mutex
+    std::timed_mutex     m_mutex;        ///< Mutex
 };
 
 /**
@@ -95,9 +95,9 @@ public:
      * @param timeout           Lock timeout
      * @param sourceLocation    Lock location
      */
-    explicit SmartLock(SmartMutex& mutex,
+    explicit SmartLock(SmartMutex&               mutex,
                        std::chrono::milliseconds timeout = std::chrono::seconds(5),
-                       std::source_location sourceLocation = std::source_location::current())
+                       std::source_location      sourceLocation = std::source_location::current())
         : m_mutex(mutex)
     {
         if (!m_mutex.try_lock_for(timeout, sourceLocation))
@@ -118,8 +118,8 @@ public:
     }
 
 private:
-    std::atomic_bool m_locked {true};                                    ///< Mutex was locked flag
-    SmartMutex& m_mutex;                                                 ///< Mutex
+    std::atomic_bool  m_locked {true};                                   ///< Mutex was locked flag
+    SmartMutex&       m_mutex;                                           ///< Mutex
     [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout
 };
 

@@ -41,7 +41,7 @@ public:
    * @brief Constructor
    * @param threadName        Thread name
    */
-    TimerThread();
+     TimerThread();
     ~TimerThread() override;
 
     /**
@@ -64,30 +64,13 @@ public:
   void wakeUp();
 
   /**
-   * @brief Wait for the next event in the queue
-   * @return timer event if any
-   */
-  STimerEvent waitForEvent();
-
-  /**
    * @brief Thread function
    */
   void threadFunction() override;
 
  private:
   std::mutex m_scheduledMutex; ///< Mutex that protects scheduled events
-  Semaphore m_semaphore; ///< Semaphore to wait for events
   TimerEvents m_scheduledEvents; ///< Scheduled events
 
-  /**
-   * @brief Get next scheduled event
-   * @return Event
-   */
-  STimerEvent nextEvent();
-
-  /**
-   * @brief Remove next scheduled event
-   */
-  void popFrontEvent();
- };
+  };
 } // namespace sptk
