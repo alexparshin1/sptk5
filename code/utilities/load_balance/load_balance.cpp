@@ -24,87 +24,36 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "LoadBalance.h"
+#include <csignal>
+#include <sptk5/cutils>
 
-#include "sptk5/SystemException.h"
-#include <map>
-#include <mutex>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Counter.h>
-#include <sptk5/threads/Thread.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * Socket events manager.
- *
- * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer closed connection,
- * to its sockets.
- */
-class SP_EXPORT SocketEvents
-    : public Thread
+int main()
 {
-public:
-    /**
-     * Constructor
-     * @param name               Logical name for event manager (also the thread name)
-     * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in event monitoring loop
-     */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
-
-    /**
-     * Destructor
-     */
-    ~SocketEvents() override;
-
-    /**
-     * Add socket to collection and start monitoring its events
-     * @param socket             Socket to monitor
-     * @param userData           User data to pass into callback function
-     * @param triggerMode        Trigger mode
-     */
-    void add(Socket& socket, const uint8_t* userData)
+    // Mask unwanted signals
+#ifndef _WIN32
+    signal(SIGPIPE, SIG_IGN);
+#endif
+    try
     {
-        m_socketPool.watchSocket(socket, userData);
-    }
+        Loop<Host> destinations;
+        destinations.add(Host("localhost", 1883));
 
-    /**
-     * Remove socket from collection and stop monitoring its events
-     * @param socket             Socket to remove
-     */
-    void remove(Socket& socket)
+        Loop<String> interfaces;
+        interfaces.add(String("127.0.0.1"));
+
+        LoadBalance loadBalance(1100, destinations, interfaces);
+
+        loadBalance.run();
+        while (true)
+            this_thread::sleep_for(chrono::milliseconds(100));
+    }
+    catch (const Exception& e)
     {
-        m_socketPool.forgetSocket(socket);
+        CERR(e.what());
+        return 1;
     }
-
-    /**
-     * Stop socket events manager and wait until it joins.
-     */
-    void stop();
-
-    /**
-     * Get the size of socket collection
-     * @return number of sockets being watched
-     */
-    size_t size() const;
-
-protected:
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
-private:
-    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;             ///< OS-specific event manager
-    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
-};
-
-} // namespace sptk
+}

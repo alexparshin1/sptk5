@@ -24,87 +24,78 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "Channel.h"
 
-#include "sptk5/SystemException.h"
-#include <map>
-#include <mutex>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Counter.h>
-#include <sptk5/threads/Thread.h>
+#ifdef _WIN32
+#include <io.h>
+#endif
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
 
-/**
- * Socket events manager.
- *
- * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer closed connection,
- * to its sockets.
- */
-class SP_EXPORT SocketEvents
-    : public Thread
+void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Host& destination)
 {
-public:
-    /**
-     * Constructor
-     * @param name               Logical name for event manager (also the thread name)
-     * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in event monitoring loop
-     */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
+    scoped_lock lock(m_mutex);
 
-    /**
-     * Destructor
-     */
-    ~SocketEvents() override;
+    m_source.attach(sourceFD, false);
 
-    /**
-     * Add socket to collection and start monitoring its events
-     * @param socket             Socket to monitor
-     * @param userData           User data to pass into callback function
-     * @param triggerMode        Trigger mode
-     */
-    void add(Socket& socket, const uint8_t* userData)
+    m_destination.bind(interfaceAddress.c_str(), 0);
+    m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
+
+    m_sourceEvents.add(m_source, (uint8_t*) this);
+    m_destinationEvents.add(m_destination, (uint8_t*) this);
+}
+
+void Channel::close()
+{
+    scoped_lock lock(m_mutex);
+
+    if (m_source.active())
     {
-        m_socketPool.watchSocket(socket, userData);
+        m_sourceEvents.remove(m_source);
+        m_source.close();
     }
 
-    /**
-     * Remove socket from collection and stop monitoring its events
-     * @param socket             Socket to remove
-     */
-    void remove(Socket& socket)
+    if (m_destination.active())
     {
-        m_socketPool.forgetSocket(socket);
+        m_destinationEvents.remove(m_destination);
+        m_destination.close();
+    }
+}
+
+int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
+{
+    scoped_lock lock(m_mutex);
+
+    Buffer buffer(1024);
+    uint32_t totalBytes = 0;
+    size_t fragmentSize = sizeof(buffer);
+    auto readBytes = static_cast<int>(fragmentSize);
+
+    while (static_cast<size_t>(readBytes) == fragmentSize)
+    {
+
+#ifdef _WIN32
+        readBytes = _read((int) source.fd(), buffer.data(), (unsigned) fragmentSize);
+        if (readBytes < 0)
+            throw SystemException("Can't read from socket");
+
+        if (_write((int) destination.fd(), buffer.data(), readBytes) < 0)
+            throw SystemException("Can't write to socket");
+#else
+        readBytes = static_cast<int>(::read(source.fd(), buffer.data(), fragmentSize));
+        if (readBytes < 0)
+        {
+            throw SystemException("Can't read from socket");
+        }
+
+        if (::write(destination.fd(), buffer.data(), static_cast<size_t>(readBytes)) < 0)
+        {
+            throw SystemException("Can't write to socket");
+        }
+#endif
+        totalBytes += readBytes;
     }
 
-    /**
-     * Stop socket events manager and wait until it joins.
-     */
-    void stop();
-
-    /**
-     * Get the size of socket collection
-     * @return number of sockets being watched
-     */
-    size_t size() const;
-
-protected:
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
-private:
-    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;             ///< OS-specific event manager
-    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
-};
-
-} // namespace sptk
+    return totalBytes;
+}

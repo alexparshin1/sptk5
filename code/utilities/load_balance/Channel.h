@@ -26,85 +26,52 @@
 
 #pragma once
 
-#include "sptk5/SystemException.h"
-#include <map>
-#include <mutex>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Counter.h>
-#include <sptk5/threads/Thread.h>
+#include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
 
-/**
- * Socket events manager.
- *
- * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer closed connection,
- * to its sockets.
- */
-class SP_EXPORT SocketEvents
-    : public Thread
+class Channel
 {
+    std::mutex m_mutex;
+    TCPSocket m_source;
+    TCPSocket m_destination;
+
+    SocketEvents& m_sourceEvents;
+    SocketEvents& m_destinationEvents;
+
 public:
-    /**
-     * Constructor
-     * @param name               Logical name for event manager (also the thread name)
-     * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in event monitoring loop
-     */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
-
-    /**
-     * Destructor
-     */
-    ~SocketEvents() override;
-
-    /**
-     * Add socket to collection and start monitoring its events
-     * @param socket             Socket to monitor
-     * @param userData           User data to pass into callback function
-     * @param triggerMode        Trigger mode
-     */
-    void add(Socket& socket, const uint8_t* userData)
+    Channel(SocketEvents& sourceEvents, SocketEvents& destinationEvents)
+        : m_sourceEvents(sourceEvents)
+        , m_destinationEvents(destinationEvents)
     {
-        m_socketPool.watchSocket(socket, userData);
     }
 
-    /**
-     * Remove socket from collection and stop monitoring its events
-     * @param socket             Socket to remove
-     */
-    void remove(Socket& socket)
+    ~Channel()
     {
-        m_socketPool.forgetSocket(socket);
+        try
+        {
+            close();
+        }
+        catch (const Exception& e)
+        {
+            CERR(e.what() << std::endl);
+        }
     }
 
-    /**
-     * Stop socket events manager and wait until it joins.
-     */
-    void stop();
+    void open(SocketType sourceFD, const String& interfaceAddess, const Host& destination);
+    int copyData(const TCPSocket& source, const TCPSocket& destination);
+    void close();
 
-    /**
-     * Get the size of socket collection
-     * @return number of sockets being watched
-     */
-    size_t size() const;
-
-protected:
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
-private:
-    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;             ///< OS-specific event manager
-    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
+    TCPSocket& source()
+    {
+        return m_source;
+    }
+    TCPSocket& destination()
+    {
+        return m_destination;
+    }
 };
 
 } // namespace sptk

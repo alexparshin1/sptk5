@@ -24,87 +24,85 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "LoadBalance.h"
+#include "Channel.h"
 
-#include "sptk5/SystemException.h"
-#include <map>
-#include <mutex>
-#include <sptk5/Exception.h>
-#include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketPool.h>
-#include <sptk5/threads/Counter.h>
-#include <sptk5/threads/Thread.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * Socket events manager.
- *
- * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer closed connection,
- * to its sockets.
- */
-class SP_EXPORT SocketEvents
-    : public Thread
+SocketEventAction LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
-public:
-    /**
-     * Constructor
-     * @param name               Logical name for event manager (also the thread name)
-     * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in event monitoring loop
-     */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
+    auto* channel = (Channel*) userData;
 
-    /**
-     * Destructor
-     */
-    ~SocketEvents() override;
-
-    /**
-     * Add socket to collection and start monitoring its events
-     * @param socket             Socket to monitor
-     * @param userData           User data to pass into callback function
-     * @param triggerMode        Trigger mode
-     */
-    void add(Socket& socket, const uint8_t* userData)
+    if (eventType.m_hangup)
     {
-        m_socketPool.watchSocket(socket, userData);
+        channel->close();
+        delete channel;
+    }
+    else
+    {
+        channel->copyData(channel->source(), channel->destination());
+    }
+    return SocketEventAction::Continue;
+}
+
+SocketEventAction LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
+{
+    auto* channel = (Channel*) userData;
+
+    if (eventType.m_hangup)
+    {
+        channel->close();
+        delete channel;
+    }
+    else
+    {
+        channel->copyData(channel->destination(), channel->source());
+    }
+    return SocketEventAction::Continue;
+}
+
+LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
+    : Thread("load balance")
+    , m_listenerPort(listenerPort)
+    , m_destinations(destinations)
+    , m_interfaces(interfaces)
+{
+}
+
+void LoadBalance::threadFunction()
+{
+    struct sockaddr_in addr {
+    };
+
+    m_sourceEvents.run();
+    m_destinationEvents.run();
+    m_listener.listen(m_listenerPort);
+
+    constexpr chrono::milliseconds acceptTimeout {500};
+
+    while (!terminated())
+    {
+        Channel* channel {nullptr};
+        try
+        {
+            SocketType sourceFD;
+            if (m_listener.accept(sourceFD, addr, acceptTimeout))
+            {
+                channel = new Channel(m_sourceEvents, m_destinationEvents);
+                const Host& destination = m_destinations.loop();
+                const String& interfaceAddress = m_interfaces.loop();
+                channel->open(sourceFD, interfaceAddress, destination);
+            }
+        }
+        catch (const Exception& e)
+        {
+            delete channel;
+            CERR(e.what());
+        }
     }
 
-    /**
-     * Remove socket from collection and stop monitoring its events
-     * @param socket             Socket to remove
-     */
-    void remove(Socket& socket)
-    {
-        m_socketPool.forgetSocket(socket);
-    }
-
-    /**
-     * Stop socket events manager and wait until it joins.
-     */
-    void stop();
-
-    /**
-     * Get the size of socket collection
-     * @return number of sockets being watched
-     */
-    size_t size() const;
-
-protected:
-    /**
-     * Event monitoring thread
-     */
-    void threadFunction() override;
-
-private:
-    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;             ///< OS-specific event manager
-    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
-};
-
-} // namespace sptk
+    m_listener.close();
+    m_sourceEvents.terminate();
+    m_destinationEvents.terminate();
+}

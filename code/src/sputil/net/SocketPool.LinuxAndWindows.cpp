@@ -77,7 +77,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::watchSocket(Socket& socket, const std::shared_ptr<SocketEventData>& userData)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
@@ -122,7 +122,7 @@ void SocketPool::forgetSocket(Socket& socket)
 
 SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType eventType)
 {
-    shared_ptr<SocketEventData> userData;
+    const uint8_t* userData;
     {
         const lock_guard lock(*this);
         const auto       iterator = m_userData.find(socket);
@@ -132,7 +132,7 @@ SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType
         }
         userData = iterator->second;
     }
-    return m_eventsCallback(userData, eventType);
+    return m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
 }
 
 bool SocketPool::waitForEvents(chrono::milliseconds timeout)
