@@ -24,49 +24,36 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "LoadBalance.h"
+#include <csignal>
+#include <sptk5/cutils>
 
-#include "sptk5/cutils"
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+int main()
 {
-public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
+    // Mask unwanted signals
+#ifndef _WIN32
+    signal(SIGPIPE, SIG_IGN);
+#endif
+    try
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
-    }
+        Loop<Host> destinations;
+        destinations.add(Host("localhost", 1883));
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
+        Loop<String> interfaces;
+        interfaces.add(String("127.0.0.1"));
+
+        LoadBalance loadBalance(1100, destinations, interfaces);
+
+        loadBalance.run();
+        while (true)
+            this_thread::sleep_for(chrono::milliseconds(100));
+    }
+    catch (const Exception& e)
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
+        CERR(e.what());
+        return 1;
     }
-
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
-
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
-};
-
-} // namespace sptk
+}

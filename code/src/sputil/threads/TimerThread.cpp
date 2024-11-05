@@ -41,29 +41,11 @@ TimerThread::~TimerThread()
     Thread::join();
 }
 
-STimerEvent TimerThread::waitForEvent()
-{
-    STimerEvent event = nextEvent();
-    if (!event)
-    {
-        m_semaphore.wait_for(100ms);
-        return nullptr;
-    }
-
-    if (m_semaphore.wait_until(event->when()))
-    {
-        return nullptr; // Wait interrupted
-    }
-
-    popFrontEvent();
-    return event;
-}
-
 void TimerThread::threadFunction()
 {
     while (!terminated())
     {
-        auto event = waitForEvent();
+        auto event = m_scheduledEvents.next();
         if (event && event->fire())
         {
             schedule(event);
@@ -74,57 +56,15 @@ void TimerThread::threadFunction()
 void TimerThread::terminate()
 {
     Thread::terminate();
-    m_semaphore.post();
-}
-
-void TimerThread::wakeUp()
-{
-    m_semaphore.post();
+    m_scheduledEvents.wakeUp();
 }
 
 void TimerThread::schedule(const STimerEvent& event)
 {
-#ifndef _WIN32
-    const auto ticks = event->when().timePoint().time_since_epoch().count();
-#else
-    const auto ticks = (long) event->when().timePoint().time_since_epoch().count();
-#endif
-    const scoped_lock lock(m_scheduledMutex);
-    const auto itor = m_scheduledEvents.emplace(ticks, event);
-    if (itor == m_scheduledEvents.begin())
-    {
-        wakeUp();
-    }
+    m_scheduledEvents.add(event->when().timePoint(), event);
 }
 
 void TimerThread::clear()
 {
-    const scoped_lock lock(m_scheduledMutex);
     m_scheduledEvents.clear();
-}
-
-STimerEvent TimerThread::nextEvent()
-{
-    const scoped_lock lock(m_scheduledMutex);
-    while (!m_scheduledEvents.empty())
-    {
-        const auto itor = m_scheduledEvents.begin();
-        if (!itor->second->cancelled())
-        {
-            return itor->second;
-        }
-        m_scheduledEvents.erase(itor);
-    }
-
-    return nullptr;
-}
-
-void TimerThread::popFrontEvent()
-{
-    const scoped_lock lock(m_scheduledMutex);
-    if (!m_scheduledEvents.empty())
-    {
-        const auto itor = m_scheduledEvents.begin();
-        m_scheduledEvents.erase(itor);
-    }
 }

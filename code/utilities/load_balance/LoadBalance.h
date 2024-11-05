@@ -26,47 +26,34 @@
 
 #pragma once
 
-#include "sptk5/cutils"
+#include <sptk5/Loop.h>
+#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
+#include <vector>
 
 namespace sptk {
 
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+class LoadBalance
+    : public Thread
 {
+    uint16_t m_listenerPort;
+    Loop<Host>& m_destinations;
+    Loop<String>& m_interfaces;
+    SocketEvents m_sourceEvents {"Source Events", sourceEventCallback};
+    SocketEvents m_destinationEvents {"Destination Events", destinationEventCallback};
+
+    TCPSocket m_listener;
+
+    void threadFunction() override;
+
+    static SocketEventAction sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
+
+    static SocketEventAction destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
+
 public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
-    {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
-    }
+    LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
-    {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
-    }
-
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
-
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
+    ~LoadBalance() override = default;
 };
 
 } // namespace sptk

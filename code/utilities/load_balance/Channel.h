@@ -26,47 +26,52 @@
 
 #pragma once
 
-#include "sptk5/cutils"
+#include <sptk5/cutils>
+#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
 
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+class Channel
 {
+    std::mutex m_mutex;
+    TCPSocket m_source;
+    TCPSocket m_destination;
+
+    SocketEvents& m_sourceEvents;
+    SocketEvents& m_destinationEvents;
+
 public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
+    Channel(SocketEvents& sourceEvents, SocketEvents& destinationEvents)
+        : m_sourceEvents(sourceEvents)
+        , m_destinationEvents(destinationEvents)
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
     }
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
+    ~Channel()
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
+        try
+        {
+            close();
+        }
+        catch (const Exception& e)
+        {
+            CERR(e.what() << std::endl);
+        }
     }
 
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
+    void open(SocketType sourceFD, const String& interfaceAddess, const Host& destination);
+    int copyData(const TCPSocket& source, const TCPSocket& destination);
+    void close();
 
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
+    TCPSocket& source()
+    {
+        return m_source;
+    }
+    TCPSocket& destination()
+    {
+        return m_destination;
+    }
 };
 
 } // namespace sptk

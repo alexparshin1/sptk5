@@ -56,7 +56,7 @@ public:
      */
     SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
                  std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode   triggerMode = SocketPool::TriggerMode::LevelTriggered);
+                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
 
     /**
      * Destructor
@@ -69,7 +69,7 @@ public:
      * @param userData           User data to pass into callback function
      * @param triggerMode        Trigger mode
      */
-    void add(Socket& socket, const std::shared_ptr<SocketEventData>& userData)
+    void add(Socket& socket, const uint8_t* userData)
     {
         m_socketPool.watchSocket(socket, userData);
     }
@@ -101,10 +101,10 @@ protected:
     void threadFunction() override;
 
 private:
-    mutable std::mutex        m_mutex;      ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool                m_socketPool; ///< OS-specific event manager
-    std::map<int, void*>      m_watchList;  ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout;    ///< Timeout in event monitoring loop
+    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool m_socketPool;             ///< OS-specific event manager
+    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 };
 
 } // namespace sptk

@@ -88,7 +88,7 @@ public:
      */
     virtual bool get(const K& key, T& item, bool remove = false)
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock       lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {
@@ -110,7 +110,7 @@ public:
      */
     virtual bool remove(const K& key)
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock       lock(m_sync);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {

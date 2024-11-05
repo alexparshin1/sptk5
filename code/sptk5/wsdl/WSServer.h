@@ -130,7 +130,7 @@ private:
      * @param userData          User data
      * @param eventType         Event type
      */
-    void socketEventCallback(const std::shared_ptr<SocketEventData>& userData, SocketEventType eventType);
+    void socketEventCallback(const uint8_t* userData, SocketEventType eventType);
 };
 
 /**

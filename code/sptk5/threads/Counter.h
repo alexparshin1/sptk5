@@ -117,9 +117,9 @@ public:
     [[maybe_unused]] bool wait_until(size_t value, const DateTime& timeoutAt);
 
 private:
-    mutable std::mutex m_lockMutex;      ///< Mutex that protects counter operations
-    std::condition_variable m_condition; ///< Mutex condition
-    size_t m_counter {false};            ///< Counter value
+    mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter operations
+    std::condition_variable m_condition;       ///< Mutex condition
+    size_t                  m_counter {false}; ///< Counter value
 };
 /**
  * @}

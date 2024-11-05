@@ -90,10 +90,10 @@ protected:
     void threadFunction() override;
 
 private:
-    mutable std::mutex m_mutex;                     ///< Mutex that protects internal data
-    std::vector<SThread> m_runningThreads;          ///< Running threads
-    SynchronizedQueue<SThread> m_terminatedThreads; ///< Terminated threads scheduled for delete
-    size_t m_nextThreadIndex {0};                   ///< Next thread index
+    mutable std::mutex         m_mutex;               ///< Mutex that protects internal data
+    std::vector<SThread>       m_runningThreads;      ///< Running threads
+    SynchronizedQueue<SThread> m_terminatedThreads;   ///< Terminated threads scheduled for delete
+    size_t                     m_nextThreadIndex {0}; ///< Next thread index
 
     /**
      * @brief Join terminated threads

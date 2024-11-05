@@ -24,49 +24,85 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "LoadBalance.h"
+#include "Channel.h"
 
-#include "sptk5/cutils"
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+SocketEventAction LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
-public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
+    auto* channel = (Channel*) userData;
+
+    if (eventType.m_hangup)
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
+        channel->close();
+        delete channel;
+    }
+    else
+    {
+        channel->copyData(channel->source(), channel->destination());
+    }
+    return SocketEventAction::Continue;
+}
+
+SocketEventAction LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
+{
+    auto* channel = (Channel*) userData;
+
+    if (eventType.m_hangup)
+    {
+        channel->close();
+        delete channel;
+    }
+    else
+    {
+        channel->copyData(channel->destination(), channel->source());
+    }
+    return SocketEventAction::Continue;
+}
+
+LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
+    : Thread("load balance")
+    , m_listenerPort(listenerPort)
+    , m_destinations(destinations)
+    , m_interfaces(interfaces)
+{
+}
+
+void LoadBalance::threadFunction()
+{
+    struct sockaddr_in addr {
+    };
+
+    m_sourceEvents.run();
+    m_destinationEvents.run();
+    m_listener.listen(m_listenerPort);
+
+    constexpr chrono::milliseconds acceptTimeout {500};
+
+    while (!terminated())
+    {
+        Channel* channel {nullptr};
+        try
+        {
+            SocketType sourceFD;
+            if (m_listener.accept(sourceFD, addr, acceptTimeout))
+            {
+                channel = new Channel(m_sourceEvents, m_destinationEvents);
+                const Host& destination = m_destinations.loop();
+                const String& interfaceAddress = m_interfaces.loop();
+                channel->open(sourceFD, interfaceAddress, destination);
+            }
+        }
+        catch (const Exception& e)
+        {
+            delete channel;
+            CERR(e.what());
+        }
     }
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
-    {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
-    }
-
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
-
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
-};
-
-} // namespace sptk
+    m_listener.close();
+    m_sourceEvents.terminate();
+    m_destinationEvents.terminate();
+}

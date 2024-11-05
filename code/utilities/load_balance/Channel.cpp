@@ -24,49 +24,78 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "Channel.h"
 
-#include "sptk5/cutils"
+#ifdef _WIN32
+#include <io.h>
+#endif
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
 
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Host& destination)
 {
-public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
+    scoped_lock lock(m_mutex);
+
+    m_source.attach(sourceFD, false);
+
+    m_destination.bind(interfaceAddress.c_str(), 0);
+    m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
+
+    m_sourceEvents.add(m_source, (uint8_t*) this);
+    m_destinationEvents.add(m_destination, (uint8_t*) this);
+}
+
+void Channel::close()
+{
+    scoped_lock lock(m_mutex);
+
+    if (m_source.active())
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
+        m_sourceEvents.remove(m_source);
+        m_source.close();
     }
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
+    if (m_destination.active())
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
+        m_destinationEvents.remove(m_destination);
+        m_destination.close();
+    }
+}
+
+int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
+{
+    scoped_lock lock(m_mutex);
+
+    Buffer buffer(1024);
+    uint32_t totalBytes = 0;
+    size_t fragmentSize = sizeof(buffer);
+    auto readBytes = static_cast<int>(fragmentSize);
+
+    while (static_cast<size_t>(readBytes) == fragmentSize)
+    {
+
+#ifdef _WIN32
+        readBytes = _read((int) source.fd(), buffer.data(), (unsigned) fragmentSize);
+        if (readBytes < 0)
+            throw SystemException("Can't read from socket");
+
+        if (_write((int) destination.fd(), buffer.data(), readBytes) < 0)
+            throw SystemException("Can't write to socket");
+#else
+        readBytes = static_cast<int>(::read(source.fd(), buffer.data(), fragmentSize));
+        if (readBytes < 0)
+        {
+            throw SystemException("Can't read from socket");
+        }
+
+        if (::write(destination.fd(), buffer.data(), static_cast<size_t>(readBytes)) < 0)
+        {
+            throw SystemException("Can't write to socket");
+        }
+#endif
+        totalBytes += readBytes;
     }
 
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
-
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
-};
-
-} // namespace sptk
+    return totalBytes;
+}

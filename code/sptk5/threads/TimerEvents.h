@@ -26,47 +26,43 @@
 
 #pragma once
 
-#include "sptk5/cutils"
+#include <sptk5/DateTime.h>
+#include <sptk5/threads/TimerEvent.h>
+
+#include <map>
+#include <semaphore>
 
 namespace sptk {
 
 /**
- * @brief Simple binary semaphore used to control threads
+ * Thread-safe event map
  */
-class CancellationToken
+class SP_EXPORT TimerEvents
 {
 public:
     /**
-     * @brief Reset state to not cancelled
+     * @brief Add event
+     * @param timestamp     Event timestamp
+     * @param event         Event
      */
-    void reset()
-    {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
-    }
+    void add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event);
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
-    {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
-    }
+    STimerEvent next();
 
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
-    }
+    void clear();
+
+    bool empty() const;
+
+    void wakeUp();
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
+    using EventMap = std::multimap<DateTime::time_point, std::shared_ptr<TimerEvent>>;
+
+    mutable std::mutex m_mutex;  ///< Mutex that protects access to events collection
+    EventMap           m_events; ///< Events collection
+    std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
+
+    STimerEvent front();
 };
 
 } // namespace sptk

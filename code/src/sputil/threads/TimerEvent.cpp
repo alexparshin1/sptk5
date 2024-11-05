@@ -17,11 +17,37 @@ TimerEvent::TimerEvent(DateTime timestamp, Callback eventCallback, std::chrono::
 
 bool TimerEvent::fire()
 {
+    Callback callback;
+    bool     reschedule = true;
+    {
+        std::scoped_lock lock(m_mutex);
+
+        callback = m_callback;
+
+        if (m_repeatCount == 0)
+        {
+            reschedule = false;
+        }
+        else if (m_repeatCount > 0)
+        {
+            --m_repeatCount;
+            if (m_repeatCount == 0)
+            {
+                reschedule = false;
+            }
+        }
+
+        if (reschedule)
+        {
+            m_when = m_when + m_repeatInterval;
+        }
+    }
+
     try
     {
         if (m_callback)
         {
-            m_callback();
+            callback();
         }
     }
     catch (const Exception& e)
@@ -29,21 +55,5 @@ bool TimerEvent::fire()
         CERR(e.what());
     }
 
-    if (m_repeatCount == 0)
-    {
-        return false;
-    }
-
-    if (m_repeatCount > 0)
-    {
-        --m_repeatCount;
-        if (m_repeatCount == 0)
-        {
-            return false;
-        }
-    }
-
-    m_when = m_when + m_repeatInterval;
-
-    return true;
+    return reschedule;
 }

@@ -78,11 +78,11 @@ public:
     void cancel();
 
 private:
-    mutable std::mutex m_mutex;                         ///< Mutex protecting events set
-    std::chrono::milliseconds m_repeatInterval;         ///< Repeat interval
-    EventQueue m_events;                                ///< Events scheduled by this timer
-    std::mutex m_timerThreadMutex;                      ///< IntervalTimer thread mutex
-    std::shared_ptr<IntervalTimerThread> m_timerThread; ///< IntervalTimer thread
+    mutable std::mutex                   m_mutex;            ///< Mutex protecting events set
+    std::chrono::milliseconds            m_repeatInterval;   ///< Repeat interval
+    EventQueue                           m_events;           ///< Events scheduled by this timer
+    std::mutex                           m_timerThreadMutex; ///< IntervalTimer thread mutex
+    std::shared_ptr<IntervalTimerThread> m_timerThread;      ///< IntervalTimer thread
 };
 
 } // namespace sptk

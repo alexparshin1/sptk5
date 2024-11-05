@@ -125,7 +125,7 @@ public:
     }
 
 private:
-    static constexpr auto MaxSemaphoreValue = 0x7FFFFFFF;
+    static constexpr auto                      MaxSemaphoreValue = 0x7FFFFFFF;
     std::counting_semaphore<MaxSemaphoreValue> m_value;
 };
 /**

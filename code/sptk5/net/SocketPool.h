@@ -50,16 +50,6 @@ enum class SocketEventAction
 };
 
 /**
- * @brief Base class for event data
- */
-class SocketEventData
-{
-public:
-    SocketEventData() = default;
-    virtual ~SocketEventData() = default;
-};
-
-/**
  * Socket event types
  */
 struct SocketEventType
@@ -70,9 +60,9 @@ struct SocketEventType
 };
 
 /**
- * @brief Type definition of socket event callback function
+ * Type definition of socket event callback function
  */
-using SocketEventCallback = std::function<SocketEventAction(const std::shared_ptr<SocketEventData>& userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<SocketEventAction(const uint8_t* userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
@@ -145,7 +135,7 @@ public:
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
      */
-    void watchSocket(Socket& socket, const std::shared_ptr<SocketEventData>& userData);
+    void watchSocket(Socket& socket, const uint8_t* userData);
 
     /**
      * Remove socket from monitored pool
@@ -171,10 +161,10 @@ private:
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback                                           m_eventsCallback; ///< Sockets event callback function
-    static const int                                              maxEvents = 128;  ///< Maximum number of socket events per poll
-    TriggerMode                                                   m_triggerMode;    ///< Socket event trigger mode
-    std::unordered_map<Socket*, std::shared_ptr<SocketEventData>> m_userData;       ///< User data related to socket
+    SocketEventCallback                         m_eventsCallback; ///< Sockets event callback function
+    static const int                            maxEvents = 128;  ///< Maximum number of socket events per poll
+    TriggerMode                                 m_triggerMode;    ///< Socket event trigger mode
+    std::unordered_map<Socket*, const uint8_t*> m_userData;       ///< User data related to socket
 
     void              processError(int error, const String& operation) const;
     SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);

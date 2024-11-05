@@ -26,71 +26,48 @@
 
 #pragma once
 
-#include "sptk5/cthreads"
+#include "TimerEvents.h"
+#include "sptk5/threads/Thread.h"
 
 namespace sptk {
-
 /**
- * @brief Base class for Timer and IntervalTimer internal threads
- */
-class TimerThread
-    : public Thread
+  * @brief Base class for Timer and IntervalTimer internal threads
+  */
+class SP_EXPORT TimerThread
+    : public sptk::Thread
 {
 public:
     /**
-     * @brief Constructor
-     * @param threadName        Thread name
-     */
+   * @brief Constructor
+   * @param threadName        Thread name
+   */
     TimerThread();
+
+    /**
+     * @brief Destructor
+     */
     ~TimerThread() override;
 
     /**
-     * @brief Schedule an event
-     * @param event             Event
-     */
+   * @brief Schedule an event
+   * @param event             Event
+   */
     void schedule(const STimerEvent& event);
 
     void clear();
 
     /**
-     * @brief Terminate thread
-     */
+   * @brief Terminate thread
+   */
     void terminate() override;
 
 protected:
     /**
-     * @brief Wake up (signal) semaphore
-     */
-    void wakeUp();
-
-    /**
-     * @brief Wait for the next event in the queue
-     * @return timer event if any
-     */
-    STimerEvent waitForEvent();
-
-    /**
-     * @brief Thread function
-     */
+   * @brief Thread function
+   */
     void threadFunction() override;
 
 private:
-    using EventMap = std::multimap<long, STimerEvent>;
-
-    std::mutex m_scheduledMutex; ///< Mutex that protects scheduled events
-    Semaphore m_semaphore;       ///< Semaphore to wait for events
-    EventMap m_scheduledEvents;  ///< Scheduled events
-
-    /**
-     * @brief Get next scheduled event
-     * @return Event
-     */
-    STimerEvent nextEvent();
-
-    /**
-     * @brief Remove next scheduled event
-     */
-    void popFrontEvent();
+    TimerEvents m_scheduledEvents; ///< Scheduled events
 };
-
 } // namespace sptk

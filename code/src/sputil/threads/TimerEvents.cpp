@@ -24,49 +24,96 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
-
-#include "sptk5/cutils"
+#include <sptk5/Printer.h>
+#include <sptk5/threads/TimerEvents.h>
 
 namespace sptk {
 
-/**
- * @brief Simple binary semaphore used to control threads
- */
-class CancellationToken
+void TimerEvents::add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event)
 {
-public:
-    /**
-     * @brief Reset state to not cancelled
-     */
-    void reset()
+    std::lock_guard lock(m_mutex);
+    if (const auto iterator = m_events.emplace(timestamp, event);
+        iterator == m_events.begin())
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = false;
+        m_semaphore.release();
+    }
+}
+
+STimerEvent TimerEvents::next()
+{
+    auto event = front();
+    if (!event)
+    {
+        if (m_semaphore.try_acquire_for(std::chrono::milliseconds(100)))
+        {
+            // Wait interrupted
+            event = front();
+        }
     }
 
-    /**
-     * @brief Set state to cancelled
-     */
-    void cancel()
+    if (!event)
     {
-        std::scoped_lock lock(m_mutex);
-        m_cancelled = true;
+        return {};
     }
 
-    /**
-     * @brief Check state
-     * @return true if cancelled
-     */
-    bool isCancelled() const
+    auto when = event->when().timePoint();
+    if (when < std::chrono::system_clock::now())
     {
-        std::scoped_lock lock(m_mutex);
-        return m_cancelled;
+        std::lock_guard lock(m_mutex);
+        event = m_events.begin()->second;
+        m_events.erase(m_events.begin());
+        return event;
     }
 
-private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
-    bool               m_cancelled {false};
-};
+    DateTime whenDateTime(when);
+    if (m_semaphore.try_acquire_until(when))
+    {
+        // Wait interrupted
+        return {};
+    }
+
+    std::lock_guard lock(m_mutex);
+    if (!m_events.empty())
+    {
+        event = m_events.begin()->second;
+        m_events.erase(m_events.begin());
+    }
+    return event;
+}
+
+void TimerEvents::clear()
+{
+    std::lock_guard lock(m_mutex);
+    m_events.clear();
+}
+
+bool TimerEvents::empty() const
+{
+    std::lock_guard lock(m_mutex);
+    return m_events.empty();
+}
+
+void TimerEvents::wakeUp()
+{
+    m_semaphore.release();
+}
+
+STimerEvent TimerEvents::front()
+{
+    std::lock_guard lock(m_mutex);
+    while (!m_events.empty())
+    {
+        const auto iterator = m_events.begin();
+        if (iterator->second->cancelled())
+        {
+            m_events.erase(iterator);
+        }
+        else
+        {
+            return m_events.begin()->second;
+        }
+    }
+    return {};
+}
 
 } // namespace sptk
