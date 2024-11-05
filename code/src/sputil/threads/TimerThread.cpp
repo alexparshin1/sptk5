@@ -59,11 +59,6 @@ void TimerThread::terminate()
     m_scheduledEvents.wakeUp();
 }
 
-void TimerThread::wakeUp()
-{
-    m_scheduledEvents.wakeUp();
-}
-
 void TimerThread::schedule(const STimerEvent& event)
 {
     m_scheduledEvents.add(event->when().timePoint(), event);

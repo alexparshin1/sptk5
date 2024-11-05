@@ -27,50 +27,47 @@
 #pragma once
 
 #include "TimerEvents.h"
-#include "sptk5/cthreads"
+#include "sptk5/threads/Thread.h"
 
 namespace sptk {
 /**
   * @brief Base class for Timer and IntervalTimer internal threads
   */
-class TimerThread
-    : public Thread
+class SP_EXPORT TimerThread
+    : public sptk::Thread
 {
 public:
     /**
    * @brief Constructor
    * @param threadName        Thread name
    */
-     TimerThread();
+    TimerThread();
+
+    /**
+     * @brief Destructor
+     */
     ~TimerThread() override;
 
     /**
    * @brief Schedule an event
    * @param event             Event
    */
-  void schedule(const STimerEvent& event);
+    void schedule(const STimerEvent& event);
 
-  void clear();
+    void clear();
 
-  /**
+    /**
    * @brief Terminate thread
    */
-  void terminate() override;
+    void terminate() override;
 
- protected:
-  /**
-   * @brief Wake up (signal) semaphore
-   */
-  void wakeUp();
-
-  /**
+protected:
+    /**
    * @brief Thread function
    */
-  void threadFunction() override;
+    void threadFunction() override;
 
- private:
-  std::mutex m_scheduledMutex; ///< Mutex that protects scheduled events
-  TimerEvents m_scheduledEvents; ///< Scheduled events
-
-  };
+private:
+    TimerEvents m_scheduledEvents; ///< Scheduled events
+};
 } // namespace sptk

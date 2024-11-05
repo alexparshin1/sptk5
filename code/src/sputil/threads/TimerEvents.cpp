@@ -35,16 +35,7 @@ void TimerEvents::add(DateTime::time_point timestamp, const std::shared_ptr<Time
     if (const auto iterator = m_events.emplace(timestamp, event);
         iterator == m_events.begin())
     {
-        COUT_TS("Event " << event.get()
-                         << " " << DateTime(event->when()).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                         << " added to front.");
         m_semaphore.release();
-    }
-    else
-    {
-        COUT_TS("Event " << event.get()
-                         << " " << DateTime(event->when()).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                         << " inserted.");
     }
 }
 
@@ -56,7 +47,6 @@ STimerEvent TimerEvents::next()
         if (m_semaphore.try_acquire_for(std::chrono::milliseconds(100)))
         {
             // Wait interrupted
-            COUT_TS("Idle wait interrupted.");
             event = front();
         }
     }
@@ -70,9 +60,6 @@ STimerEvent TimerEvents::next()
     if (when < std::chrono::system_clock::now())
     {
         std::lock_guard lock(m_mutex);
-        COUT_TS("Event " << event.get()
-                         << " " << DateTime(event->when()).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                         << " activated.");
         event = m_events.begin()->second;
         m_events.erase(m_events.begin());
         return event;
@@ -81,9 +68,6 @@ STimerEvent TimerEvents::next()
     DateTime whenDateTime(when);
     if (m_semaphore.try_acquire_until(when))
     {
-        COUT_TS("Event " << event.get()
-                         << " " << DateTime(event->when()).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                         << " wait interrupted.");
         // Wait interrupted
         return {};
     }
@@ -93,9 +77,6 @@ STimerEvent TimerEvents::next()
     {
         event = m_events.begin()->second;
         m_events.erase(m_events.begin());
-        COUT_TS("Event " << event.get()
-                         << " " << DateTime(event->when()).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                         << " activated.");
     }
     return event;
 }
@@ -125,9 +106,6 @@ STimerEvent TimerEvents::front()
         const auto iterator = m_events.begin();
         if (iterator->second->cancelled())
         {
-            COUT_TS("Event " << iterator->second.get()
-                << " " << DateTime(iterator->first).timeString(0, DateTime::PrintAccuracy::MILLISECONDS)
-                << " cancelled.");
             m_events.erase(iterator);
         }
         else

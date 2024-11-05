@@ -35,8 +35,6 @@
 
 namespace sptk {
 
-class TimerThread;
-
 /**
  * Generic timer class.
  * Can fire one time off and repeatable events
