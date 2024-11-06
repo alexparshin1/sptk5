@@ -161,6 +161,8 @@ RequestInfo WSWebServiceProtocol::process()
         }
         requestInfo.request.input(contentBuffer, contentEncoding);
 
+        COUT("CONTENT: " << contentType << endl);
+
         auto authentication = getAuthentication();
 
         auto* startOfMessage = requestInfo.request.content().data();
@@ -226,6 +228,8 @@ RequestInfo WSWebServiceProtocol::process()
     {
         clientAcceptEncoding.clear();
     }
+
+    COUT("RESPONSE: " << requestInfo.response.content() << endl);
 
     const Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
     contentEncoding = requestInfo.response.contentEncoding();
