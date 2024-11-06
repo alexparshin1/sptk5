@@ -28,6 +28,7 @@
 
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Attributes.h>
+#include <sptk5/xdoc/NodeName.h>
 
 namespace sptk::xdoc {
 
