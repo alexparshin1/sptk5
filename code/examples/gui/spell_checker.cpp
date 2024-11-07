@@ -58,14 +58,14 @@ int main()
     editor->textBuffer()->text("Mary has a little lemb, big botl of whiskie, and cucomber");
 
     CToolBar toolBar;
-    CButton spellCheckButton("Spell Check", CLayoutAlign::LEFT);
+    CButton  spellCheckButton("Spell Check", CLayoutAlign::LEFT);
     spellCheckButton.callback(cb_spellCheck);
 
     window.show();
 
     CThemes::set("OSX");
 
-    window.relayout();
+    window.reLayout();
 
     Fl::run();
 

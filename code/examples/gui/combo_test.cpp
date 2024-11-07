@@ -44,7 +44,7 @@ void theme_cb(Fl_Widget* w, void*)
             CThemes::set(themeName);
 
             auto* window = (CWindow*) w->window();
-            window->relayout();
+            window->reLayout();
             window->redraw();
         }
     }

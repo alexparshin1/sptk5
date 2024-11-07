@@ -288,7 +288,7 @@ void WSDouble::load(const SNode& attr, bool)
             }
         }
 
-        throw Exception(attr->name() + " is not a float number");
+        throw Exception(attr->getQualifiedName() + " is not a float number");
     }
 }
 
@@ -351,7 +351,7 @@ void WSInteger::load(const SNode& attr, bool)
             }
         }
 
-        throw Exception(attr->name() + " is not an integer number");
+        throw Exception(attr->getQualifiedName() + " is not an integer number");
     }
 }
 

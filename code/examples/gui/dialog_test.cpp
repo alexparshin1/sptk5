@@ -52,7 +52,7 @@ class CExampleDialog
     : public CDialog
 {
     xdoc::Document m_state;
-    String m_stateFileName {"dialog_test.xml"};
+    String         m_stateFileName {"dialog_test.xml"};
 
 public:
     CExampleDialog()
@@ -95,7 +95,7 @@ public:
 
         end();
 
-        CDialog::relayout();
+        CDialog::reLayout();
     }
 
     void loadState()

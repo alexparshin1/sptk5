@@ -38,9 +38,16 @@ public:
         : m_name(std::move(name))
         , m_nameSpace(std::move(nameSpace))
     {
+        setQualifiedName();
+    }
+
+    NodeName(const char* name)
+        : NodeName(String(name))
+    {
     }
 
     NodeName(const String& name)
+        : m_qualifiedName(name)
     {
         const auto* pos = strchr(name.c_str(), ':');
         if (pos)
@@ -64,6 +71,12 @@ public:
         return m_name;
     }
 
+    void setName(String name)
+    {
+        m_name = std::move(name);
+        setQualifiedName();
+    }
+
     [[nodiscard]] const String& getNameSpace() const
     {
         return m_nameSpace;
@@ -74,31 +87,50 @@ public:
         m_nameSpace = std::move(nameSpace);
     }
 
-    [[nodiscard]] String toString() const
+    [[nodiscard]] const String& getQualifiedName() const
     {
-        if (m_nameSpace.empty())
-        {
-            return m_name;
-        }
-        return m_nameSpace + ":" + m_name;
+        return m_qualifiedName;
     }
 
-    [[nodiscard]] bool operator==(const NodeName& other) const = default;
-    [[nodiscard]] bool operator!=(const NodeName& other) const = default;
-
-    bool operator==(const String& other) const
+    bool empty() const
     {
-        return toString() == other;
+        return m_name.empty();
     }
 
-    bool operator!=(const String& other) const
+    bool sameName(const NodeName& nodeName)
     {
-        return toString() != other;
+        return operator==(nodeName);
+    }
+
+    [[nodiscard]] bool operator==(const NodeName& other) const
+    {
+        return m_qualifiedName == other.m_qualifiedName;
+    }
+
+    [[nodiscard]] bool operator!=(const NodeName& other) const
+    {
+        return m_qualifiedName != other.m_qualifiedName;
     }
 
 private:
-    String m_name;
-    String m_nameSpace;
+    String m_name;          ///< Node name
+    String m_nameSpace;     ///< Node namespace
+    String m_qualifiedName; ///< Node qualified name
+
+    /**
+     * @brief Set qualified name after changing name or name space
+     */
+    void setQualifiedName()
+    {
+        if (m_nameSpace.empty())
+        {
+            m_qualifiedName = m_name;
+        }
+        else
+        {
+            m_qualifiedName = m_nameSpace + ":" + m_name;
+        }
+    }
 };
 
 } // namespace sptk::xdoc

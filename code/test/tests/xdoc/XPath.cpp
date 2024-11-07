@@ -59,7 +59,7 @@ TEST(SPTK_XDocument, select)
 TEST(SPTK_XDocument, parent)
 {
     Node::Vector elementSet;
-    Document document;
+    Document     document;
 
     const auto& node1 = document.root()->pushNode("Node1-level1");
     const auto& node2 = node1->pushNode("Node2-level2");
@@ -67,8 +67,8 @@ TEST(SPTK_XDocument, parent)
     const auto& node3 = document.root()->pushNode("Node3-level1");
     const auto& node4 = node3->pushNode("Node4-level2");
 
-    EXPECT_STREQ(node2->parent()->name().c_str(), "Node1-level1");
-    EXPECT_STREQ(node4->parent()->name().c_str(), "Node3-level1");
+    EXPECT_STREQ(node2->parent()->getName().c_str(), "Node1-level1");
+    EXPECT_STREQ(node4->parent()->getName().c_str(), "Node3-level1");
 }
 
 TEST(SPTK_XDocument, select2)

@@ -89,9 +89,9 @@ void CWindow::draw()
         shapeApply();
     }
 
-    int savex = x();
+    int saveX = x();
     x(0);
-    int savey = y();
+    int saveY = y();
     y(0);
 
     Fl_Boxtype b = box();
@@ -105,8 +105,8 @@ void CWindow::draw()
     Fl_Double_Window::draw();
     box(b);
 
-    y(savey);
-    x(savex);
+    y(saveY);
+    x(saveX);
 }
 
 void CWindow::load(const shared_ptr<xdoc::Node>& node, CLayoutXMLmode xmlMode)
@@ -146,7 +146,7 @@ void CWindow::savePosition(const xdoc::SNode& node) const
     node->attributes().set("width", to_string(w()));
     node->attributes().set("height", to_string(h()));
     node->attributes().set("label", label());
-    node->name(className());
+    node->setName(className());
 }
 
 int CWindow::handle(int event)

@@ -100,7 +100,7 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
     {
         using enum Node::Type;
 
-        const auto& operationElement = paths->pushNode("/" + operation.m_input->name(), Node::Type::Object);
+        const auto& operationElement = paths->pushNode(String("/" + operation.m_input->name()), Node::Type::Object);
         const auto& postElement = operationElement->pushNode("post");
 
         // Define operation security

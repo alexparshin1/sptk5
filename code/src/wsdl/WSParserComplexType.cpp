@@ -45,7 +45,7 @@ WSParserAttribute::WSParserAttribute(String name, const String& typeName)
 String WSParserAttribute::generate(bool initialize) const
 {
     constexpr int fieldNameWidth = 40;
-    stringstream str;
+    stringstream  str;
     str << left << setw(fieldNameWidth) << "sptk::WSString"
         << " m_" << m_name;
     if (initialize)
@@ -66,7 +66,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
     {
         simpleTypeElement = findSimpleType(m_typeName);
     }
-    else if (complexTypeElement->name() == "xsd:element")
+    else if (complexTypeElement->getQualifiedName() == "xsd:element")
     {
         simpleTypeElement = m_element;
     }
@@ -141,7 +141,7 @@ void WSParserComplexType::parseSequence(const xdoc::SNode& sequence)
 {
     for (const auto& node: sequence->nodes())
     {
-        if (node->name() == "xsd:element")
+        if (node->getQualifiedName() == "xsd:element")
         {
             m_sequence.push_back(make_shared<WSParserComplexType>(node));
         }
@@ -158,12 +158,12 @@ void WSParserComplexType::parse()
 
     for (const auto& node: m_element->nodes())
     {
-        if (node->name() == "xsd:attribute")
+        if (node->getQualifiedName() == "xsd:attribute")
         {
             auto attrName = node->attributes().get("name");
             m_attributes[attrName] = make_shared<WSParserAttribute>(attrName, node->attributes().get("type"));
         }
-        else if (node->name() == "xsd:sequence")
+        else if (node->getQualifiedName() == "xsd:sequence")
         {
             parseSequence(node);
         }
@@ -227,7 +227,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
                                              const String& serviceNamespace) const
 {
     constexpr int fieldNameWidth = 40;
-    const String className = "C" + wsClassName(m_name);
+    const String  className = "C" + wsClassName(m_name);
 
     classDeclaration << "#pragma once" << endl;
     classDeclaration << endl;
@@ -273,7 +273,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
         {
             appendMemberDocumentation(classDeclaration, complexType);
 
-            String cxxType = complexType->className();
+            String       cxxType = complexType->className();
             const string optional =
                 (static_cast<int>(complexType->multiplicity()) & static_cast<int>(WSMultiplicity::ZERO_OR_ONE)) != 0 ? ", true" : ", false";
             if (complexType->isArray())
@@ -368,7 +368,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, spt
 
 String WSParserComplexType::makeTagName(const String& className)
 {
-    String tagName = lowerCase(className.substr(1));
+    String                  tagName = lowerCase(className.substr(1));
     const RegularExpression matchWords("([A-Z]+[a-z]+)", "g");
     if (const auto words = matchWords.m(className.substr(1));
         words)
@@ -414,7 +414,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     }
 }
 
-void WSParserComplexType::appendMemberDocumentation(ostream& classDeclaration,
+void WSParserComplexType::appendMemberDocumentation(ostream&                    classDeclaration,
                                                     const SWSParserComplexType& complexType)
 {
     if (!complexType->m_documentation.empty())
@@ -455,7 +455,7 @@ void WSParserComplexType::printImplementationIncludes(ostream& classImplementati
 
 void WSParserComplexType::printImplementationRestrictions(std::ostream& classImplementation, std::ostream& checks) const
 {
-    Strings requiredElements;
+    Strings     requiredElements;
     std::size_t restrictionIndex = 0;
     for (const auto& complexType: m_sequence)
     {
@@ -497,7 +497,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
     }
 }
 
-void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImplementation,
+void WSParserComplexType::printImplementationCheckRestrictions(ostream&      classImplementation,
                                                                const String& className) const
 {
     classImplementation << "void " << className << "::checkRestrictions() const" << endl
@@ -516,16 +516,16 @@ void WSParserComplexType::printImplementationCheckRestrictions(ostream& classImp
                         << endl;
 }
 
-String WSParserComplexType::addOptionalRestriction(std::ostream& implementation,
+String WSParserComplexType::addOptionalRestriction(std::ostream&               implementation,
                                                    const SWSParserComplexType& complexType,
-                                                   size_t& restrictionIndex) const
+                                                   size_t&                     restrictionIndex) const
 {
     String restrictionCheck;
     if (complexType->m_restriction != nullptr)
     {
         ++restrictionIndex;
         const String restrictionName = "restriction_" + int2string(restrictionIndex);
-        const auto restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
+        const auto   restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
         if (!restrictionCtor.empty())
         {
             if (restrictionIndex == 1)
@@ -590,7 +590,7 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
                                                           const Strings& elementNames,
                                                           const Strings& attributeNames) const
 {
-    auto tagName = makeTagName(className);
+    auto       tagName = makeTagName(className);
     const auto initializer = makeInitializer();
 
     classImplementation << className << "::" << className << "(const char* elementName, bool optional)" << endl

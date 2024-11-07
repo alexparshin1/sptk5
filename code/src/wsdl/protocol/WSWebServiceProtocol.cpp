@@ -161,8 +161,6 @@ RequestInfo WSWebServiceProtocol::process()
         }
         requestInfo.request.input(contentBuffer, contentEncoding);
 
-        COUT("CONTENT: " << contentType << endl);
-
         auto authentication = getAuthentication();
 
         auto* startOfMessage = requestInfo.request.content().data();
@@ -186,6 +184,8 @@ RequestInfo WSWebServiceProtocol::process()
                     contentType = "application/xml; charset=utf-8";
                 }
                 requestIsJSON = false;
+                COUT("INPUT:\n"
+                     << startOfMessage);
                 processXmlContent((const char*) startOfMessage, xmlContent.root());
             }
             else if (*startOfMessage == '{' || *startOfMessage == '[')

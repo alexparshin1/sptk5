@@ -32,9 +32,9 @@
 using namespace std;
 using namespace sptk;
 
-CInput* i;
+CInput*        i;
 CCheckButtons* cb;
-Fl_Box* bx;
+Fl_Box*        bx;
 
 void button_cb(Fl_Widget* b, void*)
 {
@@ -64,7 +64,7 @@ int main(int argc, char* argv[])
         CInput input("Test");
         i = &input;
 
-        CGroup g("", 10, CLayoutAlign::BOTTOM);
+        CGroup  g("", 10, CLayoutAlign::BOTTOM);
         CButton btn1("Set Choices", CLayoutAlign::RIGHT);
         btn1.callback(button_cb);
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
         w.show(argc, argv);
 
         CThemes::set("Keramic");
-        w.relayout();
+        w.reLayout();
 
         Fl::run();
 

@@ -105,9 +105,9 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex to protect internal data
-    String m_alias;             ///< Namespace alias
-    String m_location;          ///< Namespace location
+    mutable std::mutex m_mutex;    ///< Mutex to protect internal data
+    String             m_alias;    ///< Namespace alias
+    String             m_location; ///< Namespace location
 };
 
 /**
@@ -170,8 +170,6 @@ public:
 
     static String tagName(const String& nodeName);
 
-    static String nameSpace(const String& nodeName);
-
     sptk::LogEngine* getLogEngine()
     {
         return m_logEngine;
@@ -226,7 +224,7 @@ protected:
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
-    sptk::LogEngine* m_logEngine;                           ///< Optional logger, or nullptr
+    sptk::LogEngine*                      m_logEngine;      ///< Optional logger, or nullptr
     std::map<sptk::String, RequestMethod> m_requestMethods; ///< Map of requset names to methods
 };
 

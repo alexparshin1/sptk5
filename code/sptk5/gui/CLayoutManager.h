@@ -221,7 +221,7 @@ public:
      * Relayouts the attached group. It may be necessary if the inside widgets have changed
      * content or shown/hidden.
      */
-    void relayout();
+    void reLayout();
 
     /**
      * @brief Defines frame.

@@ -43,7 +43,7 @@ void theme_cb(Fl_Widget* w, void*)
 {
     try
     {
-        auto* themesCombo = (CComboBox*) w;
+        auto*  themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CEvent::DATA_CHANGED)
@@ -51,7 +51,7 @@ void theme_cb(Fl_Widget* w, void*)
             CThemes::set(themeName);
 
             auto* window = (CWindow*) w->window();
-            window->relayout();
+            window->reLayout();
             window->redraw();
         }
     }
@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
             snprintf(buffer1, sizeof(buffer1) - 1, "%i", a);
             snprintf(buffer2, sizeof(buffer2) - 1, "%i", 100000 - a);
             cpchar rowData[] = {buffer1, buffer2, "Column 2", "-----------Long column-----------"};
-            auto* ps = new CPackedStrings(4, rowData);
+            auto*  ps = new CPackedStrings(4, rowData);
             listView.addRow(ps);
         }
 
@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
         exitButton.callback(exit_cb);
 
         CComboBox themesCombo("Theme", 400, CLayoutAlign::LEFT);
-        Strings themesList = CThemes::availableThemes();
+        Strings   themesList = CThemes::availableThemes();
         themesList.push_back("GTK");
         themesCombo.addRows("Theme", themesList);
         themesCombo.callback(theme_cb);
@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
         buttonGroup.end();
 
         w.end();
-        w.relayout();
+        w.reLayout();
         w.show(argc, argv);
 
         Fl::run();

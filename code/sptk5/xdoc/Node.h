@@ -45,7 +45,8 @@ enum class SearchMode : uint8_t
 };
 
 class SP_EXPORT Node
-    : public std::enable_shared_from_this<Node>
+    : public NodeName
+    , public std::enable_shared_from_this<Node>
 {
 public:
     using SNode = std::shared_ptr<Node>;
@@ -68,23 +69,13 @@ public:
         ProcessingInstruction
     };
 
-    Node(String nodeName = "", Type type = Type::Null);
+    Node(const NodeName& nodeName = "", Type type = Type::Null);
 
     virtual ~Node() = default;
 
     virtual void clear();
 
     virtual void clearChildren();
-
-    String name() const
-    {
-        return m_name;
-    }
-
-    void name(const String& name)
-    {
-        m_name = name;
-    }
 
     Type type() const
     {
@@ -96,7 +87,7 @@ public:
         m_type = type;
     }
 
-    SNode pushNode(const String& name, Type type = Type::Null);
+    SNode pushNode(const NodeName& name, Type type = Type::Null);
 
     /**
      * @brief   Push named property to object
@@ -106,7 +97,7 @@ public:
      * @param type              Optional type
      * @return created node
      */
-    SNode pushValue(const String& name, const Variant& value, Node::Type type = Node::Type::Null);
+    SNode pushValue(const NodeName& name, const Variant& value, Node::Type type = Node::Type::Null);
 
     /**
      * @brief   Push value to array
@@ -134,35 +125,35 @@ public:
      * @param name             Optional node name
      * @return node value
      */
-    String getString(const String& name = "") const;
+    String getString(const NodeName& name = "") const;
 
     /**
      * @brief Get node value as text
      * @param name             Optional node name
      * @return node value
      */
-    String getText(const String& name = "") const;
+    String getText(const NodeName& name = "") const;
 
     /**
      * @brief Get node value as number
      * @param name             Optional node name
      * @return node value
      */
-    double getNumber(const String& name = "") const;
+    double getNumber(const NodeName& name = "") const;
 
     /**
      * @brief Get node value as boolean
      * @param name             Optional node name
      * @return node value
      */
-    bool getBoolean(const String& name = "") const;
+    bool getBoolean(const NodeName& name = "") const;
 
     /**
      * @brief Get child nodes
      * @param name             Optional node name
      * @return child nodes
      */
-    const Nodes& nodes(const String& name = "") const;
+    const Nodes& nodes(const NodeName& name = "") const;
 
     /**
      * @brief Get node value
@@ -192,7 +183,7 @@ public:
      * @return node
      */
     template<typename T>
-    SNode set(const String& name, const T& value)
+    SNode set(const NodeName& name, const T& value)
     {
         auto node = findOrCreate(name);
         node->m_value = value;
@@ -201,12 +192,14 @@ public:
         return node;
     }
 
+    void setNameSpaceRecursive(const String& nameSpace);
+
     /**
      * @brief Remove node
      * @param name             Node name
      * @return true if node was removed
      */
-    bool remove(const String& name);
+    bool remove(const NodeName& name);
 
     /**
      * @brief Remove node
@@ -220,7 +213,7 @@ public:
      * @param name              Node name
      * @return node
      */
-    SNode findOrCreate(const String& name);
+    SNode findOrCreate(const NodeName& name);
 
     /**
      * Find first node matching name
@@ -228,7 +221,7 @@ public:
      * @param searchMode        Search mode
      * @return
      */
-    SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const;
+    SNode findFirst(const NodeName& name, SearchMode searchMode = SearchMode::Recursive) const;
 
     /**
      * @brief Get parent node
@@ -271,7 +264,6 @@ public:
 
 private:
     SNode      m_parent {nullptr};
-    String     m_name;
     Type       m_type {Type::Null};
     Variant    m_value;
     Attributes m_attributes;

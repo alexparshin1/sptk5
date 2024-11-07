@@ -49,7 +49,7 @@ void theme_cb(Fl_Widget* w, void*)
     CThemes::set(themeName);
 
     auto* window = (CWindow*) w->window();
-    window->relayout();
+    window->reLayout();
     window->redraw();
 }
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 
         w.show(argc, argv);
 
-        w.relayout();
+        w.reLayout();
 
         return Fl::run();
     }

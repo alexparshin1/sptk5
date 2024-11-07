@@ -41,7 +41,7 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
 {
     const String requestName = InputData::classId();
     const String responseName = OutputData::classId();
-    const String       ns(requestNameSpace.getAlias());
+    const String ns(requestNameSpace.getAlias());
     InputData    inputData((ns + ":" + requestName).c_str());
     OutputData   outputData((ns + ":" + responseName).c_str());
     try
@@ -56,7 +56,7 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
     const auto& soapBody = requestNode->parent();
     soapBody->clearChildren();
     method(inputData, outputData, authentication);
-    auto response = soapBody->pushNode(ns + ":" + responseName);
+    auto response = soapBody->pushNode(xdoc::NodeName(ns, responseName));
     response->attributes().set("xmlns:" + ns, requestNameSpace.getLocation());
     outputData.unload(response);
 }

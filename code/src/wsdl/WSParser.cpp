@@ -174,13 +174,13 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
             message = message.substr(pos + 1);
         }
         const auto& elementName = messageToElementMap[message];
-        if (element->name() == "wsdl:input")
+        if (element->getQualifiedName() == "wsdl:input")
         {
             operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
             found = true;
             continue;
         }
-        if (element->name() == "wsdl:output")
+        if (element->getQualifiedName() == "wsdl:output")
         {
             operation.m_output = m_complexTypeIndex.complexType(message, "Message " + message);
             found = true;
@@ -200,7 +200,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
     for (const auto  simpleTypeNodes = schemaElement->select("//xsd:simpleType");
          const auto& element: simpleTypeNodes)
     {
-        if (element->name() == "xsd:simpleType")
+        if (element->getQualifiedName() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
@@ -209,7 +209,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
     for (auto  complexTypeNodes = schemaElement->select("//xsd:complexType");
          auto& element: complexTypeNodes)
     {
-        if (element->name() == "xsd:complexType")
+        if (element->getQualifiedName() == "xsd:complexType")
         {
             parseComplexType(element);
         }
@@ -217,7 +217,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 
     for (const auto& element: schemaElement->nodes())
     {
-        if (element->name() == "xsd:element")
+        if (element->getQualifiedName() == "xsd:element")
         {
             parseElement(element);
         }
@@ -265,7 +265,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
 
     for (const auto& element: portElement->nodes())
     {
-        if (element != nullptr && element->name() == "wsdl:operation")
+        if (element != nullptr && element->getQualifiedName() == "wsdl:operation")
         {
             parseOperation(element);
         }
@@ -486,7 +486,7 @@ void WSParser::generateImplementation(ostream& output) const
               "   if (requestNameSpace.getLocation().empty()) {\n"
               "      response = soapBody->pushNode(responseName);\n"
               "   } else {\n"
-              "      response = soapBody->pushNode(ns + \":\" + responseName);\n"
+              "      response = soapBody->pushNode(xdoc::NodeName(responseName, ns));\n"
               "      response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
               "   }\n"
               "   outputData.unload(response);\n"

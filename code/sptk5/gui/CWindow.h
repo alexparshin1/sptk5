@@ -115,7 +115,7 @@ public:
     /**
      * @brief Relayouts window's widgets that have CLayoutClient interface
      */
-    virtual void relayout()
+    virtual void reLayout()
     {
         resize(x(), y(), w(), h());
     }

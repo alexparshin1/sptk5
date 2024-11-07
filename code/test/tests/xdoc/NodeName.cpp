@@ -35,7 +35,7 @@ TEST(SPTK_XDocument, nodeName_create)
 {
     NodeName nodeName("test");
 
-    EXPECT_STREQ("test", nodeName.getName().c_str());
+    EXPECT_STREQ("test", nodeName.getQualifiedName().c_str());
     EXPECT_STREQ("", nodeName.getNameSpace().c_str());
 
     NodeName nodeName2("ns1:test");
@@ -78,10 +78,10 @@ TEST(SPTK_XDocument, nodeName_assign)
     EXPECT_EQ(nodeName, nodeName2);
 
     nodeName = String("ns2:test");
-    EXPECT_EQ(nodeName, "ns2:test");
+    EXPECT_EQ(nodeName.getQualifiedName(), "ns2:test");
 
     nodeName2 = std::move(nodeName);
-    EXPECT_EQ(nodeName2, "ns2:test");
+    EXPECT_EQ(nodeName2.getQualifiedName(), "ns2:test");
 }
 
 TEST(SPTK_XDocument, nodeName_compare)

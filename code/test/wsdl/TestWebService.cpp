@@ -165,7 +165,7 @@ static Document make_send_request(const String& methodName, DataFormat dataForma
     {
         const auto wrapper = soapWrapper.replace("{REQUEST_DATA}", "<ns1:" + methodName + "/>");
         sendRequest.load(wrapper);
-        requestNode = sendRequest.root()->findFirst("ns1:" + methodName);
+        requestNode = sendRequest.root()->findFirst(xdoc::NodeName(methodName, "ns1"));
     }
 
     if (methodName == "Hello")

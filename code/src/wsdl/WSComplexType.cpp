@@ -117,7 +117,7 @@ void WSComplexType::load(const SNode& input, bool)
     // Load elements
     for (const auto& node: input->nodes())
     {
-        if (auto* field = m_fields.find(node->name());
+        if (auto* field = m_fields.find(node->getQualifiedName());
             field != nullptr)
         {
             field->load(node);

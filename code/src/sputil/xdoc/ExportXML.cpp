@@ -41,7 +41,7 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
 {
     const String nodeName = _nodeName.empty() ? "item" : _nodeName;
 
-    const bool isNode = isNodeByName(nodeName);
+    const bool   isNode = isNodeByName(nodeName);
     const size_t parentSubnodesCount = node->parent() ? node->parent()->nodes().size() : 0;
 
     if (isNode)
@@ -61,14 +61,14 @@ void ExportXML::saveElement(const Node* node, const String& _nodeName, Buffer& b
     }
 
     if (const auto& subNodes = node->nodes();
-    !subNodes.empty())
+        !subNodes.empty())
     {
         if (isNode)
         {
             buffer.append('>');
         }
 
-        if (const bool firstSubNodeIsText = subNodes.front()->name()[0] == '#';
+        if (const bool firstSubNodeIsText = subNodes.front()->getName()[0] == '#';
             formatted && (!firstSubNodeIsText || subNodes.size() > 1))
         {
             buffer.append('\n');
@@ -151,8 +151,8 @@ void ExportXML::appendSubNodes(const Node* node, Buffer& buffer, bool formatted,
 {
     for (const auto& np: node->nodes())
     {
-        saveElement(np.get(), np->name(), buffer, formatted, indent + m_indentSpaces);
-        if (formatted && node->nodes().size() > 1 && np->name()[0] == '#')
+        saveElement(np.get(), np->getQualifiedName(), buffer, formatted, indent + m_indentSpaces);
+        if (formatted && node->nodes().size() > 1 && np->getName()[0] == '#')
         {
             buffer.append('\n');
         }
@@ -192,7 +192,7 @@ void ExportXML::appendNodeEnd(const Node* node, const String& nodeName, Buffer& 
 void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatted, int indent)
 {
     // output indendation spaces
-    if (const bool lastSubNodeIsText = node->nodes().back()->name()[0] == '#';
+    if (const bool lastSubNodeIsText = node->nodes().back()->getName()[0] == '#';
         formatted && indent > 0 && !lastSubNodeIsText)
     {
         buffer.append(indentsString.c_str(), static_cast<size_t>(indent));
@@ -200,7 +200,7 @@ void ExportXML::appendClosingTag(const Node* node, Buffer& buffer, bool formatte
 
     // output closing tag
     buffer.append("</", 2);
-    buffer.append(node->name());
+    buffer.append(node->getQualifiedName());
     buffer.append('>');
     if (formatted)
     {

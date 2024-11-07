@@ -24,12 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/xdoc/Node.h"
 #include "XPath.h"
+
 #include <sptk5/xdoc/ExportJSON.h>
 #include <sptk5/xdoc/ExportXML.h>
 #include <sptk5/xdoc/ImportXML.h>
-
-#include <utility>
 
 using namespace std;
 using namespace sptk;
@@ -69,8 +69,8 @@ Node::Type Node::variantTypeToNodeType(VariantDataType type)
     return Null;
 }
 
-Node::Node(String nodeName, Type type)
-    : m_name(std::move(nodeName))
+Node::Node(const NodeName& nodeName, Type type)
+    : NodeName(nodeName)
     , m_type(type)
 {
 }
@@ -85,11 +85,11 @@ const Attributes& Node::attributes() const
     return m_attributes;
 }
 
-SNode Node::findOrCreate(const String& name)
+SNode Node::findOrCreate(const NodeName& name)
 {
     if (name.empty())
     {
-        throw Exception("Name can't be empty");
+        throw Exception("Node name can't be empty");
     }
 
     if (m_type == Type::Null)
@@ -104,7 +104,7 @@ SNode Node::findOrCreate(const String& name)
 
     for (auto& node: m_nodes)
     {
-        if (node->name() == name)
+        if (node->sameName(name))
         {
             return node;
         }
@@ -116,7 +116,7 @@ SNode Node::findOrCreate(const String& name)
     return m_nodes.back();
 }
 
-SNode Node::findFirst(const String& name, SearchMode searchMode) const
+SNode Node::findFirst(const NodeName& name, SearchMode searchMode) const
 {
     if (type() != Type::Object && type() != Type::Array)
     {
@@ -126,7 +126,7 @@ SNode Node::findFirst(const String& name, SearchMode searchMode) const
     // Search for immediate child, first
     for (const auto& node: m_nodes)
     {
-        if (node->name() == name)
+        if (node->sameName(name))
         {
             return node;
         }
@@ -146,7 +146,7 @@ SNode Node::findFirst(const String& name, SearchMode searchMode) const
     return nullptr;
 }
 
-SNode Node::pushNode(const String& name, Type type)
+SNode Node::pushNode(const NodeName& name, Type type)
 {
     using enum Type;
     if (m_type == Null)
@@ -166,7 +166,7 @@ SNode Node::pushNode(const String& name, Type type)
     return m_nodes.back();
 }
 
-String Node::getString(const String& name) const
+String Node::getString(const NodeName& name) const
 {
     const auto& node = name.empty() ? shared_from_this() : findFirst(name);
 
@@ -205,7 +205,7 @@ void getTextRecursively(const Node* node, Buffer& output)
 }
 } // namespace
 
-String Node::getText(const String& name) const
+String Node::getText(const NodeName& name) const
 {
     const Node* node = this;
     if (!name.empty())
@@ -224,7 +224,7 @@ String Node::getText(const String& name) const
     return textInSubNodes.c_str();
 }
 
-double Node::getNumber(const String& name) const
+double Node::getNumber(const NodeName& name) const
 {
     if (name.empty())
     {
@@ -240,7 +240,7 @@ double Node::getNumber(const String& name) const
     return 0;
 }
 
-bool Node::getBoolean(const String& name) const
+bool Node::getBoolean(const NodeName& name) const
 {
     if (name.empty())
     {
@@ -256,7 +256,7 @@ bool Node::getBoolean(const String& name) const
     return false;
 }
 
-const Node::Nodes& Node::nodes(const String& name) const
+const Node::Nodes& Node::nodes(const NodeName& name) const
 {
     static const Nodes emptyNodes;
 
@@ -285,7 +285,7 @@ void Node::clear()
     m_attributes.clear();
 }
 
-SNode xdoc::Node::pushValue(const String& name, const Variant& value, Node::Type type)
+SNode xdoc::Node::pushValue(const NodeName& name, const Variant& value, Node::Type type)
 {
     Node::Type actualType(type);
     if (type == Node::Type::Null && !value.isNull())
@@ -309,12 +309,12 @@ SNode xdoc::Node::pushValue(const Variant& value, Node::Type type)
     return node;
 }
 
-bool Node::remove(const String& name)
+bool Node::remove(const NodeName& name)
 {
     bool found = false;
     for (auto node = m_nodes.begin(); node != m_nodes.end();)
     {
-        if ((*node)->name() == name)
+        if ((*node)->sameName(name))
         {
             node = m_nodes.erase(node);
             found = true;
@@ -387,14 +387,14 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         if (m_parent != nullptr)
         {
             // Exporting single node
-            exporter.saveElement(this, name(), data, formatted, 0);
+            exporter.saveElement(this, getQualifiedName(), data, formatted, 0);
         }
         else
         {
             // Exporting root node of the document
             for (const auto& node: m_nodes)
             {
-                exporter.saveElement(node.get(), node->name(), data, formatted, 0);
+                exporter.saveElement(node.get(), node->getQualifiedName(), data, formatted, 0);
             }
         }
     }
@@ -428,6 +428,15 @@ void Node::clone(const SNode& destination, const SNode& source)
     Buffer content;
     source->exportTo(DataFormat::JSON, content, false);
     destination->load(DataFormat::JSON, content, false);
+}
+
+void Node::setNameSpaceRecursive(const String& nameSpace)
+{
+    setNameSpace(nameSpace);
+    for (const auto& node: m_nodes)
+    {
+        node->setNameSpaceRecursive(nameSpace);
+    }
 }
 
 bool xdoc::isBoolean(const String& str)

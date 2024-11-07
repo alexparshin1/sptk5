@@ -106,19 +106,19 @@ TEST(SPTK_XDocument, addNodes)
     Document document;
     document.load(testXML, true);
 
-    *document.root()->pushNode("name") = String("John");
-    *document.root()->pushNode("age") = String("33");
-    *document.root()->pushNode("temperature") = String("33.6");
-    *document.root()->pushNode("timestamp") = String("1519005758000");
+    document.root()->pushNode("name")->set("John");
+    document.root()->pushNode("age")->set("33");
+    document.root()->pushNode("temperature")->set("33.6");
+    document.root()->pushNode("timestamp")->set("1519005758000");
 
     auto& skills = *document.root()->pushNode("skills");
-    *skills.pushNode("skill") = String("C++");
-    *skills.pushNode("skill") = String("Java");
-    *skills.pushNode("skill") = String("Motorbike");
+    skills.pushNode("skill")->set("C++");
+    skills.pushNode("skill")->set("Java");
+    skills.pushNode("skill")->set("Motorbike");
 
     auto& address = *document.root()->pushNode("address");
-    *address.pushNode("married") = String("true");
-    *address.pushNode("employed") = String("false");
+    address.pushNode("married")->set("true");
+    address.pushNode("employed")->set("false");
 
     verifyDocument(document);
 }
@@ -187,7 +187,7 @@ TEST(SPTK_XDocument, parseXML)
         FAIL() << "Node soap:Body not found";
     EXPECT_TRUE(Node::Type::Object == bodyElement->type());
     EXPECT_EQ(1, static_cast<int>(bodyElement->nodes().size()));
-    EXPECT_STREQ("soap:Body", bodyElement->name().c_str());
+    EXPECT_STREQ("soap:Body", bodyElement->getQualifiedName().c_str());
 
     const auto itor = ranges::find_if(bodyElement->nodes(), [](const SNode& node)
                                       {
@@ -197,7 +197,7 @@ TEST(SPTK_XDocument, parseXML)
     const SNode methodElement = itor != bodyElement->nodes().end() ? *itor : nullptr;
     EXPECT_TRUE(methodElement != nullptr);
     EXPECT_EQ(2, static_cast<int>(methodElement->nodes().size()));
-    EXPECT_STREQ("ns1:GetRequests", methodElement->name().c_str());
+    EXPECT_STREQ("ns1:GetRequests", methodElement->getQualifiedName().c_str());
 }
 
 TEST(SPTK_XDocument, brokenXML)
@@ -300,7 +300,7 @@ TEST(SPTK_XDocument, htmlAutoCloseTags)
     const auto head = document.root()->findFirst("head");
     for (const auto& meta: head->nodes())
     {
-        if (meta->name() == "meta")
+        if (meta->getName() == "meta")
         {
             if (meta->attributes().have("charset"))
             {

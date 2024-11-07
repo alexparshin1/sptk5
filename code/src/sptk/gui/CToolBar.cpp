@@ -124,11 +124,11 @@ int CToolBar::handle(int event)
             auto* parentLayoutManager = dynamic_cast<CLayoutManager*>(parent());
             if (parentLayoutManager != nullptr)
             {
-                parentLayoutManager->relayout();
+                parentLayoutManager->reLayout();
             }
             else
             {
-                relayout();
+                reLayout();
             }
             window()->redraw();
             return 1;

@@ -59,7 +59,7 @@ void CColumn::load(const xdoc::SNode& node)
 void CColumn::save(const xdoc::SNode& node) const
 {
     node->clear();
-    node->name("column");
+    node->setName("column");
     node->attributes().set("caption", m_name);
     node->attributes().set("type", to_string((int) m_type));
     node->attributes().set("width", to_string(m_width));
@@ -106,7 +106,7 @@ void CColumnList::load(const xdoc::SNode& node)
 void CColumnList::save(const xdoc::SNode& node) const
 {
     node->clear();
-    node->name("columns");
+    node->setName("columns");
     size_t counter = size();
     for (size_t i = 0; i < counter; i++)
     {
