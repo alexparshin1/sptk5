@@ -85,6 +85,7 @@ public:
     void setNameSpace(String nameSpace)
     {
         m_nameSpace = std::move(nameSpace);
+        setQualifiedName();
     }
 
     [[nodiscard]] const String& getQualifiedName() const
