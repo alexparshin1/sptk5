@@ -156,9 +156,9 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        const filesystem::path wsdlFile = commandLine.arguments().front().c_str();
-        const auto             quiet = commandLine.hasOption("quiet");
-        const auto             verbose = commandLine.hasOption("verbose");
+        filesystem::path wsdlFile = commandLine.arguments().front().c_str();
+        const auto       quiet = commandLine.hasOption("quiet");
+        const auto       verbose = commandLine.hasOption("verbose");
 
         WSParser wsParser;
 
@@ -181,17 +181,27 @@ int main(int argc, const char* argv[])
             COUT("Input WSDL file:             " << wsdlFile << '\n');
             COUT("Generate files to directory: " << wsdlFile << '\n');
             if (!headerFile.empty())
+            {
                 COUT("Using C++ header file:       " << headerFile << '\n');
+            }
         }
 
         OpenApiGenerator::Options options;
         options.defaultAuthMethod = OpenApiGenerator::authMethod(commandLine.getOptionValue("openapi-default-auth"));
         options.operationsAuth = parseOperationsAuth(commandLine.getOptionValue("openapi-operation-auth"));
-        options.openApiFile = commandLine.getOptionValue("openapi-json");
+
+        filesystem::path openApiFile = commandLine.getOptionValue("openapi-json");
+        if (openApiFile.empty())
+        {
+            openApiFile = wsdlFile;
+            openApiFile.replace_extension(".json");
+        }
+        options.openApiFile = openApiFile;
+
 
         wsParser.parse(wsdlFile);
         wsParser.generate(outputDirectory, headerFile, options, verbose, serviceNamespace);
-        wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile);
+        wsParser.generateWsdlCxx(outputDirectory, headerFile, wsdlFile, options.openApiFile.c_str());
     }
     catch (const Exception& e)
     {

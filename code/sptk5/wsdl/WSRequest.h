@@ -161,9 +161,17 @@ public:
     }
 
     /**
-     * @return service WSDL
+     * @return service WSDL specifications
      */
     virtual String wsdl() const
+    {
+        return String("Not defined");
+    }
+
+    /**
+     * @return service OpenAPI specifications
+     */
+    virtual String openapi() const
     {
         return String("Not defined");
     }

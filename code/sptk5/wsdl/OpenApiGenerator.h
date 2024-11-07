@@ -50,7 +50,8 @@ public:
     /**
      * Generation options
      */
-    struct Options {
+    struct Options
+    {
         /**
          * Default authentication method, used by most operations
          */
@@ -64,7 +65,7 @@ public:
         /**
          * Output OpenAPI file
          */
-        String openApiFile;
+        std::filesystem::path openApiFile;
     };
 
     /**
@@ -115,11 +116,11 @@ private:
      */
     void createServers(xdoc::Document& document) const;
 
-    const String m_title;       ///< Service title
-    const String m_description; ///< Service description
-    const String m_version;     ///< Service version
-    const Strings m_servers;    ///< Service servers
-    const Options m_options;    ///< Service options
+    const String  m_title;       ///< Service title
+    const String  m_description; ///< Service description
+    const String  m_version;     ///< Service version
+    const Strings m_servers;     ///< Service servers
+    const Options m_options;     ///< Service options
 
     static void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property);
 
