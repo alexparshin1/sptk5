@@ -51,12 +51,14 @@ TEST(SPTK_XDocument, nodeName_nameSpace)
 
     nodeName.setNameSpace("ns1");
     EXPECT_STREQ("ns1", nodeName.getNameSpace().c_str());
+    EXPECT_STREQ("ns1:test", nodeName.getQualifiedName().c_str());
 
     NodeName nodeName2("ns2:test");
     EXPECT_STREQ("ns2", nodeName2.getNameSpace().c_str());
 
     nodeName2.setNameSpace("ns1");
     EXPECT_STREQ("ns1", nodeName2.getNameSpace().c_str());
+    EXPECT_STREQ("ns1:test", nodeName2.getQualifiedName().c_str());
 }
 
 TEST(SPTK_XDocument, nodeName_ctors)

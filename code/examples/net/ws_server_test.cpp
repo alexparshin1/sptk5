@@ -43,7 +43,8 @@ protected:
     }
 
 public:
-    StubRequest() = default;
+    StubRequest()
+        : WSRequest("") {};
 };
 
 int main()

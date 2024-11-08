@@ -222,6 +222,7 @@ protected:
 private:
     String           m_serviceName;      ///< Service name, defining service class name and source file names
     String           m_serviceNamespace; ///< Service classes namespace
+    String           m_targetNamespace;  ///< Service target namespace
     String           m_description;      ///< Service description
     String           m_location;         ///< Service location
     String           m_wsdlFile;         ///< WSDL source file name

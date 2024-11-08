@@ -237,16 +237,31 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     m_serviceName = service->attributes().get("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
-    if (const auto address = service->findFirst("soap:address");
-        address != nullptr)
-    {
-        m_location = address->attributes().get("location");
-    }
-
     const auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
     {
         throw Exception("Can't find xsd:schema element");
+    }
+
+    // Locate and read targetNamespace
+    m_targetNamespace = wsdlXML.root()->attributes().get("targetNamespace");
+    if (m_targetNamespace.empty())
+    {
+        auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace");
+        if (targetNamespaceNode)
+        {
+            m_targetNamespace = targetNamespaceNode->getText();
+        }
+    }
+    if (m_targetNamespace.empty())
+    {
+        m_targetNamespace = schemaElement->attributes().get("targetNamespace");
+    }
+
+    if (const auto address = service->findFirst("soap:address");
+        address != nullptr)
+    {
+        m_location = address->attributes().get("location");
     }
 
     parseSchema(schemaElement);
@@ -386,9 +401,18 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
            << endl;
 
     output << "    /**" << endl;
-    output << "     * @return original OpenAPI specifications" << endl;
+    output << "     * @return OpenAPI specifications" << endl;
     output << "     */" << endl;
     output << "    sptk::String openapi() const override;" << endl
+           << endl;
+
+    output << "    /**" << endl;
+    output << "     * @return SOAP WebService targetNamespace" << endl;
+    output << "     */" << endl;
+    output << "    sptk::String targetNamespace() const" << endl;
+    output << "    {" << endl
+           << "        return \"" << m_targetNamespace << "\";" << endl
+           << "    }" << endl
            << endl;
 
     output << "private:" << endl
@@ -444,7 +468,7 @@ void WSParser::generateImplementation(ostream& output) const
            << endl;
 
     output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
-    output << ": WSRequest(logEngine)" << endl;
+    output << ": WSRequest(targetNamespace(), logEngine)" << endl;
     output << "{" << endl;
     output << "    map<String, RequestMethod> requestMethods {" << endl
            << endl;
@@ -471,7 +495,8 @@ void WSParser::generateImplementation(ostream& output) const
 
     output << endl
            << "template <class InputData, class OutputData>\n"
-              "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+              "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace,\n"
+              "                       function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
               "{\n"
               "   const String requestName = InputData::classId();\n"
               "   const String responseName = OutputData::classId();\n"
@@ -490,8 +515,9 @@ void WSParser::generateImplementation(ostream& output) const
               "   soapBody->clearChildren();\n"
               "   method(inputData, outputData, authentication);\n"
               "   xdoc::SNode response;\n"
-              "   if (requestNameSpace.getLocation().empty()) {\n"
-              "      response = soapBody->pushNode(responseName);\n"
+              "   if (requestNameSpace.getLocation().empty() || requestNameSpace.getLocation() == \"http://tempuri.org/\") {\n"
+              "      response = soapBody->pushNode(xdoc::NodeName(responseName, \"resns\"));\n"
+              "      response->attributes().set(\"xmlns:resns\", \"http://tempuri.org/\");\n"
               "   } else {\n"
               "      response = soapBody->pushNode(xdoc::NodeName(responseName, ns));\n"
               "      response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
@@ -538,8 +564,7 @@ void WSParser::generateImplementation(ostream& output) const
         const auto inputType = "C" + operation.m_input->name();
         const auto outputType = "C" + operation.m_output->name();
         output << "{\n"
-               << "    function<void(const " << inputType << "&, " << outputType
-               << "&, HttpAuthentication*)> method =" << endl
+               << "    function<void(const " << inputType << "&, " << outputType << "&, HttpAuthentication*)> method =" << endl
                << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
                << "        {" << endl
                << "            " << operationName << "(request, response, auth);" << endl

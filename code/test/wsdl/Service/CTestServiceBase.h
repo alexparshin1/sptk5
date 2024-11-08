@@ -73,9 +73,17 @@ public:
     sptk::String wsdl() const override;
 
     /**
-     * @return original OpenAPI specifications
+     * @return OpenAPI specifications
      */
     sptk::String openapi() const override;
+
+    /**
+     * @return SOAP WebService targetNamespace
+     */
+    sptk::String targetNamespace() const
+    {
+        return "http://www.example.org/Test/";
+    }
 
 private:
 

@@ -121,8 +121,9 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit WSRequest(sptk::LogEngine* logEngine = nullptr)
+    explicit WSRequest(String targetNamespace, sptk::LogEngine* logEngine = nullptr)
         : m_logEngine(logEngine)
+        , m_targetNamespace(targetNamespace)
     {
     }
 
@@ -232,8 +233,9 @@ protected:
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
-    sptk::LogEngine*                      m_logEngine;      ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods; ///< Map of requset names to methods
+    LogEngine*                            m_logEngine;       ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
+    String                                m_targetNamespace; ///< SOAP service target namespace
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;

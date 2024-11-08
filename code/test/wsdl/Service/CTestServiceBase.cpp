@@ -10,7 +10,7 @@ using namespace sptk;
 using namespace test_service;
 
 CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
-: WSRequest(logEngine)
+: WSRequest(targetNamespace(), logEngine)
 {
     map<String, RequestMethod> requestMethods {
 
@@ -38,7 +38,8 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
 
 
 template <class InputData, class OutputData>
-void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
+void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace,
+                       function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
 {
    const String requestName = InputData::classId();
    const String responseName = OutputData::classId();
@@ -56,8 +57,9 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
    soapBody->clearChildren();
    method(inputData, outputData, authentication);
    xdoc::SNode response;
-   if (requestNameSpace.getLocation().empty()) {
-      response = soapBody->pushNode(responseName);
+   if (requestNameSpace.getLocation().empty() || requestNameSpace.getLocation() == "http://tempuri.org/") {
+      response = soapBody->pushNode(xdoc::NodeName(responseName, "resns"));
+      response->attributes().set("xmlns:resns", "http://tempuri.org/");
    } else {
       response = soapBody->pushNode(xdoc::NodeName(responseName, ns));
       response->attributes().set("xmlns:" + ns, requestNameSpace.getLocation());

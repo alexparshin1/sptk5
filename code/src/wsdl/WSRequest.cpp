@@ -193,6 +193,11 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         requestName = jsonContent->getString("rest_method_name");
     }
 
+    if (requestNameSpace.getAlias().empty())
+    {
+        requestNameSpace = WSNameSpace("resns", m_targetNamespace);
+    }
+
     requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
