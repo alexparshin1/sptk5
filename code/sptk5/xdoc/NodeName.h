@@ -31,9 +31,17 @@
 
 namespace sptk::xdoc {
 
+/**
+ * @brief XDoc node name with optional namespace
+ */
 class SP_EXPORT NodeName
 {
 public:
+    /**
+     * @brief Constructor
+     * @param name              Node name
+     * @param nameSpace         Node namespace
+     */
     NodeName(String name, String nameSpace)
         : m_name(std::move(name))
         , m_nameSpace(std::move(nameSpace))
@@ -41,11 +49,19 @@ public:
         setQualifiedName();
     }
 
+    /**
+     * @brief Constructor
+     * @param name              Node name, short or qualified
+     */
     NodeName(const char* name)
         : NodeName(String(name))
     {
     }
 
+    /**
+     * @brief Constructor
+     * @param name              Node name, short or qualified
+     */
     NodeName(const String& name)
         : m_qualifiedName(name)
     {
@@ -66,48 +82,86 @@ public:
     NodeName& operator=(const NodeName& other) = default;
     NodeName& operator=(NodeName&& other) = default;
 
+    /**
+     * @brief Get node name
+     * @return Node name
+     */
     [[nodiscard]] const String& getName() const
     {
         return m_name;
     }
 
+    /**
+     * @brief Set node name
+     * @param name              Node name
+     */
     void setName(String name)
     {
         m_name = std::move(name);
         setQualifiedName();
     }
 
+    /**
+     * @brief Get node namespace
+     * @return Node name space
+     */
     [[nodiscard]] const String& getNameSpace() const
     {
         return m_nameSpace;
     }
 
+    /**
+     * @brief Set node namespace
+     * @param nameSpace         Node name space
+     */
     void setNameSpace(String nameSpace)
     {
         m_nameSpace = std::move(nameSpace);
         setQualifiedName();
     }
 
+    /**
+     * @brief Get node qualified name
+     * @return Node qualified name
+     */
     [[nodiscard]] const String& getQualifiedName() const
     {
         return m_qualifiedName;
     }
 
+    /**
+     * @return True if node name is empty
+     */
     bool empty() const
     {
         return m_name.empty();
     }
 
+    /**
+     * @brief Compare node name to other node name
+     * @param nodeName          Other node name
+     * @return True if other node name is matching to this node name
+     */
     bool sameName(const NodeName& nodeName)
     {
         return operator==(nodeName);
     }
 
+    /**
+     * @brief Compare node name to other node name
+     * @param other             Other node
+     * @return True if other node name is matching to this node name
+     */
     [[nodiscard]] bool operator==(const NodeName& other) const
     {
         return m_qualifiedName == other.m_qualifiedName;
     }
 
+    /**
+     * @brief Compare node name to other node name
+     * @param other             Other node
+     * @return True if other node name is not matching to this node name
+     */
     [[nodiscard]] bool operator!=(const NodeName& other) const
     {
         return m_qualifiedName != other.m_qualifiedName;
