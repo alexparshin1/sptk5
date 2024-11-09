@@ -71,7 +71,7 @@ bool CAskDialog::execute(const String& msg)
         htmlMessage = "<HTML><BODY>" + htmlMessage.replace("\\n", "<BR>") + "</BODY></HTML>";
     }
     m_textBox->data(htmlMessage);
-    relayout();
+    reLayout();
     return showModal();
 }
 

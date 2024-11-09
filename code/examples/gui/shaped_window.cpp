@@ -43,15 +43,15 @@ using namespace sptk;
 class CShapedWindow
     : public CWindow
 {
-    CBox* m_captionBox {nullptr};
+    CBox*    m_captionBox {nullptr};
     CButton* m_closeButton {nullptr};
     CButton* m_maximizeButton {nullptr};
     CButton* m_minimizeButton {nullptr};
-    bool m_maximized {false};
-    int m_restoreX {0};
-    int m_restoreY {0};
-    int m_restoreW {0};
-    int m_restoreH {0};
+    bool     m_maximized {false};
+    int      m_restoreX {0};
+    int      m_restoreY {0};
+    int      m_restoreW {0};
+    int      m_restoreH {0};
 
     void appendSector(int xc, int yc, int r, int a1, int a2, int da);
 
@@ -75,14 +75,14 @@ void theme_cb(Fl_Widget* w, void*)
 {
     try
     {
-        auto* themesCombo = (CComboBox*) w;
+        auto*  themesCombo = (CComboBox*) w;
         String themeName = themesCombo->data().asString();
 
         if (themesCombo->eventType() == CEvent::DATA_CHANGED)
         {
             CThemes::set(themeName);
             auto* window = (CWindow*) w->window();
-            window->relayout();
+            window->reLayout();
             window->redraw();
         }
     }
@@ -153,7 +153,7 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     auto* exitButton = new CButton(CButtonKind::EXIT_BUTTON);
     exitButton->callback(exit_cb);
 
-    auto* themesCombo = new CComboBox("Theme", 200, CLayoutAlign::LEFT);
+    auto*   themesCombo = new CComboBox("Theme", 200, CLayoutAlign::LEFT);
     Strings themes = CThemes::availableThemes();
     themesCombo->addRows("Theme", themes);
     themesCombo->callback(theme_cb);
@@ -166,7 +166,7 @@ CShapedWindow::CShapedWindow(int x, int y, int w, int h, const char* label)
     initShapeExtension();
 
     resizable(this);
-    CWindow::relayout();
+    CWindow::reLayout();
 }
 
 void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da)
@@ -174,8 +174,8 @@ void CShapedWindow::appendSector(int xc, int yc, int r, int a1, int a2, int da)
     for (int angle = a1; angle != a2; angle += da)
     {
         double angle_r = angle / 180.0 * 3.1415926;
-        auto dx = (int) std::round(r * cos(angle_r));
-        auto dy = (int) std::round(r * sin(angle_r));
+        auto   dx = (int) std::round(r * cos(angle_r));
+        auto   dy = (int) std::round(r * sin(angle_r));
         m_shapePoints.emplace_back(xc + dx, yc - dy);
     }
 }
@@ -222,7 +222,7 @@ void CShapedWindow::restore()
     m_maximized = false;
     m_maximizeButton->label("@-4square");
     resize(m_restoreX, m_restoreY, m_restoreW, m_restoreH);
-    relayout();
+    reLayout();
     redraw();
 }
 

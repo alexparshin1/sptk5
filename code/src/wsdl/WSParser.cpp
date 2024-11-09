@@ -174,13 +174,13 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
             message = message.substr(pos + 1);
         }
         const auto& elementName = messageToElementMap[message];
-        if (element->name() == "wsdl:input")
+        if (element->getQualifiedName() == "wsdl:input")
         {
             operation.m_input = m_complexTypeIndex.complexType(elementName, "Message " + message);
             found = true;
             continue;
         }
-        if (element->name() == "wsdl:output")
+        if (element->getQualifiedName() == "wsdl:output")
         {
             operation.m_output = m_complexTypeIndex.complexType(message, "Message " + message);
             found = true;
@@ -200,7 +200,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
     for (const auto  simpleTypeNodes = schemaElement->select("//xsd:simpleType");
          const auto& element: simpleTypeNodes)
     {
-        if (element->name() == "xsd:simpleType")
+        if (element->getQualifiedName() == "xsd:simpleType")
         {
             parseSimpleType(element);
         }
@@ -209,7 +209,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
     for (auto  complexTypeNodes = schemaElement->select("//xsd:complexType");
          auto& element: complexTypeNodes)
     {
-        if (element->name() == "xsd:complexType")
+        if (element->getQualifiedName() == "xsd:complexType")
         {
             parseComplexType(element);
         }
@@ -217,7 +217,7 @@ void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 
     for (const auto& element: schemaElement->nodes())
     {
-        if (element->name() == "xsd:element")
+        if (element->getQualifiedName() == "xsd:element")
         {
             parseElement(element);
         }
@@ -237,16 +237,31 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     m_serviceName = service->attributes().get("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
-    if (const auto address = service->findFirst("soap:address");
-        address != nullptr)
-    {
-        m_location = address->attributes().get("location");
-    }
-
     const auto schemaElement = wsdlXML.root()->findFirst("xsd:schema");
     if (schemaElement == nullptr)
     {
         throw Exception("Can't find xsd:schema element");
+    }
+
+    // Locate and read targetNamespace
+    m_targetNamespace = wsdlXML.root()->attributes().get("targetNamespace");
+    if (m_targetNamespace.empty())
+    {
+        auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace");
+        if (targetNamespaceNode)
+        {
+            m_targetNamespace = targetNamespaceNode->getText();
+        }
+    }
+    if (m_targetNamespace.empty())
+    {
+        m_targetNamespace = schemaElement->attributes().get("targetNamespace");
+    }
+
+    if (const auto address = service->findFirst("soap:address");
+        address != nullptr)
+    {
+        m_location = address->attributes().get("location");
     }
 
     parseSchema(schemaElement);
@@ -265,7 +280,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
 
     for (const auto& element: portElement->nodes())
     {
-        if (element != nullptr && element->name() == "wsdl:operation")
+        if (element != nullptr && element->getQualifiedName() == "wsdl:operation")
         {
             parseOperation(element);
         }
@@ -378,10 +393,26 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
             << operation.m_output->className() << "& output, sptk::HttpAuthentication* auth) = 0;" << endl;
     }
     output << endl;
+
     output << "    /**" << endl;
-    output << "     * @return original WSDL file content" << endl;
+    output << "     * @return original WSDL specifications" << endl;
     output << "     */" << endl;
     output << "    sptk::String wsdl() const override;" << endl
+           << endl;
+
+    output << "    /**" << endl;
+    output << "     * @return OpenAPI specifications" << endl;
+    output << "     */" << endl;
+    output << "    sptk::String openapi() const override;" << endl
+           << endl;
+
+    output << "    /**" << endl;
+    output << "     * @return SOAP WebService targetNamespace" << endl;
+    output << "     */" << endl;
+    output << "    sptk::String targetNamespace() const" << endl;
+    output << "    {" << endl
+           << "        return \"" << m_targetNamespace << "\";" << endl
+           << "    }" << endl
            << endl;
 
     output << "private:" << endl
@@ -437,7 +468,7 @@ void WSParser::generateImplementation(ostream& output) const
            << endl;
 
     output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
-    output << ": WSRequest(logEngine)" << endl;
+    output << ": WSRequest(targetNamespace(), logEngine)" << endl;
     output << "{" << endl;
     output << "    map<String, RequestMethod> requestMethods {" << endl
            << endl;
@@ -464,7 +495,8 @@ void WSParser::generateImplementation(ostream& output) const
 
     output << endl
            << "template <class InputData, class OutputData>\n"
-              "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace, function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
+              "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace,\n"
+              "                       function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
               "{\n"
               "   const String requestName = InputData::classId();\n"
               "   const String responseName = OutputData::classId();\n"
@@ -483,10 +515,11 @@ void WSParser::generateImplementation(ostream& output) const
               "   soapBody->clearChildren();\n"
               "   method(inputData, outputData, authentication);\n"
               "   xdoc::SNode response;\n"
-              "   if (requestNameSpace.getLocation().empty()) {\n"
-              "      response = soapBody->pushNode(responseName);\n"
+              "   if (requestNameSpace.getLocation().empty() || requestNameSpace.getLocation() == \"http://tempuri.org/\") {\n"
+              "      response = soapBody->pushNode(xdoc::NodeName(responseName, \"resns\"));\n"
+              "      response->attributes().set(\"xmlns:resns\", \"http://tempuri.org/\");\n"
               "   } else {\n"
-              "      response = soapBody->pushNode(ns + \":\" + responseName);\n"
+              "      response = soapBody->pushNode(xdoc::NodeName(responseName, ns));\n"
               "      response->attributes().set(\"xmlns:\" + ns, requestNameSpace.getLocation());\n"
               "   }\n"
               "   outputData.unload(response);\n"
@@ -531,8 +564,7 @@ void WSParser::generateImplementation(ostream& output) const
         const auto inputType = "C" + operation.m_input->name();
         const auto outputType = "C" + operation.m_output->name();
         output << "{\n"
-               << "    function<void(const " << inputType << "&, " << outputType
-               << "&, HttpAuthentication*)> method =" << endl
+               << "    function<void(const " << inputType << "&, " << outputType << "&, HttpAuthentication*)> method =" << endl
                << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
                << "        {" << endl
                << "            " << operationName << "(request, response, auth);" << endl
@@ -547,12 +579,15 @@ void WSParser::generateImplementation(ostream& output) const
                << "}\n";
     }
     output << endl;
+
     output << "String " << serviceClassName << "::wsdl() const" << endl;
     output << "{" << endl;
-    output << "    stringstream output;" << endl;
-    output << "    for (auto& row: " << m_serviceName << "_wsdl)" << endl;
-    output << "        output << row << endl;" << endl;
-    output << "    return output.str();" << endl;
+    output << "    return " << m_serviceName << "_wsdl;" << endl;
+    output << "}" << endl;
+
+    output << "String " << serviceClassName << "::openapi() const" << endl;
+    output << "{" << endl;
+    output << "    return " << m_serviceName << "_openapi;" << endl;
     output << "}" << endl;
 }
 
@@ -641,20 +676,37 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     openApiFile.close();
 }
 
-void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile,
-                               const filesystem::path& _wsdlFileName) const
+namespace {
+void fileToCxxStream(const filesystem::path& fileName, const String& variableName, stringstream& cxxStream)
 {
-    Strings wsdl;
-    wsdl.loadFromFile(_wsdlFileName);
+    Strings content;
+    content.loadFromFile(fileName);
 
+    cxxStream << "const sptk::String " << variableName << " {" << endl;
+
+    cxxStream << "    R\"(";
+    for (const auto& row: content)
+    {
+        cxxStream << row << endl;
+    }
+
+    cxxStream << ")\"};" << endl;
+}
+} // namespace
+
+void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& headerFile,
+                               const filesystem::path& _wsdlFileName, const filesystem::path& openApiFileName) const
+{
     Buffer externalHeader("// Auto-generated by wsdl2cxx\n");
     if (!headerFile.empty())
     {
         externalHeader.loadFromFile(headerFile.c_str());
     }
 
-    const String baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
-    const String wsdlFileName = sourceDirectory + "/" + baseFileName;
+    const auto baseFileName = "C" + capitalize(m_serviceName) + "WSDL";
+    const auto wsdlFileName = sourceDirectory + "/" + baseFileName;
+    const auto wsdlVariableName = m_serviceName + "_wsdl";
+    const auto openApiVariableName = m_serviceName + "_openapi";
 
     stringstream wsdlHeader;
     wsdlHeader << externalHeader.c_str() << endl;
@@ -662,26 +714,18 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     wsdlHeader << endl
                << "#include <sptk5/Strings.h>" << endl;
     wsdlHeader << endl
-               << "extern const sptk::Strings " << m_serviceName << "_wsdl;" << endl
+               << "extern const sptk::String " << wsdlVariableName << ";" << endl
+               << "extern const sptk::String " << openApiVariableName << ";" << endl
                << endl;
 
     stringstream wsdlCxx;
     wsdlCxx << externalHeader.c_str() << endl;
     wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl
             << endl;
-    wsdlCxx << "const sptk::Strings " << m_serviceName << "_wsdl {" << endl;
 
-    for (auto row = wsdl.begin(); row != wsdl.end(); ++row)
-    {
-        wsdlCxx << "    R\"(" << *row << ")\"";
-        if (row + 1 != wsdl.end())
-        {
-            wsdlCxx << ",";
-        }
-        wsdlCxx << endl;
-    }
-
-    wsdlCxx << "};" << endl;
+    fileToCxxStream(_wsdlFileName, wsdlVariableName, wsdlCxx);
+    wsdlCxx << endl;
+    fileToCxxStream(openApiFileName, openApiVariableName, wsdlCxx);
 
     replaceFile(wsdlFileName + ".h", wsdlHeader);
     replaceFile(wsdlFileName + ".cpp", wsdlCxx);

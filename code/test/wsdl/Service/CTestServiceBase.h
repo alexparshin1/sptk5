@@ -22,7 +22,7 @@ namespace test_service {
  * Web Service application derives its service class from this class
  * by overriding abstract methods
  */
-class CTestServiceBase : public sptk::WSRequest
+class WS_EXPORT CTestServiceBase : public sptk::WSRequest
 {
 public:
     /**
@@ -47,7 +47,7 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output, sptk::HttpAuthentication* authentication) = 0;
+    virtual void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
      * Web Service Hello operation
@@ -56,7 +56,7 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* authentication) = 0;
+    virtual void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
      * Web Service Login operation
@@ -65,12 +65,25 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication* authentication) = 0;
+    virtual void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
-     * @return original WSDL file content
+     * @return original WSDL specifications
      */
     sptk::String wsdl() const override;
+
+    /**
+     * @return OpenAPI specifications
+     */
+    sptk::String openapi() const override;
+
+    /**
+     * @return SOAP WebService targetNamespace
+     */
+    sptk::String targetNamespace() const
+    {
+        return "http://www.example.org/Test/";
+    }
 
 private:
 

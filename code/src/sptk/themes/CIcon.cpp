@@ -90,7 +90,7 @@ void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
 {
     for (auto node: iconsNode->nodes())
     {
-        if (node->name() != "icon")
+        if (node->getName() != "icon")
         {
             continue;
         }
@@ -103,8 +103,8 @@ void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
         try
         {
             const Buffer& imageData = tar.file(fileName);
-            CIcon* icon;
-            auto ftor = find(iconName);
+            CIcon*        icon;
+            auto          ftor = find(iconName);
             if (ftor == end())
             {
                 // Icon not found, adding new one

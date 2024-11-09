@@ -113,7 +113,7 @@ void CLayoutManager::registerControl(std::string typeName, createControlCallback
     controlCreator[typeName] = creator;
 }
 
-void CLayoutManager::relayout()
+void CLayoutManager::reLayout()
 {
     if (!m_group)
     {
@@ -129,22 +129,17 @@ void CLayoutManager::relayout()
         }
 
         CLayoutClient* ca;
-        try
-        {
-            ca = dynamic_cast<CLayoutClient*>(widget);
-            if (ca == nullptr)
-            {
-                continue;
-            }
-        }
-        catch (const Exception&)
+        ca = dynamic_cast<CLayoutClient*>(widget);
+        if (ca == nullptr)
         {
             continue;
         }
+
         if (ca->layoutAlign() == CLayoutAlign::NONE)
         {
             continue;
         }
+
         ca->m_lastPreferredW = 0;
         ca->m_lastPreferredH = 0;
     }
@@ -464,8 +459,8 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         auto itor = groupNode->nodes().begin();
         for (; itor != groupNode->nodes().end(); ++itor)
         {
-            auto&  widgetNode = *itor;
-            string widgetType = widgetNode->name();
+            auto&       widgetNode = *itor;
+            const auto& widgetType = widgetNode->getName();
 
             auto cctor = controlCreator.find(widgetType);
             if (cctor == controlCreator.end())
@@ -527,11 +522,11 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             {
                 label = "noName:" + (String) node->attributes().get("nn_index");
             }
-            if (node->name() == "group")
+            if (node->getName() == "group")
             {
                 xmlGroups[label] = node;
             }
-            else if (node->name() == "control")
+            else if (node->getName() == "control")
             {
                 xmlControls[label] = node;
             }
@@ -608,7 +603,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         childCount -= 2;
     } // Skipping scrollbars
-    groupNode->name("group");
+    groupNode->setName("group");
     for (unsigned i = 0; i < childCount; i++)
     {
         Fl_Widget* widget = m_group->child(i);

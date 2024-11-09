@@ -27,7 +27,6 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CLayoutManager.h>
 
 using namespace std;
@@ -50,7 +49,7 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {
         CLayoutAlign layoutAlign;
-        String alignName(lowerCase((String) node->attributes().get("layout_align")));
+        String       alignName(lowerCase((String) node->attributes().get("layout_align")));
         switch (alignName[0])
         {
             case 'b':
@@ -143,12 +142,12 @@ void CLayoutClient::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 void CLayoutClient::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     String className = "widget";
-    auto* layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
+    auto*  layoutClient = dynamic_cast<CLayoutClient*>(m_widget);
     if (layoutClient)
     {
         className = layoutClient->className();
     }
-    node->name(className);
+    node->setName(className);
 
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {

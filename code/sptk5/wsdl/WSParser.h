@@ -104,7 +104,7 @@ public:
         }
 
     private:
-        ElementMap m_elements;           ///< Map of all elements
+        ElementMap       m_elements;     ///< Map of all elements
         WSComplexTypeMap m_complexTypes; ///< Map of all parsed complex types
     };
 
@@ -155,9 +155,11 @@ public:
      * Stores WSDL to C++ file
      * @param sourceDirectory   Directory to store output files
      * @param headerFile        Optional header file to insert at the start of each generated file
-     * @param wsdlFileName              WSDL content
+     * @param wsdlFileName      WSDL file name
+     * @param openApiFileName   OpenAPI file name
      */
-    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const std::filesystem::path& wsdlFileName) const;
+    void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const std::filesystem::path& wsdlFileName,
+                         const std::filesystem::path& openApiFileName) const;
 
     /**
      * Utility function that removes namespace from the element name
@@ -218,13 +220,14 @@ protected:
     void generateImplementation(std::ostream& output) const;
 
 private:
-    String m_serviceName;                ///< Service name, defining service class name and source file names
-    String m_serviceNamespace;           ///< Service classes namespace
-    String m_description;                ///< Service description
-    String m_location;                   ///< Service location
-    String m_wsdlFile;                   ///< WSDL source file name
+    String           m_serviceName;      ///< Service name, defining service class name and source file names
+    String           m_serviceNamespace; ///< Service classes namespace
+    String           m_targetNamespace;  ///< Service target namespace
+    String           m_description;      ///< Service description
+    String           m_location;         ///< Service location
+    String           m_wsdlFile;         ///< WSDL source file name
     ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap m_operations;         ///< Map of all operations
+    WSOperationMap   m_operations;       ///< Map of all operations
     DocumentationMap m_documentation;    ///< Map of documentation
 };
 

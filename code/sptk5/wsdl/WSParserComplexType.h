@@ -73,7 +73,7 @@ public:
     /**
      * Returns attribute name
      */
-    String name() const
+    [[nodiscard]] String name() const
     {
         return m_name;
     }
@@ -81,12 +81,12 @@ public:
     /**
      * Generates attribute presentation in C++ skeleton
      */
-    String generate(bool initialize) const;
+    [[nodiscard]] String generate(bool initialize) const;
 
     /**
      * Returns attribute C++ type name
      */
-    String cxxTypeName() const
+    [[nodiscard]] String cxxTypeName() const
     {
         return m_cxxTypeName;
     }
@@ -94,7 +94,7 @@ public:
     /**
      * Returns attribute WSDL type name
      */
-    String wsTypeName() const
+    [[nodiscard]] String wsTypeName() const
     {
         return m_wsTypeName;
     }
@@ -139,7 +139,7 @@ public:
     /**
      * WSDL element name
      */
-    String name() const
+    [[nodiscard]] String name() const
     {
         return m_name;
     }
@@ -147,12 +147,12 @@ public:
     /**
      * Generated C++ class name
      */
-    String className() const;
+    [[nodiscard]] String className() const;
 
     /**
      * Multiplicity flag
      */
-    WSMultiplicity multiplicity() const
+    [[nodiscard]] WSMultiplicity multiplicity() const
     {
         return m_multiplicity;
     }
@@ -160,7 +160,7 @@ public:
     /**
      * Is the type an array?
      */
-    bool isArray() const
+    [[nodiscard]] bool isArray() const
     {
         return (static_cast<int>(m_multiplicity) & (static_cast<int>(WSMultiplicity::ZERO_OR_MORE) | static_cast<int>(WSMultiplicity::ONE_OR_MORE))) != 0;
     }
@@ -169,7 +169,7 @@ public:
      * Get child elements sequence
      * @return Child elements sequence
      */
-    WSParserComplexTypeList sequence() const
+    [[nodiscard]] WSParserComplexTypeList sequence() const
     {
         return m_sequence;
     }
@@ -178,7 +178,7 @@ public:
      * Get optional restriction
      * @return restriction
      */
-    SWSRestriction restriction() const
+    [[nodiscard]] SWSRestriction restriction() const
     {
         return m_restriction;
     }
@@ -248,14 +248,14 @@ private:
      */
     using AttributeMap = std::map<std::string, SWSParserAttribute, std::less<>>;
 
-    String m_name;                      ///< Element name
-    String m_typeName;                  ///< WSDL type name
-    xdoc::SNode m_element;              ///< XML element for that WSDL element
-    AttributeMap m_attributes;          ///< Element attributes
-    WSParserComplexTypeList m_sequence; ///< Child element sequence
-    WSMultiplicity m_multiplicity;      ///< Multiplicity flag
-    SWSRestriction m_restriction;       ///< Element restriction (if any) or NULL
-    String m_documentation;             ///< Optional documentation
+    String                  m_name;          ///< Element name
+    String                  m_typeName;      ///< WSDL type name
+    xdoc::SNode             m_element;       ///< XML element for that WSDL element
+    AttributeMap            m_attributes;    ///< Element attributes
+    WSParserComplexTypeList m_sequence;      ///< Child element sequence
+    WSMultiplicity          m_multiplicity;  ///< Multiplicity flag
+    SWSRestriction          m_restriction;   ///< Element restriction (if any) or NULL
+    String                  m_documentation; ///< Optional documentation
 
     /**
      * Generate includes for C++ class
@@ -268,7 +268,7 @@ private:
 
     static void printDeclarationIncludes(std::ostream& classDeclaration, const std::set<String>& usedClasses);
 
-    std::set<String> getUsedClasses() const;
+    [[nodiscard]] std::set<String> getUsedClasses() const;
 
     static void appendMemberDocumentation(std::ostream& classDeclaration, const SWSParserComplexType& complexType);
 
@@ -280,7 +280,7 @@ private:
 
     static String makeTagName(const String& className);
 
-    Initializer makeInitializer() const;
+    [[nodiscard]] Initializer makeInitializer() const;
 
     void printImplementationConstructors(std::ostream& classImplementation, const String& className,
                                          const Strings& elementNames, const Strings& attributeNames) const;

@@ -628,7 +628,7 @@ void cursor_cb(Fl_Widget* w, void*)
     int   col;
     e->editor->cursorRowCol(row, col);
     e->cursor_position->data(String("Row " + int2string(row) + ", Col " + int2string(col)));
-    e->relayout();
+    e->reLayout();
 }
 
 void set_title(Fl_Window* w)
@@ -942,7 +942,7 @@ CWindow* new_view()
     w->end();
     w->resizable(w->editor);
     w->callback((Fl_Callback*) close_cb, w);
-    w->relayout();
+    w->reLayout();
 
     textbuf->add_modify_callback(style_update, w->editor);
     textbuf->add_modify_callback(changed_cb, w);

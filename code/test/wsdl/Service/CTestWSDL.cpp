@@ -2,128 +2,395 @@
 
 #include "CTestWSDL.h"
 
-const sptk::Strings Test_wsdl {
-    R"(<?xml version="1.0" encoding="UTF-8" standalone="no"?>)",
-    R"(<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/Test/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Test" targetNamespace="http://www.example.org/Test/">)",
-    R"(  <wsdl:types>)",
-    R"(    <xsd:schema targetNamespace="http://www.example.org/Test/">)",
-    R"(      <xsd:element name="Hello">)",
-    R"(        <xsd:complexType>)",
-    R"(          <xsd:sequence>)",
-    R"(            <xsd:element name="action" type="xsd:string" />)",
-    R"(            <xsd:element name="first_name" type="xsd:string" />)",
-    R"(            <xsd:element name="last_name" type="xsd:string"></xsd:element>)",
-    R"(          </xsd:sequence>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(      <xsd:element name="HelloResponse">)",
-    R"(        <xsd:complexType>)",
-    R"(          <xsd:sequence>)",
-    R"(            <xsd:element name="date_of_birth" type="xsd:date" />)",
-    R"(            <xsd:element name="verified" type="xsd:dateTime"></xsd:element>)",
-    R"(            <xsd:element name="retired" type="xsd:boolean"></xsd:element>)",
-    R"(            <xsd:element name="hour_rate" type="xsd:double"></xsd:element>)",
-    R"(            <xsd:element name="vacation_days" type="xsd:int"></xsd:element>)",
-    R"(            <xsd:element name="height" type="xsd:float"></xsd:element>)",
-    R"(          </xsd:sequence>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(      <xsd:element name="Login">)",
-    R"(        <xsd:complexType>)",
-    R"(        	<xsd:sequence>)",
-    R"(        		<xsd:element name="username" type="xsd:string"></xsd:element>)",
-    R"(        		<xsd:element name="password" type="xsd:string"></xsd:element>)",
-    R"(        		<xsd:element name="servers" type="xsd:string")",
-    R"(        			maxOccurs="unbounded" minOccurs="0">)",
-    R"(        		</xsd:element>)",
-    R"(        		<xsd:element name="project" type="tns:ProjectInfo")",
-    R"(        			maxOccurs="1" minOccurs="0">)",
-    R"(        		</xsd:element>)",
-    R"(        	</xsd:sequence>)",
-    R"(        	<xsd:attribute name="server_count" type="xsd:int"></xsd:attribute>)",
-    R"(        	<xsd:attribute name="type" type="xsd:string"></xsd:attribute>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(      <xsd:element name="LoginResponse">)",
-    R"(        <xsd:complexType>)",
-    R"(          <xsd:sequence>)",
-    R"(            <xsd:element name="jwt" type="xsd:string"></xsd:element>)",
-    R"(          </xsd:sequence>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(      <xsd:element name="AccountBalance">)",
-    R"(        <xsd:complexType>)",
-    R"(          <xsd:sequence>)",
-    R"(            <xsd:element name="account_number" type="xsd:string"></xsd:element>)",
-    R"(          </xsd:sequence>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(      <xsd:element name="AccountBalanceResponse">)",
-    R"(        <xsd:complexType>)",
-    R"(          <xsd:sequence>)",
-    R"(            <xsd:element name="account_balance" type="xsd:double"></xsd:element>)",
-    R"(          </xsd:sequence>)",
-    R"(        </xsd:complexType>)",
-    R"(      </xsd:element>)",
-    R"(    )",
-    R"(      <xsd:complexType name="ProjectInfo">)",
-    R"(      	<xsd:sequence>)",
-    R"(      		<xsd:element name="id" type="xsd:int"></xsd:element>)",
-    R"(      		<xsd:element name="expiration" type="xsd:string"></xsd:element>)",
-    R"(      	</xsd:sequence>)",
-    R"(      </xsd:complexType>)",
-    R"(    </xsd:schema>)",
-    R"(  </wsdl:types>)",
-    R"(  <wsdl:message name="HelloRequest">)",
-    R"(    <wsdl:part element="tns:Hello" name="parameters"/>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:message name="HelloResponse">)",
-    R"(    <wsdl:part element="tns:HelloResponse" name="parameters"/>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:message name="LoginRequest">)",
-    R"(    <wsdl:part name="parameters" element="tns:Login"></wsdl:part>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:message name="LoginResponse">)",
-    R"(    <wsdl:part name="parameters" element="tns:LoginResponse"></wsdl:part>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:message name="AccountBalanceRequest">)",
-    R"(    <wsdl:part name="parameters" element="tns:AccountBalance"></wsdl:part>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:message name="AccountBalanceResponse">)",
-    R"(    <wsdl:part name="parameters" element="tns:AccountBalanceResponse"></wsdl:part>)",
-    R"(  </wsdl:message>)",
-    R"(  <wsdl:portType name="Test">)",
-    R"(    <wsdl:operation name="Hello">)",
-    R"(      <wsdl:input message="tns:HelloRequest"/>)",
-    R"(      <wsdl:output message="tns:HelloResponse"/>)",
-    R"(    </wsdl:operation>)",
-    R"(    <wsdl:operation name="Login">)",
-    R"(      <wsdl:input message="tns:LoginRequest"></wsdl:input>)",
-    R"(      <wsdl:output message="tns:LoginResponse"></wsdl:output>)",
-    R"(    </wsdl:operation>)",
-    R"(    <wsdl:operation name="AccountBalance">)",
-    R"(      <wsdl:input message="tns:AccountBalanceRequest"></wsdl:input>)",
-    R"(      <wsdl:output message="tns:AccountBalanceResponse"></wsdl:output>)",
-    R"(    </wsdl:operation>)",
-    R"(  </wsdl:portType>)",
-    R"(  <wsdl:binding name="TestSOAP" type="tns:Test">)",
-    R"(    <soap:binding style="document")",
-    R"(      transport="http://schemas.xmlsoap.org/soap/http" />)",
-    R"(    <wsdl:operation name="Hello">)",
-    R"(      <soap:operation)",
-    R"(        soapAction="http://www.example.org/Test/Hello" />)",
-    R"(      <wsdl:input>)",
-    R"(        <soap:body use="literal" />)",
-    R"(      </wsdl:input>)",
-    R"(      <wsdl:output>)",
-    R"(        <soap:body use="literal" />)",
-    R"(      </wsdl:output>)",
-    R"(    </wsdl:operation>)",
-    R"(  </wsdl:binding>)",
-    R"(  <wsdl:service name="Test">)",
-    R"(    <wsdl:port binding="tns:TestSOAP" name="TestSOAP">)",
-    R"(      <soap:address location="http://www.example.org/"/>)",
-    R"(    </wsdl:port>)",
-    R"(  </wsdl:service>)",
-    R"(</wsdl:definitions>)"
-};
+const sptk::String Test_wsdl {
+    R"(<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.example.org/Test/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="Test"
+                  targetNamespace="http://www.example.org/Test/">
+    <wsdl:types>
+        <xsd:schema targetNamespace="http://www.example.org/Test/">
+            <xsd:element name="Hello">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="action" type="xsd:string"/>
+                        <xsd:element name="first_name" type="xsd:string"/>
+                        <xsd:element name="last_name" type="xsd:string"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="HelloResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="date_of_birth" type="xsd:date"/>
+                        <xsd:element name="verified" type="xsd:dateTime"></xsd:element>
+                        <xsd:element name="retired" type="xsd:boolean"></xsd:element>
+                        <xsd:element name="hour_rate" type="xsd:double"></xsd:element>
+                        <xsd:element name="vacation_days" type="xsd:int"></xsd:element>
+                        <xsd:element name="height" type="xsd:float"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="Login">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="username" type="xsd:string"></xsd:element>
+                        <xsd:element name="password" type="xsd:string"></xsd:element>
+                        <xsd:element name="servers" type="xsd:string" maxOccurs="unbounded" minOccurs="0">
+                        </xsd:element>
+                        <xsd:element name="project" type="tns:ProjectInfo"
+                                     maxOccurs="1" minOccurs="0">
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attribute name="server_count" type="xsd:int"></xsd:attribute>
+                    <xsd:attribute name="type" type="xsd:string"></xsd:attribute>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="LoginResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="jwt" type="xsd:string"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="AccountBalance">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="account_number" type="xsd:string"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="AccountBalanceResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="account_balance" type="xsd:double"></xsd:element>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:complexType name="ProjectInfo">
+                <xsd:sequence>
+                    <xsd:element name="id" type="xsd:int"></xsd:element>
+                    <xsd:element name="expiration" type="xsd:string"></xsd:element>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:schema>
+    </wsdl:types>
+    <wsdl:message name="HelloRequest">
+        <wsdl:part element="tns:Hello" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="HelloResponse">
+        <wsdl:part element="tns:HelloResponse" name="parameters"/>
+    </wsdl:message>
+    <wsdl:message name="LoginRequest">
+        <wsdl:part name="parameters" element="tns:Login"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="LoginResponse">
+        <wsdl:part name="parameters" element="tns:LoginResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="AccountBalanceRequest">
+        <wsdl:part name="parameters" element="tns:AccountBalance"></wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="AccountBalanceResponse">
+        <wsdl:part name="parameters" element="tns:AccountBalanceResponse"></wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="Test">
+        <wsdl:operation name="Hello">
+            <wsdl:input message="tns:HelloRequest"/>
+            <wsdl:output message="tns:HelloResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="Login">
+            <wsdl:input message="tns:LoginRequest"></wsdl:input>
+            <wsdl:output message="tns:LoginResponse"></wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="AccountBalance">
+            <wsdl:input message="tns:AccountBalanceRequest"></wsdl:input>
+            <wsdl:output message="tns:AccountBalanceResponse"></wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="TestSOAP" type="tns:Test">
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="Hello">
+            <soap:operation
+                    soapAction="http://www.example.org/Test/Hello"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Test">
+        <wsdl:port binding="tns:TestSOAP" name="TestSOAP">
+            <soap:address location="http://www.example.org/"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
+)"};
+
+const sptk::String Test_openapi {
+    R"({
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Test",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://www.example.org/"
+    }
+  ],
+  "paths": {
+    "/AccountBalance": {
+      "post": {
+        "summary": "",
+        "operationId": "AccountBalance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountBalance"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "responseContent": {
+              "application/json": {
+                "responseSchema": {
+                  "$responseRef": "#/components/schemas/AccountBalanceResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/Hello": {
+      "post": {
+        "summary": "",
+        "operationId": "Hello",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Hello"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "responseContent": {
+              "application/json": {
+                "responseSchema": {
+                  "$responseRef": "#/components/schemas/HelloResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    },
+    "/Login": {
+      "post": {
+        "summary": "",
+        "operationId": "Login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "responseContent": {
+              "application/json": {
+                "responseSchema": {
+                  "$responseRef": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountBalance": {
+        "type": "object",
+        "properties": {
+          "account_number": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "account_number"
+        ]
+      },
+      "AccountBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "account_balance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "account_balance"
+        ]
+      },
+      "Hello": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "first_name",
+          "last_name"
+        ]
+      },
+      "HelloResponse": {
+        "type": "object",
+        "properties": {
+          "date_of_birth": {
+          },
+          "verified": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "retired": {
+            "type": "boolean"
+          },
+          "hour_rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "vacation_days": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "height": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "date_of_birth",
+          "verified",
+          "retired",
+          "hour_rate",
+          "vacation_days",
+          "height"
+        ]
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "servers": {
+            "type": "string"
+          },
+          "project": {
+            "$ref": "#/components/schemas/ProjectInfo"
+          }
+        },
+        "required": [
+          "username",
+          "password",
+          "servers"
+        ]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "jwt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "jwt"
+        ]
+      },
+      "ProjectInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "expiration": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "expiration"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
+)"};

@@ -14,6 +14,6 @@ void TestSettings::load(std::filesystem::path settingsFile)
 
     for (const auto& node: document.root()->nodes())
     {
-        m_keys[node->name()] = node->getString();
+        m_keys[node->getName()] = node->getString();
     }
 }

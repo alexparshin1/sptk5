@@ -78,9 +78,9 @@ public:
     void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
 private:
-    XMLDocType m_doctype;  ///< XMLDocument type
-    Buffer m_encodeBuffer; ///< Buffer to encode entities
-    Buffer m_decodeBuffer; ///< Decode and encode buffer
+    XMLDocType m_doctype;      ///< XMLDocument type
+    Buffer     m_encodeBuffer; ///< Buffer to encode entities
+    Buffer     m_decodeBuffer; ///< Decode and encode buffer
 
     /**
      * Internal attributes parser
@@ -101,7 +101,7 @@ private:
     char* readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd,
                                      bool isRootNode);
 
-    char* readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
+    char* readOpeningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 
     static char* readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd);
 

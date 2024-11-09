@@ -47,7 +47,7 @@ void ImportXML::processAttributes(Node& node, const char* ptr)
         auto vtor = itor + 1;
         if (vtor == matches.groups().end())
         {
-            throw Exception("Invalid attribute format for " + node.name() + " tag");
+            throw Exception("Invalid attribute format for " + node.getQualifiedName() + " tag");
         }
 
         const auto& attributeName = itor->value;
@@ -78,7 +78,7 @@ void ImportXML::processAttributes(Node& node, const char* ptr)
         {
             if (*attributeEnd != expectedChar)
             {
-                throw Exception("Invalid attribute format for " + node.name() + " tag");
+                throw Exception("Invalid attribute format for " + node.getQualifiedName() + " tag");
             }
             attributeLength = attributeEnd - attributeStart;
         }
@@ -139,7 +139,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
 {
     constexpr int cdataTagLength = 8;
     constexpr int docTypeTagLength = 8;
-    const char ch = *tokenEnd;
+    const char    ch = *tokenEnd;
     *tokenEnd = 0;
     if (strncmp(nodeName, "!--", 3) == 0)
     {
@@ -174,7 +174,7 @@ char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char
     if (isRootNode)
     {
         pi = currentNode;
-        pi->name(nodeName + 1);
+        pi->setName(nodeName + 1);
         pi->type(Node::Type::ProcessingInstruction);
     }
     else
@@ -198,10 +198,10 @@ char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, 
         throw Exception("Invalid tag (spaces before closing '>')");
     }
     ++nodeName;
-    if (currentNode->name() != nodeName)
+    if (currentNode->getQualifiedName() != nodeName)
     {
         throw Exception(
-            "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->name() + ">");
+            "Closing tag <" + string(nodeName) + "> doesn't match opening <" + currentNode->getQualifiedName() + ">");
     }
 
     nodeEnd = tokenEnd;
@@ -209,7 +209,7 @@ char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, 
     return tokenEnd;
 }
 
-char* ImportXML::readOpenningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
+char* ImportXML::readOpeningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
     const char ch = *tokenEnd;
     *tokenEnd = 0;
@@ -267,18 +267,18 @@ SNode ImportXML::detectArray(const SNode& _node)
     }
 
     // Check if all the child nodes have the same name:
-    bool first = true;
+    bool   first = true;
     String itemName;
     for (const auto& node: _node->nodes())
     {
         if (first)
         {
             first = false;
-            itemName = node->name();
+            itemName = node->getQualifiedName();
         }
         else
         {
-            if (itemName != node->name())
+            if (itemName != node->getQualifiedName())
             {
                 return _node;
             }
@@ -292,9 +292,9 @@ SNode ImportXML::detectArray(const SNode& _node)
 void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 {
     node->clear();
-    SNode currentNode = node;
+    SNode       currentNode = node;
     XMLDocType* doctype = &docType();
-    Buffer buffer(_buffer);
+    Buffer      buffer(_buffer);
 
     for (char* nodeStart = strchr(bit_cast<char*>(buffer.data()), '<'); nodeStart != nullptr;)
     {
@@ -307,7 +307,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 
         char* nodeName = nameStart;
         char* nodeEnd = nameStart;
-        bool autoClosed = false;
+        bool  autoClosed = false;
         switch (*nameStart)
         {
             case '!':
@@ -325,9 +325,9 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
                 break;
 
             default:
-                readOpenningTag(currentNode, nodeName, nameEnd, nodeEnd);
+                readOpeningTag(currentNode, nodeName, nameEnd, nodeEnd);
                 // For HTML, autoclose 'meta' tags
-                if (strcmp(nodeName, "meta") == 0 && currentNode->parent()->name().in({"html", "head"}))
+                if (strcmp(nodeName, "meta") == 0 && currentNode->parent()->getQualifiedName().in({"html", "head"}))
                 {
                     autoClosed = true;
                     currentNode = currentNode->parent();
@@ -411,7 +411,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
             currentNode->type(nodeType);
         }
 
-        if (nodeType != Node::Type::Number && formatting == Mode::KeepFormatting) // || decodedText.find_first_not_of("\n\r\t ") != string::npos)
+        if (nodeType != Node::Type::Number && formatting == Mode::KeepFormatting)
         {
             currentNode->pushNode("#text", nodeType)
                 ->set(decodedText);

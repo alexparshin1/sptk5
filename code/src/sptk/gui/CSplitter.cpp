@@ -123,7 +123,7 @@ int CSplitter::handle(int event)
                 auto* parentManager = dynamic_cast<CLayoutManager*>(parent());
                 if (parentManager)
                 {
-                    parentManager->relayout();
+                    parentManager->reLayout();
                     auto* parentGroup = dynamic_cast<CGroup*>(parent());
                     if (parentGroup)
                     {
@@ -153,13 +153,13 @@ void CSplitter::findChainedControl()
         {
             return;
         }
-        Fl_Group* group = parent();
-        auto cnt = (unsigned) group->children();
-        Fl_Widget* priorWidget = nullptr;
-        Fl_Widget* nextWidget = nullptr;
+        Fl_Group*      group = parent();
+        auto           cnt = (unsigned) group->children();
+        Fl_Widget*     priorWidget = nullptr;
+        Fl_Widget*     nextWidget = nullptr;
         CLayoutClient* priorWidgetLayout = nullptr;
         CLayoutClient* nextWidgetLayout = nullptr;
-        auto index = (unsigned) -1;
+        auto           index = (unsigned) -1;
         for (unsigned i = 1; i < cnt; i++)
         {
             if (group->child(i) == this)

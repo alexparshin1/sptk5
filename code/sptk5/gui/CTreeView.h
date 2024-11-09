@@ -179,7 +179,7 @@ public:
      */
     void relayout()
     {
-        m_treeControl->relayout();
+        m_treeControl->reLayout();
         redraw();
     }
 

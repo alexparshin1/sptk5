@@ -362,7 +362,7 @@ public:
     /**
      * @brief Selects the prior item in the tree
      */
-    bool selectPrior();
+    bool selectPrior() const;
 
     /**
      * @brief Selects the first visible item in the child tree

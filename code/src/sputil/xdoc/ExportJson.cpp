@@ -117,7 +117,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
 
     const auto saveFlags = stream.flags();
 
-    double dNumber;
+    double  dNumber;
     int64_t iNumber;
     switch (node->type())
     {
@@ -170,7 +170,7 @@ void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool fo
     stream << "[";
     if (node->type() == Node::Type::Array)
     {
-        bool first = true;
+        bool        first = true;
         const auto& array = node->nodes();
         if (array.empty())
         {
@@ -217,7 +217,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
                 stream << formatting.betweenElements;
             }
 
-            stream << "\"" << anode->name() << "\":" << spacing;
+            stream << "\"" << anode->getQualifiedName() << "\":" << spacing;
 
             exportJsonValueTo(anode.get(), stream, formatted, indent + 2);
         }

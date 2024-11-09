@@ -43,10 +43,10 @@ const Fl_Menu_Item CControl::defaultControlMenu[] = {
 
 class CControlKindIndex
 {
-    typedef map<CControlKind, const string*> CTypeNameMap;
+    typedef map<CControlKind, const string*>                  CTypeNameMap;
     typedef map<string, CControlKind, CaseInsensitiveCompare> CNameTypeMap;
-    static CTypeNameMap m_typeNameMap;
-    static CNameTypeMap m_nameTypeMap;
+    static CTypeNameMap                                       m_typeNameMap;
+    static CNameTypeMap                                       m_nameTypeMap;
 
     static void registerType(CControlKind type, const char* name);
 
@@ -63,9 +63,10 @@ public:
     static CControlKind type(const char* name);
 };
 
-struct CControlKindName {
+struct CControlKindName
+{
     CControlKind type;
-    const char* name;
+    const char*  name;
 };
 
 static CControlKindName typeNames[] = {
@@ -435,7 +436,7 @@ void CControl::fieldName(const String& s)
 CControlKind CControl::controlNameToType(const String& typeName, int& maxLength, const String& values)
 {
     CControlKind controlType = CControlKind::UNKNOWN;
-    auto c1 = (char) toupper(typeName[1]);
+    auto         c1 = (char) toupper(typeName[1]);
     maxLength = 0;
     switch (toupper(typeName[0]))
     {
@@ -638,10 +639,10 @@ void sptk::createControls(const xdoc::SNode& xmlControls)
 {
     for (const auto& node: xmlControls->nodes())
     {
-        CControlKind controlKind = CControlKindIndex::type(node->name());
-        CControl* control = createControl(controlKind, (String) node->attributes().get("label", ""),
-                                          (String) node->attributes().get("fieldName", ""),
-                                          node->attributes().get("size", "12").toInt());
+        CControlKind controlKind = CControlKindIndex::type(node->getName());
+        CControl*    control = createControl(controlKind, (String) node->attributes().get("label", ""),
+                                             (String) node->attributes().get("fieldName", ""),
+                                             node->attributes().get("size", "12").toInt());
         if (node->attributes().get("visible", "1").toInt() == 0)
         {
             control->hide();
@@ -670,7 +671,7 @@ void CControl::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 
 void CControl::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
-    node->name("control");
+    node->setName("control");
 
     if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
     {

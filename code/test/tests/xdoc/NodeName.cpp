@@ -1,9 +1,7 @@
 /*
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
-║                       tcp_server_test.cpp - description                      ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  begin                Thursday May 25 2000                                   ║
 ║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -26,56 +24,79 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/wsdl/WSServer.h>
+#include <gtest/gtest.h>
+#include <sptk5/xdoc/Node.h>
 
 using namespace std;
 using namespace sptk;
+using namespace xdoc;
 
-class StubRequest
-    : public WSRequest
+TEST(SPTK_XDocument, nodeName_create)
 {
-protected:
-    void requestBroker(const String&, const xdoc::SNode&, const xdoc::SNode&, HttpAuthentication*,
-                       const WSNameSpace&) override
-    {
-        // Not used in this test
-    }
+    NodeName nodeName("test");
 
-public:
-    StubRequest()
-        : WSRequest("") {};
-};
+    EXPECT_STREQ("test", nodeName.getQualifiedName().c_str());
+    EXPECT_STREQ("", nodeName.getNameSpace().c_str());
 
-int main()
+    NodeName nodeName2("ns1:test");
+
+    EXPECT_STREQ("test", nodeName2.getName().c_str());
+    EXPECT_STREQ("ns1", nodeName2.getNameSpace().c_str());
+}
+
+TEST(SPTK_XDocument, nodeName_nameSpace)
 {
-    try
-    {
-        auto         request = make_shared<StubRequest>();
-        SysLogEngine log("ws_server_test");
-        Logger       logger(log);
+    NodeName nodeName("test");
+    EXPECT_STREQ("", nodeName.getNameSpace().c_str());
 
-        char hostname[128];
-        if (int rc = gethostname(hostname, sizeof(hostname));
-            rc != 0)
-        {
-            throw SystemException("Can't get hostname");
-        }
-        WSConnection::Paths   paths("index.html", "request", "/var/lib/pgman/webapp");
-        WSConnection::Options options(paths);
-        WSServices            services(request);
-        WSServer              server(services, log, hostname, 32, options);
-        server.addListener(ServerConnection::Type::TCP, 8000);
-        while (true)
-        {
-            this_thread::sleep_for(chrono::milliseconds(1000));
-        }
-    }
-    catch (const Exception& e)
-    {
-        CERR("Exception was caught: " << e.what() << "\nExiting.");
-        return 1;
-    }
-    COUT("Server session closed");
-    return 0;
+    nodeName.setNameSpace("ns1");
+    EXPECT_STREQ("ns1", nodeName.getNameSpace().c_str());
+    EXPECT_STREQ("ns1:test", nodeName.getQualifiedName().c_str());
+
+    NodeName nodeName2("ns2:test");
+    EXPECT_STREQ("ns2", nodeName2.getNameSpace().c_str());
+
+    nodeName2.setNameSpace("ns1");
+    EXPECT_STREQ("ns1", nodeName2.getNameSpace().c_str());
+    EXPECT_STREQ("ns1:test", nodeName2.getQualifiedName().c_str());
+}
+
+TEST(SPTK_XDocument, nodeName_ctors)
+{
+    NodeName nodeName("ns2:test");
+    NodeName nodeName2(nodeName);
+    EXPECT_EQ(nodeName, nodeName2);
+
+    NodeName nodeName3(std::move(nodeName));
+    EXPECT_EQ(nodeName2, nodeName3);
+}
+
+TEST(SPTK_XDocument, nodeName_assign)
+{
+    NodeName nodeName("ns1:test");
+    NodeName nodeName2("something");
+
+    nodeName2 = nodeName;
+    EXPECT_EQ(nodeName, nodeName2);
+
+    nodeName = String("ns2:test");
+    EXPECT_EQ(nodeName.getQualifiedName(), "ns2:test");
+
+    nodeName2 = std::move(nodeName);
+    EXPECT_EQ(nodeName2.getQualifiedName(), "ns2:test");
+}
+
+TEST(SPTK_XDocument, nodeName_compare)
+{
+    NodeName nodeName("test");
+    EXPECT_TRUE(nodeName == "test");
+
+    NodeName nodeName2("ns1:test");
+    EXPECT_TRUE(nodeName2 == "ns1:test");
+
+    NodeName nodeName3("test", "ns1");
+    EXPECT_TRUE(nodeName3 == "ns1:test");
+
+    EXPECT_NE(nodeName, nodeName2);
+    EXPECT_EQ(nodeName2, nodeName3);
 }

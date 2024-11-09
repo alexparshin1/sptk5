@@ -51,11 +51,11 @@ using namespace sptk;
 
 extern void fl_internal_boxtype(Fl_Boxtype, Fl_Box_Draw_F*);
 
-string CThemes::m_name;
+string       CThemes::m_name;
 CFontsVector CThemes::screenFonts;
-CFontsMap CThemes::m_fonts;
-CFrames CThemes::m_frames;
-CTabImages CThemes::m_tabImages;
+CFontsMap    CThemes::m_fonts;
+CFrames      CThemes::m_frames;
+CTabImages   CThemes::m_tabImages;
 
 Fl_Box_Draw_F* CThemes::m_flatBox;
 Fl_Box_Draw_F* CThemes::m_thinUpBox;
@@ -68,7 +68,7 @@ Fl_Box_Draw_F* CThemes::m_upFrame;
 Fl_Box_Draw_F* CThemes::m_thinDownFrame;
 Fl_Box_Draw_F* CThemes::m_downFrame;
 
-CPngImage* CThemes::m_background[7];
+CPngImage*            CThemes::m_background[7];
 CThemeImageCollection CThemes::m_progressBar[2];
 
 CThemeImageCollection CThemes::m_normalButtons;
@@ -76,15 +76,15 @@ CThemeImageCollection CThemes::m_comboButtons;
 CThemeImageCollection CThemes::m_checkButtons;
 CThemeImageCollection CThemes::m_radioButtons;
 CThemeColorCollection CThemes::m_colors;
-bool CThemes::m_flatButtons;
-bool CThemes::m_gtkTheme;
+bool                  CThemes::m_flatButtons;
+bool                  CThemes::m_gtkTheme;
 
 xdoc::Document* CThemes::m_registry;
-Tar CThemes::m_tar;
-CIconMap CThemes::m_icons[4]; /// Four different sets of icons
-bool CThemes::m_desaturateInactiveButtons;
-int CThemes::m_buttonFocusRadius;
-string CThemes::m_themeFolder;
+Tar             CThemes::m_tar;
+CIconMap        CThemes::m_icons[4]; /// Four different sets of icons
+bool            CThemes::m_desaturateInactiveButtons;
+int             CThemes::m_buttonFocusRadius;
+string          CThemes::m_themeFolder;
 
 CThemes::CThemes()
 {
@@ -113,7 +113,7 @@ CThemes::CThemes()
         auto k = (unsigned) Fl::set_fonts("*");
         for (unsigned i = 0; i < k; i++)
         {
-            int attributes = 0;
+            int    attributes = 0;
             string fontName = Fl::get_font_name((Fl_Font) i, &attributes);
             CFont* font = new CFont(fontName, 10, 0, i, (unsigned) attributes);
             screenFonts.push_back(font);
@@ -276,7 +276,7 @@ void CThemes::set(string theThemeName)
     reset();
 
     const Strings& dirs = searchDirectories();
-    bool defaultTheme = false;
+    bool           defaultTheme = false;
     for (unsigned dn = 0; dn < dirs.size() && !defaultTheme; dn++)
     {
         string fileName = dirs[dn] + "/" + themeName + ".tar";
@@ -313,11 +313,11 @@ void CThemes::set(string theThemeName)
             for (; itor != m_registry->root()->nodes().end(); ++itor)
             {
                 auto& iconsNode = *itor;
-                if (iconsNode->name() != "icons")
+                if (iconsNode->getName() != "icons")
                 {
                     continue;
                 }
-                String iconsSizeStr = (String) iconsNode->attributes().get("size", "large");
+                String    iconsSizeStr = (String) iconsNode->attributes().get("size", "large");
                 CIconSize iconsSize;
                 switch (iconsSizeStr[0])
                 {
@@ -349,7 +349,7 @@ void CThemes::set(string theThemeName)
             m_fonts.clear();
             for (itor = fontsTopic->nodes().begin(); itor != fontsTopic->nodes().end(); ++itor)
             {
-                auto& fontInfo = *itor;
+                auto&  fontInfo = *itor;
                 String fontName = (String) fontInfo->attributes().get("name", "Arial");
                 CFont* screenFont = screenFonts.find(fontName);
                 if (!screenFont)
@@ -425,16 +425,16 @@ void CThemes::set(string theThemeName)
 
         Fl::set_boxtype(FL_FLAT_BOX, drawFlatBox, 0, 0, 0, 0);
 
-        Fl_Boxtype stdBoxes[] = {FL_UP_BOX, FL_THIN_UP_BOX, FL_DOWN_BOX, FL_THIN_DOWN_BOX};
-        Fl_Boxtype stdFrames[] = {FL_UP_FRAME, FL_THIN_UP_FRAME, FL_DOWN_FRAME, FL_THIN_DOWN_FRAME};
+        Fl_Boxtype     stdBoxes[] = {FL_UP_BOX, FL_THIN_UP_BOX, FL_DOWN_BOX, FL_THIN_DOWN_BOX};
+        Fl_Boxtype     stdFrames[] = {FL_UP_FRAME, FL_THIN_UP_FRAME, FL_DOWN_FRAME, FL_THIN_DOWN_FRAME};
         Fl_Box_Draw_F* boxFuncs[] = {drawUpBox, drawThinUpBox, drawDownBox, drawThinDownBox};
         Fl_Box_Draw_F* frameFuncs[] = {drawUpFrame, drawThinUpFrame, drawDownFrame, drawThinDownFrame};
-        int defaultFrameWidth[] = {2, 1, 2, 1};
+        int            defaultFrameWidth[] = {2, 1, 2, 1};
         for (i = 0; i < 4; i++)
         {
             Fl_Boxtype frameType = stdFrames[i];
-            int frameWidth = defaultFrameWidth[i];
-            CFrame* frame = m_frames.find(frameType);
+            int        frameWidth = defaultFrameWidth[i];
+            CFrame*    frame = m_frames.find(frameType);
             if (frame)
             {
                 frameWidth = frame->frameWidth();
@@ -594,7 +594,7 @@ void CThemes::drawDownFrame(int x, int y, int w, int h, Fl_Color)
 bool CThemes::sizeButton(CThemeButtonType sz, int& w, int& h)
 {
     CThemeImageCollection& buttons = sizeToButtonImages(sz);
-    CPngImage* image = buttons.image(THM_IMAGE_NORMAL);
+    CPngImage*             image = buttons.image(THM_IMAGE_NORMAL);
     if (!image)
     {
         image = buttons.overlayImage(THM_IMAGE_NORMAL);
@@ -624,7 +624,7 @@ bool CThemes::drawButton(CThemeButtonType sz, int x, int y, int& w, int& h, bool
         ndx = THM_IMAGE_ACTIVE;
     }
 
-    CPngImage* image;
+    CPngImage*             image;
     CThemeImageCollection& buttons = sizeToButtonImages(sz);
     if (highlited)
     {
@@ -745,8 +745,8 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
         percent = 0;
     }
 
-    CPngImage* partImage[2]; // 0 - trough, 1 - bar
-    int border[2] = {0, 0};
+    CPngImage*                  partImage[2]; // 0 - trough, 1 - bar
+    int                         border[2] = {0, 0};
     CPngImage::CPatternDrawMode drawMode[2] = {CPngImage::CPatternDrawMode::PDM_TILE,
                                                CPngImage::CPatternDrawMode::PDM_TILE};
 
@@ -762,12 +762,12 @@ bool CThemes::drawProgressBar(int x, int y, int w, float percent)
 
     if (partImage[0] && partImage[1])
     {
-        int frameHeight = partImage[0]->h();
-        int frameWidth = partImage[0]->w();
-        int barHeight = partImage[1]->h();
-        int barWidth = partImage[1]->w();
-        int xspace = (frameWidth - barWidth) / 2;
-        int yspace = (frameHeight - barHeight) / 2;
+        int  frameHeight = partImage[0]->h();
+        int  frameWidth = partImage[0]->w();
+        int  barHeight = partImage[1]->h();
+        int  barWidth = partImage[1]->w();
+        int  xspace = (frameWidth - barWidth) / 2;
+        int  yspace = (frameHeight - barHeight) / 2;
         auto psize = (int) std::round((w - xspace * 2) * percent / 100);
         partImage[0]->drawResized(x, y, w, frameHeight, border[0], drawMode[0], true);
         partImage[1]->drawResized(x + xspace, y + yspace, psize, barHeight, border[1], drawMode[1], true);

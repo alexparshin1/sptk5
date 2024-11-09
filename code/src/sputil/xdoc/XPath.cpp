@@ -114,7 +114,7 @@ bool NodeSearchAlgorithms::matchPathElementAttribute(const SNode& thisNode, cons
                                                      const String& starPointer)
 {
     const Attributes& attributes = thisNode->attributes();
-    bool attributeMatch;
+    bool              attributeMatch;
     if (pathElement.attributeValueDefined)
     {
         if (pathElement.attributeValue == starPointer)
@@ -144,7 +144,7 @@ bool NodeSearchAlgorithms::matchPathElement(const SNode& thisNode, const XPathEl
                                             const String& starPointer)
 {
     if (!pathElement.elementName.empty() && pathElement.elementName != starPointer &&
-        thisNode->name() != pathElement.elementName)
+        thisNode->getQualifiedName() != pathElement.elementName)
     {
         return false;
     }
@@ -226,8 +226,8 @@ void NodeSearchAlgorithms::scanDescendents(const SNode& thisNode, Node::Vector& 
 
 void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
                                      const vector<XPathElement>& pathElements,
-                                     int pathPosition,
-                                     const String& starPointer)
+                                     int                         pathPosition,
+                                     const String&               starPointer)
 {
     ++pathPosition;
     if (pathPosition == static_cast<int>(pathElements.size()))
@@ -255,7 +255,7 @@ void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, Strin
 
     const char* ptr = xpath[0] == '/' ? xpath.c_str() + 1 : xpath.c_str();
 
-    Strings pathElementStrs(ptr, "/");
+    Strings              pathElementStrs(ptr, "/");
     vector<XPathElement> pathElements(pathElementStrs.size());
     for (size_t i = 0; i < pathElements.size(); ++i)
     {

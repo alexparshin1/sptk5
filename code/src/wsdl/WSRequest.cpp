@@ -85,12 +85,12 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
         using enum sptk::xdoc::Node::Type;
         const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
-        String soapNamespace = WSParser::getNamespace(soapBody->name());
+        String soapNamespace = soapBody->getNameSpace();
         if (!soapNamespace.empty())
         {
             soapNamespace += ":";
         }
-        const auto& faultNode = soapBody->pushNode(soapNamespace + "Fault", Object);
+        const auto& faultNode = soapBody->pushNode(String(soapNamespace + "Fault"), Object);
         const auto& faultCodeNode = faultNode->pushNode("faultcode", Text);
         faultCodeNode->set(soapNamespace + "Client");
         const auto& faultStringNode = faultNode->pushNode("faultstring", Text);
@@ -127,7 +127,7 @@ xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNam
 {
     const scoped_lock lock(*this);
 
-    auto soapBody = soapEnvelope->findFirst(soapNamespace.getAlias() + ":Body");
+    auto soapBody = soapEnvelope->findFirst(String(soapNamespace.getAlias() + ":Body"));
     if (!soapBody)
     {
         throw Exception("Can't find SOAP Body node in incoming request");
@@ -144,15 +144,15 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     xdoc::SNode xmlRequestNode;
     if (xmlContent)
     {
-        WSNameSpace soapNamespace;
-        xdoc::SNode soapEnvelope;
+        WSNameSpace              soapNamespace;
+        xdoc::SNode              soapEnvelope;
         map<String, WSNameSpace> allNamespaces;
         for (const auto& node: xmlContent->nodes())
         {
-            if (WSParser::stripNamespace(node->name()).toLowerCase() == "envelope")
+            if (node->getName().toLowerCase() == "envelope")
             {
                 soapEnvelope = node;
-                const String nameSpaceAlias = nameSpace(node->name());
+                const String nameSpaceAlias = node->getNameSpace();
                 extractNameSpaces(soapEnvelope, allNamespaces);
                 soapNamespace = allNamespaces[nameSpaceAlias];
                 break;
@@ -173,24 +173,29 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         xmlRequestNode = soapBody->nodes().front();
 
         const scoped_lock lock(*this);
-        const String nameSpaceAlias = nameSpace(xmlRequestNode->name());
+        const String      nameSpaceAlias = xmlRequestNode->getNameSpace();
         extractNameSpaces(xmlRequestNode, allNamespaces);
 
         if (const auto itor = allNamespaces.find(nameSpaceAlias);
             itor == allNamespaces.end())
         {
-            requestNameSpace = WSNameSpace(WSParser::getNamespace(xmlRequestNode->name()));
+            requestNameSpace = WSNameSpace(xmlRequestNode->getNameSpace());
         }
         else
         {
             requestNameSpace = itor->second;
         }
 
-        requestName = WSParser::stripNamespace(xmlRequestNode->name());
+        requestName = xmlRequestNode->getName();
     }
     else
     {
         requestName = jsonContent->getString("rest_method_name");
+    }
+
+    if (requestNameSpace.getAlias().empty())
+    {
+        requestNameSpace = WSNameSpace("resns", m_targetNamespace);
     }
 
     requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
@@ -204,11 +209,5 @@ void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMeth
 String WSRequest::tagName(const String& nodeName)
 {
     const auto pos = nodeName.find(':');
-    return pos == string::npos? "": nodeName.substr(pos + 1);
-}
-
-String WSRequest::nameSpace(const String& nodeName)
-{
-    const auto pos = nodeName.find(':');
-    return pos == string::npos? "": nodeName.substr(0, pos);
+    return pos == string::npos ? "" : nodeName.substr(pos + 1);
 }

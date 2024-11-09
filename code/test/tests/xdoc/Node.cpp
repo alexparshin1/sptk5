@@ -24,12 +24,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/xdoc/Document.h"
 #include <gtest/gtest.h>
 #include <sptk5/xdoc/Node.h>
 
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+
+static const String testXmlDocument(
+    "<xml encoding=\"utf-8\">"
+    "<customer>"
+    "<name>John</name>"
+    "<address><city>Walhalla</city><street>17 Elm Street</street></address>"
+    "</customer>"
+    "</xml>");
 
 TEST(SPTK_XDocument, typeRegexp)
 {
@@ -48,4 +57,21 @@ TEST(SPTK_XDocument, typeRegexp)
     EXPECT_FALSE(isFloat("00.123e43"));
     EXPECT_FALSE(isFloat("127.0.0.1"));
     EXPECT_FALSE(isFloat("127"));
+}
+
+TEST(SPTK_XDocument, setNameSpace)
+{
+    const Buffer   input(testXmlDocument);
+    xdoc::Document document;
+    document.load(input);
+
+    auto customer = document.root()->findFirst(NodeName("customer"));
+    EXPECT_EQ(customer->getName(), "customer");
+    customer->setNameSpaceRecursive("ns1");
+    EXPECT_EQ(customer->getName(), "customer");
+    EXPECT_EQ(customer->getNameSpace(), "ns1");
+
+    auto address = document.root()->findFirst(NodeName("address", "ns1"));
+    document.exportTo(xdoc::DataFormat::XML, cout, true);
+    ASSERT_TRUE(address != nullptr);
 }

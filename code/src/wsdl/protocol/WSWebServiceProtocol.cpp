@@ -87,21 +87,41 @@ void substituteHostname(Buffer& page, const Host& host)
 {
     xdoc::Document wsdl;
     wsdl.load(page);
-    const auto node = wsdl.root()->findFirst("soap:address");
-    if (node == nullptr)
+    if (page[0] == '<')
     {
-        throw Exception("Can't find <soap:address> in WSDL file");
+        const auto node = wsdl.root()->findFirst("soap:address");
+        if (node == nullptr)
+        {
+            throw Exception("Can't find <soap:address> in WSDL file");
+        }
+        auto location = node->attributes().get("location", "");
+        if (location.empty())
+        {
+            throw Exception("Can't find location attribute of <soap:address> in WSDL file");
+        }
+        stringstream listener;
+        listener << "http://" << host.toString() << "/";
+        location = location.replace("http://([^\\/]+)/", listener.str());
+        node->attributes().set("location", location);
+        wsdl.exportTo(xdoc::DataFormat::XML, page, true);
     }
-    auto location = node->attributes().get("location", "");
-    if (location.empty())
+    else
     {
-        throw Exception("Can't find location attribute of <soap:address> in WSDL file");
+        const auto serversNode = wsdl.root()->findFirst("servers");
+        if (serversNode == nullptr)
+        {
+            throw Exception("Can't find 'servers' in OpenAPI file");
+        }
+        const auto urlNode = serversNode->findFirst("url");
+        if (urlNode == nullptr)
+        {
+            throw Exception("Can't find 'servers/url' in OpenAPI file");
+        }
+        stringstream listener;
+        listener << "http://" << host.toString() << "/";
+        urlNode->set(listener.str());
+        wsdl.exportTo(xdoc::DataFormat::JSON, page, true);
     }
-    stringstream listener;
-    listener << "http://" << host.toString() << "/";
-    location = location.replace("http://([^\\/]+)/", listener.str());
-    node->attributes().set("location", location);
-    wsdl.exportTo(xdoc::DataFormat::XML, page, true);
 }
 } // namespace
 
@@ -115,14 +135,18 @@ RequestInfo WSWebServiceProtocol::process()
     constexpr chrono::seconds thirtySeconds(30);
 
     HttpResponseStatus httpStatus {okResponseCode, "OK"};
-    bool               returnWSDL = false;
+    String             returnWSDL = "";
 
     if (m_httpReader.getRequestType() != "POST")
     {
         // If request url is /?wsdl or /wsdl - return service definition
         if (m_httpReader.getRequestType() == "GET" && (m_url.params().has("wsdl") || m_url.path() == "/wsdl"))
         {
-            returnWSDL = true;
+            returnWSDL = "wsdl";
+        }
+        else if (m_httpReader.getRequestType() == "GET" && (m_url.params().has("api") || m_url.path() == "/api"))
+        {
+            returnWSDL = "api";
         }
         else
         {
@@ -134,7 +158,7 @@ RequestInfo WSWebServiceProtocol::process()
     String      contentEncoding;
     String      contentType;
 
-    if (returnWSDL)
+    if (returnWSDL == "wsdl")
     {
         // Requested WSDL content
         contentType = m_httpReader.httpHeader("text/xml");
@@ -142,6 +166,15 @@ RequestInfo WSWebServiceProtocol::process()
         requestInfo.response.content().set(service.wsdl());
         substituteHostname(requestInfo.response.content(), m_host);
         requestInfo.name = "wsdl";
+    }
+    else if (returnWSDL == "api")
+    {
+        // Requested WSDL content
+        contentType = m_httpReader.httpHeader("text/json");
+        const auto& service = m_services.get(m_url.location());
+        requestInfo.response.content().set(service.openapi());
+        substituteHostname(requestInfo.response.content(), m_host);
+        requestInfo.name = "api";
     }
     else
     {
@@ -160,8 +193,6 @@ RequestInfo WSWebServiceProtocol::process()
             contentEncoding = m_httpReader.httpHeader("Content-Encoding");
         }
         requestInfo.request.input(contentBuffer, contentEncoding);
-
-        COUT("CONTENT: " << contentType << endl);
 
         auto authentication = getAuthentication();
 
@@ -186,6 +217,7 @@ RequestInfo WSWebServiceProtocol::process()
                     contentType = "application/xml; charset=utf-8";
                 }
                 requestIsJSON = false;
+                // COUT("INPUT:\n" << startOfMessage);
                 processXmlContent((const char*) startOfMessage, xmlContent.root());
             }
             else if (*startOfMessage == '{' || *startOfMessage == '[')
@@ -229,7 +261,7 @@ RequestInfo WSWebServiceProtocol::process()
         clientAcceptEncoding.clear();
     }
 
-    COUT("RESPONSE: " << requestInfo.response.content() << endl);
+    // COUT("RESPONSE:\n" << requestInfo.response.content() << endl);
 
     const Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
     contentEncoding = requestInfo.response.contentEncoding();

@@ -43,7 +43,7 @@ class CTabButtons;
 class SP_EXPORT CTabButton
     : public Fl_Button
 {
-    Fl_Group* m_page;
+    Fl_Group*    m_page;
     CTabButtons* m_ownerRow {nullptr};
 
 public:
@@ -142,7 +142,7 @@ class CTabGroup
 
     CTabButtons m_buttons;
     CTabButton* m_activeTabButton;
-    CTabRows m_rows;
+    CTabRows    m_rows;
 
 protected:
     static void cb_tabButton(Fl_Widget* btn, void* data);
@@ -266,13 +266,13 @@ void CTabButton::draw()
     {
         return;
     }
-    int hh = parent()->h() - (y() - parent()->y());
+    int  hh = parent()->h() - (y() - parent()->y());
     bool selected = tabsWidget->m_activeTabButton == this;
 
     Fl_Align labelAlign = FL_ALIGN_CENTER;
-    int labelLeft = 0;
-    int wt = 0;
-    int ht = 0;
+    int      labelLeft = 0;
+    int      wt = 0;
+    int      ht = 0;
 
     m_page->measure_label(wt, ht);
 
@@ -295,7 +295,7 @@ void CTabGroup::draw()
     for (; itor != m_rows.end(); ++itor)
     {
         CTabButtons* row = *itor;
-        auto btor = row->begin();
+        auto         btor = row->begin();
         for (; btor != row->end(); btor++)
         {
             CTabButton* button = *btor;
@@ -349,7 +349,7 @@ void CTabGroup::activate(CTabButton* button)
     m_activeTabButton = button;
     m_activeTabButton->page()->show();
     auto* tabControl = (CGroup*) parent();
-    tabControl->relayout();
+    tabControl->reLayout();
     redraw();
 }
 
@@ -378,8 +378,8 @@ bool CTabGroup::preferredSize(int& width, int& height)
 bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
 {
     unsigned offset = 0;
-    auto buttonCount = (unsigned) children();
-    int maxWidth = 0;
+    auto     buttonCount = (unsigned) children();
+    int      maxWidth = 0;
 
     CTabButtons* row = nullptr;
     if (buildRows)
@@ -393,7 +393,7 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
     }
 
     height = 0;
-    int rowHeight = 0;
+    int  rowHeight = 0;
     auto itor = m_buttons.begin();
     auto iend = m_buttons.end();
     for (; itor != iend; ++itor)
@@ -449,7 +449,7 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
         if (m_activeTabButton)
         {
             CTabButtons* activeRow = m_activeTabButton->ownerRow();
-            auto activeRowPos = std::find(m_rows.begin(), m_rows.end(), activeRow);
+            auto         activeRowPos = std::find(m_rows.begin(), m_rows.end(), activeRow);
             if (activeRowPos != m_rows.end())
             {
                 m_rows.erase(activeRowPos);
@@ -462,9 +462,9 @@ bool CTabGroup::preferredSize(int, int, int& width, int& height, bool buildRows)
         for (; rtor != rend; rtor++)
         {
             CTabButtons* brow = *rtor;
-            auto btor = brow->begin();
-            auto bend = brow->end();
-            auto xPosition = (unsigned) x();
+            auto         btor = brow->begin();
+            auto         bend = brow->end();
+            auto         xPosition = (unsigned) x();
             for (; btor != bend; btor++)
             {
                 CTabButton* button = *btor;

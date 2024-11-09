@@ -105,9 +105,9 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex to protect internal data
-    String m_alias;             ///< Namespace alias
-    String m_location;          ///< Namespace location
+    mutable std::mutex m_mutex;    ///< Mutex to protect internal data
+    String             m_alias;    ///< Namespace alias
+    String             m_location; ///< Namespace location
 };
 
 /**
@@ -121,8 +121,9 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit WSRequest(sptk::LogEngine* logEngine = nullptr)
+    explicit WSRequest(String targetNamespace, sptk::LogEngine* logEngine = nullptr)
         : m_logEngine(logEngine)
+        , m_targetNamespace(targetNamespace)
     {
     }
 
@@ -161,16 +162,22 @@ public:
     }
 
     /**
-     * @return service WSDL
+     * @return service WSDL specifications
      */
     virtual String wsdl() const
     {
         return String("Not defined");
     }
 
-    static String tagName(const String& nodeName);
+    /**
+     * @return service OpenAPI specifications
+     */
+    virtual String openapi() const
+    {
+        return String("Not defined");
+    }
 
-    static String nameSpace(const String& nodeName);
+    static String tagName(const String& nodeName);
 
     sptk::LogEngine* getLogEngine()
     {
@@ -226,8 +233,9 @@ protected:
     void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
 
 private:
-    sptk::LogEngine* m_logEngine;                           ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods; ///< Map of requset names to methods
+    LogEngine*                            m_logEngine;       ///< Optional logger, or nullptr
+    std::map<sptk::String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
+    String                                m_targetNamespace; ///< SOAP service target namespace
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;

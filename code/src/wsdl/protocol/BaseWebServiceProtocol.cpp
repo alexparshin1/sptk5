@@ -62,14 +62,14 @@ xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, 
     String ns = "soap";
     for (const auto& node: message->nodes())
     {
-        if (lowerCase(node->name()).endsWith(":envelope"))
+        if (lowerCase(node->getName()) == "envelope")
         {
-            const size_t pos = node->name().find(':');
-            ns = node->name().substr(0, pos);
+            ns = node->getNameSpace();
+            break;
         }
     }
 
-    const auto xmlBody = message->findFirst(ns + ":Body");
+    const auto xmlBody = message->findFirst(String(ns + ":Body"));
     if (xmlBody == nullptr)
     {
         throw HTTPException(minHttpErrorCode, "Can't find " + ns + ":Body in " + messageType);
@@ -88,9 +88,9 @@ void BaseWebServiceProtocol::RESTtoSOAP(const URL& url, const char* startOfMessa
 {
     // Converting JSON request to XML request
     xdoc::Document jsonContent;
-    const Strings pathElements(url.path(), "/");
-    const String method(*pathElements.rbegin());
-    const auto& xmlEnvelope = message->pushNode("soap:Envelope");
+    const Strings  pathElements(url.path(), "/");
+    const String   method(*pathElements.rbegin());
+    const auto&    xmlEnvelope = message->pushNode("soap:Envelope");
     xmlEnvelope->attributes().set("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
     const auto& xmlBody = xmlEnvelope->pushNode("soap:Body");
@@ -123,23 +123,14 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
         xmlRequest->set(name, param);
     }
 
-    String methodName;
-    if (const auto pos = xmlRequest->name().find(':');
-        pos == string::npos)
-    {
-        methodName = xmlRequest->name();
-    }
-    else
-    {
-        methodName = xmlRequest->name().substr(pos + 1);
-    }
+    String methodName = xmlRequest->getName();
     xmlRequest->set("rest_method_name", methodName);
 
     return xmlRequest;
 }
 
 String BaseWebServiceProtocol::processMessage(Buffer& output, const xdoc::SNode& xmlContent,
-                                              const xdoc::SNode& jsonContent,
+                                              const xdoc::SNode&         jsonContent,
                                               const SHttpAuthentication& authentication, bool requestIsJSON,
                                               HttpResponseStatus& httpResponseStatus, String& contentType) const
 {
@@ -151,7 +142,7 @@ String BaseWebServiceProtocol::processMessage(Buffer& output, const xdoc::SNode&
     {
         const auto pXmlContent = requestIsJSON ? nullptr : xmlContent;
         const auto pJsonContent = requestIsJSON ? jsonContent : nullptr;
-        auto& service = m_services.get(m_url.location());
+        auto&      service = m_services.get(m_url.location());
         service.processRequest(pXmlContent, pJsonContent, authentication.get(), requestName);
         if (requestIsJSON)
         {
@@ -183,7 +174,7 @@ void BaseWebServiceProtocol::processJsonContent(const char* startOfMessage, cons
     else
     {
         const Strings pathElements(m_url.path(), "/");
-        const String method(*pathElements.rbegin());
+        const String  method(*pathElements.rbegin());
 
         try
         {
