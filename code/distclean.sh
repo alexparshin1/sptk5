@@ -1,4 +1,4 @@
-###!/bin/bash
+#!/bin/bash
 
 [ -f Makefile ] && make clean
 
@@ -19,4 +19,3 @@ done
 if [ -d lib ]; then
   rm -rf lib/*
 fi
-

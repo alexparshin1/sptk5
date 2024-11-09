@@ -217,8 +217,7 @@ RequestInfo WSWebServiceProtocol::process()
                     contentType = "application/xml; charset=utf-8";
                 }
                 requestIsJSON = false;
-                COUT("INPUT:\n"
-                     << startOfMessage);
+                // COUT("INPUT:\n" << startOfMessage);
                 processXmlContent((const char*) startOfMessage, xmlContent.root());
             }
             else if (*startOfMessage == '{' || *startOfMessage == '[')
@@ -262,8 +261,7 @@ RequestInfo WSWebServiceProtocol::process()
         clientAcceptEncoding.clear();
     }
 
-    COUT("RESPONSE:\n"
-         << requestInfo.response.content() << endl);
+    // COUT("RESPONSE:\n" << requestInfo.response.content() << endl);
 
     const Buffer outputData = requestInfo.response.output(clientAcceptEncoding);
     contentEncoding = requestInfo.response.contentEncoding();
