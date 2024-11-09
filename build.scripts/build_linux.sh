@@ -28,6 +28,7 @@ rm -f logs/*.log
 
 #for dname in /home/alexeyp/Docker/Dockerfile.*
 for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-numbat
+#for dname in /home/alexeyp/Docker/Dockerfile.fedora39
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
     docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ
