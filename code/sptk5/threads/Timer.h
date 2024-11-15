@@ -70,7 +70,7 @@ public:
      * @param eventCallback             Event callback.
      * @return event handle, that may be used to cancel this event.
      */
-    STimerEvent fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const;
+    STimerEvent fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const;
 
     /**
      * Schedule repeatable event.

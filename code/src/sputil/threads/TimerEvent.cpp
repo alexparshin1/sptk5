@@ -7,7 +7,7 @@
 using namespace std;
 using namespace sptk;
 
-TimerEvent::TimerEvent(DateTime timestamp, Callback eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
+TimerEvent::TimerEvent(DateTime::time_point timestamp, Callback eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
     : m_when(std::move(timestamp))
     , m_repeatInterval(repeatInterval)
     , m_callback(std::move(eventCallback))
@@ -20,7 +20,7 @@ bool TimerEvent::fire()
     Callback callback;
     bool     reschedule = true;
     {
-        std::scoped_lock lock(m_mutex);
+        lock_guard lock(m_mutex);
 
         callback = m_callback;
 

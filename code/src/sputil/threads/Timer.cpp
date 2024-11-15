@@ -42,7 +42,7 @@ Timer::~Timer()
     m_timerThread->join();
 }
 
-STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback& eventCallback) const
+STimerEvent Timer::fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const
 {
     auto event = make_shared<TimerEvent>(timestamp, eventCallback, milliseconds(), 0);
     m_timerThread->schedule(event);
@@ -52,7 +52,7 @@ STimerEvent Timer::fireAt(const DateTime& timestamp, const TimerEvent::Callback&
 
 STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount) const
 {
-    auto event = make_shared<TimerEvent>(DateTime::Now() + interval, eventCallback, interval, repeatCount);
+    auto event = make_shared<TimerEvent>(DateTime::clock::now() + interval, eventCallback, interval, repeatCount);
     m_timerThread->schedule(event);
 
     return event;

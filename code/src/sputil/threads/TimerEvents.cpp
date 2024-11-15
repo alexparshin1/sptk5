@@ -56,7 +56,7 @@ STimerEvent TimerEvents::next()
         return {};
     }
 
-    auto when = event->when().timePoint();
+    auto when = event->when();
     if (when < std::chrono::system_clock::now())
     {
         std::lock_guard lock(m_mutex);
