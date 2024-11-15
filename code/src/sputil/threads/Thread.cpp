@@ -41,12 +41,12 @@ Thread::Thread(String name, vector<int> ignoreSignals)
 
 void Thread::terminate()
 {
-    m_terminated = true;
+    m_terminated.store(true, std::memory_order_relaxed);
 }
 
 bool Thread::terminated()
 {
-    return m_terminated;
+    return m_terminated.load(std::memory_order_relaxed);
 }
 
 Thread::Id Thread::id() const
