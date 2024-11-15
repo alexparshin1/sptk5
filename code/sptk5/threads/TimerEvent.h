@@ -18,42 +18,42 @@ class SP_EXPORT TimerEvent
 
 public:
     /**
-         * Event callback definition.
-         * Events call that function when there is time for them to fire.
-         */
+     * @brief Event callback definition.
+     * Events call that function when there is time for them to fire.
+     */
     using Callback = std::function<void()>;
 
     /**
-         * Disabled event copy constructor
-         * @param other                 Other event
-         */
+     * @brief Disabled event copy constructor
+     * @param other                 Other event
+     */
     TimerEvent(const TimerEvent& other) = delete;
 
     /**
-         * Disabled event assignment
-         * @param other                 Other event
-         */
+     * @brief Disabled event assignment
+     * @param other                 Other event
+     */
     TimerEvent& operator=(const TimerEvent& other) = delete;
 
     /**
-         * Constructor
-         * @param timestamp             Fire at timestamp
-         * @param eventCallback         Event callback function
-         * @param repeatCount           Repeat count, -1 means no limit
-         */
+     * @brief Constructor
+     * @param timestamp             Fire at timestamp
+     * @param eventCallback         Event callback function
+     * @param repeatCount           Repeat count, -1 means no limit
+     */
     TimerEvent(DateTime::time_point timestamp, Callback eventCallback,
                std::chrono::milliseconds repeatInterval, int repeatCount = -1);
 
     /**
-         * @return event fire at timestamp
-         */
+     * @return event fire at timestamp
+     */
     const DateTime::time_point when() const
     {
         return m_when;
     }
 
     /**
-     * Fire event by calling its callback function..
+     * @brief Fire event by calling its callback function..
      */
     bool fire();
 
