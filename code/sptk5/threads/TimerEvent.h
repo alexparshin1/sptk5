@@ -41,13 +41,13 @@ public:
          * @param eventCallback         Event callback function
          * @param repeatCount           Repeat count, -1 means no limit
          */
-    TimerEvent(DateTime timestamp, Callback eventCallback,
+    TimerEvent(DateTime::time_point timestamp, Callback eventCallback,
                std::chrono::milliseconds repeatInterval, int repeatCount = -1);
 
     /**
          * @return event fire at timestamp
          */
-    const DateTime& when() const
+    const DateTime::time_point when() const
     {
         return m_when;
     }
@@ -70,8 +70,8 @@ public:
     }
 
 private:
-    mutable std::mutex        m_mutex;
-    DateTime                  m_when;            ///< Event serial and when the event has to fire next time.
+    mutable std::mutex        m_mutex;           ///< Mutex that protects internal data
+    DateTime::time_point      m_when;            ///< Event serial and when the event has to fire next time.
     std::chrono::milliseconds m_repeatInterval;  ///< Event repeat interval
     Callback                  m_callback;        ///< Event callback function, defined when event is scheduled.
     int                       m_repeatCount {0}; ///< Number of event repeats, -1 means no limit.

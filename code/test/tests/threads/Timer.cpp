@@ -66,7 +66,7 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
 
     constexpr milliseconds delayInterval {100};
     timer.fireAt(
-        DateTime::Now() + delayInterval,
+        DateTime::clock::now() + delayInterval,
         [&counter, &counterMutex]()
         {
             const scoped_lock lock(counterMutex);
@@ -197,17 +197,17 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
  */
 TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
 {
-    DateTime timestamp1;
-    DateTime timestamp2;
+    DateTime::time_point timestamp1;
+    DateTime::time_point timestamp2;
 
     const Timer timer;
 
     vector<STimerEvent> createdEvents;
-    const auto          started = DateTime::Now();
+    const auto          started = DateTime::clock::now();
     const auto          event1 = timer.fireAt(started + 1s,
                                               [&timestamp1]
                                               {
-                                         timestamp1 = DateTime::Now();
+                                         timestamp1 = DateTime::clock::now();
                                      });
 
     this_thread::sleep_for(10ms);
@@ -215,12 +215,12 @@ TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
     const auto event2 = timer.fireAt(started + 100ms,
                                      [&timestamp2]
                                      {
-                                         timestamp2 = DateTime::Now();
+                                         timestamp2 = DateTime::clock::now();
                                      });
 
     this_thread::sleep_for(1100ms);
-    EXPECT_TRUE(!timestamp1.zero());
-    EXPECT_TRUE(!timestamp2.zero());
+    EXPECT_TRUE(timestamp1 != DateTime::time_point::min());
+    EXPECT_TRUE(timestamp2 != DateTime::time_point::min());
     EXPECT_TRUE(timestamp2 < timestamp1);
 }
 
@@ -236,11 +236,12 @@ TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
     atomic_size_t    totalEvents(0);
 
     vector<STimerEvent> createdEvents;
-    const auto          started = DateTime::Now();
-    const auto          eventEnterval = eventsInterval / maxEvents;
-    const auto          lastEventTimestamp = DateTime::Now() + eventEnterval * (maxEvents);
 
-    for (DateTime timestamp = lastEventTimestamp; timestamp > started; timestamp = timestamp - eventEnterval)
+    const auto started = DateTime::clock::now();
+    const auto eventEnterval = eventsInterval / maxEvents;
+    const auto lastEventTimestamp = DateTime::clock::now() + eventEnterval * (maxEvents);
+
+    for (DateTime::time_point timestamp = lastEventTimestamp; timestamp > started; timestamp = timestamp - eventEnterval)
     {
         const auto event = timer.fireAt(
             lastEventTimestamp,
@@ -264,13 +265,14 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
 
     StopWatch stopwatch;
 
-    DateTime when("now");
-    when = when + hours(1);
+    auto when = DateTime::clock::now() + hours(1);
 
     stopwatch.start();
-    for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex) {
+    for (size_t eventIndex = 0; eventIndex < maxEvents; ++eventIndex)
+    {
         auto event = timer.fireAt(when,
-                                  [] {
+                                  []
+                                  {
                                       // Do nothing
                                   });
         createdEvents.push_back(event);
@@ -282,7 +284,8 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
                    << "K events/s");
 
     stopwatch.start();
-    for (const auto &event: createdEvents) {
+    for (const auto& event: createdEvents)
+    {
         event->cancel();
     }
     stopwatch.stop();

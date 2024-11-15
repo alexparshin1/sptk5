@@ -7,7 +7,7 @@
 using namespace std;
 using namespace sptk;
 
-TimerEvent::TimerEvent(DateTime timestamp, Callback eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
+TimerEvent::TimerEvent(DateTime::time_point timestamp, Callback eventCallback, std::chrono::milliseconds repeatInterval, int repeatCount)
     : m_when(std::move(timestamp))
     , m_repeatInterval(repeatInterval)
     , m_callback(std::move(eventCallback))
