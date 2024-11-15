@@ -41,13 +41,11 @@ Thread::Thread(String name, vector<int> ignoreSignals)
 
 void Thread::terminate()
 {
-    const scoped_lock lock(m_mutex);
     m_terminated = true;
 }
 
 bool Thread::terminated()
 {
-    const scoped_lock lock(m_mutex);
     return m_terminated;
 }
 
@@ -80,7 +78,8 @@ void Thread::run()
 
     const scoped_lock lock(m_mutex);
     m_thread = make_shared<jthread>(
-        [this]() {
+        [this]()
+        {
             // Ignore signals
             for (const auto sig: m_ignoreSignals)
             {
