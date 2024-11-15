@@ -38,10 +38,10 @@ class SP_EXPORT Proxy
 public:
     Proxy(Host host, String username = "", String password = "");
     virtual ~Proxy() = default;
-    virtual SocketType connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) = 0;
+    virtual SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) = 0;
 
 protected:
-    const Host m_host;
+    const Host   m_host;
     const String m_username;
     const String m_password;
 };

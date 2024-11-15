@@ -55,7 +55,7 @@ public:
      * @param sourceLocation    Lock location
      * @return
      */
-    bool try_lock_for(std::chrono::milliseconds timeout, std::source_location sourceLocation)
+    bool try_lock_for(const std::chrono::milliseconds& timeout, std::source_location sourceLocation)
     {
         if (m_mutex.try_lock_for(timeout))
         {

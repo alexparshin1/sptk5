@@ -120,7 +120,7 @@ public:
      * @param timeout           Read timeout
      * @return HTTP status code
      */
-    int readAll(std::chrono::milliseconds timeout);
+    int readAll(const std::chrono::milliseconds& timeout);
 
     /**
      * Status code getter
@@ -138,20 +138,20 @@ public:
     String getRequestURL() const;
 
 private:
-    ReadMode m_readMode;                                                                    ///< Read mode
-    State m_readerState {State::READY};                                                     ///< State of the reader
-    mutable std::mutex m_mutex;                                                             ///< Mutex that protects internal data
-    String m_statusText;                                                                    ///< HTTP response status text
-    int m_statusCode {0};                                                                   ///< HTTP response status code
-    size_t m_contentLength {0};                                                             ///< Content length (as defined in responce headers), or 0
-    size_t m_contentReceivedLength {0};                                                     ///< Received content length so far
-    bool m_contentIsChunked {false};                                                        ///< Chunked content (as defined in responce headers)
-    HttpHeaders m_httpHeaders;                                                              ///< HTTP response headers
-    RegularExpression m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
-    Buffer& m_output;                                                                       ///< Output data buffer
-    Buffer m_read_buffer;                                                                   ///< Read buffer
-    String m_requestType;                                                                   ///< Request type (GET, POST, etc)
-    String m_requestURL;                                                                    ///< Request URL (for REQUEST read mode only)
+    ReadMode           m_readMode;                                                           ///< Read mode
+    State              m_readerState {State::READY};                                         ///< State of the reader
+    mutable std::mutex m_mutex;                                                              ///< Mutex that protects internal data
+    String             m_statusText;                                                         ///< HTTP response status text
+    int                m_statusCode {0};                                                     ///< HTTP response status code
+    size_t             m_contentLength {0};                                                  ///< Content length (as defined in responce headers), or 0
+    size_t             m_contentReceivedLength {0};                                          ///< Received content length so far
+    bool               m_contentIsChunked {false};                                           ///< Chunked content (as defined in responce headers)
+    HttpHeaders        m_httpHeaders;                                                        ///< HTTP response headers
+    RegularExpression  m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
+    Buffer&            m_output;                                                             ///< Output data buffer
+    Buffer             m_read_buffer;                                                        ///< Read buffer
+    String             m_requestType;                                                        ///< Request type (GET, POST, etc)
+    String             m_requestURL;                                                         ///< Request URL (for REQUEST read mode only)
 
     /**
      * Clear reader state

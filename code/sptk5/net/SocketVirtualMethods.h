@@ -115,7 +115,7 @@ protected:
      * @param clientBindAddress Client bind IP address
      */
     void openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode = OpenMode::CREATE,
-                             std::chrono::milliseconds timeout = std::chrono::milliseconds(0),
+                             const std::chrono::milliseconds& timeout = std::chrono::milliseconds(0),
                              bool reusePort = true, const char* clientBindAddress = nullptr);
 
     /**
@@ -127,7 +127,7 @@ protected:
      * @param clientBindAddress Client bind IP address
      */
     virtual void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
-                              std::chrono::milliseconds timeoutMS, const char* clientBindAddress);
+                              const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress);
 
     /**
      * Opens the client socket connection by host and port
@@ -138,7 +138,7 @@ protected:
      * @param clientBindAddress Client bind IP address
      */
     virtual void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode,
-                              std::chrono::milliseconds timeoutMS, const char* clientBindAddress)
+                              const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress)
     {
         openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
         setBlockingModeUnlocked(blockMode);
@@ -256,13 +256,13 @@ protected:
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    [[nodiscard]] virtual bool readyToReadUnlocked(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToReadUnlocked(const std::chrono::milliseconds& timeout);
 
     /**
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    [[nodiscard]] virtual bool readyToWriteUnlocked(std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool readyToWriteUnlocked(const std::chrono::milliseconds& timeout);
 
     /**
      * Reads data from the socket in regular or SSL mode

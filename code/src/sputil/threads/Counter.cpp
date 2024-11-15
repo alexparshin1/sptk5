@@ -58,7 +58,7 @@ void Counter::set(size_t value)
     }
 }
 
-bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
+bool Counter::wait_for(size_t value, const chrono::milliseconds& timeout)
 {
     unique_lock lock(m_lockMutex);
 
@@ -70,7 +70,8 @@ bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
     // Wait until m_counter is matching the value
     return m_condition.wait_for(lock,
                                 timeout,
-                                [this, value]() {
+                                [this, value]()
+                                {
                                     return m_counter == value;
                                 });
 }
@@ -82,7 +83,8 @@ bool Counter::wait_for(size_t value, chrono::milliseconds timeout)
     // Wait until semaphore value is greater than 0
     return m_condition.wait_until(lock,
                                   timeoutAt.timePoint(),
-                                  [this, value]() {
+                                  [this, value]()
+                                  {
                                       return m_counter == value;
                                   });
 }

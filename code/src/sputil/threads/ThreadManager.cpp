@@ -57,7 +57,7 @@ void ThreadManager::threadFunction()
     }
 }
 
-void ThreadManager::joinTerminatedThreads(milliseconds timeout)
+void ThreadManager::joinTerminatedThreads(const milliseconds& timeout)
 {
     deque<SThread> joinThreads;
 
@@ -110,11 +110,11 @@ void ThreadManager::manage(const SThread& thread)
     if (thread)
     {
         const scoped_lock lock(m_mutex);
-        const auto itor = ranges::find(m_runningThreads, thread);
+        const auto        itor = ranges::find(m_runningThreads, thread);
         if (itor == m_runningThreads.end())
         {
             thread->setThreadManager(this);
-            m_runningThreads.push_back(std::move(thread));
+            m_runningThreads.push_back(thread);
         }
     }
 }
@@ -126,9 +126,10 @@ void ThreadManager::destroyThread(const Thread* thread)
         const scoped_lock lock(m_mutex);
 
         auto matchThread =
-            [&thread](const SThread& aThread) {
-                return thread == aThread.get();
-            };
+            [&thread](const SThread& aThread)
+        {
+            return thread == aThread.get();
+        };
 
         const auto itor = ranges::find_if(m_runningThreads, matchThread);
         if (itor != m_runningThreads.end())

@@ -54,12 +54,13 @@ TEST(SPTK_Semaphore, waitAndPost)
 
 TEST(SPTK_Semaphore, threads)
 {
-    constexpr chrono::milliseconds timeout(1000);
-    Semaphore semaphore;
+    constexpr const chrono::milliseconds timeout(1000);
+    Semaphore                            semaphore;
 
-    const auto poster = async([&semaphore]() {
-        semaphore.post();
-    });
+    const auto poster = async([&semaphore]()
+                              {
+                                  semaphore.post();
+                              });
 
     const bool posted = semaphore.wait_for(timeout);
 
@@ -70,7 +71,7 @@ TEST(SPTK_Semaphore, threads)
 
 static void waitPerformance(bool withTimeout)
 {
-    Semaphore semaphore;
+    Semaphore    semaphore;
     const size_t iterations = 1000000;
 
     StopWatch stopWatch;

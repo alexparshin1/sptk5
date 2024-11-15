@@ -126,7 +126,7 @@ public:
      * Return true if there are bytes available to read
      * @param dest              Timeout waiting for data ready to read
      */
-    [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout) const;
+    [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout) const;
 
     /**
      * Return reader's socket

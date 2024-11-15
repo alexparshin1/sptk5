@@ -198,7 +198,7 @@ void SSLSocket::initContextAndSocket()
 }
 
 void SSLSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode,
-                             chrono::milliseconds timeout, const char* clientBindAddress)
+                             const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
     initContextAndSocket();
 
@@ -206,7 +206,7 @@ void SSLSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
 }
 
 void SSLSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                             chrono::milliseconds timeout, const char* clientBindAddress)
+                             const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
     TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout, clientBindAddress);
 

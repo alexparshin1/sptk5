@@ -33,7 +33,8 @@ using namespace sptk;
 TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType)
     : Thread("CTCPServer::Listener")
     , m_server(shared_ptr<TCPServer>(server,
-                                     [this](const TCPServer*) {
+                                     [this](const TCPServer*)
+                                     {
                                          stop();
                                      }))
     , m_connectionType(connectionType)
@@ -41,11 +42,11 @@ TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, con
     m_listenerSocket.host(Host("localhost", port));
 }
 
-void TCPServerListener::acceptConnection(const std::chrono::milliseconds timeout)
+void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
 {
     try
     {
-        SocketType connectionFD {0};
+        SocketType  connectionFD {0};
         sockaddr_in connectionInfo = {};
         if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {

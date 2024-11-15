@@ -35,7 +35,7 @@ atomic_bool winsockInitialized(false);
 }
 #endif
 
-void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, std::chrono::milliseconds, const char*)
+void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, const chrono::milliseconds&, const char*)
 {
     // Implement in derived class
 }

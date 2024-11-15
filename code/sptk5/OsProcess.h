@@ -68,7 +68,7 @@ public:
      * @param timeout           Maximum time to wait for process exit
      * @return process exit code
      */
-    int wait_for(std::chrono::milliseconds timeout);
+    int wait_for(const std::chrono::milliseconds& timeout);
 
 private:
     static constexpr size_t BufferSize = 16384; ///< Read buffer size
@@ -88,9 +88,9 @@ private:
     static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
     PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
-    int  waitForData(std::chrono::milliseconds timeout); ///< Wait for process output
-    void readData();                                     ///< Read process output
-    int  close();                                        ///< Close all handles
+    int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output
+    void readData();                                            ///< Read process output
+    int  close();                                               ///< Close all handles
 };
 
 using SOsProcess = std::shared_ptr<OsProcess>;

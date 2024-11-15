@@ -176,8 +176,8 @@ public:
      * @return HTTP result code
      */
     [[nodiscard]] int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
-                              const Authorization* authorization = nullptr,
-                              std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                              const Authorization*             authorization = nullptr,
+                              const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the POST command to the server
@@ -194,7 +194,7 @@ public:
      */
     [[nodiscard]] int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
                                const sptk::Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
-                               std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                               const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
      * @brief Sends the PUT command to the server
@@ -209,8 +209,8 @@ public:
      * @return HTTP result code
      */
     [[nodiscard]] int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
-                              const Authorization* authorization = nullptr,
-                              std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                              const Authorization*             authorization = nullptr,
+                              const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
       * @brief Sends the DELETE command to the server
@@ -224,8 +224,8 @@ public:
       * @return HTTP result code
       */
     [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
-                                 const Authorization* authorization = nullptr,
-                                 std::chrono::milliseconds timeout = std::chrono::seconds(60));
+                                 const Authorization*             authorization = nullptr,
+                                 const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
      * @brief Get value of response header
@@ -277,7 +277,7 @@ protected:
      * @param timeout           Response timeout
      * @return HTTP result code
      */
-    int getResponse(Buffer& output, std::chrono::milliseconds timeout);
+    int getResponse(Buffer& output, const std::chrono::milliseconds& timeout);
 
 private:
     /**

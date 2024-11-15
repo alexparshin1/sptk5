@@ -126,7 +126,7 @@ protected:
      * @param clientBindAddress     Client bind address
      */
     void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
-                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
+                      const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
      * @brief Opens the client socket connection by host and port
@@ -137,7 +137,7 @@ protected:
      * @param clientBindAddress     Client bind address
      */
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
+                      const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
      * @brief Get error description for SSL error code

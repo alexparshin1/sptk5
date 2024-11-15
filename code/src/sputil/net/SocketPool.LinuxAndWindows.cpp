@@ -135,7 +135,7 @@ SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType
     return m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
 }
 
-bool SocketPool::waitForEvents(chrono::milliseconds timeout)
+bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
     std::array<epoll_event, maxEvents> events {};
     const int                          eventCount = epoll_wait(m_pool, events.data(), maxEvents, static_cast<int>(timeout.count()));

@@ -46,7 +46,7 @@ SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t
 }
 
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
-                                               std::chrono::milliseconds timeout, bool reusePort,
+                                               const chrono::milliseconds& timeout, bool reusePort,
                                                const char* clientBindAddress)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
@@ -321,7 +321,7 @@ constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
 #endif
 #endif
 
-bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
+bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeout)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 
@@ -370,7 +370,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(chrono::milliseconds timeout)
 #endif
 }
 
-bool SocketVirtualMethods::readyToWriteUnlocked(std::chrono::milliseconds timeout)
+bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& timeout)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
 #ifdef _WIN32

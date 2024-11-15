@@ -108,7 +108,7 @@ public:
      * @param timeout           Accept operation timeout
      * @returns                 True if accepted a connection
      */
-    [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout);
+    [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const std::chrono::milliseconds& timeout);
 
 protected:
     /**
@@ -120,7 +120,7 @@ protected:
      * @param clientBindAddress Client bind IP address
      */
     void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
-                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
+                      const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
      * Opens the client socket connection by host and port
@@ -131,7 +131,7 @@ protected:
      * @param clientBindAddress Client bind IP address
      */
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
-                      std::chrono::milliseconds timeout, const char* clientBindAddress) override;
+                      const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
      * Reads data from the socket

@@ -38,12 +38,12 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SocketType HttpProxy::connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout)
+SocketType HttpProxy::connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout)
 {
     auto socket = make_shared<TCPSocket>();
 
     const Strings methods({"CONNECT", "GET"});
-    bool proxyConnected = false;
+    bool          proxyConnected = false;
     for (const auto& method: methods)
     {
         try
@@ -78,7 +78,7 @@ SocketType HttpProxy::connect(const Host& destination, bool blockingMode, std::c
 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 {
-    bool proxyConnected {false};
+    bool         proxyConnected {false};
     SocketReader socketReader(*proxySocket);
 
     Buffer buffer;
@@ -88,7 +88,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
         constexpr int minimalHttpError = 400;
-        const int rc = responseMatches[0].value.toInt();
+        const int     rc = responseMatches[0].value.toInt();
         if (rc < minimalHttpError)
         {
             proxyConnected = true;
@@ -97,7 +97,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 
     // Read all headers
     const RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
-    int contentLength = -1;
+    int                     contentLength = -1;
     while (buffer.bytes() > 1)
     {
         socketReader.readLine(buffer);
@@ -140,7 +140,7 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
     if (!m_username.empty())
     {
         const Buffer usernameAndPassword(m_username + ":" + m_password);
-        Buffer encodedUsernameAndPassword;
+        Buffer       encodedUsernameAndPassword;
         Base64::encode(encodedUsernameAndPassword, bit_cast<const uint8_t*>(usernameAndPassword.c_str()),
                        usernameAndPassword.bytes());
         socket->write("Proxy-Authorization: Basic " + String(encodedUsernameAndPassword.c_str()) + "\r\n");
@@ -152,7 +152,7 @@ void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>
 static bool windowsGetDefaultProxy(Host& host, String& username, String& password)
 {
     WINHTTP_AUTOPROXY_OPTIONS AutoProxyOptions {};
-    WINHTTP_PROXY_INFO ProxyInfo {};
+    WINHTTP_PROXY_INFO        ProxyInfo {};
 
     HINTERNET hHttpSession = WinHttpOpen(L"WinHTTP AutoProxy",
                                          WINHTTP_ACCESS_TYPE_NO_PROXY,
@@ -176,8 +176,8 @@ static bool windowsGetDefaultProxy(Host& host, String& username, String& passwor
     AutoProxyOptions.fAutoLogonIfChallenged = TRUE;
 
     // Call WinHttpGetProxyForUrl with our target URL
-    char userName[256] {};
-    char passWord[256] {};
+    char  userName[256] {};
+    char  passWord[256] {};
     DWORD size = sizeof(password);
     if (WinHttpGetProxyForUrl(hHttpSession,
                               L"https://www.microsoft.com/ms.htm",
@@ -216,7 +216,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
     return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
     const RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
-    const char* proxyEnv = getenv("http_proxy");
+    const char*             proxyEnv = getenv("http_proxy");
     if (proxyEnv == nullptr)
     {
         proxyEnv = getenv("HTTP_PROXY");

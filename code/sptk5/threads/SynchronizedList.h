@@ -135,7 +135,7 @@ public:
      * @param item T&, A list item (output)
      * @param timeout std::chrono::milliseconds, Operation timeout
      */
-    virtual bool pop_front(T& item, std::chrono::milliseconds timeout)
+    virtual bool pop_front(T& item, const std::chrono::milliseconds& timeout)
     {
         if (m_semaphore.wait_for(timeout))
         {
@@ -172,7 +172,7 @@ public:
      * @param item T&, A list item (output)
      * @param timeout std::chrono::milliseconds, Operation timeout
      */
-    virtual bool pop_back(T& item, std::chrono::milliseconds timeout)
+    virtual bool pop_back(T& item, const std::chrono::milliseconds& timeout)
     {
         if (m_semaphore.wait_for(timeout))
         {

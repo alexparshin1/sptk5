@@ -37,7 +37,7 @@ class SP_EXPORT HttpProxy : public Proxy
 public:
     using Proxy::Proxy;
 
-    SocketType connect(const Host& destination, bool blockingMode, std::chrono::milliseconds timeout) override;
+    SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) override;
 
     static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
 

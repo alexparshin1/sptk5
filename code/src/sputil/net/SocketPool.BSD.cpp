@@ -71,9 +71,8 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    struct kevent event {
-    };
-    auto eventFlags = EV_ADD | EV_ENABLE;
+    struct kevent event {};
+    auto          eventFlags = EV_ADD | EV_ENABLE;
     switch (m_triggerMode)
     {
         case TriggerMode::EdgeTriggered:
@@ -103,8 +102,7 @@ void SocketPool::forgetSocket(const Socket& socket)
 {
     const scoped_lock lock(*this);
 
-    struct kevent event {
-    };
+    struct kevent event {};
     EV_SET(&event, socket.fd(), 0, EV_DELETE, 0, 0, 0);
 
     if (int rc = kevent(m_pool, &event, 1, NULL, 0, NULL);
@@ -114,7 +112,7 @@ void SocketPool::forgetSocket(const Socket& socket)
     }
 }
 
-bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
+bool SocketPool::waitForEvents(const chrono::milliseconds& timeoutMS)
 {
     const scoped_lock lock(*this);
 
@@ -122,7 +120,7 @@ bool SocketPool::waitForEvents(std::chrono::milliseconds timeoutMS)
                                             long((timeoutMS.count() % 1000) * 1000000)};
 
     std::array<struct kevent, maxEvents> events {};
-    int eventCount = kevent(m_pool, NULL, 0, events.data(), maxEvents, &timeout);
+    int                                  eventCount = kevent(m_pool, NULL, 0, events.data(), maxEvents, &timeout);
     if (eventCount < 0)
     {
         if (m_pool == INVALID_SOCKET)

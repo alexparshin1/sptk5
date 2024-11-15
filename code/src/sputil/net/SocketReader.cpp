@@ -304,7 +304,7 @@ size_t SocketReader::availableBytes() const
     return available + m_socket.socketBytes() >= bytesToRead;
 }
 
-bool SocketReader::readyToRead(std::chrono::milliseconds timeout) const
+bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
 {
     scoped_lock const lock(m_mutex);
 

@@ -46,7 +46,7 @@ String HttpConnect::responseHeader(const String& headerName) const
     return "";
 }
 
-int HttpConnect::getResponse(Buffer& output, chrono::milliseconds readTimeout)
+int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTimeout)
 {
     m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::ReadMode::RESPONSE);
     while (m_reader->getReaderState() < HttpReader::State::COMPLETED)
@@ -120,10 +120,10 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
 }
 
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
-                         const Authorization* authorization, chrono::milliseconds timeout)
+                         const Authorization* authorization, const chrono::milliseconds& timeout)
 {
     const Strings headers = makeHeaders("GET", pageName, requestParameters, authorization);
-    const String command = headers.join("\r\n") + "\r\n\r\n";
+    const String  command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 
@@ -187,11 +187,11 @@ bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& he
 
 int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
                           const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
-                          chrono::milliseconds timeout)
+                          const chrono::milliseconds& timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
-    bool compressed = false;
+    bool   compressed = false;
     size_t contentLength = postData.bytes();
     Buffer compressBuffer;
     if (!possibleContentEncodings.empty() && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
@@ -219,7 +219,7 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
 }
 
 int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& requestParameters, const Buffer& putData,
-                         Buffer& output, const Authorization* authorization, chrono::milliseconds timeout)
+                         Buffer& output, const Authorization* authorization, const chrono::milliseconds& timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters, authorization);
 
@@ -245,10 +245,10 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
 }
 
 int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
-                            const Authorization* authorization, chrono::milliseconds timeout)
+                            const Authorization* authorization, const chrono::milliseconds& timeout)
 {
     const Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);
-    const String command = headers.join("\r\n") + "\r\n\r\n";
+    const String  command = headers.join("\r\n") + "\r\n\r\n";
 
     sendCommand(command);
 

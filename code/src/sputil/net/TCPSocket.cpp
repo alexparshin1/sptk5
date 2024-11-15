@@ -62,7 +62,7 @@ TCPSocket::~TCPSocket()
 }
 
 void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode,
-                             chrono::milliseconds timeout, const char* clientBindAddress)
+                             const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
     if (!_host.hostname().empty())
     {
@@ -89,7 +89,7 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
 }
 
 void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
-                             chrono::milliseconds timeoutMS, const char* clientBindAddress)
+                             const chrono::milliseconds& timeoutMS, const char* clientBindAddress)
 {
     openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
 
@@ -99,7 +99,7 @@ void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMod
     }
 }
 
-bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, std::chrono::milliseconds timeout)
+bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const chrono::milliseconds& timeout)
 {
     socklen_t len = sizeof(clientInfo);
     if (!blockingMode())

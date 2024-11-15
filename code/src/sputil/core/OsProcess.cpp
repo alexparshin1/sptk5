@@ -80,15 +80,15 @@ void OsProcess::start()
     ZeroMemory(&m_processInformation, sizeof(m_processInformation));
 
     // Start the child process.
-    if (!CreateProcessA(nullptr,          // No module name (use command line)
-                        m_command.data(), // Command line
-                        nullptr,          // Process handle not inheritable
-                        nullptr,          // Thread handle not inheritable
-                        true,             // Set handle inheritance
-                        0,                // No creation flags
-                        nullptr,          // Use parent's environment block
-                        nullptr,          // Use parent's starting directory
-                        &si,              // Pointer to STARTUPINFO structure
+    if (!CreateProcessA(nullptr,               // No module name (use command line)
+                        m_command.data(),      // Command line
+                        nullptr,               // Process handle not inheritable
+                        nullptr,               // Thread handle not inheritable
+                        true,                  // Set handle inheritance
+                        0,                     // No creation flags
+                        nullptr,               // Use parent's environment block
+                        nullptr,               // Use parent's starting directory
+                        &si,                   // Pointer to STARTUPINFO structure
                         &m_processInformation) // Pointer to PROCESS_INFORMATION structure
     )
     {
@@ -106,10 +106,9 @@ void OsProcess::start()
                        readData();
                        return close();
                    });
-
 }
 
-int OsProcess::waitForData(std::chrono::milliseconds timeout)
+int OsProcess::waitForData(const chrono::milliseconds& timeout)
 {
 #ifdef _WIN32
     chrono::milliseconds sleepTime = 10ms;
@@ -208,7 +207,7 @@ int OsProcess::wait()
     return m_task.get();
 }
 
-int OsProcess::wait_for(std::chrono::milliseconds timeout)
+int OsProcess::wait_for(const chrono::milliseconds& timeout)
 {
     if (m_task.wait_for(timeout) == std::future_status::ready)
     {

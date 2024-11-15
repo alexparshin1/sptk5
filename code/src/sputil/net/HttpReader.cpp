@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr int oneKb(1024);
+static constexpr int             oneKb(1024);
 static constexpr chrono::seconds thirtySeconds(30);
 
 HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
@@ -394,7 +394,7 @@ String HttpReader::httpHeader(const String& headerName) const
     return itor->second;
 }
 
-int HttpReader::readAll(std::chrono::milliseconds timeout)
+int HttpReader::readAll(const chrono::milliseconds& timeout)
 {
     while (getReaderState() < HttpReader::State::COMPLETED)
     {

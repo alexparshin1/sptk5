@@ -106,7 +106,7 @@ public:
      * @param timeout           Wait timeout
      * @return true if counter received the value, or false if timeout occurs
      */
-    bool wait_for(size_t value, std::chrono::milliseconds timeout);
+    bool wait_for(size_t value, const std::chrono::milliseconds& timeout);
 
     /**
      * @brief Wait until the counter has the value

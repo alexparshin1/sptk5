@@ -131,7 +131,7 @@ public:
      * @param clientBindAddress
      */
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
-              std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
+              const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
     {
         openUnlocked(host, openMode, blockingMode, timeoutMS, clientBindAddress);
     }
@@ -145,7 +145,7 @@ public:
      * @param clientBindAddress Client bind address
      */
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
-              bool blockingMode = true, std::chrono::milliseconds timeoutMS = std::chrono::milliseconds(0),
+              bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
               const char* clientBindAddress = nullptr)
     {
         openUnlocked(address, openMode, blockingMode, timeoutMS, clientBindAddress);
@@ -285,7 +285,7 @@ public:
      * Reports true if socket is ready for reading from it
      * @param timeout           Read timeout
      */
-    [[nodiscard]] bool readyToRead(std::chrono::milliseconds timeout)
+    [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
     {
         const std::scoped_lock lock(m_mutex);
         return readyToReadUnlocked(timeout);
@@ -295,7 +295,7 @@ public:
      * Reports true if socket is ready for writing to it
      * @param timeout           Write timeout
      */
-    [[nodiscard]] virtual bool readyToWrite(std::chrono::milliseconds timeout)
+    [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)
     {
         return readyToWriteUnlocked(timeout);
     }

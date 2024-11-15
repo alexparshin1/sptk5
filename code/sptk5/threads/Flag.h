@@ -95,7 +95,7 @@ public:
      * @param timeout           Wait timeout
      * @return true if flag received the value, or false if timeout occurs
      */
-    bool wait_for(bool value, std::chrono::milliseconds timeout);
+    bool wait_for(bool value, const std::chrono::milliseconds& timeout);
 
     /**
      * Waits until the flag has the value

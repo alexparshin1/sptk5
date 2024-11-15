@@ -55,8 +55,8 @@ public:
      * @param timeout            Timeout in event monitoring loop
      */
     SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
-                 std::chrono::milliseconds timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode triggerMode = SocketPool::TriggerMode::LevelTriggered);
+                 const std::chrono::milliseconds& timeout = std::chrono::milliseconds(100),
+                 SocketPool::TriggerMode          triggerMode = SocketPool::TriggerMode::LevelTriggered);
 
     /**
      * Destructor
@@ -101,10 +101,10 @@ protected:
     void threadFunction() override;
 
 private:
-    mutable std::mutex m_mutex;          ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool m_socketPool;             ///< OS-specific event manager
-    std::map<int, void*> m_watchList;    ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
+    mutable std::mutex        m_mutex;      ///< Mutex that protects map of sockets to corresponding user data
+    SocketPool                m_socketPool; ///< OS-specific event manager
+    std::map<int, void*>      m_watchList;  ///< Map of sockets to corresponding user data
+    std::chrono::milliseconds m_timeout;    ///< Timeout in event monitoring loop
 };
 
 } // namespace sptk

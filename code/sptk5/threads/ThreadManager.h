@@ -99,7 +99,7 @@ private:
      * @brief Join terminated threads
      * @param timeout           Timeout waiting for the terminated threads in the loop
      */
-    void joinTerminatedThreads(std::chrono::milliseconds timeout);
+    void joinTerminatedThreads(const std::chrono::milliseconds& timeout);
 
     /**
      * @brief Terminate all running monitored threads
