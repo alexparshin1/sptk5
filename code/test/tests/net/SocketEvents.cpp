@@ -311,12 +311,13 @@ TEST(SPTK_SocketEvents, performance)
             return SocketEventAction::Continue;
         });
 
-    constexpr size_t  maxSockets = 512;
+    constexpr size_t  maxSockets = 1000;
     vector<TCPSocket> sockets(maxSockets);
-    const Host        testServerHost("theater", 80);
+    // This test expects running a local webserver
+    const Host testServerHost("localhost", 80);
     for (auto& socket: sockets)
     {
-        socket.open(testServerHost);
+        ASSERT_NO_THROW(socket.open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));
     }
 
     StopWatch stopWatch;

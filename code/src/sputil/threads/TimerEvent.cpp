@@ -20,7 +20,7 @@ bool TimerEvent::fire()
     Callback callback;
     bool     reschedule = true;
     {
-        std::scoped_lock lock(m_mutex);
+        lock_guard lock(m_mutex);
 
         callback = m_callback;
 

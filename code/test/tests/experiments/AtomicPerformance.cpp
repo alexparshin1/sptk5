@@ -24,93 +24,67 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/threads/Thread.h"
-#include <sptk5/cutils>
-#include <sptk5/threads/ThreadManager.h>
-#include <utility>
-
+#include "sptk5/threads/SynchronizedQueue.h"
+#include <gtest/gtest.h>
+#include <sptk5/Printer.h>
+#include <sptk5/StopWatch.h>
 
 using namespace std;
 using namespace sptk;
 
-Thread::Thread(String name, vector<int> ignoreSignals)
-    : m_name(std::move(name))
-    , m_ignoreSignals(std::move(ignoreSignals))
+TEST(SPTK_AtomicPerformance, AtomicVsMutex)
 {
-}
+    mutex m;
+    int   a = 0;
+    int   b = 0;
+    int   c = 0;
 
-void Thread::terminate()
-{
-    m_terminated.test_and_set();
-}
-
-bool Thread::terminated()
-{
-    return m_terminated.test();
-}
-
-Thread::Id Thread::id() const
-{
-    const scoped_lock lock(m_mutex);
-    if (m_thread)
+    StopWatch sw;
+    sw.start();
+    for (size_t i = 0; i < 1000000; i++)
     {
-        return m_thread->get_id();
+        lock_guard lock(m);
+        a++;
+        b++;
+        c++;
     }
-    return {};
-}
+    sw.stop();
+    COUT("Lock guard: " << sw.milliseconds() << " ms");
 
-void Thread::join()
-{
-    if (running())
+    sw.start();
+    for (size_t i = 0; i < 1000000; i++)
     {
-        m_thread->join();
-        const scoped_lock lock(m_mutex);
-        m_thread.reset();
+        lock_guard lock(m);
+        a++;
+        b++;
+        c++;
     }
-}
+    sw.stop();
+    COUT("Scoped lock: " << sw.milliseconds() << " ms");
 
-void Thread::run()
-{
-    if (running())
+    atomic_int aa(0);
+    atomic_int bb(0);
+    atomic_int cc(0);
+    sw.start();
+    for (size_t i = 0; i < 1000000; i++)
     {
-        return;
+        aa++;
+        bb++;
+        cc++;
     }
+    sw.stop();
+    COUT("Atomic: " << sw.milliseconds() << " ms");
 
-    const scoped_lock lock(m_mutex);
-    m_thread = make_shared<jthread>(
-        [this]()
-        {
-            // Ignore signals
-            for (const auto sig: m_ignoreSignals)
-            {
-                signal(sig, SIG_IGN);
-            }
-
-            try
-            {
-                m_terminated.clear();
-                threadFunction();
-                onThreadExit();
-                if (m_threadManager)
-                {
-                    m_threadManager->destroyThread(this);
-                }
-            }
-            catch (const Exception& e)
-            {
-                CERR("Exception in thread '" << name() << "': " << e.what());
-            }
-        });
-}
-
-bool Thread::running() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_thread && m_thread->joinable();
-}
-
-void Thread::setThreadManager(ThreadManager* threadManager)
-{
-    const scoped_lock lock(m_mutex);
-    m_threadManager = threadManager;
+    atomic_flag fa(false);
+    atomic_flag fb(false);
+    atomic_flag fc(false);
+    sw.start();
+    for (size_t i = 0; i < 1000000; i++)
+    {
+        fa.test_and_set();
+        fb.test_and_set();
+        fb.test_and_set();
+    }
+    sw.stop();
+    COUT("Flag: " << sw.milliseconds() << " ms");
 }
