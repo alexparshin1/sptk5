@@ -40,7 +40,7 @@ public:
     static atomic<size_t> taskCounter;
     static atomic<size_t> joinCounter;
 
-    ThreadManagerTestThread(const String& name)
+    explicit ThreadManagerTestThread(const String& name)
         : Thread(name)
     {
     }
