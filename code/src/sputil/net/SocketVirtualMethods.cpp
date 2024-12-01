@@ -165,7 +165,7 @@ void SocketVirtualMethods::closeUnlocked()
 
 void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 {
-    const String errorMessage("Can't set socket blockingMode mode");
+    static const String errorMessage("Can't set socket blockingMode mode");
 #ifdef _WIN32
     u_long arg = blockingMode ? 0 : 1;
     if (const int result = ioctlsocket(m_socketFd, FIONBIO, &arg);
