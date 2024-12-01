@@ -188,7 +188,6 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        const std::scoped_lock lock(m_mutex);
         return activeUnlocked();
     }
 
