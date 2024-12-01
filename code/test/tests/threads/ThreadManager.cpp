@@ -73,7 +73,7 @@ atomic<size_t> ThreadManagerTestThread::joinCounter;
 TEST(SPTK_ThreadManager, minimal)
 {
     constexpr size_t maxThreads = 10;
-    const auto threadManager = make_shared<ThreadManager>("Test Manager");
+    const auto       threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
