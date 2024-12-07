@@ -28,8 +28,6 @@
 
 #include <functional>
 #include <sptk5/net/TCPSocket.h>
-#include <sptk5/threads/Runable.h>
-#include <sptk5/threads/Thread.h>
 
 #ifndef _WIN32
 
@@ -52,7 +50,6 @@ class TCPServer;
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection
  */
 class SP_EXPORT ServerConnection
-    : public Runable
 {
     friend class TCPServer;
 
@@ -68,11 +65,12 @@ public:
     /**
      * Constructor
      * @param server            Server that created this connection
-     * @param taskName          Task name
-     * @param connectionFunction Connection function processing this connection
+     * @param type              Connection type
+     * @param connectionAddress Connection address
      */
-    ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                     const String& taskName = "ServerConnection", ServerConnection::Function connectionFunction = {});
+    ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress);
+
+    virtual ~ServerConnection() = default;
 
     void close();
 
@@ -122,26 +120,17 @@ protected:
 
     void parseAddress(const sockaddr_in* connectionAddress);
 
-    void run() override
-    {
-        if (m_connectionFunction)
-        {
-            m_connectionFunction(*this);
-        }
-    }
-
 public:
     uint16_t port() const;
 
 private:
-    mutable std::mutex         m_mutex;
-    TCPServer&                 m_server;             ///< Parent server object
-    STCPSocket                 m_socket;             ///< Connection socket
-    String                     m_address;            ///< Incoming connection IP address
-    uint16_t                   m_port {0};           ///< Incoming connection port
-    size_t                     m_serial {0};         ///< Connection serial number
-    Type                       m_type;               ///< Connection type (TCP or SSL)
-    ServerConnection::Function m_connectionFunction; ///< Function that is executed for each client connection
+    mutable std::mutex m_mutex;      ///< Mutex that protects internal data
+    TCPServer&         m_server;     ///< Parent server object
+    STCPSocket         m_socket;     ///< Connection socket
+    String             m_address;    ///< Incoming connection IP address
+    uint16_t           m_port {0};   ///< Incoming connection port
+    size_t             m_serial {0}; ///< Connection serial number
+    Type               m_type;       ///< Connection type (TCP or SSL)
 
     /**
      * Create next connection serial number

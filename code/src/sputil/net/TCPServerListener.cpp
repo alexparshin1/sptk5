@@ -24,13 +24,14 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/net/RunableServerConnection.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
 using namespace std;
 using namespace sptk;
 
-TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType)
+TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType, size_t acceptThreadCount)
     : Thread("CTCPServer::Listener")
     , m_server(shared_ptr<TCPServer>(server,
                                      [this](const TCPServer*)
@@ -40,6 +41,44 @@ TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, con
     , m_connectionType(connectionType)
 {
     m_listenerSocket.host(Host("localhost", port));
+    for (size_t i = 0; i < acceptThreadCount; ++i)
+    {
+        auto createConnectionThread = jthread(
+            [this]
+            {
+                while (!terminated())
+                {
+                    CreateConnectionItem createConnectionItem;
+                    if (m_createConnectionQueue.pop_front(createConnectionItem, 100ms))
+                    {
+                        createConnection(createConnectionItem);
+                    }
+                }
+            });
+        m_createConnectionThreads.push_back(std::move(createConnectionThread));
+    }
+}
+
+void TCPServerListener::createConnection(const CreateConnectionItem& createConnectionItem) const
+{
+    if (m_server->allowConnection(&createConnectionItem.connectionInfo))
+    {
+        if (auto connection = m_server->createConnection(m_connectionType, createConnectionItem.connectionFD, &createConnectionItem.connectionInfo))
+        {
+            auto* runableServerConnectionPtr = static_cast<RunableServerConnection*>(connection.release());
+            auto  runnableServerConnection = std::unique_ptr<RunableServerConnection>(runableServerConnectionPtr);
+            m_server->execute(std::move(runnableServerConnection));
+        }
+    }
+    else
+    {
+#ifndef _WIN32
+        shutdown(createConnectionItem.connectionFD, SHUT_RDWR);
+        ::close(createConnectionItem.connectionFD);
+#else
+        closesocket(connectionFD);
+#endif
+    }
 }
 
 void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
@@ -50,22 +89,8 @@ void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
         sockaddr_in connectionInfo = {};
         if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
-            if (m_server->allowConnection(&connectionInfo))
-            {
-                if (auto connection = m_server->createConnection(m_connectionType, connectionFD, &connectionInfo))
-                {
-                    m_server->execute(std::move(connection));
-                }
-            }
-            else
-            {
-#ifndef _WIN32
-                shutdown(connectionFD, SHUT_RDWR);
-                ::close(connectionFD);
-#else
-                closesocket(connectionFD);
-#endif
-            }
+            CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};
+            m_createConnectionQueue.push_back(std::move(createConnectionItem));
         }
     }
     catch (const Exception& e)
@@ -73,6 +98,7 @@ void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
         m_server->log(LogPriority::Error, e.what());
     }
 }
+
 
 void TCPServerListener::threadFunction()
 {

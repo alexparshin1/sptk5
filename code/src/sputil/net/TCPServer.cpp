@@ -152,7 +152,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
     m_portListeners.erase(port);
 }
 
-bool TCPServer::allowConnection(sockaddr_in*)
+bool TCPServer::allowConnection(const sockaddr_in*)
 {
     return true;
 }

@@ -37,7 +37,7 @@
 namespace sptk {
 
 class SP_EXPORT WSConnection
-    : public ServerConnection
+    : public RunableServerConnection
 {
 public:
     class Paths

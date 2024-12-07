@@ -26,16 +26,11 @@
 
 #pragma once
 
-#include <iostream>
-#include <set>
 #include <sptk5/Logger.h>
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
-
-class TCPServer;
-
 /**
  * @addtogroup net Networking Classes
  * @{
@@ -51,10 +46,12 @@ class TCPServerListener
 public:
     /**
      * Constructor
-     * @param server CTCPServer*, TCP server created connection
-     * @param port int, Listener port number
+     * @param server            TCP server created connection
+     * @param port              Listener port number
+     * @param connectionType    Connection type
+     * @param acceptThreadCount Number of accept threads
      */
-    TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType);
+    TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
 
     /**
      * Thread function
@@ -82,13 +79,27 @@ public:
     void stop();
 
 private:
-    std::shared_ptr<TCPServer> m_server;         ///< TCP server created connection
-    TCPSocket                  m_listenerSocket; ///< Listener socket
-    String                     m_error;          ///< Last socket error
-    ServerConnection::Type     m_connectionType; ///< Connection type
+    std::shared_ptr<TCPServer> m_server;                    ///< TCP server created connection
+    TCPSocket                  m_listenerSocket;            ///< Listener socket
+    String                     m_error;                     ///< Last socket error
+    ServerConnection::Type     m_connectionType;            ///< Connection type
 
-    void acceptConnection(const std::chrono::milliseconds& timeout); ///< Accept connection
+    struct CreateConnectionItem
+    {
+        SocketType  connectionFD {0};
+        sockaddr_in connectionInfo = {};
+    };
+
+    void acceptConnection(const std::chrono::milliseconds& timeout);         ///< Accept connection
+
+    std::vector<std::jthread>               m_createConnectionThreads; ///< Create connection threads
+    SynchronizedQueue<CreateConnectionItem> m_createConnectionQueue;   ///< Create connection queue
+
+    void createConnection(const CreateConnectionItem& createConnectionItem)const; ///< Create connection
 };
+
+class TCPServer;
+
 
 /**
  * @}

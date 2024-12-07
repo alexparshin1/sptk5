@@ -216,12 +216,10 @@ public:
     const SSLKeys& getSSLKeys() const;
 
     /**
-     * @brief Create connection thread derived from TCPServerConnection or SSLServerConnection
-     * Application should override this method to create concrete connection object.
-     * Created connection object is maintained by CTCPServer.
-     * @param function          User-defined function that is called upon client connection to server
+     * Set user-defined function that is called upon client connection to server
+     * @param function          User-defined function
      */
-    virtual void onConnection(const ServerConnection::Function& function);
+    void onConnection(const ServerConnection::Function& function);
 
 protected:
     /**
@@ -237,7 +235,7 @@ protected:
      * and allows ignoring unwanted connections. By default simply returns true (allow).
      * @param connectionRequest Incoming connection information
      */
-    virtual bool allowConnection(sockaddr_in* connectionRequest);
+    virtual bool allowConnection(const sockaddr_in* connectionRequest);
 
     /**
      * @brief Create connection thread derived from TCPServerConnection or SSLServerConnection

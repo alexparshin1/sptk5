@@ -70,13 +70,10 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                                   const String& taskName, ServerConnection::Function connectionFunction)
-    : Runable(taskName)
-    , m_server(server)
+ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress)
+    : m_server(server)
     , m_serial(nextSerial())
     , m_type(type)
-    , m_connectionFunction(std::move(connectionFunction))
 {
     parseAddress(connectionAddress);
 }
@@ -99,7 +96,7 @@ void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
             m_port = ntohs(connectionAddress6->sin6_port);
         }
     }
-    m_address = String(address.data());
+    m_address.assign(address.data());
 }
 
 uint16_t ServerConnection::port() const

@@ -26,7 +26,8 @@
 
 #pragma once
 
-#include <sptk5/net/RunableServerConnection.h>
+#include <sptk5/net/ServerConnection.h>
+#include <sptk5/threads/Runable.h>
 
 namespace sptk {
 
@@ -35,37 +36,38 @@ namespace sptk {
  * @{
  */
 
-/**
- * @brief Abstract TCP server connection thread
- *
- * Application derives concrete TCP server connections based on this class,
- * to use with CTCPServer as connection template
- */
-class SP_EXPORT TCPServerConnection : public RunableServerConnection
+class SP_EXPORT RunableServerConnection
+    : public ServerConnection
+    , public Runable
+
 {
 public:
     /**
-     * @brief Constructor
-     * @param server            TCP server
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
-     * @param connectionAddress Incoming connection address
+     * Constructor
+     * @param server            Server that created this connection
+     * @param type              Connection type
+     * @param connectionAddress Connection address
      * @param connectionFunction Connection function executed for each new client connection to server
      */
-    explicit TCPServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
-        : RunableServerConnection(server, ServerConnection::Type::TCP, connectionAddress, connectionFunction)
+    RunableServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
+                             Function connectionFunction = {})
+        : ServerConnection(server, type, connectionAddress)
+        , Runable("RunnableServerConnection")
+        , m_connectionFunction(std::move(connectionFunction))
     {
-        setSocket(std::make_shared<TCPSocket>());
-        socket().attach(connectionSocket, false);
     }
 
-    /**
-     * Terminate connection thread
-     */
-    void terminate() override
+protected:
+    void run() override
     {
-        socket().close();
-        RunableServerConnection::terminate();
+        if (m_connectionFunction)
+        {
+            m_connectionFunction(*this);
+        }
     }
+
+private:
+    Function m_connectionFunction; ///< Function that is executed for each client connection
 };
 
 /**

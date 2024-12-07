@@ -34,7 +34,7 @@ using namespace sptk;
 WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services,
                            LogEngine& logEngine,
                            Options options, const std::shared_ptr<sptk::Thread>& workerThread)
-    : ServerConnection(server, ServerConnection::Type::SSL, connectionAddress, "WSConnection")
+    : RunableServerConnection(server, Type::SSL, connectionAddress)
     , m_services(services)
     , m_logger(logEngine, "(" + to_string(serial()) + ") ")
     , m_options(std::move(options))
