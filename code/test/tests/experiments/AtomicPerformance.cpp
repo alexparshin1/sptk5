@@ -39,9 +39,11 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
     int   b = 0;
     int   c = 0;
 
+    constexpr int N = 1000000;
+
     StopWatch sw;
     sw.start();
-    for (size_t i = 0; i < 1000000; i++)
+    for (size_t i = 0; i < N; i++)
     {
         lock_guard lock(m);
         a++;
@@ -49,10 +51,19 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
         c++;
     }
     sw.stop();
+
+    EXPECT_EQ(N, a);
+    EXPECT_EQ(N, b);
+    EXPECT_EQ(N, c);
+
     COUT("Lock guard: " << sw.milliseconds() << " ms");
 
+    a = 0;
+    b = 0;
+    c = 0;
+
     sw.start();
-    for (size_t i = 0; i < 1000000; i++)
+    for (size_t i = 0; i < N; i++)
     {
         lock_guard lock(m);
         a++;
@@ -60,6 +71,11 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
         c++;
     }
     sw.stop();
+
+    EXPECT_EQ(N, a);
+    EXPECT_EQ(N, b);
+    EXPECT_EQ(N, c);
+
     COUT("Scoped lock: " << sw.milliseconds() << " ms");
 
     atomic_int aa(0);
@@ -83,7 +99,7 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
     {
         fa.test_and_set();
         fb.test_and_set();
-        fb.test_and_set();
+        fc.test_and_set();
     }
     sw.stop();
     COUT("Flag: " << sw.milliseconds() << " ms");
