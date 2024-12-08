@@ -95,8 +95,9 @@ public:
      * Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      * @param triggerMode    Socket event trigger mode
+     * @param maxEvents      Maximum number of socket events per poll
      */
-    explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode);
+    explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode, size_t maxEvents = 1024);
 
     /**
      * Deleted copy constructor
@@ -161,9 +162,10 @@ private:
     /**
      * Callback function executed upon socket events
      */
-    SocketEventCallback                         m_eventsCallback; ///< Sockets event callback function
-    static const int                            maxEvents = 4096; ///< Maximum number of socket events per poll
-    TriggerMode                                 m_triggerMode;    ///< Socket event trigger mode
+    SocketEventCallback m_eventsCallback; ///< Sockets event callback function
+    size_t              m_maxEvents;      ///< Maximum number of socket events per poll
+    Buffer              m_eventsBuffer;   ///< Socket events
+    TriggerMode         m_triggerMode;    ///< Socket event trigger mode
 
     void              processError(int error, const String& operation) const;
     SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);

@@ -53,10 +53,14 @@ public:
      * @param name               Logical name for event manager (also the thread name)
      * @param eventsCallback     Callback function called for socket events
      * @param timeout            Timeout in event monitoring loop
+     * @param triggerMode        Socket event trigger mode
+     * @param maxEvents          Maximum number of events per poll
      */
-    SocketEvents(const String& name, const SocketEventCallback& eventsCallback,
+    SocketEvents(const String&                    name,
+                 const SocketEventCallback&       eventsCallback,
                  const std::chrono::milliseconds& timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode          triggerMode = SocketPool::TriggerMode::LevelTriggered);
+                 SocketPool::TriggerMode          triggerMode = SocketPool::TriggerMode::LevelTriggered,
+                 size_t                           maxEvents = 1024);
 
     /**
      * Destructor

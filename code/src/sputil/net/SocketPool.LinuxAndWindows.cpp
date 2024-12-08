@@ -124,8 +124,10 @@ SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    std::array<epoll_event, maxEvents> events {};
-    const int                          eventCount = epoll_wait(m_pool, events.data(), maxEvents, static_cast<int>(timeout.count()));
+    m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
+    auto* events = (epoll_event*) m_eventsBuffer.data();
+
+    const int eventCount = epoll_wait(m_pool, events, m_maxEvents, static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
