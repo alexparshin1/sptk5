@@ -81,7 +81,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    m_userData[&socket] = userData;
+    socket.setSocketEventData(userData);
 
     SocketEvent event;
     event.data.ptr = bit_cast<uint8_t*>(&socket);
@@ -110,28 +110,15 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 
 void SocketPool::forgetSocket(Socket& socket)
 {
-    const lock_guard lock(*this);
-
     if (socket.active())
     {
         epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), nullptr);
     }
-
-    m_userData.erase(&socket);
 }
 
 SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType eventType)
 {
-    const uint8_t* userData;
-    {
-        const lock_guard lock(*this);
-        const auto       iterator = m_userData.find(socket);
-        if (iterator == m_userData.end())
-        {
-            return SocketEventAction::Disable;
-        }
-        userData = iterator->second;
-    }
+    const uint8_t* userData = socket->getSocketEventData();
     return m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
 }
 
@@ -156,7 +143,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 
         if (auto* socket = bit_cast<Socket*>(event.data.ptr))
         {
-            if (isSocketRegistered(socket) && executeEventAction(socket, eventType) == SocketEventAction::Disable)
+            if (executeEventAction(socket, eventType) == SocketEventAction::Disable)
             {
                 // Disable events for the socket
                 event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;

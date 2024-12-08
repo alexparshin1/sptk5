@@ -164,16 +164,9 @@ private:
     SocketEventCallback                         m_eventsCallback; ///< Sockets event callback function
     static const int                            maxEvents = 4096; ///< Maximum number of socket events per poll
     TriggerMode                                 m_triggerMode;    ///< Socket event trigger mode
-    std::unordered_map<Socket*, const uint8_t*> m_userData;       ///< User data related to socket
 
     void              processError(int error, const String& operation) const;
     SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);
-
-    bool isSocketRegistered(Socket* socket)
-    {
-        std::lock_guard lock(*this);
-        return m_userData.find(socket) != m_userData.end();
-    }
 };
 
 } // namespace sptk

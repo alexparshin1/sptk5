@@ -178,7 +178,6 @@ public:
      */
     void close()
     {
-        const std::scoped_lock lock(m_mutex);
         closeUnlocked();
     }
 
@@ -351,7 +350,6 @@ protected:
      */
     const uint8_t* getSocketEventData() const
     {
-        std::scoped_lock lock(m_mutex);
         return m_socketEventData;
     }
 
@@ -361,14 +359,13 @@ protected:
      */
     void setSocketEventData(const uint8_t* socketEventData)
     {
-        std::scoped_lock lock(m_mutex);
         m_socketEventData = socketEventData;
     }
 
 
 private:
-    mutable std::mutex m_mutex;                     ///< Mutex that protects host data
-    const uint8_t*     m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
+    mutable std::mutex          m_mutex;                     ///< Mutex that protects host data
+    std::atomic<const uint8_t*> m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
 };
 
 /**
