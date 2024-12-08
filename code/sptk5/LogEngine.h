@@ -206,8 +206,7 @@ protected:
      */
     bool terminated() const
     {
-        const std::lock_guard lock(m_mutex);
-        return m_terminated;
+        return m_terminated.test();
     }
 
     virtual void flush()
@@ -236,7 +235,7 @@ private:
      */
     std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
-    bool m_terminated {false};
+    std::atomic_flag m_terminated {false};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

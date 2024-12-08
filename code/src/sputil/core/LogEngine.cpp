@@ -46,7 +46,8 @@ LogEngine::LogEngine(const String&)
 
 LogEngine::~LogEngine()
 {
-    shutdown();
+    const lock_guard lock(m_mutex);
+    m_terminated.test_and_set();
 }
 
 void LogEngine::shutdown()
@@ -201,10 +202,8 @@ void LogEngine::threadFunction()
 
 void LogEngine::terminate()
 {
-    {
-        const lock_guard lock(m_mutex);
-        m_terminated = true;
-    }
+    m_terminated.test_and_set();
+
     m_messages.wakeup();
     if (m_saveMessageThread.joinable())
     {

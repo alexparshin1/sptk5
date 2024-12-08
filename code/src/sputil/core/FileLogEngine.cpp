@@ -90,6 +90,7 @@ FileLogEngine::FileLogEngine(const filesystem::path& fileName)
 
 void FileLogEngine::flush()
 {
+    const lock_guard lock(masterLock());
     m_fileStream.flush();
 }
 

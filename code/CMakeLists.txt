@@ -106,7 +106,6 @@ ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         ADD_DEFINITIONS(
                 -fPIC
-                #-fsanitize=address
                 -Wall -pedantic
                 -Wno-c++98-compat
                 -Wno-c++98-compat-pedantic
@@ -154,9 +153,15 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #ADD_DEFINITIONS(-O1 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O1 -mtune=native -march=native)
+
+        # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)
-        #LINK_LIBRARIES(asan)
+        #LINK_LIBRARIES(tsan)
+
+        # Enable thread sanitizer:
+        #ADD_DEFINITIONS(-fsanitize=thread)
+        #LINK_LIBRARIES(tsan)
     ELSE ()
         ADD_DEFINITIONS(-O3 -mtune=native -march=native)
     ENDIF ()
