@@ -109,10 +109,6 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
         {
             return true;
         }
-        if (clientSocketFD == INVALID_SOCKET)
-        {
-            throwSocketError("Error on accept(). ");
-        }
     }
 
     if (readyToRead(timeout))

@@ -228,7 +228,7 @@ TEST(SPTK_TCPServer, sslMinimal)
 }
 
 namespace {
-shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType)
+shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType, const std::function<void(ServerConnection&)>& performanceTestFunction)
 {
     auto pushTcpServer = make_shared<TCPServer>("Performance Test Server");
 
@@ -282,9 +282,62 @@ void printPerformanceTestResult(const String& testLabel, const size_t readSize, 
                    << static_cast<double>(packetCount * readSize) / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n\n");
 }
 
+void testAcceptPerformance(ServerConnection::Type connectionType, const String& testLabel)
+{
+    auto pushTcpServer = makePerformanceTestServer(connectionType,
+                                                   [](ServerConnection& serverConnection)
+                                                   {
+                                                   });
+
+    constexpr size_t connectionNumber {10000};
+    StopWatch        stopWatch;
+
+    vector<shared_ptr<TCPSocket>> sockets;
+    for (size_t i = 0; i < connectionNumber; ++i)
+    {
+        const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
+                                                 ? make_shared<TCPSocket>()
+                                                 : make_shared<SSLSocket>();
+        sockets.push_back(socket);
+    }
+
+    const auto serverPortNumber = connectionType == ServerConnection::Type::TCP
+                                      ? testTcpEchoServerPort
+                                      : testSslEchoServerPort;
+
+    size_t connectedCount = 0;
+    try
+    {
+        stopWatch.start();
+        for (const auto& socket: sockets)
+        {
+            socket->open(Host("localhost", serverPortNumber));
+            ++connectedCount;
+            if (connectedCount % 100 == 0)
+            {
+                cout << "\rAccepted " << connectedCount << flush;
+            }
+        }
+        stopWatch.stop();
+    }
+    catch (const Exception& e)
+    {
+        stringstream errorMessage;
+        errorMessage << endl
+                     << e.what() << ", connected " << connectedCount << " sockets";
+        throw Exception(errorMessage.str());
+    }
+    COUT("");
+
+    pushTcpServer->stop();
+
+    COUT(testLabel << " accepted " << connectedCount
+                   << " connections at the rate " << fixed << setprecision(2) << static_cast<double>(connectedCount) / stopWatch.seconds() << "/s");
+}
+
 void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
 {
-    auto pushTcpServer = makePerformanceTestServer(connectionType);
+    auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
 
     constexpr size_t readSize {packetSize};
     StopWatch        stopWatch;
@@ -336,7 +389,7 @@ TEST(SPTK_TCPServer, sslTransferPerformance)
 namespace {
 void testReaderTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
 {
-    auto pushTcpServer = makePerformanceTestServer(connectionType);
+    auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
 
     const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
                                              ? make_shared<TCPSocket>()
@@ -381,6 +434,18 @@ TEST(SPTK_TCPServer, sslReaderTransferPerformance)
     try
     {
         testReaderTransferPerformance(ServerConnection::Type::SSL, "SSLReader");
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << e.what();
+    }
+}
+
+TEST(SPTK_TCPServer, testAcceptPerformance)
+{
+    try
+    {
+        testAcceptPerformance(ServerConnection::Type::TCP, "TCP");
     }
     catch (const Exception& e)
     {

@@ -163,12 +163,13 @@ void TCPServer::stop()
 
     if (!m_portListeners.empty())
     {
-        for (const auto& [port, listenerThreads]: m_portListeners)
+        for (auto& [port, listenerThreads]: m_portListeners)
         {
             for (const auto& listenerThread: listenerThreads)
             {
                 listenerThread->stop();
             }
+            listenerThreads.clear();
         }
         m_portListeners.clear();
     }

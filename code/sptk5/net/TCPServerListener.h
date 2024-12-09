@@ -53,6 +53,8 @@ public:
      */
     TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
 
+    ~TCPServerListener() override = default;
+
     /**
      * Thread function
      */
@@ -79,10 +81,10 @@ public:
     void stop();
 
 private:
-    std::shared_ptr<TCPServer> m_server;                    ///< TCP server created connection
-    TCPSocket                  m_listenerSocket;            ///< Listener socket
-    String                     m_error;                     ///< Last socket error
-    ServerConnection::Type     m_connectionType;            ///< Connection type
+    TCPServer*             m_server;         ///< TCP server created connection
+    TCPSocket              m_listenerSocket; ///< Listener socket
+    String                 m_error;          ///< Last socket error
+    ServerConnection::Type m_connectionType; ///< Connection type
 
     struct CreateConnectionItem
     {
@@ -90,12 +92,11 @@ private:
         sockaddr_in connectionInfo = {};
     };
 
-    void acceptConnection(const std::chrono::milliseconds& timeout);         ///< Accept connection
-
     std::vector<std::jthread>               m_createConnectionThreads; ///< Create connection threads
     SynchronizedQueue<CreateConnectionItem> m_createConnectionQueue;   ///< Create connection queue
 
-    void createConnection(const CreateConnectionItem& createConnectionItem)const; ///< Create connection
+    bool acceptConnection(const std::chrono::milliseconds& timeout);               ///< Accept connection
+    void createConnection(const CreateConnectionItem& createConnectionItem) const; ///< Create connection
 };
 
 class TCPServer;

@@ -33,11 +33,7 @@ using namespace sptk;
 
 TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType, size_t acceptThreadCount)
     : Thread("CTCPServer::Listener")
-    , m_server(shared_ptr<TCPServer>(server,
-                                     [this](const TCPServer*)
-                                     {
-                                         stop();
-                                     }))
+    , m_server(server)
     , m_connectionType(connectionType)
 {
     m_listenerSocket.host(Host("localhost", port));
@@ -65,7 +61,7 @@ void TCPServerListener::createConnection(const CreateConnectionItem& createConne
     {
         if (auto connection = m_server->createConnection(m_connectionType, createConnectionItem.connectionFD, &createConnectionItem.connectionInfo))
         {
-            auto* runableServerConnectionPtr = static_cast<RunableServerConnection*>(connection.release());
+            auto* runableServerConnectionPtr = dynamic_cast<RunableServerConnection*>(connection.release());
             auto  runnableServerConnection = std::unique_ptr<RunableServerConnection>(runableServerConnectionPtr);
             m_server->execute(std::move(runnableServerConnection));
         }
@@ -81,7 +77,7 @@ void TCPServerListener::createConnection(const CreateConnectionItem& createConne
     }
 }
 
-void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
+bool TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
 {
     try
     {
@@ -90,13 +86,15 @@ void TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
         if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
             CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};
-            m_createConnectionQueue.push_back(std::move(createConnectionItem));
+            m_createConnectionQueue.push_back(createConnectionItem);
+            return true;
         }
     }
     catch (const Exception& e)
     {
         m_server->log(LogPriority::Error, e.what());
     }
+    return false;
 }
 
 
@@ -105,16 +103,16 @@ void TCPServerListener::threadFunction()
     try
     {
         constexpr auto readTimeout = chrono::milliseconds(100);
+        m_listenerSocket.blockingMode(false);
         while (!terminated())
         {
-            const scoped_lock lock(*this);
-            if (m_listenerSocket.readyToRead(readTimeout))
+            //const scoped_lock lock(*this);
+            if (!acceptConnection(readTimeout))
             {
                 if (!m_listenerSocket.active())
                 {
                     break;
                 }
-                acceptConnection(readTimeout);
             }
         }
     }
@@ -146,7 +144,7 @@ String TCPServerListener::error() const
 void TCPServerListener::stop()
 {
     terminate();
-    m_listenerSocket.close();
     join();
+    m_listenerSocket.close();
     const scoped_lock lock(*this);
 }
