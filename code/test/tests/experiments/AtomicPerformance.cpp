@@ -26,7 +26,6 @@
 
 #include "sptk5/threads/SynchronizedQueue.h"
 #include <gtest/gtest.h>
-#include <sptk5/Printer.h>
 #include <sptk5/StopWatch.h>
 
 using namespace std;
