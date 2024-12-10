@@ -1,6 +1,7 @@
 import React from "react";
 import "../css/Documentation.css";
 import connectionsTest from "../images/tests/connections.png"
+import sendTest1 from "../images/tests/send-1M-messages-to-1K-clients.png"
 
 export default class XMQ_tests extends React.Component
 {
@@ -53,6 +54,14 @@ export default class XMQ_tests extends React.Component
                 The used test utility is xmq_con.
             </p>
             <img src={connectionsTest} alt="Connection performance chart"/>
+
+            <h4>Message Send Performance</h4>
+            <p>
+                Connect 1K publishers using a topic per a pair publisher, then send 1M messages through 1K topics.
+                The test checks how fast the server can receive messages.
+                The used test utility is xmq_pub.
+            </p>
+            <img src={sendTest1} alt="Send performance chart"/>
 
         </div>;
     }
