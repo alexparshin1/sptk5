@@ -49,7 +49,7 @@ export default class XMQ_tests extends React.Component
 
             <h4>Connection Performance</h4>
             <p>
-                Connect 100K clients using 100 threads.
+                Connect 100K clients using 100 threads, over 1Gbit network.
                 Verify that there is no performance degradation with growing number of connected clients.
                 The used test utility is xmq_con.
             </p>
@@ -57,7 +57,7 @@ export default class XMQ_tests extends React.Component
 
             <h4>Message Send Performance</h4>
             <p>
-                Connect 1K publishers using a topic per a pair publisher, then send 1M messages through 1K topics.
+                Connect 1K publishers using a topic per a pair publisher, then send 1M messages through 1K topics with QOS1, over 1Gbit network.
                 The test checks how fast the server can receive messages.
                 The used test utility is xmq_pub.
             </p>
