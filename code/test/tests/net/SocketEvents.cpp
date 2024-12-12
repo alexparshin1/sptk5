@@ -181,7 +181,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
         else
         {
             receivedEvent.post();
-            eventCount++;
+            ++eventCount;
         }
 
         return SocketEventAction::Continue;
