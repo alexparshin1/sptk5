@@ -187,10 +187,10 @@ void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
     m_sslKeys = std::move(sslKeys);
 }
 
-const SSLKeys& TCPServer::getSSLKeys() const
+std::shared_ptr<SSLKeys> TCPServer::getSSLKeys() const
 {
     const scoped_lock lock(m_mutex);
-    return *m_sslKeys;
+    return m_sslKeys;
 }
 
 void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)

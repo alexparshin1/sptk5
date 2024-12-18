@@ -336,7 +336,7 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     {
         const auto& sslKeys = server.getSSLKeys();
         const auto  socket = make_shared<SSLSocket>();
-        socket->loadKeys(sslKeys);
+        socket->loadKeys(*sslKeys);
         setSocket(socket);
     }
     else

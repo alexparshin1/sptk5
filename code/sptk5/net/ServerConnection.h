@@ -110,6 +110,8 @@ public:
         return m_serial;
     }
 
+    static std::tuple<std::string, uint16_t> parseAddress(const sockaddr_in* connectionAddress);
+
 protected:
     /**
      * Assign new socket
@@ -117,8 +119,6 @@ protected:
      * @return previous socket
      */
     STCPSocket setSocket(const STCPSocket& socket);
-
-    void parseAddress(const sockaddr_in* connectionAddress);
 
 public:
     uint16_t port() const;

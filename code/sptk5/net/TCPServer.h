@@ -213,7 +213,7 @@ public:
      * @brief Get SSL keys for SSL connections (encrypted mode only)
      * @return SSL keys info
      */
-    const SSLKeys& getSSLKeys() const;
+    std::shared_ptr<SSLKeys> getSSLKeys() const;
 
     /**
      * Set user-defined function that is called upon client connection to server

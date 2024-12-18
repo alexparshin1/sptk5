@@ -55,7 +55,7 @@ public:
     {
         auto sslSocket = std::make_shared<SSLSocket>();
         setSocket(sslSocket);
-        sslSocket->loadKeys(server.getSSLKeys());
+        sslSocket->loadKeys(*server.getSSLKeys());
         sslSocket->attach(connectionSocket, true);
     }
 

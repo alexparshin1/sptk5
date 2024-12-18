@@ -75,28 +75,29 @@ ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_
     , m_serial(nextSerial())
     , m_type(type)
 {
-    parseAddress(connectionAddress);
+    tie(m_address, m_port) = parseAddress(connectionAddress);
 }
 
-void ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
+std::tuple<std::string, uint16_t> ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
     constexpr int               maxAddressSize {128};
     array<char, maxAddressSize> address {"127.0.0.1"};
+    uint16_t port = 0;
     if (connectionAddress)
     {
         if (connectionAddress->sin_family == AF_INET)
         {
             inet_ntop(AF_INET, &connectionAddress->sin_addr, address.data(), sizeof(address));
-            m_port = ntohs(connectionAddress->sin_port);
+            port = ntohs(connectionAddress->sin_port);
         }
         else if (connectionAddress->sin_family == AF_INET6)
         {
             const auto* connectionAddress6 = bit_cast<const sockaddr_in6*>(connectionAddress);
             inet_ntop(AF_INET6, &connectionAddress6->sin6_addr, address.data(), sizeof(address));
-            m_port = ntohs(connectionAddress6->sin6_port);
+            port = ntohs(connectionAddress6->sin6_port);
         }
     }
-    m_address.assign(address.data());
+    return { address.data(), port};
 }
 
 uint16_t ServerConnection::port() const
