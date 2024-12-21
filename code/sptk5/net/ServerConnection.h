@@ -72,7 +72,7 @@ public:
 
     virtual ~ServerConnection() = default;
 
-    void close();
+    void close() const;
 
     /**
      * Access to internal socket for derived classes

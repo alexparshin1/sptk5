@@ -105,7 +105,7 @@ uint16_t ServerConnection::port() const
     return m_port;
 }
 
-void ServerConnection::close()
+void ServerConnection::close() const
 {
     const scoped_lock lock(m_mutex);
     if (m_socket->active())
