@@ -24,15 +24,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
 #include <sptk5/threads/TimerEvents.h>
+
+using namespace std;
 
 namespace sptk {
 
-void TimerEvents::add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event)
+void TimerEvents::add(const std::shared_ptr<TimerEvent>& event)
 {
+    auto when = event->mcs_since_epoch();
+
     std::lock_guard lock(m_mutex);
-    if (const auto iterator = m_events.emplace(timestamp, event);
+    if (const auto iterator = m_events.emplace(when, event);
         iterator == m_events.begin())
     {
         m_semaphore.release();

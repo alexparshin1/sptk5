@@ -15,6 +15,7 @@ namespace sptk {
 class SP_EXPORT TimerEvent
 {
     friend class IntervalTimer;
+    friend class TimerEvents;
 
 public:
     /**
@@ -47,7 +48,7 @@ public:
     /**
      * @return event fire at timestamp
      */
-    const DateTime::time_point when() const
+    DateTime::time_point when() const
     {
         return m_when;
     }
@@ -75,6 +76,15 @@ private:
     std::chrono::milliseconds m_repeatInterval;  ///< Event repeat interval
     Callback                  m_callback;        ///< Event callback function, defined when event is scheduled.
     int                       m_repeatCount {0}; ///< Number of event repeats, -1 means no limit.
+
+    /**
+     * @return event fire at timestamp
+     */
+    long mcs_since_epoch() const
+    {
+        auto duration = m_when.time_since_epoch();
+        return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+    }
 };
 
 /**

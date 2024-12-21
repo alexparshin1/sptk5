@@ -42,10 +42,9 @@ class SP_EXPORT TimerEvents
 public:
     /**
      * @brief Add event
-     * @param timestamp     Event timestamp
      * @param event         Event
      */
-    void add(DateTime::time_point timestamp, const std::shared_ptr<TimerEvent>& event);
+    void add( const std::shared_ptr<TimerEvent>& event);
 
     STimerEvent next();
 
@@ -56,7 +55,7 @@ public:
     void wakeUp();
 
 private:
-    using EventMap = std::multimap<DateTime::time_point, std::shared_ptr<TimerEvent>>;
+    using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
 
     mutable std::mutex m_mutex;  ///< Mutex that protects access to events collection
     EventMap           m_events; ///< Events collection

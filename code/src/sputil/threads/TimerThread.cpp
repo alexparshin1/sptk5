@@ -61,7 +61,7 @@ void TimerThread::terminate()
 
 void TimerThread::schedule(const STimerEvent& event)
 {
-    m_scheduledEvents.add(event->when(), event);
+    m_scheduledEvents.add(event);
 }
 
 void TimerThread::clear()
