@@ -47,18 +47,18 @@ int main(int argc, char* argv[])
         Logger logger(logEngine);
 
         SmtpConnect SMTP(&logger);
-        String user;
-        String password;
-        String email;
-        String host;
-        String portStr;
+        String      user;
+        String      password;
+        String      email;
+        String      host;
+        String      portStr;
 
         COUT("Testing SMTP connectivity.");
 
         if (argc == 3)
         {
-            RegularExpression parser("^((\\S+):(\\S+)@){0,1}([\\w_\\-\\.]+)(:\\d+){0,1}$", "i");
-            auto matches = parser.m(argv[1]);
+            RegularExpression parser(R"(^((\S+):(\S+)@){0,1}([\w_\-\.]+)(:\d+){0,1}$)", "i");
+            auto              matches = parser.m(argv[1]);
             if (matches)
             {
                 user = matches[1].value;

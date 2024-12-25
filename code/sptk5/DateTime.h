@@ -161,11 +161,6 @@ public:
     static char dateSeparator();
 
     /**
-     * Returns system's time mode.
-     */
-    static bool time24Mode();
-
-    /**
      * Sets system's time mode
      */
     static void time24Mode(bool t24mode);
@@ -213,12 +208,12 @@ public:
     /**
      * Returns time_point presentation of the date and time
      */
-    const time_point& timePoint() const
+    [[nodiscard]] const time_point& timePoint() const
     {
         return m_dateTime;
     }
 
-    size_t dataSize() const override
+    [[nodiscard]] size_t dataSize() const override
     {
         return sizeof(DateTime);
     }
@@ -246,7 +241,7 @@ public:
     /**
      * Duration since epoch
      */
-    duration sinceEpoch() const
+    [[nodiscard]] duration sinceEpoch() const
     {
         return m_dateTime.time_since_epoch();
     }
@@ -260,63 +255,57 @@ public:
      * Converts C time into DateTime
      * @param timestamp                C time to convert
      */
-    static DateTime convertCTime(const time_t timestamp);
+    static DateTime convertCTime(time_t timestamp);
 
     /**
      * Reports the number of days in the month in this date (1..31)
      */
-    int16_t daysInMonth() const;
+    [[nodiscard]] int16_t daysInMonth() const;
 
     /**
      * Reports the day of the week in this date (1..7)
      */
-    int16_t dayOfWeek() const;
+    [[nodiscard]] int16_t dayOfWeek() const;
 
     /**
      * Reports the day of the week name in this date ('Sunday'..'Saturday')
      */
-    String dayOfWeekName() const;
+    [[nodiscard]] String dayOfWeekName() const;
 
     /**
      * Reports the month name in this date ('Sunday'..'Saturday')
      */
-    String monthName() const;
+    [[nodiscard]] String monthName() const;
 
     /**
      * Reports the date part only
      */
-    DateTime date() const;
+    [[nodiscard]] DateTime date() const;
 
     /**
      * Returns date as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
      */
-    String dateString(int printFlags = 0) const;
+    [[nodiscard]] String dateString(int printFlags = 0) const;
 
     /**
      * Returns time as a string
      * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      */
-    String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
+    [[nodiscard]] String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
      * Returns time as a ISO date and time string
      * @param printAccuracy     Print accuracy, @see PrintAccuracy
      * @param gmt               If true print GMT time
      */
-    String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
-
-    /**
-     * Returns true if daylight savings time
-     * @return true if daylight savings time
-     */
-    static bool isDaylightSavingsTime();
+    [[nodiscard]] String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 
     /**
      * Returns date and time as a string
      */
-    explicit operator String() const
+    [[nodiscard]] explicit operator String() const
     {
         return dateString() + " " + timeString();
     }
@@ -324,7 +313,7 @@ public:
     /**
      * Returns time_t presentation
      */
-    explicit operator time_t() const
+    [[nodiscard]] explicit operator time_t() const
     {
         return clock::to_time_t(m_dateTime);
     }
@@ -342,7 +331,7 @@ public:
     /**
      * Return true if date and time are at epoch
      */
-    bool zero() const
+    [[nodiscard]] bool zero() const
     {
         return m_dateTime.time_since_epoch().count() == 0;
     }

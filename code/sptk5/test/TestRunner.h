@@ -35,7 +35,7 @@ namespace sptk {
  */
 class SP_EXPORT TestRunner
 {
-    int& m_argc;    ///< Reference to command line arguments number
+    int&    m_argc; ///< Reference to command line arguments number
     char**& m_argv; ///< Reference to command line arguments array
 public:
     /**
@@ -49,7 +49,7 @@ public:
      * Define database connection for DB module that should be tested
      * @param connectionString
      */
-    void addDatabaseConnection(const DatabaseConnectionString& connectionString) const;
+    static void addDatabaseConnection(const DatabaseConnectionString& connectionString);
 
     /**
      * Actually run tests

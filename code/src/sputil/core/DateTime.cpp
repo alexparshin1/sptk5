@@ -958,7 +958,7 @@ String DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
     return dateString(printFlags) + "T" + timeString(printFlags, printAccuracy);
 }
 
-DateTime DateTime::convertCTime(const time_t timestamp)
+DateTime DateTime::convertCTime(time_t timestamp)
 {
     return DateTime(clock::from_time_t(timestamp));
 }

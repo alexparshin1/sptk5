@@ -42,19 +42,17 @@ TEST(SPTK_HttpConnect, get)
     EXPECT_TRUE(socket->active());
 
     HttpConnect http(*socket);
-    Buffer output;
+    Buffer      output;
 
-    constexpr int minStatusCode {500};
-    int statusCode {minStatusCode};
     try
     {
-        statusCode = http.cmd_get("/", HttpParams(), output);
+        auto statusCode = http.cmd_get("/", HttpParams(), output);
+        EXPECT_EQ(200, statusCode);
     }
     catch (const Exception& e)
     {
         FAIL() << e.what();
     }
-    EXPECT_EQ(200, statusCode);
     EXPECT_STREQ("OK", http.statusText().c_str());
 
     const String data(output.c_str(), output.bytes());
