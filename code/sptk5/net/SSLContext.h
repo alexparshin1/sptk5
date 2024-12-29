@@ -46,21 +46,6 @@ namespace sptk {
  */
 class SSLContext : public std::mutex
 {
-    std::shared_ptr<SSL_CTX> m_ctx;      ///< SSL connection context
-    String                   m_password; ///< Password for auto-answer in callback function
-    static int               s_server_session_id_context;
-
-    /**
-     * @brief Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
-
-    /**
-     * @brief Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    [[noreturn]] static void throwError(const String& humanDescription);
-
 public:
     /**
      * @brief Constructor
@@ -84,6 +69,22 @@ public:
      * @brief Returns SSL context handle
      */
     SSL_CTX* handle();
+
+private:
+    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
+    String                   m_password;                  ///< Password for auto-answer in callback function
+    static int               s_server_session_id_context; ///< Server session ID
+
+    /**
+     * @brief Password auto-reply callback function
+     */
+    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
+
+    /**
+     * @brief Throw SSL error
+     * @param humanDescription  Human-readable error description
+     */
+    [[noreturn]] static void throwError(const String& humanDescription);
 };
 
 using SharedSSLContext = std::shared_ptr<SSLContext>;

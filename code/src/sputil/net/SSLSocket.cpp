@@ -152,26 +152,12 @@ SSLSocket::~SSLSocket()
     sslFree();
 }
 
-namespace {
-void checkFileExists(const filesystem::path& filename)
-{
-    if (!filename.empty() && !filesystem::exists(filename.c_str()))
-    {
-        throw Exception("File " + filename.string() + " doesn't exist");
-    }
-}
-} // namespace
-
 void SSLSocket::loadKeys(const SSLKeys& keys)
 {
     if (fd() != INVALID_SOCKET)
     {
         throw Exception("Can't set keys on opened socket");
     }
-
-    checkFileExists(keys.caFileName());
-    checkFileExists(keys.certificateFileName());
-    checkFileExists(keys.privateKeyFileName());
 
     m_keys = keys;
 }

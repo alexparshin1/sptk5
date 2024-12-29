@@ -30,6 +30,7 @@
 #include <sptk5/sptk.h>
 
 #include <mutex>
+#include <shared_mutex>
 
 namespace sptk {
 
@@ -111,16 +112,20 @@ public:
      */
     int verifyDepth() const;
 
+    /**
+     * Check if keys are empty
+     * @return true if keys are empty
+     */
     bool empty() const;
 
 private:
-    mutable std::mutex    m_mutex;
-    std::filesystem::path m_privateKeyFileName;
-    std::filesystem::path m_certificateFileName;
-    String                m_password;
-    std::filesystem::path m_caFileName;
-    int                   m_verifyMode {0};
-    int                   m_verifyDepth {0};
+    mutable std::mutex    m_mutex;               ///< Mutex that protects access to internal data
+    std::filesystem::path m_privateKeyFileName;  ///< Private key file name
+    std::filesystem::path m_certificateFileName; ///< Certificate file name
+    String                m_password;            ///< Private key password
+    std::filesystem::path m_caFileName;          ///< Certificate authority file name
+    int                   m_verifyMode {0};      ///< Verify mode
+    int                   m_verifyDepth {0};     ///< Verify depth
 
     /**
      * Assign keys from another object

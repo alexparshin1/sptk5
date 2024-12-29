@@ -30,21 +30,21 @@
 using namespace std;
 using namespace sptk;
 
-mutex                                 CachedSSLContext::m_mutex;
+shared_mutex                          CachedSSLContext::m_mutex;
 CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList, bool tlsOnly)
 {
     const String ident = keys.ident() + (tlsOnly ? "-tls" : "-tls,ssl");
     {
-        const scoped_lock lock(m_mutex);
-        if (m_contexts.count(ident))
+        const shared_lock lock(m_mutex);
+        if (m_contexts.contains(ident))
         {
             return m_contexts[ident];
         }
     }
 
-    const scoped_lock lock(m_mutex);
+    const unique_lock lock(m_mutex);
 
     SharedSSLContext context = m_contexts[ident];
     if (!context)
@@ -52,6 +52,7 @@ SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipher
         context = make_shared<SSLContext>(cipherList, tlsOnly);
         m_contexts[ident] = context;
     }
+
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
     {
         context->loadKeys(keys);

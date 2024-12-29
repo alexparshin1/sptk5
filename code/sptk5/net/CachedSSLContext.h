@@ -33,11 +33,6 @@ namespace sptk {
 
 class CachedSSLContext
 {
-    using CachedSSLContextMap = std::map<String, SharedSSLContext>;
-
-    static std::mutex          m_mutex;
-    static CachedSSLContextMap m_contexts;
-
 public:
     /**
      * @brief Loads private key and certificate(s)
@@ -52,6 +47,12 @@ public:
      * @return					Shared SSL context
      */
     static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
+
+private:
+    using CachedSSLContextMap = std::map<String, SharedSSLContext>;
+
+    static std::shared_mutex   m_mutex;    ///< Mutex for thread safety
+    static CachedSSLContextMap m_contexts; ///< Cached SSL contexts
 };
 
 } // namespace sptk
