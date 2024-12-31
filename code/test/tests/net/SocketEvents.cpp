@@ -107,8 +107,6 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
         {
             COUT("Socket closed\n");
         }
-
-        return SocketEventAction::Continue;
     };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
@@ -174,17 +172,11 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
     auto eventsCallback =
         [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
     {
-        if (eventType.m_hangup)
-        {
-            return SocketEventAction::Forget;
-        }
-        else
+        if (eventType.m_data)
         {
             receivedEvent.post();
             ++eventCount;
         }
-
-        return SocketEventAction::Continue;
     };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
@@ -244,17 +236,11 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
     auto eventsCallback =
         [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
     {
-        if (eventType.m_hangup)
-        {
-            return SocketEventAction::Forget;
-        }
-        else
+        if (eventType.m_data)
         {
             receivedEvent.post();
             ++eventCount;
         }
-
-        return SocketEventAction::Continue;
     };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
@@ -308,7 +294,7 @@ TEST(SPTK_SocketEvents, performance)
         [](const uint8_t*, SocketEventType)
         {
             // No need to do anything for this test
-            return SocketEventAction::Continue;
+            return;
         });
 
     constexpr size_t  maxSockets = 1000;
@@ -353,14 +339,10 @@ TEST(SPTK_SocketEvents, hangup)
     auto eventsCallback =
         [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType)
     {
-        Buffer line;
-
         if (eventType.m_hangup)
         {
             socketHangupEvent.post();
         }
-
-        return SocketEventAction::Continue;
     };
 
     SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),

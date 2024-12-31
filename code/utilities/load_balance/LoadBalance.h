@@ -36,19 +36,19 @@ namespace sptk {
 class LoadBalance
     : public Thread
 {
-    uint16_t m_listenerPort;
-    Loop<Host>& m_destinations;
+    uint16_t      m_listenerPort;
+    Loop<Host>&   m_destinations;
     Loop<String>& m_interfaces;
-    SocketEvents m_sourceEvents {"Source Events", sourceEventCallback};
-    SocketEvents m_destinationEvents {"Destination Events", destinationEventCallback};
+    SocketEvents  m_sourceEvents {"Source Events", sourceEventCallback};
+    SocketEvents  m_destinationEvents {"Destination Events", destinationEventCallback};
 
     TCPSocket m_listener;
 
     void threadFunction() override;
 
-    static SocketEventAction sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static void sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
 
-    static SocketEventAction destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static void destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
 
 public:
     LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);

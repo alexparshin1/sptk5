@@ -81,10 +81,8 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
-    socket.setSocketEventData(userData);
-
     SocketEvent event;
-    event.data.ptr = bit_cast<uint8_t*>(&socket);
+    event.data.ptr = bit_cast<uint8_t*>(userData);
     event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
     switch (m_triggerMode)
     {
@@ -116,12 +114,6 @@ void SocketPool::forgetSocket(Socket& socket)
     }
 }
 
-SocketEventAction SocketPool::executeEventAction(Socket* socket, SocketEventType eventType)
-{
-    const uint8_t* userData = socket->getSocketEventData();
-    return m_eventsCallback(bit_cast<uint8_t*>(userData), eventType);
-}
-
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
     m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
@@ -143,15 +135,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
             .m_error = (event.events & EPOLLERR) != 0,
         };
 
-        if (auto* socket = bit_cast<Socket*>(event.data.ptr))
-        {
-            if (executeEventAction(socket, eventType) == SocketEventAction::Disable)
-            {
-                // Disable events for the socket
-                event.events = EPOLLHUP | EPOLLRDHUP | EPOLLERR;
-                epoll_ctl(m_pool, EPOLL_CTL_MOD, socket->fd(), &event);
-            }
-        }
+        m_eventsCallback((const uint8_t*) event.data.ptr, eventType);
     }
 
     return true;

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-SocketEventAction LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
@@ -43,10 +43,9 @@ SocketEventAction LoadBalance::sourceEventCallback(const uint8_t* userData, Sock
     {
         channel->copyData(channel->source(), channel->destination());
     }
-    return SocketEventAction::Continue;
 }
 
-SocketEventAction LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
 {
     auto* channel = (Channel*) userData;
 
@@ -59,7 +58,6 @@ SocketEventAction LoadBalance::destinationEventCallback(const uint8_t* userData,
     {
         channel->copyData(channel->destination(), channel->source());
     }
-    return SocketEventAction::Continue;
 }
 
 LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
@@ -72,8 +70,7 @@ LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<S
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr {
-    };
+    struct sockaddr_in addr {};
 
     m_sourceEvents.run();
     m_destinationEvents.run();
@@ -90,7 +87,7 @@ void LoadBalance::threadFunction()
             if (m_listener.accept(sourceFD, addr, acceptTimeout))
             {
                 channel = new Channel(m_sourceEvents, m_destinationEvents);
-                const Host& destination = m_destinations.loop();
+                const Host&   destination = m_destinations.loop();
                 const String& interfaceAddress = m_interfaces.loop();
                 channel->open(sourceFD, interfaceAddress, destination);
             }

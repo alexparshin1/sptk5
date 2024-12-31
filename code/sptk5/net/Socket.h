@@ -358,28 +358,8 @@ protected:
         return getProtocolUnlocked();
     }
 
-    /**
-     * @brief Get socket event data, used by SocketPool class
-     * @return Socket event data
-     */
-    const uint8_t* getSocketEventData() const
-    {
-        return m_socketEventData;
-    }
-
-    /**
-     * @brief Set socket event data, used by SocketPool class
-     * @param socketEventData   Socket event data
-     */
-    void setSocketEventData(const uint8_t* socketEventData)
-    {
-        m_socketEventData = socketEventData;
-    }
-
-
 private:
-    mutable std::mutex          m_mutex;                     ///< Mutex that protects host data
-    std::atomic<const uint8_t*> m_socketEventData = nullptr; ///< Socket event data, used by SocketPool
+    mutable std::mutex m_mutex; ///< Mutex that protects host data
 };
 
 /**

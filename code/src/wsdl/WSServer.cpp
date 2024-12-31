@@ -42,7 +42,6 @@ WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& 
           [this](const auto* data, auto type)
           {
               socketEventCallback(data, type);
-              return SocketEventAction::Continue;
           },
           100ms, SocketPool::TriggerMode::LevelTriggered)
 {

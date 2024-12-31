@@ -42,13 +42,6 @@
 
 namespace sptk {
 
-enum class SocketEventAction
-{
-    Continue,
-    Disable,
-    Forget
-};
-
 /**
  * Socket event types
  */
@@ -62,7 +55,7 @@ struct SocketEventType
 /**
  * Type definition of socket event callback function
  */
-using SocketEventCallback = std::function<SocketEventAction(const uint8_t* userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
 
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
@@ -167,8 +160,7 @@ private:
     Buffer              m_eventsBuffer;   ///< Socket events
     TriggerMode         m_triggerMode;    ///< Socket event trigger mode
 
-    void              processError(int error, const String& operation) const;
-    SocketEventAction executeEventAction(Socket* socket, SocketEventType eventType);
+    void processError(int error, const String& operation) const;
 };
 
 } // namespace sptk
