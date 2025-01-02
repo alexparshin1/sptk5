@@ -85,7 +85,7 @@ public:
     };
 
     /**
-     * Constructor
+     * @brief Constructor
      * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      * @param triggerMode    Socket event trigger mode
      * @param maxEvents      Maximum number of socket events per poll
@@ -93,7 +93,7 @@ public:
     explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode, size_t maxEvents = 1024);
 
     /**
-     * Deleted copy constructor
+     * @brief Deleted copy constructor
      */
     SocketPool(const SocketPool&) noexcept = delete;
 
@@ -103,12 +103,12 @@ public:
     SocketPool& operator=(const SocketPool&) = delete;
 
     /**
-     * Initialize socket pool
+     * @brief Initialize socket pool
      */
     void open();
 
     /**
-     * Destructor
+     * @brief Destructor
      */
     ~SocketPool();
 
@@ -120,7 +120,7 @@ public:
     bool waitForEvents(const std::chrono::milliseconds& timeout);
 
     /**
-     * Shutdown socket pool.
+     * @brief Shutdown socket pool.
      */
     void close();
 
@@ -128,14 +128,15 @@ public:
      * @brief Add socket to monitored pool
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
+     * @param rearmOneShot      Re-arm one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void watchSocket(Socket& socket, const uint8_t* userData);
+    void watchSocket(Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
 
     /**
-     * Remove socket from monitored pool
+     * @brief Remove socket from monitored pool
      * @param socket            Socket from this pool
      */
-    void forgetSocket(Socket& socket);
+    void forgetSocket(Socket& socket) const;
 
     /**
      * @return true if socket pool is active

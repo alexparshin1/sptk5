@@ -25,6 +25,7 @@
 */
 
 #include "sptk5/net/SocketEvents.h"
+#include "sptk5/net/SocketReader.h"
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/net/TCPServer.h>
@@ -39,36 +40,39 @@ constexpr int testTcpEchoServerPort = 12345;
 
 namespace {
 
-Semaphore completed;
-size_t    totalTransferredCount = 0;
-size_t    totalTransferred = 0;
+Semaphore     completed;
+size_t        totalTransferredCount = 0;
+size_t        totalTransferred = 0;
+SocketEvents* sharedSocketEvents;
 
 void eventHandler(const uint8_t* data, SocketEventType type)
 {
     static int count = 0;
 
-    auto& socket = *(Socket*) data;
+    auto& reader = *(SocketReader*) data;
+    //sharedSocketEvents->remove(reader.socket());
     if (type.m_data)
     {
         size_t  size = 0;
         uint8_t buffer[1024];
-        socket.read((uint8_t*) &size, sizeof(size));
-        socket.read(buffer, size);
+        reader.read((uint8_t*) &size, sizeof(size));
+        reader.read(buffer, size);
         totalTransferredCount++;
         totalTransferred += size + sizeof(size);
         buffer[size] = 0;
-        socket.write((uint8_t*) &size, sizeof(size));
-        socket.write(buffer, size);
+        reader.socket().write((uint8_t*) &size, sizeof(size));
+        reader.socket().write(buffer, size);
         ++count;
-        if (count > 1000)
+        if (count > 50000)
         {
             completed.post();
         }
+        sharedSocketEvents->add(reader.socket(), (uint8_t*) &reader, true);
     }
 
     if (type.m_hangup)
     {
-        socket.close();
+        reader.socket().close();
     }
 }
 
@@ -76,20 +80,24 @@ void eventHandler(const uint8_t* data, SocketEventType type)
 
 TEST(SPTK_TCPServer, SocketEventPerformance)
 {
-    SocketEvents socketEvents("Test Pool", eventHandler, 1s, SocketPool::TriggerMode::LevelTriggered);
+    SocketEvents socketEvents("Test Pool", eventHandler, 1s, SocketPool::TriggerMode::OneShot);
+    sharedSocketEvents = &socketEvents;
+
     TCPSocket    clientSocket;
+    SocketReader clientReader(clientSocket);
 
     TCPServer tcpServer("Performance Test Server");
     tcpServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
-    tcpServer.onConnection([&socketEvents, &clientSocket](ServerConnection& socket)
+    tcpServer.onConnection([&socketEvents, &clientSocket, &clientReader](ServerConnection& socket)
                            {
                                clientSocket.attach(socket.socket().detach(), false);
                                clientSocket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
                                clientSocket.blockingMode(false);
-                               socketEvents.add(clientSocket, (uint8_t*) &clientSocket);
+                               socketEvents.add(clientSocket, (uint8_t*) &clientReader);
                            });
 
-    TCPSocket socket;
+    TCPSocket    socket;
+    SocketReader reader(socket);
     socket.open({"127.0.0.1", testTcpEchoServerPort});
     socket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     socket.blockingMode(false);
@@ -97,10 +105,15 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
     StopWatch stopWatch;
     stopWatch.start();
 
-    size_t size = 21;
+    Buffer buffer;
+    for (int i = 0; i < 4; ++i)
+    {
+        buffer.append("0123456789ABCDEF0123456789ABCDEF");
+    }
+    size_t size = buffer.bytes() + 1;
     socket.write((uint8_t*) &size, sizeof(size));
-    socket.write((uint8_t*) "12345678901234567890", size);
-    socketEvents.add(socket, (uint8_t*) &socket);
+    socket.write(buffer.data(), size);
+    socketEvents.add(socket, (uint8_t*) &reader);
 
     completed.wait();
 

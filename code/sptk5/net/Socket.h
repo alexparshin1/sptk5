@@ -317,7 +317,6 @@ public:
      */
     [[nodiscard]] bool blockingMode() const
     {
-        std::scoped_lock lock(m_mutex);
         return getBlockingModeUnlocked();
     }
 

@@ -498,6 +498,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         int bytes;
         if (peer != nullptr)
         {
+            // UDP socket
 #ifdef _WIN32
             bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), 0,
                            bit_cast<const sockaddr*>(peer),

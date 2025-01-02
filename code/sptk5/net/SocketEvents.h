@@ -49,7 +49,7 @@ class SP_EXPORT SocketEvents
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor
      * @param name               Logical name for event manager (also the thread name)
      * @param eventsCallback     Callback function called for socket events
      * @param timeout            Timeout in event monitoring loop
@@ -63,23 +63,23 @@ public:
                  size_t                           maxEvents = 1024);
 
     /**
-     * Destructor
+     * @brief Destructor
      */
     ~SocketEvents() override;
 
     /**
-     * Add socket to collection and start monitoring its events
+     * @brief Add socket to collection and start monitoring its events
      * @param socket             Socket to monitor
      * @param userData           User data to pass into callback function
-     * @param triggerMode        Trigger mode
+     * @param rearmOneShot       Re-arm one-shot event that is already watched. Only used in TriggerMode::OneShot mode.
      */
-    void add(Socket& socket, const uint8_t* userData)
+    void add(Socket& socket, const uint8_t* userData, bool rearmOneShot = false)
     {
-        m_socketPool.watchSocket(socket, userData);
+        m_socketPool.watchSocket(socket, userData, rearmOneShot);
     }
 
     /**
-     * Remove socket from collection and stop monitoring its events
+     * @brief Remove socket from collection and stop monitoring its events
      * @param socket             Socket to remove
      */
     void remove(Socket& socket)
@@ -88,19 +88,19 @@ public:
     }
 
     /**
-     * Stop socket events manager and wait until it joins.
+     * @brief Stop socket events manager and wait until it joins.
      */
     void stop();
 
     /**
-     * Get the size of socket collection
+     * @brief Get the size of socket collection
      * @return number of sockets being watched
      */
     size_t size() const;
 
 protected:
     /**
-     * Event monitoring thread
+     * @brief Event monitoring thread
      */
     void threadFunction() override;
 

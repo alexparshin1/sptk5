@@ -34,13 +34,7 @@
 #include <sys/epoll.h>
 #endif
 
-using SocketEventBase = epoll_event;
-
-class SocketEvent : public SocketEventBase
-{
-public:
-    bool m_enabled {true};
-};
+using SocketEvent = epoll_event;
 
 using namespace std;
 using namespace sptk;
@@ -48,6 +42,8 @@ using namespace sptk;
 void SocketPool::open()
 {
     const scoped_lock lock(*this);
+
+    m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -77,7 +73,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
+void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool rearmOneShot)
 {
     const scoped_lock lock(*this);
 
@@ -100,13 +96,23 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
             break;
     }
 
-    if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
+    if (m_triggerMode == TriggerMode::OneShot && rearmOneShot)
     {
-        processError(errno, "add socket to SocketEvents");
+        if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
+        {
+            processError(errno, "rearm socket in SocketEvents");
+        }
+    }
+    else
+    {
+        if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
+        {
+            processError(errno, "add socket to SocketEvents");
+        }
     }
 }
 
-void SocketPool::forgetSocket(Socket& socket)
+void SocketPool::forgetSocket(Socket& socket) const
 {
     if (socket.active())
     {
@@ -116,7 +122,6 @@ void SocketPool::forgetSocket(Socket& socket)
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
     auto* events = (epoll_event*) m_eventsBuffer.data();
 
     const int eventCount = epoll_wait(m_pool, events, m_maxEvents, static_cast<int>(timeout.count()));
@@ -127,8 +132,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 
     for (int i = 0; i < eventCount; ++i)
     {
-        auto& event = events[i];
-
+        auto&                 event = events[i];
         const SocketEventType eventType {
             .m_data = (event.events & EPOLLIN) != 0,
             .m_hangup = (event.events & (EPOLLHUP | EPOLLRDHUP)) != 0,
@@ -153,7 +157,7 @@ void SocketPool::processError(int error, const String& operation) const
             throw SystemException("Socket is closed");
 
         case EINVAL:
-            throw Exception("Invalid event");
+            throw SystemException("Invalid event");
 
         case EEXIST:
             // Socket is already being monitored
