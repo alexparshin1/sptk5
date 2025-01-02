@@ -61,20 +61,17 @@ void ThreadManager::joinTerminatedThreads(const milliseconds& timeout)
 {
     deque<SThread> joinThreads;
 
-    if (!m_terminatedThreads.empty())
+    SThread thread;
+    while (m_terminatedThreads.pop_front(thread, timeout))
     {
-        SThread thread;
-        while (m_terminatedThreads.pop_front(thread, timeout))
-        {
-            const scoped_lock lock(m_mutex);
-            thread->terminate();
-            joinThreads.push_back(thread);
-        }
+        const scoped_lock lock(m_mutex);
+        thread->terminate();
+        joinThreads.push_back(thread);
     }
 
     while (!joinThreads.empty())
     {
-        shared_ptr<Thread> thread = joinThreads.front();
+        thread = joinThreads.front();
         joinThreads.pop_front();
         thread->join();
         const scoped_lock lock(m_mutex);
