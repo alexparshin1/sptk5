@@ -130,13 +130,13 @@ public:
      * @param userData          User data to pass to callback function
      * @param rearmOneShot      Re-arm one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void watchSocket(Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
+    void add(Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
 
     /**
      * @brief Remove socket from monitored pool
      * @param socket            Socket from this pool
      */
-    void forgetSocket(Socket& socket) const;
+    void remove(Socket& socket) const;
 
     /**
      * @return true if socket pool is active
@@ -157,7 +157,7 @@ private:
      * Callback function executed upon socket events
      */
     SocketEventCallback m_eventsCallback; ///< Sockets event callback function
-    size_t              m_maxEvents;      ///< Maximum number of socket events per poll
+    int                 m_maxEvents;      ///< Maximum number of socket events per poll
     Buffer              m_eventsBuffer;   ///< Socket events
     TriggerMode         m_triggerMode;    ///< Socket event trigger mode
 

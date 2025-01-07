@@ -73,13 +73,9 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool rearmOneShot)
+void SocketPool::add(Socket& socket, const uint8_t* userData, bool rearmOneShot)
 {
-    const scoped_lock lock(*this);
-
-    SocketEvent event;
-    event.data.ptr = bit_cast<uint8_t*>(userData);
-    event.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR;
+    SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
     {
         case TriggerMode::EdgeTriggered:
@@ -112,7 +108,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData, bool rearm
     }
 }
 
-void SocketPool::forgetSocket(Socket& socket) const
+void SocketPool::remove(Socket& socket) const
 {
     if (socket.active())
     {

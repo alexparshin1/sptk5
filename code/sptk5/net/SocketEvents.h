@@ -45,7 +45,8 @@ namespace sptk {
  * to its sockets.
  */
 class SP_EXPORT SocketEvents
-    : public Thread
+    : public SocketPool
+    , public Thread
 {
 public:
     /**
@@ -68,35 +69,9 @@ public:
     ~SocketEvents() override;
 
     /**
-     * @brief Add socket to collection and start monitoring its events
-     * @param socket             Socket to monitor
-     * @param userData           User data to pass into callback function
-     * @param rearmOneShot       Re-arm one-shot event that is already watched. Only used in TriggerMode::OneShot mode.
-     */
-    void add(Socket& socket, const uint8_t* userData, bool rearmOneShot = false)
-    {
-        m_socketPool.watchSocket(socket, userData, rearmOneShot);
-    }
-
-    /**
-     * @brief Remove socket from collection and stop monitoring its events
-     * @param socket             Socket to remove
-     */
-    void remove(Socket& socket)
-    {
-        m_socketPool.forgetSocket(socket);
-    }
-
-    /**
      * @brief Stop socket events manager and wait until it joins.
      */
     void stop();
-
-    /**
-     * @brief Get the size of socket collection
-     * @return number of sockets being watched
-     */
-    size_t size() const;
 
 protected:
     /**
@@ -105,10 +80,8 @@ protected:
     void threadFunction() override;
 
 private:
-    mutable std::mutex        m_mutex;      ///< Mutex that protects map of sockets to corresponding user data
-    SocketPool                m_socketPool; ///< OS-specific event manager
-    std::map<int, void*>      m_watchList;  ///< Map of sockets to corresponding user data
-    std::chrono::milliseconds m_timeout;    ///< Timeout in event monitoring loop
+    mutable std::mutex        m_mutex;   ///< Mutex that protects map of sockets to corresponding user data
+    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 };
 
 } // namespace sptk

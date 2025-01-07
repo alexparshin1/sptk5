@@ -34,8 +34,8 @@ using namespace chrono;
 
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, const chrono::milliseconds& timeout,
                            SocketPool::TriggerMode triggerMode, size_t maxEvents)
-    : Thread(name)
-    , m_socketPool(eventsCallback, triggerMode, maxEvents)
+    : SocketPool(eventsCallback, triggerMode, maxEvents)
+    , Thread(name)
     , m_timeout(timeout)
 {
     Thread::run();
@@ -54,12 +54,12 @@ void SocketEvents::stop()
 
 void SocketEvents::threadFunction()
 {
-    m_socketPool.open();
+    open();
     while (!terminated())
     {
         try
         {
-            if (!m_socketPool.waitForEvents(m_timeout))
+            if (!waitForEvents(m_timeout))
             {
                 break;
             }
@@ -69,11 +69,5 @@ void SocketEvents::threadFunction()
             CERR(e.message());
         }
     }
-    m_socketPool.close();
-}
-
-size_t SocketEvents::size() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_watchList.size();
+    close();
 }

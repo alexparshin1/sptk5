@@ -67,7 +67,7 @@ void SocketPool::close()
     m_pool = INVALID_SOCKET;
 }
 
-void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
+void SocketPool::add(Socket& socket, const uint8_t* userData)
 {
     const scoped_lock lock(*this);
 
@@ -98,7 +98,7 @@ void SocketPool::watchSocket(Socket& socket, const uint8_t* userData)
     }
 }
 
-void SocketPool::forgetSocket(const Socket& socket)
+void SocketPool::remove(const Socket& socket)
 {
     const scoped_lock lock(*this);
 
