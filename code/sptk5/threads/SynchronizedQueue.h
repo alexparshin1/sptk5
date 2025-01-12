@@ -140,6 +140,41 @@ public:
     }
 
     /**
+     * @brief Pops multiple data items from the queue
+     *
+     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If queue has less items than requested then returns all available items.
+     * Returns false if timeout occurs.
+     * @param items             A queue items (output)
+     * @param itemCount         Maximum number of items to pop
+     * @param timeout           Operation timeout in milliseconds
+     */
+    bool pop_front(std::vector<T>& items, size_t itemCount, const std::chrono::milliseconds& timeout)
+    {
+        if (m_semaphore.wait_for(timeout))
+        {
+            std::unique_lock lock(m_mutex);
+            if (m_queue.empty())
+            {
+                return false;
+            }
+            items.clear();
+            items.push_back(std::move(m_queue.front()));
+            m_queue.pop_front();
+            itemCount--;
+            while (!m_queue.empty() && itemCount > 0)
+            {
+                items.push_back(std::move(m_queue.front()));
+                m_queue.pop_front();
+                m_semaphore.wait();
+                itemCount--;
+            }
+            return !items.empty();
+        }
+        return false;
+    }
+
+    /**
      * @brief Pops a data item from the queue
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.

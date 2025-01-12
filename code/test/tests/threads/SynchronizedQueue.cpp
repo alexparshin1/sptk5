@@ -37,31 +37,32 @@ using namespace sptk;
 
 TEST(SPTK_SynchronizedQueue, tasks)
 {
-    constexpr size_t maxNumbers = 100;
-    constexpr size_t maxTasks = 5;
+    constexpr size_t               maxNumbers = 100;
+    constexpr size_t               maxTasks = 5;
     constexpr chrono::milliseconds timeout(1000);
-    SynchronizedQueue<int> queue;
+    SynchronizedQueue<int>         queue;
 
     vector<future<int>> tasks;
     for (size_t index = 0; index < maxTasks; ++index)
     {
-        auto task = async([&queue, &timeout]() {
-            int sum = 0;
-            while (true)
-            {
-                if (int value;
-                    queue.pop_front(value, timeout))
-                {
-                    sum += value;
-                }
-                else
-                {
-                    break;
-                }
-                this_thread::sleep_for(10ms);
-            }
-            return sum;
-        });
+        auto task = async([&queue, &timeout]()
+                          {
+                              int sum = 0;
+                              while (true)
+                              {
+                                  if (int value;
+                                      queue.pop_front(value, timeout))
+                                  {
+                                      sum += value;
+                                  }
+                                  else
+                                  {
+                                      break;
+                                  }
+                                  this_thread::sleep_for(10ms);
+                              }
+                              return sum;
+                          });
 
         tasks.push_back(std::move(task));
     }
@@ -74,7 +75,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
         queue.push_back(value);
     }
 
-    int actualSum = 0;
+    int       actualSum = 0;
     const int expectedSumPerTask = expectedSum / static_cast<int>(maxTasks);
     for (auto& task: tasks)
     {
@@ -90,9 +91,9 @@ TEST(SPTK_SynchronizedQueue, tasks)
 
 TEST(SPTK_SynchronizedQueue, performance)
 {
-    constexpr size_t maxNumbers = 10000;
+    constexpr size_t               maxNumbers = 100000;
     constexpr chrono::milliseconds timeout(1000);
-    SynchronizedQueue<int> queue;
+    SynchronizedQueue<int>         queue;
 
     StopWatch stopWatch;
 
@@ -119,12 +120,54 @@ TEST(SPTK_SynchronizedQueue, performance)
     stopWatch.stop();
     COUT("Popped " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second");
 
+    EXPECT_FALSE(queue.pop_front(value, 100ms));
+    EXPECT_EQ(actualSum, receivedSum);
+}
+
+TEST(SPTK_SynchronizedQueue, performanceBulk)
+{
+    constexpr size_t               maxNumbers = 100000;
+    constexpr chrono::milliseconds timeout(1000);
+    SynchronizedQueue<int>         queue;
+
+    StopWatch stopWatch;
+
+    stopWatch.start();
+    auto value = 1;
+    int  actualSum = 0;
+    for (size_t index = 0; index < maxNumbers; ++index, ++value)
+    {
+        queue.push_back(value);
+        actualSum += value;
+    }
+    stopWatch.stop();
+    COUT("Pushed " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second");
+
+    stopWatch.start();
+
+    constexpr size_t bulkSize = 16;
+    int              receivedSum = 0;
+    vector<int>      values(bulkSize);
+    for (size_t index = 0; index < maxNumbers; index += bulkSize)
+    {
+        if (queue.pop_front(values, bulkSize, timeout))
+        {
+            for (auto value: values)
+            {
+                receivedSum += value;
+            }
+        }
+    }
+    stopWatch.stop();
+    COUT("Popped " << maxNumbers << " ints: " << fixed << setprecision(2) << maxNumbers / stopWatch.seconds() / 1E6 << "M ints per second");
+
+    EXPECT_FALSE(queue.pop_front(value, 100ms));
     EXPECT_EQ(actualSum, receivedSum);
 }
 
 TEST(SPTK_SynchronizedQueue, for_each)
 {
-    constexpr int maxNumbers = 10;
+    constexpr int          maxNumbers = 10;
     SynchronizedQueue<int> queue;
 
     int actualSum = 0;
@@ -138,14 +181,15 @@ TEST(SPTK_SynchronizedQueue, for_each)
     }
 
     int receivedSum = 0;
-    queue.each([&receivedSum](const int& item) {
-        if (item < 5)
-        {
-            receivedSum += item;
-            return true;
-        }
-        return false;
-    });
+    queue.each([&receivedSum](const int& item)
+               {
+                   if (item < 5)
+                   {
+                       receivedSum += item;
+                       return true;
+                   }
+                   return false;
+               });
 
     EXPECT_EQ(actualSum, receivedSum);
 }
