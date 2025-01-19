@@ -89,6 +89,56 @@ TEST(SPTK_SynchronizedQueue, tasks)
     EXPECT_EQ(expectedSum, actualSum);
 }
 
+TEST(SPTK_SynchronizedQueue, emplace_front)
+{
+    struct Item
+    {
+        int         index;
+        std::string name;
+    };
+
+    SynchronizedQueue<Item> queue;
+
+    queue.emplace_front(1, "Joe");
+    queue.emplace_front(2, "Jane");
+
+    EXPECT_EQ(2, queue.size());
+
+    Item item;
+    EXPECT_TRUE(queue.pop_back(item, 100ms));
+    EXPECT_EQ(1, item.index);
+    EXPECT_EQ("Joe", item.name);
+
+    EXPECT_TRUE(queue.pop_back(item, 100ms));
+    EXPECT_EQ(2, item.index);
+    EXPECT_EQ("Jane", item.name);
+}
+
+TEST(SPTK_SynchronizedQueue, emplace_back)
+{
+    struct Item
+    {
+        int         index;
+        std::string name;
+    };
+
+    SynchronizedQueue<Item> queue;
+
+    queue.emplace_back(1, "Joe");
+    queue.emplace_back(2, "Jane");
+
+    EXPECT_EQ(2, queue.size());
+
+    Item item;
+    EXPECT_TRUE(queue.pop_front(item, 100ms));
+    EXPECT_EQ(1, item.index);
+    EXPECT_EQ("Joe", item.name);
+
+    EXPECT_TRUE(queue.pop_front(item, 100ms));
+    EXPECT_EQ(2, item.index);
+    EXPECT_EQ("Jane", item.name);
+}
+
 TEST(SPTK_SynchronizedQueue, performance)
 {
     constexpr size_t               maxNumbers = 100000;

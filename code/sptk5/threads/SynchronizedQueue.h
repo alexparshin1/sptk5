@@ -198,6 +198,30 @@ public:
     }
 
     /**
+     * @brief Pushes a data item to the back of the queue with construction in-place
+     * @param __args            Constructor arguments
+     */
+    template<typename... _Args>
+    void emplace_back(_Args&&... __args)
+    {
+        std::unique_lock lock(m_mutex);
+        m_queue.emplace_back(std::forward<_Args>(__args)...);
+        m_semaphore.post();
+    }
+
+    /**
+     * @brief Pushes a data item to the front of the queue with construction in-place
+     * @param __args            Constructor arguments
+     */
+    template<typename... _Args>
+    void emplace_front(_Args&&... __args)
+    {
+        std::unique_lock lock(m_mutex);
+        m_queue.emplace_front(std::forward<_Args>(__args)...);
+        m_semaphore.post();
+    }
+
+    /**
      * @brief Wakes up queue semaphore to interrupt waiting
      *
      * Any waiting pop() operation immediately returns false.
