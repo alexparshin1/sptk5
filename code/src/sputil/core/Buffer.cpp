@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 Buffer::Buffer(const string_view str)
-    : BufferStorage(bit_cast<const uint8_t*>(str.data()), str.length())
+    : BufferStorage(str.data(), str.length())
 {
 }
 

@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-static const String testPhrase("This is a test");
+static const String           testPhrase("This is a test");
 static const filesystem::path tempFileName("./gtest_sptk5_buffer.tmp");
 
 TEST(SPTK_Buffer, create)
@@ -47,7 +47,7 @@ TEST(SPTK_Buffer, create)
 
 TEST(SPTK_Buffer, copyCtor)
 {
-    auto buffer1 = make_shared<Buffer>(testPhrase);
+    auto         buffer1 = make_shared<Buffer>(testPhrase);
     const Buffer buffer2(*buffer1);
     buffer1.reset();
 
@@ -107,7 +107,7 @@ TEST(SPTK_Buffer, append)
 TEST(SPTK_Buffer, saveLoadFile)
 {
     const Buffer buffer1(testPhrase);
-    Buffer buffer2;
+    Buffer       buffer2;
 
     buffer1.saveToFile(tempFileName);
     buffer2.loadFromFile(tempFileName);
@@ -250,4 +250,25 @@ TEST(SPTK_Buffer, createPerformance)
     stopWatch.stop();
     duration = stopWatch.milliseconds();
     COUT("malloc: " << duration << "ms");
+
+    stopWatch.start();
+    for (size_t i = 0; i < count; ++i)
+    {
+        char* buffer = bit_cast<char*>(realloc(nullptr, testPhrase.length() + 1));
+        memcpy(buffer, testPhrase.c_str(), testPhrase.length());
+        auto temp = bit_cast<char*>(realloc(buffer, 1024));
+        if (temp != nullptr)
+        {
+            buffer = temp;
+        }
+        temp = bit_cast<char*>(realloc(buffer, 16384));
+        if (temp != nullptr)
+        {
+            buffer = temp;
+        }
+        free(buffer);
+    }
+    stopWatch.stop();
+    duration = stopWatch.milliseconds();
+    COUT("realloc: " << duration << "ms");
 }

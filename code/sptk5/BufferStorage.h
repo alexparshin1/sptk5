@@ -360,7 +360,10 @@ protected:
      */
     void allocate(const uint8_t* data, size_t size)
     {
-        reallocate(size);
+        if (m_allocated < size + 1)
+        {
+            reallocate(size);
+        }
         m_size = size;
         if (data != nullptr && size != 0)
         {
@@ -383,8 +386,8 @@ protected:
 
 private:
     uint8_t* m_buffer {nullptr}; ///< Actual storage
-    size_t m_allocated {0};      ///< Alocated size
-    size_t m_size {0};           ///< Actual size of the data in buffer
+    size_t   m_allocated {0};    ///< Alocated size
+    size_t   m_size {0};         ///< Actual size of the data in buffer
 
 
     /**
