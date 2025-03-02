@@ -49,8 +49,7 @@ export default class XMQ_tests extends React.Component
 
             <h4>Connection Performance</h4>
             <p>
-                Connect 100K clients using 100 threads.
-                Verify that there is no performance degradation with growing number of connected clients.
+                Connect 1K clients using 100 threads.
                 The used test utility is xmq_con.
             </p>
             <img src={connectionsTest} alt="Connection performance chart"/>
