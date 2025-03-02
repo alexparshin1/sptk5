@@ -32,7 +32,7 @@ export default class XMQ_tests extends React.Component
             </ul>
             <p>
                 The testing utilities xmq_con, xmq_pub, and xmq_sub, are using MQTT protocols 3.1 to 5.0.
-                They can be used with any MQTT server, not just XMQ.
+                They can be used with any MQTT server, not just XMQ, when one or more MQTT clients simulation is required.
                 The testing is comparing XMQ to recognised leaders in the are, such as eMQX and Mosquitto.
             </p>
             <p>
@@ -49,16 +49,17 @@ export default class XMQ_tests extends React.Component
 
             <h4>Connection Performance</h4>
             <p>
-                Connect 1K clients using 100 threads.
+                Connect 1K clients using 100 threads. The protocol is MQTT 3.1, not encrypted.
+                The test checks how fast connections can be performed.
                 The used test utility is xmq_con.
             </p>
             <img src={connectionsTest} alt="Connection performance chart"/>
 
             <h4>Message Send Performance</h4>
             <p>
-                Connect 1K publishers using a topic per a pair publisher, then send 1M messages through 1K topics.
+                Connect 1K publishers using a topic per a pair publisher, then send 1M messages through 1K topics. The protocol is MQTT 3.1, not encrypted.
                 The test checks how fast the server can receive messages.
-                The used test utility is xmq_pub.
+                The used test utilities are xmq_pub and xmq_sub.
             </p>
             <img src={sendTest1} alt="Send performance chart"/>
 
