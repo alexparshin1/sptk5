@@ -22,7 +22,7 @@ std::filesystem::path TestData::DataDirectory()
     {
         return std::filesystem::path(programData) / "sptk5" / "test_data";
     }
-    return "test_data"
+    return "test_data";
 #else
     return "/usr/local/share/sptk5/test_data";
 #endif

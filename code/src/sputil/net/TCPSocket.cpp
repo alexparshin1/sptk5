@@ -105,7 +105,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     if (!blockingMode())
     {
         clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
-        if (clientSocketFD > 0)
+        if (clientSocketFD != INVALID_SOCKET)
         {
             return true;
         }
@@ -114,12 +114,11 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     if (readyToRead(timeout))
     {
         clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
-        if (clientSocketFD > 0)
+        if (clientSocketFD != INVALID_SOCKET)
         {
             return true;
         }
-        if (clientSocketFD == INVALID_SOCKET)
-            throwSocketError("Error on accept(). ");
+        throwSocketError("Error on accept(). ");
     }
 
     return false;

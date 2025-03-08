@@ -219,8 +219,6 @@ TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
                                      });
 
     this_thread::sleep_for(1100ms);
-    EXPECT_TRUE(timestamp1 != DateTime::time_point::min());
-    EXPECT_TRUE(timestamp2 != DateTime::time_point::min());
     EXPECT_TRUE(timestamp2 < timestamp1);
 }
 

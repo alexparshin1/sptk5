@@ -120,7 +120,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
     auto* events = (epoll_event*) m_eventsBuffer.data();
 
-    const int eventCount = epoll_wait(m_pool, events, m_maxEvents, static_cast<int>(timeout.count()));
+    const int eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;

@@ -90,9 +90,9 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
     sw.stop();
     COUT("Atomic: " << sw.milliseconds() << " ms");
 
-    atomic_flag fa(false);
-    atomic_flag fb(false);
-    atomic_flag fc(false);
+    atomic_flag fa;
+    atomic_flag fb;
+    atomic_flag fc;
     sw.start();
     for (size_t i = 0; i < 1000000; i++)
     {

@@ -83,7 +83,7 @@ private:
     long mcs_since_epoch() const
     {
         auto duration = m_when.time_since_epoch();
-        return std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+        return (long) std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
     }
 };
 

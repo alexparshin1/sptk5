@@ -157,7 +157,7 @@ private:
      * Callback function executed upon socket events
      */
     SocketEventCallback m_eventsCallback; ///< Sockets event callback function
-    int                 m_maxEvents;      ///< Maximum number of socket events per poll
+    size_t              m_maxEvents;      ///< Maximum number of socket events per poll
     Buffer              m_eventsBuffer;   ///< Socket events
     TriggerMode         m_triggerMode;    ///< Socket event trigger mode
 

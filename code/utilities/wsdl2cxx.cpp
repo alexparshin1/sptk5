@@ -190,7 +190,7 @@ int main(int argc, const char* argv[])
         options.defaultAuthMethod = OpenApiGenerator::authMethod(commandLine.getOptionValue("openapi-default-auth"));
         options.operationsAuth = parseOperationsAuth(commandLine.getOptionValue("openapi-operation-auth"));
 
-        filesystem::path openApiFile = commandLine.getOptionValue("openapi-json");
+        filesystem::path openApiFile = commandLine.getOptionValue("openapi-json").c_str();
         if (openApiFile.empty())
         {
             openApiFile = wsdlFile;
