@@ -41,12 +41,12 @@ Thread::Thread(String name, vector<int> ignoreSignals)
 
 void Thread::terminate()
 {
-    m_terminated.test_and_set();
+    m_terminated = true;
 }
 
 bool Thread::terminated()
 {
-    return m_terminated.test();
+    return m_terminated;
 }
 
 Thread::Id Thread::id() const
@@ -88,7 +88,7 @@ void Thread::run()
 
             try
             {
-                m_terminated.clear();
+                m_terminated = false;
                 threadFunction();
                 onThreadExit();
                 if (m_threadManager)

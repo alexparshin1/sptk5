@@ -90,7 +90,7 @@ void SSLContext::loadKeys(const SSLKeys& keys)
     m_password = keys.password();
 
     // Load keys and certificates
-    if (SSL_CTX_use_certificate_chain_file(m_ctx.get(), keys.certificateFileName().c_str()) <= 0)
+    if (SSL_CTX_use_certificate_chain_file(m_ctx.get(), keys.certificateFileName().string().c_str()) <= 0)
     {
         throwError("Can't use certificate file " + keys.certificateFileName().string());
     }
@@ -98,7 +98,7 @@ void SSLContext::loadKeys(const SSLKeys& keys)
     // Define password for auto-answer in callback function
     SSL_CTX_set_default_passwd_cb(m_ctx.get(), passwordReplyCallback);
     SSL_CTX_set_default_passwd_cb_userdata(m_ctx.get(), bit_cast<void*>(m_password.c_str()));
-    if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), keys.privateKeyFileName().c_str(), SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), keys.privateKeyFileName().string().c_str(), SSL_FILETYPE_PEM) <= 0)
     {
         throwError("Can't use private key file " + keys.privateKeyFileName().string());
     }
@@ -109,7 +109,7 @@ void SSLContext::loadKeys(const SSLKeys& keys)
     }
 
     // Load the CAs we trust
-    if (!keys.caFileName().empty() && SSL_CTX_load_verify_locations(m_ctx.get(), keys.caFileName().c_str(), nullptr) <= 0)
+    if (!keys.caFileName().empty() && SSL_CTX_load_verify_locations(m_ctx.get(), keys.caFileName().string().c_str(), nullptr) <= 0)
     {
         throwError("Can't load or verify CA file " + keys.caFileName().string());
     }

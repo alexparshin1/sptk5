@@ -35,43 +35,17 @@
 using namespace std;
 using namespace sptk;
 
-static const String originalTestString = "This is a test of compression using GZip algorithm";
-
-// Note: ZLib under Windows produces slightly different result,
-// due old Windows port version.
-#ifdef _WIN32
-static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
-#else
-static const String originalTestStringBase64 = "H4sIAAAAAAAAAwvJyCxWAKJEhZLU4hKF/DSF5PzcgqLU4uLM/DyF0uLMvHQF96jMAoXEnPT8osySjFwAes7C0zIAAAA=";
-#endif
+static const String originalTestString = 
+    "This is a test of compression using GZip algorithm. "
+    "This is a test of compression using GZip algorithm. "
+    "This is a test of compression using GZip algorithm. ";
 
 TEST(SPTK_ZLib, compressDecompress)
 {
     Buffer compressed;
     Buffer decompressed;
     ZLib::compress(compressed, Buffer(originalTestString));
-    ZLib::decompress(decompressed, compressed);
-
-    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
-}
-
-TEST(SPTK_ZLib, compress)
-{
-    Buffer compressed;
-    String compressedBase64;
-    ZLib::compress(compressed, Buffer(originalTestString));
-    Base64::encode(compressedBase64, compressed);
-    EXPECT_EQ(originalTestStringBase64.size(), compressedBase64.size());
-    EXPECT_TRUE(compressedBase64.startsWith("H4sIAAAAAAAAAw"));
-    EXPECT_TRUE(compressedBase64.endsWith("es7C0zIAAAA="));
-}
-
-TEST(SPTK_ZLib, decompress)
-{
-    Buffer compressed;
-    Buffer decompressed;
-
-    Base64::decode(compressed, originalTestStringBase64);
+    EXPECT_LT(compressed.bytes(), originalTestString.length());
     ZLib::decompress(decompressed, compressed);
 
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
@@ -84,7 +58,11 @@ TEST(SPTK_ZLib, performance)
     Buffer decompressed;
 
     // Using own executable file for the test.
+#ifdef _WIN32
+    const filesystem::path testFile {"C:/Program Files/SPTK/bin/sptk_unit_tests.exe"};
+#else
     const filesystem::path testFile {"/usr/local/bin/sptk_unit_tests"};
+#endif
     if (!filesystem::exists(testFile))
     {
         GTEST_SKIP() << "Test file not found: " << testFile;

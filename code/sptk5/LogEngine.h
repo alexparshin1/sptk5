@@ -206,7 +206,7 @@ protected:
      */
     bool terminated() const
     {
-        return m_terminated.test();
+        return m_terminated;
     }
 
     virtual void flush()
@@ -235,7 +235,7 @@ private:
      */
     std::set<Option> m_options {Option::ENABLE, Option::DATE, Option::TIME, Option::PRIORITY};
 
-    std::atomic_flag m_terminated {false};
+    std::atomic_bool m_terminated {false};
 
     using MessageQueue = SynchronizedQueue<Logger::UMessage>;
     /**

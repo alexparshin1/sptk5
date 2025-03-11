@@ -471,6 +471,10 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
 #endif
         if (res == -1)
         {
+            if (m_socketFd == INVALID_SOCKET)
+            {
+                throwSocketError("Socket is closed");
+            }
             if (errno == EINTR || errno == EAGAIN || errno == EINPROGRESS)
             {
                 this_thread::yield();
