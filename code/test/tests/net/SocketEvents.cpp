@@ -56,15 +56,16 @@ void echoTestFunction(ServerConnection& serverConnection)
     {
         try
         {
-            if (socketReader.readyToRead(chrono::seconds(1)))
+            if (socketReader.readyToRead(3s))
             {
-                if (socketReader.readLine(data) == 0)
+                if (socketReader.socket().socketBytes() == 0)
                 {
-                    continue;
+                    break;
                 }
                 string str(data.c_str());
                 str += "\n";
                 echoSocket->write(str);
+                COUT("Echo: " << str);
             }
             else
             {
@@ -77,6 +78,7 @@ void echoTestFunction(ServerConnection& serverConnection)
         }
     }
     echoSocket->close();
+    COUT("Echo thread exited.");
 }
 
 } // namespace
@@ -89,8 +91,10 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
     Semaphore                eventReceived;
     shared_ptr<SocketReader> socketReader;
 
+    size_t receiveCount = 0;
+
     auto eventsCallback =
-        [&eventReceived, &socketReader](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&eventReceived, &socketReader, &receiveCount](const uint8_t* /*userData*/, SocketEventType eventType)
     {
         Buffer line;
 
@@ -98,19 +102,24 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
         {
             while (socketReader->readLine(line, '\n') != 0)
             {
-                eventReceived.post();
-                COUT("Client received: " << line.c_str() << '\n');
+                ++receiveCount;
+                COUT("Client received (" << receiveCount << "): " << line.c_str());
+                if (receiveCount == 4)
+                {
+                    eventReceived.post();
+                    break;
+                }
             }
         }
 
         if (eventType.m_hangup)
         {
-            COUT("Socket closed\n");
+            COUT("Server hangup");
+            socketReader->close();
         }
     };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
-                              SocketPool::TriggerMode::LevelTriggered);
+    SocketEvents socketEvents("Test Pool", eventsCallback, 1s, SocketPool::TriggerMode::LevelTriggered);
 
     Buffer buffer;
 
@@ -132,26 +141,32 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
         socketReader = make_shared<SocketReader>(socket);
 
-        for (const auto& row: testRows)
+        try
         {
-            const auto bytes = socket.write(row + "\n");
-            if (bytes != row.length() + 1)
+            for (const auto& row: testRows)
             {
-                FAIL() << "Client can't send data";
+                const auto bytes = socket.write(row + "\n");
+                if (bytes != row.length() + 1)
+                {
+                    FAIL() << "Client can't send data: " << row;
+                }
             }
         }
-
-        size_t receivedEventCount {0};
-        while (eventReceived.wait_for(chrono::milliseconds(100)))
+        catch (const Exception& e)
         {
-            receivedEventCount++;
+            CERR(e.what());
+        }
+
+        if (!eventReceived.wait_for(chrono::seconds(1)))
+        {
+            FAIL() << "Not all events received";
         }
 
         echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
         socket.close();
 
-        EXPECT_EQ(4u, receivedEventCount);
+        EXPECT_EQ(4u, receiveCount);
     }
     catch (const Exception& e)
     {
@@ -159,13 +174,13 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
     }
 }
 
+#ifndef _WIN32
 /**
  * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
  * @remarks The event count must show the events coming upon new data arrival to client's socket
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
-#ifndef _WIN32
     atomic_size_t eventCount {0};
     Semaphore     receivedEvent;
 
@@ -221,8 +236,8 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
     {
         FAIL() << e.what();
     }
-#endif
 }
+#endif
 
 /**
  * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
@@ -289,6 +304,10 @@ TEST(SPTK_SocketEvents, minimal_oneShot)
 
 TEST(SPTK_SocketEvents, performance)
 {
+    TCPServer echoServer("TestServer");
+    echoServer.onConnection(echoTestFunction);
+    echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
+
     SocketEvents socketEvents(
         "test events",
         [](const uint8_t*, SocketEventType)
@@ -299,8 +318,7 @@ TEST(SPTK_SocketEvents, performance)
 
     constexpr size_t  maxSockets = 1000;
     vector<TCPSocket> sockets(maxSockets);
-    // This test expects running a local webserver
-    const Host testServerHost("localhost", 80);
+    const Host testServerHost("localhost", testEchoServerPort);
     for (auto& socket: sockets)
     {
         ASSERT_NO_THROW(socket.open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));
@@ -356,6 +374,8 @@ TEST(SPTK_SocketEvents, hangup)
         echoServer.onConnection(echoTestFunction);
         echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
 
+        this_thread::sleep_for(100ms);
+
         const Strings testRows({"Hello, World!",
                                 "This is a test of SocketEvents class.",
                                 "Using simple echo server to support data flow.",
@@ -372,14 +392,16 @@ TEST(SPTK_SocketEvents, hangup)
             FAIL() << "Client can't send data";
         }
 
-        this_thread::sleep_for(10ms);
+        this_thread::sleep_for(200ms);
+
+        COUT("Closing socket");
         echoSocket->close();
 
         const auto hangupReceived = socketHangupEvent.wait_for(100ms);
+        socketEvents.remove(socket);
         EXPECT_TRUE(hangupReceived);
 
         echoServer.onConnection(nullptr);
-        socketEvents.remove(socket);
     }
     catch (const Exception& e)
     {

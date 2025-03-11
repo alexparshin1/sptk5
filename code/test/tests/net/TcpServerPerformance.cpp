@@ -31,7 +31,9 @@
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerListener.h>
 
+#ifndef _WIN32
 #include <netinet/tcp.h>
+#endif
 
 using namespace std;
 using namespace sptk;
@@ -49,25 +51,25 @@ void eventHandler(const uint8_t* data, SocketEventType type)
 {
     static int count = 0;
 
-    auto& reader = *(SocketReader*) data;
+    auto& reader = *bit_cast<SocketReader*>(data);
     //sharedSocketEvents->remove(reader.socket());
     if (type.m_data)
     {
         size_t  size = 0;
         uint8_t buffer[1024];
-        reader.read((uint8_t*) &size, sizeof(size));
+        reader.read(reinterpret_cast<uint8_t*>(&size), sizeof(size));
         reader.read(buffer, size);
         totalTransferredCount++;
         totalTransferred += size + sizeof(size);
         buffer[size] = 0;
-        reader.socket().write((uint8_t*) &size, sizeof(size));
+        reader.socket().write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
         reader.socket().write(buffer, size);
         ++count;
         if (count > 50000)
         {
             completed.post();
         }
-        sharedSocketEvents->add(reader.socket(), (uint8_t*) &reader, true);
+        sharedSocketEvents->add(reader.socket(), reinterpret_cast<uint8_t*>(&reader), true);
     }
 
     if (type.m_hangup)
@@ -93,7 +95,7 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
                                clientSocket.attach(socket.socket().detach(), false);
                                clientSocket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
                                clientSocket.blockingMode(false);
-                               socketEvents.add(clientSocket, (uint8_t*) &clientReader);
+                               socketEvents.add(clientSocket, reinterpret_cast<uint8_t*>(&clientReader));
                            });
 
     TCPSocket    socket;
@@ -111,9 +113,9 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
         buffer.append("0123456789ABCDEF0123456789ABCDEF");
     }
     size_t size = buffer.bytes() + 1;
-    socket.write((uint8_t*) &size, sizeof(size));
+    socket.write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
     socket.write(buffer.data(), size);
-    socketEvents.add(socket, (uint8_t*) &reader);
+    socketEvents.add(socket, reinterpret_cast<uint8_t*>(&reader));
 
     completed.wait();
 
@@ -122,7 +124,8 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
     auto clientReceivedCount = totalTransferredCount / 2;
     auto clientReceivedBytes = totalTransferred / 2;
     COUT("Client received: " << clientReceivedBytes << " bytes for " << stopWatch.milliseconds() << " ms, "
-                             << clientReceivedBytes / stopWatch.milliseconds() << "KB/s. (" << clientReceivedCount / stopWatch.milliseconds() << "K/s)");
+                             << static_cast<double>(clientReceivedBytes) / stopWatch.milliseconds() << "KB/s. (" 
+                             << static_cast<double>(clientReceivedCount) / stopWatch.milliseconds() << "K/s)");
 
     socketEvents.remove(socket);
     socketEvents.remove(clientSocket);
