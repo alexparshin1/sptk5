@@ -6,7 +6,7 @@ using namespace std;
 using namespace sptk;
 
 TestEchoServer::TestEchoServer(uint16_t port)
-    :    TCPServer("TestServer")
+    : TCPServer("TestServer")
 {
     onConnection(echoFunction);
     addListener(ServerConnection::Type::TCP, port);
@@ -14,37 +14,36 @@ TestEchoServer::TestEchoServer(uint16_t port)
 
 void TestEchoServer::echoFunction(ServerConnection& serverConnection)
 {
-    auto* echoSocket = serverConnection.getSocket().get();
+    auto echoSocket = serverConnection.getSocket();
 
     SocketReader socketReader(*echoSocket);
-    Buffer       data;
-    bool         terminated = false;
-    while (!terminated)
+    try
     {
-        try
+        while (true)
         {
-            if (socketReader.readyToRead(3s))
+            if (echoSocket->readyToRead(100ms))
             {
-                if (socketReader.socket().socketBytes() == 0)
+                auto bytes = socketReader.socket().socketBytes();
+                if (bytes == 0)
+                {
+                    // Client hangup
+                    break;
+                }
+
+                String message;
+                echoSocket->read(message, bytes);
+                echoSocket->write(message);
+                COUT("Echo: [" << message << "]");
+                if (message.endsWith("<EOF>"))
                 {
                     break;
                 }
-                string str(data.c_str());
-                str += "\n";
-                echoSocket->write(str);
-                COUT("Echo: " << str);
             }
-            else
-            {
-                terminated = true;
-            }
-        }
-        catch (const Exception&)
-        {
-            terminated = true;
         }
     }
+    catch (const Exception& e)
+    {
+        CERR(e.what());
+    }
     echoSocket->close();
-    COUT("Echo thread exited.");
 }
-
