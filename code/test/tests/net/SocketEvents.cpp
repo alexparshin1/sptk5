@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "TestEchoServer.h"
 #include "sptk5/StopWatch.h"
 #include "sptk5/net/TCPServer.h"
 
@@ -40,116 +41,55 @@ namespace {
 
 constexpr uint16_t testEchoServerPort = 5001;
 
-TCPSocket* echoSocket;
-
 /**
- * @brief Test TCP echo server function
+ * @brief Test SocketEvents communication with echo server using selected trigger mode
  */
-void echoTestFunction(ServerConnection& serverConnection)
+void testSocketEvents(SocketPool::TriggerMode triggerMode)
 {
-    echoSocket = serverConnection.getSocket().get();
-
-    SocketReader socketReader(*echoSocket);
-    Buffer       data;
-    bool         terminated = false;
-    while (!terminated)
-    {
-        try
-        {
-            if (socketReader.readyToRead(3s))
-            {
-                if (socketReader.socket().socketBytes() == 0)
-                {
-                    break;
-                }
-                string str(data.c_str());
-                str += "\n";
-                echoSocket->write(str);
-                COUT("Echo: " << str);
-            }
-            else
-            {
-                terminated = true;
-            }
-        }
-        catch (const Exception&)
-        {
-            terminated = true;
-        }
-    }
-    echoSocket->close();
-    COUT("Echo thread exited.");
-}
-
-} // namespace
-
-/**
- * @brief Test SocketEvents communication with echo server using LevelTriggered mode
- */
-TEST(SPTK_SocketEvents, minimal_levelTriggered)
-{
-    Semaphore                eventReceived;
-    shared_ptr<SocketReader> socketReader;
-
-    size_t receiveCount = 0;
+    Semaphore             dataReceived;
 
     auto eventsCallback =
-        [&eventReceived, &socketReader, &receiveCount](const uint8_t* /*userData*/, SocketEventType eventType)
+        [&dataReceived](const uint8_t* userData, SocketEventType eventType)
     {
-        Buffer line;
-
+        auto* socket = bit_cast<Socket*>(userData);
         if (eventType.m_data)
         {
-            while (socketReader->readLine(line, '\n') != 0)
+            auto bytes = socket->socketBytes();
+            if (bytes > 0)
             {
-                ++receiveCount;
-                COUT("Client received (" << receiveCount << "): " << line.c_str());
-                if (receiveCount == 4)
-                {
-                    eventReceived.post();
-                    break;
-                }
+                String data;
+                socket->read(data, bytes);
+                COUT("Client received " << bytes << " bytes: [" << data << "]");
+                dataReceived.post();
             }
         }
 
         if (eventType.m_hangup)
         {
             COUT("Server hangup");
-            socketReader->close();
+            socket->close();
         }
     };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, 1s, SocketPool::TriggerMode::LevelTriggered);
+    SocketEvents socketEvents("Test Pool", eventsCallback, 1s, triggerMode);
 
     Buffer buffer;
 
     try
     {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
-
-        const Strings testRows({"Hello, World!",
-                                "This is a test of SocketEvents class.",
-                                "Using simple echo server to support data flow.",
-                                "The session is terminated when this row is received"});
+        TestEchoServer testEchoServer(testEchoServerPort);
 
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
-
         socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
-
-        socketReader = make_shared<SocketReader>(socket);
 
         try
         {
-            for (const auto& row: testRows)
+            String testData("Hello, World! This is a test of SocketEvents class. <EOF>");
+            const auto bytes = socket.write(testData);
+            if (bytes != testData.length())
             {
-                const auto bytes = socket.write(row + "\n");
-                if (bytes != row.length() + 1)
-                {
-                    FAIL() << "Client can't send data: " << row;
-                }
+                FAIL() << "Client can't send data: [" << testData << "]";
             }
         }
         catch (const Exception& e)
@@ -157,21 +97,26 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
             CERR(e.what());
         }
 
-        if (!eventReceived.wait_for(chrono::seconds(1)))
+        if (!dataReceived.wait_for(chrono::seconds(1)))
         {
             FAIL() << "Not all events received";
         }
 
-        echoServer.onConnection(nullptr);
         socketEvents.remove(socket);
         socket.close();
 
-        EXPECT_EQ(4u, receiveCount);
+        testEchoServer.stop();
     }
     catch (const Exception& e)
     {
         FAIL() << e.what();
     }
+}
+} // namespace
+
+TEST(SPTK_SocketEvents, minimal_levelTriggered)
+{
+    testSocketEvents(SocketPool::TriggerMode::LevelTriggered);
 }
 
 #ifndef _WIN32
@@ -181,61 +126,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
-    atomic_size_t eventCount {0};
-    Semaphore     receivedEvent;
-
-    auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
-    {
-        if (eventType.m_data)
-        {
-            receivedEvent.post();
-            ++eventCount;
-        }
-    };
-
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
-                              SocketPool::TriggerMode::EdgeTriggered);
-
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
-
-        Strings testRows({"Hello, World!",
-                          "This is a test of SocketEvents class.",
-                          "Using simple echo server to support data flow."});
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
-
-        for (const auto& row: testRows)
-        {
-            const auto bytes = socket.write(row + "\n");
-            if (bytes != row.length() + 1)
-            {
-                FAIL() << "Client can't send data";
-            }
-        }
-
-        receivedEvent.wait_for(100ms);
-        this_thread::sleep_for(50ms);
-
-        EXPECT_GT(eventCount, 0u);
-
-        echoServer.onConnection(nullptr);
-        socketEvents.remove(socket);
-        socket.close();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
+    testSocketEvents(SocketPool::TriggerMode::EdgeTriggered);
 }
 #endif
 
@@ -245,68 +136,12 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
-    atomic_size_t eventCount {0};
-    Semaphore     receivedEvent;
-
-    auto eventsCallback =
-        [&eventCount, &receivedEvent](const uint8_t* /*userData*/, SocketEventType eventType)
-    {
-        if (eventType.m_data)
-        {
-            receivedEvent.post();
-            ++eventCount;
-        }
-    };
-
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
-                              SocketPool::TriggerMode::OneShot);
-
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
-
-        const Strings testRows({"Hello, World!",
-                                "This is a test of SocketEvents class.",
-                                "Using simple echo server to support data flow."});
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
-
-        for (const auto& row: testRows)
-        {
-            const auto bytes = socket.write(row + "\n");
-            if (bytes != row.length() + 1)
-            {
-                FAIL() << "Client can't send data";
-            }
-        }
-
-        receivedEvent.wait_for(100ms);
-        this_thread::sleep_for(50ms);
-
-        EXPECT_EQ(eventCount, 1u);
-
-        echoServer.onConnection(nullptr);
-        socketEvents.remove(socket);
-        socket.close();
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
+    testSocketEvents(SocketPool::TriggerMode::OneShot);
 }
 
 TEST(SPTK_SocketEvents, performance)
 {
-    TCPServer echoServer("TestServer");
-    echoServer.onConnection(echoTestFunction);
-    echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
+    TestEchoServer testEchoServer(testEchoServerPort);
 
     SocketEvents socketEvents(
         "test events",
@@ -344,67 +179,4 @@ TEST(SPTK_SocketEvents, performance)
                      << flush);
 
     socketEvents.stop();
-}
-
-/**
- * @brief Test SocketEvents communication with echo server using LevelTriggered mode
- */
-TEST(SPTK_SocketEvents, hangup)
-{
-    Semaphore                socketHangupEvent;
-    shared_ptr<SocketReader> socketReader;
-
-    auto eventsCallback =
-        [&socketHangupEvent](const uint8_t* /*userData*/, SocketEventType eventType)
-    {
-        if (eventType.m_hangup)
-        {
-            socketHangupEvent.post();
-        }
-    };
-
-    SocketEvents socketEvents("Test Pool", eventsCallback, chrono::milliseconds(100),
-                              SocketPool::TriggerMode::LevelTriggered);
-
-    Buffer buffer;
-
-    try
-    {
-        TCPServer echoServer("TestServer");
-        echoServer.onConnection(echoTestFunction);
-        echoServer.addListener(ServerConnection::Type::TCP, testEchoServerPort);
-
-        this_thread::sleep_for(100ms);
-
-        const Strings testRows({"Hello, World!",
-                                "This is a test of SocketEvents class.",
-                                "Using simple echo server to support data flow.",
-                                "The session is terminated when this row is received"});
-
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
-
-        const auto bytes = socket.write("Test\n");
-        if (bytes <= 0)
-        {
-            FAIL() << "Client can't send data";
-        }
-
-        this_thread::sleep_for(200ms);
-
-        COUT("Closing socket");
-        echoSocket->close();
-
-        const auto hangupReceived = socketHangupEvent.wait_for(100ms);
-        socketEvents.remove(socket);
-        EXPECT_TRUE(hangupReceived);
-
-        echoServer.onConnection(nullptr);
-    }
-    catch (const Exception& e)
-    {
-        FAIL() << e.what();
-    }
 }

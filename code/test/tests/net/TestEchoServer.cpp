@@ -16,14 +16,13 @@ void TestEchoServer::echoFunction(ServerConnection& serverConnection)
 {
     auto echoSocket = serverConnection.getSocket();
 
-    SocketReader socketReader(*echoSocket);
     try
     {
         while (true)
         {
             if (echoSocket->readyToRead(100ms))
             {
-                auto bytes = socketReader.socket().socketBytes();
+                auto bytes = echoSocket->socketBytes();
                 if (bytes == 0)
                 {
                     // Client hangup
