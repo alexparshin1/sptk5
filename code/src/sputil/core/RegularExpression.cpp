@@ -286,7 +286,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
     if (rc >= 0)
     {
         auto* offsetVector = pcre2_get_ovector_pointer(matchData.match_data.get());
-        const auto* offsetsEnd = offsetVector + 2 * rc;
+        const auto* offsetsEnd = offsetVector + static_cast<size_t>(2 * rc);
         matchData.matches.reserve(rc);
         matchData.matches.clear();
         for (auto* offsetPair = offsetVector; offsetPair != offsetsEnd; offsetPair += 2)
@@ -428,15 +428,17 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         {
             const auto   n = static_cast<size_t>((static_cast<int>(tabptr[0]) << 8) | static_cast<int>(tabptr[1]));
             const String name(tabptr + 2, static_cast<size_t>(nameEntrySize - 3));
-            if (const auto& match = matchData.matches[n]; match.m_start >= 0 && n < matchCount)
+            if (n < matchCount)
             {
-                const String value(text.c_str() + match.m_start, static_cast<size_t>(match.m_end - match.m_start));
-                matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                if (const auto& match = matchData.matches[n]; match.m_start >= 0)
+                {
+                    const String value(text.c_str() + match.m_start, static_cast<size_t>(match.m_end - match.m_start));
+                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                    continue;
+                }
             }
-            else
-            {
-                matchedStrings.add(name.c_str(), Group());
-            }
+
+            matchedStrings.add(name.c_str(), Group());
             tabptr += nameEntrySize;
         }
     }
