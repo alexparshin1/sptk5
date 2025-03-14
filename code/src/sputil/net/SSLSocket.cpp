@@ -290,20 +290,24 @@ void SSLSocket::attachUnlocked(SocketType socketHandle, bool accept)
         return;
     }
 
-    if (const int result = sslAccept();
-        result <= 0)
+    while (true)
     {
-        const auto errorCode = sslGetErrorCode(result);
-        const auto error = sslGetErrorString("SSL_accept", errorCode);
-
-        // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
-        if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
+        if (const int result = sslAccept();
+            result <= 0)
         {
-            throw TimeoutException(error);
-        }
+            const auto errorCode = sslGetErrorCode(result);
+            const auto error = sslGetErrorString("SSL_accept", errorCode);
 
-        // The serious problem - can't accept, and it's final
-        throw Exception(error);
+            // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
+            if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
+            {
+                continue;
+            }
+
+            // The serious problem - can't accept, and it's final
+            throw Exception(error);
+        }
+        break;
     }
 }
 

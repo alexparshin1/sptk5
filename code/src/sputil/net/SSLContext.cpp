@@ -65,9 +65,11 @@ SSLContext::SSLContext(const String& cipherList, bool tlsOnly)
                                    sizeof s_server_session_id_context);
     if (tlsOnly)
     {
-        const long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
+        constexpr long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
         SSL_CTX_set_options(m_ctx.get(), flags);
     }
+
+    SSL_CTX_set_ecdh_auto(m_ctx.get(), 1);
 }
 
 SSL_CTX* SSLContext::handle()

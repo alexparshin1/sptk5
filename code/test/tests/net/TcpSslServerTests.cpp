@@ -196,7 +196,14 @@ TEST(SPTK_TCPServer, sslMinimal)
         SSLSocket    socket;
         SocketReader socketReader(socket);
 
-        socket.open(Host("localhost", testSslEchoServerPort));
+        try
+        {
+            socket.open(Host("localhost", testSslEchoServerPort));
+        }
+        catch (Exception& e)
+        {
+            FAIL() << e.what();
+        }
 
         const Strings rows({"Hello, World!",
                             "This is a test of TCPServer class.",
