@@ -46,12 +46,25 @@ constexpr uint16_t testEchoServerPort = 5001;
  */
 void testSocketEvents(SocketPool::TriggerMode triggerMode)
 {
-    Semaphore             dataReceived;
+    shared_ptr<SocketEvents> socketEvents;
+    Semaphore    dataReceived;
+    Semaphore hangupReceived;
 
     auto eventsCallback =
-        [&dataReceived](const uint8_t* userData, SocketEventType eventType)
+        [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const uint8_t* userData, SocketEventType eventType)
     {
         auto* socket = bit_cast<Socket*>(userData);
+
+        // In a real server or client, we want to prevent async calls of socket events while
+        // the current event is processed in another thread.
+        // In this test, the event is processed in the same thread, but we still want to test
+        // that removing and re-adding the socket works properly.
+        // Note that removing socket is not required for OneShot trigger mode.
+        if (triggerMode != SocketPool::TriggerMode::OneShot)
+        {
+            socketEvents->remove(*socket);
+        }
+
         if (eventType.m_data)
         {
             auto bytes = socket->socketBytes();
@@ -68,10 +81,15 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         {
             COUT("Server hangup");
             socket->close();
+            hangupReceived.post();
+            // Don't add a socket to SocketEvents after the hangup.
+            return;
         }
+
+        socketEvents->add(*socket, bit_cast<uint8_t*>(socket), true);
     };
 
-    SocketEvents socketEvents("Test Pool", eventsCallback, 1s, triggerMode);
+    socketEvents = make_shared<SocketEvents>("Test Pool", eventsCallback, 1s, triggerMode);
 
     Buffer buffer;
 
@@ -81,29 +99,26 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
 
         TCPSocket socket;
         socket.open(Host("localhost", testEchoServerPort));
-        socketEvents.add(socket, bit_cast<uint8_t*>(&socket));
+        socketEvents->add(socket, bit_cast<uint8_t*>(&socket));
 
         try
         {
-            String testData("Hello, World! This is a test of SocketEvents class. <EOF>");
-            const auto bytes = socket.write(testData);
-            if (bytes != testData.length())
-            {
-                FAIL() << "Client can't send data: [" << testData << "]";
-            }
+            const String testData1("Hello, World!");
+            socket.write(testData1);
+            EXPECT_TRUE(dataReceived.wait_for(100ms));
+            const String testData2("This is a test of SocketEvents class.<EOF>");
+            socket.write(testData2);
+            EXPECT_TRUE(dataReceived.wait_for(100ms));
         }
         catch (const Exception& e)
         {
             CERR(e.what());
         }
 
-        if (!dataReceived.wait_for(chrono::seconds(1)))
-        {
-            FAIL() << "Not all events received";
-        }
-
-        socketEvents.remove(socket);
+        socketEvents->remove(socket);
         socket.close();
+
+        EXPECT_TRUE(hangupReceived.wait_for(100ms));
 
         testEchoServer.stop();
     }
