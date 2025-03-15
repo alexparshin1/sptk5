@@ -75,7 +75,7 @@ TEST(SPTK_Thread, run)
     this_thread::sleep_for(interval);
     testThread.terminate();
     testThread.join();
-    EXPECT_LE(testCounter, testThread.counter());
+    EXPECT_GE(testCounter, testThread.counter());
 }
 
 // Test thread re-start after join

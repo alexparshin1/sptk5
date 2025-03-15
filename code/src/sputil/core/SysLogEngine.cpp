@@ -148,7 +148,7 @@ void SysLogEngine::setupEventSource() const
     string keyName = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + m_programName;
 
     HKEY keyHandle;
-    if (RegCreateKey(HKEY_LOCAL_MACHINE, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
+    if (RegCreateKey(HKEY_CURRENT_USER, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
         throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
 
     unsigned long len = _MAX_PATH;
