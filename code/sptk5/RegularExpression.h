@@ -94,16 +94,21 @@ public:
     public:
         /**
          * Constructor
-         * @param value         Matched string
-         * @param start         String start position in subject
-         * @param end           String end position in subject
+         * @param _text         Matched string
+         * @param _start        String start position in subject
+         * @param _end          String end position in subject
          */
-        Group(String value, pcre_offset_t start, pcre_offset_t end)
-            : value(std::move(value))
-            , start(start)
-            , end(end)
+        Group(const char* text, pcre_offset_t _start, pcre_offset_t _end)
+            : value(text + _start, static_cast<size_t>(_end - _start))
+            , start(_start)
+            , end(_end)
         {
         }
+
+        Group(const Group&) = delete;
+        Group(Group&&) = default;
+        Group& operator=(const Group&) = delete;
+        Group& operator=(Group&&) = default;
 
         /**
          * Default constructor
@@ -115,6 +120,8 @@ public:
         pcre_offset_t end {0};   ///< End position of the matched fragment in subject
     };
 
+    using GroupPtr = std::unique_ptr<Group>;
+
     /**
      * Matched groups, including unnamed and named groups (if any).
      * For named groups in global match, only the first match is considered.
@@ -124,6 +131,8 @@ public:
         friend class RegularExpression;
 
     public:
+        using Map = std::unordered_map<std::string, GroupPtr>;
+
         /**
          * Get unnamed group by index.
          * If group doesn't exist, return reference to empty group.
@@ -144,7 +153,7 @@ public:
          * Get unnamed groups.
          * @return const reference to unnamed groups object
          */
-        [[nodiscard]] const std::vector<Group>& groups() const
+        [[nodiscard]] const std::vector<GroupPtr>& groups() const
         {
             return m_groups;
         }
@@ -153,7 +162,7 @@ public:
          * Get named groups.
          * @return const reference to named groups object
          */
-        [[nodiscard]] const std::map<String, Group>& namedGroups() const
+        [[nodiscard]] const Map& namedGroups() const
         {
             return m_namedGroups;
         }
@@ -185,7 +194,7 @@ public:
          * Add new group by moving it to unnamed groups
          * @param group         Group to add
          */
-        void add(Group&& group)
+        void add(GroupPtr&& group)
         {
             m_groups.push_back(std::move(group));
         }
@@ -195,15 +204,15 @@ public:
          * @param name          Group name
          * @param group         Group to add
          */
-        void add(const String& name, Group&& group)
+        void add(const String& name, GroupPtr&& group)
         {
             m_namedGroups[name] = std::move(group);
         }
 
     private:
-        std::vector<Group>      m_groups;      ///< Unnamed groups
-        std::map<String, Group> m_namedGroups; ///< Named groups
-        static const Group      emptyGroup;    ///< Empty group to return if group can't be found
+        std::vector<GroupPtr> m_groups;      ///< Unnamed groups
+        Map                   m_namedGroups; ///< Named groups
+        static const Group    emptyGroup;    ///< Empty group to return if group can't be found
     };
 
     /**
@@ -244,7 +253,7 @@ public:
      */
     RegularExpression& operator=(RegularExpression&& other) noexcept;
 
-	/**
+    /**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found
@@ -333,7 +342,7 @@ private:
     std::shared_ptr<PCREHandle>      m_pcre;             ///< Compiled PCRE expression handle
     std::shared_ptr<PCREExtraHandle> m_pcreExtra;        ///< Compiled PCRE expression optimization (for faster execution)
     uint32_t                         m_options {0};      ///< PCRE pattern options
-    size_t                           m_captureCount {0}; ///< RE' capture count
+    size_t                           m_captureCount {0}; ///< Capture count
 
     /**
      * Initialize PCRE expression
@@ -362,7 +371,7 @@ private:
     size_t getNamedGroupCount() const;
 
     /**
-     * Get captur group name table from the compiled pattern
+     * Get capture group name table from the compiled pattern
      * @return named capture group count
      */
     void getNameTable(const char*& nameTable, int& nameEntrySize) const;

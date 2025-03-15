@@ -108,17 +108,17 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](int index)
     {
         return emptyGroup;
     }
-    return m_groups[index];
+    return *m_groups[index];
 }
 
 const RegularExpression::Group& RegularExpression::Groups::operator[](const char* name) const
 {
-    const auto itor = m_namedGroups.find(name);
-    if (itor == m_namedGroups.end())
+    const auto iterator = m_namedGroups.find(name);
+    if (iterator == m_namedGroups.end())
     {
         return emptyGroup;
     }
-    return itor->second;
+    return *iterator->second;
 }
 
 void RegularExpression::Groups::grow(size_t groupCount)
@@ -293,7 +293,6 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         {
             matchData.matches.emplace_back(static_cast<pcre_offset_t>(*offsetPair), static_cast<pcre_offset_t>(*(offsetPair + 1)));
         }
-        //memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
         offset = offsetVector[1];
         return static_cast<size_t>(rc); // match count
     }
@@ -390,15 +389,11 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
             const Match& match = matchData.matches[matchIndex];
             if (match.m_start >= 0)
             {
-                matchedStrings.add(
-                    Group(
-                        string(text.c_str() + match.m_start,
-                               static_cast<size_t>(match.m_end - match.m_start)),
-                        match.m_start, match.m_end));
+                matchedStrings.add(GroupPtr(new Group(text.c_str(), match.m_start, match.m_end)));
             }
             else
             {
-                matchedStrings.add(Group());
+                matchedStrings.add(GroupPtr(new Group()));
             }
         }
 
@@ -423,24 +418,23 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
         const char* nameTable = nullptr;
         int         nameEntrySize = 0;
         getNameTable(nameTable, nameEntrySize);
-        const auto* tabptr = nameTable;
+        const auto* tablePtr = nameTable;
         for (int i = 0; i < nameCount; ++i)
         {
-            const auto   n = static_cast<size_t>((static_cast<int>(tabptr[0]) << 8) | static_cast<int>(tabptr[1]));
-            const String name(tabptr + 2, static_cast<size_t>(nameEntrySize - 3));
+            const auto   n = static_cast<size_t>((static_cast<int>(tablePtr[0]) << 8) | static_cast<int>(tablePtr[1]));
+            const String name(tablePtr + 2, static_cast<size_t>(nameEntrySize - 3));
             if (n < matchCount)
             {
                 if (const auto& match = matchData.matches[n]; match.m_start >= 0)
                 {
-                    const String value(text.c_str() + match.m_start, static_cast<size_t>(match.m_end - match.m_start));
-                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
-                    tabptr += nameEntrySize;
+                    matchedStrings.add(name.c_str(), GroupPtr(new Group(text.c_str(), match.m_start, match.m_end)));
+                    tablePtr += nameEntrySize;
                     continue;
                 }
             }
 
-            matchedStrings.add(name.c_str(), Group());
-            tabptr += nameEntrySize;
+            matchedStrings.add(name.c_str(), GroupPtr(new Group()));
+            tablePtr += nameEntrySize;
         }
     }
 }
@@ -653,12 +647,12 @@ String RegularExpression::replaceAll(const String& text, const map<String, Strin
     return s(
         text, [&substitutionsMap, ignoreCase](const String& needle)
         {
-            const auto itor = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
-            if (itor == substitutionsMap.end())
+            const auto iterator = substitutionsMap.find(ignoreCase ? needle.toLowerCase() : needle);
+            if (iterator == substitutionsMap.end())
             {
                 return needle;
             }
-            return itor->second;
+            return iterator->second;
         },
         replaced);
 }

@@ -392,7 +392,7 @@ String sptk::wsTypeIdToName(const String& typeIdName)
     if (const auto matches = matchClassName.m(typeIdName);
         matches)
     {
-        return matches.groups()[0].value;
+        return matches.groups()[0]->value;
     }
 
     return "Unknown";

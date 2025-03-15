@@ -50,8 +50,8 @@ void ImportXML::processAttributes(Node& node, const char* ptr)
             throw Exception("Invalid attribute format for " + node.getQualifiedName() + " tag");
         }
 
-        const auto& attributeName = itor->value;
-        const char* attributeStart = ptr + vtor->end;
+        const auto& attributeName = (*itor)->value;
+        const char* attributeStart = ptr + (*vtor)->end;
         const char* attributeEnd = nullptr;
 
         auto expectedChar = *attributeStart;

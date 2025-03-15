@@ -376,7 +376,7 @@ String WSParserComplexType::makeTagName(const String& className)
         Strings wordList;
         for (const auto& word: words.groups())
         {
-            wordList.push_back(word.value);
+            wordList.push_back(word->value);
         }
         tagName = wordList.join("_").toLowerCase();
     }
