@@ -285,7 +285,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 
     if (rc >= 0)
     {
-        auto* offsetVector = pcre2_get_ovector_pointer(matchData.match_data.get());
+        auto*       offsetVector = pcre2_get_ovector_pointer(matchData.match_data.get());
         const auto* offsetsEnd = offsetVector + static_cast<size_t>(2 * rc);
         matchData.matches.reserve(rc);
         matchData.matches.clear();
@@ -434,6 +434,7 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
                 {
                     const String value(text.c_str() + match.m_start, static_cast<size_t>(match.m_end - match.m_start));
                     matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                    tabptr += nameEntrySize;
                     continue;
                 }
             }
