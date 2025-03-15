@@ -124,6 +124,10 @@ public:
         friend class RegularExpression;
 
     public:
+        explicit Groups(const String& text)
+        {
+        }
+
         /**
          * Get unnamed group by index.
          * If group doesn't exist, return reference to empty group.
@@ -200,7 +204,16 @@ public:
             m_namedGroups[name] = std::move(group);
         }
 
+        /**
+         * @return Input text
+         */
+        [[nodiscard]] const String& text() const
+        {
+            return m_text;
+        }
+
     private:
+        String                  m_text;        ///< Input text
         std::vector<Group>      m_groups;      ///< Unnamed groups
         std::map<String, Group> m_namedGroups; ///< Named groups
         static const Group      emptyGroup;    ///< Empty group to return if group can't be found
@@ -244,7 +257,7 @@ public:
      */
     RegularExpression& operator=(RegularExpression&& other) noexcept;
 
-	/**
+    /**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found
@@ -333,7 +346,7 @@ private:
     std::shared_ptr<PCREHandle>      m_pcre;             ///< Compiled PCRE expression handle
     std::shared_ptr<PCREExtraHandle> m_pcreExtra;        ///< Compiled PCRE expression optimization (for faster execution)
     uint32_t                         m_options {0};      ///< PCRE pattern options
-    size_t                           m_captureCount {0}; ///< RE' capture count
+    size_t                           m_captureCount {0}; ///< Capture count
 
     /**
      * Initialize PCRE expression
@@ -362,7 +375,7 @@ private:
     size_t getNamedGroupCount() const;
 
     /**
-     * Get captur group name table from the compiled pattern
+     * Get capture group name table from the compiled pattern
      * @return named capture group count
      */
     void getNameTable(const char*& nameTable, int& nameEntrySize) const;
