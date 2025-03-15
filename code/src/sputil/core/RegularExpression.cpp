@@ -49,17 +49,18 @@ class MatchData
 
 public:
 #ifdef HAVE_PCRE2
-    shared_ptr<pcre2_match_data> match_data;
+    pcre2_match_data* match_data {nullptr};
 
     MatchData(pcre2_code* pcre, size_t maxMatches)
-        : match_data(shared_ptr<pcre2_match_data>(pcre2_match_data_create_from_pattern(pcre, nullptr),
-                                                  [](auto* ptr)
-                                                  {
-                                                      pcre2_match_data_free(ptr);
-                                                  }))
+        : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr))
         , matches(maxMatches + 2)
         , maxMatches(maxMatches + 2)
     {
+    }
+
+    ~MatchData()
+    {
+        pcre2_match_data_free(match_data);
     }
 
 #else
@@ -73,7 +74,6 @@ public:
 #endif
 
     MatchData(const MatchData&) = delete;
-
     MatchData& operator=(const MatchData&) = delete;
 
     vector<Match> matches;
@@ -275,17 +275,17 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 #ifdef HAVE_PCRE2
 
     auto rc = pcre2_match(
-        m_pcre.get(),               // the compiled pattern
-        (PCRE2_SPTR) text.c_str(),  // the subject string
-        text.length(),              // the length of the subject
-        offset,                     // start at offset in the subject
-        0,                          // default options
-        matchData.match_data.get(), // block for storing the result
-        nullptr);                   // use default match context
+        m_pcre.get(),              // the compiled pattern
+        (PCRE2_SPTR) text.c_str(), // the subject string
+        text.length(),             // the length of the subject
+        offset,                    // start at offset in the subject
+        0,                         // default options
+        matchData.match_data,      // block for storing the result
+        nullptr);                  // use default match context
 
     if (rc >= 0)
     {
-        auto*       offsetVector = pcre2_get_ovector_pointer(matchData.match_data.get());
+        auto*       offsetVector = pcre2_get_ovector_pointer(matchData.match_data);
         const auto* offsetsEnd = offsetVector + static_cast<size_t>(2 * rc);
         matchData.matches.reserve(rc);
         matchData.matches.clear();
