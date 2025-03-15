@@ -321,124 +321,112 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
 {
     const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
-    output << "// Web Service " << m_serviceName << " definition" << endl
-           << endl;
-    output << "#pragma once" << endl;
+    output << "// Web Service " << m_serviceName << " definition\n\n";
+    output << "#pragma once\n";
 
     output << "#include \""
-           << "C" + capitalize(m_serviceName) + "WSDL.h\"" << endl;
-    output << "#include <sptk5/wsdl/WSRequest.h>" << endl;
-    output << "#include <sptk5/net/HttpAuthentication.h>" << endl
-           << endl;
+           << "C" + capitalize(m_serviceName) + "WSDL.h\"\n";
+    output << "#include <sptk5/wsdl/WSRequest.h>\n";
+    output << "#include <sptk5/net/HttpAuthentication.h>\n\n";
 
-    output << "// This Web Service types" << endl;
+    output << "// This Web Service types\n";
     for (const auto& usedClass: usedClasses)
     {
-        output << "#include \"" << usedClass << ".h\"" << endl;
+        output << "#include \"" << usedClass << ".h\"\n";
     }
-    output << endl;
+    output << "\n";
 
-    output << "namespace " << m_serviceNamespace << " {" << endl
-           << endl;
+    output << "namespace " << m_serviceNamespace << " {\n\n";
 
-    output << "/**" << endl;
-    output << " * Base class for service method." << endl;
-    output << " *" << endl;
-    output << " * Web Service application derives its service class from this class" << endl;
-    output << " * by overriding abstract methods" << endl;
-    output << " */" << endl;
-    output << "class WS_EXPORT " << serviceClassName << " : public sptk::WSRequest" << endl;
-    output << "{" << endl;
-    output << "public:" << endl;
-    output << "    /**" << endl;
-    output << "     * Constructor" << endl;
-    output << "     * @param logEngine        Optional log engine for error messages" << endl;
-    output << "     */" << endl;
-    output << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);" << endl
-           << endl;
+    output << "/**\n";
+    output << " * Base class for service method.\n";
+    output << " *\n";
+    output << " * Web Service application derives its service class from this class\n";
+    output << " * by overriding abstract methods\n";
+    output << " */\n";
+    output << "class WS_EXPORT " << serviceClassName << " : public sptk::WSRequest\n";
+    output << "{\n";
+    output << "public:\n";
+    output << "    /**\n";
+    output << "     * Constructor\n";
+    output << "     * @param logEngine        Optional log engine for error messages\n";
+    output << "     */\n";
+    output << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);\n\n";
 
-    output << "    /**" << endl;
-    output << "     * Destructor" << endl;
-    output << "     */" << endl;
-    output << "    ~" << serviceClassName << "() override = default;" << endl
-           << endl;
+    output << "    /**\n";
+    output << "     * Destructor\n";
+    output << "     */\n";
+    output << "    ~" << serviceClassName << "() override = default;\n\n";
 
-    output << "    // Abstract methods below correspond to WSDL-defined operations. " << endl;
-    output << "    // Application must overwrite these methods with processing of corresponding" << endl;
-    output << "    // requests, reading data from input and writing data to output structures." << endl;
+    output << "    // Abstract methods below correspond to WSDL-defined operations.\n";
+    output << "    // Application must overwrite these methods with processing of corresponding\n";
+    output << "    // requests, reading data from input and writing data to output structures.\n";
     for (const auto& [name, operation]: m_operations)
     {
-        output << endl;
-        output << "    /**" << endl;
-        output << "     * Web Service " << name << " operation" << endl;
-        output << "     *" << endl;
+        output << "\n";
+        output << "    /**\n";
+        output << "     * Web Service " << name << " operation\n";
+        output << "     *\n";
         if (const auto documentation = m_documentation[operation.m_input->name()];
             !documentation.empty())
         {
             const Strings documentationRows(documentation, "\n");
             for (const auto& row: documentationRows)
             {
-                output << "     * " << trim(row) << endl;
+                output << "     * " << trim(row) << "\n";
             }
         }
         output
             << "     * This method is abstract and must be overwritten by derived Web Service implementation class."
-            << endl;
-        output << "     * @param input            Operation input data" << endl;
-        output << "     * @param output           Operation response data" << endl;
-        output << "     */" << endl;
+            << "\n";
+        output << "     * @param input            Operation input data\n";
+        output << "     * @param output           Operation response data\n";
+        output << "     */\n";
         output
             << "    virtual void " << name
             << "(const " << operation.m_input->className() << "& input, "
-            << operation.m_output->className() << "& output, sptk::HttpAuthentication* auth) = 0;" << endl;
+            << operation.m_output->className() << "& output, sptk::HttpAuthentication* auth) = 0;\n";
     }
-    output << endl;
+    output << "\n";
 
-    output << "    /**" << endl;
-    output << "     * @return original WSDL specifications" << endl;
-    output << "     */" << endl;
-    output << "    sptk::String wsdl() const override;" << endl
-           << endl;
+    output << "    /**\n";
+    output << "     * @return original WSDL specifications\n";
+    output << "     */\n";
+    output << "    sptk::String wsdl() const override;\n\n";
 
-    output << "    /**" << endl;
-    output << "     * @return OpenAPI specifications" << endl;
-    output << "     */" << endl;
-    output << "    sptk::String openapi() const override;" << endl
-           << endl;
+    output << "    /**\n";
+    output << "     * @return OpenAPI specifications\n";
+    output << "     */\n";
+    output << "    sptk::String openapi() const override;\n\n";
 
-    output << "    /**" << endl;
-    output << "     * @return SOAP WebService targetNamespace" << endl;
-    output << "     */" << endl;
-    output << "    sptk::String targetNamespace() const" << endl;
-    output << "    {" << endl
-           << "        return \"" << m_targetNamespace << "\";" << endl
-           << "    }" << endl
-           << endl;
+    output << "    /**\n";
+    output << "     * @return SOAP WebService targetNamespace\n";
+    output << "     */\n";
+    output << "    sptk::String targetNamespace() const\n";
+    output << "    {\n"
+           << "        return \"" << m_targetNamespace << "\";\n"
+           << "    }\n\n";
 
-    output << "private:" << endl
-           << endl;
+    output << "private:\n\n";
+
     for (const auto& [name, operation]: m_operations)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
-        output << "    /**" << endl;
-        output << "     * Internal Web Service " << requestName << " processing" << endl;
-        output << "     * @param requestNode      Operation input/output XML data" << endl;
-        output << "     * @param authentication   Optional HTTP authentication" << endl;
-        output << "     * @param requestNameSpace Request SOAP element namespace" << endl;
-        output << "     */" << endl;
+        output << "    /**\n";
+        output << "     * Internal Web Service " << requestName << " processing\n";
+        output << "     * @param requestNode      Operation input/output XML data\n";
+        output << "     * @param authentication   Optional HTTP authentication\n";
+        output << "     * @param requestNameSpace Request SOAP element namespace\n";
+        output << "     */\n";
         output << "    void process_" << requestName
                << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
-               << endl
-               << endl;
+               << "\n\n";
     }
-    output << "};" << endl
-           << endl;
+    output << "};\n\n";
     output << "using S"
            << capitalize(m_serviceName) + "ServiceBase = "
-           << "std::shared_ptr<" << serviceClassName << ">;"
-           << endl
-           << endl;
-    output << "}" << endl;
+           << "std::shared_ptr<" << serviceClassName << ">;\n\n";
+    output << "}\n";
 }
 
 void WSParser::generateImplementation(ostream& output) const
@@ -454,46 +442,42 @@ void WSParser::generateImplementation(ostream& output) const
     const String         operationNames = serviceOperations.join("|");
     const WSMessageIndex serviceOperationsIndex(serviceOperations);
 
-    output << "#include \"" << serviceClassName << ".h\"" << endl;
-    output << "#include <sptk5/wsdl/WSParser.h>" << endl;
-    output << "#include <sptk5/wsdl/WSMessageIndex.h>" << endl;
-    output << "#include <functional>" << endl;
-    output << "#include <set>" << endl
-           << endl;
+    output << "#include \"" << serviceClassName << ".h\"\n";
+    output << "#include <sptk5/wsdl/WSParser.h>\n";
+    output << "#include <sptk5/wsdl/WSMessageIndex.h>\n";
+    output << "#include <functional>\n";
+    output << "#include <set>\n\n";
 
-    output << "using namespace std;" << endl;
-    output << "using namespace placeholders;" << endl;
-    output << "using namespace sptk;" << endl;
-    output << "using namespace " << m_serviceNamespace << ";" << endl
-           << endl;
+    output << "using namespace std;\n";
+    output << "using namespace placeholders;\n";
+    output << "using namespace sptk;\n";
+    output << "using namespace " << m_serviceNamespace << ";\n\n";
 
-    output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)" << endl;
-    output << ": WSRequest(targetNamespace(), logEngine)" << endl;
-    output << "{" << endl;
-    output << "    map<String, RequestMethod> requestMethods {" << endl
-           << endl;
+    output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)\n";
+    output << ": WSRequest(targetNamespace(), logEngine)\n";
+    output << "{\n";
+    output << "    map<String, RequestMethod> requestMethods {\n\n";
     const auto lastOperationName = m_operations.rbegin()->first;
     for (const auto& [name, operation]: m_operations)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
-        output << "        {\"" << requestName << "\", " << endl
-               << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)" << endl
-               << "            {" << endl
-               << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);" << endl
+        output << "        {\"" << requestName << "\", \n"
+               << "            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)\n"
+               << "            {\n"
+               << "                process_" << requestName << "(xmlNode, jsonNode, authentication, requestNameSpace);\n"
                << "            }}";
         if (name != lastOperationName)
         {
             output << ",";
         }
-        output << endl
-               << endl;
+        output << "\n\n";
     }
-    output << "    };" << endl;
-    output << "    setRequestMethods(std::move(requestMethods));" << endl;
-    output << "}" << endl
-           << endl;
+    output << "    };\n";
+    output << "    setRequestMethods(std::move(requestMethods));\n";
+    output << "}\n"
+           << "\n";
 
-    output << endl
+    output << "\n"
            << "template <class InputData, class OutputData>\n"
               "void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace,\n"
               "                       function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)\n"
@@ -556,20 +540,19 @@ void WSParser::generateImplementation(ostream& output) const
         {
             requestName = nameParts[1];
         }
-        output << endl;
+        output << "\n";
         output << "void " << serviceClassName << "::process_" << requestName
                << "(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)"
-               << endl;
+               << "\n";
 
         const auto inputType = "C" + operation.m_input->name();
         const auto outputType = "C" + operation.m_output->name();
         output << "{\n"
-               << "    function<void(const " << inputType << "&, " << outputType << "&, HttpAuthentication*)> method =" << endl
-               << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)" << endl
-               << "        {" << endl
-               << "            " << operationName << "(request, response, auth);" << endl
-               << "        };" << endl
-               << endl
+               << "    function<void(const " << inputType << "&, " << outputType << "&, HttpAuthentication*)> method =\n"
+               << "        [this](const " << inputType << "& request, " << outputType << "& response, HttpAuthentication* auth)\n"
+               << "        {\n"
+               << "            " << operationName << "(request, response, auth);\n"
+               << "        };\n\n"
                << "    if (xmlNode)\n"
                << "        processAnyRequest<" << inputType << "," << outputType
                << ">(xmlNode, authentication, requestNameSpace, method);\n"
@@ -578,17 +561,17 @@ void WSParser::generateImplementation(ostream& output) const
                << ">(jsonNode, authentication, method);\n"
                << "}\n";
     }
-    output << endl;
+    output << "\n";
 
-    output << "String " << serviceClassName << "::wsdl() const" << endl;
-    output << "{" << endl;
-    output << "    return " << m_serviceName << "_wsdl;" << endl;
-    output << "}" << endl;
+    output << "String " << serviceClassName << "::wsdl() const\n";
+    output << "{\n";
+    output << "    return " << m_serviceName << "_wsdl;\n";
+    output << "}\n";
 
-    output << "String " << serviceClassName << "::openapi() const" << endl;
-    output << "{" << endl;
-    output << "    return " << m_serviceName << "_openapi;" << endl;
-    output << "}" << endl;
+    output << "String " << serviceClassName << "::openapi() const\n";
+    output << "{\n";
+    output << "    return " << m_serviceName << "_openapi;\n";
+    output << "}\n";
 }
 
 void WSParser::generate(const String& sourceDirectory, const String& headerFile,
@@ -617,16 +600,15 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     }
 
     stringstream cmakeLists;
-    cmakeLists << "# The following list of files is generated automatically." << endl;
-    cmakeLists << "# Please don't edit it, or your changes may be overwritten." << endl
-               << endl;
-    cmakeLists << "SET (" << m_serviceName << "_files" << endl;
+    cmakeLists << "# The following list of files is generated automatically.\n";
+    cmakeLists << "# Please don't edit it, or your changes may be overwritten.\n\n";
+    cmakeLists << "SET (" << m_serviceName << "_files\n";
     cmakeLists << "  " << sourceDirectory << "/" << serviceClassName << ".cpp "
-               << sourceDirectory << "/" << serviceClassName << ".h" << endl;
+               << sourceDirectory << "/" << serviceClassName << ".h\n";
 
     const String wsdlFileName = "C" + capitalize(m_serviceName) + "WSDL";
     cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
-               << sourceDirectory << "/" << wsdlFileName << ".h" << endl;
+               << sourceDirectory << "/" << wsdlFileName << ".h\n";
 
     Strings usedClasses;
     for (const auto& [name, complexType]: m_complexTypeIndex.complexTypes())
@@ -636,7 +618,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
-                   << sourceDirectory << "/C" << complexType->name() << ".h" << endl;
+                   << sourceDirectory << "/C" << complexType->name() << ".h\n";
         sourceModule.writeOutputFiles();
     }
 
@@ -646,8 +628,8 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     if (!externalHeader.empty())
     {
-        serviceModule.header() << externalHeader.c_str() << endl;
-        serviceModule.source() << externalHeader.c_str() << endl;
+        serviceModule.header() << externalHeader.c_str() << "\n";
+        serviceModule.source() << externalHeader.c_str() << "\n";
     }
 
     generateDefinition(usedClasses, serviceModule.header());
@@ -655,7 +637,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     serviceModule.writeOutputFiles();
 
-    cmakeLists << ")" << endl;
+    cmakeLists << ")\n";
 
     replaceFile(m_serviceName + ".inc", cmakeLists);
 
@@ -682,15 +664,25 @@ void fileToCxxStream(const filesystem::path& fileName, const String& variableNam
     Strings content;
     content.loadFromFile(fileName);
 
-    cxxStream << "const sptk::String " << variableName << " {" << endl;
+    cxxStream << "const sptk::Strings " << variableName << "Rows({\n";
 
-    cxxStream << "    R\"(";
+    bool first = true;
     for (const auto& row: content)
     {
-        cxxStream << row << endl;
+        if (first)
+        {
+            first = false;
+        }
+        else
+        {
+            cxxStream << ",\n";
+        }
+        cxxStream << "    R\"(" << row << ")\"";
     }
 
-    cxxStream << ")\"};" << endl;
+    cxxStream << "\n});\n\n";
+
+    cxxStream << "const sptk::String " << variableName << "(" << variableName << "Rows.join(\"\\n\"));\n";
 }
 } // namespace
 
@@ -709,22 +701,18 @@ void WSParser::generateWsdlCxx(const String& sourceDirectory, const String& head
     const auto openApiVariableName = m_serviceName + "_openapi";
 
     stringstream wsdlHeader;
-    wsdlHeader << externalHeader.c_str() << endl;
-    wsdlHeader << "#pragma once" << endl;
-    wsdlHeader << endl
-               << "#include <sptk5/Strings.h>" << endl;
-    wsdlHeader << endl
-               << "extern const sptk::String " << wsdlVariableName << ";" << endl
-               << "extern const sptk::String " << openApiVariableName << ";" << endl
-               << endl;
+    wsdlHeader << externalHeader.c_str() << "\n";
+    wsdlHeader << "#pragma once\n\n";
+    wsdlHeader << "#include <sptk5/Strings.h>\n\n";
+    wsdlHeader << "extern const sptk::String " << wsdlVariableName << ";\n"
+               << "extern const sptk::String " << openApiVariableName << ";\n\n";
 
     stringstream wsdlCxx;
-    wsdlCxx << externalHeader.c_str() << endl;
-    wsdlCxx << "#include \"" << baseFileName << ".h\"" << endl
-            << endl;
+    wsdlCxx << externalHeader.c_str() << "\n";
+    wsdlCxx << "#include \"" << baseFileName << ".h\"\n\n";
 
     fileToCxxStream(_wsdlFileName, wsdlVariableName, wsdlCxx);
-    wsdlCxx << endl;
+    wsdlCxx << "\n";
     fileToCxxStream(openApiFileName, openApiVariableName, wsdlCxx);
 
     replaceFile(wsdlFileName + ".h", wsdlHeader);

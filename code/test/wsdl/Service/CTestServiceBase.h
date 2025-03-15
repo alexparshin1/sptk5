@@ -36,7 +36,7 @@ public:
      */
     ~CTestServiceBase() override = default;
 
-    // Abstract methods below correspond to WSDL-defined operations. 
+    // Abstract methods below correspond to WSDL-defined operations.
     // Application must overwrite these methods with processing of corresponding
     // requests, reading data from input and writing data to output structures.
 
