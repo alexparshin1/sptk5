@@ -110,23 +110,23 @@ public:
          */
         Group() = default;
 
-        /**
-         * Copy constructor - shouldn't be used
-         */
+#ifdef _WIN32
         [[noreturn]]
         Group(const Group&)
         {
             throw Exception("Copy ctor isn't supported for Group");
         }
 
-        Group(Group&&) = default;
-
         [[noreturn]]
         Group& operator=(const Group&)
         {
             throw Exception("Copy assign isn't supported for Group");
         }
-
+#else
+        Group(const Group&) = delete;
+        Group& operator=(const Group&) = delete;
+#endif
+        Group(Group&&) = default;
         Group& operator=(Group&& other) = default;
 
         String        value;     ///< Matched fragment of subject

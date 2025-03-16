@@ -345,7 +345,7 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
 MatchData RegularExpression::createMatchData() const
 {
     lock_guard lock(m_mutex);
-    return MatchData(m_pcre.get(), m_captureCount);
+    return {m_pcre.get(), m_captureCount};
 }
 
 bool RegularExpression::operator==(const String& text) const

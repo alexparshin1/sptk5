@@ -10,9 +10,19 @@ namespace sptk {
 class TestEchoServer : public sptk::TCPServer
 {
 public:
-    TestEchoServer(uint16_t port);
+    /**
+     * Constructor
+     * @param port              Listener port number
+     */
+    explicit TestEchoServer(uint16_t port);
+
 private:
+    /**
+     * Echo function
+     * Send back to the client the same data it receives.
+     * @param serverConnection  Server connection
+     */
     static void echoFunction(ServerConnection& serverConnection);
 };
 
-}
+} // namespace sptk

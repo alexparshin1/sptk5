@@ -26,12 +26,10 @@
 
 #include "TestEchoServer.h"
 #include "sptk5/StopWatch.h"
-#include "sptk5/net/TCPServer.h"
 
 #include <fcntl.h>
 #include <gtest/gtest.h>
 #include <sptk5/net/SocketEvents.h>
-#include <sptk5/net/SocketReader.h>
 
 using namespace std;
 using namespace sptk;
@@ -47,8 +45,8 @@ constexpr uint16_t testEchoServerPort = 5001;
 void testSocketEvents(SocketPool::TriggerMode triggerMode)
 {
     shared_ptr<SocketEvents> socketEvents;
-    Semaphore    dataReceived;
-    Semaphore hangupReceived;
+    Semaphore                dataReceived;
+    Semaphore                hangupReceived;
 
     auto eventsCallback =
         [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const uint8_t* userData, SocketEventType eventType)
@@ -168,7 +166,7 @@ TEST(SPTK_SocketEvents, performance)
 
     constexpr size_t  maxSockets = 1000;
     vector<TCPSocket> sockets(maxSockets);
-    const Host testServerHost("localhost", testEchoServerPort);
+    const Host        testServerHost("localhost", testEchoServerPort);
     for (auto& socket: sockets)
     {
         ASSERT_NO_THROW(socket.open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));

@@ -1,7 +1,5 @@
 #include "TestEchoServer.h"
 
-#include <sptk5/net/SocketReader.h>
-
 using namespace std;
 using namespace sptk;
 
