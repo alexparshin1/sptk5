@@ -26,9 +26,9 @@
 
 #pragma once
 
+#include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
 #include <sptk5/sptk-config.h>
-#include <sptk5/Exception.h>
 
 #include <atomic>
 #include <functional>
@@ -99,7 +99,7 @@ public:
          * @param end           String end position in subject
          */
         Group(const char* text, pcre_offset_t start, pcre_offset_t end)
-            : value(text + start, end - start)
+            : value(text + start, size_t(end - start))
             , start(start)
             , end(end)
         {
@@ -263,7 +263,7 @@ public:
      */
     RegularExpression& operator=(RegularExpression&& other) noexcept;
 
-	/**
+    /**
      * Returns true if text matches with regular expression
      * @param text              Input text
      * @return true if match found
