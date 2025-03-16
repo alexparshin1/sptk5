@@ -28,7 +28,7 @@
 
 #include <sptk5/Strings.h>
 #include <sptk5/sptk-config.h>
-#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
 
 #include <atomic>
 #include <functional>
@@ -98,8 +98,8 @@ public:
          * @param start         String start position in subject
          * @param end           String end position in subject
          */
-        Group(String value, pcre_offset_t start, pcre_offset_t end)
-            : value(std::move(value))
+        Group(const char* text, pcre_offset_t start, pcre_offset_t end)
+            : value(text + start, end - start)
             , start(start)
             , end(end)
         {
@@ -109,6 +109,25 @@ public:
          * Default constructor
          */
         Group() = default;
+
+        /**
+         * Copy constructor - shouldn't be used
+         */
+        [[noreturn]]
+        Group(const Group&)
+        {
+            throw Exception("Copy ctor isn't supported for Group");
+        }
+
+        Group(Group&&) = default;
+
+        [[noreturn]]
+        Group& operator=(const Group&)
+        {
+            throw Exception("Copy assign isn't supported for Group");
+        }
+
+        Group& operator=(Group&& other) = default;
 
         String        value;     ///< Matched fragment of subject
         pcre_offset_t start {0}; ///< Start position of the matched fragment in subject

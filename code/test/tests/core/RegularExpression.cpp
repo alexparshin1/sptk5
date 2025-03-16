@@ -188,33 +188,9 @@ TEST(SPTK_RegularExpression, match_performance)
                   << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
 }
 
-TEST(SPTK_RegularExpression, std_match_performance)
-{
-    const String data("red=#FF0000, green=#00FF00, blue=#0000FF");
-    const std::regex match("(\\w+)=(#\\w+)");
-    constexpr size_t maxIterations = 100000;
-    StopWatch stopWatch;
-    stopWatch.start();
-    for (size_t i = 0; i < maxIterations; ++i)
-    {
-        String s(data);
-        std::smatch color_matches;
-        while (std::regex_search(s, color_matches, match))
-        {
-            s = color_matches.suffix().str();
-            auto groupCount = color_matches.size();
-            EXPECT_EQ(groupCount, 3U);
-        }
-    }
-    stopWatch.stop();
-    constexpr double oneThousand = 1000;
-    COUT("STD: " << maxIterations << " regular expressions executed for " << stopWatch.seconds() << " seconds, "
-                 << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
-}
-
 TEST(SPTK_RegularExpression, asyncExec)
 {
-    RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
+    RegularExpression match("(?<name>[xyz]+) (?<value>\\d+) (?<description>\\w+)");
 
     mutex amutex;
     deque<future<size_t>> states;

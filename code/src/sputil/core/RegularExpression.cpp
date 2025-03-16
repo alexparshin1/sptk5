@@ -390,15 +390,13 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
             const Match& match = matchData.matches[matchIndex];
             if (match.m_start >= 0)
             {
-                matchedStrings.add(
-                    Group(
-                        string(text.c_str() + match.m_start,
-                               static_cast<size_t>(match.m_end - match.m_start)),
-                        match.m_start, match.m_end));
+                Group group(text.c_str(), match.m_start, match.m_end);
+                matchedStrings.add(std::move(group));
             }
             else
             {
-                matchedStrings.add(Group());
+                Group group;
+                matchedStrings.add(std::move(group));
             }
         }
 
@@ -432,14 +430,15 @@ void RegularExpression::extractNamedMatches(const String& text, RegularExpressio
             {
                 if (const auto& match = matchData.matches[n]; match.m_start >= 0)
                 {
-                    const String value(text.c_str() + match.m_start, static_cast<size_t>(match.m_end - match.m_start));
-                    matchedStrings.add(name.c_str(), Group(value, match.m_start, match.m_end));
+                    Group group(text.c_str(), match.m_start, match.m_end);
+                    matchedStrings.add(name.c_str(), std::move(group));
                     tabptr += nameEntrySize;
                     continue;
                 }
             }
 
-            matchedStrings.add(name.c_str(), Group());
+            Group group;
+            matchedStrings.add(name.c_str(), std::move(group));
             tabptr += nameEntrySize;
         }
     }
