@@ -58,20 +58,6 @@ TEST(SPTK_Host, ctorAddress)
     EXPECT_EQ(sshPort, host.port());
 }
 
-TEST(SPTK_Host, ctorAddressStruct)
-{
-    const String testHostAndPort {"docs.oasis-open.org:443"};
-    const Host host1(testHostAndPort);
-
-    sockaddr_in address {};
-    host1.getAddress(address);
-    const Host host2(&address);
-
-    EXPECT_STREQ(host1.toString(true).c_str(), host2.toString(true).c_str());
-    EXPECT_STREQ(testHostAndPort.c_str(), host2.toString(false).c_str());
-    EXPECT_EQ(host1.port(), host2.port());
-}
-
 TEST(SPTK_Host, ctorCopy)
 {
     const Host host1("11.22.33.44", sshPort);

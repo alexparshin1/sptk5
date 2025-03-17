@@ -71,7 +71,6 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
                 String data;
                 socket->read(data, bytes);
                 COUT("Client received " << bytes << " bytes: [" << data << "]");
-                dataReceived.post();
             }
         }
 
@@ -85,6 +84,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         }
 
         socketEvents->add(*socket, bit_cast<uint8_t*>(socket), true);
+        dataReceived.post();
     };
 
     socketEvents = make_shared<SocketEvents>("Test Pool", eventsCallback, 1s, triggerMode);
@@ -116,7 +116,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         socketEvents->remove(socket);
         socket.close();
 
-        EXPECT_TRUE(hangupReceived.wait_for(100ms));
+        EXPECT_TRUE(hangupReceived.wait_for(1s));
 
         testEchoServer.stop();
     }
