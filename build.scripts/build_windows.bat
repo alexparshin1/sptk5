@@ -1,5 +1,5 @@
 REM Build SPTK installer in Windows
-@echo off
+REM @echo off
 
 cd "C:\Users\alexe\workspace\sptk5"
 git reset --hard
