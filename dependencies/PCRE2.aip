@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DOCUMENT Type="Advanced Installer" CreateVersion="22.5" version="22.5" Modules="enterprise" RootPath="." Language="en" Id="{24ABFB5C-2BA1-4CF5-9D4C-A5CD6F5AFD1D}">
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
+    <ROW Property="AI_FINDEXE_TITLE" Value="Select the installation package for [|ProductName]" ValueLocId="AI.Property.FindExeTitle"/>
+    <ROW Property="ALLUSERS" Value="1"/>
+    <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
+    <ROW Property="ARPCONTACT" Value="nicholas@nicholaswilson.me.uk"/>
+    <ROW Property="ARPNOREPAIR" MultiBuildValue="x64_Release:1"/>
+    <ROW Property="Manufacturer" Value="PCRE"/>
+    <ROW Property="ProductCode" Value="1033:{B159CA1F-1F66-4BFD-B380-8CE005DB50E3} " Type="16"/>
+    <ROW Property="ProductLanguage" Value="1033"/>
+    <ROW Property="ProductName" Value="PCRE2"/>
+    <ROW Property="ProductVersion" Value="10.45" Options="32"/>
+    <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
+    <ROW Property="UpgradeCode" Value="{CBA6B482-0664-45BB-BF70-01E05907170A}"/>
+    <ROW Property="WindowsType9X" MultiBuildValue="x64_Release:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsType9XDisplay" MultiBuildValue="x64_Release:Windows 9x/ME" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40" MultiBuildValue="x64_Release:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT40Display" MultiBuildValue="x64_Release:Windows NT 4.0" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50" MultiBuildValue="x64_Release:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT50Display" MultiBuildValue="x64_Release:Windows 2000" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5X" MultiBuildValue="x64_Release:Windows XP/2003" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT5XDisplay" MultiBuildValue="x64_Release:Windows XP/2003" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT60" MultiBuildValue="x64_Release:Windows Vista/Server 2008" ValueLocId="-"/>
+    <ROW Property="WindowsTypeNT60Display" MultiBuildValue="x64_Release:Windows Vista/Server 2008" ValueLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
+    <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1" DirectoryOptions="3"/>
+    <ROW Directory="PCRE_Dir" Directory_Parent="ProgramFiles64Folder" DefaultDir="PCRE2"/>
+    <ROW Directory="ProgramFiles64Folder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~2|ProgramFiles64Folder" IsPseudoRoot="1"/>
+    <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
+    <ROW Directory="bin_Dir" Directory_Parent="PCRE_Dir" DefaultDir="bin" DirectoryOptions="3"/>
+    <ROW Directory="cmake_Dir" Directory_Parent="lib_Dir" DefaultDir="cmake" DirectoryOptions="3"/>
+    <ROW Directory="docpcre2_Dir" Directory_Parent="share_Dir" DefaultDir="doc"/>
+    <ROW Directory="html_Dir" Directory_Parent="pcre2_Dir" DefaultDir="html"/>
+    <ROW Directory="include_Dir" Directory_Parent="PCRE_Dir" DefaultDir="include" DirectoryOptions="3"/>
+    <ROW Directory="lib_Dir" Directory_Parent="PCRE_Dir" DefaultDir="lib" DirectoryOptions="3"/>
+    <ROW Directory="man1_Dir" Directory_Parent="man_Dir" DefaultDir="man1"/>
+    <ROW Directory="man3_Dir" Directory_Parent="man_Dir" DefaultDir="man3"/>
+    <ROW Directory="man_Dir" Directory_Parent="share_Dir" DefaultDir="man"/>
+    <ROW Directory="pcre2_Dir" Directory_Parent="docpcre2_Dir" DefaultDir="pcre2"/>
+    <ROW Directory="pkgconfig_Dir" Directory_Parent="lib_Dir" DefaultDir="PKGCON~1|pkgconfig" DirectoryOptions="3"/>
+    <ROW Directory="share_Dir" Directory_Parent="PCRE_Dir" DefaultDir="share"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.SideBySideGuidComponent">
+    <ROW Component="APPDIR" Value="{A64FDDE8-75BD-4560-8D3B-100472BBDAEB}"/>
+    <ROW Component="ProductInformation" Value="{E00BFE27-A0D1-4F70-AB2F-E8F3BCEE021B}"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="AI_ExePath" ComponentId="{B383D801-0CCC-4809-8E7C-E82B4A86B0A9}" Directory_="APPDIR" Attributes="260" KeyPath="AI_ExePath"/>
+    <ROW Component="APPDIR" ComponentId="{A64FDDE8-75BD-4560-8D3B-100472BBDAEB}" Directory_="APPDIR" Attributes="0"/>
+    <ROW Component="AUTHORS.md" ComponentId="{D6FF0890-1A5A-402E-B410-2F513AE3332E}" Directory_="pcre2_Dir" Attributes="0" KeyPath="AUTHORS.md" Type="0"/>
+    <ROW Component="ProductInformation" ComponentId="{E00BFE27-A0D1-4F70-AB2F-E8F3BCEE021B}" Directory_="APPDIR" Attributes="260" KeyPath="Version"/>
+    <ROW Component="index.html" ComponentId="{BFA90CCB-AC75-44B6-849B-4C47077B072B}" Directory_="html_Dir" Attributes="0" KeyPath="index.html" Type="0"/>
+    <ROW Component="libpcre28.pc" ComponentId="{DF8628E7-D520-4522-82E6-DC32767B03D2}" Directory_="pkgconfig_Dir" Attributes="0" KeyPath="libpcre28.pc" Type="0"/>
+    <ROW Component="pcre2.3" ComponentId="{1565B56A-3A04-4D15-A01A-E29A64C4B029}" Directory_="man3_Dir" Attributes="0" KeyPath="pcre2.3" Type="0"/>
+    <ROW Component="pcre2.h" ComponentId="{FDC0BD67-8840-415D-BFEE-D13B86DB06C1}" Directory_="include_Dir" Attributes="0" KeyPath="pcre2.h" Type="0"/>
+    <ROW Component="pcre28.dll_1" ComponentId="{14380261-0436-44CA-A171-9B26B38F50C3}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre28.dll_1"/>
+    <ROW Component="pcre28.exp" ComponentId="{228B47DF-715F-4222-855E-8ECAA3D1BEF6}" Directory_="lib_Dir" Attributes="0" KeyPath="pcre2posixstatic.lib" Type="0"/>
+    <ROW Component="pcre2config" ComponentId="{8F3E1B6E-2106-4CD4-B05C-FC489AB18FA4}" Directory_="bin_Dir" Attributes="0" KeyPath="pcre2config" Type="0"/>
+    <ROW Component="pcre2configversion.cmake" ComponentId="{D82FB915-4C8E-4595-B632-D9F795E13BA2}" Directory_="cmake_Dir" Attributes="0" KeyPath="pcre2configversion.cmake" Type="0"/>
+    <ROW Component="pcre2grep.1" ComponentId="{1729FB56-4B68-495F-867D-310C424A46E2}" Directory_="man1_Dir" Attributes="0" KeyPath="pcre2grep.1" Type="0"/>
+    <ROW Component="pcre2grep.exe" ComponentId="{9DBE6DB9-3461-4519-B102-EA5E6CC9685E}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre2grep.exe"/>
+    <ROW Component="pcre2posix.dll_1" ComponentId="{34798150-24EA-4CF0-895E-99C15AF1693E}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre2posix.dll_1"/>
+    <ROW Component="pcre2posix_test.exe" ComponentId="{F32D20AD-7B04-43EF-B70E-07E4E2EE7C11}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre2posix_test.exe"/>
+    <ROW Component="pcre2test.exe" ComponentId="{91083D5C-E4AC-450B-A092-C30CFFF39639}" Directory_="bin_Dir" Attributes="256" KeyPath="pcre2test.exe"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
+    <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
+    <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
+    <ROW File="pcre2test.exe" Component_="pcre2test.exe" FileName="PCRE2T~1.EXE|pcre2test.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="pcre2grep.exe" Component_="pcre2grep.exe" FileName="PCRE2G~1.EXE|pcre2grep.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2grep.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="pcre2posix_test.exe" Component_="pcre2posix_test.exe" FileName="PCRE2P~1.EXE|pcre2posix_test.exe" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2posix_test.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="pcre28static.lib" Component_="pcre28.exp" FileName="PCRE2-~1.LIB|pcre2-8-static.lib" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-8-static.lib" SelfReg="false"/>
+    <ROW File="pcre2posixstatic.lib" Component_="pcre28.exp" FileName="PCRE2-~3.LIB|pcre2-posix-static.lib" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-posix-static.lib" SelfReg="false"/>
+    <ROW File="pcre28.lib" Component_="pcre28.exp" FileName="pcre2-8.lib" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-8.lib" SelfReg="false"/>
+    <ROW File="pcre2posix.lib" Component_="pcre28.exp" FileName="PCRE2-~2.LIB|pcre2-posix.lib" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-posix.lib" SelfReg="false"/>
+    <ROW File="libpcre28.pc" Component_="libpcre28.pc" FileName="LIBPCR~1.PC|libpcre2-8.pc" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\libpcre2-8.pc" SelfReg="false"/>
+    <ROW File="libpcre2posix.pc" Component_="libpcre28.pc" FileName="LIBPCR~2.PC|libpcre2-posix.pc" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\libpcre2-posix.pc" SelfReg="false"/>
+    <ROW File="pcre2config" Component_="pcre2config" FileName="PCRE2-~1|pcre2-config" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\pcre2-config" SelfReg="false"/>
+    <ROW File="pcre2.h" Component_="pcre2.h" FileName="pcre2.h" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\pcre2.h" SelfReg="false"/>
+    <ROW File="pcre2posix.h" Component_="pcre2.h" FileName="PCRE2P~1.H|pcre2posix.h" Version="65535.65535.65535.65535" Attributes="0" SourcePath="src\pcre2posix.h" SelfReg="false"/>
+    <ROW File="pcre2configversion.cmake" Component_="pcre2configversion.cmake" FileName="PCRE2-~1.CMA|pcre2-config-version.cmake" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\cmake\pcre2-config-version.cmake" SelfReg="false"/>
+    <ROW File="pcre2config.cmake" Component_="pcre2configversion.cmake" FileName="PCRE2-~2.CMA|pcre2-config.cmake" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\cmake\pcre2-config.cmake" SelfReg="false"/>
+    <ROW File="pcre2.3" Component_="pcre2.3" FileName="pcre2.3" Attributes="0" SourcePath="doc\pcre2.3" SelfReg="false"/>
+    <ROW File="pcre2_callout_enumerate.3" Component_="pcre2.3" FileName="PCRE2_~1.3|pcre2_callout_enumerate.3" Attributes="0" SourcePath="doc\pcre2_callout_enumerate.3" SelfReg="false"/>
+    <ROW File="pcre2_code_copy.3" Component_="pcre2.3" FileName="PCRE2_~2.3|pcre2_code_copy.3" Attributes="0" SourcePath="doc\pcre2_code_copy.3" SelfReg="false"/>
+    <ROW File="pcre2_code_copy_with_tables.3" Component_="pcre2.3" FileName="PCRE2_~3.3|pcre2_code_copy_with_tables.3" Attributes="0" SourcePath="doc\pcre2_code_copy_with_tables.3" SelfReg="false"/>
+    <ROW File="pcre2_code_free.3" Component_="pcre2.3" FileName="PCRE2_~4.3|pcre2_code_free.3" Attributes="0" SourcePath="doc\pcre2_code_free.3" SelfReg="false"/>
+    <ROW File="pcre2_compile.3" Component_="pcre2.3" FileName="PCRE2_~5.3|pcre2_compile.3" Attributes="0" SourcePath="doc\pcre2_compile.3" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_copy.3" Component_="pcre2.3" FileName="PCRE2_~6.3|pcre2_compile_context_copy.3" Attributes="0" SourcePath="doc\pcre2_compile_context_copy.3" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_create.3" Component_="pcre2.3" FileName="PCRE2_~7.3|pcre2_compile_context_create.3" Attributes="0" SourcePath="doc\pcre2_compile_context_create.3" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_free.3" Component_="pcre2.3" FileName="PCRE2_~8.3|pcre2_compile_context_free.3" Attributes="0" SourcePath="doc\pcre2_compile_context_free.3" SelfReg="false"/>
+    <ROW File="pcre2_config.3" Component_="pcre2.3" FileName="PCRE2_~9.3|pcre2_config.3" Attributes="0" SourcePath="doc\pcre2_config.3" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_copy.3" Component_="pcre2.3" FileName="PCRE2~10.3|pcre2_convert_context_copy.3" Attributes="0" SourcePath="doc\pcre2_convert_context_copy.3" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_create.3" Component_="pcre2.3" FileName="PCRE2~11.3|pcre2_convert_context_create.3" Attributes="0" SourcePath="doc\pcre2_convert_context_create.3" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_free.3" Component_="pcre2.3" FileName="PCRE2~12.3|pcre2_convert_context_free.3" Attributes="0" SourcePath="doc\pcre2_convert_context_free.3" SelfReg="false"/>
+    <ROW File="pcre2_converted_pattern_free.3" Component_="pcre2.3" FileName="PCRE2~13.3|pcre2_converted_pattern_free.3" Attributes="0" SourcePath="doc\pcre2_converted_pattern_free.3" SelfReg="false"/>
+    <ROW File="pcre2_dfa_match.3" Component_="pcre2.3" FileName="PCRE2~14.3|pcre2_dfa_match.3" Attributes="0" SourcePath="doc\pcre2_dfa_match.3" SelfReg="false"/>
+    <ROW File="pcre2_general_context_copy.3" Component_="pcre2.3" FileName="PCRE2~15.3|pcre2_general_context_copy.3" Attributes="0" SourcePath="doc\pcre2_general_context_copy.3" SelfReg="false"/>
+    <ROW File="pcre2_general_context_create.3" Component_="pcre2.3" FileName="PCRE2~16.3|pcre2_general_context_create.3" Attributes="0" SourcePath="doc\pcre2_general_context_create.3" SelfReg="false"/>
+    <ROW File="pcre2_general_context_free.3" Component_="pcre2.3" FileName="PCRE2~17.3|pcre2_general_context_free.3" Attributes="0" SourcePath="doc\pcre2_general_context_free.3" SelfReg="false"/>
+    <ROW File="pcre2_get_error_message.3" Component_="pcre2.3" FileName="PCRE2~18.3|pcre2_get_error_message.3" Attributes="0" SourcePath="doc\pcre2_get_error_message.3" SelfReg="false"/>
+    <ROW File="pcre2_get_mark.3" Component_="pcre2.3" FileName="PCRE2~19.3|pcre2_get_mark.3" Attributes="0" SourcePath="doc\pcre2_get_mark.3" SelfReg="false"/>
+    <ROW File="pcre2_get_match_data_heapframes_size.3" Component_="pcre2.3" FileName="PCRE2~20.3|pcre2_get_match_data_heapframes_size.3" Attributes="0" SourcePath="doc\pcre2_get_match_data_heapframes_size.3" SelfReg="false"/>
+    <ROW File="pcre2_get_match_data_size.3" Component_="pcre2.3" FileName="PCRE2~21.3|pcre2_get_match_data_size.3" Attributes="0" SourcePath="doc\pcre2_get_match_data_size.3" SelfReg="false"/>
+    <ROW File="pcre2_get_ovector_count.3" Component_="pcre2.3" FileName="PCRE2~22.3|pcre2_get_ovector_count.3" Attributes="0" SourcePath="doc\pcre2_get_ovector_count.3" SelfReg="false"/>
+    <ROW File="pcre2_get_ovector_pointer.3" Component_="pcre2.3" FileName="PCRE2~23.3|pcre2_get_ovector_pointer.3" Attributes="0" SourcePath="doc\pcre2_get_ovector_pointer.3" SelfReg="false"/>
+    <ROW File="pcre2_get_startchar.3" Component_="pcre2.3" FileName="PCRE2~24.3|pcre2_get_startchar.3" Attributes="0" SourcePath="doc\pcre2_get_startchar.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_compile.3" Component_="pcre2.3" FileName="PCRE2~25.3|pcre2_jit_compile.3" Attributes="0" SourcePath="doc\pcre2_jit_compile.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_free_unused_memory.3" Component_="pcre2.3" FileName="PCRE2~26.3|pcre2_jit_free_unused_memory.3" Attributes="0" SourcePath="doc\pcre2_jit_free_unused_memory.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_match.3" Component_="pcre2.3" FileName="PCRE2~27.3|pcre2_jit_match.3" Attributes="0" SourcePath="doc\pcre2_jit_match.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_assign.3" Component_="pcre2.3" FileName="PCRE2~28.3|pcre2_jit_stack_assign.3" Attributes="0" SourcePath="doc\pcre2_jit_stack_assign.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_create.3" Component_="pcre2.3" FileName="PCRE2~29.3|pcre2_jit_stack_create.3" Attributes="0" SourcePath="doc\pcre2_jit_stack_create.3" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_free.3" Component_="pcre2.3" FileName="PCRE2~30.3|pcre2_jit_stack_free.3" Attributes="0" SourcePath="doc\pcre2_jit_stack_free.3" SelfReg="false"/>
+    <ROW File="pcre2_maketables.3" Component_="pcre2.3" FileName="PCRE2~31.3|pcre2_maketables.3" Attributes="0" SourcePath="doc\pcre2_maketables.3" SelfReg="false"/>
+    <ROW File="pcre2_maketables_free.3" Component_="pcre2.3" FileName="PCRE2~32.3|pcre2_maketables_free.3" Attributes="0" SourcePath="doc\pcre2_maketables_free.3" SelfReg="false"/>
+    <ROW File="pcre2_match.3" Component_="pcre2.3" FileName="PCRE2~33.3|pcre2_match.3" Attributes="0" SourcePath="doc\pcre2_match.3" SelfReg="false"/>
+    <ROW File="pcre2_match_context_copy.3" Component_="pcre2.3" FileName="PCRE2~34.3|pcre2_match_context_copy.3" Attributes="0" SourcePath="doc\pcre2_match_context_copy.3" SelfReg="false"/>
+    <ROW File="pcre2_match_context_create.3" Component_="pcre2.3" FileName="PCRE2~35.3|pcre2_match_context_create.3" Attributes="0" SourcePath="doc\pcre2_match_context_create.3" SelfReg="false"/>
+    <ROW File="pcre2_match_context_free.3" Component_="pcre2.3" FileName="PCRE2~36.3|pcre2_match_context_free.3" Attributes="0" SourcePath="doc\pcre2_match_context_free.3" SelfReg="false"/>
+    <ROW File="pcre2_match_data_create.3" Component_="pcre2.3" FileName="PCRE2~37.3|pcre2_match_data_create.3" Attributes="0" SourcePath="doc\pcre2_match_data_create.3" SelfReg="false"/>
+    <ROW File="pcre2_match_data_create_from_pattern.3" Component_="pcre2.3" FileName="PCRE2~38.3|pcre2_match_data_create_from_pattern.3" Attributes="0" SourcePath="doc\pcre2_match_data_create_from_pattern.3" SelfReg="false"/>
+    <ROW File="pcre2_match_data_free.3" Component_="pcre2.3" FileName="PCRE2~39.3|pcre2_match_data_free.3" Attributes="0" SourcePath="doc\pcre2_match_data_free.3" SelfReg="false"/>
+    <ROW File="pcre2_pattern_convert.3" Component_="pcre2.3" FileName="PCRE2~40.3|pcre2_pattern_convert.3" Attributes="0" SourcePath="doc\pcre2_pattern_convert.3" SelfReg="false"/>
+    <ROW File="pcre2_pattern_info.3" Component_="pcre2.3" FileName="PCRE2~41.3|pcre2_pattern_info.3" Attributes="0" SourcePath="doc\pcre2_pattern_info.3" SelfReg="false"/>
+    <ROW File="pcre2_serialize_decode.3" Component_="pcre2.3" FileName="PCRE2~42.3|pcre2_serialize_decode.3" Attributes="0" SourcePath="doc\pcre2_serialize_decode.3" SelfReg="false"/>
+    <ROW File="pcre2_serialize_encode.3" Component_="pcre2.3" FileName="PCRE2~43.3|pcre2_serialize_encode.3" Attributes="0" SourcePath="doc\pcre2_serialize_encode.3" SelfReg="false"/>
+    <ROW File="pcre2_serialize_free.3" Component_="pcre2.3" FileName="PCRE2~44.3|pcre2_serialize_free.3" Attributes="0" SourcePath="doc\pcre2_serialize_free.3" SelfReg="false"/>
+    <ROW File="pcre2_serialize_get_number_of_codes.3" Component_="pcre2.3" FileName="PCRE2~45.3|pcre2_serialize_get_number_of_codes.3" Attributes="0" SourcePath="doc\pcre2_serialize_get_number_of_codes.3" SelfReg="false"/>
+    <ROW File="pcre2_set_bsr.3" Component_="pcre2.3" FileName="PCRE2~46.3|pcre2_set_bsr.3" Attributes="0" SourcePath="doc\pcre2_set_bsr.3" SelfReg="false"/>
+    <ROW File="pcre2_set_callout.3" Component_="pcre2.3" FileName="PCRE2~47.3|pcre2_set_callout.3" Attributes="0" SourcePath="doc\pcre2_set_callout.3" SelfReg="false"/>
+    <ROW File="pcre2_set_character_tables.3" Component_="pcre2.3" FileName="PCRE2~48.3|pcre2_set_character_tables.3" Attributes="0" SourcePath="doc\pcre2_set_character_tables.3" SelfReg="false"/>
+    <ROW File="pcre2_set_compile_extra_options.3" Component_="pcre2.3" FileName="PCRE2~49.3|pcre2_set_compile_extra_options.3" Attributes="0" SourcePath="doc\pcre2_set_compile_extra_options.3" SelfReg="false"/>
+    <ROW File="pcre2_set_compile_recursion_guard.3" Component_="pcre2.3" FileName="PCRE2~50.3|pcre2_set_compile_recursion_guard.3" Attributes="0" SourcePath="doc\pcre2_set_compile_recursion_guard.3" SelfReg="false"/>
+    <ROW File="pcre2_set_depth_limit.3" Component_="pcre2.3" FileName="PCRE2~51.3|pcre2_set_depth_limit.3" Attributes="0" SourcePath="doc\pcre2_set_depth_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_glob_escape.3" Component_="pcre2.3" FileName="PCRE2~52.3|pcre2_set_glob_escape.3" Attributes="0" SourcePath="doc\pcre2_set_glob_escape.3" SelfReg="false"/>
+    <ROW File="pcre2_set_glob_separator.3" Component_="pcre2.3" FileName="PCRE2~53.3|pcre2_set_glob_separator.3" Attributes="0" SourcePath="doc\pcre2_set_glob_separator.3" SelfReg="false"/>
+    <ROW File="pcre2_set_heap_limit.3" Component_="pcre2.3" FileName="PCRE2~54.3|pcre2_set_heap_limit.3" Attributes="0" SourcePath="doc\pcre2_set_heap_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_match_limit.3" Component_="pcre2.3" FileName="PCRE2~55.3|pcre2_set_match_limit.3" Attributes="0" SourcePath="doc\pcre2_set_match_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_max_pattern_compiled_length.3" Component_="pcre2.3" FileName="PCRE2~56.3|pcre2_set_max_pattern_compiled_length.3" Attributes="0" SourcePath="doc\pcre2_set_max_pattern_compiled_length.3" SelfReg="false"/>
+    <ROW File="pcre2_set_max_pattern_length.3" Component_="pcre2.3" FileName="PCRE2~57.3|pcre2_set_max_pattern_length.3" Attributes="0" SourcePath="doc\pcre2_set_max_pattern_length.3" SelfReg="false"/>
+    <ROW File="pcre2_set_max_varlookbehind.3" Component_="pcre2.3" FileName="PCRE2~58.3|pcre2_set_max_varlookbehind.3" Attributes="0" SourcePath="doc\pcre2_set_max_varlookbehind.3" SelfReg="false"/>
+    <ROW File="pcre2_set_newline.3" Component_="pcre2.3" FileName="PCRE2~59.3|pcre2_set_newline.3" Attributes="0" SourcePath="doc\pcre2_set_newline.3" SelfReg="false"/>
+    <ROW File="pcre2_set_offset_limit.3" Component_="pcre2.3" FileName="PCRE2~60.3|pcre2_set_offset_limit.3" Attributes="0" SourcePath="doc\pcre2_set_offset_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_optimize.3" Component_="pcre2.3" FileName="PCRE2~61.3|pcre2_set_optimize.3" Attributes="0" SourcePath="doc\pcre2_set_optimize.3" SelfReg="false"/>
+    <ROW File="pcre2_set_parens_nest_limit.3" Component_="pcre2.3" FileName="PCRE2~62.3|pcre2_set_parens_nest_limit.3" Attributes="0" SourcePath="doc\pcre2_set_parens_nest_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_recursion_limit.3" Component_="pcre2.3" FileName="PCRE2~63.3|pcre2_set_recursion_limit.3" Attributes="0" SourcePath="doc\pcre2_set_recursion_limit.3" SelfReg="false"/>
+    <ROW File="pcre2_set_recursion_memory_management.3" Component_="pcre2.3" FileName="PCRE2~64.3|pcre2_set_recursion_memory_management.3" Attributes="0" SourcePath="doc\pcre2_set_recursion_memory_management.3" SelfReg="false"/>
+    <ROW File="pcre2_set_substitute_callout.3" Component_="pcre2.3" FileName="PCRE2~65.3|pcre2_set_substitute_callout.3" Attributes="0" SourcePath="doc\pcre2_set_substitute_callout.3" SelfReg="false"/>
+    <ROW File="pcre2_set_substitute_case_callout.3" Component_="pcre2.3" FileName="PCRE2~66.3|pcre2_set_substitute_case_callout.3" Attributes="0" SourcePath="doc\pcre2_set_substitute_case_callout.3" SelfReg="false"/>
+    <ROW File="pcre2_substitute.3" Component_="pcre2.3" FileName="PCRE2~67.3|pcre2_substitute.3" Attributes="0" SourcePath="doc\pcre2_substitute.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_copy_byname.3" Component_="pcre2.3" FileName="PCRE2~68.3|pcre2_substring_copy_byname.3" Attributes="0" SourcePath="doc\pcre2_substring_copy_byname.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_copy_bynumber.3" Component_="pcre2.3" FileName="PCRE2~69.3|pcre2_substring_copy_bynumber.3" Attributes="0" SourcePath="doc\pcre2_substring_copy_bynumber.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_free.3" Component_="pcre2.3" FileName="PCRE2~70.3|pcre2_substring_free.3" Attributes="0" SourcePath="doc\pcre2_substring_free.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_get_byname.3" Component_="pcre2.3" FileName="PCRE2~71.3|pcre2_substring_get_byname.3" Attributes="0" SourcePath="doc\pcre2_substring_get_byname.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_get_bynumber.3" Component_="pcre2.3" FileName="PCRE2~72.3|pcre2_substring_get_bynumber.3" Attributes="0" SourcePath="doc\pcre2_substring_get_bynumber.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_length_byname.3" Component_="pcre2.3" FileName="PCRE2~73.3|pcre2_substring_length_byname.3" Attributes="0" SourcePath="doc\pcre2_substring_length_byname.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_length_bynumber.3" Component_="pcre2.3" FileName="PCRE2~74.3|pcre2_substring_length_bynumber.3" Attributes="0" SourcePath="doc\pcre2_substring_length_bynumber.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_list_free.3" Component_="pcre2.3" FileName="PCRE2~75.3|pcre2_substring_list_free.3" Attributes="0" SourcePath="doc\pcre2_substring_list_free.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_list_get.3" Component_="pcre2.3" FileName="PCRE2~76.3|pcre2_substring_list_get.3" Attributes="0" SourcePath="doc\pcre2_substring_list_get.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_nametable_scan.3" Component_="pcre2.3" FileName="PCRE2~77.3|pcre2_substring_nametable_scan.3" Attributes="0" SourcePath="doc\pcre2_substring_nametable_scan.3" SelfReg="false"/>
+    <ROW File="pcre2_substring_number_from_name.3" Component_="pcre2.3" FileName="PCRE2~78.3|pcre2_substring_number_from_name.3" Attributes="0" SourcePath="doc\pcre2_substring_number_from_name.3" SelfReg="false"/>
+    <ROW File="pcre2api.3" Component_="pcre2.3" FileName="pcre2api.3" Attributes="0" SourcePath="doc\pcre2api.3" SelfReg="false"/>
+    <ROW File="pcre2build.3" Component_="pcre2.3" FileName="PCRE2B~1.3|pcre2build.3" Attributes="0" SourcePath="doc\pcre2build.3" SelfReg="false"/>
+    <ROW File="pcre2callout.3" Component_="pcre2.3" FileName="PCRE2C~1.3|pcre2callout.3" Attributes="0" SourcePath="doc\pcre2callout.3" SelfReg="false"/>
+    <ROW File="pcre2compat.3" Component_="pcre2.3" FileName="PCRE2C~2.3|pcre2compat.3" Attributes="0" SourcePath="doc\pcre2compat.3" SelfReg="false"/>
+    <ROW File="pcre2config.1" Component_="pcre2grep.1" FileName="PCRE2-~1.1|pcre2-config.1" Attributes="0" SourcePath="doc\pcre2-config.1" SelfReg="false"/>
+    <ROW File="pcre2convert.3" Component_="pcre2.3" FileName="PCRE2C~3.3|pcre2convert.3" Attributes="0" SourcePath="doc\pcre2convert.3" SelfReg="false"/>
+    <ROW File="pcre2demo.3" Component_="pcre2.3" FileName="PCRE2D~1.3|pcre2demo.3" Attributes="0" SourcePath="doc\pcre2demo.3" SelfReg="false"/>
+    <ROW File="pcre2grep.1" Component_="pcre2grep.1" FileName="PCRE2G~1.1|pcre2grep.1" Attributes="0" SourcePath="doc\pcre2grep.1" SelfReg="false"/>
+    <ROW File="pcre2jit.3" Component_="pcre2.3" FileName="pcre2jit.3" Attributes="0" SourcePath="doc\pcre2jit.3" SelfReg="false"/>
+    <ROW File="pcre2limits.3" Component_="pcre2.3" FileName="PCRE2L~1.3|pcre2limits.3" Attributes="0" SourcePath="doc\pcre2limits.3" SelfReg="false"/>
+    <ROW File="pcre2matching.3" Component_="pcre2.3" FileName="PCRE2M~1.3|pcre2matching.3" Attributes="0" SourcePath="doc\pcre2matching.3" SelfReg="false"/>
+    <ROW File="pcre2partial.3" Component_="pcre2.3" FileName="PCRE2P~1.3|pcre2partial.3" Attributes="0" SourcePath="doc\pcre2partial.3" SelfReg="false"/>
+    <ROW File="pcre2pattern.3" Component_="pcre2.3" FileName="PCRE2P~2.3|pcre2pattern.3" Attributes="0" SourcePath="doc\pcre2pattern.3" SelfReg="false"/>
+    <ROW File="pcre2perform.3" Component_="pcre2.3" FileName="PCRE2P~3.3|pcre2perform.3" Attributes="0" SourcePath="doc\pcre2perform.3" SelfReg="false"/>
+    <ROW File="pcre2posix.3" Component_="pcre2.3" FileName="PCRE2P~4.3|pcre2posix.3" Attributes="0" SourcePath="doc\pcre2posix.3" SelfReg="false"/>
+    <ROW File="pcre2sample.3" Component_="pcre2.3" FileName="PCRE2S~1.3|pcre2sample.3" Attributes="0" SourcePath="doc\pcre2sample.3" SelfReg="false"/>
+    <ROW File="pcre2serialize.3" Component_="pcre2.3" FileName="PCRE2S~2.3|pcre2serialize.3" Attributes="0" SourcePath="doc\pcre2serialize.3" SelfReg="false"/>
+    <ROW File="pcre2syntax.3" Component_="pcre2.3" FileName="PCRE2S~3.3|pcre2syntax.3" Attributes="0" SourcePath="doc\pcre2syntax.3" SelfReg="false"/>
+    <ROW File="pcre2test.1" Component_="pcre2grep.1" FileName="PCRE2T~1.1|pcre2test.1" Attributes="0" SourcePath="doc\pcre2test.1" SelfReg="false"/>
+    <ROW File="pcre2unicode.3" Component_="pcre2.3" FileName="PCRE2U~1.3|pcre2unicode.3" Attributes="0" SourcePath="doc\pcre2unicode.3" SelfReg="false"/>
+    <ROW File="AUTHORS.md" Component_="AUTHORS.md" FileName="AUTHORS.md" Attributes="0" SourcePath="AUTHORS.md" SelfReg="false"/>
+    <ROW File="ChangeLog" Component_="AUTHORS.md" FileName="CHANGE~1|ChangeLog" Attributes="0" SourcePath="ChangeLog" SelfReg="false"/>
+    <ROW File="COPYING" Component_="AUTHORS.md" FileName="COPYING" Attributes="0" SourcePath="COPYING" SelfReg="false"/>
+    <ROW File="LICENCE.md" Component_="AUTHORS.md" FileName="LICENCE.md" Attributes="0" SourcePath="LICENCE.md" SelfReg="false"/>
+    <ROW File="NEWS" Component_="AUTHORS.md" FileName="NEWS" Attributes="0" SourcePath="NEWS" SelfReg="false"/>
+    <ROW File="README" Component_="AUTHORS.md" FileName="README" Attributes="0" SourcePath="README" SelfReg="false"/>
+    <ROW File="SECURITY.md" Component_="AUTHORS.md" FileName="SECURITY.md" Attributes="0" SourcePath="SECURITY.md" SelfReg="false"/>
+    <ROW File="pcre2.txt_1" Component_="AUTHORS.md" FileName="pcre2.txt" Attributes="0" SourcePath="doc\pcre2.txt" SelfReg="false"/>
+    <ROW File="pcre2config.txt_1" Component_="AUTHORS.md" FileName="PCRE2-~1.TXT|pcre2-config.txt" Attributes="0" SourcePath="doc\pcre2-config.txt" SelfReg="false"/>
+    <ROW File="pcre2grep.txt_1" Component_="AUTHORS.md" FileName="PCRE2G~1.TXT|pcre2grep.txt" Attributes="0" SourcePath="doc\pcre2grep.txt" SelfReg="false"/>
+    <ROW File="pcre2test.txt_1" Component_="AUTHORS.md" FileName="PCRE2T~1.TXT|pcre2test.txt" Attributes="0" SourcePath="doc\pcre2test.txt" SelfReg="false"/>
+    <ROW File="index.html" Component_="index.html" FileName="INDEX~1.HTM|index.html" Attributes="0" SourcePath="doc\html\index.html" SelfReg="false"/>
+    <ROW File="NONAUTOTOOLSBUILD.txt" Component_="index.html" FileName="NON-AU~1.TXT|NON-AUTOTOOLS-BUILD.txt" Attributes="0" SourcePath="doc\html\NON-AUTOTOOLS-BUILD.txt" SelfReg="false"/>
+    <ROW File="pcre2config.html" Component_="index.html" FileName="PCRE2-~1.HTM|pcre2-config.html" Attributes="0" SourcePath="doc\html\pcre2-config.html" SelfReg="false"/>
+    <ROW File="pcre2.html" Component_="index.html" FileName="PCRE2~1.HTM|pcre2.html" Attributes="0" SourcePath="doc\html\pcre2.html" SelfReg="false"/>
+    <ROW File="pcre2api.html" Component_="index.html" FileName="PCRE2A~1.HTM|pcre2api.html" Attributes="0" SourcePath="doc\html\pcre2api.html" SelfReg="false"/>
+    <ROW File="pcre2build.html" Component_="index.html" FileName="PCRE2B~1.HTM|pcre2build.html" Attributes="0" SourcePath="doc\html\pcre2build.html" SelfReg="false"/>
+    <ROW File="pcre2callout.html" Component_="index.html" FileName="PCRE2C~1.HTM|pcre2callout.html" Attributes="0" SourcePath="doc\html\pcre2callout.html" SelfReg="false"/>
+    <ROW File="pcre2compat.html" Component_="index.html" FileName="PCRE2C~2.HTM|pcre2compat.html" Attributes="0" SourcePath="doc\html\pcre2compat.html" SelfReg="false"/>
+    <ROW File="pcre2convert.html" Component_="index.html" FileName="PCRE2C~3.HTM|pcre2convert.html" Attributes="0" SourcePath="doc\html\pcre2convert.html" SelfReg="false"/>
+    <ROW File="pcre2demo.html" Component_="index.html" FileName="PCRE2D~1.HTM|pcre2demo.html" Attributes="0" SourcePath="doc\html\pcre2demo.html" SelfReg="false"/>
+    <ROW File="pcre2grep.html" Component_="index.html" FileName="PCRE2G~1.HTM|pcre2grep.html" Attributes="0" SourcePath="doc\html\pcre2grep.html" SelfReg="false"/>
+    <ROW File="pcre2jit.html" Component_="index.html" FileName="PCRE2J~1.HTM|pcre2jit.html" Attributes="0" SourcePath="doc\html\pcre2jit.html" SelfReg="false"/>
+    <ROW File="pcre2limits.html" Component_="index.html" FileName="PCRE2L~1.HTM|pcre2limits.html" Attributes="0" SourcePath="doc\html\pcre2limits.html" SelfReg="false"/>
+    <ROW File="pcre2matching.html" Component_="index.html" FileName="PCRE2M~1.HTM|pcre2matching.html" Attributes="0" SourcePath="doc\html\pcre2matching.html" SelfReg="false"/>
+    <ROW File="pcre2partial.html" Component_="index.html" FileName="PCRE2P~1.HTM|pcre2partial.html" Attributes="0" SourcePath="doc\html\pcre2partial.html" SelfReg="false"/>
+    <ROW File="pcre2pattern.html" Component_="index.html" FileName="PCRE2P~2.HTM|pcre2pattern.html" Attributes="0" SourcePath="doc\html\pcre2pattern.html" SelfReg="false"/>
+    <ROW File="pcre2perform.html" Component_="index.html" FileName="PCRE2P~3.HTM|pcre2perform.html" Attributes="0" SourcePath="doc\html\pcre2perform.html" SelfReg="false"/>
+    <ROW File="pcre2posix.html" Component_="index.html" FileName="PCRE2P~4.HTM|pcre2posix.html" Attributes="0" SourcePath="doc\html\pcre2posix.html" SelfReg="false"/>
+    <ROW File="pcre2sample.html" Component_="index.html" FileName="PCRE2S~1.HTM|pcre2sample.html" Attributes="0" SourcePath="doc\html\pcre2sample.html" SelfReg="false"/>
+    <ROW File="pcre2serialize.html" Component_="index.html" FileName="PCRE2S~2.HTM|pcre2serialize.html" Attributes="0" SourcePath="doc\html\pcre2serialize.html" SelfReg="false"/>
+    <ROW File="pcre2syntax.html" Component_="index.html" FileName="PCRE2S~3.HTM|pcre2syntax.html" Attributes="0" SourcePath="doc\html\pcre2syntax.html" SelfReg="false"/>
+    <ROW File="pcre2test.html" Component_="index.html" FileName="PCRE2T~1.HTM|pcre2test.html" Attributes="0" SourcePath="doc\html\pcre2test.html" SelfReg="false"/>
+    <ROW File="pcre2unicode.html" Component_="index.html" FileName="PCRE2U~1.HTM|pcre2unicode.html" Attributes="0" SourcePath="doc\html\pcre2unicode.html" SelfReg="false"/>
+    <ROW File="pcre2_callout_enumerate.html" Component_="index.html" FileName="PCRE2_~1.HTM|pcre2_callout_enumerate.html" Attributes="0" SourcePath="doc\html\pcre2_callout_enumerate.html" SelfReg="false"/>
+    <ROW File="pcre2_code_copy.html" Component_="index.html" FileName="PCRE2_~2.HTM|pcre2_code_copy.html" Attributes="0" SourcePath="doc\html\pcre2_code_copy.html" SelfReg="false"/>
+    <ROW File="pcre2_code_copy_with_tables.html" Component_="index.html" FileName="PCRE2_~3.HTM|pcre2_code_copy_with_tables.html" Attributes="0" SourcePath="doc\html\pcre2_code_copy_with_tables.html" SelfReg="false"/>
+    <ROW File="pcre2_code_free.html" Component_="index.html" FileName="PCRE2_~4.HTM|pcre2_code_free.html" Attributes="0" SourcePath="doc\html\pcre2_code_free.html" SelfReg="false"/>
+    <ROW File="pcre2_compile.html" Component_="index.html" FileName="PCRE2_~5.HTM|pcre2_compile.html" Attributes="0" SourcePath="doc\html\pcre2_compile.html" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_copy.html" Component_="index.html" FileName="PCRE2_~6.HTM|pcre2_compile_context_copy.html" Attributes="0" SourcePath="doc\html\pcre2_compile_context_copy.html" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_create.html" Component_="index.html" FileName="PCRE2_~7.HTM|pcre2_compile_context_create.html" Attributes="0" SourcePath="doc\html\pcre2_compile_context_create.html" SelfReg="false"/>
+    <ROW File="pcre2_compile_context_free.html" Component_="index.html" FileName="PCRE2_~8.HTM|pcre2_compile_context_free.html" Attributes="0" SourcePath="doc\html\pcre2_compile_context_free.html" SelfReg="false"/>
+    <ROW File="pcre2_config.html" Component_="index.html" FileName="PCRE2_~9.HTM|pcre2_config.html" Attributes="0" SourcePath="doc\html\pcre2_config.html" SelfReg="false"/>
+    <ROW File="pcre2_converted_pattern_free.html" Component_="index.html" FileName="PCRE2~10.HTM|pcre2_converted_pattern_free.html" Attributes="0" SourcePath="doc\html\pcre2_converted_pattern_free.html" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_copy.html" Component_="index.html" FileName="PCRE2~11.HTM|pcre2_convert_context_copy.html" Attributes="0" SourcePath="doc\html\pcre2_convert_context_copy.html" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_create.html" Component_="index.html" FileName="PCRE2~12.HTM|pcre2_convert_context_create.html" Attributes="0" SourcePath="doc\html\pcre2_convert_context_create.html" SelfReg="false"/>
+    <ROW File="pcre2_convert_context_free.html" Component_="index.html" FileName="PCRE2~13.HTM|pcre2_convert_context_free.html" Attributes="0" SourcePath="doc\html\pcre2_convert_context_free.html" SelfReg="false"/>
+    <ROW File="pcre2_dfa_match.html" Component_="index.html" FileName="PCRE2~14.HTM|pcre2_dfa_match.html" Attributes="0" SourcePath="doc\html\pcre2_dfa_match.html" SelfReg="false"/>
+    <ROW File="pcre2_general_context_copy.html" Component_="index.html" FileName="PCRE2~15.HTM|pcre2_general_context_copy.html" Attributes="0" SourcePath="doc\html\pcre2_general_context_copy.html" SelfReg="false"/>
+    <ROW File="pcre2_general_context_create.html" Component_="index.html" FileName="PCRE2~16.HTM|pcre2_general_context_create.html" Attributes="0" SourcePath="doc\html\pcre2_general_context_create.html" SelfReg="false"/>
+    <ROW File="pcre2_general_context_free.html" Component_="index.html" FileName="PCRE2~17.HTM|pcre2_general_context_free.html" Attributes="0" SourcePath="doc\html\pcre2_general_context_free.html" SelfReg="false"/>
+    <ROW File="pcre2_get_error_message.html" Component_="index.html" FileName="PCRE2~18.HTM|pcre2_get_error_message.html" Attributes="0" SourcePath="doc\html\pcre2_get_error_message.html" SelfReg="false"/>
+    <ROW File="pcre2_get_mark.html" Component_="index.html" FileName="PCRE2~19.HTM|pcre2_get_mark.html" Attributes="0" SourcePath="doc\html\pcre2_get_mark.html" SelfReg="false"/>
+    <ROW File="pcre2_get_match_data_heapframes_size.html" Component_="index.html" FileName="PCRE2~20.HTM|pcre2_get_match_data_heapframes_size.html" Attributes="0" SourcePath="doc\html\pcre2_get_match_data_heapframes_size.html" SelfReg="false"/>
+    <ROW File="pcre2_get_match_data_size.html" Component_="index.html" FileName="PCRE2~21.HTM|pcre2_get_match_data_size.html" Attributes="0" SourcePath="doc\html\pcre2_get_match_data_size.html" SelfReg="false"/>
+    <ROW File="pcre2_get_ovector_count.html" Component_="index.html" FileName="PCRE2~22.HTM|pcre2_get_ovector_count.html" Attributes="0" SourcePath="doc\html\pcre2_get_ovector_count.html" SelfReg="false"/>
+    <ROW File="pcre2_get_ovector_pointer.html" Component_="index.html" FileName="PCRE2~23.HTM|pcre2_get_ovector_pointer.html" Attributes="0" SourcePath="doc\html\pcre2_get_ovector_pointer.html" SelfReg="false"/>
+    <ROW File="pcre2_get_startchar.html" Component_="index.html" FileName="PCRE2~24.HTM|pcre2_get_startchar.html" Attributes="0" SourcePath="doc\html\pcre2_get_startchar.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_compile.html" Component_="index.html" FileName="PCRE2~25.HTM|pcre2_jit_compile.html" Attributes="0" SourcePath="doc\html\pcre2_jit_compile.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_free_unused_memory.html" Component_="index.html" FileName="PCRE2~26.HTM|pcre2_jit_free_unused_memory.html" Attributes="0" SourcePath="doc\html\pcre2_jit_free_unused_memory.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_match.html" Component_="index.html" FileName="PCRE2~27.HTM|pcre2_jit_match.html" Attributes="0" SourcePath="doc\html\pcre2_jit_match.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_assign.html" Component_="index.html" FileName="PCRE2~28.HTM|pcre2_jit_stack_assign.html" Attributes="0" SourcePath="doc\html\pcre2_jit_stack_assign.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_create.html" Component_="index.html" FileName="PCRE2~29.HTM|pcre2_jit_stack_create.html" Attributes="0" SourcePath="doc\html\pcre2_jit_stack_create.html" SelfReg="false"/>
+    <ROW File="pcre2_jit_stack_free.html" Component_="index.html" FileName="PCRE2~30.HTM|pcre2_jit_stack_free.html" Attributes="0" SourcePath="doc\html\pcre2_jit_stack_free.html" SelfReg="false"/>
+    <ROW File="pcre2_maketables.html" Component_="index.html" FileName="PCRE2~31.HTM|pcre2_maketables.html" Attributes="0" SourcePath="doc\html\pcre2_maketables.html" SelfReg="false"/>
+    <ROW File="pcre2_maketables_free.html" Component_="index.html" FileName="PCRE2~32.HTM|pcre2_maketables_free.html" Attributes="0" SourcePath="doc\html\pcre2_maketables_free.html" SelfReg="false"/>
+    <ROW File="pcre2_match.html" Component_="index.html" FileName="PCRE2~33.HTM|pcre2_match.html" Attributes="0" SourcePath="doc\html\pcre2_match.html" SelfReg="false"/>
+    <ROW File="pcre2_match_context_copy.html" Component_="index.html" FileName="PCRE2~34.HTM|pcre2_match_context_copy.html" Attributes="0" SourcePath="doc\html\pcre2_match_context_copy.html" SelfReg="false"/>
+    <ROW File="pcre2_match_context_create.html" Component_="index.html" FileName="PCRE2~35.HTM|pcre2_match_context_create.html" Attributes="0" SourcePath="doc\html\pcre2_match_context_create.html" SelfReg="false"/>
+    <ROW File="pcre2_match_context_free.html" Component_="index.html" FileName="PCRE2~36.HTM|pcre2_match_context_free.html" Attributes="0" SourcePath="doc\html\pcre2_match_context_free.html" SelfReg="false"/>
+    <ROW File="pcre2_match_data_create.html" Component_="index.html" FileName="PCRE2~37.HTM|pcre2_match_data_create.html" Attributes="0" SourcePath="doc\html\pcre2_match_data_create.html" SelfReg="false"/>
+    <ROW File="pcre2_match_data_create_from_pattern.html" Component_="index.html" FileName="PCRE2~38.HTM|pcre2_match_data_create_from_pattern.html" Attributes="0" SourcePath="doc\html\pcre2_match_data_create_from_pattern.html" SelfReg="false"/>
+    <ROW File="pcre2_match_data_free.html" Component_="index.html" FileName="PCRE2~39.HTM|pcre2_match_data_free.html" Attributes="0" SourcePath="doc\html\pcre2_match_data_free.html" SelfReg="false"/>
+    <ROW File="pcre2_pattern_convert.html" Component_="index.html" FileName="PCRE2~40.HTM|pcre2_pattern_convert.html" Attributes="0" SourcePath="doc\html\pcre2_pattern_convert.html" SelfReg="false"/>
+    <ROW File="pcre2_pattern_info.html" Component_="index.html" FileName="PCRE2~41.HTM|pcre2_pattern_info.html" Attributes="0" SourcePath="doc\html\pcre2_pattern_info.html" SelfReg="false"/>
+    <ROW File="pcre2_serialize_decode.html" Component_="index.html" FileName="PCRE2~42.HTM|pcre2_serialize_decode.html" Attributes="0" SourcePath="doc\html\pcre2_serialize_decode.html" SelfReg="false"/>
+    <ROW File="pcre2_serialize_encode.html" Component_="index.html" FileName="PCRE2~43.HTM|pcre2_serialize_encode.html" Attributes="0" SourcePath="doc\html\pcre2_serialize_encode.html" SelfReg="false"/>
+    <ROW File="pcre2_serialize_free.html" Component_="index.html" FileName="PCRE2~44.HTM|pcre2_serialize_free.html" Attributes="0" SourcePath="doc\html\pcre2_serialize_free.html" SelfReg="false"/>
+    <ROW File="pcre2_serialize_get_number_of_codes.html" Component_="index.html" FileName="PCRE2~45.HTM|pcre2_serialize_get_number_of_codes.html" Attributes="0" SourcePath="doc\html\pcre2_serialize_get_number_of_codes.html" SelfReg="false"/>
+    <ROW File="pcre2_set_bsr.html" Component_="index.html" FileName="PCRE2~46.HTM|pcre2_set_bsr.html" Attributes="0" SourcePath="doc\html\pcre2_set_bsr.html" SelfReg="false"/>
+    <ROW File="pcre2_set_callout.html" Component_="index.html" FileName="PCRE2~47.HTM|pcre2_set_callout.html" Attributes="0" SourcePath="doc\html\pcre2_set_callout.html" SelfReg="false"/>
+    <ROW File="pcre2_set_character_tables.html" Component_="index.html" FileName="PCRE2~48.HTM|pcre2_set_character_tables.html" Attributes="0" SourcePath="doc\html\pcre2_set_character_tables.html" SelfReg="false"/>
+    <ROW File="pcre2_set_compile_extra_options.html" Component_="index.html" FileName="PCRE2~49.HTM|pcre2_set_compile_extra_options.html" Attributes="0" SourcePath="doc\html\pcre2_set_compile_extra_options.html" SelfReg="false"/>
+    <ROW File="pcre2_set_compile_recursion_guard.html" Component_="index.html" FileName="PCRE2~50.HTM|pcre2_set_compile_recursion_guard.html" Attributes="0" SourcePath="doc\html\pcre2_set_compile_recursion_guard.html" SelfReg="false"/>
+    <ROW File="pcre2_set_depth_limit.html" Component_="index.html" FileName="PCRE2~51.HTM|pcre2_set_depth_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_depth_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_glob_escape.html" Component_="index.html" FileName="PCRE2~52.HTM|pcre2_set_glob_escape.html" Attributes="0" SourcePath="doc\html\pcre2_set_glob_escape.html" SelfReg="false"/>
+    <ROW File="pcre2_set_glob_separator.html" Component_="index.html" FileName="PCRE2~53.HTM|pcre2_set_glob_separator.html" Attributes="0" SourcePath="doc\html\pcre2_set_glob_separator.html" SelfReg="false"/>
+    <ROW File="pcre2_set_heap_limit.html" Component_="index.html" FileName="PCRE2~54.HTM|pcre2_set_heap_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_heap_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_match_limit.html" Component_="index.html" FileName="PCRE2~55.HTM|pcre2_set_match_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_match_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_max_pattern_compiled_length.html" Component_="index.html" FileName="PCRE2~56.HTM|pcre2_set_max_pattern_compiled_length.html" Attributes="0" SourcePath="doc\html\pcre2_set_max_pattern_compiled_length.html" SelfReg="false"/>
+    <ROW File="pcre2_set_max_pattern_length.html" Component_="index.html" FileName="PCRE2~57.HTM|pcre2_set_max_pattern_length.html" Attributes="0" SourcePath="doc\html\pcre2_set_max_pattern_length.html" SelfReg="false"/>
+    <ROW File="pcre2_set_max_varlookbehind.html" Component_="index.html" FileName="PCRE2~58.HTM|pcre2_set_max_varlookbehind.html" Attributes="0" SourcePath="doc\html\pcre2_set_max_varlookbehind.html" SelfReg="false"/>
+    <ROW File="pcre2_set_newline.html" Component_="index.html" FileName="PCRE2~59.HTM|pcre2_set_newline.html" Attributes="0" SourcePath="doc\html\pcre2_set_newline.html" SelfReg="false"/>
+    <ROW File="pcre2_set_offset_limit.html" Component_="index.html" FileName="PCRE2~60.HTM|pcre2_set_offset_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_offset_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_optimize.html" Component_="index.html" FileName="PCRE2~61.HTM|pcre2_set_optimize.html" Attributes="0" SourcePath="doc\html\pcre2_set_optimize.html" SelfReg="false"/>
+    <ROW File="pcre2_set_parens_nest_limit.html" Component_="index.html" FileName="PCRE2~62.HTM|pcre2_set_parens_nest_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_parens_nest_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_recursion_limit.html" Component_="index.html" FileName="PCRE2~63.HTM|pcre2_set_recursion_limit.html" Attributes="0" SourcePath="doc\html\pcre2_set_recursion_limit.html" SelfReg="false"/>
+    <ROW File="pcre2_set_recursion_memory_management.html" Component_="index.html" FileName="PCRE2~64.HTM|pcre2_set_recursion_memory_management.html" Attributes="0" SourcePath="doc\html\pcre2_set_recursion_memory_management.html" SelfReg="false"/>
+    <ROW File="pcre2_set_substitute_callout.html" Component_="index.html" FileName="PCRE2~65.HTM|pcre2_set_substitute_callout.html" Attributes="0" SourcePath="doc\html\pcre2_set_substitute_callout.html" SelfReg="false"/>
+    <ROW File="pcre2_set_substitute_case_callout.html" Component_="index.html" FileName="PCRE2~66.HTM|pcre2_set_substitute_case_callout.html" Attributes="0" SourcePath="doc\html\pcre2_set_substitute_case_callout.html" SelfReg="false"/>
+    <ROW File="pcre2_substitute.html" Component_="index.html" FileName="PCRE2~67.HTM|pcre2_substitute.html" Attributes="0" SourcePath="doc\html\pcre2_substitute.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_copy_byname.html" Component_="index.html" FileName="PCRE2~68.HTM|pcre2_substring_copy_byname.html" Attributes="0" SourcePath="doc\html\pcre2_substring_copy_byname.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_copy_bynumber.html" Component_="index.html" FileName="PCRE2~69.HTM|pcre2_substring_copy_bynumber.html" Attributes="0" SourcePath="doc\html\pcre2_substring_copy_bynumber.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_free.html" Component_="index.html" FileName="PCRE2~70.HTM|pcre2_substring_free.html" Attributes="0" SourcePath="doc\html\pcre2_substring_free.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_get_byname.html" Component_="index.html" FileName="PCRE2~71.HTM|pcre2_substring_get_byname.html" Attributes="0" SourcePath="doc\html\pcre2_substring_get_byname.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_get_bynumber.html" Component_="index.html" FileName="PCRE2~72.HTM|pcre2_substring_get_bynumber.html" Attributes="0" SourcePath="doc\html\pcre2_substring_get_bynumber.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_length_byname.html" Component_="index.html" FileName="PCRE2~73.HTM|pcre2_substring_length_byname.html" Attributes="0" SourcePath="doc\html\pcre2_substring_length_byname.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_length_bynumber.html" Component_="index.html" FileName="PCRE2~74.HTM|pcre2_substring_length_bynumber.html" Attributes="0" SourcePath="doc\html\pcre2_substring_length_bynumber.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_list_free.html" Component_="index.html" FileName="PCRE2~75.HTM|pcre2_substring_list_free.html" Attributes="0" SourcePath="doc\html\pcre2_substring_list_free.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_list_get.html" Component_="index.html" FileName="PCRE2~76.HTM|pcre2_substring_list_get.html" Attributes="0" SourcePath="doc\html\pcre2_substring_list_get.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_nametable_scan.html" Component_="index.html" FileName="PCRE2~77.HTM|pcre2_substring_nametable_scan.html" Attributes="0" SourcePath="doc\html\pcre2_substring_nametable_scan.html" SelfReg="false"/>
+    <ROW File="pcre2_substring_number_from_name.html" Component_="index.html" FileName="PCRE2~78.HTM|pcre2_substring_number_from_name.html" Attributes="0" SourcePath="doc\html\pcre2_substring_number_from_name.html" SelfReg="false"/>
+    <ROW File="README.txt" Component_="index.html" FileName="README.txt" Attributes="0" SourcePath="doc\html\README.txt" SelfReg="false"/>
+    <ROW File="pcre28.dll_1" Component_="pcre28.dll_1" FileName="pcre2-8.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-8.dll" SelfReg="false"/>
+    <ROW File="pcre2posix.dll_1" Component_="pcre2posix.dll_1" FileName="PCRE2-~1.DLL|pcre2-posix.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="w64\Release\pcre2-posix.dll" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
+    <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="251"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
+    <ROW BuildKey="x64_Release" BuildName="x64_Release" BuildOrder="1" BuildType="0" Languages="en" InstallationType="4" CabsLocation="1" PackageType="1" FilesInsideExe="true" SummInfoMetadata="Page Count:450" ExtractionFolder="[AppDataFolder][|Manufacturer]\[|ProductName] [|ProductVersion]\install" UseLargeSchema="true" MsiPackageType="x64" UACExecutionLevel="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
+    <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
+    <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
+    <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
+    <ROW Fragment="FolderDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\FolderDlg.aip"/>
+    <ROW Fragment="LicenseAgreementDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\LicenseAgreementDlg.aip"/>
+    <ROW Fragment="MaintenanceTypeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceTypeDlg.aip"/>
+    <ROW Fragment="MaintenanceWelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\MaintenanceWelcomeDlg.aip"/>
+    <ROW Fragment="SequenceDialogs.aip" Path="&lt;AI_THEMES&gt;classic\fragments\SequenceDialogs.aip"/>
+    <ROW Fragment="Sequences.aip" Path="&lt;AI_FRAGS&gt;Sequences.aip"/>
+    <ROW Fragment="StaticUIStrings.aip" Path="&lt;AI_FRAGS&gt;StaticUIStrings.aip"/>
+    <ROW Fragment="Themes.aip" Path="&lt;AI_FRAGS&gt;Themes.aip"/>
+    <ROW Fragment="UI.aip" Path="&lt;AI_THEMES&gt;classic\fragments\UI.aip"/>
+    <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
+    <ROW Fragment="VerifyRemoveDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRemoveDlg.aip"/>
+    <ROW Fragment="VerifyRepairDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\VerifyRepairDlg.aip"/>
+    <ROW Fragment="WelcomeDlg.aip" Path="&lt;AI_THEMES&gt;classic\fragments\WelcomeDlg.aip"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_DeleteLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_DeleteRLzma" Description="Deleting files extracted from archive" DescriptionLocId="ActionText.Description.AI_DeleteLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractFiles" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+    <ROW Action="AI_ExtractLzma" Description="Extracting files from archive" DescriptionLocId="ActionText.Description.AI_ExtractLzma" TemplateLocId="-"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiAppSearchComponent">
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_LM" Builds="x64_Release"/>
+    <ROW Property="AI_SETUPEXEPATH" Signature_="AI_EXE_PATH_CU" Builds="x64_Release"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
+    <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="G:\LICENCE.rtf" Order="400" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText" MsiKey="LicenseAgreementDlg#AgreementText"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
+    <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
+    <ROW Dialog_="MaintenanceWelcomeDlg" Control_="Next" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="99"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="101"/>
+    <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_MAINT" Ordering="198"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="202"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="ChangeButton" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="501"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceWelcomeDlg" Condition="AI_MAINT" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RemoveButton" Event="NewDialog" Argument="VerifyRemoveDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="1"/>
+    <ROW Dialog_="MaintenanceTypeDlg" Control_="RepairButton" Event="NewDialog" Argument="VerifyRepairDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="601"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="1"/>
+    <ROW Dialog_="VerifyRepairDlg" Control_="Repair" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Repair&quot;" Ordering="399" Options="1"/>
+    <ROW Dialog_="VerifyRemoveDlg" Control_="Remove" Event="EndDialog" Argument="Return" Condition="AI_MAINT AND InstallMode=&quot;Remove&quot;" Ordering="299" Options="1"/>
+    <ROW Dialog_="PatchWelcomeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_PATCH" Ordering="201"/>
+    <ROW Dialog_="ResumeDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_RESUME" Ordering="299"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
+    <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
+    <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DATA_SETTER" Type="51" Source="CustomActionData" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DeleteCadLzma" Type="51" Source="AI_DeleteLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteLzma" Type="1025" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DeleteRCadLzma" Type="51" Source="AI_DeleteRLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_DeleteRLzma" Type="1281" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
+    <ROW Action="AI_DpiContentScale" Type="1" Source="aicustact.dll" Target="DpiContentScale"/>
+    <ROW Action="AI_EnableDebugLog" Type="321" Source="aicustact.dll" Target="EnableDebugLog"/>
+    <ROW Action="AI_ExtractCadLzma" Type="51" Source="AI_ExtractLzma" Target="[AI_SETUPEXEPATH]"/>
+    <ROW Action="AI_ExtractFiles" Type="1" Source="Prereq.dll" Target="ExtractSourceFiles" AdditionalSeq="AI_DATA_SETTER"/>
+    <ROW Action="AI_ExtractLzma" Type="1025" Source="lzmaextractor.dll" Target="ExtractLZMAFiles"/>
+    <ROW Action="AI_FindExeLzma" Type="1" Source="lzmaextractor.dll" Target="FindEXE"/>
+    <ROW Action="AI_InstallModeCheck" Type="1" Source="aicustact.dll" Target="UpdateInstallMode" WithoutSeq="true"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
+    <ROW Action="AI_PRESERVE_INSTALL_TYPE" Type="65" Source="aicustact.dll" Target="PreserveInstallType"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH" Target="[AI_SETUPEXEPATH_ORIGINAL]"/>
+    <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
+    <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
+    <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
+    <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="x64_Release:[ProgramFiles64Folder]\[ProductName]"/>
+    <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
+    <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
+    <ROW Feature_="MainFeature" Component_="APPDIR"/>
+    <ROW Feature_="MainFeature" Component_="ProductInformation"/>
+    <ROW Feature_="MainFeature" Component_="AI_ExePath"/>
+    <ROW Feature_="MainFeature" Component_="pcre2test.exe"/>
+    <ROW Feature_="MainFeature" Component_="pcre2grep.exe"/>
+    <ROW Feature_="MainFeature" Component_="pcre2posix_test.exe"/>
+    <ROW Feature_="MainFeature" Component_="pcre28.exp"/>
+    <ROW Feature_="MainFeature" Component_="pcre2config"/>
+    <ROW Feature_="MainFeature" Component_="libpcre28.pc"/>
+    <ROW Feature_="MainFeature" Component_="pcre2.h"/>
+    <ROW Feature_="MainFeature" Component_="pcre2configversion.cmake"/>
+    <ROW Feature_="MainFeature" Component_="pcre2.3"/>
+    <ROW Feature_="MainFeature" Component_="pcre2grep.1"/>
+    <ROW Feature_="MainFeature" Component_="pcre28.dll_1"/>
+    <ROW Feature_="MainFeature" Component_="AUTHORS.md"/>
+    <ROW Feature_="MainFeature" Component_="index.html"/>
+    <ROW Feature_="MainFeature" Component_="pcre2posix.dll_1"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
+    <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_STORE_LOCATION" Condition="(Not Installed) OR REINSTALL" Sequence="1501"/>
+    <ROW Action="AI_PREPARE_UPGRADE" Condition="AI_UPGRADE=&quot;No&quot; AND (Not Installed)" Sequence="1397"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99" Builds="x64_Release"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101" Builds="x64_Release"/>
+    <ROW Action="AI_DeleteCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="199" Builds="x64_Release"/>
+    <ROW Action="AI_DeleteRCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="198" Builds="x64_Release"/>
+    <ROW Action="AI_ExtractCadLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="197" Builds="x64_Release"/>
+    <ROW Action="AI_FindExeLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="196" Builds="x64_Release"/>
+    <ROW Action="AI_ExtractLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1549" Builds="x64_Release"/>
+    <ROW Action="AI_DeleteRLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="1548" Builds="x64_Release"/>
+    <ROW Action="AI_DeleteLzma" Condition="SETUPEXEDIR=&quot;&quot; AND Installed AND (REMOVE&lt;&gt;&quot;ALL&quot;) AND (AI_INSTALL_MODE&lt;&gt;&quot;Remove&quot;) AND (NOT PATCH)" Sequence="6599" Builds="x64_Release"/>
+    <ROW Action="AI_ExtractFiles" Sequence="1399" Builds="x64_Release"/>
+    <ROW Action="AI_DATA_SETTER" Sequence="1398"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
+    <ROW Action="AI_PRESERVE_INSTALL_TYPE" Sequence="199"/>
+    <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="749"/>
+    <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
+    <ROW Action="AI_DpiContentScale" Sequence="52"/>
+    <ROW Action="AI_EnableDebugLog" Sequence="51"/>
+    <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="99"/>
+    <ROW Action="AI_RESTORE_AI_SETUPEXEPATH" Condition="AI_SETUPEXEPATH_ORIGINAL" Sequence="101"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="((VersionNT &lt;&gt; 501) AND (VersionNT &lt;&gt; 502))" Description="[ProductName] cannot be installed on [WindowsTypeNT5XDisplay]." DescriptionLocId="AI.LaunchCondition.NoNT5X" IsPredefined="true" Builds="x64_Release"/>
+    <ROW Condition="(VersionNT &lt;&gt; 400)" Description="[ProductName] cannot be installed on [WindowsTypeNT40Display]." DescriptionLocId="AI.LaunchCondition.NoNT40" IsPredefined="true" Builds="x64_Release"/>
+    <ROW Condition="(VersionNT &lt;&gt; 500)" Description="[ProductName] cannot be installed on [WindowsTypeNT50Display]." DescriptionLocId="AI.LaunchCondition.NoNT50" IsPredefined="true" Builds="x64_Release"/>
+    <ROW Condition="(VersionNT &lt;&gt; 600)" Description="[ProductName] cannot be installed on [WindowsTypeNT60Display]." DescriptionLocId="AI.LaunchCondition.NoNT60" IsPredefined="true" Builds="x64_Release"/>
+    <ROW Condition="SETUPEXEDIR OR (REMOVE=&quot;ALL&quot;)" Description="This package can only be run from a bootstrapper." DescriptionLocId="AI.LaunchCondition.RequireBootstrapper" IsPredefined="true" Builds="x64_Release"/>
+    <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]." DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="x64_Release"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
+    <ROW Signature_="AI_EXE_PATH_CU" Root="1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+    <ROW Signature_="AI_EXE_PATH_LM" Root="2" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Type="2"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
+    <ROW Registry="AI_ExePath" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="AI_ExePath" Value="[AI_SETUPEXEPATH]" Component_="AI_ExePath"/>
+    <ROW Registry="AdvancedInstaller" Root="-1" Key="Software\Caphyon\Advanced Installer" Name="\"/>
+    <ROW Registry="Caphyon" Root="-1" Key="Software\Caphyon" Name="\"/>
+    <ROW Registry="LZMA" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA" Name="\"/>
+    <ROW Registry="Manufacturer" Root="-1" Key="Software\[Manufacturer]" Name="\"/>
+    <ROW Registry="Path" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Path" Value="[APPDIR]" Component_="ProductInformation"/>
+    <ROW Registry="ProductCode" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]" Name="\"/>
+    <ROW Registry="ProductName" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="\"/>
+    <ROW Registry="ProductVersion" Root="-1" Key="Software\Caphyon\Advanced Installer\LZMA\[ProductCode]\[ProductVersion]" Name="\"/>
+    <ROW Registry="Software" Root="-1" Key="Software" Name="\"/>
+    <ROW Registry="Version" Root="-1" Key="Software\[Manufacturer]\[ProductName]" Name="Version" Value="[ProductVersion]" Component_="ProductInformation"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
+    <ATTRIBUTE name="UsedTheme" value="classic"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
+    <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+</DOCUMENT>
