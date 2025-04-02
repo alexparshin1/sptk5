@@ -33,7 +33,11 @@ using namespace sptk;
 
 namespace {
 
+#ifdef _WIN32
+const filesystem::path logFileName("/Windows/temp/file_log_test.tmp");
+#else
 const filesystem::path logFileName("/tmp/file_log_test.tmp");
+#endif
 
 void logMessages(LogEngine& logEngine)
 {
@@ -85,5 +89,5 @@ TEST(SPTK_FileLogEngine, performance)
     }
     stopWatch.stop();
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
-                   << static_cast<double>(messageCount) / stopWatch.milliseconds() << " msgs/sec)\n");
+                   << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }

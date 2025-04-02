@@ -33,11 +33,25 @@
 using namespace std;
 using namespace sptk;
 
-static const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
-static const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
-static const String gtestTempDirectory {"gtest_temp_directory3"};
-static const String testTar1 {"gtest_temp1.tar"};
-static const String testTar2 {"gtest_temp2.tar"};
+#ifndef _WIN32
+
+namespace {
+
+    const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
+    const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
+
+#ifdef _WIN32
+    const String tempDirectory("/Windows/temp/");
+#else
+    const String tempDirectory("/tmp/");
+#endif
+
+    const String testTar1 {tempDirectory + "gtest_temp1.tar"};
+    const String testTar2 {tempDirectory + "gtest_temp2.tar"};
+
+    const String gtestTempDirectory {tempDirectory + "gtest_temp_directory3"};
+
+}
 
 class SPTK_Tar
     : public ::testing::Test
@@ -109,3 +123,5 @@ TEST_F(SPTK_Tar, write) /* NOLINT */
 
     ASSERT_EQ(0, system(("tar tf " + testTar1 + " > test.lst").c_str()));
 }
+
+#endif

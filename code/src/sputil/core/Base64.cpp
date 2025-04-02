@@ -36,9 +36,11 @@ static constexpr array B64Chars = {
     't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
     '8', '9', '+', '/'};
 
+namespace {
 inline uint8_t base64chars(int chr)
 {
     return B64Chars[(chr & 0x3F)];
+}
 }
 
 void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)

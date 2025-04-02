@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <ranges>
 #include <gtest/gtest.h>
 #include <sptk5/Base64.h>
 #include <sptk5/CommandLine.h>
@@ -93,9 +94,9 @@ void stub()
     const string key("01234567890123456789012345678901");
     const string iv("0123456789012345");
 
-    const Buffer intext(text);
-    Buffer       outtext;
-    Crypt::encrypt(outtext, intext, key, iv);
+    const Buffer inputText(text);
+    Buffer       outputText;
+    Crypt::encrypt(outputText, inputText, key, iv);
 
     Buffer       buffer1;
     const Buffer buffer2("xxx");
@@ -119,7 +120,8 @@ void TestRunner::addDatabaseConnection(const DatabaseConnectionString& connectio
     DatabaseTests::tests().addDatabaseConnection(connectionString);
 }
 
-static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
+namespace {
+String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& definedConnections)
 {
     map<String, String> excludeDrivers = {
         {"postgresql", "PostgreSQL"},
@@ -134,12 +136,13 @@ static String excludeDatabasePatterns(const std::vector<DatabaseConnectionString
     }
 
     Strings excludePatterns;
-    for (const auto& [protocol, serverName]: excludeDrivers)
+    for (const auto& serverName: views::values(excludeDrivers))
     {
         excludePatterns.push_back("SPTK_" + serverName + "*.*");
     }
 
     return excludePatterns.join(":");
+}
 }
 
 int TestRunner::runAllTests()

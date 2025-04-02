@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <ranges>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
@@ -43,7 +44,7 @@ vector<DatabaseConnectionString> DatabaseTests::connectionStrings() const
 {
     vector<DatabaseConnectionString> connectionStrings;
     connectionStrings.reserve(m_connectionStrings.size());
-    for (const auto& [name, connectionString]: m_connectionStrings)
+    for (const auto& connectionString: m_connectionStrings | views::values)
     {
         connectionStrings.push_back(connectionString);
     }
@@ -113,30 +114,31 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
     databaseConnection->close();
 }
 
-static const DateTime testDateTime("2015-06-01 11:22:33");
+namespace {
+const DateTime testDateTime("2015-06-01 11:22:33");
 
-static const vector<DatabaseTests::Row> rows = {
+const vector<DatabaseTests::Row> rows = {
     {1, 1234567, "apple", 1.5, testDateTime},
     {2, 1234567, "pear", 3.1, testDateTime},
     {3, 1234567, "melon", 1.05, testDateTime},
     {4, 1234567, "watermelon", 0.85, testDateTime},
     {5, 1234567, "lemon", 5.5, testDateTime}};
 
-static const map<String, String> dateFieldTypes = {
+const map<String, String> dateFieldTypes = {
     {"mysql", "DATE"},
     {"postgresql", "DATE"},
     {"mssql", "DATE"},
     {"oracle", "DATE"},
     {"sqlite3", "VARCHAR(10)"}};
 
-static const map<String, String> dateTimeFieldTypes = {
+const map<String, String> dateTimeFieldTypes = {
     {"mysql", "TIMESTAMP"},
     {"postgresql", "TIMESTAMP"},
     {"mssql", "DATETIME2"},
     {"oracle", "TIMESTAMP"},
     {"sqlite3", "VARCHAR(30)"}};
 
-static const map<String, String> boolFieldTypes = {
+const map<String, String> boolFieldTypes = {
     {"mysql", "BOOL"},
     {"postgresql", "BOOL"},
     {"mssql", "BIT"},
@@ -144,21 +146,21 @@ static const map<String, String> boolFieldTypes = {
     {"sqlite3", "INT"},
 };
 
-static const map<String, String> textFieldTypes = {
+const map<String, String> textFieldTypes = {
     {"mysql", "LONGTEXT"},
     {"postgresql", "TEXT"},
     {"mssql", "NVARCHAR(MAX)"},
     {"oracle", "CLOB"},
     {"sqlite3", "TEXT"}};
 
-static const map<String, String> blobFieldTypes = {
+const map<String, String> blobFieldTypes = {
     {"mysql", "LONGBLOB"},
     {"postgresql", "BYTEA"},
     {"mssql", "VARBINARY(MAX)"},
     {"oracle", "BLOB"},
     {"sqlite3", "TEXT"}};
 
-static String fieldType(const String& fieldType, const String& driverName)
+String fieldType(const String& fieldType, const String& driverName)
 {
     const map<String, String>* fieldTypes = &textFieldTypes;
     if (fieldType == "DATETIME")
@@ -174,12 +176,13 @@ static String fieldType(const String& fieldType, const String& driverName)
         fieldTypes = &boolFieldTypes;
     }
 
-    const auto itor = fieldTypes->find(driverName);
-    if (itor == fieldTypes->end())
+    const auto iterator = fieldTypes->find(driverName);
+    if (iterator == fieldTypes->end())
     {
         throw Exception("Data type mapping is not defined for the test");
     }
-    return itor->second;
+    return iterator->second;
+}
 }
 
 void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connectionString)
@@ -187,13 +190,13 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    const auto itor = dateFieldTypes.find(connectionString.driverName());
-    if (itor == dateFieldTypes.end())
+    const auto iterator = dateFieldTypes.find(connectionString.driverName());
+    if (iterator == dateFieldTypes.end())
     {
         throw Exception("Date data type mapping is not defined for the test");
     }
 
-    const String dateTimeType = itor->second;
+    const String dateTimeType = iterator->second;
 
     stringstream createTableSQL;
     createTableSQL << "CREATE TABLE gtest_temp_table(ts " << dateTimeType << " NULL)";
@@ -241,13 +244,13 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     DatabaseConnectionPool connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-    const auto itor = dateTimeFieldTypes.find(connectionString.driverName());
-    if (itor == dateTimeFieldTypes.end())
+    const auto iterator = dateTimeFieldTypes.find(connectionString.driverName());
+    if (iterator == dateTimeFieldTypes.end())
     {
         throw Exception("DateTime data type mapping is not defined for the test");
     }
 
-    const String dateTimeType = itor->second;
+    const String dateTimeType = iterator->second;
 
     stringstream createTableSQL;
     createTableSQL << "CREATE TABLE gtest_temp_table(ts " << dateTimeType << " NULL)";
@@ -404,7 +407,7 @@ void DatabaseTests::verifyInsertedRow(const Row& row, const Buffer& clob, Query&
 void DatabaseTests::createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection)
 {
     stringstream createTableSQL;
-    createTableSQL << "CREATE TABLE gtest_temp_table( -- Create a test temp table" << endl;
+    createTableSQL << "CREATE TABLE gtest_temp_table( -- Create a test temp table\n";
     createTableSQL << "id INT, /* This is the unique id column */";
     createTableSQL << "ssid INT, ";
     createTableSQL << "name VARCHAR(20), price DECIMAL(10,2), ";
@@ -476,7 +479,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
 {
     Query insert(databaseConnection, "INSERT INTO gtest_temp_table VALUES('1', 'pear')");
 
-    const size_t maxRecords = 100;
+    constexpr size_t maxRecords = 100;
 
     for (unsigned i = 0; i < maxRecords; ++i)
     {
@@ -520,20 +523,20 @@ void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionSt
 
 DatabaseConnectionString DatabaseTests::connectionString(const String& driverName) const
 {
-    const auto itor = m_connectionStrings.find(driverName);
-    return itor == m_connectionStrings.end() ? DatabaseConnectionString("") : itor->second;
+    const auto iterator = m_connectionStrings.find(driverName);
+    return iterator == m_connectionStrings.end() ? DatabaseConnectionString("") : iterator->second;
 }
 
 void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
 {
     const auto driverName = databaseConnection->connectionString().driverName();
-    const auto itor = blobFieldTypes.find(driverName);
-    if (itor == blobFieldTypes.end())
+    const auto iterator = blobFieldTypes.find(driverName);
+    if (iterator == blobFieldTypes.end())
     {
         throw Exception("BLOB data type mapping is not defined for the test");
     }
 
-    const String blobType = itor->second;
+    const String blobType = iterator->second;
 
     Strings fields {"id INTEGER NULL", "name CHAR(40) NULL", "position_name CHAR(20) NULL", "hire_date CHAR(12) NULL"};
 
@@ -567,13 +570,13 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
 
 void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& databaseConnection)
 {
-    const auto itor = dateTimeFieldTypes.find(databaseConnection->connectionString().driverName());
-    if (itor == dateTimeFieldTypes.end())
+    const auto iterator = dateTimeFieldTypes.find(databaseConnection->connectionString().driverName());
+    if (iterator == dateTimeFieldTypes.end())
     {
         throw Exception("DateTime data type mapping is not defined for the test");
     }
 
-    const String dateTimeType = itor->second;
+    const String dateTimeType = iterator->second;
 
     databaseConnection->open();
 
@@ -582,7 +585,7 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     switch (databaseConnection->connectionType())
     {
-        using enum sptk::DatabaseConnectionType;
+        using enum DatabaseConnectionType;
         case MYSQL:
         case POSTGRES:
             idDefinition = "id serial";
@@ -594,7 +597,9 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
         case ORACLE_OCI:
             idDefinition = "id int";
             break;
-        default:
+    case SQLITE3:
+    case FIREBIRD:
+    case GENERIC_ODBC:
             throw DatabaseException("InsertQuery doesn't support " + databaseConnection->driverDescription());
     }
 
@@ -719,8 +724,8 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     if (const String actualResult(printRows.join(" # "));
         actualResult != expectedBulkInsertResult)
     {
-        cout << "Actual result: " << actualResult << endl;
-        cout << "Expected result: " << expectedBulkInsertResult << endl;
+        cout << "Actual result: " << actualResult << "\n";
+        cout << "Expected result: " << expectedBulkInsertResult << "\n";
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
 
@@ -791,12 +796,12 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     {
         keys.emplace_back(static_cast<int>(i));
 
-        VariantVector arow;
-        arow.emplace_back(static_cast<int>(i));
-        arow.emplace_back("Alex,'Doe'");
-        arow.emplace_back("Programmer");
-        arow.emplace_back("01-JAN-2014");
-        data.push_back(std::move(arow));
+        VariantVector row;
+        row.emplace_back(static_cast<int>(i));
+        row.emplace_back("Alex,'Doe'");
+        row.emplace_back("Programmer");
+        row.emplace_back("01-JAN-2014");
+        data.push_back(std::move(row));
     }
 
     StopWatch stopWatch;
@@ -820,12 +825,13 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     Transaction transaction(databaseConnection);
     transaction.begin();
-    constexpr int col0 = 0;
-    constexpr int col1 = 1;
-    constexpr int col2 = 2;
-    constexpr int col3 = 3;
     for (auto& row: data)
     {
+        constexpr int col0 = 0;
+        constexpr int col1 = 1;
+        constexpr int col2 = 2;
+        constexpr int col3 = 3;
+
         idParam = row[col0].asInteger();
         nameParam = row[col1].asString();
         positionParam = row[col2].asString();
@@ -1048,9 +1054,9 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
 
     Buffer testData1(blobSize1);
     Buffer testDataInv(blobSize1);
-    constexpr size_t Value256 = 256;
     for (size_t i = 0; i < blobSize1; ++i)
     {
+        constexpr size_t Value256 = 256;
         testData1[i] = static_cast<uint8_t>(i % Value256);
         testDataInv[i] = static_cast<uint8_t>(Value256 - i % Value256);
     }
@@ -1085,7 +1091,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     data = selectQuery["data2"].getText();
     for (size_t i = 0; i < blobSize2; ++i)
     {
-        EXPECT_EQ(static_cast<char>(256 - char(i % 256)), data[i]);
+        EXPECT_EQ(static_cast<char>(256 - static_cast<char>(i % 256)), data[i]);
     }
 
     selectQuery.close();

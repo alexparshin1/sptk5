@@ -34,8 +34,17 @@
 using namespace std;
 using namespace sptk;
 
-static const String           testPhrase("This is a test");
-static const filesystem::path tempFileName("./gtest_sptk5_buffer.tmp");
+namespace {
+
+const String           testPhrase("This is a test");
+
+#ifdef _WIN32
+const filesystem::path tempFileName("/Windows/temp/gtest_sptk5_buffer.tmp");
+#else
+const filesystem::path tempFileName("/tmp/gtest_sptk5_buffer.tmp");
+#endif
+
+}
 
 TEST(SPTK_Buffer, create)
 {
@@ -210,7 +219,7 @@ TEST(SPTK_Buffer, createPerformance)
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)
     {
-        string buffer(testPhrase);
+        string buffer(testPhrase.c_str(), testPhrase.length());
         buffer.resize(1024);
         buffer.resize(16384);
     }

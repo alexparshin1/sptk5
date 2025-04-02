@@ -41,7 +41,7 @@ namespace {
 constexpr uint16_t testTcpEchoServerPort = 3001;
 constexpr uint16_t testSslEchoServerPort = 3002;
 
-void echoTestFunction(ServerConnection& connection)
+void echoTestFunction(const ServerConnection& connection)
 {
     SocketReader reader(connection.socket());
 
@@ -76,7 +76,7 @@ void echoTestFunction(ServerConnection& connection)
 constexpr size_t packetsInTest = 100000;
 constexpr size_t packetSize = 50;
 
-void performanceTestFunction(ServerConnection& serverConnection)
+void performanceTestFunction(const ServerConnection& serverConnection)
 {
     Buffer data(packetSize);
 
@@ -330,7 +330,7 @@ void testAcceptPerformance(ServerConnection::Type connectionType, const String& 
     catch (const Exception& e)
     {
         stringstream errorMessage;
-        errorMessage << endl
+        errorMessage << "\n"
                      << e.what() << ", connected " << connectedCount << " sockets";
         throw Exception(errorMessage.str());
     }

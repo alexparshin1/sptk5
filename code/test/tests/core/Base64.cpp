@@ -77,8 +77,6 @@ TEST(SPTK_Base64, encodeBinary)
         source.append(i);
     }
 
-    source.saveToFile("/tmp/source");
-
     String encoded;
     Base64::encode(encoded, source);
     EXPECT_STREQ(encodedBinary.c_str(), encoded.c_str());

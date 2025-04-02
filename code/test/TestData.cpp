@@ -17,10 +17,10 @@ namespace sptk {
 std::filesystem::path TestData::DataDirectory()
 {
 #ifdef _WIN32
-    const auto* programData = std::getenv("PROGRAMDATA");
+    const auto* programData = getenv("PROGRAMDATA");
     if (programData != nullptr)
     {
-        return std::filesystem::path(programData) / "sptk5" / "test_data";
+        return std::filesystem::path(programData) / "SPTK" / "test_data";
     }
     return "test_data";
 #else

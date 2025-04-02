@@ -26,10 +26,7 @@
 
 #include "sptk_unit_tests.h"
 #include "test/TestData.h"
-#include <sptk5/cdatabase>
 #include <sptk5/test/TestRunner.h>
-
-#include <fstream>
 
 using namespace std;
 using namespace sptk;
@@ -38,11 +35,17 @@ int main(int argc, char* argv[])
 {
     TestRunner tests(argc, argv);
 
-    tests.addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
-    tests.addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
-    tests.addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost/tmp/test.sqlite3"));
+#ifdef _WIN32
+    string tempDirectory = "/Windows/temp";
+#else
+    string tempDirectory = "/tmp";
+#endif
+
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("mysql://gtest:test#123@dbhost_mysql:3306/gtest"));
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("mssql://gtest:test#123@dsn_mssql/gtest"));
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("oracle://gtest:test#123@oracledb:1521/xe"));
+    TestRunner::addDatabaseConnection(DatabaseConnectionString("sqlite3://localhost" + tempDirectory + "/test.sqlite3"));
 
     return tests.runAllTests();
 }
