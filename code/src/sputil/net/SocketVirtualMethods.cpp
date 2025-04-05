@@ -343,7 +343,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
             {
                 return true;
             }
-            if (fdArray.revents & POLLHUP)
+            if (fdArray.revents & CONNCLOSED)
             {
                 throw ConnectionException("Connection closed");
             }
@@ -519,7 +519,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            auto writeSize = remaining > 16384 ? 16384 : remaining;
+            auto writeSize = remaining > 2048 ? 2048 : remaining;
             bytes = static_cast<int>(sendUnlocked(ptr, static_cast<int32_t>(writeSize)));
         }
 
