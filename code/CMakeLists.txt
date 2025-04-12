@@ -183,6 +183,7 @@ ENDIF ()
 
 IF (WIN32)
     SET(WINDIR "$ENV{ProgramW6432}")
+    SET(DATADIR "$ENV{ProgramData}")
     IF (NOT WINDIR)
         SET(WINDIR "$ENV{ProgramFiles}")
     ENDIF ()

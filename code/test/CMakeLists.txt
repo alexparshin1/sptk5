@@ -10,9 +10,15 @@ IF (GTEST_FLAG)
             LIBRARY DESTINATION lib COMPONENT unit_tests
             ARCHIVE DESTINATION lib COMPONENT unit_tests)
 
-    INSTALL(DIRECTORY test_data DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
-    INSTALL(DIRECTORY test_ssl_keys DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
-    INSTALL(FILES settings.txt DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
+    IF (WIN32)
+        INSTALL(DIRECTORY test_data DESTINATION ${DATADIR}/SPTK COMPONENT unit_tests)
+        INSTALL(DIRECTORY test_ssl_keys DESTINATION ${DATADIR}/SPTK COMPONENT unit_tests)
+        INSTALL(FILES settings.txt DESTINATION ${DATADIR}/SPTK COMPONENT unit_tests)
+    ELSE ()
+        INSTALL(DIRECTORY test_data DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
+        INSTALL(DIRECTORY test_ssl_keys DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
+        INSTALL(FILES settings.txt DESTINATION /usr/local/share/sptk5 COMPONENT unit_tests)
+    ENDIF ()
 
     IF (SET_RPATH)
         SET_TARGET_PROPERTIES(sptk_unit_tests PROPERTIES INSTALL_RPATH "")
