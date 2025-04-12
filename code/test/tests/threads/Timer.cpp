@@ -85,18 +85,23 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     mutex       counterMutex;
     size_t      counter = 0;
     const Timer timer;
+    Semaphore   allEventsReceived;
 
     constexpr auto repeatInterval {10ms};
     timer.repeat(
         repeatInterval,
-        [&counter, &counterMutex]()
+        [&counter, &counterMutex, &allEventsReceived]()
         {
             const scoped_lock lock(counterMutex);
             ++counter;
+            if (counter == 2)
+            {
+                allEventsReceived.post();
+            }
         },
         2);
 
-    this_thread::sleep_for(repeatInterval * 4);
+    allEventsReceived.wait_for(100ms);
 
     const scoped_lock lock(counterMutex);
     EXPECT_EQ(counter, static_cast<size_t>(2));
