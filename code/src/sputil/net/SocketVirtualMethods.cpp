@@ -572,7 +572,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
 
     if (!errorStr.empty())
     {
-        throw Exception(message + ": " + errorStr, location);
+        throw ConnectionException(message + ": " + errorStr, location);
     }
 }
 
