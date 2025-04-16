@@ -26,15 +26,9 @@
 
 #include <sptk5/cutils>
 #include <sptk5/net/TCPSocket.h>
-#include <thread>
 
 using namespace std;
 using namespace sptk;
-
-#ifdef _WIN32
-static int  m_socketCount;
-static bool m_initted(false);
-#endif
 
 void TCPSocket::handleReadFromSocketErrorUnlocked(int error)
 {
@@ -139,7 +133,7 @@ size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
             {
                 break;
             }
-            error = errno;
+            error = getSocketError();
             handleReadFromSocketErrorUnlocked(error);
         }
     } while (error == EAGAIN);

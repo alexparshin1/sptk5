@@ -334,11 +334,18 @@ private:
 };
 
 /**
+ * Translates Windows socket error to corresponding errno.
+ * For Linux, simply returns errno value.
+ * @return errno equivalent.
+ */
+[[nodiscard]] SP_EXPORT int getSocketError(int nativeErrorCode=-1);
+
+/**
  * Throws socket exception with error description retrieved from socket state
  * @param message           Error message
  * @param file              Source file name
  * @param line              Source file line number
  */
-SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
+[[noreturn]] SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
 
 } // namespace sptk

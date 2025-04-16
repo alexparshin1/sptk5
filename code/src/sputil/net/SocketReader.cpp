@@ -86,7 +86,7 @@ size_t SocketReader::readFromSocket()
             m_buffer.bytes(0);
             if (m_socket.active())
             {
-                error = errno;
+                error = getSocketError();
                 handleReadFromSocketError(error);
             }
         }

@@ -80,7 +80,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
                 result = connect(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
                 if (result == -1)
                 {
-                    switch (errno)
+                    switch (getSocketError())
                     {
                         case ENETUNREACH:
                             throw Exception("Network unreachable");
@@ -475,9 +475,13 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
             {
                 throwSocketError("Socket is closed");
             }
-            if (errno == EINTR || errno == EAGAIN || errno == EINPROGRESS)
+            auto error = getSocketError();
+            if (error == EINTR || error == EAGAIN || error == EINPROGRESS || error == EWOULDBLOCK)
             {
-                this_thread::yield();
+                if (!readyToWriteUnlocked(10s))
+                {
+                    throw ConnectionException("Can't write to socket: timeout");
+                }
                 continue;
             }
             throwSocketError("Can't write to socket");
@@ -529,6 +533,41 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     return total;
 }
 
+int getSocketError(int nativeErrorCode)
+{
+#ifdef _WIN32
+    switch (nativeErrorCode == -1 ? GetLastError() : nativeErrorCode)
+    {
+        case 0:
+            return 0;
+        case WSA_INVALID_HANDLE:
+        case WSAEBADF:
+            return EBADF;
+        case WSAENOTSOCK:
+            return ENOTSOCK;
+        case WSAENOTCONN:
+            return ENOTCONN;
+        case WSAENETUNREACH:
+            return ENETUNREACH;
+        case WSAECONNABORTED:
+            return ECONNABORTED;
+        case WSAECONNRESET:
+            return ECONNABORTED;
+        case WSAECONNREFUSED:
+            return ECONNREFUSED;
+        case WSAEWOULDBLOCK:
+            return EWOULDBLOCK;
+        case EINPROGRESS:
+            return EAGAIN;
+        default:
+            break;
+    }
+    return EBADF;
+#else
+    return errno;
+#endif
+}
+
 void throwSocketError(const String& message, const std::source_location& location)
 {
     string errorStr;
@@ -537,22 +576,23 @@ void throwSocketError(const String& message, const std::source_location& locatio
     constexpr int               maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
 
-    const DWORD dw = GetLastError();
-
-    if (dw != 0)
+    const DWORD windowsSocketError = GetLastError();
+    if (windowsSocketError != 0)
     {
         FormatMessage(
             FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            nullptr, dw, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer.data(), maxMessageSize, nullptr);
+            nullptr, windowsSocketError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buffer.data(), maxMessageSize, nullptr);
         errorStr = buffer.data();
     }
+
+    int error = getSocketError(windowsSocketError);
 #else
+    int error = errno;
     // strerror_r() doesn't work here
     errorStr = strerror(errno);
 #endif
-    switch (errno)
+    switch (error)
     {
-        case 0:
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
@@ -561,6 +601,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
             throw ConnectionException(message + ": Connection is terminated", location);
         case ECONNREFUSED:
             throw ConnectionException(message + ": Connection is refused", location);
+        case EWOULDBLOCK:
         case EAGAIN:
         case EINPROGRESS:
             throw RepeatOperationException(message + ": " + errorStr, location);
