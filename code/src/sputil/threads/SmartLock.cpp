@@ -37,7 +37,15 @@ string SmartMutex::location() const
 void SmartLock::throwTimeout(source_location sourceLocation)
 {
     m_locked = false;
-    throw TimeoutException("Failed to acquire lock at " + string(sourceLocation.file_name()) +
+    throw TimeoutException("Failed to acquire unique lock at " + string(sourceLocation.file_name()) +
+                           ":" + to_string(sourceLocation.line()) +
+                           ": locked by another thread at" + m_mutex.location());
+}
+
+void SharedSmartLock::throwTimeout(source_location sourceLocation)
+{
+    m_locked = false;
+    throw TimeoutException("Failed to acquire shared lock at " + string(sourceLocation.file_name()) +
                            ":" + to_string(sourceLocation.line()) +
                            ": locked by another thread at" + m_mutex.location());
 }

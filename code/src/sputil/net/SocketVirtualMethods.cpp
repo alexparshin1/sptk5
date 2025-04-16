@@ -556,7 +556,6 @@ int getSocketError(int nativeErrorCode)
         case WSAECONNREFUSED:
             return ECONNREFUSED;
         case WSAEWOULDBLOCK:
-            return EWOULDBLOCK;
         case EINPROGRESS:
             return EAGAIN;
         default:
@@ -601,7 +600,6 @@ void throwSocketError(const String& message, const std::source_location& locatio
             throw ConnectionException(message + ": Connection is terminated", location);
         case ECONNREFUSED:
             throw ConnectionException(message + ": Connection is refused", location);
-        case EWOULDBLOCK:
         case EAGAIN:
         case EINPROGRESS:
             throw RepeatOperationException(message + ": " + errorStr, location);
