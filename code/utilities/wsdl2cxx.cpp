@@ -37,7 +37,7 @@ using namespace sptk;
 namespace {
 void help()
 {
-    COUT("WSDL to C++ prototype parser. (C) 2012-2023 Alexey Parshin\n\n");
+    COUT("WSDL to C++ prototype parser. (C) 2012-2025 Alexey Parshin\n\n");
     COUT("Generates Web Service C++ class that is used as a base class for actual Web Service implementation.\n");
     COUT("Usage:\n\n");
     COUT("  wsdl2cxx <WSDL file> [output directory [header file]]\n\n");
@@ -46,7 +46,7 @@ void help()
     COUT("output directory  Directory where generated files will be stored\n");
     COUT("header file       File that contains text too be added at the start of generated files\n");
 }
-}
+} // namespace
 
 #ifdef _WIN32
 #define access _access
@@ -119,7 +119,7 @@ auto parseOperationsAuth(const String& operationsAuth)
     }
     return output;
 }
-}
+} // namespace
 
 namespace {
 bool createDirectory(const String& directory)

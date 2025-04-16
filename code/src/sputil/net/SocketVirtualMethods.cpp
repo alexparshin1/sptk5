@@ -613,6 +613,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
     {
         throw ConnectionException(message + ": " + errorStr, location);
     }
+    throw ConnectionException(message + ": Unknown error", location);
 }
 
 } // namespace sptk
