@@ -134,7 +134,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode
             }
             break;
 
-        default:
+        case OpenMode::CREATE:
             break;
     }
 
@@ -203,8 +203,8 @@ void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 
 void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
 {
-    constexpr socklen_t len = sizeof(int);
-    if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), len) != 0)
+    constexpr socklen_t optionLen = sizeof(int);
+    if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), optionLen) != 0)
     {
         throwSocketError("Can't set socket option");
     }
@@ -312,12 +312,12 @@ void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
 }
 
 #if (__FreeBSD__ | __OpenBSD__)
-constexpr int CONNCLOSED = POLLHUP;
+constexpr int CONNECTION_CLOSED = POLLHUP;
 #else
 #ifdef _WIN32
-constexpr int CONNCLOSED = POLLHUP;
+constexpr int CONNECTION_CLOSED = POLLHUP;
 #else
-constexpr int CONNCLOSED = POLLRDHUP | POLLHUP;
+constexpr int CONNECTION_CLOSED = POLLRDHUP | POLLHUP;
 #endif
 #endif
 
@@ -343,7 +343,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
             {
                 return true;
             }
-            if (fdArray.revents & CONNCLOSED)
+            if (fdArray.revents & CONNECTION_CLOSED)
             {
                 throw ConnectionException("Connection closed");
             }
@@ -362,7 +362,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
     {
         throwSocketError("Can't read from socket");
     }
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
+    if (result == 1 && (pfd.revents & CONNECTION_CLOSED) != 0)
     {
         throw ConnectionException("Connection closed");
     }
@@ -393,7 +393,6 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
             break;
         default:
             throwSocketError("WSAPoll error");
-            break;
     }
     return false;
 #else
@@ -406,7 +405,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
         throwSocketError("Can't read from socket");
     }
 
-    if (result == 1 && (pfd.revents & CONNCLOSED) != 0)
+    if (result == 1 && (pfd.revents & CONNECTION_CLOSED) != 0)
     {
         throw Exception("Connection closed");
     }
@@ -476,7 +475,7 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
                 throwSocketError("Socket is closed");
             }
             auto error = getSocketError();
-            if (error == EINTR || error == EAGAIN || error == EINPROGRESS || error == EWOULDBLOCK)
+            if (error == EAGAIN || error == EINTR || error == EINPROGRESS)
             {
                 if (!readyToWriteUnlocked(10s))
                 {
@@ -552,7 +551,7 @@ int getSocketError(int nativeErrorCode)
         case WSAECONNABORTED:
             return ECONNABORTED;
         case WSAECONNRESET:
-            return ECONNABORTED;
+            return ECONNRESET;
         case WSAECONNREFUSED:
             return ECONNREFUSED;
         case WSAEWOULDBLOCK:
@@ -575,7 +574,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
     constexpr int               maxMessageSize {256};
     array<char, maxMessageSize> buffer {};
 
-    const DWORD windowsSocketError = GetLastError();
+    const auto windowsSocketError = static_cast<int>(GetLastError());
     if (windowsSocketError != 0)
     {
         FormatMessage(
