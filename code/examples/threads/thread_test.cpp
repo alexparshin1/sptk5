@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-class CMyThread
+class CMyThread final
     : public Thread
 {
     Logger m_log; /// Thread proxy log
@@ -70,9 +70,6 @@ void CMyThread::threadFunction()
 
 int main()
 {
-    unsigned i;
-    vector<CMyThread*> threads;
-
     /// The log file would get messages from all the threads.
     /// Threads send messages through their own Logger objects.
     /// Multiple Logger objects can share same log object thread-safely.
@@ -81,6 +78,8 @@ int main()
 
     try
     {
+        vector<CMyThread*> threads;
+        unsigned           i;
 
         /// Trancate the log file
         sharedLog.reset();

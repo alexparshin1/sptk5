@@ -84,7 +84,7 @@ public:
      * @param workerThread      Worker thread
      */
     WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
-                 Options options, const std::shared_ptr<sptk::Thread>& workerThread);
+                 Options options, const std::shared_ptr<Thread>& workerThread);
 
     /**
      * Destructor
@@ -113,7 +113,7 @@ private:
     Logger                        m_logger;
     Options                       m_options;
     bool                          m_isHangup {false};
-    std::shared_ptr<sptk::Thread> m_workerThread;
+    std::shared_ptr<Thread> m_workerThread;
 
     void respondToOptions(const HttpHeaders& headers) const;
 
@@ -145,7 +145,7 @@ public:
      * @param workerThread      Worker thread
      */
     WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
-                    LogEngine& logEngine, const Options& options, const std::shared_ptr<sptk::Thread>& workerThread);
+                    LogEngine& logEngine, const Options& options, const std::shared_ptr<Thread>& workerThread);
 
     /**
      * Destructor

@@ -62,14 +62,14 @@ public:
      * @param location          Path to the resource, not including resource name
      * @param service           Service that is processing that location requests
      */
-    void set(const sptk::String& location, const SWSRequest& service);
+    void set(const String& location, const SWSRequest& service);
 
     /**
      * Get service for given location that is processing that location requests
      * @param location          Path to the resource, not including resource name
      * @return matching service, or default service if there is no match
      */
-    WSRequest& get(const sptk::String& location) const;
+    WSRequest& get(const String& location) const;
 
 private:
     mutable std::mutex m_mutex;

@@ -124,7 +124,7 @@ public:
      * @param input             Query field list containing CMqType data
      * @param nullLargeData     Set null for elements with data size > 256 bytes
      */
-    virtual void load(const sptk::FieldList& input, bool nullLargeData = false);
+    virtual void load(const FieldList& input, bool nullLargeData = false);
 
     /**
      * Unload data to existing XML node

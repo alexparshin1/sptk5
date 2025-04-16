@@ -40,7 +40,7 @@ int main()
         UDPSocket server;
         server.host(Host("localhost", 3000));
 
-        struct sockaddr_in clientInfo = {};
+        sockaddr_in clientInfo = {};
 
         server.listen();
 
@@ -57,7 +57,7 @@ int main()
                 String data(readBuffer.c_str(), bytes);
                 COUT("Received data: " << data << '\n');
 
-                if (data.find("EOD") == 0)
+                if (data.startsWith("EOD"))
                 {
                     server.close();
                     COUT("Server session closed\n");

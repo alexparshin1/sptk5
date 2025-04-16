@@ -39,16 +39,14 @@ int main()
         UDPSocket client;
         client.host(Host("localhost", 3000));
 
-        string data;
-
-        struct sockaddr_in serv {
+        sockaddr_in serv {
         };
         memset(&serv, 0, sizeof(serv));
         serv.sin_family = AF_INET;
         serv.sin_port = htons(client.host().port());
         serv.sin_addr.s_addr = inet_addr(client.host().hostname().c_str());
 
-        data = "Data 1";
+        string data = "Data 1";
         client.write(data, &serv);
 
         data = "EOD";
@@ -56,8 +54,7 @@ int main()
     }
     catch (const Exception& e)
     {
-        CERR("Exception was caught:" << e.what() << endl
-                                     << "Exiting." << endl);
+        CERR("Exception was caught:" << e.what() << "\nExiting.\n");
         return 1;
     }
 

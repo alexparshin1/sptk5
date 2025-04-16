@@ -33,7 +33,7 @@ using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services,
                            LogEngine& logEngine,
-                           Options options, const std::shared_ptr<sptk::Thread>& workerThread)
+                           Options options, const std::shared_ptr<Thread>& workerThread)
     : RunableServerConnection(server, Type::SSL, connectionAddress)
     , m_services(services)
     , m_logger(logEngine, "(" + to_string(serial()) + ") ")
@@ -329,7 +329,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
                                  WSServices& services, LogEngine& logEngine, const Options& options,
-                                 const std::shared_ptr<sptk::Thread>& workerThread)
+                                 const std::shared_ptr<Thread>& workerThread)
     : WSConnection(server, addr, services, logEngine, options, workerThread)
 {
     if (options.encrypted)

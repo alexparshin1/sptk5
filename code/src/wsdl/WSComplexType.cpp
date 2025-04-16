@@ -33,7 +33,7 @@ using namespace xdoc;
 
 [[maybe_unused]] void WSComplexType::copyFrom(const WSComplexType& other)
 {
-    xdoc::Document xml;
+    Document xml;
     const auto&    element = xml.root()->pushNode("temp");
     other.unload(element);
     load(element);
@@ -63,7 +63,7 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         }
 
         const String elementName = name == nullptr ? this->name().c_str() : name;
-        xdoc::SNode  element;
+        SNode  element;
         if (parent->type() == Node::Type::Array)
         {
             element = parent->pushNode(elementName);
@@ -82,13 +82,13 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
 
     if (asJSON)
     {
-        xdoc::Document outputJSON;
+        Document outputJSON;
         unload(outputJSON.root());
         outputJSON.exportTo(DataFormat::JSON, output, formatted);
     }
     else
     {
-        xdoc::Document outputXML;
+        Document outputXML;
         const auto&    element = outputXML.root()->pushNode("type");
         unload(element);
         outputXML.exportTo(DataFormat::XML, output, formatted);
@@ -249,7 +249,7 @@ void WSComplexType::unload(QueryParameterList& output) const
                        if (const auto* inputField = dynamic_cast<const WSBasicType*>(field);
                            inputField != nullptr)
                        {
-                           WSComplexType::unload(output, inputField->name().c_str(), inputField);
+                           unload(output, inputField->name().c_str(), inputField);
                        }
                        else
                        {

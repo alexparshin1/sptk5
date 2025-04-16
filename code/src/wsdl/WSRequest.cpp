@@ -82,7 +82,7 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
     // Error handling
     if (xmlContent)
     {
-        using enum sptk::xdoc::Node::Type;
+        using enum xdoc::Node::Type;
         const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
         String soapNamespace = soapBody->getNameSpace();
@@ -201,7 +201,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
     requestBroker(requestName, xmlRequestNode, jsonContent, authentication, requestNameSpace);
 }
 
-void WSRequest::setRequestMethods(map<sptk::String, RequestMethod>&& requestMethods)
+void WSRequest::setRequestMethods(map<String, RequestMethod>&& requestMethods)
 {
     m_requestMethods = std::move(requestMethods);
 }

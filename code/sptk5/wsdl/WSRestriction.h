@@ -56,9 +56,9 @@ public:
      * Constructor from WSDL (XML) definition
      * @param type                      Restriction type
      * @param wsdlTypeName              WSDL type name
-     * @param enumerationsOrPatternss   Enumerations or patterns
+     * @param enumerationsOrPatterns    Enumerations or patterns
      */
-    WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPattern);
+    WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns);
 
     /**
      * Get restriction type

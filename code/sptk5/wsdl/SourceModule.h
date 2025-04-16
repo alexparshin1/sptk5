@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <iostream>
 #include <sptk5/Buffer.h>
 #include <sptk5/sptk.h>
 #include <sstream>

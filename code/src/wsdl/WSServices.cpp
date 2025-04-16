@@ -39,13 +39,13 @@ WSServices::WSServices(const WSServices& other)
     assign(other);
 }
 
-void WSServices::set(const sptk::String& location, const SWSRequest& service)
+void WSServices::set(const String& location, const SWSRequest& service)
 {
     const scoped_lock lock(m_mutex);
     m_services[location] = service;
 }
 
-WSRequest& WSServices::get(const sptk::String& location) const
+WSRequest& WSServices::get(const String& location) const
 {
     const scoped_lock lock(m_mutex);
     auto itor = m_services.find(location);

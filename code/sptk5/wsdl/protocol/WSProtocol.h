@@ -79,7 +79,7 @@ namespace sptk {
          * Connection HTTP headers
          * @return Connection HTTP headers
          */
-        String header(const sptk::String &name);
+        String header(const String &name);
 
     private:
         TCPSocket *m_socket;   ///< Connection socket

@@ -32,7 +32,7 @@
 using namespace std;
 using namespace sptk;
 
-class StubRequest
+class StubRequest final
     : public WSRequest
 {
 protected:
@@ -44,7 +44,7 @@ protected:
 
 public:
     StubRequest()
-        : WSRequest("") {};
+        : WSRequest("") {}
 };
 
 int main()

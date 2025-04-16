@@ -4,6 +4,7 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
 void printHelp(const String& progName, const String& error = "")
 {
     COUT("Convertor of XML to JSON and back\n\n"
@@ -14,6 +15,7 @@ void printHelp(const String& progName, const String& error = "")
         CERR("Error: "
              << error << "\n\n");
     }
+}
 }
 
 int main(int argc, const char* argv[])

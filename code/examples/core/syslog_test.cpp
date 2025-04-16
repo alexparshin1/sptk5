@@ -37,17 +37,16 @@ int main()
 #ifdef _WIN32
     COUT("Attention: This example project must include file events.rc.");
     COUT("You should also have enough access rights to write into HKEY_LOCAL_MACHINE");
-    COUT("in Windows registry." << endl
-                                << endl);
+    COUT("in Windows registry.\n\n");
 #endif
     try
     {
         COUT("Defining a log attributes: ");
         SysLogEngine logger1("syslog_test", LOG_USER);
-        Logger sysLog(logger1);
+        const Logger sysLog(logger1);
 
         SysLogEngine logger2("syslog_test", LOG_AUTH);
-        Logger authLog(logger2);
+        const Logger authLog(logger2);
 
         COUT("Sending 'Hello, World!' to the log..");
         sysLog.info("Hello, World! Welcome to SPTK.");

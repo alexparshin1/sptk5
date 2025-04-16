@@ -35,7 +35,7 @@ constexpr int httpNotFoundErrorCode = 404;
 constexpr int httpInvalidContentErrorCode = 406;
 
 BaseWebServiceProtocol::BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers,
-                                               sptk::WSServices& services, const URL& url)
+                                               WSServices& services, const URL& url)
     : WSProtocol(socket, headers)
     , m_services(services)
     , m_url(url)

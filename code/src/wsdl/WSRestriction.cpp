@@ -34,7 +34,7 @@ using namespace sptk;
 WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(std::move(typeName))
 {
-    for (auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
+    for (const auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
          const auto& enumerationNode: enumerationNodes)
     {
         if (enumerationNode != nullptr)
@@ -49,8 +49,8 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
     else
     {
-        auto patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
-        for (const auto& patternNode: patternNodes)
+        for (auto patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
+             const auto& patternNode: patternNodes)
         {
             const String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
             if (!pattern.empty())
@@ -62,7 +62,7 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
 }
 
-WSRestriction::WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns)
+WSRestriction::WSRestriction(const Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns)
     : m_type(type)
     , m_wsdlTypeName(std::move(wsdlTypeName))
 {
@@ -112,7 +112,7 @@ void WSRestriction::check(const String& typeName, const String& value) const
     throw Exception("The value '" + value + "' is invalid for restriction on element " + typeName);
 }
 
-String sptk::WSRestriction::generateConstructor(const String& variableName) const
+String WSRestriction::generateConstructor(const String& variableName) const
 {
     stringstream str;
     Strings patterns;

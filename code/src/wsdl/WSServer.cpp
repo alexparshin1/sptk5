@@ -75,7 +75,7 @@ UServerConnection WSServer::createConnection(ServerConnection::Type connectionTy
 {
     m_options.encrypted = connectionType == ServerConnection::Type::SSL;
 
-    auto assignedThread = WSServerThreads::nextThread();
+    auto assignedThread = nextThread();
 
     const auto connection = make_shared<WSSSLConnection>(*this, connectionSocket, peer, m_services,
                                                          m_logger.destination(), m_options, assignedThread);

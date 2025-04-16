@@ -34,6 +34,7 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
 void help()
 {
     COUT("WSDL to C++ prototype parser. (C) 2012-2023 Alexey Parshin\n\n");
@@ -44,6 +45,7 @@ void help()
     COUT("WSDL file         WSDL file that defines Web Service\n");
     COUT("output directory  Directory where generated files will be stored\n");
     COUT("header file       File that contains text too be added at the start of generated files\n");
+}
 }
 
 #ifdef _WIN32
@@ -63,40 +65,41 @@ public:
 
         defineParameter("cxx-directory", "d", "directory",
                         ".*",
-                        CommandLine::Visibility(""), "Service",
+                        Visibility(""), "Service",
                         "Directory where C++ files are generated");
 
         defineParameter("cxx-header", "h", "filename",
                         ".*",
-                        CommandLine::Visibility(""), "",
+                        Visibility(""), "",
                         "Header file the content of which is added to every generated C++ file");
 
         defineParameter("cxx-namespace", "n", "C++ namespace",
                         ".*",
-                        CommandLine::Visibility(""), "",
+                        Visibility(""), "",
                         "C++ namespace for generated C++ classes. The default is '<lc(service_name)>_service'");
 
         defineParameter("openapi-json", "j", "filename", ".*",
-                        CommandLine::Visibility(""), "",
+                        Visibility(""), "",
                         "Create openapi service description file. The default file name is the same as WSDL file, only with .json extension.");
 
         defineParameter("openapi-default-auth", "a", "auth method",
                         "^(none|basic|bearer)$",
-                        CommandLine::Visibility(""), "none",
+                        Visibility(""), "none",
                         "Default auth method for OpenAPI operations, one of {none, basic, bearer}");
 
         defineParameter("openapi-operation-auth", "o", "operation:auth list",
                         R"(([\w_]+:(none|basic|bearer),?)+$)",
-                        CommandLine::Visibility(""), "",
+                        Visibility(""), "",
                         "Comma-separated list of operation:auth_method for OpenAPI operations, like <operation>:{none, basic, bearer}. "
                         "Defined for operations that have auth method different from default.");
 
-        defineOption("help", "h", CommandLine::Visibility(""), "Block all messages but errors");
-        defineOption("quiet", "q", CommandLine::Visibility(""), "Block all messages but errors");
-        defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
+        defineOption("help", "h", Visibility(""), "Block all messages but errors");
+        defineOption("quiet", "q", Visibility(""), "Block all messages but errors");
+        defineOption("verbose", "v", Visibility(""), "Verbose messages");
     }
 };
 
+namespace {
 auto parseOperationsAuth(const String& operationsAuth)
 {
     map<String, OpenApiGenerator::AuthMethod> output;
@@ -115,6 +118,7 @@ auto parseOperationsAuth(const String& operationsAuth)
         output[parts[0]] = OpenApiGenerator::authMethod(parts[1]);
     }
     return output;
+}
 }
 
 namespace {

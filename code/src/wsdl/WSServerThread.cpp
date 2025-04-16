@@ -73,7 +73,7 @@ void WSServerThread::queue(const shared_ptr<WSConnection>& connection)
     m_connectionQueue.push_back(connection);
 }
 
-WSServerThreads::WSServerThreads(WSServer* server, size_t threadCount)
+WSServerThreads::WSServerThreads(WSServer* server, const size_t threadCount)
 {
     scoped_lock lock(m_mutex);
     m_threads.reserve(threadCount);
@@ -100,7 +100,7 @@ SWSServerThread WSServerThreads::nextThread()
 void WSServerThreads::terminate()
 {
     scoped_lock lock(m_mutex);
-    for (auto& thread: m_threads)
+    for (const auto& thread: m_threads)
     {
         thread->terminate();
     }

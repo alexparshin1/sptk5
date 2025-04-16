@@ -55,12 +55,12 @@ public:
     class ComplexTypeIndex
     {
     public:
-        void addType(const sptk::String& elementName, const SWSParserComplexType& complexType)
+        void addType(const String& elementName, const SWSParserComplexType& complexType)
         {
             m_complexTypes[elementName] = complexType;
         }
 
-        void add(const sptk::String& elementName, const SWSParserComplexType& complexType)
+        void add(const String& elementName, const SWSParserComplexType& complexType)
         {
             m_complexTypes[elementName] = complexType;
             m_elements[elementName] = complexType.get();
@@ -72,7 +72,7 @@ public:
             m_elements.clear();
         }
 
-        [[nodiscard]] const WSParserElement* element(const sptk::String& elementName, const sptk::String& context) const
+        [[nodiscard]] const WSParserElement* element(const String& elementName, const String& context) const
         {
             const auto itor = m_elements.find(elementName);
             if (itor == m_elements.end())
@@ -87,8 +87,8 @@ public:
             return m_elements;
         }
 
-        [[nodiscard]] SWSParserComplexType complexType(const sptk::String& elementName,
-                                                       const sptk::String& context) const
+        [[nodiscard]] SWSParserComplexType complexType(const String& elementName,
+                                                       const String& context) const
         {
             const auto itor = m_complexTypes.find(elementName);
             if (itor == m_complexTypes.end())

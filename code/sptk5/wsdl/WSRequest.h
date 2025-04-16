@@ -121,7 +121,7 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit WSRequest(String targetNamespace, sptk::LogEngine* logEngine = nullptr)
+    explicit WSRequest(String targetNamespace, LogEngine* logEngine = nullptr)
         : m_logEngine(logEngine)
         , m_targetNamespace(targetNamespace)
     {
@@ -179,14 +179,14 @@ public:
 
     static String tagName(const String& nodeName);
 
-    sptk::LogEngine* getLogEngine()
+    LogEngine* getLogEngine()
     {
         return m_logEngine;
     }
 
 protected:
-    using RequestMethod = std::function<void(const sptk::xdoc::SNode&, const sptk::xdoc::SNode&,
-                                             sptk::HttpAuthentication*, const sptk::WSNameSpace&)>;
+    using RequestMethod = std::function<void(const xdoc::SNode&, const xdoc::SNode&,
+                                             HttpAuthentication*, const WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -211,7 +211,7 @@ protected:
      * @param errorCode        Optional HTTP error code, or 0
      */
     virtual void handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
-                             const sptk::String& error, int errorCode) const;
+                             const String& error, int errorCode) const;
 
     /**
      * Default error logging
@@ -221,7 +221,7 @@ protected:
      * @param error            Error description
      * @param errorCode        Optional HTTP error code, or 0
      */
-    virtual void logError(const sptk::String& requestName, const sptk::String& error, int errorCode) const;
+    virtual void logError(const String& requestName, const String& error, int errorCode) const;
 
     /**
      * Find SOAP body node
@@ -230,11 +230,11 @@ protected:
      */
     xdoc::SNode findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
 
-    void setRequestMethods(std::map<sptk::String, RequestMethod>&& requestMethods);
+    void setRequestMethods(std::map<String, RequestMethod>&& requestMethods);
 
 private:
     LogEngine*                            m_logEngine;       ///< Optional logger, or nullptr
-    std::map<sptk::String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
+    std::map<String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
     String                                m_targetNamespace; ///< SOAP service target namespace
 };
 

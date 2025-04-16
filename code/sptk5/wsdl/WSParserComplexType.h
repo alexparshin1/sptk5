@@ -208,8 +208,8 @@ protected:
      * Generate C++ class declaration
      * @param classDeclaration std::ostream&, Output header file stream
      */
-    void generateDefinition(std::ostream& classDeclaration, sptk::Strings& fieldNames,
-                            sptk::Strings& elementNames, sptk::Strings& attributeNames,
+    void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames,
+                            Strings& elementNames, Strings& attributeNames,
                             const String& serviceNamespace) const;
 
     /**

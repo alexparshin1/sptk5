@@ -34,12 +34,12 @@ using namespace sptk;
 
 SynchronizedQueue<int> intQueue;
 
-class CMyTask
+class CMyTask final
     : public Runable
 {
     Logger m_log; /// Task proxy log
 
-    static uint32_t taskCount;
+    static uint32_t m_taskCount;
 
 public:
     // Constructor
@@ -49,13 +49,13 @@ public:
     void run() override;
 };
 
-uint32_t CMyTask::taskCount {1};
+uint32_t CMyTask::m_taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-    : Runable("Task " + int2string(taskCount))
+    : Runable("Task " + int2string(m_taskCount))
     , m_log(sharedLog)
 {
-    taskCount++;
+    m_taskCount++;
 }
 
 // The task function. Prints a message once a second till terminated
@@ -64,9 +64,8 @@ void CMyTask::run()
     m_log.info(name() + " started");
 
     while (!terminated())
-    {
-        int item;
-        if (intQueue.pop_front(item, chrono::milliseconds(100)))
+    {        
+        if (int item; intQueue.pop_front(item, chrono::milliseconds(100)))
         {
             m_log.info("Output " + to_string(item) + " from " + name());
         }
