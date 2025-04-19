@@ -591,6 +591,8 @@ void throwSocketError(const String& message, const std::source_location& locatio
 #endif
     switch (error)
     {
+        case ENOTCONN:
+            throw ConnectionException(message + ": Connection is not open", location);
         case EPIPE:
         case EBADF:
             throw ConnectionException(message + ": Connection is closed", location);
