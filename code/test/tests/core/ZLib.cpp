@@ -35,7 +35,7 @@
 using namespace std;
 using namespace sptk;
 
-static const String originalTestString = 
+static const String originalTestString =
     "This is a test of compression using GZip algorithm. "
     "This is a test of compression using GZip algorithm. "
     "This is a test of compression using GZip algorithm. ";
@@ -57,11 +57,11 @@ TEST(SPTK_ZLib, performance)
     Buffer compressed;
     Buffer decompressed;
 
-    // Using own executable file for the test.
 #ifdef _WIN32
+    // Using the own executable file for the test.
     const filesystem::path testFile {"C:/Program Files/SPTK/bin/sptk_unit_tests.exe"};
 #else
-    const filesystem::path testFile {"/usr/local/bin/sptk_unit_tests"};
+    const filesystem::path testFile {"/usr/bin/tar"};
 #endif
     if (!filesystem::exists(testFile))
     {
