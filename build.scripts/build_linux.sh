@@ -6,7 +6,8 @@ if [ "$1" = "--no-tests" ]; then
 fi
 
 SPTK_VERSION=5.6.4
-XMQ_VERSION=0.9.9
+XMQ_VERSION=0.9.11
+
 SPTK_DIR=SPTK-$SPTK_VERSION
 XMQ_DIR=XMQ-$XMQ_VERSION
 
@@ -26,13 +27,16 @@ rsync -av git/xmq/ $XMQ_DIR > /dev/null
 
 rm -f logs/*.log
 
-#for dname in /home/alexeyp/Docker/Dockerfile.*
-for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-numbat
-#for dname in /home/alexeyp/Docker/Dockerfile.fedora39
+for dname in /home/alexeyp/Docker/Dockerfile.*
+#for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-oriole
+#for dname in /home/alexeyp/Docker/Dockerfile.oraclelinux-9.5
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
-    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ
+    echo "$(date +%H:%M:%S) Building $name"
+    docker run --rm -v /build:/build -it builder-$name /build/scripts/build-package-cmake.sh $TESTS SPTK XMQ > logs/build-$name.log
 done
+
+echo "$(date +%H:%M:%S) Building complete"
 
 rsync -qav /build/output/$SPTK_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
 rsync -qav /build/output/$XMQ_DIR/* /var/www/html/sptk/download/$SPTK_DIR/
