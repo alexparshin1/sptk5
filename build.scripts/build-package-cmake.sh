@@ -2,6 +2,7 @@
 
 export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 export PATH=/usr/local/bin:$PATH
+export CMAKE_COLOR_DIAGNOSTICS=OFF
 
 rsync -avz /build/etc/xmq /etc/
 
@@ -49,7 +50,7 @@ case $OS_NAME in
 
     ol)
         OS_TYPE="$PLATFORM"
-        DOWNLOAD_DIRNAME="oraclelinux9"
+        DOWNLOAD_DIRNAME="oraclelinux-9.5"
         ;;
 
     fedora)
@@ -109,6 +110,15 @@ sh ./distclean.sh
 echo ──────────────────────────────────────────────────────────────────
 
 if [ $RUN_TESTS = "true" ]; then
+
+    echo "┌──────────────────────────────────────────────────────────────────────────────┐"
+    echo "│   Unit tests suite is starting.                                              │"
+    echo "│                                                                              │"
+    echo "│   Please note that log [ERROR] messages are expected in many unit tests.     │"
+    echo "│   If a unit tests fails then GTEST indicates it with [FAIL] message.         │"
+    echo "└──────────────────────────────────────────────────────────────────────────────┘"
+    echo
+
     export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64:/opt/oracle/instantclient_18_3:${LD_LIBRARY_PATH}
     grep "10.1.1.242" /etc/hosts
     if [ $? == 1 ]; then
@@ -128,7 +138,7 @@ fi
 
 cd $CWD
 sh ./distclean.sh
-chown -R alexeyp *
+chown -R alexeyp SPTK* XMQ*
 
 done
 

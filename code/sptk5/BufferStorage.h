@@ -48,12 +48,11 @@ namespace sptk {
 class SP_EXPORT BufferStorage
 {
 public:
-    static constexpr size_t MAX_SIZE_T = size_t(-1);
+    static constexpr size_t MAX_SIZE_T = static_cast<size_t>(-1);
 
     /**
      * Default constructor
-     *"
-     * "|?:}.l,mn ytr
+     *
      * Creates an empty buffer.
      */
     BufferStorage()
@@ -79,7 +78,7 @@ public:
 
     /**
      * Copy constructor
-     * @param bufferStorage     Other object
+     * @param bufferStorage     The other object
      */
     BufferStorage(const BufferStorage& bufferStorage)
         : m_size(bufferStorage.m_size)
@@ -93,7 +92,7 @@ public:
 
     /**
      * Move constructor
-     * @param bufferStorage     Other object
+     * @param bufferStorage     The other object
      */
     BufferStorage(BufferStorage&& bufferStorage) noexcept
         : m_buffer(bufferStorage.m_buffer)
@@ -115,7 +114,7 @@ public:
 
     /**
      * @brief Copy assignment
-     * @param other            Other object
+     * @param other            The other object
      * @return
      */
     BufferStorage& operator=(const BufferStorage& other)
@@ -131,7 +130,7 @@ public:
 
     /**
      * @brief Move assignment
-     * @param other            Other object
+     * @param bufferStorage     The other object
      * @return
      */
     BufferStorage& operator=(BufferStorage&& bufferStorage) noexcept
@@ -165,7 +164,7 @@ public:
     }
 
     /**
-     * Returns pointer on the data buffer.
+     * Returns the pointer to the data buffer.
      */
     [[nodiscard]] uint8_t* data()
     {
@@ -173,7 +172,7 @@ public:
     }
 
     /**
-     * Returns pointer on the data buffer.
+     * Returns the pointer to the data buffer.
      */
     [[nodiscard]] const uint8_t* data() const
     {
@@ -189,7 +188,7 @@ public:
     }
 
     /**
-     * Returns true if number of bytes in buffer is zero.
+     * Returns true if the number of bytes in the buffer is zero.
      */
     [[nodiscard]] virtual bool empty() const
     {
@@ -308,7 +307,7 @@ public:
     virtual void append(char chr);
 
     /**
-     * Appends the external data of size size to the current buffer.
+     * Appends the external data of the size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
@@ -317,7 +316,7 @@ public:
     virtual void append(const char* data, size_t size);
 
     /**
-     * Appends the external data of size size to the current buffer.
+     * Appends the external data of the size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
@@ -326,7 +325,7 @@ public:
     virtual void append(const uint8_t* data, size_t size);
 
     /**
-     * Truncates the current buffer to the size size.
+     * Truncates the current buffer to the size.
      *
      * Deallocates unused memory if needed.
      * @param size                Required data size in bytes
@@ -334,14 +333,14 @@ public:
     void reset(size_t size = 0);
 
     /**
-     * Fills the bytes() characters in buffer with character chr.
-     * @param chr                The character to fill the buffer
-     * @param count             How many characters are to be filled. If counter is greater than capacity, then buffer is extended.
+     * Fills the bytes() characters in the buffer with character chr.
+     * @param chr               The character to fill the buffer
+     * @param count             Number of characters to fill. If the counter is greater than capacity, then the buffer is extended.
      */
     void fill(char chr, size_t count);
 
     /**
-     * Remove fragment from buffer's content
+     * Remove fragment from the buffer's content
      * @param offset            Fragment start offset
      * @param length            Fragment length
      */
@@ -356,7 +355,8 @@ protected:
 
     /**
      * Allocate memory
-     * @param size              Number of bytes for new buffer
+     * @param data              Data to copy in
+     * @param size              Number of bytes for the new buffer
      */
     void allocate(const uint8_t* data, size_t size)
     {
@@ -374,7 +374,7 @@ protected:
 
     /**
      * Reallocate memory
-     * @param size              Number of bytes for new buffer
+     * @param size              Number of bytes for the new buffer
      */
     void reallocate(size_t size);
 
@@ -387,11 +387,11 @@ protected:
 private:
     uint8_t* m_buffer {nullptr}; ///< Actual storage
     size_t   m_allocated {0};    ///< Alocated size
-    size_t   m_size {0};         ///< Actual size of the data in buffer
+    size_t   m_size {0};         ///< Actual size of the data in the buffer
 
 
     /**
-     * Copies the external data of size size into the current buffer.
+     * Copies the external data of the size into the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer

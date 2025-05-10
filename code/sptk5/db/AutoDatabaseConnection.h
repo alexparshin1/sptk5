@@ -40,7 +40,7 @@ class DatabaseConnectionPool;
 /**
  * Wrapper for CDatabase connection that automatically handles connection create and release
  */
-class AutoDatabaseConnection
+class SP_EXPORT AutoDatabaseConnection
 {
     /**
      * Database connection pool
