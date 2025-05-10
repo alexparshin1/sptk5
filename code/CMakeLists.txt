@@ -153,7 +153,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O1 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O1 -msse4.2)
 
         # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)
@@ -163,7 +163,7 @@ ELSE ()
         #ADD_DEFINITIONS(-fsanitize=thread)
         #LINK_LIBRARIES(tsan)
     ELSE ()
-        ADD_DEFINITIONS(-O3 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O3 -msse4.2)
     ENDIF ()
 
     IF (UNIX)
