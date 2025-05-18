@@ -71,8 +71,8 @@ TEST(SPTK_Brotli, performance)
     Buffer compressed;
     Buffer decompressed;
 
-    // Using own executable file for the test.
-    const filesystem::path testFile {"/usr/local/bin/sptk_unit_tests"};
+    // Using the CMake executable file for the test.
+    const filesystem::path testFile {"/usr/bin/cmake"};
     if (!filesystem::exists(testFile))
     {
         GTEST_SKIP() << "Test file not found: " << testFile;
@@ -80,7 +80,7 @@ TEST(SPTK_Brotli, performance)
     constexpr auto testDataSize = 1024 * 1024;
     data.loadFromFile(testFile);
     data.bytes(testDataSize);
-    
+
     StopWatch stopWatch;
     stopWatch.start();
     Brotli::compress(compressed, data);
