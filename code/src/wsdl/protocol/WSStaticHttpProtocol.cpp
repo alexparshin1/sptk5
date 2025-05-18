@@ -56,7 +56,15 @@ RequestInfo WSStaticHttpProtocol::process()
     }
     try
     {
-        requestInfo.response.content().loadFromFile(fullPath.c_str());
+        filesystem::path filePath(fullPath.c_str());
+        if (!exists(filePath))
+        {
+            // If the file not found, redirect to index.html.
+            filePath = m_staticFilesDirectory + "index.html";
+        }
+
+        requestInfo.response.content().loadFromFile(filePath);
+
         const Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
         String contentType = "text/html";
