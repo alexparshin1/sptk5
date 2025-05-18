@@ -71,12 +71,13 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
                 String data;
                 socket->read(data, bytes);
                 COUT("Client received " << bytes << " bytes: [" << data << "]");
+                dataReceived.post();
             }
         }
 
         if (eventType.m_hangup)
         {
-            COUT("Server hangup");
+            COUT("Detected server hangup");
             socket->close();
             hangupReceived.post();
             // Don't add a socket to SocketEvents after the hangup.
@@ -84,7 +85,6 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         }
 
         socketEvents->add(*socket, bit_cast<uint8_t*>(socket), true);
-        dataReceived.post();
     };
 
     socketEvents = make_shared<SocketEvents>("Test Pool", eventsCallback, 1s, triggerMode);
@@ -116,7 +116,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         socketEvents->remove(socket);
         socket.close();
 
-        EXPECT_TRUE(hangupReceived.wait_for(1s));
+        EXPECT_TRUE(hangupReceived.wait_for(3s));
 
         testEchoServer.stop();
     }

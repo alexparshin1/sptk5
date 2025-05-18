@@ -31,8 +31,10 @@ void TestEchoServer::echoFunction(ServerConnection& serverConnection)
                 echoSocket->read(message, bytes);
                 echoSocket->write(message);
                 COUT("Echo: [" << message << "]");
-                if (message.endsWith("<EOF>"))
+                if (message.contains("<EOF>"))
                 {
+                    echoSocket->close();
+                    COUT("Test server hangup");
                     break;
                 }
             }
