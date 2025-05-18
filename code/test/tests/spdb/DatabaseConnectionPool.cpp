@@ -50,7 +50,7 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     try
     {
         const DatabaseConnectionPool connectionPool("mysql://server1/db1");
-        COUT(connectionPool.toString());
+        COUT(connectionPool.toString(false));
     }
     catch (const Exception& e)
     {
@@ -75,7 +75,7 @@ void testConnect(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 
     const auto invalidConnectionStringStr = DatabaseConnectionString(dbName.toLowerCase() + "://localhost:1234/xyz");
@@ -97,7 +97,7 @@ void testDDL(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -111,7 +111,7 @@ void testInvalidQuery(const String& dbName)
         FAIL() << dbName << " connection is not defined";
     }
 
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
     verifyInvalidTableQueryThrows(databaseConnection);
@@ -145,7 +145,7 @@ void testInsertQuery(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -162,7 +162,7 @@ void testBlobInsertAndSelect(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -181,7 +181,7 @@ void testBulkInsert(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -200,7 +200,7 @@ void testBulkInsertPerformance(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -218,7 +218,7 @@ void testQueryParameters(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -237,7 +237,7 @@ void testQueryDateAndTimestamp(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -255,7 +255,7 @@ void testTransaction(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
@@ -273,7 +273,7 @@ void testSelect(const String& dbName)
     }
     catch (const Exception& e)
     {
-        FAIL() << connectionString.toString() << ": " << e.what();
+        FAIL() << connectionString.toString(false) << ": " << e.what();
     }
 }
 
