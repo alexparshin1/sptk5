@@ -42,7 +42,7 @@ namespace sptk {
  */
 class SP_EXPORT Tar
 {
-    using FileCollection = std::map<String, SArchiveFile>;
+    using FileCollection = std::map<std::filesystem::path, SArchiveFile>;
 
 public:
     /**
@@ -60,7 +60,7 @@ public:
      * Constructor
      * @param tarData           Tar file name
      */
-    explicit Tar(const String& tarFileName);
+    explicit Tar(const std::filesystem::path& tarFileName);
 
     /**
      * Reads tar archive from file
@@ -68,18 +68,7 @@ public:
      * The archive content is red into the internal set of buffers
      * @param fileName          File name to open
      */
-    void read(const String& fileName)
-    {
-        read(fileName.c_str());
-    }
-
-    /**
-     * Reads tar archive from file
-     *
-     * The archive content is red into the internal set of buffers
-     * @param fileName          File name to open
-     */
-    void read(const char* fileName);
+    void read(const std::filesystem::path& fileName);
 
     /**
      * Reads tar archive from buffer
@@ -92,9 +81,9 @@ public:
     /**
      * returns a list of files in tar archive
      */
-    [[maybe_unused]] Strings fileList() const
+    [[maybe_unused]] std::vector<std::filesystem::path> fileList() const
     {
-        Strings fileNames;
+        std::vector<std::filesystem::path> fileNames;
         for (const auto& [fileName, data]: m_files)
         {
             fileNames.push_back(fileName);
@@ -107,13 +96,13 @@ public:
      * @param fileName          File name
      * @return file data
      */
-    const ArchiveFile& file(const String& fileName) const;
+    const ArchiveFile& file(const std::filesystem::path& fileName) const;
 
     /**
      * Remove file data
      * @param fileName          Archive file
      */
-    void remove(const String& filename);
+    void remove(const std::filesystem::path& filename);
 
     /**
      * Add file data
@@ -125,7 +114,7 @@ public:
      * Save tar archive to file
      * @param tarFileName          Tar file name
      */
-    void save(const String& tarFileName) const;
+    void save(const std::filesystem::path& tarFileName) const;
 
     /**
      * Clears the allocated memory
@@ -133,8 +122,8 @@ public:
     void clear();
 
 private:
-    FileCollection m_files; ///< File name to the file data map
-    String m_fileName;      ///< Tar file name
+    FileCollection m_files;    ///< File name to the file data map
+    String         m_fileName; ///< Tar file name
 
     [[nodiscard]] bool readNextFile(const Buffer& buffer, size_t& offset);
 };

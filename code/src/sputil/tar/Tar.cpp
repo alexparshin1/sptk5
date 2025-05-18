@@ -35,7 +35,7 @@ Tar::Tar(const Buffer& tarData)
     read(tarData);
 }
 
-Tar::Tar(const String& fileName)
+Tar::Tar(const std::filesystem::path& fileName)
 {
     read(fileName);
 }
@@ -46,12 +46,12 @@ void Tar::clear()
     m_files.clear();
 }
 
-const ArchiveFile& Tar::file(const String& fileName) const
+const ArchiveFile& Tar::file(const std::filesystem::path& fileName) const
 {
     const auto itor = m_files.find(fileName);
     if (itor == m_files.end())
     {
-        throw Exception("File '" + fileName + "' isn't found");
+        throw Exception("File '" + fileName.string() + "' isn't found");
     }
     return *itor->second;
 }
@@ -62,7 +62,7 @@ void Tar::append(const SArchiveFile& file)
     m_files[file->fileName()] = file;
 }
 
-void Tar::remove(const String& fileName)
+void Tar::remove(const std::filesystem::path& fileName)
 {
     // Note: Existing file is replaced, unlike regular tar
     m_files.erase(fileName);
@@ -100,10 +100,9 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     const auto* header = (const TarHeader*) (buffer.data() + offset);
     if (header->magic[0] == 0)
     {
-        // empty block at the end of file
+        // empty block at the end of the file
         return false;
     }
-
 
     if (constexpr int magicLength = 5;
         memcmp(header->magic.data(), "ustar", magicLength) != 0)
@@ -120,18 +119,18 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         contentLength = readOctalNumber(header->size, "size");
     }
 
-    auto mode = static_cast<int>(readOctalNumber(header->mode, "mode"));
+    auto       mode = static_cast<int>(readOctalNumber(header->mode, "mode"));
     const auto uid = static_cast<int>(readOctalNumber(header->uid, "uid"));
     const auto gid = static_cast<int>(readOctalNumber(header->gid, "gid"));
 
     const time_t mtime = readOctalNumber(header->mtime, "mtime");
-    auto dateTime = DateTime::convertCTime(mtime);
+    auto         dateTime = DateTime::convertCTime(mtime);
 
     const Buffer content(buffer.data() + offset, contentLength);
 
     const std::filesystem::path fname(header->filename.data());
-    const String uname(header->uname.data());
-    const String gname(header->gname.data());
+    const String                uname(header->uname.data());
+    const String                gname(header->gname.data());
     const std::filesystem::path linkName(header->linkName.data());
 
     size_t blockCount = contentLength / TAR_BLOCK_SIZE;
@@ -141,7 +140,7 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     }
 
     const ArchiveFile::Ownership ownership {uid, gid, uname, gname};
-    const auto file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
+    const auto                   file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
 
     m_files[fname.string()] = file;
 
@@ -150,14 +149,14 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
     return true;
 }
 
-void Tar::read(const char* tarFileName)
+void Tar::read(const std::filesystem::path& tarFileName)
 {
     Buffer tarData;
     tarData.loadFromFile(tarFileName);
     read(tarData);
 }
 
-void Tar::save(const String& tarFileName) const
+void Tar::save(const std::filesystem::path& tarFileName) const
 {
     ofstream archive(tarFileName);
     for (const auto& [fileName, archiveFile]: m_files)

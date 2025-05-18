@@ -36,7 +36,7 @@ CTabImage::CTabImage(const Tar& tar, const xdoc::SNode& tabImageNode)
 {
     m_name = (String) tabImageNode->attributes().get("name");
     String fileName = (String) tabImageNode->attributes().get("image");
-    m_image = new CPngImage(tar.file(fileName));
+    m_image = new CPngImage(tar.file(fileName.c_str()));
     m_leftFrameWidth = tabImageNode->attributes().get("left_frame", "0").toInt();
     m_rightFrameWidth = tabImageNode->attributes().get("right_frame", "0").toInt();
     m_topFrameHeight = tabImageNode->attributes().get("top_frame", "0").toInt();
@@ -109,7 +109,7 @@ void CTabImages::load(const Tar& tar, const xdoc::SNode& tabImagesNode)
 
 void CTabImages::clear()
 {
-    for (auto itor: *this)
+    for (const auto& itor: *this)
     {
         delete itor.second;
     }

@@ -81,7 +81,7 @@ void CFrames::load(Tar& tar, const xdoc::SNode& framesNode)
         {
             drawMode = CPngImage::CPatternDrawMode::PDM_TILE;
         }
-        const Buffer& imageData = tar.file(fileName);
+        const Buffer& imageData = tar.file(fileName.c_str());
         registerFrame(frameName, new CFrame(imageData, frameWidth, cornerZone, drawMode, kind), frameType);
     }
 }

@@ -36,31 +36,23 @@ using namespace sptk;
 #ifndef _WIN32
 
 namespace {
+const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
+const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
 
-    const String file1_md5 {"2934e1a7ae11b11b88c9b0e520efd978"};
-    const String file2_md5 {"adb45e22bba7108bb4ad1b772ecf6b40"};
+const filesystem::path tempDirectory("/tmp");
 
-#ifdef _WIN32
-    const String tempDirectory("/Windows/temp/");
-#else
-    const String tempDirectory("/tmp/");
-#endif
+const filesystem::path testTar1 = tempDirectory / "gtest_temp1.tar";
+const filesystem::path testTar2 = tempDirectory / "gtest_temp2.tar";
 
-    const String testTar1 {tempDirectory + "gtest_temp1.tar"};
-    const String testTar2 {tempDirectory + "gtest_temp2.tar"};
+const filesystem::path gtestTempDirectory = tempDirectory / "gtest_temp_directory3";
+} // namespace
 
-    const String gtestTempDirectory {tempDirectory + "gtest_temp_directory3"};
-
-}
-
-class SPTK_Tar
-    : public ::testing::Test
+class SPTK_Tar : public ::testing::Test
 {
 protected:
     void SetUp() override
     {
-
-        filesystem::create_directories(gtestTempDirectory.c_str());
+        filesystem::create_directories(gtestTempDirectory);
 
         constexpr int TestFileBytes = 1000;
 
@@ -69,23 +61,23 @@ protected:
         {
             file1.append((const char*) &i, sizeof(i));
         }
-        file1.saveToFile(gtestTempDirectory + "/file1.txt");
+        file1.saveToFile(gtestTempDirectory / "file1.txt");
 
         Buffer file2;
         for (int i = 0; i < TestFileBytes; ++i)
         {
             file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
         }
-        file2.saveToFile(gtestTempDirectory + "/file2.txt");
+        file2.saveToFile(gtestTempDirectory / "file2.txt");
 
-        ASSERT_EQ(0, system(("tar cf " + testTar1 + " " + gtestTempDirectory).c_str()));
+        ASSERT_EQ(0, system(("tar cf " + testTar1.string() + " " + gtestTempDirectory.string()).c_str()));
     }
 
     void TearDown() override
     {
-        filesystem::remove_all(gtestTempDirectory.c_str());
-        filesystem::remove(testTar1.c_str());
-        filesystem::remove(testTar2.c_str());
+        filesystem::remove_all(gtestTempDirectory);
+        filesystem::remove(testTar1);
+        filesystem::remove(testTar2);
         filesystem::remove("test.lst");
     }
 };
@@ -108,8 +100,10 @@ TEST_F(SPTK_Tar, read) /* NOLINT */
 
     EXPECT_NO_THROW(tar.read(testTar1));
 
-    const auto& outfile1 = tar.file(gtestTempDirectory + "/file1.txt");
-    const auto& outfile2 = tar.file(gtestTempDirectory + "/file2.txt");
+    filesystem::path relativeDirectory(gtestTempDirectory.string().substr(1).c_str());
+
+    const auto& outfile1 = tar.file(relativeDirectory / "file1.txt");
+    const auto& outfile2 = tar.file(relativeDirectory / "file2.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 }
@@ -121,7 +115,7 @@ TEST_F(SPTK_Tar, write) /* NOLINT */
     EXPECT_NO_THROW(tar.read(testTar1));
     EXPECT_NO_THROW(tar.save(testTar2));
 
-    ASSERT_EQ(0, system(("tar tf " + testTar1 + " > test.lst").c_str()));
+    ASSERT_EQ(0, system(("tar tf " + testTar1.string() + " > test.lst").c_str()));
 }
 
 #endif

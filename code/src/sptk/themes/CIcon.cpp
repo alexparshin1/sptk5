@@ -56,7 +56,7 @@ void CIcon::load(const Buffer& imageData)
 
 void CIconMap::clear()
 {
-    for (auto itor: *this)
+    for (const auto& itor: *this)
     {
         CIcon* icon = itor.second;
         if (m_shared)
@@ -102,7 +102,7 @@ void CIconMap::load(Tar& tar, const xdoc::SNode& iconsNode)
         }
         try
         {
-            const Buffer& imageData = tar.file(fileName);
+            const Buffer& imageData = tar.file(fileName.c_str());
             CIcon*        icon;
             auto          ftor = find(iconName);
             if (ftor == end())
