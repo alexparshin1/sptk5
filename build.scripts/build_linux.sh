@@ -5,8 +5,13 @@ if [ "$1" = "--no-tests" ]; then
     TESTS=$1
 fi
 
-SPTK_VERSION=5.6.4
-XMQ_VERSION=0.9.11
+if [ -f XMQ_VERSION ]; then
+    XMQ_VERSION=$(cat XMQ_VERSION)
+    SPTK_VERSION=$(cat SPTK_VERSION)
+else
+    XMQ_VERSION=$(cat scripts/XMQ_VERSION)
+    SPTK_VERSION=$(cat scripts/SPTK_VERSION)
+fi
 
 SPTK_DIR=SPTK-$SPTK_VERSION
 XMQ_DIR=XMQ-$XMQ_VERSION
@@ -28,7 +33,7 @@ rsync -av git/xmq/ $XMQ_DIR > /dev/null
 rm -f logs/*.log
 
 for dname in /home/alexeyp/Docker/Dockerfile.*
-#for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-oriole
+#for dname in /home/alexeyp/Docker/Dockerfile.ubuntu-25.10
 #for dname in /home/alexeyp/Docker/Dockerfile.oraclelinux-9.5
 do
     name=$(echo $dname | sed -re 's/^.*Dockerfile.//')
