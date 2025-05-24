@@ -346,13 +346,13 @@ public:
      */
     void erase(size_t offset, size_t length);
 
-protected:
     /**
      * Resizes current buffer
      * @param size                Required memory size
      */
     void adjustSize(size_t size);
 
+protected:
     /**
      * Allocate memory
      * @param data              Data to copy in
