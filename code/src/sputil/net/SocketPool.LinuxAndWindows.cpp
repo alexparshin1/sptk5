@@ -118,7 +118,7 @@ void SocketPool::remove(Socket& socket) const
 
 bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
-    auto* events = (epoll_event*) m_eventsBuffer.data();
+    auto* events = reinterpret_cast<epoll_event*>(m_eventsBuffer.data());
 
     const int eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
     if (eventCount < 0)
@@ -128,14 +128,15 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 
     for (int i = 0; i < eventCount; ++i)
     {
-        auto&                 event = events[i];
+        auto& [event, data] = events[i];
+
         const SocketEventType eventType {
-            .m_data = (event.events & EPOLLIN) != 0,
-            .m_hangup = (event.events & (EPOLLHUP | EPOLLRDHUP)) != 0,
-            .m_error = (event.events & EPOLLERR) != 0,
+            .m_data = (event & EPOLLIN) != 0,
+            .m_hangup = (event & (EPOLLHUP | EPOLLRDHUP)) != 0,
+            .m_error = (event & EPOLLERR) != 0,
         };
 
-        m_eventsCallback((const uint8_t*) event.data.ptr, eventType);
+        m_eventsCallback(static_cast<const uint8_t*>(data.ptr), eventType);
     }
 
     return true;
