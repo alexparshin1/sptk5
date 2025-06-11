@@ -71,7 +71,7 @@ void DatabaseConnectionString::parse()
     m_parameters = url.params();
 }
 
-String DatabaseConnectionString::toString() const
+String DatabaseConnectionString::toString(bool includePassword) const
 {
     stringstream result;
 
@@ -79,7 +79,7 @@ String DatabaseConnectionString::toString() const
     if (!m_userName.empty())
     {
         result << m_userName;
-        if (!m_password.empty())
+        if (!m_password.empty() && includePassword)
         {
             result << ":" << m_password;
         }

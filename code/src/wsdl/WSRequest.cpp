@@ -62,17 +62,17 @@ void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlC
     catch (const SOAPException& e)
     {
         logError(requestName, e.what(), 0);
-        handleError(xmlContent, jsonContent, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.message(), 0);
     }
     catch (const HTTPException& e)
     {
         logError(requestName, e.what(), static_cast<int>(e.statusCode()));
-        handleError(xmlContent, jsonContent, e.what(), static_cast<int>(e.statusCode()));
+        handleError(xmlContent, jsonContent, e.message(), static_cast<int>(e.statusCode()));
     }
     catch (const Exception& e)
     {
         logError(requestName, e.what(), 0);
-        handleError(xmlContent, jsonContent, e.what(), 0);
+        handleError(xmlContent, jsonContent, e.message(), 0);
     }
 }
 

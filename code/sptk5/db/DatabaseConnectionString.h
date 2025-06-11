@@ -83,9 +83,11 @@ public:
     DatabaseConnectionString& operator=(const DatabaseConnectionString& cs) = default;
 
     /**
-     * Returns connection string
+     * @brief Return connection string as a string, with the optional password.
+     * @param includePassword   If true then the password is included.
+     * @return Connection string.
      */
-    [[nodiscard]] String toString() const;
+    [[nodiscard]] String toString(bool includePassword = true) const;
 
     /**
      * Returns driver name

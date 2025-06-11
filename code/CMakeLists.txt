@@ -100,7 +100,7 @@ IF (WIN32)
             -D_CRT_SECURE_NO_WARNINGS
             -DGTEST_LANG_CXX11=1
     )
-    ADD_COMPILE_OPTIONS(/wd4275 /std:c++20 /W4)
+    ADD_COMPILE_OPTIONS(/wd4275 /std:c++20 /W4 /arch:AVX2)
     LINK_LIBRARIES(wsock32 ole32 uuid comctl32 ws2_32 winhttp crypt32 secur32 shlwapi)
 ELSE ()
     IF (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -153,7 +153,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O1 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O1 -msse4.2)
 
         # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)
@@ -163,7 +163,7 @@ ELSE ()
         #ADD_DEFINITIONS(-fsanitize=thread)
         #LINK_LIBRARIES(tsan)
     ELSE ()
-        ADD_DEFINITIONS(-O3 -mtune=native -march=native)
+        ADD_DEFINITIONS(-O3 -msse4.2)
     ENDIF ()
 
     IF (UNIX)
