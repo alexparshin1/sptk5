@@ -25,8 +25,8 @@
 */
 
 #include <sptk5/OsProcess.h>
-#include <sys/wait.h>
 #ifndef _WIN32
+#include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
 #endif
@@ -34,10 +34,12 @@
 using namespace std;
 using namespace sptk;
 
+#ifndef _WIN32
 namespace {
 FILE* popen2(const string& command, const string& type, int& pid);
 int   pclose2(FILE* fp, pid_t pid);
 } // namespace
+#endif
 
 OsProcess::OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData)
     : m_command(std::move(command))
@@ -114,7 +116,7 @@ void OsProcess::start()
                    });
 }
 
-int OsProcess::waitForData(const chrono::milliseconds& timeout) const
+int OsProcess::waitForData(const chrono::milliseconds& timeout) 
 {
 #ifdef _WIN32
     chrono::milliseconds sleepTime = 10ms;
@@ -171,7 +173,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout) const
 #endif
 }
 
-void OsProcess::readData() const
+void OsProcess::readData() 
 {
     array<char, BufferSize> buffer {};
 
@@ -225,12 +227,17 @@ int OsProcess::wait_for(const chrono::milliseconds& timeout)
     return -1;
 }
 
-void OsProcess::kill(int signal)
+void OsProcess::kill()
 {
     lock_guard lock(m_mutex);
     m_terminated = true;
-#ifndef _WIN32
-    auto rc = ::kill(m_pid, signal);
+#ifdef _WIN32
+    if (!TerminateProcess(m_processInformation.hProcess, 0))
+    {
+        throw SystemException("Can't kill process");
+    }
+#else
+    auto rc = ::kill(m_pid, SIGKILL);
     if (rc != 0)
     {
         throw SystemException("Can't kill process");
@@ -246,23 +253,31 @@ int OsProcess::close()
     auto exitCode = 0;
 
 #ifdef _WIN32
+    WaitForSingleObject(m_processInformation.hProcess, 10000);
+
+    DWORD dwExitCode = 0;
+    GetExitCodeProcess(m_processInformation.hProcess, &dwExitCode);
+    exitCode = static_cast<int>(dwExitCode);
+
+    CloseHandle(m_processInformation.hProcess);
+    CloseHandle(m_processInformation.hThread);
+    m_processInformation.hProcess = nullptr;
+    m_processInformation.hThread = nullptr;
+
     if (m_stdout)
     {
         CloseHandle(m_stdout);
         CloseHandle(m_stdin);
-        m_stdin = nullptr;
-        m_stdout = nullptr;
     }
-    DWORD dwExitCode = 0;
-    GetExitCodeProcess(m_processInformation.hProcess, &dwExitCode);
-    exitCode = static_cast<int>(dwExitCode);
 #else
     if (m_stdout)
     {
         exitCode = pclose2(m_stdout, m_pid);
-        m_stdout = nullptr;
     }
 #endif
+    m_stdin = nullptr;
+    m_stdout = nullptr;
+
     return exitCode;
 }
 

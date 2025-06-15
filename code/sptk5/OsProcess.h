@@ -70,7 +70,10 @@ public:
      */
     int wait_for(const std::chrono::milliseconds& timeout);
 
-    void kill(int signal = SIGKILL);
+    /**
+     * @brief Kill process
+     */
+    void kill();
 
     int close();
 
@@ -93,8 +96,8 @@ private:
     static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
     PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
-    int  waitForData(const std::chrono::milliseconds& timeout) const; ///< Wait for process output
-    void readData() const;                                            ///< Read process output
+    int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output
+    void readData();                                            ///< Read process output
 };
 
 using SOsProcess = std::shared_ptr<OsProcess>;
