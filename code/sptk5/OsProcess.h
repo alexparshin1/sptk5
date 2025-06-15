@@ -45,7 +45,7 @@ public:
      * @param command           Command to execute
      * @param onData            Optional callback function called upon process output
      */
-    OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData = nullptr);
+    OsProcess(String command, std::function<void(const String&)> onData = nullptr);
 
     /**
      * @brief Destructor
@@ -70,6 +70,10 @@ public:
      */
     int wait_for(const std::chrono::milliseconds& timeout);
 
+    void kill(int signal = SIGKILL);
+
+    int close();
+
 private:
     static constexpr size_t BufferSize = 16384; ///< Read buffer size
 #ifdef _WIN32
@@ -78,19 +82,19 @@ private:
     using FileHandle = FILE*;
 #endif
     std::mutex                               m_mutex;              ///< Mutex that protects internal data
-    sptk::String                             m_command;            ///< Process command
+    String                                   m_command;            ///< Process command
     std::function<void(const sptk::String&)> m_onData;             ///< Optional callback function called on process output
     FileHandle                               m_stdout {};          ///< Process stdout
     std::future<int>                         m_task;               ///< Process execution task
     std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
+    int                                      m_pid {0};            ///< Process id
 #ifdef _WIN32
     FileHandle          m_stdin {};                       ///< Process stdin
     static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
     PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
-    int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output
-    void readData();                                            ///< Read process output
-    int  close();                                               ///< Close all handles
+    int  waitForData(const std::chrono::milliseconds& timeout) const; ///< Wait for process output
+    void readData() const;                                            ///< Read process output
 };
 
 using SOsProcess = std::shared_ptr<OsProcess>;

@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/OsProcess.h>
+#include <sys/wait.h>
 #ifndef _WIN32
 #include <sys/ioctl.h>
 #include <sys/poll.h>
@@ -32,6 +33,11 @@
 
 using namespace std;
 using namespace sptk;
+
+namespace {
+FILE* popen2(string command, string type, int& pid);
+int   pclose2(FILE* fp, pid_t pid);
+} // namespace
 
 OsProcess::OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData)
     : m_command(std::move(command))
@@ -95,7 +101,7 @@ void OsProcess::start()
         throw runtime_error("Can't start process");
     }
 #else
-    m_stdout = popen(m_command.c_str(), "r");
+    m_stdout = popen2(m_command.c_str(), "r", m_pid);
     if (m_stdout == nullptr)
     {
         throw runtime_error("Can't start process");
@@ -108,7 +114,7 @@ void OsProcess::start()
                    });
 }
 
-int OsProcess::waitForData(const chrono::milliseconds& timeout)
+int OsProcess::waitForData(const chrono::milliseconds& timeout) const
 {
 #ifdef _WIN32
     chrono::milliseconds sleepTime = 10ms;
@@ -143,8 +149,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
     auto             fd = fileno(m_stdout);
     fds[0].fd = fd;
     fds[0].events = POLLIN;
-    auto result = poll(fds.data(), 1, (int) timeout.count());
-    switch (result)
+    switch (poll(fds.data(), 1, static_cast<int>(timeout.count())))
     {
         case 0:
             return 0;
@@ -166,15 +171,15 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
 #endif
 }
 
-void OsProcess::readData()
+void OsProcess::readData() const
 {
     array<char, BufferSize> buffer {};
 
     while (!m_terminated
 #ifndef _WIN32
-        && !feof(m_stdout)
+           && !feof(m_stdout)
 #endif
-        )
+    )
     {
         auto bytesAvailable = waitForData(500ms);
         if (bytesAvailable == -1)
@@ -193,7 +198,7 @@ void OsProcess::readData()
             break;
         }
 #else
-        size_t readSize = (size_t) bytesAvailable > BufferSize ? BufferSize : bytesAvailable;
+        size_t readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
         if (fread(buffer.data(), readSize, 1, m_stdout) == 0)
         {
             break;
@@ -220,6 +225,19 @@ int OsProcess::wait_for(const chrono::milliseconds& timeout)
     return -1;
 }
 
+void OsProcess::kill(int signal)
+{
+    lock_guard lock(m_mutex);
+    m_terminated = true;
+#ifndef _WIN32
+    auto rc = ::kill(m_pid, signal);
+    if (rc != 0)
+    {
+        throw SystemException("Can't kill process");
+    }
+#endif
+}
+
 int OsProcess::close()
 {
     lock_guard lock(m_mutex);
@@ -241,7 +259,7 @@ int OsProcess::close()
 #else
     if (m_stdout)
     {
-        exitCode = pclose(m_stdout);
+        exitCode = pclose2(m_stdout, m_pid);
         m_stdout = nullptr;
     }
 #endif
@@ -268,3 +286,173 @@ String OsProcess::getErrorMessage(DWORD lastError)
     return message;
 }
 #endif
+
+namespace {
+
+#ifndef _WIN32
+
+/**
+ * @brief Get a copy of environment strings.
+ * @return Environment variables as vector of "VARNAME=VARVALUE".
+ */
+Strings getEnvironment()
+{
+    Strings env;
+    auto*   envData = popen("env", "r");
+    if (envData != nullptr)
+    {
+        array<char, 1024> buffer;
+        while (!feof(envData))
+        {
+            if (fgets(buffer.data(), buffer.size() - 1, envData))
+            {
+                String line(buffer.data());
+                env.push_back(line.trim());
+            }
+        }
+        pclose(envData);
+    }
+    return env;
+}
+
+/**
+ * @brief Parse the command to command and arguments.
+ * @remarks Enquoted arguments are returned as single strings.
+ * @param command               Command to execute.
+ * @return Command and arguments as a string vector.
+ */
+Strings commandToArguments(const String& command)
+{
+    Strings                        args;
+    static const RegularExpression matchArguments("(\"[^\"]+\"|\\S+)", "g");
+    auto                           matches = matchArguments.m(command);
+    for (const auto& match: matches.groups())
+    {
+        const auto& value = match.value;
+        if ((value.startsWith("\"") && value.endsWith("\"")) ||
+            (value.startsWith("'") && value.endsWith("'")))
+        {
+            args.push_back(value.substr(1, value.size() - 2));
+        }
+        else
+        {
+            args.push_back(value);
+        }
+    }
+    return args;
+}
+
+#define READ 0
+#define WRITE 1
+
+/**
+ * @brief Executes a command in a subprocess, connecting the process's input or output to a pipe.
+ * @param command               Command to execute.
+ * @param type                  "r" to read from the subprocess's output, "w" to write to the subprocess's input.
+ * @param pid                   Reference to an integer where the subprocess's PID will be stored.
+ * @return A file pointer connected to the subprocess's input or output, depending on the type parameter.
+ * @throws SystemException If pipe creation, process forking, or command execution fails.
+ */
+FILE* popen2(string command, string type, int& pid)
+{
+    pid_t child_pid {0};
+    int   fd[2] {};
+    if (pipe(fd) != 0)
+    {
+        throw SystemException("Can't create pipe");
+    }
+
+    if ((child_pid = fork()) == -1)
+    {
+        throw SystemException("Can't start the process");
+    }
+
+    if (child_pid == 0)
+    {
+        // child process
+        if (type == "r")
+        {
+            close(fd[READ]);    //Close the READ end of the pipe since the child's fd is write-only
+            dup2(fd[WRITE], 1); //Redirect stdout to pipe
+        }
+        else
+        {
+            close(fd[WRITE]);  //Close the WRITE end of the pipe since the child's fd is read-only
+            dup2(fd[READ], 0); //Redirect stdin to pipe
+        }
+
+        setpgid(child_pid, child_pid); //Needed so negative PIDs can kill children of /bin/sh
+        //execl("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+
+        auto argStrings = commandToArguments(command);
+        auto envStrings = getEnvironment();
+
+        vector<char*> args;
+        for (auto& arg: argStrings)
+        {
+            args.push_back(arg.data());
+        }
+        args.push_back(nullptr);
+
+        vector<char*> envs;
+        for (auto& env: envStrings)
+        {
+            envs.push_back(env.data());
+        }
+        envs.push_back(nullptr);
+
+        auto rc = execvpe(args[0], args.data(), (char* const*) envs.data());
+        if (rc != 0)
+        {
+            throw SystemException("Can't execute command");
+        }
+
+        //system(command.c_str());
+        exit(0);
+    }
+
+    // Parent process
+
+    if (type == "r")
+    {
+        close(fd[WRITE]); //Close the WRITE end of the pipe since parent's fd is read-only
+    }
+    else
+    {
+        close(fd[READ]); //Close the READ end of the pipe since parent's fd is write-only
+    }
+
+    pid = child_pid;
+
+    if (type == "r")
+    {
+        return fdopen(fd[READ], "r");
+    }
+
+    return fdopen(fd[WRITE], "w");
+}
+
+/**
+ * @brief Closes a file pointer associated with a subprocess and waits for the process to terminate.
+ * @param fp                    File pointer to the stream opened by `popen2`.
+ * @param pid                   Process ID of the subprocess to wait for.
+ * @return The termination status of the subprocess, or -1 if an error occurs.
+ */
+int pclose2(FILE* fp, pid_t pid)
+{
+    int stat;
+
+    fclose(fp);
+    while (waitpid(pid, &stat, 0) == -1)
+    {
+        if (errno != EINTR)
+        {
+            stat = -1;
+            break;
+        }
+    }
+
+    return stat;
+}
+#endif
+} // namespace

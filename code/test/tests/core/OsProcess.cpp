@@ -46,3 +46,22 @@ TEST(SPTK_OsProcess, Execute)
     auto result = osProcess.wait();
     COUT("result: " << result);
 }
+
+TEST(SPTK_OsProcess, Execute2)
+{
+#ifdef _WIN32
+    String command("cmd /?");
+#else
+    String command("xmq_server --console");
+#endif
+    OsProcess osProcess(command,
+                        [](const String& text)
+                        {
+                            cout << text << flush;
+                        });
+    osProcess.start();
+    this_thread::sleep_for(1s);
+    osProcess.kill();
+    auto result = osProcess.wait();
+    COUT("result: " << result);
+}
