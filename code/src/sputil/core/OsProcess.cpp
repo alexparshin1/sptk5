@@ -35,7 +35,7 @@ using namespace std;
 using namespace sptk;
 
 namespace {
-FILE* popen2(string command, string type, int& pid);
+FILE* popen2(const string& command, const string& type, int& pid);
 int   pclose2(FILE* fp, pid_t pid);
 } // namespace
 
@@ -90,7 +90,7 @@ void OsProcess::start()
                         m_command.data(),      // Command line
                         nullptr,               // Process handle not inheritable
                         nullptr,               // Thread handle not inheritable
-                        true,                  // Set handle inheritance
+                        true,                  // Set the handle inheritance
                         0,                     // No creation flags
                         nullptr,               // Use parent's environment block
                         nullptr,               // Use parent's starting directory
@@ -301,7 +301,7 @@ Strings getEnvironment()
     auto*   envData = popen("env", "r");
     if (envData != nullptr)
     {
-        array<char, 1024> buffer;
+        array<char, 1024> buffer {};
         while (!feof(envData))
         {
             if (fgets(buffer.data(), buffer.size() - 1, envData))
@@ -324,7 +324,7 @@ Strings getEnvironment()
 Strings commandToArguments(const String& command)
 {
     Strings                        args;
-    static const RegularExpression matchArguments("(\"[^\"]+\"|\\S+)", "g");
+    static const RegularExpression matchArguments(R"(("[^"]+"|\S+))", "g");
     auto                           matches = matchArguments.m(command);
     for (const auto& match: matches.groups())
     {
@@ -353,7 +353,7 @@ Strings commandToArguments(const String& command)
  * @return A file pointer connected to the subprocess's input or output, depending on the type parameter.
  * @throws SystemException If pipe creation, process forking, or command execution fails.
  */
-FILE* popen2(string command, string type, int& pid)
+FILE* popen2(const string& command, const string& type, int& pid)
 {
     pid_t child_pid {0};
     int   fd[2] {};
@@ -382,7 +382,6 @@ FILE* popen2(string command, string type, int& pid)
         }
 
         setpgid(child_pid, child_pid); //Needed so negative PIDs can kill children of /bin/sh
-        //execl("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
 
         auto argStrings = commandToArguments(command);
         auto envStrings = getEnvironment();
