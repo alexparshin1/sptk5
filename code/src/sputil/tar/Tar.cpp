@@ -59,7 +59,7 @@ const ArchiveFile& Tar::file(const std::filesystem::path& fileName) const
 void Tar::append(const SArchiveFile& file)
 {
     // Note: Existing file is replaced, unlike regular tar
-    m_files[file->fileName()] = file;
+    m_files[file->fileName().c_str()] = file;
 }
 
 void Tar::remove(const std::filesystem::path& fileName)
