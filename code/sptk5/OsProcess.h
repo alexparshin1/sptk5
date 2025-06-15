@@ -28,14 +28,12 @@
 
 #include <sptk5/cutils>
 
-#include <filesystem>
 #include <functional>
 #include <future>
-#include <vector>
 
 namespace sptk {
 /**
-	 * @brief Asynchronously execute OS process, optionally capturing its output to callback function
+	 * @brief Asynchronously execute the OS process, optionally capturing its output to callback function
 	 */
 class SP_EXPORT OsProcess
 {
@@ -45,7 +43,7 @@ public:
      * @param command           Command to execute
      * @param onData            Optional callback function called upon process output
      */
-    OsProcess(String command, std::function<void(const String&)> onData = nullptr);
+    explicit OsProcess(String command, std::function<void(const String&)> onData = nullptr);
 
     /**
      * @brief Destructor
@@ -58,13 +56,13 @@ public:
     void start();
 
     /**
-     * @brief Wait until process exits
+     * @brief Wait until the process exits
      * @return process exit code
      */
     int wait();
 
     /**
-     * @brief Wait until process exits
+     * @brief Wait until the process exits
      * @param timeout           Maximum time to wait for process exit
      * @return process exit code
      */

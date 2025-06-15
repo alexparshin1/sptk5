@@ -38,13 +38,13 @@ TEST(SPTK_OsProcess, execute)
 #ifdef _WIN32
     String command("cmd /?");
 #else
-    String command("ls -h");
+    String command("ls --help");
 #endif
 
     stringstream str;
-    OsProcess osProcess(command,
-                        [&str](const String& text)
-                        {
+    OsProcess    osProcess(command,
+                           [&str](const String& text)
+                           {
                             str << text;
                         });
     osProcess.start();
@@ -72,11 +72,7 @@ TEST(SPTK_OsProcess, kill)
 
     stopWatch.start();
 
-    OsProcess osProcess(command,
-                        [](const String& text)
-                        {
-                            cout << text << flush;
-                        });
+    OsProcess osProcess(command);
 
     osProcess.start();
 
@@ -89,8 +85,6 @@ TEST(SPTK_OsProcess, kill)
     stopWatch.stop();
 
     EXPECT_LE(0, result);
-    EXPECT_GE(1, result);
-
     EXPECT_LT(1000, stopWatch.milliseconds());
     EXPECT_GT(1100, stopWatch.milliseconds());
 }

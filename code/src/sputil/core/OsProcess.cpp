@@ -26,9 +26,9 @@
 
 #include <sptk5/OsProcess.h>
 #ifndef _WIN32
-#include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
+#include <sys/wait.h>
 #endif
 
 using namespace std;
@@ -116,7 +116,7 @@ void OsProcess::start()
                    });
 }
 
-int OsProcess::waitForData(const chrono::milliseconds& timeout) 
+int OsProcess::waitForData(const chrono::milliseconds& timeout)
 {
 #ifdef _WIN32
     chrono::milliseconds sleepTime = 10ms;
@@ -163,6 +163,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
             if (bytesAvailable == 0)
             {
                 // EOF
+                m_terminated = true;
                 return -1;
             }
 
@@ -173,7 +174,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
 #endif
 }
 
-void OsProcess::readData() 
+void OsProcess::readData()
 {
     array<char, BufferSize> buffer {};
 
@@ -269,13 +270,13 @@ int OsProcess::close()
         CloseHandle(m_stdout);
         CloseHandle(m_stdin);
     }
+    m_stdin = nullptr;
 #else
     if (m_stdout)
     {
         exitCode = pclose2(m_stdout, m_pid);
     }
 #endif
-    m_stdin = nullptr;
     m_stdout = nullptr;
 
     return exitCode;
