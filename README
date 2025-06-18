@@ -17,9 +17,6 @@ The new and old versions of SPTK can be downloaded from http://www.sptk.net.
 How to build SPTK
 ---------------------------------------------------------------------------
 
-ATTENTION: Sqlite version 3.3.8 doesn't work properly with SPTK.
-           You need version 3.3.7 or before.
-
 1. Windows and Cygwin.
 
 a) Install Gygwin. Make sure that gcc, autotools (automake and autoconf),
