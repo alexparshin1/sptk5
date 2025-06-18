@@ -55,7 +55,7 @@ class SP_EXPORT AutoDatabaseConnection
 public:
     /**
      * Constructor
-     * Automatically gets connection from connection pool
+     * Automatically gets connection from the connection pool
      * @param connectionPool    Database connection pool
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool);
@@ -92,7 +92,7 @@ public:
     }
 
     /**
-     * Closes the database connection. If unsuccessful throws an exception.
+     * Closes the database connection. If the connection was not successful, throws an exception.
      */
     void close() const
     {
@@ -100,7 +100,7 @@ public:
     }
 
     /**
-     * Returns true if database is opened
+     * Returns true if the database is opened
      */
     [[nodiscard]] bool active() const
     {
@@ -169,7 +169,7 @@ public:
     }
 
     /**
-     * @brief Executes bulk inserts of data from vector of rows.
+     * @brief Executes bulk inserts of data from the vector of rows.
      *
      * Data is inserted the fastest possible way.
      * @param tableName         Table name to insert into
@@ -208,7 +208,7 @@ public:
     /**
      * Executes SQL batch queries
      *
-     * Queries are executed in not prepared mode.
+     * The queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
      * @param batchSQL          SQL batch file
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
