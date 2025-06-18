@@ -188,6 +188,21 @@ public:
         m_exportable = flag;
     }
 
+    /**
+     * @brief Get the field pointer by the name.
+     * @param fieldName Field name.
+     * @return Field pointer.
+     */
+    [[nodiscard]] WSType* getField(const String& fieldName) const
+    {
+        auto* field = m_fields.find(fieldName);
+        if (field == nullptr)
+        {
+            throw Exception("Field '" + fieldName + "' not found");
+        }
+        return field;
+    }
+
 protected:
     /**
      * @return true if object is loaded
