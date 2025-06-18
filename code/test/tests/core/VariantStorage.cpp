@@ -80,8 +80,6 @@ TEST(SPTK_VariantStorage, integer)
     EXPECT_EQ(1, static_cast<int>(variantStorage1));
     EXPECT_FALSE(variantStorage1.isNull());
 
-    variantStorage1 = variantStorage1;
-
     variantStorage1 = testFloat;
     variantStorage1 = static_cast<int64_t>(2);
     EXPECT_TRUE(VariantDataType::VAR_INT64 == variantStorage1.type().type);
