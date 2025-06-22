@@ -27,6 +27,7 @@
 #pragma once
 
 #include "LogPriority.h"
+#include <functional>
 #include <sptk5/DateTime.h>
 #include <sptk5/sptk.h>
 
@@ -54,6 +55,8 @@ class LogEngine;
 class SP_EXPORT Logger
 {
 public:
+    using OutputString = std::function<std::string()>;
+
     /**
      * @brief Log message
      */
@@ -95,42 +98,49 @@ public:
      * @param message           Message text
      */
     void log(LogPriority priority, const String& message) const;
+    void log(LogPriority priority, const OutputString& output) const;
 
     /**
      * @brief Log message with debug priority
      * @param message           Message text
      */
     void debug(const String& message) const;
+    void debug(const OutputString& output) const;
 
     /**
-     * @brief Log message with info priority
-     * @param message           Message text
+     * @brief Log output with info priority
+     * @param output           Message text
      */
-    void info(const String& message) const;
+    void info(const String& output) const;
+    void info(const OutputString& message) const;
 
     /**
      * @brief Log message with notice priority
      * @param message           Message text
      */
     void notice(const String& message) const;
+    void notice(const OutputString& output) const;
 
     /**
      * @brief Log message with warning priority
      * @param message           Message text
      */
     void warning(const String& message) const;
+    void warning(const OutputString& output) const;
 
     /**
      * @brief Log message with error priority
      * @param message           Message text
      */
     void error(const String& message) const;
+    void error(const OutputString& output) const;
 
     /**
      * @brief Log message with critical priority
      * @param message           Message text
      */
     void critical(const String& message) const;
+    void critical(const OutputString& output) const;
 
     /**
      * @brief Set log message prefix

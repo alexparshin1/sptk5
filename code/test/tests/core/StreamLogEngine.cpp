@@ -38,11 +38,11 @@ stringstream testStream;
 void logMessages(LogEngine& logEngine)
 {
     const auto logger = make_shared<Logger>(logEngine, "(Test application) ");
-    logger->debug("Test started");
-    logger->critical("Critical message");
-    logger->error("Error message");
-    logger->warning("Warning message");
-    logger->info("Test completed");
+    logger->debug([]{ return "Test started"; });
+    logger->critical([] {return "Critical message"; });
+    logger->error([] { return "Error message";});
+    logger->warning([] {return "Warning message";});
+    logger->info([] {return "Test completed";});
 
     this_thread::sleep_for(100ms);
 }
@@ -70,7 +70,7 @@ TEST(SPTK_StreamLogEngine, testLogPriorities)
     testPriority(logEngine, LogPriority::Error, 2);
 }
 
-TEST(SPTK_StreamLogEngine, performance)
+TEST(SPTK_StreamLogEngine, string)
 {
     testStream.str("");
     StreamLogEngine logEngine(testStream);
@@ -82,6 +82,24 @@ TEST(SPTK_StreamLogEngine, performance)
     for (size_t i = 0; i < messageCount; i++)
     {
         logger.info("Test log message of some length");
+    }
+    stopWatch.stop();
+    COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
+                   << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
+}
+
+TEST(SPTK_StreamLogEngine, outputStream)
+{
+    testStream.str("");
+    StreamLogEngine logEngine(testStream);
+
+    Logger    logger(logEngine, "(Test application) ");
+    StopWatch stopWatch;
+    stopWatch.start();
+    constexpr size_t messageCount = 100000;
+    for (size_t i = 0; i < messageCount; i++)
+    {
+        logger.info([]{ return "Test log message of some length";});
     }
     stopWatch.stop();
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("

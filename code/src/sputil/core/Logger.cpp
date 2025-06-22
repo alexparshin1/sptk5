@@ -24,7 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Logger.h"
 #include <sptk5/LogEngine.h>
+
 
 using namespace std;
 using namespace sptk;
@@ -47,9 +49,21 @@ void Logger::log(LogPriority priority, const String& message) const
     m_destination.log(std::move(msg));
 }
 
+void Logger::log(LogPriority priority, const OutputString& output) const
+{
+    auto msg = make_unique<Message>(priority, m_prefix + output());
+    m_destination.log(std::move(msg));
+}
+
 void Logger::debug(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + message);
+    m_destination.log(std::move(msg));
+}
+
+void Logger::debug(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + output());
     m_destination.log(std::move(msg));
 }
 
@@ -59,9 +73,21 @@ void Logger::info(const String& message) const
     m_destination.log(std::move(msg));
 }
 
+void Logger::info(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Info, m_prefix + output());
+    m_destination.log(std::move(msg));
+}
+
 void Logger::notice(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Notice, m_prefix + message);
+    m_destination.log(std::move(msg));
+}
+
+void Logger::notice(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Notice, m_prefix + output());
     m_destination.log(std::move(msg));
 }
 
@@ -71,15 +97,33 @@ void Logger::warning(const String& message) const
     m_destination.log(std::move(msg));
 }
 
+void Logger::warning(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Warning, m_prefix + output());
+    m_destination.log(std::move(msg));
+}
+
 void Logger::error(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Error, m_prefix + message);
     m_destination.log(std::move(msg));
 }
 
+void Logger::error(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Error, m_prefix + output());
+    m_destination.log(std::move(msg));
+}
+
 void Logger::critical(const String& message) const
 {
     auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + message);
+    m_destination.log(std::move(msg));
+}
+
+void Logger::critical(const OutputString& output) const
+{
+    auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + output());
     m_destination.log(std::move(msg));
 }
 
