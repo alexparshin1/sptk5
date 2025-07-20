@@ -339,9 +339,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
+     * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    virtual void bulkInsert(const String& tableName, const Strings& columnNames,
-                            const std::vector<VariantVector>& data);
+    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
+                                                           const std::vector<VariantVector>& data);
 
     /**
      * @brief Executes bulk delete of rows by the keys.
@@ -448,11 +449,11 @@ protected:
     }
 
 private:
-    DatabaseConnectionString m_connString;    ///< The connection string
-    DatabaseConnectionType m_connType;        ///< The connection type
-    String m_driverDescription;               ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};             ///< The in-transaction flag
-    std::chrono::seconds m_connectionTimeout; ///< Connection timeout
+    DatabaseConnectionString m_connString;            ///< The connection string
+    DatabaseConnectionType   m_connType;              ///< The connection type
+    String                   m_driverDescription;     ///< Driver description is filled by the particular driver.
+    bool                     m_inTransaction {false}; ///< The in-transaction flag
+    std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;

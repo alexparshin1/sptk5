@@ -175,10 +175,11 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
+     * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    void bulkInsert(const String& tableName, const Strings& columnNames, const std::vector<VariantVector>& data) const
+    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames, const std::vector<VariantVector>& data) const
     {
-        m_connection->bulkInsert(tableName, columnNames, data);
+        return m_connection->bulkInsert(tableName, keyColumnName, columnNames, data);
     }
 
     /**
