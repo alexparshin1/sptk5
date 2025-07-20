@@ -162,7 +162,7 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 
 String sptk::escapeSQLString(const String& str, bool tsv)
 {
-    String output;
+    String      output;
     const char* replaceChars = "'\t\n\r";
     if (tsv)
     {
@@ -207,8 +207,8 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     return output;
 }
 
-void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
-                                        const vector<VariantVector>& data)
+std::vector<uint64_t> PoolDatabaseConnection::bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
+                                                         const std::vector<VariantVector>& data)
 {
     const bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
@@ -216,13 +216,15 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& 
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, columnNames, 50);
-    bulkQuery.insertRows(data);
+    BulkQuery bulkQuery(this, tableName, keyColumnName, columnNames, 50);
+    auto      insertedIds = bulkQuery.insertRows(data);
 
     if (!wasInTransaction)
     {
         commitTransaction();
     }
+
+    return insertedIds;
 }
 
 void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
@@ -233,7 +235,7 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, {keyColumnName}, 50);
+    BulkQuery bulkQuery(this, tableName, keyColumnName, {keyColumnName}, 50);
     bulkQuery.deleteRows(keys);
 
     if (!wasInTransaction)
