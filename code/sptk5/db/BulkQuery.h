@@ -48,13 +48,14 @@ public:
     void deleteRows(const VariantVector& keys);
 
 private:
-    Query                   m_insertQuery;   ///< Insert query.
-    Query                   m_deleteQuery;   ///< Delete query.
-    String                  m_keyColumnName; ///< Key column name (optional, can be empty).
-    Strings                 m_columnNames;   ///< Column names.
-    String                  m_tableName;     ///< Table name.
-    unsigned                m_groupSize;     ///< Insert or delete record group size.
-    PoolDatabaseConnection* m_connection;    ///< Database connection.
+    Query                   m_insertQuery;         ///< Insert query.
+    Query                   m_deleteQuery;         ///< Delete query.
+    String                  m_keyColumnName;       ///< Key column name (optional, can be empty).
+    Strings                 m_columnNames;         ///< Column names.
+    String                  m_tableName;           ///< Table name.
+    unsigned                m_groupSize;           ///< Insert or delete record group size.
+    PoolDatabaseConnection* m_connection;          ///< Database connection.
+    Query                   m_lastInsertedIdQuery; ///< Query that retrieves the last inserted id.
 
     [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);

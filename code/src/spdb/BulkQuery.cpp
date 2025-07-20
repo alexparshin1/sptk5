@@ -20,21 +20,18 @@ BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName
     , m_tableName(tableName)
     , m_groupSize(groupSize)
     , m_connection(connection)
+    , m_lastInsertedIdQuery(connection, connection->lastAutoIncrementSql(tableName))
 {
 }
 
 String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, unsigned groupSize)
 {
+    using enum DatabaseConnectionType;
     String sql;
     switch (connectionType)
     {
-        using enum DatabaseConnectionType;
         case ORACLE:
         case ORACLE_OCI:
-            if (!keyColumnName.empty())
-            {
-                throw DatabaseException("Oracle does not support retrieving inserting keys");
-            }
             sql = BulkQuery::makeOracleInsertSQL(tableName, columnNames, groupSize);
             break;
         case POSTGRES:
@@ -49,7 +46,7 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
             throw Exception("Unsupported database type");
     }
 
-    if (!keyColumnName.empty())
+    if (!keyColumnName.empty() && (connectionType == POSTGRES || connectionType == SQLITE3))
     {
         sql += " RETURNING " + keyColumnName;
     }
@@ -251,6 +248,9 @@ void BulkQuery::deleteRows(const VariantVector& keys)
 
 void BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const_iterator startRow, vector<VariantVector>::const_iterator end, vector<uint64_t>& insertedIds)
 {
+    using enum DatabaseConnectionType;
+
+    size_t       rowCount = 0;
     size_t       parameterIndex = 0;
     const size_t columnCount = startRow->size();
     for (auto row = startRow; row != end; ++row)
@@ -260,9 +260,11 @@ void BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const
             insertQuery.param(parameterIndex) = (*row)[columnNumber];
             ++parameterIndex;
         }
+        ++rowCount;
     }
 
-    if (!m_keyColumnName.empty())
+    auto connectionType = m_connection->connectionType();
+    if (!m_keyColumnName.empty() && (connectionType == POSTGRES || connectionType == SQLITE3))
     {
         insertQuery.open();
         while (!insertQuery.eof())
@@ -276,6 +278,22 @@ void BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const
     else
     {
         insertQuery.exec();
+        m_lastInsertedIdQuery.open();
+        auto lastInsertedId = m_lastInsertedIdQuery[0].asInt64();
+        m_lastInsertedIdQuery.close();
+
+        auto firstInsertedId = lastInsertedId - rowCount + 1;
+        if (m_connection->connectionType() == DatabaseConnectionType::MYSQL)
+        {
+            // A special case for MySQL: multi-row insert returns the first row id
+            firstInsertedId = lastInsertedId;
+            lastInsertedId += rowCount - 1;
+        }
+
+        for (int64_t insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
+        {
+            insertedIds.push_back(insertedId);
+        }
     }
 }
 

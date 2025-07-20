@@ -375,6 +375,8 @@ public:
      */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
+    [[nodiscard]] String lastAutoIncrementSql(const String& tableName) const;
+
 protected:
     [[nodiscard]] bool getInTransaction() const;
 

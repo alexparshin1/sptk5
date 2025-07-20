@@ -906,9 +906,9 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table ORDER BY 1");
 
     const Strings batchSQL {
-        "INSERT INTO gtest_temp_table VALUES (1, 'John', 'CEO', '2020-01-02');",
-        "INSERT INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
-        "INSERT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('John', 'CEO', '2020-01-02');",
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('Jane', 'CFO', '2021-02-03');",
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('William', 'CIO', '2022-03-04');"};
 
     const Strings invalidBatchSQL {
         "REMOVE INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
