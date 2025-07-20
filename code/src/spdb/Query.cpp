@@ -102,6 +102,18 @@ void Query::execute()
     }
 }
 
+Variant Query::scalar()
+{
+    open();
+    if (eof())
+    {
+        return Variant();
+    }
+    Variant result = m_fields[0];
+    close();
+    return result;
+}
+
 //==============================================================================
 Query::Query() noexcept
     : QueryStatementManagement(true)
@@ -237,7 +249,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
 void Query::sqlParseParameter(const char* paramStart, const char* paramEnd, int& paramNumber, String& sql)
 {
     const string paramName(paramStart + 1, paramEnd - paramStart - 1);
-    auto param = m_params.find(paramName.c_str());
+    auto         param = m_params.find(paramName.c_str());
     if (!param)
     {
         param = make_shared<QueryParameter>(paramName.c_str());

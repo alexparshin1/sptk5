@@ -38,6 +38,7 @@ namespace {
 void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
 void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 } // namespace
@@ -45,7 +46,7 @@ void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE_OCI, connectTimeout)
 {
-    static mutex initializeMutex;
+    static mutex      initializeMutex;
     const scoped_lock lock(initializeMutex);
     if (!ocilib::Environment::Initialized())
     {
@@ -92,7 +93,7 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
         try
         {
             const DatabaseConnectionString dbConnectionString = connectionString();
-            auto oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
+            auto                           oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
                                  dbConnectionString.databaseName();
             m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
             m_connection->SetAutoCommit(true);
@@ -132,8 +133,8 @@ void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* erro
     static const RegularExpression matchCommentRow("^\\s*--");
 
     Strings statements;
-    string statement;
-    bool routineStarted = false;
+    string  statement;
+    bool    routineStarted = false;
     for (const auto& aRow: batchSQL)
     {
         String row = trim(aRow);
@@ -303,7 +304,7 @@ void OracleOciConnection::queryFreeStmt(Query* query)
 void OracleOciConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
-    auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    auto*             statement = bit_cast<OracleOciStatement*>(query->statement());
     if (statement != nullptr)
     {
         statement->close();
@@ -357,7 +358,7 @@ size_t OracleOciConnection::queryColCount(Query* query)
     {
         throw DatabaseException("Query not opened");
     }
-    const auto resultSet = statement->statement()->GetResultset();
+    const auto   resultSet = statement->statement()->GetResultset();
     const size_t columnCount = resultSet ? resultSet.GetColumnCount() : 0;
     return columnCount;
 }
@@ -419,7 +420,7 @@ void OracleOciConnection::queryOpen(Query* query)
     if (query->fieldCount() == 0)
     {
         const scoped_lock lock(m_mutex);
-        const auto resultSet = statement->resultSet();
+        const auto        resultSet = statement->resultSet();
         createQueryFieldsFromMetadata(query, resultSet);
     }
 
@@ -458,11 +459,11 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resu
     const unsigned columnCount = resultSet.GetColumnCount();
     for (unsigned columnIndex = 0; columnIndex < columnCount; ++columnIndex)
     {
-        auto column = resultSet.GetColumn(columnIndex + 1);
-        auto columnType = column.GetType();
-        auto columnSqlType = column.GetSQLType();
-        const int columnScale = column.GetScale();
-        String columnName(column.GetName());
+        auto       column = resultSet.GetColumn(columnIndex + 1);
+        auto       columnType = column.GetType();
+        auto       columnSqlType = column.GetSQLType();
+        const int  columnScale = column.GetScale();
+        String     columnName(column.GetName());
         const auto columnDataSize = column.GetSize();
         if (columnName.empty())
         {
@@ -470,7 +471,7 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resu
         }
 
         const VariantDataType dataType = oracleOciTypeToVariantType(columnType, columnScale);
-        auto field = make_shared<OracleOciDatabaseField>(
+        auto                  field = make_shared<OracleOciDatabaseField>(
             columnName, columnType, dataType, columnDataSize,
             columnScale, columnSqlType);
         query->fields().push_back(field);
@@ -487,7 +488,7 @@ void OracleOciConnection::queryFetch(Query* query)
     const scoped_lock lock(m_mutex);
 
     const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
-    auto resultSet = statement->resultSet();
+    auto        resultSet = statement->resultSet();
     if (!resultSet)
     {
         querySetEof(query, true);
@@ -584,6 +585,9 @@ void OracleOciConnection::readBuffer(const ocilib::Resultset& resultSet, OracleO
 {
     switch (field->fieldType())
     {
+        case OCI_CDT_LONG:
+            readLong(resultSet, field, columnIndex);
+            break;
         case OCI_CDT_LOB:
             if (field->sqlType() == "clob")
             {
@@ -681,6 +685,12 @@ void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int col
         date.GetDate(year, month, day);
         field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0)), true);
     }
+}
+
+void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+{
+    const auto str = resultSet.Get<ostring>(columnIndex);
+    field->setString(str);
 }
 
 void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)

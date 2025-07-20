@@ -671,7 +671,7 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 }
 
 static const string expectedBulkInsertResult(
-    "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016 # 4|Teddy|Bear|01-JAN-2017 # 5|Santa|Claus|01-JAN-2018");
+    "Alex,'Doe'|Programmer|01-JAN-2014 # David|CEO|01-JAN-2015 # Roger|Bunny|01-JAN-2016 # Teddy|Bear|01-JAN-2017 # Santa|Claus|01-JAN-2018");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
@@ -734,9 +734,14 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     while (!selectData.eof())
     {
         Strings row;
+        size_t  index = 0;
         for (const auto& field: selectData.fields())
         {
-            row.push_back(field->asString().trim());
+            if (index > 0)
+            {
+                row.push_back(field->asString().trim());
+            }
+            ++index;
         }
         printRows.push_back(row.join("|"));
         selectData.next();
@@ -816,7 +821,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     createTestTable(databaseConnection, false, false);
 
     const Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table");
-    Query       insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    InsertQuery insertData(databaseConnection, "INSERT INTO gtest_temp_table (name, position_name, hire_date) VALUES (:name, :position, :hired)");
 
     vector<VariantVector> data;
     VariantVector         keys;
@@ -826,7 +831,6 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         keys.emplace_back(static_cast<int>(i));
 
         VariantVector row;
-        row.emplace_back(static_cast<int>(i));
         row.emplace_back("Alex,'Doe'");
         row.emplace_back("Programmer");
         row.emplace_back("01-JAN-2014");
@@ -835,7 +839,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     StopWatch stopWatch;
     stopWatch.start();
-    const Strings columnNames({"id", "name", "position_name", "hire_date"});
+    const Strings columnNames({"name", "position_name", "hire_date"});
     databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
     stopWatch.stop();
     const auto bulkInsertDurationMS = stopWatch.milliseconds();
@@ -847,7 +851,6 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     stopWatch.start();
 
-    auto& idParam = insertData.param("id");
     auto& nameParam = insertData.param("name");
     auto& positionParam = insertData.param("position");
     auto& hiredParam = insertData.param("hired");
@@ -859,12 +862,10 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         constexpr int col0 = 0;
         constexpr int col1 = 1;
         constexpr int col2 = 2;
-        constexpr int col3 = 3;
 
-        idParam = row[col0].asInteger();
-        nameParam = row[col1].asString();
-        positionParam = row[col2].asString();
-        hiredParam = row[col3].asString();
+        nameParam = row[col0].asString();
+        positionParam = row[col1].asString();
+        hiredParam = row[col2].asString();
         insertData.exec();
     }
     transaction.commit();
@@ -959,27 +960,25 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
-    Query selectNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NULL");
-    Query selectNotNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NOT NULL");
-    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    Query selectNullData(databaseConnection, "SELECT name, position_name, hire_date FROM gtest_temp_table WHERE name IS NULL");
+    Query selectNotNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE name IS NOT NULL");
+    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table (name, position_name, hire_date) VALUES (:name, :position, :hired)");
 
     Strings data;
-    data.push_back(string("1\tAlex,'Doe'\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
-    data.push_back(string("4\tTeddy\tBear\t01-JAN-2017"));
-    data.push_back(string("5\tSanta\tClaus\t01-JAN-2018"));
+    data.push_back(string("Alex,'Doe'\tProgrammer\t01-JAN-2014"));
+    data.push_back(string("David\tCEO\t01-JAN-2015"));
+    data.push_back(string("Roger\tBunny\t01-JAN-2016"));
+    data.push_back(string("Teddy\tBear\t01-JAN-2017"));
+    data.push_back(string("Santa\tClaus\t01-JAN-2018"));
 
     for (const auto& row: data)
     {
         constexpr int col0 = 0;
         constexpr int col1 = 1;
         constexpr int col2 = 2;
-        constexpr int col3 = 3;
         using enum VariantDataType;
 
         // Insert all nulls
-        insertData.param("id").setNull(VAR_INT);
         insertData.param("name").setNull(VAR_STRING);
         insertData.param("position").setNull(VAR_STRING);
         insertData.param("hired").setNull(VAR_STRING);
@@ -987,10 +986,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
         // Insert data row
         Strings values(row, "\t");
-        insertData.param("id") = string2int(values[col0]);
-        insertData.param("name") = values[col1];
-        insertData.param("position") = values[col2];
-        insertData.param("hired") = values[col3];
+        insertData.param("name") = values[col0];
+        insertData.param("position") = values[col1];
+        insertData.param("hired") = values[col2];
         insertData.exec();
     }
 
@@ -1032,13 +1030,18 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectNotNullData.eof())
     {
         Strings row;
+        size_t  index = 0;
         for (const auto& field: selectNotNullData.fields())
         {
             if (field->isNull())
             {
                 throw Exception("Field " + field->fieldName() + " is null but value is expected");
             }
-            row.push_back(field->asString().trim());
+            if (index > 0)
+            {
+                row.push_back(field->asString().trim());
+            }
+            ++index;
         }
         printRows.push_back(row.join("|"));
         selectNotNullData.next();

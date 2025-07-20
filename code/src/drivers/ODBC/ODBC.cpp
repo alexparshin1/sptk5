@@ -52,14 +52,15 @@ void ODBCEnvironment::allocEnv()
     } // Already allocated
 
     const scoped_lock lock(*this);
-    SQLHENV hEnvironment {nullptr};
+    SQLHENV           hEnvironment {nullptr};
     if (!Successful(SQLAllocEnv(&hEnvironment)))
     {
         throw DatabaseException("Can't allocate ODBC environment");
     }
 
     m_hEnvironment = shared_ptr<uint8_t>(static_cast<uint8_t*>(hEnvironment),
-                                         [this](uint8_t* env) {
+                                         [this](uint8_t* env)
+                                         {
                                              const scoped_lock lck(*this);
                                              SQLFreeEnv(env);
                                          });
@@ -93,7 +94,8 @@ void ODBCConnectionBase::allocConnect()
     }
 
     m_hConnection = shared_ptr<uint8_t>(static_cast<uint8_t*>(hConnection),
-                                        [this](uint8_t* ptr) {
+                                        [this](uint8_t* ptr)
+                                        {
                                             if (m_connected)
                                             {
                                                 const SQLHDBC conn(ptr);
@@ -133,10 +135,10 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         throw DatabaseException("Can'connect: connection string is empty");
     }
 
-    // If handle not allocated, allocate it
+    // If the handle not allocated, allocate it
     allocConnect();
 
-    // If we are  already connected, disconnect
+    // If we are already connected, disconnect
     if (isConnected())
     {
         disconnect();
@@ -146,16 +148,16 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 
     m_connectString = ConnectionString;
 
-    constexpr short bufferLength = 2048;
+    constexpr short              bufferLength = 2048;
     array<uint8_t, bufferLength> buff {};
-    SWORD bufflen = 0;
+    SWORD                        bufflen = 0;
 
 #ifdef WIN32
     HWND ParentWnd = 0;
 #else
     void* ParentWnd = nullptr;
 #endif
-    char* pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
+    char*     pConnectString = m_connectString.empty() ? nullptr : &m_connectString[0];
     SQLRETURN rc = ::SQLDriverConnect(m_hConnection.get(), ParentWnd, (UCHAR*) pConnectString, SQL_NTS,
                                       buff.data(), bufferLength, &bufflen, SQL_DRIVER_NOPROMPT);
 
@@ -172,7 +174,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
 
     // Trying to get more information about the driver
     array<uint8_t*, bufferLength> driverDescription {};
-    SQLSMALLINT descriptionLength = 0;
+    SQLSMALLINT                   descriptionLength = 0;
     rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
@@ -300,14 +302,14 @@ String sptk::removeDriverIdentification(const char* error)
 }
 
 string extract_error(
-    SQLHANDLE handle,
+    SQLHANDLE   handle,
     SQLSMALLINT type)
 {
-    SQLSMALLINT i = 0;
-    SQLINTEGER native = 0;
-    array<SQLCHAR, 7> state {};
+    SQLSMALLINT         i = 0;
+    SQLINTEGER          native = 0;
+    array<SQLCHAR, 7>   state {};
     array<SQLCHAR, 256> text {};
-    SQLSMALLINT len = 0;
+    SQLSMALLINT         len = 0;
 
     string error;
     for (;;)
@@ -327,8 +329,8 @@ String ODBCConnectionBase::errorInformation(const char* function) const
 {
     array<char, SQL_MAX_MESSAGE_LENGTH> errorDescription {};
     array<char, SQL_MAX_MESSAGE_LENGTH> errorState {};
-    SWORD pcnmsg = 0;
-    SQLINTEGER nativeError = 0;
+    SWORD                               pcnmsg = 0;
+    SQLINTEGER                          nativeError = 0;
 
     int rc = SQLError(SQL_NULL_HENV, m_hConnection.get(), SQL_NULL_HSTMT, (UCHAR*) errorState.data(), &nativeError,
                       (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);

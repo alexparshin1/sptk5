@@ -36,6 +36,7 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
     {
         using enum DatabaseConnectionType;
         case POSTGRES:
+        case SQLITE3:
             return sql + " RETURNING " + idFieldName;
         case ORACLE:
         case ORACLE_OCI:
@@ -66,7 +67,6 @@ void InsertQuery::exec()
     m_id = 0;
     switch (database()->connectionType())
     {
-
         case DatabaseConnectionType::ORACLE:
         case DatabaseConnectionType::ORACLE_OCI:
             param("last_id").setOutput();
@@ -77,9 +77,8 @@ void InsertQuery::exec()
             break;
 
         case DatabaseConnectionType::POSTGRES:
-            open();
-            m_id = static_cast<uint64_t>((*this)[0].asInteger());
-            close();
+        case DatabaseConnectionType::SQLITE3:
+            m_id = scalar().asInteger();
             break;
 
         case DatabaseConnectionType::MYSQL:

@@ -256,7 +256,7 @@ void PoolDatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strin
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName) const
+String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName, const String& sequenceName) const
 {
     using enum DatabaseConnectionType;
     switch (connectionType())
@@ -264,12 +264,12 @@ String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName) con
         case MYSQL:
             return "SELECT LAST_INSERT_ID()";
         case MSSQL_ODBC:
-            return "SELECT @@IDENTITY";
+            return "SELECT IDENT_CURRENT('" + tableName + "')";
         case POSTGRES:
             return "SELECT LASTVAL()";
         case ORACLE:
         case ORACLE_OCI:
-            return "SELECT " + tableName + ".CURRVAL FROM DUAL";
+            return "SELECT " + sequenceName + ".CURRVAL FROM DUAL";
         case FIREBIRD:
             return "SELECT GEN_ID(" + tableName + ", 0) FROM RDB$DATABASE";
         case SQLITE3:

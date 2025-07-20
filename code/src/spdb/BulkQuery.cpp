@@ -20,8 +20,21 @@ BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName
     , m_tableName(tableName)
     , m_groupSize(groupSize)
     , m_connection(connection)
-    , m_lastInsertedIdQuery(connection, connection->lastAutoIncrementSql(tableName))
+    , m_lastInsertedIdQuery(connection)
 {
+    String sequenceName;
+    if (connection->connectionType() == DatabaseConnectionType::ORACLE || connection->connectionType() == DatabaseConnectionType::ORACLE_OCI)
+    {
+        stringstream getSequenceSql;
+        getSequenceSql << "SELECT DATA_DEFAULT AS sequence_name\n"
+                       << "  FROM ALL_TAB_COLUMNS\n"
+                       << " WHERE DATA_DEFAULT is not null\n"
+                       << "   AND owner = (SELECT sys_context('USERENV', 'CURRENT_USER') FROM dual) "
+                       << "   AND TABLE_NAME='" << tableName.toUpperCase() << "'\n";
+        Query getSequenceName(connection, getSequenceSql.str());
+        sequenceName = getSequenceName.scalar().asString().toUpperCase().replace("\\.NEXTVAL", "");
+    }
+    m_lastInsertedIdQuery.sql(connection->lastAutoIncrementSql(tableName, sequenceName));
 }
 
 String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, unsigned groupSize)
@@ -32,15 +45,15 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
     {
         case ORACLE:
         case ORACLE_OCI:
-            sql = BulkQuery::makeOracleInsertSQL(tableName, columnNames, groupSize);
+            sql = makeOracleInsertSQL(tableName, columnNames, groupSize);
             break;
         case POSTGRES:
         case MYSQL:
         case MSSQL_ODBC:
-            sql = BulkQuery::makeGenericInsertSQL(tableName, columnNames, groupSize);
+            sql = makeGenericInsertSQL(tableName, columnNames, groupSize);
             break;
         case SQLITE3:
-            sql = BulkQuery::makeSqlite3InsertSQL(tableName, columnNames, groupSize);
+            sql = makeSqlite3InsertSQL(tableName, columnNames, groupSize);
             break;
         default:
             throw Exception("Unsupported database type");
@@ -58,11 +71,15 @@ String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& co
 {
     stringstream sql;
 
-    sql << "INSERT ALL\n";
+    sql << "INSERT INTO " << tableName << "(" << columnNames.join(",") << ")\n";
 
     for (size_t rowNumber = 0; rowNumber < groupSize; ++rowNumber)
     {
-        sql << "INTO " << tableName << "(" << columnNames.join(",") << ") VALUES(";
+        if (rowNumber > 0)
+        {
+            sql << "UNION ALL ";
+        }
+        sql << "SELECT ";
         bool first = true;
         for (const auto& column: columnNames)
         {
@@ -76,9 +93,9 @@ String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& co
             }
             sql << ":" << column << "_" << rowNumber;
         }
-        sql << ")\n";
+        sql << " FROM DUAL\n";
     }
-    sql << "SELECT * FROM DUAL\n";
+
     return sql.str();
 }
 
@@ -278,9 +295,7 @@ void BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const
     else
     {
         insertQuery.exec();
-        m_lastInsertedIdQuery.open();
-        auto lastInsertedId = m_lastInsertedIdQuery[0].asInt64();
-        m_lastInsertedIdQuery.close();
+        auto lastInsertedId = m_lastInsertedIdQuery.scalar().asInt64();
 
         auto firstInsertedId = lastInsertedId - rowCount + 1;
         if (m_connection->connectionType() == DatabaseConnectionType::MYSQL)

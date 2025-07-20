@@ -215,15 +215,15 @@ protected:
     [[noreturn]] void notImplemented(const String& functionName) const;
 
 private:
-    bool m_autoPrepare {true};              ///< Prepare the query automatically, on the first call
-    StmtHandle m_statement {nullptr};       ///< DB statement handle
-    bool m_prepared {false};                ///< True if the statement is prepared
-    bool m_active {false};                  ///< True if query is active (opened)
-    bool m_eof {true};                      ///< True if there is no more records to fetch
-    bool m_bulkMode {false};                ///< Bulk mode flag
-    String m_sql;                           ///< SQL statement string
-    Strings m_messages;                     ///< Optional diagnostic messages populated after exec() or open()
-    PoolDatabaseConnection* m_db {nullptr}; ///< Database connection
+    bool                    m_autoPrepare {true};  ///< Prepare the query automatically, on the first call
+    StmtHandle              m_statement {nullptr}; ///< DB statement handle
+    bool                    m_prepared {false};    ///< True if the statement is prepared
+    bool                    m_active {false};      ///< True if query is active (opened)
+    bool                    m_eof {true};          ///< True if there is no more records to fetch
+    bool                    m_bulkMode {false};    ///< Bulk mode flag
+    String                  m_sql;                 ///< SQL statement string
+    Strings                 m_messages;            ///< Optional diagnostic messages populated after exec() or open()
+    PoolDatabaseConnection* m_db {nullptr};        ///< Database connection
 };
 
 /**
@@ -390,6 +390,8 @@ public:
         fetch();
         return true;
     }
+
+    Variant scalar();
 
     /**
      * Executes the query and closes the statement.

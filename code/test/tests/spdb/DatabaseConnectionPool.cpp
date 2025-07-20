@@ -598,6 +598,6 @@ TEST(SPTK_SQLite3Connection, select)
     testSelect("SQLite3");
 }
 
-// insertQuery test isn't defined, because SQLite3 doesn't support auto-incremental fields
+// insertQuery test isn't defined because SQLite3 doesn't support auto-incremental fields
 
 #endif
