@@ -325,8 +325,8 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 {
     /* Decode based on RFC-4648 URI safe encoding. */
     const auto len = strlen(src);
-    Buffer newData_buffer(len + 4);
-    auto* newData = bit_cast<char*>(newData_buffer.data());
+    Buffer     newData_buffer(len + 4);
+    auto*      newData = bit_cast<char*>(newData_buffer.data());
 
     size_t index = 0;
     for (; index < len; ++index)
@@ -362,7 +362,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 static void jwt_b64_decode_json(const xdoc::Document& dest, const Buffer& src)
 {
     constexpr size_t bufferSize {1024};
-    Buffer decodedData(bufferSize);
+    Buffer           decodedData(bufferSize);
     Base64::decode(decodedData, src);
 
     dest.load(decodedData.c_str());
@@ -370,9 +370,9 @@ static void jwt_b64_decode_json(const xdoc::Document& dest, const Buffer& src)
 
 void sptk::jwt_base64uri_encode(Buffer& buffer)
 {
-    auto* str = bit_cast<char*>(buffer.data());
+    auto*        str = bit_cast<char*>(buffer.data());
     const size_t len = strlen(str);
-    size_t outputIndex = 0;
+    size_t       outputIndex = 0;
 
     for (size_t i = 0; i < len; ++i)
     {
@@ -472,14 +472,15 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
 void JWT::decode(const char* token, const String& _key)
 {
-    struct Part {
+    struct Part
+    {
         const char* data;
-        size_t length;
+        size_t      length;
     };
 
     vector<Part> parts(3);
 
-    size_t index = 0;
+    size_t      index = 0;
     const char* data = token;
     while (data != nullptr && index < 3)
     {
@@ -500,7 +501,7 @@ void JWT::decode(const char* token, const String& _key)
         throw Exception("Invalid JWT data");
     }
 
-    Buffer head(bit_cast<const uint8_t*>(parts[0].data), parts[0].length);
+    Buffer       head(bit_cast<const uint8_t*>(parts[0].data), parts[0].length);
     const Buffer body(bit_cast<const uint8_t*>(parts[1].data), parts[1].length);
     const Buffer sig(bit_cast<const uint8_t*>(parts[2].data), parts[2].length);
 

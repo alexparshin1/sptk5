@@ -194,10 +194,10 @@ protected:
 
 private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
-    mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
+    mutable std::mutex                  m_mutex;      ///< Mutex that protects access to data members
 
     static void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
-    void executeMultipleStatements(const Strings& statements, Strings* errors);
+    void        executeMultipleStatements(const Strings& statements, Strings* errors);
     static void readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
     static void readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
 };
@@ -210,5 +210,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void oracleDestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  oracleDestroyConnection(void* connection);
 }

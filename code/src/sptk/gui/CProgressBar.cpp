@@ -45,7 +45,7 @@ public:
     float m_maxValue;
 
     std::string m_units;
-    bool m_showText;
+    bool        m_showText;
 
     CProgressBox(int x, int y, int w, int h)
         : Fl_Box(x, y, w, h)

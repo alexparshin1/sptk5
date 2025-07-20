@@ -34,9 +34,9 @@ using namespace std;
 using namespace sptk;
 
 CScrollBarImages CThemeScrollBar::m_scrollBar[2];
-int CThemeScrollBar::m_scrollBarTroughBorder = 1;
-int CThemeScrollBar::m_scrollBarSliderWidth = 14;
-int CThemeScrollBar::m_scrollBarStepperSize = 14;
+int              CThemeScrollBar::m_scrollBarTroughBorder = 1;
+int              CThemeScrollBar::m_scrollBarSliderWidth = 14;
+int              CThemeScrollBar::m_scrollBarStepperSize = 14;
 
 void CScrollBarImages::load(CThemeScrollBarType atype, bool /*desaturateInactiveButtons*/, bool /*externalFile*/)
 {
@@ -61,7 +61,7 @@ void CScrollBarImages::load(CThemeScrollBarType atype, bool /*desaturateInactive
     }
 
     CThemeImageCollection& trough = m_parts[0];
-    CPngImage* troughImage = trough.image(THM_IMAGE_NORMAL);
+    CPngImage*             troughImage = trough.image(THM_IMAGE_NORMAL);
 
     /// Load scrollbar button images
     for (i = 0; i < 2; i++)
@@ -118,8 +118,8 @@ void CScrollBarImages::clear()
 bool CThemeScrollBar::sizeScrollBar(int& w, int& h)
 {
     bool vertical = w < h;
-    int troughWidth = m_scrollBarSliderWidth + m_scrollBarTroughBorder * 2;
-    int minLength = m_scrollBarStepperSize * 2 + 10;
+    int  troughWidth = m_scrollBarSliderWidth + m_scrollBarTroughBorder * 2;
+    int  minLength = m_scrollBarStepperSize * 2 + 10;
     if (vertical)
     {
         w = troughWidth;
@@ -216,7 +216,7 @@ bool CThemeScrollBar::drawScrollBar(
 
     // Painting the background
     CThemeImageCollection& trough = scrollbar->m_parts[CScrollBarImages::TROUGH];
-    CPngImage* normalImage = trough.image(THM_IMAGE_NORMAL);
+    CPngImage*             normalImage = trough.image(THM_IMAGE_NORMAL);
     if (normalImage)
     {
         normalImage->drawResized(x, y, w, h, m_scrollBarStepperSize * 2, CPngImage::CPatternDrawMode::PDM_STRETCH,
@@ -335,7 +335,7 @@ bool CThemeScrollBar::drawScrollBar(
         }
     }
 
-    int ww = (vertical ? h : w) - bsize * 2;
+    int  ww = (vertical ? h : w) - bsize * 2;
     auto S = int(std::round(sliderSize * ww));
     if (S < 10)
     {
@@ -343,7 +343,7 @@ bool CThemeScrollBar::drawScrollBar(
     }
     int xx = (int) std::round(val * (ww - S)) + bsize;
 
-    int xsl, ysl, wsl, hsl;
+    int        xsl, ysl, wsl, hsl;
     CPngImage* sliderImage = scrollbar->m_parts[CScrollBarImages::SLIDER].image(THM_IMAGE_NORMAL);
     CPngImage* gripImage = scrollbar->m_parts[CScrollBarImages::SLIDER].overlayImage(THM_IMAGE_NORMAL);
     if (vertical)

@@ -321,7 +321,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 
 const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
 const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
-void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
+void        readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
 {
     if (*readPosition != '{')
     {
@@ -476,10 +476,10 @@ String codePointToUTF8(unsigned codePoint)
 
 String decode(const String& text)
 {
-    String result;
+    String       result;
     const size_t length = text.length();
-    size_t position = 0;
-    unsigned ucharCode;
+    size_t       position = 0;
+    unsigned     ucharCode;
 
     while (position < length)
     {

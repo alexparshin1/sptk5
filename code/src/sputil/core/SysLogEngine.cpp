@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-std::mutex SysLogEngine::m_syslogMutex;
+std::mutex  SysLogEngine::m_syslogMutex;
 atomic_bool SysLogEngine::m_logOpened(false);
 
 #ifdef _WIN32
@@ -50,8 +50,8 @@ SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
 void SysLogEngine::saveMessage(const Logger::Message& message)
 {
     set<Option> options;
-    String programName;
-    uint32_t facilities {0};
+    String      programName;
+    uint32_t    facilities {0};
 
     getOptions(options, programName, facilities);
 
@@ -153,14 +153,15 @@ void SysLogEngine::setupEventSource() const
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
-    int rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, bit_cast<BYTE*>(buffer), &len);
+    int           rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, bit_cast<BYTE*>(buffer), &len);
     if (rc != ERROR_SUCCESS)
     {
 
-        struct ValueData {
+        struct ValueData
+        {
             const char* name;
             const char* strValue;
-            DWORD intValue;
+            DWORD       intValue;
         } valueData[5] = {
             {"CategoryCount", NULL, 3},
             {"CategoryMessageFile", moduleFileName.c_str(), 0},
@@ -171,8 +172,8 @@ void SysLogEngine::setupEventSource() const
         for (int i = 0; i < 5; i++)
         {
             CONST BYTE* value;
-            DWORD valueSize;
-            DWORD valueType;
+            DWORD       valueSize;
+            DWORD       valueType;
             if (valueData[i].strValue == NULL)
             {
                 // DWORD value

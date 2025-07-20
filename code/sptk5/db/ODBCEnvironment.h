@@ -268,12 +268,12 @@ protected:
     void execQuery(const char* query);
 
 private:
-    ODBCEnvironment& m_cEnvironment {getEnvironment()}; ///< ODBC environment
-    std::shared_ptr<uint8_t> m_hConnection;             ///< ODBC connection handle
-    bool m_connected {false};                           ///< Is connection active?
-    String m_connectString;                             ///< ODBC connection string
-    String m_driverDescription;                         ///< Driver description, filled in during the connection to the DSN
-    static ODBCEnvironment m_env;
+    ODBCEnvironment&         m_cEnvironment {getEnvironment()}; ///< ODBC environment
+    std::shared_ptr<uint8_t> m_hConnection;                     ///< ODBC connection handle
+    bool                     m_connected {false};               ///< Is connection active?
+    String                   m_connectString;                   ///< ODBC connection string
+    String                   m_driverDescription;               ///< Driver description, filled in during the connection to the DSN
+    static ODBCEnvironment   m_env;
 };
 
 /**

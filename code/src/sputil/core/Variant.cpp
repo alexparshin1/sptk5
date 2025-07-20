@@ -704,11 +704,11 @@ String VariantAdaptors::asString() const
 String BaseVariant::moneyDataToString() const
 {
     stringstream output;
-    const auto& moneyData = m_data.get<MoneyData>();
-    const auto scale = moneyData.scale;
-    auto divider = MoneyData::dividers[scale];
-    const auto value = moneyData.quantity / divider;
-    auto decimal = abs(moneyData.quantity) % divider;
+    const auto&  moneyData = m_data.get<MoneyData>();
+    const auto   scale = moneyData.scale;
+    auto         divider = MoneyData::dividers[scale];
+    const auto   value = moneyData.quantity / divider;
+    auto         decimal = abs(moneyData.quantity) % divider;
     output << fixed << value << "." << setfill('0') << setw(scale) << decimal;
     return output.str();
 }

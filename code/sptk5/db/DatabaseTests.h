@@ -38,11 +38,12 @@ namespace sptk {
 class SP_EXPORT DatabaseTests
 {
 public:
-    struct Row {
-        int id;
-        int64_t ssid;
-        String name;
-        double price;
+    struct Row
+    {
+        int      id;
+        int64_t  ssid;
+        String   name;
+        double   price;
         DateTime ts;
     };
 
@@ -208,16 +209,16 @@ private:
      * @param tableName         Table name
      * @param columnName        Column name
      */
-    static void createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName, const String& columnName);
-    static void createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
+    static void   createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName, const String& columnName);
+    static void   createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
     static Buffer createClob();
-    static void insertDataIntoTempTable(Buffer& clob, Query& insert);
-    static void verifyInsertedData(const DatabaseConnection& databaseConnection, const Buffer& clob);
-    static void verifyInsertedRow(const Row& row, const Buffer& clob, Query& select);
-    static void verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
-    static void verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
+    static void   insertDataIntoTempTable(Buffer& clob, Query& insert);
+    static void   verifyInsertedData(const DatabaseConnection& databaseConnection, const Buffer& clob);
+    static void   verifyInsertedRow(const Row& row, const Buffer& clob, Query& select);
+    static void   verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
+    static void   verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
     static size_t insertRecordsInTransaction(const DatabaseConnection& databaseConnection);
-    static void invalidTransactionStateThrows(Transaction& transaction);
+    static void   invalidTransactionStateThrows(Transaction& transaction);
 };
 
 } // namespace sptk

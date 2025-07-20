@@ -251,5 +251,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* odbcCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void odbcDestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  odbcDestroyConnection(void* connection);
 }

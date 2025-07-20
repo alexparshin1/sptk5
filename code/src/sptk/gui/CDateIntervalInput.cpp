@@ -88,7 +88,7 @@ CLayoutClient* CDateIntervalInput::creator(const xdoc::SNode& node)
 
 void CDateIntervalInput::showCalendar(Fl_Widget* btn)
 {
-    DateTime originalDate;
+    DateTime      originalDate;
     CDateControl* dateControl;
     if (btn == m_firstDateInput->button())
     {

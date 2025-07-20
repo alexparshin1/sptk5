@@ -69,7 +69,7 @@ void CRadioButton::draw()
     CThemes::sizeButton(THM_BUTTON_RADIO, bw, bh);
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
-    int dy = (h() - bh) / 2;
+    int  dy = (h() - bh) / 2;
     if (CThemes::drawRadioButton(x(), y() + dy, checked, highlited))
     {
         if (!m_label.empty())
@@ -139,9 +139,9 @@ int CRadioButton::handle(int event)
 
 void CRadioButtons::radioButtonsCallback(Fl_Widget* w, void*)
 {
-    auto* b = (Fl_Button*) w;
+    auto*     b = (Fl_Button*) w;
     Fl_Group* g = b->parent();
-    auto* r = (CRadioButtons*) g->parent();
+    auto*     r = (CRadioButtons*) g->parent();
     r->deselectAllButtons();
     b->value(1);
     g->redraw();
@@ -178,7 +178,7 @@ Fl_Button* CRadioButtons::createButton(const char* label, int sz, CLayoutAlign l
 int32_t CRadioButtons::intValue() const
 {
     auto* group = (CScroll*) m_control;
-    auto cnt = (unsigned) group->children();
+    auto  cnt = (unsigned) group->children();
     for (uint32_t i = 0; i < cnt; i++)
     {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));
@@ -198,7 +198,7 @@ void CRadioButtons::intValue(int32_t v)
 {
     deselectAllButtons();
     auto* group = (CScroll*) m_control;
-    auto cnt = (unsigned) group->children();
+    auto  cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++)
     {
         auto* btn = dynamic_cast<Fl_Button*>(group->child(i));

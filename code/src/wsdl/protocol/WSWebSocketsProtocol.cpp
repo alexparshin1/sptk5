@@ -51,7 +51,7 @@ uint64_t ntoh64(uint64_t data)
         VarType type;
         union
         {
-            uint64_t m_uint64;
+            uint64_t           m_uint64;
             array<uint32_t, 2> m_uint32;
         } variant;
     };
@@ -70,12 +70,12 @@ uint64_t ntoh64(uint64_t data)
 
 void WSWebSocketsMessage::decode(const char* incomingData)
 {
-    constexpr int maskedBitMask(0x80);
-    constexpr int opcodeBitMask(0xF);
-    constexpr int payloadLengthBitMask(0x7F);
+    constexpr int  maskedBitMask(0x80);
+    constexpr int  opcodeBitMask(0xF);
+    constexpr int  payloadLengthBitMask(0x7F);
     constexpr char lengthIsTwoBytes(126);
     constexpr char lengthIsEightBytes(127);
-    constexpr int eightBytes(8);
+    constexpr int  eightBytes(8);
 
     const auto* ptr = (const uint8_t*) incomingData;
 
@@ -110,9 +110,9 @@ void WSWebSocketsMessage::decode(const char* incomingData)
         array<uint8_t, 4> mask {};
         memcpy(mask.data(), ptr, sizeof(mask));
         ptr += 4;
-        auto* dest = m_payload.data();
+        auto*             dest = m_payload.data();
         array<uint8_t, 2> statusCodeBuffer = {};
-        size_t j = 0;
+        size_t            j = 0;
         for (uint64_t i = 0; i < payloadLength; ++i)
         {
             const auto unmaskedByte = static_cast<uint8_t>((int) ptr[i] ^ mask[i % 4]);
@@ -203,9 +203,9 @@ WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders&
 
 RequestInfo WSWebSocketsProtocol::process()
 {
-    constexpr size_t shaBufferLength(20);
+    constexpr size_t          shaBufferLength(20);
     constexpr chrono::seconds thirtySeconds(30);
-    constexpr int connectionTerminatedCode(1000);
+    constexpr int             connectionTerminatedCode(1000);
 
     RequestInfo requestInfo;
     try
@@ -225,7 +225,7 @@ RequestInfo WSWebSocketsProtocol::process()
         Buffer obuf(shaBufferLength);
         SHA1((const unsigned char*) responseKey.c_str(), responseKey.length(), obuf.data());
         const Buffer responseKeySHA(obuf.data(), shaBufferLength);
-        Buffer responseKeyEncoded;
+        Buffer       responseKeyEncoded;
         Base64::encode(responseKeyEncoded, responseKeySHA);
         responseKey = responseKeyEncoded.c_str();
 

@@ -79,7 +79,7 @@ size_t QueryParameterList::size() const
 
 void QueryParameterList::remove(size_t i)
 {
-    const auto itor = m_items.begin() + static_cast<int>(i);
+    const auto             itor = m_items.begin() + static_cast<int>(i);
     const SQueryParameter& item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
@@ -99,7 +99,7 @@ void QueryParameterList::enumerate(CParamVector& params) const
     for (const auto& param: m_items)
     {
         for (const auto& bindIndex = param->m_bindParamIndexes;
-             const auto index: bindIndex)
+             const auto  index: bindIndex)
         {
             if (index >= params.size())
             {

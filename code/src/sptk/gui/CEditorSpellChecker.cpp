@@ -64,7 +64,7 @@ void CSpellChecker::cb_ignore(Fl_Widget* w, void*)
 
 void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 {
-    auto* spellChecker = (CSpellChecker*) w->window();
+    auto*  spellChecker = (CSpellChecker*) w->window();
     String word = trim(spellChecker->m_replaceToInput->data().asString());
     if (word.length())
     {
@@ -163,7 +163,7 @@ CSpellOption& CSpellChecker::operator[](const String& optionName)
     if (itor == CSpellOptions::end())
     {
         AspellConfig* aconfig = new_aspell_config();
-        string val = aspell_config_retrieve(aconfig, optionName.c_str());
+        string        val = aspell_config_retrieve(aconfig, optionName.c_str());
         delete_aspell_config(aconfig);
         CSpellOption newOption(optionName, val);
         CSpellOptions::insert(CSpellOptions::value_type(optionName, newOption));
@@ -183,7 +183,7 @@ void CSpellChecker::getConfigStrings(AspellConfig* aconfig, CSpellOptions& optio
         {
             break;
         }
-        string val = aspell_config_retrieve(aconfig, keyInfo->name);
+        string       val = aspell_config_retrieve(aconfig, keyInfo->name);
         CSpellOption option(keyInfo->name, val);
         options.insert(CSpellOptions::value_type(keyInfo->name, option));
     } while (!aspell_key_info_enumeration_at_end(keyInfoElements));
@@ -191,7 +191,7 @@ void CSpellChecker::getConfigStrings(AspellConfig* aconfig, CSpellOptions& optio
 
 void CSpellChecker::getDictionaries(Strings& dictionaries)
 {
-    AspellConfig* aconfig = new_aspell_config();
+    AspellConfig*       aconfig = new_aspell_config();
     AspellDictInfoList* dictInfoList = get_aspell_dict_info_list(aconfig);
     setLocalOptions(aconfig);
     delete_aspell_config(aconfig);
@@ -266,8 +266,8 @@ bool CSpellChecker::spellCheck()
     String word;
 
     bool rc = true;
-    int wordStart;
-    int wordEnd;
+    int  wordStart;
+    int  wordEnd;
     while (getNextWord(word, wordStart, wordEnd))
     {
         if (strpbrk(word.c_str(), "0123456789"))
@@ -279,11 +279,11 @@ bool CSpellChecker::spellCheck()
         {
             m_wordInput->data(word);
             m_suggestionListView->clear();
-            const AspellWordList* suggestions = aspell_speller_suggest(m_spellChecker, word.c_str(),
-                                                                       (int) word.length());
+            const AspellWordList*    suggestions = aspell_speller_suggest(m_spellChecker, word.c_str(),
+                                                                          (int) word.length());
             AspellStringEnumeration* elements = aspell_word_list_elements(suggestions);
-            String best;
-            bool bestAssigned = false;
+            String                   best;
+            bool                     bestAssigned = false;
             while (!aspell_string_enumeration_at_end(elements))
             {
                 const char* nextWord = aspell_string_enumeration_next(elements);

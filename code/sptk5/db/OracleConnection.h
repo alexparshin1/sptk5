@@ -239,10 +239,10 @@ protected:
 private:
     using SConnection = std::shared_ptr<Connection>;
 
-    mutable std::mutex m_mutex;      ///< Mutex that protects access to data members
-    OracleEnvironment m_environment; ///< Oracle connection environment
-    SConnection m_connection;        ///< Oracle database connection
-    std::string m_lastError;         ///< Last error in this connection or query
+    mutable std::mutex m_mutex;       ///< Mutex that protects access to data members
+    OracleEnvironment  m_environment; ///< Oracle connection environment
+    SConnection        m_connection;  ///< Oracle database connection
+    std::string        m_lastError;   ///< Last error in this connection or query
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
@@ -275,5 +275,5 @@ OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 
 extern "C" {
 [[maybe_unused]] SP_DRIVER_EXPORT void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-[[maybe_unused]] SP_DRIVER_EXPORT void oracleDestroyConnection(void* connection);
+[[maybe_unused]] SP_DRIVER_EXPORT void  oracleDestroyConnection(void* connection);
 }

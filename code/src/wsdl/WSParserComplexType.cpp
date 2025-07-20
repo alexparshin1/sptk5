@@ -225,7 +225,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
                                              Strings& elementNames, Strings& attributeNames,
                                              const String& serviceNamespace) const
 {
-    const String  className = "C" + wsClassName(m_name);
+    const String className = "C" + wsClassName(m_name);
 
     classDeclaration << "#pragma once\n\n";
 

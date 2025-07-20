@@ -36,8 +36,8 @@ constexpr size_t CHUNK = 16384;
 void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 {
     z_stream strm = {};
-    Buffer inputBuffer(CHUNK);
-    Buffer outputBuffer(CHUNK);
+    Buffer   inputBuffer(CHUNK);
+    Buffer   outputBuffer(CHUNK);
 
     // allocate deflate state
     strm.zalloc = Z_NULL;
@@ -54,7 +54,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
         throw Exception("deflateInit() error");
     }
 
-    bool eof = false;
+    bool   eof = false;
     size_t readPosition = 0;
     // Compress until end of file
     do
@@ -99,8 +99,8 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 void ZLib::decompress(Buffer& dest, const Buffer& src)
 {
     z_stream strm = {};
-    Buffer inputBuffer(CHUNK);
-    Buffer outputBuffer(CHUNK);
+    Buffer   inputBuffer(CHUNK);
+    Buffer   outputBuffer(CHUNK);
 
     // allocate inflate state
     strm.zalloc = Z_NULL;

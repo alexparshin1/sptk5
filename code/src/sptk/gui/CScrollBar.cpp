@@ -89,7 +89,7 @@ int CScrollBar::handle(int event)
     else
     {
         auto S = (int) std::round(slider_size() * ww);
-        int T = (horizontal() ? H : W) / 2 + 1;
+        int  T = (horizontal() ? H : W) / 2 + 1;
         if (S < T)
         {
             S = T;

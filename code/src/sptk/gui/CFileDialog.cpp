@@ -61,7 +61,7 @@ void CFileDialog::new_folder_cb(Fl_Widget* dialog, void*)
 
 void CFileDialog::home_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto*  fileDialog = (CFileDialog*) dialog->window();
     String homeDirectory = HomeDirectory::location();
     fileDialog->directory(homeDirectory);
     fileDialog->refreshDirectory();
@@ -98,7 +98,7 @@ void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
         case CEvent::MOUSE_CLICK:
             if (!directoryClicked)
             {
-                Strings fileNames;
+                Strings           fileNames;
                 const CSelection& selection = fileDialog->m_directoryView->selection();
 
                 for (unsigned i = 0; i < selection.size(); i++)
@@ -232,7 +232,7 @@ bool CFileDialog::execute()
 void CFileDialog::createFolder()
 {
     CDialog dialog(350, 85, "Create a New Folder");
-    CInput folderNameInput("Folder Name:");
+    CInput  folderNameInput("Folder Name:");
     folderNameInput.labelWidth(90);
 
     if (dialog.showModal())
@@ -289,7 +289,7 @@ void CFileDialog::directory(const String& p)
     m_directory.directory(p);
 
     Strings pathItems(m_directory.directory().c_str(), slashStr);
-    string incrementalPath;
+    string  incrementalPath;
 
     for (size_t i = 0; i < pathItems.size(); i++)
     {
@@ -383,7 +383,7 @@ void CFileDialog::fileName(const String& fn)
 
 String CFileDialog::fullFileName() const
 {
-    String fileNamesStr = m_fileNameInput->data().asString();
+    String  fileNamesStr = m_fileNameInput->data().asString();
     Strings fileNames(fileNamesStr, ";");
 
     for (auto& fileName: fileNames)

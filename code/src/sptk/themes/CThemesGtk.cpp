@@ -118,7 +118,7 @@ void CThemes::loadGtkButtons(xdoc::Document& xml, const String& styleName, CThem
 void CThemes::loadGtkTheme(const String& gtkThemeName)
 {
     CGtkThemeParser gtkThemeLoader;
-    const String& testThemeName(gtkThemeName);
+    const String&   testThemeName(gtkThemeName);
 
     try
     {

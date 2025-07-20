@@ -87,7 +87,7 @@ void DatabaseConnectionPool::load()
 
     // Load the library
 #ifdef WIN32
-    string driverFileName = "spdb5_" + driverNameLC + ".dll";
+    string       driverFileName = "spdb5_" + driverNameLC + ".dll";
     DriverHandle handle = LoadLibrary(driverFileName.c_str());
     if (!handle)
         throw SystemException("Cannot load library " + driverFileName);
@@ -121,7 +121,7 @@ void DatabaseConnectionPool::load()
     auto* createConnection = bit_cast<CreateDriverInstance*>(ptr);
 
     DestroyDriverInstance* destroyConnection;
-    const char* dlsymError = dlerror();
+    const char*            dlsymError = dlerror();
     if (dlsymError == nullptr)
     {
         ptr = dlsym(handle, destroyConnectionFunctionName.c_str());
@@ -164,7 +164,8 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
     if (m_connections.size() < m_maxConnections && m_pool.empty())
     {
         connection = SPoolDatabaseConnection(m_createConnection(toString().c_str(), m_connectionTimeout.count()),
-                                             [this](PoolDatabaseConnection* conn) {
+                                             [this](PoolDatabaseConnection* conn)
+                                             {
                                                  try
                                                  {
                                                      conn->close();

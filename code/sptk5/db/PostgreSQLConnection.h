@@ -236,9 +236,9 @@ protected:
     void queryExecDirect(const Query* query);
 
 private:
-    mutable std::mutex m_mutex;                                    ///< Mutex that protects access to data members
-    PGconn* m_connect {nullptr};                                   ///< PostgreSQL database connection
-    TimestampFormat m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
+    mutable std::mutex m_mutex;                                       ///< Mutex that protects access to data members
+    PGconn*            m_connect {nullptr};                           ///< PostgreSQL database connection
+    TimestampFormat    m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
 };
 
 /**
@@ -250,5 +250,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void postgresqlDestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  postgresqlDestroyConnection(void* connection);
 }

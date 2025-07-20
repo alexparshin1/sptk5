@@ -113,7 +113,7 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
     for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
     {
         const auto* intext = src.data() + position;
-        size_t inlen = src.bytes() - position;
+        size_t      inlen = src.bytes() - position;
         if (inlen > TEXT_BLOCK)
         {
             inlen = TEXT_BLOCK;

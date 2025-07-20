@@ -109,7 +109,7 @@ void OracleStatement::setParameterValues()
     unsigned parameterIndex = 1;
     for (const auto& parameterPtr: enumeratedParams())
     {
-        QueryParameter& parameter = *parameterPtr;
+        QueryParameter&  parameter = *parameterPtr;
         VariantDataType& paramDataType = parameter.binding().m_dataType;
 
         paramDataType = parameter.dataType();
@@ -472,7 +472,7 @@ void OracleStatement::getOutputParameters(FieldList& fields)
 
 void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
-    int year {0};
+    int      year {0};
     unsigned month {0};
     unsigned day {0};
     unsigned hour {0};
@@ -480,7 +480,7 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SData
     unsigned sec {0};
 
     const Timestamp timestamp = statement()->getTimestamp(index);
-    unsigned ms;
+    unsigned        ms;
     timestamp.getDate(year, month, day);
     timestamp.getTime(hour, min, sec, ms);
     field->setDateTime(DateTime(short(year), short(month), short(day), short(hour), short(min), short(sec)));
@@ -488,7 +488,7 @@ void OracleStatement::getDateTimeOutputParameter(unsigned int index, const SData
 
 void OracleStatement::getDateOutputParameter(unsigned int index, const SDatabaseField& field) const
 {
-    int year {0};
+    int      year {0};
     unsigned month {0};
     unsigned day {0};
     unsigned hour {0};

@@ -71,7 +71,7 @@ bool String::contains(const String& subject) const
 String String::replace(const String& pattern, const String& replacement) const
 {
     const RegularExpression regexp(pattern);
-    bool replaced = false;
+    bool                    replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
 }
 
@@ -93,7 +93,8 @@ int String::toInt() const
 
 bool String::in(std::initializer_list<String> list) const
 {
-    return ranges::any_of(list, [this](const String& value) {
-        return value == *this;
-    });
+    return ranges::any_of(list, [this](const String& value)
+                          {
+                              return value == *this;
+                          });
 }

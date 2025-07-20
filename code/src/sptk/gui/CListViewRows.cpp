@@ -80,7 +80,7 @@ unsigned CListViewRows::insert(unsigned position, CPackedStrings* ss)
 unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 {
     auto* s = (CPackedStrings*) m_rows[index];
-    int oldh = s->height;
+    int   oldh = s->height;
     delete s;
     m_fullHeight += ss->height - oldh;
     m_rows[index] = ss;

@@ -75,7 +75,7 @@ CLayoutClient* CTreeView::creator(const xdoc::SNode& node)
 String CTreeView::selectedPath() const
 {
     std::string result;
-    CTreeItem* node = m_treeControl->selected();
+    CTreeItem*  node = m_treeControl->selected();
     if (node == nullptr)
     {
         return "";

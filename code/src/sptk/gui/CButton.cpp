@@ -482,8 +482,8 @@ CLayoutClient* CButton::creator(const xdoc::SNode& node)
 void CButton::load(const xdoc::SNode& node)
 {
     CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
-    String iconName = (String) node->attributes().get("icon");
-    String iconType = (String) node->attributes().get("size", "large");
+    String    iconName = (String) node->attributes().get("icon");
+    String    iconType = (String) node->attributes().get("size", "large");
     CIconSize iconSize;
     switch (iconType[0])
     {

@@ -42,13 +42,13 @@ int hexCharToInt(unsigned char character)
 
 String Url::encode(const String& str)
 {
-    const auto cnt = static_cast<uint32_t>(str.length());
+    const auto  cnt = static_cast<uint32_t>(str.length());
     const char* src = str.c_str();
 
-    constexpr int bufferSize = 5;
+    constexpr int           bufferSize = 5;
     array<char, bufferSize> hexBuffer {};
-    Buffer buffer(cnt * 3 + 1);
-    int len;
+    Buffer                  buffer(cnt * 3 + 1);
+    int                     len;
     while (*src != 0)
     {
         if (isalnum(*src) != 0)
@@ -80,9 +80,9 @@ String Url::encode(const String& str)
 String Url::decode(const String& str)
 {
     constexpr int base16 = 16;
-    const char* src = str.c_str();
-    char dest {0};
-    Buffer buffer;
+    const char*   src = str.c_str();
+    char          dest {0};
+    Buffer        buffer;
     while (*src != 0)
     {
         switch (*src)

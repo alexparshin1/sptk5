@@ -57,7 +57,7 @@ void ThreadPool::logThreadEvent(const String& event, const Thread* workerThread)
     if (m_logger)
     {
         const scoped_lock lock(mtx);
-        stringstream message;
+        stringstream      message;
         if (workerThread != nullptr)
         {
             message << event << " " << workerThread->id();

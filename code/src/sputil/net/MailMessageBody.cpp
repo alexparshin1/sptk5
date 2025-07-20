@@ -33,7 +33,7 @@ using namespace sptk;
 String MailMessageBody::stripHtml(const String& origHtml)
 {
     static const RegularExpression matchHtmlTag(R"(<\S[^>]*>)", "g");
-    const auto step1 = matchHtmlTag.s(origHtml, " ");
+    const auto                     step1 = matchHtmlTag.s(origHtml, " ");
     return trim(step1.replace(" +", " "));
 }
 

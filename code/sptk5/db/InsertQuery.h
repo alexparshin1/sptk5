@@ -99,9 +99,9 @@ public:
     }
 
 private:
-    uint64_t m_id {0};       ///< The value of 'id' field in inserted record
-    String m_idFieldName;    ///< The name of auto-incremental field
-    SQuery m_lastInsertedId; ///< The query retrieving last inserted id (if needed by connection)
+    uint64_t m_id {0};         ///< The value of 'id' field in inserted record
+    String   m_idFieldName;    ///< The name of auto-incremental field
+    SQuery   m_lastInsertedId; ///< The query retrieving last inserted id (if needed by connection)
 
     /**
      * Adjust insert query by adding RETURNING id if connection type allows that

@@ -258,7 +258,7 @@ String sptk::capitalizeWords(const String& s)
     }
 
     Buffer buffer(s);
-    char* wordStart = nullptr;
+    char*  wordStart = nullptr;
 
     for (auto* current = (char*) buffer.data();; ++current)
     {

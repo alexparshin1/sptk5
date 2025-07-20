@@ -85,8 +85,8 @@ public:
     }
 
 private:
-    PoolDatabaseConnection* m_db; ///< Database to work with
-    bool m_active {false};        ///< Transaction activity
+    PoolDatabaseConnection* m_db;             ///< Database to work with
+    bool                    m_active {false}; ///< Transaction activity
 };
 /**
  * @}

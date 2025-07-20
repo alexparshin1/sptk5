@@ -68,13 +68,13 @@ private:
 
     array<uint8_t, kBufferSize * 2> buffer {};
 
-    uint8_t* input = buffer.data();
-    uint8_t* output = buffer.data() + kBufferSize;
+    uint8_t*    input = buffer.data();
+    uint8_t*    output = buffer.data() + kBufferSize;
     ReadBuffer& inputData;
 
-    Buffer& outputData;
-    int64_t input_file_length {0}; /* -1, if impossible to calculate */
-    size_t available_in {0};
+    Buffer&        outputData;
+    int64_t        input_file_length {0}; /* -1, if impossible to calculate */
+    size_t         available_in {0};
     const uint8_t* next_in {nullptr};
 
     size_t available_out {kBufferSize};
@@ -145,7 +145,7 @@ BrotliEncoderState* Context::createEncoderInstance() const
     if (input_file_length > 0)
     {
         constexpr uint32_t maxHintSize = static_cast<uint32_t>(-1) / 2;
-        const uint32_t size_hint = input_file_length < maxHintSize ? static_cast<uint32_t>(input_file_length) : maxHintSize;
+        const uint32_t     size_hint = input_file_length < maxHintSize ? static_cast<uint32_t>(input_file_length) : maxHintSize;
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 

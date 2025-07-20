@@ -175,10 +175,10 @@ void MD5::encode(uint1* output, const uint4* input, size_type len)
 // apply MD5 algo on a block
 void MD5::transform(const uint1* block)
 {
-    uint4 a = state[0];
-    uint4 b = state[1];
-    uint4 c = state[2];
-    uint4 d = state[3];
+    uint4            a = state[0];
+    uint4            b = state[1];
+    uint4            c = state[2];
+    uint4            d = state[3];
     array<uint4, 16> x {};
 
     decode(x.data(), block, blockSize);
@@ -364,7 +364,7 @@ sptk::String MD5::hexDigest() const
     }
 
     array<char, 34> buf {};
-    auto* ptr = buf.data();
+    auto*           ptr = buf.data();
     for (const auto& digestElement: digest)
     {
         const auto high = static_cast<int>(digestElement) >> 4;
@@ -389,7 +389,7 @@ String sptk::md5(const Buffer& data)
 String sptk::md5(const String& data)
 {
     const Buffer buffer(data);
-    const auto md5 = MD5(buffer);
+    const auto   md5 = MD5(buffer);
 
     return md5.hexDigest();
 }

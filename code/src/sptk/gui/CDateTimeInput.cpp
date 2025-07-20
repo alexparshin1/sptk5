@@ -102,7 +102,7 @@ void CDateTimeBaseInput::save(Query* updateQuery)
         return;
     } // no field name - no data saved
     QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    DateTime dt = dateTimeValue();
+    DateTime        dt = dateTimeValue();
     param.setDateTime(dt);
 }
 
@@ -217,7 +217,7 @@ void CDateInput::resize(int xx, int yy, int ww, int hh)
 Variant CDateInput::data() const
 {
     DateTime dt(m_dateInput->input()->value());
-    Variant rc;
+    Variant  rc;
     rc.setDateTime(dt, true);
     return rc;
 }
@@ -334,7 +334,7 @@ void CDateTimeInput::dateTimeValue(const DateTime& dt)
 
 DateTime CDateTimeInput::dateTimeValue() const
 {
-    auto dt = DateTime(m_dateInput->input()->value());
+    auto               dt = DateTime(m_dateInput->input()->value());
     DateTime::duration tm = DateTime(m_timeInput->value()).sinceEpoch();
     return dt + tm;
 }

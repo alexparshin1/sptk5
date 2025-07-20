@@ -97,7 +97,7 @@ public:
 
     CFrame(const Buffer& imageData, uint32_t frameWidth, uint32_t cornerZone,
            CPatternDrawMode drawMode = CPngImage::CPatternDrawMode::PDM_STRETCH,
-           CFrameKind kind = CFrameKind::USER_EXTENDED)
+           CFrameKind       kind = CFrameKind::USER_EXTENDED)
         : CPngImage(imageData)
         , m_frameWidth(frameWidth)
         , m_cornerZone(cornerZone)
@@ -177,7 +177,7 @@ class SP_EXPORT CFrames
     CFltkFrameMap m_fltkFrames;
 
 
-    static const Strings frameTypeNames;
+    static const Strings                   frameTypeNames;
     static const std::array<Fl_Boxtype, 4> frameTypes;
 
 public:

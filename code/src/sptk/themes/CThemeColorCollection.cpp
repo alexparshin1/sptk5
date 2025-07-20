@@ -34,7 +34,7 @@ using namespace std;
 using namespace sptk;
 
 std::map<String, gtk_color_function>* CThemeColorCollection::m_gtkColorFunctionMap;
-std::map<String, Fl_Color> CThemeColorCollection::m_colorMap;
+std::map<String, Fl_Color>            CThemeColorCollection::m_colorMap;
 
 CThemeColorCollection::CThemeColorCollection() noexcept
 {
@@ -57,7 +57,7 @@ CThemeColorCollection::CThemeColorCollection() noexcept
 static Fl_Color colorFromHexString(const String& colorStr)
 {
     char* eptr;
-    auto rgbColor = (uint32_t) strtol(colorStr.c_str(), &eptr, 16);
+    auto  rgbColor = (uint32_t) strtol(colorStr.c_str(), &eptr, 16);
 
     if (colorStr.length() == 3)
     {
@@ -153,7 +153,7 @@ Fl_Color CThemeColorCollection::mix(const String& expression)
 {
     Strings args;
     splitArguments(expression, args);
-    double weight = string2double(args[0]);
+    double   weight = string2double(args[0]);
     Fl_Color color1 = gtkColorFunction(args[1]);
     Fl_Color color2 = gtkColorFunction(args[2]);
     return fl_color_average(color1, color2, float(weight));
@@ -183,7 +183,7 @@ Fl_Color CThemeColorCollection::shade(const String& expression)
         multiplier = 1;
     }
 
-    Fl_Color color = gtkColorFunction(args[1]);
+    Fl_Color      color = gtkColorFunction(args[1]);
     unsigned char r = shadeColorComponent((unsigned char) (color >> 24), multiplier);
     unsigned char g = shadeColorComponent((unsigned char) (color >> 16), multiplier);
     unsigned char b = shadeColorComponent((unsigned char) (color >> 8), multiplier);
@@ -245,7 +245,7 @@ void CThemeColorCollection::loadFromSptkTheme(xdoc::Document& sptkTheme)
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++)
     {
         string colorXPath = string("/color_scheme/") + colorNames[colorIndex];
-        auto colorNodes = sptkTheme.root()->select(colorXPath);
+        auto   colorNodes = sptkTheme.root()->select(colorXPath);
         if (colorNodes.size() == 1)
         {
             auto& colorNode = *(colorNodes.begin());
@@ -259,8 +259,8 @@ void CThemeColorCollection::loadFromGtkTheme(xdoc::Document& gtkTheme)
     loadColorMap(gtkTheme, "/gtk_color_scheme");
 
     string stylesXPath = "/styles/style";
-    auto styleNodes = gtkTheme.root()->select(stylesXPath);
-    auto defaultStyleNode = *styleNodes.begin();
+    auto   styleNodes = gtkTheme.root()->select(stylesXPath);
+    auto   defaultStyleNode = *styleNodes.begin();
     for (const auto& styleNode: styleNodes)
     {
         String styleName(styleNode->attributes().get("name"));
@@ -274,7 +274,7 @@ void CThemeColorCollection::loadFromGtkTheme(xdoc::Document& gtkTheme)
     for (unsigned colorIndex = 0; colorIndex < THM_MAX_COLOR_INDEX; colorIndex++)
     {
         String colorXPath(colorNames[colorIndex]);
-        auto colorNodes = defaultStyleNode->select(colorXPath);
+        auto   colorNodes = defaultStyleNode->select(colorXPath);
         size_t elements = colorNodes.size();
         if (elements == 1)
         {

@@ -147,7 +147,8 @@ protected:
     /**
      * Statement state type definition
      */
-    struct State {
+    struct State
+    {
         /**
          * Number of columns is result set
          */
@@ -175,10 +176,10 @@ protected:
     }
 
 private:
-    Connection* m_connection {nullptr}; ///< DB connection
-    Statement* m_statement {nullptr};   ///< Statement
-    State m_state {};                   ///< State flags
-    CParamVector m_enumeratedParams;    ///< Enumerated parameters
+    Connection*  m_connection {nullptr}; ///< DB connection
+    Statement*   m_statement {nullptr};  ///< Statement
+    State        m_state {};             ///< State flags
+    CParamVector m_enumeratedParams;     ///< Enumerated parameters
 };
 
 } // namespace sptk

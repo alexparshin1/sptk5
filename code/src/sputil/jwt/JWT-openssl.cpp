@@ -104,9 +104,9 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
 {
     array<unsigned char, EVP_MAX_MD_SIZE> res {};
     unsigned int                          res_len = 0;
-    const EVP_MD* algorithm = nullptr;
-    int len = 0;
-    Buffer readBuf;
+    const EVP_MD*                         algorithm = nullptr;
+    int                                   len = 0;
+    Buffer                                readBuf;
 
     switch (this->alg)
     {
@@ -224,15 +224,15 @@ static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
 
 void JWT::sign_sha_pem(Buffer& out, const char* str) const
 {
-    EVP_MD_CTX* mdctx = nullptr;
-    ECDSA_SIG* ec_sig = nullptr;
+    EVP_MD_CTX*   mdctx = nullptr;
+    ECDSA_SIG*    ec_sig = nullptr;
     const BIGNUM* ec_sig_r = nullptr;
     const BIGNUM* ec_sig_s = nullptr;
-    BIO* bufkey = nullptr;
+    BIO*          bufkey = nullptr;
     const EVP_MD* algorithm = nullptr;
-    int type = 0;
-    EVP_PKEY* pkey = nullptr;
-    size_t slen = 0;
+    int           type = 0;
+    EVP_PKEY*     pkey = nullptr;
+    size_t        slen = 0;
 
     algorithm = signAlgorithm(alg, type);
 
@@ -303,13 +303,13 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
         }
         else
         {
-            unsigned degree = 0;
-            unsigned bn_len = 0;
-            unsigned r_len = 0;
-            unsigned s_len = 0;
-            unsigned buf_len = 0;
+            unsigned       degree = 0;
+            unsigned       bn_len = 0;
+            unsigned       r_len = 0;
+            unsigned       s_len = 0;
+            unsigned       buf_len = 0;
             unsigned char* raw_buf = nullptr;
-            EC_KEY* ec_key = nullptr;
+            EC_KEY*        ec_key = nullptr;
 
             /* For EC we need to convert to a raw format of R/S. */
 
@@ -444,17 +444,17 @@ static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 {
     EVP_MD_CTX* mdctx = nullptr;
-    ECDSA_SIG* ec_sig = nullptr;
-    EVP_PKEY* pkey = nullptr;
-    int type = 0;
-    BIO* bufkey = nullptr;
+    ECDSA_SIG*  ec_sig = nullptr;
+    EVP_PKEY*   pkey = nullptr;
+    int         type = 0;
+    BIO*        bufkey = nullptr;
 
     const auto* algorithm = getAlgorithm(this->alg, type);
 
     Buffer sig_buffer;
     jwt_b64_decode(sig_buffer, sig_b64);
     auto* sig_ptr = sig_buffer.data();
-    auto slen = static_cast<int>(sig_buffer.bytes());
+    auto  slen = static_cast<int>(sig_buffer.bytes());
 
     string error;
     try
@@ -484,9 +484,9 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
         if (pkey_type == EVP_PKEY_EC)
         {
             unsigned       degree = 0;
-            unsigned bn_len = 0;
+            unsigned       bn_len = 0;
             unsigned char* p = nullptr;
-            EC_KEY* ec_key = nullptr;
+            EC_KEY*        ec_key = nullptr;
 
             ec_sig = ECDSA_SIG_new();
             if (ec_sig == nullptr)

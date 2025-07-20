@@ -39,13 +39,13 @@ class PostgreSQLParamValues
 {
     friend class PostgreSQLStatement;
 
-    size_t m_count {0};
+    size_t                      m_count {0};
     std::vector<const uint8_t*> m_values;
-    std::vector<int> m_lengths;
-    std::vector<int> m_formats;
-    std::vector<Oid> m_types;
-    CParamVector m_params;
-    bool m_int64timestamps;
+    std::vector<int>            m_lengths;
+    std::vector<int>            m_formats;
+    std::vector<Oid>            m_types;
+    CParamVector                m_params;
+    bool                        m_int64timestamps;
 
     static constexpr size_t defaultParamCount = 8;
 
@@ -116,7 +116,7 @@ public:
 };
 
 extern const DateTime epochDate;
-extern const long daysSinceEpoch;
-extern const int64_t microsecondsSinceEpoch;
+extern const long     daysSinceEpoch;
+extern const int64_t  microsecondsSinceEpoch;
 
 } // namespace sptk

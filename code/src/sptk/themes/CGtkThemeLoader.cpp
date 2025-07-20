@@ -93,7 +93,7 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
                 break;
         }
 
-        bool valueMode = false;
+        bool   valueMode = false;
         size_t pos2 = row.find_first_of("=", pos);
         if (pos2 != STRING_NPOS)
         {
@@ -118,8 +118,8 @@ const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc:
             maxValueSize = int(pos2 - pos);
         }
         xdoc::SNode node = nullptr;
-        String value = trim(row.substr(pos, (unsigned) maxValueSize));
-        bool attemptGrouping = notGroupingTags.indexOf(name) < 0;
+        String      value = trim(row.substr(pos, (unsigned) maxValueSize));
+        bool        attemptGrouping = notGroupingTags.indexOf(name) < 0;
         if (!attemptGrouping)
         {
             valueMode = false;
@@ -298,7 +298,7 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
 void CGtkThemeParser::load(const string& themeName)
 {
     m_themeFolder = HomeDirectory::location() + ".themes/" + themeName + "/gtk-2.0/";
-    string gtkrcFile = m_themeFolder + "gtkrc";
+    string  gtkrcFile = m_themeFolder + "gtkrc";
     Strings gtkrcSource;
 
     try

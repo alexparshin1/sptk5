@@ -176,7 +176,7 @@ bool CInput_::checkCharacter(int pos, char& key)
     {
         return true;
     }
-    char et[] = {0, 0};
+    char   et[] = {0, 0};
     size_t maxPos = m_inputMask.length();
     while (pos < (int) maxPos)
     {
@@ -249,7 +249,7 @@ int CInput_::handle(int event)
     int del;
     if (Fl::compose(del))
     {
-        int pos = position();
+        int   pos = position();
         char& key = ascii;
         if (m_maxLength && pos >= m_maxLength)
         {

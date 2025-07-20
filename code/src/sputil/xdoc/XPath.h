@@ -46,13 +46,13 @@ enum class XPathAxis : uint8_t
 class SP_EXPORT XPathElement
 {
 public:
-    String elementName;                 ///< Node name, or '*'
-    String criteria;                    ///< Criteria
-    XPathAxis axis {XPathAxis::CHILD};  ///< Axis
-    String attributeName;               ///< Attribute name (optional)
-    String attributeValue;              ///< Attribute value (optional)
-    bool attributeValueDefined {false}; ///< true if attribute value was defined
-    int nodePosition {0};               ///< 0 (not required), -1 (last), or node position
+    String    elementName;                   ///< Node name, or '*'
+    String    criteria;                      ///< Criteria
+    XPathAxis axis {XPathAxis::CHILD};       ///< Axis
+    String    attributeName;                 ///< Attribute name (optional)
+    String    attributeValue;                ///< Attribute value (optional)
+    bool      attributeValueDefined {false}; ///< true if attribute value was defined
+    int       nodePosition {0};              ///< 0 (not required), -1 (last), or node position
 };
 
 /**
@@ -69,14 +69,14 @@ private:
      */
     static void scanDescendents(const SNode& thisNode, Node::Vector& nodes,
                                 const std::vector<XPathElement>& pathElements,
-                                int pathPosition,
-                                const String& starPointer);
+                                int                              pathPosition,
+                                const String&                    starPointer);
 
     /**
      * Match nodes
      */
     static void matchNode(const SNode& thisNode, Node::Vector& nodes, const std::vector<XPathElement>& pathElements,
-                          int pathPosition,
+                          int           pathPosition,
                           const String& starPointer);
 
     /**

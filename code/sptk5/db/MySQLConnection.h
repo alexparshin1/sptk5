@@ -208,7 +208,7 @@ protected:
 
 private:
     std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
-    mutable std::mutex m_mutex;          ///< Mutex that protects access to data members
+    mutable std::mutex     m_mutex;      ///< Mutex that protects access to data members
 
     /**
      * @brief Init connection to MySQL server
@@ -229,5 +229,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* mysqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void mysqlDestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  mysqlDestroyConnection(void* connection);
 }

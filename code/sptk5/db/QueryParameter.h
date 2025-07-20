@@ -268,11 +268,11 @@ public:
     }
 
 private:
-    QueryParameterBinding m_binding;          ///< The last successfull binding information
-    String m_name;                            ///< Parameter name
-    std::vector<uint32_t> m_bindParamIndexes; ///< The list of SQL query parameter numbers with this name
-    std::array<uint8_t, 80> m_timeData {};    ///< Special memory allocated for time structures
-    long m_callbackLength {0};                ///< An integer reserved to callback parameter data length
+    QueryParameterBinding   m_binding;            ///< The last successfull binding information
+    String                  m_name;               ///< Parameter name
+    std::vector<uint32_t>   m_bindParamIndexes;   ///< The list of SQL query parameter numbers with this name
+    std::array<uint8_t, 80> m_timeData {};        ///< Special memory allocated for time structures
+    long                    m_callbackLength {0}; ///< An integer reserved to callback parameter data length
 };
 
 using SQueryParameter = std::shared_ptr<QueryParameter>;

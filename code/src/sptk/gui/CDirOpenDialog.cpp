@@ -47,7 +47,7 @@ using namespace sptk;
 bool CDirOpenDialog::okPressed()
 {
     struct stat st = {};
-    String dname;
+    String      dname;
     try
     {
         dname = fileName();
@@ -58,7 +58,7 @@ bool CDirOpenDialog::okPressed()
             if (selection.size())
             {
                 CPackedStrings& row = selection[0];
-                String fname(row[1]);
+                String          fname(row[1]);
                 dname += fname;
             }
         }

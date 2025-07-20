@@ -104,7 +104,8 @@ private:
     std::shared_ptr<oracle::occi::Environment> m_handle {
         std::shared_ptr<oracle::occi::Environment>(
             oracle::occi::Environment::createEnvironment("UTF8", "UTF8", oracle::occi::Environment::THREADED_MUTEXED),
-            [](oracle::occi::Environment* handle) {
+            [](oracle::occi::Environment* handle)
+            {
                 oracle::occi::Environment::terminateEnvironment(handle);
             })};
 };

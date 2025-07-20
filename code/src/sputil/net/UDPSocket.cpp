@@ -44,9 +44,9 @@ size_t UDPSocket::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
         from = bit_cast<sockaddr_in*>(&addr);
     }
 
-    socklen_t addrLength = sizeof(sockaddr_in);
+    socklen_t  addrLength = sizeof(sockaddr_in);
     const auto bytes = recvfrom(getSocketFdUnlocked(), bit_cast<char*>(buffer), static_cast<int>(size), 0,
-                          bit_cast<sockaddr*>(from), &addrLength);
+                                bit_cast<sockaddr*>(from), &addrLength);
     if (bytes == -1)
         throwSocketError("Can't read from socket");
     return static_cast<size_t>(bytes);

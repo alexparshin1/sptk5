@@ -38,9 +38,9 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     for (size_t i = 0; i < m_count; ++i)
     {
         using enum sptk::VariantDataType;
-        const auto& param = m_params[i];
+        const auto&           param = m_params[i];
         const VariantDataType ptype = param->dataType();
-        PostgreSQLDataType pgDataType;
+        PostgreSQLDataType    pgDataType;
         PostgreSQLConnection::variantTypeToPostgreType(ptype, pgDataType, param->name());
         m_types[i] = static_cast<Oid>(pgDataType);
 
@@ -91,16 +91,16 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
 void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
     double value = param->asFloat();
-    void* ptr = &value;
-    auto* uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
+    void*  ptr = &value;
+    auto*  uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
     *uptrBuffer64 = htonq(*bit_cast<uint64_t*>(ptr));
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PostgreSQLDataType::FLOAT8);
 }
 
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
-    constexpr int64_t microsecondsInSecond {1000000};
-    constexpr int hoursInDay {24};
+    constexpr int64_t     microsecondsInSecond {1000000};
+    constexpr int         hoursInDay {24};
     const VariantDataType ptype = param->dataType();
 
     if (param->isNull())
@@ -109,10 +109,10 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
     }
     else
     {
-        uint32_t* uptrBuffer;
-        uint64_t* uptrBuffer64;
-        long days;
-        int64_t mcs {0};
+        uint32_t*         uptrBuffer;
+        uint64_t*         uptrBuffer64;
+        long              days;
+        int64_t           mcs {0};
         constexpr int64_t secondsPerDay {86400};
         switch (ptype)
         {

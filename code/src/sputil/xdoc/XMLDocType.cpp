@@ -84,9 +84,10 @@ XMLDocType::XMLDocType(const char* name, const char* public_id, const char* syst
     }
 }
 
-struct entity {
+struct entity
+{
     const char* name;
-    int replacement_len;
+    int         replacement_len;
     const char* replacement;
 };
 
@@ -138,9 +139,9 @@ const struct entity* XMLEntityCache::encode(const char* str) const
     for (; maps != m_replacementMaps.end(); ++maps)
     {
         const int         len = maps->first;
-        const String fragment(str, static_cast<size_t>(len));
+        const String      fragment(str, static_cast<size_t>(len));
         const CEntityMap& replacements = maps->second;
-        auto itor = replacements.find(fragment);
+        auto              itor = replacements.find(fragment);
         if (itor != replacements.end())
         {
             return itor->second;
@@ -210,15 +211,15 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
     bool replaced = false;
 
     const char* ptr = str;
-    Buffer* src = &m_encodeBuffers[0];
-    Buffer* dst = &m_encodeBuffers[1];
+    Buffer*     src = &m_encodeBuffers[0];
+    Buffer*     dst = &m_encodeBuffers[1];
     dst->bytes(0);
     for (;;)
     {
         const char* pos = strpbrk(ptr, xml_shortcut);
         if (pos != nullptr)
         {
-            const auto index = static_cast<uint32_t>(strchr(xml_shortcut, *pos) - xml_shortcut);
+            const auto    index = static_cast<uint32_t>(strchr(xml_shortcut, *pos) - xml_shortcut);
             const entity* ent = table + index;
             if (const auto tailBytes = static_cast<uint32_t>(pos - ptr);
                 tailBytes != 0)
@@ -252,8 +253,8 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
         for (; itor != m_entities.end(); ++itor)
         {
             const String& val = itor->second;
-            const auto len = static_cast<uint32_t>(val.length());
-            const char* pos = strstr(ptr, val.c_str());
+            const auto    len = static_cast<uint32_t>(val.length());
+            const char*   pos = strstr(ptr, val.c_str());
             while (pos != nullptr)
             {
                 dst->append(ptr, static_cast<uint32_t>(pos - ptr));

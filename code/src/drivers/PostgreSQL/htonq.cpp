@@ -38,9 +38,9 @@ namespace sptk {
 
 uint64_t htonq(uint64_t val)
 {
-    uint64_t result {0};
+    uint64_t    result {0};
     const auto* src = std::bit_cast<uint32_t*>(&val);
-    auto* dst = std::bit_cast<uint32_t*>(&result);
+    auto*       dst = std::bit_cast<uint32_t*>(&result);
     dst[0] = htonl(src[1]);
     dst[1] = htonl(src[0]);
     return result;
@@ -48,9 +48,9 @@ uint64_t htonq(uint64_t val)
 
 uint64_t ntohq(uint64_t val)
 {
-    uint64_t result {0};
+    uint64_t    result {0};
     const auto* src = std::bit_cast<uint32_t*>(&val);
-    auto* dst = std::bit_cast<uint32_t*>(&result);
+    auto*       dst = std::bit_cast<uint32_t*>(&result);
     dst[0] = htonl(src[1]);
     dst[1] = htonl(src[0]);
     return result;
@@ -59,7 +59,7 @@ uint64_t ntohq(uint64_t val)
 void htonq_inplace(const uint64_t* input, uint64_t* output)
 {
     const auto* src = std::bit_cast<uint32_t*>(input);
-    auto* dst = std::bit_cast<uint32_t*>(output);
+    auto*       dst = std::bit_cast<uint32_t*>(output);
     dst[1] = htonl(src[0]);
     dst[0] = htonl(src[1]);
 }
