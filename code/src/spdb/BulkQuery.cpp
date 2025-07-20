@@ -54,9 +54,6 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
         sql += " RETURNING " + keyColumnName;
     }
 
-    cout << sql << endl
-         << endl;
-
     return sql;
 }
 
