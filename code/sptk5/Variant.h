@@ -368,7 +368,7 @@ protected:
     /**
      * Copies data from another CVariant
      */
-    void setData(const BaseVariant& other);
+    void                      setData(const BaseVariant& other);
     [[nodiscard]] const char* getBufferPtr() const;
 };
 

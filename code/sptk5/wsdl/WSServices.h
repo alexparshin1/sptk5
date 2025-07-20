@@ -72,7 +72,7 @@ public:
     WSRequest& get(const String& location) const;
 
 private:
-    mutable std::mutex m_mutex;
+    mutable std::mutex           m_mutex;
     std::map<String, SWSRequest> m_services;
 
     void assign(const WSServices& other);

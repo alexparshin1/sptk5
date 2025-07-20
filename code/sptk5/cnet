@@ -33,10 +33,10 @@
 #include <sptk5/net/ImapConnect.h>
 #include <sptk5/net/ImapDS.h>
 #include <sptk5/net/MailMessageBody.h>
+#include <sptk5/net/SSLSocket.h>
 #include <sptk5/net/SmtpConnect.h>
 #include <sptk5/net/TCPServer.h>
 #include <sptk5/net/TCPServerConnection.h>
 #include <sptk5/net/UDPSocket.h>
-#include <sptk5/net/SSLSocket.h>
 
 #endif

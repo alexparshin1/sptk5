@@ -45,7 +45,7 @@ public:
 
 protected:
     WSServices& m_services;
-    const URL m_url;
+    const URL   m_url;
 
     virtual std::shared_ptr<HttpAuthentication> getAuthentication() = 0;
 

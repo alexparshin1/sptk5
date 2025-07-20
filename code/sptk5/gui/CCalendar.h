@@ -53,16 +53,16 @@ class SP_EXPORT CCalendar
     : public ::Fl_Group
     , public CLayoutClient
 {
-    Fl_Group* m_headerBox;
-    Fl_Group* m_buttonBox;
-    Fl_Box* m_monthNameBox;
-    std::array<Fl_Box*, 7> m_dayNameBoxes;
+    Fl_Group*                  m_headerBox;
+    Fl_Group*                  m_buttonBox;
+    Fl_Box*                    m_monthNameBox;
+    std::array<Fl_Box*, 7>     m_dayNameBoxes;
     std::array<Fl_Button*, 31> m_dayButtons;
-    std::array<Fl_Button*, 4> m_switchButtons;
-    DateTime m_date;
-    std::string m_headerLabel;
-    int m_activeButtonIndex;
-    std::array<char, 14> m_weekDayLabels;
+    std::array<Fl_Button*, 4>  m_switchButtons;
+    DateTime                   m_date;
+    std::string                m_headerLabel;
+    int                        m_activeButtonIndex;
+    std::array<char, 14>       m_weekDayLabels;
 
     /**
      * Day button callback class function

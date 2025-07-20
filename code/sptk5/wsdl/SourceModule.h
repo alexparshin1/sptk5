@@ -72,8 +72,8 @@ public:
     void writeOutputFiles();
 
 private:
-    String m_name;              ///< Module name
-    String m_path;              ///< Module path
+    String            m_name;   ///< Module name
+    String            m_path;   ///< Module path
     std::stringstream m_header; ///< Module .h file content
     std::stringstream m_source; ///< Module cpp file content
 

@@ -96,11 +96,11 @@ class SP_EXPORT CBaseButton
 {
     friend class CThemes;
 
-    bool m_default;                                     ///< Is this button a default button?
-    CThemeButtonType m_type;                            ///< Button type - normal, thin, or combo box button
-    CButtonKind m_kind {CButtonKind::UNDEFINED_BUTTON}; ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
-    Fl_Image* m_image {nullptr};                        ///< Internal image pointer
-    CIconSize m_iconSize {CIconSize::IS_LARGE_ICON};    ///< Icon size
+    bool             m_default;                              ///< Is this button a default button?
+    CThemeButtonType m_type;                                 ///< Button type - normal, thin, or combo box button
+    CButtonKind      m_kind {CButtonKind::UNDEFINED_BUTTON}; ///< Button kind (for a stock image) or SP_UNDEFINED_BUTTON for user_defined image
+    Fl_Image*        m_image {nullptr};                      ///< Internal image pointer
+    CIconSize        m_iconSize {CIconSize::IS_LARGE_ICON};  ///< Icon size
 
     /**
      * Draws the dotted line. The line angle should be divided by 45 degrees w/o remains.

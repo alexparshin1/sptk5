@@ -203,10 +203,10 @@ public:
 protected:
     union VariantValue
     {
-        bool asBool;
-        int asInt;
-        int64_t asInt64;
-        double asDouble;
+        bool           asBool;
+        int            asInt;
+        int64_t        asInt64;
+        double         asDouble;
         const uint8_t* asBytePointer;
     };
 
@@ -246,9 +246,9 @@ protected:
     }
 
 private:
-    VariantValue m_value {};
+    VariantValue                          m_value {};
     std::shared_ptr<VariantStorageClient> m_class;
-    VariantType m_type {};
+    VariantType                           m_type {};
 };
 
 /// @brief Compact variant data storage

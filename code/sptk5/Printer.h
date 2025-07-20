@@ -25,46 +25,49 @@
 */
 #pragma once
 
-#include <sptk5/sptk.h>
 #include <sptk5/DateTime.h>
+#include <sptk5/sptk.h>
 
 #include <iostream>
 #include <mutex>
 
 namespace sptk {
 
-    class SP_EXPORT Console {
-    public:
-        static std::mutex &printMutex();
-    };
+class SP_EXPORT Console
+{
+public:
+    static std::mutex& printMutex();
+};
 } // namespace sptk
 
 #define COUT(a)                                                        \
     do                                                                 \
     {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cout << a << "\n" << std::flush;                          \
+        std::cout << a << "\n"                                         \
+                  << std::flush;                                       \
     } while (false)
 
-#define COUT_TS(a)                                                     \
-    do                                                                 \
-    {                                                                  \
-        const std::scoped_lock printLock(sptk::Console::printMutex()); \
+#define COUT_TS(a)                                                                            \
+    do                                                                                        \
+    {                                                                                         \
+        const std::scoped_lock printLock(sptk::Console::printMutex());                        \
         std::cout << DateTime::Now().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS) \
-                  << " " << a << "\n" << std::flush;                   \
+                  << " " << a << "\n"                                                         \
+                  << std::flush;                                                              \
     } while (false)
 
 #define CERR(a)                                                        \
     do                                                                 \
     {                                                                  \
         const std::scoped_lock printLock(sptk::Console::printMutex()); \
-        std::cerr << a << "\n";                                                \
+        std::cerr << a << "\n";                                        \
     } while (false)
 
-#define CERR_TS(a)                                                        \
-    do                                                                 \
-    {                                                                  \
-        const std::scoped_lock printLock(sptk::Console::printMutex()); \
+#define CERR_TS(a)                                                                            \
+    do                                                                                        \
+    {                                                                                         \
+        const std::scoped_lock printLock(sptk::Console::printMutex());                        \
         std::cerr << DateTime::Now().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS) \
-                  << " " << a << "\n";                   \
+                  << " " << a << "\n";                                                        \
     } while (false)

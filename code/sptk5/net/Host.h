@@ -52,9 +52,9 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable std::mutex m_mutex;                             ///< Mutex to protect internal class data
-    String m_hostname;                                      ///< Host name or IP address
-    uint16_t m_port {0};                                    ///< Port number
+    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data
+    String                                    m_hostname;   ///< Host name or IP address
+    uint16_t                                  m_port {0};   ///< Port number
     std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
 
     /**

@@ -80,10 +80,10 @@ public:
     bool isFinal() const;
 
 private:
-    OpCode m_opcode {0};
+    OpCode   m_opcode {0};
     uint32_t m_status {0};
-    Buffer m_payload; ///< Message payload
-    bool m_finalMessage {true};
+    Buffer   m_payload; ///< Message payload
+    bool     m_finalMessage {true};
 };
 
 /// WebSockets connection handler
@@ -111,7 +111,7 @@ class WSNotification
 {
 public:
     const std::map<String, String> m_headers;
-    String m_data;
+    String                         m_data;
 };
 
 class WSNotificationManager

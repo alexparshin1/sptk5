@@ -50,7 +50,7 @@ public:
      * @param connectionFunction Connection function executed for each new client connection to server
      */
     RunableServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
-                             Function connectionFunction = {})
+                            Function connectionFunction = {})
         : ServerConnection(server, type, connectionAddress)
         , Runable("RunnableServerConnection")
         , m_connectionFunction(std::move(connectionFunction))

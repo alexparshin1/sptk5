@@ -302,7 +302,7 @@ protected:
      */
     static void loadGtkButtonFileNames(xdoc::Document& xml, std::string XPath,
                                        std::map<CThemeImageState, std::string>& fileNames,
-                                       std::string orientation = "");
+                                       std::string                              orientation = "");
 
     /**
      * @brief Loads GTK theme button images from 'style' node

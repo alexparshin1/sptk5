@@ -78,9 +78,9 @@ class SP_EXPORT IPAddress
      */
     union
     {
-        sockaddr_in ipv4;
+        sockaddr_in  ipv4;
         sockaddr_in6 ipv6;
-        sockaddr generic;
+        sockaddr     generic;
     } m_address;
 
     String m_addressStr;

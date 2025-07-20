@@ -58,11 +58,12 @@ public:
     /**
      * Combination of field view attributes
      */
-    struct View {
-        signed int width : 10;  ///< Field width
-        unsigned precision : 5; ///< Field precision
-        unsigned flags : 16;    ///< Field flags like alignment, etc
-        bool visible : 1;       ///< Is field visible?
+    struct View
+    {
+        signed int width : 10;    ///< Field width
+        unsigned   precision : 5; ///< Field precision
+        unsigned   flags : 16;    ///< Field flags like alignment, etc
+        bool       visible : 1;   ///< Is field visible?
     };
 
     /**
@@ -248,7 +249,7 @@ protected:
 
 private:
     String m_name;        ///< Field name
-    View m_view {};       ///< Combination of field view attributes
+    View   m_view {};     ///< Combination of field view attributes
     String m_displayName; ///< Optional display field name
 
     String epochDataToDateTimeString() const;

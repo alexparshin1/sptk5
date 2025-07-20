@@ -33,8 +33,8 @@
 template<class T>
 class Loop
 {
-    mutable std::mutex m_mutex;
-    std::list<T> m_list;
+    mutable std::mutex              m_mutex;
+    std::list<T>                    m_list;
     typename std::list<T>::iterator m_position;
 
 public:

@@ -76,14 +76,14 @@ public:
     bool isUnique() const;
 
 private:
-    String m_instanceName;      ///< Instance name
-    bool m_lockCreated {false}; ///< Lock is created
+    String m_instanceName;        ///< Instance name
+    bool   m_lockCreated {false}; ///< Lock is created
 #ifdef _WIN32
     HANDLE m_mutex; ///< The named mutex object
 #else
-    String m_fileName;    ///< The lock file name
-    int read_pid() const; ///< Gets the process ID
-    int write_pid();      ///< Writes the process ID into the lock file
+    String m_fileName;       ///< The lock file name
+    int    read_pid() const; ///< Gets the process ID
+    int    write_pid();      ///< Writes the process ID into the lock file
 #endif
 
     void cleanup(); ///< Cleanup allocated resources

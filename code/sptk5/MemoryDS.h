@@ -213,8 +213,8 @@ public:
     void push_back(FieldList&& fieldList);
 
 private:
-    mutable std::mutex m_mutex;
-    std::list<FieldList> m_list;              // List of the dataset records
+    mutable std::mutex             m_mutex;
+    std::list<FieldList>           m_list;    // List of the dataset records
     std::list<FieldList>::iterator m_current; // DS iterator
 };
 /**

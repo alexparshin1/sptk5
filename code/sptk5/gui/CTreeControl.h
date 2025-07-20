@@ -53,7 +53,7 @@ class CTreeControl;
  * By default (if that callback isn't redefined, SPTK creates CBox widget.
  * @param item CTreeItem*, a tree item that would be a parent for the new item
  */
-using CTreeItemCreator = CLayoutClient* (*) (CTreeItem* item);
+using CTreeItemCreator = CLayoutClient* (*) (CTreeItem * item);
 
 /**
  * @brief Tree widget item.

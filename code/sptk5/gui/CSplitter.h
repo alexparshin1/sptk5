@@ -46,11 +46,11 @@ namespace sptk {
 class SP_EXPORT CSplitter
     : public CBox
 {
-    Fl_Widget* m_chainedWidget;           /// Pointer on the widget that will be resized
+    Fl_Widget*     m_chainedWidget;       /// Pointer on the widget that will be resized
     CLayoutClient* m_chainedWidgetLayout; /// Pointer on the CLayoutClient of the resized widget
-    bool m_dragging {false};              /// The flag indicating the dragging state
-    int m_lastDragX {0};                  /// Where did we grab the bar (x-coordinate) ?
-    int m_lastDragY {0};                  /// Where did we grab the bar (y-coordinate) ?
+    bool           m_dragging {false};    /// The flag indicating the dragging state
+    int            m_lastDragX {0};       /// Where did we grab the bar (x-coordinate) ?
+    int            m_lastDragY {0};       /// Where did we grab the bar (y-coordinate) ?
 protected:
     void findChainedControl(); /// After the splitter is grabbed finds out which widget is resizing
 public:

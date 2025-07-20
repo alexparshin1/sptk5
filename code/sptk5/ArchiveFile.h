@@ -38,24 +38,25 @@ constexpr int TAR_BLOCK_SIZE = 512; ///< Tar archive block size
 /**
  * Tar header as it's stored in file
  */
-struct TarHeader {
+struct TarHeader
+{
     std::array<char, 100> filename;
-    std::array<char, 8> mode;
-    std::array<char, 8> uid;
-    std::array<char, 8> gid;
-    std::array<char, 12> size;
-    std::array<char, 12> mtime;
-    std::array<char, 8> checkSum;
-    char typeflag;
+    std::array<char, 8>   mode;
+    std::array<char, 8>   uid;
+    std::array<char, 8>   gid;
+    std::array<char, 12>  size;
+    std::array<char, 12>  mtime;
+    std::array<char, 8>   checkSum;
+    char                  typeflag;
     std::array<char, 100> linkName;
-    std::array<char, 6> magic;
-    std::array<char, 2> version;
-    std::array<char, 32> uname;
-    std::array<char, 32> gname;
-    std::array<char, 8> devmajor;
-    std::array<char, 8> devminor;
+    std::array<char, 6>   magic;
+    std::array<char, 2>   version;
+    std::array<char, 32>  uname;
+    std::array<char, 32>  gname;
+    std::array<char, 8>   devmajor;
+    std::array<char, 8>   devminor;
     std::array<char, 155> prefix;
-    std::array<char, 12> padding;
+    std::array<char, 12>  padding;
 };
 
 #pragma pack(pop)
@@ -83,9 +84,10 @@ public:
         CONTTYPE = '7'        ///< Contiguous file (regular file if not supported).
     };
 
-    struct Ownership {
-        int uid {0};
-        int gid {0};
+    struct Ownership
+    {
+        int    uid {0};
+        int    gid {0};
         String uname;
         String gname;
     };
@@ -149,12 +151,12 @@ public:
     static std::filesystem::path relativePath(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
 private:
-    String m_fileName;
-    unsigned m_mode {777};
+    String    m_fileName;
+    unsigned  m_mode {777};
     Ownership m_ownership {};
-    DateTime m_mtime;
-    Type m_type {Type::REGULAR_FILE};
-    String m_linkname;
+    DateTime  m_mtime;
+    Type      m_type {Type::REGULAR_FILE};
+    String    m_linkname;
 
     std::shared_ptr<TarHeader> m_header;
 

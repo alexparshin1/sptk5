@@ -57,11 +57,12 @@ enum class VariantDataType : uint16_t
     VAR_BYTE_POINTER = 256 ///< Byte pointer
 };
 
-struct VariantType {
+struct VariantType
+{
     VariantDataType type : 12;
-    bool isNull : 1;
-    bool isExternalBuffer : 1;
-    size_t size : 48;
+    bool            isNull : 1;
+    bool            isExternalBuffer : 1;
+    size_t          size : 48;
 };
 
 /**

@@ -233,9 +233,9 @@ protected:
     void setRequestMethods(std::map<String, RequestMethod>&& requestMethods);
 
 private:
-    LogEngine*                            m_logEngine;       ///< Optional logger, or nullptr
+    LogEngine*                      m_logEngine;       ///< Optional logger, or nullptr
     std::map<String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
-    String                                m_targetNamespace; ///< SOAP service target namespace
+    String                          m_targetNamespace; ///< SOAP service target namespace
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;

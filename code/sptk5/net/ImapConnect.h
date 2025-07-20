@@ -278,8 +278,8 @@ protected:
     void parseFolderList();
 
 private:
-    Strings m_response;               ///< Internal response buffer
-    int32_t m_ident {1};              ///< Message id
+    Strings             m_response;   ///< Internal response buffer
+    int32_t             m_ident {1};  ///< Message id
     static const String empty_quotes; ///< Empty quotes string
 };
 

@@ -94,9 +94,9 @@ public:
     }
 
 private:
-    MailMessageType m_type; ///< Message type
-    String m_plainText;     ///< Plain text part of the message
-    String m_htmlText;      ///< Optional HTML part of the message
+    MailMessageType m_type;      ///< Message type
+    String          m_plainText; ///< Plain text part of the message
+    String          m_htmlText;  ///< Optional HTML part of the message
 
     /**
      * Builds a plain text string from HTML text

@@ -40,8 +40,8 @@ class SP_EXPORT MoneyData : public VariantStorageClient
 {
 public:
     static const std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
-    int64_t quantity;                              ///< Integer value
-    uint8_t scale;                                 ///< Scale
+    int64_t                              quantity; ///< Integer value
+    uint8_t                              scale;    ///< Scale
 
     /**
      * Constructor

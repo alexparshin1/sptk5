@@ -73,8 +73,8 @@
 #define SP_DRIVER_EXPORT ///< DLL/SO driver classes load attributes
 #endif
 
-#include <sptk5/sptk-config.h>
 #include <limits>
+#include <sptk5/sptk-config.h>
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 #include <winsock2.h>

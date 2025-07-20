@@ -27,19 +27,19 @@
 #ifndef __CGUI__
 #define __CGUI__
 
-#include <sptk5/Exception.h>
 #include <sptk5/CSmallPixmapIDs.h>
+#include <sptk5/Exception.h>
 
 #include <sptk5/gui/CButton.h>
 #include <sptk5/gui/CCalendar.h>
 #include <sptk5/gui/CCheckButtons.h>
 #include <sptk5/gui/CColumn.h>
 #include <sptk5/gui/CComboBox.h>
+#include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CEditor.h>
 #include <sptk5/gui/CFontComboBox.h>
 #include <sptk5/gui/CGroup.h>
-#include <sptk5/gui/CDBListView.h>
 #include <sptk5/gui/CMenuBar.h>
 #include <sptk5/gui/CMessageDialog.h>
 #include <sptk5/gui/CProgressBar.h>
@@ -47,8 +47,8 @@
 #include <sptk5/gui/CScroll.h>
 #include <sptk5/gui/CSplitter.h>
 #include <sptk5/gui/CThemes.h>
-#include <sptk5/gui/CTreeView.h>
 #include <sptk5/gui/CToolBar.h>
+#include <sptk5/gui/CTreeView.h>
 #include <sptk5/gui/CWindow.h>
 
 #include <sptk5/string_ext.h>

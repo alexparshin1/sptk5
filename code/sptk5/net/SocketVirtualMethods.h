@@ -338,7 +338,7 @@ private:
  * For Linux, simply returns errno value.
  * @return errno equivalent.
  */
-[[nodiscard]] SP_EXPORT int getSocketError(int nativeErrorCode=-1);
+[[nodiscard]] SP_EXPORT int getSocketError(int nativeErrorCode = -1);
 
 /**
  * Throws socket exception with error description retrieved from socket state

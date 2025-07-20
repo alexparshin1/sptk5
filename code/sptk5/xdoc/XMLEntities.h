@@ -49,7 +49,7 @@ public:
         PUBLIC
     };
     String name;
-    Type type;
+    Type   type;
     String id;
     String resource;
 

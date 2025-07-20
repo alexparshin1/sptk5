@@ -88,7 +88,7 @@ public:
 
     Message request;  ///< Request data
     Message response; ///< Response data
-    String name;      ///< Request name
+    String  name;     ///< Request name
 };
 
 /**
