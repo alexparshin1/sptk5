@@ -50,7 +50,7 @@ OracleOciConnection::OracleOciConnection(const String& connectionString, chrono:
     const scoped_lock lock(initializeMutex);
     if (!ocilib::Environment::Initialized())
     {
-        ocilib::Environment::Initialize();
+        ocilib::Environment::Initialize(Environment::EnvironmentFlagsValues::Threaded);
     }
 }
 
