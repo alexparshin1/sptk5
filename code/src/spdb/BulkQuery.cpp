@@ -212,10 +212,18 @@ vector<uint64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
     const auto     fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
     const unsigned remainder = rows.size() % m_groupSize;
 
+    bool             captureInsertedIds = false;
     vector<uint64_t> insertedIds;
 
     if (!m_keyColumnName.empty())
     {
+        captureInsertedIds = true;
+        if (m_connection->connectionType() == DatabaseConnectionType::MYSQL)
+        {
+            Query lockTableQuery(m_connection, "LOCK TABLES " + m_tableName + " WRITE", false);
+            lockTableQuery.exec();
+        }
+
         insertedIds.reserve(rows.size());
     }
 
@@ -235,6 +243,12 @@ vector<uint64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
         const auto databaseConnectionType = m_connection->connectionType();
         Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_keyColumnName, m_columnNames, remainder));
         insertGroupRows(insertQuery, firstRow, firstRow + remainder, insertedIds);
+    }
+
+    if (captureInsertedIds && m_connection->connectionType() == DatabaseConnectionType::MYSQL)
+    {
+        Query unlockTableQuery(m_connection, "UNLOCK TABLES", false);
+        unlockTableQuery.exec();
     }
 
     return insertedIds;

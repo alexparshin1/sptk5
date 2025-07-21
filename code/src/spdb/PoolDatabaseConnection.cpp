@@ -208,7 +208,7 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 }
 
 std::vector<uint64_t> PoolDatabaseConnection::bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
-                                                         const std::vector<VariantVector>& data)
+                                                         const std::vector<VariantVector>& data, size_t groupSize)
 {
     const bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
@@ -216,7 +216,7 @@ std::vector<uint64_t> PoolDatabaseConnection::bulkInsert(const String& tableName
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, keyColumnName, columnNames, 50);
+    BulkQuery bulkQuery(this, tableName, keyColumnName, columnNames, groupSize);
     auto      insertedIds = bulkQuery.insertRows(data);
 
     if (!wasInTransaction)

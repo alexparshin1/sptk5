@@ -342,7 +342,7 @@ public:
      * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
     [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
-                                                           const std::vector<VariantVector>& data);
+                                                           const std::vector<VariantVector>& data, size_t groupSize = 50);
 
     /**
      * @brief Executes bulk delete of rows by the keys.

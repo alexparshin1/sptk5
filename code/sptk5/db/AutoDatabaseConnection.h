@@ -177,9 +177,10 @@ public:
      * @param data              Data for bulk insert
      * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames, const std::vector<VariantVector>& data) const
+    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
+                                                           const std::vector<VariantVector>& data, size_t groupSize = 100) const
     {
-        return m_connection->bulkInsert(tableName, keyColumnName, columnNames, data);
+        return m_connection->bulkInsert(tableName, keyColumnName, columnNames, data, groupSize);
     }
 
     /**
@@ -217,6 +218,11 @@ public:
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const
     {
         m_connection->executeBatchSQL(batchSQL, errors);
+    }
+
+    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& sequenceName = "") const
+    {
+        return m_connection->lastAutoIncrementSql(tableName, sequenceName);
     }
 };
 

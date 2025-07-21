@@ -25,10 +25,12 @@
 */
 
 #include <ranges>
+#include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/InsertQuery.h>
+#include <sptk5/threads/Flag.h>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
@@ -771,6 +773,60 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     const auto rowCount = countRows[0].asInteger();
     countRows.close();
     EXPECT_EQ(0, rowCount);
+}
+
+void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool connectionPool(connectionString.toString());
+    sptk::Flag             flag;
+
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+    createTestTable(databaseConnection, false, false);
+
+    vector<VariantVector> data;
+
+    VariantVector aRow;
+    aRow.emplace_back("Alex,'Doe'");
+    aRow.emplace_back("Programmer");
+    aRow.emplace_back("01-JAN-2014");
+    data.push_back(aRow);
+
+    constexpr int batchSize = 10000;
+
+    for (int i = 0; i < batchSize; ++i)
+    {
+        data.push_back(aRow);
+    }
+
+    auto connectionThread = [&data, &connectionString, &flag]()
+    {
+        DatabaseConnectionPool   connectionPool(connectionString.toString());
+        const Strings            columnNames({"name", "position_name", "hire_date"});
+        const DatabaseConnection databaseConnection = connectionPool.getConnection();
+        Query                    lastInsertedIdQuery(databaseConnection, databaseConnection->lastAutoIncrementSql("gtest_temp_table", ""));
+
+        databaseConnection->open();
+
+        StopWatch sw;
+        sw.start();
+        auto insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "", columnNames, data, batchSize);
+        sw.stop();
+
+        auto lastInsertedId = lastInsertedIdQuery.scalar().asInteger();
+
+        COUT("Thread bulk insert time: " << sw.milliseconds() << "ms, last inserted id: " << lastInsertedId);
+        ;
+    };
+
+    StopWatch sw;
+    sw.start();
+    auto thread1 = jthread(connectionThread);
+    auto thread2 = jthread(connectionThread);
+    thread1.join();
+    thread2.join();
+    sw.stop();
+
+    COUT("Real bulk insert time: " << sw.milliseconds() << "ms");
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
