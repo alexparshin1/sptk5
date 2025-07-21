@@ -185,6 +185,24 @@ void testBulkInsert(const String& dbName)
     }
 }
 
+void testParallelInsert(const String& dbName)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+    {
+        FAIL() << dbName << " connection is not defined";
+    }
+
+    try
+    {
+        DatabaseTests::testParallelBulkInsert(connectionString);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << connectionString.toString(false) << ": " << e.what();
+    }
+}
+
 void testBulkInsertPerformance(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -297,6 +315,11 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     testBulkInsert("PostgreSQL");
 }
 
+TEST(SPTK_PostgreSQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("PostgreSQL");
+}
+
 TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
 {
     testBulkInsertPerformance("PostgreSQL");
@@ -352,6 +375,11 @@ TEST(SPTK_MySQLConnection, DDL)
 TEST(SPTK_MySQLConnection, bulkInsert)
 {
     testBulkInsert("MySQL");
+}
+
+TEST(SPTK_MySQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, bulkInsertPerformance)
@@ -464,6 +492,11 @@ TEST(SPTK_OracleOciConnection, DDL)
 TEST(SPTK_OracleOciConnection, bulkInsert)
 {
     testBulkInsert("Oracle");
+}
+
+TEST(SPTK_OracleOciConnection, bulkParallelInsert)
+{
+    testParallelInsert("Oracle");
 }
 
 TEST(SPTK_OracleOciConnection, bulkInsertPerformance)

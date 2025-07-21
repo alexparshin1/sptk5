@@ -163,6 +163,8 @@ public:
      */
     [[nodiscard]] static DatabaseTests& tests();
 
+    static void testParallelBulkInsert(const DatabaseConnectionString& connectionString);
+
 private:
     /**
      * Global database tests collection
