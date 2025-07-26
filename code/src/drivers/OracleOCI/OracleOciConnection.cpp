@@ -241,7 +241,7 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
     objects.clear();
     switch (objectType)
     {
-        using enum sptk::DatabaseObjectType;
+        using enum DatabaseObjectType;
         case PROCEDURES:
             objectsSQL = "SELECT object_name FROM user_procedures WHERE object_type = 'PROCEDURE'";
             break;
@@ -268,6 +268,24 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
         query.next();
     }
     query.close();
+}
+
+String OracleOciConnection::tableSequenceName(const String& tableName)
+{
+    stringstream getSequenceSql;
+    getSequenceSql << "SELECT DATA_DEFAULT AS sequence_name\n"
+                   << "  FROM ALL_TAB_COLUMNS\n"
+                   << " WHERE DATA_DEFAULT is not null\n"
+                   << "   AND owner = (SELECT sys_context('USERENV', 'CURRENT_USER') FROM dual) "
+                   << "   AND TABLE_NAME='" << tableName.toUpperCase() << "'\n";
+    Query getSequenceName(this, getSequenceSql.str());
+    auto  sequenceName = getSequenceName.scalar().asString().toUpperCase().replace("\\.NEXTVAL", "");
+    return sequenceName;
+}
+
+String OracleOciConnection::lastAutoIncrementSql(const String& tableName)
+{
+    return "SELECT " + tableSequenceName(tableName) + ".CURRVAL FROM DUAL";
 }
 
 void OracleOciConnection::driverBeginTransaction()
@@ -722,6 +740,7 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 }
 
 } // namespace
+
 
 map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 

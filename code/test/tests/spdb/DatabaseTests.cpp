@@ -87,18 +87,23 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
     databaseConnection->close();
 }
 
-void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
+void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, const String& tableName)
 {
-    DatabaseConnectionPool   connectionPool(connectionString.toString());
-    const DatabaseConnection databaseConnection = connectionPool.getConnection();
-
-    databaseConnection->open();
-
-    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
-
     try
     {
+        String dropTableSql("DROP TABLE " + tableName);
+        switch (databaseConnection->connectionType())
+        {
+            case DatabaseConnectionType::POSTGRES:
+            case DatabaseConnectionType::ORACLE:
+            case DatabaseConnectionType::ORACLE_OCI:
+                dropTableSql += " CASCADE";
+                break;
+            default:
+                break;
+        }
+
+        Query dropTable(databaseConnection, dropTableSql);
         dropTable.exec();
     }
     catch (const Exception& e)
@@ -109,9 +114,21 @@ void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
             CERR(e.what());
         }
     }
+}
 
+void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
+    databaseConnection->open();
+
+    dropTable(databaseConnection, "gtest_temp_table");
+
+    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
     createTable.exec();
-    dropTable.exec();
+
+    dropTable(databaseConnection, "gtest_temp_table");
 
     databaseConnection->close();
 }
@@ -653,12 +670,6 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     createTable.exec();
 
-    if (databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-        databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI)
-    {
-        createOracleAutoIncrement(databaseConnection, "gtest_temp_table2", "id");
-    }
-
     InsertQuery query(databaseConnection, "INSERT INTO gtest_temp_table2(name) VALUES(:name)");
 
     query.param("name") = "Alex";
@@ -687,12 +698,6 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     vector<VariantVector> data;
 
     VariantVector aRow;
-
-    constexpr int id1 = 1;
-    constexpr int id2 = 2;
-    constexpr int id3 = 3;
-    constexpr int id4 = 4;
-    constexpr int id5 = 5;
 
     aRow.emplace_back("Alex,'Doe'");
     aRow.emplace_back("Programmer");
@@ -723,16 +728,27 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     aRow.emplace_back("01-JAN-2018");
     data.push_back(aRow);
 
+    // Insert these columns in two steps to verify the inserted ids. Note that the auto-increment key isn't included here.
+    // The name of the auto-increment column (if any) is provided in the bulkInsert() call.
     const Strings columnNames({"name", "position_name", "hire_date"});
-    auto          insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
-    EXPECT_EQ(5, insertedIds.size());
+
+    auto insertedIds1 = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
+    EXPECT_EQ(5, insertedIds1.size());
     for (uint64_t i = 1; i <= 5; ++i)
     {
-        EXPECT_EQ(i, insertedIds[i - 1]);
+        EXPECT_EQ(i, insertedIds1[i - 1]);
+    }
+
+    auto insertedIds2 = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
+    EXPECT_EQ(5, insertedIds2.size());
+    for (uint64_t i = 1; i <= 5; ++i)
+    {
+        EXPECT_EQ(i + 5, insertedIds2[i - 1]);
     }
 
     selectData.open();
     Strings printRows;
+    size_t  rowCount = 0;
     while (!selectData.eof())
     {
         Strings row;
@@ -743,19 +759,21 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
             {
                 row.push_back(field->asString().trim());
             }
+
             ++index;
         }
+
+        if (printRows.size() >= 5)
+        {
+            break;
+        }
+
         printRows.push_back(row.join("|"));
+
         selectData.next();
+        ++rowCount;
     }
     selectData.close();
-
-    if (constexpr int expectedRows = 5;
-        printRows.size() != expectedRows)
-    {
-        throw Exception(
-            "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
-    }
 
     if (const String actualResult(printRows.join(" # "));
         actualResult != expectedBulkInsertResult)
@@ -765,12 +783,21 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
 
-    const VariantVector keys({id1, id2, id3, id4, id5});
+    VariantVector keys;
+    for (const auto& id: insertedIds1)
+    {
+        keys.emplace_back(static_cast<int64_t>(id));
+    }
+    for (const auto& id: insertedIds2)
+    {
+        keys.emplace_back(static_cast<int64_t>(id));
+    }
+
     databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
 
     Query countRows(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
     countRows.open();
-    const auto rowCount = countRows[0].asInteger();
+    rowCount = countRows[0].asInteger();
     countRows.close();
     EXPECT_EQ(0, rowCount);
 }
@@ -778,7 +805,6 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
-    sptk::Flag             flag;
 
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
@@ -789,33 +815,42 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     aRow.emplace_back("Alex,'Doe'");
     aRow.emplace_back("Programmer");
     aRow.emplace_back("01-JAN-2014");
-    data.push_back(aRow);
 
-    constexpr int batchSize = 10000;
+    constexpr int dataRows = 10000;
+    constexpr int batchSize = 1000;
 
-    for (int i = 0; i < batchSize; ++i)
+    for (int i = 0; i < dataRows; ++i)
     {
         data.push_back(aRow);
     }
 
-    auto connectionThread = [&data, &connectionString, &flag]()
+    auto connectionThread = [&data, &connectionString]()
     {
-        DatabaseConnectionPool   connectionPool(connectionString.toString());
-        const Strings            columnNames({"name", "position_name", "hire_date"});
-        const DatabaseConnection databaseConnection = connectionPool.getConnection();
-        Query                    lastInsertedIdQuery(databaseConnection, databaseConnection->lastAutoIncrementSql("gtest_temp_table", ""));
+        vector inputData(data);
 
-        databaseConnection->open();
+        string operation;
+        try
+        {
+            operation = "Create connection";
+            DatabaseConnectionPool   connectionPool(connectionString.toString());
+            const Strings            columnNames({"name", "position_name", "hire_date"});
+            const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
-        StopWatch sw;
-        sw.start();
-        auto insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "", columnNames, data, batchSize);
-        sw.stop();
+            operation = "Open connection";
+            databaseConnection->open();
 
-        auto lastInsertedId = lastInsertedIdQuery.scalar().asInteger();
+            operation = "bulkInsert";
+            StopWatch sw;
+            sw.start();
+            auto insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, batchSize);
+            sw.stop();
 
-        COUT("Thread bulk insert time: " << sw.milliseconds() << "ms, last inserted id: " << lastInsertedId);
-        ;
+            COUT("Thread inserted " << insertedIds.size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds.size() / sw.milliseconds() << "K/sec)");
+        }
+        catch (const Exception& e)
+        {
+            CERR(operation << ": " << e.what());
+        }
     };
 
     StopWatch sw;
@@ -1195,43 +1230,4 @@ DatabaseTests::DatabaseTests()
 DatabaseTests& DatabaseTests::tests()
 {
     return _databaseTests;
-}
-
-void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName,
-                                              const String& columnName)
-{
-    const String baseName = "id_" + tableName.substr(0, 27);
-    const String sequenceName = "sq_" + baseName;
-    const String triggerName = "tr_" + baseName;
-
-    try
-    {
-        Query dropSequence(databaseConnection, "DROP SEQUENCE " + sequenceName);
-        dropSequence.exec();
-    }
-    catch (const Exception& e)
-    {
-        COUT(e.what());
-    }
-
-    Query createSequence(databaseConnection, "CREATE SEQUENCE " + sequenceName + " START WITH 1 INCREMENT BY 1 NOMAXVALUE");
-    createSequence.exec();
-
-    try
-    {
-        Query createTrigger(databaseConnection,
-                            "CREATE OR REPLACE TRIGGER " + triggerName + "\n" +
-                                "BEFORE INSERT ON " + tableName + "\n" +
-                                "FOR EACH ROW\n" +
-                                "BEGIN\n" +
-                                "  IF :new." + columnName + " IS NULL THEN\n" +
-                                "    :new." + columnName + " := " + sequenceName + ".nextval;\n" +
-                                "  END IF;\n" +
-                                "END;\n");
-        createTrigger.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
 }

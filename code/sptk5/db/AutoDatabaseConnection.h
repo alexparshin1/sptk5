@@ -38,25 +38,15 @@ namespace sptk {
 class DatabaseConnectionPool;
 
 /**
- * Wrapper for CDatabase connection that automatically handles connection create and release
+ * @brief Wrapper for CDatabase connection that automatically handles connection create and release
  */
 class SP_EXPORT AutoDatabaseConnection
 {
-    /**
-     * Database connection pool
-     */
-    DatabaseConnectionPool& m_connectionPool;
-
-    /**
-     * Database connection
-     */
-    SPoolDatabaseConnection m_connection {nullptr};
-
 public:
     /**
-     * Constructor
-     * Automatically gets connection from the connection pool
-     * @param connectionPool    Database connection pool
+     * @brief Constructor.
+     * Automatically gets connection from the connection pool.
+     * @param connectionPool    Database connection pool.
      */
     explicit AutoDatabaseConnection(DatabaseConnectionPool& connectionPool);
 
@@ -64,24 +54,24 @@ public:
     AutoDatabaseConnection(AutoDatabaseConnection&&) = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      * Releases connection to connection pool
      */
-    ~AutoDatabaseConnection();
+    virtual ~AutoDatabaseConnection();
 
     AutoDatabaseConnection& operator=(const AutoDatabaseConnection&) = delete;
     AutoDatabaseConnection& operator=(AutoDatabaseConnection&&) = delete;
 
     /**
-     * Returns database connection acquired from the connection pool
+     * @brief Returns database connection acquired from the connection pool.
      */
     [[nodiscard]] PoolDatabaseConnection* connection() const;
 
     /**
-     * Opens the database connection
+     * @brief Opens the database connection.
      *
      * If unsuccessful throws an exception.
-     * @param connectionString  The ODBC connection string
+     * @param connectionString  The ODBC connection string.
      */
     void open(const String& connectionString = "") const
     {
@@ -92,7 +82,7 @@ public:
     }
 
     /**
-     * Closes the database connection. If the connection was not successful, throws an exception.
+     * @brief Closes the database connection. If the connection was not successful, throws an exception.
      */
     void close() const
     {
@@ -100,7 +90,7 @@ public:
     }
 
     /**
-     * Returns true if the database is opened
+     * @brief Returns true if the database is opened.
      */
     [[nodiscard]] bool active() const
     {
@@ -108,7 +98,7 @@ public:
     }
 
     /**
-     * Returns the connection string
+     * @brief Returns the connection string.
      */
     [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
@@ -116,7 +106,7 @@ public:
     }
 
     /**
-     * Returns the connection type
+     * @brief Returns the connection type.
      */
     [[nodiscard]] DatabaseConnectionType connectionType() const
     {
@@ -124,7 +114,7 @@ public:
     }
 
     /**
-     * Returns the driver description
+     * @brief Returns the driver description.
      */
     [[nodiscard]] String driverDescription() const
     {
@@ -132,7 +122,7 @@ public:
     }
 
     /**
-     * Begins the transaction
+     * @brief Begins the transaction.
      */
     void beginTransaction() const
     {
@@ -140,7 +130,7 @@ public:
     }
 
     /**
-     * Commits the transaction
+     * @brief Commits the transaction.
      */
     void commitTransaction() const
     {
@@ -148,7 +138,7 @@ public:
     }
 
     /**
-     * Rolls back the transaction
+     * @brief Rolls back the transaction.
      */
     void rollbackTransaction() const
     {
@@ -156,12 +146,12 @@ public:
     }
 
     /**
-     * Lists database objects
+     * @brief Lists database objects.
      *
      * Not implemented in DatabaseConnection. The derived database class
-     * must provide its own implementation
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * must provide its own implementation.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) const
     {
@@ -172,22 +162,24 @@ public:
      * @brief Executes bulk inserts of data from the vector of rows.
      *
      * Data is inserted the fastest possible way.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
+     * @param tableName         Table name to insert into.
+     * @param autoIncrementColumnName The key column that should be auto-incremental, or empty string.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
+     * @param groupSize         Number of records inserted at once.
      * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
-                                                           const std::vector<VariantVector>& data, size_t groupSize = 100) const
+    [[nodiscard]] virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                                          std::vector<VariantVector>& data, size_t groupSize = 100) const
     {
-        return m_connection->bulkInsert(tableName, keyColumnName, columnNames, data, groupSize);
+        return m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize);
     }
 
     /**
      * @brief Executes bulk delete of rows by the keys.
-     * @param tableName         Table name to insert into
-     * @param keyColumnName     List of table columns to populate
-     * @param keys              Data for bulk insert
+     * @param tableName         Table name to insert into.
+     * @param keyColumnName     List of table columns to populate.
+     * @param keys              Data for bulk insert.
      */
     void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
     {
@@ -195,12 +187,12 @@ public:
     }
 
     /**
-     * Executes SQL batch file
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchFileName     SQL batch file.
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
     [[maybe_unused]] void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
     {
@@ -208,22 +200,31 @@ public:
     }
 
     /**
-     * Executes SQL batch queries
+     * @brief Executes SQL batch queries.
      *
      * The queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const
     {
         m_connection->executeBatchSQL(batchSQL, errors);
     }
 
+    [[nodiscard]] String tableSequenceName(const String& tableName, const String& sequenceName = "") const
+    {
+        return m_connection->tableSequenceName(tableName);
+    }
+
     [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& sequenceName = "") const
     {
-        return m_connection->lastAutoIncrementSql(tableName, sequenceName);
+        return m_connection->lastAutoIncrementSql(tableName);
     }
+
+private:
+    DatabaseConnectionPool& m_connectionPool;       ///< Database connection pool
+    SPoolDatabaseConnection m_connection {nullptr}; ///< Database connection
 };
 
 using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;

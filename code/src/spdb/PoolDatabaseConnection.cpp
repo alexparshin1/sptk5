@@ -207,8 +207,8 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     return output;
 }
 
-std::vector<uint64_t> PoolDatabaseConnection::bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
-                                                         const std::vector<VariantVector>& data, size_t groupSize)
+std::vector<int64_t> PoolDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                                        std::vector<VariantVector>& data, size_t groupSize)
 {
     const bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
@@ -216,7 +216,18 @@ std::vector<uint64_t> PoolDatabaseConnection::bulkInsert(const String& tableName
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, keyColumnName, columnNames, groupSize);
+    Strings columnNamesFinal = columnNames;
+    if (!autoIncrementColumnName.empty() && (connectionType() == DatabaseConnectionType::ORACLE || connectionType() == DatabaseConnectionType::ORACLE_OCI))
+    {
+        int autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
+        if (autoIncrementColumnIndex >= 0)
+        {
+            throw DatabaseException("The auto increment column can't be used in the column list");
+        }
+        columnNamesFinal.push_back(autoIncrementColumnName);
+    }
+
+    BulkQuery bulkQuery(this, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
     auto      insertedIds = bulkQuery.insertRows(data);
 
     if (!wasInTransaction)
@@ -256,7 +267,12 @@ void PoolDatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strin
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
 }
 
-String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName, const String& sequenceName) const
+String PoolDatabaseConnection::tableSequenceName(const String& tableName)
+{
+    return tableName + "_seq";
+}
+
+String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName)
 {
     using enum DatabaseConnectionType;
     switch (connectionType())
@@ -269,9 +285,9 @@ String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName, con
             return "SELECT LASTVAL()";
         case ORACLE:
         case ORACLE_OCI:
-            return "SELECT " + sequenceName + ".CURRVAL FROM DUAL";
+            return ""; // Use Oracle-specific method override.
         case FIREBIRD:
-            return "SELECT GEN_ID(" + tableName + ", 0) FROM RDB$DATABASE";
+            return "SELECT GEN_ID(" + tableName + ", 0) FROM RDB$DATABASE"; // Not tested.
         case SQLITE3:
             return "SELECT last_insert_rowid()";
         default:

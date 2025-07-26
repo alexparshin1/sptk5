@@ -341,8 +341,8 @@ public:
      * @param data              Data for bulk insert
      * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    [[nodiscard]] virtual std::vector<uint64_t> bulkInsert(const String& tableName, const String& keyColumnName, const Strings& columnNames,
-                                                           const std::vector<VariantVector>& data, size_t groupSize = 50);
+    [[nodiscard]] virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                                          std::vector<VariantVector>& data, size_t groupSize = 50);
 
     /**
      * @brief Executes bulk delete of rows by the keys.
@@ -375,7 +375,8 @@ public:
      */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
-    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& sequenceName) const;
+    [[nodiscard]] virtual String tableSequenceName(const String& tableName);
+    [[nodiscard]] virtual String lastAutoIncrementSql(const String& tableName);
 
 protected:
     [[nodiscard]] bool getInTransaction() const;

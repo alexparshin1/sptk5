@@ -39,10 +39,10 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const s
         case VAR_DATE:
             m_bindBuffer = makeBuffer<ocilib::Date>(true);
             break;
-        case VariantDataType::VAR_TEXT:
+        case VAR_TEXT:
             m_bindBuffer = makeBuffer<ocilib::Clob>(*connection);
             break;
-        case VariantDataType::VAR_BUFFER:
+        case VAR_BUFFER:
             m_bindBuffer = makeBuffer<ocilib::Blob>(*connection);
             break;
         default:

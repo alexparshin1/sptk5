@@ -77,6 +77,7 @@ public:
      * @param connectionString Database connection string
      */
     static void testConnect(const DatabaseConnectionString& connectionString);
+    static void dropTable(const DatabaseConnection& databaseConnection, const String& tableName);
 
     /**
      * Test SELECT statements
@@ -205,13 +206,6 @@ private:
      */
     static void createTestTableWithSerial(const DatabaseConnection& databaseConnection);
 
-    /**
-     * Create Oracle autoincrement for a column
-     * @param databaseConnection                Database connection
-     * @param tableName         Table name
-     * @param columnName        Column name
-     */
-    static void   createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName, const String& columnName);
     static void   createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
     static Buffer createClob();
     static void   insertDataIntoTempTable(Buffer& clob, Query& insert);
