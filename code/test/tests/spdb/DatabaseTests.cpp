@@ -95,9 +95,11 @@ void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, cons
         switch (databaseConnection->connectionType())
         {
             case DatabaseConnectionType::POSTGRES:
+                dropTableSql += " CASCADE";
+                break;
             case DatabaseConnectionType::ORACLE:
             case DatabaseConnectionType::ORACLE_OCI:
-                dropTableSql += " CASCADE";
+                dropTableSql += " CASCADE CONSTRAINTS";
                 break;
             default:
                 break;
@@ -108,7 +110,7 @@ void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, cons
     }
     catch (const Exception& e)
     {
-        const RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        const RegularExpression matchTableNotExists("not exist|unknown table|no such table", "i");
         if (!matchTableNotExists.matches(e.what()))
         {
             CERR(e.what());
@@ -222,16 +224,8 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     databaseConnection->open();
     Query createTable(databaseConnection, createTableSQL.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
+    dropTable(databaseConnection, "gtest_temp_table");
 
     createTable.exec();
 
@@ -276,16 +270,8 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     databaseConnection->open();
     Query createTable(databaseConnection, createTableSQL.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
+    dropTable(databaseConnection, "gtest_temp_table");
 
     createTable.exec();
 
@@ -546,21 +532,10 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return iterator == m_connectionStrings.end() ? DatabaseConnectionString("") : iterator->second;
 }
 
-void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
+String DatabaseTests::serialColumnDefinition(DatabaseConnectionType connectionType)
 {
-    databaseConnection->open();
-
-    const auto driverName = databaseConnection->connectionString().driverName();
-    const auto iterator = blobFieldTypes.find(driverName);
-    if (iterator == blobFieldTypes.end())
-    {
-        throw Exception("BLOB data type mapping is not defined for the test");
-    }
-
-    const String blobType = iterator->second;
-
     String idColumn;
-    switch (databaseConnection->connectionType())
+    switch (connectionType)
     {
         using enum DatabaseConnectionType;
         case POSTGRES:
@@ -583,9 +558,25 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
             idColumn = "id INTEGER PRIMARY KEY AUTOINCREMENT";
             break;
         case GENERIC_ODBC:
-            throw DatabaseException("Auto increment test isn't supported for " + databaseConnection->driverDescription());
+            throw DatabaseException("Auto increment test isn't supported for this connection type");
+    }
+    return idColumn;
+}
+
+void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
+{
+    databaseConnection->open();
+
+    const auto driverName = databaseConnection->connectionString().driverName();
+    const auto iterator = blobFieldTypes.find(driverName);
+    if (iterator == blobFieldTypes.end())
+    {
+        throw Exception("BLOB data type mapping is not defined for the test");
     }
 
+    const String blobType = iterator->second;
+
+    String  idColumn = serialColumnDefinition(databaseConnection->connectionType());
     Strings fields {idColumn, "name CHAR(40) NULL", "position_name CHAR(20) NULL", "hire_date CHAR(12) NULL"};
 
     if (withBlob)
@@ -628,45 +619,13 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
     databaseConnection->open();
 
     stringstream sql;
-    String       idDefinition;
+    String       idDefinition = serialColumnDefinition(databaseConnection->connectionType());
 
-    switch (databaseConnection->connectionType())
-    {
-        using enum DatabaseConnectionType;
-        case MYSQL:
-        case POSTGRES:
-            idDefinition = "id serial";
-            break;
-        case MSSQL_ODBC:
-            idDefinition = "id int identity";
-            break;
-        case ORACLE:
-        case ORACLE_OCI:
-            idDefinition = "id int";
-            break;
-        case SQLITE3:
-        case FIREBIRD:
-        case GENERIC_ODBC:
-            throw DatabaseException("InsertQuery doesn't support " + databaseConnection->driverDescription());
-    }
-
-    sql << "CREATE TABLE gtest_temp_table2(" << idDefinition << " primary key, name varchar(40))";
+    sql << "CREATE TABLE gtest_temp_table2(" << idDefinition << ", name varchar(40))";
 
     Query createTable(databaseConnection, sql.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table2");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        const RegularExpression matchTableNotExists("not exist|unknown table", "i");
-        if (!matchTableNotExists.matches(e.what()))
-        {
-            CERR(e.what());
-        }
-    }
+    dropTable(databaseConnection, "gtest_temp_table2");
 
     createTable.exec();
 
@@ -809,6 +768,8 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
+    COUT(connectionString.driverName() << " bulk insert with two threads:");
+
     vector<VariantVector> data;
 
     VariantVector aRow;
@@ -817,14 +778,14 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     aRow.emplace_back("01-JAN-2014");
 
     constexpr int dataRows = 10000;
-    constexpr int batchSize = 1000;
+    constexpr int batchSize = 100;
 
     for (int i = 0; i < dataRows; ++i)
     {
         data.push_back(aRow);
     }
 
-    auto connectionThread = [&data, &connectionString]()
+    auto connectionThread = [&data, &connectionString](int threadNumber, vector<int64_t>* insertedIds)
     {
         vector inputData(data);
 
@@ -842,10 +803,10 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
             operation = "bulkInsert";
             StopWatch sw;
             sw.start();
-            auto insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, batchSize);
+            *insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, batchSize);
             sw.stop();
 
-            COUT("Thread inserted " << insertedIds.size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds.size() / sw.milliseconds() << "K/sec)");
+            COUT("Thread " << threadNumber << " inserted " << insertedIds->size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds->size() / sw.milliseconds() << "K/sec)");
         }
         catch (const Exception& e)
         {
@@ -855,13 +816,33 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
 
     StopWatch sw;
     sw.start();
-    auto thread1 = jthread(connectionThread);
-    auto thread2 = jthread(connectionThread);
+
+    vector<int64_t> insertedIds1;
+    auto            thread1 = jthread(connectionThread, 1, &insertedIds1);
+
+    vector<int64_t> insertedIds2;
+    auto            thread2 = jthread(connectionThread, 2, &insertedIds2);
+
     thread1.join();
     thread2.join();
     sw.stop();
 
-    COUT("Real bulk insert time: " << sw.milliseconds() << "ms");
+    set<int64_t> uniqueIds;
+    for (const auto& id: insertedIds1)
+    {
+        uniqueIds.insert(id);
+    }
+    for (const auto& id: insertedIds2)
+    {
+        uniqueIds.insert(id);
+    }
+
+    COUT("All inserted      " << uniqueIds.size() << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
+
+    Query selectData(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
+    int   counter = selectData.scalar().asInteger();
+    EXPECT_EQ(dataRows * 2, counter);
+    EXPECT_EQ(dataRows * 2, uniqueIds.size());
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
@@ -877,13 +858,13 @@ void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connec
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
-    Query insert(databaseConnection, "INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
-                                     "VALUES (1, 'John Doe', 'engineer', '2020-01-02')",
+    Query insert(databaseConnection, "INSERT INTO gtest_temp_table(name, position_name, hire_date)"
+                                     "VALUES ('John Doe', 'engineer', '2020-01-02')",
                  false);
     insert.exec();
 
-    insert.sql("INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
-               "VALUES (2, 'Jane Doe', 'CFO', '2020-02-03')");
+    insert.sql("INSERT INTO gtest_temp_table(name, position_name, hire_date)"
+               "VALUES ('Jane Doe', 'CFO', '2020-02-03')");
     insert.exec();
 
     verifyTableNoBlobs(databaseConnection);
@@ -1191,8 +1172,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Buffer testData2(testDataInv);
     testData2.append(testDataInv);
 
-    Query insertQuery(databaseConnection, "INSERT INTO gtest_temp_table(id,data1, data2) VALUES(:id, :data1, :data2)");
-    insertQuery.param("id") = 1;
+    Query insertQuery(databaseConnection, "INSERT INTO gtest_temp_table(data1, data2) VALUES(:data1, :data2)");
     insertQuery.param("data1") = testData1;
     insertQuery.param("data2") = testData2;
     insertQuery.exec();

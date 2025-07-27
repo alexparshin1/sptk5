@@ -100,11 +100,19 @@ public:
 
 private:
     uint64_t m_id {0};         ///< The value of 'id' field in inserted record
-    String   m_idFieldName;    ///< The name of auto-incremental field
+    String   m_idFieldName;    ///< The name of the auto-incremental field
     SQuery   m_lastInsertedId; ///< The query retrieving last inserted id (if needed by connection)
 
     /**
-     * Adjust insert query by adding RETURNING id if connection type allows that
+     * Adjust the MS SQL insert query by
+     * @param sql               Query SQL
+     * @param idFieldName       Auto-incremental field name
+     * @returns Adjusted SQL
+     */
+    static String reviewMsSqlQuery(const String& sql, const String& idFieldName);
+
+    /**
+     * Adjust the insert query by adding RETURNING id if a connection type allows that
      * @param connectionType    Database connection type
      * @param sql               Query SQL
      * @param idFieldName       Auto-incremental field name

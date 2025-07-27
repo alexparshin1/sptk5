@@ -280,7 +280,7 @@ String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName)
         case MYSQL:
             return "SELECT LAST_INSERT_ID()";
         case MSSQL_ODBC:
-            return "SELECT IDENT_CURRENT('" + tableName + "')";
+            return "SELECT SCOPE_IDENTITY()";
         case POSTGRES:
             return "SELECT LASTVAL()";
         case ORACLE:

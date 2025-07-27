@@ -24,10 +24,22 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/RegularExpression.h"
+
+
 #include <sptk5/db/InsertQuery.h>
 
 using namespace std;
 using namespace sptk;
+
+String InsertQuery::reviewMsSqlQuery(const String& sql, const String& idFieldName)
+{
+    static const RegularExpression parseInsertQuery(R"(VALUES)", "i");
+
+    bool replaced = false;
+
+    return parseInsertQuery.replaceAll(sql, "OUTPUT Inserted." + idFieldName + " VALUES", replaced);
+}
 
 String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const String& sql,
                                 const String& idFieldName)
@@ -35,6 +47,8 @@ String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const Str
     switch (connectionType)
     {
         using enum DatabaseConnectionType;
+        case MSSQL_ODBC:
+            return reviewMsSqlQuery(sql, idFieldName);
         case POSTGRES:
         case SQLITE3:
             return sql + " RETURNING " + idFieldName;
@@ -71,9 +85,7 @@ void InsertQuery::exec()
         case DatabaseConnectionType::ORACLE_OCI:
             param("last_id").setOutput();
             param("last_id").setNull(VariantDataType::VAR_INT64);
-            open();
-            m_id = static_cast<uint64_t>((*this)[0].asInteger());
-            close();
+            m_id = static_cast<uint64_t>(scalar().asInteger());
             break;
 
         case DatabaseConnectionType::POSTGRES:
@@ -87,19 +99,11 @@ void InsertQuery::exec()
             {
                 m_lastInsertedId = make_shared<Query>(database(), "SELECT LAST_INSERT_ID()");
             }
-            m_lastInsertedId->open();
-            m_id = static_cast<uint64_t>((*m_lastInsertedId)[0].asInteger());
-            m_lastInsertedId->close();
+            m_id = static_cast<uint64_t>(m_lastInsertedId->scalar().asInteger());
             break;
+
         case DatabaseConnectionType::MSSQL_ODBC:
-            Query::exec();
-            if (!m_lastInsertedId)
-            {
-                m_lastInsertedId = make_shared<Query>(database(), "SELECT @@IDENTITY");
-            }
-            m_lastInsertedId->open();
-            m_id = static_cast<uint64_t>((*m_lastInsertedId)[0].asInteger());
-            m_lastInsertedId->close();
+            m_id = static_cast<uint64_t>(scalar().asInteger());
             break;
         default:
             throw Exception("Unsupported database connection type");

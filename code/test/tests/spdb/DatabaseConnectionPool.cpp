@@ -555,6 +555,11 @@ TEST(SPTK_MSSQLConnection, bulkInsert)
     testBulkInsert("MSSQL");
 }
 
+TEST(SPTK_MSSQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("MSSQL");
+}
+
 TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
 {
     testBulkInsertPerformance("MSSQL");

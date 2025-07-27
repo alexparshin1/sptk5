@@ -215,6 +215,7 @@ private:
     static void   verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
     static size_t insertRecordsInTransaction(const DatabaseConnection& databaseConnection);
     static void   invalidTransactionStateThrows(Transaction& transaction);
+    static String serialColumnDefinition(DatabaseConnectionType connectionType);
 };
 
 } // namespace sptk

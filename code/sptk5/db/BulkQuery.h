@@ -60,7 +60,7 @@ private:
 
     [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
-    [[nodiscard]] static String makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
+    [[nodiscard]] static String makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize, const String& intoAttribute = "");
     [[nodiscard]] static String makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize);
     [[nodiscard]] static String makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, unsigned int groupSize);
 

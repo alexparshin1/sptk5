@@ -38,8 +38,10 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
             break;
         case POSTGRES:
         case MYSQL:
-        case MSSQL_ODBC:
             sql = makeGenericInsertSQL(tableName, columnNames, groupSize);
+            break;
+        case MSSQL_ODBC:
+            sql = makeGenericInsertSQL(tableName, columnNames, groupSize, " OUTPUT Inserted." + keyColumnName);
             break;
         case SQLITE3:
             sql = makeSqlite3InsertSQL(tableName, columnNames, groupSize);
@@ -134,11 +136,15 @@ String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& c
     return sql.str();
 }
 
-String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize, const String& intoAttribute)
 {
     stringstream sql;
 
     sql << "INSERT INTO " << tableName << "(" << columnNames.join(",") << ")\n";
+    if (!intoAttribute.empty())
+    {
+        sql << "            " << intoAttribute << "\n";
+    }
     sql << "VALUES\n";
 
     for (size_t rowNumber = 0; rowNumber < groupSize; ++rowNumber)
@@ -281,13 +287,15 @@ vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
     size_t reservedIdOffset = 0;
     if (!m_serialColumnName.empty())
     {
-        // For several DB types, reserve auto increment IDs, and set it in rows
+        // For Oracle, reserve auto increment IDs, and set it in rows
         // and insertedIds.
-        useReservedIds = reserveInsertIds(m_tableName, rows, insertedIds);
-        serialColumnIndex = m_columnNames.indexOf(m_serialColumnName);
-        if (serialColumnIndex < 0)
+        if ((useReservedIds = reserveInsertIds(m_tableName, rows, insertedIds)))
         {
-            m_columnNames.push_back(m_serialColumnName);
+            serialColumnIndex = m_columnNames.indexOf(m_serialColumnName);
+            if (serialColumnIndex < 0)
+            {
+                m_columnNames.push_back(m_serialColumnName);
+            }
         }
     }
 
@@ -343,7 +351,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
 
     auto connectionType = m_connection->connectionType();
     bool captureInsertedIds = !m_serialColumnName.empty();
-    bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3;
+    bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
     bool sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
     size_t rowCount = 0;
@@ -403,7 +411,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
 
                 auto firstInsertedId = lastInsertedId - rowCount + 1;
 
-                if (m_connection->connectionType() == DatabaseConnectionType::MYSQL)
+                if (m_connection->connectionType() == MYSQL)
                 {
                     // A special case for MySQL: multi-row insert returns the first row id
                     firstInsertedId = lastInsertedId;

@@ -26,11 +26,9 @@
 
 #pragma once
 
-#include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
 #include <sptk5/sptk-config.h>
 
-#include <atomic>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -65,8 +63,8 @@ using pcre_offset_t = int;
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
- * @{
+ * @addtogroup utility Utility Classes.
+ * @{.
  */
 
 class MatchData;
@@ -79,7 +77,7 @@ class SP_EXPORT RegularExpression
 
 #ifdef HAVE_PCRE2
     using PCREHandle = pcre2_code;    ///< Compiled PCRE expression handle
-    using PCREExtraHandle = uint8_t*; ///< Dummy
+    using PCREExtraHandle = uint8_t*; ///< Not used
 #else
     using PCREHandle = pcre;            ///< Compiled PCRE expression handle
     using PCREExtraHandle = pcre_extra; ///< Compiled PCRE expression optimization (for faster execution)
@@ -94,12 +92,12 @@ public:
     public:
         /**
          * Constructor
-         * @param value         Matched string
-         * @param start         String start position in subject
-         * @param end           String end position in subject
+         * @param text          Matched string.
+         * @param start         String start position in the subject.
+         * @param end           String end position in the subject.
          */
         Group(const char* text, pcre_offset_t start, pcre_offset_t end)
-            : value(text + start, size_t(end - start))
+            : value(text + start, static_cast<size_t>(end - start))
             , start(start)
             , end(end)
         {
@@ -129,9 +127,9 @@ public:
         Group(Group&&) = default;
         Group& operator=(Group&& other) = default;
 
-        String        value;     ///< Matched fragment of subject
-        pcre_offset_t start {0}; ///< Start position of the matched fragment in subject
-        pcre_offset_t end {0};   ///< End position of the matched fragment in subject
+        String        value;     ///< Matched fragment of the subject
+        pcre_offset_t start {0}; ///< Start position of the matched fragment in the subject
+        pcre_offset_t end {0};   ///< End position of the matched fragment in the subject
     };
 
     /**
@@ -144,24 +142,24 @@ public:
 
     public:
         /**
-         * Get unnamed group by index.
-         * If group doesn't exist, return reference to empty group.
-         * @param index         Group index, 0-based
-         * @return const reference to a group
+         * Get the unnamed group by index.
+         * If the group doesn't exist, return the reference to an empty group.
+         * @param index         Group index, 0-based.
+         * @return const reference to a group.
          */
         const Group& operator[](int index) const;
 
         /**
          * Get named group by capture group name.
-         * If group doesn't exist, return reference to empty group.
-         * @param name          Group name
-         * @return const reference to a group
+         * If the group doesn't exist, return the reference to an empty group.
+         * @param name          Group name.
+         * @return const reference to a group.
          */
         const Group& operator[](const char* name) const;
 
         /**
          * Get unnamed groups.
-         * @return const reference to unnamed groups object
+         * @return const reference to the unnamed groups object.
          */
         [[nodiscard]] const std::vector<Group>& groups() const
         {
@@ -170,7 +168,7 @@ public:
 
         /**
          * Get named groups.
-         * @return const reference to named groups object
+         * @return const reference to the named groups object.
          */
         [[nodiscard]] const std::map<String, Group>& namedGroups() const
         {
@@ -178,7 +176,7 @@ public:
         }
 
         /**
-         * @return true if there are no matched groups
+         * @return true if there are no matched groups.
          */
         [[nodiscard]] bool empty() const
         {
@@ -186,7 +184,7 @@ public:
         }
 
         /**
-         * @return false if there are no matched groups
+         * @return false if there are no matched groups.
          */
         explicit operator bool() const
         {
@@ -196,13 +194,13 @@ public:
     protected:
         /**
          * Reserve more groups memory
-         * @param groupCount    Number of groups to reserve more memory for
+         * @param groupCount    Number of groups to reserve more memory for.
          */
         void grow(size_t groupCount);
 
         /**
-         * Add new group by moving it to unnamed groups
-         * @param group         Group to add
+         * Add the new group by moving it to unnamed groups
+         * @param group         Group to add.
          */
         void add(Group&& group)
         {
@@ -210,9 +208,9 @@ public:
         }
 
         /**
-         * Add new group by moving it to named groups
-         * @param name          Group name
-         * @param group         Group to add
+         * Add the new group by moving it to named groups
+         * @param name          Group name.
+         * @param group         Group to add.
          */
         void add(const String& name, Group&& group)
         {
@@ -222,65 +220,65 @@ public:
     private:
         std::vector<Group>      m_groups;      ///< Unnamed groups
         std::map<String, Group> m_namedGroups; ///< Named groups
-        static const Group      emptyGroup;    ///< Empty group to return if group can't be found
+        static const Group      emptyGroup;    ///< Empty group to return if the group can't be found
     };
 
     /**
-     * Constructor
+     * @brief Constructor
      *
-     * Pattern options is combination of flags matching Perl regular expression switches:
-     * 'g'  global match, not just first one
-     * 'i'  letters in the pattern match both upper and lower case  letters
-     * 'm'  multiple lines match
-     * 's'  dot character matches even newlines
-     * 'x'  ignore whitespaces
-     * @param pattern           PCRE pattern
-     * @param options           Pattern options
+     * Pattern options are a combination of flags matching Perl regular expression switches:
+     * 'g'  global match, not just the first one.
+     * 'i'  letters in the pattern match both upper and lower case  letters.
+     * 'm'  multiple lines match.
+     * 's'  dot character matches even newlines.
+     * 'x'  ignore whitespaces.
+     * @param pattern           PCRE pattern.
+     * @param options           Pattern options.
      */
     explicit RegularExpression(std::string_view pattern, std::string_view options = "");
 
     /**
-     * @brief Copy constructor
-     * @param other             Other object
+     * @brief Copy constructor.
+     * @param other             Other object.
      */
     RegularExpression(const RegularExpression& other);
 
     /**
-     * @brief Move constructor
-     * @param other             Other object
+     * @brief Move constructor.
+     * @param other             Other object.
      */
     RegularExpression(RegularExpression&& other) noexcept;
 
     /**
-     * @brief Copy assignment
-     * @param other             Other object
+     * @brief Copy assignment.
+     * @param other             Other object.
      */
     RegularExpression& operator=(const RegularExpression& other);
 
     /**
-     * @brief Move assignment
-     * @param other             Other object
+     * @brief Move assignment.
+     * @param other             Other object.
      */
     RegularExpression& operator=(RegularExpression&& other) noexcept;
 
     /**
-     * Returns true if text matches with regular expression
-     * @param text              Input text
-     * @return true if match found
+     * Returns true if the text matches with the regular expression
+     * @param text              Input text.
+     * @return true if match found.
      */
     bool operator==(const String& text) const;
 
     /**
-     * Returns true if text matches with regular expression
-     * @param text              Text to process
-     * @return true if match found
+     * Returns true if the text matches with the regular expression
+     * @param text              Text to process.
+     * @return true if match found.
      */
     bool matches(const String& text) const;
 
     /**
-     * Returns list of strings matched with regular expression
-     * @param text              Text to process
-     * @return matched groups
+     * Returns the list of strings matched with the regular expression
+     * @param text              Text to process.
+     * @return matched groups.
      */
     Groups m(const String& text) const
     {
@@ -289,58 +287,58 @@ public:
     }
 
     /**
-     * Returns list of strings matched with regular expression
-     * @param text              Text to process
-     * @param offset            Search offset, updated after method execution
-     * @return matched groups
+     * Returns the list of strings matched with the regular expression
+     * @param text              Text to process.
+     * @param offset            Search offset, updated after method execution.
+     * @return matched groups.
      */
     Groups m(const String& text, size_t& offset) const;
 
     /**
      * Replaces matches with replacement string
-     * @param text              Text to process
-     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
-     * @return processed text
+     * @param text              Text to process.
+     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as the first match.
+     * @return processed text.
      */
     String s(const String& text, const String& outputPattern) const;
 
     /**
      * Replaces matches with replacement string
-     * @param text              Text to process
-     * @param replace           Callback function providing replacement s for matches
-     * @param replaced          True if there were any replacements
-     * @return processed text
+     * @param text              Text to process.
+     * @param replace           Callback function providing replacement s for matches.
+     * @param replaced          True if there were any replacements.
+     * @return processed text.
      */
     String s(const String& text, const std::function<String(const String&)>& replace, bool& replaced) const;
 
     /**
-     * Returns list of strings split by regular expression
-     * @param text              Text to process
-     * @return List of strings
+     * Returns the list of strings split by regular expression
+     * @param text              Text to process.
+     * @return List of strings.
      */
     Strings split(const String& text) const;
 
     /**
      * Replaces matches with replacement string
-     * @param text              Text to process
-     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as first match
-     * @param replaced          Optional flag if replacement was made
-     * @return processed text
+     * @param text              Text to process.
+     * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as the first match.
+     * @param replaced          Optional flag if replacement was made.
+     * @return processed text.
      */
     String replaceAll(const String& text, const String& outputPattern, bool& replaced) const;
 
     /**
-     * Replaces matches with replacement string from map, using matched string as an index
-     * @param text              Text to process
-     * @param substitutions     Substitutions for matched strings
-     * @param replaced          Optional flag if replacement was made
-     * @return processed text
+     * Replaces matches with replacement string from the map, using matched string as an index
+     * @param text              Text to process.
+     * @param substitutions     Substitutions for matched strings.
+     * @param replaced          Optional flag if replacement was made.
+     * @return processed text.
      */
     String replaceAll(const String& text, const std::map<String, String>& substitutions, bool& replaced) const;
 
     /**
      * Get regular expression pattern
-     * @return
+     * @return.
      */
     const String& pattern() const;
 
@@ -352,7 +350,7 @@ private:
     std::shared_ptr<PCREHandle>      m_pcre;             ///< Compiled PCRE expression handle
     std::shared_ptr<PCREExtraHandle> m_pcreExtra;        ///< Compiled PCRE expression optimization (for faster execution)
     uint32_t                         m_options {0};      ///< PCRE pattern options
-    size_t                           m_captureCount {0}; ///< RE' capture count
+    size_t                           m_captureCount {0}; ///< The capture count
 
     /**
      * Initialize PCRE expression
@@ -361,36 +359,36 @@ private:
 
     /**
      * Computes match positions and lengths
-     * @param text              Input text
-     * @param offset            Starting match offset, advanced with every successful match
-     * @param matchDdata        Output match positions array
-     * @return number of matches
+     * @param text              Input text.
+     * @param offset            Starting match offset, advanced with every successful match.
+     * @param matchData         Output match positions array.
+     * @return number of matches.
      */
     size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
 
     /**
      * Get capture group count from the compiled pattern
-     * @return capture group count
+     * @return capture group count.
      */
     size_t getCaptureCount() const;
 
     /**
-     * Get named capture group count from the compiled pattern
-     * @return named capture group count
+     * Get the named capture group count from the compiled pattern
+     * @return named capture group count.
      */
     size_t getNamedGroupCount() const;
 
     /**
      * Get captur group name table from the compiled pattern
-     * @return named capture group count
+     * @return named capture group count.
      */
     void getNameTable(const char*& nameTable, int& nameEntrySize) const;
 
     /**
-     * Find next placeholder
-     * @param pos               Start position
-     * @param outputPattern     Output pattern
-     * @return placeholder position
+     * Find the next placeholder
+     * @param pos               Start position.
+     * @param outputPattern     Output pattern.
+     * @return placeholder position.
      */
     static size_t findNextPlaceholder(size_t pos, const String& outputPattern);
 
@@ -402,7 +400,7 @@ private:
 using SRegularExpression = std::shared_ptr<RegularExpression>;
 
 /**
- * @}
+ * @}.
  */
 } // namespace sptk
 
