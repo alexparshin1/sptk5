@@ -27,9 +27,7 @@
 #pragma once
 
 #include <deque>
-#include <functional>
 #include <mutex>
-#include <sptk5/Exception.h>
 #include <sptk5/Printer.h>
 #include <sptk5/threads/Semaphore.h>
 

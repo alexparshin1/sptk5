@@ -26,13 +26,10 @@
 
 #pragma once
 
-#include <FL/Fl_Pixmap.H>
-#include <FL/Fl_Widget.H>
 #include <sptk5/gui/CGroup.h>
 #include <sptk5/gui/CLayoutClient.h>
 #include <sptk5/gui/CScroll.h>
 
-#include <string>
 #include <vector>
 
 namespace sptk {
@@ -53,7 +50,7 @@ class CTreeControl;
  * By default (if that callback isn't redefined, SPTK creates CBox widget.
  * @param item CTreeItem*, a tree item that would be a parent for the new item
  */
-using CTreeItemCreator = CLayoutClient* (*) (CTreeItem * item);
+using CTreeItemCreator = CLayoutClient* (*) (CTreeItem* item);
 
 /**
  * @brief Tree widget item.
@@ -61,7 +58,7 @@ using CTreeItemCreator = CLayoutClient* (*) (CTreeItem * item);
  * A group widget with the extra information about item pixmaps
  * and current state.
  */
-class SP_EXPORT CTreeItem
+class SP_EXPORT CTreeItem final
     : public CGroup
 {
     /**
@@ -458,7 +455,7 @@ using CTreeItemVector = std::vector<CTreeItem*>;
  * CTreeView widget, but also can be used by itself. It's missing for data connection
  * support of CTreeView, though.
  */
-class SP_EXPORT CTreeControl
+class SP_EXPORT CTreeControl final
     : public CScroll
 {
     friend class CTreeItem;

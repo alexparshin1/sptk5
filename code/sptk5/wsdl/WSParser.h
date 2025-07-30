@@ -44,7 +44,7 @@ namespace sptk {
  * as C++ source files to a directory.
  * The actual web service is built by deriving concrete classes from these abstract classes.
  */
-class SP_EXPORT WSParser
+class SP_EXPORT WSParser final
 {
 public:
     /**

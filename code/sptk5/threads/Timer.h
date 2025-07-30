@@ -26,12 +26,8 @@
 
 #pragma once
 
-#include "Semaphore.h"
 #include "TimerEvent.h"
 #include "TimerThread.h"
-
-#include <functional>
-#include <set>
 
 namespace sptk {
 
@@ -39,7 +35,7 @@ namespace sptk {
  * Generic timer class.
  * Can fire one time off and repeatable events
  */
-class SP_EXPORT Timer
+class SP_EXPORT Timer final
 {
 public:
     /**

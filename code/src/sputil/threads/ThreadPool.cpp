@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
 #include <sptk5/threads/ThreadPool.h>
+#include <sptk5/threads/WorkerThread.h>
 
 using namespace std;
 using namespace sptk;

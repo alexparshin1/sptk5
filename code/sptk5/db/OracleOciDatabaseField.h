@@ -12,7 +12,7 @@
 #include "sptk5/db/DatabaseField.h"
 namespace sptk {
 
-class OracleOciDatabaseField : public DatabaseField
+class OracleOciDatabaseField final : public DatabaseField
 {
 public:
     OracleOciDatabaseField(const std::string_view& fieldName, int fieldType, VariantDataType dataType, int fieldLength, int fieldScale, const String& sqlType);

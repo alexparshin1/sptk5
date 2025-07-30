@@ -30,7 +30,6 @@
 
 #include <atomic>
 #include <list>
-#include <mutex>
 
 namespace sptk {
 

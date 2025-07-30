@@ -27,7 +27,6 @@
 #pragma once
 
 #include <sptk5/gui/CComboBox.h>
-#include <string>
 
 namespace sptk {
 
@@ -41,7 +40,7 @@ namespace sptk {
  *
  * A combobox filled with the system fonts names
  */
-class SP_EXPORT CFontComboBox
+class SP_EXPORT CFontComboBox final
     : public CComboBox
 {
 public:
@@ -74,7 +73,7 @@ public:
     /**
      * Returns currently selected font name
      */
-    String fontName() const
+    [[nodiscard]] String fontName() const
     {
         return data().asString();
     }
@@ -90,7 +89,7 @@ public:
     /**
      * Returns font index as Fl_Font
      */
-    Fl_Font font() const
+    [[nodiscard]] Fl_Font font() const
     {
         if (const auto* theSelectedRow = selectedRow();
             theSelectedRow)
@@ -109,7 +108,7 @@ public:
     /**
      * @brief Returns widget class name (internal SPTK RTTI).
      */
-    String className() const override
+    [[nodiscard]] String className() const override
     {
         return "font_combo";
     }

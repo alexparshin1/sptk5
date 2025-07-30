@@ -41,7 +41,7 @@ namespace sptk {
  * Implements the dialog to open an existing file.
  * @see CDialog, CFileDialog, CFileSaveDialog
  */
-class SP_EXPORT CFileOpenDialog
+class SP_EXPORT CFileOpenDialog final
     : public CFileDialog
 {
 protected:
