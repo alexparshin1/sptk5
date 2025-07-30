@@ -780,6 +780,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     constexpr int dataRows = 10000;
     constexpr int batchSize = 100;
 
+    data.reserve(dataRows);
     for (int i = 0; i < dataRows; ++i)
     {
         data.push_back(aRow);
