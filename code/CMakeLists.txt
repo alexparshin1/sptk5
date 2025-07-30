@@ -1,7 +1,7 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 # ╟──────────────────────────────────────────────────────────────────────────────╢
-# ║  copyright            © 1999-2024 Alexey Parshin. All rights reserved.       ║
+# ║  copyright            © 1999-2025 Alexey Parshin. All rights reserved.       ║
 # ║  email                alexeyp@gmail.com                                      ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 # ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -34,10 +34,10 @@ IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
 ENDIF ()
 
-SET(VERSION "5.6.5")
+SET(VERSION "5.6.6")
 SET(VERSION_MAJOR "5")
 SET(VERSION_MINOR "6")
-SET(VERSION_PATCH "5")
+SET(VERSION_PATCH "6")
 SET(SOVERSION "5")
 
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
