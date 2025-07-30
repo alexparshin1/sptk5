@@ -120,8 +120,8 @@ Buffer& ExportXML::appendNodeContent(const Node* node, Buffer& buffer)
     if (node->type() == Node::Type::Number)
     {
         const auto dvalue = node->getValue().asFloat();
-        const auto lvalue = static_cast<long>(dvalue);
-        if (dvalue == static_cast<double>(lvalue))
+        if (const auto lvalue = static_cast<long>(dvalue);
+            dvalue == static_cast<double>(lvalue))
         {
             buffer.append(to_string(lvalue));
         }

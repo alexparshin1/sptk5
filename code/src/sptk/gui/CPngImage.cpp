@@ -51,8 +51,8 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len)
 {
     auto*         p = (CMemHandle*) png_get_io_ptr(pp);
     const Buffer* buffer = p->buffer;
-    png_size_t    tail = buffer->bytes() - p->read_offset;
-    if (len > tail)
+    if (png_size_t tail = buffer->bytes() - p->read_offset;
+        len > tail)
     {
         len = tail;
     }

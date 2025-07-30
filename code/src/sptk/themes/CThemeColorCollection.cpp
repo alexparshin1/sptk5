@@ -61,12 +61,11 @@ static Fl_Color colorFromHexString(const String& colorStr)
 
     if (colorStr.length() == 3)
     {
-        uint32_t blue, green, red;
-        blue = rgbColor % 16 * 16;
+        uint32_t blue = rgbColor % 16 * 16;
         rgbColor /= 16;
-        green = rgbColor % 16 * 16;
+        uint32_t green = rgbColor % 16 * 16;
         rgbColor /= 16;
-        red = rgbColor % 16 * 16;
+        uint32_t red = rgbColor % 16 * 16;
         rgbColor = (red * 256 + green) * 256 + blue;
     }
 
@@ -159,9 +158,9 @@ Fl_Color CThemeColorCollection::mix(const String& expression)
     return fl_color_average(color1, color2, float(weight));
 }
 
-static unsigned char shadeColorComponent(unsigned colorComponent, double multiplier)
+static unsigned char shadeColorComponent(unsigned colorComponent, const double multiplier)
 {
-    colorComponent = unsigned(colorComponent * multiplier);
+    colorComponent = static_cast<unsigned>(colorComponent * multiplier);
     if (colorComponent > 255)
     {
         colorComponent = 255;

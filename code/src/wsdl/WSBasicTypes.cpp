@@ -104,8 +104,8 @@ void WSBasicType::throwIfNull(const String& parentTypeName) const
 
 void WSString::load(const SNode& attr, bool nullLargeData)
 {
-    constexpr size_t longStringLength = 256;
-    if (attr->type() == Node::Type::Null || (nullLargeData && attr->getString().length() > longStringLength))
+    if (constexpr size_t longStringLength = 256;
+        attr->type() == Node::Type::Null || (nullLargeData && attr->getString().length() > longStringLength))
     {
         setNull(VariantDataType::VAR_STRING);
     }

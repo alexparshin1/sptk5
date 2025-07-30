@@ -77,7 +77,7 @@ void WSWebSocketsMessage::decode(const char* incomingData)
     constexpr char lengthIsEightBytes(127);
     constexpr int  eightBytes(8);
 
-    const auto* ptr = (const uint8_t*) incomingData;
+    const auto* ptr = reinterpret_cast<const uint8_t*>(incomingData);
 
     m_finalMessage = (static_cast<int>(*ptr) & finalBitMask) != 0;
     m_opcode = static_cast<OpCode>((int) *ptr & opcodeBitMask);

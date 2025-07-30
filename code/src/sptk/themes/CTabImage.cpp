@@ -113,7 +113,7 @@ void CTabImages::clear()
     {
         delete itor.second;
     }
-    map<String, CTabImage*>::clear();
+    map::clear();
 }
 
 CTabImage* CTabImages::tabImage(const char* imageName)

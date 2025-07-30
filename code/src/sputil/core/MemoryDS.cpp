@@ -179,8 +179,8 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
     const String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
     {
-        FieldList& entry = *itor;
-        if (entry[fieldName].asString() == value)
+        if (FieldList& entry = *itor;
+            entry[fieldName].asString() == value)
         {
             m_current = itor;
             return true;

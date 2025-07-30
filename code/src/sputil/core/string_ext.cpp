@@ -72,7 +72,7 @@ String sptk::trim(const String& str)
     auto        endPosition = static_cast<int>(len - 1);
     bool        found = false;
 
-    const unsigned char space = ' ';
+    constexpr unsigned char space = ' ';
     for (int i = endPosition; i >= 0; --i)
     {
         if (s[i] > space)
@@ -98,7 +98,7 @@ String sptk::trim(const String& str)
         }
     }
 
-    return str.substr(static_cast<size_t>(startPosition), static_cast<size_t>(long(endPosition - startPosition + 1)));
+    return str.substr(static_cast<size_t>(startPosition), static_cast<size_t>(static_cast<long>(endPosition - startPosition + 1)));
 }
 
 String sptk::int2string(int32_t value)
@@ -260,7 +260,7 @@ String sptk::capitalizeWords(const String& s)
     Buffer buffer(s);
     char*  wordStart = nullptr;
 
-    for (auto* current = (char*) buffer.data();; ++current)
+    for (auto* current = reinterpret_cast<char*>(buffer.data());; ++current)
     {
         if (isalnum(*current) != 0)
         {

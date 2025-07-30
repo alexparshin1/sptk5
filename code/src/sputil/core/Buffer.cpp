@@ -117,12 +117,11 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
 
     size_t offset = 0;
 
-    constexpr int addressWidth {8};
-    constexpr int bytesInHalfRow {8};
-    constexpr int bytesInRow {16};
-
     while (offset < buffer.bytes())
     {
+        constexpr int bytesInRow {16};
+        constexpr int bytesInHalfRow {8};
+        constexpr int addressWidth {8};
         stream << hex << setw(addressWidth) << offset << "  ";
 
         size_t printed = 0;

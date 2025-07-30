@@ -27,12 +27,10 @@
 #pragma once
 
 #include <FL/Enumerations.H>
-#include <FL/Fl.H>
 #include <map>
 #include <sptk5/gui/CThemeImageState.h>
 #include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/Node.h>
-#include <string>
 
 namespace sptk {
 
@@ -121,7 +119,7 @@ class SP_EXPORT CThemeColorCollection
 
     void loadColor(const xdoc::SNode& colorNode, CThemeColorIndex colorIndex);
 
-    void loadColorMap(xdoc::Document& gtkTheme, const String& colorMapXPath);
+    static void loadColorMap(xdoc::Document& gtkTheme, const String& colorMapXPath);
 
     static Fl_Color passby(const String& expression);
 

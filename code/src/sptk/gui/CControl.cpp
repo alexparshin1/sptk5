@@ -142,7 +142,7 @@ void CControl::defaultControlMenuCopy(Fl_Widget* w, void*)
     if (control != nullptr)
     {
         String text = control->data().asString();
-        Fl::copy(text.c_str(), (int) text.length(), 1);
+        Fl::copy(text.c_str(), static_cast<int>(text.length()), 1);
     }
 }
 
@@ -152,7 +152,7 @@ void CControl::defaultControlMenuCut(Fl_Widget* w, void*)
     if (control != nullptr)
     {
         String text = control->data().asString();
-        Fl::copy(text.c_str(), (int) text.length(), 1);
+        Fl::copy(text.c_str(), static_cast<int>(text.length()), 1);
         control->data("");
     }
 }
@@ -183,9 +183,9 @@ void CControl::ctor_init(const char* label)
         m_label = label;
     }
     m_limited = false;
-    m_controlFlags = (int) InputEntryFlags::SINGLELINEENTRY;
+    m_controlFlags = static_cast<int>(InputEntryFlags::SINGLELINEENTRY);
     m_textFont = FL_HELVETICA;
-    m_textSize = (uchar) FL_NORMAL_SIZE;
+    m_textSize = static_cast<uchar>(FL_NORMAL_SIZE);
     m_textColor = FL_FOREGROUND_COLOR;
     m_control = nullptr;
     m_tag = 0;
@@ -265,8 +265,8 @@ void CControl::draw()
     Fl_Group::draw();
     if (m_labelWidth > 5)
     {
-        int hh = labelHeight();
-        if (hh != 0)
+        if (const int hh = labelHeight();
+            hh != 0)
         {
             fl_font(labelfont(), labelsize());
             fl_color(m_labelColor);
@@ -616,8 +616,8 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
     for (Fl_Widget* parentWidget = internalWidget->parent();
          parentWidget != nullptr; parentWidget = parentWidget->parent())
     {
-        auto* control = dynamic_cast<CControl*>(parentWidget);
-        if (control != nullptr)
+        if (auto* control = dynamic_cast<CControl*>(parentWidget);
+            control != nullptr)
         {
             control->fireEvent(CEvent::DATA_CHANGED, (int32_t) (uint64_t) (data));
             break;

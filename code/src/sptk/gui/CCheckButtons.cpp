@@ -44,8 +44,8 @@ void CCheckButton::draw()
     CThemes::sizeButton(THM_BUTTON_CHECK, bw, bh);
     bool checked = value() != 0;
     bool highlited = (Fl::belowmouse() == this) && active_r();
-    int  dy = (h() - bh) / 2;
-    if (CThemes::drawCheckButton(x(), y() + dy, checked, highlited))
+    if (const int dy = (h() - bh) / 2;
+        CThemes::drawCheckButton(x(), y() + dy, checked, highlited))
     {
         if (!m_label.empty())
         {
@@ -113,9 +113,9 @@ int CCheckButton::handle(int event)
 
 void CCheckButtons::checkButtonsCallback(Fl_Widget* w, void*)
 {
-    auto*     b = (Fl_Button*) w;
+    auto*     b = static_cast<Fl_Button*>(w);
     Fl_Group* g = b->parent();
-    auto*     c = (CCheckButtons*) g->parent();
+    auto*     c = static_cast<CCheckButtons*>(g->parent());
     c->controlDataChanged();
     g->redraw();
 }
@@ -143,7 +143,7 @@ Fl_Button* CCheckButtons::createButton(const char* label, int sz, CLayoutAlign l
 Variant CCheckButtons::data() const
 {
     String result;
-    auto*  group = (CScroll*) m_control;
+    auto*  group = static_cast<CScroll*>(m_control);
     auto   cnt = (unsigned) group->children();
     for (unsigned i = 0; i < cnt; i++)
     {
@@ -184,13 +184,13 @@ void CCheckButtons::data(const Variant& s)
     String  st = s.asString();
     Strings sl(st, "|");
     size_t  cnt = sl.size();
-    auto*   g = (CScroll*) m_control;
+    auto*   g = static_cast<CScroll*>(m_control);
     for (unsigned i = 0; i < cnt; i++)
     {
         int ndx = buttonIndex(sl[i].c_str());
         if (ndx > -1)
         {
-            auto* b = (Fl_Button*) g->child(ndx);
+            auto* b = static_cast<Fl_Button*>(g->child(ndx));
             b->value(1);
         }
         else
@@ -207,18 +207,18 @@ void CCheckButtons::data(const Variant& s)
 void CCheckButtons::getSelections(vector<uint64_t>& selection) const
 {
     selection.clear();
-    auto* group = (CScroll*) m_control;
-    auto  cnt = (unsigned) group->children();
+    const auto* group = static_cast<CScroll*>(m_control);
+    const auto  cnt = static_cast<unsigned>(group->children());
     for (unsigned i = 0; i < cnt; i++)
     {
-        auto* b = dynamic_cast<Fl_Button*>(group->child(i));
+        const auto* b = dynamic_cast<Fl_Button*>(group->child(i));
         if (!b)
         {
             continue;
         }
         if (b->value())
         {
-            auto id = (uint32_t) (uint64_t) b->user_data();
+            const auto id = (uint32_t) (uint64_t) b->user_data();
             selection.push_back(id);
         }
     }
@@ -227,8 +227,8 @@ void CCheckButtons::getSelections(vector<uint64_t>& selection) const
 void CCheckButtons::setSelections(const vector<uint64_t>& selection)
 {
     deselectAllButtons();
-    auto* group = (CScroll*) m_control;
-    auto  cnt = (unsigned) group->children();
+    const auto* group = static_cast<CScroll*>(m_control);
+    const auto  cnt = static_cast<unsigned>(group->children());
     for (unsigned i = 0; i < cnt; i++)
     {
         auto* b = dynamic_cast<Fl_Button*>(group->child(i));

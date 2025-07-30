@@ -39,8 +39,8 @@ void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
     size_t const delimiterLength = strlen(delimiter);
     while (true)
     {
-        const auto* end = strstr(pos, delimiter);
-        if (end != nullptr)
+        if (const auto* end = strstr(pos, delimiter);
+            end != nullptr)
         {
             dest.emplace_back(pos, static_cast<size_t>(end - pos));
             pos = end + delimiterLength;
@@ -62,8 +62,8 @@ void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
     size_t pos = 0;
     while (pos != string::npos)
     {
-        const size_t end = src.find_first_of(delimiter, pos);
-        if (end != string::npos)
+        if (const size_t end = src.find_first_of(delimiter, pos);
+            end != string::npos)
         {
             dest.emplace_back(src.substr(pos, end - pos));
             pos = src.find_first_not_of(delimiter, end + 1);

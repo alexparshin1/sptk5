@@ -75,9 +75,9 @@ public:
                            PostgreSQLDataType dataType)
     {
         m_values[paramIndex] = value;
-        m_lengths[paramIndex] = (int) sz;
+        m_lengths[paramIndex] = static_cast<int>(sz);
         m_formats[paramIndex] = format;
-        m_types[paramIndex] = (Oid) dataType;
+        m_types[paramIndex] = static_cast<Oid>(dataType);
     }
 
     void setParameterValue(unsigned paramIndex, const SQueryParameter& param);
@@ -86,7 +86,7 @@ public:
 
     [[nodiscard]] unsigned size() const
     {
-        return (unsigned) m_count;
+        return static_cast<unsigned>(m_count);
     }
 
     [[nodiscard]] const uint8_t* const* values() const

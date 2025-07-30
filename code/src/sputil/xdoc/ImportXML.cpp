@@ -138,7 +138,6 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
                                     Mode formatting)
 {
     constexpr int cdataTagLength = 8;
-    constexpr int docTypeTagLength = 8;
     const char    ch = *tokenEnd;
     *tokenEnd = 0;
     if (strncmp(nodeName, "!--", 3) == 0)
@@ -153,7 +152,8 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd, formatting);
     }
-    else if (strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>' && *tokenEnd)
+    else if (constexpr int docTypeTagLength = 8;
+             strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>' && *tokenEnd)
     {
         tokenEnd = readXMLDocType(tokenEnd);
     }

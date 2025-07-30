@@ -95,7 +95,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
     unsigned len = 0;
     HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
-         (const unsigned char*) str, static_cast<int>(strlen(str)), out.data(),
+         reinterpret_cast<const unsigned char*>(str), static_cast<int>(strlen(str)), out.data(),
          &len);
     out.bytes(len);
 }
@@ -142,7 +142,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
 
     HMAC(algorithm, key.c_str(), static_cast<int>(key.length()),
-         (const unsigned char*) head, static_cast<int>(strlen(head)), res.data(), &res_len);
+         reinterpret_cast<const unsigned char*>(head), static_cast<int>(strlen(head)), res.data(), &res_len);
 
     BIO_write(b64, res.data(), static_cast<int>(res_len));
 
@@ -176,10 +176,7 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     {
         throw Exception("Invalid value");
     }
-    else
-    {
-        throw Exception("Can't allocate memory");
-    }
+    throw Exception("Can't allocate memory");
 }
 
 static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
@@ -394,10 +391,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
     {
         throw Exception("Invalid value");
     }
-    else
-    {
-        throw Exception("Can't allocate memory");
-    }
+    throw Exception("Can't allocate memory");
 }
 
 static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)

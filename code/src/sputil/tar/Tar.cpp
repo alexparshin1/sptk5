@@ -97,7 +97,7 @@ unsigned readOctalNumber(Field& field, const String& fieldName)
 
 bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 {
-    const auto* header = (const TarHeader*) (buffer.data() + offset);
+    const auto* header = reinterpret_cast<const TarHeader*>(buffer.data() + offset);
     if (header->magic[0] == 0)
     {
         // empty block at the end of the file
@@ -161,8 +161,8 @@ void Tar::save(const std::filesystem::path& tarFileName) const
     ofstream archive(tarFileName);
     for (const auto& [fileName, archiveFile]: m_files)
     {
-        const auto& header = *(const TarHeader*) archiveFile->header();
-        archive.write((const char*) &header, TAR_BLOCK_SIZE);
+        const auto& header = *reinterpret_cast<const TarHeader*>(archiveFile->header());
+        archive.write(reinterpret_cast<const char*>(&header), TAR_BLOCK_SIZE);
         if (!archiveFile->empty())
         {
             const size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;

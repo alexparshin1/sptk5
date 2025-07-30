@@ -456,8 +456,8 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         clear();
         m_group->begin();
-        auto itor = groupNode->nodes().begin();
-        for (; itor != groupNode->nodes().end(); ++itor)
+        for (auto itor = groupNode->nodes().begin();
+            itor != groupNode->nodes().end(); ++itor)
         {
             auto&       widgetNode = *itor;
             const auto& widgetType = widgetNode->getName();

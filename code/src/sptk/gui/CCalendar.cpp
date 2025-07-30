@@ -43,13 +43,13 @@ static const char* monthDayLabels[31] = {
 static const char* switchLabels[4] = {
     "@<<", "@<", "@>", "@>>"};
 
-static const int64_t monthChanges[4] = {
+static constexpr int64_t monthChanges[4] = {
     -12, -1, 1, 12};
 
 // Callback function for day buttons
 void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
 {
-    Fl_Group* buttonBox = button->parent();
+    const Fl_Group* buttonBox = button->parent();
     auto*     calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
     if (!calendar)
     {
@@ -136,9 +136,9 @@ void CCalendar::switchButtonClicked(int32_t monthChange)
 
 void CCalendar::ctor_init()
 {
-    int xx = x();
-    int yy = y();
-    int ww = w();
+    const int xx = x();
+    const int yy = y();
+    const int ww = w();
     m_activeButtonIndex = -1;
 
     box(FL_FLAT_BOX);
@@ -287,9 +287,9 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     auto* pcw = dynamic_cast<CPopupCalendar*>(btn->window());
     if (pcw)
     {
-        int requiredWidth = ww + 4;
-        int requiredHeight = sby + bh + 3 - yy;
-        if (pcw->h() != requiredHeight || pcw->w() != requiredWidth)
+        const int requiredWidth = ww + 4;
+        if (const int requiredHeight = sby + bh + 3 - yy;
+            pcw->h() != requiredHeight || pcw->w() != requiredWidth)
         {
             pcw->size(requiredWidth, requiredHeight);
         }

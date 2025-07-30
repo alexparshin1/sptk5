@@ -116,8 +116,8 @@ void WSServer::socketEventCallback(const uint8_t* userData, SocketEventType even
     {
         scoped_lock lock(m_mutex);
 
-        auto* connectionPtr = bit_cast<WSConnection*>(userData);
-        auto  connectionIterator = m_connectionMap.find(connectionPtr);
+        auto*      connectionPtr = bit_cast<WSConnection*>(userData);
+        const auto connectionIterator = m_connectionMap.find(connectionPtr);
         if (connectionIterator == m_connectionMap.end())
         {
             return;

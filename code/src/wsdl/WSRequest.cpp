@@ -111,7 +111,7 @@ void WSRequest::logError(const String& requestName, const String& error, int err
 {
     if (m_logEngine)
     {
-        Logger logger(*m_logEngine);
+        const Logger logger(*m_logEngine);
         if (errorCode != 0)
         {
             logger.error(requestName + ": " + requestName.c_str() + to_string(errorCode) + " " + error);

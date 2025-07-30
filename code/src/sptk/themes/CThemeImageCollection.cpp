@@ -63,7 +63,7 @@ void CThemeImageCollection::clear()
     m_border[3] = 8;
 }
 
-CPngImage* CThemeImageCollection::image(CThemeImageState state) const
+CPngImage* CThemeImageCollection::image(const CThemeImageState state) const
 {
     if (m_images[state])
     {
@@ -81,7 +81,7 @@ CPngImage* CThemeImageCollection::image(CThemeImageState state) const
     return m_images[0];
 }
 
-CPngImage* CThemeImageCollection::overlayImage(CThemeImageState state) const
+CPngImage* CThemeImageCollection::overlayImage(const CThemeImageState state) const
 {
     if (m_overlayImages[state])
     {

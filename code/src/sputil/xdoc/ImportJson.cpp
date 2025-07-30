@@ -53,7 +53,7 @@ String decode(const String& text);
 
 static constexpr int ERROR_CONTEXT_CHARS = 65;
 
-[[noreturn]] void throwError(const String& message, const char* json, size_t position)
+[[noreturn]] void throwError(const String& message, const char* json, const size_t position)
 {
     stringstream error;
     error << message;
@@ -91,7 +91,7 @@ static constexpr int ERROR_CONTEXT_CHARS = 65;
 }
 
 namespace {
-[[noreturn]] void throwUnexpectedCharacterError(char character, char expected, const char* json, size_t position)
+[[noreturn]] void throwUnexpectedCharacterError(const char character, const char expected, const char* json, const size_t position)
 {
     stringstream msg;
     msg << "Unexpected character '" << character << "'";
@@ -321,7 +321,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 
 const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
 const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName);
-void        readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes)
+void        readObjectData(const SNode& parent, const char* json, const char*& readPosition, const bool objectIsAttributes)
 {
     if (*readPosition != '{')
     {
@@ -410,7 +410,7 @@ void        readObjectData(const SNode& parent, const char* json, const char*& r
     ++readPosition;
 }
 
-const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+const char* readNumber(const SNode& parent, const char* json, const char*& readPosition, const bool objectIsAttributes, const String& elementName)
 {
     if (objectIsAttributes)
     {
@@ -423,7 +423,7 @@ const char* readNumber(const SNode& parent, const char* json, const char*& readP
     return readPosition;
 }
 
-const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes, const String& elementName)
+const char* readBoolean(const SNode& parent, const char* json, const char*& readPosition, const bool objectIsAttributes, const String& elementName)
 {
     if (objectIsAttributes)
     {
@@ -437,7 +437,7 @@ const char* readBoolean(const SNode& parent, const char* json, const char*& read
 }
 
 namespace {
-String codePointToUTF8(unsigned codePoint)
+String codePointToUTF8(const unsigned codePoint)
 {
     String result;
 
