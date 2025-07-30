@@ -14,7 +14,7 @@
 using namespace std;
 using namespace sptk;
 
-BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, unsigned groupSize)
+BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
     : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, serialColumnName, columnNames, groupSize))
     , m_deleteQuery(connection, makeGenericDeleteSQL(tableName, columnNames[0], groupSize))
     , m_serialColumnName(serialColumnName)
@@ -26,7 +26,7 @@ BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName
 {
 }
 
-String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, unsigned groupSize)
+String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize)
 {
     using enum DatabaseConnectionType;
     String sql;
@@ -58,7 +58,7 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
     return sql;
 }
 
-String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, unsigned groupSize)
+String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize)
 {
     stringstream sql;
 
@@ -90,7 +90,7 @@ String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& co
     return sql.str();
 }
 
-String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize)
+String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize)
 {
     stringstream sql;
 
@@ -136,7 +136,7 @@ String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& c
     return sql.str();
 }
 
-String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, unsigned int groupSize, const String& intoAttribute)
+String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize, const String& intoAttribute)
 {
     stringstream sql;
 
@@ -175,7 +175,7 @@ String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& c
     return sql.str();
 }
 
-String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, unsigned int groupSize)
+String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, size_t groupSize)
 {
     stringstream sql;
 
@@ -207,33 +207,22 @@ void BulkQuery::beginInsert(bool& startedTransaction) const
     using enum DatabaseConnectionType;
 
     startedTransaction = false;
-    switch (m_connection->connectionType())
+    if (m_connection->connectionType() == MYSQL)
     {
-        case MYSQL: {
-            // Table is locked until the UNLOCK TABLES command.
-            Query lockTableQuery(m_connection, "LOCK TABLES " + m_tableName + " WRITE", false);
-            lockTableQuery.exec();
-        }
-        break;
-
-        default:
-            break;
+        // Locked the table until the UNLOCK TABLES command.
+        // This method is used to prevent other connections from inserting data at the same time.
+        Query lockTableQuery(m_connection, "LOCK TABLES " + m_tableName + " WRITE", false);
+        lockTableQuery.exec();
     }
 }
 
 void BulkQuery::commitInsert() const
 {
     using enum DatabaseConnectionType;
-    switch (m_connection->connectionType())
+    if (m_connection->connectionType() == MYSQL)
     {
-        case MYSQL: {
-            Query unlockTableQuery(m_connection, "UNLOCK TABLES", false);
-            unlockTableQuery.exec();
-        }
-        break;
-
-        default:
-            break;
+        Query unlockTableQuery(m_connection, "UNLOCK TABLES", false);
+        unlockTableQuery.exec();
     }
 }
 
@@ -241,24 +230,14 @@ bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVe
 {
     using enum DatabaseConnectionType;
 
-    string       sequenceName = m_connection->tableSequenceName(tableName);
-    stringstream sqlStream;
-
-    switch (m_connection->connectionType())
+    auto connectionType = m_connection->connectionType();
+    if (connectionType == ORACLE || connectionType == ORACLE_OCI)
     {
-        case ORACLE:
-        case ORACLE_OCI:
-            sqlStream << "WITH SERIES (IND) AS (SELECT ROWNUM FROM DUAL CONNECT BY ROWNUM <= " << rows.size() << ")"
-                      << "SELECT " << m_connection->tableSequenceName(tableName) << ".nextval FROM SERIES";
-            break;
-        default:
-            return false;
-    }
+        stringstream sqlStream;
+        sqlStream << "WITH SERIES (IND) AS (SELECT ROWNUM FROM DUAL CONNECT BY ROWNUM <= " << rows.size() << ")"
+                  << "SELECT " << m_connection->tableSequenceName(tableName) << ".nextval FROM SERIES";
 
-    const auto sql = sqlStream.str();
-    if (!sql.empty())
-    {
-        Query query(m_connection, sql);
+        Query query(m_connection, sqlStream.str());
         query.open();
         while (!query.eof())
         {
@@ -266,17 +245,18 @@ bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVe
             query.next();
         }
         query.close();
-    }
 
-    return true;
+        return true;
+    }
+    return false;
 }
 
 vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
 {
     using enum DatabaseConnectionType;
 
-    const auto     fullGroupCount = static_cast<unsigned>(rows.size() / m_groupSize);
-    const unsigned remainder = rows.size() % m_groupSize;
+    const auto   fullGroupCount = rows.size() / m_groupSize;
+    const size_t remainder = rows.size() % m_groupSize;
 
     vector<int64_t> insertedIds;
     insertedIds.reserve(rows.size());
@@ -287,8 +267,7 @@ vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
     size_t reservedIdOffset = 0;
     if (!m_serialColumnName.empty())
     {
-        // For Oracle, reserve auto increment IDs, and set it in rows
-        // and insertedIds.
+        // For Oracle, reserve auto increment IDs, and set it into insertedIds.
         if ((useReservedIds = reserveInsertIds(m_tableName, rows, insertedIds)))
         {
             serialColumnIndex = m_columnNames.indexOf(m_serialColumnName);
@@ -323,8 +302,8 @@ vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
 
 void BulkQuery::deleteRows(const VariantVector& keys)
 {
-    const auto     fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
-    const unsigned remainder = keys.size() % m_groupSize;
+    const auto   fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
+    const size_t remainder = keys.size() % m_groupSize;
 
     auto firstKey = keys.begin();
     if (fullGroupCount > 0)
@@ -362,20 +341,22 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
         ++columnCount;
     }
 
+    auto parameterIterator = insertQuery.parameters().begin();
     for (auto row = startRow; row != end; ++row)
     {
         for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
         {
+            auto& parameter = *parameterIterator;
             if (columnNumber == serialColumnIndex)
             {
-                insertQuery.param(parameterIndex) = insertedIds[reservedIdOffset];
+                *parameter = insertedIds[reservedIdOffset];
                 ++reservedIdOffset;
             }
             else
             {
-                insertQuery.param(parameterIndex) = (*row)[columnNumber];
+                *parameter = (*row)[columnNumber];
             }
-            ++parameterIndex;
+            ++parameterIterator;
         }
         ++rowCount;
     }

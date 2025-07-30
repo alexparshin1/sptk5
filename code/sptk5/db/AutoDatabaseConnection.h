@@ -169,7 +169,7 @@ public:
      * @param groupSize         Number of records inserted at once.
      * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    [[nodiscard]] virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+    virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
                                                           std::vector<VariantVector>& data, size_t groupSize = 100) const
     {
         return m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize);
@@ -212,12 +212,12 @@ public:
         m_connection->executeBatchSQL(batchSQL, errors);
     }
 
-    [[nodiscard]] String tableSequenceName(const String& tableName, const String& sequenceName = "") const
+    [[nodiscard]] String tableSequenceName(const String& tableName, const String& /*sequenceName*/ = "") const
     {
         return m_connection->tableSequenceName(tableName);
     }
 
-    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& sequenceName = "") const
+    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const
     {
         return m_connection->lastAutoIncrementSql(tableName);
     }

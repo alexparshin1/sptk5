@@ -34,6 +34,10 @@
 #include <mutex>
 #include <vector>
 
+#ifdef _WIN32
+#include <sptk5/Exception.h>
+#endif
+
 #ifdef HAVE_PCRE2
 #define PCRE2_STATIC
 #define PCRE2_CODE_UNIT_WIDTH 8

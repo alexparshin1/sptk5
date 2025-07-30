@@ -429,6 +429,15 @@ public:
     }
 
     /**
+     * Returns the list of query parameters
+     * @returns QueryParameterList
+     */
+    [[nodiscard]] QueryParameterList& parameters()
+    {
+        return m_params;
+    }
+
+    /**
      * Returns the parameter by the name.
      *
      * If the parameter name isn't found, throws an exception
