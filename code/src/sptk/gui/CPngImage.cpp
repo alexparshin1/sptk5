@@ -49,7 +49,7 @@ typedef struct
 
 static void png_read(png_structp pp, png_bytep buf, png_size_t len)
 {
-    auto*         p = (CMemHandle*) png_get_io_ptr(pp);
+    auto*         p = static_cast<CMemHandle*>(png_get_io_ptr(pp));
     const Buffer* buffer = p->buffer;
     if (png_size_t tail = buffer->bytes() - p->read_offset;
         len > tail)
@@ -57,7 +57,7 @@ static void png_read(png_structp pp, png_bytep buf, png_size_t len)
         len = tail;
     }
     memcpy(buf, p->buffer->data() + p->read_offset, len);
-    p->read_offset += (int) len;
+    p->read_offset += static_cast<int>(len);
 }
 
 void CPngImage::load(const Buffer& imagedata)
@@ -101,8 +101,8 @@ void CPngImage::load(const Buffer& imagedata)
         channels++;
     }
 
-    w((int) png_get_image_width(pp, info));
-    h((int) png_get_image_height(pp, info));
+    w(static_cast<int>(png_get_image_width(pp, info)));
+    h(static_cast<int>(png_get_image_height(pp, info)));
     d(channels);
 
     int bit_depth = png_get_bit_depth(pp, info);
@@ -130,7 +130,7 @@ void CPngImage::load(const Buffer& imagedata)
 
     for (i = 0; i < h(); i++)
     {
-        rows[i] = (png_bytep) (array + i * w() * d());
+        rows[i] = const_cast<png_bytep>(array + i * w() * d());
     }
 
     // Read the image, handling interlacing as needed...
@@ -166,7 +166,7 @@ CPngImage::CPngImage(const Buffer& imagedata)
 CPngImage::CPngImage(const Fl_RGB_Image* image)
     : Fl_RGB_Image(nullptr, 0, 0)
 {
-    unsigned arraySize = unsigned(image->w() * image->h() * image->d());
+    unsigned arraySize = static_cast<unsigned>(image->w() * image->h() * image->d());
     array = new uchar[arraySize];
     alloc_array = 1;
     memcpy((void*) array, image->array, arraySize);
@@ -194,21 +194,21 @@ CPngImage::CPngImage(const String& fileName)
 static Fl_RGB_Image*
 subRGBImage(Fl_RGB_Image* image, unsigned offsetX, unsigned offsetY, unsigned width, unsigned height)
 {
-    if (offsetX > (unsigned) image->w())
+    if (offsetX > static_cast<unsigned>(image->w()))
     {
-        offsetX = (unsigned) image->w();
+        offsetX = static_cast<unsigned>(image->w());
     }
-    if (offsetY > (unsigned) image->h())
+    if (offsetY > static_cast<unsigned>(image->h()))
     {
-        offsetY = (unsigned) image->h();
+        offsetY = static_cast<unsigned>(image->h());
     }
-    if (offsetX + width > (unsigned) image->w())
+    if (offsetX + width > static_cast<unsigned>(image->w()))
     {
-        width = (unsigned) image->w() - offsetX;
+        width = static_cast<unsigned>(image->w()) - offsetX;
     }
-    if (offsetY + height > (unsigned) image->h())
+    if (offsetY + height > static_cast<unsigned>(image->h()))
     {
-        height = (unsigned) image->h() - offsetY;
+        height = static_cast<unsigned>(image->h()) - offsetY;
     }
     unsigned     bytesPerRow = image->w() * image->d();
     unsigned     newBytesPerRow = width * image->d();
@@ -236,7 +236,7 @@ void CPngImage::cutStretchDraw(
         return;
     }
     Fl_RGB_Image* img = subRGBImage(sourceImage, srcX, srcY, srcW, srcH);
-    auto*         stretched = (Fl_RGB_Image*) img->copy(destW, destH);
+    auto*         stretched = static_cast<Fl_RGB_Image*>(img->copy(destW, destH));
     stretched->draw(destX, destY);
     delete img;
     delete stretched;
@@ -321,26 +321,26 @@ void CPngImage::drawResized(int xx, int yy, int ww, int hh, int cornerWidth, CPa
 
 void CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatternDrawMode drawMode, bool drawBackground)
 {
-    int xBorderSpace = border[(int) CBorderIndex::BORDER_LEFT] + border[(int) CBorderIndex::BORDER_RIGHT];
+    int xBorderSpace = border[static_cast<int>(CBorderIndex::BORDER_LEFT)] + border[static_cast<int>(CBorderIndex::BORDER_RIGHT)];
     int xSideSpace = w() - xBorderSpace;
 
-    int yBorderSpace = border[(int) CBorderIndex::BORDER_TOP] + border[(int) CBorderIndex::BORDER_BOTTOM];
+    int yBorderSpace = border[static_cast<int>(CBorderIndex::BORDER_TOP)] + border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)];
     int ySideSpace = h() - yBorderSpace;
 
     /// Draw corners
     int imageHeight = h();
     int imageWidth = w();
-    draw(xx, yy, border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_TOP], 0, 0);
-    draw(xx, yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM], border[(int) CBorderIndex::BORDER_LEFT],
-         border[(int) CBorderIndex::BORDER_BOTTOM], 0,
-         imageHeight - border[(int) CBorderIndex::BORDER_BOTTOM]);
-    draw(xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy, border[(int) CBorderIndex::BORDER_LEFT],
-         border[(int) CBorderIndex::BORDER_TOP], imageWidth - border[(int) CBorderIndex::BORDER_RIGHT],
+    draw(xx, yy, border[static_cast<int>(CBorderIndex::BORDER_LEFT)], border[static_cast<int>(CBorderIndex::BORDER_TOP)], 0, 0);
+    draw(xx, yy + hh - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)], border[static_cast<int>(CBorderIndex::BORDER_LEFT)],
+         border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)], 0,
+         imageHeight - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)]);
+    draw(xx + ww - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], yy, border[static_cast<int>(CBorderIndex::BORDER_LEFT)],
+         border[static_cast<int>(CBorderIndex::BORDER_TOP)], imageWidth - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)],
          0);
-    draw(xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM],
-         border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_BOTTOM],
-         imageWidth - border[(int) CBorderIndex::BORDER_RIGHT],
-         imageHeight - border[(int) CBorderIndex::BORDER_BOTTOM]);
+    draw(xx + ww - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], yy + hh - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)],
+         border[static_cast<int>(CBorderIndex::BORDER_LEFT)], border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)],
+         imageWidth - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)],
+         imageHeight - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)]);
 
     resized_draw_function resizedDraw = cutTileDraw;
     if (drawMode == CPatternDrawMode::PDM_STRETCH)
@@ -351,29 +351,29 @@ void CPngImage::drawResized(int xx, int yy, int ww, int hh, int border[], CPatte
     /// Draw frame parts
     if (xSideSpace > 0)
     {
-        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], 0, xSideSpace,
-                    border[(int) CBorderIndex::BORDER_TOP], xx + border[(int) CBorderIndex::BORDER_LEFT], yy,
-                    ww - xBorderSpace, border[(int) CBorderIndex::BORDER_TOP]);
-        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], h() - border[(int) CBorderIndex::BORDER_BOTTOM],
-                    xSideSpace, border[(int) CBorderIndex::BORDER_BOTTOM],
-                    xx + border[(int) CBorderIndex::BORDER_LEFT], yy + hh - border[(int) CBorderIndex::BORDER_BOTTOM],
+        resizedDraw(this, border[static_cast<int>(CBorderIndex::BORDER_LEFT)], 0, xSideSpace,
+                    border[static_cast<int>(CBorderIndex::BORDER_TOP)], xx + border[static_cast<int>(CBorderIndex::BORDER_LEFT)], yy,
+                    ww - xBorderSpace, border[static_cast<int>(CBorderIndex::BORDER_TOP)]);
+        resizedDraw(this, border[static_cast<int>(CBorderIndex::BORDER_LEFT)], h() - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)],
+                    xSideSpace, border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)],
+                    xx + border[static_cast<int>(CBorderIndex::BORDER_LEFT)], yy + hh - border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)],
                     ww - xBorderSpace,
-                    border[(int) CBorderIndex::BORDER_BOTTOM]);
+                    border[static_cast<int>(CBorderIndex::BORDER_BOTTOM)]);
     }
     if (ySideSpace > 0)
     {
-        resizedDraw(this, 0, border[(int) CBorderIndex::BORDER_TOP], border[(int) CBorderIndex::BORDER_LEFT],
-                    ySideSpace, xx, yy + border[(int) CBorderIndex::BORDER_TOP],
-                    border[(int) CBorderIndex::BORDER_LEFT], hh - yBorderSpace);
-        resizedDraw(this, w() - border[(int) CBorderIndex::BORDER_RIGHT], border[(int) CBorderIndex::BORDER_TOP],
-                    border[(int) CBorderIndex::BORDER_RIGHT], ySideSpace,
-                    xx + ww - border[(int) CBorderIndex::BORDER_RIGHT], yy + border[(int) CBorderIndex::BORDER_TOP],
-                    border[(int) CBorderIndex::BORDER_RIGHT], hh - yBorderSpace);
+        resizedDraw(this, 0, border[static_cast<int>(CBorderIndex::BORDER_TOP)], border[static_cast<int>(CBorderIndex::BORDER_LEFT)],
+                    ySideSpace, xx, yy + border[static_cast<int>(CBorderIndex::BORDER_TOP)],
+                    border[static_cast<int>(CBorderIndex::BORDER_LEFT)], hh - yBorderSpace);
+        resizedDraw(this, w() - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], border[static_cast<int>(CBorderIndex::BORDER_TOP)],
+                    border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], ySideSpace,
+                    xx + ww - border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], yy + border[static_cast<int>(CBorderIndex::BORDER_TOP)],
+                    border[static_cast<int>(CBorderIndex::BORDER_RIGHT)], hh - yBorderSpace);
     }
     if (drawBackground && xSideSpace > 0 && ySideSpace > 0)
     {
-        resizedDraw(this, border[(int) CBorderIndex::BORDER_LEFT], border[(int) CBorderIndex::BORDER_TOP], xSideSpace,
-                    ySideSpace, xx + border[(int) CBorderIndex::BORDER_LEFT],
-                    yy + border[(int) CBorderIndex::BORDER_TOP], ww - xBorderSpace, hh - yBorderSpace);
+        resizedDraw(this, border[static_cast<int>(CBorderIndex::BORDER_LEFT)], border[static_cast<int>(CBorderIndex::BORDER_TOP)], xSideSpace,
+                    ySideSpace, xx + border[static_cast<int>(CBorderIndex::BORDER_LEFT)],
+                    yy + border[static_cast<int>(CBorderIndex::BORDER_TOP)], ww - xBorderSpace, hh - yBorderSpace);
     }
 }

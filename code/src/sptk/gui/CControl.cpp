@@ -107,9 +107,8 @@ CControlKindIndex::CNameTypeMap CControlKindIndex::m_nameTypeMap;
 
 void CControlKindIndex::registerType(CControlKind type, const char* name)
 {
-    pair<CNameTypeMap::iterator, bool> insertResult;
 
-    insertResult = m_nameTypeMap.insert(CNameTypeMap::value_type(name, type));
+    auto insertResult = m_nameTypeMap.insert(CNameTypeMap::value_type(name, type));
     auto itor = insertResult.first;
     m_typeNameMap[type] = &itor->first;
 }
@@ -119,14 +118,14 @@ string CControlKindIndex::name(CControlKind type)
     auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
     {
-        throw Exception("Control type " + int2string((int) type) + " is undefined");
+        throw Exception("Control type " + int2string(static_cast<int>(type)) + " is undefined");
     }
     return *itor->second;
 }
 
 CControlKind CControlKindIndex::type(const char* name)
 {
-    auto itor = m_nameTypeMap.find(name);
+    const auto itor = m_nameTypeMap.find(name);
     if (itor == m_nameTypeMap.end())
     {
         throw Exception("Control name " + string(name) + " is undefined");
@@ -214,7 +213,7 @@ CControl::CControl(int x, int y, int w, int h, const char* label)
 
 void CControl::flags(unsigned flags)
 {
-    // Only allow to change user flags
+    // Only allow changing user flags
     m_controlFlags &= 0xFF00;
     m_controlFlags |= flags & 0xFF;
 }
@@ -228,7 +227,7 @@ unsigned CControl::labelHeight() const
     {
         fl_measure(m_label.c_str(), cw, ch);
     }
-    return (unsigned) ch;
+    return static_cast<unsigned>(ch);
 }
 
 void CControl::resize(int x, int y, int w, int h)
@@ -237,7 +236,7 @@ void CControl::resize(int x, int y, int w, int h)
     if (m_control != nullptr)
     {
         int hh = h;
-        if (!(m_controlFlags & (int) InputEntryFlags::MULTILINEENTRY))
+        if (!(m_controlFlags & static_cast<int>(InputEntryFlags::MULTILINEENTRY)))
         {
             hh = textSize() + 8;
         }
@@ -271,7 +270,7 @@ void CControl::draw()
             fl_font(labelfont(), labelsize());
             fl_color(m_labelColor);
             fl_draw(m_label.c_str(), x() + 1, y() + 1, m_labelWidth - 3, hh,
-                    Fl_Align(FL_ALIGN_TOP | FL_ALIGN_RIGHT | FL_ALIGN_WRAP));
+                    static_cast<Fl_Align>(FL_ALIGN_TOP | FL_ALIGN_RIGHT | FL_ALIGN_WRAP));
         }
     }
 }
@@ -337,7 +336,7 @@ void CControl::color(Fl_Color clr)
 
 uchar CControl::labelSize() const
 {
-    return (uchar) labelsize();
+    return static_cast<uchar>(labelsize());
 }
 
 void CControl::labelSize(uchar sz)
@@ -436,7 +435,7 @@ void CControl::fieldName(const String& s)
 CControlKind CControl::controlNameToType(const String& typeName, int& maxLength, const String& values)
 {
     CControlKind controlType = CControlKind::UNKNOWN;
-    auto         c1 = (char) toupper(typeName[1]);
+    auto         c1 = static_cast<char>(toupper(typeName[1]));
     maxLength = 0;
     switch (toupper(typeName[0]))
     {
@@ -619,7 +618,7 @@ void CControl::internalCallback(Fl_Widget* internalWidget, void* data)
         if (auto* control = dynamic_cast<CControl*>(parentWidget);
             control != nullptr)
         {
-            control->fireEvent(CEvent::DATA_CHANGED, (int32_t) (uint64_t) (data));
+            control->fireEvent(CEvent::DATA_CHANGED, static_cast<int32_t>(reinterpret_cast<uint64_t>(data)));
             break;
         }
     }
@@ -656,12 +655,12 @@ void sptk::createControls(const xdoc::SNode& xmlControls)
 
 void CControl::load(const xdoc::SNode& node, CLayoutXMLmode xmlMode)
 {
-    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
+    if (static_cast<int>(xmlMode) & static_cast<int>(CLayoutXMLmode::LAYOUT))
     {
         CLayoutClient::load(node, CLayoutXMLmode::LAYOUT);
     }
 
-    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
+    if (static_cast<int>(xmlMode) & static_cast<int>(CLayoutXMLmode::DATA))
     {
         Variant v;
         v.load(node);
@@ -673,15 +672,14 @@ void CControl::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
 {
     node->setName("control");
 
-    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
+    if (static_cast<int>(xmlMode) & static_cast<int>(CLayoutXMLmode::LAYOUT))
     {
         CLayoutClient::save(node, CLayoutXMLmode::LAYOUT);
     }
 
-    if ((int) xmlMode & (int) CLayoutXMLmode::DATA)
+    if (static_cast<int>(xmlMode) & static_cast<int>(CLayoutXMLmode::DATA))
     {
-        Variant v;
-        v = data();
+        Variant v = data();
         v.save(node);
     }
 }

@@ -119,7 +119,7 @@ void CLayoutManager::reLayout()
     {
         return;
     }
-    auto cnt = (unsigned) m_group->children();
+    auto cnt = static_cast<unsigned>(m_group->children());
     for (unsigned i = 0; i < cnt; i++)
     {
         Fl_Widget* widget = m_group->child(i);
@@ -128,8 +128,7 @@ void CLayoutManager::reLayout()
             continue;
         }
 
-        CLayoutClient* ca;
-        ca = dynamic_cast<CLayoutClient*>(widget);
+        CLayoutClient* ca = dynamic_cast<CLayoutClient*>(widget);
         if (ca == nullptr)
         {
             continue;
@@ -184,7 +183,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
         int            preferred_w;
         int            preferred_h;
         Fl_Widget*     clientWidget = nullptr;
-        auto           cnt = (unsigned) m_group->children();
+        auto           cnt = static_cast<unsigned>(m_group->children());
         bool           extended = false;
         CLayoutClient* ca;
         unsigned       layoutWidgets = 0;
@@ -288,7 +287,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     ww -= preferred_w + m_layoutSpacing;
                     if (preferred_h > hh)
                     {
-                        if (!((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW))
+                        if (!(static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_VERTICAL_GROW)))
                         {
                             preferred_h = hh;
                         }
@@ -317,7 +316,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
                     hh -= preferred_h + m_layoutSpacing;
                     if (preferred_w > ww)
                     {
-                        if (!((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW))
+                        if (!(static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_HORIZONTAL_GROW)))
                         {
                             preferred_w = ww;
                         }
@@ -378,11 +377,11 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
 
                 if (resizeWidgets && !dynamic_cast<CScroll*>(m_group))
                 {
-                    if (preferred_w > ww && !((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW))
+                    if (preferred_w > ww && !(static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_HORIZONTAL_GROW)))
                     {
                         preferred_w = ww;
                     }
-                    if (preferred_h > hh && !((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW))
+                    if (preferred_h > hh && !(static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_VERTICAL_GROW)))
                     {
                         preferred_h = hh;
                     }
@@ -399,7 +398,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
         }
 
         // Final adjustment
-        if ((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_HORIZONTAL_GROW)
+        if (static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_HORIZONTAL_GROW))
         {
             if (ww < 0)
             {
@@ -411,7 +410,7 @@ bool CLayoutManager::autoLayout(int x, int y, int& w, int& h, bool resizeWidgets
             ww = 0;
         }
 
-        if ((int) m_layoutGrowMode & (int) CLayoutGrowMode::LGM_VERTICAL_GROW)
+        if (static_cast<int>(m_layoutGrowMode) & static_cast<int>(CLayoutGrowMode::LGM_VERTICAL_GROW))
         {
             if (hh < 0)
             {
@@ -446,18 +445,17 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         return;
     }
 
-    auto* groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group);
-    if (groupLayoutClient)
+    if (auto* groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group))
     {
         groupLayoutClient->load(groupNode, xmlMode);
     }
 
-    if ((int) xmlMode & (int) CLayoutXMLmode::LAYOUT)
+    if (static_cast<int>(xmlMode) & static_cast<int>(CLayoutXMLmode::LAYOUT))
     {
         clear();
         m_group->begin();
         for (auto itor = groupNode->nodes().begin();
-            itor != groupNode->nodes().end(); ++itor)
+             itor != groupNode->nodes().end(); ++itor)
         {
             auto&       widgetNode = *itor;
             const auto& widgetType = widgetNode->getName();
@@ -476,8 +474,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             {
                 try
                 {
-                    auto* layoutManager = dynamic_cast<CLayoutManager*>(widget);
-                    if (layoutManager)
+                    if (auto* layoutManager = dynamic_cast<CLayoutManager*>(widget))
                     {
                         layoutManager->loadLayout(widgetNode, xmlMode);
                     }
@@ -491,8 +488,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             {
                 try
                 {
-                    auto* cwidget = dynamic_cast<CControl*>(widget);
-                    if (cwidget)
+                    if (auto* cwidget = dynamic_cast<CControl*>(widget))
                     {
                         cwidget->load(widgetNode, xmlMode);
                     }
@@ -537,8 +533,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             Fl_Widget* widget = m_group->child(i);
             try
             {
-                auto* group = dynamic_cast<CLayoutManager*>(widget);
-                if (group)
+                if (auto* group = dynamic_cast<CLayoutManager*>(widget))
                 {
                     string glabel = widget->label();
                     if (glabel.empty())
@@ -560,8 +555,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
             }
             try
             {
-                auto* control = dynamic_cast<CControl*>(widget);
-                if (control)
+                if (auto* control = dynamic_cast<CControl*>(widget))
                 {
                     String clabel = control->label();
                     if (clabel.empty())
@@ -592,14 +586,12 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
     {
         return;
     }
-    auto* groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group);
-    if (groupLayoutClient)
+    if (auto* groupLayoutClient = dynamic_cast<CLayoutClient*>(m_group))
     {
         groupLayoutClient->save(groupNode, xmlMode);
     }
-    auto  childCount = (unsigned) m_group->children();
-    auto* scroll = dynamic_cast<CScroll*>(m_group);
-    if (scroll)
+    auto childCount = static_cast<unsigned>(m_group->children());
+    if (dynamic_cast<CScroll*>(m_group))
     {
         childCount -= 2;
     } // Skipping scrollbars
@@ -610,8 +602,7 @@ void CLayoutManager::saveLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         try
         {
             auto* layoutManager = dynamic_cast<CLayoutManager*>(widget);
-            auto* layoutClient = dynamic_cast<CLayoutClient*>(widget);
-            if (layoutClient)
+            if (auto* layoutClient = dynamic_cast<CLayoutClient*>(widget))
             {
                 auto node = groupNode->pushNode(layoutClient->className());
                 if (layoutManager)
@@ -653,7 +644,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
     {
         index.clear();
     }
-    for (unsigned i = 0; i < (unsigned) m_group->children(); i++)
+    for (unsigned i = 0; i < static_cast<unsigned>(m_group->children()); i++)
     {
         Fl_Widget* widget = m_group->child(i);
         try
@@ -673,8 +664,7 @@ void CLayoutManager::nameIndex(CWidgetNamesMap& index, bool recursive, bool clea
         {
             try
             {
-                auto* group = dynamic_cast<CLayoutManager*>(widget);
-                if (group)
+                if (auto* group = dynamic_cast<CLayoutManager*>(widget))
                 {
                     group->nameIndex(index, true, false);
                 }
@@ -695,7 +685,7 @@ unsigned CLayoutManager::frameWidth() const
     }
     if (m_group)
     {
-        return (unsigned) Fl::box_dx(m_group->box());
+        return static_cast<unsigned>(Fl::box_dx(m_group->box()));
     }
     return 0;
 }
