@@ -251,24 +251,27 @@ bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVe
     return false;
 }
 
-vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
+void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* insertedIds)
 {
     using enum DatabaseConnectionType;
 
     const auto   fullGroupCount = rows.size() / m_groupSize;
     const size_t remainder = rows.size() % m_groupSize;
+    if (insertedIds)
+    {
+        insertedIds->clear();
+        insertedIds->reserve(rows.size());
+    }
 
-    vector<int64_t> insertedIds;
-    insertedIds.reserve(rows.size());
 
     bool useReservedIds = false;
 
     int    serialColumnIndex = -1;
     size_t reservedIdOffset = 0;
-    if (!m_serialColumnName.empty())
+    if (!m_serialColumnName.empty() && insertedIds)
     {
         // For Oracle, reserve auto increment IDs, and set it into insertedIds.
-        if ((useReservedIds = reserveInsertIds(m_tableName, rows, insertedIds)))
+        if ((useReservedIds = reserveInsertIds(m_tableName, rows, *insertedIds)))
         {
             serialColumnIndex = m_columnNames.indexOf(m_serialColumnName);
             if (serialColumnIndex < 0)
@@ -296,8 +299,6 @@ vector<int64_t> BulkQuery::insertRows(const vector<VariantVector>& rows)
         Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_serialColumnName, m_columnNames, remainder));
         insertGroupRows(insertQuery, firstRow, firstRow + remainder, insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
     }
-
-    return insertedIds;
 }
 
 void BulkQuery::deleteRows(const VariantVector& keys)
@@ -324,12 +325,12 @@ void BulkQuery::deleteRows(const VariantVector& keys)
 }
 
 size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const_iterator startRow, vector<VariantVector>::const_iterator end,
-                                  vector<int64_t>& insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset)
+                                  vector<int64_t>* insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset)
 {
     using enum DatabaseConnectionType;
 
     auto connectionType = m_connection->connectionType();
-    bool captureInsertedIds = !m_serialColumnName.empty();
+    bool captureInsertedIds = !m_serialColumnName.empty() && insertedIds != nullptr;
     bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
     bool sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
@@ -349,7 +350,10 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
             auto& parameter = *parameterIterator;
             if (columnNumber == serialColumnIndex)
             {
-                *parameter = insertedIds[reservedIdOffset];
+                if (insertedIds)
+                {
+                    *parameter = (*insertedIds)[reservedIdOffset];
+                }
                 ++reservedIdOffset;
             }
             else
@@ -368,7 +372,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
             insertQuery.open();
             while (!insertQuery.eof())
             {
-                insertedIds.push_back(insertQuery[0].asInt64());
+                insertedIds->push_back(insertQuery[0].asInt64());
                 ++parameterIndex;
                 insertQuery.next();
             }
@@ -401,7 +405,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
 
                 for (int64_t insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
                 {
-                    insertedIds.push_back(insertedId);
+                    insertedIds->push_back(insertedId);
                 }
             }
             else

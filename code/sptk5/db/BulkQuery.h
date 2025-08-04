@@ -37,10 +37,10 @@ public:
 
     /**
      * Insert rows into the table.
-     * @param rows              Data to insert.
-     * @return inserted values for key column (if it isn't empty).
+     * @param rows          Data to insert.
+     * @param insertedIds   Optional inserted values for the autoincrement column (if it isn't empty).
      */
-    [[nodiscard]] std::vector<int64_t> insertRows(const std::vector<std::vector<Variant>>& rows);
+    void insertRows(const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>* insertedIds = nullptr);
 
     /**
      * Delete rows from the table
@@ -67,8 +67,8 @@ private:
     void        beginInsert(bool& startedTransaction) const;
     void        commitInsert() const;
     bool        reserveInsertIds(const String& tableName, const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>& insertedIds);
-    size_t      insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end, 
-								std::vector<int64_t>& insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset);
+    size_t      insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end,
+                                std::vector<long>* insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset);
     static void deleteGroupRows(Query& insertQuery, VariantVector::const_iterator startKey, VariantVector::const_iterator end);
 };
 

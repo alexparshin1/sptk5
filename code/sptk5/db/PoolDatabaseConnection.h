@@ -339,10 +339,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
-     * @return inserted ids (if keyColumnName isn't empty), or empty vector.
+     * @param insertedIds       Optional (output) vector for the inserted autoincrement ids (if keyColumnName isn't empty).
      */
-    [[nodiscard]] virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                                                          std::vector<VariantVector>& data, size_t groupSize = 50);
+    virtual void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                            std::vector<VariantVector>& data, size_t groupSize = 50, std::vector<int64_t>* insertedIds = nullptr);
 
     /**
      * @brief Executes bulk delete of rows by the keys.
