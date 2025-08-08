@@ -41,7 +41,7 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
             sql = makeGenericInsertSQL(tableName, columnNames, groupSize);
             break;
         case MSSQL_ODBC:
-            sql = makeGenericInsertSQL(tableName, columnNames, groupSize, " OUTPUT Inserted." + keyColumnName);
+            sql = makeGenericInsertSQL(tableName, columnNames, groupSize, keyColumnName.empty() ? " " : " OUTPUT Inserted." + keyColumnName);
             break;
         case SQLITE3:
             sql = makeSqlite3InsertSQL(tableName, columnNames, groupSize);
@@ -226,7 +226,7 @@ void BulkQuery::commitInsert() const
     }
 }
 
-bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVector>& rows, vector<int64_t>& insertedIds)
+bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVector>& rows, vector<int64_t>& insertedIds) const
 {
     using enum DatabaseConnectionType;
 
@@ -263,7 +263,6 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
         insertedIds->reserve(rows.size());
     }
 
-
     bool useReservedIds = false;
 
     int    serialColumnIndex = -1;
@@ -287,8 +286,8 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
     {
         for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
         {
-            auto insertedCount = insertGroupRows(m_insertQuery, firstRow, firstRow + m_groupSize, insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
-            firstRow += insertedCount;
+            auto insertedCount = insertGroupRows(m_insertQuery, firstRow, firstRow + static_cast<long>(m_groupSize), insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
+            firstRow += static_cast<long>(insertedCount);
         }
     }
 
@@ -297,7 +296,7 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
         // Last group
         const auto databaseConnectionType = m_connection->connectionType();
         Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_serialColumnName, m_columnNames, remainder));
-        insertGroupRows(insertQuery, firstRow, firstRow + remainder, insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
+        insertGroupRows(insertQuery, firstRow, firstRow + static_cast<long>(remainder), insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
     }
 }
 
@@ -311,8 +310,8 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     {
         for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
         {
-            deleteGroupRows(m_deleteQuery, firstKey, firstKey + m_groupSize);
-            firstKey += m_groupSize;
+            deleteGroupRows(m_deleteQuery, firstKey, firstKey + static_cast<long>(m_groupSize));
+            firstKey += static_cast<long>(m_groupSize);
         }
     }
 
@@ -320,7 +319,7 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     {
         // Last group
         Query deleteQuery(m_connection, makeGenericDeleteSQL(m_tableName, m_columnNames[0], remainder));
-        deleteGroupRows(deleteQuery, firstKey, firstKey + remainder);
+        deleteGroupRows(deleteQuery, firstKey, firstKey + static_cast<long>(remainder));
     }
 }
 
@@ -329,14 +328,13 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
 {
     using enum DatabaseConnectionType;
 
-    auto connectionType = m_connection->connectionType();
-    bool captureInsertedIds = !m_serialColumnName.empty() && insertedIds != nullptr;
-    bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
-    bool sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
+    const auto connectionType = m_connection->connectionType();
+    const bool captureInsertedIds = (!m_serialColumnName.empty() && insertedIds != nullptr) || connectionType == MSSQL_ODBC;
+    const bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
+    const bool sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
-    size_t rowCount = 0;
-    size_t parameterIndex = 0;
-    size_t columnCount = startRow->size();
+    int64_t rowCount = 0;
+    size_t  columnCount = startRow->size();
     if (columnCount == serialColumnIndex)
     {
         ++columnCount;
@@ -365,29 +363,29 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
         ++rowCount;
     }
 
-    if (captureInsertedIds && insertReturnsIds)
+    if (captureInsertedIds && !sequenceReturnedIds)
     {
         if (insertReturnsIds)
         {
             insertQuery.open();
             while (!insertQuery.eof())
             {
-                insertedIds->push_back(insertQuery[0].asInt64());
-                ++parameterIndex;
+                if (insertedIds != nullptr)
+                {
+                    insertedIds->push_back(insertQuery[0].asInt64());
+                }
                 insertQuery.next();
             }
             insertQuery.close();
         }
-    }
-    else
-    {
-        bool startedTransaction = false;
-        try
+        else
         {
-            if (captureInsertedIds && !sequenceReturnedIds)
-            {
-                beginInsert(startedTransaction);
+            bool startedTransaction = false;
 
+            beginInsert(startedTransaction);
+
+            try
+            {
                 insertQuery.exec();
 
                 auto lastInsertedId = m_lastInsertedIdQuery.scalar().asInt64();
@@ -403,22 +401,32 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
                     lastInsertedId += rowCount - 1;
                 }
 
-                for (int64_t insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
+                if (insertedIds != nullptr)
                 {
-                    insertedIds->push_back(insertedId);
+                    for (auto insertedId = firstInsertedId; insertedId <= lastInsertedId; ++insertedId)
+                    {
+                        insertedIds->push_back(insertedId);
+                    }
                 }
             }
-            else
+            catch (const Exception& e)
             {
-                insertQuery.exec();
+                if (startedTransaction)
+                {
+                    m_connection->rollbackTransaction();
+                }
+                CERR("BulkQuery::insertGroupRows : " << hex << " " << this << e.what());
             }
+        }
+    }
+    else
+    {
+        try
+        {
+            insertQuery.exec();
         }
         catch (const Exception& e)
         {
-            if (startedTransaction)
-            {
-                m_connection->rollbackTransaction();
-            }
             CERR("BulkQuery::insertGroupRows : " << hex << " " << this << e.what());
         }
     }

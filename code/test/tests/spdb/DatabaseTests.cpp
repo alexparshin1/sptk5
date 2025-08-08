@@ -352,7 +352,7 @@ Buffer DatabaseTests::createClob()
     constexpr size_t lineLength = 72;
     while (clob.size() < sixtyFourKb)
     {
-        // A size of the CLOB that is bigger than 64K
+        // A size of the CLOB that is bigger than 64 Kb.
         clob.append(textFragment);
         counter += textFragment.length();
         if (counter > lineLength)
@@ -693,7 +693,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     const Strings columnNames({"name", "position_name", "hire_date"});
 
     vector<int64_t> insertedIds1;
-    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data, 100, &insertedIds1);
+    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data, insertedIds1, 100);
     EXPECT_EQ(5, insertedIds1.size());
     for (uint64_t i = 1; i <= 5; ++i)
     {
@@ -701,7 +701,7 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     }
 
     vector<int64_t> insertedIds2;
-    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data, 100, &insertedIds2);
+    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data, insertedIds2, 100);
     EXPECT_EQ(5, insertedIds2.size());
     for (uint64_t i = 1; i <= 5; ++i)
     {
@@ -807,7 +807,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
             operation = "bulkInsert";
             StopWatch sw;
             sw.start();
-            databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, batchSize, insertedIds);
+            databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
             sw.stop();
 
             COUT("Thread " << threadNumber << " inserted " << insertedIds->size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds->size() / sw.milliseconds() << "K/sec)");
@@ -841,7 +841,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
         uniqueIds.insert(id);
     }
 
-    COUT("All inserted      " << uniqueIds.size() << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
+    COUT("All inserted      " << uniqueIds.size() << " for " << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
 
     Query selectData(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
     int   counter = selectData.scalar().asInteger();
@@ -916,7 +916,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     StopWatch stopWatch;
     stopWatch.start();
     const Strings columnNames({"name", "position_name", "hire_date"});
-    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
+    databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);
     stopWatch.stop();
     const auto bulkInsertDurationMS = stopWatch.milliseconds();
 

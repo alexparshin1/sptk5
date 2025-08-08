@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Logger.h>
 #include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/db/DatabaseConnectionString.h>
@@ -36,7 +35,7 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
@@ -47,7 +46,7 @@ using StmtHandle = uint8_t*;
 using SStmtHandle = std::shared_ptr<uint8_t>;
 
 /**
- * Database connection type
+ * @brief Database connection type.
  */
 enum class DatabaseConnectionType : uint16_t
 {
@@ -62,7 +61,7 @@ enum class DatabaseConnectionType : uint16_t
 };
 
 /**
- * Types of the objects for DatabaseConnection::listObjects method
+ * @brief Types of the objects for the DatabaseConnection::listObjects method.
  */
 enum class DatabaseObjectType : uint8_t
 {
@@ -84,114 +83,112 @@ public:
 
 protected:
     /**
-     * Sets internal CQuery statement handle
+     * @brief Sets internal CQuery statement handle.
      */
     void querySetStmt(Query* query, const SStmtHandle& stmt);
 
     /**
-     * Sets internal CQuery m_prepared flag
+     * @brief Sets internal CQuery m_prepared flag.
      */
     static void querySetPrepared(Query* query, bool isPrepared);
 
     /**
-     * Sets internal CQuery m_active flag
+     * @brief Sets internal CQuery m_active flag.
      */
     static void querySetActive(Query* query, bool isActive);
 
     /**
-     * Sets internal CQuery m_eof flag
+     * @brief Sets internal CQuery m_eof flag.
      */
     static void querySetEof(Query* query, bool isEof);
 
-    // These methods implement the actions requested by CQuery
+    // These methods implement the actions requested by Query
+
     /**
-     * Retrieves an error (if any) after executing a statement
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     virtual String queryError(const Query* query) const = 0;
 
     /**
-     * Allocates an ODBC statement
+     * @brief Allocates an ODBC statement.
      */
     virtual void queryAllocStmt(Query* query) = 0;
 
     /**
-     * Deallocates an ODBC statement
+     * @brief Deallocates an ODBC statement.
      */
     virtual void queryFreeStmt(Query* query) = 0;
 
     /**
-     * Closes an ODBC statement
+     * @brief Closes an ODBC statement.
      */
     virtual void queryCloseStmt(Query* query) = 0;
 
     /**
-     * Prepares a query if supported by database
+     * @brief Prepares a query if supported by the database.
      */
     virtual void queryPrepare(Query* query) = 0;
 
     /**
-     * Executes a statement
+     * @brief Executes a statement.
      */
     virtual void queryExecute(Query* query) = 0;
 
     /**
-     * Counts columns of the dataset (if any) returned by query
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     virtual size_t queryColCount(Query* query) = 0;
 
     /**
-     * In a dataset returned by a query, retrieves the column attributes
+     * @brief In a dataset returned by a query, retrieves the column attributes.
      */
     virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) = 0;
 
     /**
-     * In a dataset returned by a query, retrieves the column attributes
+     * @brief In a dataset returned by a query, retrieves the column attributes.
      */
     virtual void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) = 0;
 
     /**
-     * Binds the parameters to the query
+     * @brief Binds the parameters to the query.
      */
     virtual void queryBindParameters(Query* query) = 0;
 
     /**
-     * Opens the query for reading data from the query's recordset
+     * @brief Opens the query for reading data from the query's recordset.
      */
     virtual void queryOpen(Query* query) = 0;
 
     /**
-     * Reads data from the query's recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into fields and advances to the next row. After reading the last row sets the EOF (end of the file, or no more data) flag.
      */
     virtual void queryFetch(Query* query) = 0;
 
     /**
-     * Returns parameter mark
+     * @brief Returns parameter mark.
      *
-     * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex unsigned, parameter index in SQL starting from 0
+     * @brief Parameter mark is generated from the parameterIndex.
+     * @param paramIndex unsigned, parameter index in SQL starting from 0.
      */
     virtual String paramMark(unsigned paramIndex);
 
     /**
-     * Stub function to throw an exception in case if the
-     * called method isn't implemented in the derived class
+     * @brief Stub function to throw an exception in case if the called method isn't implemented in the derived class.
      */
     [[noreturn]] static void notImplemented(const String& methodName);
 
     /**
-     * Attaches (links) query to the database
+     * @brief Attaches (links) query to the database.
      */
     bool linkQuery(Query* query);
 
     /**
-     * Unlinks query from the database
+     * @brief Unlinks the query from the database.
      */
     bool unlinkQuery(Query* query);
 
     /**
-     * Close all queries, connected to this connection,
-     * free their statements, and empty connected query
-     * list.
+     * @brief Close all queries connected to this connection, free their statements, and empty connected query list.
      */
     void disconnectAllQueries();
 
@@ -200,10 +197,9 @@ private:
 };
 
 /**
- * Database connector
+ * @brief Database connector.
  *
- * Implements a thread-safe connection to generDOT_al database. It is used
- * as a base class for actual database driver classes.
+ * Implements a thread-safe connection to generDOT_al database. It is used as a base class for actual database driver classes.
  */
 class SP_EXPORT PoolDatabaseConnection
     : public PoolDatabaseConnectionQueryMethods
@@ -214,55 +210,55 @@ class SP_EXPORT PoolDatabaseConnection
 
 public:
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~PoolDatabaseConnection() override;
 
     /**
-     * @brief Copy constructor is deleted
+     * @brief Copy constructor is deleted.
      */
     PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
 
     /**
-     * @brief Move constructor is deleted
+     * @brief Move constructor is deleted.
      */
     PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
 
     /**
-     * @brief Copy assignment is deleted
+     * @brief Copy assignment is deleted.
      */
     PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
 
     /**
-     * @brief Move assignment is deleted
+     * @brief Move assignment is deleted.
      */
     PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
     /**
-     * Opens the database connection
+     * Opens the database connection.
      *
-     * If unsuccessful throws an exception.
-     * @param newConnectionString  The ODBC connection string
+     * If unsuccessful, throws an exception.
+     * @param newConnectionString  The ODBC connection string.
      */
     void open(const String& newConnectionString = "");
 
     /**
-     * Closes the database connection. If unsuccessful throws an exception.
+     * Closes the database connection. If unsuccessful, throws an exception.
      */
     void close();
 
     /**
-     * Returns true if database is opened
+     * Returns true if the database is opened.
      */
     [[nodiscard]] virtual bool active() const;
 
     /**
-     * Returns the database connection handle
+     * Returns the database connection handle.
      */
     [[nodiscard]] virtual DBHandle handle() const;
 
     /**
-     * Returns the connection string
+     * Returns the connection string.
      */
     [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
@@ -270,13 +266,13 @@ public:
     }
 
     /**
-     * Set connecting string
-     * @param connectionString  Connection string
+     * Set the connection string.
+     * @param connectionString  Connection string.
      */
     void connectionString(const DatabaseConnectionString& connectionString);
 
     /**
-     * Returns driver-specific connection string
+     * Returns driver-specific connection string.
      */
     [[nodiscard]] virtual String nativeConnectionString() const
     {
@@ -284,7 +280,7 @@ public:
     }
 
     /**
-     * Returns the connection type
+     * Returns the connection type.
      */
     [[nodiscard]] virtual DatabaseConnectionType connectionType() const
     {
@@ -292,7 +288,7 @@ public:
     }
 
     /**
-     * Returns the driver description
+     * Returns the driver description.
      */
     [[nodiscard]] virtual String driverDescription() const
     {
@@ -300,22 +296,22 @@ public:
     }
 
     /**
-     * Begins the transaction
+     * Begins the transaction.
      */
     void beginTransaction();
 
     /**
-     * Commits the transaction
+     * Commits the transaction.
      */
     void commitTransaction();
 
     /**
-     * Rolls back the transaction
+     * Rolls back the transaction.
      */
     void rollbackTransaction();
 
     /**
-     * Reports true if in transaction
+     * Reports true if in transaction.
      */
     [[nodiscard]] bool inTransaction() const
     {
@@ -323,45 +319,64 @@ public:
     }
 
     /**
-     * Lists database objects
+     * Lists database objects.
      *
-     * Not implemented in DatabaseConnection. The derived database class
-     * must provide its own implementation
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * Not implemented in DatabaseConnection. The derived database class must provide its own implementation.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     virtual void objectList(DatabaseObjectType objectType, Strings& objects) = 0;
 
     /**
-     * @brief Executes bulk inserts of data from vector of rows.
+     * @brief Executes bulk inserts of data from the vector of rows.
      *
      * Data is inserted the fastest possible way. The rows must have the same number of columns as columnNames.
-     * @param tableName         Table name to insert into
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
-     * @param insertedIds       Optional (output) vector for the inserted autoincrement ids (if keyColumnName isn't empty).
+     * @param tableName         Table name to insert into.
+     * @param autoIncrementColumnName The optional column name for autoincrement column, or empty string.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
+     * @param groupSize         The number of records inserted at a time.
+     * @param insertedIds       Output vector for the inserted autoincrement ids (if keyColumnName isn't empty).
      */
     virtual void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                            std::vector<VariantVector>& data, size_t groupSize = 50, std::vector<int64_t>* insertedIds = nullptr);
+                            std::vector<VariantVector>& data, size_t groupSize, std::vector<int64_t>& insertedIds)
+    {
+        bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, &insertedIds);
+    }
+
+    /**
+     * @brief Executes bulk inserts of data from the vector of rows.
+     *
+     * Data is inserted the fastest possible way. The rows must have the same number of columns as columnNames.
+     * @param tableName         Table name to insert into.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
+     * @param groupSize         The number of records inserted at a time.
+     */
+    virtual void bulkInsert(const String& tableName, const Strings& columnNames,
+                            std::vector<VariantVector>& data, size_t groupSize)
+    {
+        bulkInsert(tableName, "", columnNames, data, groupSize, nullptr);
+    }
 
     /**
      * @brief Executes bulk delete of rows by the keys.
      *
      * Data is deleted the fastest possible way.
-     * @param tableName         Table name to insert into
-     * @param keyColumnName     List of table columns to populate
-     * @param keys              Data for bulk insert
+     * @param tableName         Table name to insert into.
+     * @param keyColumnName     List of table columns to populate.
+     * @param keys              Data for bulk insert.
      */
     virtual void bulkDelete(const String& tableName, const String& keyColumnName,
                             const VariantVector& keys);
 
     /**
-     * Executes SQL batch file
+     * Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchFileName     SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchFileName     SQL batch file.
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
     virtual void executeBatchFile(const String& batchFileName, Strings* errors);
 
@@ -370,8 +385,8 @@ public:
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
 
@@ -384,58 +399,57 @@ protected:
     void setInTransaction(bool inTransaction);
 
     /**
-     * Constructor
+     * @brief Constructor.
      *
-     * Protected constructor prevents creating an instance of the
-     * DatabaseConnection. Instead, it is possible to create an instance of derived
-     * classes.
-     * @param connectionString  The connection string
-     * @param connectionType    The connection type
-     * @param connectTimeout    Connection timeout
+     * Protected constructor prevents creating an instance of the DatabaseConnection. Instead, it is possible to create
+     * an instance of derived classes.
+     * @param connectionString  The connection string.
+     * @param connectionType    The connection type.
+     * @param connectTimeout    Connection timeout.
      */
     explicit PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, std::chrono::seconds connectTimeout);
 
     /**
-     * Opens the database connection.
+     * @brief Opens the database connection.
      *
-     * This method should be overwritten in derived classes
-     * @param newConnectionString  The ODBC connection string
+     * This method should be overwritten in derived classes.
+     * @param newConnectionString  The ODBC connection string.
      */
     virtual void _openDatabase(const String& newConnectionString);
 
     /**
-     * Closes the database connection.
+     * @brief Closes the database connection.
      *
-     * This method should be overwritten in derived classes
+     * This method should be overwritten in derived classes.
      */
     virtual void closeDatabase();
 
     /**
-     * Begins the transaction
+     * @brief Begins the transaction.
      *
-     * This method should be implemented in derived driver
+     * This method should be implemented in the derived driver.
      */
     virtual void driverBeginTransaction();
 
     /**
-     * Ends the transaction
+     * @brief Ends the transaction.
      *
-     * This method should be implemented in derived driver
-     * @param commit            Commit if true, rollback if false
+     * This method should be implemented in the derived driver.
+     * @param commit            Commit if true, rollback if false.
      */
     virtual void driverEndTransaction(bool commit);
 
     /**
-     * Throws an exception
+     * @brief Throws an exception.
      *
-     * Before exception is thrown, it is logged into the logfile (if the logfile is defined)
-     * @param method            Method name where error has occured
-     * @param error             Error text
+     * Before the exception is thrown, it is logged into the logfile (if the logfile is defined).
+     * @param method            Method name where error has occured.
+     * @param error             Error text.
      */
     [[noreturn]] static void logAndThrow(const String& method, const String& error);
 
     /**
-     * Set the connection type
+     * @brief Set the connection type.
      */
     virtual void connectionType(DatabaseConnectionType connType)
     {
@@ -443,8 +457,8 @@ protected:
     }
 
     /**
-     * Return connection timeout
-     * @return connection timeout
+     * @brief Return connection timeout.
+     * @return connection timeout.
      */
     [[nodiscard]] std::chrono::seconds connectTimeout() const
     {
@@ -457,15 +471,29 @@ private:
     String                   m_driverDescription;     ///< Driver description is filled by the particular driver.
     bool                     m_inTransaction {false}; ///< The in-transaction flag
     std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout
+
+    /**
+     * @brief Executes bulk inserts of data from the vector of rows.
+     *
+     * Data is inserted the fastest possible way. The rows must have the same number of columns as columnNames.
+     * @param tableName         Table name to insert into.
+     * @param autoIncrementColumnName The optional column name for autoincrement column, or empty string.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
+     * @param groupSize         The number of records inserted at a time.
+     * @param insertedIds       Optional (output) vector for the inserted autoincrement ids (if keyColumnName isn't empty).
+     */
+    virtual void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                            std::vector<VariantVector>& data, size_t groupSize, std::vector<int64_t>* insertedIds);
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
 
 /**
- * Escape SQL string for bulk insert
- * @param str                   String to escape
- * @param tsv                   True if output data is TSV (tab-separated values)
- * @return                      Escaped string
+ * Escape SQL string for bulk insert.
+ * @param str                   String to escape.
+ * @param tsv                   True if output data is TSV (tab-separated values).
+ * @return                      Escaped string.
  */
 SP_EXPORT String escapeSQLString(const String& str, bool tsv = false);
 

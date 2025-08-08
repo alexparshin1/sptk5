@@ -211,16 +211,16 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
                                         std::vector<VariantVector>& data, size_t groupSize, vector<int64_t>* insertedIds)
 {
     const bool wasInTransaction = inTransaction();
-    if (!wasInTransaction)
+    if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
     {
         beginTransaction();
     }
 
     Strings columnNamesFinal = columnNames;
-    if (!autoIncrementColumnName.empty() && (connectionType() == DatabaseConnectionType::ORACLE || connectionType() == DatabaseConnectionType::ORACLE_OCI))
+    if (insertedIds && !autoIncrementColumnName.empty() && (connectionType() == DatabaseConnectionType::ORACLE || connectionType() == DatabaseConnectionType::ORACLE_OCI))
     {
-        int autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
-        if (autoIncrementColumnIndex >= 0)
+        if (int autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
+            autoIncrementColumnIndex >= 0)
         {
             throw DatabaseException("The auto increment column can't be used in the column list");
         }
@@ -230,7 +230,7 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
     BulkQuery bulkQuery(this, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
     bulkQuery.insertRows(data, insertedIds);
 
-    if (!wasInTransaction)
+    if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
     {
         commitTransaction();
     }

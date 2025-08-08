@@ -70,7 +70,7 @@ public:
     /**
      * @brief Opens the database connection.
      *
-     * If unsuccessful throws an exception.
+     * If unsuccessful, throws an exception.
      * @param connectionString  The ODBC connection string.
      */
     void open(const String& connectionString = "") const
@@ -161,18 +161,34 @@ public:
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
      *
-     * Data is inserted the fastest possible way.
+     * Data is inserted the fastest possible way. The autoincrement ids inserted during the operation,
+     * returned in the inserted ids vector.
      * @param tableName         Table name to insert into.
      * @param autoIncrementColumnName The key column that should be auto-incremental, or empty string.
      * @param columnNames       List of table columns to populate.
      * @param data              Data for bulk insert.
-     * @param groupSize         Number of records inserted at once.
      * @param insertedIds       Optional vector of inserted autoincrement ids (if keyColumnName isn't empty).
+     * @param groupSize         Number of records inserted at once.
      */
-    virtual void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                            std::vector<VariantVector>& data, size_t groupSize = 100, std::vector<int64_t>* insertedIds = nullptr) const
+    void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, size_t groupSize = 100) const
     {
         m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+    }
+
+    /**
+     * @brief Executes bulk inserts of data from the vector of rows.
+     *
+     * Data is inserted the fastest possible way.
+     * @param tableName         Table name to insert into.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
+     * @param groupSize         Number of records inserted at once.
+     */
+    void bulkInsert(const String& tableName, const Strings& columnNames,
+                    std::vector<VariantVector>& data, size_t groupSize = 50) const
+    {
+        m_connection->bulkInsert(tableName, columnNames, data, groupSize);
     }
 
     /**

@@ -66,7 +66,7 @@ private:
 
     void        beginInsert(bool& startedTransaction) const;
     void        commitInsert() const;
-    bool        reserveInsertIds(const String& tableName, const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>& insertedIds);
+    bool        reserveInsertIds(const String& tableName, const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>& insertedIds) const;
     size_t      insertGroupRows(Query& insertQuery, std::vector<VariantVector>::const_iterator startRow, std::vector<VariantVector>::const_iterator end,
                                 std::vector<long>* insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset);
     static void deleteGroupRows(Query& insertQuery, VariantVector::const_iterator startKey, VariantVector::const_iterator end);

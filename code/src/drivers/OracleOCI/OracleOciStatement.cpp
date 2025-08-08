@@ -116,8 +116,7 @@ void OracleOciStatement::execute(bool inTransaction)
     state().columnCount = 0;
 
     statement()->ExecutePrepared();
-    auto resultSet = statement()->GetResultset();
-    if (resultSet)
+    if (const auto resultSet = statement()->GetResultset())
     {
         state().eof = false;
         state().columnCount = resultSet.GetColumnCount();
@@ -131,8 +130,7 @@ void OracleOciStatement::close()
 
 void OracleOciStatement::fetch()
 {
-    auto resultSet = m_ociStatement->GetResultset();
-    if (resultSet)
+    if (auto resultSet = m_ociStatement->GetResultset())
     {
         state().eof = !resultSet.Next();
     }

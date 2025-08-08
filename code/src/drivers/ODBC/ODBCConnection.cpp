@@ -57,7 +57,7 @@ public:
 
 namespace {
 SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
-SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
+SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, SQLLEN& dataLength);
 void      odbcQueryBindParameter(const Query* query, QueryParameter* parameter);
 } // namespace
 
@@ -329,10 +329,10 @@ void ODBCConnection::queryExecute(Query* query)
     result = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                              &textLength);
 
-    Strings               errors;
-    constexpr SQLSMALLINT recordNumber = 1;
+    Strings errors;
     while (successful(result))
     {
+        constexpr SQLSMALLINT recordNumber = 1;
         result = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
                                text.data(), static_cast<SQLSMALLINT>(text.size()), &textLength);
         if (successful(result))
@@ -805,11 +805,11 @@ SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQ
     return resultCode;
 }
 
-SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                 int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field, const SQLUSMALLINT column,
+                                 SQLLEN& dataLength)
 {
     TIMESTAMP_STRUCT timestampStruct = {};
-    const SQLRETURN  resultCode = SQLGetData(statement, column, fieldType, (SQLPOINTER) &timestampStruct, 0, &dataLength);
+    const SQLRETURN  resultCode = SQLGetData(statement, column, SQL_C_TIMESTAMP, (SQLPOINTER) &timestampStruct, 0, &dataLength);
     if (dataLength > 0)
     {
         const DateTime dateTime(timestampStruct.year, static_cast<short>(timestampStruct.month), static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour), static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second));
@@ -875,7 +875,7 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_C_TIMESTAMP:
-                    resultCode = odbcReadTimestampField(statement, field, column, fieldType, dataLength);
+                    resultCode = odbcReadTimestampField(statement, field, column, dataLength);
                     break;
 
                 case SQL_C_BINARY:
@@ -941,7 +941,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
         {
             throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
-        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_INTEGER))
+        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
         {
             throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }
