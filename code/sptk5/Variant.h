@@ -343,6 +343,13 @@ public:
     [[nodiscard]] virtual String asString() const;
 
     /**
+     * Conversion to string
+     *
+     * Converts variant value to string.
+     */
+    [[nodiscard]] virtual Buffer asBuffer() const;
+
+    /**
      * Conversion method
      *
      * Converts variant value to DateTime. The time part of datetime is empty.
@@ -553,6 +560,11 @@ public:
      * Conversion operator
      */
     virtual explicit operator String() const;
+
+    /**
+     * Conversion operator
+     */
+    virtual explicit operator Buffer() const;
 
     /**
      * Conversion operator

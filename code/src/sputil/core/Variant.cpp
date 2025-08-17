@@ -458,6 +458,12 @@ Variant::operator String() const
 }
 
 //---------------------------------------------------------------------------
+Variant::operator Buffer() const
+{
+    return asBuffer();
+}
+
+//---------------------------------------------------------------------------
 Variant::operator DateTime() const
 {
     return asDateTime();
@@ -699,6 +705,62 @@ String VariantAdaptors::asString() const
     }
 
     return {};
+}
+
+Buffer VariantAdaptors::asBuffer() const
+{
+    if (isNull())
+    {
+        return Buffer();
+    }
+
+    switch (dataType())
+    {
+        case VariantDataType::VAR_BOOL:
+            return Buffer(m_data.get<bool>() ? "true" : "false");
+
+        case VariantDataType::VAR_INT:
+            return Buffer(int2string(m_data.get<int32_t>()));
+
+        case VariantDataType::VAR_INT64:
+            return Buffer(int2string(m_data.get<int64_t>()));
+
+        case VariantDataType::VAR_MONEY:
+            return Buffer(moneyDataToString());
+
+        case VariantDataType::VAR_FLOAT:
+            return Buffer(double2string(m_data.get<double>()));
+
+        case VariantDataType::VAR_STRING:
+            return Buffer(m_data.get<String>());
+
+        case VariantDataType::VAR_TEXT:
+        case VariantDataType::VAR_BUFFER:
+            return m_data.get<Buffer>();
+
+        case VariantDataType::VAR_DATE:
+            return Buffer(m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE));
+
+        case VariantDataType::VAR_DATE_TIME:
+            return Buffer(m_data.get<DateTime>().isoDateTimeString());
+
+        case VariantDataType::VAR_IMAGE_PTR:
+            if (static_cast<const uint8_t*>(m_data) != nullptr)
+            {
+                stringstream str;
+                str << hex << static_cast<const uint8_t*>(m_data);
+                return Buffer(str.str());
+            }
+            return Buffer("null");
+
+        case VariantDataType::VAR_IMAGE_NDX:
+            return Buffer(int2string(m_data.get<int32_t>()));
+
+        default:
+            break;
+    }
+
+    return Buffer();
 }
 
 String BaseVariant::moneyDataToString() const
