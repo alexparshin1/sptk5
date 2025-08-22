@@ -183,7 +183,7 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantD
             }
             else
             {
-                m_data = String((const char*) value, valueSize);
+                m_data = String(reinterpret_cast<const char*>(value), valueSize);
             }
             break;
 
@@ -238,7 +238,7 @@ void VariantAdaptors::setImagePtr(const uint8_t* value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(uint32_t value)
 {
-    const VariantType variantType {VariantDataType::VAR_IMAGE_NDX, false, false};
+    constexpr VariantType variantType {VariantDataType::VAR_IMAGE_NDX, false, false};
     dataType(variantType);
     dataSize(sizeof(value));
     m_data.set(static_cast<int32_t>(value));
