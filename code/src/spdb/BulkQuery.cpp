@@ -16,7 +16,7 @@ using namespace sptk;
 
 BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
     : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, serialColumnName, columnNames, groupSize))
-    , m_deleteQuery(connection, makeGenericDeleteSQL(tableName, columnNames[0], groupSize))
+    , m_deleteQuery(connection, makeGenericDeleteSQL(tableName, serialColumnName.empty() ? columnNames[0] : serialColumnName, groupSize))
     , m_serialColumnName(serialColumnName)
     , m_columnNames(columnNames)
     , m_tableName(tableName)
@@ -318,7 +318,7 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     if (remainder > 0)
     {
         // Last group
-        Query deleteQuery(m_connection, makeGenericDeleteSQL(m_tableName, m_columnNames[0], remainder));
+        Query deleteQuery(m_connection, makeGenericDeleteSQL(m_tableName, m_serialColumnName.empty() ? m_columnNames[0] : m_serialColumnName, remainder));
         deleteGroupRows(deleteQuery, firstKey, firstKey + static_cast<long>(remainder));
     }
 }
