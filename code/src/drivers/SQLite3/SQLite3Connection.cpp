@@ -218,7 +218,13 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 
 void SQLite3Connection::queryCloseStmt(Query* query)
 {
-    queryFreeStmt(query);
+    const scoped_lock lock(m_mutex);
+
+    if (auto* stmt = (SQLHSTMT) query->statement();
+        stmt != nullptr)
+    {
+        sqlite3_reset(stmt);
+    }
 }
 
 void SQLite3Connection::queryPrepare(Query* query)
