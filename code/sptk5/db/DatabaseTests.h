@@ -53,14 +53,14 @@ public:
     DatabaseTests();
 
     /**
-     * Add database connection to future tests.
+     * @brief Add the database connection to future tests.
      * Only one connection string is allowed per database type (driver name).
      * @param connectionString Database connection string
      */
     void addDatabaseConnection(const DatabaseConnectionString& connectionString);
 
     /**
-     * Get list of added database connections
+     * Get the list of added database connections
      * @return list of added database connections
      */
     [[nodiscard]] std::vector<DatabaseConnectionString> connectionStrings() const;
@@ -87,7 +87,7 @@ public:
 
     /**
      * Test SELECT statements
-     * @param connectionString Database connection string
+     * @param connectionPool    Database connection pool
      */
     static void testSelect(DatabaseConnectionPool& connectionPool);
 
@@ -116,51 +116,50 @@ public:
     static void testQueryParameters(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test InsertQuery returning created value
+     * Test InsertQuery returning the created value
      * @param connectionString
      */
     static void testInsertQuery(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test InsertQuery returning created value
-     * @param connectionString
+     * @brief Test InsertQuery returning the created value.
+     * @param connectionString  Connection string.
      */
     static void testInsertQueryDirect(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test transaction
-     * @param connectionString Database connection string
+     * @brief Test transaction.
+     * @param connectionString Database connection string.
      */
     static void testTransaction(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test bulk insert operation
-     * @param connectionString Database connection string
+     * @brief Test bulk insert operation.
+     * @param connectionString Database connection string.
      */
     static void testBulkInsert(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test bulk insert operation performance
-     * @param connectionString  Database connection string
-     * @param recordCount       Records to insert during test
+     * @brief Test bulk insert operation performance.
+     * @param connectionString  Database connection string.
+     * @param recordCount       Records to insert during test.
      */
     static void testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount);
 
     /**
-     * Test batch SQL
-     * @param connectionString  Database connection string
+     * @brief Test batch SQL.
+     * @param connectionString  Database connection string.
      */
     static void testBatchSQL(const DatabaseConnectionString& connectionString);
 
-
     /**
-     * Test BLOB insert and select
-     * @param connectionString  Database connection string
+     * @brief Test BLOB insert and select.
+     * @param connectionString  Database connection string.
      */
     static void testBLOB(const DatabaseConnectionString& connectionString);
 
     /**
-     * Global database tests collection
+     * @brief Global database tests collection.
      */
     [[nodiscard]] static DatabaseTests& tests();
 
@@ -168,41 +167,41 @@ public:
 
 private:
     /**
-     * Global database tests collection
+     * @brief Global database tests collection.
      */
     static DatabaseTests _databaseTests;
 
     /**
-     * Connection strings for which tests will be executed
+     * @brief Connection strings for which tests will be executed.
      */
     std::map<String, DatabaseConnectionString> m_connectionStrings;
 
     /**
-     * Get number of rows in table
-     * @param databaseConnection                Database connection
-     * @param table             Database table
-     * @return number of rows in table
+     * @brief Get the number of rows in the table.
+     * @param databaseConnection                Database connection.
+     * @param table             Database table.
+     * @return number of rows in the table.
      */
     static size_t countRowsInTable(const DatabaseConnection& databaseConnection, const String& table);
 
     /**
-     * Test transactions
-     * @param databaseConnection                Database connection
-     * @param commit            If true then commit the transaction
+     * @brief Test transactions.
+     * @param databaseConnection                Database connection.
+     * @param commit            If true, then commit the transaction.
      */
     static void testTransaction(const DatabaseConnection& databaseConnection, bool commit);
 
     /**
-     * Connect to database and create test table
-     * @param databaseConnection                Database connection
-     * @param autoPrepare       If true then use auto-prepared queries (default)
-     * @param withBlob          If true then add BLOB field 'data' to the table
+     * @brief Connect to the database and create the test table.
+     * @param databaseConnection    Database connection.
+     * @param autoPrepare           If true, then use auto-prepared queries (default)
+     * @param withBlob              If true, then add BLOB field 'data' to the table.
      */
     static void createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare = true, bool withBlob = false);
 
     /**
-     * Connect to database and create test table with serial id
-     * @param databaseConnection                Database connection
+     * @brief Connect to the database and create the test table with serial id.
+     * @param databaseConnection    Database connection.
      */
     static void createTestTableWithSerial(const DatabaseConnection& databaseConnection);
 
