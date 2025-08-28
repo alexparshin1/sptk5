@@ -39,12 +39,18 @@ uint32_t QueryParameter::bindCount() const
     return static_cast<uint32_t>(m_bindParamIndexes.size());
 }
 
-uint32_t QueryParameter::bindIndex(uint32_t ind)
+uint32_t QueryParameter::bindIndex(uint32_t ind) const
 {
     return m_bindParamIndexes[ind];
 }
 
 QueryParameter::QueryParameter(const char* name, bool isOutput)
+    : m_binding(isOutput)
+    , m_name(lowerCase(name))
+{
+}
+
+QueryParameter::QueryParameter(const String& name, bool isOutput)
     : m_binding(isOutput)
     , m_name(lowerCase(name))
 {

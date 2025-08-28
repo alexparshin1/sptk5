@@ -60,7 +60,7 @@ public:
     /**
      * Returns the parameter bing position by index in the binding list
      */
-    uint32_t bindIndex(uint32_t ind);
+    uint32_t bindIndex(uint32_t ind) const;
 
     /**
      * Returns the internal small conversion buffer used to convert the date structure to SPTK.
@@ -86,6 +86,13 @@ public:
      * @param isOutput bool, parameter binding type: input or output
      */
     explicit QueryParameter(const char* name, bool isOutput = false);
+
+    /**
+     * Constructor
+     * @param name              Parameter name
+     * @param isOutput          Parameter binding type: input or output
+     */
+    explicit QueryParameter(const String& name, bool isOutput = false);
 
     /**
      * Destructor

@@ -120,7 +120,7 @@ void DatabaseConnectionPool::load()
     void* ptr = dlsym(handle, createConnectionFunctionName.c_str());
     auto* createConnection = bit_cast<CreateDriverInstance*>(ptr);
 
-    DestroyDriverInstance* destroyConnection;
+    DestroyDriverInstance* destroyConnection = nullptr;
     const char*            dlsymError = dlerror();
     if (dlsymError == nullptr)
     {
@@ -145,7 +145,7 @@ void DatabaseConnectionPool::load()
     m_createConnection = createConnection;
     m_destroyConnection = destroyConnection;
 
-    // Registering loaded driver in the map
+    // Registering the loaded driver in the map
     DriverLoaders::loadedDrivers.add(driverNameLC, driver);
 }
 

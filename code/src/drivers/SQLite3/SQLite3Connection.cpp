@@ -138,7 +138,7 @@ void SQLite3Connection::closeDatabase()
 
 DBHandle SQLite3Connection::handle() const
 {
-    return (DBHandle) m_connect.get();
+    return reinterpret_cast<DBHandle>(m_connect.get());
 }
 
 bool SQLite3Connection::active() const
@@ -193,13 +193,12 @@ String SQLite3Connection::queryError(const Query*) const
     return sqlite3_errmsg(m_connect.get());
 }
 
-// Doesn't actually allocate stmt, but makes sure
-// the previously allocated stmt is released
+// Doesn't allocate a statement, but makes sure the previously allocated stmt is released.
 void SQLite3Connection::queryAllocStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    if (auto* stmt = (SQLHSTMT) query->statement();
+    if (auto* stmt = reinterpret_cast<SQLHSTMT>(query->statement());
         stmt != nullptr)
     {
         sqlite3_finalize(stmt);
@@ -218,7 +217,13 @@ void SQLite3Connection::queryFreeStmt(Query* query)
 
 void SQLite3Connection::queryCloseStmt(Query* query)
 {
-    queryFreeStmt(query);
+    const scoped_lock lock(m_mutex);
+
+    if (auto* stmt = reinterpret_cast<SQLHSTMT>(query->statement());
+        stmt != nullptr)
+    {
+        sqlite3_reset(stmt);
+    }
 }
 
 void SQLite3Connection::queryPrepare(Query* query)
@@ -235,10 +240,10 @@ void SQLite3Connection::queryPrepare(Query* query)
         throw DatabaseException(errorMsg, source_location::current(), query->sql());
     }
 
-    const auto statement = shared_ptr<uint8_t>((StmtHandle) hStmt,
+    const auto statement = shared_ptr<uint8_t>(reinterpret_cast<StmtHandle>(hStmt),
                                                [](StmtHandle ptr)
                                                {
-                                                   auto* stmt = (SQLHSTMT) ptr;
+                                                   auto* stmt = reinterpret_cast<SQLHSTMT>(ptr);
                                                    sqlite3_finalize(stmt);
                                                });
     querySetStmt(query, statement);
@@ -263,7 +268,7 @@ size_t SQLite3Connection::queryColCount(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* stmt = (SQLHSTMT) query->statement();
+    auto* stmt = reinterpret_cast<SQLHSTMT>(query->statement());
 
     return static_cast<size_t>(sqlite3_column_count(stmt));
 }
@@ -272,7 +277,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* stmt = (SQLHSTMT) query->statement();
+    auto* stmt = reinterpret_cast<SQLHSTMT>(query->statement());
     sqlite3_reset(stmt);
     sqlite3_clear_bindings(stmt);
 
@@ -284,7 +289,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
 
 void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) const
 {
-    auto*                 stmt = (SQLHSTMT) query->statement();
+    auto*                 stmt = reinterpret_cast<SQLHSTMT>(query->statement());
     QueryParameter*       param = &query->param(paramNumber);
     const VariantDataType ptype = param->dataType();
 
@@ -389,7 +394,7 @@ void SQLite3Connection::queryOpen(Query* query)
 
     query->fields().clear();
 
-    auto* stmt = (SQLHSTMT) query->statement();
+    auto* stmt = reinterpret_cast<SQLHSTMT>(query->statement());
 
     if (count < 1)
     {
@@ -458,7 +463,7 @@ void SQLite3Connection::queryFetch(Query* query)
         throw DatabaseException("Dataset isn't open", source_location::current(), query->sql());
     }
 
-    auto* statement = (SQLHSTMT) query->statement();
+    auto* statement = reinterpret_cast<SQLHSTMT>(query->statement());
 
     const scoped_lock lock(m_mutex);
 
@@ -492,11 +497,11 @@ void SQLite3Connection::queryFetch(Query* query)
             auto fieldType = static_cast<short>(field->fieldType());
             if (fieldType == 0 || fieldType == SQLITE_NULL)
             {
-                fieldType = static_cast<short>(sqlite3_column_type(statement, int(column)));
+                fieldType = static_cast<short>(sqlite3_column_type(statement, static_cast<int>(column)));
                 field->setFieldType(fieldType, 0, 0);
             }
 
-            if (auto dataLength = static_cast<uint32_t>(sqlite3_column_bytes(statement, int(column)));
+            if (auto dataLength = static_cast<uint32_t>(sqlite3_column_bytes(statement, static_cast<int>(column)));
                 dataLength != 0)
             {
                 switch (fieldType)
