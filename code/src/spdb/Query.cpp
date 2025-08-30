@@ -105,8 +105,9 @@ void Query::execute()
 Variant Query::scalar()
 {
     open();
-    if (eof())
+    if (eof() || fieldCount() == 0)
     {
+        close();
         return Variant();
     }
     Variant result = m_fields[0];

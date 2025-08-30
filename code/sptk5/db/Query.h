@@ -387,6 +387,10 @@ public:
         return true;
     }
 
+    /**
+     * @brief Executes the query and closes the statement.
+     * @return The value of the first column in the first row, or the null value.
+     */
     Variant scalar();
 
     /**
