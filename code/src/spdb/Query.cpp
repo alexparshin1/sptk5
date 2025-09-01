@@ -108,9 +108,9 @@ Variant Query::scalar()
     if (eof() || fieldCount() == 0)
     {
         close();
-        return Variant();
+        return {};
     }
-    Variant result = m_fields[0];
+    Variant& result = m_fields[0];
     close();
     return result;
 }
@@ -196,7 +196,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         if (const char* endOfRow = strchr(paramStart + 1, '\n');
             endOfRow == nullptr)
         {
-            // Comment at the end of last row
+            // Comment at the end of the last row
             paramEnd = nullptr;
         }
         else
@@ -207,7 +207,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
     }
     else if (*paramStart == '/' && paramStart[1] == '*')
     {
-        // Started C-style block comment, jump to the end of comment
+        // Started C-style block comment, jump to the end of the comment
         if (const char* endOfRow = strstr(paramStart + 1, "*/");
             endOfRow == nullptr)
         {
