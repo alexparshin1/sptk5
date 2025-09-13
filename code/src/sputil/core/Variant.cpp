@@ -736,6 +736,10 @@ Buffer VariantAdaptors::asBuffer() const
 
         case VariantDataType::VAR_TEXT:
         case VariantDataType::VAR_BUFFER:
+            if (m_data.type().isExternalBuffer)
+            {
+                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
+            }
             return m_data.get<Buffer>();
 
         case VariantDataType::VAR_DATE:

@@ -40,7 +40,7 @@ class SP_EXPORT SmartMutex
 {
 public:
     /**
-     * @brief Lock mutex and stor lock location
+     * @brief Lock mutex and store lock location
      * @param sourceLocation    Lock location
      */
     void lock(const std::source_location sourceLocation)
@@ -50,7 +50,7 @@ public:
     }
 
     /**
-     * @brief Lock mutex and stor lock location
+     * @brief Lock mutex and store lock location
      * @param sourceLocation    Lock location
      */
     void shared_lock(const std::source_location sourceLocation)
@@ -143,6 +143,18 @@ public:
         }
     }
 
+    void lock(const std::source_location sourceLocation = std::source_location::current())
+    {
+        m_mutex.lock(sourceLocation);
+        m_locked = true;
+    }
+
+    void unlock()
+    {
+        m_mutex.unlock();
+        m_locked = false;
+    }
+
 private:
     std::atomic_bool  m_locked {true};                                   ///< Mutex was locked flag
     SmartMutex&       m_mutex;                                           ///< Mutex
@@ -181,6 +193,18 @@ public:
         {
             m_mutex.unlock();
         }
+    }
+
+    void lock(const std::source_location sourceLocation = std::source_location::current())
+    {
+        m_mutex.shared_lock(sourceLocation);
+        m_locked = true;
+    }
+
+    void unlock()
+    {
+        m_mutex.unlock();
+        m_locked = false;
     }
 
 private:
