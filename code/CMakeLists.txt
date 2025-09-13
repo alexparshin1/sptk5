@@ -153,7 +153,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #ADD_DEFINITIONS(-O1 -msse4.2)
+        ADD_DEFINITIONS(-O1 -msse4.2)
 
         # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)
