@@ -63,8 +63,10 @@ void Logger::debug(const String& message) const
 
 void Logger::debug(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Debug) {
+        auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::info(const String& message) const
@@ -75,8 +77,10 @@ void Logger::info(const String& message) const
 
 void Logger::info(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Info, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Debug) {
+        auto msg = make_unique<Message>(LogPriority::Info, m_prefix + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::notice(const String& message) const
