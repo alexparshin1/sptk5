@@ -80,7 +80,7 @@ bool testTransactions(const DatabaseConnection& db, const string& tableName, boo
     return true;
 }
 
-// This function returns field content as a string, or "<NULL>" is field
+// This function returns field content as a string, or "<NULL>" if the field
 // contains a NULL value
 String fieldToString(const Field& field)
 {
@@ -106,11 +106,11 @@ void testBLOBs(PoolDatabaseConnection* db)
 
     Query createBlobQuery(db, "INSERT INTO sptk_blob_test VALUES(:id, :data)", true);
 
-    for (unsigned i = 0; i < 1000; i++)
+    for (int i = 0; i < 1000; i++)
     {
         createBlobQuery.param("id").setInteger(i);
         String text("This is a test " + to_string(i));
-        createBlobQuery.param("data").setBuffer((const uint8_t*) text.c_str(), text.size(), sptk::VariantDataType::VAR_BUFFER);
+        createBlobQuery.param("data").setBuffer(reinterpret_cast<const uint8_t*>(text.c_str()), text.size(), sptk::VariantDataType::VAR_BUFFER);
         createBlobQuery.exec();
     }
 
@@ -248,7 +248,7 @@ int testDatabase(const string& connectionString)
         insertRecordQuery.exec();
 
         // Here is the example of using parameters by index.
-        // This is the even faster than stream
+        // This is even faster than the stream.
         insertRecordQuery.param(static_cast<size_t>(0)) = 3;
         insertRecordQuery.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         insertRecordQuery.param(2).setNull(VariantDataType::VAR_STRING);
@@ -259,7 +259,7 @@ int testDatabase(const string& connectionString)
         // And, finally - the fastest method: using CParam& variables.
         // If you have to call the same query multiple times with the different parameters,
         // that method gives you some extra gain.
-        // So, lets define the parameter variables
+        // So, let's define the parameter variables
         QueryParameter& id_param = insertRecordQuery.param("person_id");
         QueryParameter& name_param = insertRecordQuery.param("person_name");
         QueryParameter& position_param = insertRecordQuery.param("position_name");
@@ -281,8 +281,7 @@ int testDatabase(const string& connectionString)
         rate_param = 82.3456;
         insertRecordQuery.exec();
 
-        // .. and use these variables again for the next insert
-        // This is the way to set fields to NULL:
+        // Clear and use these variables again for the next insert:
         id_param.setNull();
         name_param.setNull();
         position_param.setNull();
@@ -310,7 +309,7 @@ int testDatabase(const string& connectionString)
             }
 
             // Another method: getting data by the column number.
-            // For printing values we use custom function implemented above
+            // For printing values we use the custom function implemented above
             auto name = fieldToString(selectRecordsQuery[1]);
             auto position_name = fieldToString(selectRecordsQuery[2]);
             auto date = fieldToString(selectRecordsQuery[3]);
@@ -414,7 +413,7 @@ int testDatabase(const string& connectionString)
 }
 
 // If a single command line parameter supplied,
-// use it as database connection string
+// use it as a database connection string
 int main(int argc, const char* argv[])
 {
     try
@@ -493,7 +492,7 @@ int main(int argc, const char* argv[])
             COUT("Password > ");
             cin >> password;
 
-            // Creating connection string in the following format:
+            // Creating a connection string in the following format:
             // <dbtype>://[username[:password]@]<host_or_DSN>[:port_number][/dbname]
 
             connectionString = dbtype + "://";
