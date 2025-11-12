@@ -380,6 +380,23 @@ IF (USE_FLTK)
     ENDIF (FLTK_FOUND)
 ENDIF (USE_FLTK)
 
+
+IF (FLTK_FOUND)
+    IF (WIN32)
+        SET(CAIRO_FLAG "1")
+    ELSE ()
+        FIND_PACKAGE(Cairo)
+        IF (CAIRO_FOUND)
+            MESSAGE("Cairo support:      compile")
+            INCLUDE_DIRECTORIES(${CAIRO_INCLUDE_DIR})
+            LINK_LIBRARIES(${CAIRO_LIBRARY})
+        ELSE (CAIRO_FOUND)
+            MESSAGE("Cairo support:      don't compile")
+        ENDIF (CAIRO_FOUND)
+    ENDIF ()
+ENDIF ()
+
+
 SET(ASPELL_DEFINE "// ASpell is not used")
 SET(FLTK_DEFINE "// FLTK is not used")
 IF (FLTK_FOUND)
