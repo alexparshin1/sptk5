@@ -48,7 +48,7 @@ void WSServices::set(const String& location, const SWSRequest& service)
 WSRequest& WSServices::get(const String& location) const
 {
     const scoped_lock lock(m_mutex);
-    auto itor = m_services.find(location);
+    auto              itor = m_services.find(location);
     if (itor == m_services.end())
     {
         itor = m_services.find("");

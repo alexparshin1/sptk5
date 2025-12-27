@@ -36,7 +36,7 @@ namespace sptk {
  * Data is added to the buffer the usual way, using ctors and/or append operations.
  * Any read operations copy data into external buffer, then advance internal read offset.
  */
-class SP_EXPORT ReadBuffer : public Buffer
+class SP_EXPORT ReadBuffer final : public Buffer
 {
 public:
     using Buffer::Buffer;
@@ -119,9 +119,10 @@ private:
      */
     void compact()
     {
-        constexpr auto multiplier = 3;
+
         constexpr auto divider = 4;
-        if (m_readOffset >= bytes() * multiplier / divider)
+        if (constexpr auto multiplier = 3;
+            m_readOffset >= bytes() * multiplier / divider)
         {
             erase(0, m_readOffset);
             m_readOffset = 0;

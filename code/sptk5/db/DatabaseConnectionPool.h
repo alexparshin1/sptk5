@@ -67,7 +67,8 @@ using DriverHandle = uint8_t*;
 /**
  * Information about loaded database driver
  */
-struct SP_EXPORT DatabaseDriver {
+struct SP_EXPORT DatabaseDriver
+{
     /**
      * Driver SO/DLL handle after load
      */
@@ -152,10 +153,10 @@ private:
     /**
      * Maximum number of connections in the pool
      */
-    size_t m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;       ///< Available connections
-    SynchronizedList<SPoolDatabaseConnection> m_connections; ///< All connections
-    std::chrono::seconds m_connectionTimeout;                ///< Connection timeout
+    size_t                                     m_maxConnections;
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;              ///< Available connections
+    SynchronizedList<SPoolDatabaseConnection>  m_connections;       ///< All connections
+    std::chrono::seconds                       m_connectionTimeout; ///< Connection timeout
 };
 
 /**

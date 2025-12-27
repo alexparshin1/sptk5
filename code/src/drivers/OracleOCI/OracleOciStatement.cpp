@@ -56,14 +56,14 @@ void OracleOciStatement::bindParameters()
 {
     if (m_parameterBinding.empty())
     {
-        unsigned parameterIndex = 1;
+        unsigned    parameterIndex = 1;
         const auto* stmt = statement();
 
         m_outputParamIndex.clear();
 
         for (const auto& parameterPtr: enumeratedParams())
         {
-            QueryParameter& parameter = *parameterPtr;
+            QueryParameter&  parameter = *parameterPtr;
             VariantDataType& paramDataType = parameter.binding().m_dataType;
 
             paramDataType = parameter.dataType();
@@ -88,12 +88,12 @@ void OracleOciStatement::bindParameters()
 
 void OracleOciStatement::setParameterValues()
 {
-    unsigned parameterIndex = 1;
+    unsigned    parameterIndex = 1;
     const auto* stmt = statement();
 
     for (const auto& parameterPtr: enumeratedParams())
     {
-        QueryParameter& parameter = *parameterPtr;
+        QueryParameter&  parameter = *parameterPtr;
         VariantDataType& paramDataType = parameter.binding().m_dataType;
 
         paramDataType = parameter.dataType();

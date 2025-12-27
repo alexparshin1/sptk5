@@ -58,9 +58,9 @@ public:
         INVAL
     };
 
-    Algorithm alg {Algorithm::NONE}; ///< Signature encryption algorithm
-    String key;                      ///< Signature encryption key
-    xdoc::Document grants;           ///< Token content
+    Algorithm      alg {Algorithm::NONE}; ///< Signature encryption algorithm
+    String         key;                   ///< Signature encryption key
+    xdoc::Document grants;                ///< Token content
 
     /**
          * Constructor

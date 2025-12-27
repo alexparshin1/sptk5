@@ -339,9 +339,10 @@ public:
      * @param tableName         Table name to insert into
      * @param columnNames       List of table columns to populate
      * @param data              Data for bulk insert
+     * @return inserted ids (if keyColumnName isn't empty), or empty vector.
      */
-    virtual void bulkInsert(const String& tableName, const Strings& columnNames,
-                            const std::vector<VariantVector>& data);
+    [[nodiscard]] virtual std::vector<int64_t> bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                                          std::vector<VariantVector>& data, size_t groupSize = 50);
 
     /**
      * @brief Executes bulk delete of rows by the keys.
@@ -373,6 +374,9 @@ public:
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
      */
     virtual void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors);
+
+    [[nodiscard]] virtual String tableSequenceName(const String& tableName);
+    [[nodiscard]] virtual String lastAutoIncrementSql(const String& tableName);
 
 protected:
     [[nodiscard]] bool getInTransaction() const;
@@ -448,11 +452,11 @@ protected:
     }
 
 private:
-    DatabaseConnectionString m_connString;    ///< The connection string
-    DatabaseConnectionType m_connType;        ///< The connection type
-    String m_driverDescription;               ///< Driver description is filled by the particular driver.
-    bool m_inTransaction {false};             ///< The in-transaction flag
-    std::chrono::seconds m_connectionTimeout; ///< Connection timeout
+    DatabaseConnectionString m_connString;            ///< The connection string
+    DatabaseConnectionType   m_connType;              ///< The connection type
+    String                   m_driverDescription;     ///< Driver description is filled by the particular driver.
+    bool                     m_inTransaction {false}; ///< The in-transaction flag
+    std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;

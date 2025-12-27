@@ -44,18 +44,19 @@ public:
     /**
      * Compress data using gzip format.
      *
-     * Compressed data is appended to destination buffer
-     * @param dest Buffer&, Destination buffer
-     * @param src const Buffer&, Source buffer
+     * Compressed data is appended to destination buffer.
+     * @param dest              Destination buffer.
+     * @param src               Source buffer.
+     * @param level             Compression level.
      */
     static void compress(Buffer& dest, const Buffer& src, int level = Z_DEFAULT_COMPRESSION);
 
     /**
-     * Uncompress data in gzip format
+     * Uncompress data in gzip format.
      *
-     * Uncompressed data is appended to destination buffer
-     * @param dest Buffer&, Destination buffer
-     * @param src const Buffer&, Source buffer
+     * Uncompressed data is appended to destination buffer.
+     * @param dest              Destination buffer.
+     * @param src               Source buffer.
      */
     static void decompress(Buffer& dest, const Buffer& src);
 };

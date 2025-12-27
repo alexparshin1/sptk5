@@ -185,6 +185,24 @@ void testBulkInsert(const String& dbName)
     }
 }
 
+void testParallelInsert(const String& dbName)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+    if (connectionString.empty())
+    {
+        FAIL() << dbName << " connection is not defined";
+    }
+
+    try
+    {
+        DatabaseTests::testParallelBulkInsert(connectionString);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << connectionString.toString(false) << ": " << e.what();
+    }
+}
+
 void testBulkInsertPerformance(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -297,6 +315,11 @@ TEST(SPTK_PostgreSQLConnection, bulkInsert)
     testBulkInsert("PostgreSQL");
 }
 
+TEST(SPTK_PostgreSQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("PostgreSQL");
+}
+
 TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
 {
     testBulkInsertPerformance("PostgreSQL");
@@ -352,6 +375,11 @@ TEST(SPTK_MySQLConnection, DDL)
 TEST(SPTK_MySQLConnection, bulkInsert)
 {
     testBulkInsert("MySQL");
+}
+
+TEST(SPTK_MySQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("MySQL");
 }
 
 TEST(SPTK_MySQLConnection, bulkInsertPerformance)
@@ -466,6 +494,11 @@ TEST(SPTK_OracleOciConnection, bulkInsert)
     testBulkInsert("Oracle");
 }
 
+TEST(SPTK_OracleOciConnection, bulkParallelInsert)
+{
+    testParallelInsert("Oracle");
+}
+
 TEST(SPTK_OracleOciConnection, bulkInsertPerformance)
 {
     testBulkInsertPerformance("Oracle");
@@ -520,6 +553,11 @@ TEST(SPTK_MSSQLConnection, DDL)
 TEST(SPTK_MSSQLConnection, bulkInsert)
 {
     testBulkInsert("MSSQL");
+}
+
+TEST(SPTK_MSSQLConnection, bulkParallelInsert)
+{
+    testParallelInsert("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
@@ -598,6 +636,6 @@ TEST(SPTK_SQLite3Connection, select)
     testSelect("SQLite3");
 }
 
-// insertQuery test isn't defined, because SQLite3 doesn't support auto-incremental fields
+// insertQuery test isn't defined because SQLite3 doesn't support auto-incremental fields
 
 #endif

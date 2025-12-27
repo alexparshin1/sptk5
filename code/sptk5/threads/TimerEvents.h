@@ -44,7 +44,7 @@ public:
      * @brief Add event
      * @param event         Event
      */
-    void add( const std::shared_ptr<TimerEvent>& event);
+    void add(const std::shared_ptr<TimerEvent>& event);
 
     STimerEvent next();
 
@@ -57,8 +57,8 @@ public:
 private:
     using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
 
-    mutable std::mutex m_mutex;  ///< Mutex that protects access to events collection
-    EventMap           m_events; ///< Events collection
+    mutable std::mutex                  m_mutex;  ///< Mutex that protects access to events collection
+    EventMap                            m_events; ///< Events collection
     std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
 
     STimerEvent front();

@@ -95,14 +95,14 @@ public:
 private:
 #ifdef _WIN32
     std::atomic<HANDLE> m_logHandle {0}; ///< The handle of the log file
-    static bool m_registrySet;           ///< Is registry set?
+    static bool         m_registrySet;   ///< Is registry set?
 #endif
 
-    static std::mutex m_syslogMutex;
+    static std::mutex       m_syslogMutex;
     static std::atomic_bool m_logOpened;
 
-    uint32_t m_facilities; ///< List of facilities allows to define one or more system logs where messages would be sent
-    String m_programName;  ///< Application name
+    uint32_t m_facilities;  ///< List of facilities allows to define one or more system logs where messages would be sent
+    String   m_programName; ///< Application name
 
     void programName(const String& progName);
 

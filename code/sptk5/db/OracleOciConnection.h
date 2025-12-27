@@ -120,6 +120,9 @@ public:
      */
     static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
 
+    [[nodiscard]] String tableSequenceName(const String& tableName) override;
+    [[nodiscard]] String lastAutoIncrementSql(const String& tableName) override;
+
 protected:
     /**
      * @brief Begins the transaction
@@ -185,19 +188,17 @@ protected:
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     /**
-     * @brief Returns parameter mark
-     *
-     * Parameter mark is generated from the parameterIndex.
+     * @brief Returns the parameter mark
      * @param paramIndex        Parameter index in SQL starting from 0
      */
     [[nodiscard]] String paramMark(unsigned paramIndex) override;
 
 private:
     std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
-    mutable std::mutex m_mutex;                       ///< Mutex that protects access to data members
+    mutable std::mutex                  m_mutex;      ///< Mutex that protects access to data members
 
     static void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
-    void executeMultipleStatements(const Strings& statements, Strings* errors);
+    void        executeMultipleStatements(const Strings& statements, Strings* errors);
     static void readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
     static void readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
 };
@@ -210,5 +211,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void oracleDestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  oracleDestroyConnection(void* connection);
 }

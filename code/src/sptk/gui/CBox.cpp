@@ -219,8 +219,8 @@ int CBox::handle(int event)
         case FL_DRAG:
             if (m_dragable)
             {
-                int dx = Fl::event_x_root();
-                int dy = Fl::event_y_root();
+                int        dx = Fl::event_x_root();
+                int        dy = Fl::event_y_root();
                 Fl_Window* w = window();
                 w->position(dx - m_xPushed, dy - m_yPushed);
                 return 1;

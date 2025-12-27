@@ -41,7 +41,8 @@ public:
     static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
 
 private:
-    struct Formatting {
+    struct Formatting
+    {
         String firstElement;
         String betweenElements {","};
         String newLineChar;

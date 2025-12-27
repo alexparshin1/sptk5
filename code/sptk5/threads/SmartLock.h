@@ -43,7 +43,7 @@ public:
      * @brief Lock mutex and stor lock location
      * @param sourceLocation    Lock location
      */
-    void lock(std::source_location sourceLocation)
+    void lock(const std::source_location sourceLocation)
     {
         m_mutex.lock();
         m_lockLocation = sourceLocation;
@@ -53,7 +53,7 @@ public:
      * @brief Lock mutex and stor lock location
      * @param sourceLocation    Lock location
      */
-    void shared_lock(std::source_location sourceLocation)
+    void shared_lock(const std::source_location sourceLocation)
     {
         m_mutex.lock_shared();
         m_lockLocation = sourceLocation;
@@ -65,7 +65,7 @@ public:
      * @param sourceLocation    Lock location
      * @return
      */
-    bool try_lock_for(const std::chrono::milliseconds& timeout, std::source_location sourceLocation)
+    bool try_lock_for(const std::chrono::milliseconds& timeout, const std::source_location sourceLocation)
     {
         if (m_mutex.try_lock_for(timeout))
         {
@@ -81,7 +81,7 @@ public:
      * @param sourceLocation    Lock location
      * @return
      */
-    bool try_lock_shared_for(const std::chrono::milliseconds& timeout, std::source_location sourceLocation)
+    bool try_lock_shared_for(const std::chrono::milliseconds& timeout, const std::source_location sourceLocation)
     {
         if (m_mutex.try_lock_shared_for(timeout))
         {
@@ -121,9 +121,9 @@ public:
      * @param timeout           Lock timeout
      * @param sourceLocation    Lock location
      */
-    explicit SmartLock(SmartMutex&               mutex,
-                       std::chrono::milliseconds timeout = std::chrono::seconds(5),
-                       std::source_location      sourceLocation = std::source_location::current())
+    explicit SmartLock(SmartMutex&                     mutex,
+                       const std::chrono::milliseconds timeout = std::chrono::seconds(5),
+                       const std::source_location      sourceLocation = std::source_location::current())
         : m_mutex(mutex)
     {
         if (!m_mutex.try_lock_for(timeout, sourceLocation))
@@ -161,9 +161,9 @@ public:
      * @param timeout           Lock timeout
      * @param sourceLocation    Lock location
      */
-    explicit SharedSmartLock(SmartMutex&               mutex,
-                             std::chrono::milliseconds timeout = std::chrono::seconds(5),
-                             std::source_location      sourceLocation = std::source_location::current())
+    explicit SharedSmartLock(SmartMutex&                     mutex,
+                             const std::chrono::milliseconds timeout = std::chrono::seconds(5),
+                             const std::source_location      sourceLocation = std::source_location::current())
         : m_mutex(mutex)
     {
         if (!m_mutex.try_lock_shared_for(timeout, sourceLocation))

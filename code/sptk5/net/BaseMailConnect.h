@@ -223,14 +223,14 @@ protected:
     static void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
 
 private:
-    String m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
-    String m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String m_subject;       ///< Mail SUBJECT:
-    MailMessageBody m_body; ///< Mail text (plain-text and html parts of the message)
-    String m_attachments;   ///< The list of attachment files separated with ';'
-    Buffer m_messageBuffer; ///< Internal message buffer
+    String          m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
+    String          m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String          m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String          m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
+    String          m_subject;       ///< Mail SUBJECT:
+    MailMessageBody m_body;          ///< Mail text (plain-text and html parts of the message)
+    String          m_attachments;   ///< The list of attachment files separated with ';'
+    Buffer          m_messageBuffer; ///< Internal message buffer
 };
 /**
  * @}

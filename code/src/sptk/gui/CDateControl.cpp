@@ -71,9 +71,9 @@ void CDateControl::resize(int x, int y, int w, int h)
 void CDateControl::preferredHeight(int& hh)
 {
     auto* parentControl = dynamic_cast<CControl*>(parent());
-    int bw = 18;
-    int bh = 18;
-    int dh = Fl::box_dh(box());
+    int   bw = 18;
+    int   bh = 18;
+    int   dh = Fl::box_dh(box());
     CThemes::sizeButton(THM_BUTTON_COMBO, bw, bh);
     if (parentControl)
     {

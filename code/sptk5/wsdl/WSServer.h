@@ -122,7 +122,7 @@ private:
     WSServices                             m_services;      ///< Web Service request processor
     Logger                                 m_logger;        ///< Logger object
     WSConnection::Options                  m_options;       ///< Client connection options
-    SocketEvents                     m_socketEvents;  ///< Socket events
+    SocketEvents                           m_socketEvents;  ///< Socket events
     std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections
 
     /**

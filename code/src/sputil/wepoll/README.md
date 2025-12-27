@@ -122,13 +122,13 @@ int epoll_wait(HANDLE ephnd,
 * `maxevents` is the maximum number of events that will be written to the
   `events` array, and must be greater than zero.
 * `timeout` specifies whether to block when no events are immediately available.
-  - `<0` block indefinitely
-  - `0`  report any events that are already waiting, but don't block
-  - `≥1` block for at most N milliseconds
+    - `<0` block indefinitely
+    - `0`  report any events that are already waiting, but don't block
+    - `≥1` block for at most N milliseconds
 * Return value:
-  - `-1` an error occurred
-  - `0`  timed out without any events to report
-  - `≥1` the number of events stored in the `events` buffer
+    - `-1` an error occurred
+    - `0`  timed out without any events to report
+    - `≥1` the number of events stored in the `events` buffer
 * [Linux man page][man epoll_wait]
 
 ### struct epoll_event
@@ -187,16 +187,29 @@ struct epoll_event {
 
 
 [ci status badge]:  https://ci.appveyor.com/api/projects/status/github/piscisaureus/wepoll?branch=master&svg=true
+
 [ci status link]:   https://ci.appveyor.com/project/piscisaureus/wepoll/branch/master
+
 [dist]:             https://github.com/piscisaureus/wepoll/tree/dist
+
 [man epoll]:        http://man7.org/linux/man-pages/man7/epoll.7.html
+
 [man epoll_create]: http://man7.org/linux/man-pages/man2/epoll_create.2.html
+
 [man epoll_ctl]:    http://man7.org/linux/man-pages/man2/epoll_ctl.2.html
+
 [man epoll_wait]:   http://man7.org/linux/man-pages/man2/epoll_wait.2.html
+
 [msdn accept]:      https://msdn.microsoft.com/en-us/library/windows/desktop/ms737526(v=vs.85).aspx
+
 [msdn socket]:      https://msdn.microsoft.com/en-us/library/windows/desktop/ms740506(v=vs.85).aspx
+
 [msdn wsasocket]:   https://msdn.microsoft.com/en-us/library/windows/desktop/ms742212(v=vs.85).aspx
+
 [select scale]:     https://daniel.haxx.se/docs/poll-vs-select.html
+
 [wsapoll broken]:   https://daniel.haxx.se/blog/2012/10/10/wsapoll-is-broken/
+
 [wepoll.c]:         https://github.com/piscisaureus/wepoll/blob/dist/wepoll.c
+
 [wepoll.h]:         https://github.com/piscisaureus/wepoll/blob/dist/wepoll.h

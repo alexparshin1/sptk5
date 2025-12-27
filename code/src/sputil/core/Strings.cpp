@@ -199,7 +199,7 @@ void Strings::loadFromFile(const std::filesystem::path& fileName)
 String Strings::join(std::string_view delimiter) const
 {
     stringstream result;
-    bool first = true;
+    bool         first = true;
     for (const auto& str: *this)
     {
         if (first)

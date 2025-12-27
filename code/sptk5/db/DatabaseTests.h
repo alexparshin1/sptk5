@@ -38,11 +38,12 @@ namespace sptk {
 class SP_EXPORT DatabaseTests
 {
 public:
-    struct Row {
-        int id;
-        int64_t ssid;
-        String name;
-        double price;
+    struct Row
+    {
+        int      id;
+        int64_t  ssid;
+        String   name;
+        double   price;
         DateTime ts;
     };
 
@@ -76,6 +77,7 @@ public:
      * @param connectionString Database connection string
      */
     static void testConnect(const DatabaseConnectionString& connectionString);
+    static void dropTable(const DatabaseConnection& databaseConnection, const String& tableName);
 
     /**
      * Test SELECT statements
@@ -162,6 +164,8 @@ public:
      */
     [[nodiscard]] static DatabaseTests& tests();
 
+    static void testParallelBulkInsert(const DatabaseConnectionString& connectionString);
+
 private:
     /**
      * Global database tests collection
@@ -202,22 +206,16 @@ private:
      */
     static void createTestTableWithSerial(const DatabaseConnection& databaseConnection);
 
-    /**
-     * Create Oracle autoincrement for a column
-     * @param databaseConnection                Database connection
-     * @param tableName         Table name
-     * @param columnName        Column name
-     */
-    static void createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName, const String& columnName);
-    static void createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
+    static void   createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
     static Buffer createClob();
-    static void insertDataIntoTempTable(Buffer& clob, Query& insert);
-    static void verifyInsertedData(const DatabaseConnection& databaseConnection, const Buffer& clob);
-    static void verifyInsertedRow(const Row& row, const Buffer& clob, Query& select);
-    static void verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
-    static void verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
+    static void   insertDataIntoTempTable(Buffer& clob, Query& insert);
+    static void   verifyInsertedData(const DatabaseConnection& databaseConnection, const Buffer& clob);
+    static void   verifyInsertedRow(const Row& row, const Buffer& clob, Query& select);
+    static void   verifyTableNoBlobs(const DatabaseConnection& databaseConnection);
+    static void   verifyBatchInsertedData(Query& selectData, const Strings& expectedResults);
     static size_t insertRecordsInTransaction(const DatabaseConnection& databaseConnection);
-    static void invalidTransactionStateThrows(Transaction& transaction);
+    static void   invalidTransactionStateThrows(Transaction& transaction);
+    static String serialColumnDefinition(DatabaseConnectionType connectionType);
 };
 
 } // namespace sptk

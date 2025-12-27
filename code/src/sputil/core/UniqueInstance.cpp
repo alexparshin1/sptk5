@@ -84,7 +84,7 @@ void UniqueInstance::cleanup()
 int UniqueInstance::read_pid() const
 {
     // Try to read process id from the file
-    int pid = 0;
+    int      pid = 0;
     ifstream lockfile(m_fileName.c_str());
     lockfile >> pid;
     if (lockfile.bad())
@@ -108,7 +108,7 @@ int UniqueInstance::read_pid() const
 
 int UniqueInstance::write_pid()
 {
-    ofstream lockfile(m_fileName.c_str());
+    ofstream  lockfile(m_fileName.c_str());
     int const pid = getpid();
     lockfile << pid;
     lockfile.close();

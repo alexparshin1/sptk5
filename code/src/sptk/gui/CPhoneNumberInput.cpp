@@ -74,7 +74,7 @@ void CPhoneNumberInput::data(const Variant& ss)
     char* s1 = strdup(ss.asString().c_str());
     auto* p1 = new char[15];
 
-    int pos = 0;
+    int   pos = 0;
     char* s2 = s1;
     char* p2 = p1;
     while (*s2 && pos < 14)

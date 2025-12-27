@@ -109,10 +109,10 @@ public:
     [[maybe_unused]] std::shared_ptr<Thread> getWorkerThread() const;
 
 private:
-    WSServices&                   m_services;
-    Logger                        m_logger;
-    Options                       m_options;
-    bool                          m_isHangup {false};
+    WSServices&             m_services;
+    Logger                  m_logger;
+    Options                 m_options;
+    bool                    m_isHangup {false};
     std::shared_ptr<Thread> m_workerThread;
 
     void respondToOptions(const HttpHeaders& headers) const;

@@ -53,7 +53,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     auto relativeFileName = relativePath(fileName, baseDirectory);
 
     const filesystem::path path(fileName.c_str());
-    auto status = filesystem::status(path);
+    auto                   status = filesystem::status(path);
 
     if (filesystem::is_symlink(path))
     {
@@ -76,19 +76,17 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     m_mode = static_cast<int>(status.permissions());
 
     const filesystem::file_time_type ftime = filesystem::last_write_time(path);
-    const time_t mtime = to_time_t(ftime);
+    const time_t                     mtime = to_time_t(ftime);
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
-    struct stat info {
-    };
+    struct stat info {};
     stat(fileName.c_str(), &info); // Error check omitted
 
     constexpr int bufferSize = 128;
-    Buffer buff(bufferSize);
-    struct passwd pw {
-    };
-    if (struct passwd * pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    Buffer        buff(bufferSize);
+    struct passwd pw {};
+    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -97,9 +95,8 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     m_ownership.uid = static_cast<int>(pw.pw_uid);
     m_ownership.gid = static_cast<int>(pw.pw_gid);
 
-    struct group gr {
-    };
-    if (struct group * gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    struct group gr {};
+    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }

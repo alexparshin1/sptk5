@@ -38,8 +38,8 @@ void checkSocketsInitialized()
 {
 #ifdef _WIN32
     static mutex initMutex;
-    static bool initialized = false;
-    scoped_lock lock(initMutex);
+    static bool  initialized = false;
+    scoped_lock  lock(initMutex);
     if (!initialized)
     {
         Socket::init();
@@ -207,14 +207,14 @@ void Host::getHostAddress()
 String Host::toString(bool forceAddress) const
 {
     const scoped_lock lock(m_mutex);
-    String str;
+    String            str;
 
     if (!m_hostname.empty())
     {
         String address;
         if (forceAddress)
         {
-            constexpr int maxBufferSize = 128;
+            constexpr int              maxBufferSize = 128;
             array<char, maxBufferSize> buffer {};
 
             const void* addr;

@@ -41,7 +41,7 @@ inline uint8_t base64chars(int chr)
 {
     return B64Chars[(chr & 0x3F)];
 }
-}
+} // namespace
 
 void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
 {

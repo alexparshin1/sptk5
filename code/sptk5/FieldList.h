@@ -251,7 +251,7 @@ private:
      */
     using Map = std::map<String, SField, CaseInsensitiveCompare>;
 
-    Vector m_list;                ///< The list of fields
+    Vector               m_list;  ///< The list of fields
     std::shared_ptr<Map> m_index; ///< The optional field index by name. 0L if field list isn't indexed.
 
     /**

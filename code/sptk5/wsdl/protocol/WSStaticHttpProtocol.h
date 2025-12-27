@@ -40,7 +40,7 @@ namespace sptk {
 /// Session disconnects as soon as file is served.
 class SP_EXPORT WSStaticHttpProtocol : public WSProtocol
 {
-    URL m_url;                     ///< File URL
+    URL    m_url;                  ///< File URL
     String m_staticFilesDirectory; ///< Directory where static files reside on the server
 public:
     /// @brief Constructor

@@ -162,7 +162,7 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
 
 String sptk::escapeSQLString(const String& str, bool tsv)
 {
-    String output;
+    String      output;
     const char* replaceChars = "'\t\n\r";
     if (tsv)
     {
@@ -207,8 +207,8 @@ String sptk::escapeSQLString(const String& str, bool tsv)
     return output;
 }
 
-void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
-                                        const vector<VariantVector>& data)
+std::vector<int64_t> PoolDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                                        std::vector<VariantVector>& data, size_t groupSize)
 {
     const bool wasInTransaction = inTransaction();
     if (!wasInTransaction)
@@ -216,13 +216,26 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const Strings& 
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, columnNames, 50);
-    bulkQuery.insertRows(data);
+    Strings columnNamesFinal = columnNames;
+    if (!autoIncrementColumnName.empty() && (connectionType() == DatabaseConnectionType::ORACLE || connectionType() == DatabaseConnectionType::ORACLE_OCI))
+    {
+        int autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
+        if (autoIncrementColumnIndex >= 0)
+        {
+            throw DatabaseException("The auto increment column can't be used in the column list");
+        }
+        columnNamesFinal.push_back(autoIncrementColumnName);
+    }
+
+    BulkQuery bulkQuery(this, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
+    auto      insertedIds = bulkQuery.insertRows(data);
 
     if (!wasInTransaction)
     {
         commitTransaction();
     }
+
+    return insertedIds;
 }
 
 void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
@@ -233,7 +246,7 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, {keyColumnName}, 50);
+    BulkQuery bulkQuery(this, tableName, keyColumnName, {keyColumnName}, 50);
     bulkQuery.deleteRows(keys);
 
     if (!wasInTransaction)
@@ -252,6 +265,35 @@ void PoolDatabaseConnection::executeBatchFile(const String& batchFileName, Strin
 void PoolDatabaseConnection::executeBatchSQL(const Strings& /*batchFile*/, Strings* /*errors*/)
 {
     throw DatabaseException("Method executeBatchFile id not implemented for this database driver");
+}
+
+String PoolDatabaseConnection::tableSequenceName(const String& tableName)
+{
+    return tableName + "_seq";
+}
+
+String PoolDatabaseConnection::lastAutoIncrementSql(const String& tableName)
+{
+    using enum DatabaseConnectionType;
+    switch (connectionType())
+    {
+        case MYSQL:
+            return "SELECT LAST_INSERT_ID()";
+        case MSSQL_ODBC:
+            return "SELECT SCOPE_IDENTITY()";
+        case POSTGRES:
+            return "SELECT LASTVAL()";
+        case ORACLE:
+        case ORACLE_OCI:
+            return ""; // Use Oracle-specific method override.
+        case FIREBIRD:
+            return "SELECT GEN_ID(" + tableName + ", 0) FROM RDB$DATABASE"; // Not tested.
+        case SQLITE3:
+            return "SELECT last_insert_rowid()";
+        default:
+            break;
+    }
+    return {};
 }
 
 void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* query, const SStmtHandle& stmt)

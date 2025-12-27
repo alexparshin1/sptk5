@@ -25,10 +25,12 @@
 */
 
 #include <ranges>
+#include <sptk5/Printer.h>
 #include <sptk5/cutils>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
 #include <sptk5/db/InsertQuery.h>
+#include <sptk5/threads/Flag.h>
 
 #ifdef USE_GTEST
 #include <gtest/gtest.h>
@@ -85,31 +87,50 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
     databaseConnection->close();
 }
 
-void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
+void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, const String& tableName)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
-    const DatabaseConnection databaseConnection = connectionPool.getConnection();
-
-    databaseConnection->open();
-
-    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
-
     try
     {
+        String dropTableSql("DROP TABLE " + tableName);
+        switch (databaseConnection->connectionType())
+        {
+            case DatabaseConnectionType::POSTGRES:
+                dropTableSql += " CASCADE";
+                break;
+            case DatabaseConnectionType::ORACLE:
+            case DatabaseConnectionType::ORACLE_OCI:
+                dropTableSql += " CASCADE CONSTRAINTS";
+                break;
+            default:
+                break;
+        }
+
+        Query dropTable(databaseConnection, dropTableSql);
         dropTable.exec();
     }
     catch (const Exception& e)
     {
-        const RegularExpression matchTableNotExists("not exist|unknown table", "i");
+        const RegularExpression matchTableNotExists("not exist|unknown table|no such table", "i");
         if (!matchTableNotExists.matches(e.what()))
         {
             CERR(e.what());
         }
     }
+}
 
+void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
+    databaseConnection->open();
+
+    dropTable(databaseConnection, "gtest_temp_table");
+
+    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id INT, name VARCHAR(20))");
     createTable.exec();
-    dropTable.exec();
+
+    dropTable(databaseConnection, "gtest_temp_table");
 
     databaseConnection->close();
 }
@@ -183,11 +204,11 @@ String fieldType(const String& fieldType, const String& driverName)
     }
     return iterator->second;
 }
-}
+} // namespace
 
 void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
     const auto iterator = dateFieldTypes.find(connectionString.driverName());
@@ -203,28 +224,20 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     databaseConnection->open();
     Query createTable(databaseConnection, createTableSQL.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
+    dropTable(databaseConnection, "gtest_temp_table");
 
     createTable.exec();
 
     const auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
                           databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
     const String testDate = isOracle ? "01-JUN-2015" : "2015-06-01";
-    Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
+    Query        insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDate + "')");
     insert1.exec();
     Query insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
 
     const DateTime dateTime("2015-06-01");
-    Variant date;
+    Variant        date;
     date.setDateTime(dateTime, true);
     insert2.param("dt") = date;
     insert2.exec();
@@ -241,7 +254,7 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
 void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
     const auto iterator = dateTimeFieldTypes.find(connectionString.driverName());
@@ -257,22 +270,14 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     databaseConnection->open();
     Query createTable(databaseConnection, createTableSQL.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
+    dropTable(databaseConnection, "gtest_temp_table");
 
     createTable.exec();
 
-    const DateTime testDate(2000, 01, 01);
+    const DateTime   testDate(2000, 01, 01);
     constexpr size_t dateAndTimeLength = 19;
-    const auto testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
+    const auto       testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
 
     const auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
                           databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
@@ -289,7 +294,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     auto dateTimeStr = select["ts"].asDateTime().isoDateTimeString();
 
-    DateTime testDateTime1(("2015-06-01T11:22:33" + testTimezone).c_str());
+    DateTime   testDateTime1(("2015-06-01T11:22:33" + testTimezone).c_str());
     const auto testDateTimeStr = testDateTime1.isoDateTimeString();
     EXPECT_STREQ(testDateTimeStr.c_str(), dateTimeStr.c_str());
 
@@ -307,7 +312,7 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
 void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
     createTempTable(connectionString, databaseConnection);
@@ -340,9 +345,9 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
 
 Buffer DatabaseTests::createClob()
 {
-    Buffer clob;
-    size_t counter = 0;
-    const String textFragment("A text ");
+    Buffer           clob;
+    size_t           counter = 0;
+    const String     textFragment("A text ");
     constexpr size_t sixtyFourKb = 65536;
     constexpr size_t lineLength = 72;
     while (clob.size() < sixtyFourKb)
@@ -497,7 +502,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
 
 void DatabaseTests::testTransaction(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
     databaseConnection->open();
@@ -527,8 +532,41 @@ DatabaseConnectionString DatabaseTests::connectionString(const String& driverNam
     return iterator == m_connectionStrings.end() ? DatabaseConnectionString("") : iterator->second;
 }
 
+String DatabaseTests::serialColumnDefinition(DatabaseConnectionType connectionType)
+{
+    String idColumn;
+    switch (connectionType)
+    {
+        using enum DatabaseConnectionType;
+        case POSTGRES:
+            idColumn = "id SERIAL PRIMARY KEY";
+            break;
+        case MYSQL:
+            idColumn = "id INT AUTO_INCREMENT PRIMARY KEY";
+            break;
+        case MSSQL_ODBC:
+            idColumn = "id INT IDENTITY(1,1) PRIMARY KEY";
+            break;
+        case ORACLE_OCI:
+        case ORACLE:
+            idColumn = "id INT GENERATED BY DEFAULT ON NULL AS IDENTITY PRIMARY KEY";
+            break;
+        case FIREBIRD:
+            idColumn = "id INTEGER GENERATED BY DEFAULT ON NULL AS IDENTITY PRIMARY KEY";
+            break;
+        case SQLITE3:
+            idColumn = "id INTEGER PRIMARY KEY AUTOINCREMENT";
+            break;
+        case GENERIC_ODBC:
+            throw DatabaseException("Auto increment test isn't supported for this connection type");
+    }
+    return idColumn;
+}
+
 void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare, bool withBlob)
 {
+    databaseConnection->open();
+
     const auto driverName = databaseConnection->connectionString().driverName();
     const auto iterator = blobFieldTypes.find(driverName);
     if (iterator == blobFieldTypes.end())
@@ -538,7 +576,8 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
 
     const String blobType = iterator->second;
 
-    Strings fields {"id INTEGER NULL", "name CHAR(40) NULL", "position_name CHAR(20) NULL", "hire_date CHAR(12) NULL"};
+    String  idColumn = serialColumnDefinition(databaseConnection->connectionType());
+    Strings fields {idColumn, "name CHAR(40) NULL", "position_name CHAR(20) NULL", "hire_date CHAR(12) NULL"};
 
     if (withBlob)
     {
@@ -548,7 +587,6 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
 
     const String sql("CREATE TABLE gtest_temp_table(" + fields.join(", ") + ")");
 
-    databaseConnection->open();
     Query createTable(databaseConnection, sql, autoPrepare);
     Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table", autoPrepare);
 
@@ -581,53 +619,15 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
     databaseConnection->open();
 
     stringstream sql;
-    String idDefinition;
+    String       idDefinition = serialColumnDefinition(databaseConnection->connectionType());
 
-    switch (databaseConnection->connectionType())
-    {
-        using enum DatabaseConnectionType;
-        case MYSQL:
-        case POSTGRES:
-            idDefinition = "id serial";
-            break;
-        case MSSQL_ODBC:
-            idDefinition = "id int identity";
-            break;
-        case ORACLE:
-        case ORACLE_OCI:
-            idDefinition = "id int";
-            break;
-    case SQLITE3:
-    case FIREBIRD:
-    case GENERIC_ODBC:
-            throw DatabaseException("InsertQuery doesn't support " + databaseConnection->driverDescription());
-    }
-
-    sql << "CREATE TABLE gtest_temp_table2(" << idDefinition << " primary key, name varchar(40))";
+    sql << "CREATE TABLE gtest_temp_table2(" << idDefinition << ", name varchar(40))";
 
     Query createTable(databaseConnection, sql.str());
-    Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table2");
 
-    try
-    {
-        dropTable.exec();
-    }
-    catch (const Exception& e)
-    {
-        const RegularExpression matchTableNotExists("not exist|unknown table", "i");
-        if (!matchTableNotExists.matches(e.what()))
-        {
-            CERR(e.what());
-        }
-    }
+    dropTable(databaseConnection, "gtest_temp_table2");
 
     createTable.exec();
-
-    if (databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-        databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI)
-    {
-        createOracleAutoIncrement(databaseConnection, "gtest_temp_table2", "id");
-    }
 
     InsertQuery query(databaseConnection, "INSERT INTO gtest_temp_table2(name) VALUES(:name)");
 
@@ -643,12 +643,13 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 }
 
 static const string expectedBulkInsertResult(
-    "1|Alex,'Doe'|Programmer|01-JAN-2014 # 2|David|CEO|01-JAN-2015 # 3|Roger|Bunny|01-JAN-2016 # 4|Teddy|Bear|01-JAN-2017 # 5|Santa|Claus|01-JAN-2018");
+    "Alex,'Doe'|Programmer|01-JAN-2014 # David|CEO|01-JAN-2015 # Roger|Bunny|01-JAN-2016 # Teddy|Bear|01-JAN-2017 # Santa|Claus|01-JAN-2018");
 
 void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
     createTestTable(databaseConnection, false, false);
 
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table");
@@ -657,69 +658,81 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
 
     VariantVector aRow;
 
-    constexpr int id1 = 1;
-    constexpr int id2 = 2;
-    constexpr int id3 = 3;
-    constexpr int id4 = 4;
-    constexpr int id5 = 5;
-
-    aRow.emplace_back(id1);
     aRow.emplace_back("Alex,'Doe'");
     aRow.emplace_back("Programmer");
     aRow.emplace_back("01-JAN-2014");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(id2);
     aRow.emplace_back("David");
     aRow.emplace_back("CEO");
     aRow.emplace_back("01-JAN-2015");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(id3);
     aRow.emplace_back("Roger");
     aRow.emplace_back("Bunny");
     aRow.emplace_back("01-JAN-2016");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(id4);
     aRow.emplace_back("Teddy");
     aRow.emplace_back("Bear");
     aRow.emplace_back("01-JAN-2017");
     data.push_back(aRow);
 
     aRow.clear();
-    aRow.emplace_back(id5);
     aRow.emplace_back("Santa");
     aRow.emplace_back("Claus");
     aRow.emplace_back("01-JAN-2018");
     data.push_back(aRow);
 
-    const Strings columnNames({"id", "name", "position_name", "hire_date"});
-    databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);
+    // Insert these columns in two steps to verify the inserted ids. Note that the auto-increment key isn't included here.
+    // The name of the auto-increment column (if any) is provided in the bulkInsert() call.
+    const Strings columnNames({"name", "position_name", "hire_date"});
+
+    auto insertedIds1 = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
+    EXPECT_EQ(5, insertedIds1.size());
+    for (uint64_t i = 1; i <= 5; ++i)
+    {
+        EXPECT_EQ(i, insertedIds1[i - 1]);
+    }
+
+    auto insertedIds2 = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
+    EXPECT_EQ(5, insertedIds2.size());
+    for (uint64_t i = 1; i <= 5; ++i)
+    {
+        EXPECT_EQ(i + 5, insertedIds2[i - 1]);
+    }
 
     selectData.open();
     Strings printRows;
+    size_t  rowCount = 0;
     while (!selectData.eof())
     {
         Strings row;
+        size_t  index = 0;
         for (const auto& field: selectData.fields())
         {
-            row.push_back(field->asString().trim());
+            if (index > 0)
+            {
+                row.push_back(field->asString().trim());
+            }
+
+            ++index;
         }
+
+        if (printRows.size() >= 5)
+        {
+            break;
+        }
+
         printRows.push_back(row.join("|"));
+
         selectData.next();
+        ++rowCount;
     }
     selectData.close();
-
-    if (constexpr int expectedRows = 5;
-        printRows.size() != expectedRows)
-    {
-        throw Exception(
-            "Expected bulk insert result (3 rows) doesn't match table data (" + int2string(printRows.size()) + ")");
-    }
 
     if (const String actualResult(printRows.join(" # "));
         actualResult != expectedBulkInsertResult)
@@ -729,36 +742,130 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
         throw Exception("Expected bulk insert result doesn't match inserted data");
     }
 
-    const VariantVector keys({id1, id2, id3, id4, id5});
+    VariantVector keys;
+    for (const auto& id: insertedIds1)
+    {
+        keys.emplace_back(static_cast<int64_t>(id));
+    }
+    for (const auto& id: insertedIds2)
+    {
+        keys.emplace_back(static_cast<int64_t>(id));
+    }
+
     databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
 
     Query countRows(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
     countRows.open();
-    const auto rowCount = countRows[0].asInteger();
+    rowCount = countRows[0].asInteger();
     countRows.close();
     EXPECT_EQ(0, rowCount);
 }
 
-void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
+void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
+
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+    createTestTable(databaseConnection, false, false);
+
+    COUT(connectionString.driverName() << " bulk insert with two threads:");
+
+    vector<VariantVector> data;
+
+    VariantVector aRow;
+    aRow.emplace_back("Alex,'Doe'");
+    aRow.emplace_back("Programmer");
+    aRow.emplace_back("01-JAN-2014");
+
+    constexpr int dataRows = 10000;
+    constexpr int batchSize = 100;
+
+    data.reserve(dataRows);
+    for (int i = 0; i < dataRows; ++i)
+    {
+        data.push_back(aRow);
+    }
+
+    auto connectionThread = [&data, &connectionString](int threadNumber, vector<int64_t>* insertedIds)
+    {
+        vector inputData(data);
+
+        string operation;
+        try
+        {
+            operation = "Create connection";
+            DatabaseConnectionPool   connectionPool(connectionString.toString());
+            const Strings            columnNames({"name", "position_name", "hire_date"});
+            const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
+            operation = "Open connection";
+            databaseConnection->open();
+
+            operation = "bulkInsert";
+            StopWatch sw;
+            sw.start();
+            *insertedIds = databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, batchSize);
+            sw.stop();
+
+            COUT("Thread " << threadNumber << " inserted " << insertedIds->size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds->size() / sw.milliseconds() << "K/sec)");
+        }
+        catch (const Exception& e)
+        {
+            CERR(operation << ": " << e.what());
+        }
+    };
+
+    StopWatch sw;
+    sw.start();
+
+    vector<int64_t> insertedIds1;
+    auto            thread1 = jthread(connectionThread, 1, &insertedIds1);
+
+    vector<int64_t> insertedIds2;
+    auto            thread2 = jthread(connectionThread, 2, &insertedIds2);
+
+    thread1.join();
+    thread2.join();
+    sw.stop();
+
+    set<int64_t> uniqueIds;
+    for (const auto& id: insertedIds1)
+    {
+        uniqueIds.insert(id);
+    }
+    for (const auto& id: insertedIds2)
+    {
+        uniqueIds.insert(id);
+    }
+
+    COUT("All inserted      " << uniqueIds.size() << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
+
+    Query selectData(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
+    int   counter = selectData.scalar().asInteger();
+    EXPECT_EQ(dataRows * 2, counter);
+    EXPECT_EQ(dataRows * 2, uniqueIds.size());
+}
+
+void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTableWithSerial(databaseConnection);
 }
 
 void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
-    Query insert(databaseConnection, "INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
-                                     "VALUES (1, 'John Doe', 'engineer', '2020-01-02')",
+    Query insert(databaseConnection, "INSERT INTO gtest_temp_table(name, position_name, hire_date)"
+                                     "VALUES ('John Doe', 'engineer', '2020-01-02')",
                  false);
     insert.exec();
 
-    insert.sql("INSERT INTO gtest_temp_table(id, name, position_name, hire_date)"
-               "VALUES (2, 'Jane Doe', 'CFO', '2020-02-03')");
+    insert.sql("INSERT INTO gtest_temp_table(name, position_name, hire_date)"
+               "VALUES ('Jane Doe', 'CFO', '2020-02-03')");
     insert.exec();
 
     verifyTableNoBlobs(databaseConnection);
@@ -782,22 +889,21 @@ void DatabaseTests::verifyTableNoBlobs(const DatabaseConnection& databaseConnect
 
 void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& connectionString, size_t recordCount)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
     const Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table");
-    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    InsertQuery insertData(databaseConnection, "INSERT INTO gtest_temp_table (name, position_name, hire_date) VALUES (:name, :position, :hired)");
 
     vector<VariantVector> data;
-    VariantVector keys;
+    VariantVector         keys;
     keys.reserve(recordCount);
     for (size_t i = 1; i <= recordCount; ++i)
     {
         keys.emplace_back(static_cast<int>(i));
 
         VariantVector row;
-        row.emplace_back(static_cast<int>(i));
         row.emplace_back("Alex,'Doe'");
         row.emplace_back("Programmer");
         row.emplace_back("01-JAN-2014");
@@ -806,8 +912,8 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     StopWatch stopWatch;
     stopWatch.start();
-    const Strings columnNames({"id", "name", "position_name", "hire_date"});
-    databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);
+    const Strings columnNames({"name", "position_name", "hire_date"});
+    databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data);
     stopWatch.stop();
     const auto bulkInsertDurationMS = stopWatch.milliseconds();
 
@@ -818,7 +924,6 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
     stopWatch.start();
 
-    auto& idParam = insertData.param("id");
     auto& nameParam = insertData.param("name");
     auto& positionParam = insertData.param("position");
     auto& hiredParam = insertData.param("hired");
@@ -830,12 +935,10 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         constexpr int col0 = 0;
         constexpr int col1 = 1;
         constexpr int col2 = 2;
-        constexpr int col3 = 3;
 
-        idParam = row[col0].asInteger();
-        nameParam = row[col1].asString();
-        positionParam = row[col2].asString();
-        hiredParam = row[col3].asString();
+        nameParam = row[col0].asString();
+        positionParam = row[col1].asString();
+        hiredParam = row[col2].asString();
         insertData.exec();
     }
     transaction.commit();
@@ -854,7 +957,8 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     stopWatch.stop();
     const auto deleteDurationMS = stopWatch.milliseconds();
 
-    auto printResults = [&](const String& operation, double durationMs) {
+    auto printResults = [&](const String& operation, double durationMs)
+    {
         COUT(left << fixed << setw(25) << connectionString.driverName() << setw(14) << operation
                   << right << setw(8) << setprecision(1) << durationMs << " ms, "
                   << setprecision(2) << fixed << setw(10) << static_cast<double>(data.size()) / durationMs << "K rec/sec");
@@ -869,16 +973,16 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
 
 void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
     Query selectData(databaseConnection, "SELECT * FROM gtest_temp_table ORDER BY 1");
 
     const Strings batchSQL {
-        "INSERT INTO gtest_temp_table VALUES (1, 'John', 'CEO', '2020-01-02');",
-        "INSERT INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
-        "INSERT INTO gtest_temp_table VALUES (3, 'William', 'CIO', '2022-03-04');"};
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('John', 'CEO', '2020-01-02');",
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('Jane', 'CFO', '2021-02-03');",
+        "INSERT INTO gtest_temp_table(name, position_name, hire_date) VALUES ('William', 'CIO', '2022-03-04');"};
 
     const Strings invalidBatchSQL {
         "REMOVE INTO gtest_temp_table VALUES (2, 'Jane', 'CFO', '2021-02-03');",
@@ -899,7 +1003,7 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
 void DatabaseTests::verifyBatchInsertedData(Query& selectData, const Strings& expectedResults)
 {
     selectData.open();
-    int rowNumber = 0;
+    int           rowNumber = 0;
     constexpr int expectedRows = 3;
     for (; rowNumber < expectedRows && !selectData.eof(); ++rowNumber)
     {
@@ -929,27 +1033,25 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     EXPECT_THROW(emptyQuery.exec(), DatabaseException);
 
-    Query selectNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NULL");
-    Query selectNotNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE id IS NOT NULL");
-    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table VALUES (:id, :name, :position, :hired)");
+    Query selectNullData(databaseConnection, "SELECT name, position_name, hire_date FROM gtest_temp_table WHERE name IS NULL");
+    Query selectNotNullData(databaseConnection, "SELECT * FROM gtest_temp_table WHERE name IS NOT NULL");
+    Query insertData(databaseConnection, "INSERT INTO gtest_temp_table (name, position_name, hire_date) VALUES (:name, :position, :hired)");
 
     Strings data;
-    data.push_back(string("1\tAlex,'Doe'\tProgrammer\t01-JAN-2014"));
-    data.push_back(string("2\tDavid\tCEO\t01-JAN-2015"));
-    data.push_back(string("3\tRoger\tBunny\t01-JAN-2016"));
-    data.push_back(string("4\tTeddy\tBear\t01-JAN-2017"));
-    data.push_back(string("5\tSanta\tClaus\t01-JAN-2018"));
+    data.push_back(string("Alex,'Doe'\tProgrammer\t01-JAN-2014"));
+    data.push_back(string("David\tCEO\t01-JAN-2015"));
+    data.push_back(string("Roger\tBunny\t01-JAN-2016"));
+    data.push_back(string("Teddy\tBear\t01-JAN-2017"));
+    data.push_back(string("Santa\tClaus\t01-JAN-2018"));
 
     for (const auto& row: data)
     {
         constexpr int col0 = 0;
         constexpr int col1 = 1;
         constexpr int col2 = 2;
-        constexpr int col3 = 3;
         using enum VariantDataType;
 
         // Insert all nulls
-        insertData.param("id").setNull(VAR_INT);
         insertData.param("name").setNull(VAR_STRING);
         insertData.param("position").setNull(VAR_STRING);
         insertData.param("hired").setNull(VAR_STRING);
@@ -957,10 +1059,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
         // Insert data row
         Strings values(row, "\t");
-        insertData.param("id") = string2int(values[col0]);
-        insertData.param("name") = values[col1];
-        insertData.param("position") = values[col2];
-        insertData.param("hired") = values[col3];
+        insertData.param("name") = values[col0];
+        insertData.param("position") = values[col1];
+        insertData.param("hired") = values[col2];
         insertData.exec();
     }
 
@@ -975,14 +1076,15 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     }
 
     constexpr size_t expectedRecordCount = 5;
-    size_t recordCount = 0;
+    size_t           recordCount = 0;
 
     selectNullData.open();
     while (!selectNullData.eof())
     {
         // Check if all fields are NULLs
         ranges::for_each(selectNullData.fields(),
-                         [](const auto& field) {
+                         [](const auto& field)
+                         {
                              if (!field->isNull())
                              {
                                  throw Exception("Field " + field->fieldName() + " = [" + field->asString() + "] but null is expected");
@@ -1001,13 +1103,18 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
     while (!selectNotNullData.eof())
     {
         Strings row;
+        size_t  index = 0;
         for (const auto& field: selectNotNullData.fields())
         {
             if (field->isNull())
             {
                 throw Exception("Field " + field->fieldName() + " is null but value is expected");
             }
-            row.push_back(field->asString().trim());
+            if (index > 0)
+            {
+                row.push_back(field->asString().trim());
+            }
+            ++index;
         }
         printRows.push_back(row.join("|"));
         selectNotNullData.next();
@@ -1046,7 +1153,7 @@ size_t DatabaseTests::countRowsInTable(const DatabaseConnection& databaseConnect
 
 void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
 {
-    DatabaseConnectionPool connectionPool(connectionString.toString());
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, true, true);
 
@@ -1066,8 +1173,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Buffer testData2(testDataInv);
     testData2.append(testDataInv);
 
-    Query insertQuery(databaseConnection, "INSERT INTO gtest_temp_table(id,data1, data2) VALUES(:id, :data1, :data2)");
-    insertQuery.param("id") = 1;
+    Query insertQuery(databaseConnection, "INSERT INTO gtest_temp_table(data1, data2) VALUES(:data1, :data2)");
     insertQuery.param("data1") = testData1;
     insertQuery.param("data2") = testData2;
     insertQuery.exec();
@@ -1076,7 +1182,7 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     selectQuery.open();
 
     constexpr size_t blobSize2 = blobSize1 * 2;
-    const auto dataSize1 = selectQuery["data1"].dataSize();
+    const auto       dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
 
     const auto dataSize2 = selectQuery["data2"].dataSize();
@@ -1105,43 +1211,4 @@ DatabaseTests::DatabaseTests()
 DatabaseTests& DatabaseTests::tests()
 {
     return _databaseTests;
-}
-
-void DatabaseTests::createOracleAutoIncrement(const DatabaseConnection& databaseConnection, const String& tableName,
-                                              const String& columnName)
-{
-    const String baseName = "id_" + tableName.substr(0, 27);
-    const String sequenceName = "sq_" + baseName;
-    const String triggerName = "tr_" + baseName;
-
-    try
-    {
-        Query dropSequence(databaseConnection, "DROP SEQUENCE " + sequenceName);
-        dropSequence.exec();
-    }
-    catch (const Exception& e)
-    {
-        COUT(e.what());
-    }
-
-    Query createSequence(databaseConnection, "CREATE SEQUENCE " + sequenceName + " START WITH 1 INCREMENT BY 1 NOMAXVALUE");
-    createSequence.exec();
-
-    try
-    {
-        Query createTrigger(databaseConnection,
-                            "CREATE OR REPLACE TRIGGER " + triggerName + "\n" +
-                                "BEFORE INSERT ON " + tableName + "\n" +
-                                "FOR EACH ROW\n" +
-                                "BEGIN\n" +
-                                "  IF :new." + columnName + " IS NULL THEN\n" +
-                                "    :new." + columnName + " := " + sequenceName + ".nextval;\n" +
-                                "  END IF;\n" +
-                                "END;\n");
-        createTrigger.exec();
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
-    }
 }

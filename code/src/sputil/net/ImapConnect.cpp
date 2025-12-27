@@ -93,10 +93,10 @@ String quotes(const String& st)
 
 String ImapConnect::sendCommand(const String& cmd)
 {
-    String command(cmd);
+    String          command(cmd);
     array<char, 10> id_str {};
-    const int len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
-    String ident(id_str.data(), static_cast<size_t>(len));
+    const int       len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
+    String          ident(id_str.data(), static_cast<size_t>(len));
     command = ident + cmd + "\n";
     if (!active())
     {
@@ -398,7 +398,7 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
         count > 0)
     {
         const String& st = m_response[0];
-        const char* fpos = strstr(st.c_str(), "(\\");
+        const char*   fpos = strstr(st.c_str(), "(\\");
 
         if (fpos == nullptr)
         {
@@ -436,7 +436,7 @@ String strip_framing_quotes(const String& st)
 void ImapConnect::parseFolderList()
 {
     const String prefix = "* LIST ";
-    Strings folder_names;
+    Strings      folder_names;
     for (const auto& st: m_response)
     {
         if (st.find(prefix) == 0)

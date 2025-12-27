@@ -38,7 +38,8 @@ namespace sptk {
 /**
  * WSDL operation
  */
-struct WSOperation {
+struct WSOperation
+{
     /**
      * WSDL operation input
      */

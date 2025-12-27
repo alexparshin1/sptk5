@@ -186,55 +186,55 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
 
     message << "MIME-Version: 1.0" << '\n';
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << '\n'
-        << '\n';
+            << '\n';
 
     message << '\n'
-        << "--" << boundary << '\n';
+            << "--" << boundary << '\n';
 
     if (m_body.type() == MailMessageType::PLAIN_TEXT_MESSAGE)
     {
         message << "Content-Type: text/plain; charset=ISO-8859-1" << '\n';
         message << "Content-Transfer-Encoding: 7bit" << '\n';
         message << "Content-Disposition: inline" << '\n'
-            << '\n';
+                << '\n';
         message << m_body.text() << '\n'
-            << '\n';
+                << '\n';
     }
     else
     {
         static const char* boundary2 = "--TEXT-MIME-BOUNDARY--";
 
         message << "Content-Type: multipart/alternative;  boundary=\"" << boundary2 << "\"" << '\n'
-            << '\n';
+                << '\n';
 
         message << '\n'
-            << "--" << boundary2 << '\n';
+                << "--" << boundary2 << '\n';
         message << "Content-Type: text/plain; charset=ISO-8859-1" << '\n';
         message << "Content-Disposition: inline" << '\n';
         message << "Content-Transfer-Encoding: 8bit" << '\n'
-            << '\n';
+                << '\n';
 
         message << m_body.text() << '\n'
-            << '\n';
+                << '\n';
 
         message << '\n'
-            << "--" << boundary2 << '\n';
+                << "--" << boundary2 << '\n';
         message << "Content-Type: text/html; charset=ISO-8859-1" << '\n';
         message << "Content-Disposition: inline" << '\n';
         message << "Content-Transfer-Encoding: 7bit" << '\n'
-            << '\n';
+                << '\n';
 
         message << m_body.html() << '\n'
-            << '\n';
+                << '\n';
         message << '\n'
-            << "--" << boundary2 << "--" << '\n';
+                << "--" << boundary2 << "--" << '\n';
     }
 
 
     for (const Strings strings(m_attachments, ";");
          const auto&   attachment: strings)
     {
-        String attachmentAlias(attachment);
+        String      attachmentAlias(attachment);
         const char* separator = "\\";
         if (attachment.find('/') != string::npos)
         {

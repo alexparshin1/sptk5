@@ -37,10 +37,10 @@ using namespace sptk;
 void CFontComboBox::loadFonts()
 {
     Strings fontNames;
-    int k = Fl::set_fonts("*");
+    int     k = Fl::set_fonts("*");
     for (int i = 0; i < k; i++)
     {
-        int t;
+        int    t;
         String fontIdString(string(Fl::get_font_name((Fl_Font) i, &t)), i);
         fontNames.push_back(fontIdString);
     }

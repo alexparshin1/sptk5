@@ -44,8 +44,8 @@ int SmtpConnect::getResponse(bool decode)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
     String longLine;
-    bool readCompleted = false;
-    int result = 0;
+    bool   readCompleted = false;
+    int    result = 0;
 
     SocketReader socketReader(*this);
 
@@ -144,7 +144,7 @@ String SmtpConnect::unmime(const String& str)
 
 void SmtpConnect::cmd_auth(const String& user, const String& password)
 {
-    constexpr int minAuthErrorCode {252};
+    constexpr int             minAuthErrorCode {252};
     constexpr chrono::seconds connectTimeout {30};
 
     close();
@@ -166,8 +166,8 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
     } // Authentication not advertised and not required
 
     const RegularExpression matchAuth("^AUTH ");
-    const String authMethodsStr = matchAuth.s(authInfo[0], "");
-    const Strings authMethods(authMethodsStr, " ");
+    const String            authMethodsStr = matchAuth.s(authInfo[0], "");
+    const Strings           authMethods(authMethodsStr, " ");
 
     String method = "LOGIN";
     if (authMethods.indexOf("LOGIN") < 0)
@@ -197,7 +197,7 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
 
         if (method == "PLAIN")
         {
-            Buffer userAndPassword;
+            Buffer         userAndPassword;
             constexpr char nullChar = 0;
             userAndPassword.append(&nullChar, 1);
             userAndPassword.append(user.c_str(), user.size());
@@ -240,7 +240,7 @@ String parseAddress(const String& fullAddress)
 void SmtpConnect::sendMessage()
 {
     constexpr int minSendErrorCode {252};
-    int result = command("MAIL FROM:<" + parseAddress(from()) + ">");
+    int           result = command("MAIL FROM:<" + parseAddress(from()) + ">");
     if (result >= minSendErrorCode)
     {
         throw Exception("Can't send message:\n" + m_response.join("\n"));
@@ -248,7 +248,7 @@ void SmtpConnect::sendMessage()
 
     String rcpts = to() + ";" + cc() + ";" + bcc();
     rcpts = rcpts.replace("[, ]+", ";");
-    Strings recipients(rcpts, ";");
+    Strings    recipients(rcpts, ";");
     const auto cnt = static_cast<uint32_t>(recipients.size());
     for (uint32_t i = 0; i < cnt; ++i)
     {
@@ -264,7 +264,7 @@ void SmtpConnect::sendMessage()
     }
 
     constexpr int dataSuccessCode {354};
-    Buffer message(messageBuffer());
+    Buffer        message(messageBuffer());
     mimeMessage(message);
     result = command("DATA");
     if (result != dataSuccessCode)

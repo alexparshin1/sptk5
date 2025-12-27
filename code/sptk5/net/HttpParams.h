@@ -30,7 +30,6 @@
 #include <sptk5/CaseInsensitiveCompare.h>
 
 #include <map>
-#include <string>
 
 namespace sptk {
 

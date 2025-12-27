@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr int numberOfDividers = 16;
+static constexpr int                   numberOfDividers = 16;
 const array<int64_t, numberOfDividers> MoneyData::dividers = {
     1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
     1000000000LL, 10000000000LL, 100000000000LL, 1000000000000LL,

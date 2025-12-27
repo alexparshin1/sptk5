@@ -40,7 +40,7 @@ String SystemException::osError()
 #ifdef WIN32
     // Get Windows last error
     LPCTSTR lpMsgBuf = NULL;
-    DWORD dw = GetLastError();
+    DWORD   dw = GetLastError();
     FormatMessage(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         NULL,
@@ -54,7 +54,7 @@ String SystemException::osError()
         return "Unknown system error";
 #else
     // Get Unix errno-based error
-    constexpr size_t maxErrorLength {256};
+    constexpr size_t            maxErrorLength {256};
     array<char, maxErrorLength> osError {};
 
 #ifdef __BSD__

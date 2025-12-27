@@ -61,7 +61,7 @@ public:
     int handle(int) override;
 };
 
-}
+} // namespace sptk
 
 CInternalComboBoxPanel::CInternalComboBoxPanel(int x, int y, int w, int h, const char* label)
     : Fl_Box(x, y, w, h, label)
@@ -212,7 +212,7 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
     m_buttonSpace = 0;
     for (int i = 0; i < 5; i++)
     {
-        auto kind = (uint64_t) buttonKind[i];
+        auto  kind = (uint64_t) buttonKind[i];
         auto* btn = new CSmallButton(CButtonKind::UNDEFINED_BUTTON, CLayoutAlign::NONE);
         btn->buttonImage(buttonKind[i], CIconSize::IS_COMBO_ICON);
         btn->callback(comboButtonPressed);
@@ -235,16 +235,16 @@ void CBaseListBox::ctor_init(const char* label, int _mode)
 }
 
 CBaseListBox::CBaseListBox(const char* label, int layoutSize, CLayoutAlign layoutAlignment, int _mode)
-    :
-    CControl(label, layoutSize, layoutAlignment)
+    : CControl(label, layoutSize, layoutAlignment)
 {
     ctor_init(label, _mode);
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CBaseListBox::CBaseListBox(int x,int y,int w,int h,const char * label,int _mode)
-: CControl(x,y,w,h,label) {
-    ctor_init(label,_mode);
+CBaseListBox::CBaseListBox(int x, int y, int w, int h, const char* label, int _mode)
+    : CControl(x, y, w, h, label)
+{
+    ctor_init(label, _mode);
 }
 #endif
 
@@ -332,7 +332,7 @@ bool CBaseListBox::preferredSize(int& w, int& h)
     }
 
     CColumnList& columns = m_list->columns();
-    size_t cnt = columns.size();
+    size_t       cnt = columns.size();
     for (size_t i = 0; i < cnt; i++)
     {
         maxWidth += columns[i].width();
@@ -495,8 +495,8 @@ void CBaseListBox::dropDownList()
     }
     m_droppedDown = true;
     Fl_Window* parentWindow = window();
-    int xx = parentWindow->x() + x() + m_labelWidth;
-    int yy = parentWindow->y() + y() + m_control->h();
+    int        xx = parentWindow->x() + x() + m_labelWidth;
+    int        yy = parentWindow->y() + y() + m_control->h();
 
     int hh = 0;
     int ww = 0;
@@ -631,7 +631,7 @@ void CBaseListBox::addRow(int rowId, const Strings& ss)
 
 void CBaseListBox::addRows(string columnName, Strings strings)
 {
-    CColumn newColumn(columnName, VariantDataType::VAR_STRING, w() - labelWidth(), true);
+    CColumn     newColumn(columnName, VariantDataType::VAR_STRING, w() - labelWidth(), true);
     CColumnList newColumns;
 
     newColumns.push_back(newColumn);
@@ -641,8 +641,8 @@ void CBaseListBox::addRows(string columnName, Strings strings)
     for (size_t i = 0; i < cnt; i++)
     {
         String& str = strings[i];
-        cpchar strs[2] = {str.c_str(), nullptr};
-        auto* psl = new CPackedStrings(1, strs);
+        cpchar  strs[2] = {str.c_str(), nullptr};
+        auto*   psl = new CPackedStrings(1, strs);
         int32_t id = (int32_t) str.ident();
         psl->argument(id);
         m_list->addRow(psl);
@@ -693,8 +693,9 @@ CComboBox::CComboBox(const char* label, int layoutSize, CLayoutAlign layoutAlign
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CComboBox::CComboBox(int x,int y,int w,int h,const char *l)
-: CBaseListBox (x,y,w,h,l,IS_COMBO_BOX) {
+CComboBox::CComboBox(int x, int y, int w, int h, const char* l)
+    : CBaseListBox(x, y, w, h, l, IS_COMBO_BOX)
+{
     m_list = m_dropDownWindow->listView;
     m_list->multiSelect(false);
 }
@@ -721,6 +722,8 @@ CListBox::CListBox(const char* label, int layoutSize, CLayoutAlign layoutAlignme
 }
 
 #ifdef __COMPATIBILITY_MODE__
-CListBox::CListBox(int x,int y,int w,int h,const char *l)
-: CBaseListBox (x,y,w,h,l,IS_LIST_BOX) {}
+CListBox::CListBox(int x, int y, int w, int h, const char* l)
+    : CBaseListBox(x, y, w, h, l, IS_LIST_BOX)
+{
+}
 #endif

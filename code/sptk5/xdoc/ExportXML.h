@@ -25,7 +25,7 @@ public:
     void saveAttributes(const Node* node, Buffer& buffer);
 
 private:
-    int m_indentSpaces {2};
+    int        m_indentSpaces {2};
     XMLDocType m_docType;
 
     Buffer& appendNodeContent(const Node* node, Buffer& buffer);

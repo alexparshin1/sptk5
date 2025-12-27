@@ -118,9 +118,9 @@ protected:
     void bindParameters();
 
 private:
-    std::shared_ptr<Connection> m_ociConnection; ///< Connection
-    std::shared_ptr<Statement> m_ociStatement;   ///< Statement
-    String m_sql;                                ///< SQL
+    std::shared_ptr<Connection>                            m_ociConnection; ///< Connection
+    std::shared_ptr<Statement>                             m_ociStatement;  ///< Statement
+    String                                                 m_sql;           ///< SQL
     std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;
 
     /*

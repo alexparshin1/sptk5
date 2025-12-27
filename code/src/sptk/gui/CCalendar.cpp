@@ -50,7 +50,7 @@ static const int64_t monthChanges[4] = {
 void CCalendar::cbDayButtonClicked(Fl_Widget* button, void* param)
 {
     Fl_Group* buttonBox = button->parent();
-    auto* calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
+    auto*     calendar = dynamic_cast<CCalendar*>(buttonBox->parent());
     if (!calendar)
     {
         return;
@@ -268,7 +268,7 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
 
     // last visible button
     Fl_Button* btn = m_dayButtons[daysInMonth - 1];
-    int sby = btn->y() + bh;
+    int        sby = btn->y() + bh;
 
     bw = bw * 3 / 2;
     for (i = 0; i < 2; i++)

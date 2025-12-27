@@ -34,7 +34,7 @@ using namespace sptk;
 WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement)
     : m_wsdlTypeName(std::move(typeName))
 {
-    for (const auto enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
+    for (const auto  enumerationNodes = simpleTypeElement->select("xsd:restriction/xsd:enumeration");
          const auto& enumerationNode: enumerationNodes)
     {
         if (enumerationNode != nullptr)
@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
     else
     {
-        for (auto patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
+        for (auto        patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
              const auto& patternNode: patternNodes)
         {
             const String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
@@ -115,7 +115,7 @@ void WSRestriction::check(const String& typeName, const String& value) const
 String WSRestriction::generateConstructor(const String& variableName) const
 {
     stringstream str;
-    Strings patterns;
+    Strings      patterns;
 
     switch (m_type)
     {

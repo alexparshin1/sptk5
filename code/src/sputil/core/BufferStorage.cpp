@@ -31,7 +31,7 @@ using namespace sptk;
 
 void BufferStorage::reallocate(size_t size)
 {
-    auto* newBuffer = m_buffer? realloc(m_buffer, size + 1) : malloc(size + 1);
+    auto* newBuffer = m_buffer ? realloc(m_buffer, size + 1) : malloc(size + 1);
     if (newBuffer == nullptr)
     {
         throw Exception("Not enough memory");

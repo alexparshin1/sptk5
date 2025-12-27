@@ -82,7 +82,7 @@ std::tuple<std::string, uint16_t> ServerConnection::parseAddress(const sockaddr_
 {
     constexpr int               maxAddressSize {128};
     array<char, maxAddressSize> address {"127.0.0.1"};
-    uint16_t port = 0;
+    uint16_t                    port = 0;
     if (connectionAddress)
     {
         if (connectionAddress->sin_family == AF_INET)
@@ -97,7 +97,7 @@ std::tuple<std::string, uint16_t> ServerConnection::parseAddress(const sockaddr_
             port = ntohs(connectionAddress6->sin6_port);
         }
     }
-    return { address.data(), port};
+    return {address.data(), port};
 }
 
 uint16_t ServerConnection::port() const

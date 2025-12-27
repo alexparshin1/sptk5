@@ -32,7 +32,6 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/ThreadEvent.h>
 #include <sptk5/threads/ThreadManager.h>
-#include <sptk5/threads/WorkerThread.h>
 
 namespace sptk {
 

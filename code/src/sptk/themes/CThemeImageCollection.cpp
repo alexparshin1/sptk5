@@ -130,8 +130,8 @@ void CThemeImageCollection::loadFromGtkTheme(
 {
     static const Strings buttonStates("NORMAL|ACTIVE|PRELIGHT", "|");
 
-    auto images = gtkTheme.root()->select(imagesXPath);
-    bool borderInitted = false;
+    auto   images = gtkTheme.root()->select(imagesXPath);
+    bool   borderInitted = false;
     string normalImageFileName;
     string normalOverlayFileName;
     for (auto imageNode: images)
@@ -147,7 +147,7 @@ void CThemeImageCollection::loadFromGtkTheme(
         String overlayFileName = gtkFullFileName((String) imageNode->attributes().get("overlay_file"));
 
         String state = upperCase((String) imageNode->attributes().get("state", "NORMAL"));
-        int buttonState = buttonStates.indexOf(state);
+        int    buttonState = buttonStates.indexOf(state);
 
         if (normalImageFileName.empty() && (state == "NORMAL" || state == "ACTIVE"))
         {

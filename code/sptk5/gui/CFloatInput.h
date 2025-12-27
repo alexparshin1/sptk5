@@ -43,7 +43,7 @@ namespace sptk {
  *
  * Allows to input only Floating point numbers, and you can also define the input value range for the valid().
  */
-class SP_EXPORT CFloatInput
+class SP_EXPORT CFloatInput final
     : public CInput
 {
     using inherited = class CInput;

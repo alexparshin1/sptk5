@@ -161,12 +161,12 @@ public:
     }
 
 private:
-    std::array<char, 16> m_replacementBuffer {}; ///< The buffer used to return replacement literals
-    std::array<Buffer, 2> m_encodeBuffers;       ///< Encode buffers
-    Entities m_entities;                         ///< List of entities
-    String m_name;                               ///< Document type name
-    String m_public_id;                          ///< Public ID
-    String m_system_id;                          ///< System ID
+    std::array<char, 16>  m_replacementBuffer {}; ///< The buffer used to return replacement literals
+    std::array<Buffer, 2> m_encodeBuffers;        ///< Encode buffers
+    Entities              m_entities;             ///< List of entities
+    String                m_name;                 ///< Document type name
+    String                m_public_id;            ///< Public ID
+    String                m_system_id;            ///< System ID
 
     char* appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end);
 };

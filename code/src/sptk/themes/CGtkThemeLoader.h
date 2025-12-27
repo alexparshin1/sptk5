@@ -38,8 +38,8 @@ namespace sptk {
 /// @brief This class parses GTK theme configuration file into XML
 class CGtkThemeParser
 {
-    xdoc::Document m_xml;          ///< Internal XML presentation of GTK theme config
-    std::string m_themeFolder;  ///< Path to the theme folder that contains gtkrc file
+    xdoc::Document m_xml;         ///< Internal XML presentation of GTK theme config
+    std::string    m_themeFolder; ///< Path to the theme folder that contains gtkrc file
 
     /// @brief Reads parameter/value pair from the line of text
     /// @param row const std::string&, text row
@@ -71,7 +71,6 @@ class CGtkThemeParser
     void parse(const sptk::Strings& gtkrc);
 
 public:
-
     /// @brief Default constructor
     CGtkThemeParser() = default;
 
@@ -90,6 +89,6 @@ public:
 };
 
 /// @}
-}
+} // namespace sptk
 
 #endif

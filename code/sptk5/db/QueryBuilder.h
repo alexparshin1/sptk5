@@ -39,9 +39,9 @@ public:
     public:
         Join(String tableAlias, Strings columns, String join);
 
-        String tableAlias;
+        String  tableAlias;
         Strings columns;
-        String joinDefinition;
+        String  joinDefinition;
     };
 
     QueryBuilder(String tableName, String pkColumn, Strings columns = {},
@@ -62,9 +62,9 @@ public:
     String pkColumnName() const;
 
 private:
-    String m_tableName;
-    String m_pkColumn;
-    Strings m_columns;
+    String            m_tableName;
+    String            m_pkColumn;
+    Strings           m_columns;
     std::vector<Join> m_joins;
 
     Strings makeSelectColumns(const Strings& columns) const;

@@ -114,8 +114,8 @@ using gtk_color_function = Fl_Color (*)(const String& expression);
 class SP_EXPORT CThemeColorCollection
 {
     static std::map<String, gtk_color_function>* m_gtkColorFunctionMap;
-    static std::map<String, Fl_Color> m_colorMap;
-    Fl_Color m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
+    static std::map<String, Fl_Color>            m_colorMap;
+    Fl_Color                                     m_colors[THM_MAX_COLOR_INDEX][MAX_IMAGE_STATES];
 
     static Fl_Color gtkColorFunction(const String& expression);
 

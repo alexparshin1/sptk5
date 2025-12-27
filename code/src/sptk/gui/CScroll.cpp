@@ -140,13 +140,13 @@ void CScroll::draw_clip(void* v, int X, int Y, int W, int H)
     s->draw_box(s->box(), X, Y, W, H, s->color());
 
     Fl_Widget* const* a = s->array();
-    int R = X;
-    int B = Y; // track bottom & right edge of all children
+    int               R = X;
+    int               B = Y; // track bottom & right edge of all children
     for (int i = s->children() - 2; i--;)
     {
         Fl_Widget& o = **a++;
-        int NR;
-        int NB;
+        int        NR;
+        int        NB;
         s->draw_child(o);
         s->draw_outside_label(o);
         NR = o.x() + o.w();
@@ -224,10 +224,10 @@ void CScroll::draw()
     draw_clip(this, X, Y, W, H);
 
     // accumulate bounding box of children:
-    int l = X;
-    int r = X;
-    int t = Y;
-    int b = Y;
+    int               l = X;
+    int               r = X;
+    int               t = Y;
+    int               b = Y;
     Fl_Widget* const* a = array();
     for (int i = children() - 2; i--;)
     {

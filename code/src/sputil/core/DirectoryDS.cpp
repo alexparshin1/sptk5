@@ -47,7 +47,7 @@ String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallP
     modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
     const String ext = file.path().extension().string();
-    bool executable = S_ISEXEC(fileStat.st_mode);
+    bool         executable = S_ISEXEC(fileStat.st_mode);
 #else
     String ext = file.path().extension().string();
     ext = ext.toLowerCase();
@@ -131,7 +131,8 @@ namespace {
 bool fileMatchesPattern(const String& fileName, const vector<SRegularExpression>& matchPatterns)
 {
     return ranges::any_of(matchPatterns,
-                          [&fileName](const auto& matchPattern) {
+                          [&fileName](const auto& matchPattern)
+                          {
                               return matchPattern->matches(fileName);
                           });
 }
@@ -208,8 +209,8 @@ bool DirectoryDS::open()
 FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file, size_t& index)
 {
     CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
-    DateTime modificationTime;
-    String modeName = getFileType(file, pixmapType, modificationTime);
+    DateTime         modificationTime;
+    String           modeName = getFileType(file, pixmapType, modificationTime);
 
     if (is_symlink(file.status()))
     {
@@ -245,8 +246,8 @@ FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file
 std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
 {
     String regexpStr("^");
-    bool groupStarted = false;
-    bool charClassStarted = false;
+    bool   groupStarted = false;
+    bool   charClassStarted = false;
 
     size_t pos = 0;
     while (pos < wildcard.length())

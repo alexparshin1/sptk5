@@ -189,11 +189,11 @@ protected:
 private:
     using SQLHSTMT = sqlite3_stmt*;
 
-    mutable std::mutex m_mutex;         ///< Mutex that protects access to data members
+    mutable std::mutex       m_mutex;   ///< Mutex that protects access to data members
     std::shared_ptr<sqlite3> m_connect; ///< Database connection
-    void bindParameter(const Query* query, uint32_t paramNumber) const;
+    void                     bindParameter(const Query* query, uint32_t paramNumber) const;
 
-    void closeAndClean();
+    void       closeAndClean();
     static int transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber);
 };
 
@@ -206,5 +206,5 @@ private:
 
 extern "C" {
 SP_DRIVER_EXPORT [[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds);
-SP_DRIVER_EXPORT [[maybe_unused]] void sqlite3DestroyConnection(void* connection);
+SP_DRIVER_EXPORT [[maybe_unused]] void  sqlite3DestroyConnection(void* connection);
 }

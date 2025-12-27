@@ -45,7 +45,7 @@ public:
 
 private:
     VariantDataType m_bindType;
-    uint8_t* m_bindBuffer {nullptr};
+    uint8_t*        m_bindBuffer {nullptr};
 
     template<typename T>
     [[nodiscard]] uint8_t* makeBuffer()

@@ -44,7 +44,8 @@ String Attributes::get(const String& name, const String& defaultValue) const
 bool Attributes::have(const String& name) const
 {
     return std::ranges::any_of(m_items,
-                               [&name](const auto& itor) {
+                               [&name](const auto& itor)
+                               {
                                    return itor.first == name;
                                });
 }

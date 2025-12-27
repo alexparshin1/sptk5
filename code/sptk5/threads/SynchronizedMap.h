@@ -28,7 +28,6 @@
 
 #include <functional>
 #include <map>
-#include <sptk5/sptk.h>
 
 namespace sptk {
 

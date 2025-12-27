@@ -153,11 +153,11 @@ public:
     void setNull(VariantDataType vtype) override;
 
 private:
-    int m_fldType;                ///< Native database data type
-    int m_fldSize;                ///< Field size
-    int m_fldScale;               ///< Field scale, optional, for floating point fields
-    String m_displayFormat;       ///< Column display format
-    int m_alignment {ALIGN_LEFT}; ///< Column alignment
+    int    m_fldType;                ///< Native database data type
+    int    m_fldSize;                ///< Field size
+    int    m_fldScale;               ///< Field scale, optional, for floating point fields
+    String m_displayFormat;          ///< Column display format
+    int    m_alignment {ALIGN_LEFT}; ///< Column alignment
 };
 
 using SDatabaseField = std::shared_ptr<DatabaseField>;

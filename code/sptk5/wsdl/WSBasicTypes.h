@@ -333,8 +333,8 @@ protected:
     }
 
 private:
-    Variant m_value;         ///< Data value
-    bool m_optional {false}; ///< Element optionality flag
+    Variant m_value;            ///< Data value
+    bool    m_optional {false}; ///< Element optionality flag
 };
 
 /**
