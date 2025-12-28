@@ -604,6 +604,8 @@ void throwSocketError(const String& message, const std::source_location& locatio
         case EAGAIN:
         case EINPROGRESS:
             throw RepeatOperationException(message + ": " + errorStr, location);
+        case EMFILE:
+            throw ConnectionException(message + ": Too many open files", location);
         default:
             break;
     }
