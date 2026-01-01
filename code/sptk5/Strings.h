@@ -37,22 +37,21 @@ namespace sptk {
 class Exception;
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 /**
- * List of strings with ids
+ * List of strings with ids.
  *
  * General string list. Based on vector<idstring>. Stores strings with (optional) integer Ids.
  * Includes several extra methods to construct it from string or load/save from/to file.
  */
 class SP_EXPORT Strings
-    : public std::vector<String>
 {
 public:
     /**
-     * Sort order enumeration
+     * Sort order enumeration.
      */
     enum class SortOrder : uint8_t
     {
@@ -62,95 +61,95 @@ public:
     };
 
     /**
-     * String split mode
+     * String split mode.
      */
     enum class SplitMode : uint8_t
     {
         /**
-         * Split by the whole delimiter
+         * Split by the whole delimiter.
          */
         DELIMITER,
 
         /**
-         * Split by any char in delimiter
+         * Split by any char in delimiter.
          */
         ANYCHAR,
 
         /**
-         * Regular expression
+         * Regular expression.
          */
         REGEXP
 
     };
 
     /**
-     * Default constructor
+     * Default constructor.
      */
     Strings() = default;
 
     /**
-     * Copy constructor
+     * Copy constructor.
      */
     Strings(const Strings& other) = default;
 
     /**
-     * Move constructor
+     * Move constructor.
      */
     Strings(Strings&& other) = default;
 
     /**
-     * Initializer list constructor
-     * @param list              Initializer list
+     * Initializer list constructor.
+     * @param list              Initializer list.
      */
     Strings(std::initializer_list<String> list)
     {
-        std::ranges::copy(list, back_inserter(*this));
+        std::ranges::copy(list, std::back_inserter(m_strings));
     }
 
     /**
-     * Constructor from a string with elements separated by a delimiter string
-     * @param src               Source string
-     * @param delimiter         Delimiter string
-     * @param mode              Delimiter string usage
+     * Constructor from a string with elements separated by a delimiter string.
+     * @param src               Source string.
+     * @param delimiter         Delimiter string.
+     * @param mode              Delimiter string usage.
      */
     Strings(const String& src, const char* delimiter, SplitMode mode = SplitMode::DELIMITER) noexcept;
 
     /**
-     * Destructor
+     * Destructor.
      */
     virtual ~Strings() = default;
 
     /**
-     * Assigns strings from a string with elements separated by a delimiter string
-     * @param src               Source string
-     * @param delimiter         Delimiter string
-     * @param mode              Delimiter string usage
+     * Assigns strings from a string with elements separated by a delimiter string.
+     * @param src               Source string.
+     * @param delimiter         Delimiter string.
+     * @param mode              Delimiter string usage.
      */
     void fromString(const String& src, const char* delimiter, SplitMode mode);
 
     /**
      * Returns an index of the string in strings, or -1 if not found.
-     * If strings were sorted prior to calling this method, and not modified
-     * since that, then binary search is used.
-     * @param needle            String to find
-     * @returns                 String index, or -1
+     * If strings were sorted before calling this method and not modified
+     * since that, then binary search has been used.
+     * @param needle            String to find.
+     * @returns                 String index, or -1.
      */
     [[nodiscard]] virtual int indexOf(const String& needle) const;
 
     /**
      * Saves strings to file. String ids are discarded.
-     * @param fileName          The name of the file
+     * @param fileName          The name of the file.
      */
     void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
-     * Loads strings from file. String ids are not loaded.
-     * @param fileName          The name of the file
+     * Loads strings from the file. String ids are not loaded.
+     * @param fileName          The name of the file.
      */
     void loadFromFile(const std::filesystem::path& fileName);
 
     /**
-     * Returns user data as integer
+     * Returns user data as integer.
      */
     [[nodiscard]] int64_t argument() const
     {
@@ -158,130 +157,265 @@ public:
     }
 
     /**
-     * Sets user data as integer
-     * @param arg                 New value for user data
+     * Sets user data as integer.
+     * @param arg                 New value for user data.
      */
     void argument(int64_t arg)
     {
         m_userData = arg;
     }
 
+    auto operator<=>(const Strings& other) const = default;
+
+    bool operator==(const Strings& strings) const = default;
+
+    using iterator = std::vector<String>::iterator;
+    using reverse_iterator = std::vector<String>::reverse_iterator;
+    using const_iterator = std::vector<String>::const_iterator;
+    using const_reverse_iterator = std::vector<String>::const_reverse_iterator;
+
     /**
-     * Removes a string from this object
-     * @param i                 String index in the string vector
+     * @brief The start of the string vector.
+     * @return Reference to the first element.
      */
-    iterator remove(size_t i)
+    [[nodiscard]] String& front() noexcept
     {
-        return StringVector::erase(begin() + i);
+        return m_strings.front();
     }
 
     /**
-     * Removes a string from this object
-     * @param str               String to remove from the string vector
+     * @brief The start of the string vector.
+     * @return Reference to the first element.
+     */
+    [[nodiscard]] const String& front() const noexcept
+    {
+        return m_strings.front();
+    }
+
+    /**
+     * @brief The end of the string vector.
+     * @return Reference to the last element.
+     */
+    [[nodiscard]] String& back() noexcept
+    {
+        return m_strings.back();
+    }
+
+    /**
+     * @brief The end of the string vector.
+     * @return Reference to the last element.
+     */
+    [[nodiscard]] const String& back() const noexcept
+    {
+        return m_strings.back();
+    }
+
+    /**
+     * @brief Iterator of the start of the string vector.
+     * @return Iterator.
+     */
+    [[nodiscard]] iterator begin()
+    {
+        return m_strings.begin();
+    }
+
+    /**
+     * @brief Iterator of the start of the string vector.
+     * @return Iterator.
+     */
+    [[nodiscard]] const_iterator begin() const
+    {
+        return m_strings.begin();
+    }
+
+    /**
+     * @brief Iterator of the end of the string vector.
+     * @return Iterator.
+     */
+    [[nodiscard]] iterator end()
+    {
+        return m_strings.end();
+    }
+
+    /**
+     * @brief Iterator of the end of the string vector.
+     * @return Iterator.
+     */
+    [[nodiscard]] const_iterator end() const
+    {
+        return m_strings.end();
+    }
+
+    /**
+     * @brief Reverse iterator of the start of the string vector.
+     * @return Reverse iterator.
+     */
+    [[nodiscard]] reverse_iterator rbegin()
+    {
+        return m_strings.rbegin();
+    }
+
+    /**
+     * @brief Reverse iterator of the start of the string vector.
+     * @return Reverse iterator.
+     */
+    [[nodiscard]] const_reverse_iterator rbegin() const
+    {
+        return m_strings.rbegin();
+    }
+
+    /**
+     * @brief Reverse iterator of the end of the string vector.
+     * @return Reverse iterator.
+     */
+    [[nodiscard]] reverse_iterator rend()
+    {
+        return m_strings.rend();
+    }
+
+    /**
+     * @brief Reverse iterator of the end of the string vector.
+     * @return Reverse iterator.
+     */
+    [[nodiscard]] const_reverse_iterator rend() const
+    {
+        return m_strings.rend();
+    }
+
+    /**
+     * @return The size of the string vector is empty.
+     */
+    [[nodiscard]] size_t size() const
+    {
+        return m_strings.size();
+    }
+
+    /**
+     * @return True if the string vector is empty.
+     */
+    [[nodiscard]] bool empty() const
+    {
+        return m_strings.empty();
+    }
+
+    /**
+     * Removes a string from this object.
+     * @param i                 String index in the string vector.
+     */
+    iterator remove(size_t i)
+    {
+        return m_strings.erase(m_strings.begin() + static_cast<int>(i));
+    }
+
+    /**
+     * Removes a string from this object.
+     * @param str               String to remove from the string vector.
      */
     iterator remove(const String& str)
     {
-        if (auto itor = std::ranges::find(*this, str); itor != end())
+        if (auto itor = std::ranges::find(m_strings, str);
+            itor != m_strings.end())
         {
-            return StringVector::erase(itor);
+            return m_strings.erase(itor);
         }
-        return end();
+        return m_strings.end();
     }
 
     Strings& operator=(const Strings& other) = default;
     Strings& operator=(Strings&& other) = default;
 
     /**
-     * Returns concatenated string
-     * @param delimiter         Delimiter
+     * Returns concatenated string.
+     * @param delimiter         Delimiter.
      */
     [[nodiscard]] String join(std::string_view delimiter) const;
 
     /**
-     * Returns strings matching regex pattern
-     * @param pattern           Regex pattern
+     * Returns strings matching the regex pattern.
+     * @param pattern           Regex pattern.
      */
     [[nodiscard]] Strings grep(std::string_view pattern) const;
 
     /**
-     * Sort strings inside this object
+     * Sort strings inside this object.
      */
     void sort(bool ascending = true);
 
     /**
-     * Clear strings
+     * Clear strings.
      */
     void clear()
     {
         m_sorted = SortOrder::UNSORTED;
-        StringVector::clear();
+        m_strings.clear();
         m_userData = 0;
     }
 
     /**
-     * Change size of the collection
-     * @param size              New number of strings in the collection
+     * Change the size of the collection.
+     * @param size              New number of strings in the collection.
      */
     void resize(size_t size)
     {
-        if (size > this->size())
+        if (size > m_strings.size())
         {
             m_sorted = SortOrder::UNSORTED;
         }
-        StringVector::resize(size);
+        m_strings.resize(size);
     }
 
     /**
-     * Push back a string
+     * Push back a string.
      */
     void push_back(const String& str)
     {
         m_sorted = SortOrder::UNSORTED;
-        StringVector::push_back(str);
+        m_strings.push_back(str);
     }
 
     /**
-     * Push back a string
+     * Push back a string.
      */
     void push_back(String&& str)
     {
         m_sorted = SortOrder::UNSORTED;
-        StringVector::push_back(std::move(str));
+        m_strings.push_back(std::move(str));
     }
 
     /**
-     * Emplace back a string
+     * Emplace back a string.
      */
     template<typename... Args>
     void emplace_back(Args&&... args)
     {
         m_sorted = SortOrder::UNSORTED;
-        StringVector::emplace_back(args...);
+        m_strings.emplace_back(args...);
     }
 
     /**
-     * Index operator
-     * @param index             String index
-     * @return string by the index
+     * Index operator.
+     * @param index             String index.
+     * @return string by the index.
      */
     String& operator[](size_t index)
     {
         m_sorted = SortOrder::UNSORTED;
-        return StringVector::operator[](index);
+        return m_strings[index];
     }
 
     /**
-     * Index operator
-     * @param index             String index
-     * @return string by the index
+     * Index operator.
+     * @param index             String index.
+     * @return string by the index.
      */
     const String& operator[](size_t index) const
     {
-        return StringVector::operator[](index);
+        return m_strings[index];
     }
 
 private:
     using StringVector = std::vector<String>;
+    StringVector m_strings;
 
     /**
      * User-specified data
@@ -289,7 +423,7 @@ private:
     int64_t m_userData {0};
 
     /**
-     * Is sorted flag
+     * Is sorted flag.
      */
     SortOrder m_sorted {SortOrder::UNSORTED};
 };

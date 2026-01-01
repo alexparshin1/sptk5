@@ -259,7 +259,7 @@ protected:
      * CRLF characters are automatically appended to the command.
      * @param cmd               HTTP command
      */
-    void sendCommand(const String& cmd);
+    void sendCommand(const String& cmd) const;
 
     /**
      * @brief Sends a single command to HTTP server
@@ -267,7 +267,7 @@ protected:
      * CRLF characters are automatically appended to the command.
      * @param cmd               HTTP command
      */
-    void sendCommand(const Buffer& cmd);
+    void sendCommand(const Buffer& cmd) const;
 
     /**
      * @brief Retrieves the server response on the command

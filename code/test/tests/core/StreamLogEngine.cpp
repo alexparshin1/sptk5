@@ -38,11 +38,26 @@ stringstream testStream;
 void logMessages(LogEngine& logEngine)
 {
     const auto logger = make_shared<Logger>(logEngine, "(Test application) ");
-    logger->debug([]{ return "Test started"; });
-    logger->critical([] {return "Critical message"; });
-    logger->error([] { return "Error message";});
-    logger->warning([] {return "Warning message";});
-    logger->info([] {return "Test completed";});
+    logger->debug([]
+                  {
+                      return "Test started";
+                  });
+    logger->critical([]
+                     {
+                         return "Critical message";
+                     });
+    logger->error([]
+                  {
+                      return "Error message";
+                  });
+    logger->warning([]
+                    {
+                        return "Warning message";
+                    });
+    logger->info([]
+                 {
+                     return "Test completed";
+                 });
 
     this_thread::sleep_for(100ms);
 }
@@ -54,7 +69,7 @@ void testPriority(StreamLogEngine& logEngine, LogPriority priority, size_t expec
 
     logMessages(logEngine);
 
-    Strings content(testStream.str(), "\n");
+    const Strings content(testStream.str(), "\n");
 
     EXPECT_EQ(expectedMessageCount, content.size());
 }
@@ -99,7 +114,10 @@ TEST(SPTK_StreamLogEngine, outputStream)
     constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
     {
-        logger.info([]{ return "Test log message of some length";});
+        logger.info([]
+                    {
+                        return "Test log message of some length";
+                    });
     }
     stopWatch.stop();
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("

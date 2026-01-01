@@ -129,17 +129,17 @@ void Strings::fromString(const String& src, const char* delimiter, SplitMode mod
 
 int Strings::indexOf(const String& needle) const
 {
-    int                    result = -1;
-    const_iterator         constIterator;
-    const_reverse_iterator reverseIterator;
+    int                                  result = -1;
+    StringVector::const_iterator         constIterator;
+    StringVector::const_reverse_iterator reverseIterator;
 
     switch (m_sorted)
     {
         case SortOrder::DESCENDING:
-            reverseIterator = lower_bound(rbegin(), rend(), needle);
-            if (reverseIterator != rend() && *reverseIterator == needle)
+            reverseIterator = lower_bound(m_strings.rbegin(), m_strings.rend(), needle);
+            if (reverseIterator != m_strings.rend() && *reverseIterator == needle)
             {
-                result = static_cast<int>(distance(rbegin(), reverseIterator));
+                result = static_cast<int>(distance(m_strings.rbegin(), reverseIterator));
             }
             break;
         case SortOrder::ASCENDING:

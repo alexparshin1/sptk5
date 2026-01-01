@@ -579,7 +579,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     }
     COUT(commandLinePrototype);
 
-    // Find out space needed for command and option names
+    // Find out the space needed for command and option names
     constexpr size_t minimalWidth {10};
     size_t           nameColumns = minimalWidth;
     Strings          sortedCommands;

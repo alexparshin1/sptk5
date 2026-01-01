@@ -63,7 +63,7 @@ int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTim
     return m_reader->getStatusCode();
 }
 
-void HttpConnect::sendCommand(const String& cmd)
+void HttpConnect::sendCommand(const String& cmd) const
 {
     if (!m_socket.active())
     {
@@ -79,7 +79,7 @@ void HttpConnect::sendCommand(const String& cmd)
     m_socket.write((const uint8_t*) cmd.c_str(), static_cast<uint32_t>(cmd.length()));
 }
 
-void HttpConnect::sendCommand(const Buffer& cmd)
+void HttpConnect::sendCommand(const Buffer& cmd) const
 {
     if (!m_socket.active())
     {
