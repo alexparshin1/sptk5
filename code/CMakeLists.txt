@@ -29,6 +29,8 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT(SPTK)
 
+cmake_policy(SET CMP0177 NEW)
+
 #cmake_policy(SET CMP0046 OLD)
 IF (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
