@@ -27,7 +27,6 @@
 #pragma once
 
 #include "AutoDatabaseConnection.h"
-#include <sptk5/Exception.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 
 namespace sptk {
@@ -40,7 +39,7 @@ namespace sptk {
 /**
  * @brief Database Transaction.
  *
- * Allows to begin, commit, and rollback the transaction automatically.
+ * Allows operations that begin, commit, and rollback the transaction automatically.
  * If the transaction object is deleted w/o commiting or rolling back
  * the transaction, it rolls back the transaction (if active)
  */
@@ -77,7 +76,7 @@ public:
     void rollback();
 
     /**
-     * Is transaction active?
+     * Is the transaction active?
      */
     bool active() const
     {

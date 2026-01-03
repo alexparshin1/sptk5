@@ -29,12 +29,11 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
-#include <string>
 
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
@@ -50,45 +49,45 @@ public:
     /**
      * @brief Data encoding.
      * Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
-     * @param bufDest           Destination buffer
-     * @param bufSource         Source buffer
-     * @param len               Size of source buffer
+     * @param bufDest           Destination buffer.
+     * @param bufSource         Source buffer.
+     * @param len               Size of source buffer.
      */
     static void encode(Buffer& bufDest, const uint8_t* bufSource, size_t len);
 
     /**
      * @brief Data encoding.
      * Encodes data (base64) in given buffer bufSource to destination buffer bufDest.
-     * @param bufDest           Destination buffer
-     * @param bufSource         Source buffer
+     * @param bufDest           Destination buffer.
+     * @param bufSource         Source buffer.
      */
     static void encode(Buffer& bufDest, const Buffer& bufSource);
 
     /**
      * @brief Data encoding.
-     * Encodes data (base64) in given buffer bufSource and returns result in std::string.
-     * @param strDest           Destination string
-     * @param bufSource         Source buffer
+     * Encodes data (base64) in the given source buffer and returns the result in std::string.
+     * @param strDest           Destination string.
+     * @param bufSource         Source buffer.
      */
     static void encode(String& strDest, const Buffer& bufSource);
 
     /**
      * @brief Data decoding.
      * Decodes base64 encoded buffer bufSource into buffer bufDest.
-     * Throws CException in case of error
-     * @param bufDest           Destination buffer
-     * @param bufSource         Source buffer that holds base64 decoded data
-     * @returns length of returned buffer
+     * Throws Exception in case of error.
+     * @param bufDest           Destination buffer.
+     * @param bufSource         Source buffer that holds base64 decoded data.
+     * @returns length of returned buffer.
      */
     static size_t decode(Buffer& bufDest, const Buffer& bufSource);
 
     /**
      * @brief Data decoding.
      * Decodes base64 encoded string strSource into buffer bufDest.
-     * Throws CException in case of error
-     * @param bufDest           Destination buffer
-     * @param strSource         Source string that holds base64 decoded data
-     * @returns length of the returned string
+     * Throws CException in case of error.
+     * @param bufDest           Destination buffer.
+     * @param strSource         Source string that holds base64 decoded data.
+     * @returns length of the returned string.
      */
     static size_t decode(Buffer& bufDest, const String& strSource);
 };

@@ -98,7 +98,7 @@ public:
      */
     int16_t width() const
     {
-        return (int16_t) m_width;
+        return static_cast<int16_t>(m_width);
     }
 
     /**
@@ -107,7 +107,7 @@ public:
      */
     void width(int16_t w)
     {
-        m_width = (uint32_t) w;
+        m_width = static_cast<uint32_t>(w);
     }
 
     /**

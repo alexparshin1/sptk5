@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <ranges>
 #include <sptk5/ArchiveFile.h>
 #include <sptk5/Buffer.h>
 #include <sptk5/Exception.h>
@@ -84,7 +85,7 @@ public:
     [[maybe_unused]] std::vector<std::filesystem::path> fileList() const
     {
         std::vector<std::filesystem::path> fileNames;
-        for (const auto& [fileName, data]: m_files)
+        for (const auto& fileName: m_files | std::views::keys)
         {
             fileNames.push_back(fileName);
         }

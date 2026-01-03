@@ -166,9 +166,10 @@ public:
      * @param val               Primitive type or structure
      */
     template<class T>
+    requires std::is_integral_v<T>
     void append(T val)
     {
-        append((char*) &val, sizeof(val));
+        append((uint8_t*)&val, sizeof(val));
     }
 
     /**
@@ -177,20 +178,11 @@ public:
      * Allocates memory if needed.
      * @param str               String to append
      */
-    void append(const std::string& str)
+    template<class T>
+    requires std::is_class_v<T>
+    void append(const T& str)
     {
-        append(str.c_str(), str.length());
-    }
-
-    /**
-     * Appends the string to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param str               String to append
-     */
-    void append(const String& str)
-    {
-        append(str.c_str(), str.length());
+        append(str.c_str(), str.size());
     }
 
     /**

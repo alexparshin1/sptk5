@@ -27,9 +27,6 @@
 #pragma once
 
 #include <occi.h>
-
-#include <cstdio>
-#include <list>
 #include <string>
 
 #include "DatabaseField.h"
@@ -91,14 +88,14 @@ public:
 
     /**
      * Executes statement
-     * @param inTransaction bool, True if statement is executed from transaction
+     * @param inTransaction bool, True if the statement is executed from transaction
      */
     void execute(bool inTransaction) override;
 
     /**
      * Executes statement in bulk mode
-     * @param inTransaction bool, True if statement is executed from transaction
-     * @param lastIteration bool, True if bulk operation is completed (all iterations added)
+     * @param inTransaction bool, True if the statement is executed from transaction
+     * @param lastIteration bool, True if the bulk operation is completed (all iterations added)
      */
     void execBulk(bool inTransaction, bool lastIteration);
 
@@ -114,14 +111,14 @@ public:
     {
         if (m_resultSet)
         {
-            state().eof = (m_resultSet->next() == ResultSet::END_OF_FETCH);
+            state().eof = m_resultSet->next() == ResultSet::END_OF_FETCH;
         }
     }
 
     /**
-     * Returns result set (if returned by a statement)
+     * Returns the result set (if returned by a statement)
      */
-    ResultSet* resultSet()
+    ResultSet* resultSet() const
     {
         return m_resultSet;
     }
@@ -162,7 +159,7 @@ private:
     void getBLOBOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
     /**
-     * Read CLOB field
+     * Read the CLOB field
      * @param index             Column number
      * @param field             Field
      */
