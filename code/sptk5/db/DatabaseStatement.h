@@ -31,7 +31,7 @@
 namespace sptk {
 
 /**
- * Template class for database statements for different database drivers
+ * Template class for database statements for different database drivers.
  */
 template<class Connection, class Statement>
 class DatabaseStatement
@@ -53,8 +53,8 @@ public:
     }
 
     /**
-     * Constructor
-     * @param connection Connection*, DB connection
+     * Constructor.
+     * @param connection Connection*, DB connection.
      */
     explicit DatabaseStatement(Connection* connection)
         : m_connection(connection)
@@ -62,12 +62,12 @@ public:
     }
 
     /**
-     * Destructor
+     * Destructor.
      */
     virtual ~DatabaseStatement() = default;
 
     /**
-     * Returns current DB statement handle
+     * Returns current DB statement handle.
      */
     Statement* stmt() const
     {
@@ -75,15 +75,15 @@ public:
     }
 
     /**
-     * Generates normalized list of parameters
-     * @param queryParams CParamList&, Standard query parameters
+     * Generates the normalized list of parameters.
+     * @param queryParams CParamList&, Standard query parameters.
      */
     virtual void enumerateParams(QueryParameterList& queryParams)
     {
         queryParams.enumerate(m_enumeratedParams);
         m_state.outputParameterCount = 0;
 
-        for (auto parameter: m_enumeratedParams)
+        for (const auto& parameter: m_enumeratedParams)
         {
             if (parameter->isOutput())
                 ++m_state.outputParameterCount;
@@ -91,7 +91,7 @@ public:
     }
 
     /**
-     * Returns normalized list of parameters
+     * Returns the normalized list of parameters.
      */
     CParamVector& enumeratedParams()
     {
@@ -99,7 +99,7 @@ public:
     }
 
     /**
-     * Returns true if statement uses output parameters
+     * Returns true if statement uses output parameters.
      */
     size_t outputParameterCount() const
     {
@@ -107,28 +107,28 @@ public:
     }
 
     /**
-     * Sets actual parameter values for the statement execution
+     * Sets actual parameter values for the statement execution.
      */
     virtual void setParameterValues() = 0;
 
     /**
-     * Executes statement
-     * @param inTransaction bool, True if statement is executed from transaction
+     * Executes statement.
+     * @param inTransaction bool, True if the statement is executed from transaction.
      */
     virtual void execute(bool inTransaction) = 0;
 
     /**
-     * Closes statement and releases allocated resources
+     * Closes statement and releases allocated resources.
      */
     virtual void close() = 0;
 
     /**
-     * Fetches next record
+     * Fetches next record.
      */
     virtual void fetch() = 0;
 
     /**
-     * Returns true if recordset is in EOF state
+     * Returns true if the recordset is in EOF state.
      */
     bool eof() const
     {
@@ -136,7 +136,7 @@ public:
     }
 
     /**
-     * Returns recordset number of columns
+     * Returns recordset number of columns.
      */
     unsigned colCount() const
     {
@@ -145,27 +145,27 @@ public:
 
 protected:
     /**
-     * Statement state type definition
+     * Statement state type definition.
      */
     struct State
     {
         /**
-         * Number of columns is result set
+         * Number of columns is result set.
          */
         unsigned columnCount : 12;
 
         /**
-         * EOF (end of file) flag
+         * EOF (end of file) flag.
          */
         bool eof : 1;
 
         /**
-         * Transaction in progress flag
+         * Transaction in progress flag.
          */
         bool transaction : 1;
 
         /**
-         * Output parameter count
+         * Output parameter count.
          */
         unsigned outputParameterCount : 1;
     };
@@ -176,8 +176,8 @@ protected:
     }
 
 private:
-    Connection*  m_connection {nullptr}; ///< DB connection
-    Statement*   m_statement {nullptr};  ///< Statement
+    Connection*  m_connection {nullptr}; ///< DB connection.
+    Statement*   m_statement {nullptr};  ///< Statement.
     State        m_state {};             ///< State flags
     CParamVector m_enumeratedParams;     ///< Enumerated parameters
 };

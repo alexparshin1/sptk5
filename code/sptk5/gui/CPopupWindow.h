@@ -39,9 +39,8 @@ namespace sptk {
 /**
  * @brief Base popup window
  *
- * The CWindow descendant that closes the window if the user
- * clicks outside of it with mouse or moves the focus outside
- * the window any other way
+ * A popup window descendant of CWindow that automatically closes when the user clicks
+ * outside of it or shifts focus away from it through any other means.
  */
 class SP_EXPORT CPopupWindow
     : public CWindow
@@ -67,7 +66,7 @@ public:
     CPopupWindow(int w, int h, const char* label = 0);
 
     /**
-     * Shows window in modal mode. Exits from the modal mode
+     * Shows the window in modal mode. Exits from the modal mode
      * when the focus is moved outside the window.
      */
     virtual bool showModal();
