@@ -89,9 +89,11 @@ private:
     std::future<int>                         m_task;               ///< Process execution task
     std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
     int                                      m_pid {0};            ///< Process id
+    std::array<char, BufferSize>             m_buffer {};
 #ifdef _WIN32
     FileHandle          m_stdin {};                       ///< Process stdin
     static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
+    PROCESS_INFORMATION m_processInformation2 {};         ///< Process information (Windows only)
     PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
     int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output

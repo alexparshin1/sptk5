@@ -66,14 +66,12 @@ void OsProcess::start()
     saAttr.lpSecurityDescriptor = nullptr;
 
     // Create a pipe for the child process's STDOUT.
-
     if (!CreatePipe(&m_stdout, &m_stdin, &saAttr, 0))
     {
         throw runtime_error("Can't create pipe");
     }
 
     // Ensure the read handle to the pipe for STDOUT is not inherited.
-
     if (!SetHandleInformation(m_stdout, HANDLE_FLAG_INHERIT, 0))
     {
         throw runtime_error("Can't modify pipe handle");
@@ -86,6 +84,8 @@ void OsProcess::start()
     si.dwFlags |= STARTF_USESTDHANDLES;
 
     ZeroMemory(&m_processInformation, sizeof(m_processInformation));
+
+    string commandStr = m_command;
 
     // Start the child process.
     if (!CreateProcessA(nullptr,               // No module name (use command line)
@@ -119,7 +119,7 @@ void OsProcess::start()
 int OsProcess::waitForData(const chrono::milliseconds& timeout)
 {
 #ifdef _WIN32
-    chrono::milliseconds sleepTime = 10ms;
+    static constexpr chrono::milliseconds sleepTime = 10ms;
     chrono::milliseconds totalWait = 0ms;
     while (totalWait < timeout)
     {
@@ -176,7 +176,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
 
 void OsProcess::readData()
 {
-    array<char, BufferSize> buffer {};
+    m_buffer.fill(0);
 
     while (!m_terminated
 #ifndef _WIN32
@@ -196,20 +196,20 @@ void OsProcess::readData()
 
 #ifdef _WIN32
         DWORD readSize = bytesAvailable > BufferSize ? BufferSize : bytesAvailable;
-        if (!ReadFile(m_stdout, buffer.data(), readSize, &readSize, nullptr))
+        if (!ReadFile(m_stdout, m_buffer.data(), readSize, &readSize, nullptr))
         {
             break;
         }
 #else
         size_t readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
-        if (fread(buffer.data(), readSize, 1, m_stdout) == 0)
+        if (fread(m_buffer.data(), readSize, 1, m_stdout) == 0)
         {
             break;
         }
 #endif
         if (m_onData)
         {
-            m_onData(String(buffer.data(), readSize));
+            m_onData(String(m_buffer.data(), readSize));
         }
     }
 }
@@ -233,9 +233,9 @@ void OsProcess::kill()
     lock_guard lock(m_mutex);
     m_terminated = true;
 #ifdef _WIN32
-    if (!TerminateProcess(m_processInformation.hProcess, 0))
+    if (TerminateProcess(m_processInformation.hProcess, 0) == 0)
     {
-        throw SystemException("Can't kill process");
+        //throw SystemException("Can't kill process");
     }
 #else
     auto rc = ::kill(m_pid, SIGKILL);
