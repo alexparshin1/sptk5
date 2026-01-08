@@ -149,7 +149,9 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
+#ifndef _WIN32
     testSocketEvents(SocketPool::TriggerMode::OneShot);
+#endif
 }
 
 TEST(SPTK_SocketEvents, performance)

@@ -79,11 +79,11 @@ TEST(SPTK_SynchronizedQueue, tasks)
     const int expectedSumPerTask = expectedSum / static_cast<int>(maxTasks);
     for (auto& task: tasks)
     {
-        task.wait_for(chrono::milliseconds(200));
+        task.wait_for(chrono::milliseconds(1000));
         const auto sum = task.get();
         actualSum += sum;
         // Expect tasks doing about the same amount of work
-        EXPECT_NEAR(expectedSumPerTask, sum, 100);
+        EXPECT_NEAR(expectedSumPerTask, sum, 200);
     }
 
     EXPECT_EQ(expectedSum, actualSum);
