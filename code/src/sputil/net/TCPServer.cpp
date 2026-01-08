@@ -180,7 +180,7 @@ void TCPServer::stop()
 void TCPServer::setSSLKeys(shared_ptr<SSLKeys> sslKeys)
 {
     const scoped_lock lock(m_mutex);
-    if (!filesystem::exists(sslKeys->certificateFileName()))
+    if (sslKeys && !filesystem::exists(sslKeys->certificateFileName()))
     {
         throw Exception("Can't find certificate file: " + m_sslKeys->certificateFileName().string());
     }
