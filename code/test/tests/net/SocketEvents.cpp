@@ -65,8 +65,8 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
 
         if (eventType.m_data)
         {
-            auto bytes = socket->socketBytes();
-            if (bytes > 0)
+            if (const auto bytes = socket->socketBytes(); 
+                bytes > 0)
             {
                 String data;
                 socket->read(data, bytes);
