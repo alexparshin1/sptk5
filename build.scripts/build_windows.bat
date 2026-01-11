@@ -7,7 +7,7 @@ git pull
 
 cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
 
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" 2>&1 >> build.log
+call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat" 2>&1 >> build.log
 if errorlevel 1 (
     type build.log
     exit /b %errorlevel%
@@ -24,7 +24,7 @@ if errorlevel 1 (
 )
 
 echo "Configuring project"
-cmake -G "Visual Studio 17 2022" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
+cmake -G "Visual Studio 18 2026" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
     exit /b %errorlevel%
@@ -38,7 +38,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-"C:\Program Files (x86)\Caphyon\Advanced Installer 18.2\bin\x86\advinst.exe" /build SPTK.aip 2>&1 >> build.log
+"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build SPTK.aip 2>&1 >> build.log
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
