@@ -2,8 +2,8 @@ REM Build SPTK installer in Windows
 REM @echo off
 
 cd "C:\workspace\sptk5"
-REM git reset --hard
-REM git pull
+git reset --hard
+git pull
 
 call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
 
