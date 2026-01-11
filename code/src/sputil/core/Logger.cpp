@@ -77,7 +77,8 @@ void Logger::info(const String& message) const
 
 void Logger::info(const OutputString& output) const
 {
-    if (m_destination.minPriority() >= LogPriority::Debug) {
+    if (m_destination.minPriority() >= LogPriority::Info)
+    {
         auto msg = make_unique<Message>(LogPriority::Info, m_prefix + output());
         m_destination.log(std::move(msg));
     }
