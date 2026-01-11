@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 # to the root binary directory of the project as ${SPTK_BINARY_DIR}.
 PROJECT(SPTK)
 
-IF (CMAKE_VERSION VERSION_GREATER "3.30.0")
+IF (CMAKE_VERSION VERSION_GREATER "3.40.0")
     CMAKE_POLICY(SET CMP0177 NEW)
 ENDIF ()
 
