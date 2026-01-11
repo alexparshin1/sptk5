@@ -2,34 +2,30 @@ REM Build SPTK installer in Windows
 REM @echo off
 
 cd "C:\workspace\sptk5"
-git reset --hard
-git pull
-
-cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
-cd
+REM git reset --hard
+REM git pull
 
 call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
-exit 1
 
-REM 2>&1 >> build.log
 if errorlevel 1 (
     type build.log
     exit /b %errorlevel%
 )
 
-echo "Remove old build64 directory"
-rmdir /S /Q build64 2>&1 >> build.log
+echo Remove old build64 directory
+rmdir /S /Q build
+REM 2>&1 >> build.log
 
-echo "Create build64 directory"
-mkdir build64 2>&1 >> build.log
-cd build64
+echo Create build64 directory
+mkdir build 2>&1 >> build.log
+cd build
 if errorlevel 1 (
     echo "Can't switch to build directory"
     exit /b %errorlevel%
 )
 
-echo "Configuring project"
-cmake -G "Visual Studio 18 2026" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\Users\alexe\workspace\sptk5\code"
+echo Configuring project
+cmake -G "Visual Studio 18 2026" -A x64 -DUSE_GTEST=OFF -DBUILD_EXAMPLES=OFF "C:\workspace\sptk5\code"
 if errorlevel 1 (
     echo "Can't configure build"
     exit /b %errorlevel%
@@ -37,7 +33,7 @@ if errorlevel 1 (
 cd ..
 
 echo "Building project"
-cmake --build build64 --config Release --target INSTALL
+cmake --build build --config Release --target INSTALL --parallel 4
 if errorlevel 1 (
     echo "Can't complete build and install"
     exit /b %errorlevel%
