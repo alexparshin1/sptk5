@@ -13,9 +13,10 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-echo "Create build64 directory"
+echo "Remove old build64 directory"
 rmdir /S /Q build64 2>&1 >> build.log
 
+echo "Create build64 directory"
 mkdir build64 2>&1 >> build.log
 cd build64
 if errorlevel 1 (
