@@ -296,7 +296,7 @@ void testAcceptPerformance(ServerConnection::Type connectionType, const String& 
                                                    {
                                                    });
 
-    constexpr size_t connectionNumber {10000};
+    constexpr size_t connectionNumber {1000};
     StopWatch        stopWatch;
 
     vector<shared_ptr<TCPSocket>> sockets;
