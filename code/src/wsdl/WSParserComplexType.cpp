@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
+
+#include <ranges>
 #include <sptk5/wsdl/WSTypeTranslator.h>
 #include <utility>
 
@@ -42,7 +44,7 @@ WSParserAttribute::WSParserAttribute(String name, const String& typeName)
     m_cxxTypeName = WSTypeTranslator::toCxxType(typeName);
 }
 
-String WSParserAttribute::generate(bool initialize) const
+String WSParserAttribute::generate(const bool initialize) const
 {
     constexpr int fieldNameWidth = 40;
     stringstream  str;
@@ -208,7 +210,7 @@ WSParserComplexType::Initializer WSParserComplexType::makeInitializer() const
             "m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
     }
 
-    for (const auto& [name, attribute]: m_attributes)
+    for (const auto& name: m_attributes | views::keys)
     {
         initializer.copyCtor.push_back("m_" + name + "(other.m_" + name + ")");
         initializer.moveCtor.push_back(
@@ -254,7 +256,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
     classDeclaration << "        return \"" << className.substr(1) << "\";\n";
     classDeclaration << "    }\n\n";
 
-    for (const auto& [name, value]: m_attributes)
+    for (const auto& name: m_attributes | views::keys)
     {
         attributeNames.push_back(name);
     }
@@ -392,7 +394,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     if (!m_attributes.empty())
     {
         classDeclaration << "   // Attributes\n";
-        for (const auto& [name, attr]: m_attributes)
+        for (const auto& attr: m_attributes | views::values)
         {
             classDeclaration << "   " << attr->generate(true) << ";\n";
             initializer.copyCtor.push_back("m_" + attr->name() + "(other.m_" + attr->name() + ")");
