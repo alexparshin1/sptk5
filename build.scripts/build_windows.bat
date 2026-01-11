@@ -1,7 +1,7 @@
 REM Build SPTK installer in Windows
 REM @echo off
 
-cd "C:\Users\alexe\workspace\sptk5"
+cd "C:\workspace\sptk5"
 git reset --hard
 git pull
 
