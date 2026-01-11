@@ -376,12 +376,12 @@ void WSParserComplexType::generateSetFieldIndex(ostream& classDeclaration, const
 {
     if (!elementNames.empty())
     {
-        classDeclaration << "    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_"
+        classDeclaration << "    setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_"
                          << elementNames.join(", &m_") << "});\n";
     }
     if (!attributeNames.empty())
     {
-        classDeclaration << "    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_"
+        classDeclaration << "    setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_"
                          << attributeNames.join(", &m_") << "});\n";
     }
 }
@@ -547,7 +547,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     classImplementation << "using namespace " << serviceNamespace << ";\n\n";
 
-    classImplementation << "const sptk::Strings& " << className << "::fieldNames(WSFieldIndex::Group group)\n";
+    classImplementation << "const Strings& " << className << "::fieldNames(const WSFieldIndex::Group group)\n";
     classImplementation << "{\n";
     classImplementation << "    static const Strings _fieldNames { \"" << fieldNames.join("\", \"") << "\" };\n";
     classImplementation << "    static const Strings _elementNames { \"" << elementNames.join("\", \"") << "\" };\n";
@@ -574,7 +574,7 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
     auto       tagName = makeTagName(className);
     const auto initializer = makeInitializer();
 
-    classImplementation << className << "::" << className << "(const char* elementName, bool optional)\n"
+    classImplementation << className << "::" << className << "(const char* elementName, const bool optional)\n"
                         << ": " << initializer.ctor.join(",\n  ") << endl
                         << "{\n";
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);
