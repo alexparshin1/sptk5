@@ -8,7 +8,10 @@ git pull
 cd "C:\Users\alexe\workspace\sptk5\build" 2>&1 > build.log
 cd
 
-call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat" 2>&1 >> build.log
+call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
+exit 1
+
+REM 2>&1 >> build.log
 if errorlevel 1 (
     type build.log
     exit /b %errorlevel%
