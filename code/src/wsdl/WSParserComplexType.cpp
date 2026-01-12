@@ -180,12 +180,7 @@ String WSParserComplexType::wsClassName(const String& name)
 void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, const set<String>& usedClasses)
 {
     Strings includeFiles;
-    includeFiles.push_back("#include <sptk5/sptk.h>");
-    includeFiles.push_back("#include <sptk5/FieldList.h>");
-    includeFiles.push_back("#include <sptk5/db/QueryParameterList.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
+    includeFiles.push_back("#include \"CommonHeaders.h\"");
 
     for (const auto& usedClass: usedClasses)
     {
