@@ -60,7 +60,7 @@ public:
     SocketEvents(const String&                    name,
                  const SocketEventCallback&       eventsCallback,
                  const std::chrono::milliseconds& timeout = std::chrono::milliseconds(100),
-                 SocketPool::TriggerMode          triggerMode = SocketPool::TriggerMode::LevelTriggered,
+                 TriggerMode                      triggerMode = TriggerMode::LevelTriggered,
                  size_t                           maxEvents = 1024);
 
     /**
@@ -69,7 +69,7 @@ public:
     ~SocketEvents() override;
 
     /**
-     * @brief Stop socket events manager and wait until it joins.
+     * @brief Stop the socket events manager and wait until it joins.
      */
     void stop();
 
@@ -80,7 +80,6 @@ protected:
     void threadFunction() override;
 
 private:
-    mutable std::mutex        m_mutex;   ///< Mutex that protects map of sockets to corresponding user data
     std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 };
 

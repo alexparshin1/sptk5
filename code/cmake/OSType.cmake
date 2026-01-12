@@ -22,10 +22,6 @@ ELSE ()
     MESSAGE("OS Type:            ${OS_TYPE}")
 ENDIF ()
 
-IF (OS_FLAVOUR STREQUAL "fedora")
-    SET(SET_RPATH "1")
-ENDIF ()
-
-IF (OS_FLAVOUR STREQUAL "redhat")
+IF (OS_FLAVOUR STREQUAL "fedora" OR OS_FLAVOUR STREQUAL "redhat")
     SET(SET_RPATH "1")
 ENDIF ()
