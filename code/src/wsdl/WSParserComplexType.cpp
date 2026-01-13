@@ -27,6 +27,8 @@
 #include <iomanip>
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
+
+#include <ranges>
 #include <sptk5/wsdl/WSTypeTranslator.h>
 #include <utility>
 
@@ -42,7 +44,7 @@ WSParserAttribute::WSParserAttribute(String name, const String& typeName)
     m_cxxTypeName = WSTypeTranslator::toCxxType(typeName);
 }
 
-String WSParserAttribute::generate(bool initialize) const
+String WSParserAttribute::generate(const bool initialize) const
 {
     constexpr int fieldNameWidth = 40;
     stringstream  str;
@@ -178,12 +180,7 @@ String WSParserComplexType::wsClassName(const String& name)
 void WSParserComplexType::printDeclarationIncludes(ostream& classDeclaration, const set<String>& usedClasses)
 {
     Strings includeFiles;
-    includeFiles.push_back("#include <sptk5/sptk.h>");
-    includeFiles.push_back("#include <sptk5/FieldList.h>");
-    includeFiles.push_back("#include <sptk5/db/QueryParameterList.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSBasicTypes.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSComplexType.h>");
-    includeFiles.push_back("#include <sptk5/wsdl/WSRestriction.h>");
+    includeFiles.push_back("#include \"CommonHeaders.h\"");
 
     for (const auto& usedClass: usedClasses)
     {
@@ -208,7 +205,7 @@ WSParserComplexType::Initializer WSParserComplexType::makeInitializer() const
             "m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
     }
 
-    for (const auto& [name, attribute]: m_attributes)
+    for (const auto& name: m_attributes | views::keys)
     {
         initializer.copyCtor.push_back("m_" + name + "(other.m_" + name + ")");
         initializer.moveCtor.push_back(
@@ -254,7 +251,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
     classDeclaration << "        return \"" << className.substr(1) << "\";\n";
     classDeclaration << "    }\n\n";
 
-    for (const auto& [name, value]: m_attributes)
+    for (const auto& name: m_attributes | views::keys)
     {
         attributeNames.push_back(name);
     }
@@ -376,12 +373,12 @@ void WSParserComplexType::generateSetFieldIndex(ostream& classDeclaration, const
 {
     if (!elementNames.empty())
     {
-        classDeclaration << "    WSComplexType::setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_"
+        classDeclaration << "    setElements(fieldNames(WSFieldIndex::Group::ELEMENTS), {&m_"
                          << elementNames.join(", &m_") << "});\n";
     }
     if (!attributeNames.empty())
     {
-        classDeclaration << "    WSComplexType::setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_"
+        classDeclaration << "    setAttributes(fieldNames(WSFieldIndex::Group::ATTRIBUTES), {&m_"
                          << attributeNames.join(", &m_") << "});\n";
     }
 }
@@ -392,7 +389,7 @@ void WSParserComplexType::appendClassAttributes(ostream& classDeclaration, Strin
     if (!m_attributes.empty())
     {
         classDeclaration << "   // Attributes\n";
-        for (const auto& [name, attr]: m_attributes)
+        for (const auto& attr: m_attributes | views::values)
         {
             classDeclaration << "   " << attr->generate(true) << ";\n";
             initializer.copyCtor.push_back("m_" + attr->name() + "(other.m_" + attr->name() + ")");
@@ -547,7 +544,7 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
 
     classImplementation << "using namespace " << serviceNamespace << ";\n\n";
 
-    classImplementation << "const sptk::Strings& " << className << "::fieldNames(WSFieldIndex::Group group)\n";
+    classImplementation << "const Strings& " << className << "::fieldNames(const WSFieldIndex::Group group)\n";
     classImplementation << "{\n";
     classImplementation << "    static const Strings _fieldNames { \"" << fieldNames.join("\", \"") << "\" };\n";
     classImplementation << "    static const Strings _elementNames { \"" << elementNames.join("\", \"") << "\" };\n";
@@ -574,7 +571,7 @@ void WSParserComplexType::printImplementationConstructors(ostream& classImplemen
     auto       tagName = makeTagName(className);
     const auto initializer = makeInitializer();
 
-    classImplementation << className << "::" << className << "(const char* elementName, bool optional)\n"
+    classImplementation << className << "::" << className << "(const char* elementName, const bool optional)\n"
                         << ": " << initializer.ctor.join(",\n  ") << endl
                         << "{\n";
     generateSetFieldIndex(classImplementation, elementNames, attributeNames);

@@ -31,6 +31,7 @@
 #include <sptk5/wsdl/WSParser.h>
 
 #include <fstream>
+#include <ranges>
 
 using namespace std;
 using namespace sptk;
@@ -610,8 +611,22 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     cmakeLists << "  " << sourceDirectory << "/" << wsdlFileName << ".cpp "
                << sourceDirectory << "/" << wsdlFileName << ".h\n";
 
+    if (!filesystem::exists(sourceDirectory + "/CommonHeaders.h"))
+    {
+        ofstream commonHeaders(sourceDirectory + "/CommonHeaders.h");
+        commonHeaders << "// This file is generated automatically.\n\n";
+        commonHeaders << "#pragma once\n\n";
+        commonHeaders << "#include <sptk5/sptk.h>\n";
+        commonHeaders << "#include <sptk5/FieldList.h>\n";
+        commonHeaders << "#include <sptk5/db/QueryParameterList.h>\n";
+        commonHeaders << "#include <sptk5/wsdl/WSBasicTypes.h>\n";
+        commonHeaders << "#include <sptk5/wsdl/WSComplexType.h>\n";
+        commonHeaders << "#include <sptk5/wsdl/WSRestriction.h>\n";
+        commonHeaders.close();
+    }
+
     Strings usedClasses;
-    for (const auto& [name, complexType]: m_complexTypeIndex.complexTypes())
+    for (const auto& complexType: m_complexTypeIndex.complexTypes() | views::values)
     {
         SourceModule sourceModule(String("C") + complexType->name(), sourceDirectory);
         sourceModule.open();
