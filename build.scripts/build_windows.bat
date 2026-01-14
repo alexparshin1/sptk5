@@ -2,8 +2,8 @@ REM Build SPTK installer in Windows
 REM @echo off
 
 cd "C:\workspace\sptk5"
-REM git reset --hard
-REM git pull
+git reset --hard
+git pull
 
 call "C:\Program Files\Microsoft Visual Studio\18\Community\Common7\Tools\VsDevCmd.bat"
 
@@ -39,7 +39,7 @@ if errorlevel 1 (
     exit /b %errorlevel%
 )
 
-"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build SPTK.aip 2>&1 >> build.log
+"C:\Program Files (x86)\Caphyon\Advanced Installer 23.3\bin\x86\advinst.exe" /build build.scripts\SPTK.aip 2>&1 >> build.log
 if errorlevel 1 (
     echo "Can't build installer"
     exit /b %errorlevel%
