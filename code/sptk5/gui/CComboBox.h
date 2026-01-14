@@ -269,7 +269,7 @@ public:
      * @param columnName std::string, new columnName
      * @param rows Strings, new rows
      */
-    void addRows(std::string columnName, Strings rows);
+    void addRows(const String& columnName, const Strings& rows);
 
     /**
      * Resizes the control and inside widgets.

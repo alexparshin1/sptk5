@@ -88,7 +88,7 @@ void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
 
     CPackedStrings& row = *listView->selectedRow();
 
-    if (strncmp(row[3], "Directory", 9) == 0)
+    if (row[3] == "Directory")
     {
         directoryClicked = true;
     }
@@ -103,7 +103,7 @@ void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
 
                 for (unsigned i = 0; i < selection.size(); i++)
                 {
-                    if (strncmp(row[3], "Directory", 9) != 0)
+                    if (row[3] == "Directory")
                     {
                         CPackedStrings& srow = selection[i];
                         fileNames.push_back(srow[1]);

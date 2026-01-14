@@ -43,181 +43,61 @@ using namespace sptk;
 
 CPackedStrings::CPackedStrings(int cnt, const char* strings[])
 {
-    // compute buffer size and offsets
-    auto offsetsSpace = cnt * sizeof(uint16_t);
-    auto sz = offsetsSpace + sizeof(uint16_t);
-
-    Buffer    buffer(offsetsSpace * sizeof(uint16_t));
-    auto*     offset = (uint16_t*) buffer.data();
-    uint16_t* len = offset + cnt;
-
-    buffer.fill(0, offsetsSpace * sizeof(uint16_t));
+    for (int i = 0; i < cnt; i++)
+    {
+        push_back(strings[i]);
+    }
 
     flags = 0;
     height = 0;
-    m_data = nullptr;
-
-    for (int i = 0; i < cnt; i++)
-    {
-        const char* s = strings[i];
-        auto        l = uint16_t(strlen(s) + 1);
-        offset[i] = uint16_t(sz);
-        len[i] = l;
-        sz += l;
-    }
-
-    m_size = uint16_t(sz);
-    m_buffer = malloc(m_size);
-
-    *(uint16_t*) m_buffer = uint16_t(cnt);
-    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
-
-    for (int j = 0; j < cnt; j++)
-    {
-        memcpy(pchar(m_buffer) + offset[j], strings[j], len[j]);
-    }
 }
 
 CPackedStrings::CPackedStrings(const Strings& strings)
-    : m_size(0)
-    , m_buffer(nullptr)
-    , m_data(nullptr)
+    : Strings(strings)
 {
-    operator=(strings);
 }
 
 CPackedStrings::CPackedStrings(FieldList& fields, int keyField)
 {
-    auto cnt = (int) fields.size();
-    int  rcnt = cnt;
-    if (keyField >= 0 && keyField < cnt)
-    {
-        // if keyField is used - do not store it as string
-        rcnt -= 1;
-    }
-
-    // compute buffer size and offsets
-    auto offsetsSpace = rcnt * sizeof(uint16_t);
-    auto sz = offsetsSpace + sizeof(uint16_t);
-
-    Buffer    buffer(offsetsSpace * sizeof(uint16_t));
-    auto*     offset = (uint16_t*) buffer.data();
-    uint16_t* len = offset + rcnt;
-
-    buffer.fill(0, offsetsSpace * sizeof(uint16_t));
+    const auto cnt = static_cast<int>(fields.size());
 
     flags = 0;
     height = 0;
-    m_data = nullptr;
 
-    int      j = 0;
-    uint64_t keyValue = 0;
-    Strings  strings;
+    int64_t keyValue = 0;
+
+    for (auto i = 0; i < cnt; i++)
     {
-        for (int i = 0; i < cnt; i++)
+        Field& field = fields[i];
+        if (i == keyField)
         {
-            Field& field = fields[i];
-            if (i == keyField)
-            {
-                keyValue = field.asInteger();
-                continue;
-            }
-            uint16_t l;
-            if (field.dataType() == VariantDataType::VAR_STRING)
-            { // conversion isn't required
-                l = uint16_t(field.dataSize() + 1);
-                strings.push_back(field.getString());
-            }
-            else
-            {
-                String str = field.asString();
-                strings.push_back(str);
-                l = uint16_t(str.length() + 1);
-            }
-            offset[j] = uint16_t(sz);
-            len[j] = l;
-            sz += l;
-            j++;
+            keyValue = field.asInteger();
+            continue;
         }
+        push_back(field.asString());
     }
-    m_size = uint16_t(sz);
-    m_buffer = malloc(m_size);
 
-    *(uint16_t*) m_buffer = uint16_t(cnt);
-    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
-    j = 0;
-    { /*alex*/
-        for (int i = 0; i < cnt; i++)
-        {
-            if (i == keyField)
-            {
-                continue;
-            }
-            memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
-            j++;
-        }
-    }
-    m_data = (void*) keyValue;
-}
-
-CPackedStrings::~CPackedStrings()
-{
-    free(m_buffer);
-}
-
-const char* CPackedStrings::operator[](uint16_t index) const
-{
-    uint16_t* offsets = (uint16_t*) m_buffer + 1;
-    return pchar(m_buffer) + offsets[index];
+    argument(keyValue);
 }
 
 CPackedStrings& CPackedStrings::operator=(const CPackedStrings& other)
 {
     if (&other != this)
     {
-        m_data = other.m_data;
-        if (m_size != other.m_size)
-        {
-            m_size = other.m_size;
-            m_buffer = realloc(m_buffer, m_size);
-        }
-        memcpy(m_buffer, other.m_buffer, m_size);
+        Strings::operator=(other);
+        flags = other.flags;
+        height = other.height;
     }
     return *this;
 }
 
-CPackedStrings& CPackedStrings::operator=(const Strings& strings)
+CPackedStrings& CPackedStrings::operator=(const Strings& other)
 {
-    size_t    cnt = strings.size();
-    auto      offsetsSpace = int(cnt * sizeof(uint16_t));
-    auto*     offset = (uint16_t*) alloca(offsetsSpace * 2);
-    uint16_t* len = offset + cnt;
-
-    flags = 0;
-    height = 0;
-    m_data = (void*) (uint64_t) strings.argument();
-
-    auto sz = offsetsSpace + sizeof(uint16_t);
-
-    // compute buffer size and offsets
-    for (size_t i = 0; i < cnt; i++)
+    if (&other != this)
     {
-        auto l = uint16_t(strings[i].length() + 1);
-        offset[i] = uint16_t(sz);
-        len[i] = l;
-        sz += l;
+        Strings::operator=(other);
+        flags = 0;
+        height = 0;
     }
-
-    // create buffer
-    m_size = uint16_t(sz);
-    m_buffer = realloc(m_buffer, m_size);
-
-    *(uint16_t*) m_buffer = uint16_t(cnt);
-    memcpy((uint16_t*) m_buffer + 1, offset, (size_t) offsetsSpace);
-    for (size_t j = 0; j < cnt; j++)
-    {
-        memcpy(pchar(m_buffer) + offset[j], strings[j].c_str(), len[j]);
-    }
-
     return *this;
 }

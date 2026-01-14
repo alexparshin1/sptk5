@@ -54,23 +54,8 @@ using cpchar = const char*;
  * The idea was to minimize the memory allocation, and decrease the total required memory.
  * Also, contains special attributes for CListView row support.
  */
-class SP_EXPORT CPackedStrings
+class SP_EXPORT CPackedStrings : public Strings
 {
-    /**
-     * Number of strings
-     */
-    uint16_t m_size;
-
-    /**
-     * Strings buffer
-     */
-    void* m_buffer;
-
-    /**
-     * User data
-     */
-    void* m_data;
-
 
 public:
     /**
@@ -102,20 +87,7 @@ public:
     /**
          * Destructor
          */
-    ~CPackedStrings();
-
-    /**
-     * Strings count
-     */
-    [[nodiscard]] uint16_t size() const
-    {
-        return *(uint16_t*) m_buffer;
-    }
-
-    /**
-     * String access by index
-     */
-    const char* operator[](uint16_t index) const;
+    ~CPackedStrings() override = default;
 
     /**
      * Assignment operator
@@ -126,38 +98,6 @@ public:
      * Assignment operator
      */
     CPackedStrings& operator=(const Strings&);
-
-    /**
-     * Sets user_data as void *
-     */
-    [[maybe_unused]] void user_data(void* d)
-    {
-        m_data = d;
-    }
-
-    /**
-     * Returns user_data as void *
-     */
-    [[nodiscard]] void* user_data() const
-    {
-        return m_data;
-    }
-
-    /**
-     * Sets user_data as integer
-     */
-    void argument(int32_t arg)
-    {
-        m_data = (void*) (uint64_t) arg;
-    }
-
-    /**
-     * Returns user_data as integer
-     */
-    [[nodiscard]] int32_t argument() const
-    {
-        return (int32_t) (uint64_t) m_data;
-    }
 
     /**
      * Row height for CListView

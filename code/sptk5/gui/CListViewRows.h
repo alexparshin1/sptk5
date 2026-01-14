@@ -177,7 +177,7 @@ public:
      * @param row CPackedStrings *, the row pointer
      * @returns the row index, or -1 if not found
      */
-    int32_t indexOf(CPackedStrings* row) const;
+    int32_t indexOf(const CPackedStrings* row) const;
 
     /**
      * Returns the row count

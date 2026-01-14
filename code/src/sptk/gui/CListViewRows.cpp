@@ -49,12 +49,12 @@ CListViewRows::~CListViewRows()
 
 void CListViewRows::truncate(unsigned cnt)
 {
-    size_t rowCount = m_rows.size();
-    if (cnt < rowCount)
+    if (const auto rowCount = m_rows.size();
+        cnt < rowCount)
     {
         for (size_t i = cnt; i < rowCount; i++)
         {
-            auto* row = (CPackedStrings*) m_rows[i];
+            const auto* row = m_rows[i];
             m_fullHeight -= row->height;
             delete row;
         }
@@ -62,12 +62,12 @@ void CListViewRows::truncate(unsigned cnt)
     }
 }
 
-unsigned CListViewRows::add(CPackedStrings* ss)
+unsigned CListViewRows::add(CPackedStrings* row)
 {
-    int lineNumber = size();
-    m_rows.push_back(ss);
-    m_fullHeight += ss->height;
-    return (unsigned) lineNumber;
+    const int lineNumber = size();
+    m_rows.push_back(row);
+    m_fullHeight += row->height;
+    return static_cast<unsigned>(lineNumber);
 }
 
 unsigned CListViewRows::insert(unsigned position, CPackedStrings* ss)
@@ -79,8 +79,8 @@ unsigned CListViewRows::insert(unsigned position, CPackedStrings* ss)
 
 unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 {
-    auto* s = (CPackedStrings*) m_rows[index];
-    int   oldh = s->height;
+    const auto* s = m_rows[index];
+    const int   oldh = s->height;
     delete s;
     m_fullHeight += ss->height - oldh;
     m_rows[index] = ss;
@@ -89,7 +89,7 @@ unsigned CListViewRows::update(unsigned index, CPackedStrings* ss)
 
 void CListViewRows::clear()
 {
-    for (auto* packedStrings: m_rows)
+    for (const auto* packedStrings: m_rows)
     {
         delete packedStrings;
     }
@@ -101,7 +101,7 @@ void CListViewRows::remove(unsigned index)
 {
     if (index < m_rows.size())
     {
-        auto* row = (CPackedStrings*) m_rows[index];
+        const auto* row = m_rows[index];
         m_fullHeight -= row->height;
         delete row;
         m_rows.erase(m_rows.begin() + index);
@@ -112,34 +112,34 @@ int CListViewRows::currentSortColumn;
 
 bool CListViewRows::compare_strings(const PPackedStrings& a, const PPackedStrings& b)
 {
-    return strcmp((*a)[currentSortColumn], (*b)[currentSortColumn]) < 0;
+    return (*a)[currentSortColumn] < (*b)[currentSortColumn];
 }
 
 bool CListViewRows::compare_integers(const PPackedStrings& a, const PPackedStrings& b)
 {
-    int i1 = string2int((*a)[currentSortColumn]);
-    int i2 = string2int((*b)[currentSortColumn]);
+    const auto i1 = string2int((*a)[currentSortColumn]);
+    const auto i2 = string2int((*b)[currentSortColumn]);
     return i1 < i2;
 }
 
 bool CListViewRows::compare_floats(const PPackedStrings& a, const PPackedStrings& b)
 {
-    double d1 = string2double((*a)[currentSortColumn]);
-    double d2 = string2double((*b)[currentSortColumn]);
+    const auto d1 = string2double((*a)[currentSortColumn]);
+    const auto d2 = string2double((*b)[currentSortColumn]);
     return d1 < d2;
 }
 
 bool CListViewRows::compare_dates(const PPackedStrings& a, const PPackedStrings& b)
 {
-    DateTime d1((*a)[currentSortColumn]);
-    DateTime d2((*b)[currentSortColumn]);
+    const DateTime d1((*a)[currentSortColumn].c_str());
+    const DateTime d2((*b)[currentSortColumn].c_str());
     return d1 < d2;
 }
 
 bool CListViewRows::compare_datetimes(const PPackedStrings& a, const PPackedStrings& b)
 {
-    DateTime d1((*a)[currentSortColumn]);
-    DateTime d2((*b)[currentSortColumn]);
+    const DateTime d1((*a)[currentSortColumn].c_str());
+    const DateTime d2((*b)[currentSortColumn].c_str());
     return d1 < d2;
 }
 
@@ -148,35 +148,36 @@ void CListViewRows::sort()
     fl_cursor(FL_CURSOR_WAIT);
     Fl::check();
 
-    size_t m_size = m_rows.size();
-    if (m_sortColumn >= 0 && m_size > 1)
+    if (const auto m_size = m_rows.size();
+        m_sortColumn >= 0 && m_size > 1)
     {
-        CListViewRows::currentSortColumn = m_sortColumn;
+        currentSortColumn = m_sortColumn;
         switch (m_sortColumnType)
         {
-            case VariantDataType::VAR_BOOL:
-            case VariantDataType::VAR_INT:
-                std::sort(m_rows.begin(), m_rows.end(), compare_integers);
+            using enum VariantDataType;
+            case VAR_BOOL:
+            case VAR_INT:
+                ranges::sort(m_rows, compare_integers);
                 break;
-            case VariantDataType::VAR_FLOAT:
-                std::sort(m_rows.begin(), m_rows.end(), compare_floats);
+            case VAR_FLOAT:
+                ranges::sort(m_rows, compare_floats);
                 break;
-            case VariantDataType::VAR_DATE:
-                std::sort(m_rows.begin(), m_rows.end(), compare_dates);
+            case VAR_DATE:
+                ranges::sort(m_rows, compare_dates);
                 break;
-            case VariantDataType::VAR_DATE_TIME:
-                std::sort(m_rows.begin(), m_rows.end(), compare_datetimes);
+            case VAR_DATE_TIME:
+                ranges::sort(m_rows, compare_datetimes);
                 break;
             default:
-                std::sort(m_rows.begin(), m_rows.end(), compare_strings);
+                ranges::sort(m_rows, compare_strings);
                 break;
         }
         if (!m_sortAscending)
         {
             // reversing sort order for the descending sort
-            size_t cnt = m_rows.size();
-            size_t mid = cnt / 2;
-            size_t j = cnt - 1;
+            const auto cnt = m_rows.size();
+            const auto mid = cnt / 2;
+            auto       j = cnt - 1;
             for (size_t i = 0; i < mid; i++, j--)
             {
                 CPackedStrings* item = m_rows[i];
@@ -208,12 +209,12 @@ void CListViewRows::sortAscending(bool ascending, bool sortNow)
     }
 }
 
-int CListViewRows::indexOf(CPackedStrings* ss) const
+int CListViewRows::indexOf(const CPackedStrings* ss) const
 {
-    auto itor = find(m_rows.begin(), m_rows.end(), ss);
+    const auto itor = ranges::find(m_rows, ss);
     if (itor == m_rows.end())
     {
         return -1;
     }
-    return (int) distance(m_rows.begin(), itor);
+    return static_cast<int>(distance(m_rows.begin(), itor));
 }

@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <sptk5/String.h>
 
 #ifdef _WIN32
@@ -160,7 +161,7 @@ public:
      * Sets user data as integer.
      * @param arg                 New value for user data.
      */
-    void argument(int64_t arg)
+    void argument(const int64_t arg)
     {
         m_userData = arg;
     }

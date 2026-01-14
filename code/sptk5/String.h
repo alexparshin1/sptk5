@@ -29,21 +29,20 @@
 #include <sptk5/VariantStorageClient.h>
 #include <sptk5/string_ext.h>
 
-#include <algorithm>
 #include <string>
 
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 class Strings;
 
 /**
- * String with ID
- * Extended version of std::string that supports an integer string ID
+ * String with ID.
+ * Extended version of std::string that supports an integer string ID.
  */
 class SP_EXPORT String
     : public std::string
@@ -51,7 +50,7 @@ class SP_EXPORT String
 {
 public:
     /**
-     * Default constructor
+     * Default constructor.
      */
     String()
         : m_id(0)
@@ -59,21 +58,21 @@ public:
     }
 
     /**
-     * Copy constructor
-     * @param str                Other object
+     * Copy constructor.
+     * @param other             The other object.
      */
     String(const String& other) = default;
 
     /**
-     * Move constructor
-     * @param other                Other object
+     * Move constructor.
+     * @param other             The other object.
      */
     String(String&& other) noexcept = default;
 
     /**
-     * Constructor
-     * @param str                Source string
-     * @param id                 Optional string id
+     * Constructor.
+     * @param str                Source string.
+     * @param id                 Optional string id.
      */
     String(const std::string& str, int64_t id = 0)
         : std::string(str)
@@ -82,9 +81,8 @@ public:
     }
 
     /**
-     * Constructor
-     * @param str                Source string
-     * @param len                Optional string id
+     * Constructor.
+     * @param str                Source string.
      */
     String(const char* str)
         : std::string(str)
@@ -92,10 +90,10 @@ public:
     }
 
     /**
-     * Constructor
-     * @param str                Source string
-     * @param len                String length
-     * @param id                 String id
+     * Constructor.
+     * @param str                Source string.
+     * @param len                String length.
+     * @param id                 String id.
      */
     String(const char* str, size_t len, int64_t id = 0)
         : std::string(str, len)
@@ -104,10 +102,10 @@ public:
     }
 
     /**
-     * Constructor
-     * @param len                String length
-     * @param ch                Fill character
-     * @param id                Optional string id
+     * Constructor.
+     * @param len                String length.
+     * @param ch                Fill character.
+     * @param id                Optional string id.
      */
     String(size_t len, char ch, int64_t id = 0)
         : std::string(len, ch)
@@ -116,13 +114,13 @@ public:
     }
 
     /**
-     * Destructor
+     * Destructor.
      */
     ~String() noexcept override = default;
 
     /**
-     * Assignment operator
-     * @param si                 Source string
+     * Assignment operator.
+     * @param si                 Source string.
      */
     String& operator=(const std::string& si)
     {
@@ -132,20 +130,20 @@ public:
     }
 
     /**
-     * Copy assignment operator
-     * @param other             Source string
+     * Copy assignment operator.
+     * @param other             Source string.
      */
     String& operator=(const String& other) = default;
 
     /**
-     * Move assignment operator
-     * @param other             Source string
+     * Move assignment operator.
+     * @param other             Source string.
      */
     String& operator=(String&& other) noexcept = default;
 
     /**
-     * Assignment operator
-     * @param str                Source string
+     * Assignment operator.
+     * @param str                Source string.
      */
     String& operator=(const char* str)
     {
@@ -155,15 +153,15 @@ public:
     }
 
     /**
-     * Returns string ID
+     * Returns string ID.
      */
-    int64_t ident() const
+    [[nodiscard]] int64_t ident() const
     {
         return m_id;
     }
 
     /**
-     * Sets string ID
+     * Sets string ID.
      */
     void ident(int64_t id)
     {
@@ -171,86 +169,86 @@ public:
     }
 
     /**
-     * Check if string is in the list
-     * @param list              List of values
-     * @return true if string is in the list
+     * Check if the string is in the list.
+     * @param list              List of values.
+     * @return true if string is in the list.
      */
-    bool in(std::initializer_list<String> list) const;
+    [[nodiscard]] bool in(std::initializer_list<String> list) const;
 
     /**
-     * Checks if string is matching with regular expression pattern
-     * @param pattern           Regular expression pattern
+     * Checks if the string is matching with the regular expression pattern.
+     * @param pattern           Regular expression pattern.
      * @param options           Regular expression options (@see class CRegExp)
      */
-    bool matches(const String& pattern, const String& options = String()) const;
+    [[nodiscard]] bool matches(const String& pattern, const String& options = String()) const;
 
     /**
-     * Returns strings produced from current string by splitting it using regular expression pattern
-     * @param pattern           Regular expression pattern
+     * Returns strings produced from the current string by splitting it using the regular expression pattern.
+     * @param pattern           Regular expression pattern.
      */
-    Strings split(const String& pattern) const;
+    [[nodiscard]] Strings split(const String& pattern) const;
 
     /**
-     * Returns string with regular expression pattern replaced to replacement string
+     * Returns string with the regular expression pattern replaced to the replacement string.
      *
-     * Replacement string may optionally use references to pattern's group
-     * @return Processed string
-     * @param pattern           Regular expression pattern
-     * @param replacement       Replacement string
+     * Replacement string may optionally use references to pattern's group.
+     * @return Processed string.
+     * @param pattern           Regular expression pattern.
+     * @param replacement       Replacement string.
      */
-    String replace(const String& pattern, const String& replacement) const;
+    [[nodiscard]] String replace(const String& pattern, const String& replacement) const;
 
     /**
-     * Returns upper case version of the string
+     * Returns upper case version of the string.
      */
-    String toUpperCase() const;
+    [[nodiscard]] String toUpperCase() const;
 
     /**
-     * Returns upper case version of the string
+     * Returns upper case version of the string.
      */
-    String toLowerCase() const;
+    [[nodiscard]] String toLowerCase() const;
 
     /**
-     * Converts string to integer
+     * Converts string to integer.
      */
-    int toInt() const;
+    [[nodiscard]] int toInt() const;
 
     /**
-     * Returns true if the string starts from subject
-     * @param subject           Subject to look for
+     * Returns true if the string starts from the subject.
+     * @param subject           Subject to look for.
      */
-    bool startsWith(const String& subject) const;
+    [[nodiscard]] bool startsWith(const String& subject) const;
 
     /**
-     * Returns true if the string contains subject
-     * @param subject           Subject to look for
+     * Returns true if the string contains the subject.
+     * @param subject           Subject to look for.
      */
-    bool contains(const String& subject) const;
+    [[nodiscard]] bool contains(const String& subject) const;
 
     /**
-     * Returns true if the string ends with subject
-     * @param subject           Subject to look for
+     * Returns true if the string ends with the subject.
+     * @param subject           Subject to look for.
      */
-    bool endsWith(const String& subject) const;
+    [[nodiscard]] bool endsWith(const String& subject) const;
 
     /**
-     * Returns trimmed string
+     * Returns trimmed string.
      */
-    String trim() const;
+    [[nodiscard]] String trim() const;
 
     static VariantDataType variantDataType()
     {
         return VariantDataType::VAR_STRING;
     }
 
-    size_t dataSize() const override
+    [[nodiscard]] size_t dataSize() const override
     {
         return size();
     }
 
 private:
     /**
-     * String ID
+     * String ID.
      */
     int64_t m_id {0};
 };

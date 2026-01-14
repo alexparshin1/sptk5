@@ -629,18 +629,16 @@ void CBaseListBox::addRow(int rowId, const Strings& ss)
     m_list->addRow(rowId, ss);
 }
 
-void CBaseListBox::addRows(string columnName, Strings strings)
+void CBaseListBox::addRows(const String& columnName, const Strings& rows)
 {
     CColumn     newColumn(columnName, VariantDataType::VAR_STRING, w() - labelWidth(), true);
     CColumnList newColumns;
 
     newColumns.push_back(newColumn);
     columns(newColumns);
-    size_t cnt = strings.size();
 
-    for (size_t i = 0; i < cnt; i++)
+    for (const String& str: rows)
     {
-        String& str = strings[i];
         cpchar  strs[2] = {str.c_str(), nullptr};
         auto*   psl = new CPackedStrings(1, strs);
         int32_t id = (int32_t) str.ident();

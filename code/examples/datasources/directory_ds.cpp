@@ -26,15 +26,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
 #include <sptk5/cgui>
+#include <sptk5/cutils>
 
 using namespace std;
 using namespace sptk;
 
-CListView* filesListView;
+namespace {
+CListView*   filesListView;
 DirectoryDS* directoryDS;
-CInput* directoryInput;
+CInput*      directoryInput;
+} // namespace
 
 void exit_cb(Fl_Widget* w, void*)
 {
@@ -43,7 +45,12 @@ void exit_cb(Fl_Widget* w, void*)
 
 void go_cb(Fl_Widget*, void*)
 {
-    directoryDS->directory(directoryInput->data().asString());
+    auto directory = directoryInput->data().asString();
+    if (directory.empty())
+    {
+        directory = ".";
+    }
+    directoryDS->directory(directory);
     filesListView->fill(*directoryDS);
 }
 
@@ -53,9 +60,9 @@ void list_view_cb(Fl_Widget* w, void*)
     if (listView->eventType() == CEvent::MOUSE_DOUBLE_CLICK)
     {
         CPackedStrings& row = *listView->selectedRow();
-        if (strncmp(row[3], "Directory", 9) == 0)
+        if (row[3] == "Directory")
         {
-            String fullPath = directoryDS->directory() + row[1];
+            const String fullPath = directoryDS->directory() + row[1];
             directoryDS->directory(fullPath);
             directoryInput->data(fullPath);
             listView->fill(*directoryDS);
@@ -85,7 +92,7 @@ int main(int argc, char* argv[])
         goButton.callback(go_cb);
         agroup.end();
 
-        CGroup agroup2("", 10, CLayoutAlign::BOTTOM);
+        CGroup  agroup2("", 10, CLayoutAlign::BOTTOM);
         CButton exitButton(CButtonKind::EXIT_BUTTON, CLayoutAlign::RIGHT);
         exitButton.callback(exit_cb);
         agroup2.end();

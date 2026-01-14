@@ -28,13 +28,11 @@
 
 #include <FL/Fl_Group.H>
 
-#include <sptk5/CSmallPixmapIDs.h>
 #include <sptk5/DataSource.h>
 
 #include <sptk5/PackedStrings.h>
 #include <sptk5/gui/CColumn.h>
 #include <sptk5/gui/CControl.h>
-#include <sptk5/gui/CDataControl.h>
 #include <sptk5/gui/CListViewRows.h>
 #include <sptk5/gui/CListViewSelection.h>
 #include <sptk5/gui/CScrollBar.h>
@@ -589,7 +587,7 @@ public:
      */
     virtual int top() const
     {
-        return (int) m_top;
+        return static_cast<int>(m_top);
     }
 
     /**
@@ -643,7 +641,7 @@ public:
      */
     int visible() const
     {
-        return (int) Fl_Widget::visible();
+        return static_cast<int>(Fl_Widget::visible());
     }
 
     /**
@@ -662,7 +660,7 @@ public:
      * Defines which information list view is working with in data() method - key value, item index, or item caption.
      * @see CListViewDataMode for more information
      */
-    void dataMode(CListViewDataMode dm)
+    void dataMode(const CListViewDataMode dm)
     {
         m_dataMode = dm;
     }
@@ -899,7 +897,7 @@ public:
      */
     void addColumn(const String& colname, VariantDataType type, uint32_t cwidth = 100, bool cvisible = true)
     {
-        m_columnList.push_back(CColumn(colname, type, (short) cwidth, cvisible));
+        m_columnList.push_back(CColumn(colname, type, static_cast<short>(cwidth), cvisible));
     }
 
     /**
