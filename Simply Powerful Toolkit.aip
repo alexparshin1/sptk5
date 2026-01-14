@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="22.6" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="13.0" version="23.3" Modules="professional" RootPath="." Language="en" Id="{D95E6C6D-A15A-4DBF-ACF9-FD9559D0BEE2}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_PREREQ_REPAIR_ENABLED" MultiBuildValue="DefaultBuild:1"/>
@@ -396,18 +396,18 @@
     <ROW File="gtest.dll" Component_="gtest.dll" FileName="gtest.dll" Attributes="0" SourcePath="code\w64\bin\Release\gtest.dll" SelfReg="false"/>
     <ROW File="gtest_main.dll" Component_="gtest_main.dll" FileName="GTEST_~1.DLL|gtest_main.dll" Attributes="0" SourcePath="code\w64\bin\Release\gtest_main.dll" SelfReg="false"/>
     <ROW File="sptk_unit_tests.exe" Component_="sptk_unit_tests.exe" FileName="SPTK_U~1.EXE|sptk_unit_tests.exe" Attributes="0" SourcePath="code\w64\test\Release\sptk_unit_tests.exe" SelfReg="false" DigSign="true"/>
-    <ROW File="libmariadb.dll" Component_="libmariadb.dll" FileName="LIBMAR~1.DLL|libmariadb.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.dll" SelfReg="false"/>
-    <ROW File="caching_sha2_password.dll" Component_="caching_sha2_password.dll" FileName="CACHIN~1.DLL|caching_sha2_password.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\caching_sha2_password.dll" SelfReg="false"/>
-    <ROW File="mysql_clear_password.dll" Component_="mysql_clear_password.dll" FileName="MYSQL_~1.DLL|mysql_clear_password.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\mysql_clear_password.dll" SelfReg="false"/>
-    <ROW File="sha256_password.dll" Component_="sha256_password.dll" FileName="SHA256~1.DLL|sha256_password.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\sha256_password.dll" SelfReg="false"/>
-    <ROW File="libcrypto3x64.dll" Component_="libcrypto3x64.dll" FileName="LIBCRY~1.DLL|libcrypto-3-x64.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\OpenSSL-Win64\libcrypto-3-x64.dll" SelfReg="false"/>
-    <ROW File="libssl3x64.dll" Component_="libssl3x64.dll" FileName="LIBSSL~1.DLL|libssl-3-x64.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\OpenSSL-Win64\libssl-3-x64.dll" SelfReg="false"/>
-    <ROW File="pcre28.dll" Component_="pcre28.dll" FileName="pcre2-8.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\PCRE2\bin\pcre2-8.dll" SelfReg="false"/>
-    <ROW File="libiconv2.dll" Component_="libiconv2.dll" FileName="LIBICO~1.DLL|libiconv-2.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\PostgreSQL\17\bin\libiconv-2.dll" SelfReg="false"/>
-    <ROW File="libintl9.dll" Component_="libintl9.dll" FileName="LIBINT~1.DLL|libintl-9.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\PostgreSQL\17\bin\libintl-9.dll" SelfReg="false"/>
-    <ROW File="libpq.dll" Component_="libpq.dll" FileName="libpq.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\PostgreSQL\17\bin\libpq.dll" SelfReg="false"/>
-    <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\zlib\bin\zlib.dll" SelfReg="false"/>
-    <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="LIBWIN~1.DLL|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\..\..\Program Files\PostgreSQL\17\bin\libwinpthread-1.dll" SelfReg="false"/>
+    <ROW File="libmariadb.dll" Component_="libmariadb.dll" FileName="LIBMAR~1.DLL|libmariadb.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.dll" SelfReg="false"/>
+    <ROW File="caching_sha2_password.dll" Component_="caching_sha2_password.dll" FileName="CACHIN~1.DLL|caching_sha2_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\caching_sha2_password.dll" SelfReg="false"/>
+    <ROW File="mysql_clear_password.dll" Component_="mysql_clear_password.dll" FileName="MYSQL_~1.DLL|mysql_clear_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\mysql_clear_password.dll" SelfReg="false"/>
+    <ROW File="sha256_password.dll" Component_="sha256_password.dll" FileName="SHA256~1.DLL|sha256_password.dll" Attributes="0" SourcePath="..\..\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\plugin\sha256_password.dll" SelfReg="false"/>
+    <ROW File="libcrypto3x64.dll" Component_="libcrypto3x64.dll" FileName="LIBCRY~1.DLL|libcrypto-3-x64.dll" Attributes="0" SourcePath="..\..\Program Files\OpenSSL-Win64\libcrypto-3-x64.dll" SelfReg="false"/>
+    <ROW File="libssl3x64.dll" Component_="libssl3x64.dll" FileName="LIBSSL~1.DLL|libssl-3-x64.dll" Attributes="0" SourcePath="..\..\Program Files\OpenSSL-Win64\libssl-3-x64.dll" SelfReg="false"/>
+    <ROW File="pcre28.dll" Component_="pcre28.dll" FileName="pcre2-8.dll" Attributes="0" SourcePath="..\..\Program Files\PCRE2\bin\pcre2-8.dll" SelfReg="false"/>
+    <ROW File="libiconv2.dll" Component_="libiconv2.dll" FileName="LIBICO~1.DLL|libiconv-2.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libiconv-2.dll" SelfReg="false"/>
+    <ROW File="libintl9.dll" Component_="libintl9.dll" FileName="LIBINT~1.DLL|libintl-9.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libintl-9.dll" SelfReg="false"/>
+    <ROW File="libpq.dll" Component_="libpq.dll" FileName="libpq.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libpq.dll" SelfReg="false"/>
+    <ROW File="zlib.dll" Component_="zlib.dll" FileName="zlib.dll" Attributes="0" SourcePath="..\..\Program Files\zlib\bin\zlib.dll" SelfReg="false"/>
+    <ROW File="libwinpthread1.dll" Component_="libwinpthread1.dll" FileName="LIBWIN~1.DLL|libwinpthread-1.dll" Attributes="0" SourcePath="..\..\Program Files\PostgreSQL\18\bin\libwinpthread-1.dll" SelfReg="false"/>
     <ROW File="mycert.pem" Component_="mycert.pem" FileName="mycert.pem" Attributes="0" SourcePath="code\test\test_ssl_keys\mycert.pem" SelfReg="false"/>
     <ROW File="showcert.sh" Component_="mycert.pem" FileName="showcert.sh" Attributes="0" SourcePath="code\test\test_ssl_keys\showcert.sh" SelfReg="false"/>
     <ROW File="test.cert" Component_="mycert.pem" FileName="TEST~1.CER|test.cert" Attributes="0" SourcePath="code\test\test_ssl_keys\test.cert" SelfReg="false"/>
@@ -618,7 +618,7 @@
     <ROW Action="AI_ResolveKnownFolders" Sequence="53"/>
     <ROW Action="AI_EnableDebugLog" Sequence="51"/>
     <ROW Action="AI_DETECT_MODERNWIN" Condition="(VersionNT &gt;= 603)" Sequence="54" MsiKey="AI_DETECT_MODERNWIN"/>
-    <ROW Action="AI_DETECT_WINTHEME" Condition="(VersionNT &gt;= 603)" Sequence="55" MsiKey="AI_DETECT_WINTHEME"/>
+    <ROW Action="AI_DETECT_WINTHEME" Condition="(VersionNT &gt;= 1000)" Sequence="55" MsiKey="AI_DETECT_WINTHEME"/>
     <ROW Action="AI_AppSearchEx" Sequence="101"/>
     <ROW Action="AI_MigrateInstallerProps" Condition="SETUPEXEDIR AND ((UILevel = 2) OR (UILevel = 3))" Sequence="6598"/>
     <ROW Action="AI_VerifyPrereq" Sequence="1101"/>
@@ -678,7 +678,7 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
-    <ROW PrereqKey="C4FE6FD5B7C4D07B3A313E754A9A6A8" DisplayName="Visual C++ Redistributable for Visual Studio 2015-2022 x64" VersionMin="14.40" SetupFileUrl="Prerequisites\Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Location="0" ExactSize="0" WinNTVersions="Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" WinNT64Versions="Windows 7 RTM x64, Windows Server 2008 R2 RTM x64" Operator="1" NoUiComLine="/q /norestart" Options="xf" TargetName="Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Feature="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
+    <ROW PrereqKey="C4FE6FD5B7C4D07B3A313E754A9A6A8" DisplayName="Visual C++ Redistributable for Visual Studio 2015-2022 x64" VersionMin="14.40" SetupFileUrl="Prerequisites\Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Location="0" ExactSize="0" WinNTVersions="Windows 9x/ME/NT/2000/XP/Vista/Windows 7/Windows 8 x86/Windows 8.1 x86/Windows 10 x86" WinNT64Versions="Windows 7 RTM x64, Windows Server 2008 R2 RTM x64" Operator="1" NoUiComLine=" /q /norestart" Options="xf" TargetName="Visual C++ Redistributable for Visual Studio 2015-2022\VC_redist.x64.exe" Feature="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
     <ATTRIBUTE name="PrereqsOrder" value="C4FE6FD5B7C4D07B3A313E754A9A6A8"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
