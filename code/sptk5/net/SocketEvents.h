@@ -26,10 +26,6 @@
 
 #pragma once
 
-#include "sptk5/SystemException.h"
-#include <map>
-#include <mutex>
-#include <sptk5/Exception.h>
 #include <sptk5/net/Socket.h>
 #include <sptk5/net/SocketPool.h>
 #include <sptk5/threads/Counter.h>
@@ -53,7 +49,7 @@ public:
      * @brief Constructor
      * @param name               Logical name for event manager (also the thread name)
      * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in event monitoring loop
+     * @param timeout            Timeout in the event monitoring loop
      * @param triggerMode        Socket event trigger mode
      * @param maxEvents          Maximum number of events per poll
      */

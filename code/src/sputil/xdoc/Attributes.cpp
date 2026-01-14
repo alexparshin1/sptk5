@@ -26,6 +26,8 @@
 
 #include <sptk5/xdoc/Attributes.h>
 
+#include <algorithm>
+
 using namespace sptk;
 using namespace xdoc;
 

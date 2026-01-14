@@ -40,9 +40,9 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
         throw Exception("Error calling EVP_CIPHER_CTX_new()");
     }
 
-    /* Initialise the encryption operation. IMPORTANT - ensure you use a key
+    /* Initialize the encryption operation. IMPORTANT - ensure you use a key
      * and IV size appropriate for your cipher
-     * In this example we are using 256-bit AES (i.e. a 256-bit key). The
+     * In this example we are using 256-bit AES (i.e., a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
     if (constexpr int minimalKeyLength = 32;

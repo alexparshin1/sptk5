@@ -29,8 +29,6 @@
 #include <source_location>
 #include <sptk5/Strings.h>
 #include <sptk5/sptk.h>
-#include <sstream>
-#include <stdexcept>
 
 namespace sptk {
 
@@ -71,7 +69,7 @@ class SP_EXPORT Exception : public std::exception
     String m_description;
 
     /**
-     * The complete error information combining everything together
+     * The complete error information combining everything.
      */
     String m_fullMessage;
 
@@ -79,36 +77,36 @@ public:
     /**
      * @brief Constructor
      * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * @param location          The location where the exception occurs
+     * @param description       The optional description information.
      */
     explicit Exception(String text, const std::source_location& location = std::source_location::current(), String description = String()) DOESNT_THROW;
 
     /**
-     * @brief Returns complete text of exception
+     * @brief Returns complete text of exception.
      */
     [[nodiscard]] const char* what() const noexcept override;
 
     /**
-     * @brief Returns exception message without file name, line number, or description
+     * @brief Returns the exception message without the file name, line number, or description.
      */
     [[nodiscard]] String message() const;
 
     /**
-     * @brief Returns exception location
+     * @brief Returns exception location.
      */
     [[nodiscard]] std::source_location location() const;
 
     /**
-     * @brief Returns exception description
+     * @brief Returns exception description.
      */
     [[nodiscard]] String description() const;
 };
 
 /**
- * @brief Repeat operation exception
+ * @brief Repeat operation exception.
  *
- * Thrown when operation should be repeated.
+ * Thrown when the operation should be repeated.
  */
 class SP_EXPORT RepeatOperationException : public Exception
 {
@@ -117,101 +115,101 @@ public:
 };
 
 /**
- * @brief Timeout exception
+ * @brief Timeout exception.
  *
- * Thrown when timeout error occurs.
+ * Thrown when the timeout error occurs.
  */
 class SP_EXPORT TimeoutException : public Exception
 {
 public:
     /**
-     * Constructor
-     * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * Constructor.
+     * @param text              The exception text.
+     * @param location          The location where the exception occurs.
+     * @param description       The optional description information.
      */
     [[maybe_unused]] TimeoutException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
-     * @brief Copy constructor
-     * @param other             Other exception object
+     * @brief Copy constructor.
+     * @param other             The other exception object.
      */
     TimeoutException(const TimeoutException& other) = default;
 };
 
 /**
- * @brief Connection exception
+ * @brief Connection exception.
  *
- * Thrown when connection error occurs.
+ * Thrown when the connection error occurs.
  */
 class SP_EXPORT ConnectionException : public Exception
 {
 public:
     /**
-     * Constructor
-     * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * Constructor.
+     * @param text              The exception text.
+     * @param location          The location where the exception occurs.
+     * @param description       The optional description information.
      */
     explicit ConnectionException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
-     * @brief Copy constructor
-     * @param other             Other exception object
+     * @brief Copy constructor.
+     * @param other             The other exception object.
      */
     ConnectionException(const ConnectionException& other) = default;
 };
 
 /**
- * @brief Database operation exception
+ * @brief Database operation exception.
  *
- * Thrown when database operation error occurs.
+ * Thrown when the database operation error occurs.
  */
 class SP_EXPORT DatabaseException : public Exception
 {
 public:
     /**
-     * @brief Constructor
-     * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * @brief Constructor.
+     * @param text              The exception text.
+     * @param location          The location where the exception occurs.
+     * @param description       The optional description information.
      */
     DatabaseException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
-     * @brief Copy constructor
-     * @param other             Other exception object
+     * @brief Copy constructor.
+     * @param other             The other exception object.
      */
     DatabaseException(const DatabaseException& other) = default;
 };
 
 /**
- * @brief SOAP exception
+ * @brief SOAP exception.
  *
- * Thrown every time when SOAP fault occurs.
+ * Thrown every time when the SOAP fault occurs.
  */
 class SP_EXPORT SOAPException : public Exception
 {
 public:
     /**
-     * Constructor
-     * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * Constructor.
+     * @param text              The exception text.
+     * @param location          The location where the exception occurs.
+     * @param description       The optional description information.
      */
     SOAPException(const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
-     * @brief Copy constructor
-     * @param other             Other exception object
+     * @brief Copy constructor.
+     * @param other             The other exception object.
      */
     SOAPException(const SOAPException& other) = default;
 };
 
 /**
- * @brief SOAP exception
+ * @brief SOAP exception.
  *
- * Thrown every time when SOAP fault occurs.
+ * Thrown every time when the SOAP fault occurs.
  */
 class SP_EXPORT HTTPException : public Exception
 {
@@ -219,23 +217,23 @@ class SP_EXPORT HTTPException : public Exception
     String m_statusText; ///< HTTP status text
 public:
     /**
-     * Constructor
-     * @param statusCode        The HTTP status
-     * @param text              The exception text
-     * @param location          The location where exception occurs
-     * @param description       The optional description information
+     * Constructor.
+     * @param statusCode        The HTTP status.
+     * @param text              The exception text.
+     * @param location          The location where the exception occurs.
+     * @param description       The optional description information.
      */
     HTTPException(size_t statusCode, const String& text, const std::source_location& location = std::source_location::current(), const String& description = String()) DOESNT_THROW;
 
     /**
-     * @brief Copy constructor
-     * @param other             Other exception object
+     * @brief Copy constructor.
+     * @param other             The other exception object.
      */
     HTTPException(const HTTPException& other) = default;
 
     /**
-     * Get HTTP status code
-     * @return HTTP status code
+     * Get HTTP status code.
+     * @return HTTP status code.
      */
     [[nodiscard]] size_t statusCode() const
     {
@@ -243,8 +241,8 @@ public:
     }
 
     /**
-     * Get HTTP status text
-     * @return HTTP status text
+     * Get HTTP status text.
+     * @return HTTP status text.
      */
     [[nodiscard]] String statusText() const
     {
@@ -252,9 +250,9 @@ public:
     }
 
     /**
-     * Return standard HTTP response status text for status code
-     * @param statusCode
-     * @return
+     * Return standard HTTP response status text for status code.
+     * @param statusCode        The HTTP status code.
+     * @return Status text.
      */
     [[nodiscard]] static String httpResponseStatus(size_t statusCode);
 };

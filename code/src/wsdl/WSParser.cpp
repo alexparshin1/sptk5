@@ -39,9 +39,9 @@ using namespace sptk;
 namespace {
 void replaceFile(const String& fileName, const stringstream& fileData)
 {
-    const uint8_t empty = 0;
-    const String  str = fileData.str();
-    Buffer        newData(fileData.str());
+    constexpr uint8_t empty = 0;
+    const String      str = fileData.str();
+    Buffer            newData(fileData.str());
     if (newData.empty())
     {
         newData.set(&empty, 1);
@@ -248,8 +248,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     m_targetNamespace = wsdlXML.root()->attributes().get("targetNamespace");
     if (m_targetNamespace.empty())
     {
-        auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace");
-        if (targetNamespaceNode)
+        if (auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace"))
         {
             m_targetNamespace = targetNamespaceNode->getText();
         }
@@ -410,7 +409,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
 
     output << "private:\n\n";
 
-    for (const auto& [name, operation]: m_operations)
+    for (const auto& operation: m_operations | views::values)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
         output << "    /**\n";
@@ -435,7 +434,7 @@ void WSParser::generateImplementation(ostream& output) const
     const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (const auto& [name, operation]: m_operations)
+    for (const auto& operation: m_operations | views::values)
     {
         const String requestName = stripNamespace(operation.m_input->name());
         serviceOperations.push_back(requestName);

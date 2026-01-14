@@ -38,7 +38,7 @@ using namespace std;
 using namespace sptk;
 using namespace filesystem;
 
-String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
+String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& image, DateTime& modificationTime)
 {
     struct stat fileStat = {};
 
@@ -93,20 +93,21 @@ String DirectoryDS::getFileType(const filesystem::directory_entry& file, CSmallP
 
 CSmallPixmapType DirectoryDS::imageTypeFromExtension(const String& ext)
 {
+    using enum CSmallPixmapType;
     static const map<String, CSmallPixmapType> imageTypes {
-        {"doc", CSmallPixmapType::SXPM_DOC_DOCUMENT},
-        {"docx", CSmallPixmapType::SXPM_DOC_DOCUMENT},
-        {"odt", CSmallPixmapType::SXPM_DOC_DOCUMENT},
-        {"txt", CSmallPixmapType::SXPM_TXT_DOCUMENT},
-        {"xls", CSmallPixmapType::SXPM_XLS_DOCUMENT},
-        {"csv", CSmallPixmapType::SXPM_XLS_DOCUMENT}};
+        {"doc", SXPM_DOC_DOCUMENT},
+        {"docx", SXPM_DOC_DOCUMENT},
+        {"odt", SXPM_DOC_DOCUMENT},
+        {"txt", SXPM_TXT_DOCUMENT},
+        {"xls", SXPM_XLS_DOCUMENT},
+        {"csv", SXPM_XLS_DOCUMENT}};
 
     if (const auto itor = imageTypes.find(ext); itor != imageTypes.end())
     {
         return itor->second;
     }
 
-    return CSmallPixmapType::SXPM_DOCUMENT;
+    return SXPM_DOCUMENT;
 }
 
 // Define access mode constants if they aren't already defined.
@@ -142,14 +143,9 @@ bool DirectoryDS::open()
 {
     size_t index = 0;
 
-    if (m_directory.endsWith("\\") || m_directory.endsWith("/"))
-    {
-        m_directory = m_directory.substr(0, m_directory.length() - 1);
-    }
-
     clear();
 
-    if (!std::filesystem::exists(m_directory.c_str()))
+    if (!exists(m_directory.c_str()))
     {
         throw Exception("Directory doesn't exist");
     }
@@ -206,7 +202,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList DirectoryDS::makeFileListEntry(const filesystem::directory_entry& file, size_t& index)
+FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
 {
     CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime         modificationTime;

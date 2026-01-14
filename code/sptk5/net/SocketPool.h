@@ -31,7 +31,6 @@
 #include <sptk5/threads/Thread.h>
 
 #include <functional>
-#include <map>
 #include <mutex>
 
 #ifdef _WIN32
@@ -53,7 +52,7 @@ struct SocketEventType
 };
 
 /**
- * Type definition of socket event callback function
+ * Type definition of the socket event callback function.
  */
 using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
 
@@ -103,19 +102,19 @@ public:
     SocketPool& operator=(const SocketPool&) = delete;
 
     /**
+     * @brief Destructor.
+     */
+    virtual ~SocketPool();
+
+    /**
      * @brief Initialize socket pool
      */
     void open();
 
     /**
-     * @brief Destructor
-     */
-    ~SocketPool();
-
-    /**
      * Wait until one or more sockets are signaled.
      *
-     * Execute callback function for each signaled socket.
+     * Execute the callback function for each signaled socket.
      */
     bool waitForEvents(const std::chrono::milliseconds& timeout);
 
@@ -128,7 +127,7 @@ public:
      * @brief Add socket to monitored pool
      * @param socket            Socket to monitor events
      * @param userData          User data to pass to callback function
-     * @param rearmOneShot      Re-arm one-shot event that is already watched. Only used in EdgeTriggered mode.
+     * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
     void add(Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
 
@@ -139,7 +138,7 @@ public:
     void remove(Socket& socket) const;
 
     /**
-     * @return true if socket pool is active
+     * @return true if the socket pool is active.
      */
     [[nodiscard]] bool active() const;
 
