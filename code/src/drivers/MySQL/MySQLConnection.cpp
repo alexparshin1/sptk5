@@ -38,7 +38,7 @@ namespace {
 }
 } // namespace
 
-MySQLConnection::MySQLConnection(const String& connectionString, chrono::seconds connectTimeout)
+MySQLConnection::MySQLConnection(const String& connectionString, const chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::MYSQL, connectTimeout)
 {
 }
@@ -57,6 +57,15 @@ void MySQLConnection::initConnection()
     {
         throw DatabaseException("Can't initialize MySQL environment");
     }
+
+    unsigned int ssl_enforce = 0;
+    if (mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
+    {
+        string error(mysql_error(m_connection.get()));
+        mysql_close(m_connection.get());
+        throw DatabaseException("Can't initialize MySQL environment: " + error);
+    }
+
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
     const auto connectionTimeoutSeconds = connectTimeout().count();
@@ -168,8 +177,7 @@ void MySQLConnection::queryCloseStmt(Query* query)
     const scoped_lock lock(m_mutex);
     try
     {
-        auto* statement = bit_cast<MySQLStatement*>(query->statement());
-        if (statement != nullptr)
+        if (auto* statement = bit_cast<MySQLStatement*>(query->statement()))
         {
             statement->close();
         }
@@ -208,7 +216,7 @@ void MySQLConnection::queryPrepare(Query* query)
 
 size_t MySQLConnection::queryColCount(Query* query)
 {
-    size_t      colCount = 0;
+    size_t      colCount;
     const auto* statement = bit_cast<MySQLStatement*>(query->statement());
     try
     {

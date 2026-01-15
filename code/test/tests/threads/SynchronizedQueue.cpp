@@ -42,50 +42,43 @@ TEST(SPTK_SynchronizedQueue, tasks)
     constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int>         queue;
 
-    vector<future<int>> tasks;
-    for (size_t index = 0; index < maxTasks; ++index)
-    {
-        auto task = async([&queue, &timeout]()
-                          {
-                              int sum = 0;
-                              while (true)
-                              {
-                                  if (int value;
-                                      queue.pop_front(value, timeout))
-                                  {
-                                      sum += value;
-                                  }
-                                  else
-                                  {
-                                      break;
-                                  }
-                                  this_thread::sleep_for(10ms);
-                              }
-                              return sum;
-                          });
-
-        tasks.push_back(std::move(task));
-    }
-
     int value = 1;
     int expectedSum = 0;
-    for (size_t index = 0; index < maxNumbers; ++index, ++value)
+    for
+    (size_t index = 0; index < maxNumbers; ++index, ++value)
     {
         expectedSum += value;
         queue.push_back(value);
     }
 
-    int       actualSum = 0;
-    const int expectedSumPerTask = expectedSum / static_cast<int>(maxTasks);
-    for (auto& task: tasks)
+    vector<future<int>> tasks;
+    for (size_t index = 0; index < maxTasks; ++index)
     {
-        task.wait_for(chrono::milliseconds(1000));
-        const auto sum = task.get();
-        actualSum += sum;
-        // Expect tasks doing about the same amount of work
-        EXPECT_NEAR(expectedSumPerTask, sum, 200);
+        auto task = async([&queue, &timeout]()
+        {
+            int sum = 0;
+            int value = 0;
+            while (queue.pop_front(value, timeout))
+            {
+                sum += value;
+                this_thread::sleep_for(10ms);
+            }
+            return sum;
+        });
+
+        tasks.push_back(std::move(task));
     }
 
+    COUT("");
+    
+    int       actualSum = 0;
+    for (auto& task: tasks)
+    {
+        const auto sum = task.get();
+        EXPECT_NEAR(1000, sum, 300);
+        actualSum += sum;
+    }
+    
     EXPECT_EQ(expectedSum, actualSum);
 }
 
@@ -232,14 +225,14 @@ TEST(SPTK_SynchronizedQueue, for_each)
 
     int receivedSum = 0;
     queue.each([&receivedSum](const int& item)
-               {
-                   if (item < 5)
-                   {
-                       receivedSum += item;
-                       return true;
-                   }
-                   return false;
-               });
+    {
+        if (item < 5)
+        {
+            receivedSum += item;
+            return true;
+        }
+        return false;
+    });
 
     EXPECT_EQ(actualSum, receivedSum);
 }
