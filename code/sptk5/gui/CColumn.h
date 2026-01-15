@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/xdoc/Node.h>
 #include <string>
@@ -136,7 +135,7 @@ public:
     }
 
     /**
-     * @brief Sets column auto width flag
+     * @brief Sets the column auto-width flag
      * @param v                 Auto-width flag
      */
     void autoWidth(bool v)
@@ -154,17 +153,14 @@ public:
 
     /**
      * @brief Loads column information
-     *
-     * Loads information about column from the registry.
-     * @param node              XML node to load column information from
+     * Loads information about the column from the registry.
+     * @param node              XML node to load column information from.
      */
     void load(const xdoc::SNode& node);
 
     /**
      * @brief Saves column information
-     *
-     * Saves information about column
-     * from the registry.
+     * Saves information about the column from the registry.
      * @param node              XML node to unload column information to
      */
     void save(const xdoc::SNode& node) const;

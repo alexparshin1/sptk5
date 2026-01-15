@@ -58,6 +58,8 @@ void MySQLConnection::initConnection()
         throw DatabaseException("Can't initialize MySQL environment");
     }
 
+#ifdef MYSQL_OPT_SSL_VERIFY_SERVER_CERT
+    // MariaDB only:
     unsigned int ssl_enforce = 0;
     if (mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {
@@ -65,6 +67,7 @@ void MySQLConnection::initConnection()
         mysql_close(m_connection.get());
         throw DatabaseException("Can't initialize MySQL environment: " + error);
     }
+#endif
 
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
