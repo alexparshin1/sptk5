@@ -79,12 +79,12 @@ class SP_EXPORT CInput_
     /**
      * Internal check for the character for matching the mask
      */
-    bool checkCharacterAtPos(int pos, char key);
+    bool checkCharacterAtPos(int pos, char key) const;
 
     /**
      * Internal check for the character for matching the mask
      */
-    bool checkCharacter(int pos, char& key);
+    bool checkCharacter(int pos, const char& key);
 
 protected:
     /**
@@ -182,6 +182,10 @@ public:
      * @param maskString const char *, the mask string.
      */
     void mask(const char* maskString);
+
+    int _insert_position() const;
+    int _insert_position(int p, int m);
+    int _insert_position(int p);
 };
 
 /**

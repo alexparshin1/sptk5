@@ -36,15 +36,15 @@
 using namespace std;
 using namespace sptk;
 
-// If you define this symbol as zero you will get the peculiar fltk
+// If you define this symbol as zero, you will get the peculiar fltk
 // behavior where moving off the end of an input field will move the
 // cursor into the next field:
-// define it as 1 to prevent cursor movement from going to next field:
+// define it as 1 to prevent cursor movement from going to the next field:
 #define NORMAL_INPUT_MOVE 0
 
-static const char phoneMask[] = "(999)-999-9999";
+static constexpr char phoneMask[] = "(999)-999-9999";
 
-static const char maskControlCharacters[] = "@0123456789AaLlZz#Tt";
+static constexpr char maskControlCharacters[] = "@0123456789AaLlZz#Tt";
 
 static string reformatPhoneNumber(const char* st)
 {
@@ -92,8 +92,8 @@ void CInput_::mask(const char* m)
     m_inputMask = m;
     m_backgroundMask = m;
 
-    auto* bg_mask_ptr = (char*) m_backgroundMask.c_str();
-    auto* input_mask_ptr = (char*) m_inputMask.c_str();
+    auto* bg_mask_ptr = const_cast<char*>(m_backgroundMask.c_str());
+    auto* input_mask_ptr = const_cast<char*>(m_inputMask.c_str());
 
     size_t l = m_mask.length();
     size_t j = 0;
@@ -118,7 +118,7 @@ void CInput_::mask(const char* m)
     input_mask_ptr[j] = 0;
 }
 
-bool CInput_::checkCharacterAtPos(int pos, char key)
+bool CInput_::checkCharacterAtPos(int pos, char key) const
 {
     bool rc;
     if (pos >= (int) m_inputMask.length())
@@ -170,30 +170,30 @@ bool CInput_::checkCharacterAtPos(int pos, char key)
     return rc;
 }
 
-bool CInput_::checkCharacter(int pos, char& key)
+bool CInput_::checkCharacter(int pos, const char& key)
 {
     if (!m_inputMask[0])
     {
         return true;
     }
-    char   et[] = {0, 0};
-    size_t maxPos = m_inputMask.length();
-    while (pos < (int) maxPos)
+    array<char, 2> et = {};
+    const auto     maxPos = m_inputMask.length();
+    while (pos < static_cast<int>(maxPos))
     {
         if (m_inputMask[pos] == ' ')
         {
             // use background mask
             et[0] = m_backgroundMask[pos];
-            replace(pos, pos + 1, et, 1);
+            replace(pos, pos + 1, et.data(), 1);
             pos++;
-            position(pos, Fl::event_state(FL_SHIFT) ? mark() : pos);
+            _insert_position(pos, Fl::event_state(FL_SHIFT) ? mark() : pos);
         }
         else
         {
             if (checkCharacterAtPos(pos, key))
             {
                 et[0] = key;
-                int rc = replace(pos, pos + 1, et, 1);
+                const auto rc = replace(pos, pos + 1, et.data(), 1);
                 return rc > 0;
             }
             return true;
@@ -244,13 +244,12 @@ int CInput_::handle(int event)
         return rc;
     }
 
-    char ascii = Fl::event_text()[0];
+    auto ascii = Fl::event_text()[0];
 
-    int del;
-    if (Fl::compose(del))
+    if (int del; Fl::compose(del))
     {
-        int   pos = position();
-        char& key = ascii;
+        const auto pos = _insert_position();
+        auto&      key = ascii;
         if (m_maxLength && pos >= m_maxLength)
         {
             return 0;
@@ -306,7 +305,7 @@ int CInput_::handle(int event)
             }
         }
 
-        return replace(position(), mark(), Fl::event_text(), Fl::event_length());
+        return replace(_insert_position(), mark(), Fl::event_text(), Fl::event_length());
     }
 
     return Fl_Input::handle(event);
@@ -332,12 +331,12 @@ bool CInput_::preferredSize(int& w, int& h)
 {
     h = textSize() + 6 + Fl::box_dh(box());
 
-    int ml = maxLength();
-    if (ml > 0 && ml < 40)
+    if (const auto ml = maxLength();
+        ml > 0 && ml < 40)
     {
         fl_font(textFont(), textSize());
-        int maxWidth = (int) (ml * fl_width('W')) + 4 + Fl::box_dw(box());
-        if (w > maxWidth)
+        if (const auto maxWidth = static_cast<int>(ml * fl_width('W')) + 4 + Fl::box_dw(box());
+            w > maxWidth)
         {
             w = maxWidth;
         }
@@ -357,9 +356,9 @@ void CInput_::maskValue()
         return;
     }
 
-    string val = (char*) value();
+    string val(value());
 
-    if (strcmp(m_mask.c_str(), phoneMask) == 0)
+    if (m_mask == phoneMask)
     {
         val = reformatPhoneNumber(val.c_str());
     }
@@ -431,8 +430,7 @@ CLayoutClient* CInput::creator(const xdoc::SNode& node)
 
 int CInput::maxLength() const
 {
-    auto* input = dynamic_cast<CInput_*>(m_control);
-    if (input)
+    if (auto const* input = dynamic_cast<CInput_*>(m_control))
     {
         return input->maxLength();
     }
@@ -441,8 +439,7 @@ int CInput::maxLength() const
 
 void CInput::maxLength(int ml)
 {
-    auto* input = dynamic_cast<CInput_*>(m_control);
-    if (input)
+    if (auto* input = dynamic_cast<CInput_*>(m_control))
     {
         input->maxLength(ml);
     }
@@ -450,8 +447,7 @@ void CInput::maxLength(int ml)
 
 int CInput::controlType() const
 {
-    auto* input = dynamic_cast<CInput_*>(m_control);
-    if (input)
+    if (const auto* input = dynamic_cast<CInput_*>(m_control))
     {
         return input->type();
     }
@@ -489,27 +485,25 @@ void CInput::textSize(uchar s)
 
 void CInput::load(Query* loadQuery)
 {
-    if (!m_fieldName.length())
+    if (!m_fieldName.empty())
     {
-        return;
+        const Field& fld = (*loadQuery)[m_fieldName.c_str()];
+        data(Variant(fld));
     }
-    Field& fld = (*loadQuery)[m_fieldName.c_str()];
-    data(Variant(fld));
 }
 
 void CInput::save(Query* updateQuery)
 {
-    if (!m_fieldName.length())
+    if (!m_fieldName.empty())
     {
-        return;
+        QueryParameter& param = updateQuery->param(m_fieldName.c_str());
+        param = data();
     }
-    QueryParameter& param = updateQuery->param(m_fieldName.c_str());
-    param = data();
 }
 
 Variant CInput::data() const
 {
-    return ((CInput_*) m_control)->value();
+    return dynamic_cast<CInput_*>(m_control)->value();
 }
 
 void CInput::data(const Variant& s)
@@ -520,14 +514,14 @@ void CInput::data(const Variant& s)
 
 void CInput::preferredWidth(int& w) const
 {
-    int ml = maxLength();
-    if (ml > 0 && ml <= 80)
+    if (auto ml = maxLength();
+        ml > 0 && ml <= 80)
     {
-        w = (int) (ml * fl_width('W')) + m_labelWidth + 4 + Fl::box_dw(box());
+        w = static_cast<int>(ml * fl_width('W')) + m_labelWidth + 4 + Fl::box_dw(box());
     }
     else
     {
-        if (w < (int) m_labelWidth + 16)
+        if (w < static_cast<int>(m_labelWidth) + 16)
         {
             w = m_labelWidth + 16;
         }
@@ -536,12 +530,12 @@ void CInput::preferredWidth(int& w) const
 
 void CInput::preferredHeight(int& h) const
 {
-    int hh = textSize() + 6 + Fl::box_dh(box());
-    if (hh < (int) labelHeight())
+    auto hh = textSize() + 6 + Fl::box_dh(box());
+    if (hh < static_cast<int>(labelHeight()))
     {
         hh = labelHeight();
     }
-    if (m_controlFlags & (int) InputEntryFlags::MULTILINEENTRY)
+    if (m_controlFlags & static_cast<int>(InputEntryFlags::MULTILINEENTRY))
     {
         if (h < hh)
         {
@@ -560,4 +554,31 @@ bool CInput::preferredSize(int& w, int& h)
     preferredWidth(w);
     preferredHeight(h);
     return false;
+}
+
+int CInput_::_insert_position() const
+{
+#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+    return position();
+#else
+    return insert_position();
+#endif
+}
+
+int CInput_::_insert_position(int p, int m)
+{
+#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+    return position(p, m);
+#else
+    return insert_position(p, m);
+#endif
+}
+
+int CInput_::_insert_position(int p)
+{
+#if FLTK_VERSION_MAJOR == 1 && FLTK_VERSION_MINOR > 3
+    return position(p);
+#else
+    return insert_position(p);
+#endif
 }
