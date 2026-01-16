@@ -29,12 +29,8 @@
 #include <sptk5/BufferStorage.h>
 #include <sptk5/VariantStorageClient.h>
 
-#include <cstdlib>
 #include <cstring>
-#include <iostream>
-#include <limits>
 #include <memory>
-#include <string>
 
 namespace sptk {
 
