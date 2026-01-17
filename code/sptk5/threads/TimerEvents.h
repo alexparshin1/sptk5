@@ -31,18 +31,19 @@
 
 #include <map>
 #include <semaphore>
+#include <shared_mutex>
 
 namespace sptk {
 
 /**
- * Thread-safe event map
+ * @brief Thread-safe event map.
  */
 class SP_EXPORT TimerEvents
 {
 public:
     /**
-     * @brief Add event
-     * @param event         Event
+     * @brief Add event.
+     * @param event         Event.
      */
     void add(const std::shared_ptr<TimerEvent>& event);
 
@@ -52,14 +53,16 @@ public:
 
     bool empty() const;
 
-    void wakeUp();
+    void terminate();
+    bool terminated() const;
 
 private:
     using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
 
-    mutable std::mutex                  m_mutex;  ///< Mutex that protects access to events collection
+    mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to events collection
     EventMap                            m_events; ///< Events collection
     std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
+    bool                                m_terminated {false};
 
     STimerEvent front();
 };

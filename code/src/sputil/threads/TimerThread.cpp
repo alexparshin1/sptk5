@@ -46,6 +46,10 @@ void TimerThread::threadFunction()
     while (!terminated())
     {
         auto event = m_scheduledEvents.next();
+        if (m_scheduledEvents.terminated())
+        {
+            break;
+        }
         if (event && event->fire())
         {
             schedule(event);
@@ -56,7 +60,7 @@ void TimerThread::threadFunction()
 void TimerThread::terminate()
 {
     Thread::terminate();
-    m_scheduledEvents.wakeUp();
+    m_scheduledEvents.terminate();
 }
 
 void TimerThread::schedule(const STimerEvent& event)

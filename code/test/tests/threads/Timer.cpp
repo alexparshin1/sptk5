@@ -65,7 +65,7 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
     const Timer timer;
 
     constexpr milliseconds delayInterval {100};
-    timer.fireAt(
+    const auto             event = timer.fireAt(
         DateTime::clock::now() + delayInterval,
         [&counter, &counterMutex]()
         {
@@ -88,7 +88,7 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     Semaphore   allEventsReceived;
 
     constexpr auto repeatInterval {10ms};
-    timer.repeat(
+    const auto     event = timer.repeat(
         repeatInterval,
         [&counter, &counterMutex, &allEventsReceived]()
         {
@@ -114,7 +114,7 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
     const Timer timer;
 
     constexpr auto repeatInterval {10ms};
-    timer.repeat(
+    const auto     event1 = timer.repeat(
         repeatInterval,
         [&counter, &counterMutex]()
         {
@@ -122,7 +122,8 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
             ++counter;
         },
         2);
-    timer.repeat(
+
+    const auto event2 = timer.repeat(
         repeatInterval,
         [&counter, &counterMutex]()
         {
@@ -139,37 +140,33 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
 
 TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
 {
+    mutex       eventCounterMutex;
+    auto        totalEvents(0);
+    const Timer timer;
 
-    if (DateTime::Now() > DateTime()) // always true
+    vector<STimerEvent> createdEvents;
+    for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
     {
-        mutex       eventCounterMutex;
-        int         totalEvents(0);
-        const Timer timer;
-
-        vector<STimerEvent> createdEvents;
-        for (size_t eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
-            auto event = timer.repeat(20ms,
-                                      [&totalEvents, &eventCounterMutex]
-                                      {
-                                          const scoped_lock lock(eventCounterMutex);
-                                          totalEvents++;
-                                      });
-            createdEvents.push_back(event);
-        }
-
-        this_thread::sleep_for(110ms);
-
-        for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
-        {
-            const auto& event = createdEvents[eventIndex];
-            event->cancel();
-        }
-
-        this_thread::sleep_for(20ms);
-
-        EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
+        auto event = timer.repeat(20ms,
+                                  [&totalEvents, &eventCounterMutex]
+                                  {
+                                      const scoped_lock lock(eventCounterMutex);
+                                      totalEvents++;
+                                  });
+        createdEvents.push_back(event);
     }
+
+    this_thread::sleep_for(110ms);
+
+    for (int eventIndex = 0; eventIndex < MAX_EVENT_COUNTER; ++eventIndex)
+    {
+        const auto& event = createdEvents[eventIndex];
+        event->cancel();
+    }
+
+    this_thread::sleep_for(20ms);
+
+    EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
 }
 
 TEST(SPTK_Timer, repeatCancel) /* NOLINT */
@@ -198,7 +195,7 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
 }
 
 /**
- * Test that an event can be scheduled in front of event list.
+ * Test that an event can be scheduled in front of the event list.
  */
 TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
 {
@@ -228,7 +225,7 @@ TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
 }
 
 /**
- * Test that an event can be scheduled in front of event list.
+ * Test that an event can be scheduled in front of the event list.
  */
 TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
 {
@@ -242,7 +239,7 @@ TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
 
     const auto started = DateTime::clock::now();
     const auto eventEnterval = eventsInterval / maxEvents;
-    const auto lastEventTimestamp = DateTime::clock::now() + eventEnterval * (maxEvents);
+    const auto lastEventTimestamp = DateTime::clock::now() + eventEnterval * maxEvents;
 
     for (DateTime::time_point timestamp = lastEventTimestamp; timestamp > started; timestamp = timestamp - eventEnterval)
     {

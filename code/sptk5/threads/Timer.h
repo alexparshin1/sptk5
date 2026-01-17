@@ -58,25 +58,25 @@ public:
      * Destructor.
      * Cancel all events scheduled by this timer.
      */
-    virtual ~Timer();
+    ~Timer();
 
     /**
-     * Schedule single event.
+     * Schedule a single event.
      * @param timestamp                 Fire at timestamp
      * @param eventCallback             Event callback.
-     * @return event handle, that may be used to cancel this event.
+     * @return event handle that may be used to cancel this event.
      */
-    STimerEvent fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const;
+    [[nodiscard]] STimerEvent fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const;
 
     /**
      * Schedule repeatable event.
-     * The first event is scheduled at current time + interval.
+     * The first event is scheduled at the current time + interval.
      * @param interval                  Event repeat interval.
      * @param eventCallback             Event callback.
      * @param repeatCount               Repeat count, -1 means no limit
-     * @return event handle, that may be used to cancel this event.
+     * @return event handle that may be used to cancel this event.
      */
-    STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
+    [[nodiscard]] STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
 
     /**
      * Cancel all events

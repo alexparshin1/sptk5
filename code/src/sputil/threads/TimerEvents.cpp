@@ -34,7 +34,7 @@ void TimerEvents::add(const std::shared_ptr<TimerEvent>& event)
 {
     auto when = event->mcs_since_epoch();
 
-    std::lock_guard lock(m_mutex);
+    std::unique_lock lock(m_mutex);
     if (const auto iterator = m_events.emplace(when, event);
         iterator == m_events.begin())
     {
@@ -59,23 +59,22 @@ STimerEvent TimerEvents::next()
         return {};
     }
 
-    auto when = event->when();
+    const auto when = event->when();
     if (when < std::chrono::system_clock::now())
     {
-        std::lock_guard lock(m_mutex);
+        std::unique_lock lock(m_mutex);
         event = m_events.begin()->second;
         m_events.erase(m_events.begin());
         return event;
     }
 
-    DateTime whenDateTime(when);
     if (m_semaphore.try_acquire_until(when))
     {
         // Wait interrupted
         return {};
     }
 
-    std::lock_guard lock(m_mutex);
+    std::unique_lock lock(m_mutex);
     if (!m_events.empty())
     {
         event = m_events.begin()->second;
@@ -86,28 +85,42 @@ STimerEvent TimerEvents::next()
 
 void TimerEvents::clear()
 {
-    std::lock_guard lock(m_mutex);
+    std::unique_lock lock(m_mutex);
     m_events.clear();
 }
 
 bool TimerEvents::empty() const
 {
-    std::lock_guard lock(m_mutex);
+    std::shared_lock lock(m_mutex);
     return m_events.empty();
 }
 
-void TimerEvents::wakeUp()
+void TimerEvents::terminate()
 {
+    std::unique_lock lock(m_mutex);
+    m_terminated = true;
     m_semaphore.release();
+}
+
+bool TimerEvents::terminated() const
+{
+    std::shared_lock lock(m_mutex);
+    return m_terminated;
 }
 
 STimerEvent TimerEvents::front()
 {
-    std::lock_guard lock(m_mutex);
+    std::unique_lock lock(m_mutex);
+
+    if (m_terminated)
+    {
+        return {};
+    }
+
     while (!m_events.empty())
     {
-        const auto iterator = m_events.begin();
-        if (iterator->second->cancelled())
+        if (const auto iterator = m_events.begin();
+            iterator->second->cancelled())
         {
             m_events.erase(iterator);
         }
