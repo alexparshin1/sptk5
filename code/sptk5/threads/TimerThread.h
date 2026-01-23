@@ -34,12 +34,11 @@ namespace sptk {
   * @brief Base class for Timer and IntervalTimer internal threads.
   */
 class SP_EXPORT TimerThread
-    : public sptk::Thread
+    : public Thread
 {
 public:
     /**
      * @brief Constructor.
-     * @param threadName        Thread name.
      */
     TimerThread();
 
@@ -54,6 +53,9 @@ public:
      */
     void schedule(const STimerEvent& event);
 
+    /**
+     * @brief Clear all scheduled events.
+     */
     void clear();
 
     /**

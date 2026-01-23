@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
+#include <sptk5/FieldList.h>
 #include <sptk5/wsdl/WSComplexType.h>
 
 using namespace std;
@@ -46,8 +46,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         return;
     }
 
-    const auto param = output.find(paramName);
-    if (param)
+    if (const auto param = output.find(paramName))
     {
         *param = elementOrAttribute->value();
     }
@@ -99,7 +98,7 @@ String WSComplexType::toString(bool asJSON, bool formatted) const
 
 void WSComplexType::throwIfNull(const String& parentTypeName) const
 {
-    if (!m_loaded)
+    if (isNull())
     {
         throw SOAPException("Element '" + name() + "' is required in '" + parentTypeName + "'.");
     }
@@ -195,7 +194,7 @@ bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType
 
 bool WSComplexType::isNull() const
 {
-    bool hasValues = false;
+    auto hasValues = false;
     m_fields.forEach([&hasValues](const WSType* field)
                      {
                          if (field->isNull())
@@ -246,15 +245,13 @@ void WSComplexType::unload(QueryParameterList& output) const
 #endif
                        &output](const WSType* field)
                    {
-                       if (const auto* inputField = dynamic_cast<const WSBasicType*>(field);
-                           inputField != nullptr)
+                       if (const auto* inputField = dynamic_cast<const WSBasicType*>(field))
                        {
                            unload(output, inputField->name().c_str(), inputField);
                        }
                        else
                        {
-                           const auto param = output.find(field->name());
-                           if (param)
+                           if (const auto param = output.find(field->name()))
                            {
                                *param = field->asString();
                            }

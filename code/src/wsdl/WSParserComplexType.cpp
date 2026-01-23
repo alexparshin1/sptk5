@@ -244,7 +244,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
 
     classDeclaration << "public:\n\n";
     classDeclaration << "    /**\n";
-    classDeclaration << "     * ID of the class\n";
+    classDeclaration << "     * @brief ID of the class\n";
     classDeclaration << "     */\n";
     classDeclaration << "    static sptk::String classId()\n";
     classDeclaration << "    {\n";
@@ -259,7 +259,7 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
     Initializer initializer = makeInitializer();
     if (!m_sequence.empty())
     {
-        classDeclaration << "   // Elements\n";
+        classDeclaration << "   // Elements:\n";
         for (const auto& complexType: m_sequence)
         {
             constexpr int fieldNameWidth = 40;
@@ -294,54 +294,53 @@ void WSParserComplexType::generateDefinition(std::ostream& classDeclaration, Str
     classDeclaration << "\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Constructor\n";
-    classDeclaration << "    * @param elementName        WSDL element name\n";
-    classDeclaration << "    * @param optional           Is element optional flag\n";
+    classDeclaration << "    * @brief Constructor.\n";
+    classDeclaration << "    * @param elementName        WSDL element name.\n";
+    classDeclaration << "    * @param optional           Is element optional flag.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   explicit " << className << "(const char* elementName=\"" << tagName
                      << "\", bool optional=false);\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Copy constructor\n";
-    classDeclaration << "    * @param other              Other object\n";
+    classDeclaration << "    * @brief Copy constructor.\n";
+    classDeclaration << "    * @param other              Another object.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   " << className << "(const " << className << "& other);\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Move constructor\n";
-    classDeclaration << "    * @param other              Other object\n";
+    classDeclaration << "    * @brief Move constructor.\n";
+    classDeclaration << "    * @param other              Another object.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   " << className << "(" << className << "&& other) noexcept;\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Destructor\n";
+    classDeclaration << "    * @brief Destructor.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   ~" << className << "() override = default;\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Copy assignment\n";
-    classDeclaration << "    * @param other              Other object\n";
+    classDeclaration << "    * @brief Copy assignment.\n";
+    classDeclaration << "    * @param other              Another object.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   " << className << "& operator = (const " << className << "& other) = default;\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Move assignment\n";
-    classDeclaration << "    * @param other              Other object\n";
+    classDeclaration << "    * @brief Move assignment.\n";
+    classDeclaration << "    * @param other              Another object.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   " << className << "& operator = (" << className << "&& other) noexcept = default;\n\n";
 
     classDeclaration << "   /**\n";
-    classDeclaration << "    * Get complex type field names.\n";
-    classDeclaration << "    * @param group              Field group: elements, attributes, or both\n";
-    classDeclaration << "    * @return list of fields as Strings\n";
+    classDeclaration << "    * @brief Get complex type field names.\n";
+    classDeclaration << "    * @param group              Field group: elements, attributes, or both.\n";
+    classDeclaration << "    * @return list of fields as Strings.\n";
     classDeclaration << "    */\n";
     classDeclaration << "   static const sptk::Strings& fieldNames(sptk::WSFieldIndex::Group group);\n";
 
     classDeclaration << endl;
 
-    classDeclaration << "private:\n\n";
     classDeclaration << "   /**\n"
-                     << "    * Check restrictions\n"
+                     << "    * @brief Check restrictions.\n"
                      << "    * Throws an exception if any restriction is violated.\n"
                      << "    */\n"
                      << "   void checkRestrictions() const override;\n";
@@ -548,7 +547,16 @@ void WSParserComplexType::generateImplementation(std::ostream& classImplementati
     classImplementation << "{\n";
     classImplementation << "    static const Strings _fieldNames { \"" << fieldNames.join("\", \"") << "\" };\n";
     classImplementation << "    static const Strings _elementNames { \"" << elementNames.join("\", \"") << "\" };\n";
-    classImplementation << "    static const Strings _attributeNames { \"" << attributeNames.join("\", \"") << "\" };\n\n";
+
+    if (!attributeNames.empty())
+    {
+        classImplementation << "    static const Strings _attributeNames { \"" << attributeNames.join("\", \"") << "\" };\n\n";
+    }
+    else
+    {
+        classImplementation << "    static const Strings _attributeNames;\n\n";
+    }
+
     classImplementation << "    switch (group) {\n";
     classImplementation << "        case WSFieldIndex::Group::ELEMENTS: return _elementNames;\n";
     classImplementation << "        case WSFieldIndex::Group::ATTRIBUTES: return _attributeNames;\n";

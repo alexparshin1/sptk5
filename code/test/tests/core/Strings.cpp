@@ -24,10 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Buffer.h>
-#include <sstream>
-
 #include <gtest/gtest.h>
+#include <ranges>
+#include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
@@ -99,4 +98,16 @@ TEST(SPTK_Strings, grep)
 
     const Strings group2 = strings.grep("text|rows");
     EXPECT_EQ(static_cast<size_t>(2), group2.size());
+}
+
+TEST(SPTK_Strings, ranges)
+{
+    vector<String> strings {"one", "two", "three"};
+    auto           filtered = strings | ranges::views::filter([](const auto& str)
+                                                    {
+                                                        return str.size() < 4;
+                                                    });
+    const Strings  strs(filtered.begin(), filtered.end());
+    EXPECT_EQ(2, strs.size());
+    EXPECT_EQ("one,two", strs.join(","));
 }

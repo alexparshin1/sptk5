@@ -27,6 +27,7 @@
 #pragma once
 
 #include <algorithm>
+#include <list>
 #include <sptk5/String.h>
 
 #ifdef _WIN32
@@ -105,6 +106,19 @@ public:
     Strings(std::initializer_list<String> list)
     {
         std::ranges::copy(list, std::back_inserter(m_strings));
+    }
+
+    /**
+     * @brief Constructor from iterator range.
+     * @tparam IT               Input iterator class.
+     * @param begin             Begin iterator.
+     * @param end               End iterator.
+     */
+    template<typename IT>
+        requires std::is_class_v<IT>
+    Strings(IT begin, IT end)
+        : m_strings(begin, end)
+    {
     }
 
     /**

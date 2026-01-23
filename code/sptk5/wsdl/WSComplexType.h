@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/FieldList.h>
 #include <sptk5/Variant.h>
 #include <sptk5/db/QueryParameterList.h>
 #include <sptk5/wsdl/WSArray.h>
@@ -37,59 +36,59 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * Base type for all user WSDL types
+ * @brief Base type for all user WSDL types.
  */
 class SP_EXPORT WSComplexType
     : public WSType
 {
 public:
     /**
-     * Default constructor
-     * @param name              Element name
-     * @param optional          Element optionality flag
+     * @brief Default constructor.
+     * @param name              Element name.
+     * @param optional          Element optionality flag.
      */
-    explicit WSComplexType(const char* name, bool optional = false)
+    explicit WSComplexType(const char* name, const bool optional = false)
         : WSType(name)
         , m_optional(optional)
     {
     }
 
     /**
-     * Copy constructor
-     * @param other             Other object
+     * @brief Copy constructor.
+     * @param other             Other object.
      */
     WSComplexType(const WSComplexType& other) = default;
 
     /**
-     * Move constructor
-     * @param other             Other object
+     * @brief Move constructor.
+     * @param other             Other object.
      */
     WSComplexType(WSComplexType&& other) noexcept = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSComplexType() override = default;
 
     /**
-     * Copy assignment
-     * @param other             Other object
+     * @brief Copy assignment.
+     * @param other             Other object.
      */
     WSComplexType& operator=(const WSComplexType& other) = default;
 
     /**
-     * Move assignment
-     * @param other             Other object
+     * @brief Move assignment.
+     * @param other             Other object.
      */
     WSComplexType& operator=(WSComplexType&& other) noexcept = default;
 
     /**
-     * Return class name
+     * @brief Return class name.
      */
     [[nodiscard]] String className() const override
     {
@@ -97,7 +96,7 @@ public:
     }
 
     /**
-     * Clear content and releases allocated memory
+     * @brief Clear content and releases allocated memory.
      */
     void clear() override
     {
@@ -105,51 +104,51 @@ public:
     }
 
     /**
-     * Copy data from other object
-     * @param other             Object to copy from
+     * @brief Copy data from another object.
+     * @param other             Object to copy from.
      */
     [[maybe_unused]] void copyFrom(const WSComplexType& other);
 
     /**
-     * Loads type data from request XML node
-     * @param input             XML node
-     * @param nullLargeData     Set null for elements with data size > 256 bytes
+     * @brief Loads type data from request XML node.
+     * @param input             XML node.
+     * @param nullLargeData     Set null for elements with data size > 256 bytes.
      */
     void load(const xdoc::SNode& input, bool nullLargeData = false) override;
 
     /**
-     * Load data from FieldList
+     * @brief Load data from FieldList.
      *
      * Only simple WSDL type members are loaded.
-     * @param input             Query field list containing CMqType data
-     * @param nullLargeData     Set null for elements with data size > 256 bytes
+     * @param input             Query field list containing CMqType data.
+     * @param nullLargeData     Set null for elements with data size > 256 bytes.
      */
     virtual void load(const FieldList& input, bool nullLargeData = false);
 
     /**
-     * Unload data to existing XML node
-     * @param output            Existing XML node
+     * @brief Unload data to existing XML node.
+     * @param output            Existing XML node.
      */
     virtual void unload(const xdoc::SNode& output) const;
 
     /**
-     * Unload data to Query's parameters
-     * @param output            Query parameters
+     * @brief Unload data to Query's parameters.
+     * @param output            Query parameters.
      */
     virtual void unload(QueryParameterList& output) const;
 
     /**
-     * Unload single element or attribute to DB query parameter
-     * @param output            Query parameters
-     * @param paramName         Quermy parameter name
-     * @param elementOrAttribute Complex type element (not an array!)
+     * @brief Unload a single element or attribute to a DB query parameter.
+     * @param output            Query parameters.
+     * @param paramName         Quermy parameter name.
+     * @param elementOrAttribute Complex type element (not an array!).
      */
     static void unload(QueryParameterList& output, const char* paramName, const WSBasicType* elementOrAttribute);
 
     /**
-     * Unload data to new XML node
-     * @param parent            Parent XML node where new node is created
-     * @param name              Optional name for the child element
+     * @brief Unload data to new XML node.
+     * @param parent            Parent XML node where the new node is created.
+     * @param name              Optional name for the child element.
      */
     void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
@@ -159,7 +158,7 @@ public:
     [[nodiscard]] bool isNull() const override;
 
     /**
-     * True is element is optional
+     * @brief True is element is optional.
      */
     [[nodiscard]] virtual bool isOptional() const
     {
@@ -167,23 +166,24 @@ public:
     }
 
     /**
-     * Print element as XML text
-     * @param asJSON            Output is JSON (true) or XML (false)
-     * @return object presentation as JSON or XML string
+     * @brief Print element as XML text.
+     * @param asJSON            Output is JSON (true) or XML (false).
+     * @param formatted         Formatted output flag.
+     * @return object presentation as JSON or XML string.
      */
     [[nodiscard]] virtual String toString(bool asJSON = true, bool formatted = false) const;
 
     /**
-     * Throw SOAPException is the object is null
-     * @param parentTypeName    Parent object type name
+     * @brief Throw SOAPException is the object is null.
+     * @param parentTypeName    Parent object type name.
      */
     void throwIfNull(const String& parentTypeName) const;
 
     /**
-     * If object is exportable, it's included during export to JSON or XML
-     * @param flag              Exportable flag
+     * @brief If the object is exportable, it's included during export to JSON or XML.
+     * @param flag              Exportable flag.
      */
-    [[maybe_unused]] void exportable(bool flag)
+    [[maybe_unused]] void exportable(const bool flag)
     {
         m_exportable = flag;
     }
@@ -203,9 +203,17 @@ public:
         return field;
     }
 
+    /**
+     * @brief Check if the class restrictions are violated.
+     */
+    virtual void checkRestrictions() const
+    {
+        // Implement in derived class
+    }
+
 protected:
     /**
-     * @return true if object is loaded
+     * @return true if the object is loaded.
      */
     [[nodiscard]] bool loaded() const
     {
@@ -213,16 +221,16 @@ protected:
     }
 
     /**
-     * Set loaded flag
-     * @param flag              If true then object is loaded
+     * @brief Set loaded flag.
+     * @param flag              If it is true, then the object is loaded.
      */
-    void setLoaded(bool flag)
+    void setLoaded(const bool flag)
     {
         m_loaded = flag;
     }
 
     /**
-     * Internal clear data
+     * @brief Internal clear data.
      */
     virtual void _clear()
     {
@@ -238,22 +246,14 @@ protected:
         return m_fields;
     }
 
-    void setElements(const Strings& fieldNames, std::initializer_list<WSType*> fields)
+    void setElements(const Strings& fieldNames, const std::initializer_list<WSType*> fields)
     {
         m_fields.setElements(fieldNames, fields);
     }
 
-    void setAttributes(const Strings& fieldNames, std::initializer_list<WSType*> fields)
+    void setAttributes(const Strings& fieldNames, const std::initializer_list<WSType*> fields)
     {
         m_fields.setAttributes(fieldNames, fields);
-    }
-
-    /**
-     * Optional checking for restrictions
-     */
-    virtual void checkRestrictions() const
-    {
-        // Implement in derived class
     }
 
 private:
