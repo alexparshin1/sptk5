@@ -47,19 +47,37 @@ public:
      */
     void add(const std::shared_ptr<TimerEvent>& event);
 
+    /**
+     * @brief Get the next event.
+     * @return Next event.
+     */
     STimerEvent next();
 
+    /**
+     * @brief Clear the event map.
+     */
     void clear();
 
+    /**
+     * @brief Check if the event map is empty.
+     * @return true if the event map is empty.
+     */
     bool empty() const;
 
+    /**
+     * @brief Terminate the event map processing.
+     */
     void terminate();
+
+    /**
+     * @return true if the event map is terminated.
+     */
     bool terminated() const;
 
 private:
     using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
 
-    mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to events collection
+    mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to the events collection
     EventMap                            m_events; ///< Events collection
     std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
     bool                                m_terminated {false};

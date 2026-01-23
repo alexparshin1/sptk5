@@ -39,6 +39,7 @@ public:
      * @brief Constructor.
      * @param timestamp             Fire at timestamp.
      * @param eventCallback         Event callback function.
+     * @param repeatInterval        Repeat interval.
      * @param repeatCount           Repeat count, -1 means no limit.
      */
     TimerEvent(DateTime::time_point timestamp, Callback eventCallback,
@@ -53,7 +54,7 @@ public:
     }
 
     /**
-     * @brief Fire event by calling its callback function..
+     * @brief Fire the event by calling its callback function.
      */
     bool fire();
 
@@ -70,10 +71,10 @@ public:
     }
 
 private:
-    mutable std::mutex        m_mutex;           ///< Mutex that protects internal data
+    mutable std::mutex        m_mutex;           ///< Mutex that protects internal data.
     DateTime::time_point      m_when;            ///< Event serial and when the event has to fire next time.
-    std::chrono::milliseconds m_repeatInterval;  ///< Event repeat interval
-    Callback                  m_callback;        ///< Event callback function, defined when event is scheduled.
+    std::chrono::milliseconds m_repeatInterval;  ///< Event repeat interval.
+    Callback                  m_callback;        ///< Event callback function, defined when the event is scheduled.
     int                       m_repeatCount {0}; ///< Number of event repeats, -1 means no limit.
 
     /**

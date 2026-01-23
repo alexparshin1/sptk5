@@ -45,13 +45,10 @@ void TimerEvents::add(const std::shared_ptr<TimerEvent>& event)
 STimerEvent TimerEvents::next()
 {
     auto event = front();
-    if (!event)
+    if (!event && m_semaphore.try_acquire_for(std::chrono::milliseconds(100)))
     {
-        if (m_semaphore.try_acquire_for(std::chrono::milliseconds(100)))
-        {
-            // Wait interrupted
-            event = front();
-        }
+        // Wait interrupted
+        event = front();
     }
 
     if (!event)
