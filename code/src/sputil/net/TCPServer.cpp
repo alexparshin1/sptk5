@@ -70,7 +70,7 @@ String LogDetails::toString(const String& delimiter) const
     return names.join(delimiter.c_str());
 }
 
-TCPServer::TCPServer(const String& listenerName, size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
+TCPServer::TCPServer(const String& listenerName, const size_t threadLimit, LogEngine* logEngine, const LogDetails& logDetails)
     : ThreadPool(static_cast<uint32_t>(threadLimit),
                  60s,
                  listenerName,
@@ -136,7 +136,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
     }
 }
 
-[[maybe_unused]] void TCPServer::removeListener(uint16_t port)
+[[maybe_unused]] void TCPServer::removeListener(const uint16_t port)
 {
     const scoped_lock lock(m_mutex);
 
@@ -193,7 +193,7 @@ std::shared_ptr<SSLKeys> TCPServer::getSSLKeys() const
     return m_sslKeys;
 }
 
-void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
+void TCPServer::threadEvent(Thread* thread, const Type eventType, SRunable runable)
 {
     if (eventType == Type::RUNABLE_FINISHED)
     {
@@ -202,7 +202,7 @@ void TCPServer::threadEvent(Thread* thread, Type eventType, SRunable runable)
     ThreadPool::threadEvent(thread, eventType, runable);
 }
 
-UServerConnection TCPServer::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
+UServerConnection TCPServer::createConnection(const ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
     if (connectionType == ServerConnection::Type::TCP)
     {
