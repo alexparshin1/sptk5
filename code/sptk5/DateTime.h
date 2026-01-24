@@ -36,7 +36,7 @@
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
@@ -45,7 +45,7 @@ class DateTimeFormat;
 class DateTime;
 
 /**
- * Timezone-related information (global, static)
+ *  @brief Timezone-related information (global, static).
  */
 class SP_EXPORT TimeZone
 {
@@ -54,27 +54,27 @@ class SP_EXPORT TimeZone
 
 public:
     /**
-     * Time zone abbbreviastion
+     *  @brief Time zone abbbreviastion.
      */
     static String name();
 
     /**
-    * Set timezone for the application
-    * @param timeZoneName       Time zone name, such as "UTC", ":US/Pacific", etc
+    *  @brief Set the timezone for the application.
+    * @param timeZoneName       Time zone name, such as "UTC", "US/Pacific", etc.
     */
-    static void set(const sptk::String& timeZoneName);
+    static void set(const String& timeZoneName);
 
     static bool time24Mode();
 
     /**
-    * Get timezone offset
-    * @return timezone offset, minutes
+    *  @brief Get timezone offset.
+    * @return timezone offset, minutes.
     */
     static std::chrono::minutes offset();
 
     /**
-    * Get timezone offset
-    * @return timezone offset
+    *  @brief Get timezone offset.
+    * @return timezone offset.
     */
     static int isDaylightSavingsTime();
 
@@ -93,10 +93,10 @@ private:
 
 
 /**
- * Date and Time value.
+ *  @brief Date and Time value.
  *
  * Represents the date and time value. This value is stored as
- * a floating point number. Allows to synchronize the Now() time
+ * a floating point number. Allows synchronizing the Now() time
  * with the external date/time, without affecting the local host
  * system time.
  */
@@ -106,22 +106,22 @@ class SP_EXPORT DateTime : public VariantStorageClient
 
 public:
     /**
-     * Clock used by DateTime
+     *  @brief Clock used by DateTime.
      */
     using clock = std::chrono::system_clock;
 
     /**
-     * DateTime::time_point type definition
+     *  @brief DateTime::time_point type definition.
      */
     using time_point = clock::time_point;
 
     /**
-     * DateTime::duration type definition
+     *  @brief DateTime::duration type definition.
      */
     using duration = clock::duration;
 
     /**
-     * Time print accuracy
+     *  @brief Time print accuracy.
      */
     enum class PrintAccuracy
     {
@@ -131,12 +131,12 @@ public:
     };
 
     /**
-     * Date and time print flags
+     *  @brief Date and time print flags.
      */
-    static constexpr int PF_RFC_DATE = 1;
-    static constexpr int PF_TIMEZONE = 2;
-    static constexpr int PF_12HOURS = 4;
-    static constexpr int PF_GMT = 16;
+    static constexpr auto PF_RFC_DATE = 1;
+    static constexpr auto PF_TIMEZONE = 2;
+    static constexpr auto PF_12HOURS = 4;
+    static constexpr auto PF_GMT = 16;
 
     enum class Format
     {
@@ -149,64 +149,64 @@ public:
     };
 
     /**
-     * System's format info
-     * @param dtFormat          Format type
-     * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME
+     *  @brief System's format info.
+     * @param dtFormat          Format type.
+     * @param arg               Optional format argument, for MONTH_NAME and WEEKDAY_NAME.
      */
     static String format(Format dtFormat, size_t arg = 0);
 
     /**
-     * System's date separator
+     *  @brief System's date separator.
      */
     static char dateSeparator();
 
     /**
-     * Sets system's time mode
+     *  @brief Sets system's time mode.
      */
     static void time24Mode(bool t24mode);
 
     /**
-    * Constructor
-    * @param y                  Year
-    * @param m                  Month
-    * @param d                  Day
-    * @param h                  Hour
-    * @param mm                 Minute
-    * @param s                  Second
-    * @param ms                 Millisecond
+    *  @brief Constructor.
+    * @param y                  Year.
+    * @param m                  Month.
+    * @param d                  Day.
+    * @param h                  Hour.
+    * @param mm                 Minute.
+    * @param s                  Second.
+    * @param ms                 Millisecond.
     */
     DateTime(short y, short m, short d, short h = 0, short mm = 0, short s = 0, short ms = 0);
 
     /**
-     * Constructor
-     * @param dateStr           Date string
+     *  @brief Constructor.
+     * @param dateStr           Date string.
      */
     explicit DateTime(const char* dateStr = nullptr);
 
     /**
-     * Copy constructor
+     *  @brief Copy constructor.
      */
     DateTime(const DateTime& dt) = default;
 
     /**
-     * Move constructor
+     *  @brief Move constructor.
      */
     DateTime(DateTime&& dt) = default;
 
     /**
-     * Constructor
-     * @param timePoint                Time point
+     *  @brief Constructor.
+     * @param timePoint                Time point.
      */
     explicit DateTime(const time_point& timePoint);
 
     /**
-     * Constructor
-     * @param interval                Duration since epoch
+     *  @brief Constructor.
+     * @param interval                Duration since epoch.
      */
     explicit DateTime(const duration& interval);
 
     /**
-     * Returns time_point presentation of the date and time
+     *  @brief Returns time_point presentation of the date and time.
      */
     [[nodiscard]] const time_point& timePoint() const
     {
@@ -219,27 +219,27 @@ public:
     }
 
     /**
-     * Assignment
+     *  @brief Assignment.
      */
     DateTime& operator=(const DateTime& date) = default;
 
     /**
-     * Print the date into stream
-     * @param str               Output stream
-     * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
+     *  @brief Print the date into the stream.
+     * @param str               Output stream.
+     * @param printFlags        Print flags, recognized { PF_GMT, PF_RFC_DATE }.
      */
     void formatDate(std::ostream& str, int printFlags = 0) const;
 
     /**
-     * Print date into string
-     * @param str               Output stream
-     * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy
+     *  @brief Print date into string.
+     * @param str               Output stream.
+     * @param printFlags        Print flags, recognized { PF_GMT, PF_TIMEZONE, PF_12HOURS }.
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
      */
     void formatTime(std::ostream& str, int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
-     * Duration since epoch
+     *  @brief Duration since epoch.
      */
     [[nodiscard]] duration sinceEpoch() const
     {
@@ -247,63 +247,63 @@ public:
     }
 
     /**
-     * Reports the current date and time.
+     *  @brief Reports the current date and time.
      */
     static DateTime Now();
 
     /**
-     * Converts C time into DateTime
-     * @param timestamp                C time to convert
+     *  @brief Converts C time into DateTime.
+     * @param timestamp                C time to convert.
      */
     static DateTime convertCTime(time_t timestamp);
 
     /**
-     * Reports the number of days in the month in this date (1..31)
+     *  @brief Reports the number of days in the month in this date (1..31).
      */
     [[nodiscard]] int16_t daysInMonth() const;
 
     /**
-     * Reports the day of the week in this date (1..7)
+     *  @brief Reports the day of the week in this date (1..7).
      */
     [[nodiscard]] int16_t dayOfWeek() const;
 
     /**
-     * Reports the day of the week name in this date ('Sunday'..'Saturday')
+     *  @brief Reports the day of the week name in this date ('Sunday' to 'Saturday').
      */
     [[nodiscard]] String dayOfWeekName() const;
 
     /**
-     * Reports the month name in this date ('Sunday'..'Saturday')
+     *  @brief Reports the month name in this date ('Sunday' to 'Saturday').
      */
     [[nodiscard]] String monthName() const;
 
     /**
-     * Reports the date part only
+     *  @brief Reports the date part only.
      */
     [[nodiscard]] DateTime date() const;
 
     /**
-     * Returns date as a string
-     * @param printFlags        Print flags, recognised { PF_GMT, PF_RFC_DATE }
+     *  @brief Returns date as a string.
+     * @param printFlags        Print flags, recognized { PF_GMT, PF_RFC_DATE }.
      */
     [[nodiscard]] String dateString(int printFlags = 0) const;
 
     /**
-     * Returns time as a string
-     * @param printFlags        Print flags, recognised { PF_GMT, PF_TIMEZONE, PF_12HOURS }
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy
+     *  @brief Returns time as a string.
+     * @param printFlags        Print flags, recognized { PF_GMT, PF_TIMEZONE, PF_12HOURS }.
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
      */
     [[nodiscard]] String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
-     * Returns time as a ISO date and time string
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy
-     * @param gmt               If true print GMT time
+     *  @brief Returns time as an ISO date and time string.
+     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
+     * @param gmt               If true print GMT time.
      */
     [[nodiscard]] String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 
     /**
-     * Returns date and time as a string
+     *  @brief Returns date and time as a string.
      */
     [[nodiscard]] explicit operator String() const
     {
@@ -311,7 +311,7 @@ public:
     }
 
     /**
-     * Returns time_t presentation
+     *  @brief Returns time_t presentation.
      */
     [[nodiscard]] explicit operator time_t() const
     {
@@ -319,17 +319,17 @@ public:
     }
 
     /**
-     * Decodes date into y,m,d
+     *  @brief Decodes date into y,m,d.
      */
     void decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, bool gmt = false) const;
 
     /**
-     * Decodes time into hour,minute,second,millisecond
+     *  @brief Decodes time into hour, minute, second, millisecond.
      */
     void decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt = false) const;
 
     /**
-     * Return true if date and time are at epoch
+     *  @brief Return true if date and time are at epoch.
      */
     [[nodiscard]] bool zero() const
     {
@@ -342,8 +342,7 @@ public:
     }
 
 private:
-    time_point m_dateTime; ///< Actual date and time value
-
+    time_point     m_dateTime;       ///< Actual date and time value
     static String  _dateFormat;      ///< System's date format
     static String  _fullTimeFormat;  ///< System's time format
     static String  _shortTimeFormat; ///< System's time format
@@ -354,28 +353,28 @@ private:
     static Strings _monthNames;      ///< The locale-defined weekday names
 };
 
-SP_EXPORT int  operator<=>(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
-SP_EXPORT bool operator==(const sptk::DateTime& dt1, const sptk::DateTime& dt2);
+SP_EXPORT int  operator<=>(const DateTime& dt1, const DateTime& dt2);
+SP_EXPORT bool operator==(const DateTime& dt1, const DateTime& dt2);
 
 /**
- * Adds two DateTime values
+ *  @brief Adds two DateTime values.
  */
-SP_EXPORT sptk::DateTime operator+(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
+SP_EXPORT DateTime operator+(const DateTime& dateTime, const DateTime::duration& duration);
 
 /**
- * Adds two DateTime values
+ *  @brief Adds two DateTime values.
  */
-SP_EXPORT sptk::DateTime operator-(const sptk::DateTime& dateTime, const sptk::DateTime::duration& duration);
+SP_EXPORT DateTime operator-(const DateTime& dateTime, const DateTime::duration& duration);
 
 /**
- * Subtracts two DateTime values
+ *  @brief Subtracts two DateTime values.
  */
-SP_EXPORT sptk::DateTime::duration operator-(const sptk::DateTime& dateTime, const sptk::DateTime& dt2);
+SP_EXPORT DateTime::duration operator-(const DateTime& dateTime, const DateTime& dt2);
 
 /**
- * Convert duration into seconds, with 1 msec accuracy
+ *  @brief Convert duration into seconds, with 1 msec accuracy.
  */
-SP_EXPORT double duration2seconds(const sptk::DateTime::duration& duration);
+SP_EXPORT double duration2seconds(const DateTime::duration& duration);
 
 /**
  * @}
