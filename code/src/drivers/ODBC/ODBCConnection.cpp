@@ -61,7 +61,7 @@ public:
 namespace {
 SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, int16_t fieldType, SQLLEN& dataLength);
 SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column, SQLLEN& dataLength, chrono::minutes sessionTimezoneOffset);
-void      odbcQueryBindParameter(const Query* query, QueryParameter* parameter, chrono::minutes sessionTimezoneOffset);
+void      odbcQueryBindParameter(const Query* query, QueryParameter* parameter);
 } // namespace
 
 ODBCConnection::ODBCConnection(const String& connectionString, const std::chrono::seconds connectTimeout)
@@ -310,28 +310,25 @@ void ODBCConnection::queryExecute(Query* query)
         return;
     }
 
-    if (result == SQL_NEED_DATA)
+    QueryParameter* parameter;
+    while (result == SQL_NEED_DATA)
     {
-        QueryParameter* parameter;
-        while (true)
+        result = SQLParamData(query->statement(), bit_cast<SQLPOINTER*>(&parameter));
+        if (result == SQL_NEED_DATA)
         {
-            result = SQLParamData(query->statement(), bit_cast<SQLPOINTER*>(&parameter));
-            if (result == SQL_NEED_DATA)
+            const auto len = static_cast<SQLLEN>(parameter->dataSize());
+            if (const auto buff = bit_cast<SQLPOINTER>(parameter->getText());
+                SQLPutData(query->statement(), buff, len) != SQL_SUCCESS)
             {
-                const auto len = static_cast<SQLLEN>(parameter->dataSize());
-                if (const auto buff = bit_cast<SQLPOINTER>(parameter->getText());
-                    SQLPutData(query->statement(), buff, len) != SQL_SUCCESS)
-                {
-                    break;
-                }
-                continue;
+                break;
             }
-            if (result == SQL_SUCCESS)
-            {
-                return;
-            }
-            break;
+            continue;
         }
+        if (result == SQL_SUCCESS)
+        {
+            return;
+        }
+        break;
     }
 
     constexpr auto                 diagRecordSize = 16;
@@ -457,7 +454,7 @@ void bindLOB(QueryParameter* parameter, SQLPOINTER& buff, SQLLEN& len, SQLLEN*& 
 }
 } // namespace
 
-void odbcQueryBindParameter(const Query* query, QueryParameter* parameter, chrono::minutes sessionTimezoneOffset)
+void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 {
     static constexpr auto dateAccuracy = 19;
     static SQLLEN         cbNullValue = SQL_NULL_DATA;
@@ -577,7 +574,7 @@ void ODBCConnection::queryBindParameters(Query* query)
     for (uint32_t i = 0; i < query->paramCount(); ++i)
     {
         QueryParameter* param = &query->param(i);
-        odbcQueryBindParameter(query, param, m_sessionTimezoneOffset);
+        odbcQueryBindParameter(query, param);
     }
 }
 
@@ -901,12 +898,12 @@ void ODBCConnection::queryFetch(Query* query)
                 case SQL_C_TIMESTAMP:
                     if (field->dateTimeVariant == 0)
                     {
-                        // Old datetime type requires TZ offset
+                        // The old datetime type requires TZ offset.
                         resultCode = odbcReadTimestampField(statement, field, column, dataLength, m_sessionTimezoneOffset);
                     }
                     else
                     {
-                        // New datetime2 type doesn't require TZ offset
+                        // The new datetime2 type doesn't require TZ offset.
                         resultCode = odbcReadTimestampField(statement, field, column, dataLength, chrono::minutes(0));
                     }
                     break;
@@ -974,7 +971,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
         {
             throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
-        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
+        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, bit_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
         {
             throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }

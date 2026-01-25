@@ -33,7 +33,7 @@ using namespace std;
 using namespace sptk;
 
 namespace {
-// Returns true if result code indicates success
+// Returns true if the result code indicates success
 inline bool Successful(RETCODE ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
@@ -85,7 +85,7 @@ void ODBCConnectionBase::allocConnect()
 
     const scoped_lock lock(*this);
 
-    // Create connection handle
+    // Create the connection handle.
     SQLHDBC hConnection = nullptr;
     if (!Successful(SQLAllocConnect(m_cEnvironment.handle(), &hConnection)))
     {
@@ -168,17 +168,17 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         throw DatabaseException(errorInfo);
     }
 
-    pFinalString = (const char*) buff.data();
+    pFinalString = reinterpret_cast<const char*>(buff.data());
     m_connected = true;
     m_connectString = pFinalString;
 
     // Trying to get more information about the driver
-    array<uint8_t*, bufferLength> driverDescription {};
-    SQLSMALLINT                   descriptionLength = 0;
+    array<char, bufferLength> driverDescription {};
+    SQLSMALLINT               descriptionLength = 0;
     rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_NAME, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription = String((const char*) driverDescription.data());
+        m_driverDescription = String(driverDescription.data());
     }
 
     rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), bufferLength, &descriptionLength);
@@ -319,7 +319,7 @@ string extract_error(
         {
             break;
         }
-        error += removeDriverIdentification((char*) text.data()) + string(". ");
+        error += removeDriverIdentification(reinterpret_cast<char*>(text.data())) + string(". ");
     }
 
     return error;
@@ -339,8 +339,9 @@ String ODBCConnectionBase::errorInformation(const char* function) const
         return extract_error(m_hConnection.get(), SQL_HANDLE_DBC);
     }
 
-    rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT, (UCHAR*) errorState.data(),
-                  &nativeError, (UCHAR*) errorDescription.data(), sizeof(errorDescription), &pcnmsg);
+    rc = SQLError(m_cEnvironment.handle(), SQL_NULL_HDBC, SQL_NULL_HSTMT,
+                  reinterpret_cast<UCHAR*>(errorState.data()), &nativeError,
+                  reinterpret_cast<UCHAR*>(errorDescription.data()), sizeof(errorDescription), &pcnmsg);
     if (rc != SQL_SUCCESS)
     {
         throw DatabaseException(cantGetInformation);
