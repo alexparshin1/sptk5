@@ -33,13 +33,15 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
+using enum VariantDataType;
+
 static constexpr int BUFFER_TYPES =
-    static_cast<int>(VariantDataType::VAR_STRING) | static_cast<int>(VariantDataType::VAR_TEXT) | static_cast<int>(VariantDataType::VAR_BUFFER);
+    static_cast<int>(VAR_STRING) | static_cast<int>(VAR_TEXT) | static_cast<int>(VAR_BUFFER);
 
 //---------------------------------------------------------------------------
 void BaseVariant::dataSize(size_t newDataSize)
 {
-    if (dataType() == VariantDataType::VAR_BUFFER && !isExternalBuffer())
+    if (dataType() == VAR_BUFFER && !isExternalBuffer())
     {
         m_data.get<Buffer>().bytes(newDataSize);
     }
@@ -176,7 +178,7 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantD
 
     switch (type)
     {
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             if (value == nullptr)
             {
                 setNull(type);
@@ -187,8 +189,8 @@ void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantD
             }
             break;
 
-        case VariantDataType::VAR_BUFFER:
-        case VariantDataType::VAR_TEXT: {
+        case VAR_BUFFER:
+        case VAR_TEXT: {
             if (value == nullptr)
             {
                 Buffer buffer(valueSize);
@@ -221,7 +223,7 @@ void VariantAdaptors::setDateTime(const DateTime& value, bool dateOnly)
     if (dateOnly)
     {
         m_data.set(value.date());
-        dataType(VariantDataType::VAR_DATE);
+        dataType(VAR_DATE);
     }
     else
     {
@@ -232,13 +234,13 @@ void VariantAdaptors::setDateTime(const DateTime& value, bool dateOnly)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImagePtr(const uint8_t* value)
 {
-    m_data.setExternalBuffer(value, 0, VariantDataType::VAR_IMAGE_PTR);
+    m_data.setExternalBuffer(value, 0, VAR_IMAGE_PTR);
 }
 
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(uint32_t value)
 {
-    constexpr VariantType variantType {VariantDataType::VAR_IMAGE_NDX, false, false};
+    constexpr VariantType variantType {VAR_IMAGE_NDX, false, false};
     dataType(variantType);
     dataSize(sizeof(value));
     m_data.set(static_cast<int32_t>(value));
@@ -371,7 +373,7 @@ const char* BaseVariant::getString() const
         return (const char*) static_cast<const uint8_t*>(m_data);
     }
 
-    if (m_data.type().type == VariantDataType::VAR_STRING)
+    if (m_data.type().type == VAR_STRING)
     {
         return m_data.get<String>().c_str();
     }
@@ -480,30 +482,30 @@ int32_t VariantAdaptors::asInteger() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return m_data.get<bool>() ? 1 : 0;
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return static_cast<int>(m_data);
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return static_cast<int32_t>(m_data.get<int64_t>());
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return static_cast<int32_t>(m_data.get<MoneyData>());
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return static_cast<int32_t>(m_data.get<double>());
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return string2int(asString());
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return static_cast<int32_t>(chrono::duration_cast<chrono::seconds>(m_data.get<DateTime>().date().sinceEpoch()).count());
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return static_cast<int32_t>(chrono::duration_cast<chrono::seconds>(m_data.get<DateTime>().sinceEpoch()).count());
 
         default:
@@ -520,37 +522,37 @@ int64_t VariantAdaptors::asInt64() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return m_data.get<bool>() ? 1 : 0;
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return m_data.get<int32_t>();
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return m_data.get<int64_t>();
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return static_cast<int64_t>(m_data.get<MoneyData>());
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return static_cast<int64_t>(m_data.get<double>());
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return string2int64(getBufferPtr());
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count();
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count();
 
-        case VariantDataType::VAR_IMAGE_PTR:
+        case VAR_IMAGE_PTR:
             return int64_t(static_cast<const uint8_t*>(m_data));
 
-        case VariantDataType::VAR_IMAGE_NDX:
-            return static_cast<int64_t>(m_data.get<int32_t>());
+        case VAR_IMAGE_NDX:
+            return m_data.get<int32_t>();
 
         default:
             throw Exception("Can't convert field for that type");
@@ -566,34 +568,34 @@ bool VariantAdaptors::asBool() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return m_data.get<bool>();
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return (m_data.get<int32_t>() > 0);
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return (m_data.get<int64_t>() > 0);
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return (m_data.get<MoneyData>().quantity > 0);
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return (m_data.get<double>() > 0);
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return (strchr("YyTt1", asString()[0]) != nullptr);
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
             return !m_data.get<DateTime>().zero();
 
-        case VariantDataType::VAR_IMAGE_PTR:
+        case VAR_IMAGE_PTR:
             return static_cast<const uint8_t*>(m_data) != nullptr;
 
-        case VariantDataType::VAR_IMAGE_NDX:
+        case VAR_IMAGE_NDX:
             return m_data.get<int32_t>() != 0;
 
         default:
@@ -612,36 +614,36 @@ double VariantAdaptors::asFloat() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             result = m_data.get<bool>() ? 1 : 0;
             break;
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             result = m_data.get<int32_t>();
             break;
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             result = static_cast<double>(m_data.get<int64_t>());
             break;
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             result = static_cast<double>(m_data.get<MoneyData>());
             break;
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             result = m_data.get<double>();
             break;
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             result = strtod(asString().c_str(), nullptr);
             break;
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count());
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count());
 
         default:
@@ -660,22 +662,22 @@ String VariantAdaptors::asString() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return m_data.get<bool>() ? "true" : "false";
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return int2string(m_data.get<int32_t>());
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return int2string(m_data.get<int64_t>());
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return moneyDataToString();
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return double2string(m_data.get<double>());
 
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             if (isExternalBuffer())
             {
                 const auto* ptr = static_cast<const uint8_t*>(m_data);
@@ -690,17 +692,17 @@ String VariantAdaptors::asString() const
             }
             return m_data.get<String>();
 
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return m_data.get<Buffer>().c_str();
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE);
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return m_data.get<DateTime>().isoDateTimeString();
 
-        case VariantDataType::VAR_IMAGE_PTR:
+        case VAR_IMAGE_PTR:
             if (static_cast<const uint8_t*>(m_data) != nullptr)
             {
                 stringstream str;
@@ -709,7 +711,7 @@ String VariantAdaptors::asString() const
             }
             return "null";
 
-        case VariantDataType::VAR_IMAGE_NDX:
+        case VAR_IMAGE_NDX:
             return int2string(m_data.get<int32_t>());
 
         default:
@@ -728,39 +730,39 @@ Buffer VariantAdaptors::asBuffer() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return Buffer(m_data.get<bool>() ? "true" : "false");
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return Buffer(int2string(m_data.get<int32_t>()));
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return Buffer(int2string(m_data.get<int64_t>()));
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return Buffer(moneyDataToString());
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return Buffer(double2string(m_data.get<double>()));
 
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             return Buffer(m_data.get<String>());
 
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             if (m_data.type().isExternalBuffer)
             {
                 return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
             }
             return m_data.get<Buffer>();
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return Buffer(m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE));
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return Buffer(m_data.get<DateTime>().isoDateTimeString());
 
-        case VariantDataType::VAR_IMAGE_PTR:
+        case VAR_IMAGE_PTR:
             if (static_cast<const uint8_t*>(m_data) != nullptr)
             {
                 stringstream str;
@@ -769,7 +771,7 @@ Buffer VariantAdaptors::asBuffer() const
             }
             return Buffer("null");
 
-        case VariantDataType::VAR_IMAGE_NDX:
+        case VAR_IMAGE_NDX:
             return Buffer(int2string(m_data.get<int32_t>()));
 
         default:
@@ -800,24 +802,24 @@ DateTime VariantAdaptors::asDate() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_FLOAT:
+        case VAR_BOOL:
+        case VAR_MONEY:
+        case VAR_FLOAT:
             return DateTime();
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return DateTime(chrono::seconds(m_data.get<int32_t>())).date();
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return DateTime(chrono::microseconds(m_data.get<int64_t>())).date();
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return DateTime(asString().c_str()).date();
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
             return m_data.get<DateTime>().date();
 
         default:
@@ -834,24 +836,24 @@ DateTime VariantAdaptors::asDateTime() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
-        case VariantDataType::VAR_MONEY:
-        case VariantDataType::VAR_FLOAT:
+        case VAR_BOOL:
+        case VAR_MONEY:
+        case VAR_FLOAT:
             return DateTime();
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return DateTime(chrono::seconds(m_data.get<int32_t>()));
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return DateTime(chrono::microseconds(m_data.get<int64_t>()));
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return DateTime(asString().c_str());
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
             return m_data.get<DateTime>();
 
         default:
@@ -866,7 +868,7 @@ const uint8_t* VariantAdaptors::asImagePtr() const
         return nullptr;
     }
 
-    if (dataType() == VariantDataType::VAR_IMAGE_PTR)
+    if (dataType() == VAR_IMAGE_PTR)
     {
         return static_cast<const uint8_t*>(m_data);
     }
@@ -883,54 +885,54 @@ const char* VariantAdaptors::getBufferPtr() const
 {
     if (isExternalBuffer())
     {
-        return (const char*) static_cast<const uint8_t*>(m_data);
+        return static_cast<const char*>(m_data);
     }
     return m_data.get<Buffer>().c_str();
 }
 
 bool BaseVariant::isNull() const
 {
-    return m_data.type().isNull || m_data.type().type == VariantDataType::VAR_NONE;
+    return m_data.type().isNull || m_data.type().type == VAR_NONE;
 }
 
 String BaseVariant::typeName(VariantDataType type)
 {
     switch (type)
     {
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return "bool";
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return "int";
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return "int64";
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return "double";
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             return "money";
 
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             return "string";
 
-        case VariantDataType::VAR_TEXT:
+        case VAR_TEXT:
             return "text";
 
-        case VariantDataType::VAR_BUFFER:
+        case VAR_BUFFER:
             return "blob";
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             return "date";
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             return "datetime";
 
-        case VariantDataType::VAR_IMAGE_PTR:
+        case VAR_IMAGE_PTR:
             return "imageptr";
 
-        case VariantDataType::VAR_IMAGE_NDX:
+        case VAR_IMAGE_NDX:
             return "imagendx";
 
         default:
@@ -941,19 +943,19 @@ String BaseVariant::typeName(VariantDataType type)
 VariantDataType BaseVariant::nameType(const char* name)
 {
     static const std::map<string, VariantDataType, less<>> nameToTypeMap {
-        {typeName(VariantDataType::VAR_NONE), VariantDataType::VAR_NONE},
-        {typeName(VariantDataType::VAR_INT), VariantDataType::VAR_INT},
-        {typeName(VariantDataType::VAR_FLOAT), VariantDataType::VAR_FLOAT},
-        {typeName(VariantDataType::VAR_MONEY), VariantDataType::VAR_MONEY},
-        {typeName(VariantDataType::VAR_STRING), VariantDataType::VAR_STRING},
-        {typeName(VariantDataType::VAR_TEXT), VariantDataType::VAR_TEXT},
-        {typeName(VariantDataType::VAR_BUFFER), VariantDataType::VAR_BUFFER},
-        {typeName(VariantDataType::VAR_DATE), VariantDataType::VAR_DATE},
-        {typeName(VariantDataType::VAR_DATE_TIME), VariantDataType::VAR_DATE_TIME},
-        {typeName(VariantDataType::VAR_IMAGE_PTR), VariantDataType::VAR_IMAGE_PTR},
-        {typeName(VariantDataType::VAR_IMAGE_NDX), VariantDataType::VAR_IMAGE_NDX},
-        {typeName(VariantDataType::VAR_INT64), VariantDataType::VAR_INT64},
-        {typeName(VariantDataType::VAR_BOOL), VariantDataType::VAR_BOOL},
+        {typeName(VAR_NONE), VAR_NONE},
+        {typeName(VAR_INT), VAR_INT},
+        {typeName(VAR_FLOAT), VAR_FLOAT},
+        {typeName(VAR_MONEY), VAR_MONEY},
+        {typeName(VAR_STRING), VAR_STRING},
+        {typeName(VAR_TEXT), VAR_TEXT},
+        {typeName(VAR_BUFFER), VAR_BUFFER},
+        {typeName(VAR_DATE), VAR_DATE},
+        {typeName(VAR_DATE_TIME), VAR_DATE_TIME},
+        {typeName(VAR_IMAGE_PTR), VAR_IMAGE_PTR},
+        {typeName(VAR_IMAGE_NDX), VAR_IMAGE_NDX},
+        {typeName(VAR_INT64), VAR_INT64},
+        {typeName(VAR_BOOL), VAR_BOOL},
     };
 
     if (name == nullptr || name[0] == 0)
@@ -972,18 +974,19 @@ VariantDataType BaseVariant::nameType(const char* name)
 
 void Variant::load(const SNode& element)
 {
+    using enum Node::Type;
     switch (element->type())
     {
-        case Node::Type::Number:
+        case Number:
             *this = element->getNumber();
             break;
-        case Node::Type::Boolean:
+        case Boolean:
             *this = element->getBoolean();
             break;
-        case Node::Type::Null:
+        case Null:
             setNull();
             break;
-        case Node::Type::Text:
+        case Text:
             *this = element->getString();
             break;
         default:
@@ -1003,24 +1006,24 @@ void Variant::save(const SNode& node) const
     {
         switch (dataType())
         {
-            case VariantDataType::VAR_BOOL:
+            case VAR_BOOL:
                 node->type(Node::Type::Boolean);
                 break;
-            case VariantDataType::VAR_INT:
-            case VariantDataType::VAR_INT64:
-            case VariantDataType::VAR_FLOAT:
-            case VariantDataType::VAR_IMAGE_NDX:
+            case VAR_INT:
+            case VAR_INT64:
+            case VAR_FLOAT:
+            case VAR_IMAGE_NDX:
                 node->type(Node::Type::Number);
                 break;
-            case VariantDataType::VAR_MONEY:
-            case VariantDataType::VAR_STRING:
-            case VariantDataType::VAR_DATE:
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_MONEY:
+            case VAR_STRING:
+            case VAR_DATE:
+            case VAR_DATE_TIME:
                 node->type(Node::Type::Text);
                 break;
 
-            case VariantDataType::VAR_TEXT:
-            case VariantDataType::VAR_BUFFER:
+            case VAR_TEXT:
+            case VAR_BUFFER:
                 node->type(Node::Type::CData);
                 break;
 

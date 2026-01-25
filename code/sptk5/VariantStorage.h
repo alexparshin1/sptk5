@@ -310,6 +310,11 @@ public:
     explicit operator const uint8_t*() const;
 
     /**
+     * @brief Explicit const conversion
+     */
+    explicit operator const char*() const;
+
+    /**
      * @brief Explicit conversion for types derived from VariantStorageClient
      */
     template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>

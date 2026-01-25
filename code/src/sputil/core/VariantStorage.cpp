@@ -13,16 +13,17 @@ BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     {
         switch (m_type.type)
         {
-            case VariantDataType::VAR_BUFFER:
+            using enum VariantDataType;
+            case VAR_BUFFER:
                 m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
                 break;
-            case VariantDataType::VAR_STRING:
+            case VAR_STRING:
                 m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
                 break;
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_DATE_TIME:
                 m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
                 break;
-            case VariantDataType::VAR_MONEY:
+            case VAR_MONEY:
                 m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
                 break;
             default:
@@ -178,6 +179,15 @@ VariantStorage::operator const uint8_t*() const
     throw invalid_argument("Invalid type");
 }
 
+VariantStorage::operator const char*() const
+{
+    if (type().isExternalBuffer)
+    {
+        return reinterpret_cast<const char*>(value().asBytePointer);
+    }
+    throw invalid_argument("Invalid type");
+}
+
 VariantStorage& VariantStorage::operator=(const VariantStorage& other)
 {
     if (this == &other)
@@ -191,17 +201,18 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     {
         switch (type().type)
         {
-            case VariantDataType::VAR_BUFFER:
+            using enum VariantDataType;
+            case VAR_BUFFER:
                 setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
                 break;
-            case VariantDataType::VAR_STRING:
+            case VAR_STRING:
                 setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
                 break;
-            case VariantDataType::VAR_DATE:
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_DATE:
+            case VAR_DATE_TIME:
                 setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
                 break;
-            case VariantDataType::VAR_MONEY:
+            case VAR_MONEY:
                 setStorageClient(make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.storageClient())));
                 break;
             default:
@@ -225,7 +236,7 @@ VariantStorage& VariantStorage::operator=(bool aValue)
         setStorageClient(nullptr);
     }
 
-    const VariantType type {VariantDataType::VAR_BOOL, false, false, sizeof(aValue)};
+    constexpr VariantType type {VariantDataType::VAR_BOOL, false, false, sizeof(aValue)};
     setType(type);
     value().asBool = aValue != 0 ? true : false;
     return *this;
@@ -237,7 +248,7 @@ VariantStorage& VariantStorage::operator=(int aValue)
     {
         setStorageClient(nullptr);
     }
-    const VariantType type {VariantDataType::VAR_INT, false, false, sizeof(aValue)};
+    constexpr VariantType type {VariantDataType::VAR_INT, false, false, sizeof(aValue)};
     setType(type);
     value().asInt64 = aValue;
     return *this;
@@ -249,7 +260,8 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
     {
         setStorageClient(nullptr);
     }
-    const VariantType type {VariantDataType::VAR_INT64, false, false, sizeof(aValue)};
+
+    constexpr VariantType type {VariantDataType::VAR_INT64, false, false, sizeof(aValue)};
     setType(type);
     value().asInt64 = aValue;
     return *this;
@@ -261,7 +273,8 @@ VariantStorage& VariantStorage::operator=(double aValue)
     {
         setStorageClient(nullptr);
     }
-    const VariantType type {VariantDataType::VAR_FLOAT, false, false, sizeof(aValue)};
+
+    constexpr VariantType type {VariantDataType::VAR_FLOAT, false, false, sizeof(aValue)};
     setType(type);
     value().asDouble = aValue;
     return *this;
