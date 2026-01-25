@@ -189,12 +189,14 @@ protected:
 private:
     using SQLHSTMT = sqlite3_stmt*;
 
-    mutable std::mutex       m_mutex;   ///< Mutex that protects access to data members
-    std::shared_ptr<sqlite3> m_connect; ///< Database connection
-    void                     bindParameter(const Query* query, uint32_t paramNumber) const;
+    mutable std::mutex       m_mutex;                 ///< Mutex that protects access to data members
+    std::shared_ptr<sqlite3> m_connect;               ///< Database connection
+    std::chrono::minutes     m_sessionTimezoneOffset; //< Session timezone offset
 
-    void       closeAndClean();
-    static int transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber);
+    void                 bindParameter(const Query* query, uint32_t paramNumber) const;
+    void                 closeAndClean();
+    static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber);
+    std::chrono::minutes getSessionTimezoneOffset(); //< Get session timezone offset
 };
 
 /**

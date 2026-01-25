@@ -36,14 +36,14 @@ using namespace sptk;
 namespace sptk {
 
 constexpr int  hoursPerDay = 24;
-const DateTime epochDate(2000, 1, 1);
+const DateTime g_epochDate(2000, 1, 1);
 
 class PostgreSQLStatement
 {
 public:
-    PostgreSQLStatement(PGconn* connect, bool int64timestamps, bool prepared)
+    PostgreSQLStatement(PGconn* connect, bool int64timestamps, bool prepared, const DateTime& epochDate)
         : m_connect(connect)
-        , m_paramValues(int64timestamps)
+        , m_paramValues(int64timestamps, epochDate)
     {
         if (prepared)
         {
@@ -208,6 +208,14 @@ String PostgreSQLConnection::nativeConnectionString() const
     return result;
 }
 
+chrono::minutes PostgreSQLConnection::getTimezoneOffset()
+{
+    Query query(this, "SELECT CAST(EXTRACT(TIMEZONE FROM CURRENT_TIME) AS INT)");
+    auto  tzOffset = query.scalar().asInteger() / 60;
+
+    return chrono::minutes(tzOffset);
+}
+
 void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 {
     if (!active())
@@ -241,6 +249,8 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
                 m_timestampsFormat = TimestampFormat::DOUBLE;
             }
         }
+        m_sessionTimezoneOffset = getTimezoneOffset();
+        m_epochDate = g_epochDate + m_sessionTimezoneOffset;
     }
 }
 
@@ -256,7 +266,7 @@ void PostgreSQLConnection::closeDatabase()
 
 DBHandle PostgreSQLConnection::handle() const
 {
-    return (DBHandle) m_connect;
+    return reinterpret_cast<DBHandle>(m_connect);
 }
 
 bool PostgreSQLConnection::active() const
@@ -328,13 +338,12 @@ String PostgreSQLConnection::queryError(const Query*) const
     return PQerrorMessage(m_connect);
 }
 
-// Doesn't actually allocate stmt, but makes sure
-// the previously allocated stmt is released
+// Doesn't allocate stmt but makes sure the previously allocated stmt is released
 void PostgreSQLConnection::queryAllocStmt(Query* query)
 {
     queryFreeStmt(query);
     const auto stmt = make_shared<PostgreSQLStatement>(m_connect, m_timestampsFormat == TimestampFormat::INT64,
-                                                       query->autoPrepare());
+                                                       query->autoPrepare(), m_epochDate - m_sessionTimezoneOffset);
     querySetStmt(query, reinterpret_pointer_cast<uint8_t>(stmt));
 }
 
@@ -423,7 +432,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     } // VOID result or NO results, using text format
 
     PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
-                                    (const char* const*) paramValues.values(),
+                                    reinterpret_cast<const char* const*>(paramValues.values()),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     const ExecStatusType statusType = PQresultStatus(stmt);
@@ -700,14 +709,16 @@ inline double readFloat8(const char* data)
     return *bit_cast<double*>(ptr);
 }
 
-inline DateTime readDate(const char* data)
+inline DateTime readDate(const char* data, const DateTime& epochDate)
 {
     const auto dateTime = static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
-inline DateTime readTimestamp(const char* data, bool integerTimestamps)
+inline DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime& epochDate)
 {
+    DateTime epDate(2000, 1, 1);
+
     uint64_t             value = ntohq(*bit_cast<const uint64_t*>(data));
     DateTime             result;
     chrono::microseconds epochOffset;
@@ -836,7 +847,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     return moneyData;
 }
 
-void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat)
+void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat, const DateTime& epochDate)
 {
     struct PGArrayHeader
     {
@@ -907,13 +918,12 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
                     break;
 
                 case DATE:
-                    output << readDate(data).dateString();
+                    output << readDate(data, epochDate).dateString();
                     break;
 
                 case TIMESTAMPTZ:
                 case TIMESTAMP:
-                    output << readTimestamp(data, timestampFormat ==
-                                                      PostgreSQLConnection::TimestampFormat::INT64)
+                    output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, epochDate)
                                   .dateString();
                     break;
 
@@ -1035,12 +1045,14 @@ void PostgreSQLConnection::queryFetch(Query* query)
                         break;
 
                     case DATE:
-                        field->setDateTime(readDate(data));
+                        field->setDateTime(readDate(data, m_epochDate));
                         break;
 
                     case TIMESTAMPTZ:
+                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64, m_epochDate));
+                        break;
                     case TIMESTAMP:
-                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64));
+                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64, g_epochDate));
                         break;
 
                     case CHAR_ARRAY:
@@ -1054,7 +1066,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
                     case FLOAT8_ARRAY:
                     case TIMESTAMP_ARRAY:
                     case TIMESTAMPTZ_ARRAY:
-                        decodeArray(data, field, m_timestampsFormat);
+                        decodeArray(data, field, m_timestampsFormat, m_epochDate);
                         break;
 
                     default:

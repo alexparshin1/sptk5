@@ -222,6 +222,7 @@ protected:
 
 private:
     static constexpr size_t MAX_NAME_LEN = 256;
+    std::chrono::minutes    m_sessionTimezoneOffset;
 
     /**
      * The ODBC connection object
@@ -242,6 +243,8 @@ private:
     void parseColumns(Query* query, size_t count);
 
     SQLHSTMT makeObjectListStatement(const DatabaseObjectType& objectType, std::vector<SQLCHAR>& objectSchema, std::vector<SQLCHAR>& objectName, short& procedureType, SQLLEN& objectSchemaLength, SQLLEN& objectNameLength) const;
+
+    std::chrono::minutes getSessionTimezoneOffset();
 };
 /**
  * @}

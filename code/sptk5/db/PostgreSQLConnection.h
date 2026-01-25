@@ -43,14 +43,14 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 class PostgreSQLStatement;
 
 /**
- * @brief PostgreSQL database
+ * @brief PostgreSQL database.
  *
  * CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
  */
@@ -68,57 +68,57 @@ public:
     };
 
     /**
-     * @brief Returns the PostgreSQL connection object
+     * @brief Returns the PostgreSQL connection object.
      */
-    PGconn* connection()
+    PGconn* connection() const
     {
         return m_connect;
     }
 
     /**
-     * @brief Converts datatype from PostgreSQL type to SPTK VariantType
+     * @brief Converts datatype from PostgreSQL type to SPTK VariantType.
      */
     static void postgreTypeToVariantType(PostgreSQLDataType postgreType, VariantDataType& dataType);
 
     /**
-     * @brief Converts datatype from SPTK VariantType to PostgreSQL type
+     * @brief Converts datatype from SPTK VariantType to PostgreSQL type.
      */
     static void variantTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType, const String& paramName);
 
     /**
      * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param newConnectionString  The PostgreSQL connection string
+     * @param newConnectionString  The PostgreSQL connection string.
      */
     void _openDatabase(const String& newConnectionString) override;
 
     /**
-     * @brief Executes SQL batch file
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            If not nullptr, store errors here instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            If not nullptr, store errors here instead of exceptions.
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
-     * @brief Constructor
+     * @brief Constructor.
      *
      * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-     * For more information please refer to:
-     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
+     * For more information please refer to:.
+     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html.
      * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString  The PostgreSQL connection string
+     * @param connectionString  The PostgreSQL connection string.
      */
     explicit PostgreSQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~PostgreSQLConnection() override;
 
     /**
-     * @brief Returns driver-specific connection string
+     * @brief Returns driver-specific connection string.
      */
     String nativeConnectionString() const override;
 
@@ -128,29 +128,29 @@ public:
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened
+     * @brief Returns true if database is opened.
      */
     bool active() const override;
 
     /**
-     * @brief Returns the database connection handle
+     * @brief Returns the database connection handle.
      */
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the PostgreSQL driver description for the active connection
+     * @brief Returns the PostgreSQL driver description for the active connection.
      */
     String driverDescription() const override;
 
     /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * @brief Lists database objects.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
-     * @brief All active connections
+     * @brief All active connections.
      */
     static std::map<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
 
@@ -158,63 +158,69 @@ protected:
     static Strings extractStatements(const Strings& sqlBatch);
 
     /**
-     * @brief Begins the transaction
+     * @brief Returns the server timezone offset in seconds.
+     * @return Server timezone offset in seconds.
+     */
+    std::chrono::minutes getTimezoneOffset();
+
+    /**
+     * @brief Begins the transaction.
      */
     void driverBeginTransaction() override;
 
     /**
-     * @brief Ends the transaction
-     * @param commit            Rollback if false
+     * @brief Ends the transaction.
+     * @param commit            Rollback if false.
      */
     void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by Query
 
     /**
-     * Retrieves an error (if any) after executing a statement
+     * Retrieves an error (if any) after executing a statement.
      */
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an PostgreSQL statement
+     * Allocates an PostgreSQL statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an PostgreSQL statement
+     * Deallocates a PostgreSQL statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an PostgreSQL statement
+     * Closes an PostgreSQL statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by database
+     * Prepares a query if supported by database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement
+     * Executes a statement.
      */
     void queryExecute(Query*) override
     {
-        // Not needed for PG driver
+        // Not needed for the PG driver.
     }
 
     /**
-     * Counts columns of the dataset (if any) returned by query
+     * Counts columns of the dataset (if any) returned by query.
      */
     size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query
+     * Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query' recordset
+     * Opens the query for reading data from the query' recordset.
      */
     void queryOpen(Query* query) override;
 
@@ -224,10 +230,10 @@ protected:
     void queryFetch(Query* query) override;
 
     /**
-     * @brief Returns parameter mark
+     * @brief Returns parameter mark.
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex        Parameter index in SQL starting from 0
+     * @param paramIndex        Parameter index in SQL starting from 0.
      */
     String paramMark(unsigned paramIndex) override;
 
@@ -236,9 +242,11 @@ protected:
     void queryExecDirect(const Query* query);
 
 private:
-    mutable std::mutex m_mutex;                                       ///< Mutex that protects access to data members
-    PGconn*            m_connect {nullptr};                           ///< PostgreSQL database connection
-    TimestampFormat    m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format
+    mutable std::mutex   m_mutex;                                       ///< Mutex that protects access to data members.
+    PGconn*              m_connect {nullptr};                           ///< PostgreSQL database connection.
+    TimestampFormat      m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format.
+    DateTime             m_epochDate;                                   ///< Epoch date with respect to server timezone offset.
+    std::chrono::minutes m_sessionTimezoneOffset;                       ///< Session timezone offset in minutes.
 };
 
 /**

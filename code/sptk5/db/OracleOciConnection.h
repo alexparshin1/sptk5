@@ -195,13 +195,15 @@ protected:
     [[nodiscard]] String paramMark(unsigned paramIndex) override;
 
 private:
-    std::shared_ptr<ocilib::Connection> m_connection; ///< OracleOci database connection
-    mutable std::mutex                  m_mutex;      ///< Mutex that protects access to data members
+    mutable std::mutex                  m_mutex;                 ///< Mutex that protects access to data members
+    std::shared_ptr<ocilib::Connection> m_connection;            ///< OracleOci database connection
+    std::chrono::minutes                m_sessionTimezoneOffset; ///< Session timezone offset in minutes
 
-    static void createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
-    void        executeMultipleStatements(const Strings& statements, Strings* errors);
-    static void readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
-    static void readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
+    static void          createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
+    void                 executeMultipleStatements(const Strings& statements, Strings* errors);
+    void                 readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex) const;
+    static void          readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned int columnIndex);
+    std::chrono::minutes getSessionTimezoneOffset();
 };
 /**
  * @}

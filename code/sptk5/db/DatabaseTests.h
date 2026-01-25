@@ -76,8 +76,9 @@ public:
      * Test database connection
      * @param connectionString Database connection string
      */
-    static void testConnect(const DatabaseConnectionString& connectionString);
-    static void dropTable(const DatabaseConnection& databaseConnection, const String& tableName);
+    static void                           testConnect(const DatabaseConnectionString& connectionString);
+    static void                           dropTable(const DatabaseConnection& databaseConnection, const String& tableName);
+    static std::tuple<DateTime, DateTime> testCurrentTimestamp(const DatabaseConnectionString& connectionString);
 
     /**
      * Test SELECT statements

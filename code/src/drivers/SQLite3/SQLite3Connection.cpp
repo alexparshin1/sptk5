@@ -84,6 +84,15 @@ String SQLite3Connection::nativeConnectionString() const
     return "/" + connectionString().databaseName() + "/" + connectionString().schema();
 }
 
+chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
+{
+    m_sessionTimezoneOffset = chrono::minutes(0);
+    Query query(this, "SELECT CURRENT_TIMESTAMP");
+    auto  timestamp = query.scalar().asDateTime();
+    auto  sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
+    return sessionTimezoneOffset;
+}
+
 void SQLite3Connection::_openDatabase(const String& newConnectionString)
 {
     if (!active())
@@ -126,6 +135,8 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
                 throw DatabaseException(zErrMsg);
             }
         }
+
+        m_sessionTimezoneOffset = getSessionTimezoneOffset();
     }
 }
 
@@ -458,6 +469,8 @@ uint32_t trimField(char* str, uint32_t length)
 
 void SQLite3Connection::queryFetch(Query* query)
 {
+    static const RegularExpression matchDateTime(R"(^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$)");
+
     if (!query->active())
     {
         throw DatabaseException("Dataset isn't open", source_location::current(), query->sql());
@@ -486,7 +499,9 @@ void SQLite3Connection::queryFetch(Query* query)
         return;
     }
 
-    SQLite3Field* field = nullptr;
+    SQLite3Field*  field = nullptr;
+    const uint8_t* buffer = nullptr;
+    const char*    text = nullptr;
 
     for (uint32_t column = 0; column < fieldCount; ++column)
     {
@@ -515,9 +530,19 @@ void SQLite3Connection::queryFetch(Query* query)
                         break;
 
                     case SQLITE_TEXT:
-                        field->setBuffer(sqlite3_column_text(statement, static_cast<int>(column)), dataLength,
-                                         VariantDataType::VAR_BUFFER);
-                        dataLength = trimField(bit_cast<char*>(field->get<Buffer>().data()), dataLength);
+                        buffer = sqlite3_column_text(statement, static_cast<int>(column));
+                        text = reinterpret_cast<const char*>(buffer);
+                        if (matchDateTime.matches(text))
+                        {
+                            DateTime dateTime(text);
+                            field->setDateTime(dateTime - m_sessionTimezoneOffset);
+                            dataLength = sizeof(int64_t);
+                        }
+                        else
+                        {
+                            field->setBuffer(buffer, dataLength, VariantDataType::VAR_BUFFER);
+                            dataLength = trimField(bit_cast<char*>(field->get<Buffer>().data()), dataLength);
+                        }
                         break;
 
                     case SQLITE_BLOB:

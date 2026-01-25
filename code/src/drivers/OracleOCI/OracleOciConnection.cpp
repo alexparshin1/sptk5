@@ -35,9 +35,9 @@ using namespace sptk;
 using namespace ocilib;
 
 namespace {
-void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
-void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex);
-void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
+void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
+void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
 void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
@@ -48,9 +48,9 @@ OracleOciConnection::OracleOciConnection(const String& connectionString, chrono:
 {
     static mutex      initializeMutex;
     const scoped_lock lock(initializeMutex);
-    if (!ocilib::Environment::Initialized())
+    if (!Environment::Initialized())
     {
-        ocilib::Environment::Initialize(Environment::EnvironmentFlagsValues::Threaded);
+        Environment::Initialize(Environment::EnvironmentFlagsValues::Threaded);
     }
 }
 
@@ -65,7 +65,7 @@ OracleOciConnection::~OracleOciConnection()
         disconnectAllQueries();
         close();
     }
-    catch (const sptk::Exception& e)
+    catch (const Exception& e)
     {
         CERR(e.what());
     }
@@ -78,6 +78,25 @@ OracleOciConnection::~OracleOciConnection()
 Connection* OracleOciConnection::connection() const
 {
     return m_connection.get();
+}
+
+chrono::minutes OracleOciConnection::getSessionTimezoneOffset()
+{
+    static const RegularExpression tzOffsetRegex(R"(^([\-\+])?(\d{1,2}):(\d{1,2}))");
+
+    Query query(this, "SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL");
+    auto  tzOffset = query.scalar().asString();
+
+    auto matches = tzOffsetRegex.m(tzOffset);
+    if (matches.empty())
+    {
+        return chrono::minutes(0);
+    }
+
+    const auto sign = matches[0].value;
+    const auto hours = stoi(matches[1].value);
+    const auto minutes = stoi(matches[2].value);
+    return chrono::minutes(hours * 60 + minutes) * (sign == "-" ? -1 : 1);
 }
 
 void OracleOciConnection::_openDatabase(const String& newConnectionString)
@@ -93,10 +112,12 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
         try
         {
             const DatabaseConnectionString dbConnectionString = connectionString();
-            auto                           oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
+
+            auto oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
                                  dbConnectionString.databaseName();
-            m_connection = make_shared<ocilib::Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
+            m_connection = make_shared<Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
             m_connection->SetAutoCommit(true);
+            m_sessionTimezoneOffset = getSessionTimezoneOffset();
         }
         catch (const ocilib::Exception& e)
         {
@@ -447,12 +468,12 @@ void OracleOciConnection::queryOpen(Query* query)
     queryFetch(query);
 }
 
-VariantDataType OracleOciConnection::oracleOciTypeToVariantType(ocilib::DataType oracleType, int scale)
+VariantDataType OracleOciConnection::oracleOciTypeToVariantType(DataType oracleType, const int scale)
 {
     VariantDataType dataType {VariantDataType::VAR_STRING};
     switch (oracleType.GetValue())
     {
-        using enum sptk::VariantDataType;
+        using enum VariantDataType;
         case OCI_CDT_NUMERIC:
             dataType = scale == 0 ? VAR_INT64 : VAR_FLOAT;
             break;
@@ -543,7 +564,7 @@ void OracleOciConnection::queryFetch(Query* query)
 
             switch (dataType)
             {
-                using enum sptk::VariantDataType;
+                using enum VariantDataType;
                 case VAR_INT:
                     field->setInteger(resultSet.Get<int>(columnIndex));
                     break;
@@ -583,23 +604,23 @@ void OracleOciConnection::queryFetch(Query* query)
     }
 }
 
-void OracleOciConnection::readDateTimeOrTimestamp(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
+void OracleOciConnection::readDateTimeOrTimestamp(const Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex) const
 {
     if (field->sqlType() == "timestamp")
     {
-        readTimestamp(resultSet, field, columnIndex);
+        readTimestamp(resultSet, field, columnIndex, m_sessionTimezoneOffset);
     }
     else if (field->sqlType() == "datetime")
     {
-        readDate(resultSet, field, columnIndex);
+        readDate(resultSet, field, columnIndex, m_sessionTimezoneOffset);
     }
     else
     {
-        readDateTime(resultSet, field, columnIndex);
+        readDateTime(resultSet, field, columnIndex, m_sessionTimezoneOffset);
     }
 }
 
-void OracleOciConnection::readBuffer(const ocilib::Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
+void OracleOciConnection::readBuffer(const Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
 {
     switch (field->fieldType())
     {
@@ -645,33 +666,37 @@ String OracleOciConnection::queryError(const Query* query) const
 }
 
 namespace {
-void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset)
 {
-    const auto date = resultSet.Get<Timestamp>(columnIndex);
-    if (date.IsNull())
+    if (const auto timestamp = resultSet.Get<Timestamp>(columnIndex);
+        timestamp.IsNull())
     {
-        field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
+        field->setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
-        int year = 0;
-        int month = 0;
-        int day = 0;
-        int hour = 0;
-        int minute = 0;
-        int second = 0;
-        int millisecond = 0;
-        date.GetDateTime(year, month, day, hour, minute, second, millisecond);
-        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second)), false);
+        auto year = 0;
+        auto month = 0;
+        auto day = 0;
+        auto hour = 0;
+        auto minute = 0;
+        auto second = 0;
+        auto millisecond = 0;
+        timestamp.GetDateTime(year, month, day, hour, minute, second, millisecond);
+
+        const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
+                                static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
+
+        field->setDateTime(dateTime + sessionTimezoneOffset, false);
     }
 }
 
-void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsigned int columnIndex)
+void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset)
 {
     const auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
     {
-        field->setNull(sptk::VariantDataType::VAR_DATE_TIME);
+        field->setNull(VariantDataType::VAR_DATE_TIME);
     }
     else
     {
@@ -682,18 +707,20 @@ void readDateTime(const Resultset& resultSet, sptk::DatabaseField* field, unsign
         int minute = 0;
         int second = 0;
         date.GetDateTime(year, month, day, hour, minute, second);
-        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
-                                    static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second)),
-                           false);
+
+        DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
+                          static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
+
+        field->setDateTime(dateTime + sessionTimezoneOffset, false);
     }
 }
 
-void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset)
 {
     const auto date = resultSet.Get<Date>(columnIndex);
     if (date.IsNull())
     {
-        field->setNull(sptk::VariantDataType::VAR_DATE);
+        field->setNull(VariantDataType::VAR_DATE);
     }
     else
     {
@@ -701,7 +728,10 @@ void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int col
         int month = 0;
         int day = 0;
         date.GetDate(year, month, day);
-        field->setDateTime(DateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0)), true);
+
+        DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0));
+
+        field->setDateTime(dateTime + sessionTimezoneOffset, true);
     }
 }
 

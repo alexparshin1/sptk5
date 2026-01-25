@@ -38,7 +38,7 @@ using namespace xdoc;
 
 TEST(SPTK_Variant, ctors)
 {
-    constexpr double testDoubleValue {2.22};
+    constexpr auto testDoubleValue {2.22};
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
     Variant v1(1);

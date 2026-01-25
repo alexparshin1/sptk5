@@ -676,6 +676,18 @@ String VariantAdaptors::asString() const
             return double2string(m_data.get<double>());
 
         case VariantDataType::VAR_STRING:
+            if (isExternalBuffer())
+            {
+                const auto* ptr = static_cast<const uint8_t*>(m_data);
+                if (ptr != nullptr)
+                {
+                    return {reinterpret_cast<const char*>(ptr)};
+                }
+                else
+                {
+                    return {""};
+                }
+            }
             return m_data.get<String>();
 
         case VariantDataType::VAR_TEXT:

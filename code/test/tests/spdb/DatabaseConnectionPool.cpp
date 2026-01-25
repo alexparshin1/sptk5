@@ -82,6 +82,28 @@ void testConnect(const String& dbName)
     EXPECT_THROW(DatabaseTests::testConnect(invalidConnectionStringStr), DatabaseException);
 }
 
+void testCurrentTimestamp(const String& dbName)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+
+    if (connectionString.empty())
+    {
+        FAIL() << dbName << " connection is not defined";
+    }
+
+    try
+    {
+        const auto now = DateTime::Now();
+        const auto [dbTime1, dbTime2] = DatabaseTests::testCurrentTimestamp(connectionString);
+        EXPECT_STREQ(dbTime1.isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str(),
+                     dbTime2.isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str());
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << connectionString.toString(false) << ": " << e.what();
+    }
+}
+
 void testDDL(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -305,6 +327,11 @@ TEST(SPTK_PostgreSQLConnection, connect)
     testConnect("PostgreSQL");
 }
 
+TEST(SPTK_PostgreSQLConnection, currentTimestamp)
+{
+    testCurrentTimestamp("PostgreSQL");
+}
+
 TEST(SPTK_PostgreSQLConnection, DDL)
 {
     testDDL("PostgreSQL");
@@ -367,6 +394,11 @@ TEST(SPTK_MySQLConnection, connect)
     testConnect("MySQL");
 }
 
+TEST(SPTK_MySQLConnection, currentTimestamp)
+{
+    testCurrentTimestamp("MySQL");
+}
+
 TEST(SPTK_MySQLConnection, DDL)
 {
     testDDL("MySQL");
@@ -421,11 +453,16 @@ TEST(SPTK_MySQLConnection, BLOB)
 #endif
 
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
-#ifdef HAVE_ORACLE
+#if defined(HAVE_ORACLE_OCI) || defined(HAVE_ORACLE)
 
 TEST(SPTK_OracleConnection, connect)
 {
     testConnect("Oracle");
+}
+
+TEST(SPTK_OracleConnection, currentTimestamp)
+{
+    testCurrentTimestamp("Oracle");
 }
 
 TEST(SPTK_OracleConnection, DDL)
@@ -476,73 +513,17 @@ TEST(SPTK_OracleConnection, BLOB)
 
 #endif
 
-//───────────────────────────────── Oracle OCILib ──────────────────────────────────────
-#ifdef HAVE_ORACLE_OCI
-
-TEST(SPTK_OracleOciConnection, connect)
-{
-    testConnect("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, DDL)
-{
-    testDDL("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, bulkInsert)
-{
-    testBulkInsert("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, bulkParallelInsert)
-{
-    testParallelInsert("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, bulkInsertPerformance)
-{
-    testBulkInsertPerformance("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, queryParameters)
-{
-    testQueryParameters("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, dates)
-{
-    testQueryDateAndTimestamp("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, transaction)
-{
-    testTransaction("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, select)
-{
-    testSelect("Oracle");
-    testInvalidQuery("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, insertQuery)
-{
-    testInsertQuery("Oracle");
-}
-
-TEST(SPTK_OracleOciConnection, BLOB)
-{
-    testBlobInsertAndSelect("Oracle");
-}
-
-#endif
-
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
 #ifdef HAVE_ODBC
 
 TEST(SPTK_MSSQLConnection, connect)
 {
     testConnect("MSSQL");
+}
+
+TEST(SPTK_MSSQLConnection, currentTimestamp)
+{
+    testCurrentTimestamp("MSSQL");
 }
 
 TEST(SPTK_MSSQLConnection, DDL)
@@ -604,6 +585,11 @@ TEST(SPTK_MSSQLConnection, BLOB)
 TEST(SPTK_SQLite3Connection, connect)
 {
     testConnect("SQLite3");
+}
+
+TEST(SPTK_SQLite3Connection, currentTimestamp)
+{
+    testCurrentTimestamp("SQLite3");
 }
 
 TEST(SPTK_SQLite3Connection, DDL)

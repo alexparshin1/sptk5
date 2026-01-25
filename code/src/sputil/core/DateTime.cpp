@@ -386,7 +386,7 @@ short splitDateString(const char* dateString, short* datePart, char& actualDateS
 
 short splitTimeString(const char* timeString, short* timePart)
 {
-    static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d+)?)");
+    static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d{0,3})?)");
     const auto                     matches = matchTime.m(timeString);
     if (!matches)
     {
@@ -876,7 +876,7 @@ void DateTime::decodeTime(short* hour, short* minute, short* second, short* mill
 }
 
 
-// Get the current system time with optional synchronization offset
+// Get the current system time with the optional synchronization offset
 DateTime DateTime::Now()
 {
     return DateTime(clock::now());

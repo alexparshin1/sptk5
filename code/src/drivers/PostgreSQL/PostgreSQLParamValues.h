@@ -46,12 +46,14 @@ class PostgreSQLParamValues
     std::vector<Oid>            m_types;
     CParamVector                m_params;
     bool                        m_int64timestamps;
+    DateTime                    m_epochDate;
 
     static constexpr size_t defaultParamCount = 8;
 
 public:
-    explicit PostgreSQLParamValues(bool int64timestamps)
+    explicit PostgreSQLParamValues(bool int64timestamps, const DateTime& epochDate)
         : m_int64timestamps(int64timestamps)
+        , m_epochDate(epochDate)
     {
         resize(defaultParamCount);
     }
@@ -114,9 +116,5 @@ public:
         return m_params;
     }
 };
-
-extern const DateTime epochDate;
-extern const long     daysSinceEpoch;
-extern const int64_t  microsecondsSinceEpoch;
 
 } // namespace sptk

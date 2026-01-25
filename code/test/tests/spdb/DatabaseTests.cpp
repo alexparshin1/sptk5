@@ -94,11 +94,12 @@ void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, cons
         String dropTableSql("DROP TABLE " + tableName);
         switch (databaseConnection->connectionType())
         {
-            case DatabaseConnectionType::POSTGRES:
+            using enum sptk::DatabaseConnectionType;
+            case POSTGRES:
                 dropTableSql += " CASCADE";
                 break;
-            case DatabaseConnectionType::ORACLE:
-            case DatabaseConnectionType::ORACLE_OCI:
+            case ORACLE:
+            case ORACLE_OCI:
                 dropTableSql += " CASCADE CONSTRAINTS";
                 break;
             default:
@@ -116,6 +117,38 @@ void DatabaseTests::dropTable(const DatabaseConnection& databaseConnection, cons
             CERR(e.what());
         }
     }
+}
+
+tuple<DateTime, DateTime> DatabaseTests::testCurrentTimestamp(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
+    databaseConnection->open();
+    String getCurrentTimestampSQL;
+    switch (databaseConnection->connectionType())
+    {
+        using enum DatabaseConnectionType;
+        case POSTGRES:
+        case MYSQL:
+        case SQLITE3:
+        case MSSQL_ODBC:
+            getCurrentTimestampSQL = "SELECT CURRENT_TIMESTAMP";
+            break;
+        case ORACLE_OCI:
+        case ORACLE:
+            getCurrentTimestampSQL = "SELECT SYSDATE FROM DUAL";
+            break;
+        case FIREBIRD:
+            getCurrentTimestampSQL = "SELECT CURRENT_TIMESTAMP FROM RDB$DATABASE";
+            break;
+        case GENERIC_ODBC:
+            throw DatabaseException("Current timestamp isn't supported for this connection type");
+    }
+
+    Query      getCurrentTimeQuery(databaseConnection, getCurrentTimestampSQL);
+    const auto dbTime = getCurrentTimeQuery.scalar().asDateTime();
+    return {dbTime, DateTime::Now()};
 }
 
 void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
@@ -285,8 +318,10 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
 
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
     insert1.exec();
-    Query insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
-    insert2.param("dt") = DateTime("2015-06-01T11:22:33");
+
+    Query    insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
+    DateTime dt = DateTime("2015-06-01T11:22:33");
+    insert2.param("dt") = dt;
     insert2.exec();
 
     Query select(databaseConnection, "SELECT ts FROM gtest_temp_table");
@@ -748,11 +783,11 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     VariantVector keys;
     for (const auto& id: insertedIds1)
     {
-        keys.emplace_back(static_cast<int64_t>(id));
+        keys.emplace_back(id);
     }
     for (const auto& id: insertedIds2)
     {
-        keys.emplace_back(static_cast<int64_t>(id));
+        keys.emplace_back(id);
     }
 
     databaseConnection->bulkDelete("gtest_temp_table", "id", keys);
