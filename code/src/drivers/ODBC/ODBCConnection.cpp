@@ -46,11 +46,14 @@ class ODBCField
     friend class ODBCConnection;
 
 public:
-    ODBCField(const string& fieldName, int fieldType, VariantDataType dataType, int fieldLength, int fieldScale)
+    ODBCField(const string& fieldName, const int fieldType, int dateTimeVariant, const VariantDataType dataType,
+              const int fieldLength, const int fieldScale)
         : DatabaseField(fieldName, fieldType, dataType, fieldLength, fieldScale)
+        , dateTimeVariant(dateTimeVariant)
     {
     }
     using DatabaseField::operator=;
+    int dateTimeVariant {0}; ///< 0 for datetime, 1 for datetime2 and timestamp
 };
 
 } // namespace sptk
@@ -61,7 +64,7 @@ SQLRETURN odbcReadTimestampField(SQLHSTMT statement, DatabaseField* field, SQLUS
 void      odbcQueryBindParameter(const Query* query, QueryParameter* parameter, chrono::minutes sessionTimezoneOffset);
 } // namespace
 
-ODBCConnection::ODBCConnection(const String& connectionString, std::chrono::seconds connectTimeout)
+ODBCConnection::ODBCConnection(const String& connectionString, const std::chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::GENERIC_ODBC, connectTimeout)
 {
 }
@@ -89,8 +92,10 @@ String ODBCConnection::nativeConnectionString() const
 chrono::minutes ODBCConnection::getSessionTimezoneOffset()
 {
     m_sessionTimezoneOffset = chrono::minutes(0);
-    Query query(this, "SELECT CURRENT_TIMESTAMP");
-    auto  timezoneOffset = chrono::duration_cast<chrono::minutes>(query.scalar().asDateTime() - DateTime::Now());
+
+    Query      query(this, "SELECT CURRENT_TIMESTAMP");
+    const auto timezoneOffset = chrono::duration_cast<chrono::minutes>(query.scalar().asDateTime() - DateTime::Now());
+
     return timezoneOffset;
 }
 
@@ -147,7 +152,7 @@ void ODBCConnection::driverBeginTransaction()
     setInTransaction(true);
 }
 
-void ODBCConnection::driverEndTransaction(bool commit)
+void ODBCConnection::driverEndTransaction(const bool commit)
 {
     if (!getInTransaction())
     {
@@ -176,13 +181,13 @@ void ODBCConnection::driverEndTransaction(bool commit)
 
 //-----------------------------------------------------------------------------------------------
 namespace {
-[[nodiscard]] bool successful(int ret)
+[[nodiscard]] bool successful(const int ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
 } // namespace
 
-String ODBCConnection::queryError(SQLHSTMT stmt) const
+String ODBCConnection::queryError(const SQLHSTMT stmt) const
 {
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorDescription = {};
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorState = {};
@@ -242,7 +247,7 @@ void ODBCConnection::queryAllocStmt(Query* query)
     }
 
     const auto statement = shared_ptr<uint8_t>(static_cast<StmtHandle>(hStmt),
-                                               [](StmtHandle ptr)
+                                               [](const StmtHandle ptr)
                                                {
                                                    SQLFreeStmt((SQLHSTMT) ptr, SQL_DROP);
                                                });
@@ -375,14 +380,14 @@ size_t ODBCConnection::queryColCount(Query* query)
     return static_cast<size_t>(count);
 }
 
-void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value)
+void ODBCConnection::queryColAttributes(Query* query, const int16_t column, const int16_t attribute, int32_t& value)
 {
     const scoped_lock lock(*m_connect);
     SQLLEN            result = 0;
 
     if (!successful(
-            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(descType), nullptr, 0, nullptr,
-                             &result)))
+            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(attribute),
+                             nullptr, 0, nullptr, &result)))
     {
         THROW_QUERY_ERROR(query, queryError(query));
     }
@@ -390,7 +395,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     value = static_cast<int32_t>(result);
 }
 
-void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t descType, LPSTR buff, int len)
+void ODBCConnection::queryColAttributes(Query* query, const int16_t column, const int16_t attribute, const LPSTR buff, const int len)
 {
     int16_t available = 0;
     if (buff == nullptr || len <= 0)
@@ -401,7 +406,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
     const scoped_lock lock(*m_connect);
 
     if (!successful(
-            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(descType), buff, static_cast<int16_t>(len),
+            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(attribute), buff, static_cast<int16_t>(len),
                              &available, nullptr)))
     {
         THROW_QUERY_ERROR(query, queryError(query));
@@ -409,7 +414,7 @@ void ODBCConnection::queryColAttributes(Query* query, int16_t column, int16_t de
 }
 
 namespace {
-bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& dateTime, bool dateOnly)
+bool dateTimeToTimestamp(TIMESTAMP_STRUCT* timestampStruct, const DateTime& dateTime, const bool dateOnly)
 {
     if (!dateTime.zero())
     {
@@ -576,7 +581,7 @@ void ODBCConnection::queryBindParameters(Query* query)
     }
 }
 
-void ODBCConnection::odbcTypeToCType(int32_t odbcType, int32_t& ctype, VariantDataType& dataType)
+void ODBCConnection::odbcTypeToCType(const int32_t odbcType, int32_t& ctype, VariantDataType& dataType)
 {
     switch (odbcType)
     {
@@ -634,7 +639,7 @@ void ODBCConnection::odbcTypeToCType(int32_t odbcType, int32_t& ctype, VariantDa
     }
 }
 
-void ODBCConnection::parseColumns(Query* query, size_t count)
+void ODBCConnection::parseColumns(Query* query, const size_t count)
 {
     // Reading the column attributes
     array<char, MAX_NAME_LEN> columnName = {};
@@ -644,8 +649,9 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
     auto                      cType = 0;
     auto                      dataType = VariantDataType::VAR_NONE;
 
-    constexpr auto largeTextSize = 65536;
-    constexpr auto maxColumnScale = 20;
+    constexpr auto  largeTextSize = 65536;
+    constexpr auto  maxColumnScale = 20;
+    array<char, 64> columnTypeName = {};
 
     for (int16_t column = 1; column <= static_cast<int16_t>(count); ++column)
     {
@@ -653,6 +659,14 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
         queryColAttributes(query, column, SQL_COLUMN_TYPE, columnType);
         queryColAttributes(query, column, SQL_COLUMN_LENGTH, columnLength);
         queryColAttributes(query, column, SQL_COLUMN_SCALE, columnScale);
+
+        int dateTimeVariant = 0;
+        if (columnType == SQL_TIMESTAMP)
+        {
+            queryColAttributes(query, column, SQL_COLUMN_TYPE_NAME, columnTypeName.data(), columnTypeName.size() - 1);
+            std::string typeName(columnTypeName.data());
+            dateTimeVariant = typeName == "datetime" ? 0 : 1;
+        }
 
         odbcTypeToCType(columnType, cType, dataType);
 
@@ -671,7 +685,7 @@ void ODBCConnection::parseColumns(Query* query, size_t count)
             columnScale = 0;
         }
 
-        auto field = make_shared<ODBCField>(columnName.data(), cType, dataType, columnLength, columnScale);
+        auto field = make_shared<ODBCField>(columnName.data(), cType, dateTimeVariant, dataType, columnLength, columnScale);
         query->fields().push_back(field);
     }
 }
@@ -729,7 +743,7 @@ void ODBCConnection::queryOpen(Query* query)
 }
 
 namespace {
-uint32_t trimField(char* str, uint32_t size)
+uint32_t trimField(char* str, const uint32_t size)
 {
     char*      ptr = str + size - 1;
     const auto chr = str[0];
@@ -751,8 +765,8 @@ uint32_t trimField(char* str, uint32_t size)
     return static_cast<uint32_t>(ptr - str);
 }
 
-SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQLUSMALLINT column,
-                                    int16_t fieldType, SQLLEN& dataLength)
+SQLRETURN odbcReadStringOrBlobField(const SQLHSTMT statement, DatabaseField* field, const SQLUSMALLINT column,
+                                    const int16_t fieldType, SQLLEN& dataLength)
 {
     auto* odbcField = dynamic_cast<ODBCField*>(field);
 
@@ -817,7 +831,7 @@ SQLRETURN odbcReadStringOrBlobField(SQLHSTMT statement, DatabaseField* field, SQ
 }
 
 SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field, const SQLUSMALLINT column,
-                                 SQLLEN& dataLength, chrono::minutes sessionTimezoneOffset)
+                                 SQLLEN& dataLength, const chrono::minutes sessionTimezoneOffset)
 {
     TIMESTAMP_STRUCT timestampStruct = {};
     const auto       resultCode = SQLGetData(statement, column, SQL_C_TIMESTAMP, (SQLPOINTER) &timestampStruct, 0, &dataLength);
@@ -885,7 +899,16 @@ void ODBCConnection::queryFetch(Query* query)
                     break;
 
                 case SQL_C_TIMESTAMP:
-                    resultCode = odbcReadTimestampField(statement, field, column, dataLength, m_sessionTimezoneOffset);
+                    if (field->dateTimeVariant == 0)
+                    {
+                        // Old datetime type requires TZ offset
+                        resultCode = odbcReadTimestampField(statement, field, column, dataLength, m_sessionTimezoneOffset);
+                    }
+                    else
+                    {
+                        // New datetime2 type doesn't require TZ offset
+                        resultCode = odbcReadTimestampField(statement, field, column, dataLength, chrono::minutes(0));
+                    }
                     break;
 
                 case SQL_C_BINARY:
@@ -977,7 +1000,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
     }
 }
 
-void ODBCConnection::objectList(DatabaseObjectType objectType, Strings& objects)
+void ODBCConnection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     const scoped_lock lock(*m_connect);
 
@@ -1193,7 +1216,7 @@ void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 
 map<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
 
-[[maybe_unused]] void* odbcCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* odbcCreateConnection(const char* connectionString, const size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<ODBCConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     ODBCConnection::s_odbcConnections[connection.get()] = connection;
