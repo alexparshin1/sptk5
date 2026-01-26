@@ -192,8 +192,8 @@ String ODBCConnection::queryError(const SQLHSTMT stmt) const
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorDescription = {};
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorState = {};
 
-    SWORD pcnmsg = 0;
-    SQLINTEGER  nativeError = 0;
+    SWORD      pcnmsg = 0;
+    SQLINTEGER nativeError = 0;
 
     String error;
     int    resultCode = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
@@ -236,10 +236,8 @@ void ODBCConnection::queryAllocStmt(Query* query)
         SQLFreeStmt(hStmt, SQL_DROP);
     }
 
-    auto* hdb = handle();
-
-    if (const int result = SQLAllocStmt(hdb, &hStmt);
-        result != SQL_SUCCESS)
+    if (auto* hdb = handle();
+        !successful(SQLAllocStmt(hdb, &hStmt)))
     {
         const String error = queryError(query);
         querySetStmt(query, SQL_NULL_HSTMT);
@@ -333,7 +331,7 @@ void ODBCConnection::queryExecute(Query* query)
 
     constexpr auto                 diagRecordSize = 16;
     array<SQLCHAR, diagRecordSize> state = {};
-    array<SQLCHAR, MaxErrorLen>  text = {};
+    array<SQLCHAR, MaxErrorLen>    text = {};
     SQLINTEGER                     nativeError = 0;
     SQLSMALLINT                    recordCount = 0;
     SQLSMALLINT                    textLength = 0;
@@ -341,16 +339,17 @@ void ODBCConnection::queryExecute(Query* query)
     result = SQLGetDiagField(SQL_HANDLE_STMT, query->statement(), 1, SQL_DIAG_NUMBER, &recordCount, sizeof(recordCount),
                              &textLength);
 
-    Strings errors;
+    Strings     errors;
+    SQLSMALLINT recordNumber = 1;
     while (successful(result))
     {
-        constexpr SQLSMALLINT recordNumber = 1;
         result = SQLGetDiagRec(SQL_HANDLE_STMT, query->statement(), recordNumber, state.data(), &nativeError,
                                text.data(), static_cast<SQLSMALLINT>(text.size()), &textLength);
         if (successful(result))
         {
             errors.push_back(removeDriverIdentification(bit_cast<const char*>(text.data())));
         }
+        ++recordNumber;
     }
 
     if (!errors.empty())
@@ -403,8 +402,8 @@ void ODBCConnection::queryColAttributes(Query* query, const int16_t column, cons
     const scoped_lock lock(*m_connect);
 
     if (!successful(
-            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(attribute), buff, static_cast<int16_t>(len),
-                             &available, nullptr)))
+            SQLColAttributes(query->statement(), static_cast<SQLUSMALLINT>(column), static_cast<SQLUSMALLINT>(attribute),
+                             buff, static_cast<int16_t>(len), &available, nullptr)))
     {
         THROW_QUERY_ERROR(query, queryError(query));
     }
@@ -552,8 +551,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type " + to_string(static_cast<int>(parameter->dataType())) +
-                    " for parameter '" + parameter->name() + "'");
+                    format("Unsupported parameter type {} for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name().c_str()));
         }
 
         const auto resultCode = SQLBindParameter(query->statement(), static_cast<SQLUSMALLINT>(paramNumber), inputOutputMode, paramType, valueType,
@@ -561,7 +559,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
         if (resultCode != SQL_SUCCESS)
         {
             parameter->binding().reset(false);
-            THROW_QUERY_ERROR(query, "Can't bind parameter " + to_string(paramNumber));
+            THROW_QUERY_ERROR(query, format("Can't bind parameter {}", paramNumber));
         }
     }
 }
@@ -828,7 +826,8 @@ SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field,
                                  SQLLEN& dataLength, const chrono::minutes sessionTimezoneOffset)
 {
     TIMESTAMP_STRUCT timestampStruct = {};
-    const auto       resultCode = SQLGetData(statement, column, SQL_C_TIMESTAMP, (SQLPOINTER) &timestampStruct, 0, &dataLength);
+    const auto       resultCode = SQLGetData(statement, column, SQL_C_TIMESTAMP,
+                                             (SQLPOINTER) &timestampStruct, sizeof(timestampStruct), &dataLength);
     if (dataLength > 0)
     {
         const auto     tzOffset = field->fieldSize() == 16 ? sessionTimezoneOffset : chrono::minutes(0);
@@ -955,10 +954,10 @@ String ODBCConnection::driverDescription() const
 void ODBCConnection::listDataSources(Strings& dsns)
 {
     dsns.clear();
-    array<SQLCHAR, MaxBufferSize> dataSource = {0};
-    array<SQLCHAR, MaxBufferSize> description = {0};
-    SQLSMALLINT             rdsrc = 0;
-    SQLSMALLINT             rdesc = 0;
+    array<SQLCHAR, MaxBufferSize> dataSource {};
+    array<SQLCHAR, MaxBufferSize> description {};
+    SQLSMALLINT                   rdsrc = 0;
+    SQLSMALLINT                   rdesc = 0;
 
     SQLHENV    hEnv = ODBCConnectionBase::getEnvironment().handle();
     const auto offline = hEnv == nullptr;
@@ -968,7 +967,8 @@ void ODBCConnection::listDataSources(Strings& dsns)
         {
             throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
-        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
+        if (!successful(SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION,
+                                      reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER)))
         {
             throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }
@@ -1076,26 +1076,27 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     switch (objectType)
     {
         case DatabaseObjectType::TABLES:
-            if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("TABLE").data(), SQL_NTS) !=
-                SQL_SUCCESS)
+            if (!successful(SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("TABLE").data(), SQL_NTS)))
             {
+                SQLFreeStmt(stmt, SQL_DROP);
                 throw DatabaseException("SQLTables");
             }
             break;
 
         case DatabaseObjectType::VIEWS:
-            if (SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("VIEW").data(), SQL_NTS) !=
-                SQL_SUCCESS)
+            if (!successful(SQLTables(stmt, nullptr, 0, nullptr, 0, nullptr, 0, Buffer("VIEW").data(), SQL_NTS)))
             {
+                SQLFreeStmt(stmt, SQL_DROP);
                 throw DatabaseException("SQLTables");
             }
             break;
 
         case DatabaseObjectType::PROCEDURES:
         case DatabaseObjectType::FUNCTIONS:
-            if (SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
-                              Buffer("%").data(), SQL_NTS) != SQL_SUCCESS)
+            if (!successful(SQLProcedures(stmt, nullptr, 0, Buffer("").data(), SQL_NTS,
+                                          Buffer("%").data(), SQL_NTS)))
             {
+                SQLFreeStmt(stmt, SQL_DROP);
                 throw DatabaseException("SQLProcedures");
             }
             break;

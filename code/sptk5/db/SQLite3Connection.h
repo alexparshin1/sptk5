@@ -56,6 +56,7 @@ public:
     /**
      * @brief Constructor
      * @param connectionString  The SQLite3 connection string
+     * @param connectTimeout    Connection timeout in seconds
      */
     explicit SQLite3Connection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
@@ -192,9 +193,9 @@ protected:
 private:
     using SQLHSTMT = sqlite3_stmt*;
 
-    mutable std::mutex       m_mutex;                 ///< Mutex that protects access to data members
-    std::shared_ptr<sqlite3> m_connect;               ///< Database connection
-    std::chrono::minutes     m_sessionTimezoneOffset; //< Session timezone offset
+    mutable std::mutex       m_mutex;                     ///< Mutex that protects access to data members
+    std::shared_ptr<sqlite3> m_connect;                   ///< Database connection
+    std::chrono::minutes     m_sessionTimezoneOffset {0}; //< Session timezone offset
 
     void                 bindParameter(Query* query, uint32_t paramNumber);
     void                 closeAndClean();

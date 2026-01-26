@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-// When TEXT field is large, fetch in chunks:
+// When the TEXT field is large, fetch in chunks:
 constexpr unsigned FETCH_BUFFER = 256;
 constexpr unsigned SMALL_BUFFER = 16;
 
@@ -154,41 +154,42 @@ VariantDataType MySQLStatement::mySQLTypeToVariantType(enum_field_types mysqlTyp
 {
     switch (mysqlType)
     {
+        using enum VariantDataType;
         case MYSQL_TYPE_BIT:
         case MYSQL_TYPE_TINY:
-            return VariantDataType::VAR_BOOL;
+            return VAR_BOOL;
 
         case MYSQL_TYPE_SHORT:
         case MYSQL_TYPE_YEAR:
         case MYSQL_TYPE_LONG:
-            return VariantDataType::VAR_INT;
+            return VAR_INT;
 
         case MYSQL_TYPE_LONGLONG:
-            return VariantDataType::VAR_INT64;
+            return VAR_INT64;
 
         case MYSQL_TYPE_FLOAT:
         case MYSQL_TYPE_DOUBLE:
         case MYSQL_TYPE_NEWDECIMAL:
-            return VariantDataType::VAR_FLOAT;
+            return VAR_FLOAT;
 
         case MYSQL_TYPE_TINY_BLOB:
         case MYSQL_TYPE_MEDIUM_BLOB:
         case MYSQL_TYPE_LONG_BLOB:
         case MYSQL_TYPE_BLOB:
-            return VariantDataType::VAR_BUFFER;
+            return VAR_BUFFER;
 
         case MYSQL_TYPE_NEWDATE:
         case MYSQL_TYPE_DATE:
-            return VariantDataType::VAR_DATE;
+            return VAR_DATE;
 
         case MYSQL_TYPE_DATETIME:
         case MYSQL_TYPE_TIME:
         case MYSQL_TYPE_TIMESTAMP:
-            return VariantDataType::VAR_DATE_TIME;
+            return VAR_DATE_TIME;
 
         // Anything we don't know about - treat as string
         default:
-            return VariantDataType::VAR_STRING;
+            return VAR_STRING;
     }
 }
 
@@ -196,30 +197,31 @@ enum_field_types MySQLStatement::variantTypeToMySQLType(VariantDataType dataType
 {
     switch (dataType)
     {
-        case VariantDataType::VAR_NONE:
+        using enum VariantDataType;
+        case VAR_NONE:
             return MYSQL_TYPE_VARCHAR;
 
-        case VariantDataType::VAR_BOOL:
+        case VAR_BOOL:
             return MYSQL_TYPE_TINY;
 
-        case VariantDataType::VAR_INT:
+        case VAR_INT:
             return MYSQL_TYPE_LONG;
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             return MYSQL_TYPE_DOUBLE;
 
-        case VariantDataType::VAR_STRING:
+        case VAR_STRING:
             return MYSQL_TYPE_STRING;
 
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             return MYSQL_TYPE_BLOB;
 
-        case VariantDataType::VAR_DATE:
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE:
+        case VAR_DATE_TIME:
             return MYSQL_TYPE_TIMESTAMP;
 
-        case VariantDataType::VAR_INT64:
+        case VAR_INT64:
             return MYSQL_TYPE_LONGLONG;
 
             // Anything we don't know about - treat as string
@@ -304,8 +306,7 @@ void MySQLStatement::setParameterValues()
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string(static_cast<int>(param->dataType())) + ") for parameter '" +
-                    param->name() + "'");
+                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name().c_str()));
         }
 
         if (param->isNull())
@@ -393,7 +394,7 @@ void MySQLStatement::bindResult(FieldList& fields)
         String columnName = fieldMetadata->name;
         if (columnName.empty())
         {
-            columnName = "column_" + to_string(columnIndex + 1);
+            columnName = format("column_{}", columnIndex + 1);
         }
 
         const VariantDataType fieldType = mySQLTypeToVariantType(fieldMetadata->type);
@@ -460,7 +461,7 @@ void MySQLStatement::bindResult(FieldList& fields)
                     bind.buffer_length = sizeof(int64_t);
                     break;
 
-                    // Using temp buffer of the size defined by field size
+                    // Using the temp buffer of the size defined by field size
                 case MYSQL_TYPE_NEWDECIMAL:
                     bind.buffer_length = field->fieldSize();
                     bind.buffer = static_cast<void*>(field->getTempBuffer());
@@ -518,23 +519,24 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
 
         switch (fieldType)
         {
+            using enum VariantDataType;
 
-            case VariantDataType::VAR_BOOL:
+            case VAR_BOOL:
                 field->setBool(strchr("YyTt1", data[0]) != nullptr);
                 break;
 
-            case VariantDataType::VAR_INT:
+            case VAR_INT:
                 field->setInteger(string2int(data));
                 break;
 
-            case VariantDataType::VAR_DATE:
+            case VAR_DATE:
                 field->setDateTime(DateTime(data), true);
                 break;
 
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_DATE_TIME:
                 if (strncmp(data, "0000-00", 7) == 0)
                 {
-                    field->setNull(VariantDataType::VAR_DATE_TIME);
+                    field->setNull(VAR_DATE_TIME);
                 }
                 else
                 {
@@ -542,17 +544,17 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 }
                 break;
 
-            case VariantDataType::VAR_FLOAT:
+            case VAR_FLOAT:
                 field->setFloat(string2double(data));
                 break;
 
-            case VariantDataType::VAR_STRING:
-            case VariantDataType::VAR_TEXT:
-            case VariantDataType::VAR_BUFFER:
+            case VAR_STRING:
+            case VAR_TEXT:
+            case VAR_BUFFER:
                 field->setBuffer(reinterpret_cast<const uint8_t*>(data), dataLength, fieldType);
                 break;
 
-            case VariantDataType::VAR_INT64:
+            case VAR_INT64:
                 field->setInt64(string2int64(data));
                 break;
 
@@ -621,24 +623,26 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 
         switch (fieldType)
         {
-            case VariantDataType::VAR_BOOL:
-            case VariantDataType::VAR_INT:
-            case VariantDataType::VAR_INT64:
+            using enum VariantDataType;
+
+            case VAR_BOOL:
+            case VAR_INT:
+            case VAR_INT64:
                 field->setDataSize(dataLength);
                 break;
 
-            case VariantDataType::VAR_DATE:
-            case VariantDataType::VAR_DATE_TIME:
+            case VAR_DATE:
+            case VAR_DATE_TIME:
                 decodeMySQLTime(field, *static_cast<MYSQL_TIME*>(bind.buffer), fieldType);
                 break;
 
-            case VariantDataType::VAR_FLOAT:
+            case VAR_FLOAT:
                 decodeMySQLFloat(field, bind);
                 break;
 
-            case VariantDataType::VAR_STRING:
-            case VariantDataType::VAR_TEXT:
-            case VariantDataType::VAR_BUFFER:
+            case VAR_STRING:
+            case VAR_TEXT:
+            case VAR_BUFFER:
                 fieldSizeChanged = bindVarCharField(bind, field, static_cast<size_t>(fieldIndex), dataLength);
                 break;
 

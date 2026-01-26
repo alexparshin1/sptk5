@@ -58,11 +58,10 @@ void MySQLConnection::initConnection()
         throw DatabaseException("Can't initialize MySQL environment");
     }
 
-    // MariaDB only:
-    unsigned int ssl_enforce = 0;
-    if (mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
+    if (constexpr unsigned int ssl_enforce = 0;
+        mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {
-        string error(mysql_error(m_connection.get()));
+        const string error(mysql_error(m_connection.get()));
         m_connection.reset();
         throw DatabaseException("Can't initialize MySQL environment: " + error);
     }
@@ -86,8 +85,8 @@ void MySQLConnection::_openDatabase(const String& newConnectionString)
 
         initConnection();
 
-        const auto& connString = connectionString();
-        if (mysql_real_connect(m_connection.get(),
+        if (const auto& connString = connectionString();
+            mysql_real_connect(m_connection.get(),
                                connString.hostName().c_str(),
                                connString.userName().c_str(),
                                connString.password().c_str(),
@@ -349,30 +348,31 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     objects.clear();
     switch (objectType)
     {
-        case DatabaseObjectType::PROCEDURES:
+        using enum DatabaseObjectType;
+        case PROCEDURES:
             objectsSQL =
                 "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
                 "FROM information_schema.routines "
                 "WHERE routine_type = 'PROCEDURE'";
             break;
-        case DatabaseObjectType::FUNCTIONS:
+        case FUNCTIONS:
             objectsSQL =
                 "SELECT CONCAT(routine_schema, '.', routine_name) object_name "
                 "FROM information_schema.routines "
                 "WHERE routine_type = 'FUNCTION'";
             break;
-        case DatabaseObjectType::TABLES:
+        case TABLES:
             objectsSQL =
                 "SELECT CONCAT(table_schema, '.', table_name) object_name "
                 "FROM information_schema.tables "
                 "WHERE NOT table_schema IN ('mysql','information_schema')";
             break;
-        case DatabaseObjectType::VIEWS:
+        case VIEWS:
             objectsSQL =
                 "SELECT CONCAT(table_schema, '.', table_name) object_name "
                 "FROM information_schema.views";
             break;
-        case DatabaseObjectType::DATABASES:
+        case DATABASES:
             objectsSQL =
                 "SHOW DATABASES where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;
