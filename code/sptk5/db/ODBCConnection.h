@@ -222,7 +222,7 @@ protected:
 
 private:
     static constexpr size_t MAX_NAME_LEN = 256;
-    std::chrono::minutes    m_sessionTimezoneOffset;
+    std::chrono::minutes    m_sessionTimezoneOffset {0};
 
     /**
      * @brief The ODBC connection object.

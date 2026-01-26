@@ -32,8 +32,8 @@
 #include <sql.h>
 #include <string>
 
-constexpr size_t MAX_BUF = 1024;
-constexpr size_t MAX_ERROR_LEN = 1024;
+constexpr size_t MaxBufferSize = 1024;
+constexpr size_t MaxErrorLen = 1024;
 
 using namespace std;
 using namespace sptk;
@@ -193,7 +193,7 @@ String ODBCConnection::queryError(const SQLHSTMT stmt) const
     array<SQLCHAR, SQL_MAX_MESSAGE_LENGTH> errorState = {};
 
     SWORD pcnmsg = 0;
-    auto  nativeError = 0;
+    SQLINTEGER  nativeError = 0;
 
     String error;
     int    resultCode = SQLError(SQL_NULL_HENV, handle(), stmt, errorState.data(), &nativeError, errorDescription.data(),
@@ -333,8 +333,8 @@ void ODBCConnection::queryExecute(Query* query)
 
     constexpr auto                 diagRecordSize = 16;
     array<SQLCHAR, diagRecordSize> state = {};
-    array<SQLCHAR, MAX_ERROR_LEN>  text = {};
-    auto                           nativeError = 0;
+    array<SQLCHAR, MaxErrorLen>  text = {};
+    SQLINTEGER                     nativeError = 0;
     SQLSMALLINT                    recordCount = 0;
     SQLSMALLINT                    textLength = 0;
 
@@ -660,7 +660,7 @@ void ODBCConnection::parseColumns(Query* query, const size_t count)
         int dateTimeVariant = 0;
         if (columnType == SQL_TIMESTAMP)
         {
-            queryColAttributes(query, column, SQL_COLUMN_TYPE_NAME, columnTypeName.data(), columnTypeName.size() - 1);
+            queryColAttributes(query, column, SQL_COLUMN_TYPE_NAME, columnTypeName.data(), static_cast<int>(columnTypeName.size()) - 1);
             std::string typeName(columnTypeName.data());
             dateTimeVariant = typeName == "datetime" ? 0 : 1;
         }
@@ -672,10 +672,7 @@ void ODBCConnection::parseColumns(Query* query, const size_t count)
             dataType = VariantDataType::VAR_TEXT;
         }
 
-        if (columnLength > FETCH_BUFFER_SIZE)
-        {
-            columnLength = FETCH_BUFFER_SIZE;
-        }
+        columnLength = min(columnLength, FETCH_BUFFER_SIZE);
 
         if (dataType == VariantDataType::VAR_FLOAT && (columnScale < 0 || columnScale > maxColumnScale))
         {
@@ -958,8 +955,8 @@ String ODBCConnection::driverDescription() const
 void ODBCConnection::listDataSources(Strings& dsns)
 {
     dsns.clear();
-    array<SQLCHAR, MAX_BUF> dataSource = {0};
-    array<SQLCHAR, MAX_BUF> description = {0};
+    array<SQLCHAR, MaxBufferSize> dataSource = {0};
+    array<SQLCHAR, MaxBufferSize> description = {0};
     SQLSMALLINT             rdsrc = 0;
     SQLSMALLINT             rdesc = 0;
 
@@ -971,7 +968,7 @@ void ODBCConnection::listDataSources(Strings& dsns)
         {
             throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
-        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, bit_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
+        if (SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER))
         {
             throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }
