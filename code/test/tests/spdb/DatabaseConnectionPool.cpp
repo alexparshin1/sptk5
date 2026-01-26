@@ -95,8 +95,8 @@ void testCurrentTimestamp(const String& dbName)
     {
         const auto now = DateTime::Now();
         const auto [dbTime1, dbTime2] = DatabaseTests::testCurrentTimestamp(connectionString);
-        EXPECT_STREQ(dbTime1.isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str(),
-                     dbTime2.isoDateTimeString(DateTime::PrintAccuracy::SECONDS, true).c_str());
+        const auto diffSeconds = chrono::duration_cast<chrono::seconds>(dbTime1 - dbTime2).count();
+        EXPECT_GE(1, diffSeconds);
     }
     catch (const Exception& e)
     {

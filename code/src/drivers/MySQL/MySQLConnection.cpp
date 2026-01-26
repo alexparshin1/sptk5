@@ -63,13 +63,14 @@ void MySQLConnection::initConnection()
     if (mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {
         string error(mysql_error(m_connection.get()));
-        mysql_close(m_connection.get());
+        m_connection.reset();
         throw DatabaseException("Can't initialize MySQL environment: " + error);
     }
 
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
-    const auto connectionTimeoutSeconds = connectTimeout().count();
+
+    const auto connectionTimeoutSeconds = static_cast<unsigned>(connectTimeout().count());
     mysql_options(m_connection.get(), MYSQL_OPT_CONNECT_TIMEOUT, &connectionTimeoutSeconds);
 }
 
@@ -193,8 +194,7 @@ void MySQLConnection::queryPrepare(Query* query)
 {
     if (query->prepared())
     {
-        queryFreeStmt(query);
-        queryAllocStmt(query);
+        return;
     }
 
     const scoped_lock lock(m_mutex);
@@ -374,7 +374,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
             break;
         case DatabaseObjectType::DATABASES:
             objectsSQL =
-                "SHOW SCHEMAS where `Database` NOT IN ('information_schema','performance_schema','mysql')";
+                "SHOW DATABASES where `Database` NOT IN ('information_schema','performance_schema','mysql')";
             break;
     }
 
@@ -486,12 +486,12 @@ void MySQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
     notImplemented("queryColAttributes");
 }
 
-map<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
+SynchronizedMap<MySQLConnection*, shared_ptr<MySQLConnection>> MySQLConnection::s_mysqlConnections;
 
 [[maybe_unused]] void* mysqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<MySQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    MySQLConnection::s_mysqlConnections[connection.get()] = connection;
+    MySQLConnection::s_mysqlConnections.insert(connection.get(), connection);
     return connection.get();
 }
 

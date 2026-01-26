@@ -28,6 +28,7 @@
 
 #include <functional>
 #include <map>
+#include <mutex>
 
 namespace sptk {
 
@@ -107,7 +108,7 @@ public:
      * Returns true if key existed.
      * @param key const K&, A data key
      */
-    virtual bool remove(const K& key)
+    virtual bool erase(const K& key)
     {
         std::scoped_lock       lock(m_sync);
         typename Map::iterator itor = m_map.find(key);

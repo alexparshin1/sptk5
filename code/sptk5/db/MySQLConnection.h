@@ -30,6 +30,9 @@
 
 #ifdef HAVE_MYSQL
 
+#include "sptk5/threads/SynchronizedMap.h"
+
+
 #include <mutex>
 #include <sptk5/db/MySQLStatement.h>
 
@@ -132,7 +135,7 @@ public:
     /**
      * @brief All active connections
      */
-    static std::map<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
+    static SynchronizedMap<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
 
 protected:
     /**
