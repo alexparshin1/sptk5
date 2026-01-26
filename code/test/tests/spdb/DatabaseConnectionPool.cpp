@@ -612,6 +612,11 @@ TEST(SPTK_SQLite3Connection, queryParameters)
     testQueryParameters("SQLite3");
 }
 
+TEST(SPTK_SQLite3Connection, dates)
+{
+    testQueryDateAndTimestamp("SQLite3");
+}
+
 TEST(SPTK_SQLite3Connection, transaction)
 {
     testTransaction("SQLite3");

@@ -195,7 +195,7 @@ private:
 
     void                 bindParameter(const Query* query, uint32_t paramNumber) const;
     void                 closeAndClean();
-    static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber);
+    static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber, VariantDataType dataType);
     std::chrono::minutes getSessionTimezoneOffset(); //< Get session timezone offset
 };
 

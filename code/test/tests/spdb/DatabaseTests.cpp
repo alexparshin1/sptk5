@@ -312,15 +312,29 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
     constexpr size_t dateAndTimeLength = 19;
     const auto       testTimezone = testDate.isoDateTimeString().substr(dateAndTimeLength);
 
-    const auto isOracle = databaseConnection->connectionType() == DatabaseConnectionType::ORACLE ||
-                          databaseConnection->connectionType() == DatabaseConnectionType::ORACLE_OCI;
-    const String testDateStr = isOracle ? "01-JUN-2015 11:22:33" : "2015-06-01 11:22:33";
+    String testDateStr;
+    switch (databaseConnection->connectionType())
+    {
+        using enum DatabaseConnectionType;
+        case ORACLE:
+        case ORACLE_OCI:
+            testDateStr = "01-JUN-2015 11:22:33";
+            break;
+        case SQLITE3:
+            testDateStr = "2015-06-01 11:22:33" + testTimezone;
+            break;
+        case POSTGRES:
+        case MYSQL:
+        case MSSQL_ODBC:
+            testDateStr = "2015-06-01 11:22:33";
+            break;
+    }
 
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
     insert1.exec();
 
-    Query    insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
-    DateTime dt = DateTime("2015-06-01T11:22:33");
+    Query insert2(databaseConnection, "INSERT INTO gtest_temp_table VALUES(:dt)");
+    auto  dt = DateTime("2015-06-01T11:22:33");
     insert2.param("dt") = dt;
     insert2.exec();
 
