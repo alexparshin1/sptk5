@@ -78,6 +78,11 @@ void BufferStorage::append(char chr)
 
 void BufferStorage::append(const char* data, size_t size)
 {
+    if (data == nullptr || size == 0)
+    {
+        return;
+    }
+
     if (size == MAX_SIZE_T)
     {
         size = strlen(data);
@@ -94,7 +99,7 @@ void BufferStorage::append(const char* data, size_t size)
 
 void BufferStorage::append(const uint8_t* data, size_t size)
 {
-    if (size == 0)
+    if (data == nullptr || size == 0)
     {
         return;
     }

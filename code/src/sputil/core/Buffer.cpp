@@ -56,7 +56,13 @@ void Buffer::loadFromFile(const std::filesystem::path& fileName)
     const auto size = static_cast<size_t>(fileStat.st_size);
 
     reset(size + 1);
-    bytes(fread(data(), 1, size, file));
+    const auto bytesRead = fread(data(), 1, size, file);
+    if (bytesRead != size)
+    {
+        fclose(file);
+        throw SystemException("Can't close file " + fileName.string());
+    }
+    bytes(bytesRead);
     if (const auto result = fclose(file);
         result != 0)
     {
@@ -81,16 +87,29 @@ void Buffer::saveToFile(const std::filesystem::path& fileName) const
     }
 }
 
-Buffer& Buffer::operator=(const String& other)
+Buffer& Buffer::operator=(const String& str)
 {
-    set(bit_cast<const uint8_t*>(other.c_str()), other.length());
-
+    if (str.empty())
+    {
+        reset();
+    }
+    else
+    {
+        set(bit_cast<const uint8_t*>(str.c_str()), str.length());
+    }
     return *this;
 }
 
 Buffer& Buffer::operator=(const char* str)
 {
-    set(bit_cast<const uint8_t*>(str), strlen(str));
+    if (str == nullptr)
+    {
+        reset();
+    }
+    else
+    {
+        set(bit_cast<const uint8_t*>(str), strlen(str));
+    }
 
     return *this;
 }
