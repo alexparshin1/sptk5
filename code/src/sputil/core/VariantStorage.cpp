@@ -1,5 +1,7 @@
 #include <sptk5/VariantStorage.h>
 
+#include "sptk5/MoneyData.h"
+
 using namespace std;
 using namespace sptk;
 

@@ -194,6 +194,15 @@ protected:
      */
     [[nodiscard]] String paramMark(unsigned paramIndex) override;
 
+    /**
+     * @brief Returns the session timezone offset.
+     * @return timezone offset.
+     */
+    [[nodiscard]] std::chrono::minutes sessionTimezoneOffset() const
+    {
+        return m_sessionTimezoneOffset;
+    }
+
 private:
     mutable std::mutex                  m_mutex;                 ///< Mutex that protects access to data members
     std::shared_ptr<ocilib::Connection> m_connection;            ///< OracleOci database connection

@@ -85,7 +85,7 @@ OracleOciParameterBuffer::~OracleOciParameterBuffer()
     }
 }
 
-void OracleOciParameterBuffer::setValue(const QueryParameter& value)
+void OracleOciParameterBuffer::setValue(const QueryParameter& value, const chrono::minutes sessionTimezoneOffset)
 {
     if (value.dataType() != m_bindType)
     {
@@ -131,7 +131,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value)
             break;
         }
         case VAR_DATE: {
-            const auto dateValue = value.asDateTime();
+            const auto dateValue = value.asDateTime() - sessionTimezoneOffset;
             short      year;
             short      month;
             short      day;

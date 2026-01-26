@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include <cstdio>
-#include <list>
 #include <string>
 
 #include "DatabaseField.h"
@@ -118,13 +116,13 @@ protected:
     void bindParameters();
 
 private:
-    std::shared_ptr<Connection>                            m_ociConnection; ///< Connection
-    std::shared_ptr<Statement>                             m_ociStatement;  ///< Statement
-    String                                                 m_sql;           ///< SQL
-    std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;
-
-    /*
-     * Index of output parameters
+    std::shared_ptr<Connection>                            m_ociConnection;         ///< Connection.
+    std::shared_ptr<Statement>                             m_ociStatement;          ///< Statement.
+    String                                                 m_sql;                   ///< SQL.
+    std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;      ///< Parameter bindings.
+    std::chrono::minutes                                   m_sessionTimezoneOffset; ///< Session timezone offset.
+ /*
+     * @brief Index of output parameters.
      */
     std::vector<unsigned> m_outputParamIndex;
 };

@@ -84,10 +84,10 @@ chrono::minutes OracleOciConnection::getSessionTimezoneOffset()
 {
     static const RegularExpression tzOffsetRegex(R"(^([\-\+])?(\d{1,2}):(\d{1,2}))");
 
-    Query query(this, "SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL");
-    auto  tzOffset = query.scalar().asString();
+    Query      query(this, "SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL");
+    const auto tzOffset = query.scalar().asString();
 
-    auto matches = tzOffsetRegex.m(tzOffset);
+    const auto matches = tzOffsetRegex.m(tzOffset);
     if (matches.empty())
     {
         return chrono::minutes(0);
@@ -155,7 +155,7 @@ void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* erro
 
     Strings statements;
     string  statement;
-    bool    routineStarted = false;
+    auto    routineStarted = false;
     for (const auto& aRow: batchSQL)
     {
         String row = trim(aRow);
@@ -470,7 +470,7 @@ void OracleOciConnection::queryOpen(Query* query)
 
 VariantDataType OracleOciConnection::oracleOciTypeToVariantType(DataType oracleType, const int scale)
 {
-    VariantDataType dataType {VariantDataType::VAR_STRING};
+    auto dataType {VariantDataType::VAR_STRING};
     switch (oracleType.GetValue())
     {
         using enum VariantDataType;
@@ -495,13 +495,13 @@ VariantDataType OracleOciConnection::oracleOciTypeToVariantType(DataType oracleT
 
 void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resultset& resultSet)
 {
-    const unsigned columnCount = resultSet.GetColumnCount();
+    const auto columnCount = resultSet.GetColumnCount();
     for (unsigned columnIndex = 0; columnIndex < columnCount; ++columnIndex)
     {
         auto       column = resultSet.GetColumn(columnIndex + 1);
         auto       columnType = column.GetType();
         auto       columnSqlType = column.GetSQLType();
-        const int  columnScale = column.GetScale();
+        const auto columnScale = column.GetScale();
         String     columnName(column.GetName());
         const auto columnDataSize = column.GetSize();
         if (columnName.empty())
@@ -608,11 +608,7 @@ void OracleOciConnection::readDateTimeOrTimestamp(const Resultset& resultSet, Or
 {
     if (field->sqlType() == "timestamp")
     {
-        readTimestamp(resultSet, field, columnIndex, m_sessionTimezoneOffset);
-    }
-    else if (field->sqlType() == "datetime")
-    {
-        readDate(resultSet, field, columnIndex, m_sessionTimezoneOffset);
+        readTimestamp(resultSet, field, columnIndex, chrono::minutes(0));
     }
     else
     {
@@ -700,16 +696,16 @@ void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int
     }
     else
     {
-        int year = 0;
-        int month = 0;
-        int day = 0;
-        int hour = 0;
-        int minute = 0;
-        int second = 0;
+        auto year = 0;
+        auto month = 0;
+        auto day = 0;
+        auto hour = 0;
+        auto minute = 0;
+        auto second = 0;
         date.GetDateTime(year, month, day, hour, minute, second);
 
-        DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
-                          static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
+        const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
+                                static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
 
         field->setDateTime(dateTime + sessionTimezoneOffset, false);
     }
@@ -717,19 +713,19 @@ void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int
 
 void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset)
 {
-    const auto date = resultSet.Get<Date>(columnIndex);
-    if (date.IsNull())
+    if (const auto date = resultSet.Get<Date>(columnIndex);
+        date.IsNull())
     {
         field->setNull(VariantDataType::VAR_DATE);
     }
     else
     {
-        int year = 0;
-        int month = 0;
-        int day = 0;
+        auto year = 0;
+        auto month = 0;
+        auto day = 0;
         date.GetDate(year, month, day);
 
-        DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0));
+        const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0));
 
         field->setDateTime(dateTime + sessionTimezoneOffset, true);
     }
@@ -757,8 +753,8 @@ void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 
 void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
-    auto blob = resultSet.Get<Blob>(columnIndex);
-    if (blob.IsNull())
+    if (auto blob = resultSet.Get<Blob>(columnIndex);
+        blob.IsNull())
     {
         field->setNull(VariantDataType::VAR_BUFFER);
     }

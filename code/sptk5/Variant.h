@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "MoneyData.h"
+
+
 #include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
@@ -47,6 +50,9 @@ class Node;
 
 class Field;
 
+/**
+ * @brief Base class for variant storage.
+ */
 class SP_EXPORT BaseVariant
 {
     friend class VariantAdaptors;

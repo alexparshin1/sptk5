@@ -35,7 +35,7 @@ public:
         return *std::bit_cast<T*>(m_bindBuffer);
     }
 
-    void setValue(const QueryParameter& value);
+    void setValue(const QueryParameter& value, std::chrono::minutes sessionTimezoneOffset);
     template<typename T>
     void setValue(const T& value)
     {

@@ -32,10 +32,11 @@ using namespace sptk;
 using namespace ocilib;
 
 OracleOciStatement::OracleOciStatement(OracleOciConnection* connection, const string& sql)
-    : DatabaseStatement<OracleOciConnection, ocilib::Statement>(connection)
+    : DatabaseStatement(connection)
     , m_ociConnection(connection->m_connection)
     , m_ociStatement(make_shared<Statement>(*connection->connection()))
     , m_sql(sql)
+    , m_sessionTimezoneOffset(connection->sessionTimezoneOffset())
 {
     statement(m_ociStatement.get());
     state().columnCount = 0;
@@ -99,7 +100,7 @@ void OracleOciStatement::setParameterValues()
         paramDataType = parameter.dataType();
         const auto paramMark = ":" + to_string(parameterIndex);
 
-        m_parameterBinding[parameterIndex - 1]->setValue(parameter);
+        m_parameterBinding[parameterIndex - 1]->setValue(parameter, m_sessionTimezoneOffset);
 
         if (!parameter.isOutput())
         {
