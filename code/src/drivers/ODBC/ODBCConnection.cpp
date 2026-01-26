@@ -963,13 +963,15 @@ void ODBCConnection::listDataSources(Strings& dsns)
     const auto offline = hEnv == nullptr;
     if (offline)
     {
-        if (SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv) != SQL_SUCCESS)
+        if (!successful(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HENV, &hEnv)))
         {
+            SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
             throw DatabaseException("ODBCConnection::SQLAllocHandle");
         }
         if (!successful(SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION,
                                       reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), SQL_IS_INTEGER)))
         {
+            SQLFreeHandle(SQL_HANDLE_ENV, hEnv);
             throw DatabaseException("ODBCConnection::SQLSetEnvAttr");
         }
     }
