@@ -35,7 +35,7 @@ using namespace sptk;
 
 namespace sptk {
 
-constexpr int  hoursPerDay = 24;
+constexpr auto hoursPerDay = 24;
 const DateTime g_epochDate(2000, 1, 1);
 
 class PostgreSQLStatement
@@ -47,7 +47,7 @@ public:
     {
         if (prepared)
         {
-            m_stmtName = "S" + to_string(nextIndex());
+            m_stmtName = format("S{}", nextIndex());
         }
     }
 
@@ -182,7 +182,7 @@ PostgreSQLConnection::~PostgreSQLConnection()
 }
 
 namespace {
-inline string csParam(const string& name, const string& value)
+string csParam(const string& name, const string& value)
 {
     return value.empty() ? "" : name + "=" + value + " ";
 }
@@ -266,7 +266,7 @@ void PostgreSQLConnection::closeDatabase()
 
 DBHandle PostgreSQLConnection::handle() const
 {
-    return reinterpret_cast<DBHandle>(m_connect);
+    return bit_cast<DBHandle>(m_connect);
 }
 
 bool PostgreSQLConnection::active() const
@@ -277,8 +277,13 @@ bool PostgreSQLConnection::active() const
 namespace {
 void checkError(const PGconn* conn, PGresult* res, const String& command)
 {
-    const auto statusCode = PQresultStatus(res);
-    if (statusCode != PGRES_COMMAND_OK)
+    if (res == nullptr)
+    {
+        throw DatabaseException(command + " command failed: Out of memory");
+    }
+
+    if (const auto statusCode = PQresultStatus(res);
+        statusCode != PGRES_COMMAND_OK)
     {
         const auto error = command + " command failed: " + string(PQerrorMessage(conn));
         PQclear(res);
@@ -379,11 +384,17 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     PostgreSQLParamValues& params = statement->paramValues();
     params.setParameters(query->params());
 
-    const Oid*     paramTypes = params.types();
-    const unsigned paramCount = params.size();
+    const Oid* paramTypes = params.types();
+    const auto paramCount = params.size();
 
     auto* stmt = PQprepare(m_connect, statement->name().c_str(), query->sql().c_str(), static_cast<int>(paramCount),
                            paramTypes);
+
+    if (stmt == nullptr)
+    {
+        const String error = "PREPARE command failed: " + string(PQerrorMessage(m_connect));
+        throw DatabaseException(error);
+    }
 
     checkError(m_connect, stmt, "PREPARE");
 
@@ -424,7 +435,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
         ++paramNumber;
     }
 
-    int resultFormat = 1; // Results are presented in binary format
+    auto resultFormat = 1; // Results are presented in binary format
 
     if (statement->colCount() == 0)
     {
@@ -432,7 +443,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     } // VOID result or NO results, using text format
 
     PGresult* stmt = PQexecPrepared(m_connect, statement->name().c_str(), static_cast<int>(paramValues.size()),
-                                    reinterpret_cast<const char* const*>(paramValues.values()),
+                                    bit_cast<const char* const*>(paramValues.values()),
                                     paramValues.lengths(), paramValues.formats(), resultFormat);
 
     const ExecStatusType statusType = PQresultStatus(stmt);
@@ -449,10 +460,12 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
             break;
 
         case PGRES_EMPTY_QUERY:
+            statement->stmt(stmt, 0, 0);
             error = "EXECUTE command failed: EMPTY QUERY";
             break;
 
         default:
+            statement->stmt(stmt, 0, 0);
             error = "EXECUTE command failed: ";
             error += PQerrorMessage(m_connect);
             break;
@@ -480,10 +493,10 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
         ++paramNumber;
     }
 
-    const int resultFormat = 1; // Results are presented in binary format
-    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
-                                  (const char* const*) paramValues.values(),
-                                  paramValues.lengths(), paramValues.formats(), resultFormat);
+    const auto resultFormat = 1; // Results are presented in binary format
+    PGresult*  stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
+                                   (const char* const*) paramValues.values(),
+                                   paramValues.lengths(), paramValues.formats(), resultFormat);
 
     const ExecStatusType statusCode = PQresultStatus(stmt);
 
@@ -600,8 +613,7 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
 
         default:
             throw DatabaseException(
-                "Unsupported parameter type " + to_string(static_cast<int>(dataType)) +
-                " for parameter '" + paramName + "'");
+                format("Unsupported parameter type {} for parameter '{}'", static_cast<int>(dataType), paramName.c_str()));
     }
 }
 
@@ -657,14 +669,14 @@ void PostgreSQLConnection::queryOpen(Query* query)
 
             if (columnName.empty())
             {
-                columnName = "column_" + to_string(column + 1);
+                columnName = format("column_{}", column + 1);
             }
 
-            auto            dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
-            VariantDataType fieldType = VariantDataType::VAR_NONE;
+            auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
+            auto fieldType = VariantDataType::VAR_NONE;
             postgreTypeToVariantType(dataType, fieldType);
-            const int fieldLength = PQfsize(stmt, column);
-            auto      field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
+            const auto fieldLength = PQfsize(stmt, column);
+            auto       field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
             query->fields().push_back(field);
         }
     }
@@ -675,51 +687,51 @@ void PostgreSQLConnection::queryOpen(Query* query)
 }
 
 namespace {
-[[nodiscard]] inline bool readBool(const char* data)
+[[nodiscard]] bool readBool(const char* data)
 {
     return *data != static_cast<char>(0);
 }
 
-inline int16_t readInt2(const char* data)
+int16_t readInt2(const char* data)
 {
     return static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(data)));
 }
 
-inline int32_t readInt4(const char* data)
+int32_t readInt4(const char* data)
 {
     return static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
 }
 
-inline int64_t readInt8(const char* data)
+int64_t readInt8(const char* data)
 {
     return bit_cast<int64_t>(ntohq(*bit_cast<const uint64_t*>(data)));
 }
 
-inline float readFloat4(const char* data)
+float readFloat4(const char* data)
 {
-    uint32_t value = ntohl(*bit_cast<const uint32_t*>(data));
-    void*    ptr = &value;
+    auto  value = ntohl(*bit_cast<const uint32_t*>(data));
+    void* ptr = &value;
     return *bit_cast<float*>(ptr);
 }
 
-inline double readFloat8(const char* data)
+double readFloat8(const char* data)
 {
-    uint64_t value = ntohq(*bit_cast<const uint64_t*>(data));
-    void*    ptr = &value;
+    auto  value = ntohq(*bit_cast<const uint64_t*>(data));
+    void* ptr = &value;
     return *bit_cast<double*>(ptr);
 }
 
-inline DateTime readDate(const char* data, const DateTime& epochDate)
+DateTime readDate(const char* data, const DateTime& epochDate)
 {
     const auto dateTime = static_cast<int32_t>(ntohl(*bit_cast<const uint32_t*>(data)));
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
-inline DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime& epochDate)
+DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime& epochDate)
 {
     DateTime epDate(2000, 1, 1);
 
-    uint64_t             value = ntohq(*bit_cast<const uint64_t*>(data));
+    auto                 value = ntohq(*bit_cast<const uint64_t*>(data));
     DateTime             result;
     chrono::microseconds epochOffset;
 
@@ -730,20 +742,20 @@ inline DateTime readTimestamp(const char* data, bool integerTimestamps, const Da
     }
     else
     {
-        void*        ptr = &value;
-        const double seconds = *bit_cast<double*>(ptr);
+        void*      ptr = &value;
+        const auto seconds = *bit_cast<double*>(ptr);
         epochOffset = chrono::seconds(static_cast<int>(seconds));
     }
     return epochDate + epochOffset;
 }
 
 // Converts internal NUMERIC Postgresql binary to long double
-inline MoneyData readNumericToScaledInteger(const char* numeric)
+MoneyData readNumericToScaledInteger(const char* numeric)
 {
     const auto ndigits = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
     const auto weight = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 2)));
     const auto sign = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric + 4)));
-    uint16_t   dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
+    auto       dscale = ntohs(*bit_cast<const uint16_t*>(numeric + 6));
 
     if (constexpr auto maxDscale = 16;
         dscale > maxDscale)
@@ -756,18 +768,18 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     int64_t value = 0;
 
     constexpr auto scaleShift = 4;
-    int            scale = 0;
+    auto           scale = 0;
     if (weight < 0)
     {
-        for (int i = 0; i < -(weight + 1); ++i)
+        for (auto i = 0; i < -(weight + 1); ++i)
         {
             scale += scaleShift;
         }
     }
 
     constexpr auto digitMultiplier = 10000;
-    int16_t        digitWeight = weight;
-    for (int i = 0; i < ndigits; ++i)
+    auto           digitWeight = weight;
+    for (auto i = 0; i < ndigits; ++i)
     {
         const auto digit = static_cast<int16_t>(ntohs(*bit_cast<const uint16_t*>(numeric)));
 
@@ -847,7 +859,7 @@ inline MoneyData readNumericToScaledInteger(const char* numeric)
     return moneyData;
 }
 
-void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::TimestampFormat timestampFormat, const DateTime& epochDate)
+void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::TimestampFormat timestampFormat, const DateTime& epochDate)
 {
     struct PGArrayHeader
     {
@@ -875,8 +887,8 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
     for (size_t dim = 0; dim < arrayHeader->dimensionNumber; ++dim)
     {
         PGArrayDimension* dimension = dimensions + dim;
-        dimension->elementCount = htonl(dimension->elementCount);
-        dimension->lowerBound = htonl(dimension->lowerBound);
+        dimension->elementCount = ntohl(dimension->elementCount);
+        dimension->lowerBound = ntohl(dimension->lowerBound);
         output << "{";
         for (size_t element = 0; element < dimension->elementCount; ++element)
         {
@@ -885,7 +897,7 @@ void decodeArray(char* data, DatabaseField* field, PostgreSQLConnection::Timesta
                 output << ",";
             }
 
-            const uint32_t dataSize = ntohl(*bit_cast<const uint32_t*>(data));
+            const auto dataSize = ntohl(*bit_cast<const int32_t*>(data));
             data += sizeof(uint32_t);
 
             switch (static_cast<PostgreSQLDataType>(arrayHeader->elementType))
@@ -970,22 +982,22 @@ void PostgreSQLConnection::queryFetch(Query* query)
     const PGresult* stmt = statement->stmt();
     const auto      currentRow = static_cast<int>(statement->currentRow());
 
-    for (int column = 0; column < fieldCount; ++column)
+    for (auto column = 0; column < fieldCount; ++column)
     {
         auto* field = bit_cast<DatabaseField*>(&(*query)[static_cast<size_t>(column)]);
         try
         {
             const auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
 
-            const int dataLength = PQgetlength(stmt, currentRow, column);
+            const auto dataLength = PQgetlength(stmt, currentRow, column);
 
             if (dataLength == 0)
             {
                 using enum sptk::VariantDataType;
-                VariantDataType dataType {VAR_NONE};
+                auto dataType {VAR_NONE};
                 postgreTypeToVariantType(fieldType, dataType);
 
-                bool isNull = true;
+                auto isNull = true;
                 if (static_cast<int>(dataType) & (static_cast<int>(VAR_STRING) | static_cast<int>(VAR_TEXT) |
                                                   static_cast<int>(VAR_BUFFER)))
                 {
@@ -1142,7 +1154,7 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    return "$" + to_string(paramIndex + 1);
+    return format("${}", paramIndex + 1);
 }
 
 void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
@@ -1181,8 +1193,8 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     String       delimiter;
     stringstream statement;
 
-    bool functionHeader = false;
-    bool functionBody = false;
+    auto functionHeader = false;
+    auto functionBody = false;
     for (auto row: sqlBatch)
     {
         if (!functionHeader && !functionBody)

@@ -193,7 +193,7 @@ private:
     std::shared_ptr<sqlite3> m_connect;               ///< Database connection
     std::chrono::minutes     m_sessionTimezoneOffset; //< Session timezone offset
 
-    void                 bindParameter(const Query* query, uint32_t paramNumber) const;
+    void                 bindParameter(Query* query, uint32_t paramNumber);
     void                 closeAndClean();
     static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber, VariantDataType dataType);
     std::chrono::minutes getSessionTimezoneOffset(); //< Get session timezone offset

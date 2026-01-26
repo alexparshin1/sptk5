@@ -51,7 +51,7 @@ class PostgreSQLParamValues
     static constexpr size_t defaultParamCount = 8;
 
 public:
-    explicit PostgreSQLParamValues(bool int64timestamps, const DateTime& epochDate)
+    explicit PostgreSQLParamValues(const bool int64timestamps, const DateTime& epochDate)
         : m_int64timestamps(int64timestamps)
         , m_epochDate(epochDate)
     {
@@ -63,7 +63,7 @@ public:
         m_count = 0;
     }
 
-    void resize(size_t sz)
+    void resize(const size_t sz)
     {
         m_values.resize(sz);
         m_lengths.resize(sz);
@@ -73,7 +73,7 @@ public:
 
     void setParameters(const QueryParameterList& params);
 
-    void setParameterValue(unsigned paramIndex, const uint8_t* value, unsigned sz, int32_t format,
+    void setParameterValue(const unsigned paramIndex, const uint8_t* value, const unsigned sz, const int32_t format,
                            PostgreSQLDataType dataType)
     {
         m_values[paramIndex] = value;

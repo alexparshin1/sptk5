@@ -26,6 +26,7 @@
 
 #include "PostgreSQLParamValues.h"
 #include "htonq.h"
+#include <format>
 
 using namespace std;
 using namespace sptk;
@@ -99,8 +100,6 @@ void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQ
 
 void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
 {
-    constexpr int64_t     microsecondsInSecond {1000000};
-    constexpr int         hoursInDay {24};
     const VariantDataType ptype = param->dataType();
 
     if (param->isNull())
@@ -109,11 +108,13 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
     }
     else
     {
+        constexpr auto    hoursInDay {24};
         uint32_t*         uptrBuffer;
         uint64_t*         uptrBuffer64;
-        long              days;
+        uint64_t          days {0};
         int64_t           mcs {0};
         constexpr int64_t secondsPerDay {86400};
+        constexpr int64_t microsecondsInSecond {1000000};
         switch (ptype)
         {
             case VariantDataType::VAR_BOOL:
@@ -158,7 +159,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 }
                 else
                 {
-                    double dt = static_cast<double>(mcs) / static_cast<double>(microsecondsInSecond);
+                    auto dt = static_cast<double>(mcs) / static_cast<double>(microsecondsInSecond);
                     htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -196,8 +197,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             default:
                 throw DatabaseException(
-                    "Unsupported parameter type(" + to_string(static_cast<int>(param->dataType())) +
-                    ") for parameter '" + param->name() + "'");
+                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name().c_str()));
         }
     }
 }

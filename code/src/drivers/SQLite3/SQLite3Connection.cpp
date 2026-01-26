@@ -106,7 +106,7 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 
         sqlite3* connect = nullptr;
         if (const auto dbFileName = this->nativeConnectionString();
-            sqlite3_open(dbFileName.c_str(), &connect) != 0)
+            sqlite3_open(dbFileName.c_str(), &connect) != 0 && connect != nullptr)
         {
             const String error = sqlite3_errmsg(connect);
             sqlite3_close(connect);
@@ -132,7 +132,9 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
             if (char* zErrMsg = nullptr;
                 sqlite3_exec(m_connect.get(), pragma.c_str(), nullptr, nullptr, &zErrMsg) != SQLITE_OK)
             {
-                throw DatabaseException(zErrMsg);
+                const String error(zErrMsg);
+                sqlite3_free(zErrMsg);
+                throw DatabaseException(error);
             }
         }
 
@@ -298,7 +300,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
     }
 }
 
-void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) const
+void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber)
 {
     auto*                 stmt = bit_cast<SQLHSTMT>(query->statement());
     QueryParameter*       parameter = &query->param(paramNumber);
@@ -352,8 +354,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
 
                 default:
                     throw DatabaseException(
-                        "Unsupported parameter type (" + to_string(static_cast<int>(parameter->dataType())) +
-                        ") for parameter '" + parameter->name() + "'");
+                        format("Unsupported parameter type ({}) for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name().c_str()));
             }
         }
 
@@ -361,6 +362,7 @@ void SQLite3Connection::bindParameter(const Query* query, uint32_t paramNumber) 
         {
             const String error = sqlite3_errmsg(m_connect.get());
             sqlite3_finalize(stmt);
+            querySetStmt(query, nullptr);
             throw DatabaseException(
                 error + ", in binding parameter '" + parameter->name() + "'",
                 source_location::current(), query->sql());
@@ -427,7 +429,7 @@ void SQLite3Connection::queryOpen(Query* query)
         String columnName(sqlite3_column_name(stmt, column - 1));
         if (columnName.empty())
         {
-            columnName = "column_" + to_string(column);
+            columnName = format("column_{}", column);
         }
 
         auto field = make_shared<SQLite3Field>(columnName);
