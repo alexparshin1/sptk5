@@ -30,6 +30,9 @@
 
 #ifdef HAVE_ODBC
 
+#include "sptk5/threads/SynchronizedMap.h"
+
+
 #include <sptk5/db/ODBCEnvironment.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 
@@ -109,7 +112,7 @@ public:
     /**
      * @brief All active connections.
      */
-    static std::map<ODBCConnection*, std::shared_ptr<ODBCConnection>> s_odbcConnections;
+    static SynchronizedMap<ODBCConnection*, std::shared_ptr<ODBCConnection>> s_odbcConnections;
 
 protected:
     /**

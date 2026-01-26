@@ -782,12 +782,12 @@ void OracleConnection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
     notImplemented("queryColAttributes");
 }
 
-map<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
+SynchronisedMap<OracleConnection*, shared_ptr<OracleConnection>> OracleConnection::s_oracleConnections;
 
 [[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     auto connection = make_shared<OracleConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    OracleConnection::s_oracleConnections[connection.get()] = connection;
+    OracleConnection::s_oracleConnections.insert(connection.get(), connection);
     return connection.get();
 }
 

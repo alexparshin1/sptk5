@@ -106,12 +106,16 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 
         sqlite3* connect = nullptr;
         if (const auto dbFileName = this->nativeConnectionString();
-            sqlite3_open(dbFileName.c_str(), &connect) != 0 && connect != nullptr)
+            sqlite3_open(dbFileName.c_str(), &connect) != SQLITE_OK)
         {
-            const String error = sqlite3_errmsg(connect);
-            sqlite3_close(connect);
-            m_connect.reset();
-            throw DatabaseException(error + " '" + dbFileName + "'");
+            if (connect != nullptr)
+            {
+                const String error = sqlite3_errmsg(connect);
+                sqlite3_close(connect);
+                m_connect.reset();
+                throw DatabaseException(error + " '" + dbFileName + "'");
+            }
+            throw DatabaseException("Can't open the database '" + dbFileName + "'");
         }
 
         m_connect = shared_ptr<sqlite3>(connect,
@@ -175,7 +179,9 @@ void SQLite3Connection::driverBeginTransaction()
     if (char* zErrMsg = nullptr;
         sqlite3_exec(m_connect.get(), "BEGIN TRANSACTION", nullptr, nullptr, &zErrMsg) != SQLITE_OK)
     {
-        throw DatabaseException(zErrMsg);
+        const String error(zErrMsg);
+        sqlite3_free(zErrMsg);
+        throw DatabaseException(error);
     }
 
     setInTransaction(true);
@@ -193,7 +199,9 @@ void SQLite3Connection::driverEndTransaction(bool commit)
     if (char* zErrMsg = nullptr;
         sqlite3_exec(m_connect.get(), action, nullptr, nullptr, &zErrMsg) != SQLITE_OK)
     {
-        throw DatabaseException(zErrMsg);
+        const String error(zErrMsg);
+        sqlite3_free(zErrMsg);
+        throw DatabaseException(error);
     }
 
     setInTransaction(false);
@@ -361,7 +369,6 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber)
         if (res != SQLITE_OK)
         {
             const String error = sqlite3_errmsg(m_connect.get());
-            sqlite3_finalize(stmt);
             querySetStmt(query, nullptr);
             throw DatabaseException(
                 error + ", in binding parameter '" + parameter->name() + "'",
@@ -683,12 +690,12 @@ void SQLite3Connection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
     notImplemented("queryColAttributes");
 }
 
-map<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
+SynchronizedMap<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
 
 [[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    SQLite3Connection::s_sqlite3Connections[connection.get()] = connection;
+    SQLite3Connection::s_sqlite3Connections.insert(connection.get(), connection);
     return connection.get();
 }
 

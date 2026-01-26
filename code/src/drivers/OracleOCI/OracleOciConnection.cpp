@@ -121,14 +121,11 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
         }
         catch (const ocilib::Exception& e)
         {
-            if (strstr(e.what(), "already used") == nullptr)
+            if (m_connection)
             {
-                if (m_connection)
-                {
-                    m_connection.reset();
-                }
-                throw DatabaseException(string("Can't create connection: ") + e.what());
+                m_connection.reset();
             }
+            throw DatabaseException(string("Can't create connection: ") + e.what());
         }
     }
 }
@@ -273,7 +270,7 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
             objectsSQL = "SELECT table_name FROM user_tables";
             break;
         case VIEWS:
-            objectsSQL = "SELECT view_name FROM sys.all_views";
+            objectsSQL = "SELECT view_name FROM user_views";
             break;
         case DATABASES:
             objectsSQL = "SELECT username FROM all_users";
@@ -312,6 +309,7 @@ String OracleOciConnection::lastAutoIncrementSql(const String& tableName)
 void OracleOciConnection::driverBeginTransaction()
 {
     m_connection->SetAutoCommit(false);
+    setInTransaction(true);
 }
 
 void OracleOciConnection::driverEndTransaction(bool commit)
@@ -325,6 +323,7 @@ void OracleOciConnection::driverEndTransaction(bool commit)
         m_connection->Rollback();
     }
     m_connection->SetAutoCommit(true);
+    setInTransaction(false);
 }
 
 void OracleOciConnection::queryAllocStmt(Query* query)
@@ -363,7 +362,6 @@ void OracleOciConnection::queryPrepare(Query* query)
         {
             statement->statement()->Prepare(query->sql());
             statement->bindParameters();
-            querySetPrepared(query, true);
         }
         catch (const ocilib::Exception& e)
         {
@@ -444,7 +442,6 @@ void OracleOciConnection::queryOpen(Query* query)
         queryPrepare(query);
     }
 
-    // Bind parameters also executes a query
     queryBindParameters(query);
 
     const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
@@ -658,7 +655,7 @@ String OracleOciConnection::paramMark(unsigned int paramIndex)
 
 String OracleOciConnection::queryError(const Query* query) const
 {
-    return {};
+    return format("Error in query {}", query->sql().c_str());
 }
 
 namespace {
@@ -711,26 +708,6 @@ void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int
     }
 }
 
-void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset)
-{
-    if (const auto date = resultSet.Get<Date>(columnIndex);
-        date.IsNull())
-    {
-        field->setNull(VariantDataType::VAR_DATE);
-    }
-    else
-    {
-        auto year = 0;
-        auto month = 0;
-        auto day = 0;
-        date.GetDate(year, month, day);
-
-        const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day), static_cast<short>(0), static_cast<short>(0), static_cast<short>(0));
-
-        field->setDateTime(dateTime + sessionTimezoneOffset, true);
-    }
-}
-
 void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
 {
     const auto str = resultSet.Get<ostring>(columnIndex);
@@ -768,12 +745,12 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 } // namespace
 
 
-map<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
+SynchronizedMap<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 
 [[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    OracleOciConnection::s_oracleOciConnections[connection.get()] = connection;
+    OracleOciConnection::s_oracleOciConnections.insert(connection.get(), connection);
     return connection.get();
 }
 

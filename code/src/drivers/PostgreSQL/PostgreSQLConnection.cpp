@@ -1257,12 +1257,12 @@ void PostgreSQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, i
     notImplemented("queryColAttributes");
 }
 
-map<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
+SynchronizedMap<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
 
 [[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    PostgreSQLConnection::s_postgresqlConnections[connection.get()] = connection;
+    PostgreSQLConnection::s_postgresqlConnections.insert(connection.get(), connection);
     return connection.get();
 }
 

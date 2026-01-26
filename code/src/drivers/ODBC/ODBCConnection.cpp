@@ -1208,12 +1208,12 @@ void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
     }
 }
 
-map<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
+SynchronizedMap<ODBCConnection*, shared_ptr<ODBCConnection>> ODBCConnection::s_odbcConnections;
 
 [[maybe_unused]] void* odbcCreateConnection(const char* connectionString, const size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<ODBCConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
-    ODBCConnection::s_odbcConnections[connection.get()] = connection;
+    ODBCConnection::s_odbcConnections.insert(connection.get(), connection);
     return connection.get();
 }
 

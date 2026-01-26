@@ -31,6 +31,9 @@
 
 #ifdef HAVE_ORACLE_OCI
 
+#include "sptk5/threads/SynchronizedMap.h"
+
+
 #include <mutex>
 
 namespace sptk {
@@ -119,7 +122,7 @@ public:
     /**
      * @brief All active connections.
      */
-    static std::map<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
+    static SynchronizedMap<OracleOciConnection*, std::shared_ptr<OracleOciConnection>> s_oracleOciConnections;
 
     [[nodiscard]] String tableSequenceName(const String& tableName) override;
     [[nodiscard]] String lastAutoIncrementSql(const String& tableName) override;

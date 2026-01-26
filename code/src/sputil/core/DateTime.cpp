@@ -224,7 +224,7 @@ void DateTimeFormat::init() noexcept
     dateBuffer[len] = 0;
 
     // Build local date and time formats
-    DateTime::_datePartsOrder[0] = 0;
+    DateTime::_datePartsOrder.clear();
     DateTime::_dateSeparator = parseDateOrTime(DateTime::_dateFormat, dateBuffer.data());
     DateTime::time24Mode(timeBuffer[0] == '2');
 
@@ -897,7 +897,7 @@ DateTime DateTime::date() const
 {
     constexpr int    hoursInDay = 24;
     const duration   sinceEpoch = m_dateTime.time_since_epoch();
-    const long       days = duration_cast<hours>(sinceEpoch + seconds(TimeZone::offset())).count() / hoursInDay;
+    const long       days = duration_cast<hours>(sinceEpoch + TimeZone::offset()).count() / hoursInDay;
     const time_point timePoint = time_point() + hours(days * hoursInDay);
     return DateTime(timePoint); // Sets the current date
 }

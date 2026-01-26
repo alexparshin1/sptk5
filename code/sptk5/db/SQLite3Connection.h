@@ -30,6 +30,9 @@
 
 #ifdef HAVE_SQLITE3
 
+#include "sptk5/threads/SynchronizedMap.h"
+
+
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sqlite3.h>
 
@@ -96,7 +99,7 @@ public:
     /**
      * @brief All active connections
      */
-    static std::map<SQLite3Connection*, std::shared_ptr<SQLite3Connection>> s_sqlite3Connections;
+    static SynchronizedMap<SQLite3Connection*, std::shared_ptr<SQLite3Connection>> s_sqlite3Connections;
 
 protected:
     /**

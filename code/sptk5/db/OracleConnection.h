@@ -160,7 +160,7 @@ public:
     /**
      * @brief All active connections
      */
-    static std::map<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
+    static SynchronisedMap<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
 
 protected:
     /**

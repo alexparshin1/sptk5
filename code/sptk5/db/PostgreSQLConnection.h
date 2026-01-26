@@ -31,6 +31,9 @@
 
 #ifdef HAVE_POSTGRESQL
 
+#include "sptk5/threads/SynchronizedMap.h"
+
+
 #include <libpq-fe.h>
 
 #ifndef _WIN32
@@ -152,7 +155,7 @@ public:
     /**
      * @brief All active connections.
      */
-    static std::map<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
+    static SynchronizedMap<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
 
 protected:
     static Strings extractStatements(const Strings& sqlBatch);
