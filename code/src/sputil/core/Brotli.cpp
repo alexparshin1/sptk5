@@ -123,6 +123,11 @@ private:
 BrotliEncoderState* Context::createEncoderInstance() const
 {
     auto* instance = BrotliEncoderCreateInstance(nullptr, nullptr, nullptr);
+    if (!instance)
+    {
+        throw Exception("Can't create Brotli encoder");
+    }
+
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, static_cast<uint32_t>(quality));
 
     /* 0, or not specified by user; could be chosen by compressor. */

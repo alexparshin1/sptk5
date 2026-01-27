@@ -245,7 +245,7 @@ public:
         /**
          * Constructor
          * @param name              Element name
-         * @param shortName         Short element name (single character, options only)
+         * @param shortName         Short element name (single character)
          * @param help              Help (description) for the element
          * @param useWithCommands   Element visibility for a command (options only)
          */

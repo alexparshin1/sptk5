@@ -56,6 +56,10 @@ bool CommandLine::Visibility::any() const
 
 bool CommandLine::Visibility::matches(const String& command) const
 {
+    if (m_regexp == nullptr)
+    {
+        return true;
+    }
     return m_inverted == !m_regexp->matches(command);
 }
 //=============================================================================
@@ -147,7 +151,7 @@ void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWid
 
     Strings helpText;
     formatHelp(textWidth, helpText);
-    bool firstRow = true;
+    auto firstRow = true;
     for (const string& helpRow: helpText)
     {
         stringstream str;
@@ -438,9 +442,9 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
         if (arg.startsWith("-"))
         {
             // Short option name(s)
-            for (unsigned j = 1; j < arg.length(); ++j)
+            for (const auto& ch: arg.substr(1))
             {
-                const string opt = "-" + arg.substr(j, j + 1);
+                const string opt = format("-{}", ch);
                 digestedArgs.push_back(opt);
             }
             continue;

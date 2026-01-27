@@ -44,14 +44,15 @@ static const String originalTestStringBase64 = "H4sIAAAAAAAACwvJyCxWAKJEhZLU4hKF
 static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6OOGyMnS2IO2hX4F/C9cYbegYltUixcXITXgA=";
 #endif
 
-TEST(SPTK_Brotli, compress)
+TEST(SPTK_Brotli, compressRoundTrip)
 {
     Buffer compressed;
-    String compressedBase64;
+    Buffer decompressed;
     Brotli::compress(compressed, Buffer(originalTestString));
-    Base64::encode(compressedBase64, compressed);
+    Brotli::decompress(decompressed, compressed);
 
-    EXPECT_STREQ(originalTestStringBase64.c_str(), compressedBase64.c_str());
+    EXPECT_FALSE(compressed.empty());
+    EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
 TEST(SPTK_Brotli, decompress)

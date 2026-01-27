@@ -17,7 +17,7 @@ namespace sptk {
 class OracleOciParameterBuffer
 {
 public:
-    static constexpr unsigned MaxStringLength = 2048;
+    static constexpr auto MaxStringLength = 2048;
 
     explicit OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection);
     OracleOciParameterBuffer(const OracleOciParameterBuffer&) = delete;
@@ -60,7 +60,7 @@ private:
     }
 
     template<typename T>
-    void deleteBuffer(uint8_t* buffer)
+    void deleteBuffer(uint8_t* buffer) const
     {
         delete std::bit_cast<T*>(buffer);
     }

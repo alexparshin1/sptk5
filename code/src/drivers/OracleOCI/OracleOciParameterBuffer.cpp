@@ -20,6 +20,7 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const s
     {
         using enum VariantDataType;
         case VAR_INT:
+        case VAR_BOOL:
             m_bindBuffer = makeBuffer<int>();
             break;
         case VAR_INT64:
@@ -31,9 +32,6 @@ OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const s
         case VAR_STRING:
             m_bindBuffer = makeBuffer<ocilib::ostring>();
             getValue<ocilib::ostring>().reserve(MaxStringLength);
-            break;
-        case VAR_BOOL:
-            m_bindBuffer = makeBuffer<int32_t>();
             break;
         case VAR_DATE_TIME:
         case VAR_DATE:
@@ -206,7 +204,7 @@ void OracleOciParameterBuffer::bindOutput(ocilib::Statement statement, const oci
             statement.Register<double>(parameterMark);
             break;
         case VAR_STRING:
-            statement.Register<ocilib::ostring>(parameterMark, 4000);
+            statement.Register<ocilib::ostring>(parameterMark, 2048);
             break;
         case VAR_BOOL:
             statement.Register<int>(parameterMark);

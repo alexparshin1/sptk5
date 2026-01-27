@@ -37,6 +37,7 @@ public:
     static vector<const char*> testCommandLineArgs;
     static vector<const char*> testCommandLineArgs2;
     static vector<const char*> testCommandLineArgs3;
+    static vector<const char*> testCommandLineArgsCluster;
 };
 
 vector<const char*> CommandLineTestData::testCommandLineArgs = {"testapp", "connect", "--host",
@@ -51,6 +52,9 @@ vector<const char*> CommandLineTestData::testCommandLineArgs2 = {"testapp", "con
 vector<const char*> CommandLineTestData::testCommandLineArgs3 = {"testapp", "connect", "--host",
                                                                  "ahostname", "-p", "12345",
                                                                  "--verbotten", "--gtest_test"};
+
+vector<const char*> CommandLineTestData::testCommandLineArgsCluster = {"testapp", "connect", "-vp", "12345",
+                                                                       "--host", "ahostname"};
 
 shared_ptr<CommandLine> createTestCommandLine()
 {
@@ -134,6 +138,18 @@ TEST(SPTK_CommandLine, setOption)
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "ahostname");
     commandLine->setOptionValue("host", "www.x.com");
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
+}
+
+TEST(SPTK_CommandLine, clusteredShortFlags)
+{
+    const auto commandLine = createTestCommandLine();
+
+    commandLine->init(CommandLineTestData::testCommandLineArgsCluster.size(),
+                      CommandLineTestData::testCommandLineArgsCluster.data());
+
+    EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
+    EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
+    EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
 }
 
 TEST(SPTK_CommandLine, printHelp)
