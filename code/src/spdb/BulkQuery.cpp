@@ -71,7 +71,7 @@ String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& co
             sql << "UNION ALL ";
         }
         sql << "SELECT ";
-        bool first = true;
+        auto first = true;
         for (const auto& column: columnNames)
         {
             if (first)
@@ -97,7 +97,7 @@ String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& c
     sql << "INSERT INTO " << tableName << "(" << columnNames.join(", ") << ")" << "\n";
     sql << "     SELECT ";
 
-    bool first = true;
+    auto first = true;
     for (const auto& column: columnNames)
     {
         if (first)
@@ -156,7 +156,7 @@ String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& c
 
         sql << "  (";
 
-        bool first = true;
+        auto first = true;
         for (const auto& column: columnNames)
         {
             if (first)
@@ -216,7 +216,7 @@ void BulkQuery::beginInsert(bool& startedTransaction) const
     }
 }
 
-void BulkQuery::commitInsert() const
+void BulkQuery::unlockTables() const
 {
     using enum DatabaseConnectionType;
     if (m_connection->connectionType() == MYSQL)
@@ -230,8 +230,8 @@ bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVe
 {
     using enum DatabaseConnectionType;
 
-    auto connectionType = m_connection->connectionType();
-    if (connectionType == ORACLE || connectionType == ORACLE_OCI)
+    if (const auto connectionType = m_connection->connectionType();
+        connectionType == ORACLE || connectionType == ORACLE_OCI)
     {
         stringstream sqlStream;
         sqlStream << "WITH SERIES (IND) AS (SELECT ROWNUM FROM DUAL CONNECT BY ROWNUM <= " << rows.size() << ")"
@@ -255,17 +255,22 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
 {
     using enum DatabaseConnectionType;
 
-    const auto   fullGroupCount = rows.size() / m_groupSize;
-    const size_t remainder = rows.size() % m_groupSize;
+    if (m_groupSize == 0)
+    {
+        throw Exception("Group size must be greater than zero");
+    }
+
+    const auto fullGroupCount = rows.size() / m_groupSize;
+    const auto remainder = rows.size() % m_groupSize;
     if (insertedIds)
     {
         insertedIds->clear();
         insertedIds->reserve(rows.size());
     }
 
-    bool useReservedIds = false;
+    auto useReservedIds = false;
 
-    int    serialColumnIndex = -1;
+    auto   serialColumnIndex = -1;
     size_t reservedIdOffset = 0;
     if (!m_serialColumnName.empty() && insertedIds)
     {
@@ -286,7 +291,7 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
     {
         for (unsigned groupNumber = 0; groupNumber < fullGroupCount; ++groupNumber)
         {
-            auto insertedCount = insertGroupRows(m_insertQuery, firstRow, firstRow + static_cast<long>(m_groupSize), insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
+            const auto insertedCount = insertGroupRows(m_insertQuery, firstRow, firstRow + static_cast<long>(m_groupSize), insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
             firstRow += static_cast<long>(insertedCount);
         }
     }
@@ -302,8 +307,8 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
 
 void BulkQuery::deleteRows(const VariantVector& keys)
 {
-    const auto   fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
-    const size_t remainder = keys.size() % m_groupSize;
+    const auto fullGroupCount = static_cast<unsigned>(keys.size() / m_groupSize);
+    const auto remainder = keys.size() % m_groupSize;
 
     auto firstKey = keys.begin();
     if (fullGroupCount > 0)
@@ -317,6 +322,11 @@ void BulkQuery::deleteRows(const VariantVector& keys)
 
     if (remainder > 0)
     {
+        if (m_serialColumnName.empty() && m_columnNames.empty())
+        {
+            throw Exception("No primary key column specified and column list is empty");
+        }
+
         // Last group
         Query deleteQuery(m_connection, makeGenericDeleteSQL(m_tableName, m_serialColumnName.empty() ? m_columnNames[0] : m_serialColumnName, remainder));
         deleteGroupRows(deleteQuery, firstKey, firstKey + static_cast<long>(remainder));
@@ -324,17 +334,17 @@ void BulkQuery::deleteRows(const VariantVector& keys)
 }
 
 size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::const_iterator startRow, vector<VariantVector>::const_iterator end,
-                                  vector<int64_t>* insertedIds, bool useReservedIds, size_t serialColumnIndex, size_t& reservedIdOffset)
+                                  vector<int64_t>* insertedIds, const bool useReservedIds, const size_t serialColumnIndex, size_t& reservedIdOffset)
 {
     using enum DatabaseConnectionType;
 
     const auto connectionType = m_connection->connectionType();
-    const bool captureInsertedIds = (!m_serialColumnName.empty() && insertedIds != nullptr) || connectionType == MSSQL_ODBC;
-    const bool insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
-    const bool sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
+    const auto captureInsertedIds = (!m_serialColumnName.empty() && insertedIds != nullptr) || connectionType == MSSQL_ODBC;
+    const auto insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
+    const auto sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
     int64_t rowCount = 0;
-    size_t  columnCount = startRow->size();
+    auto    columnCount = startRow->size();
     if (columnCount == serialColumnIndex)
     {
         ++columnCount;
@@ -343,6 +353,10 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
     auto parameterIterator = insertQuery.parameters().begin();
     for (auto row = startRow; row != end; ++row)
     {
+        if (row->size() != startRow->size())
+        {
+            throw Exception("Row size mismatch");
+        }
         for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
         {
             auto& parameter = *parameterIterator;
@@ -380,7 +394,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
         }
         else
         {
-            bool startedTransaction = false;
+            auto startedTransaction = false;
 
             beginInsert(startedTransaction);
 
@@ -390,7 +404,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
 
                 auto lastInsertedId = m_lastInsertedIdQuery.scalar().asInt64();
 
-                commitInsert();
+                unlockTables();
 
                 auto firstInsertedId = lastInsertedId - rowCount + 1;
 
@@ -411,6 +425,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, vector<VariantVector>::con
             }
             catch (const Exception& e)
             {
+                unlockTables();
                 if (startedTransaction)
                 {
                     m_connection->rollbackTransaction();

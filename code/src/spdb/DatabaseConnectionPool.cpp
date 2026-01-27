@@ -77,7 +77,7 @@ void DatabaseConnectionPool::load()
         driverNameLC = "odbc";
     }
 
-    if (auto* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC); loadedDriver != nullptr)
+    if (auto* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC))
     {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
@@ -107,11 +107,18 @@ void DatabaseConnectionPool::load()
 #ifdef WIN32
     CreateDriverInstance* createConnection = (CreateDriverInstance*) GetProcAddress(handle, createConnectionFunctionName.c_str());
     if (!createConnection)
+    {
+        CloseHandle(handle);
         throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + createConnectionFunctionName);
+    }
 
     DestroyDriverInstance* destroyConnection = (DestroyDriverInstance*) GetProcAddress(handle, destroyConnectionFunctionName.c_str());
     if (!destroyConnection)
+    {
+        createConnection = nullptr;
+        CloseHandle(handle);
         throw DatabaseException("Cannot load driver " + driverNameLC + ": no function " + destroyConnectionFunctionName);
+    }
 #else
     // reset errors
     dlerror();
@@ -179,8 +186,13 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
         m_connections.push_back(connection);
         return connection;
     }
-    m_pool.pop_front(connection, 10s);
-    return connection;
+
+    if (m_pool.pop_front(connection, 10s))
+    {
+        return connection;
+    }
+
+    return {};
 }
 
 void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& connection)

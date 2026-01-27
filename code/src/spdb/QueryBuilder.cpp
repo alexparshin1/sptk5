@@ -60,8 +60,7 @@ void QueryBuilder::removeUnNeededColumns(const Join& join, const String& tableAl
     static const RegularExpression matchExpressionAndAlias(R"(^.*\s(\S+))");
     for (const auto& column: join.columns)
     {
-        auto matches = matchExpressionAndAlias.m(column);
-        if (matches)
+        if (auto matches = matchExpressionAndAlias.m(column))
         {
             auto alias = matches[0].value;
             m_columns.remove(alias);
@@ -98,7 +97,7 @@ String QueryBuilder::selectSQL(const Strings& filter, const Strings& columns, bo
 
     if (!filter.empty())
     {
-        bool first = true;
+        auto first = true;
         for (const auto& condition: filter)
         {
             if (condition.trim().empty())
@@ -154,7 +153,7 @@ Strings QueryBuilder::makeSelectColumns(const Strings& columns) const
         {
             if (matchExpression.matches(column))
             {
-                // if column contains expression and alias, don't add table alias prefix
+                // if column contains expression and alias, don't add a table alias prefix
                 outputColumns.push_back(column);
             }
             else
@@ -200,7 +199,7 @@ String QueryBuilder::insertSQL(const Strings& columns, bool pretty) const
     return queryStr;
 }
 
-String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bool pretty) const
+String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, const bool pretty) const
 {
     stringstream query;
 
@@ -237,7 +236,7 @@ String QueryBuilder::updateSQL(const Strings& filter, const Strings& columns, bo
     }
     else
     {
-        query << filter.join("\n   AND ");
+        query << "(" << filter.join(")\n   AND (") << ")";
     }
 
     String queryStr = query.str();
@@ -262,7 +261,7 @@ String QueryBuilder::deleteSQL(const Strings& filter, bool pretty) const
     }
     else
     {
-        query << filter.join("\n   AND ");
+        query << "(" << filter.join(")\n   AND (") << ")";
     }
 
     String queryStr = query.str();

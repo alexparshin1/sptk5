@@ -45,7 +45,7 @@ void QueryParameterList::add(const SQueryParameter& item)
 
 SQueryParameter QueryParameterList::find(const String& paramName)
 {
-    const auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName.toLowerCase());
 
     if (itor == m_index.end())
     {
@@ -57,7 +57,7 @@ SQueryParameter QueryParameterList::find(const String& paramName)
 
 QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    const auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName.toLowerCase());
 
     if (itor == m_index.end())
     {
@@ -67,7 +67,7 @@ QueryParameter& QueryParameterList::operator[](const String& paramName) const
     return *itor->second;
 }
 
-QueryParameter& QueryParameterList::operator[](size_t index) const
+QueryParameter& QueryParameterList::operator[](const size_t index) const
 {
     return *m_items[index];
 }
@@ -77,10 +77,14 @@ size_t QueryParameterList::size() const
     return m_items.size();
 }
 
-void QueryParameterList::remove(size_t i)
+void QueryParameterList::remove(const size_t i)
 {
-    const auto             itor = m_items.begin() + static_cast<int>(i);
-    const SQueryParameter& item = *itor;
+    if (i >= m_items.size())
+    {
+        throw Exception("Invalid parameter index");
+    }
+    const auto  itor = m_items.begin() + static_cast<int>(i);
+    const auto& item = *itor;
     m_index.erase(item->name());
     m_items.erase(itor);
 }

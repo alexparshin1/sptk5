@@ -106,7 +106,7 @@ TEST(SPTK_QueryBuilder, updateSQL)
 
     updateSQL = queryBuilder.updateSQL({"id = 1", "last_name = 'Doe'"}, {}, false);
     EXPECT_STREQ(
-        "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE id = 1 AND last_name = 'Doe'",
+        "UPDATE employee SET first_name = :first_name, last_name = :last_name, position = :position, department_id = :department_id WHERE (id = 1) AND (last_name = 'Doe')",
         updateSQL.c_str());
 
     updateSQL = queryBuilder.updateSQL({}, {"first_name", "last_name"}, false);
@@ -122,12 +122,8 @@ TEST(SPTK_QueryBuilder, deleteSQL)
         {"id", "first_name", "last_name", "position", "department_id"});
 
     auto deleteSQL = queryBuilder.deleteSQL({}, false);
-    EXPECT_STREQ(
-        "DELETE FROM employee WHERE id = :id",
-        deleteSQL.c_str());
+    EXPECT_STREQ("DELETE FROM employee WHERE id = :id", deleteSQL.c_str());
 
     deleteSQL = queryBuilder.deleteSQL({"id = 1", "last_name = 'Doe'"}, false);
-    EXPECT_STREQ(
-        "DELETE FROM employee WHERE id = 1 AND last_name = 'Doe'",
-        deleteSQL.c_str());
+    EXPECT_STREQ("DELETE FROM employee WHERE (id = 1) AND (last_name = 'Doe')", deleteSQL.c_str());
 }

@@ -76,7 +76,9 @@ public:
     void open(const String& connectionString = "") const
     {
         if (!m_connection)
+        {
             throw Exception("DB driver not loaded");
+        }
 
         m_connection->open(connectionString);
     }
@@ -86,7 +88,10 @@ public:
      */
     void close() const
     {
-        m_connection->close();
+        if (active())
+        {
+            m_connection->close();
+        }
     }
 
     /**
@@ -102,6 +107,10 @@ public:
      */
     [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         return m_connection->connectionString();
     }
 
@@ -110,6 +119,10 @@ public:
      */
     [[nodiscard]] DatabaseConnectionType connectionType() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         return m_connection->connectionType();
     }
 
@@ -118,6 +131,10 @@ public:
      */
     [[nodiscard]] String driverDescription() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         return m_connection->driverDescription();
     }
 
@@ -126,6 +143,10 @@ public:
      */
     void beginTransaction() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->beginTransaction();
     }
 
@@ -134,6 +155,10 @@ public:
      */
     void commitTransaction() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->commitTransaction();
     }
 
@@ -142,6 +167,10 @@ public:
      */
     void rollbackTransaction() const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->rollbackTransaction();
     }
 
@@ -153,8 +182,12 @@ public:
      * @param objectType        Object type to list.
      * @param objects           Object list (output).
      */
-    void objectList(DatabaseObjectType objectType, Strings& objects) const
+    void objectList(const DatabaseObjectType objectType, Strings& objects) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->objectList(objectType, objects);
     }
 
@@ -171,8 +204,12 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, size_t groupSize = 100) const
+                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize = 100) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
     }
 
@@ -186,8 +223,12 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, size_t groupSize = 50) const
+                    std::vector<VariantVector>& data, const size_t groupSize = 50) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->bulkInsert(tableName, columnNames, data, groupSize);
     }
 
@@ -199,6 +240,10 @@ public:
      */
     void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->bulkDelete(tableName, keyColumnName, keys);
     }
 
@@ -212,6 +257,10 @@ public:
      */
     [[maybe_unused]] void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->executeBatchFile(batchFileName, errors);
     }
 
@@ -225,22 +274,35 @@ public:
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         m_connection->executeBatchSQL(batchSQL, errors);
     }
 
     [[nodiscard]] String tableSequenceName(const String& tableName, const String& /*sequenceName*/ = "") const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         return m_connection->tableSequenceName(tableName);
     }
 
     [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const
     {
+        if (!m_connection)
+        {
+            throw Exception(s_invalidConnectionMessage);
+        }
         return m_connection->lastAutoIncrementSql(tableName);
     }
 
 private:
-    DatabaseConnectionPool& m_connectionPool;       ///< Database connection pool
-    SPoolDatabaseConnection m_connection {nullptr}; ///< Database connection
+    DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool
+    SPoolDatabaseConnection m_connection {nullptr};     ///< Database connection
+    static const String     s_invalidConnectionMessage; ///< Error message for inactive connection
 };
 
 using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;

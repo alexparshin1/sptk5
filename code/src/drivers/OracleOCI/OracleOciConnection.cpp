@@ -37,7 +37,6 @@ using namespace ocilib;
 namespace {
 void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
 void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
-void readDate(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
 void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);

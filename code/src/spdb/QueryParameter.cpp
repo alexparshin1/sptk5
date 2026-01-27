@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-void QueryParameter::bindAdd(uint32_t bindIndex)
+void QueryParameter::bindAdd(const uint32_t bindIndex)
 {
     m_bindParamIndexes.push_back(bindIndex);
 }
@@ -39,18 +39,18 @@ uint32_t QueryParameter::bindCount() const
     return static_cast<uint32_t>(m_bindParamIndexes.size());
 }
 
-uint32_t QueryParameter::bindIndex(uint32_t ind) const
+uint32_t QueryParameter::bindIndex(const uint32_t index) const
 {
-    return m_bindParamIndexes[ind];
+    return m_bindParamIndexes[index];
 }
 
-QueryParameter::QueryParameter(const char* name, bool isOutput)
+QueryParameter::QueryParameter(const char* name, const bool isOutput)
     : m_binding(isOutput)
     , m_name(lowerCase(name))
 {
 }
 
-QueryParameter::QueryParameter(const String& name, bool isOutput)
+QueryParameter::QueryParameter(const String& name, const bool isOutput)
     : m_binding(isOutput)
     , m_name(lowerCase(name))
 {
@@ -75,7 +75,7 @@ QueryParameter& QueryParameter::operator=(const Variant& param)
     return *this;
 }
 
-void QueryParameter::setString(const char* value, size_t maxLength)
+void QueryParameter::setString(const char* value, const size_t maxLength)
 {
     size_t valueLength = 0;
     if (value)
@@ -83,5 +83,5 @@ void QueryParameter::setString(const char* value, size_t maxLength)
         valueLength = maxLength != 0 ? maxLength : strlen(value);
     }
 
-    setBuffer((const uint8_t*) value, valueLength, VariantDataType::VAR_STRING);
+    setBuffer(reinterpret_cast<const uint8_t*>(value), valueLength, VariantDataType::VAR_STRING);
 }

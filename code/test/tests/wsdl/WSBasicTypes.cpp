@@ -36,7 +36,7 @@ using namespace xdoc;
 TEST(SPTK_WSInteger, move_ctor_assign)
 {
     constexpr int testIntegerValue = 5;
-    WSInteger integer1("I1", false);
+    WSInteger     integer1("I1", false);
     integer1 = testIntegerValue;
     EXPECT_EQ(integer1.asInteger(), testIntegerValue);
     EXPECT_EQ(integer1.isNull(), false);
@@ -145,8 +145,8 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
 
 TEST(SPTK_WSBasicTypes, loadBoolean)
 {
-    xdoc::Document document;
-    const auto& root = document.root();
+    Document document;
+    const auto&    root = document.root();
     root->set("true", true);
     root->set("false", false);
     root->findOrCreate("null");
@@ -188,8 +188,8 @@ TEST(SPTK_WSBasicTypes, loadInteger)
 {
     constexpr int testIntegerValue = 1234567;
 
-    xdoc::Document document;
-    const auto& root = document.root();
+    Document document;
+    const auto&    root = document.root();
     root->findOrCreate("integer");
     root->findOrCreate("null");
 
@@ -217,37 +217,37 @@ TEST(SPTK_WSBasicTypes, loadInteger)
 
 TEST(SPTK_WSBasicTypes, loadDateTime)
 {
-    xdoc::Document document;
+    Document    document;
     const auto& root = document.root();
-    root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
-    root->findOrCreate("null");
+    const auto  dateNode = root->set("datetime", DateTime("2021-01-02T11:12:13Z"));
+    const auto  nullNode = root->findOrCreate("null");
 
     WSDate date;
 
-    date.load(root->findFirst("null"), true);
+    date.load(nullNode, true);
     EXPECT_TRUE(date.isNull());
 
-    date.load(root->findFirst("datetime"), true);
+    date.load(dateNode, true);
     EXPECT_STREQ(date.asDateTime().dateString().c_str(), DateTime("2021-01-02").dateString().c_str());
 
     WSDateTime datetime;
 
-    datetime.load(root->findFirst("null"), true);
+    datetime.load(nullNode, true);
     EXPECT_TRUE(datetime.isNull());
 
-    datetime.load(root->findFirst("datetime"), true);
+    datetime.load(dateNode, true);
     EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
 }
 
 TEST(SPTK_WSBasicTypes, loadDouble)
 {
     constexpr double testDoubleValue = 1234.567;
-    constexpr int testIntValue = 1234;
-    const String testIntegerValueStr("1234");
-    const String testDoubleValueStr("1234.567");
+    constexpr int    testIntValue = 1234;
+    const String     testIntegerValueStr("1234");
+    const String     testDoubleValueStr("1234.567");
 
-    xdoc::Document document;
-    const auto& root = document.root();
+    Document document;
+    const auto&    root = document.root();
     root->set("double", testDoubleValue);
     root->findOrCreate("null");
 
@@ -273,8 +273,8 @@ TEST(SPTK_WSBasicTypes, loadDouble)
 
 TEST(SPTK_WSBasicTypes, loadValue)
 {
-    xdoc::Document document;
-    const auto& root = document.root();
+    Document document;
+    const auto&    root = document.root();
     root->set("string", "Hello, World!");
     root->findOrCreate("null");
 
@@ -299,12 +299,12 @@ TEST(SPTK_WSBasicTypes, throws)
 
 TEST(SPTK_WSBasicTypes, exportValue)
 {
-    constexpr int testIntegerValue = 1234567;
+    constexpr int     testIntegerValue = 1234567;
     constexpr int64_t testIntegerValue64 = 1234567890123456;
-    constexpr double testDoubleValue = 1234.567;
+    constexpr double  testDoubleValue = 1234.567;
 
-    xdoc::Document document;
-    const auto& root = document.root();
+    Document document;
+    const auto&    root = document.root();
 
     // Optional null value shouldn't export
     WSInteger wsInt("integer", true);
@@ -358,11 +358,11 @@ TEST(SPTK_WSBasicTypes, exportValue)
 
 TEST(SPTK_WSBasicTypes, exportValueToArray)
 {
-    constexpr int testIntegerValue = 1234567;
+    constexpr int     testIntegerValue = 1234567;
     constexpr int64_t testIntegerValue64 = 1234567890123456;
-    constexpr double testDoubleValue = 1234.567;
+    constexpr double  testDoubleValue = 1234.567;
 
-    xdoc::Document document;
+    Document document;
     const auto&    root = document.root();
 
     const auto& array = root->pushValue("array", Node::Type::Array);

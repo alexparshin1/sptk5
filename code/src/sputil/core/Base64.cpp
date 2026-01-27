@@ -125,20 +125,31 @@ inline bool is_base64(uint8_t chr) noexcept
     return (isalnum(chr) || (chr == '+') || (chr == '/'));
 }
 
-size_t internal_decode(Buffer& dest, std::string const& encoded_string)
+size_t internal_decode(Buffer& dest, std::string const& encodedString)
 {
-    size_t            in_len = encoded_string.size();
     int               index = 0;
     int               in_ = 0;
     array<uint8_t, 4> char_array_4 {};
     array<uint8_t, 3> char_array_3 {};
 
+    Buffer src(encodedString.length());
+    for (auto& c: encodedString)
+    {
+        if (is_base64(c) || c == '=')
+        {
+            src.append(c);
+        }
+    }
+
+    auto in_len = src.size();
+
     dest.reset();
 
-    while (in_len && (encoded_string[in_] != '=') && is_base64(static_cast<uint8_t>(encoded_string[in_])))
+    while (in_len && src[in_] != '=')
     {
+        const auto inChar = src[in_];
         --in_len;
-        char_array_4[index] = static_cast<uint8_t>(encoded_string[in_]);
+        char_array_4[index] = inChar;
         ++index;
         ++in_;
         if (index == 4)
@@ -159,7 +170,7 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
     if (index != 0)
     {
-        int j = index;
+        auto j = index;
         for (; j < 4; ++j)
         {
             char_array_4[j] = 0;
@@ -167,14 +178,15 @@ size_t internal_decode(Buffer& dest, std::string const& encoded_string)
 
         for (j = 0; j < 4; ++j)
         {
-            char_array_4[j] = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[j])));
+            const char pos = base64_chars.find(static_cast<char>(char_array_4[j]));
+            char_array_4[j] = static_cast<uint8_t>(pos);
         }
 
         char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));
         char_array_3[1] = static_cast<uint8_t>(((static_cast<int>(char_array_4[1]) & 0xf) << 4) + ((static_cast<int>(char_array_4[2]) & 0x3c) >> 2));
         char_array_3[2] = static_cast<uint8_t>(((static_cast<int>(char_array_4[2]) & 0x3) << 6) + static_cast<int>(char_array_4[3]));
 
-        for (j = 0; (j < index - 1); ++j)
+        for (j = 0; j < index - 1; ++j)
         {
             dest.append(static_cast<char>(char_array_3[j]));
         }

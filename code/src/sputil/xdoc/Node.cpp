@@ -194,7 +194,7 @@ String Node::getString(const NodeName& name) const
 namespace {
 void getTextRecursively(const Node* node, Buffer& output)
 {
-    if (node->type() != Node::Type::Comment)
+    if (node->type() != Node::Type::Comment && node->type() != Node::Type::ProcessingInstruction && node->type() != Node::Type::Null)
     {
         output.append(node->getString());
         for (const auto& child: node->nodes())

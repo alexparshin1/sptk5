@@ -31,19 +31,29 @@
 using namespace std;
 using namespace sptk;
 
-static const String testPhrase("This is a test");
-static const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");
+namespace {
+const String testPhrase("This is a test");
+const String testPhraseBase64("VGhpcyBpcyBhIHRlc3Q=");
+const String testPhraseBase64WithWhitespaces("VGhpcyBp cyBhIH\nRlc3Q=");
 
-static const String encodedBinary("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4"
-                                  "OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3Bx"
-                                  "cnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmq"
-                                  "q6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj"
-                                  "5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+");
+const String encodedBinary("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4"
+                           "OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3Bx"
+                           "cnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmq"
+                           "q6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj"
+                           "5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+");
+} // namespace
 
 TEST(SPTK_Base64, decodeString)
 {
     Buffer decoded;
     Base64::decode(decoded, testPhraseBase64);
+    EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
+}
+
+TEST(SPTK_Base64, decodeStringWithWhitespaces)
+{
+    Buffer decoded;
+    Base64::decode(decoded, testPhraseBase64WithWhitespaces);
     EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
 }
 
@@ -56,7 +66,7 @@ TEST(SPTK_Base64, encodeString)
 
 TEST(SPTK_Base64, decodeBinary)
 {
-    Buffer expectedBinary;
+    Buffer           expectedBinary;
     constexpr size_t dataSize {255};
     for (uint8_t i = 0; i < dataSize; i++)
     {
@@ -70,7 +80,7 @@ TEST(SPTK_Base64, decodeBinary)
 
 TEST(SPTK_Base64, encodeBinary)
 {
-    Buffer source;
+    Buffer           source;
     constexpr size_t dataSize {255};
     for (uint8_t i = 0; i < dataSize; i++)
     {

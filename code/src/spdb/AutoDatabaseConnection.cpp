@@ -29,6 +29,8 @@
 using namespace std;
 using namespace sptk;
 
+const String AutoDatabaseConnection::s_invalidConnectionMessage {"DB connection not active"};
+
 AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectionPool)
     : m_connectionPool(connectionPool)
 {

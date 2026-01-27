@@ -35,6 +35,10 @@ void DatabaseConnectionString::parse()
 {
     static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
                                                        "firebird", "odbc", "mssql"};
+ if (m_connectionString.empty())
+    {
+        throw DatabaseException("Connection string cannot be empty");
+    }
 
     URL url(m_connectionString);
 
@@ -44,7 +48,7 @@ void DatabaseConnectionString::parse()
     }
 
     m_driverName = url.protocol();
-    if (m_driverName == "postgres" || m_driverName == "pg")
+    if (m_driverName == "postgres")
     {
         m_driverName = "postgresql";
     }

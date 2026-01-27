@@ -210,7 +210,7 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
                                         std::vector<VariantVector>& data, size_t groupSize, vector<int64_t>* insertedIds)
 {
-    const bool wasInTransaction = inTransaction();
+    const auto wasInTransaction = inTransaction();
     if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
     {
         beginTransaction();
@@ -219,7 +219,7 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
     Strings columnNamesFinal = columnNames;
     if (insertedIds && !autoIncrementColumnName.empty() && (connectionType() == DatabaseConnectionType::ORACLE || connectionType() == DatabaseConnectionType::ORACLE_OCI))
     {
-        if (int autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
+        if (const auto autoIncrementColumnIndex = columnNames.indexOf(autoIncrementColumnName);
             autoIncrementColumnIndex >= 0)
         {
             throw DatabaseException("The auto increment column can't be used in the column list");

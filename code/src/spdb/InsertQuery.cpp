@@ -36,14 +36,22 @@ String InsertQuery::reviewMsSqlQuery(const String& sql, const String& idFieldNam
 {
     static const RegularExpression parseInsertQuery(R"(VALUES)", "i");
 
-    bool replaced = false;
-
+    if (sql.toUpperCase().contains("OUTPUT"))
+    {
+        throw Exception("OUTPUT clause is not supported in MS SQL InsertQuery.");
+    }
+    auto replaced = false;
     return parseInsertQuery.replaceAll(sql, "OUTPUT Inserted." + idFieldName + " VALUES", replaced);
 }
 
-String InsertQuery::reviewQuery(DatabaseConnectionType connectionType, const String& sql,
+String InsertQuery::reviewQuery(const DatabaseConnectionType connectionType, const String& sql,
                                 const String& idFieldName)
 {
+    if (sql.toUpperCase().contains("RETURNING"))
+    {
+        throw Exception("RETURNING clause is not supported in InsertQuery.");
+    }
+
     switch (connectionType)
     {
         using enum DatabaseConnectionType;
@@ -78,6 +86,11 @@ void InsertQuery::sql(const String& _sql)
 
 void InsertQuery::exec()
 {
+    if (!database())
+    {
+        throw Exception("Database connection is not defined yet");
+    }
+
     m_id = 0;
     switch (database()->connectionType())
     {

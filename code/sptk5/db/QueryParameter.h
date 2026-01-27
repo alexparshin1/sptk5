@@ -60,7 +60,7 @@ public:
     /**
      * Returns the parameter bing position by index in the binding list
      */
-    uint32_t bindIndex(uint32_t ind) const;
+    uint32_t bindIndex(uint32_t index) const;
 
     /**
      * Returns the internal small conversion buffer used to convert the date structure to SPTK.

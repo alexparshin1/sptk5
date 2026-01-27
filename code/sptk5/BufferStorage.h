@@ -59,6 +59,7 @@ public:
     {
         constexpr size_t defaultSize = 16;
         reallocate(defaultSize);
+        m_buffer[0] = 0;
     }
 
     /**
@@ -73,6 +74,7 @@ public:
         if (sz)
         {
             reallocate(sz + 1);
+            m_buffer[0] = 0;
         }
     }
 

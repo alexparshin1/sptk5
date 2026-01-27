@@ -328,6 +328,9 @@ void DatabaseTests::testQueryInsertDateTime(const DatabaseConnectionString& conn
         case MSSQL_ODBC:
             testDateStr = "2015-06-01 11:22:33";
             break;
+        case FIREBIRD:
+        case GENERIC_ODBC:
+            throw Exception("DateTime data type mapping is not defined for the test");
     }
 
     Query insert1(databaseConnection, "INSERT INTO gtest_temp_table VALUES('" + testDateStr + "')");
@@ -507,7 +510,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
         const auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         if (count != maxRecords)
         {
-            throw Exception("count != " + to_string(maxRecords) + "after commit");
+            throw Exception(format("count != {} after commit", maxRecords));
         }
     }
     else
@@ -545,7 +548,7 @@ size_t DatabaseTests::insertRecordsInTransaction(const DatabaseConnection& datab
     if (const auto count = countRowsInTable(databaseConnection, "gtest_temp_table");
         count != maxRecords)
     {
-        throw Exception("count " + to_string(count) + " != " + to_string(maxRecords));
+        throw Exception(format("record count {} != {}", count, maxRecords));
     }
     return maxRecords;
 }

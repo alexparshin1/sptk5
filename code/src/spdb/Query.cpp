@@ -72,14 +72,14 @@ void QueryStatementManagement::notImplemented(const String& functionName) const
     throw DatabaseException(functionName + " isn't implemented", source_location::current(), getSQL());
 }
 
-void QueryStatementManagement::connect(PoolDatabaseConnection* _db)
+void QueryStatementManagement::connect(PoolDatabaseConnection* db)
 {
-    if (database() == _db)
+    if (database() == db || db == nullptr)
     {
         return;
     }
     disconnect();
-    setDatabase(_db);
+    setDatabase(db);
     database()->linkQuery(dynamic_cast<Query*>(this));
 }
 
@@ -174,7 +174,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         return false;
     } // No more parameters
 
-    bool rc = false;
+    auto rc = false;
     if (*paramStart == '\'')
     {
         // Started string constant
@@ -220,7 +220,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
             paramEnd = endOfRow + 2;
         }
     }
-    else if (*paramStart == '/' || paramStart[1] == ':' || paramStart[1] == '=')
+    else if (paramStart[1] == ':' || paramStart[1] == '=')
     {
         // Started PostgreSQL type qualifier '::' or assignment ':='
         sql += string(paramEnd, paramStart - paramEnd + 2);
