@@ -56,6 +56,9 @@ TEST(SPTK_Crypt, decrypt)
     Buffer encrypted;
     Buffer decrypted;
 
+    EXPECT_THROW(Crypt::decrypt(decrypted, Buffer(), "xxx", testIV), Exception);
+    EXPECT_THROW(Crypt::decrypt(decrypted, Buffer(), testKey, "xxx"), Exception);
+
     Base64::decode(encrypted, encryptedB64);
     Crypt::decrypt(decrypted, encrypted, testKey, testIV);
 
