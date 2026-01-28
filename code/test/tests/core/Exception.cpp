@@ -32,14 +32,6 @@
 using namespace std;
 using namespace sptk;
 
-namespace {
-#ifndef _WIN32
-string delimiter = "/";
-#else
-string delimiter = "\\";
-#endif
-} // namespace
-
 TEST(SPTK_Exception, throwException)
 {
     try
@@ -48,7 +40,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(47)").c_str(), e.what());
+        EXPECT_STREQ("Test exception in Exception.cpp:39", e.what());
     }
 
     try
@@ -57,7 +49,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ(("Test exception in core" + delimiter + "Exception.cpp(56). This happens sometimes.").c_str(), e.what());
+        EXPECT_STREQ("Test exception in Exception.cpp:48. This happens sometimes.", e.what());
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
 }
@@ -79,7 +71,7 @@ TEST(SPTK_HttpException, throwException)
         }
         catch (const HTTPException& e)
         {
-            EXPECT_STREQ(("Something happened in core" + delimiter + "Exception.cpp(78). This happens sometimes.").c_str(), e.what());
+            EXPECT_STREQ("Something happened in Exception.cpp:70. This happens sometimes.", e.what());
             EXPECT_STREQ("Something happened", e.message().c_str());
             EXPECT_EQ(code, e.statusCode());
             EXPECT_EQ(expectedStatus, e.statusText());

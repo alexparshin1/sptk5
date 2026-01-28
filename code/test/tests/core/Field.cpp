@@ -35,7 +35,7 @@ using namespace sptk;
 TEST(SPTK_Field, move_ctor_assign)
 {
     constexpr int testInteger = 10;
-    Field field1("f1");
+    Field         field1("f1");
     field1 = testInteger;
 
     Field field2(std::move(field1));
@@ -62,11 +62,11 @@ TEST(SPTK_Field, money)
 {
     constexpr int64_t testLong = 1234567890123456789L;
     constexpr int64_t testInt64 = 12345678901;
-    constexpr int scaleDigits = 8;
+    constexpr int     scaleDigits = 8;
 
     const MoneyData money1(testLong, scaleDigits);
     const MoneyData money2(-testLong, scaleDigits);
-    Field field1("f1");
+    Field           field1("f1");
 
     field1.setMoney(money1);
     EXPECT_EQ(field1.asInt64(), testInt64);
@@ -75,4 +75,16 @@ TEST(SPTK_Field, money)
     field1.setMoney(money2);
     EXPECT_EQ(field1.asInt64(), -testInt64);
     EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
+}
+
+TEST(SPTK_Field, externalBuffer)
+{
+    array<uint8_t, 5> externalData {'A', 'B', 'C', 0, 'D'};
+    Field             field1("f1");
+
+    field1.setExternalBuffer(externalData.data(), externalData.size(), VariantDataType::VAR_BUFFER);
+
+    EXPECT_STREQ("ABC", field1.asString().c_str());
+    EXPECT_EQ(VariantDataType::VAR_BUFFER, field1.dataType());
+    EXPECT_EQ(externalData.size(), field1.dataSize());
 }

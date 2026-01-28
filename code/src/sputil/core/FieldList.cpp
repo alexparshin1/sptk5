@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-FieldList::FieldList(bool indexed)
+FieldList::FieldList(const bool indexed)
 {
     if (indexed)
     {
@@ -47,13 +47,13 @@ void FieldList::clear()
     }
 }
 
-Field& FieldList::push_back(const String& fname, bool checkDuplicates)
+Field& FieldList::push_back(const String& fname, const bool checkDuplicates)
 {
     if (checkDuplicates)
     {
         if (const auto pfld = findField(fname))
         {
-            throw Exception("Attempt to duplicate field name");
+            throw Exception(format("Attempt to duplicate field name '{}'", fname.c_str()));
         }
     }
 
@@ -104,7 +104,7 @@ SField FieldList::findField(const String& fname) const
     return nullptr;
 }
 
-void FieldList::exportTo(const xdoc::SNode& node, bool compactMode, bool nullLargeData) const
+void FieldList::exportTo(const xdoc::SNode& node, const bool compactMode, const bool nullLargeData) const
 {
     for (const auto& field: *this)
     {

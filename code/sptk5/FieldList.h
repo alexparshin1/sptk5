@@ -190,6 +190,10 @@ public:
      */
     Field& operator[](int index)
     {
+        if (index < 0 || index >= static_cast<int>(m_list.size()))
+        {
+            throw Exception("Field index out of range");
+        }
         return *m_list[index];
     }
 
@@ -200,6 +204,10 @@ public:
      */
     const Field& operator[](int index) const
     {
+        if (index < 0 || index >= static_cast<int>(m_list.size()))
+        {
+            throw Exception("Field index out of range");
+        }
         return *m_list[index];
     }
 

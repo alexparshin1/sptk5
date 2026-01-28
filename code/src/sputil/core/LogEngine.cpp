@@ -171,7 +171,7 @@ void LogEngine::threadFunction()
             if (option(Option::TIME))
             {
                 const auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-                messagePrefix += message->timestamp.timeString(true, printAccuracy) + " ";
+                messagePrefix += message->timestamp.timeString(DateTime::PF_RFC_DATE, printAccuracy) + " ";
             }
 
             if (option(Option::PRIORITY))

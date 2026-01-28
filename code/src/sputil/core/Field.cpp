@@ -43,7 +43,7 @@ Field::Field(const String& name)
 
 String Field::asString() const
 {
-    constexpr int maxPrintLength = 64;
+    constexpr auto maxPrintLength = 64;
 
     String                          result;
     array<char, maxPrintLength + 1> print_buffer {};
@@ -88,7 +88,7 @@ String Field::asString() const
         case VariantDataType::VAR_BUFFER:
             if (isExternalBuffer())
             {
-                result = bit_cast<const char*>(get<const uint8_t*>());
+                result.assign(bit_cast<const char*>(get<const uint8_t*>()), dataSize());
             }
             else if (dataType() == VariantDataType::VAR_STRING)
             {
@@ -133,9 +133,8 @@ String Field::doubleDataToString() const
     return output.str();
 }
 
-void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailedInfo, bool nullLargeData) const
+void Field::exportTo(const xdoc::SNode& node, const bool compactXmlMode, const bool detailedInfo, const bool nullLargeData) const
 {
-
     if (auto value = asString();
         !value.empty())
     {
@@ -164,7 +163,7 @@ void Field::exportTo(const xdoc::SNode& node, bool compactXmlMode, bool detailed
             }
         }
 
-        if (detailedInfo)
+        if (detailedInfo && element)
         {
             element->attributes().set("type", Variant::typeName(dataType()));
             element->attributes().set("size", int2string(static_cast<uint32_t>(dataSize())));

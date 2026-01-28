@@ -129,6 +129,17 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_DOUBLE_EQ(static_cast<double>(12345678901234567), fieldList["long_value"].asFloat());
 }
 
+TEST(SPTK_FieldList, caseInsensitiveLookup)
+{
+    FieldList fieldList(false);
+
+    fieldList.push_back("Name", true);
+    fieldList["Name"] = "id";
+
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+    EXPECT_STREQ("id", fieldList["NAME"].asString().c_str());
+}
+
 TEST(SPTK_FieldList, toXml)
 {
     FieldList fieldList(true);

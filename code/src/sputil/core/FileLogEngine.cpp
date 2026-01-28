@@ -81,10 +81,10 @@ void FileLogEngine::saveMessage(const Logger::Message& message)
     }
 }
 
-FileLogEngine::FileLogEngine(const filesystem::path& fileName)
+FileLogEngine::FileLogEngine(const filesystem::path& fileName, const bool append)
     : LogEngine("FileLogEngine")
     , m_fileName(fileName)
-    , m_fileStream(fileName.c_str())
+    , m_fileStream(fileName.c_str(), ios_base::out | (append ? ios_base::app : ios_base::trunc))
 {
 }
 

@@ -32,7 +32,7 @@
 namespace sptk {
 
 /**
- * @addtogroup log Log Classes
+ * @addtogroup log Log Classes.
  * @{
  */
 
@@ -43,43 +43,48 @@ namespace sptk {
  * The log file is created automatically if it doesn't exist.
  * @see CBaseLog for more information about basic log abilities.
  */
-class SP_EXPORT FileLogEngine
-    : public sptk::LogEngine
+class SP_EXPORT FileLogEngine : public LogEngine
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
      * Creates a new log object based on the file name.
      * If this file doesn't exist - it will be created.
-     * @param fileName          Log file name
+     * @param fileName          Log file name.
+     * @param append            If true, appends to the existing file, otherwise overwrites.
      */
-    explicit FileLogEngine(const std::filesystem::path& fileName);
+    explicit FileLogEngine(const std::filesystem::path& fileName, bool append = false);
 
+    /**
+     * @brief Destructor.
+     */
     ~FileLogEngine() override;
 
     /**
-     * Stores or sends log message to actual destination
-     * @param message           Log message
+     * @brief Stores or sends log message to actual destination.
+     * @param message           Log message.
      */
     void saveMessage(const Logger::Message& message) override;
 
     /**
-     * @brief Flush file data to disk
+     * @brief Flush file data to disk.
      */
     void flush() override;
 
     /**
-     * Restarts the log
+     * @brief Restarts the log.
      *
      * The current log content is cleared. The file is recreated.
      */
     void reset() override;
 
+protected:
+    void close() override; ///< Close the file stream.
+
 private:
     std::filesystem::path m_fileName;   ///< Log file name
     std::ofstream         m_fileStream; ///< Log file stream
-    void                  close() override;
 };
 /**
  * @}

@@ -25,6 +25,10 @@
 */
 
 #include "sptk5/HomeDirectory.h"
+#include "sptk5/Exception.h"
+
+#include <cstring>
+#include <format>
 
 using namespace std;
 using namespace sptk;
@@ -32,35 +36,28 @@ using namespace sptk;
 String HomeDirectory::location()
 {
 #ifndef _WIN32
+    String      homeDir;
     const char* hdir = std::getenv("HOME");
-    if (hdir == nullptr)
-        hdir = ".";
-    String homeDir = trim(hdir);
-    if (homeDir.empty())
-        homeDir = ".";
-    homeDir += "/";
+    if (hdir != nullptr && strlen(hdir) != 0)
+    {
+        homeDir = trim(hdir) + "/";
+    }
+    else
+    {
+        const char* user = std::getenv("USER");
+        if (user == nullptr)
+        {
+            throw Exception("Can't get home directory");
+        }
+        homeDir = format("/home/{}/", user);
+    }
 #else
     char* hdrive = getenv("HOMEDRIVE");
     char* hdir = getenv("HOMEPATH");
-    if (!hdir && !hdrive)
+    if (hdir && hdrive)
     {
-        const char* wdir = getenv("WINDIR");
-        if (wdir == nullptr)
-            return "C:\\";
-        return String(wdir) + String("\\");
+        return format("{}{}", hdrive, hdir);
     }
-
-    string homeDrive;
-    string homeDir;
-    if (hdrive)
-        homeDrive = hdrive;
-    if (hdir)
-        homeDir = hdir;
-    if (homeDir == "\\")
-        homeDir = homeDrive + "\\";
-    else
-        homeDir = homeDrive + homeDir;
-    homeDir += "\\Local Settings\\Application Data\\Programs\\";
 #endif
 
     return homeDir;

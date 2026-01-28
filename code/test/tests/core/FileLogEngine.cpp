@@ -34,7 +34,7 @@ using namespace sptk;
 namespace {
 
 #ifdef _WIN32
-const filesystem::path logFileName("/Windows/temp/file_log_test.tmp");
+const filesystem::path logFileName("C:/Windows/temp/file_log_test.tmp");
 #else
 const filesystem::path logFileName("/tmp/file_log_test.tmp");
 #endif
@@ -79,8 +79,8 @@ TEST(SPTK_FileLogEngine, testLogPriorities)
 TEST(SPTK_FileLogEngine, performance)
 {
     FileLogEngine logEngine(logFileName);
-    Logger logger(logEngine, "(Test application) ");
-    StopWatch stopWatch;
+    Logger        logger(logEngine, "(Test application) ");
+    StopWatch     stopWatch;
     stopWatch.start();
     constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
