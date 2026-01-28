@@ -38,9 +38,9 @@ namespace sptk {
 class SP_EXPORT DateTimeFormat
 {
 public:
-    DateTimeFormat() noexcept;
+    DateTimeFormat();
 
-    static void init() noexcept;
+    static void init();
 
     static char parseDateOrTime(String& format, const String& dateOrTime);
 };
@@ -129,7 +129,12 @@ int decodeTZOffset(const char* tzOffset)
 char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
 {
     // find a separator char
-    size_t     separatorPos = dateOrTime.find_first_not_of("0123456789 ");
+    size_t separatorPos = dateOrTime.find_first_not_of("0123456789 ");
+    if (separatorPos == string::npos)
+    {
+        throw Exception("Invalid date or time format");
+    }
+
     const char separator = dateOrTime[separatorPos];
 
     const auto* ptr = dateOrTime.c_str();
@@ -187,12 +192,12 @@ char DateTimeFormat::parseDateOrTime(String& format, const String& dateOrTime)
     return separator;
 }
 
-DateTimeFormat::DateTimeFormat() noexcept
+DateTimeFormat::DateTimeFormat()
 {
     init();
 }
 
-void DateTimeFormat::init() noexcept
+void DateTimeFormat::init()
 {
     // make a special date and time - today :)
     struct tm atime = {};
@@ -386,7 +391,7 @@ short splitDateString(const char* dateString, short* datePart, char& actualDateS
 
 short splitTimeString(const char* timeString, short* timePart)
 {
-    static const RegularExpression matchTime(R"(^([0-2]?\d):([0-5]\d):([0-5]\d)(\.\d{0,3})?)");
+    static const RegularExpression matchTime(R"(^([0-1]?\d|2[0-3]):([0-5]\d):([0-5]\d)(\.\d{0,3})?)");
     const auto                     matches = matchTime.m(timeString);
     if (!matches)
     {
@@ -589,7 +594,7 @@ void TimeZone::set(const String& timeZoneName)
     setenv("TZ", timeZoneName.c_str(), 1);
     tzset();
 #endif
-    dateTimeFormatInitializer.init();
+    DateTimeFormat::init();
 }
 
 void TimeZone::time24Mode(bool mode)
@@ -805,7 +810,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
     }
     if (amPm)
     {
-        if (hour > 11)
+        if (hour != 0 || hour > 11)
         {
             appendix = "PM";
         }
@@ -813,7 +818,12 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
         {
             appendix = "AM";
         }
-        if (hour > twelweHours)
+
+        if (hour == 0)
+        {
+            hour = twelweHours;
+        }
+        else if (hour > twelweHours)
         {
             hour = static_cast<short>(hour % twelweHours);
         }

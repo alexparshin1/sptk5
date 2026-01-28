@@ -34,21 +34,21 @@ using namespace std;
 using namespace chrono;
 using namespace sptk;
 
-constexpr int minutesInHour = 60;
+constexpr int    minutesInHour = 60;
 constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
 
 TEST(SPTK_DateTime, ctor1)
 {
-    const DateTime dateTime("2018-01-01 11:22:33.444+10");
+    const DateTime             dateTime("2018-01-01 11:22:33.444+10");
     const chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(1514769753444, msSinceEpoch.count());
 }
 
 TEST(SPTK_DateTime, ctor2)
 {
-    const DateTime dateTime1("2018-01-01 11:22:33");
-    const DateTime dateTime2(2018, 1, 1, 11, 22, 33);
+    const DateTime             dateTime1("2018-01-01 11:22:33");
+    const DateTime             dateTime2(2018, 1, 1, 11, 22, 33);
     const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
@@ -56,8 +56,8 @@ TEST(SPTK_DateTime, ctor2)
 
 TEST(SPTK_DateTime, ctorDate)
 {
-    const DateTime dateTime1("2018-02-01");
-    const DateTime dateTime2(2018, 2, 1);
+    const DateTime             dateTime1("2018-02-01");
+    const DateTime             dateTime2(2018, 2, 1);
     const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
@@ -66,7 +66,7 @@ TEST(SPTK_DateTime, ctorDate)
 
 TEST(SPTK_DateTime, isoTimeString)
 {
-    const String input("2018-01-01T11:22:33");
+    const String   input("2018-01-01T11:22:33");
     const DateTime dateTime1(input.c_str());
     COUT(static_cast<String>(dateTime1));
     const String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
@@ -75,8 +75,8 @@ TEST(SPTK_DateTime, isoTimeString)
 
 TEST(SPTK_DateTime, timeZones)
 {
-    const DateTime dateTime1("2018-01-01 09:22:33.444PM+10:00");
-    const DateTime dateTime2("2018-01-01 20:22:33.444+09");
+    const DateTime             dateTime1("2018-01-01 09:22:33.444PM+10:00");
+    const DateTime             dateTime2("2018-01-01 20:22:33.444+09");
     const chrono::milliseconds msSinceEpoch1 = duration_cast<chrono::milliseconds>(dateTime1.sinceEpoch());
     const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(1514805753444, msSinceEpoch1.count());
@@ -85,8 +85,8 @@ TEST(SPTK_DateTime, timeZones)
 
 TEST(SPTK_DateTime, add)
 {
-    const DateTime dateTime1("2018-01-01 11:22:33.444+10");
-    const DateTime dateTime2 = dateTime1 + chrono::milliseconds(111);
+    const DateTime             dateTime1("2018-01-01 11:22:33.444+10");
+    const DateTime             dateTime2 = dateTime1 + chrono::milliseconds(111);
     const chrono::milliseconds msSinceEpoch2 = duration_cast<chrono::milliseconds>(dateTime2.sinceEpoch());
     EXPECT_EQ(1514769753555, msSinceEpoch2.count());
 }
@@ -130,7 +130,7 @@ TEST(SPTK_DateTime, formatDate)
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     const auto t = static_cast<time_t>(dateTime);
-    tm tt {};
+    tm         tt {};
     localtime_r(&t, &tt);
 
     array<char, maxDateTimeStringLength> buffer {};
@@ -145,7 +145,7 @@ TEST(SPTK_DateTime, formatTime)
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
     const auto t = static_cast<time_t>(dateTime);
-    tm tt {};
+    tm         tt {};
     gmtime_r(&t, &tt);
 
     array<char, maxDateTimeStringLength> buffer {};
@@ -157,9 +157,28 @@ TEST(SPTK_DateTime, formatTime)
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
 }
 
+TEST(SPTK_DateTime, formatTime12HourEdgeCases)
+{
+    const DateTime midnight("2018-08-07 00:05:06Z");
+    const DateTime noon("2018-08-07 12:05:06Z");
+
+    EXPECT_STREQ("12:05:06AM", midnight.timeString(DateTime::PF_GMT | DateTime::PF_12HOURS).c_str());
+    EXPECT_STREQ("12:05:06PM", noon.timeString(DateTime::PF_GMT | DateTime::PF_12HOURS).c_str());
+}
+
+TEST(SPTK_DateTime, invalidTimeStrings)
+{
+    constexpr array<const char*, 4> invalidTimes = {"25:60:00", "12:60:00", "12:00:60", "notatime"};
+    for (const auto* timeString: invalidTimes)
+    {
+        const DateTime dt(timeString);
+        EXPECT_TRUE(dt.zero());
+    }
+}
+
 TEST(SPTK_DateTime, formatDateTime2)
 {
-    auto tzOffsetMinutes = static_cast<int>(TimeZone::offset().count());
+    auto         tzOffsetMinutes = static_cast<int>(TimeZone::offset().count());
     stringstream tzOffsetStr;
     tzOffsetStr.fill('0');
     if (tzOffsetMinutes > 0)
@@ -180,7 +199,7 @@ TEST(SPTK_DateTime, formatDateTime2)
     const DateTime dateTime(("2020-10-10 00:00:00" + tzOffset).c_str());
 
     const auto t = static_cast<time_t>(dateTime);
-    tm tt {};
+    tm         tt {};
     localtime_r(&t, &tt);
 
     array<char, maxDateTimeStringLength> buffer {};
@@ -193,7 +212,7 @@ TEST(SPTK_DateTime, formatDateTime2)
 TEST(SPTK_DateTime, parsePerformance)
 {
     constexpr size_t maxTests = 100000;
-    const DateTime started("now");
+    const DateTime   started("now");
 
     DateTime dateTime("2018-08-07 11:22:33.444Z");
     for (size_t i = 0; i < maxTests; ++i)
@@ -202,7 +221,7 @@ TEST(SPTK_DateTime, parsePerformance)
     }
 
     const DateTime ended("now");
-    const double durationSec = static_cast<double>(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
+    const double   durationSec = static_cast<double>(duration_cast<milliseconds>(ended - started).count()) / millisecondsInSecond;
 
     COUT("Performed " << static_cast<size_t>(maxTests / millisecondsInSecond / durationSec) << "K parses/sec");
 }
