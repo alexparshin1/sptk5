@@ -28,6 +28,7 @@
 #include <sptk5/cutils>
 
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
@@ -54,8 +55,8 @@ TEST(SPTK_MD5, md5)
 
 TEST(SPTK_MD5, performance)
 {
-    StopWatch stopWatch;
-    const size_t iterations = 200000;
+    StopWatch        stopWatch;
+    constexpr size_t iterations = 200000;
 
     stopWatch.start();
     for (size_t i = 0; i < iterations; ++i)

@@ -31,10 +31,10 @@
 namespace sptk {
 
 /**
- * Generic read buffer.
+ * @brief Generic read buffer.
  *
  * Data is added to the buffer the usual way, using ctors and/or append operations.
- * Any read operations copy data into external buffer, then advance internal read offset.
+ * Any read operations copy data into an external buffer, then advance internal read offset.
  */
 class SP_EXPORT ReadBuffer final : public Buffer
 {
@@ -42,43 +42,44 @@ public:
     using Buffer::Buffer;
 
     /**
-     * Read into data of primitive type (int, double, etc).
-     * @param data              Data
-     * @return true if read was successful
+     * @brief Read data of a trivially copyable type.
+     * @param data              Data.
+     * @return true if read was successful.
      */
     template<typename T>
+        requires std::is_integral_v<T> || std::is_floating_point_v<T>
     bool read(T& data)
     {
-        return read((uint8_t*) &data, sizeof(T));
+        return read(reinterpret_cast<uint8_t*>(&data), sizeof(T));
     }
 
     /**
-     * Read data. Internal read offset is advanced by length.
-     * @param data              Data
-     * @param size              Data size
-     * @return true if read was successful
+     * @brief Read data. Length advances internal read offset.
+     * @param data              Data.
+     * @param length            Data size.
+     * @return true if read was successful.
      */
-    bool read(uint8_t* data, size_t size);
+    bool read(uint8_t* data, size_t length);
 
     /**
-     * Read into string
-     * @param data              Data
-     * @param length            Data size
-     * @return true if read was successful
+     * @brief Read into string.
+     * @param data              Data.
+     * @param length            Data size.
+     * @return true if read was successful.
      */
     bool read(String& data, size_t length);
 
     /**
-     * Read into buffer
-     * @param data              Data
-     * @param length            Data size
-     * @return true if read was successful
+     * @brief Read into buffer.
+     * @param data              Data.
+     * @param length            Data size.
+     * @return true if read was successful.
      */
     bool read(Buffer& data, size_t length);
 
     /**
-     * The start of un-read data
-     * @return
+     * @brief The start of unread data.
+     * @return.
      */
     [[maybe_unused]] uint8_t* head()
     {
@@ -86,16 +87,16 @@ public:
     }
 
     /**
-     * Get number of bytes, available for read
-     * @return number of bytes, available for read
+     * Get a number of bytes, available for read.
+     * @return number of bytes, available for read.
      */
     [[nodiscard]] size_t available() const
     {
-        return bytes() - readOffset();
+        return bytes() - m_readOffset;
     }
 
     /**
-     * @return true if there are no available bytes to read
+     * @return true if there are no available bytes to read.
      */
     [[nodiscard]] bool empty() const override
     {
@@ -103,8 +104,8 @@ public:
     }
 
     /**
-     * Get internal read offset
-     * @return internal read offset
+     * @brief Get internal read offset.
+     * @return internal read offset.
      */
     [[nodiscard]] size_t readOffset() const
     {
@@ -112,14 +113,13 @@ public:
     }
 
 private:
-    size_t m_readOffset {0}; ///< read offset
+    size_t m_readOffset {0}; ///< Read offset
 
     /**
-     * Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size
+     * @brief Shift the buffer content to the beginning of the buffer, if read offset past 3/4 of the content size.
      */
     void compact()
     {
-
         constexpr auto divider = 4;
         if (constexpr auto multiplier = 3;
             m_readOffset >= bytes() * multiplier / divider)

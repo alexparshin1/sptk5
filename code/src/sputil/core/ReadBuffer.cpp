@@ -29,29 +29,67 @@
 using namespace std;
 using namespace sptk;
 
-bool ReadBuffer::read(uint8_t* data, size_t length)
+bool ReadBuffer::read(uint8_t* data, const size_t length)
 {
+    if (length == 0)
+    {
+        return true;
+    }
+
     if (bytes() - m_readOffset < length)
     {
         return false;
     }
+
     if (data != nullptr)
     {
         memcpy(data, c_str() + m_readOffset, length);
     }
+
     m_readOffset += length;
     compact();
+
     return true;
 }
 
-bool ReadBuffer::read(String& data, size_t length)
+bool ReadBuffer::read(String& data, const size_t length)
 {
+    if (length == 0)
+    {
+        return true;
+    }
+    if (bytes() - m_readOffset < length)
+    {
+        return false;
+    }
+
     data.resize(length);
-    return read(bit_cast<uint8_t*>(&data[0]), length);
+    memcpy(data.data(), c_str() + m_readOffset, length);
+
+    m_readOffset += length;
+    compact();
+
+    return true;
 }
 
-bool ReadBuffer::read(Buffer& data, size_t length)
+bool ReadBuffer::read(Buffer& data, const size_t length)
 {
+    if (length == 0)
+    {
+        return true;
+    }
+
+    if (bytes() - m_readOffset < length)
+    {
+        return false;
+    }
+
     data.checkSize(length);
-    return read(data.data(), length);
+    memcpy(data.data(), c_str() + m_readOffset, length);
+    data.bytes(length);
+
+    m_readOffset += length;
+    compact();
+
+    return true;
 }

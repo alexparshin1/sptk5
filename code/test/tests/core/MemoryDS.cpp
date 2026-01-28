@@ -25,6 +25,7 @@
 */
 
 #include <sptk5/MemoryDS.h>
+#include <sptk5/Exception.h>
 
 #include <gtest/gtest.h>
 
@@ -94,4 +95,17 @@ TEST(SPTK_MemoryDS, createAndVerify)
 
     ds.clear();
     EXPECT_TRUE(ds.empty());
+}
+
+TEST(SPTK_MemoryDS, defaultConstructedEofCurrent)
+{
+    MemoryDS ds;
+
+    EXPECT_TRUE(ds.empty());
+    EXPECT_EQ(ds.recordCount(), static_cast<size_t>(0));
+
+    ds.open();
+
+    EXPECT_TRUE(ds.eof());
+    EXPECT_THROW(ds.current(), Exception);
 }

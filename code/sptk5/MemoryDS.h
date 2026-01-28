@@ -54,7 +54,10 @@ public:
     /**
      * Default constructor
      */
-    MemoryDS() = default;
+    MemoryDS()
+        : m_current(m_list.end())
+    {
+    }
 
     /**
      * Deleted copy constructor
@@ -104,6 +107,10 @@ public:
     virtual FieldList& current()
     {
         std::lock_guard lock(m_mutex);
+        if (m_current == m_list.end())
+        {
+            throw Exception("At the end of the data");
+        }
         return *m_current;
     }
 

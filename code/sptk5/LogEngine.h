@@ -26,13 +26,11 @@
 
 #pragma once
 
-#include <sptk5/DateTime.h>
 #include <sptk5/LogPriority.h>
 #include <sptk5/Logger.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
 #include <atomic>
-#include <iostream>
 #include <set>
 #include <sptk5/threads/Thread.h>
 
@@ -197,12 +195,12 @@ protected:
     }
 
     /**
-     * Terminate message save thread
+     * Terminate the message save thread
      */
     void terminate();
 
     /**
-     * Terminate message save thread
+     * Terminate the message save thread
      */
     bool terminated() const
     {
@@ -221,12 +219,12 @@ private:
     mutable std::mutex m_mutex;
 
     /**
-     * Thread that saves messages into backend
+     * Thread that saves messages into the backend
      */
     std::jthread m_saveMessageThread;
 
     /**
-     * Min message priority, should be defined for every message
+     * Min message priority should be defined for every message
      */
     std::atomic<LogPriority> m_minPriority {LogPriority::Info};
 

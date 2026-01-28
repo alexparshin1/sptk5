@@ -311,7 +311,7 @@ void MD5::update(const unsigned char input[], size_type length)
 // for convenience provide a version with signed char
 void MD5::update(const char input[], size_type length)
 {
-    update((const unsigned char*) input, length);
+    update(reinterpret_cast<const unsigned char*>(input), length);
 }
 
 //////////////////////////////
@@ -356,11 +356,11 @@ MD5& MD5::finalize()
 //////////////////////////////
 
 // return hex representation of digest as string
-sptk::String MD5::hexDigest() const
+String MD5::hexDigest() const
 {
     if (!finalized)
     {
-        return "";
+        throw Exception("MD5::hexDigest: digest not finalized");
     }
 
     array<char, 34> buf {};

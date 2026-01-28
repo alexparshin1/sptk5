@@ -33,7 +33,6 @@ documentation and/or software.
 #pragma once
 
 #include "Buffer.h"
-#include <iostream>
 #include <sptk5/String.h>
 #include <sptk5/sptk.h>
 
@@ -94,12 +93,7 @@ public:
     /**
          * Returns hexadecimal presentation of MD5 sum
          */
-    String hexDigest() const;
-
-    /**
-         * Prints MD5 sum to stream
-         */
-    friend std::ostream& operator<<(std::ostream&, MD5 md5);
+    [[nodiscard]] String hexDigest() const;
 
 private:
     /**
@@ -143,7 +137,7 @@ private:
     bool finalized {false};
 
     /**
-         * bytes that didn't fit in last 64 byte chunk
+         * bytes that didn't fit in the last 64-byte chunk
          */
     std::array<uint1, blockSize> buffer {};
 
@@ -163,7 +157,7 @@ private:
     std::array<uint1, 16> digest {};
 
 
-    // low level logic operations
+    // Low-level logic operations
     static inline uint4 F(uint4 x, uint4 y, uint4 z);
 
     static inline uint4 G(uint4 x, uint4 y, uint4 z);

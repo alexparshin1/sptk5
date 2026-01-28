@@ -120,7 +120,7 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
 {
 #ifdef _WIN32
     static constexpr chrono::milliseconds sleepTime = 10ms;
-    chrono::milliseconds totalWait = 0ms;
+    chrono::milliseconds                  totalWait = 0ms;
     while (totalWait < timeout)
     {
         DWORD bytesRead = 0;
@@ -201,10 +201,14 @@ void OsProcess::readData()
             break;
         }
 #else
-        size_t readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
-        if (fread(m_buffer.data(), readSize, 1, m_stdout) == 0)
+        const size_t readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
+        if (readSize > 0)
         {
-            break;
+            lock_guard lock(m_mutex);
+            if (fread(m_buffer.data(), readSize, 1, m_stdout) == 0)
+            {
+                break;
+            }
         }
 #endif
         if (m_onData)
@@ -238,6 +242,10 @@ void OsProcess::kill()
         //throw SystemException("Can't kill process");
     }
 #else
+    if (m_pid == 0)
+    {
+        throw SystemException("Can't kill process: pid is 0");
+    }
     auto rc = ::kill(m_pid, SIGKILL);
     if (rc != 0)
     {

@@ -73,7 +73,6 @@ Field& MemoryDS::operator[](size_t index)
 // read this field data into the external value
 bool MemoryDS::readField(const char* fieldName, Variant& fieldValue)
 {
-    const scoped_lock lock(m_mutex);
     try
     {
         fieldValue = *static_cast<Variant*>(&(*this)[fieldName]);
@@ -88,7 +87,6 @@ bool MemoryDS::readField(const char* fieldName, Variant& fieldValue)
 // write this field data from the external value
 bool MemoryDS::writeField(const char* fieldName, const Variant& fieldValue)
 {
-    const scoped_lock lock(m_mutex);
     try
     {
         (*this)[fieldName] = fieldValue;
@@ -117,7 +115,6 @@ bool MemoryDS::open()
 bool MemoryDS::close()
 {
     MemoryDS::clear();
-    m_current = m_list.end();
     return true;
 }
 
