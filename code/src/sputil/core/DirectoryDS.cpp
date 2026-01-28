@@ -31,7 +31,7 @@
 #include <sptk5/filedefs.h>
 
 #ifndef FL_ALIGN_LEFT
-constexpr int FL_ALIGN_LEFT = 4;
+constexpr auto FL_ALIGN_LEFT = 4;
 #endif
 
 using namespace std;
@@ -42,19 +42,22 @@ String DirectoryDS::getFileType(const directory_entry& file, CSmallPixmapType& i
 {
     struct stat fileStat = {};
 
-    stat(file.path().string().c_str(), &fileStat);
+    if (stat(file.path().string().c_str(), &fileStat) != 0)
+    {
+        return "Unknown";
+    }
 
     modificationTime = DateTime::convertCTime(fileStat.st_mtime);
 #ifndef _WIN32
     const String ext = file.path().extension().string();
-    bool         executable = S_ISEXEC(fileStat.st_mode);
+    auto         executable = S_ISEXEC(fileStat.st_mode);
 #else
     String ext = file.path().extension().string();
     ext = ext.toLowerCase();
-    bool executable = ext == "exe" || ext == "bat";
+    bool executable = ext == ".exe" || ext == ".bat";
 #endif
 
-    const bool directory = is_directory(file.status());
+    const auto directory = is_directory(file.status());
     image = CSmallPixmapType::SXPM_DOCUMENT;
 
     string modeName;
@@ -204,9 +207,9 @@ bool DirectoryDS::open()
 
 FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
 {
-    CSmallPixmapType pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
-    DateTime         modificationTime;
-    String           modeName = getFileType(file, pixmapType, modificationTime);
+    auto     pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
+    DateTime modificationTime;
+    String   modeName = getFileType(file, pixmapType, modificationTime);
 
     if (is_symlink(file.status()))
     {
@@ -230,7 +233,7 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
     fields.push_back("", false) = static_cast<int32_t>(index); // Fake key value
     ++index;
 
-    if (access(file.path().filename().string().c_str(), R_OK) != 0)
+    if (access(absolute(file).filename().string().c_str(), R_OK) != 0)
     {
         fields[static_cast<uint32_t>(0)].view().flags = FL_ALIGN_LEFT;
         fields[static_cast<uint32_t>(1)].view().flags = FL_ALIGN_LEFT;
@@ -242,13 +245,13 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
 std::shared_ptr<RegularExpression> DirectoryDS::wildcardToRegexp(const String& wildcard)
 {
     String regexpStr("^");
-    bool   groupStarted = false;
-    bool   charClassStarted = false;
+    auto   groupStarted = false;
+    auto   charClassStarted = false;
 
     size_t pos = 0;
     while (pos < wildcard.length())
     {
-        char chr = wildcard[pos];
+        auto chr = wildcard[pos];
 
         if (charClassStarted)
         {
