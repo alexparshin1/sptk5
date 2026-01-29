@@ -26,9 +26,9 @@
 
 #pragma once
 
-#include <sptk5/DateTime.h>
+#include <sptk5/sptk.h>
 
-#include <functional>
+#include <chrono>
 #include <mutex>
 
 namespace sptk {
@@ -80,15 +80,15 @@ public:
     double seconds() const;
 
     /**
-     * @brief Get difference between stopwatch start and stop times in seconds
+     * @brief Get the difference between stopwatch start and stop times in seconds
      * @return interval in seconds
      */
     double milliseconds() const;
 
 private:
-    mutable std::mutex m_mutex;           ///< Mutex that provides thread-safety
-    DateTime           m_started {"now"}; ///< Start time
-    DateTime           m_ended;           ///< Stop time
+    mutable std::mutex                    m_mutex;                                      ///< Mutex that provides thread-safety
+    std::chrono::steady_clock::time_point m_started {std::chrono::steady_clock::now()}; ///< Start time
+    std::chrono::steady_clock::time_point m_ended;                                      ///< Stop time
 };
 
 } // namespace sptk

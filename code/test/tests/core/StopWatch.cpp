@@ -24,37 +24,50 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/StopWatch.h"
+#include <gtest/gtest.h>
+#include <sptk5/StopWatch.h>
+
+#include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace sptk;
-using namespace chrono;
 
-void StopWatch::start()
+TEST(SPTK_StopWatch, start_sets_zero_elapsed)
 {
-    const scoped_lock lock(m_mutex);
-    m_started = steady_clock::now();
-    m_ended = m_started;
+    StopWatch stopWatch;
+    stopWatch.start();
+    EXPECT_DOUBLE_EQ(0.0, stopWatch.seconds());
+    EXPECT_DOUBLE_EQ(0.0, stopWatch.milliseconds());
 }
 
-void StopWatch::stop()
+TEST(SPTK_StopWatch, measures_elapsed_time)
 {
-    const scoped_lock lock(m_mutex);
-    m_ended = steady_clock::now();
+    StopWatch stopWatch;
+    stopWatch.start();
+    this_thread::sleep_for(chrono::milliseconds(20));
+    stopWatch.stop();
+
+    const auto elapsedMs = stopWatch.milliseconds();
+    EXPECT_GE(elapsedMs, 20.0);
+    EXPECT_LT(elapsedMs, 21.0);
+
+    const auto deltaMs = abs(stopWatch.seconds() * 1000.0 - elapsedMs);
+    EXPECT_LE(deltaMs, 1.0);
 }
 
-double StopWatch::seconds() const
+TEST(SPTK_StopWatch, restart_resets_elapsed_time)
 {
-    const scoped_lock lock(m_mutex);
-    constexpr auto    millisecondsInSecond = 1000.0;
-    return static_cast<double>(chrono::duration_cast<chrono::milliseconds>(m_ended - m_started).count()) /
-           millisecondsInSecond;
-}
+    StopWatch stopWatch;
+    stopWatch.start();
+    this_thread::sleep_for(chrono::milliseconds(20));
+    stopWatch.stop();
+    const auto firstMs = stopWatch.milliseconds();
 
-double StopWatch::milliseconds() const
-{
-    const scoped_lock lock(m_mutex);
-    constexpr auto    microsecondsInMillisecond = 1000.0;
-    return static_cast<double>(chrono::duration_cast<microseconds>(m_ended - m_started).count()) /
-           microsecondsInMillisecond;
+    stopWatch.start();
+    this_thread::sleep_for(chrono::milliseconds(19));
+    stopWatch.stop();
+    const auto secondMs = stopWatch.milliseconds();
+
+    EXPECT_LT(secondMs, firstMs);
 }
