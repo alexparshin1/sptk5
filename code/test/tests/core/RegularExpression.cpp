@@ -37,10 +37,34 @@ using namespace sptk;
 
 static const String testPhrase("This is a test text to verify rexec text data group");
 
+TEST(SPTK_RegularExpression, match_emptyText)
+{
+    const RegularExpression matchFirst("test text", "g");
+    const auto              matches = matchFirst.m("");
+    String                  words;
+    for (const auto& match: matches.groups())
+    {
+        words = match.value;
+    }
+    EXPECT_EQ(0, words.size());
+}
+
+TEST(SPTK_RegularExpression, match_emptyPattern)
+{
+    const RegularExpression matchFirst("", "g");
+    const auto              matches = matchFirst.m(testPhrase);
+    String                  words;
+    for (const auto& match: matches.groups())
+    {
+        words = match.value;
+    }
+    EXPECT_EQ(0, words.size());
+}
+
 TEST(SPTK_RegularExpression, match_first)
 {
     const RegularExpression matchFirst("test text", "g");
-    const auto matches = matchFirst.m(testPhrase);
+    const auto              matches = matchFirst.m(testPhrase);
     String                  words;
     for (const auto& match: matches.groups())
     {
@@ -52,8 +76,8 @@ TEST(SPTK_RegularExpression, match_first)
 TEST(SPTK_RegularExpression, match_first_group)
 {
     const RegularExpression matchFirst("(test text)", "g");
-    const auto matches = matchFirst.m(testPhrase);
-    String words;
+    const auto              matches = matchFirst.m(testPhrase);
+    String                  words;
     for (const auto& match: matches.groups())
     {
         words = match.value;
@@ -64,8 +88,8 @@ TEST(SPTK_RegularExpression, match_first_group)
 TEST(SPTK_RegularExpression, match_many)
 {
     const RegularExpression matchWord("(\\w+)+", "g");
-    const auto matches = matchWord.m(testPhrase);
-    Strings words;
+    const auto              matches = matchWord.m(testPhrase);
+    Strings                 words;
     for (const auto& match: matches.groups())
     {
         words.push_back(match.value);
@@ -100,7 +124,7 @@ TEST(SPTK_RegularExpression, named_groups)
     const RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
     RegularExpression::Groups matchedStrings;
-    const auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
+    const auto                matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
 
     EXPECT_STREQ(matchedNamedGroups["aname"].value.c_str(), "xyz");
     EXPECT_STREQ(matchedNamedGroups["avalue"].value.c_str(), "1234");
@@ -123,8 +147,8 @@ TEST(SPTK_RegularExpression, replaceAll)
 
     const RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
     const String            text = "$NAME was in $CITY in $YEAR ";
-    bool replaced(false);
-    const String result = matchPlaceholders.replaceAll(text, substitutions, replaced);
+    bool                    replaced(false);
+    const String            result = matchPlaceholders.replaceAll(text, substitutions, replaced);
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
@@ -136,10 +160,11 @@ TEST(SPTK_RegularExpression, lambdaReplace)
         {"$YEAR", "2000"}};
 
     const RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
-    const String text = "$NAME was in $CITY in $YEAR ";
-    bool replaced(false);
-    const String result = matchPlaceholders.s(
-        text, [&substitutions](const String& match) {
+    const String            text = "$NAME was in $CITY in $YEAR ";
+    bool                    replaced(false);
+    const String            result = matchPlaceholders.s(
+        text, [&substitutions](const String& match)
+        {
             return substitutions[match];
         },
         replaced);
@@ -149,7 +174,7 @@ TEST(SPTK_RegularExpression, lambdaReplace)
 TEST(SPTK_RegularExpression, extract)
 {
     const RegularExpression match1("^(.*)(text).*(verify)(.*)");
-    const auto matchedStrings = match1.m(testPhrase);
+    const auto              matchedStrings = match1.m(testPhrase);
     EXPECT_TRUE(matchedStrings);
     EXPECT_EQ(static_cast<size_t>(4), matchedStrings.groups().size());
     EXPECT_STREQ("This is a test ", matchedStrings[0].value.c_str());
@@ -159,18 +184,40 @@ TEST(SPTK_RegularExpression, extract)
 TEST(SPTK_RegularExpression, split)
 {
     const RegularExpression match("[\\s]+");
-    auto matchedStrings = match.split(testPhrase);
+    auto                    matchedStrings = match.split(testPhrase);
     EXPECT_EQ(static_cast<size_t>(11), matchedStrings.size());
     EXPECT_STREQ("This", matchedStrings[0].c_str());
     EXPECT_STREQ("text", matchedStrings[8].c_str());
+}
+
+TEST(SPTK_RegularExpression, splitWithCaptureGroupsPattern)
+{
+    const RegularExpression match("(\\w+) text");
+    const Strings           expectedStrings = {"This is a ", " to verify ", " data group"};
+
+    const auto matchedStrings = match.split(testPhrase);
+
+    EXPECT_EQ(static_cast<size_t>(3), matchedStrings.size());
+    EXPECT_EQ(expectedStrings, matchedStrings);
+}
+
+TEST(SPTK_RegularExpression, splitWithCaptureGroupsPatterns)
+{
+    const RegularExpression match("(is|to)(\\s)");
+    const Strings           expectedStrings = {"Th", "", "a test text ", "verify rexec text data group"};
+
+    const auto matchedStrings = match.split(testPhrase);
+
+    EXPECT_EQ(static_cast<size_t>(4), matchedStrings.size());
+    EXPECT_EQ(expectedStrings, matchedStrings);
 }
 
 TEST(SPTK_RegularExpression, match_performance)
 {
     const String            data("red=#FF0000, green=#00FF00, blue=#0000FF");
     const RegularExpression match("((\\w+)=(#\\w+))");
-    constexpr size_t maxIterations = 100000;
-    StopWatch stopWatch;
+    constexpr size_t        maxIterations = 100000;
+    StopWatch               stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; ++i)
     {
@@ -192,23 +239,24 @@ TEST(SPTK_RegularExpression, asyncExec)
 {
     RegularExpression match("(?<name>[xyz]+) (?<value>\\d+) (?<description>\\w+)");
 
-    mutex amutex;
+    mutex                 amutex;
     deque<future<size_t>> states;
 
     constexpr size_t maxThreads = 10;
     for (size_t n = 0; n < maxThreads; ++n)
     {
-        future<size_t> f = async(launch::async, [&match]() {
-            RegularExpression::Groups matchedStrings;
-            const auto matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
-            return matchedNamedGroups.namedGroups().size();
-        });
-        scoped_lock lock(amutex);
+        future<size_t> f = async(launch::async, [&match]()
+                                 {
+                                     RegularExpression::Groups matchedStrings;
+                                     const auto                matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
+                                     return matchedNamedGroups.namedGroups().size();
+                                 });
+        scoped_lock    lock(amutex);
         states.push_back(std::move(f));
     }
 
     future<size_t> f;
-    const auto statesCount = states.size();
+    const auto     statesCount = states.size();
     for (size_t n = 0; n < maxThreads;)
     {
         bool gotOne {false};

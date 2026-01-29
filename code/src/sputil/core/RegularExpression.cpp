@@ -131,7 +131,7 @@ void RegularExpression::compile()
     lock_guard lock(m_mutex);
 
 #ifdef HAVE_PCRE2
-    int        errorNumber {0};
+    auto       errorNumber {0};
     PCRE2_SIZE errorOffset {0};
 
     auto* pcre = pcre2_compile(
@@ -291,7 +291,9 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         matchData.matches.clear();
         for (auto* offsetPair = offsetVector; offsetPair != offsetsEnd; offsetPair += 2)
         {
-            matchData.matches.emplace_back(static_cast<pcre_offset_t>(*offsetPair), static_cast<pcre_offset_t>(*(offsetPair + 1)));
+            auto start = static_cast<size_t>(*offsetPair);
+            auto end = static_cast<size_t>(*(offsetPair + 1));
+            matchData.matches.emplace_back(start, end);
         }
         //memcpy(bit_cast<uint8_t*>(matchData.matches.data()), ovector, sizeof(pcre_offset_t) * 2 * rc);
         offset = offsetVector[1];
@@ -368,11 +370,11 @@ RegularExpression::Groups RegularExpression::m(const String& text, size_t& offse
     Groups matchedStrings;
     auto   matchData = createMatchData();
 
-    bool first {true};
+    auto first {true};
     do
     {
         const size_t matchCount = nextMatch(text, offset, matchData);
-        if (matchCount == 0)
+        if (matchCount == 0 || offset == 0)
         { // No matches
             break;
         }
@@ -490,12 +492,9 @@ Strings RegularExpression::split(const String& text) const
             break;
         }
 
-        for (size_t matchIndex = 0; matchIndex < matchCount; ++matchIndex)
-        {
-            const Match& match = matchData.matches[matchIndex];
-            matchedStrings.push_back(string(text.c_str() + lastMatchEnd, static_cast<size_t>(match.m_start - lastMatchEnd)));
-            lastMatchEnd = match.m_end;
-        }
+        const Match& match = matchData.matches[0];
+        matchedStrings.push_back(string(text.c_str() + lastMatchEnd, static_cast<size_t>(match.m_start - lastMatchEnd)));
+        lastMatchEnd = match.m_end;
 
     } while (offset);
 
