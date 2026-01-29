@@ -168,7 +168,7 @@ public:
      */
     [[nodiscard]] int64_t argument() const
     {
-        return static_cast<int>(m_userData);
+        return m_userData;
     }
 
     /**

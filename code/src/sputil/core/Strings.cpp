@@ -65,14 +65,16 @@ void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
         if (const size_t end = src.find_first_of(delimiter, pos);
             end != string::npos)
         {
-            dest.emplace_back(src.substr(pos, end - pos));
+            const auto segment = src.substr(pos, end - pos);
+            dest.emplace_back(std::move(segment));
             pos = src.find_first_not_of(delimiter, end + 1);
         }
         else
         {
-            if (pos + 1 < src.length())
+            if (pos + 1 <= src.length())
             {
-                dest.emplace_back(src.substr(pos));
+                const auto segment = src.substr(pos, end - pos);
+                dest.emplace_back(std::move(segment));
             }
             break;
         }
@@ -102,6 +104,10 @@ Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexc
 {
     try
     {
+        if (mode == SplitMode::DELIMITER && (delimiter == nullptr || strlen(delimiter) == 0))
+        {
+            throw Exception("Empty delimiter");
+        }
         fromString(src.c_str(), delimiter, mode);
     }
     catch (const Exception& e)

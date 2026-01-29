@@ -34,7 +34,7 @@ using namespace sptk;
 static const String testString("This is a test\ntext that contains several\nexample rows");
 static const String resultString("This is a test\rtext that contains several\rexample rows");
 
-TEST(SPTK_Strings, ctor)
+TEST(SPTK_Strings, ctorSplitByRegex)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     EXPECT_EQ(static_cast<size_t>(3), strings.size());
@@ -43,11 +43,26 @@ TEST(SPTK_Strings, ctor)
     const Strings strings2(strings);
     EXPECT_EQ(static_cast<size_t>(3), strings2.size());
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
+}
 
+TEST(SPTK_Strings, ctorSplitByDelimiter)
+{
+    Strings strings;
     strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
     EXPECT_EQ(static_cast<size_t>(3), strings.size());
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
+}
 
+TEST(SPTK_Strings, ctorSplitByAnyChar)
+{
+    Strings strings;
+    strings.fromString("X\nY", "\n\r\t", Strings::SplitMode::ANYCHAR);
+    EXPECT_EQ(static_cast<size_t>(2), strings.size());
+    EXPECT_STREQ("X\rY", strings.join("\r").c_str());
+}
+
+TEST(SPTK_Strings, ctor)
+{
     const Strings strings3({"1", "2", "3"});
     EXPECT_EQ(static_cast<size_t>(3), strings3.size());
     EXPECT_STREQ("1,2,3", strings3.join(",").c_str());
@@ -58,6 +73,14 @@ TEST(SPTK_Strings, ctor)
     EXPECT_EQ(static_cast<size_t>(3), numbers.size());
     EXPECT_STREQ("one,two,three", numbers.join(",").c_str());
     EXPECT_EQ(2, numbers[1].ident());
+}
+
+TEST(SPTK_Strings, copyConstructor)
+{
+    const Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
+    const Strings strings2(strings);
+    EXPECT_EQ(static_cast<size_t>(3), strings2.size());
+    EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 }
 
 TEST(SPTK_Strings, sort)
