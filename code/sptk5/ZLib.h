@@ -43,22 +43,20 @@ class SP_EXPORT ZLib
 public:
     /**
      * Compress data using gzip format.
-     *
-     * Compressed data is appended to destination buffer.
      * @param dest              Destination buffer.
      * @param src               Source buffer.
      * @param level             Compression level.
+     * @param append            If true, then uncompressed data is appended to the destination buffer.
      */
-    static void compress(Buffer& dest, const Buffer& src, int level = Z_DEFAULT_COMPRESSION);
+    static void compress(Buffer& dest, const Buffer& src, int level = Z_DEFAULT_COMPRESSION, bool append = true);
 
     /**
      * Uncompress data in gzip format.
-     *
-     * Uncompressed data is appended to destination buffer.
      * @param dest              Destination buffer.
      * @param src               Source buffer.
+     * @param append            If true, then uncompressed data is appended to the destination buffer.
      */
-    static void decompress(Buffer& dest, const Buffer& src);
+    static void decompress(Buffer& dest, const Buffer& src, bool append = true);
 };
 
 } // namespace sptk

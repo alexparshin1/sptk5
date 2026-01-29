@@ -33,11 +33,16 @@ using namespace sptk;
 
 constexpr size_t CHUNK = 16384;
 
-void ZLib::compress(Buffer& dest, const Buffer& src, int level)
+void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool append)
 {
     z_stream strm = {};
     Buffer   inputBuffer(CHUNK);
     Buffer   outputBuffer(CHUNK);
+
+    if (!append)
+    {
+        dest.reset();
+    }
 
     // allocate deflate state
     strm.zalloc = Z_NULL;
@@ -56,7 +61,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
 
     bool   eof = false;
     size_t readPosition = 0;
-    // Compress until end of file
+    // Compress until the end of data
     do
     {
         auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
@@ -82,25 +87,34 @@ void ZLib::compress(Buffer& dest, const Buffer& src, int level)
             strm.next_out = outputBuffer.data();
             ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
-            { // state not clobbered
-                throw Exception("compressed data error");
+            {
+                throw Exception("Compressed data error.");
+            }
+            if (ret == Z_BUF_ERROR)
+            {
+                throw Exception("Output buffer is insufficient.");
             }
             const size_t have = CHUNK - strm.avail_out;
             dest.append(outputBuffer.data(), have);
         } while (strm.avail_out == 0);
 
-        // Done when last data inputBuffer file processed
+        // Done when the last data inputBuffer file processed
     } while (!eof);
 
     // Clean up and return
     deflateEnd(&strm);
 }
 
-void ZLib::decompress(Buffer& dest, const Buffer& src)
+void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
 {
     z_stream strm = {};
     Buffer   inputBuffer(CHUNK);
     Buffer   outputBuffer(CHUNK);
+
+    if (!append)
+    {
+        dest.reset();
+    }
 
     // allocate inflate state
     strm.zalloc = Z_NULL;
@@ -138,12 +152,12 @@ void ZLib::decompress(Buffer& dest, const Buffer& src)
             strm.avail_out = CHUNK;
             strm.next_out = outputBuffer.data();
             ret = inflate(&strm, Z_NO_FLUSH);
-            if (ret == Z_STREAM_ERROR)
-            {
-                throw Exception("compressed data error");
-            }
             switch (ret)
             {
+                case Z_STREAM_ERROR:
+                    throw Exception("Compressed data error.");
+                case Z_BUF_ERROR:
+                    throw Exception("Output buffer is insufficient.");
                 case Z_NEED_DICT:
                 case Z_DATA_ERROR:
                 case Z_MEM_ERROR:
