@@ -227,6 +227,7 @@ protected:
     void setStorageClient(const std::shared_ptr<VariantStorageClient>& storageClient)
     {
         m_class = storageClient;
+        m_type.isExternalBuffer = false;
     }
 
     void setType(VariantType dataType)
@@ -466,11 +467,12 @@ public:
      * @param value             Data to assign.
      * @return self.
      */
-    template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     VariantStorage& operator=(const T& value)
     {
         if (type().type != T::variantDataType() || !storageClient())
         {
+            setType(T::variantDataType());
             setStorageClient(std::make_shared<T>(value));
         }
         else
