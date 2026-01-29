@@ -25,7 +25,6 @@
 */
 
 #include <sptk5/RegularExpression.h>
-#include <sptk5/SystemException.h>
 #include <sptk5/net/Socket.h>
 
 #include <utility>
@@ -38,7 +37,7 @@ using namespace sptk;
 static constexpr uint16_t sshPort = 22;
 static constexpr uint16_t telnetPort = 23;
 static constexpr uint16_t httpPort = 80;
-static const String testHost("www.google.com:80");
+static const String       testHost("www.google.com:80");
 
 TEST(SPTK_Host, ctorHostname)
 {
@@ -68,7 +67,7 @@ TEST(SPTK_Host, ctorCopy)
 
 TEST(SPTK_Host, ctorMove)
 {
-    Host host1("11.22.33.44", sshPort);
+    Host       host1("11.22.33.44", sshPort);
     const Host host2(std::move(host1));
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
@@ -84,7 +83,7 @@ TEST(SPTK_Host, assign)
 
 TEST(SPTK_Host, move)
 {
-    Host host1("11.22.33.44", sshPort);
+    Host       host1("11.22.33.44", sshPort);
     const Host host2 = std::move(host1);
     EXPECT_STREQ("11.22.33.44", host2.hostname().c_str());
     EXPECT_EQ(sshPort, host2.port());
@@ -105,4 +104,32 @@ TEST(SPTK_Host, compare)
 
     EXPECT_FALSE(host1 == host4);
     EXPECT_TRUE(host1 != host4);
+}
+
+TEST(SPTK_Host, ctorHostOnly)
+{
+    ASSERT_NO_THROW({
+        const Host host("127.0.0.1");
+        EXPECT_STREQ("127.0.0.1", host.hostname().c_str());
+        EXPECT_EQ(0, host.port());
+        EXPECT_STREQ("127.0.0.1:0", host.toString(false).c_str());
+    });
+}
+
+TEST(SPTK_Host, ctorIpv6Bracketed)
+{
+    const Host host("[::1]:443");
+    EXPECT_STREQ("::1", host.hostname().c_str());
+    EXPECT_EQ(443, host.port());
+    EXPECT_STREQ("[::1]:443", host.toString(false).c_str());
+}
+
+TEST(SPTK_Host, ctorIpv6WithoutPort)
+{
+    ASSERT_NO_THROW({
+        const Host host("[::1]");
+        EXPECT_STREQ("::1", host.hostname().c_str());
+        EXPECT_EQ(0, host.port());
+        EXPECT_STREQ("[::1]:0", host.toString(false).c_str());
+    });
 }

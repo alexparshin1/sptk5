@@ -29,7 +29,6 @@
 #include <cstring>
 #include <mutex>
 #include <sptk5/Strings.h>
-#include <sstream>
 
 #ifndef _WIN32
 
@@ -72,7 +71,7 @@ class SP_EXPORT Host
      */
     const sockaddr& any() const
     {
-        return *(const sockaddr*) m_address.data();
+        return *reinterpret_cast<const sockaddr*>(m_address.data());
     }
 
     /**
@@ -81,7 +80,7 @@ class SP_EXPORT Host
      */
     sockaddr_in& ip_v4()
     {
-        return *(sockaddr_in*) m_address.data();
+        return *reinterpret_cast<sockaddr_in*>(m_address.data());
     }
 
     /**
@@ -90,7 +89,7 @@ class SP_EXPORT Host
      */
     const sockaddr_in& ip_v4() const
     {
-        return *(const sockaddr_in*) m_address.data();
+        return *reinterpret_cast<const sockaddr_in*>(m_address.data());
     }
 
     /**
@@ -99,7 +98,7 @@ class SP_EXPORT Host
      */
     sockaddr_in6& ip_v6()
     {
-        return *(sockaddr_in6*) m_address.data();
+        return *reinterpret_cast<sockaddr_in6*>(m_address.data());
     }
 
     /**
@@ -108,13 +107,14 @@ class SP_EXPORT Host
      */
     const sockaddr_in6& ip_v6() const
     {
-        return *(const sockaddr_in6*) m_address.data();
+        return *reinterpret_cast<const sockaddr_in6*>(m_address.data());
     }
 
     /**
      * Get host address
      */
-    void getHostAddress();
+    void   getHostAddress();
+    String ipAddressToString(const uint8_t* addr) const;
 
     /**
      * Set port number
@@ -194,7 +194,7 @@ public:
      * Get host name
      * @return host name
      */
-    const String& hostname() const
+    String hostname() const
     {
         std::scoped_lock lock(m_mutex);
         return m_hostname;

@@ -55,7 +55,7 @@ Host::Host() noexcept
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(String hostname, uint16_t port)
+Host::Host(String hostname, const uint16_t port)
     : m_hostname(std::move(hostname))
     , m_port(port)
 {
@@ -66,11 +66,18 @@ Host::Host(String hostname, uint16_t port)
 
 Host::Host(const String& hostAndPort)
 {
+    static const RegularExpression matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{2,5})?$)");
+    static const RegularExpression matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{2,5})?$)");
+
     checkSocketsInitialized();
-    const RegularExpression matchHost(R"(^(\[.*\]|[^\[\]:]*)(:\d+)?)");
-    if (const auto matches = matchHost.m(hostAndPort))
+    const auto matches = hostAndPort.startsWith("[")
+                             ? matchIpv6.m(hostAndPort)
+                             : matchHostNameOrIpv4.m(hostAndPort);
+
+    if (matches)
     {
         m_hostname = matches[0].value;
+
         if (matches.groups().size() > 1)
         {
             m_port = static_cast<uint16_t>(string2int(matches[1].value.substr(1)));
@@ -89,7 +96,7 @@ Host::Host(const sockaddr_in* addressAndPort)
     checkSocketsInitialized();
     constexpr socklen_t addressLen = sizeof(sockaddr_in);
     memcpy(m_address.data(), addressAndPort, addressLen);
-    m_port = htons(ip_v4().sin_port);
+    m_port = ntohs(ip_v4().sin_port);
 
     setHostNameFromAddress(addressLen);
 }
@@ -101,32 +108,32 @@ Host::Host(const sockaddr_in6* addressAndPort)
 
     const auto* addressAndPort6 = addressAndPort;
     memcpy(bit_cast<sockaddr_in6*>(m_address.data()), addressAndPort6, addressLen);
-    m_port = htons(ip_v6().sin6_port);
+    m_port = ntohs(ip_v6().sin6_port);
 
     setHostNameFromAddress(addressLen);
 }
 
-void Host::setHostNameFromAddress(socklen_t addressLen)
+void Host::setHostNameFromAddress(const socklen_t addressLen)
 {
     array<char, NI_MAXHOST> hostBuffer {};
     array<char, NI_MAXSERV> addressBuffer {};
-#ifdef _WIN32
-    if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(), sizeof(addressBuffer), 0) == 0)
-        m_hostname = hostBuffer.data();
-#else
+
     if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
                     sizeof(addressBuffer), 0) == 0)
     {
         m_hostname = String(hostBuffer.data());
     }
-#endif
+    else
+    {
+        m_hostname = ipAddressToString(m_address.data());
+    }
 }
 
 Host::Host(const Host& other)
-    : m_hostname(other.m_hostname)
-    , m_port(other.m_port)
 {
     const scoped_lock lock(other.m_mutex);
+    m_hostname = other.m_hostname;
+    m_port = other.m_port;
     memcpy(&m_address, &other.m_address, sizeof(m_address));
 }
 
@@ -161,10 +168,17 @@ Host& Host::operator=(Host&& other) noexcept
 
 bool Host::operator==(const Host& other) const
 {
-    return toString(true) == other.toString(true);
+    try
+    {
+        return toString(true) == other.toString(true);
+    }
+    catch (Exception&)
+    {
+        return false;
+    }
 }
 
-void Host::setPort(uint16_t port)
+void Host::setPort(const uint16_t port)
 {
     const scoped_lock lock(m_mutex);
     m_port = port;
@@ -185,13 +199,13 @@ void Host::getHostAddress()
 {
     const scoped_lock lock(m_mutex);
 
-    struct addrinfo hints = {};
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_INET;       // IPv4 or IPv6
-    hints.ai_socktype = SOCK_STREAM; // Socket type
+    addrinfo hints = {};
+    memset(&hints, 0, sizeof(addrinfo));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = 0;
 
-    struct addrinfo* result = nullptr;
+    addrinfo* result = nullptr;
     if (const int exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
         exitCode != 0)
     {
@@ -199,12 +213,25 @@ void Host::getHostAddress()
     }
 
     memset(&m_address, 0, sizeof(m_address));
-    memcpy(&m_address, bit_cast<struct sockaddr_in*>(result->ai_addr), result->ai_addrlen);
+    memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
 
     freeaddrinfo(result);
 }
 
-String Host::toString(bool forceAddress) const
+String Host::ipAddressToString(const uint8_t* addr) const
+{
+    constexpr int              maxBufferSize = 128;
+    array<char, maxBufferSize> buffer {};
+
+    if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
+    {
+        throw SystemException("Can't print IP address");
+    }
+
+    return {buffer.data()};
+}
+
+String Host::toString(const bool forceAddress) const
 {
     const scoped_lock lock(m_mutex);
     String            str;
@@ -214,39 +241,31 @@ String Host::toString(bool forceAddress) const
         String address;
         if (forceAddress)
         {
-            constexpr int              maxBufferSize = 128;
-            array<char, maxBufferSize> buffer {};
-
-            const void* addr;
+            const uint8_t* addr;
             // Get the pointer to the address itself, different fields in IPv4 and IPv6
             if (any().sa_family == AF_INET)
             {
-                addr = bit_cast<void*>(&(ip_v4().sin_addr));
+                addr = bit_cast<uint8_t*>(&(ip_v4().sin_addr));
             }
             else
             {
-                addr = bit_cast<void*>(&(ip_v6().sin6_addr));
+                addr = bit_cast<uint8_t*>(&(ip_v6().sin6_addr));
             }
 
-            if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)
-            {
-                throw SystemException("Can't print IP address");
-            }
-
-            address = String(buffer.data());
+            address = ipAddressToString(addr);
         }
         else
         {
             address = m_hostname;
         }
 
-        if (any().sa_family == AF_INET6 && m_hostname.find(':') != std::string::npos)
+        if (any().sa_family == AF_INET6)
         {
-            str = "[" + address + "]:" + to_string(m_port);
+            str = format("[{}]:{}", address.c_str(), m_port);
         }
         else
         {
-            str = address + ":" + to_string(m_port);
+            str = format("{}:{}", address.c_str(), m_port);
         }
     }
 
