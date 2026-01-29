@@ -74,7 +74,7 @@ public:
      * @param str                Source string.
      * @param id                 Optional string id.
      */
-    String(const std::string& str, int64_t id = 0)
+    String(const std::string& str, const int64_t id = 0)
         : std::string(str)
         , m_id(id)
     {
@@ -95,8 +95,8 @@ public:
      * @param len                String length.
      * @param id                 String id.
      */
-    String(const char* str, size_t len, int64_t id = 0)
-        : std::string(str, len)
+    String(const char* str, const size_t len, const int64_t id = 0)
+        : std::string(str == nullptr ? "" : str, len)
         , m_id(id)
     {
     }
@@ -107,7 +107,7 @@ public:
      * @param ch                Fill character.
      * @param id                Optional string id.
      */
-    String(size_t len, char ch, int64_t id = 0)
+    String(const size_t len, const char ch, const int64_t id = 0)
         : std::string(len, ch)
         , m_id(id)
     {
@@ -163,7 +163,7 @@ public:
     /**
      * Sets string ID.
      */
-    void ident(int64_t id)
+    void ident(const int64_t id)
     {
         m_id = id;
     }

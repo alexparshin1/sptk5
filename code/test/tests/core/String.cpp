@@ -51,6 +51,11 @@ TEST(SPTK_String, in)
     EXPECT_FALSE(String("yes").in({"true", "false"}));
 }
 
+TEST(SPTK_String, inEmptyList)
+{
+    EXPECT_FALSE(String("value").in({}));
+}
+
 TEST(SPTK_String, split)
 {
     Strings words(testString.split("[\\s]+"));
@@ -76,4 +81,10 @@ TEST(SPTK_String, trim)
 {
     const String testString2(" \n\r\t" + testString + "\n\r\t ");
     EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
+}
+
+TEST(SPTK_String, trimAllWhitespace)
+{
+    const String testString2(" \n\r\t\b");
+    EXPECT_TRUE(testString2.trim().empty());
 }

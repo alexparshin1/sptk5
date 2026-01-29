@@ -25,6 +25,7 @@
 */
 
 #include <fstream>
+#include <ranges>
 #include <sptk5/RegularExpression.h>
 
 using namespace std;
