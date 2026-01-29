@@ -77,14 +77,15 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 
     switch (this->alg)
     {
+        using enum Algorithm;
         /* HMAC */
-        case JWT::Algorithm::HS256:
+        case HS256:
             algorithm = EVP_sha256();
             break;
-        case JWT::Algorithm::HS384:
+        case HS384:
             algorithm = EVP_sha384();
             break;
-        case JWT::Algorithm::HS512:
+        case HS512:
             algorithm = EVP_sha512();
             break;
         default:
@@ -110,13 +111,14 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
 
     switch (this->alg)
     {
-        case JWT::Algorithm::HS256:
+        using enum Algorithm;
+        case HS256:
             algorithm = EVP_sha256();
             break;
-        case JWT::Algorithm::HS384:
+        case HS384:
             algorithm = EVP_sha384();
             break;
-        case JWT::Algorithm::HS512:
+        case HS512:
             algorithm = EVP_sha512();
             break;
         default:
@@ -184,30 +186,31 @@ static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
     const EVP_MD* algorithm = nullptr;
     switch (alg)
     {
+        using enum JWT::Algorithm;
         /* RSA */
-        case JWT::Algorithm::RS256:
+        case RS256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::Algorithm::RS384:
+        case RS384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::Algorithm::RS512:
+        case RS512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT::Algorithm::ES256:
+        case ES256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT::Algorithm::ES384:
+        case ES384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT::Algorithm::ES512:
+        case ES512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
@@ -246,7 +249,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
         /* This uses OpenSSL's default passphrase callback if needed. The
          * library caller can override this in many ways, all of which are
-         * out of the scope of LibJWT and this is documented in jwt.h. */
+         * out of the scope of LibJWT, and this is documented in jwt.h. */
         pkey = PEM_read_bio_PrivateKey(bufkey, nullptr, nullptr, nullptr);
         if (pkey == nullptr)
         {
@@ -277,7 +280,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             SIGN_ERROR(EINVAL);
         }
 
-        /* First, call EVP_DigestSignFinal with a nullptr sig parameter to get length
+        /* First, call EVP_DigestSignFinal with a nullptr sig parameter to get the length
          * of sig. Length is returned in slen */
         if (EVP_DigestSignFinal(mdctx, nullptr, &slen) != 1)
         {
@@ -323,7 +326,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
             /* Get the sig from the DER encoded version. */
             const unsigned char* sig = nullptr;
-            ec_sig = d2i_ECDSA_SIG(nullptr, (const unsigned char**) &sig, static_cast<long>(slen));
+            ec_sig = d2i_ECDSA_SIG(nullptr, &sig, static_cast<long>(slen));
             if (ec_sig == nullptr)
             {
                 SIGN_ERROR(ENOMEM);
@@ -400,30 +403,31 @@ static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
 
     switch (alg)
     {
+        using enum JWT::Algorithm;
         /* RSA */
-        case JWT::Algorithm::RS256:
+        case RS256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::Algorithm::RS384:
+        case RS384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_RSA;
             break;
-        case JWT::Algorithm::RS512:
+        case RS512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_RSA;
             break;
 
             /* ECC */
-        case JWT::Algorithm::ES256:
+        case ES256:
             algorithm = EVP_sha256();
             type = EVP_PKEY_EC;
             break;
-        case JWT::Algorithm::ES384:
+        case ES384:
             algorithm = EVP_sha384();
             type = EVP_PKEY_EC;
             break;
-        case JWT::Algorithm::ES512:
+        case ES512:
             algorithm = EVP_sha512();
             type = EVP_PKEY_EC;
             break;
@@ -461,7 +465,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
 
         /* This uses OpenSSL's default passphrase callback if needed. The
          * library caller can override this in many ways, all of which are
-         * outside of the scope of LibJWT and this is documented in jwt.h. */
+         * outside the scope of LibJWT, and this is documented in jwt.h. */
         pkey = PEM_read_bio_PUBKEY(bufkey, nullptr, nullptr, nullptr);
         if (pkey == nullptr)
         {

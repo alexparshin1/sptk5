@@ -38,7 +38,7 @@ using namespace sptk;
 TEST(SPTK_JWT, dup)
 {
     time_t now = 0;
-    int valint = 0;
+    int    valint = 0;
 
     const JWT jwt;
 
@@ -68,7 +68,7 @@ TEST(SPTK_JWT, dup_signed)
     jwt.set("iss", "test");
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-    const JWT newJWT(jwt);
+    const JWT  newJWT(jwt);
     const auto val = static_cast<String>(newJWT.get("iss"));
     EXPECT_STREQ("test", val.c_str()) << "Failed jwt_get_grant_int()";
     EXPECT_TRUE(JWT::Algorithm::HS256 == jwt.get_alg()) << "Failed jwt_get_alg()";
@@ -92,12 +92,13 @@ TEST(SPTK_JWT, decode)
 
 TEST(SPTK_JWT, decode_invalid_final_dot)
 {
+    // Incomplete JWT token:
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                         "3ViIjoidXNlcjAifQ";
 
     const auto jwt = make_shared<JWT>();
-    EXPECT_NO_THROW(jwt->decode(token)) << "Not failed jwt_decode()";
+    EXPECT_THROW(jwt->decode(token), Exception);
 }
 
 
@@ -172,10 +173,10 @@ TEST(SPTK_JWT, decode_hs256)
 
 TEST(SPTK_JWT, decode_hs384)
 {
-    const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
-                        "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
+    const char*  token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
+                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
                          "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
-                        "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
+                         "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
                          "GgU6LOe4";
     const String key384("aaaabbbbccccddddeeeeffffg"
                         "ggghhhhiiiijjjjkkkkllll");

@@ -69,8 +69,8 @@ public:
 
     /**
          * Get JSON element in JSON object element by name.
-         * If element doesn't exist in JSON object yet, it's created as JSON null element.
-         * If this element is not JSON object, an exception is thrown.
+         * If the element doesn't exist in the JSON object yet, it's created as JSON null element.
+         * If this element is not a JSON object, an exception is thrown.
          * @param name              Name of the element in the object element
          * @returns Element for the name, or NULL if not found
          */
