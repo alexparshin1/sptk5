@@ -25,6 +25,9 @@
 */
 
 #include <sptk5/Buffer.h>
+#include <sptk5/SystemException.h>
+
+#include <cerrno>
 
 #include <gtest/gtest.h>
 
@@ -33,9 +36,9 @@ using namespace sptk;
 
 TEST(SPTK_SystemException, openFile)
 {
-    Buffer buffer;
     try
     {
+        Buffer buffer;
         buffer.loadFromFile("/xx.xx");
         FAIL() << "MUST FAIL";
     }
@@ -44,4 +47,15 @@ TEST(SPTK_SystemException, openFile)
         if (String(e.what()).find("xx.xx") == string::npos)
             FAIL() << e.what();
     }
+}
+
+TEST(SPTK_SystemException, osError_returns_message)
+{
+#ifdef _WIN32
+    SetLastError(ERROR_FILE_NOT_FOUND);
+#else
+    errno = ENOENT;
+#endif
+    const String error = SystemException::osError();
+    EXPECT_FALSE(error.empty());
 }
