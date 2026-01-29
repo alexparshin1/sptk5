@@ -540,7 +540,7 @@ int64_t VariantAdaptors::asInt64() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return string2int64(getBufferPtr());
+            return string2int64(string(getBufferPtr()));
 
         case VAR_DATE:
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count();
@@ -586,7 +586,11 @@ bool VariantAdaptors::asBool() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return (strchr("YyTt1", asString()[0]) != nullptr);
+            if (m_data.size() > 0)
+            {
+                return (strchr("YyTt1", asString()[0]) != nullptr);
+            }
+            return false;
 
         case VAR_DATE:
         case VAR_DATE_TIME:
@@ -683,17 +687,23 @@ String VariantAdaptors::asString() const
                 const auto* ptr = static_cast<const uint8_t*>(m_data);
                 if (ptr != nullptr)
                 {
-                    return {reinterpret_cast<const char*>(ptr)};
+                    return {reinterpret_cast<const char*>(ptr), m_data.size()};
                 }
-                else
-                {
-                    return {""};
-                }
+                return {""};
             }
             return m_data.get<String>();
 
         case VAR_TEXT:
         case VAR_BUFFER:
+            if (isExternalBuffer())
+            {
+                const auto* ptr = static_cast<const uint8_t*>(m_data);
+                if (ptr != nullptr)
+                {
+                    return {reinterpret_cast<const char*>(ptr), m_data.size()};
+                }
+                return {""};
+            }
             return m_data.get<Buffer>().c_str();
 
         case VAR_DATE:
@@ -881,13 +891,14 @@ void VariantAdaptors::setNull(VariantDataType variantDataType)
     m_data.setNull(true, variantDataType);
 }
 
-const char* VariantAdaptors::getBufferPtr() const
+string_view VariantAdaptors::getBufferPtr() const
 {
     if (isExternalBuffer())
     {
-        return static_cast<const char*>(m_data);
+        return {static_cast<const char*>(m_data), m_data.size()};
     }
-    return m_data.get<Buffer>().c_str();
+    auto& buffer = m_data.get<Buffer>();
+    return {buffer.c_str(), buffer.size()};
 }
 
 bool BaseVariant::isNull() const

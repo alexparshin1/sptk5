@@ -25,6 +25,7 @@
 */
 
 #include <cmath>
+#include <cstring>
 #include <iomanip>
 
 #include <sptk5/Field.h>
@@ -39,7 +40,7 @@ using namespace xdoc;
 TEST(SPTK_Variant, ctors)
 {
     constexpr auto testDoubleValue {2.22};
-    DateTime testDate("2018-02-01 09:11:14.345Z");
+    DateTime       testDate("2018-02-01 09:11:14.345Z");
 
     Variant v1(1);
     Variant v2(testDoubleValue);
@@ -58,8 +59,8 @@ TEST(SPTK_Variant, ctors)
 TEST(SPTK_Variant, copy_ctors)
 {
     constexpr double testDoubleValue {2.22};
-    DateTime testDate("2018-02-01 09:11:14.345Z");
-    const char* testString = "A test";
+    DateTime         testDate("2018-02-01 09:11:14.345Z");
+    const char*      testString = "A test";
 
     Variant v1(1);
     Variant v2(testDoubleValue);
@@ -93,7 +94,7 @@ TEST(SPTK_Variant, copy_ctors)
 
 TEST(SPTK_Variant, move_ctors)
 {
-    DateTime testDate("2018-02-01 09:11:14.345Z");
+    DateTime    testDate("2018-02-01 09:11:14.345Z");
     const char* testString = "A test";
 
     Variant v1(1);
@@ -278,11 +279,11 @@ TEST(SPTK_Variant, toString)
 
     Variant  v1(1);
     Variant  v2(2.22);
-    Variant v3("Test");
+    Variant  v3("Test");
     Variant  v4(testDate);
-    Variant v5;
+    Variant  v5;
     DateTime dt;
-    String dtStr;
+    String   dtStr;
 
     v5.setDateTime(testDate, true);
 
@@ -360,7 +361,7 @@ TEST(SPTK_Variant, setBuffer)
 
 TEST(SPTK_Variant, externalBuffer)
 {
-    Buffer externalBuffer("External Data");
+    Buffer  externalBuffer("External Data");
     Variant v;
     v.setExternalBuffer(externalBuffer.data(), externalBuffer.size(), VariantDataType::VAR_BUFFER);
     EXPECT_EQ(externalBuffer.c_str(), bit_cast<const char*>(v.getExternalBuffer()));
@@ -368,8 +369,8 @@ TEST(SPTK_Variant, externalBuffer)
 
 TEST(SPTK_Variant, json)
 {
-    constexpr int testInteger1 = 12345;
-    const char* json = R"({ "value": 12345 })";
+    constexpr int  testInteger1 = 12345;
+    const char*    json = R"({ "value": 12345 })";
     xdoc::Document document;
     document.load(json);
     const auto node = document.root()->findFirst("value");
@@ -393,15 +394,47 @@ TEST(SPTK_Variant, bool)
     EXPECT_TRUE(v2);
 
     const char* testString("Test");
-    Variant v3(bit_cast<const uint8_t*>(testString), 4);
+    Variant     v3(bit_cast<const uint8_t*>(testString), 4);
     v3.setBool(true);
     EXPECT_TRUE(v3);
+}
+
+TEST(SPTK_Variant, asBool_from_string)
+{
+    Variant v;
+    v = String("true");
+    EXPECT_TRUE(v.asBool());
+
+    v = String("false");
+    EXPECT_FALSE(v.asBool());
+
+    v = String("1");
+    EXPECT_TRUE(v.asBool());
+
+    v = String("0");
+    EXPECT_FALSE(v.asBool());
+}
+
+TEST(SPTK_Variant, asStringExternalString)
+{
+    auto externalText = "External";
+    Variant v;
+    v.setExternalBuffer(bit_cast<uint8_t*>(externalText), strlen(externalText), VariantDataType::VAR_STRING);
+    EXPECT_STREQ("External", v.asString().c_str());
+}
+
+TEST(SPTK_Variant, asInt64ExternalString)
+{
+    auto externalNumber = "12345";
+    Variant v;
+    v.setExternalBuffer(bit_cast<uint8_t*>(externalNumber), strlen(externalNumber), VariantDataType::VAR_STRING);
+    EXPECT_EQ(12345, v.asInt64());
 }
 
 TEST(SPTK_Variant, xml)
 {
     const char* xml = "<value>12345</value>";
-    xdoc::Document document;
+    Document    document;
     document.load(xml);
     const auto node = document.root()->findFirst("value");
 

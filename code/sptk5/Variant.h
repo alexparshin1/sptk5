@@ -381,8 +381,8 @@ protected:
     /**
      * Copies data from another CVariant
      */
-    void                      setData(const BaseVariant& other);
-    [[nodiscard]] const char* getBufferPtr() const;
+    void                           setData(const BaseVariant& other);
+    [[nodiscard]] std::string_view getBufferPtr() const;
 };
 
 /**
