@@ -31,8 +31,8 @@ using namespace std;
 using namespace sptk;
 
 SSLKeys::SSLKeys(filesystem::path privateKeyFileName, filesystem::path certificateFileName,
-                 String password, filesystem::path caFileName, int verifyMode,
-                 int verifyDepth)
+                 String password, filesystem::path caFileName, const int verifyMode,
+                 const int verifyDepth)
     : m_privateKeyFileName(std::move(privateKeyFileName))
     , m_certificateFileName(std::move(certificateFileName))
     , m_password(std::move(password))

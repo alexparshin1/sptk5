@@ -32,12 +32,12 @@
 
 namespace sptk {
 /**
- * @addtogroup net Networking Classes
+ * @addtogroup net Networking Classes.
  * @{
  */
 
 /**
- * Internal TCP server listener thread
+ * @brief Internal TCP server listener thread.
  */
 class TCPServerListener
     : public Thread
@@ -45,38 +45,38 @@ class TCPServerListener
 {
 public:
     /**
-     * Constructor
-     * @param server            TCP server created connection
-     * @param port              Listener port number
-     * @param connectionType    Connection type
-     * @param acceptThreadCount Number of accept threads
+     * @brief Constructor.
+     * @param server            TCP server created connection.
+     * @param port              Listener port number.
+     * @param connectionType    Connection type.
+     * @param acceptThreadCount Number of the acception threads.
      */
     TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
 
     ~TCPServerListener() override = default;
 
     /**
-     * Thread function
+     * @brief Thread function.
      */
     void threadFunction() override;
 
     /**
-     * Start socket listening
+     * @brief Start socket listening.
      */
     void listen();
 
     /**
-     * Returns listener port number
+     * @brief Returns listener port number.
      */
     uint16_t port() const;
 
     /**
-     * Returns latest socket error (if any)
+     * @brief Returns latest socket error (if any).
      */
     String error() const;
 
     /**
-     * Stop running listener and join its thread
+     * @brief Stop running listener and join its thread.
      */
     void stop();
 
@@ -100,7 +100,6 @@ private:
 };
 
 class TCPServer;
-
 
 /**
  * @}

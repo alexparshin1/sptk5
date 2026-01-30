@@ -40,7 +40,7 @@ SmtpConnect::SmtpConnect(Logger* log)
 constexpr int RSP_BLOCK_SIZE = 1024;
 constexpr int minErrorCode = 433;
 
-int SmtpConnect::getResponse(bool decode)
+int SmtpConnect::getResponse(const bool decode)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
     String longLine;
@@ -90,7 +90,7 @@ int SmtpConnect::getResponse(bool decode)
     return result;
 }
 
-void SmtpConnect::sendCommand(String cmd, bool encode)
+void SmtpConnect::sendCommand(String cmd, const bool encode)
 {
     if (!active())
     {
@@ -108,7 +108,7 @@ void SmtpConnect::sendCommand(String cmd, bool encode)
     write(bit_cast<const uint8_t*>(cmd.c_str()), static_cast<uint32_t>(cmd.length()));
 }
 
-int SmtpConnect::command(const String& cmd, bool encodeCommand, bool decodeResponse)
+int SmtpConnect::command(const String& cmd, const bool encodeCommand, const bool decodeResponse)
 {
     m_response.clear();
     if (!active())

@@ -38,15 +38,15 @@ using namespace std;
 
 namespace sptk {
 
-SocketVirtualMethods::SocketVirtualMethods(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+SocketVirtualMethods::SocketVirtualMethods(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int32_t protocol)
     : m_domain(domain)
     , m_type(type)
     , m_protocol(protocol)
 {
 }
 
-void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, OpenMode openMode,
-                                               const chrono::milliseconds& timeout, bool reusePort,
+void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const OpenMode openMode,
+                                               const chrono::milliseconds& timeout, const bool reusePort,
                                                const char* clientBindAddress)
 {
     const auto timeoutMS = static_cast<int>(timeout.count());
@@ -163,7 +163,7 @@ void SocketVirtualMethods::closeUnlocked()
     }
 }
 
-void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
+void SocketVirtualMethods::setBlockingModeUnlocked(const bool blockingMode)
 {
     static const String errorMessage("Can't set socket blockingMode mode");
 #ifdef _WIN32
@@ -201,7 +201,7 @@ void SocketVirtualMethods::setBlockingModeUnlocked(bool blockingMode)
 #define VALUE_TYPE(val) bit_cast<void*>((val))
 #endif
 
-void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) const
+void SocketVirtualMethods::setOptionUnlocked(const int level, const int option, int value) const
 {
     constexpr socklen_t optionLen = sizeof(int);
     if (setsockopt(m_socketFd, level, option, VALUE_TYPE(&value), optionLen) != 0)
@@ -210,7 +210,7 @@ void SocketVirtualMethods::setOptionUnlocked(int level, int option, int value) c
     }
 }
 
-void SocketVirtualMethods::getOptionUnlocked(int level, int option, int& value) const
+void SocketVirtualMethods::getOptionUnlocked(const int level, const int option, int& value) const
 {
     socklen_t len = sizeof(int);
     if (getsockopt(m_socketFd, level, option, VALUE_TYPE(&value), &len) != 0)
@@ -235,7 +235,7 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
     return bytes;
 }
 
-void SocketVirtualMethods::attachUnlocked(SocketType socketHandle, bool)
+void SocketVirtualMethods::attachUnlocked(const SocketType socketHandle, bool)
 {
     if (activeUnlocked())
     {
@@ -252,7 +252,7 @@ SocketType SocketVirtualMethods::detachUnlocked()
     return socketFd;
 }
 
-void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber, bool reusePort)
+void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t portNumber, const bool reusePort)
 {
     if (m_socketFd == INVALID_SOCKET)
     {
@@ -294,7 +294,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, uint32_t portNumber
     }
 }
 
-void SocketVirtualMethods::listenUnlocked(uint16_t portNumber, bool reusePort)
+void SocketVirtualMethods::listenUnlocked(const uint16_t portNumber, const bool reusePort)
 {
     if (portNumber != 0)
     {
@@ -414,7 +414,7 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
 #endif
 }
 
-size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
+size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
 {
 #ifdef _WIN32
     auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
@@ -432,7 +432,7 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, size_t len)
     return static_cast<size_t>(result);
 }
 
-size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
+size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, const size_t size, sockaddr_in* from)
 {
     if (size == 0)
     {
@@ -459,7 +459,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, size_t size, sockaddr
     return static_cast<size_t>(bytes);
 }
 
-size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
+size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, const size_t len)
 {
     while (true)
     {
@@ -474,8 +474,8 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, size_t len)
             {
                 throwSocketError("Socket is closed");
             }
-            auto error = getSocketError();
-            if (error == EAGAIN || error == EINTR || error == EINPROGRESS)
+            if (auto error = getSocketError();
+                error == EAGAIN || error == EINTR || error == EINPROGRESS)
             {
                 if (!readyToWriteUnlocked(10s))
                 {

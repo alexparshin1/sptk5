@@ -37,7 +37,7 @@ using namespace sptk;
 static constexpr int             oneKb(1024);
 static constexpr chrono::seconds thirtySeconds(30);
 
-HttpReader::HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode)
+HttpReader::HttpReader(TCPSocket& socket, Buffer& output, const ReadMode readMode)
     : SocketReader(socket)
     , m_readMode(readMode)
     , m_output(output)
@@ -172,7 +172,7 @@ void HttpReader::readHttpHeaders()
 }
 
 namespace {
-size_t readAndAppend(SocketReader& socketReader, Buffer& output, size_t bytesToRead)
+size_t readAndAppend(SocketReader& socketReader, Buffer& output, const size_t bytesToRead)
 {
     Buffer buffer(bytesToRead);
 

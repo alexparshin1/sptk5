@@ -37,7 +37,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
     return trim(step1.replace(" +", " "));
 }
 
-void MailMessageBody::text(const string& messageText, bool smtp)
+void MailMessageBody::text(const string& messageText, const bool smtp)
 {
     string msg(messageText);
     if (smtp)

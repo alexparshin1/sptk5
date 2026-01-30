@@ -48,7 +48,7 @@ void SSLContext::throwError(const String& humanDescription)
     throw Exception(humanDescription + "\n" + errorStr);
 }
 
-SSLContext::SSLContext(const String& cipherList, bool tlsOnly)
+SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
 {
     m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
                                 [this](SSL_CTX* context)
@@ -78,7 +78,7 @@ SSL_CTX* SSLContext::handle()
     return m_ctx.get();
 }
 
-int SSLContext::passwordReplyCallback(char* replyBuffer, int replySize, int /*rwflag*/, void* userdata)
+int SSLContext::passwordReplyCallback(char* replyBuffer, const int replySize, int /*rwflag*/, void* userdata)
 {
     snprintf(replyBuffer, static_cast<size_t>(replySize), "%s", bit_cast<char*>(userdata));
     replyBuffer[replySize - 1] = '\0';

@@ -38,7 +38,7 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SocketType HttpProxy::connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout)
+SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, const std::chrono::milliseconds& timeout)
 {
     auto socket = make_shared<TCPSocket>();
 

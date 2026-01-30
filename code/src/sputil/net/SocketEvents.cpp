@@ -33,7 +33,7 @@ using namespace sptk;
 using namespace chrono;
 
 SocketEvents::SocketEvents(const String& name, const SocketEventCallback& eventsCallback, const chrono::milliseconds& timeout,
-                           SocketPool::TriggerMode triggerMode, size_t maxEvents)
+                           const SocketPool::TriggerMode triggerMode, const size_t maxEvents)
     : SocketPool(eventsCallback, triggerMode, maxEvents)
     , Thread(name)
     , m_timeout(timeout)

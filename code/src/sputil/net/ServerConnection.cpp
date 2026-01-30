@@ -70,7 +70,7 @@ TCPServer& ServerConnection::server() const
     return m_server;
 }
 
-ServerConnection::ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress)
+ServerConnection::ServerConnection(TCPServer& server, const Type type, const sockaddr_in* connectionAddress)
     : m_server(server)
     , m_serial(nextSerial())
     , m_type(type)

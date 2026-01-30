@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-int hexCharToInt(unsigned char character)
+int hexCharToInt(const unsigned char character)
 {
     if (character > '@')
     {

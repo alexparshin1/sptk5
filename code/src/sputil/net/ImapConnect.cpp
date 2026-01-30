@@ -302,7 +302,7 @@ DateTime decodeDate(const String& dt)
 }
 } // namespace
 
-void ImapConnect::parseMessage(FieldList& results, bool headers_only)
+void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
 {
     results.clear();
     bool first = true;
@@ -378,19 +378,19 @@ void ImapConnect::parseMessage(FieldList& results, bool headers_only)
     bodyField.setString(body);
 }
 
-void ImapConnect::cmd_fetch_headers(int32_t msg_id, FieldList& result)
+void ImapConnect::cmd_fetch_headers(const int32_t msg_id, FieldList& result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[HEADER])");
     parseMessage(result, true);
 }
 
-void ImapConnect::cmd_fetch_message(int32_t msg_id, FieldList& result)
+void ImapConnect::cmd_fetch_message(const int32_t msg_id, FieldList& result)
 {
     command("FETCH " + int2string(msg_id) + " (BODY[])");
     parseMessage(result, false);
 }
 
-String ImapConnect::cmd_fetch_flags(int32_t msg_id)
+String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 {
     String result;
     command("FETCH " + int2string(msg_id) + " (FLAGS)");
@@ -417,7 +417,7 @@ String ImapConnect::cmd_fetch_flags(int32_t msg_id)
     return result;
 }
 
-void ImapConnect::cmd_store_flags(int32_t msg_id, const char* flags)
+void ImapConnect::cmd_store_flags(const int32_t msg_id, const char* flags)
 {
     command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
 }
@@ -461,7 +461,7 @@ void ImapConnect::parseFolderList()
     m_response = folder_names;
 }
 
-void ImapConnect::cmd_list(const String& mail_box_mask, bool decode)
+void ImapConnect::cmd_list(const String& mail_box_mask, const bool decode)
 {
     command("list", empty_quotes, mail_box_mask);
     if (decode)

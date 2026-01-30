@@ -73,7 +73,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::add(Socket& socket, const uint8_t* userData, bool rearmOneShot)
+void SocketPool::add(Socket& socket, const uint8_t* userData, const bool rearmOneShot)
 {
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
@@ -142,7 +142,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
     return true;
 }
 
-void SocketPool::processError(int error, const String& operation) const
+void SocketPool::processError(const int error, const String& operation) const
 {
     switch (error)
     {

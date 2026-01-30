@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-void TCPSocket::handleReadFromSocketErrorUnlocked(int error)
+void TCPSocket::handleReadFromSocketErrorUnlocked(const int error)
 {
     if (error == EAGAIN)
     {
@@ -45,7 +45,7 @@ void TCPSocket::handleReadFromSocketErrorUnlocked(int error)
     }
 }
 
-TCPSocket::TCPSocket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+TCPSocket::TCPSocket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int32_t protocol)
     : Socket(domain, type, protocol)
 {
 }
@@ -55,7 +55,7 @@ TCPSocket::~TCPSocket()
     TCPSocket::close();
 }
 
-void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockingMode,
+void TCPSocket::openUnlocked(const Host& _host, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeout, const char* clientBindAddress)
 {
     if (!_host.hostname().empty())
@@ -82,7 +82,7 @@ void TCPSocket::openUnlocked(const Host& _host, OpenMode openMode, bool _blockin
     }
 }
 
-void TCPSocket::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool _blockingMode,
+void TCPSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeoutMS, const char* clientBindAddress)
 {
     openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
@@ -118,7 +118,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     return false;
 }
 
-size_t TCPSocket::readUnlocked(uint8_t* destination, size_t size, sockaddr_in*)
+size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr_in*)
 {
     int receivedBytes;
     int error = 0;

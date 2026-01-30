@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-SocketReader::SocketReader(TCPSocket& socket, size_t bufferSize)
+SocketReader::SocketReader(TCPSocket& socket, const size_t bufferSize)
     : m_socket(socket)
     , m_buffer(bufferSize)
 {
@@ -58,7 +58,7 @@ void SocketReader::close()
     }
 }
 
-void SocketReader::handleReadFromSocketError(int error)
+void SocketReader::handleReadFromSocketError(const int error)
 {
     if (error == EAGAIN)
     {
@@ -103,7 +103,7 @@ size_t SocketReader::readFromSocket()
 
 static constexpr size_t readBytesLWM {128};
 
-void SocketReader::readMoreFromSocket(size_t availableBytes)
+void SocketReader::readMoreFromSocket(const size_t availableBytes)
 {
     if (m_readOffset != 0)
     {
@@ -120,7 +120,7 @@ void SocketReader::readMoreFromSocket(size_t availableBytes)
     m_buffer.bytes(m_buffer.bytes() + receivedBytes);
 }
 
-size_t SocketReader::bufferedRead(uint8_t* destination, size_t size)
+size_t SocketReader::bufferedRead(uint8_t* destination, const size_t size)
 {
     auto availableBytes = m_buffer.bytes() - m_readOffset;
     auto bytesToRead = size;
@@ -155,7 +155,7 @@ size_t SocketReader::bufferedRead(uint8_t* destination, size_t size)
     return bytesToRead;
 }
 
-int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char delimiter)
+int32_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, const char delimiter)
 {
     auto availableBytes = m_buffer.bytes() - m_readOffset;
     auto bytesToRead = size;
@@ -227,7 +227,7 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, size_t size, char d
     return eol ? -static_cast<int>(bytesToRead) : static_cast<int>(bytesToRead);
 }
 
-size_t SocketReader::read(uint8_t* destination, size_t size)
+size_t SocketReader::read(uint8_t* destination, const size_t size)
 {
     size_t totalReceived = 0;
 
@@ -248,7 +248,7 @@ size_t SocketReader::read(uint8_t* destination, size_t size)
     return totalReceived;
 }
 
-size_t SocketReader::readLine(uint8_t* destination, size_t size, char delimiter)
+size_t SocketReader::readLine(uint8_t* destination, const size_t size, const char delimiter)
 {
     int total = 0;
     int eol = 0;
@@ -291,7 +291,7 @@ size_t SocketReader::availableBytes() const
     return available;
 }
 
-[[maybe_unused]] bool SocketReader::canRead(size_t bytesToRead) const
+[[maybe_unused]] bool SocketReader::canRead(const size_t bytesToRead) const
 {
     scoped_lock const lock(m_mutex);
 
@@ -317,7 +317,7 @@ bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
     return m_socket.readyToRead(timeout);
 }
 
-size_t SocketReader::read(Buffer& destinationBuffer, size_t size)
+size_t SocketReader::read(Buffer& destinationBuffer, const size_t size)
 {
     scoped_lock const lock(m_mutex);
     destinationBuffer.checkSize(size);
@@ -326,7 +326,7 @@ size_t SocketReader::read(Buffer& destinationBuffer, size_t size)
     return bytes;
 }
 
-size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
+size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
 {
     scoped_lock const lock(m_mutex);
     size_t            total = 0;
@@ -367,7 +367,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, char delimiter)
     return destinationBuffer.bytes();
 }
 
-size_t SocketReader::readLine(String& destinationBuffer, char delimiter)
+size_t SocketReader::readLine(String& destinationBuffer, const char delimiter)
 {
     Buffer     buffer;
     const auto bytes = readLine(buffer, delimiter);

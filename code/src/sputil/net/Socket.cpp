@@ -59,7 +59,7 @@ void Socket::cleanup() noexcept
 #endif
 
 // Constructor
-Socket::Socket(SOCKET_ADDRESS_FAMILY domain, int32_t type, int32_t protocol)
+Socket::Socket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int32_t protocol)
     : SocketVirtualMethods(domain, type, protocol)
 {
 #ifdef _WIN32
@@ -72,7 +72,7 @@ Socket::~Socket()
     Socket::close();
 }
 
-size_t Socket::read(Buffer& buffer, size_t size, sockaddr_in* from)
+size_t Socket::read(Buffer& buffer, const size_t size, sockaddr_in* from)
 {
     buffer.checkSize(size);
     const size_t bytes = readUnlocked(buffer.data(), size, from);
@@ -81,7 +81,7 @@ size_t Socket::read(Buffer& buffer, size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t Socket::read(String& buffer, size_t size, sockaddr_in* from)
+size_t Socket::read(String& buffer, const size_t size, sockaddr_in* from)
 {
     buffer.resize(size);
     const size_t bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);

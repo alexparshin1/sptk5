@@ -30,13 +30,13 @@
 using namespace std;
 using namespace sptk;
 
-UDPSocket::UDPSocket(SOCKET_ADDRESS_FAMILY _domain)
+UDPSocket::UDPSocket(const SOCKET_ADDRESS_FAMILY _domain)
     : Socket(_domain, SOCK_DGRAM)
 {
     setSocketFdUnlocked(socket(domain(), type(), protocol()));
 }
 
-size_t UDPSocket::readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from)
+size_t UDPSocket::readUnlocked(uint8_t* buffer, const size_t size, sockaddr_in* from)
 {
     sockaddr_in6 addr {};
     if (from == nullptr)

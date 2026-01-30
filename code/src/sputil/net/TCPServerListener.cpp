@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType, size_t acceptThreadCount)
+TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType, const size_t acceptThreadCount)
     : Thread("CTCPServer::Listener")
     , m_server(server)
     , m_connectionType(connectionType)
@@ -81,11 +81,11 @@ bool TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
 {
     try
     {
-        SocketType  connectionFD {0};
         sockaddr_in connectionInfo = {};
-        if (m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
+        if (SocketType connectionFD {0};
+            m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
-            CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};
+            const CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};
             m_createConnectionQueue.push_back(createConnectionItem);
             return true;
         }
