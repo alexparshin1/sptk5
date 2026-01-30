@@ -48,7 +48,7 @@ void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSp
 } // namespace
 
 void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
-                              HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+                              HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
 {
     try
     {
@@ -137,7 +137,7 @@ xdoc::SNode WSRequest::findSoapBody(const xdoc::SNode& soapEnvelope, const WSNam
 }
 
 void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
-                               HttpAuthentication* authentication, String& requestName)
+                               HttpAuthenticationTests* authentication, String& requestName)
 {
     WSNameSpace requestNameSpace;
 

@@ -197,25 +197,21 @@ void JWT::write_head(std::ostream& output, const bool pretty) const
      * -- draft-ietf-oauth-json-web-token-32 #6. */
     if (alg != Algorithm::NONE)
     {
-        map<string, string> headers {
-            {"typ", "JWT"},
-        };
-        for (const auto& [header, value]: headers)
+        if (pretty)
         {
-            if (pretty)
-            {
-                output << "    ";
-            }
-            output << "\"" << header << "\":";
-            if (pretty)
-            {
-                output << " ";
-            }
-            output << "\"" << value << "\",";
-            if (pretty)
-            {
-                output << std::endl;
-            }
+            output << "    ";
+        }
+
+        output << "\"typ\":";
+        if (pretty)
+        {
+            output << " ";
+        }
+        output << "\"JWT\",";
+
+        if (pretty)
+        {
+            output << std::endl;
         }
     }
 
@@ -454,8 +450,6 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
     if (jwt->alg != JWT::Algorithm::NONE)
     {
-        jwt->key = JWT::get_js_string(node, "key");
-
         /* If alg is not NONE, there may be a typ. */
         val = JWT::get_js_string(node, "typ");
         if (!val.empty() && val != "JWT")

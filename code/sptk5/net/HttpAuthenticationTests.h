@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/JWT.h>
+#include <sptk5/JWTTests.h>
 #include <sptk5/Strings.h>
 
 namespace sptk {
@@ -37,7 +37,7 @@ namespace sptk {
  * Only Basic and Bearer authentication types are currently supported.
  * The data is parsed upon first getData() call.
  */
-class SP_EXPORT HttpAuthentication
+class SP_EXPORT HttpAuthenticationTests
 {
 public:
     /**
@@ -59,13 +59,13 @@ public:
      * Constructor
      * @param authenticationHeader  Authentication HTTP header content
      */
-    explicit HttpAuthentication(String authenticationHeader);
+    explicit HttpAuthenticationTests(String authenticationHeader);
 
     /**
      * Copy constructor
      * @param authenticationHeader  Authentication HTTP header content
      */
-    explicit HttpAuthentication(const HttpAuthentication& other) = default;
+    HttpAuthenticationTests(const HttpAuthenticationTests& other) = default;
 
     /**
      * Get decoded authentication data (username and password, or JWT)
@@ -85,10 +85,10 @@ public:
     Type type();
 
 private:
-    Type                 m_type {Type::UNDEFINED}; ///< Authentication data type
-    const String         m_authenticationHeader;   ///< Authentication data
-    std::shared_ptr<JWT> m_jwtData;                ///< JWT token, if type is BEARER
-    xdoc::SDocument      m_userData;               ///< Decoded user data
+    Type                      m_type {Type::UNDEFINED}; ///< Authentication data type
+    String                    m_authenticationHeader;   ///< Authentication data
+    std::shared_ptr<JWTTests> m_jwtData;                ///< JWT token, if type is BEARER
+    xdoc::SDocument           m_userData;               ///< Decoded user data
 
     /**
      * Decode authentication data (username and password, or JWT)
@@ -96,6 +96,6 @@ private:
     void parse();
 };
 
-using SHttpAuthentication = std::shared_ptr<HttpAuthentication>;
+using SHttpAuthentication = std::shared_ptr<HttpAuthenticationTests>;
 
 } // namespace sptk

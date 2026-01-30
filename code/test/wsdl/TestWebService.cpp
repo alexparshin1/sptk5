@@ -43,7 +43,7 @@ using namespace xdoc;
 
 shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 
-void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
+void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthenticationTests*)
 {
     if (input.m_action.asString() != "view")
     {
@@ -70,7 +70,7 @@ static const String jwtEncryptionKey256("012345678901234567890123456789XY");
  * WS method that takes username and password and returns Java Web Token (JWT).
  * After calling this method, we use JWT token *instead* of the username and password.
  */
-void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication*)
+void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthenticationTests*)
 {
     constexpr int secondsInDay = 86400;
 
@@ -80,8 +80,8 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
         throw Exception("Invalid username or password");
     }
 
-    JWT jwt;
-    jwt.set_alg(JWT::Algorithm::HS256, jwtEncryptionKey256);
+    JWTTests jwt;
+    jwt.set_alg(JWTTests::Algorithm::HS256, jwtEncryptionKey256);
 
     jwt.set("iat", static_cast<int>(time(nullptr)));                // JWT issue time
     jwt.set("iss", "http://test.com");                              // JWT issuer
@@ -102,7 +102,7 @@ void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::Ht
 }
 
 void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output,
-                                    sptk::HttpAuthentication* authentication)
+                                    sptk::HttpAuthenticationTests* authentication)
 {
     static constexpr double testAmount = 12345.67;
     if (authentication == nullptr)
@@ -313,7 +313,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
                         responseNode->getString("jwt"));
 
                     // Decode JWT content
-                    JWT jwt;
+                    JWTTests jwt;
                     jwt.decode(TestWebService::jwtAuthorization->value().c_str(), jwtEncryptionKey256);
 
                     // Get username from "info" node
@@ -360,7 +360,7 @@ TEST(SPTK_TestWebService, Login)
     CLoginResponse response;
     service.Login(hello, response, nullptr);
 
-    JWT jwt;
+    JWTTests jwt;
     jwt.decode(response.m_jwt.getString(), jwtEncryptionKey256);
 
     auto info = jwt.grants.root()->findFirst("info");

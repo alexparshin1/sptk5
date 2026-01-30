@@ -47,7 +47,7 @@ protected:
     WSServices& m_services;
     const URL   m_url;
 
-    virtual std::shared_ptr<HttpAuthentication> getAuthentication() = 0;
+    virtual std::shared_ptr<HttpAuthenticationTests> getAuthentication() = 0;
 
     virtual void generateFault(Buffer& output, HttpResponseStatus& httpStatus, String& contentType,
                                const HTTPException& e, bool jsonOutput) const = 0;

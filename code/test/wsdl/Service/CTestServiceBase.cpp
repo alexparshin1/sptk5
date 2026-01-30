@@ -15,19 +15,19 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
     map<String, RequestMethod> requestMethods {
 
         {"AccountBalance", 
-            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
             {
                 process_AccountBalance(xmlNode, jsonNode, authentication, requestNameSpace);
             }},
 
         {"Hello", 
-            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
             {
                 process_Hello(xmlNode, jsonNode, authentication, requestNameSpace);
             }},
 
         {"Login", 
-            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+            [this](const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
             {
                 process_Login(xmlNode, jsonNode, authentication, requestNameSpace);
             }}
@@ -38,8 +38,8 @@ CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
 
 
 template <class InputData, class OutputData>
-void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace,
-                       function<void(const InputData& input, OutputData& output, HttpAuthentication* authentication)>& method)
+void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace,
+                       function<void(const InputData& input, OutputData& output, HttpAuthenticationTests* authentication)>& method)
 {
    const String requestName = InputData::classId();
    const String responseName = OutputData::classId();
@@ -68,8 +68,8 @@ void processAnyRequest(const xdoc::SNode& requestNode, HttpAuthentication* authe
 }
 
 template <class InputData, class OutputData>
-void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentication,
-                       const function<void(const InputData&, OutputData&, HttpAuthentication*)>& method)
+void processAnyRequest(const xdoc::SNode& request, HttpAuthenticationTests* authentication,
+                       const function<void(const InputData&, OutputData&, HttpAuthenticationTests*)>& method)
 {
    InputData inputData;
    OutputData outputData;
@@ -87,10 +87,10 @@ void processAnyRequest(const xdoc::SNode& request, HttpAuthentication* authentic
 }
 
 
-void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthentication*)> method =
-        [this](const CAccountBalance& request, CAccountBalanceResponse& response, HttpAuthentication* auth)
+    function<void(const CAccountBalance&, CAccountBalanceResponse&, HttpAuthenticationTests*)> method =
+        [this](const CAccountBalance& request, CAccountBalanceResponse& response, HttpAuthenticationTests* auth)
         {
             AccountBalance(request, response, auth);
         };
@@ -101,10 +101,10 @@ void CTestServiceBase::process_AccountBalance(const xdoc::SNode& xmlNode, const 
         processAnyRequest<CAccountBalance,CAccountBalanceResponse>(jsonNode, authentication, method);
 }
 
-void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CHello&, CHelloResponse&, HttpAuthentication*)> method =
-        [this](const CHello& request, CHelloResponse& response, HttpAuthentication* auth)
+    function<void(const CHello&, CHelloResponse&, HttpAuthenticationTests*)> method =
+        [this](const CHello& request, CHelloResponse& response, HttpAuthenticationTests* auth)
         {
             Hello(request, response, auth);
         };
@@ -115,10 +115,10 @@ void CTestServiceBase::process_Hello(const xdoc::SNode& xmlNode, const xdoc::SNo
         processAnyRequest<CHello,CHelloResponse>(jsonNode, authentication, method);
 }
 
-void CTestServiceBase::process_Login(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthentication* authentication, const WSNameSpace& requestNameSpace)
+void CTestServiceBase::process_Login(const xdoc::SNode& xmlNode, const xdoc::SNode& jsonNode, HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace)
 {
-    function<void(const CLogin&, CLoginResponse&, HttpAuthentication*)> method =
-        [this](const CLogin& request, CLoginResponse& response, HttpAuthentication* auth)
+    function<void(const CLogin&, CLoginResponse&, HttpAuthenticationTests*)> method =
+        [this](const CLogin& request, CLoginResponse& response, HttpAuthenticationTests* auth)
         {
             Login(request, response, auth);
         };

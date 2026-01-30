@@ -36,7 +36,7 @@
 #include <openssl/hmac.h>
 #include <openssl/pem.h>
 
-#include <sptk5/JWT.h>
+#include <sptk5/JWTTests.h>
 
 using namespace std;
 using namespace sptk;
@@ -71,7 +71,7 @@ static int ECDSA_SIG_set0(ECDSA_SIG* sig, BIGNUM* r, BIGNUM* s)
 
 namespace sptk {
 
-void JWT::sign_sha_hmac(Buffer& out, const char* str) const
+void JWTTests::sign_sha_hmac(Buffer& out, const char* str) const
 {
     const EVP_MD* algorithm;
 
@@ -101,7 +101,7 @@ void JWT::sign_sha_hmac(Buffer& out, const char* str) const
     out.bytes(len);
 }
 
-void JWT::verify_sha_hmac(const char* head, const char* sig) const
+void JWTTests::verify_sha_hmac(const char* head, const char* sig) const
 {
     array<unsigned char, EVP_MAX_MD_SIZE> res {};
     unsigned int                          res_len = 0;
@@ -181,12 +181,12 @@ void JWT::verify_sha_hmac(const char* head, const char* sig) const
     throw Exception("Can't allocate memory");
 }
 
-static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
+static const EVP_MD* signAlgorithm(const JWTTests::Algorithm alg, int& type)
 {
     const EVP_MD* algorithm = nullptr;
     switch (alg)
     {
-        using enum JWT::Algorithm;
+        using enum JWTTests::Algorithm;
         /* RSA */
         case RS256:
             algorithm = EVP_sha256();
@@ -222,7 +222,7 @@ static const EVP_MD* signAlgorithm(const JWT::Algorithm alg, int& type)
     return algorithm;
 }
 
-void JWT::sign_sha_pem(Buffer& out, const char* str) const
+void JWTTests::sign_sha_pem(Buffer& out, const char* str) const
 {
     EVP_MD_CTX*   mdctx = nullptr;
     ECDSA_SIG*    ec_sig = nullptr;
@@ -397,13 +397,13 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
     throw Exception("Can't allocate memory");
 }
 
-static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
+static const EVP_MD* getAlgorithm(JWTTests::Algorithm alg, int& type)
 {
     const EVP_MD* algorithm = nullptr;
 
     switch (alg)
     {
-        using enum JWT::Algorithm;
+        using enum JWTTests::Algorithm;
         /* RSA */
         case RS256:
             algorithm = EVP_sha256();
@@ -439,7 +439,7 @@ static const EVP_MD* getAlgorithm(JWT::Algorithm alg, int& type)
     return algorithm;
 }
 
-void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
+void JWTTests::verify_sha_pem(const char* head, const char* sig_b64) const
 {
     EVP_MD_CTX* mdctx = nullptr;
     ECDSA_SIG*  ec_sig = nullptr;
