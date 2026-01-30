@@ -199,14 +199,14 @@ void JWT::write_head(std::ostream& output, const bool pretty) const
     {
         map<string, string> headers {
             {"typ", "JWT"},
-            {"key", key}};
-        for (const auto& [key, value]: headers)
+        };
+        for (const auto& [header, value]: headers)
         {
             if (pretty)
             {
                 output << "    ";
             }
-            output << "\"" << key << "\":";
+            output << "\"" << header << "\":";
             if (pretty)
             {
                 output << " ";
@@ -462,11 +462,6 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
         {
             throw Exception("Invalid algorithm name");
         }
-
-        if (jwt->key.empty())
-        {
-            throw Exception("No key provided.");
-        }
     }
     else
     {
@@ -504,7 +499,7 @@ void JWT::decode(const char* token, const String& _key)
         ++index;
     }
 
-    if (parts.size() < 3 || parts[1].data == nullptr)
+    if (index < 2)
     {
         throw Exception("Invalid JWT data");
     }
@@ -524,8 +519,8 @@ void JWT::decode(const char* token, const String& _key)
     jwt_verify_head(this, head);
     jwt_parse_body(this, body);
 
-    // Check the signature, if needed.
-    if (this->alg != Algorithm::NONE)
+    // Check the signature, if key is provided.
+    if (this->alg != Algorithm::NONE && !key.empty())
     {
         // Re-add this since it's part of the verified data.
         head.append('.');

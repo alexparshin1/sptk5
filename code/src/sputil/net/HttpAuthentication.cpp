@@ -68,7 +68,7 @@ void HttpAuthentication::parse()
         else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
         {
             constexpr auto basicLength = 6;
-            const Buffer   encoded(m_authenticationHeader.substr(basicLength));
+            const Buffer   encoded(trim(m_authenticationHeader.substr(basicLength)));
             Buffer         decoded;
             Base64::decode(decoded, encoded);
             Strings usernameAndPassword(decoded.c_str(), ":");
@@ -82,20 +82,17 @@ void HttpAuthentication::parse()
             m_userData = aUserData;
             m_type = Type::BASIC;
         }
+        else if (m_authenticationHeader.toLowerCase().startsWith("bearer "))
+        {
+            constexpr auto bearerLength = 6;
+            const auto     aJwtData = make_shared<JWT>();
+            aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
+            m_jwtData = aJwtData;
+            m_type = Type::BEARER;
+        }
         else
         {
-            if (m_authenticationHeader.length() > 7)
-            {
-                constexpr auto bearerLength = 6;
-                if (const String authMethod = m_authenticationHeader.substr(0, bearerLength);
-                    authMethod.toLowerCase() == "bearer")
-                {
-                    const auto aJwtData = make_shared<JWT>();
-                    aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
-                    m_jwtData = aJwtData;
-                    m_type = Type::BEARER;
-                }
-            }
+            throw Exception("Invalid or unsupported 'Authentication' header format");
         }
     }
 }
