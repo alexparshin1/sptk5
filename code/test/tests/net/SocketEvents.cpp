@@ -57,7 +57,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
         // the current event is processed in another thread.
         // In this test, the event is processed in the same thread, but we still want to test
         // that removing and re-adding the socket works properly.
-        // Note that removing socket is not required for OneShot trigger mode.
+        // Note that removing the socket is not required for OneShot trigger mode.
         if (triggerMode != SocketPool::TriggerMode::OneShot)
         {
             socketEvents->remove(*socket);
@@ -65,7 +65,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
 
         if (eventType.m_data)
         {
-            if (const auto bytes = socket->socketBytes(); 
+            if (const auto bytes = socket->socketBytes();
                 bytes > 0)
             {
                 String data;
@@ -134,7 +134,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 
 #ifndef _WIN32
 /**
- * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
+ * @brief Test SocketEvents communication with the echo server using EdgeTriggered mode
  * @remarks The event count must show the events coming upon new data arrival to client's socket
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
@@ -144,8 +144,8 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 #endif
 
 /**
- * @brief Test SocketEvents communication with echo server using EdgeTriggered mode
- * @remarks The event count must show the event is triggered once data becomes available in client's socket
+ * @brief Test SocketEvents communication with the echo server using EdgeTriggered mode
+ * @remarks The event count must show the event is triggered once data becomes available in the client's socket
  */
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
