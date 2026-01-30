@@ -27,21 +27,20 @@
 #pragma once
 
 #include <sptk5/JWT.h>
-#include <sptk5/Strings.h>
 
 namespace sptk {
 
 /**
- * HTTP authentication data, that is passed through
+ * @brief HTTP authentication data that is passed through.
  * Authentication header of HTTP request.
  * Only Basic and Bearer authentication types are currently supported.
- * The data is parsed upon first getData() call.
+ * The data is parsed upon the first getData() call.
  */
 class SP_EXPORT HttpAuthentication
 {
 public:
     /**
-     * HTTP authentication type
+     * @brief HTTP authentication type.
      */
     enum class Type : uint8_t
     {
@@ -56,42 +55,42 @@ public:
     };
 
     /**
-     * Constructor
-     * @param authenticationHeader  Authentication HTTP header content
+     * @brief Constructor.
+     * @param authenticationHeader  Authentication HTTP header content.
      */
     explicit HttpAuthentication(String authenticationHeader);
 
     /**
-     * Copy constructor
-     * @param authenticationHeader  Authentication HTTP header content
+     * @brief Copy constructor.
+     * @param other                 Another authentication HTTP header.
      */
     HttpAuthentication(const HttpAuthentication& other) = default;
 
     /**
-     * Get decoded authentication data (username and password, or JWT)
-     * @return authentication data
+     * @brief Get decoded authentication data (username and password, or JWT).
+     * @return authentication data.
      */
-    String getHeader() const;
+    [[nodiscard]] String getHeader() const;
 
     /**
-     * Get decoded authentication data (username and password, or JWT)
-     * @return authentication data
+     * @brief Get decoded authentication data (username and password, or JWT).
+     * @return authentication data.
      */
-    const xdoc::SNode& getData();
+    [[nodiscard]] const xdoc::SNode& getData();
 
     /**
-     * Get authentication data type
+     * @brief Get authentication data type.
      */
-    Type type();
+    [[nodiscard]] Type type();
 
 private:
     Type                 m_type {Type::UNDEFINED}; ///< Authentication data type
     String               m_authenticationHeader;   ///< Authentication data
-    std::shared_ptr<JWT> m_jwtData;                ///< JWT token, if type is BEARER
+    std::shared_ptr<JWT> m_jwtData;                ///< JWT token, if the type is BEARER
     xdoc::SDocument      m_userData;               ///< Decoded user data
 
     /**
-     * Decode authentication data (username and password, or JWT)
+     * @brief Decode authentication data (username and password, or JWT).
      */
     void parse();
 };
