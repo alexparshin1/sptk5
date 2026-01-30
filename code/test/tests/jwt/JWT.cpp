@@ -35,6 +35,27 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+
+JWT makeTestJwt(JWT::Algorithm alg, const String& key)
+{
+    JWT jwt;
+    jwt.set_alg(alg, key);
+
+    constexpr auto secondsInDay = 86400;
+    jwt.set("iat", static_cast<int>(time(nullptr)));
+    jwt.set("iss", "https://test.com");
+    jwt.set("exp", static_cast<int>(time(nullptr)) + secondsInDay);
+
+    const auto& info = jwt.grants.root()->pushNode("info");
+    info->set("company", "Linotex");
+    info->set("city", "Melbourne");
+
+    return jwt;
+}
+
+} // namespace
+
 TEST(SPTK_JWT, dup)
 {
     time_t now = 0;
@@ -157,50 +178,46 @@ TEST(SPTK_JWT, decode_invalid_body)
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
-
 TEST(SPTK_JWT, decode_hs256)
 {
-    const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3Mi"
-                        "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
-                        "Q.dLFbrHVViu1e3VD1yeCd9aaLNed-bfXhSsF0Gh56fBg";
-
     const String key256("012345678901234567890123456789XY");
 
-    const auto jwt = make_shared<JWT>();
-    EXPECT_NO_THROW(jwt->decode(token, key256)) << "Failed jwt_decode()";
+    JWT jwt = makeTestJwt(JWT::Algorithm::HS256, key256);
+
+    stringstream tokenStream;
+    jwt.encode(tokenStream);
+
+    EXPECT_NO_THROW(jwt.decode(tokenStream.str().c_str(), key256)) << "Failed jwt_decode()";
 }
 
 
 TEST(SPTK_JWT, decode_hs384)
 {
-    const char*  token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
-                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
-                         "3ViIjoidXNlcjAifQ.xqea3OVgPEMxsCgyikr"
-                         "R3gGv4H2yqMyXMm7xhOlQWpA-NpT6n2a1d7TD"
-                         "GgU6LOe4";
     const String key384("aaaabbbbccccddddeeeeffffg"
                         "ggghhhhiiiijjjjkkkkllll");
 
-    const auto jwt = make_shared<JWT>();
-    EXPECT_NO_THROW(jwt->decode(token, key384)) << "Failed jwt_decode()";
+    JWT jwt = makeTestJwt(JWT::Algorithm::HS384, key384);
+
+    stringstream tokenStream;
+    jwt.encode(tokenStream);
+
+    EXPECT_NO_THROW(jwt.decode(tokenStream.str().c_str(), key384)) << "Failed jwt_decode()";
 }
 
 
 TEST(SPTK_JWT, decode_hs512)
 {
-    const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJpc3Mi"
-                        "OiJmaWxlcy5jeXBocmUuY29tIiwic3ViIjoidXNlcjAif"
-                        "Q.u-4XQB1xlYV8SgAnKBof8fOWOtfyNtc1ytTlc_vHo0U"
-                        "lh5uGT238te6kSacnVzBbC6qwzVMT1806oa1Y8_8EOg";
-
     const String key512("012345678901234567890123456789XY"
                         "012345678901234567890123456789XY");
 
-    const auto jwt = make_shared<JWT>();
+    JWT jwt = makeTestJwt(JWT::Algorithm::HS512, key512);
+
+    stringstream tokenStream;
+    jwt.encode(tokenStream);
 
     try
     {
-        jwt->decode(token, key512);
+        jwt.decode(tokenStream.str().c_str(), key512);
     }
     catch (const Exception& e)
     {
@@ -212,17 +229,7 @@ TEST(SPTK_JWT, encode_hs256_decode)
 {
     const String key256("012345678901234567890123456789XY");
 
-    JWT jwt;
-    jwt.set_alg(JWT::Algorithm::HS256, key256);
-
-    constexpr int secondsInDay = 86400;
-    jwt.set("iat", static_cast<int>(time(nullptr)));
-    jwt.set("iss", "https://test.com");
-    jwt.set("exp", static_cast<int>(time(nullptr)) + secondsInDay);
-
-    const auto& info = jwt.grants.root()->pushNode("info");
-    info->set("company", "Linotex");
-    info->set("city", "Melbourne");
+    JWT jwt = makeTestJwt(JWT::Algorithm::HS256, key256);
 
     stringstream originalToken;
     jwt.encode(originalToken);
