@@ -25,6 +25,9 @@
 */
 
 #include "sptk5/net/CachedSSLContext.h"
+
+#include "sptk5/md5.h"
+
 #include <sptk5/Buffer.h>
 
 using namespace std;
@@ -35,23 +38,23 @@ CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList, bool tlsOnly)
 {
-    const String ident = keys.ident() + (tlsOnly ? "-tls" : "-tls,ssl");
+    const String ident = keys.ident() + (tlsOnly ? "-tls-" : "-tls,ssl-") + md5(cipherList);
     {
         const shared_lock lock(m_mutex);
         if (m_contexts.contains(ident))
         {
-            return m_contexts[ident];
+            auto it = m_contexts.find(ident);
+            if (it != m_contexts.end())
+            {
+                return it->second;
+            }
         }
     }
 
     const unique_lock lock(m_mutex);
 
-    SharedSSLContext context = m_contexts[ident];
-    if (!context)
-    {
-        context = make_shared<SSLContext>(cipherList, tlsOnly);
-        m_contexts[ident] = context;
-    }
+    SharedSSLContext context = make_shared<SSLContext>(cipherList, tlsOnly);
+    m_contexts[ident] = context;
 
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
     {

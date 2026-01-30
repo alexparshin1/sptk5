@@ -24,100 +24,44 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/net/SSLKeys.h"
-#include <sptk5/Buffer.h>
+#include <gtest/gtest.h>
+#include <sptk5/net/CachedSSLContext.h>
 
 using namespace std;
 using namespace sptk;
 
-SSLKeys::SSLKeys(filesystem::path privateKeyFileName, filesystem::path certificateFileName,
-                 String password, filesystem::path caFileName, int verifyMode,
-                 int verifyDepth)
-    : m_privateKeyFileName(std::move(privateKeyFileName))
-    , m_certificateFileName(std::move(certificateFileName))
-    , m_password(std::move(password))
-    , m_caFileName(std::move(caFileName))
-    , m_verifyMode(verifyMode)
-    , m_verifyDepth(verifyDepth)
+TEST(SPTK_CachedSSLContext, sameParamsShareContext)
 {
+    const SSLKeys keys("", "", "", "", 1, 2);
+
+    const auto context1 = CachedSSLContext::get(keys, "ALL", true);
+    const auto context2 = CachedSSLContext::get(keys, "ALL", true);
+
+    ASSERT_NE(nullptr, context1.get());
+    EXPECT_EQ(context1.get(), context2.get());
 }
 
-SSLKeys::SSLKeys(const SSLKeys& other)
+TEST(SPTK_CachedSSLContext, tlsOnlyCreatesDistinctContext)
 {
-    const scoped_lock lock(m_mutex);
-    assign(other);
+    const SSLKeys keys("", "", "", "", 3, 4);
+
+    const auto tlsOnlyContext = CachedSSLContext::get(keys, "ALL", true);
+    const auto tlsAndSslContext = CachedSSLContext::get(keys, "ALL", false);
+
+    ASSERT_NE(nullptr, tlsOnlyContext.get());
+    ASSERT_NE(nullptr, tlsAndSslContext.get());
+    EXPECT_NE(tlsOnlyContext.get(), tlsAndSslContext.get());
 }
 
-SSLKeys& SSLKeys::operator=(const SSLKeys& other)
+TEST(SPTK_CachedSSLContext, differentKeysCreateDistinctContexts)
 {
-    const scoped_lock lock(m_mutex, other.m_mutex);
-    if (&other == this)
-    {
-        return *this;
-    }
-    assign(other);
-    return *this;
-}
+    const SSLKeys keys1("", "", "", "", 5, 6);
+    const SSLKeys keys2("", "", "", "", 7, 8);
 
-void SSLKeys::assign(const SSLKeys& other)
-{
-    m_privateKeyFileName = other.m_privateKeyFileName;
-    m_certificateFileName = other.m_certificateFileName;
-    m_password = other.m_password;
-    m_caFileName = other.m_caFileName;
-    m_verifyMode = other.m_verifyMode;
-    m_verifyDepth = other.m_verifyDepth;
-}
+    const auto context1 = CachedSSLContext::get(keys1, "ALL", true);
+    const auto context2 = CachedSSLContext::get(keys2, "ALL", true);
 
-filesystem::path SSLKeys::privateKeyFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_privateKeyFileName;
-}
-
-filesystem::path SSLKeys::certificateFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_certificateFileName;
-}
-
-String SSLKeys::password() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_password;
-}
-
-filesystem::path SSLKeys::caFileName() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_caFileName;
-}
-
-int SSLKeys::verifyMode() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyMode;
-}
-
-int SSLKeys::verifyDepth() const
-{
-    const scoped_lock lock(m_mutex);
-    return m_verifyDepth;
-}
-
-String SSLKeys::ident() const
-{
-    const scoped_lock lock(m_mutex);
-    stringstream      buffer;
-    buffer << m_privateKeyFileName << "~"
-           << m_certificateFileName << "~"
-           << m_caFileName << "~"
-           << m_verifyMode << "~"
-           << m_verifyDepth;
-    return buffer.str();
-}
-
-bool SSLKeys::empty() const
-{
-    return m_certificateFileName.empty();
+    ASSERT_NE(nullptr, context1.get());
+    ASSERT_NE(nullptr, context2.get());
+    EXPECT_NE(context1.get(), context2.get());
 }

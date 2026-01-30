@@ -97,7 +97,7 @@ void SSLContext::loadKeys(const SSLKeys& keys)
         throwError("Can't use certificate file " + keys.certificateFileName().string());
     }
 
-    // Define password for auto-answer in callback function
+    // Define password for auto-answer in the callback function
     SSL_CTX_set_default_passwd_cb(m_ctx.get(), passwordReplyCallback);
     SSL_CTX_set_default_passwd_cb_userdata(m_ctx.get(), bit_cast<void*>(m_password.c_str()));
     if (SSL_CTX_use_PrivateKey_file(m_ctx.get(), keys.privateKeyFileName().string().c_str(), SSL_FILETYPE_PEM) <= 0)
