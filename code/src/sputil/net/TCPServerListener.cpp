@@ -31,12 +31,12 @@
 using namespace std;
 using namespace sptk;
 
-TCPServerListener::TCPServerListener(TCPServer* server, const uint16_t port, const ServerConnection::Type connectionType, const size_t acceptThreadCount)
+TCPServerListener::TCPServerListener(TCPServer* server, const Host& listenerHost, const ServerConnection::Type connectionType, const size_t acceptThreadCount)
     : Thread("CTCPServer::Listener")
     , m_server(server)
     , m_connectionType(connectionType)
 {
-    m_listenerSocket.host(Host("localhost", port));
+    m_listenerSocket.host(listenerHost);
     for (size_t i = 0; i < acceptThreadCount; ++i)
     {
         auto createConnectionThread = jthread(

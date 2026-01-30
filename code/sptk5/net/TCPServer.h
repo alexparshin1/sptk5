@@ -157,16 +157,16 @@ public:
     /**
      * @brief Start TCP or SSL listener on the selected port
      * @param connectionType    Listener connection type
-     * @param port              Listener port number
+     * @param listenerHost              Listener port number
      * @param threadCount       Number of listener threads
      */
-    void addListener(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount = 1);
+    void addListener(ServerConnection::Type connectionType, const Host& listenerHost, uint16_t threadCount = 1);
 
     /**
      * @brief Remove listener on the selected port
-     * @param port              Listener port number
+     * @param listenerHost              Listener port number
      */
-    [[maybe_unused]] void removeListener(uint16_t port);
+    [[maybe_unused]] void removeListener(const Host& listenerHost);
 
     /**
      * @brief Stop and remove all listeners
@@ -216,7 +216,7 @@ public:
     std::shared_ptr<SSLKeys> getSSLKeys() const;
 
     /**
-     * Set user-defined function that is called upon client connection to server
+     * Set the user-defined function that is called upon client connection to server
      * @param function          User-defined function
      */
     void onConnection(const ServerConnection::Function& function);
@@ -224,7 +224,7 @@ public:
 protected:
     /**
      * @brief Modify server host.
-     * If listener is already active, don't modify exiting server host.
+     * If the listener is already active, don't modify exiting server host.
      * @param host              Server host
      */
     void host(const Host& host);
@@ -260,13 +260,13 @@ protected:
 private:
     using UListener = std::unique_ptr<TCPServerListener>;
     using Listeners = std::vector<UListener>;
-    mutable std::mutex            m_mutex;              ///< Mutex protecting internal data
-    std::map<uint16_t, Listeners> m_portListeners;      ///< Server port listeners
-    std::shared_ptr<Logger>       m_logger;             ///< Optional logger
-    std::shared_ptr<SSLKeys>      m_sslKeys;            ///< Optional SSL keys. Only used for SSL server.
-    Host                          m_host;               ///< This host
-    LogDetails                    m_logDetails;         ///< Log details
-    ServerConnection::Function    m_connectionFunction; ///< User-defined function that is called upon client connection to server
+    mutable std::mutex                     m_mutex;              ///< Mutex protecting internal data
+    std::map<Host, Listeners, HostCompare> m_portListeners;      ///< Server port listeners
+    std::shared_ptr<Logger>                m_logger;             ///< Optional logger
+    std::shared_ptr<SSLKeys>               m_sslKeys;            ///< Optional SSL keys. Only used for SSL server.
+    Host                                   m_host;               ///< This host
+    LogDetails                             m_logDetails;         ///< Log details
+    ServerConnection::Function             m_connectionFunction; ///< User-defined function that is called upon client connection to server
 };
 
 /**

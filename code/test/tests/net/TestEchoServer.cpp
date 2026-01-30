@@ -7,7 +7,7 @@ TestEchoServer::TestEchoServer(uint16_t port)
     : TCPServer("TestServer")
 {
     onConnection(echoFunction);
-    addListener(ServerConnection::Type::TCP, port);
+    addListener(ServerConnection::Type::TCP, {"localhost", port});
 }
 
 void TestEchoServer::echoFunction(ServerConnection& serverConnection)

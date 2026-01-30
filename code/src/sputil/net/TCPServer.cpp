@@ -112,11 +112,11 @@ void TCPServer::host(const Host& host)
     m_host = host;
 }
 
-void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port, uint16_t threadCount)
+void TCPServer::addListener(ServerConnection::Type connectionType, const Host& listenerHost, uint16_t threadCount)
 {
     scoped_lock lock(m_mutex);
 
-    auto& listenerThreads = m_portListeners[port];
+    auto& listenerThreads = m_portListeners[listenerHost];
     if (!listenerThreads.empty())
     {
         throw Exception("Port is already used");
@@ -127,20 +127,19 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
         threadCount = 1;
     }
 
-    m_host.port(port);
     for (uint16_t i = 0; i < threadCount; ++i)
     {
-        auto listenerThread = make_unique<TCPServerListener>(this, port, connectionType);
+        auto listenerThread = make_unique<TCPServerListener>(this, listenerHost, connectionType);
         listenerThread->listen();
         listenerThreads.push_back(std::move(listenerThread));
     }
 }
 
-[[maybe_unused]] void TCPServer::removeListener(const uint16_t port)
+[[maybe_unused]] void TCPServer::removeListener(const Host& listenerHost)
 {
     const scoped_lock lock(m_mutex);
 
-    auto& listenerThreads = m_portListeners[port];
+    auto& listenerThreads = m_portListeners[listenerHost];
 
     for (const auto& listenerThread: listenerThreads)
     {
@@ -149,7 +148,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, uint16_t port
 
     listenerThreads.clear();
 
-    m_portListeners.erase(port);
+    m_portListeners.erase(listenerHost);
 }
 
 bool TCPServer::allowConnection(const sockaddr_in*)

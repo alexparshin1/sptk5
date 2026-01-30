@@ -67,8 +67,8 @@ void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuth
 static const String jwtEncryptionKey256("012345678901234567890123456789XY");
 
 /**
- * WS method that takes username and password, and returns Java Web Token (JWT).
- * After calling this method, we use JWT token *instead* of user name and password.
+ * WS method that takes username and password and returns Java Web Token (JWT).
+ * After calling this method, we use JWT token *instead* of the username and password.
  */
 void TestWebService::Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication*)
 {
@@ -232,14 +232,14 @@ shared_ptr<TestListener> createTestListener(bool encrypted)
 
     // Start Web Service listener
     auto connectionType = encrypted ? ServerConnection::Type::SSL : ServerConnection::Type::TCP;
-    testListener->addListener(connectionType, testListener->servicePort);
+    testListener->addListener(connectionType, {"localhost", testListener->servicePort});
 
     return testListener;
 }
 
 /**
- * Test execution of { Hello, Login, AccountBalance } methods.
- * Calling AccountBalance method requires calling Login method first.
+ * @brief Test execution of { Hello, Login, AccountBalance } methods.
+ * Calling the AccountBalance method requires calling the Login method first.
  * If gzip-encoding is allowed, it is used for messages bigger than 255 bytes.
  * @param methodNames           WS methods to be executed
  */

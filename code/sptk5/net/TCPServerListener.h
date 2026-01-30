@@ -46,12 +46,12 @@ class TCPServerListener
 public:
     /**
      * @brief Constructor.
-     * @param server            TCP server created connection.
-     * @param port              Listener port number.
+     * @param server            TCP server that created the connection.
+     * @param listenerHost      Listener host and port number.
      * @param connectionType    Connection type.
      * @param acceptThreadCount Number of the acception threads.
      */
-    TCPServerListener(TCPServer* server, uint16_t port, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
+    TCPServerListener(TCPServer* server, const Host& listenerHost, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
 
     ~TCPServerListener() override = default;
 

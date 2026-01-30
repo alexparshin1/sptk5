@@ -44,7 +44,9 @@ protected:
 
 public:
     StubRequest()
-        : WSRequest("") {}
+        : WSRequest("")
+    {
+    }
 };
 
 int main()
@@ -65,7 +67,7 @@ int main()
         WSConnection::Options options(paths);
         WSServices            services(request);
         WSServer              server(services, log, hostname, 32, options);
-        server.addListener(ServerConnection::Type::TCP, 8000);
+        server.addListener(ServerConnection::Type::TCP, {"localhost", 8000});
         while (true)
         {
             this_thread::sleep_for(chrono::milliseconds(1000));

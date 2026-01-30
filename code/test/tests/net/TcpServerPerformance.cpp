@@ -89,7 +89,7 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
     SocketReader clientReader(clientSocket);
 
     TCPServer tcpServer("Performance Test Server");
-    tcpServer.addListener(ServerConnection::Type::TCP, testTcpEchoServerPort);
+    tcpServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
     tcpServer.onConnection([&socketEvents, &clientSocket, &clientReader](ServerConnection& socket)
                            {
                                clientSocket.attach(socket.socket().detach(), false);
@@ -124,7 +124,7 @@ TEST(SPTK_TCPServer, SocketEventPerformance)
     auto clientReceivedCount = totalTransferredCount / 2;
     auto clientReceivedBytes = totalTransferred / 2;
     COUT("Client received: " << clientReceivedBytes << " bytes for " << stopWatch.milliseconds() << " ms, "
-                             << static_cast<double>(clientReceivedBytes) / stopWatch.milliseconds() << "KB/s. (" 
+                             << static_cast<double>(clientReceivedBytes) / stopWatch.milliseconds() << "KB/s. ("
                              << static_cast<double>(clientReceivedCount) / stopWatch.milliseconds() << "K/s)");
 
     socketEvents.remove(socket);
