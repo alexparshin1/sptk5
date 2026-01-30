@@ -2,7 +2,7 @@
 
 #pragma once
 #include "CTestWSDL.h"
-#include <sptk5/net/HttpAuthenticationTests.h>
+#include <sptk5/net/HttpAuthentication.h>
 #include <sptk5/wsdl/WSRequest.h>
 
 // This Web Service types
@@ -29,7 +29,7 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit CTestServiceBase(sptk::LogEngine* logEngine=nullptr);
+    explicit CTestServiceBase(sptk::LogEngine* logEngine = nullptr);
 
     /**
      * Destructor
@@ -47,7 +47,7 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output, sptk::HttpAuthenticationTests* auth) = 0;
+    virtual void AccountBalance(const CAccountBalance& input, CAccountBalanceResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
      * Web Service Hello operation
@@ -56,7 +56,7 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthenticationTests* auth) = 0;
+    virtual void Hello(const CHello& input, CHelloResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
      * Web Service Login operation
@@ -65,7 +65,7 @@ public:
      * @param input            Operation input data
      * @param output           Operation response data
      */
-    virtual void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthenticationTests* auth) = 0;
+    virtual void Login(const CLogin& input, CLoginResponse& output, sptk::HttpAuthentication* auth) = 0;
 
     /**
      * @return original WSDL specifications
@@ -86,14 +86,13 @@ public:
     }
 
 private:
-
     /**
      * Internal Web Service AccountBalance processing
      * @param requestNode      Operation input/output XML data
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_AccountBalance(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthenticationTests* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_AccountBalance(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Hello processing
@@ -101,7 +100,7 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Hello(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthenticationTests* authentication, const sptk::WSNameSpace& requestNameSpace);
+    void process_Hello(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 
     /**
      * Internal Web Service Login processing
@@ -109,10 +108,9 @@ private:
      * @param authentication   Optional HTTP authentication
      * @param requestNameSpace Request SOAP element namespace
      */
-    void process_Login(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthenticationTests* authentication, const sptk::WSNameSpace& requestNameSpace);
-
+    void process_Login(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
 };
 
 using STestServiceBase = std::shared_ptr<CTestServiceBase>;
 
-}
+} // namespace test_service

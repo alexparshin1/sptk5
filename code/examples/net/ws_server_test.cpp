@@ -36,7 +36,7 @@ class StubRequest final
     : public WSRequest
 {
 protected:
-    void requestBroker(const String&, const xdoc::SNode&, const xdoc::SNode&, HttpAuthenticationTests*,
+    void requestBroker(const String&, const xdoc::SNode&, const xdoc::SNode&, HttpAuthentication*,
                        const WSNameSpace&) override
     {
         // Not used in this test

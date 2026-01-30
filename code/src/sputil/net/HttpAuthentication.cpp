@@ -90,7 +90,7 @@ void HttpAuthentication::parse()
         else if (m_authenticationHeader.toLowerCase().startsWith("bearer "))
         {
             constexpr int bearerLength = 6;
-            const auto    aJwtData = make_shared<JWTTests>();
+            const auto    aJwtData = make_shared<JWT>();
             aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
             m_jwtData = aJwtData;
             m_type = Type::BEARER;

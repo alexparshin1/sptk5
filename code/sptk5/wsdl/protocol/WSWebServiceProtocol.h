@@ -69,7 +69,7 @@ public:
                        const HTTPException& e, bool jsonOutput) const override;
 
 protected:
-    std::shared_ptr<HttpAuthenticationTests> getAuthentication() override;
+    std::shared_ptr<HttpAuthentication> getAuthentication() override;
 
 private:
     HttpReader& m_httpReader;         ///< HTTP reader

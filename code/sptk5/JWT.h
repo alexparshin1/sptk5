@@ -39,7 +39,7 @@ namespace sptk {
 /**
  * Java Web Token encoding and decoding
  */
-class SP_EXPORT JWTTests
+class SP_EXPORT JWT
 {
 public:
     /** JWT algorithm types. */
@@ -65,7 +65,7 @@ public:
     /**
          * Constructor
          */
-    JWTTests() = default;
+    JWT() = default;
 
     /**
          * Get JSON element in JSON object element by name.

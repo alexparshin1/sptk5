@@ -30,7 +30,7 @@
 #include <sptk5/CommandLine.h>
 #include <sptk5/Crypt.h>
 #include <sptk5/DirectoryDS.h>
-#include <sptk5/JWTTests.h>
+#include <sptk5/JWT.h>
 #include <sptk5/Tar.h>
 #include <sptk5/db/DatabaseConnectionPool.h>
 #include <sptk5/db/DatabaseTests.h>
@@ -75,7 +75,7 @@ protected:
 void stub()
 {
     const DateTime          dateTime;
-    const JWTTests               jwt;
+    const JWT               jwt;
     const RegularExpression regexp(".*");
     const CommandLine       cmd("", "", "");
     const DirectoryDS       dir("");
@@ -143,7 +143,7 @@ String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& defi
 
     return excludePatterns.join(":");
 }
-}
+} // namespace
 
 int TestRunner::runAllTests()
 {

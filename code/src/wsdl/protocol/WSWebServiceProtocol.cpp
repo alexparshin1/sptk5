@@ -301,16 +301,16 @@ RequestInfo WSWebServiceProtocol::process()
     return requestInfo;
 }
 
-shared_ptr<HttpAuthenticationTests> WSWebServiceProtocol::getAuthentication()
+shared_ptr<HttpAuthentication> WSWebServiceProtocol::getAuthentication()
 {
-    shared_ptr<HttpAuthenticationTests> authentication;
+    shared_ptr<HttpAuthentication> authentication;
 
     if (const auto itor = headers().find("authorization");
         itor != headers().end())
     {
         const String value(itor->second);
-        authentication = make_shared<HttpAuthenticationTests>(value);
-        if (authentication->type() == HttpAuthenticationTests::Type::UNDEFINED)
+        authentication = make_shared<HttpAuthentication>(value);
+        if (authentication->type() == HttpAuthentication::Type::UNDEFINED)
         {
             authentication.reset();
         }

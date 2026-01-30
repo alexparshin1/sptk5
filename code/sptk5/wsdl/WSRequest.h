@@ -27,7 +27,7 @@
 #pragma once
 
 #include <sptk5/cthreads>
-#include <sptk5/net/HttpAuthenticationTests.h>
+#include <sptk5/net/HttpAuthentication.h>
 
 namespace sptk {
 
@@ -139,7 +139,7 @@ public:
      * @param xmlContent           Incoming request and outgoing response
      */
     void processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
-                        HttpAuthenticationTests* authentication, String& requestName);
+                        HttpAuthentication* authentication, String& requestName);
 
     /**
      * Returns service title (for service handshake)
@@ -186,7 +186,7 @@ public:
 
 protected:
     using RequestMethod = std::function<void(const xdoc::SNode&, const xdoc::SNode&,
-                                             HttpAuthenticationTests*, const WSNameSpace&)>;
+                                             HttpAuthentication*, const WSNameSpace&)>;
 
     /**
      * Internal SOAP body processor
@@ -199,7 +199,7 @@ protected:
      * @param requestNameSpace  Request SOAP element namespace
      */
     virtual void requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
-                               HttpAuthenticationTests* authentication, const WSNameSpace& requestNameSpace);
+                               HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
 
     /**
      * Default error handling
