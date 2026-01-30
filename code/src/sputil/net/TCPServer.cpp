@@ -84,8 +84,8 @@ TCPServer::TCPServer(const String& listenerName, const size_t threadLimit, LogEn
 
     constexpr unsigned             maxHostNameLength = 128;
     array<char, maxHostNameLength> hostname = {"localhost"};
-    const int                      result = gethostname(hostname.data(), sizeof(hostname));
-    if (result == 0)
+    if (const auto result = gethostname(hostname.data(), sizeof(hostname));
+        result == 0)
     {
         m_host = Host(hostname.data());
     }

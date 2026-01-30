@@ -67,9 +67,9 @@ void HttpAuthentication::parse()
         }
         else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
         {
-            constexpr int basicLength = 6;
-            const Buffer  encoded(m_authenticationHeader.substr(basicLength));
-            Buffer        decoded;
+            constexpr auto basicLength = 6;
+            const Buffer   encoded(m_authenticationHeader.substr(basicLength));
+            Buffer         decoded;
             Base64::decode(decoded, encoded);
             Strings usernameAndPassword(decoded.c_str(), ":");
             if (usernameAndPassword.size() != 2)
@@ -84,9 +84,9 @@ void HttpAuthentication::parse()
         }
         else
         {
-            constexpr int bearerLength = 6;
             if (m_authenticationHeader.length() > 7)
             {
+                constexpr auto bearerLength = 6;
                 if (const String authMethod = m_authenticationHeader.substr(0, bearerLength);
                     authMethod.toLowerCase() == "bearer")
                 {

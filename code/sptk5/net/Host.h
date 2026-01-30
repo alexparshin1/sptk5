@@ -28,6 +28,7 @@
 
 #include <cstring>
 #include <mutex>
+#include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 
 #ifndef _WIN32
@@ -51,77 +52,6 @@ namespace sptk {
  */
 class SP_EXPORT Host
 {
-    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data
-    String                                    m_hostname;   ///< Host name or IP address
-    uint16_t                                  m_port {0};   ///< Port number
-    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
-
-    /**
-     * Get address presentation as generic IP address
-     * @return address presentation as generic IP address
-     */
-    sockaddr& any()
-    {
-        return *(sockaddr*) m_address.data();
-    }
-
-    /**
-     * Get address presentation as generic IP address (read-only)
-     * @return address presentation as generic IP address
-     */
-    const sockaddr& any() const
-    {
-        return *reinterpret_cast<const sockaddr*>(m_address.data());
-    }
-
-    /**
-     * Get address presentation as IPv4 address
-     * @return address presentation as IPv4 address
-     */
-    sockaddr_in& ip_v4()
-    {
-        return *reinterpret_cast<sockaddr_in*>(m_address.data());
-    }
-
-    /**
-     * Get address presentation as IPv4 address (read-only)
-     * @return address presentation as IPv4 address
-     */
-    const sockaddr_in& ip_v4() const
-    {
-        return *reinterpret_cast<const sockaddr_in*>(m_address.data());
-    }
-
-    /**
-     * Get address presentation as IPv6 address
-     * @return address presentation as IPv6 address
-     */
-    sockaddr_in6& ip_v6()
-    {
-        return *reinterpret_cast<sockaddr_in6*>(m_address.data());
-    }
-
-    /**
-     * Get address presentation as IPv6 address (read-only)
-     * @return address presentation as IPv6 address
-     */
-    const sockaddr_in6& ip_v6() const
-    {
-        return *reinterpret_cast<const sockaddr_in6*>(m_address.data());
-    }
-
-    /**
-     * Get host address
-     */
-    void   getHostAddress();
-    String ipAddressToString(const uint8_t* addr) const;
-
-    /**
-     * Set port number
-     * @param port                 Port number
-     */
-    void setPort(uint16_t port);
-
 public:
     /**
      * Default constructor
@@ -246,6 +176,80 @@ public:
     }
 
     void setHostNameFromAddress(socklen_t addressLen);
+
+private:
+    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data
+    String                                    m_hostname;   ///< Host name or IP address
+    uint16_t                                  m_port {0};   ///< Port number
+    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
+    static const RegularExpression            m_matchHostNameOrIpv4;
+    static const RegularExpression            m_matchIpv6;
+
+    /**
+     * Get address presentation as a generic IP address
+     * @return address presentation as a generic IP address
+     */
+    sockaddr& any()
+    {
+        return *std::bit_cast<sockaddr*>(m_address.data());
+    }
+
+    /**
+     * Get address presentation as a generic IP address (read-only)
+     * @return address presentation as a generic IP address
+     */
+    const sockaddr& any() const
+    {
+        return *std::bit_cast<const sockaddr*>(m_address.data());
+    }
+
+    /**
+     * Get address presentation as IPv4 address
+     * @return address presentation as IPv4 address
+     */
+    sockaddr_in& ip_v4()
+    {
+        return *std::bit_cast<sockaddr_in*>(m_address.data());
+    }
+
+    /**
+     * Get address presentation as IPv4 address (read-only)
+     * @return address presentation as IPv4 address
+     */
+    const sockaddr_in& ip_v4() const
+    {
+        return *std::bit_cast<const sockaddr_in*>(m_address.data());
+    }
+
+    /**
+     * Get address presentation as IPv6 address
+     * @return address presentation as IPv6 address
+     */
+    sockaddr_in6& ip_v6()
+    {
+        return *std::bit_cast<sockaddr_in6*>(m_address.data());
+    }
+
+    /**
+     * Get address presentation as IPv6 address (read-only)
+     * @return address presentation as IPv6 address
+     */
+    const sockaddr_in6& ip_v6() const
+    {
+        return *std::bit_cast<const sockaddr_in6*>(m_address.data());
+    }
+
+    /**
+     * Get host address
+     */
+    void   getHostAddress();
+    String ipAddressToString(const uint8_t* addr) const;
+
+    /**
+     * Set port number
+     * @param port                 Port number
+     */
+    void setPort(uint16_t port);
 };
 
 using SHost = std::shared_ptr<Host>;

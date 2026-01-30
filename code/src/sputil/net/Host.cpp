@@ -28,10 +28,14 @@
 #include <sptk5/SystemException.h>
 #include <sptk5/net/Socket.h>
 
+#include <format>
 #include <utility>
 
 using namespace std;
 using namespace sptk;
+
+const RegularExpression Host::m_matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{2,5})?$)");
+const RegularExpression Host::m_matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{2,5})?$)");
 
 namespace {
 void checkSocketsInitialized()
@@ -66,13 +70,10 @@ Host::Host(String hostname, const uint16_t port)
 
 Host::Host(const String& hostAndPort)
 {
-    static const RegularExpression matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{2,5})?$)");
-    static const RegularExpression matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{2,5})?$)");
-
     checkSocketsInitialized();
     const auto matches = hostAndPort.startsWith("[")
-                             ? matchIpv6.m(hostAndPort)
-                             : matchHostNameOrIpv4.m(hostAndPort);
+                             ? m_matchIpv6.m(hostAndPort)
+                             : m_matchHostNameOrIpv4.m(hostAndPort);
 
     if (matches)
     {
@@ -134,7 +135,7 @@ Host::Host(const Host& other)
     const scoped_lock lock(other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
-    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    m_address = other.m_address;
 }
 
 Host::Host(Host&& other) noexcept
@@ -142,7 +143,7 @@ Host::Host(Host&& other) noexcept
     , m_port(other.m_port)
 {
     const scoped_lock lock(other.m_mutex);
-    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    m_address = other.m_address;
 }
 
 Host& Host::operator=(const Host& other)
@@ -152,7 +153,7 @@ Host& Host::operator=(const Host& other)
         const scoped_lock lock(m_mutex, other.m_mutex);
         m_hostname = other.m_hostname;
         m_port = other.m_port;
-        memcpy(&m_address, &other.m_address, sizeof(m_address));
+        m_address = other.m_address;
     }
     return *this;
 }
@@ -162,7 +163,7 @@ Host& Host::operator=(Host&& other) noexcept
     const scoped_lock lock(m_mutex, other.m_mutex);
     m_hostname = other.m_hostname;
     m_port = other.m_port;
-    memcpy(&m_address, &other.m_address, sizeof(m_address));
+    m_address = other.m_address;
     return *this;
 }
 
@@ -199,21 +200,36 @@ void Host::getHostAddress()
 {
     const scoped_lock lock(m_mutex);
 
-    addrinfo hints = {};
-    memset(&hints, 0, sizeof(addrinfo));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
-
     addrinfo* result = nullptr;
-    if (const int exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints, &result);
-        exitCode != 0)
+    string    error;
+
+    auto               exitCode = 0;
+    constexpr addrinfo hints_INET = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
+    exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET, &result);
+    if (exitCode != 0)
     {
-        throw Exception(gai_strerror(exitCode));
+        error = gai_strerror(exitCode);
     }
 
-    memset(&m_address, 0, sizeof(m_address));
-    memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
+    if (exitCode == EAI_ADDRFAMILY)
+    {
+        constexpr addrinfo hints_INET6 = {.ai_family = AF_INET6, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
+        exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET6, &result);
+        if (exitCode != 0)
+        {
+            error = gai_strerror(exitCode);
+        }
+    }
+
+    if (exitCode == 0)
+    {
+        memset(&m_address, 0, sizeof(m_address));
+        memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
+    }
+    else
+    {
+        throw Exception(format("Can't resolve hostname: {}. Error: {}.", m_hostname.c_str(), error));
+    }
 
     freeaddrinfo(result);
 }
