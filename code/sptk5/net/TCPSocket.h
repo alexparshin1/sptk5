@@ -26,8 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Buffer.h>
-#include <sptk5/Exception.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/Proxy.h>
 #include <sptk5/net/Socket.h>

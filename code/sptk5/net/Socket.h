@@ -30,6 +30,15 @@
 
 namespace sptk {
 
+template<typename T>
+concept is_integral_array = std::is_array_v<T> && std::is_integral_v<std::remove_all_extents_t<T>>;
+
+template<typename T>
+concept is_floating_point_array = std::is_array_v<T> && std::is_floating_point_v<std::remove_all_extents_t<T>>;
+
+template<typename T>
+concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T>;
+
 /**
  * @addtogroup utility Utility Classes
  * @{
@@ -118,7 +127,7 @@ public:
     /**
      * Returns the host
      */
-    [[nodiscard]] const Host host() const
+    [[nodiscard]] Host host() const
     {
         const std::scoped_lock lock(m_mutex);
         return getHostUnlocked();
@@ -292,7 +301,7 @@ public:
     size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
-     * Reports true if socket is ready for reading from it
+     * Reports true if the socket is ready for reading from it
      * @param timeout           Read timeout
      */
     [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
@@ -302,7 +311,7 @@ public:
     }
 
     /**
-     * Reports true if socket is ready for writing to it
+     * Reports true if the socket is ready for writing to it
      * @param timeout           Write timeout
      */
     [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)

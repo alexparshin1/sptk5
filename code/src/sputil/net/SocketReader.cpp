@@ -58,7 +58,7 @@ void SocketReader::close()
     }
 }
 
-void SocketReader::handleReadFromSocketError(const int error)
+void SocketReader::handleReadFromSocketError(const int error) const
 {
     if (error == EAGAIN)
     {
@@ -101,6 +101,7 @@ size_t SocketReader::readFromSocket()
     return m_buffer.bytes();
 }
 
+// If the buffer is too small, increase its size by readBytesLWM.
 static constexpr size_t readBytesLWM {128};
 
 void SocketReader::readMoreFromSocket(const size_t availableBytes)
@@ -155,11 +156,12 @@ size_t SocketReader::bufferedRead(uint8_t* destination, const size_t size)
     return bytesToRead;
 }
 
-int32_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, const char delimiter)
+size_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, const char delimiter, bool& endOfLine)
 {
     auto availableBytes = m_buffer.bytes() - m_readOffset;
     auto bytesToRead = size;
-    bool eol = false;
+
+    endOfLine = false;
 
     if (availableBytes == 0)
     {
@@ -203,8 +205,8 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, 
 
     if (len < size)
     {
-        eol = true;
-        bytesToRead = static_cast<int>(len);
+        endOfLine = true;
+        bytesToRead = len;
         if (delimiter == 0)
         {
             ++bytesToRead;
@@ -222,19 +224,26 @@ int32_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, 
         destination[bytesToRead] = 0;
     }
 
-    m_readOffset += static_cast<uint32_t>(bytesToRead);
+    m_readOffset += bytesToRead;
 
-    return eol ? -static_cast<int>(bytesToRead) : static_cast<int>(bytesToRead);
+    return bytesToRead;
 }
 
 size_t SocketReader::read(uint8_t* destination, const size_t size)
 {
+    scoped_lock const lock(m_mutex);
+
+    if (!m_socket.active())
+    {
+        throw Exception("Can't read from closed socket");
+    }
+
     size_t totalReceived = 0;
 
     while (totalReceived < size)
     {
         const auto bytesToRead = size - totalReceived;
-        const auto bytes = bufferedRead(destination, static_cast<size_t>(bytesToRead));
+        const auto bytes = bufferedRead(destination, bytesToRead);
 
         if (bytes == 0)
         { // No more data
@@ -248,37 +257,6 @@ size_t SocketReader::read(uint8_t* destination, const size_t size)
     return totalReceived;
 }
 
-size_t SocketReader::readLine(uint8_t* destination, const size_t size, const char delimiter)
-{
-    int total = 0;
-    int eol = 0;
-
-    while (eol == 0)
-    {
-        const int bytesToRead = static_cast<int>(size) - total;
-        if (bytesToRead <= 0)
-        {
-            return size;
-        }
-
-        int bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter);
-
-        if (bytes == 0)
-        { // No more data
-            break;
-        }
-
-        if (bytes < 0)
-        { // Received the complete string
-            eol = 1;
-            bytes = -bytes;
-        }
-
-        total += bytes;
-        destination += bytes;
-    }
-    return static_cast<size_t>(total - eol);
-}
 
 size_t SocketReader::availableBytes() const
 {
@@ -319,25 +297,60 @@ bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
 
 size_t SocketReader::read(Buffer& destinationBuffer, const size_t size)
 {
-    scoped_lock const lock(m_mutex);
     destinationBuffer.checkSize(size);
     const auto bytes = read(destinationBuffer.data(), size);
     destinationBuffer.bytes(bytes);
     return bytes;
 }
 
-size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
+size_t SocketReader::readLine(uint8_t* destination, const size_t size, const char delimiter)
 {
     scoped_lock const lock(m_mutex);
-    size_t            total = 0;
-    int               eol = 0;
 
     if (!m_socket.active())
     {
         throw Exception("Can't read from closed socket");
     }
 
-    while (eol == 0)
+    size_t total = 0;
+    bool   endOfLine = false;
+
+    while (!endOfLine)
+    {
+        const int bytesToRead = static_cast<int>(size) - total;
+        if (bytesToRead <= 0)
+        {
+            return size;
+        }
+
+        endOfLine = false;
+        auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
+
+        if (bytes == 0)
+        {
+            // No more data
+            break;
+        }
+
+        total += bytes;
+        destination += bytes;
+    }
+
+    return total - (endOfLine ? 1 : 0);
+}
+
+size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
+{
+    scoped_lock const lock(m_mutex);
+    size_t            total = 0;
+    bool              endOfLine = false;
+
+    if (!m_socket.active())
+    {
+        throw Exception("Can't read from closed socket");
+    }
+
+    while (!endOfLine)
     {
         auto bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
         if (bytesToRead <= static_cast<int>(readBytesLWM))
@@ -348,19 +361,13 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
 
         auto* destination = destinationBuffer.data() + total;
 
-        int bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter);
+        auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
         if (bytes == 0)
         { // No more data
             break;
         }
 
-        if (bytes < 0)
-        { // Received the complete string
-            eol = 1;
-            bytes = -bytes;
-        }
-
-        total += static_cast<size_t>(bytes);
+        total += bytes;
     }
     destinationBuffer.data()[total] = 0;
     destinationBuffer.bytes(total);
@@ -382,7 +389,7 @@ size_t SocketReader::readLine(String& destinationBuffer, const char delimiter)
     return bytes;
 }
 
-TCPSocket& SocketReader::socket()
+TCPSocket& SocketReader::socket() const
 {
     return m_socket;
 }
