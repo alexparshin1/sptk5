@@ -10,33 +10,49 @@ TestEchoServer::TestEchoServer(uint16_t port)
     addListener(ServerConnection::Type::TCP, {"localhost", port});
 }
 
-void TestEchoServer::echoFunction(ServerConnection& serverConnection)
+void TestEchoServer::echoFunction(const ServerConnection& serverConnection)
 {
-    auto echoSocket = serverConnection.getSocket();
+    const auto echoSocket = serverConnection.getSocket();
 
     try
     {
-        while (true)
-        {
-            if (echoSocket->readyToRead(100ms))
-            {
-                auto bytes = echoSocket->socketBytes();
-                if (bytes == 0)
-                {
-                    // Client hangup
-                    break;
-                }
+        String accumulated;
+        bool   clientHangup = false;
 
-                String message;
-                echoSocket->read(message, bytes);
-                echoSocket->write(message);
-                COUT("Echo: [" << message << "]");
-                if (message.contains("<EOF>"))
-                {
-                    echoSocket->close();
-                    COUT("Test server hangup");
-                    break;
-                }
+        while (!clientHangup)
+        {
+            if (!echoSocket->readyToRead(100ms))
+            {
+                continue;
+            }
+
+            const auto bytes = echoSocket->socketBytes();
+            if (bytes == 0)
+            {
+                // Client hangup
+                clientHangup = true;
+                continue;
+            }
+
+            String message;
+            echoSocket->read(message, bytes);
+
+            accumulated += message;
+            echoSocket->write(message);
+
+            COUT("Echo: [" << message << "]");
+
+            if (accumulated.contains("<EOF>"))
+            {
+                COUT("Test server hangup");
+                break;
+            }
+
+            // Keep accumulator from growing unbounded in long sessions
+            if (constexpr size_t keepTail = 16;
+                accumulated.length() > keepTail)
+            {
+                accumulated = accumulated.substr(accumulated.length() - keepTail);
             }
         }
     }
@@ -44,5 +60,6 @@ void TestEchoServer::echoFunction(ServerConnection& serverConnection)
     {
         CERR(e.what());
     }
+
     echoSocket->close();
 }

@@ -58,3 +58,36 @@ TEST(SPTK_HttpConnect, get)
     const String data(output.c_str(), output.bytes());
     EXPECT_TRUE(data.toLowerCase().find("</html>") != string::npos);
 }
+
+// ... existing code ...
+
+TEST(SPTK_HttpConnect, basicAuthorization_isBase64UserColonPass)
+{
+    // "user:pass" -> base64("user:pass") == "dXNlcjpwYXNz"
+    const HttpConnect::BasicAuthorization auth("user", "pass");
+
+    EXPECT_EQ("basic", auth.method().toLowerCase());
+    EXPECT_EQ("dXNlcjpwYXNz", auth.value());
+}
+
+TEST(SPTK_HttpConnect, bearerAuthorization_preservesToken)
+{
+    const String                           token("header.payload.signature");
+    const HttpConnect::BearerAuthorization auth(token);
+
+    EXPECT_EQ("bearer", auth.method().toLowerCase());
+    EXPECT_EQ(token, auth.value());
+}
+
+TEST(SPTK_HttpConnect, accessorsBeforeAnyRequest_doNotCrash)
+{
+    // No connection / no request performed: define expected "safe" behavior.
+    TCPSocket   socket;
+    HttpConnect http(socket);
+
+    EXPECT_EQ(0, http.statusCode());
+    EXPECT_TRUE(http.statusText().empty());
+
+    const auto& headers = http.responseHeaders();
+    (void) headers; // just verifying this is safe to call before any request
+}

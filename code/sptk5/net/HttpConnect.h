@@ -159,10 +159,7 @@ public:
      * getResponse() method internally).
      * @returns internal http headers reference
      */
-    [[nodiscard]] const HttpHeaders& responseHeaders() const
-    {
-        return m_reader->getHttpHeaders();
-    }
+    [[nodiscard]] const HttpHeaders& responseHeaders() const;
 
     /**
      * @brief Sends the GET command to the server

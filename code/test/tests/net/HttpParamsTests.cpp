@@ -57,3 +57,70 @@ TEST(SPTK_HttpParams, decode)
     EXPECT_STREQ(R"(["book","pen"])", httpParams["items"].c_str());
     EXPECT_EQ(static_cast<size_t>(3), httpParams.size());
 }
+
+// Keys should be URL-decoded too (e.g. %2B => '+', '+' => space rules apply)
+TEST(SPTK_HttpParams, decode_decodesKeyAndValue)
+{
+    HttpParams httpParams;
+
+    const Buffer encoded("a%2Bb=c%2Bd&x+y=1+2");
+    httpParams.decode(encoded);
+
+    EXPECT_TRUE(httpParams.has("a+b"));
+    EXPECT_STREQ("c+d", httpParams.get("a+b").c_str());
+
+    EXPECT_TRUE(httpParams.has("x y"));
+    EXPECT_STREQ("1 2", httpParams.get("x y").c_str());
+}
+
+// Parameter names are case-insensitive
+TEST(SPTK_HttpParams, decode_caseInsensitiveNames)
+{
+    HttpParams httpParams;
+
+    const Buffer encoded("ID=1234&Name=John+Doe");
+    httpParams.decode(encoded);
+
+    EXPECT_TRUE(httpParams.has("id"));
+    EXPECT_TRUE(httpParams.has("name"));
+    EXPECT_TRUE(httpParams.has("ID"));
+    EXPECT_TRUE(httpParams.has("Name"));
+
+    EXPECT_STREQ("1234", httpParams.get("id").c_str());
+    EXPECT_STREQ("John Doe", httpParams.get("name").c_str());
+}
+
+// Parameters without '=' should map to the empty value
+TEST(SPTK_HttpParams, decode_parameterWithoutEquals)
+{
+    HttpParams httpParams;
+
+    const Buffer encoded("flag&x=1");
+    httpParams.decode(encoded);
+
+    EXPECT_TRUE(httpParams.has("flag"));
+    EXPECT_STREQ("", httpParams.get("flag").c_str());
+
+    EXPECT_TRUE(httpParams.has("x"));
+    EXPECT_STREQ("1", httpParams.get("x").c_str());
+}
+
+// Invalid percent encoding should throw
+TEST(SPTK_HttpParams, decode_throwsOnInvalidPercentEscape)
+{
+    HttpParams httpParams;
+
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("a=%ZZ")));
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("a=%0G")));
+}
+
+// Truncated percent encoding should throw
+TEST(SPTK_HttpParams, decode_throwsOnTruncatedPercentEscape)
+{
+    HttpParams httpParams;
+
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("a=%")));
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("a=%1")));
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("%")));
+    EXPECT_ANY_THROW(httpParams.decode(Buffer("%1")));
+}

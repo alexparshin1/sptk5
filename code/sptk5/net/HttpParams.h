@@ -34,80 +34,146 @@
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 /**
- * HTTP fields are implemented as case-insensitive map
+ * @brief HTTP fields are implemented as a case-insensitive map.
  */
-using StringHttpFieldMap = std::map<sptk::String, sptk::String, CaseInsensitiveCompare>;
+using StringHttpFieldMap = std::map<String, String, CaseInsensitiveCompare>;
 
 class SP_EXPORT Url
 {
 public:
     /**
-     * Encodes a string into HTML parameters
+     * @brief Encodes a string into HTML parameters.
      */
     static String encode(const String& str);
 
     /**
-     * Decodes a string from HTML parameters
+     * @brief Decodes a string from HTML parameters.
      */
-    static sptk::String decode(const String& str);
+    static String decode(const String& str);
 };
 
 /**
- * HTTP params map
+ * @brief HTTP params.
  *
- * Designed to hold HTTP parametrs in
- * CHttpConnect and CCgiApplication. It is, basically, a string-to-string
+ * Designed to hold HTTP parametrs in HttpConnect. It is a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
+ * The parameter names are case-insensitive.
  */
-class SP_EXPORT HttpParams : public StringHttpFieldMap
+class SP_EXPORT HttpParams
 {
 public:
     /**
-     * Default constructor.
+     * @brief Default constructor.
      */
     HttpParams() = default;
 
     /**
-     * Copy constructor.
+     * @brief Copy constructor.
      */
     HttpParams(const HttpParams& other) = default;
 
     /**
-     * Initialization constructor.
+     * @brief Initialization constructor.
      */
     HttpParams(std::initializer_list<std::pair<String, String>> lst);
 
     /**
-     * Encodes HTTP parameters for sending to the server.
+     * @brief Encodes URL parameters for sending to the server.
      * @param result            Output - encoded parameters string (if any) as the buffer.
      */
     void encode(Buffer& result) const;
 
     /**
-     * Decodes HTTP parameters that came from the server as a string into parameters map.
-     * @param buffer       Parameters string from HTTP server
-     * @param lowerCaseNames    True if you want to lower-case the parameter names
+     * @brief Decodes URL parameters that came from the server as a string into the parameters map.
+     * @param buffer       Parameters string from HTTP server.
      */
-    void decode(const Buffer& buffer, bool lowerCaseNames = false);
+    void decode(const Buffer& buffer);
 
     /**
-     * Returns parameter value, or empty string if not found
-     * @param paramName         Parameter name
-     * @return parameter value
+     * @brief Returns parameter value, or empty string if not found.
+     * @param paramName         Parameter name.
+     * @return parameter value.
      */
     [[nodiscard]] String get(const String& paramName) const;
 
     /**
-     * Returns true if parameter exists
-     * @param paramName         Parameter name
-     * @return true if parameter exists
+     * @brief Returns true if parameter exists.
+     * @param paramName         Parameter name.
+     * @return true if parameter exists.
      */
     [[nodiscard]] bool has(const String& paramName) const;
+
+    /**
+     * @return True if no parameters are set.
+     */
+    [[nodiscard]] bool empty() const;
+
+    /**
+     * @return Number of parameters.
+     */
+    [[nodiscard]] size_t size() const
+    {
+        return m_params.size();
+    }
+
+    [[nodiscard]] auto find(const String& paramName)
+    {
+        return m_params.find(paramName);
+    }
+
+    [[nodiscard]] auto find(const String& paramName) const
+    {
+        return m_params.find(paramName);
+    }
+
+    /**
+     * @brief Returns an iterator to the first parameter.
+     * @return Iterator to the beginning of the parameters' container.
+     */
+    [[nodiscard]] auto begin()
+    {
+        return m_params.begin();
+    }
+
+    /**
+     * @brief Returns an iterator one past the last parameter.
+     * @return Iterator to the end of the parameters' container.
+     */
+    [[nodiscard]] auto end()
+    {
+        return m_params.end();
+    }
+
+    /**
+     * @brief Returns a const iterator to the first parameter.
+     * @return Const iterator to the beginning of the parameters' container.
+     */
+    [[nodiscard]] auto begin() const
+    {
+        return m_params.begin();
+    }
+
+    /**
+     * @brief Returns a const iterator one past the last parameter.
+     * @return Const iterator to the end of the parameters' container.
+     */
+    [[nodiscard]] auto end() const
+    {
+        return m_params.end();
+    }
+
+    auto& operator[](const String& paramName)
+    {
+        return m_params[paramName];
+    }
+
+private:
+    StringHttpFieldMap m_params;
 };
 /**
  * @}

@@ -22,7 +22,7 @@ private:
      * Send back to the client the same data it receives.
      * @param serverConnection  Server connection
      */
-    static void echoFunction(ServerConnection& serverConnection);
+    static void echoFunction(const ServerConnection& serverConnection);
 };
 
 } // namespace sptk

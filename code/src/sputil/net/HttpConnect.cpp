@@ -29,6 +29,8 @@
 #include <sptk5/md5.h>
 #include <sptk5/net/HttpConnect.h>
 
+#include "sptk5/Base64.h"
+
 using namespace std;
 using namespace sptk;
 
@@ -76,7 +78,7 @@ void HttpConnect::sendCommand(const String& cmd) const
         throw Exception("Server is busy");
     }
 
-    m_socket.write((const uint8_t*) cmd.c_str(), static_cast<uint32_t>(cmd.length()));
+    m_socket.write(bit_cast<const uint8_t*>(cmd.c_str()), cmd.length());
 }
 
 void HttpConnect::sendCommand(const Buffer& cmd) const
@@ -86,7 +88,13 @@ void HttpConnect::sendCommand(const Buffer& cmd) const
         throw Exception("Socket isn't open");
     }
 
-    m_socket.write((const uint8_t*) cmd.c_str(), static_cast<uint32_t>(cmd.bytes()));
+    if (const chrono::seconds readTimeout(30);
+        !m_socket.readyToWrite(readTimeout))
+    {
+        throw Exception("Server is busy");
+    }
+
+    m_socket.write(cmd.data(), cmd.bytes());
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
@@ -117,6 +125,16 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     }
 
     return headers;
+}
+
+const HttpHeaders& HttpConnect::responseHeaders() const
+{
+    if (!m_reader)
+    {
+        static const HttpHeaders emptyHeaders;
+        return emptyHeaders;
+    }
+    return m_reader->getHttpHeaders();
 }
 
 int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParameters, Buffer& output,
@@ -227,16 +245,13 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
     headers.push_back("Accept-Encoding: gzip");
 #endif
 
-    if (!putData.empty())
-    {
-        headers.push_back("Content-Length: " + int2string(static_cast<uint32_t>(putData.bytes())));
-    }
+    headers.push_back(format("Content-Length: {}", putData.bytes()));
 
-    string command = headers.join("\r\n") + "\r\n\r\n";
+    Buffer command(headers.join("\r\n") + "\r\n\r\n");
 
     if (!putData.empty())
     {
-        command += putData.c_str();
+        command.append(putData);
     }
 
     sendCommand(command);
@@ -257,17 +272,44 @@ int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requ
 
 int HttpConnect::statusCode() const
 {
-    return m_reader->getStatusCode();
+    if (m_reader)
+    {
+        return m_reader->getStatusCode();
+    }
+    return 0;
 }
 
 String HttpConnect::statusText() const
 {
-    return m_reader->getStatusText();
+    if (m_reader)
+    {
+        return m_reader->getStatusText();
+    }
+    return "";
 }
 
 HttpConnect::Authorization::Authorization(const String& method, const String& username, const String& password,
                                           const String& jwtToken)
     : m_method(method)
-    , m_value(method == "basic" ? md5(username + ":" + password) : jwtToken)
 {
+    if (method.empty())
+    {
+        return;
+    }
+
+    if (method.toLowerCase() == "basic")
+    {
+        Buffer value(username + ":" + password);
+        Buffer encodedValue;
+        Base64::encode(encodedValue, value);
+        m_value = encodedValue.c_str();
+    }
+    else if (method.toLowerCase() == "bearer")
+    {
+        m_value = jwtToken;
+    }
+    else
+    {
+        throw Exception("Unsupported authorization method: " + method);
+    }
 }
