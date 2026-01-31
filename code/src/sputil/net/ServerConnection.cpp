@@ -47,6 +47,10 @@ size_t ServerConnection::nextSerial()
 TCPSocket& ServerConnection::socket() const
 {
     const scoped_lock lock(m_mutex);
+    if (!m_socket)
+    {
+        throw Exception("Socket isn't open");
+    }
     return *m_socket;
 }
 
@@ -107,9 +111,9 @@ uint16_t ServerConnection::port() const
 
 void ServerConnection::close() const
 {
-    const scoped_lock lock(m_mutex);
-    if (m_socket->active())
+    auto socket = getSocket();
+    if (socket && socket->active())
     {
-        m_socket->close();
+        socket->close();
     }
 }
