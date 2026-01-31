@@ -451,7 +451,7 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, const size_t size, so
         return 0;
     }
 
-    int bytes;
+    ssize_t bytes;
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
@@ -514,7 +514,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     auto         remaining = static_cast<int>(size);
     while (remaining > 0)
     {
-        int bytes;
+        ssize_t bytes;
         if (peer != nullptr)
         {
             // UDP socket
@@ -523,9 +523,9 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
                            bit_cast<const sockaddr*>(peer),
                            sizeof(sockaddr_in));
 #else
-            bytes = static_cast<int>(sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), MSG_NOSIGNAL,
-                                            bit_cast<const sockaddr*>(peer),
-                                            sizeof(sockaddr_in)));
+            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), MSG_NOSIGNAL,
+                           bit_cast<const sockaddr*>(peer),
+                           sizeof(sockaddr_in));
 #endif
             if (bytes == -1)
             {
@@ -534,8 +534,8 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            auto writeSize = remaining > 2048 ? 2048 : remaining;
-            bytes = static_cast<int>(sendUnlocked(ptr, static_cast<int32_t>(writeSize)));
+            size_t writeSize = remaining > 2048 ? 2048 : remaining;
+            bytes = static_cast<int>(sendUnlocked(ptr, writeSize));
         }
 
         remaining -= bytes;
