@@ -28,6 +28,7 @@
 
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpAuthentication.h>
+#include <utility>
 
 namespace sptk {
 
@@ -37,25 +38,25 @@ namespace sptk {
  */
 
 /**
- * Namespace defined within WSDL document
+ * @brief Namespace defined within the WSDL document.
  */
 class SP_EXPORT WSNameSpace
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
-    WSNameSpace(const String& alias = "", const String& location = "")
-        : m_alias(alias)
-        , m_location(location)
+    explicit WSNameSpace(String alias = "", String location = "")
+        : m_alias(std::move(alias))
+        , m_location(std::move(location))
     {
     }
 
     /**
-     * Constructor
-     * @param other             Other namespace
+     * @brief Constructor.
+     * @param other             Another namespace
      */
     WSNameSpace(const WSNameSpace& other)
         : m_alias(other.m_alias)
@@ -64,13 +65,13 @@ public:
     }
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSNameSpace() noexcept = default;
 
     /**
-     * Assignment
-     * @param other             Other namespace
+     * @brief Assignment.
+     * @param other             Another namespace
      * @return
      */
     WSNameSpace& operator=(const WSNameSpace& other)
@@ -85,7 +86,7 @@ public:
     }
 
     /**
-     * Get namespace alias
+     * @brief Get namespace alias.
      * @return Namespace alias
      */
     String getAlias() const
@@ -95,7 +96,7 @@ public:
     }
 
     /**
-     * Get namespace location
+     * @brief Get namespace location.
      * @return Namespace location
      */
     String getLocation() const
@@ -111,40 +112,44 @@ private:
 };
 
 /**
- * Parser of WSDL requests
+ * @brief Parser of WSDL requests.
  */
 class SP_EXPORT WSRequest
     : public std::mutex
 {
 public:
     /**
-     * Constructor
-     * @param logEngine        Optional log engine for error messages
+     * @brief Constructor.
+     * @param targetNamespace   Target namespace.
+     * @param logEngine         Optional log engine for error messages.
      */
-    explicit WSRequest(String targetNamespace, LogEngine* logEngine = nullptr)
-        : m_logEngine(logEngine)
-        , m_targetNamespace(targetNamespace)
+    explicit WSRequest(String targetNamespace, std::shared_ptr<LogEngine> logEngine = nullptr)
+        : m_logEngine(std::move(logEngine))
+        , m_targetNamespace(std::move(targetNamespace))
     {
     }
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~WSRequest() = default;
 
     /**
-     * Processes incoming requests
+     * @brief Processes incoming requests.
      *
-     * The processing results are stored in the same request XML
-     * @param xmlContent           Incoming request and outgoing response
+     * The processing results are stored in the same request.
+     * @param xmlContent        Incoming request and outgoing response in XML format.
+     * @param jsonContent       Incoming request and outgoing response in JSON format.
+     * @param authentication    Request authentication object.
+     * @param requestName       Request name.
      */
     void processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                         HttpAuthentication* authentication, String& requestName);
 
     /**
-     * Returns service title (for service handshake)
+     * @brief Returns service title (for service handshake).
      *
-     * Application should overwrite this method to return mor appropriate text
+     * Application should overwrite this method to return mor appropriate text.
      */
     [[nodiscard]] virtual String title() const
     {
@@ -152,9 +157,9 @@ public:
     }
 
     /**
-     * Returns service default HTML page
+     * @brief Returns service default HTML page.
      *
-     * Application should overwrite this method to return mor appropriate text
+     * Application should overwrite this method to return mor appropriate text.
      */
     [[nodiscard]] virtual String defaultPage() const
     {
@@ -162,24 +167,24 @@ public:
     }
 
     /**
-     * @return service WSDL specifications
+     * @return service WSDL specifications.
      */
-    virtual String wsdl() const
+    [[nodiscard]] virtual String wsdl() const
     {
         return String("Not defined");
     }
 
     /**
-     * @return service OpenAPI specifications
+     * @return service OpenAPI specifications.
      */
-    virtual String openapi() const
+    [[nodiscard]] virtual String openapi() const
     {
         return String("Not defined");
     }
 
-    static String tagName(const String& nodeName);
+    [[nodiscard]] static String tagName(const String& nodeName);
 
-    LogEngine* getLogEngine()
+    [[nodiscard]] std::shared_ptr<LogEngine> getLogEngine() const
     {
         return m_logEngine;
     }
@@ -189,51 +194,53 @@ protected:
                                              HttpAuthentication*, const WSNameSpace&)>;
 
     /**
-     * Internal SOAP body processor
+     * @brief Internal SOAP body processor.
      *
-     * Receives incoming SOAP body of Web Service requests, and returns
-     * application response.
+     * Receives incoming SOAP body of Web Service requests, and returns application response.
      * This method is abstract and overwritten in derived generated classes.
-     * @param xmlContent        Incoming and outgoing SOAP element
-     * @param authentication    Optional setRequestMethods(move(requestMethods));HTTP authentication
-     * @param requestNameSpace  Request SOAP element namespace
+     * @param requestName       Request name.
+     * @param xmlContent        Incoming and outgoing SOAP element.
+     * @param jsonContent       Incoming and outgoing JSON element.
+     * @param authentication    HTTP authentication.
+     * @param requestNameSpace  Request SOAP element namespace.
      */
     virtual void requestBroker(const String& requestName, const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                                HttpAuthentication* authentication, const WSNameSpace& requestNameSpace);
 
     /**
-     * Default error handling
+     * @brief Default error handling.
      *
-     * Forms server response in case of error. The response should contain error information.
-     * @param xmlContent       Incoming XML request, or nullptr if JSON
-     * @param jsonContent      Incoming JSON request, or nullptr if XML
-     * @param error            Error description
-     * @param errorCode        Optional HTTP error code, or 0
+     * Forms the server response in case of error. The response should contain error information.
+     * @param xmlContent       Incoming XML request, or nullptr if JSON.
+     * @param jsonContent      Incoming JSON request, or nullptr if XML.
+     * @param error            Error description.
+     * @param errorCode        Optional HTTP error code, or 0.
      */
     virtual void handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                              const String& error, int errorCode) const;
 
     /**
-     * Default error logging
+     * @brief Default error logging.
      *
      * Logs error information to default logger.
-     * @param requestName      Request name
-     * @param error            Error description
-     * @param errorCode        Optional HTTP error code, or 0
+     * @param requestName      Request name.
+     * @param error            Error description.
+     * @param errorCode        Optional HTTP error code, or 0.
      */
     virtual void logError(const String& requestName, const String& error, int errorCode) const;
 
     /**
-     * Find SOAP body node
-     * @param soapEnvelope
-     * @return
+     * @brief Find the SOAP body node.
+     * @param soapEnvelope      SOAP envelope node.
+     * @param soapNamespace     SOAP namespace.
+     * @return SOAP Body node.
      */
     xdoc::SNode findSoapBody(const xdoc::SNode& soapEnvelope, const WSNameSpace& soapNamespace);
 
     void setRequestMethods(std::map<String, RequestMethod>&& requestMethods);
 
 private:
-    LogEngine*                      m_logEngine;       ///< Optional logger, or nullptr
+    std::shared_ptr<LogEngine>      m_logEngine;       ///< Optional logger, or nullptr
     std::map<String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
     String                          m_targetNamespace; ///< SOAP service target namespace
 };

@@ -197,25 +197,21 @@ void JWT::write_head(std::ostream& output, const bool pretty) const
      * -- draft-ietf-oauth-json-web-token-32 #6. */
     if (alg != Algorithm::NONE)
     {
-        map<string, string> headers {
-            {"typ", "JWT"},
-            {"key", key}};
-        for (const auto& [key, value]: headers)
+        if (pretty)
         {
-            if (pretty)
-            {
-                output << "    ";
-            }
-            output << "\"" << key << "\":";
-            if (pretty)
-            {
-                output << " ";
-            }
-            output << "\"" << value << "\",";
-            if (pretty)
-            {
-                output << std::endl;
-            }
+            output << "    ";
+        }
+
+        output << "\"typ\":";
+        if (pretty)
+        {
+            output << " ";
+        }
+        output << "\"JWT\",";
+
+        if (pretty)
+        {
+            output << std::endl;
         }
     }
 
@@ -454,18 +450,11 @@ static void jwt_verify_head(JWT* jwt, const Buffer& head)
 
     if (jwt->alg != JWT::Algorithm::NONE)
     {
-        jwt->key = JWT::get_js_string(node, "key");
-
         /* If alg is not NONE, there may be a typ. */
         val = JWT::get_js_string(node, "typ");
         if (!val.empty() && val != "JWT")
         {
             throw Exception("Invalid algorithm name");
-        }
-
-        if (jwt->key.empty())
-        {
-            throw Exception("No key provided.");
         }
     }
     else
@@ -504,7 +493,7 @@ void JWT::decode(const char* token, const String& _key)
         ++index;
     }
 
-    if (parts.size() < 3 || parts[1].data == nullptr)
+    if (index < 2)
     {
         throw Exception("Invalid JWT data");
     }
@@ -524,8 +513,8 @@ void JWT::decode(const char* token, const String& _key)
     jwt_verify_head(this, head);
     jwt_parse_body(this, body);
 
-    // Check the signature, if needed.
-    if (this->alg != Algorithm::NONE)
+    // Check the signature, if key is provided.
+    if (this->alg != Algorithm::NONE && !key.empty())
     {
         // Re-add this since it's part of the verified data.
         head.append('.');

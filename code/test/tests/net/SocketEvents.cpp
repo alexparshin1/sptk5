@@ -135,7 +135,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
 #ifndef _WIN32
 /**
  * @brief Test SocketEvents communication with the echo server using EdgeTriggered mode
- * @remarks The event count must show the events coming upon new data arrival to client's socket
+ * @remarks The event count must show the events coming upon new data arrival in the client's socket
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {

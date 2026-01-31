@@ -78,7 +78,7 @@ TEST(SPTK_JWT, dup)
     jwt.set("iat", static_cast<int>(now));
 
     valint = static_cast<int>(jwt.get("iat"));
-    EXPECT_EQ((long) now, valint) << "Failed jwt_get_grant_int()";
+    EXPECT_EQ(static_cast<long>(now), valint) << "Failed jwt_get_grant_int()";
 }
 
 TEST(SPTK_JWT, dup_signed)

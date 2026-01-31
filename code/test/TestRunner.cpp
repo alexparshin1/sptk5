@@ -24,8 +24,8 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <ranges>
 #include <gtest/gtest.h>
+#include <ranges>
 #include <sptk5/Base64.h>
 #include <sptk5/CommandLine.h>
 #include <sptk5/Crypt.h>
@@ -143,7 +143,7 @@ String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& defi
 
     return excludePatterns.join(":");
 }
-}
+} // namespace
 
 int TestRunner::runAllTests()
 {

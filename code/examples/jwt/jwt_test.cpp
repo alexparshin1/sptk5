@@ -41,7 +41,7 @@ using namespace sptk;
 bool test_dup()
 {
     time_t now;
-    int valint;
+    int    valint;
 
     const JWT jwt;
 
@@ -90,7 +90,7 @@ bool test_dup_signed()
     jwt.set("iss", "test");
     jwt.set_alg(JWT::Algorithm::HS256, key256);
 
-    const JWT newJWT(jwt);
+    const JWT    newJWT(jwt);
     const String val = static_cast<String>(newJWT.get("iss"));
     if (val != "test")
     {

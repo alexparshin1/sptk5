@@ -2,8 +2,8 @@
 
 #pragma once
 #include "CTestWSDL.h"
-#include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/net/HttpAuthentication.h>
+#include <sptk5/wsdl/WSRequest.h>
 
 // This Web Service types
 #include "CAccountBalance.h"
@@ -29,7 +29,7 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit CTestServiceBase(sptk::LogEngine* logEngine=nullptr);
+    explicit CTestServiceBase(const std::shared_ptr<sptk::LogEngine>& logEngine = nullptr);
 
     /**
      * Destructor
@@ -86,7 +86,6 @@ public:
     }
 
 private:
-
     /**
      * Internal Web Service AccountBalance processing
      * @param requestNode      Operation input/output XML data
@@ -110,9 +109,8 @@ private:
      * @param requestNameSpace Request SOAP element namespace
      */
     void process_Login(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);
-
 };
 
 using STestServiceBase = std::shared_ptr<CTestServiceBase>;
 
-}
+} // namespace test_service
