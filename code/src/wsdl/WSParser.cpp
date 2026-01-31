@@ -349,9 +349,9 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "public:\n";
     output << "    /**\n";
     output << "     * Constructor\n";
-    output << "     * @param logEngine        Optional log engine for error messages\n";
+    output << "     * @param logEngine        Optional log engine for error messages.\n";
     output << "     */\n";
-    output << "    explicit " << serviceClassName << "(sptk::LogEngine* logEngine=nullptr);\n\n";
+    output << "    explicit " << serviceClassName << "(const std::shared_ptr<sptk::LogEngine>& logEngine=nullptr);\n\n";
 
     output << "    /**\n";
     output << "     * Destructor\n";
@@ -365,7 +365,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     {
         output << "\n";
         output << "    /**\n";
-        output << "     * Web Service " << name << " operation\n";
+        output << "     * @brief Web Service " << name << " operation.\n";
         output << "     *\n";
         if (const auto documentation = m_documentation[operation.m_input->name()];
             !documentation.empty())
@@ -379,8 +379,8 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
         output
             << "     * This method is abstract and must be overwritten by derived Web Service implementation class."
             << "\n";
-        output << "     * @param input            Operation input data\n";
-        output << "     * @param output           Operation response data\n";
+        output << "     * @param input            Operation input data.\n";
+        output << "     * @param output           Operation response data.\n";
         output << "     */\n";
         output
             << "    virtual void " << name
@@ -390,17 +390,17 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "\n";
 
     output << "    /**\n";
-    output << "     * @return original WSDL specifications\n";
+    output << "     * @return original WSDL specifications.\n";
     output << "     */\n";
     output << "    sptk::String wsdl() const override;\n\n";
 
     output << "    /**\n";
-    output << "     * @return OpenAPI specifications\n";
+    output << "     * @return OpenAPI specifications.\n";
     output << "     */\n";
     output << "    sptk::String openapi() const override;\n\n";
 
     output << "    /**\n";
-    output << "     * @return SOAP WebService targetNamespace\n";
+    output << "     * @return SOAP WebService targetNamespace.\n";
     output << "     */\n";
     output << "    sptk::String targetNamespace() const\n";
     output << "    {\n"
@@ -413,10 +413,10 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     {
         const auto requestName = stripNamespace(operation.m_input->name());
         output << "    /**\n";
-        output << "     * Internal Web Service " << requestName << " processing\n";
-        output << "     * @param requestNode      Operation input/output XML data\n";
-        output << "     * @param authentication   Optional HTTP authentication\n";
-        output << "     * @param requestNameSpace Request SOAP element namespace\n";
+        output << "     * @brief Internal Web Service " << requestName << " processing.\n";
+        output << "     * @param requestNode      Operation input/output XML data.\n";
+        output << "     * @param authentication   Optional HTTP authentication.\n";
+        output << "     * @param requestNameSpace Request SOAP element namespace.\n";
         output << "     */\n";
         output << "    void process_" << requestName
                << "(const sptk::xdoc::SNode& xmlContent, const sptk::xdoc::SNode& jsonContent, sptk::HttpAuthentication* authentication, const sptk::WSNameSpace& requestNameSpace);"
@@ -453,7 +453,7 @@ void WSParser::generateImplementation(ostream& output) const
     output << "using namespace sptk;\n";
     output << "using namespace " << m_serviceNamespace << ";\n\n";
 
-    output << serviceClassName << "::" << serviceClassName << "(LogEngine* logEngine)\n";
+    output << serviceClassName << "::" << serviceClassName << "(const std::shared_ptr<LogEngine>& logEngine)\n";
     output << ": WSRequest(targetNamespace(), logEngine)\n";
     output << "{\n";
     output << "    map<String, RequestMethod> requestMethods {\n\n";
