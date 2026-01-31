@@ -45,6 +45,11 @@ SocketVirtualMethods::SocketVirtualMethods(const SOCKET_ADDRESS_FAMILY domain, c
 {
 }
 
+void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, const chrono::milliseconds&, const char*)
+{
+    // Implement in derived class
+}
+
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const OpenMode openMode,
                                                const chrono::milliseconds& timeout, const bool reusePort,
                                                const char* clientBindAddress)
@@ -126,7 +131,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 #endif
             }
             currentOperation = "bind";
-            result = bind(m_socketFd.load(), bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+            result = bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
                 result = listen(m_socketFd, SOMAXCONN);
@@ -288,7 +293,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
 #endif
     }
 
-    if (bind(m_socketFd.load(), bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    if (bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
     }
@@ -353,19 +358,22 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
     }
     return false;
 #else
-    struct pollfd pfd = {};
+    pollfd pfd = {};
 
     pfd.fd = m_socketFd;
     pfd.events = POLLIN;
     const int result = poll(&pfd, 1, timeoutMS);
+
     if (result < 0)
     {
         throwSocketError("Can't read from socket");
     }
-    if (result == 1 && (pfd.revents & CONNECTION_CLOSED) != 0)
+
+    if (result == 1 && (pfd.revents & (CONNECTION_CLOSED | POLLERR | POLLNVAL)) != 0)
     {
         throw ConnectionException("Connection closed");
     }
+
     return result != 0;
 #endif
 }
@@ -427,6 +435,10 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
         if (readyToReadUnlocked(timeout))
         {
             result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+            if (result == -1)
+            {
+                throwSocketError("Can't read from socket");
+            }
         }
     }
     return static_cast<size_t>(result);

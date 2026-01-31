@@ -35,11 +35,6 @@ atomic_bool winsockInitialized(false);
 }
 #endif
 
-void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, const chrono::milliseconds&, const char*)
-{
-    // Implement in derived class
-}
-
 #ifdef _WIN32
 void Socket::init() noexcept
 {

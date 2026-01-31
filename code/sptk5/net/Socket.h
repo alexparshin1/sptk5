@@ -118,7 +118,7 @@ public:
     /**
      * Returns the host
      */
-    [[nodiscard]] const Host& host() const
+    [[nodiscard]] const Host host() const
     {
         const std::scoped_lock lock(m_mutex);
         return getHostUnlocked();
@@ -189,7 +189,7 @@ public:
 
     /**
      * Returns the current socket state
-     * @returns true if socket is opened
+     * @returns true if the socket is opened
      */
     [[nodiscard]] bool active() const
     {

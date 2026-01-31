@@ -47,39 +47,62 @@ public:
     class SP_EXPORT Message
     {
     public:
+        /**
+         * @brief Receive message content and encoding.
+         * Throws exception if content is null or contentEncoding is invalid.
+         * @param content           Message content.
+         * @param contentEncoding   Content encoding, i.e. gzip, br, etc.
+         */
         void input(const Buffer& content, const String& contentEncoding);
 
+        /**
+         * @brief Encode message content using acceptable encodings.
+         * @param contentEncodings Acceptable content encodings (output).
+         * @return Encoded message content.
+         */
         Buffer output(const Strings& contentEncodings);
 
+        /**
+         * @return Message content.
+         */
         Buffer& content()
         {
             return m_content;
         }
 
+        /**
+         * @return Message content.
+         */
         const Buffer& content() const
         {
             return m_content;
         }
 
+        /**
+         * @return Message content encoding.
+         */
         String contentEncoding() const
         {
             return m_contentEncoding;
         }
 
+        /**
+         * @return Message compressed length.
+         */
         size_t compressedLength() const
         {
             return m_compressedLength;
         }
 
     private:
-        Buffer m_content;              ///< Message content (decompressed)
-        String m_contentEncoding;      ///< Content encoding, i.e. gzip, br, etc
-        size_t m_compressedLength {0}; ///< Compressed length if contentEncoding isn't empty
+        Buffer m_content;              ///< Message content (decompressed).
+        String m_contentEncoding;      ///< Content encoding, i.e. gzip, br, etc.
+        size_t m_compressedLength {0}; ///< Compressed length if contentEncoding isn't empty.
     };
 
     /**
-     * Constructor
-     * @param name              Request name
+     * @brief Constructor.
+     * @param name              Request name.
      */
     explicit RequestInfo(const String& name = "")
         : name(name)

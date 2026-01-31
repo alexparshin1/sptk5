@@ -45,7 +45,7 @@ using ProgressCallback = std::function<void(int total, int progress)>;
 /**
  * @brief IMAP datasource
  *
- * Allows to browse the list of messages and folders on IMAP server.
+ * Allows browsing the list of messages and folders on the IMAP server.
  * It returns a dataset with message headers.
  */
 class SP_EXPORT ImapDS
@@ -68,13 +68,13 @@ public:
     /**
      * Get IMAP host
      */
-    const Host& host() const
+    Host host() const
     {
         return m_imap.host();
     }
 
     /**
-     * IMAP user name
+     * IMAP username
      */
     void user(const String& usr)
     {
@@ -82,7 +82,7 @@ public:
     }
 
     /**
-     * IMAP user name
+     * IMAP username
      */
     const String& user() const
     {
@@ -140,7 +140,7 @@ public:
 
     /**
      * Sets the fetch body flag. Should be called prior to open().
-     * If the fetch body flag is not set, only the message headers will be retrieved and that is much faster.
+     * If the fetch body flag is not set, only the message headers will be retrieved, and that is much faster.
      */
     void fetchBody(bool fb)
     {
@@ -157,8 +157,8 @@ public:
     }
 
     /**
-     * Opens the IMAP server connection with user name and password defined with user() and password().
-     * Scans the IMAP folder defined with folder(), than closes the IMAP server connection.
+     * Opens the IMAP server connection with username and password defined with user() and password().
+     * Scans the IMAP folder defined with folder(), then closes the IMAP server connection.
      */
     bool open() override;
 

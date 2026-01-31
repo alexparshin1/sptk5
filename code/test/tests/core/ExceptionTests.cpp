@@ -40,7 +40,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in Exception.cpp:39", e.what());
+        EXPECT_STREQ("Test exception in ExceptionTests.cpp:39", e.what());
     }
 
     try
@@ -49,7 +49,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in Exception.cpp:48. This happens sometimes.", e.what());
+        EXPECT_STREQ("Test exception in ExceptionTests.cpp:48. This happens sometimes.", e.what());
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
 }
@@ -71,7 +71,7 @@ TEST(SPTK_HttpException, throwException)
         }
         catch (const HTTPException& e)
         {
-            EXPECT_STREQ("Something happened in Exception.cpp:70. This happens sometimes.", e.what());
+            EXPECT_STREQ("Something happened in ExceptionTests.cpp:70. This happens sometimes.", e.what());
             EXPECT_STREQ("Something happened", e.message().c_str());
             EXPECT_EQ(code, e.statusCode());
             EXPECT_EQ(expectedStatus, e.statusText());

@@ -38,7 +38,7 @@ SmtpConnect::SmtpConnect(Logger* log)
 }
 
 constexpr int RSP_BLOCK_SIZE = 1024;
-constexpr int minErrorCode = 433;
+constexpr int minErrorCode = 400;
 
 int SmtpConnect::getResponse(const bool decode)
 {
@@ -60,11 +60,15 @@ int SmtpConnect::getResponse(const bool decode)
         socketReader.readLine(readBuffer);
         longLine = readBuffer.c_str();
 
-        if (longLine[3] == ' ')
+        if (longLine.length() > 3 && (longLine[3] == ' ' || longLine[3] == '-'))
         {
-            readCompleted = true;
+            readCompleted = longLine[3] == ' ';
             longLine[3] = 0;
             result = string2int(longLine);
+        }
+        else
+        {
+            throw Exception("Invalid SMTP server response");
         }
 
         if (!longLine.empty())
@@ -153,17 +157,21 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
     m_response.clear();
     getResponse();
 
-    int result = command("EHLO localhost");
+    auto result = command("EHLO localhost");
     if (result > minAuthErrorCode)
     {
-        throw Exception(m_response.join("\n"));
+        result = command("HELO localhost");
+        if (result > minAuthErrorCode)
+        {
+            throw Exception(m_response.join("\n"));
+        }
     }
 
     Strings authInfo = m_response.grep("^AUTH ");
     if (authInfo.empty())
     {
         return;
-    } // Authentication not advertised and not required
+    } // Authentication isn't advertised and not required
 
     const RegularExpression matchAuth("^AUTH ");
     const String            authMethodsStr = matchAuth.s(authInfo[0], "");
@@ -266,6 +274,7 @@ void SmtpConnect::sendMessage()
     constexpr int dataSuccessCode {354};
     Buffer        message(messageBuffer());
     mimeMessage(message);
+
     result = command("DATA");
     if (result != dataSuccessCode)
     {
@@ -273,7 +282,7 @@ void SmtpConnect::sendMessage()
     }
 
     sendCommand(message.c_str());
-    result = command("\n.");
+    result = command("\n\r");
     if (result >= minSendErrorCode)
     {
         throw Exception("Message body is not accepted.\n" + m_response.join("\n"));

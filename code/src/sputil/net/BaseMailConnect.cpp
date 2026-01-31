@@ -257,5 +257,5 @@ void BaseMailConnect::mimeMessage(Buffer& buffer)
     message << "\n--" << boundary << "--\n";
 
     buffer.set(bit_cast<const uint8_t*>(message.str().c_str()), static_cast<uint32_t>(message.str().length()));
-    buffer.saveToFile("/tmp/mimed.txt");
+    //buffer.saveToFile("/tmp/mimed.txt");
 }

@@ -246,9 +246,9 @@ protected:
     virtual void attachUnlocked(SocketType socketHandle, bool accept);
 
     /**
-     * Detaches socket handle, setting it to INVALID_SOCKET.
-     * Closes the socket without affecting socket handle.
-     * @return Existing socket handle
+     * @brief Detaches the socket handle, setting it to INVALID_SOCKET.
+     * Closes the socket without affecting the returned socket handle.
+     * @return Detached socket handle
      */
     virtual SocketType detachUnlocked();
 
@@ -325,12 +325,12 @@ protected:
     }
 
 private:
-    std::atomic<SocketType> m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
-    std::atomic<int32_t>    m_domain;                    ///< Socket domain type
-    std::atomic<int32_t>    m_type;                      ///< Socket type
-    std::atomic<int32_t>    m_protocol;                  ///< Socket protocol
-    Host                    m_host;                      ///< Host
-    std::atomic<bool>       m_blockingMode {false};      ///< Blocking mode flag
+    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle
+    int32_t    m_domain;                    ///< Socket domain type
+    int32_t    m_type;                      ///< Socket type
+    int32_t    m_protocol;                  ///< Socket protocol
+    Host       m_host;                      ///< Host
+    bool       m_blockingMode {false};      ///< Blocking mode flag
 };
 
 /**
