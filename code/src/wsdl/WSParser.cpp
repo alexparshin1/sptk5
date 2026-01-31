@@ -339,7 +339,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "namespace " << m_serviceNamespace << " {\n\n";
 
     output << "/**\n";
-    output << " * Base class for service method.\n";
+    output << " * @brief Base class for service method.\n";
     output << " *\n";
     output << " * Web Service application derives its service class from this class\n";
     output << " * by overriding abstract methods\n";
@@ -348,7 +348,7 @@ void WSParser::generateDefinition(const Strings& usedClasses, ostream& output)
     output << "{\n";
     output << "public:\n";
     output << "    /**\n";
-    output << "     * Constructor\n";
+    output << "     * @brief Constructor.\n";
     output << "     * @param logEngine        Optional log engine for error messages.\n";
     output << "     */\n";
     output << "    explicit " << serviceClassName << "(const std::shared_ptr<sptk::LogEngine>& logEngine=nullptr);\n\n";
