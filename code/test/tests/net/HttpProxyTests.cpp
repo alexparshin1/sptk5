@@ -38,9 +38,9 @@ using namespace chrono;
 
 TEST(SPTK_HttpProxy, connect)
 {
-    // Check if proxy is defined in environment variable.
+    // Check if the proxy is defined in the environment variable.
     // It's typical for Linux, and rare for Windows.
-    // If proxy is not defined or defined in wrong format, this test is exiting.
+    // If proxy is not defined or defined in the wrong format, this test is exiting.
     const char* proxy = getenv("HTTP_PROXY");
     if (proxy == nullptr)
     {
@@ -52,7 +52,7 @@ TEST(SPTK_HttpProxy, connect)
     } // No proxy defined, don't test
 
     RegularExpression matchProxy(R"(^((.*):(.*)@)?(\d+\.\d+\.\d+\.\d+:\d+)$)");
-    auto matches = matchProxy.m(proxy);
+    auto              matches = matchProxy.m(proxy);
     if (!matches)
     {
         CERR("Can't parse proxy from environment variable");
@@ -61,17 +61,17 @@ TEST(SPTK_HttpProxy, connect)
 
     String proxyUser(matches[1].value);
     String proxyPassword(matches[2].value);
-    Host proxyHost(matches[3].value);
+    Host   proxyHost(matches[3].value);
 
-    auto httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
+    auto   httpProxy = make_shared<HttpProxy>(proxyHost, proxyUser, proxyPassword);
     String error;
     try
     {
-        constexpr int httpPort {80};
         Host aHost("www.sptk.net:80");
 
         shared_ptr<TCPSocket> socket;
-        if (aHost.port() == httpPort)
+        if (constexpr auto httpPort {80};
+            aHost.port() == httpPort)
         {
             socket = make_shared<TCPSocket>();
         }
@@ -86,7 +86,7 @@ TEST(SPTK_HttpProxy, connect)
 
         HttpConnect http(*socket);
 
-        Buffer output;
+        Buffer        output;
         constexpr int minimalHttpError = 400;
 
         if (auto statusCode = http.cmd_get("/", HttpParams(), output);
@@ -105,7 +105,7 @@ TEST(SPTK_HttpProxy, connect)
 
 TEST(SPTK_HttpProxy, getDefaultProxy)
 {
-    Host proxyHost;
+    Host   proxyHost;
     String proxyUser;
     String proxyPassword;
 

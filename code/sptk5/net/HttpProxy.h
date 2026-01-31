@@ -32,17 +32,50 @@
 
 namespace sptk {
 
+/**
+ * @brief HTTP proxy.
+ *
+ * To use the proxy, it should be set for a socket using Socket::setProxy() before connecting:
+ *
+ *    socket->setProxy(httpProxy);
+ *    socket->open(...);
+ */
 class SP_EXPORT HttpProxy : public Proxy
 {
 public:
     using Proxy::Proxy;
 
+    /**
+     * @brief Connect to destination host through this proxy.
+     * @param destination       Destination host.
+     * @param blockingMode      Blocking mode.
+     * @param timeout           Connection timeout.
+     * @return Connected socket handle.
+     */
     SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) override;
 
+    /**
+     * @brief Get default proxy host.
+     * @param proxyHost         Proxy host (output).
+     * @param proxyUser         Proxy user (output).
+     * @param proxyPassword     Proxy password (output).
+     * @return True if the default proxy is set, false otherwise.
+     */
     static bool getDefaultProxy(Host& proxyHost, String& proxyUser, String& proxyPassword);
 
-    void sendRequest(const Host& destination, const std::shared_ptr<TCPSocket>& socket, const String& method) const;
+private:
+    /**
+     * @brief Send HTTP request to proxy server.
+     * @param destination       Proxy host.
+     * @param socket            Proxy socket.
+     */
+    void sendRequest(const Host& destination, const std::shared_ptr<TCPSocket>& socket) const;
 
+    /**
+     * @brief Read HTTP response from the proxy server.
+     * @param socket            Proxy socket.
+     * @return true if Ok response received and proxy is connected.
+     */
     static bool readResponse(const std::shared_ptr<TCPSocket>& socket);
 };
 

@@ -100,7 +100,6 @@ bool HttpReader::readHttpRequest()
 
 void HttpReader::readHttpHeaders()
 {
-    constexpr int lengthRequiredResponseCode(411);
 
     clear();
 
@@ -125,24 +124,17 @@ void HttpReader::readHttpHeaders()
         String header;
 
         readLine(header);
+        header = trim(header);
 
         if (header.empty())
         {
-            continue;
-            //throw Exception("Empty HTTP header");
+            break;
         }
 
-
-        if (const size_t pos = header.find(':');
+        if (const auto pos = header.find(':');
             pos != string::npos)
         {
-            m_httpHeaders[lowerCase(header.substr(0, pos))] = trim(header.substr(pos + 1));
-            continue;
-        }
-
-        if (header[0] == '\r')
-        {
-            break;
+            m_httpHeaders[header.substr(0, pos)] = trim(header.substr(pos + 1));
         }
     }
 
@@ -163,6 +155,7 @@ void HttpReader::readHttpHeaders()
 
     if ((m_requestType == "POST" || m_requestType == "PUT") && !(m_contentLength > 0 || m_contentIsChunked))
     {
+        constexpr auto lengthRequiredResponseCode(411);
         throw HTTPException(lengthRequiredResponseCode, "Length required");
     }
 

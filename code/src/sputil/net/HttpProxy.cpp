@@ -33,47 +33,42 @@
 #include <winhttp.h>
 #endif
 
-
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, const std::chrono::milliseconds& timeout)
+SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, const milliseconds& timeout)
 {
     auto socket = make_shared<TCPSocket>();
 
-    const Strings methods({"CONNECT", "GET"});
-    bool          proxyConnected = false;
-    for (const auto& method: methods)
+    bool proxyConnected = false;
+    try
     {
-        try
+        socket->open(m_host, Socket::OpenMode::CONNECT, blockingMode, timeout);
+        sendRequest(destination, socket);
+
+        const String error("Proxy connection timeout");
+
+        if (constexpr seconds readTimeout(10);
+            socket->readyToRead(readTimeout))
         {
-            socket->open(m_host, Socket::OpenMode::CONNECT, blockingMode, timeout);
-            sendRequest(destination, socket, method);
-
-            const String error("Proxy connection timeout");
-
-            if (constexpr seconds readTimeout(10);
-                socket->readyToRead(readTimeout))
-            {
-                proxyConnected = readResponse(socket);
-            }
-
-            if (proxyConnected)
-            {
-                break;
-            }
-        }
-        catch (const Exception& e)
-        {
-            throw ConnectionException("Can't connect to proxy " + m_host.toString() + ": " + String(e.what()));
+            proxyConnected = readResponse(socket);
         }
     }
+    catch (const Exception& e)
+    {
+        throw ConnectionException("Can't connect to proxy " + m_host.toString() + ": " + String(e.what()));
+    }
 
-    const SocketType handle = socket->detach();
-    socket.reset();
+    if (proxyConnected)
+    {
+        const SocketType handle = socket->detach();
+        socket.reset();
 
-    return handle;
+        return handle;
+    }
+
+    throw ConnectionException("Can't connect to proxy " + m_host.toString());
 }
 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
@@ -131,10 +126,12 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     return proxyConnected;
 }
 
-void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>& socket, const String& method) const
+void HttpProxy::sendRequest(const Host& destination, const shared_ptr<TCPSocket>& socket) const
 {
-    socket->write(method + " " + destination.toString() + " HTTP/1.1\r\n");
+    socket->write(format("CONNECT {}:{} HTTP/1.1\r\n", destination.hostname().c_str(), destination.port()));
+    socket->write(format("Host: {}:{}\r\n", destination.hostname().c_str(), destination.port()));
     socket->write("Proxy-Connection: keep-alive\r\n");
+    socket->write("Connection: keep-alive\r\n");
 
     socket->write("User-agent: SPTK\r\n");
     if (!m_username.empty())
@@ -215,7 +212,7 @@ bool HttpProxy::getDefaultProxy(Host& proxyHost, String& proxyUser, String& prox
 #ifdef _WIN32
     return windowsGetDefaultProxy(proxyHost, proxyUser, proxyPassword);
 #else
-    const RegularExpression matchProxy(R"(^(http://)?((\S+)(:\S+)@)?(\S+:\d+)$)");
+    const RegularExpression matchProxy(R"(^(http://)?((\S+[^:])(:\S+)@)?(\S+:\d+)$)");
     const char*             proxyEnv = getenv("http_proxy");
     if (proxyEnv == nullptr)
     {
