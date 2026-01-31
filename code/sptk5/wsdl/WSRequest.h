@@ -28,6 +28,7 @@
 
 #include <sptk5/cthreads>
 #include <sptk5/net/HttpAuthentication.h>
+#include <utility>
 
 namespace sptk {
 
@@ -37,7 +38,7 @@ namespace sptk {
  */
 
 /**
- * Namespace defined within WSDL document
+ * Namespace defined within the WSDL document
  */
 class SP_EXPORT WSNameSpace
 {
@@ -47,15 +48,15 @@ public:
      * @param alias             Namespace alias
      * @param location          Namespace location
      */
-    WSNameSpace(const String& alias = "", const String& location = "")
-        : m_alias(alias)
-        , m_location(location)
+    explicit WSNameSpace(String alias = "", String location = "")
+        : m_alias(std::move(alias))
+        , m_location(std::move(location))
     {
     }
 
     /**
      * Constructor
-     * @param other             Other namespace
+     * @param other             Another namespace
      */
     WSNameSpace(const WSNameSpace& other)
         : m_alias(other.m_alias)
@@ -70,7 +71,7 @@ public:
 
     /**
      * Assignment
-     * @param other             Other namespace
+     * @param other             Another namespace
      * @return
      */
     WSNameSpace& operator=(const WSNameSpace& other)
@@ -123,7 +124,7 @@ public:
      */
     explicit WSRequest(String targetNamespace, LogEngine* logEngine = nullptr)
         : m_logEngine(logEngine)
-        , m_targetNamespace(targetNamespace)
+        , m_targetNamespace(std::move(targetNamespace))
     {
     }
 
@@ -135,8 +136,9 @@ public:
     /**
      * Processes incoming requests
      *
-     * The processing results are stored in the same request XML
-     * @param xmlContent           Incoming request and outgoing response
+     * The processing results are stored in the same request
+     * @param xmlContent        Incoming request and outgoing response in XML format
+     * @param jsonContent       Incoming request and outgoing response in JSON format
      */
     void processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent,
                         HttpAuthentication* authentication, String& requestName);
@@ -164,7 +166,7 @@ public:
     /**
      * @return service WSDL specifications
      */
-    virtual String wsdl() const
+    [[nodiscard]] virtual String wsdl() const
     {
         return String("Not defined");
     }
@@ -172,14 +174,14 @@ public:
     /**
      * @return service OpenAPI specifications
      */
-    virtual String openapi() const
+    [[nodiscard]] virtual String openapi() const
     {
         return String("Not defined");
     }
 
-    static String tagName(const String& nodeName);
+    [[nodiscard]] static String tagName(const String& nodeName);
 
-    LogEngine* getLogEngine()
+    [[nodiscard]] LogEngine* getLogEngine() const
     {
         return m_logEngine;
     }
