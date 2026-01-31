@@ -29,7 +29,7 @@ public:
      * Constructor
      * @param logEngine        Optional log engine for error messages
      */
-    explicit CTestServiceBase(sptk::LogEngine* logEngine = nullptr);
+    explicit CTestServiceBase(const std::shared_ptr<sptk::LogEngine>& logEngine = nullptr);
 
     /**
      * Destructor

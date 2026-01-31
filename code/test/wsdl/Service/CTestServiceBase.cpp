@@ -9,7 +9,7 @@ using namespace placeholders;
 using namespace sptk;
 using namespace test_service;
 
-CTestServiceBase::CTestServiceBase(LogEngine* logEngine)
+CTestServiceBase::CTestServiceBase(const shared_ptr<LogEngine>& logEngine)
     : WSRequest(targetNamespace(), logEngine)
 {
     map<String, RequestMethod> requestMethods {
