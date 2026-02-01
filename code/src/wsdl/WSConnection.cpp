@@ -32,12 +32,12 @@ using namespace std;
 using namespace sptk;
 
 WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services,
-                           LogEngine& logEngine,
-                           Options options, const std::shared_ptr<Thread>& workerThread)
+                           LogEngine& logEngine, Options options, const std::shared_ptr<Thread>& workerThread)
     : RunableServerConnection(server, Type::SSL, connectionAddress)
     , m_services(services)
-    , m_logger(logEngine, "(" + to_string(serial()) + ") ")
+    , m_logger(logEngine, format("({}) ", serial()))
     , m_options(std::move(options))
+    , m_isHangup(false)
     , m_workerThread(workerThread)
 {
     if (!m_options.paths.staticFilesDirectory.endsWith("/"))
@@ -79,7 +79,7 @@ void printMessage(stringstream& logMessage, const String& prefix, const RequestI
 
 void WSConnection::processSingleConnection()
 {
-    auto logDebugMessages = m_logger.destination().minPriority() != LogPriority::Debug;
+    auto logDebugMessages = m_logger.destination().minPriority() == LogPriority::Debug;
     if (logDebugMessages)
     {
         m_logger.debug("Processing connection");
@@ -108,10 +108,13 @@ void WSConnection::processSingleConnection()
     if (requestType == "OPTIONS")
     {
         respondToOptions(headers);
-        if (headers["Connection"].toLowerCase() == "close")
+        const auto itor = headers.find("Connection");
+        const auto connectionHeader = itor == headers.end() ? "" : itor->second;
+        if (connectionHeader.toLowerCase() == "close")
         {
             httpReader.close();
         }
+
         if (logDebugMessages)
         {
             m_logger.debug("Processed OPTIONS");
@@ -174,11 +177,18 @@ void WSConnection::run()
         {
             processSingleConnection();
         }
-        catch (const Exception& e)
+        catch (const exception& e)
         {
             if (!terminated() && socket().active())
             {
                 m_logger.error("Error in incoming connection: " + String(e.what()));
+            }
+        }
+        catch (...)
+        {
+            if (!terminated() && socket().active())
+            {
+                m_logger.error("Unknown error in incoming connection.");
             }
         }
     }
@@ -190,7 +200,7 @@ void WSConnection::run()
 }
 
 void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
-                                        const RequestInfo& requestInfo)
+                                        const RequestInfo& requestInfo) const
 {
     if (!m_options.logDetails.empty())
     {
@@ -245,13 +255,16 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
 
 bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers)
 {
-    if (const String contentLength = headers["Content-Length"];
-        requestType == "GET" && contentLength.empty())
+    auto       it = headers.find("Content-Length");
+    const auto contentLength = it == headers.end() ? "" : it->second;
+    if (requestType == "GET" && contentLength.empty())
     {
         headers["Content-Length"] = "0";
     }
 
-    const bool closeConnection = headers["Connection"].toLowerCase() == "close";
+    it = headers.find("Connection");
+    const auto connectionHeader = it == headers.end() ? "" : it->second;
+    const bool closeConnection = connectionHeader.toLowerCase() != "close";
     if (closeConnection)
     {
         headers.erase("Connection");
@@ -261,21 +274,25 @@ bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers
 }
 
 bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, String& protocolName,
-                                      HttpHeaders& headers) const
+                                      const HttpHeaders& headers) const
 {
-    const String contentType = headers["Content-Type"];
-    bool         processed = false;
-    if (contentType.find("/json") != string::npos || requestType == "POST")
+    bool processed = false;
+
+    auto       it = headers.find("Content-Type");
+    const auto contentType = it == headers.end() ? "" : it->second.toLowerCase();
+    if (contentType.find("/json") != String::npos || requestType == "POST")
     {
         protocolName = "rest";
     }
-    else if (contentType.find("/xml") != string::npos)
+    else if (contentType.find("/xml") != String::npos)
     {
         protocolName = "WS";
     }
     else
     {
-        if (headers["Upgrade"] == "websocket")
+        it = headers.find("Upgrade");
+        const auto upgrade = it == headers.end() ? "" : it->second;
+        if (upgrade.toLowerCase() == "websocket")
         {
             WSWebSocketsProtocol protocol(&socket(), headers);
             protocol.process();
@@ -299,8 +316,13 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
 void WSConnection::respondToOptions(const HttpHeaders& headers) const
 {
     const auto itor = headers.find("origin");
-    auto       origin = itor->second;
-    Buffer     response;
+    if (itor == headers.end())
+    {
+        return;
+    }
+
+    auto   origin = itor->second;
+    Buffer response;
 
     response.append("HTTP/1.1 204 No Content\r\n");
 
@@ -311,7 +333,9 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
 
     if (m_options.allowCors)
     {
-        response.append("Access-Control-Allow-Origin: *\r\n");
+        response.append(format("Access-Control-Allow-Origin: {}\r\n", origin.c_str()));
+        //response.append("Access-Control-Allow-Origin: *\r\n");
+
         response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
         response.append(
             "Access-Control-Allow-Headers: Content-Type, Content-Length, Content-Encoding, Access-Control-Allow-Origin, Authorization\r\n");
@@ -335,9 +359,9 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     if (options.encrypted)
     {
         const auto& sslKeys = server.getSSLKeys();
-        const auto  socket = make_shared<SSLSocket>();
-        socket->loadKeys(*sslKeys);
-        setSocket(socket);
+        const auto  sslSocket = make_shared<SSLSocket>();
+        sslSocket->loadKeys(*sslKeys);
+        setSocket(sslSocket);
     }
     else
     {

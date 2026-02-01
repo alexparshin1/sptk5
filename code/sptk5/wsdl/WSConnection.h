@@ -104,25 +104,25 @@ public:
     /**
      * Set hangup state: read the data and close the connection
      */
-    [[maybe_unused]] void setHangup();
+    void setHangup();
 
-    [[maybe_unused]] std::shared_ptr<Thread> getWorkerThread() const;
+    [[nodiscard]] std::shared_ptr<Thread> getWorkerThread() const;
+
+    static bool reviewHeaders(const String& requestType, HttpHeaders& headers);
 
 private:
     WSServices&             m_services;
     Logger                  m_logger;
     Options                 m_options;
-    bool                    m_isHangup {false};
+    bool                    m_isHangup;
     std::shared_ptr<Thread> m_workerThread;
 
     void respondToOptions(const HttpHeaders& headers) const;
 
-    bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, HttpHeaders& headers) const;
-
-    static bool reviewHeaders(const String& requestType, HttpHeaders& headers);
+    bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, const HttpHeaders& headers) const;
 
     void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
-                              const RequestInfo& requestInfo);
+                              const RequestInfo& requestInfo) const;
 
     void processSingleConnection();
 };

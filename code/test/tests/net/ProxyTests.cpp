@@ -24,72 +24,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <sptk5/net/Proxy.h>
 
-#include <sptk5/net/Host.h>
-#include <sptk5/net/Socket.h>
+using namespace std;
+using namespace sptk;
 
-namespace sptk {
-
-/**
- * @addtogroup network Network Classes
- * @{
- */
-
-class TCPSocket;
-
-/**
- * @brief Base proxy class for network connection proxy.
- */
-class SP_EXPORT Proxy
+class TestProxy final : public Proxy
 {
 public:
-    /**
-     * @brief Constructor.
-     * @param host              Proxy host.
-     * @param username          Proxy username.
-     * @param password          Proxy password.
-     */
-    explicit Proxy(Host host, String username = "", String password = "");
+    using Proxy::Proxy;
 
-    /**
-     * @brief Destructor.
-     */
-    virtual ~Proxy() = default;
+    SocketType connect(const Host& /*destination*/, bool /*blockingMode*/,
+                       const std::chrono::milliseconds& /*timeout*/) override
+    {
+        return SocketType {};
+    }
 
-    /**
-     * @brief Connect to the destination host via the proxy.
-     * Throws exceptions on connection problems.
-     * @param destination       Destination host.
-     * @param blockingMode      Blocking mode.
-     * @param timeout           Connection timeout.
-     * @return                  Socket handle.
-     */
-    virtual SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) = 0;
-
-    [[nodiscard]] Host getHost() const
+    const Host& host() const
     {
         return m_host;
     }
 
-    [[nodiscard]] String getUsername() const
+    const String& username() const
     {
         return m_username;
     }
 
-    [[nodiscard]] String getPassword() const
+    const String& password() const
     {
         return m_password;
     }
-
-protected:
-    const Host   m_host;     ///< Proxy host.
-    const String m_username; ///< Proxy username.
-    const String m_password; ///< Proxy password.
 };
 
-/**
- * @}
- */
+TEST(SPTK_Proxy, storesHostAndDefaultCredentials)
+{
+    // A web server is expected to run locally
+    const Host      host("localhost", 80);
+    const TestProxy proxy(host);
 
-} // namespace sptk
+    EXPECT_TRUE(proxy.host() == host);
+    EXPECT_TRUE(proxy.username().empty());
+    EXPECT_TRUE(proxy.password().empty());
+}
+
+TEST(SPTK_Proxy, storesProvidedCredentials)
+{
+    // A web server is expected to run locally
+    const Host      host("localhost", 80);
+    const TestProxy proxy(host, "user1", "pass1");
+
+    EXPECT_TRUE(proxy.host() == host);
+    EXPECT_STREQ(proxy.username().c_str(), "user1");
+    EXPECT_STREQ(proxy.password().c_str(), "pass1");
+}
