@@ -62,20 +62,12 @@ void WSComplexType::exportTo(const SNode& parent, const char* name) const
         }
 
         const String elementName = name == nullptr ? this->name().c_str() : name;
-        SNode        element;
-        if (parent->type() == Node::Type::Array)
-        {
-            element = parent->pushNode(elementName);
-        }
-        else
-        {
-            element = parent->pushNode(this->name());
-        }
+        const SNode  element = parent->pushNode(elementName);
         unload(element);
     }
 }
 
-String WSComplexType::toString(bool asJSON, bool formatted) const
+String WSComplexType::toString(const bool asJSON, const bool formatted) const
 {
     Buffer output;
 
@@ -153,7 +145,7 @@ void WSComplexType::load(const FieldList& input, bool nullLargeData)
     checkRestrictions();
 }
 
-bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType* field)
+bool WSComplexType::loadField(const FieldList& input, const bool nullLargeData, WSType* field)
 {
     const auto& inputField = input.findField(field->name());
 
@@ -165,7 +157,7 @@ bool WSComplexType::loadField(const FieldList& input, bool nullLargeData, WSType
     if (auto* outputField = dynamic_cast<WSBasicType*>(field);
         outputField != nullptr)
     {
-        if (nullLargeData)
+        if (nullLargeData && inputField->dataSize() > 256)
         {
             outputField->setNull();
         }
@@ -199,10 +191,10 @@ bool WSComplexType::isNull() const
                      {
                          if (field->isNull())
                          {
-                             return true;
+                             return false;
                          }
                          hasValues = true;
-                         return false;
+                         return true;
                      });
     return !hasValues;
 }

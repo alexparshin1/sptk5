@@ -29,6 +29,7 @@
 #include <sptk5/net/SSLContext.h>
 
 // This #include statement must be after SSLContext.h, or it breaks Windows compilation
+#include <format>
 #include <openssl/err.h>
 
 using namespace std;
@@ -61,12 +62,9 @@ SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
         throwError("Can't create SSL context");
     }
 
-    if (!cipherList.empty())
+    if (!cipherList.empty() && SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str()) == 0)
     {
-        if (SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str()) == 0)
-        {
-            throwError("Can't set cipher list");
-        }
+        throwError("Can't set cipher list");
     }
 
     SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
@@ -97,7 +95,7 @@ int SSLContext::passwordReplyCallback(char* replyBuffer, const int replySize, in
         return 0;
     }
 
-    snprintf(replyBuffer, static_cast<size_t>(replySize), "%s", static_cast<char*>(userdata));
+    format_to_n(replyBuffer, replySize, "{}", static_cast<const char*>(userdata));
     replyBuffer[replySize - 1] = '\0';
     return static_cast<int>(strlen(replyBuffer));
 }

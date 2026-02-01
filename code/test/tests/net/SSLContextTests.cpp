@@ -24,37 +24,79 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/HomeDirectory.h"
-#include "sptk5/Exception.h"
+#include "test/TestData.h"
 
-#include <cstring>
-#include <format>
+#include <future>
+#include <gtest/gtest.h>
+#include <openssl/ssl.h>
+#include <sptk5/cnet>
+#include <sptk5/net/SSLContext.h>
 
 using namespace std;
 using namespace sptk;
+using namespace chrono;
 
-std::filesystem::path HomeDirectory::location()
+TEST(SPTK_SSLContext, ctorCreatesContextAndHandleIsNotNull)
 {
-#ifndef _WIN32
-    std::filesystem::path homeDir;
-    if (const char* hdir = std::getenv("HOME");
-        hdir != nullptr && strlen(hdir) != 0)
-    {
-        return hdir;
-    }
+    SSLContext ctx("ALL", true);
+    EXPECT_NE(nullptr, ctx.handle());
+}
 
-    if (const char* user = std::getenv("USER"))
-    {
-        return format("/home/{}", user);
-    }
+TEST(SPTK_SSLContext, ctorWithInvalidCipherListThrows)
+{
+    EXPECT_THROW(
+        {
+            SSLContext ctx("THIS-CIPHER-LIST-SHOULD-NOT-EXIST", true);
+            (void) ctx;
+        },
+        Exception);
+}
+
+TEST(SPTK_SSLContext, tlsOnlySetsMinProtocolVersionToTls11)
+{
+    SSLContext ctx("ALL", true);
+    SSL_CTX*   raw = ctx.handle();
+    ASSERT_NE(nullptr, raw);
+
+#if defined(SSL_CTX_get_min_proto_version) && defined(TLS1_1_VERSION)
+    const auto minVer = SSL_CTX_get_min_proto_version(raw);
+    EXPECT_EQ(TLS1_1_VERSION, minVer);
 #else
-    char* hdrive = getenv("HOMEDRIVE");
-    char* hdir = getenv("HOMEPATH");
-    if (hdir && hdrive)
-    {
-        return format("{}{}", hdrive, hdir);
-    }
+    GTEST_SKIP() << "OpenSSL does not expose SSL_CTX_get_min_proto_version/TLS1_1_VERSION in this build.";
 #endif
+}
 
-    throw Exception("Can't get home directory");
+TEST(SPTK_SSLContext, loadKeysValidFilesDoesNotThrow)
+{
+    const auto    keyFile = TestData::SslKeysDirectory() / "test.key";
+    const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
+    const SSLKeys keys(keyFile, certFile);
+
+    if (!filesystem::exists(keys.privateKeyFileName()) || !filesystem::exists(keys.certificateFileName()))
+    {
+        GTEST_SKIP() << "Test key/certificate files are missing in the test data directory.";
+    }
+
+    SSLContext ctx("ALL", true);
+    EXPECT_NO_THROW(ctx.loadKeys(keys));
+}
+
+TEST(SPTK_SSLContext, loadKeysMissingCertificateThrows)
+{
+    const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
+    const auto    missingCert = TestData::SslKeysDirectory() / "missing.cert";
+    const SSLKeys keys(missingKey, missingCert);
+
+    SSLContext ctx("ALL", true);
+    EXPECT_THROW(ctx.loadKeys(keys), Exception);
+}
+
+TEST(SPTK_SSLContext, loadKeysMissingKeyThrows)
+{
+    const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
+    const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
+    const SSLKeys keys(missingKey, certFile);
+
+    SSLContext ctx("ALL", true);
+    EXPECT_THROW(ctx.loadKeys(keys), Exception);
 }

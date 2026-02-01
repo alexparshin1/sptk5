@@ -24,37 +24,127 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/HomeDirectory.h"
-#include "sptk5/Exception.h"
+#include <gtest/gtest.h>
 
-#include <cstring>
-#include <format>
+#include <sptk5/Exception.h>
+#include <sptk5/HomeDirectory.h>
+
+#include <cstdlib>
+#include <filesystem>
+#include <optional>
+#include <string>
 
 using namespace std;
 using namespace sptk;
 
-std::filesystem::path HomeDirectory::location()
+namespace {
+
+class EnvVarGuard
 {
-#ifndef _WIN32
-    std::filesystem::path homeDir;
-    if (const char* hdir = std::getenv("HOME");
-        hdir != nullptr && strlen(hdir) != 0)
+public:
+    explicit EnvVarGuard(const char* name)
+        : m_name(name)
     {
-        return hdir;
+        if (const char* v = std::getenv(m_name.c_str()))
+        {
+            m_oldValue = string(v);
+        }
     }
 
-    if (const char* user = std::getenv("USER"))
+    void set(const string& value) const
     {
-        return format("/home/{}", user);
-    }
+#ifdef _WIN32
+        _putenv_s(m_name.c_str(), value.c_str());
 #else
-    char* hdrive = getenv("HOMEDRIVE");
-    char* hdir = getenv("HOMEPATH");
-    if (hdir && hdrive)
-    {
-        return format("{}{}", hdrive, hdir);
-    }
+        setenv(m_name.c_str(), value.c_str(), 1);
 #endif
+    }
 
-    throw Exception("Can't get home directory");
+    void unset() const
+    {
+#ifdef _WIN32
+        _putenv_s(m_name.c_str(), "");
+#else
+        unsetenv(m_name.c_str());
+#endif
+    }
+
+    ~EnvVarGuard()
+    {
+        if (m_oldValue.has_value())
+        {
+#ifdef _WIN32
+            _putenv_s(m_name.c_str(), m_oldValue->c_str());
+#else
+            setenv(m_name.c_str(), m_oldValue->c_str(), 1);
+#endif
+        }
+        else
+        {
+#ifdef _WIN32
+            _putenv_s(m_name.c_str(), "");
+#else
+            unsetenv(m_name.c_str());
+#endif
+        }
+    }
+
+private:
+    string           m_name;
+    optional<string> m_oldValue;
+};
+
+} // namespace
+
+#ifndef _WIN32
+
+TEST(SPTK_HomeDirectory, locationPrefersHOME)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.set("/tmp/sptk_home_test_dir");
+    user.set("user_should_not_be_used");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("/tmp/sptk_home_test_dir"), p);
 }
+
+TEST(SPTK_HomeDirectory, locationFallsBackToHomeUserWhenHOMEMissing)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.unset();
+    user.set("testuser");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("/home/testuser"), p);
+}
+
+TEST(SPTK_HomeDirectory, locationThrowsWhenNoHOMEAndNoUSER)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.unset();
+    user.unset();
+
+    EXPECT_THROW({ (void) HomeDirectory::location(); }, Exception);
+}
+
+#else
+
+TEST(SPTK_HomeDirectory, locationUsesHomeDriveAndPathOnWindowsWhenPresent)
+{
+    EnvVarGuard homeDrive("HOMEDRIVE");
+    EnvVarGuard homePath("HOMEPATH");
+
+    homeDrive.set("C:");
+    homePath.set("\\Users\\TestUser");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("C:\\Users\\TestUser"), p);
+}
+
+#endif

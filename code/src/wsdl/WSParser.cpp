@@ -643,7 +643,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     for (const auto& complexType: m_complexTypeIndex.complexTypes() | views::values)
     {
         SourceModule sourceModule(String("C") + complexType->name(), sourceDirectory);
-        sourceModule.open();
+        sourceModule.reset();
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
@@ -653,7 +653,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     // Generate Service class definition
     SourceModule serviceModule(serviceClassName, sourceDirectory);
-    serviceModule.open();
+    serviceModule.reset();
 
     if (!externalHeader.empty())
     {
