@@ -258,8 +258,8 @@ protected:
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
 private:
-    using UListener = std::unique_ptr<TCPServerListener>;
-    using Listeners = std::vector<UListener>;
+    using SListener = std::shared_ptr<TCPServerListener>;
+    using Listeners = std::vector<SListener>;
     mutable std::mutex                     m_mutex;              ///< Mutex protecting internal data
     std::map<Host, Listeners, HostCompare> m_portListeners;      ///< Server port listeners
     std::shared_ptr<Logger>                m_logger;             ///< Optional logger

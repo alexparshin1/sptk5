@@ -27,6 +27,8 @@
 #include <sptk5/cutils>
 
 #include "sptk5/net/TCPServer.h"
+
+#include <ranges>
 #include <sptk5/net/SSLServerConnection.h>
 #include <sptk5/net/TCPServerConnection.h>
 #include <sptk5/net/TCPServerListener.h>
@@ -116,6 +118,12 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
 {
     scoped_lock lock(m_mutex);
 
+    // If an SSL listener is requested, ensure SSL keys are configured before creating listener threads
+    if (connectionType == ServerConnection::Type::SSL && !m_sslKeys)
+    {
+        throw Exception("Cannot add SSL listener: server SSL keys are not set");
+    }
+
     auto& listenerThreads = m_portListeners[listenerHost];
     if (!listenerThreads.empty())
     {
@@ -127,11 +135,18 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
         threadCount = 1;
     }
 
+    // Start listener threads:
     for (uint16_t i = 0; i < threadCount; ++i)
     {
-        auto listenerThread = make_unique<TCPServerListener>(this, listenerHost, connectionType);
+        auto listenerThread = make_shared<TCPServerListener>(this, listenerHost, connectionType);
+        listenerThreads.push_back(listenerThread);
         listenerThread->listen();
-        listenerThreads.push_back(std::move(listenerThread));
+    }
+
+    // Wait until all listener threads have started:
+    for (const auto& listenerThread: listenerThreads)
+    {
+        listenerThread->waitUntilStarted(100ms);
     }
 }
 
@@ -142,6 +157,11 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
     auto& listenerThreads = m_portListeners[listenerHost];
 
     for (const auto& listenerThread: listenerThreads)
+    {
+        listenerThread->terminate();
+    }
+
+    for (auto& listenerThread: listenerThreads)
     {
         listenerThread->stop();
     }
@@ -162,7 +182,7 @@ void TCPServer::stop()
 
     if (!m_portListeners.empty())
     {
-        for (auto& [port, listenerThreads]: m_portListeners)
+        for (auto& listenerThreads: m_portListeners | views::values)
         {
             for (const auto& listenerThread: listenerThreads)
             {

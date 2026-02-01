@@ -26,7 +26,7 @@
 
 #pragma once
 
-#include <sptk5/Logger.h>
+#include "sptk5/threads/Flag.h"
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
@@ -41,7 +41,6 @@ namespace sptk {
  */
 class TCPServerListener
     : public Thread
-    , public std::mutex
 {
 public:
     /**
@@ -80,11 +79,18 @@ public:
      */
     void stop();
 
+    bool waitUntilStarted(std::chrono::milliseconds timeout)
+    {
+        return m_hasStarted.wait_for(true, timeout);
+    }
+
 private:
-    TCPServer*             m_server;         ///< TCP server created connection
-    TCPSocket              m_listenerSocket; ///< Listener socket
-    String                 m_error;          ///< Last socket error
-    ServerConnection::Type m_connectionType; ///< Connection type
+    mutable std::mutex     m_mutex;              ///< Listener mutex.
+    TCPServer*             m_server;             ///< TCP server created connection.
+    TCPSocket              m_listenerSocket;     ///< Listener socket.
+    String                 m_error;              ///< Last socket error.
+    ServerConnection::Type m_connectionType;     ///< Connection type.
+    Flag                   m_hasStarted {false}; ///< True if the listener thread has started.
 
     struct CreateConnectionItem
     {

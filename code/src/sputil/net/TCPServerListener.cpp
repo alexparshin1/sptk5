@@ -102,11 +102,15 @@ void TCPServerListener::threadFunction()
 {
     try
     {
-        constexpr auto readTimeout = chrono::milliseconds(100);
+        // Indicate that the listener thread has started:
+        m_hasStarted = true;
+
+        constexpr auto readTimeout = chrono::milliseconds(500);
+
         m_listenerSocket.blockingMode(false);
-        while (!terminated())
+
+        while (!terminated() && m_listenerSocket.active())
         {
-            //const scoped_lock lock(*this);
             if (!acceptConnection(readTimeout))
             {
                 if (!m_listenerSocket.active())
@@ -114,6 +118,11 @@ void TCPServerListener::threadFunction()
                     break;
                 }
             }
+        }
+
+        if (m_listenerSocket.active())
+        {
+            m_listenerSocket.close();
         }
     }
     catch (const Exception& e)
@@ -143,7 +152,6 @@ String TCPServerListener::error() const
 
 void TCPServerListener::stop()
 {
-    m_listenerSocket.close();
     terminate();
     join();
 }

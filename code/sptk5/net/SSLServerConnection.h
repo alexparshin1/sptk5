@@ -55,7 +55,12 @@ public:
     {
         auto sslSocket = std::make_shared<SSLSocket>();
         setSocket(sslSocket);
-        sslSocket->loadKeys(*server.getSSLKeys());
+        const auto keys = server.getSSLKeys();
+        if (!keys)
+        {
+            throw Exception("SSL connection created but server has no SSL keys configured");
+        }
+        sslSocket->loadKeys(*keys);
         sslSocket->attach(connectionSocket, true);
     }
 

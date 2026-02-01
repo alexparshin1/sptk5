@@ -41,7 +41,7 @@ using namespace chrono;
 // OpenSSL library initialization
 class CSSLLibraryLoader
 {
-#if OPENSSL_API_COMPAT >= 0x10100000L
+#if OPENSSL_API_LEVEL < 20000
     static std::mutex* m_locks;
 #endif
 
@@ -59,7 +59,7 @@ class CSSLLibraryLoader
         SSL_library_init();
     }
 
-#if OPENSSL_API_COMPAT >= 0x10100000L
+#if OPENSSL_API_LEVEL < 20000
     static void lock_callback(int mode, int type, const char* /*file*/, int /*line*/)
     {
         if ((mode & CRYPTO_LOCK) == CRYPTO_LOCK)
@@ -97,7 +97,7 @@ public:
     CSSLLibraryLoader() noexcept
     {
         load_library();
-#if OPENSSL_API_COMPAT >= 0x10100000L
+#if OPENSSL_API_LEVEL < 20000
         init_locks();
 #endif
     }
@@ -107,20 +107,13 @@ public:
 
     ~CSSLLibraryLoader() noexcept
     {
-#if OPENSSL_API_COMPAT >= 0x10100000L
+#if OPENSSL_API_LEVEL < 20000
         CRYPTO_set_locking_callback(NULL);
         CRYPTO_set_id_callback(NULL);
-#endif
-#if OPENSSL_VERSION_NUMBER > 0x1000114fL
-#if OPENSSL_VERSION_NUMBER > 0x20000000L
-        SSL_COMP_free_compression_methods();
-#endif
-#endif
-        ERR_free_strings();
-        EVP_cleanup();
-        CRYPTO_cleanup_all_ex_data();
-#if OPENSSL_API_COMPAT >= 0x10100000L
         kill_locks();
+#endif
+#if OPENSSL_API_LEVEL > 20000
+        SSL_COMP_free_compression_methods();
 #endif
         ERR_free_strings();
         EVP_cleanup();
@@ -128,7 +121,7 @@ public:
     }
 };
 
-#if OPENSSL_API_COMPAT >= 0x10100000L
+#if OPENSSL_API_LEVEL < 20000
 mutex* CSSLLibraryLoader::m_locks;
 #endif
 
@@ -184,7 +177,7 @@ void SSLSocket::initContextAndSocket()
 }
 
 void SSLSocket::openUnlocked(const Host& _host, const OpenMode openMode, const bool _blockingMode,
-                             const chrono::milliseconds& timeout, const char* clientBindAddress)
+                             const milliseconds& timeout, const char* clientBindAddress)
 {
     initContextAndSocket();
 
@@ -192,7 +185,7 @@ void SSLSocket::openUnlocked(const Host& _host, const OpenMode openMode, const b
 }
 
 void SSLSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
-                             const chrono::milliseconds& timeout, const char* clientBindAddress)
+                             const milliseconds& timeout, const char* clientBindAddress)
 {
     TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout, clientBindAddress);
 
@@ -209,8 +202,8 @@ bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
 
     if (result <= 0)
     {
-        const chrono::milliseconds nextTimeout = chrono::duration_cast<chrono::milliseconds>(timeoutAt - DateTime("now"));
-        const int                  errorCode = sslGetErrorCode(result);
+        const milliseconds nextTimeout = chrono::duration_cast<milliseconds>(timeoutAt - DateTime("now"));
+        const int          errorCode = sslGetErrorCode(result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToReadUnlocked(nextTimeout))
@@ -240,7 +233,7 @@ void SSLSocket::sslConnectUnlocked(const bool _blockingMode, const milliseconds&
 
     sslSetFd(getSocketFdUnlocked());
 
-    if (timeout == chrono::milliseconds(0))
+    if (timeout == milliseconds(0))
     {
         if (const int result = sslConnect();
             result <= 0)
@@ -254,15 +247,14 @@ void SSLSocket::sslConnectUnlocked(const bool _blockingMode, const milliseconds&
     setBlockingModeUnlocked(false);
     while (!tryConnectUnlocked(timeoutAt))
     {
-        // Repeat operation until connected,
-        // or throws an exception
+        // Repeat the operation until connected or throws an exception
     }
     setBlockingModeUnlocked(_blockingMode);
 }
 
 void SSLSocket::closeUnlocked()
 {
-    sslSetFd(static_cast<SocketType>(-1));
+    sslSetFd(INVALID_SOCKET);
     TCPSocket::closeUnlocked();
 }
 
@@ -368,8 +360,7 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
             return result;
         }
 
-        const int error = sslGetErrorCode(result);
-        switch (error)
+        switch (sslGetErrorCode(result))
         {
             case SSL_ERROR_WANT_READ:
                 // No data available yet
@@ -429,18 +420,18 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
             continue;
         }
 
-        constexpr auto timeout = chrono::seconds(1);
+        constexpr auto timeout = seconds(1);
 
         switch (const auto errorCode = sslGetErrorCode(result))
         {
             case SSL_ERROR_WANT_READ:
-                if (!readyToReadUnlocked(chrono::milliseconds(timeout)))
+                if (!readyToReadUnlocked(milliseconds(timeout)))
                 {
                     throw Exception("SSL write timeout (wait for read)");
                 }
                 break;
             case SSL_ERROR_WANT_WRITE:
-                if (!readyToWriteUnlocked(chrono::milliseconds(timeout)))
+                if (!readyToWriteUnlocked(milliseconds(timeout)))
                 {
                     throw Exception("SSL write timeout (wait for write)");
                 }
@@ -458,7 +449,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
                 {
                     throw Exception("Error writing to SSL connection: Socket is closed");
                 }
-                throw Exception(sslGetErrorString("writing to SSL connection fd=" + to_string(getSocketFdUnlocked()), errorCode));
+                throw Exception(sslGetErrorString(format("writing to SSL connection fd={}", getSocketFdUnlocked()), errorCode));
         }
     }
 }
@@ -469,23 +460,25 @@ void SSLSocket::sslNew()
     if (m_ssl != nullptr)
     {
         SSL_free(m_ssl);
+        m_ssl = nullptr;
     }
     m_ssl = SSL_new(m_sslContext->handle());
 }
 
-void SSLSocket::sslFree() const
+void SSLSocket::sslFree()
 {
     const scoped_lock lock(m_mutex);
     if (m_ssl != nullptr)
     {
         SSL_free(m_ssl);
+        m_ssl = nullptr;
     }
 }
 
 int SSLSocket::sslSetFd(const SocketType fd) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_set_fd(m_ssl, static_cast<int>(fd));
+    return SSL_set_fd(m_ssl, fd);
 }
 
 int SSLSocket::sslSetExtHostName() const

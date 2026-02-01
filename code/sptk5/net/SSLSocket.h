@@ -36,137 +36,129 @@
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 /**
- * Encrypted TCP Socket
+ * @brief Encrypted TCP Socket.
  */
 class SP_EXPORT SSLSocket : public TCPSocket
-    , public std::mutex
 {
 public:
     /**
-     * @brief Throws SSL error based on SSL function return code
-     * @param function          SSL function name
-     * @param resultCode        SSL function return code
-     * @param location          Location of the error, defaults to the current source location
+     * @brief Throws SSL error based on SSL function return code.
+     * @param function          SSL function name.
+     * @param resultCode        SSL function return code.
+     * @param location          Location of the error, defaults to the current source location.
      */
     [[noreturn]] void throwSSLError(const String& function, int resultCode, std::source_location location = std::source_location::current()) const;
 
     /**
-     * @brief Constructor
-	 * @param cipherList		Optional cipher list
-     * @param tlsOnly           TLS only mode
+     * @brief Constructor.
+	 * @param cipherList		Optional cipher list.
+     * @param tlsOnly           The TLS only mode.
      */
     explicit SSLSocket(String cipherList = "HIGH:!aNULL:!kRSA:!PSK:!SRP:!MD5:!RC4", bool tlsOnly = false);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~SSLSocket() override;
 
     /**
-     * @brief Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s).
      *
      * Keys should be loaded once before the connection. There is no need to load keys for any consequent connection
      * with the same keys.
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
+     * The private key and certificates must be encoded with PEM format.
+     * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys                  SSL keys
+     * If the private key is protected with password, then password can be supplied to auto-answer.
+     * @param keys                  SSL keys.
      */
     void loadKeys(const SSLKeys& keys);
 
     /**
      * @brief Set SNI host name.
-     * This method only affects next connection.
-     * @param sniHostName           SNI host name
+     * This method only affects the next connection.
+     * @param sniHostName           SNI host name.
      */
     [[maybe_unused]] void setSNIHostName(const String& sniHostName);
 
     /**
-     * @brief Returns SSL handle
-     */
-    SSL* handle()
-    {
-        return m_ssl;
-    }
-
-    /**
-     * @brief Reads data from SSL socket
-     * @param buffer            Destination buffer
-     * @param size              Destination buffer size
-     * @return the number of bytes read from the socket
+     * @brief Reads data from SSL socket.
+     * @param buffer            Destination buffer.
+     * @param size              Destination buffer size.
+     * @return the number of bytes read from the socket.
      */
     size_t recvUnlocked(uint8_t* buffer, size_t size) override;
 
 protected:
     /**
-     * @brief Initialize SSL context and socket structures
+     * @brief Initialize SSL context and socket structures.
      */
     void initContextAndSocket();
 
     /**
-     * @brief Returns number of bytes available for read
+     * @brief Returns the number of bytes available for read.
      */
     size_t getSocketBytesUnlocked() const override;
 
     /**
-     * @brief Opens the socket connection by host and port
+     * @brief Opens the socket connection by host and port.
      *
-     * Initializes SSL first, if host name is empty or port is 0 then the current host and port values are used.
+     * Initializes SSL first, if the host name is empty or port is 0, then the current host and port values are used.
      * They could be defined by previous calls of  open(), port(), or host() methods.
-     * @param host const Host&, the host name
-     * @param openMode              Socket open mode
-     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
-     * @param timeout               Connection timeout. The default is 0 (wait forever)
-     * @param clientBindAddress     Client bind address
+     * @param host const Host&, the host name.
+     * @param openMode              Socket open mode.
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode.
+     * @param timeout               Connection timeout. The default is 0 (wait forever).
+     * @param clientBindAddress     Client bind address.
      */
     void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
                       const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
-     * @brief Opens the client socket connection by host and port
-     * @param address               Address and port
-     * @param openMode              Socket open mode
-     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode
-     * @param timeout               Connection timeout. The default is 0 (wait forever)
-     * @param clientBindAddress     Client bind address
+     * @brief Opens the client socket connection by host and port.
+     * @param address               Address and port.
+     * @param openMode              Socket open mode.
+     * @param blockingMode          Socket blocking (true) on non-blocking (false) mode.
+     * @param timeout               Connection timeout. The default is 0 (wait forever).
+     * @param clientBindAddress     Client bind address.
      */
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
                       const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
-     * @brief Get error description for SSL error code
-     * @param function          SSL function
-     * @param openSSLError          Error code returned by SSL_get_error() result
-     * @return Error description
+     * @brief Get error description for SSL error code.
+     * @param function          SSL function.
+     * @param openSSLError          Error code returned by SSL_get_error() result.
+     * @return Error description.
      */
     virtual String sslGetErrorString(const String& function, int32_t openSSLError) const;
 
     /**
-     * @brief Attaches socket handle
+     * @brief Attaches the socket handle.
      *
      * This method is designed to only attach socket handles obtained with accept().
      * @param socketHandle          External socket handle.
+     * @param accept                If true, then the socket handle should be accepted otherwise it is connected.
      */
     void attachUnlocked(SocketType socketHandle, bool accept) override;
 
     /**
-     * @brief Closes the socket connection
+     * @brief Closes the socket connection.
      *
      * This method is not thread-safe.
      */
     void closeUnlocked() override;
 
     /**
-     * @brief Sends data through SSL socket
-     * @param buffer            Send buffer
-     * @param len               Send data length
-     * @return the number of bytes sent the socket
+     * @brief Sends data through SSL socket.
+     * @param buffer            Send buffer.
+     * @param len               Send data length.
+     * @return the number of bytes sent to the socket.
      */
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
@@ -183,7 +175,7 @@ private:
 
     void sslConnectUnlocked(bool blockingMode, const std::chrono::milliseconds& timeout);
     void sslNew();
-    void sslFree() const;
+    void sslFree();
     int  sslSetFd(SocketType fd) const;
     int  sslSetExtHostName() const;
     int  sslConnect() const;

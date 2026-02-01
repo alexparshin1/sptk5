@@ -58,13 +58,13 @@ public:
         : TCPServer("SocketReader TestDataServer", 1)
         , m_data(std::move(data))
     {
-        onConnection([this](ServerConnection& connection)
+        onConnection([this](const ServerConnection& connection)
                      {
                          const auto s = connection.getSocket();
                          try
                          {
                              s->write(m_data);
-                             this_thread::sleep_for(100ms);
+                             this_thread::sleep_for(500ms);
                          }
                          catch (...)
                          {
@@ -90,7 +90,7 @@ public:
         , m_chunks(std::move(chunks))
         , m_delay(delay)
     {
-        onConnection([this](ServerConnection& connection)
+        onConnection([this](const ServerConnection& connection)
                      {
                          const auto s = connection.getSocket();
                          try
@@ -389,19 +389,18 @@ TEST(SPTK_SocketReader, chunkedRead)
 
     SocketReader reader(socket);
 
-    uint8_t buffer[256];
-    memset(buffer, 0, sizeof(buffer));
+    array<uint8_t, 256> buffer {};
 
     size_t totalRead = 0;
     size_t bytesRead = 0;
 
     do
     {
-        bytesRead = reader.read(buffer + totalRead, sizeof(buffer) - totalRead);
+        bytesRead = reader.read(buffer.data() + totalRead, sizeof(buffer) - totalRead);
         totalRead += bytesRead;
     } while (bytesRead > 0 && totalRead < sizeof(buffer));
 
-    const string result(reinterpret_cast<char*>(buffer), totalRead);
+    const string result(reinterpret_cast<char*>(buffer.data()), totalRead);
     EXPECT_EQ(result, "Chunk1Chunk2Chunk3");
 }
 
