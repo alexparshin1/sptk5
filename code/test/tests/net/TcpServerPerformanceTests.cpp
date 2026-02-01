@@ -80,7 +80,7 @@ void eventHandler(const uint8_t* data, SocketEventType type)
 
 } // namespace
 
-TEST(SPTK_TCPServer, SocketEventPerformance)
+TEST(SPTK_TCPServer, eventPerformance)
 {
     SocketEvents socketEvents("Test Pool", eventHandler, 1s, SocketPool::TriggerMode::OneShot);
     sharedSocketEvents = &socketEvents;

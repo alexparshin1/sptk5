@@ -448,7 +448,7 @@ TEST(SPTK_TCPServer, sslReaderTransferPerformance)
     }
 }
 
-TEST(SPTK_TCPServer, testAcceptPerformance)
+TEST(SPTK_TCPServer, acceptPerformance)
 {
     try
     {
