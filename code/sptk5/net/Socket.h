@@ -37,7 +37,7 @@ template<typename T>
 concept is_floating_point_array = std::is_array_v<T> && std::is_floating_point_v<std::remove_all_extents_t<T>>;
 
 template<typename T>
-concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T>;
+concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T> || std::is_enum_v<T>;
 
 /**
  * @addtogroup utility Utility Classes.
