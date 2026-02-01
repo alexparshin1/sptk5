@@ -34,16 +34,16 @@ class Fl_Group;
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 /**
- * Universal data source for many SPTK widgets.
+ * @brief Universal data source for many SPTK widgets.
  *
  * It's designed as a base class for multiple datasources available in SPTK.
- * The main idea is to provide the simple interface that allows to open the datasource
- * with certain parameters and read or write the datasource fields. And don't you forget to close it :)
+ * The main idea is to provide the simple interface that allows opening the datasource
+ * with certain parameters and reading or writing the datasource fields. And don't you forget to close it :).
  */
 class SP_EXPORT DataSource
 {
@@ -51,85 +51,79 @@ class SP_EXPORT DataSource
 
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     DataSource() = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~DataSource() = default;
 
     /**
-     * Field access by the field index, non-const version
+     * @brief Field access by the field index, non-const version.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldIndex        Field index
-     * @returns field reference
+     * Purely virtual. Should be implemented in derived class.
+     * @param fieldIndex        Field index.
+     * @returns field reference.
      */
     virtual Field& operator[](size_t fieldIndex) = 0;
 
     /**
-     * Field access by the field name, const version.
+     * @brief Field access by the field name.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldName         Field name
-     * @returns field reference
+     * Purely virtual. Should be implemented in derived class.
+     * @param fieldName         Field name.
+     * @returns field reference.
      */
     virtual Field& operator[](const String& fieldName) = 0;
 
     /**
-     * Returns field count in the datasource.
+     * @brief Returns field count in the datasource.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @returns field count
+     * Purely virtual. Should be implemented in derived class.
+     * @returns field count.
      */
     virtual size_t fieldCount() const = 0;
 
     /**
-     * Returns record count in the datasource.
+     * @brief Returns record count in the datasource.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @returns record count
+     * Purely virtual. Should be implemented in derived class.
+     * @returns record count.
      */
     virtual size_t recordCount() const = 0;
 
     /**
-     * Reads the field by name from the datasource.
+     * @brief Reads the field by name from the datasource.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldName         Field name
-     * @param fieldValue        Field value
+     * Purely virtual. Should be implemented in derived class.
+     * @param fieldName         Field name.
+     * @param fieldValue        Field value.
      */
     virtual bool readField(const char* fieldName, Variant& fieldValue) = 0;
 
     /**
-     * Writes the field by name from the datasource.
+     * @brief Writes the field by name from the datasource.
      *
-     * Purely virtual. Should be implemented in derived class
-     * @param fieldName         Field name
-     * @param fieldValue        Field value
+     * Purely virtual. Should be implemented in derived class.
+     * @param fieldName         Field name.
+     * @param fieldValue        Field value.
      */
     virtual bool writeField(const char* fieldName, const Variant& fieldValue) = 0;
 
     /**
-     * Opens the datasource. Implemented in derved class.
+     * @brief Opens the datasource. Implemented in derved class.
      */
-    virtual bool open()
-    {
-        return false;
-    }
+    virtual bool open() = 0;
 
     /**
-     * Closes the datasource. Implemented in derved class.
+     * @brief Closes the datasource. Implemented in derved class.
      */
-    virtual bool close()
-    {
-        return false;
-    }
+    virtual bool close() = 0;
 
     /**
-     * Moves to the first record of the datasource. Implemented in derved class.
+     * @brief Moves to the first record of the datasource. Implemented in derved class.
      */
     virtual bool first()
     {
@@ -137,15 +131,12 @@ public:
     }
 
     /**
-     * Moves to the next record of the datasource. Implemented in derved class.
+     * @brief Moves to the next record of the datasource. Implemented in derved class.
      */
-    virtual bool next()
-    {
-        return false;
-    }
+    virtual bool next() = 0;
 
     /**
-     * Moves to the prior record of the datasource. Implemented in derved class.
+     * @brief Moves to the prior record of the datasource. Implemented in derved class.
      */
     virtual bool prior()
     {
@@ -153,7 +144,7 @@ public:
     }
 
     /**
-     * Moves to the last record of the datasource. Implemented in derved class.
+     * @brief Moves to the last record of the datasource. Implemented in derved class.
      */
     virtual bool last()
     {
@@ -161,7 +152,7 @@ public:
     }
 
     /**
-     * Moves to the specified record position of the datasource. Implemented in derved class.
+     * @brief Moves to the specified record position of the datasource. Implemented in derved class.
      */
     virtual bool find(const String& /*fieldName*/, const Variant& /*position*/)
     {
@@ -169,50 +160,47 @@ public:
     }
 
     /**
-     * Returns true if there are no more records in the datasource. Implemented in derved class.
+     * @brief Returns true if there are no more records in the datasource. Implemented in derved class.
      */
-    virtual bool eof() const
-    {
-        return false;
-    }
+    virtual bool eof() const = 0;
 
     /**
-     * Loads data into the datasource
+     * @brief Loads data into the datasource.
      */
     bool load();
 
     /**
-     * Saves data from the datasource
+     * @brief Saves data from the datasource.
      */
     bool save();
 
     /**
-     * Saves dataset row data into XDoc
+     * @brief Saves dataset row data into XDoc.
      *
      * If the compactXmlMode is true, the node would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param node              XDoc node to fill in
-     * @param compactXmlMode    Compact XML flag
-     * @param nullLargeData     Set text data longer than 256 bytes to null
+     * @param node              XDoc node to fill in.
+     * @param compactXmlMode    Compact XML flag.
+     * @param nullLargeData     Set text data longer than 256 bytes to null.
      */
     void exportRowTo(const xdoc::SNode& node, bool compactXmlMode, bool nullLargeData = false);
 
     /**
-     * Saves data into XDoc
+     * @brief Saves data into XDoc.
      *
      * Opens the dataset, reads every row, and closes dataset.
      * For every row in the dataset, creates the node with the name nodeName.
      * If the compactXmlMode is true, the nodes would have fields presented as attributues.
      * Otherwise, the fields are stored as subnodes.
-     * @param parentNode        XDoc node to add subnodes to
-     * @param nodeName          Name for subnodes
-     * @param compactXmlMode    Compact XML flag
+     * @param parentNode        XDoc node to add subnodes to.
+     * @param nodeName          Name for subnodes.
+     * @param compactXmlMode    Compact XML flag.
      */
     virtual void exportTo(xdoc::Node& parentNode, const String& nodeName, bool compactXmlMode);
 
 protected:
     /**
-     * Loads datasource data. Should be implemented in derived class
+     * @brief Loads datasource data. Should be implemented in derived class.
      */
     virtual bool loadData()
     {
@@ -220,7 +208,7 @@ protected:
     }
 
     /**
-     * Saves data from datasource. Should be implemented in derived class
+     * @brief Saves data from datasource. Should be implemented in derived class.
      */
     virtual bool saveData()
     {
