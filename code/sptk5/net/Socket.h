@@ -96,6 +96,7 @@ public:
     /**
      * Attaches socket handle
      * @param socketHandle      Existing socket handle
+     * @param accept            Socket is attached for accepting connection
      */
     void attach(SocketType socketHandle, bool accept)
     {
@@ -263,10 +264,11 @@ public:
     size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     template<typename T>
+        requires is_socket_readable<T>
     size_t read(T& value, sockaddr_in* from = nullptr)
     {
         std::scoped_lock lock(m_mutex);
-        return readUnlocked((uint8_t*) &value, sizeof(T), from);
+        return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
 
     /**
