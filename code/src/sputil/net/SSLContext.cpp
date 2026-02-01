@@ -50,44 +50,61 @@ void SSLContext::throwError(const String& humanDescription)
 
 SSLContext::SSLContext(const String& cipherList, const bool tlsOnly)
 {
-    m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(SSLv23_method()),
-                                [this](SSL_CTX* context)
+    m_ctx = shared_ptr<SSL_CTX>(SSL_CTX_new(TLS_method()),
+                                [](SSL_CTX* context)
                                 {
-                                    const scoped_lock lock(*this);
                                     SSL_CTX_free(context);
                                 });
+
+    if (m_ctx == nullptr)
+    {
+        throwError("Can't create SSL context");
+    }
+
     if (!cipherList.empty())
     {
-        SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str());
+        if (SSL_CTX_set_cipher_list(m_ctx.get(), cipherList.c_str()) == 0)
+        {
+            throwError("Can't set cipher list");
+        }
     }
+
     SSL_CTX_set_mode(m_ctx.get(), SSL_MODE_ENABLE_PARTIAL_WRITE);
-    SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
-                                   sizeof s_server_session_id_context);
+    if (SSL_CTX_set_session_id_context(m_ctx.get(), bit_cast<const unsigned char*>(&s_server_session_id_context),
+                                       sizeof s_server_session_id_context) == 0)
+    {
+        throwError("Can't set session id context");
+    }
+
     if (tlsOnly)
     {
-        constexpr long flags = SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION;
-        SSL_CTX_set_options(m_ctx.get(), flags);
+        SSL_CTX_set_min_proto_version(m_ctx.get(), TLS1_1_VERSION);
     }
 
     SSL_CTX_set_ecdh_auto(m_ctx.get(), 1);
 }
 
-SSL_CTX* SSLContext::handle()
+SSL_CTX* SSLContext::handle() const
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
     return m_ctx.get();
 }
 
 int SSLContext::passwordReplyCallback(char* replyBuffer, const int replySize, int /*rwflag*/, void* userdata)
 {
-    snprintf(replyBuffer, static_cast<size_t>(replySize), "%s", bit_cast<char*>(userdata));
+    if (replySize <= 0 || replyBuffer == nullptr || userdata == nullptr)
+    {
+        return 0;
+    }
+
+    snprintf(replyBuffer, static_cast<size_t>(replySize), "%s", static_cast<char*>(userdata));
     replyBuffer[replySize - 1] = '\0';
     return static_cast<int>(strlen(replyBuffer));
 }
 
 void SSLContext::loadKeys(const SSLKeys& keys)
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
 
     m_password = keys.password();
 

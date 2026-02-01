@@ -44,7 +44,7 @@ namespace sptk {
 /**
  * @brief SSL connection context
  */
-class SSLContext : public std::mutex
+class SSLContext
 {
 public:
     /**
@@ -68,9 +68,10 @@ public:
     /**
      * @brief Returns SSL context handle
      */
-    SSL_CTX* handle();
+    SSL_CTX* handle() const;
 
 private:
+    mutable std::mutex       m_mutex;
     std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
     String                   m_password;                  ///< Password for auto-answer in callback function
     static int               s_server_session_id_context; ///< Server session ID
