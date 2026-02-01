@@ -37,18 +37,17 @@ template<typename T>
 concept is_floating_point_array = std::is_array_v<T> && std::is_floating_point_v<std::remove_all_extents_t<T>>;
 
 template<typename T>
-concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T>;
+concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T> || std::is_enum_v<T>;
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup utility Utility Classes.
  * @{
  */
 
 /**
- * Generic socket.
+ * @brief Generic socket.
  *
- * Allows establishing a network connection
- * to the host by name and port address
+ * Allows establishing a network connection to the host by name and port address.
  */
 class SP_EXPORT Socket : public SocketVirtualMethods
 {
@@ -56,7 +55,7 @@ class SP_EXPORT Socket : public SocketVirtualMethods
 
 public:
     /**
-     * Get socket internal (OS) handle
+     * @brief Get socket internal (OS) handle.
      */
     SocketType fd() const
     {
@@ -64,21 +63,21 @@ public:
     }
 
     /**
-     * Constructor
-     * @param domain            Socket domain type
-     * @param type              Socket type
-     * @param protocol          Protocol type
+     * @brief Constructor.
+     * @param domain            Socket domain type.
+     * @param type              Socket type.
+     * @param protocol          Protocol type.
      */
     explicit Socket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~Socket() override;
 
     /**
-     * Set blockingMode mode
-     * @param blockingMode      Socket blockingMode mode flag
+     * @brief Set blockingMode mode.
+     * @param blockingMode      Socket blockingMode mode flag.
      */
     void blockingMode(bool blockingMode)
     {
@@ -86,7 +85,7 @@ public:
     }
 
     /**
-     * Returns number of bytes available in socket
+     * @brief Returns the number of bytes available in the socket.
      */
     [[nodiscard]] size_t socketBytes() const
     {
@@ -94,8 +93,9 @@ public:
     }
 
     /**
-     * Attaches socket handle
-     * @param socketHandle      Existing socket handle
+     * @brief Attaches socket handle.
+     * @param socketHandle      Existing socket handle.
+     * @param accept            Socket is attached for accepting connection.
      */
     void attach(SocketType socketHandle, bool accept)
     {
@@ -104,9 +104,9 @@ public:
     }
 
     /**
-     * Detaches socket handle, setting it to INVALID_SOCKET.
-     * Closes the socket without affecting socket handle.
-     * @return Existing socket handle
+     * @brief Detaches the socket handle, setting it to INVALID_SOCKET.
+     * The original socket handle is returned.
+     * @return Detached socket handle.
      */
     SocketType detach()
     {
@@ -115,8 +115,8 @@ public:
     }
 
     /**
-     * Sets the host name
-     * @param host              The host
+     * @brief Sets the host name.
+     * @param host              The host.
      */
     void host(const Host& host)
     {
@@ -125,7 +125,7 @@ public:
     }
 
     /**
-     * Returns the host
+     * @brief Returns the host.
      */
     [[nodiscard]] Host host() const
     {
@@ -134,12 +134,12 @@ public:
     }
 
     /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout. The default is 0 (wait forever)
-     * @param clientBindAddress
+     * @brief Opens the client socket connection by host and port.
+     * @param host              The host.
+     * @param openMode          Socket open mode.
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode.
+     * @param timeoutMS         Connection timeout. The default is 0 (wait forever).
+     * @param clientBindAddress Client bind address.
      */
     void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
               const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
@@ -149,12 +149,12 @@ public:
     }
 
     /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever)
-     * @param clientBindAddress Client bind address
+     * @brief Opens the client socket connection by host and port.
+     * @param address           Address and port.
+     * @param openMode          Socket open mode.
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode.
+     * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever).
+     * @param clientBindAddress Client bind address.
      */
     void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
@@ -165,10 +165,10 @@ public:
     }
 
     /**
-     * Binds the socket to port
-     * @param address           Local IP address, or NULL if any
-     * @param portNumber        The port number, or 0 if any
-     * @param reusePort         If true then set SO_REUSEPORT
+     * @brief Binds the socket to port.
+     * @param address           Local IP address, or NULL if any.
+     * @param portNumber        The port number, or 0 if any.
+     * @param reusePort         If true then set SO_REUSEPORT.
      */
     void bind(const char* address, uint32_t portNumber, bool reusePort = false)
     {
@@ -177,9 +177,9 @@ public:
     }
 
     /**
-     * Opens the server socket connection on port (binds/listens)
-     * @param portNumber        The port number
-     * @param reusePort         If true then set SO_REUSEPORT on listener socket
+     * @brief Opens the server socket connection on port (binds/listens).
+     * @param portNumber        The port number.
+     * @param reusePort         If true, then set SO_REUSEPORT on listener socket.
      */
     void listen(uint16_t portNumber = 0, bool reusePort = true)
     {
@@ -188,7 +188,7 @@ public:
     }
 
     /**
-     * Closes the socket connection
+     * @brief Closes the socket connection.
      */
     void close()
     {
@@ -197,8 +197,8 @@ public:
     }
 
     /**
-     * Returns the current socket state
-     * @returns true if the socket is opened
+     * @brief Returns the current socket state.
+     * @returns true if the socket is opened.
      */
     [[nodiscard]] bool active() const
     {
@@ -207,8 +207,8 @@ public:
     }
 
     /**
-     * Sets socket option value
-     * Throws an error if not succeeded
+     * @brief Sets socket option value.
+     * Throws an error if not succeeded.
      */
     void setOption(int level, int option, int value) const
     {
@@ -217,9 +217,9 @@ public:
     }
 
     /**
-     * Gets socket option value
+     * @brief Gets socket option value.
      *
-     * Throws an error if not succeeded
+     * Throws an error if not succeeded.
      */
     void getOption(int level, int option, int& value) const
     {
@@ -228,11 +228,11 @@ public:
     }
 
     /**
-     * Reads data from the socket
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @param from              The source address
-     * @returns the number of bytes read from the socket
+     * @brief Reads data from the socket.
+     * @param buffer            The memory buffer.
+     * @param size              The number of bytes to read.
+     * @param from              The source address.
+     * @returns the number of bytes read from the socket.
      */
     size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
     {
@@ -241,42 +241,43 @@ public:
     }
 
     /**
-     * Reads data from the socket into memory buffer
+     * @brief Reads data from the socket into the memory buffer.
      *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The output buffer
-     * @param size              The number of bytes to read
-     * @param from              The source address
-     * @returns the number of bytes read from the socket
+     * Buffer bytes() is set to the number of bytes read.
+     * @param buffer            The output buffer.
+     * @param size              The number of bytes to read.
+     * @param from              The source address.
+     * @returns the number of bytes read from the socket.
      */
     size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
 
     /**
-     * Reads data from the socket into memory buffer
+     * @brief Reads data from the socket into the memory buffer.
      *
-     * Buffer bytes() is set to number of bytes read
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @param from              The source address
-     * @returns the number of bytes read from the socket
+     * Buffer bytes() is set to the number of bytes read.
+     * @param buffer            The memory buffer.
+     * @param size              The number of bytes to read.
+     * @param from              The source address.
+     * @returns the number of bytes read from the socket.
      */
     size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
 
     template<typename T>
+        requires is_socket_readable<T>
     size_t read(T& value, sockaddr_in* from = nullptr)
     {
         std::scoped_lock lock(m_mutex);
-        return readUnlocked((uint8_t*) &value, sizeof(T), from);
+        return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
     }
 
     /**
-     * Writes data to the socket
+     * @brief Writes data to the socket.
      *
-     * If size is omitted then buffer is treated as zero-terminated string
-     * @param buffer            The memory buffer
-     * @param size              The memory buffer size
-     * @param peer              The peer information
-     * @returns the number of bytes written to the socket
+     * If size is omitted, the buffer is treated as  a zero-terminated string.
+     * @param buffer            The memory buffer.
+     * @param size              The memory buffer size.
+     * @param peer              The peer information.
+     * @returns the number of bytes written to the socket.
      */
     size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer = nullptr)
     {
@@ -285,24 +286,24 @@ public:
     }
 
     /**
-     * Writes data to the socket
-     * @param buffer            The memory buffer
-     * @param peer              The peer information
-     * @returns the number of bytes written to the socket
+     * @brief Writes data to the socket.
+     * @param buffer            The memory buffer.
+     * @param peer              The peer information.
+     * @returns the number of bytes written to the socket.
      */
     size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
 
     /**
-     * Writes data to the socket
-     * @param buffer            The memory buffer
-     * @param peer              The peer information
-     * @returns the number of bytes written to the socket
+     * @brief Writes data to the socket.
+     * @param buffer            The memory buffer.
+     * @param peer              The peer information.
+     * @returns the number of bytes written to the socket.
      */
     size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
 
     /**
-     * Reports true if the socket is ready for reading from it
-     * @param timeout           Read timeout
+     * @brief Reports true if the socket is ready for reading from it.
+     * @param timeout           Read timeout.
      */
     [[nodiscard]] bool readyToRead(const std::chrono::milliseconds& timeout)
     {
@@ -311,8 +312,8 @@ public:
     }
 
     /**
-     * Reports true if the socket is ready for writing to it
-     * @param timeout           Write timeout
+     * @brief Reports true if the socket is ready for writing to it.
+     * @param timeout           Write timeout.
      */
     [[nodiscard]] virtual bool readyToWrite(const std::chrono::milliseconds& timeout)
     {
@@ -321,8 +322,8 @@ public:
     }
 
     /**
-     * Return current blocking mode state
-     * @return Current blocking mode state
+     * @brief Return current blocking mode state.
+     * @return Current blocking mode state.
      */
     [[nodiscard]] bool blockingMode() const
     {
@@ -331,19 +332,19 @@ public:
 
 #ifdef _WIN32
     /**
-     * WinSock initialization
+     * @brief WinSock initialization.
      */
     static void init() noexcept;
 
     /**
-     * WinSock cleanup
+     * @brief WinSock cleanup.
      */
     static void cleanup() noexcept;
 #endif
 
 protected:
     /**
-     * Get socket domain type
+     * @brief Get socket domain type.
      */
     [[nodiscard]] int32_t domain() const
     {
@@ -351,7 +352,7 @@ protected:
     }
 
     /**
-     * Get socket type
+     * @brief Get socket type.
      */
     [[nodiscard]] int32_t type() const
     {
@@ -359,7 +360,7 @@ protected:
     }
 
     /**
-     * Get socket protocol
+     * @brief Get socket protocol.
      */
     [[nodiscard]] int32_t protocol() const
     {

@@ -24,73 +24,57 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <gtest/gtest.h>
+#include <sptk5/net/Proxy.h>
 
-#include <sptk5/sptk.h>
+using namespace std;
+using namespace sptk;
 
-#include <memory>
-#include <mutex>
-#include <openssl/ssl.h>
-#include <sptk5/String.h>
-#include <sptk5/net/SSLKeys.h>
-
-namespace sptk {
-
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * @brief SSL connection context
- */
-class SSLContext
+class TestProxy final : public Proxy
 {
 public:
-    /**
-     * @brief Constructor
-	 * @param cipherList		Cipher list. Use "ALL" if not known.
-     * @param tlsOnly           Use TLS only
-     */
-    explicit SSLContext(const String& cipherList, bool tlsOnly = false);
+    using Proxy::Proxy;
 
-    /**
-     * @brief Loads private key and certificate(s)
-     *
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
-     * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys                  Keys and certificates
-     */
-    void loadKeys(const SSLKeys& keys);
+    SocketType connect(const Host& /*destination*/, bool /*blockingMode*/,
+                       const std::chrono::milliseconds& /*timeout*/) override
+    {
+        return SocketType {};
+    }
 
-    /**
-     * @brief Returns SSL context handle
-     */
-    SSL_CTX* handle() const;
+    const Host& host() const
+    {
+        return m_host;
+    }
 
-private:
-    mutable std::mutex       m_mutex;
-    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
-    String                   m_password;                  ///< Password for auto-answer in callback function
-    static int               s_server_session_id_context; ///< Server session ID
+    const String& username() const
+    {
+        return m_username;
+    }
 
-    /**
-     * @brief Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
-
-    /**
-     * @brief Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    [[noreturn]] static void throwError(const String& humanDescription);
+    const String& password() const
+    {
+        return m_password;
+    }
 };
 
-using SharedSSLContext = std::shared_ptr<SSLContext>;
+TEST(SPTK_Proxy, storesHostAndDefaultCredentials)
+{
+    // A web server is expected to run locally
+    const Host      host("localhost", 80);
+    const TestProxy proxy(host);
 
-/**
- * @}
- */
-} // namespace sptk
+    EXPECT_TRUE(proxy.host() == host);
+    EXPECT_TRUE(proxy.username().empty());
+    EXPECT_TRUE(proxy.password().empty());
+}
+
+TEST(SPTK_Proxy, storesProvidedCredentials)
+{
+    // A web server is expected to run locally
+    const Host      host("localhost", 80);
+    const TestProxy proxy(host, "user1", "pass1");
+
+    EXPECT_TRUE(proxy.host() == host);
+    EXPECT_STREQ(proxy.username().c_str(), "user1");
+    EXPECT_STREQ(proxy.password().c_str(), "pass1");
+}

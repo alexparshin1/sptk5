@@ -40,7 +40,7 @@ public:
 	 * Get user home directory
 	 * @return user home directory
 	 */
-    static String location();
+    static std::filesystem::path location();
 };
 
 } // namespace sptk

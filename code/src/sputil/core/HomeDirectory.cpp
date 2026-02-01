@@ -33,23 +33,19 @@
 using namespace std;
 using namespace sptk;
 
-String HomeDirectory::location()
+std::filesystem::path HomeDirectory::location()
 {
 #ifndef _WIN32
-    String      homeDir;
-    const char* hdir = std::getenv("HOME");
-    if (hdir != nullptr && strlen(hdir) != 0)
+    std::filesystem::path homeDir;
+    if (const char* hdir = std::getenv("HOME");
+        hdir != nullptr && strlen(hdir) != 0)
     {
-        homeDir = trim(hdir) + "/";
+        return hdir;
     }
-    else
+
+    if (const char* user = std::getenv("USER"))
     {
-        const char* user = std::getenv("USER");
-        if (user == nullptr)
-        {
-            throw Exception("Can't get home directory");
-        }
-        homeDir = format("/home/{}/", user);
+        return format("/home/{}", user);
     }
 #else
     char* hdrive = getenv("HOMEDRIVE");
@@ -60,5 +56,5 @@ String HomeDirectory::location()
     }
 #endif
 
-    return homeDir;
+    throw Exception("Can't get home directory");
 }

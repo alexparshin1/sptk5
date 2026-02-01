@@ -820,7 +820,7 @@ Strings CThemes::availableThemes()
     /// GTK2 themes
     Strings gtkDirs;
     gtkDirs.push_back("/usr/share/themes");
-    gtkDirs.push_back(HomeDirectory::location() + ".themes");
+    gtkDirs.push_back((HomeDirectory::location() / ".themes").string());
     for (unsigned i = 0; i < gtkDirs.size(); i++)
     {
         try

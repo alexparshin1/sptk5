@@ -105,8 +105,6 @@ void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
         return;
     }
 
-    simpleTypeName = "tns:" + simpleTypeName;
-
     if (WSParserComplexType::findSimpleType(simpleTypeName))
     {
         throw Exception("Duplicate simpleType definition: " + simpleTypeName);
@@ -121,12 +119,6 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
     if (complexTypeName.empty())
     {
         complexTypeName = complexTypeElement->parent()->attributes().get("name");
-    }
-
-    if (complexTypeName.empty())
-    {
-        const auto& parent = complexTypeElement->parent();
-        complexTypeName = parent->attributes().get("name");
     }
 
     if (const auto& complexTypes = m_complexTypeIndex.complexTypes();
@@ -153,12 +145,27 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
     map<String, String> messageToElementMap;
     for (const auto& message: messageNodes)
     {
-        const auto part = message->findFirst("wsdl:part");
         const auto messageName = message->attributes().get("name");
-        const auto elementName = stripNamespace(part->attributes().get("element"));
+        const auto part = message->findFirst("wsdl:part");
+        if (part == nullptr)
+        {
+            CERR("The message " << messageName << " doesn't have any parts defined. Skipping it.\n");
+            continue;
+        }
+
+        auto elementName = stripNamespace(part->attributes().get("element"));
+        if (elementName.empty())
+        {
+            elementName = stripNamespace(part->attributes().get("type"));
+        }
+        if (elementName.empty())
+        {
+            CERR("The message " << messageName << " doesn't define 'element' or 'type'. Skipping it.\n");
+            continue;
+        }
+
         messageToElementMap[messageName] = elementName;
-        const auto documentationNode = part->findFirst("wsdl:documentation");
-        if (documentationNode != nullptr)
+        if (const auto documentationNode = part->findFirst("wsdl:documentation"))
         {
             m_documentation[elementName] = documentationNode->getText().trim();
         }
@@ -183,7 +190,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
         }
         if (element->getQualifiedName() == "wsdl:output")
         {
-            operation.m_output = m_complexTypeIndex.complexType(message, "Message " + message);
+            operation.m_output = m_complexTypeIndex.complexType(elementName, "Message " + message);
             found = true;
             continue;
         }
@@ -198,7 +205,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
 void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    for (const auto  simpleTypeNodes = schemaElement->select("//xsd:simpleType");
+    for (const auto  simpleTypeNodes = schemaElement->select(".//xsd:simpleType");
          const auto& element: simpleTypeNodes)
     {
         if (element->getQualifiedName() == "xsd:simpleType")
@@ -235,6 +242,11 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     wsdlXML.load(buffer);
 
     const auto service = wsdlXML.root()->findFirst("wsdl:service");
+    if (service == nullptr)
+    {
+        throw Exception("Can't find wsdl:service element");
+    }
+
     m_serviceName = service->attributes().get("name");
     m_serviceNamespace = m_serviceName.toLowerCase() + "_service";
 
@@ -292,7 +304,10 @@ String capitalize(const String& name)
     Strings parts(lowerCase(name), "_");
     for (auto& part: parts)
     {
-        part[0] = static_cast<char>(toupper(part[0]));
+        if (!part.empty())
+        {
+            part[0] = static_cast<char>(toupper(part[0]));
+        }
     }
     return parts.join("");
 }
@@ -434,9 +449,9 @@ void WSParser::generateImplementation(ostream& output) const
     const string serviceClassName = "C" + capitalize(m_serviceName) + "ServiceBase";
 
     Strings serviceOperations;
-    for (const auto& operation: m_operations | views::values)
+    for (const auto& [m_input, m_output]: m_operations | views::values)
     {
-        const String requestName = stripNamespace(operation.m_input->name());
+        const String requestName = stripNamespace(m_input->name());
         serviceOperations.push_back(requestName);
     }
     const String         operationNames = serviceOperations.join("|");
@@ -628,7 +643,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
     for (const auto& complexType: m_complexTypeIndex.complexTypes() | views::values)
     {
         SourceModule sourceModule(String("C") + complexType->name(), sourceDirectory);
-        sourceModule.open();
+        sourceModule.reset();
         complexType->generate(sourceModule.header(), sourceModule.source(), externalHeader.c_str(), m_serviceNamespace);
         usedClasses.push_back("C" + complexType->name());
         cmakeLists << "  " << sourceDirectory << "/C" << complexType->name() << ".cpp "
@@ -638,7 +653,7 @@ void WSParser::generate(const String& sourceDirectory, const String& headerFile,
 
     // Generate Service class definition
     SourceModule serviceModule(serviceClassName, sourceDirectory);
-    serviceModule.open();
+    serviceModule.reset();
 
     if (!externalHeader.empty())
     {

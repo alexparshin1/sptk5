@@ -51,9 +51,9 @@ public:
     SourceModule(String moduleName, String modulePath);
 
     /**
-     * @brief Opens module output files
+     * @brief Reset module for output.
      */
-    void open();
+    void reset();
 
     /**
      * @brief Returns header file stream

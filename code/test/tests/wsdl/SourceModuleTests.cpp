@@ -1,0 +1,183 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#include <gtest/gtest.h>
+
+#include <sptk5/wsdl/SourceModule.h>
+
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <thread>
+
+using namespace std;
+using namespace sptk;
+
+namespace {
+filesystem::path makeUniqueTempDir(const string& prefix)
+{
+    const auto base = filesystem::temp_directory_path();
+    const auto now = chrono::steady_clock::now().time_since_epoch().count();
+    const auto dir = base / format("{}_{}", prefix, now);
+    filesystem::create_directories(dir);
+    return dir;
+}
+
+string readAllText(const filesystem::path& p)
+{
+    ifstream     in(p, ios::binary);
+    stringstream ss;
+    ss << in.rdbuf();
+    return ss.str();
+}
+} // namespace
+
+TEST(SPTK_SourceModule, writeOutputFilesCreatesHeaderAndSource)
+{
+    const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_create");
+
+    SourceModule sourceModule("GeneratedUnit", outDir.string());
+    sourceModule.reset();
+    sourceModule.header() << "#pragma once\n\n"
+                          << "int generatedHeaderValue();\n";
+    sourceModule.source() << "#include \"GeneratedUnit.h\"\n\n"
+                          << "int generatedHeaderValue(){return 123;}\n";
+
+    ASSERT_NO_THROW(sourceModule.writeOutputFiles());
+
+    const auto headerPath = outDir / "GeneratedUnit.h";
+    const auto sourcePath = outDir / "GeneratedUnit.cpp";
+
+    EXPECT_TRUE(filesystem::exists(headerPath));
+    EXPECT_TRUE(filesystem::exists(sourcePath));
+
+    EXPECT_NE(string::npos, readAllText(headerPath).find("generatedHeaderValue"));
+    EXPECT_NE(string::npos, readAllText(sourcePath).find("return 123"));
+}
+
+TEST(SPTK_SourceModule, writeOutputFilesDoesNotRewriteWhenContentIsSame)
+{
+    const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_norewrite");
+
+    const auto headerPath = outDir / "GeneratedUnit.h";
+    const auto sourcePath = outDir / "GeneratedUnit.cpp";
+
+    {
+        SourceModule sourceModule("GeneratedUnit", outDir.string());
+        sourceModule.reset();
+        sourceModule.header() << "#pragma once\n\n"
+                              << "int f();\n";
+        sourceModule.source() << "#include \"GeneratedUnit.h\"\n\n"
+                              << "int f(){return 1;}\n";
+        sourceModule.writeOutputFiles();
+    }
+
+    ASSERT_TRUE(filesystem::exists(headerPath));
+    ASSERT_TRUE(filesystem::exists(sourcePath));
+
+    const auto headerTime1 = filesystem::last_write_time(headerPath);
+    const auto sourceTime1 = filesystem::last_write_time(sourcePath);
+
+    // Ensure timestamp resolution is crossed on filesystems with 1-second granularity.
+    this_thread::sleep_for(chrono::milliseconds(1100));
+
+    {
+        SourceModule sourceModule("GeneratedUnit", outDir.string());
+        sourceModule.reset();
+        sourceModule.header() << "#pragma once\n\n"
+                              << "int f();\n";
+        sourceModule.source() << "#include \"GeneratedUnit.h\"\n\n"
+                              << "int f(){return 1;}\n";
+        sourceModule.writeOutputFiles();
+    }
+
+    const auto headerTime2 = filesystem::last_write_time(headerPath);
+    const auto sourceTime2 = filesystem::last_write_time(sourcePath);
+
+    EXPECT_EQ(headerTime1, headerTime2);
+    EXPECT_EQ(sourceTime1, sourceTime2);
+}
+
+TEST(SPTK_SourceModule, writeOutputFilesRewritesWhenContentChanges)
+{
+    const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_rewrite");
+
+    const auto headerPath = outDir / "GeneratedUnit.h";
+    const auto sourcePath = outDir / "GeneratedUnit.cpp";
+
+    {
+        SourceModule sourceModule("GeneratedUnit", outDir.string());
+        sourceModule.reset();
+        sourceModule.header() << "#pragma once\n\n"
+                              << "int f();\n";
+        sourceModule.source() << "#include \"GeneratedUnit.h\"\n\n"
+                              << "int f(){return 1;}\n";
+        sourceModule.writeOutputFiles();
+    }
+
+    const auto headerTime1 = filesystem::last_write_time(headerPath);
+    const auto sourceTime1 = filesystem::last_write_time(sourcePath);
+
+    this_thread::sleep_for(chrono::milliseconds(1100));
+
+    {
+        SourceModule sourceModule("GeneratedUnit", outDir.string());
+        sourceModule.reset();
+        sourceModule.header() << "#pragma once\n\n"
+                              << "int f();\n";
+        sourceModule.source() << "#include \"GeneratedUnit.h\"\n\n"
+                              << "int f(){return 2;}\n"; // changed
+        sourceModule.writeOutputFiles();
+    }
+
+    const auto headerTime2 = filesystem::last_write_time(headerPath);
+    const auto sourceTime2 = filesystem::last_write_time(sourcePath);
+
+    EXPECT_EQ(headerTime1, headerTime2); // header unchanged
+    EXPECT_NE(sourceTime1, sourceTime2); // source rewritten
+    EXPECT_NE(string::npos, readAllText(sourcePath).find("return 2"));
+}
+
+TEST(SPTK_SourceModule, resetClearsStreams)
+{
+    const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_reset");
+
+    SourceModule sourceModule("GeneratedUnit", outDir.string());
+    sourceModule.reset();
+    sourceModule.header() << "abc";
+    sourceModule.source() << "def";
+
+    sourceModule.reset(); // should clear buffers
+
+    sourceModule.header() << "H";
+    sourceModule.source() << "S";
+    sourceModule.writeOutputFiles();
+
+    EXPECT_EQ("H", readAllText(outDir / "GeneratedUnit.h"));
+    EXPECT_EQ("S", readAllText(outDir / "GeneratedUnit.cpp"));
+}

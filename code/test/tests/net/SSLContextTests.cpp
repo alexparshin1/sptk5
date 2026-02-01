@@ -24,73 +24,79 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "test/TestData.h"
 
-#include <sptk5/sptk.h>
-
-#include <memory>
-#include <mutex>
+#include <future>
+#include <gtest/gtest.h>
 #include <openssl/ssl.h>
-#include <sptk5/String.h>
-#include <sptk5/net/SSLKeys.h>
+#include <sptk5/cnet>
+#include <sptk5/net/SSLContext.h>
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
+using namespace chrono;
 
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
-
-/**
- * @brief SSL connection context
- */
-class SSLContext
+TEST(SPTK_SSLContext, ctorCreatesContextAndHandleIsNotNull)
 {
-public:
-    /**
-     * @brief Constructor
-	 * @param cipherList		Cipher list. Use "ALL" if not known.
-     * @param tlsOnly           Use TLS only
-     */
-    explicit SSLContext(const String& cipherList, bool tlsOnly = false);
+    SSLContext ctx("ALL", true);
+    EXPECT_NE(nullptr, ctx.handle());
+}
 
-    /**
-     * @brief Loads private key and certificate(s)
-     *
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
-     * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys                  Keys and certificates
-     */
-    void loadKeys(const SSLKeys& keys);
+TEST(SPTK_SSLContext, ctorWithInvalidCipherListThrows)
+{
+    EXPECT_THROW(
+        {
+            SSLContext ctx("THIS-CIPHER-LIST-SHOULD-NOT-EXIST", true);
+            (void) ctx;
+        },
+        Exception);
+}
 
-    /**
-     * @brief Returns SSL context handle
-     */
-    SSL_CTX* handle() const;
+TEST(SPTK_SSLContext, tlsOnlySetsMinProtocolVersionToTls11)
+{
+    SSLContext ctx("ALL", true);
+    SSL_CTX*   raw = ctx.handle();
+    ASSERT_NE(nullptr, raw);
 
-private:
-    mutable std::mutex       m_mutex;
-    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
-    String                   m_password;                  ///< Password for auto-answer in callback function
-    static int               s_server_session_id_context; ///< Server session ID
+#if defined(SSL_CTX_get_min_proto_version) && defined(TLS1_1_VERSION)
+    const auto minVer = SSL_CTX_get_min_proto_version(raw);
+    EXPECT_EQ(TLS1_1_VERSION, minVer);
+#else
+    GTEST_SKIP() << "OpenSSL does not expose SSL_CTX_get_min_proto_version/TLS1_1_VERSION in this build.";
+#endif
+}
 
-    /**
-     * @brief Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
+TEST(SPTK_SSLContext, loadKeysValidFilesDoesNotThrow)
+{
+    const auto    keyFile = TestData::SslKeysDirectory() / "test.key";
+    const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
+    const SSLKeys keys(keyFile, certFile);
 
-    /**
-     * @brief Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    [[noreturn]] static void throwError(const String& humanDescription);
-};
+    if (!filesystem::exists(keys.privateKeyFileName()) || !filesystem::exists(keys.certificateFileName()))
+    {
+        GTEST_SKIP() << "Test key/certificate files are missing in the test data directory.";
+    }
 
-using SharedSSLContext = std::shared_ptr<SSLContext>;
+    SSLContext ctx("ALL", true);
+    EXPECT_NO_THROW(ctx.loadKeys(keys));
+}
 
-/**
- * @}
- */
-} // namespace sptk
+TEST(SPTK_SSLContext, loadKeysMissingCertificateThrows)
+{
+    const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
+    const auto    missingCert = TestData::SslKeysDirectory() / "missing.cert";
+    const SSLKeys keys(missingKey, missingCert);
+
+    SSLContext ctx("ALL", true);
+    EXPECT_THROW(ctx.loadKeys(keys), Exception);
+}
+
+TEST(SPTK_SSLContext, loadKeysMissingKeyThrows)
+{
+    const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
+    const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
+    const SSLKeys keys(missingKey, certFile);
+
+    SSLContext ctx("ALL", true);
+    EXPECT_THROW(ctx.loadKeys(keys), Exception);
+}

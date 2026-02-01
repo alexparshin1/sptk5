@@ -297,8 +297,8 @@ void CGtkThemeParser::parse(const Strings& gtkrc)
 
 void CGtkThemeParser::load(const string& themeName)
 {
-    m_themeFolder = HomeDirectory::location() + ".themes/" + themeName + "/gtk-2.0/";
-    string  gtkrcFile = m_themeFolder + "gtkrc";
+    m_themeFolder = HomeDirectory::location() / ".themes" / themeName / "gtk-2.0";
+    auto    gtkrcFile = m_themeFolder / "gtkrc";
     Strings gtkrcSource;
 
     try
@@ -307,8 +307,8 @@ void CGtkThemeParser::load(const string& themeName)
     }
     catch (...)
     {
-        m_themeFolder = "/usr/share/themes/" + themeName + "/gtk-2.0/";
-        gtkrcFile = m_themeFolder + "gtkrc";
+        m_themeFolder = filesystem::path("/usr/share/themes") / themeName / "gtk-2.0";
+        gtkrcFile = m_themeFolder / "gtkrc";
         gtkrcSource.loadFromFile(gtkrcFile);
     }
 

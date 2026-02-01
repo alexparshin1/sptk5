@@ -55,16 +55,21 @@ void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool c
 {
     try
     {
-        open();
-        while (!eof())
+        if (open())
         {
-            const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
-            exportRowTo(node, compactXmlMode, false);
-            next();
+            while (!eof())
+            {
+                const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
+                exportRowTo(node, compactXmlMode, false);
+                if (!next())
+                {
+                    break;
+                }
+            }
+            close();
         }
-        close();
     }
-    catch (const Exception&)
+    catch (...)
     {
         close();
         throw;

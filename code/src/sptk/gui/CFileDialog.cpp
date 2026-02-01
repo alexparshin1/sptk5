@@ -61,15 +61,15 @@ void CFileDialog::new_folder_cb(Fl_Widget* dialog, void*)
 
 void CFileDialog::home_cb(Fl_Widget* dialog, void*)
 {
-    auto*  fileDialog = (CFileDialog*) dialog->window();
-    String homeDirectory = HomeDirectory::location();
-    fileDialog->directory(homeDirectory);
+    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto  homeDirectory = HomeDirectory::location();
+    fileDialog->directory(homeDirectory.string());
     fileDialog->refreshDirectory();
 }
 
 void CFileDialog::up_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto* fileDialog = dynamic_cast<CFileDialog*>(dialog->window());
     fileDialog->directory(fileDialog->directory() + "..");
     fileDialog->refreshDirectory();
 }
@@ -78,7 +78,7 @@ void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
 {
     bool directoryClicked = false;
 
-    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto* fileDialog = dynamic_cast<CFileDialog*>(dialog->window());
     auto* listView = (CListView*) dialog;
 
     if (listView->selectedRow() == nullptr)
@@ -137,7 +137,7 @@ void CFileDialog::dirview_cb(Fl_Widget* dialog, void*)
 
 void CFileDialog::lookin_cb(Fl_Widget* dialog, void*)
 {
-    auto* fileDialog = (CFileDialog*) dialog->window();
+    auto* fileDialog = dynamic_cast<CFileDialog*>(dialog->window());
     auto* comboBox = (CComboBox*) dialog;
 
     if (comboBox->eventType() != CEvent::DATA_CHANGED)
@@ -167,7 +167,7 @@ void CFileDialog::pattern_cb(Fl_Widget* combobox, void*)
         return;
     }
 
-    auto* fileDialog = (CFileDialog*) combobox->window();
+    auto* fileDialog = dynamic_cast<CFileDialog*>(combobox->window());
     fileDialog->refreshDirectory();
 }
 

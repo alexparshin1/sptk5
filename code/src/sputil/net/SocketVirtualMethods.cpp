@@ -32,6 +32,8 @@
 #include <sys/poll.h>
 #endif
 
+#include <fcntl.h>
+#include <sys/ioctl.h>
 #include <thread>
 
 using namespace std;

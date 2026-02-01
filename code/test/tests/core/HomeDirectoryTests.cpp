@@ -24,73 +24,127 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include <gtest/gtest.h>
 
-#include <sptk5/sptk.h>
+#include <sptk5/Exception.h>
+#include <sptk5/HomeDirectory.h>
 
-#include <memory>
-#include <mutex>
-#include <openssl/ssl.h>
-#include <sptk5/String.h>
-#include <sptk5/net/SSLKeys.h>
+#include <cstdlib>
+#include <filesystem>
+#include <optional>
+#include <string>
 
-namespace sptk {
+using namespace std;
+using namespace sptk;
 
-/**
- * @addtogroup utility Utility Classes
- * @{
- */
+namespace {
 
-/**
- * @brief SSL connection context
- */
-class SSLContext
+class EnvVarGuard
 {
 public:
-    /**
-     * @brief Constructor
-	 * @param cipherList		Cipher list. Use "ALL" if not known.
-     * @param tlsOnly           Use TLS only
-     */
-    explicit SSLContext(const String& cipherList, bool tlsOnly = false);
+    explicit EnvVarGuard(const char* name)
+        : m_name(name)
+    {
+        if (const char* v = std::getenv(m_name.c_str()))
+        {
+            m_oldValue = string(v);
+        }
+    }
 
-    /**
-     * @brief Loads private key and certificate(s)
-     *
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
-     * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys                  Keys and certificates
-     */
-    void loadKeys(const SSLKeys& keys);
+    void set(const string& value) const
+    {
+#ifdef _WIN32
+        _putenv_s(m_name.c_str(), value.c_str());
+#else
+        setenv(m_name.c_str(), value.c_str(), 1);
+#endif
+    }
 
-    /**
-     * @brief Returns SSL context handle
-     */
-    SSL_CTX* handle() const;
+    void unset() const
+    {
+#ifdef _WIN32
+        _putenv_s(m_name.c_str(), "");
+#else
+        unsetenv(m_name.c_str());
+#endif
+    }
+
+    ~EnvVarGuard()
+    {
+        if (m_oldValue.has_value())
+        {
+#ifdef _WIN32
+            _putenv_s(m_name.c_str(), m_oldValue->c_str());
+#else
+            setenv(m_name.c_str(), m_oldValue->c_str(), 1);
+#endif
+        }
+        else
+        {
+#ifdef _WIN32
+            _putenv_s(m_name.c_str(), "");
+#else
+            unsetenv(m_name.c_str());
+#endif
+        }
+    }
 
 private:
-    mutable std::mutex       m_mutex;
-    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
-    String                   m_password;                  ///< Password for auto-answer in callback function
-    static int               s_server_session_id_context; ///< Server session ID
-
-    /**
-     * @brief Password auto-reply callback function
-     */
-    static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
-
-    /**
-     * @brief Throw SSL error
-     * @param humanDescription  Human-readable error description
-     */
-    [[noreturn]] static void throwError(const String& humanDescription);
+    string           m_name;
+    optional<string> m_oldValue;
 };
 
-using SharedSSLContext = std::shared_ptr<SSLContext>;
+} // namespace
 
-/**
- * @}
- */
-} // namespace sptk
+#ifndef _WIN32
+
+TEST(SPTK_HomeDirectory, locationPrefersHOME)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.set("/tmp/sptk_home_test_dir");
+    user.set("user_should_not_be_used");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("/tmp/sptk_home_test_dir"), p);
+}
+
+TEST(SPTK_HomeDirectory, locationFallsBackToHomeUserWhenHOMEMissing)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.unset();
+    user.set("testuser");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("/home/testuser"), p);
+}
+
+TEST(SPTK_HomeDirectory, locationThrowsWhenNoHOMEAndNoUSER)
+{
+    EnvVarGuard home("HOME");
+    EnvVarGuard user("USER");
+
+    home.unset();
+    user.unset();
+
+    EXPECT_THROW({ (void) HomeDirectory::location(); }, Exception);
+}
+
+#else
+
+TEST(SPTK_HomeDirectory, locationUsesHomeDriveAndPathOnWindowsWhenPresent)
+{
+    EnvVarGuard homeDrive("HOMEDRIVE");
+    EnvVarGuard homePath("HOMEPATH");
+
+    homeDrive.set("C:");
+    homePath.set("\\Users\\TestUser");
+
+    const filesystem::path p = HomeDirectory::location();
+    EXPECT_EQ(filesystem::path("C:\\Users\\TestUser"), p);
+}
+
+#endif

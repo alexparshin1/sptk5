@@ -31,19 +31,65 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup network Network Classes
+ * @{
+ */
+
 class TCPSocket;
 
+/**
+ * @brief Base proxy class for network connection proxy.
+ */
 class SP_EXPORT Proxy
 {
 public:
-    Proxy(Host host, String username = "", String password = "");
+    /**
+     * @brief Constructor.
+     * @param host              Proxy host.
+     * @param username          Proxy username.
+     * @param password          Proxy password.
+     */
+    explicit Proxy(Host host, String username = "", String password = "");
+
+    /**
+     * @brief Destructor.
+     */
     virtual ~Proxy() = default;
+
+    /**
+     * @brief Connect to the destination host via the proxy.
+     * Throws exceptions on connection problems.
+     * @param destination       Destination host.
+     * @param blockingMode      Blocking mode.
+     * @param timeout           Connection timeout.
+     * @return                  Socket handle.
+     */
     virtual SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) = 0;
 
+    [[nodiscard]] Host getHost() const
+    {
+        return m_host;
+    }
+
+    [[nodiscard]] String getUsername() const
+    {
+        return m_username;
+    }
+
+    [[nodiscard]] String getPassword() const
+    {
+        return m_password;
+    }
+
 protected:
-    const Host   m_host;
-    const String m_username;
-    const String m_password;
+    const Host   m_host;     ///< Proxy host.
+    const String m_username; ///< Proxy username.
+    const String m_password; ///< Proxy password.
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

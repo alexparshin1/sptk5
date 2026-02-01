@@ -38,7 +38,7 @@ SourceModule::SourceModule(String moduleName, String modulePath)
 {
 }
 
-void SourceModule::open()
+void SourceModule::reset()
 {
     if (m_path.empty())
     {
@@ -67,23 +67,32 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
         m_path = ".";
     }
 
-    const String fileName = m_path + "/" + fileNameAndExtension;
+    const filesystem::path fileName = m_path + "/" + fileNameAndExtension;
 
     try
     {
-        existingData.loadFromFile(fileName.c_str());
+        existingData.loadFromFile(fileName);
     }
     catch (const Exception&)
     {
         existingData.bytes(0);
     }
 
-    if (strcmp(existingData.c_str(), data.c_str()) == 0)
+    if (existingData == data)
     {
         return;
     }
 
-    data.saveToFile(fileName.c_str());
+    auto dirname = fileName.parent_path();
+    if (!filesystem::exists(dirname))
+    {
+        if (!filesystem::create_directories(dirname))
+        {
+            throw Exception("Cannot create directory " + dirname.string());
+        }
+    }
+
+    data.saveToFile(fileName);
 }
 
 void SourceModule::writeOutputFiles()
