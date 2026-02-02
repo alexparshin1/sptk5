@@ -99,7 +99,7 @@ void WSParser::parseElement(const xdoc::SNode& elementNode)
 
 void WSParser::parseSimpleType(const xdoc::SNode& simpleTypeElement)
 {
-    auto simpleTypeName = simpleTypeElement->attributes().get("name");
+    const auto simpleTypeName = simpleTypeElement->attributes().get("name");
     if (simpleTypeName.empty())
     {
         return;
@@ -205,7 +205,7 @@ void WSParser::parseOperation(const xdoc::SNode& operationNode)
 
 void WSParser::parseSchema(const xdoc::SNode& schemaElement)
 {
-    for (const auto  simpleTypeNodes = schemaElement->select(".//xsd:simpleType");
+    for (const auto  simpleTypeNodes = schemaElement->select("//xsd:simpleType");
          const auto& element: simpleTypeNodes)
     {
         if (element->getQualifiedName() == "xsd:simpleType")
@@ -260,7 +260,7 @@ void WSParser::parse(const filesystem::path& wsdlFile)
     m_targetNamespace = wsdlXML.root()->attributes().get("targetNamespace");
     if (m_targetNamespace.empty())
     {
-        if (auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace"))
+        if (const auto targetNamespaceNode = wsdlXML.root()->findFirst("targetNamespace"))
         {
             m_targetNamespace = targetNamespaceNode->getText();
         }

@@ -75,8 +75,8 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
 
     if (simpleTypeElement)
     {
-        const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
-        if (restrictionElement != nullptr)
+        if (const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
+            restrictionElement != nullptr)
         {
             m_typeName = restrictionElement->attributes().get("base");
             m_restriction = make_shared<WSRestriction>(m_typeName, restrictionElement->parent());
