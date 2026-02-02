@@ -343,6 +343,11 @@ public:
 #endif
 
 protected:
+    std::mutex& getMutex() const
+    {
+        return m_mutex;
+    }
+
     /**
      * @brief Get socket domain type.
      */
