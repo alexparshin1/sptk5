@@ -28,6 +28,8 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 
+#include "sptk5/wsdl/WSParser.h"
+
 #include <ranges>
 #include <sptk5/wsdl/WSTypeTranslator.h>
 #include <utility>
@@ -66,7 +68,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
     xdoc::SNode simpleTypeElement = nullptr;
     if (!m_typeName.empty())
     {
-        simpleTypeElement = findSimpleType(m_typeName);
+        simpleTypeElement = findSimpleType(WSParser::stripNamespace(m_typeName));
     }
     else if (complexTypeElement->getQualifiedName() == "xsd:element")
     {
@@ -75,8 +77,8 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
 
     if (simpleTypeElement)
     {
-        const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
-        if (restrictionElement != nullptr)
+        if (const auto& restrictionElement = simpleTypeElement->findFirst("xsd:restriction");
+            restrictionElement != nullptr)
         {
             m_typeName = restrictionElement->attributes().get("base");
             m_restriction = make_shared<WSRestriction>(m_typeName, restrictionElement->parent());

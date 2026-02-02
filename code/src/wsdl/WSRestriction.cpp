@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
     else
     {
-        for (auto        patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
+        for (const auto        patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
              const auto& patternNode: patternNodes)
         {
             const String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
