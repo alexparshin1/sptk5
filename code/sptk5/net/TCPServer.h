@@ -39,20 +39,20 @@ namespace sptk {
 class TCPServerListener;
 
 /**
- * @addtogroup net Networking Classes
+ * @addtogroup net Networking Classes.
  * @{
  */
 
 /**
- * Log details
+ * @brief Log information details.
  *
- * Defines information about server activities that should be logged.
+ * Define information about server activities that should be logged.
  */
 class SP_EXPORT LogDetails
 {
 public:
     /**
-     * Log details constants
+     * @brief Log details constants.
      */
     enum class MessageDetail : uint8_t
     {
@@ -68,13 +68,13 @@ public:
     using MessageDetails = std::set<MessageDetail>;
 
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     LogDetails() = default;
 
     /**
-     * Constructor
-     * @param details           Log details
+     * @brief Constructor.
+     * @param details           Log details.
      */
     explicit LogDetails(MessageDetails details)
         : m_details(std::move(details))
@@ -82,14 +82,14 @@ public:
     }
 
     /**
-     * Constructor
-     * @param details           Log details as lower case strings
+     * @brief Constructor.
+     * @param details           Log details as the lower case strings.
      */
     explicit LogDetails(const Strings& details);
 
     /**
-     * Constructor
-     * @param details           Log details
+     * @brief Constructor.
+     * @param details           Log details.
      */
     LogDetails(std::initializer_list<MessageDetail> details)
     {
@@ -102,9 +102,9 @@ public:
     [[nodiscard]] String toString(const String& delimiter = ",") const;
 
     /**
-     * Query log details
-     * @param detail            Log detail
-     * @return true if log detail is set
+     * @brief Query log details.
+     * @param detail            Log detail.
+     * @return true if log detail is set.
      */
     [[nodiscard]] bool has(MessageDetail detail) const
     {
@@ -122,9 +122,9 @@ private:
 };
 
 /**
- * TCP server
+ * @brief TCP server.
  *
- * For every incoming connection, creates connection thread.
+ * For every incoming connection, creates the connection thread.
  */
 class SP_EXPORT TCPServer
     : public ThreadPool
@@ -134,47 +134,47 @@ class SP_EXPORT TCPServer
 
 public:
     /**
-     * Constructor
-     * @param listenerName      Logical name of the listener
-     * @param threadLimit       Number of worker threads in thread pool
-     * @param logEngine         Optional log engine
-     * @param logDetails        Log messages details
+     * @brief Constructor.
+     * @param listenerName      Logical name of the listener.
+     * @param threadLimit       Number of worker threads in the thread pool.
+     * @param logEngine         Optional log engine.
+     * @param logDetails        Log messages details.
      */
     explicit TCPServer(const String& listenerName, size_t threadLimit = 16, LogEngine* logEngine = nullptr,
                        const LogDetails& logDetails = LogDetails());
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~TCPServer() override;
 
     /**
-     * Get current host of the server
-     * @return
+     * @brief Get the current host of the server.
+     * @return the current host of the server.
      */
     const Host& host() const;
 
     /**
-     * @brief Start TCP or SSL listener on the selected port
-     * @param connectionType    Listener connection type
-     * @param listenerHost              Listener port number
-     * @param threadCount       Number of listener threads
+     * @brief Start TCP or SSL listener on the selected port.
+     * @param connectionType    Listener connection type.
+     * @param listenerHost      Listener port number.
+     * @param threadCount       Number of listener threads.
      */
     void addListener(ServerConnection::Type connectionType, const Host& listenerHost, uint16_t threadCount = 1);
 
     /**
-     * @brief Remove listener on the selected port
-     * @param listenerHost              Listener port number
+     * @brief Remove the listener on the selected port.
+     * @param listenerHost              Listener port number.
      */
     [[maybe_unused]] void removeListener(const Host& listenerHost);
 
     /**
-     * @brief Stop and remove all listeners
+     * @brief Stop and remove all listeners.
      */
     void stop() override;
 
     /**
-     * @brief Get server state
+     * @brief Get server state.
      */
     bool active() const
     {
@@ -182,9 +182,9 @@ public:
     }
 
     /**
-     * @brief Log server message
-     * @param priority          Log message priority
-     * @param message           Log message
+     * @brief Log server message.
+     * @param priority          Log message priority.
+     * @param message           Log message.
      */
     void log(LogPriority priority, const String& message) const
     {
@@ -195,8 +195,8 @@ public:
     }
 
     /**
-     * @brief Get server log details
-     * @return current log details
+     * @brief Get server log details.
+     * @return current log details.
      */
     [[maybe_unused]] const LogDetails& logDetails() const
     {
@@ -204,20 +204,20 @@ public:
     }
 
     /**
-     * @brief Set SSL keys for SSL connections (encrypted mode only)
-     * @param sslKeys           SSL keys info
+     * @brief Set SSL keys for SSL connections (encrypted mode only).
+     * @param sslKeys           SSL keys info.
      */
     void setSSLKeys(std::shared_ptr<SSLKeys> sslKeys);
 
     /**
-     * @brief Get SSL keys for SSL connections (encrypted mode only)
-     * @return SSL keys info
+     * @brief Get SSL keys for SSL connections (encrypted mode only).
+     * @return SSL keys info.
      */
     std::shared_ptr<SSLKeys> getSSLKeys() const;
 
     /**
-     * Set the user-defined function that is called upon client connection to server
-     * @param function          User-defined function
+     * @brief Set the user-defined function called upon client connection to the server.
+     * @param function          User-defined function.
      */
     void onConnection(const ServerConnection::Function& function);
 
@@ -225,35 +225,35 @@ protected:
     /**
      * @brief Modify server host.
      * If the listener is already active, don't modify exiting server host.
-     * @param host              Server host
+     * @param host              Server host.
      */
     void host(const Host& host);
 
     /**
-     * @brief Screen incoming connection request
-     * Method is called right after connection request is accepted,
-     * and allows ignoring unwanted connections. By default simply returns true (allow).
-     * @param connectionRequest Incoming connection information
+     * @brief Screen incoming connection request.
+     * Method is called right after the connection request is accepted
+     * and allows ignoring unwanted connections. By default, simply returns true (allow).
+     * @param connectionRequest Incoming connection information.
      */
     virtual bool allowConnection(const sockaddr_in* connectionRequest);
 
     /**
-     * @brief Create connection thread derived from TCPServerConnection or SSLServerConnection
-     * Application should override this method to create concrete connection object.
+     * @brief Create the connection thread derived from TCPServerConnection or SSLServerConnection.
+     * Application should override this method to create the concrete connection object.
      * Created connection object is maintained by CTCPServer.
-     * @param connectionType    Connection type
-     * @param connectionSocket  Already accepted incoming connection socket
-     * @param peer              Incoming connection information
+     * @param connectionType    Connection type.
+     * @param connectionSocket  Already accepted incoming connection socket.
+     * @param peer              Incoming connection information.
      */
     virtual UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer);
 
     /**
-     * Thread event callback function
+     * @brief Thread event callback function.
      *
-     * Receives events that occur in the threads
-     * @param thread            Thread where event occured
-     * @param eventType         Thread event type
-     * @param runable           Related runable (if any)
+     * Receives events that occur in the threads.
+     * @param thread            Thread where event occured.
+     * @param eventType         Thread event type.
+     * @param runable           Related runable (if any).
      */
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
