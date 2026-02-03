@@ -123,7 +123,7 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
         xmlRequest->set(name, param);
     }
 
-    String methodName = xmlRequest->getName();
+    const String methodName = xmlRequest->getName();
     xmlRequest->set("rest_method_name", methodName);
 
     return xmlRequest;

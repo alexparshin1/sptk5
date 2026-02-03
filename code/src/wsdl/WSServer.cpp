@@ -134,7 +134,7 @@ void WSServer::socketEventCallback(const uint8_t* userData, SocketEventType even
 
     if (eventType.m_data)
     {
-        auto workerThread = dynamic_pointer_cast<WSServerThread>(connection->getWorkerThread());
+        const auto workerThread = dynamic_pointer_cast<WSServerThread>(connection->getWorkerThread());
         workerThread->queue(connection);
     }
 }

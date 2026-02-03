@@ -66,8 +66,9 @@ public:
                              s->write(m_data);
                              this_thread::sleep_for(500ms);
                          }
-                         catch (...)
+                         catch (const exception& e)
                          {
+                             CERR(e.what());
                          }
                          s->close();
                      });
@@ -225,7 +226,9 @@ TEST(SPTK_SocketReader, readLine_multipleLines)
 
     SocketReader reader(socket);
 
-    String line1, line2, line3;
+    String line1;
+    String line2;
+    String line3;
     reader.readLine(line1);
     reader.readLine(line2);
     reader.readLine(line3);

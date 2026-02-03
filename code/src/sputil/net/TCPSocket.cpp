@@ -32,9 +32,9 @@ using namespace sptk;
 
 void TCPSocket::handleReadFromSocketErrorUnlocked(const int error)
 {
-    if (error == EAGAIN)
+    if (error == EAGAIN || error == EINTR || error == EINPROGRESS)
     {
-        if (!readyToReadUnlocked(chrono::seconds(1)))
+        if (!readyToReadUnlocked(100ms))
         {
             throw TimeoutException("Can't read from socket: timeout");
         }
@@ -96,17 +96,9 @@ void TCPSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode o
 bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const chrono::milliseconds& timeout)
 {
     socklen_t len = sizeof(clientInfo);
-    if (!blockingMode())
-    {
-        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
-        if (clientSocketFD != INVALID_SOCKET)
-        {
-            return true;
-        }
-    }
-
     if (readyToRead(timeout))
     {
+        scoped_lock lock(getMutex());
         clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
         if (clientSocketFD != INVALID_SOCKET)
         {
@@ -136,7 +128,7 @@ size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr
             error = getSocketError();
             handleReadFromSocketErrorUnlocked(error);
         }
-    } while (error == EAGAIN);
+    } while (error == EAGAIN || error == EINTR || error == EINPROGRESS);
 
     return receivedBytes;
 }

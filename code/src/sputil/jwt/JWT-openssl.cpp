@@ -325,7 +325,8 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             EC_KEY_free(ec_key);
 
             /* Get the sig from the DER encoded version. */
-            const unsigned char* sig = nullptr;
+            const unsigned char* sig = sig_buffer.data();
+            sig_buffer.bytes(slen);
             ec_sig = d2i_ECDSA_SIG(nullptr, &sig, static_cast<long>(slen));
             if (ec_sig == nullptr)
             {

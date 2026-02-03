@@ -83,7 +83,7 @@ void SourceModule::writeFile(const String& fileNameAndExtension, const Buffer& d
         return;
     }
 
-    auto dirname = fileName.parent_path();
+    const auto dirname = fileName.parent_path();
     if (!filesystem::exists(dirname))
     {
         if (!filesystem::create_directories(dirname))

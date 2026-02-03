@@ -129,6 +129,11 @@ void WSParser::parseComplexType(xdoc::SNode& complexTypeElement)
 
     const auto complexType = make_shared<WSParserComplexType>(complexTypeElement, complexTypeName);
     m_complexTypeIndex.addType(complexTypeName, complexType);
+
+    if (complexTypeElement->attributes().get("name") == "ServerNode")
+    {
+        int xx = 0;
+    }
     complexType->parse();
 }
 

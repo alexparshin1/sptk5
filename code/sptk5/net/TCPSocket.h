@@ -144,7 +144,7 @@ protected:
      * Get proxy information
      * @return
      */
-    Proxy* proxy()
+    Proxy* proxy() const
     {
         return m_proxy.get();
     }

@@ -28,6 +28,8 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/wsdl/WSParserComplexType.h>
 
+#include "sptk5/wsdl/WSParser.h"
+
 #include <ranges>
 #include <sptk5/wsdl/WSTypeTranslator.h>
 #include <utility>
@@ -66,7 +68,7 @@ WSParserComplexType::WSParserComplexType(const xdoc::SNode& complexTypeElement, 
     xdoc::SNode simpleTypeElement = nullptr;
     if (!m_typeName.empty())
     {
-        simpleTypeElement = findSimpleType(m_typeName);
+        simpleTypeElement = findSimpleType(WSParser::stripNamespace(m_typeName));
     }
     else if (complexTypeElement->getQualifiedName() == "xsd:element")
     {

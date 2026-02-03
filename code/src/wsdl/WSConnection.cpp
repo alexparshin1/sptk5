@@ -321,7 +321,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
         return;
     }
 
-    auto   origin = itor->second;
+    const auto   origin = itor->second;
     Buffer response;
 
     response.append("HTTP/1.1 204 No Content\r\n");
