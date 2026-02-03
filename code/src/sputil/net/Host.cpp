@@ -196,6 +196,10 @@ void Host::setPort(const uint16_t port)
     }
 }
 
+#ifdef _WIN32
+constexpr int EAI_ADDRFAMILY = EAI_FAMILY;
+#endif
+
 void Host::getHostAddress()
 {
     const scoped_lock lock(m_mutex);

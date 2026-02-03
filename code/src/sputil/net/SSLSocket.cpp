@@ -478,7 +478,7 @@ void SSLSocket::sslFree()
 int SSLSocket::sslSetFd(const SocketType fd) const
 {
     scoped_lock lock(m_mutex);
-    return SSL_set_fd(m_ssl, fd);
+    return SSL_set_fd(m_ssl, static_cast<int>(fd));
 }
 
 int SSLSocket::sslSetExtHostName() const

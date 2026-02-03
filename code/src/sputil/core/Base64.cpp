@@ -178,8 +178,8 @@ size_t internal_decode(Buffer& dest, std::string const& encodedString)
 
         for (j = 0; j < 4; ++j)
         {
-            const char pos = base64_chars.find(static_cast<char>(char_array_4[j]));
-            char_array_4[j] = static_cast<uint8_t>(pos);
+            const auto pos = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[j])));
+            char_array_4[j] = pos;
         }
 
         char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));

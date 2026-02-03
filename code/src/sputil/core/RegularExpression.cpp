@@ -291,8 +291,8 @@ size_t RegularExpression::nextMatch(const String& text, size_t& offset, MatchDat
         matchData.matches.clear();
         for (auto* offsetPair = offsetVector; offsetPair != offsetsEnd; offsetPair += 2)
         {
-            auto start = *offsetPair;
-            auto end = *(offsetPair + 1);
+            auto start = static_cast<pcre_offset_t>(*offsetPair);
+            auto end = static_cast<pcre_offset_t>(*(offsetPair + 1));
             matchData.matches.emplace_back(start, end);
         }
         offset = offsetVector[1];

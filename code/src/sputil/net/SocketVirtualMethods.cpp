@@ -30,10 +30,10 @@
 
 #ifndef _WIN32
 #include <sys/poll.h>
+#include <sys/ioctl.h>
 #endif
 
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <thread>
 
 using namespace std;
@@ -133,7 +133,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 #endif
             }
             currentOperation = "bind";
-            result = bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
+            result = ::bind(m_socketFd, bit_cast<const sockaddr*>(&addr), sizeof(sockaddr_in));
             if (result == 0 && m_type != SOCK_DGRAM)
             {
                 result = listen(m_socketFd, SOMAXCONN);
@@ -295,7 +295,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
 #endif
     }
 
-    if (bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
+    if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
         throwSocketError("Can't bind socket to port " + int2string(portNumber));
     }
@@ -453,7 +453,12 @@ size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, const size_t size, so
         return 0;
     }
 
+#ifndef _WIN32
     ssize_t bytes;
+#else
+    int bytes;
+#endif
+
     if (from != nullptr)
     {
         socklen_t fromLength = sizeof(sockaddr_in);
@@ -516,7 +521,11 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     auto         remaining = static_cast<int>(size);
     while (remaining > 0)
     {
+#ifndef _WIN32
         ssize_t bytes;
+#else
+        int bytes;
+#endif
         if (peer != nullptr)
         {
             // UDP socket
