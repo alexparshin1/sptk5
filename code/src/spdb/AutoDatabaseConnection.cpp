@@ -50,3 +50,131 @@ PoolDatabaseConnection* AutoDatabaseConnection::connection() const
 {
     return m_connection.get();
 }
+
+const DatabaseConnectionString& AutoDatabaseConnection::connectionString() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    return m_connection->connectionString();
+}
+
+DatabaseConnectionType AutoDatabaseConnection::connectionType() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    return m_connection->connectionType();
+}
+
+String AutoDatabaseConnection::driverDescription() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    return m_connection->driverDescription();
+}
+
+void AutoDatabaseConnection::beginTransaction() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->beginTransaction();
+}
+
+void AutoDatabaseConnection::commitTransaction() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->commitTransaction();
+}
+
+void AutoDatabaseConnection::rollbackTransaction() const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->rollbackTransaction();
+}
+
+void AutoDatabaseConnection::objectList(const DatabaseObjectType objectType, Strings& objects) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->objectList(objectType, objects);
+}
+
+void AutoDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
+                                        std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+}
+
+void AutoDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
+                                        std::vector<VariantVector>& data, const size_t groupSize) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->bulkInsert(tableName, columnNames, data, groupSize);
+}
+
+void AutoDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->bulkDelete(tableName, keyColumnName, keys);
+}
+
+[[maybe_unused]] void AutoDatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->executeBatchFile(batchFileName, errors);
+}
+
+void AutoDatabaseConnection::executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->executeBatchSQL(batchSQL, errors);
+}
+
+String AutoDatabaseConnection::tableSequenceName(const String& tableName, const String& /*sequenceName*/) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    return m_connection->tableSequenceName(tableName);
+}
+
+String AutoDatabaseConnection::lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    return m_connection->lastAutoIncrementSql(tableName);
+}
