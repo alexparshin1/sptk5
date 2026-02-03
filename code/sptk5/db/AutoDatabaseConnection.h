@@ -105,74 +105,32 @@ public:
     /**
      * @brief Returns the connection string.
      */
-    [[nodiscard]] const DatabaseConnectionString& connectionString() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        return m_connection->connectionString();
-    }
+    [[nodiscard]] const DatabaseConnectionString& connectionString() const;
 
     /**
      * @brief Returns the connection type.
      */
-    [[nodiscard]] DatabaseConnectionType connectionType() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        return m_connection->connectionType();
-    }
+    [[nodiscard]] DatabaseConnectionType connectionType() const;
 
     /**
      * @brief Returns the driver description.
      */
-    [[nodiscard]] String driverDescription() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        return m_connection->driverDescription();
-    }
+    [[nodiscard]] String driverDescription() const;
 
     /**
      * @brief Begins the transaction.
      */
-    void beginTransaction() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->beginTransaction();
-    }
+    void beginTransaction() const;
 
     /**
      * @brief Commits the transaction.
      */
-    void commitTransaction() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->commitTransaction();
-    }
+    void commitTransaction() const;
 
     /**
      * @brief Rolls back the transaction.
      */
-    void rollbackTransaction() const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->rollbackTransaction();
-    }
+    void rollbackTransaction() const;
 
     /**
      * @brief Lists database objects.
@@ -182,14 +140,7 @@ public:
      * @param objectType        Object type to list.
      * @param objects           Object list (output).
      */
-    void objectList(const DatabaseObjectType objectType, Strings& objects) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->objectList(objectType, objects);
-    }
+    void objectList(const DatabaseObjectType objectType, Strings& objects) const;
 
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
@@ -204,14 +155,7 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize = 100) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
-    }
+                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize = 100) const;
 
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
@@ -223,14 +167,7 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, const size_t groupSize = 50) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->bulkInsert(tableName, columnNames, data, groupSize);
-    }
+                    std::vector<VariantVector>& data, const size_t groupSize = 50) const;
 
     /**
      * @brief Executes bulk delete of rows by the keys.
@@ -238,14 +175,7 @@ public:
      * @param keyColumnName     List of table columns to populate.
      * @param keys              Data for bulk insert.
      */
-    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->bulkDelete(tableName, keyColumnName, keys);
-    }
+    void bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const;
 
     /**
      * @brief Executes SQL batch file.
@@ -255,14 +185,7 @@ public:
      * @param batchFileName     SQL batch file.
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
-    [[maybe_unused]] void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->executeBatchFile(batchFileName, errors);
-    }
+    [[maybe_unused]] void executeBatchFile(const String& batchFileName, Strings* errors = nullptr) const;
 
     /**
      * @brief Executes SQL batch queries.
@@ -272,32 +195,11 @@ public:
      * @param batchSQL          SQL batch file.
      * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
-    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        m_connection->executeBatchSQL(batchSQL, errors);
-    }
+    void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors = nullptr) const;
 
-    [[nodiscard]] String tableSequenceName(const String& tableName, const String& /*sequenceName*/ = "") const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        return m_connection->tableSequenceName(tableName);
-    }
+    [[nodiscard]] String tableSequenceName(const String& tableName, const String& /*sequenceName*/ = "") const;
 
-    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const
-    {
-        if (!m_connection)
-        {
-            throw Exception(s_invalidConnectionMessage);
-        }
-        return m_connection->lastAutoIncrementSql(tableName);
-    }
+    [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const;
 
 private:
     DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool
