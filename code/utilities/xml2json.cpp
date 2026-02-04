@@ -8,17 +8,17 @@ namespace {
 void printHelp(const String& progName, const String& error = "")
 {
     COUT("Convertor of XML to JSON and back\n\n"
-         << "Syntax:\n"
-         << progName << " <filename>\n\n");
+        << "Syntax:\n"
+        << progName << " <filename>\n\n");
     if (!error.empty())
     {
         CERR("Error: "
-             << error << "\n\n");
+            << error << "\n\n");
     }
 }
 }
 
-int main(int argc, const char* argv[])
+int main(const int argc, const char* argv[])
 {
     if (argc != 2)
     {
@@ -27,7 +27,7 @@ int main(int argc, const char* argv[])
     }
 
     const RegularExpression matchExtension(R"(^(.*)\.(xml|json)$)", "i");
-    const auto matches = matchExtension.m(argv[1]);
+    const auto              matches = matchExtension.m(argv[1]);
     if (!matches)
     {
         printHelp(argv[0], "Invalid file extension");
@@ -39,7 +39,7 @@ int main(int argc, const char* argv[])
     try
     {
         const xdoc::Document document;
-        Buffer documentData;
+        Buffer               documentData;
         documentData.loadFromFile(argv[1]);
         document.load(documentData);
         String outputFileName;

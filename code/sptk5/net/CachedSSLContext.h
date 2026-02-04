@@ -46,7 +46,7 @@ public:
      * @param tlsOnly 			Use only TLS
      * @return					Shared SSL context
      */
-    static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
+    [[nodiscard]] SP_EXPORT static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
 
 private:
     using CachedSSLContextMap = std::map<String, SharedSSLContext>;

@@ -257,13 +257,13 @@ public:
      * @brief Copy assignment.
      * @param other             Other object.
      */
-    [[nodiscard]] RegularExpression& operator=(const RegularExpression& other);
+    RegularExpression& operator=(const RegularExpression& other);
 
     /**
      * @brief Move assignment.
      * @param other             Other object.
      */
-    [[nodiscard]] RegularExpression& operator=(RegularExpression&& other) noexcept;
+    RegularExpression& operator=(RegularExpression&& other) noexcept;
 
     /**
      * @brief Returns true if the text matches with the regular expression.

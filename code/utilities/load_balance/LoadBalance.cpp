@@ -30,9 +30,9 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const uint8_t* userData, const SocketEventType eventType)
 {
-    auto* channel = (Channel*) userData;
+    auto* channel = bit_cast<Channel*>(userData);
 
     if (eventType.m_hangup)
     {
@@ -45,9 +45,9 @@ void LoadBalance::sourceEventCallback(const uint8_t* userData, SocketEventType e
     }
 }
 
-void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const uint8_t* userData, const SocketEventType eventType)
 {
-    auto* channel = (Channel*) userData;
+    auto* channel = bit_cast<Channel*>(userData);
 
     if (eventType.m_hangup)
     {
@@ -60,31 +60,31 @@ void LoadBalance::destinationEventCallback(const uint8_t* userData, SocketEventT
     }
 }
 
-LoadBalance::LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
+LoadBalance::LoadBalance(const uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
     : Thread("load balance")
-    , m_listenerPort(listenerPort)
-    , m_destinations(destinations)
-    , m_interfaces(interfaces)
+      , m_listenerPort(listenerPort)
+      , m_destinations(destinations)
+      , m_interfaces(interfaces)
 {
 }
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr {};
+    struct sockaddr_in addr{};
 
     m_sourceEvents.run();
     m_destinationEvents.run();
     m_listener.listen(m_listenerPort);
 
-    constexpr chrono::milliseconds acceptTimeout {500};
+    constexpr chrono::milliseconds acceptTimeout{500};
 
     while (!terminated())
     {
-        Channel* channel {nullptr};
+        Channel* channel{nullptr};
         try
         {
-            SocketType sourceFD;
-            if (m_listener.accept(sourceFD, addr, acceptTimeout))
+            if (SocketType sourceFD;
+                m_listener.accept(sourceFD, addr, acceptTimeout))
             {
                 channel = new Channel(m_sourceEvents, m_destinationEvents);
                 const Host&   destination = m_destinations.loop();

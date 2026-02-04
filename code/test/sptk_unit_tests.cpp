@@ -36,9 +36,9 @@ int main(int argc, char* argv[])
     TestRunner tests(argc, argv);
 
 #ifdef _WIN32
-    string tempDirectory = "/Windows/temp";
+    const string tempDirectory = "/Windows/temp";
 #else
-    string tempDirectory = "/tmp";
+    const string tempDirectory = "/tmp";
 #endif
 
     TestRunner::addDatabaseConnection(DatabaseConnectionString("postgresql://gtest:test#123@dbhost_pg:5432/gtest"));

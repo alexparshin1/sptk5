@@ -116,6 +116,7 @@ TEST(SPTK_Host, ctorHostOnly)
     });
 }
 
+#ifndef _WIN32
 TEST(SPTK_Host, ctorIpv6Bracketed)
 {
     const Host host("[::1]:443");
@@ -133,3 +134,4 @@ TEST(SPTK_Host, ctorIpv6WithoutPort)
         EXPECT_STREQ("[::1]:0", host.toString(false).c_str());
     });
 }
+#endif

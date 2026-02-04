@@ -40,7 +40,7 @@ Node::Type Node::variantTypeToNodeType(VariantDataType type)
     using enum Type;
     switch (type)
     {
-        using enum VariantDataType;
+            using enum VariantDataType;
         case VAR_NONE:
             return Null;
 
@@ -71,7 +71,7 @@ Node::Type Node::variantTypeToNodeType(VariantDataType type)
 
 Node::Node(const NodeName& nodeName, Type type)
     : NodeName(nodeName)
-    , m_type(type)
+      , m_type(type)
 {
 }
 
@@ -207,7 +207,7 @@ void getTextRecursively(const Node* node, Buffer& output)
 
 String Node::getText(const NodeName& name) const
 {
-    const Node* node = this;
+    auto node = this;
     if (!name.empty())
     {
         const auto found = findFirst(name);
@@ -258,7 +258,7 @@ bool Node::getBoolean(const NodeName& name) const
 
 const Node::Nodes& Node::nodes(const NodeName& name) const
 {
-    static constexpr Nodes emptyNodes;
+    static const Nodes emptyNodes;
 
     if (name.empty())
     {
@@ -285,10 +285,10 @@ void Node::clear()
     m_attributes.clear();
 }
 
-SNode xdoc::Node::pushValue(const NodeName& name, const Variant& value, Node::Type type)
+SNode Node::pushValue(const NodeName& name, const Variant& value, Type type)
 {
-    Node::Type actualType(type);
-    if (type == Node::Type::Null && !value.isNull())
+    Type actualType(type);
+    if (type == Type::Null && !value.isNull())
     {
         actualType = variantTypeToNodeType(value.dataType());
     }
@@ -297,10 +297,10 @@ SNode xdoc::Node::pushValue(const NodeName& name, const Variant& value, Node::Ty
     return node;
 }
 
-SNode xdoc::Node::pushValue(const Variant& value, Node::Type type)
+SNode Node::pushValue(const Variant& value, Type type)
 {
-    Node::Type actualType(type);
-    if (type == Node::Type::Null && !value.isNull())
+    Type actualType(type);
+    if (type == Type::Null && !value.isNull())
     {
         actualType = variantTypeToNodeType(value.dataType());
     }
@@ -330,9 +330,9 @@ bool Node::remove(const NodeName& name)
 bool Node::remove(const SNode& _node)
 {
     return erase_if(m_nodes, [&](const auto& node)
-                    {
-                        return node.get() == _node.get();
-                    });
+    {
+        return node.get() == _node.get();
+    });
 }
 
 namespace {
@@ -391,7 +391,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
         }
         else
         {
-            // Exporting root node of the document
+            // Exporting the root node of the document
             for (const auto& node: m_nodes)
             {
                 exporter.saveElement(node.get(), node->getQualifiedName(), data, formatted, 0);
@@ -414,7 +414,7 @@ void Node::clearChildren()
 
 Node::Vector Node::select(const String& xpath)
 {
-    Node::Vector selectedNodes;
+    Vector selectedNodes;
 
     selectedNodes.clear();
     const auto node = shared_from_this();

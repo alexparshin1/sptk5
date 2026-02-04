@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Host& destination)
+void Channel::open(const SocketType sourceFD, const String& interfaceAddress, const Host& destination)
 {
     scoped_lock lock(m_mutex);
 
@@ -42,8 +42,8 @@ void Channel::open(SocketType sourceFD, const String& interfaceAddress, const Ho
     m_destination.bind(interfaceAddress.c_str(), 0);
     m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
 
-    m_sourceEvents.add(m_source, (uint8_t*) this);
-    m_destinationEvents.add(m_destination, (uint8_t*) this);
+    m_sourceEvents.add(m_source, reinterpret_cast<uint8_t*>(this));
+    m_destinationEvents.add(m_destination, reinterpret_cast<uint8_t*>(this));
 }
 
 void Channel::close()
@@ -67,20 +67,20 @@ int Channel::copyData(const TCPSocket& source, const TCPSocket& destination)
 {
     scoped_lock lock(m_mutex);
 
-    Buffer buffer(1024);
-    uint32_t totalBytes = 0;
-    size_t fragmentSize = sizeof(buffer);
-    auto readBytes = static_cast<int>(fragmentSize);
+    constexpr size_t fragmentSize = 1024;
+    Buffer           buffer(fragmentSize);
+    uint32_t         totalBytes = 0;
+    auto             readBytes = static_cast<int>(fragmentSize);
 
     while (static_cast<size_t>(readBytes) == fragmentSize)
     {
 
 #ifdef _WIN32
-        readBytes = _read((int) source.fd(), buffer.data(), (unsigned) fragmentSize);
+        readBytes = _read(static_cast<int>(source.fd()), buffer.data(), fragmentSize);
         if (readBytes < 0)
             throw SystemException("Can't read from socket");
 
-        if (_write((int) destination.fd(), buffer.data(), readBytes) < 0)
+        if (_write(static_cast<int>(destination.fd()), buffer.data(), readBytes) < 0)
             throw SystemException("Can't write to socket");
 #else
         readBytes = static_cast<int>(::read(source.fd(), buffer.data(), fragmentSize));

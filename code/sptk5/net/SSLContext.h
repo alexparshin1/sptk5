@@ -44,46 +44,46 @@ namespace sptk {
 /**
  * @brief SSL connection context
  */
-class SSLContext
+class SP_EXPORT SSLContext
 {
 public:
     /**
-     * @brief Constructor
+     * @brief Constructor.
 	 * @param cipherList		Cipher list. Use "ALL" if not known.
-     * @param tlsOnly           Use TLS only
+     * @param tlsOnly           If true, then use TLS only.
      */
     explicit SSLContext(const String& cipherList, bool tlsOnly = false);
 
     /**
-     * @brief Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s).
      *
      * Private key and certificates must be encoded with PEM format.
      * A single file containing private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys                  Keys and certificates
+     * @param keys                  Keys and certificates.
      */
     void loadKeys(const SSLKeys& keys);
 
     /**
-     * @brief Returns SSL context handle
+     * @brief Returns SSL context handle.
      */
-    SSL_CTX* handle() const;
+    [[nodiscard]] SSL_CTX* handle() const;
 
 private:
-    mutable std::mutex       m_mutex;
-    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context
-    String                   m_password;                  ///< Password for auto-answer in callback function
-    static int               s_server_session_id_context; ///< Server session ID
+    mutable std::mutex       m_mutex;                     ///< Mutex that protects internal data.
+    std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context.
+    String                   m_password;                  ///< Password for auto-answer in callback function.
+    static int               s_server_session_id_context; ///< Server session ID.
 
     /**
-     * @brief Password auto-reply callback function
+     * @brief Password auto-reply callback function.
      */
     static int passwordReplyCallback(char* replyBuffer, int replySize, int rwflag, void* userdata);
 
     /**
-     * @brief Throw SSL error
-     * @param humanDescription  Human-readable error description
+     * @brief Throw SSL error.
+     * @param humanDescription  Human-readable error description.
      */
     [[noreturn]] static void throwError(const String& humanDescription);
 };

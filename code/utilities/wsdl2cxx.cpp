@@ -146,9 +146,9 @@ int main(int argc, const char* argv[])
             return 1;
         }
 
-        filesystem::path wsdlFile = commandLine.arguments().front().c_str();
-        const auto       quiet = commandLine.hasOption("quiet");
-        const auto       verbose = commandLine.hasOption("verbose");
+        const filesystem::path wsdlFile = commandLine.arguments().front().c_str();
+        const auto             quiet = commandLine.hasOption("quiet");
+        const auto             verbose = commandLine.hasOption("verbose");
 
         WSParser wsParser;
 

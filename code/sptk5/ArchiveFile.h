@@ -31,7 +31,7 @@
 
 namespace sptk {
 
-constexpr int TAR_BLOCK_SIZE = 512; ///< Tar archive block size
+constexpr size_t TAR_BLOCK_SIZE = 512; ///< Tar archive block size
 
 #pragma pack(push, 1)
 

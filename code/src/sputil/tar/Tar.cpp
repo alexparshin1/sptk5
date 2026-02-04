@@ -35,7 +35,7 @@ Tar::Tar(const Buffer& tarData)
     read(tarData);
 }
 
-Tar::Tar(const std::filesystem::path& fileName)
+Tar::Tar(const filesystem::path& fileName)
 {
     read(fileName);
 }
@@ -46,7 +46,7 @@ void Tar::clear()
     m_files.clear();
 }
 
-const ArchiveFile& Tar::file(const std::filesystem::path& fileName) const
+const ArchiveFile& Tar::file(const filesystem::path& fileName) const
 {
     const auto itor = m_files.find(fileName);
     if (itor == m_files.end())
@@ -59,12 +59,12 @@ const ArchiveFile& Tar::file(const std::filesystem::path& fileName) const
 void Tar::append(const SArchiveFile& file)
 {
     // Note: Existing file is replaced, unlike regular tar
-    m_files[file->fileName().c_str()] = file;
+    filesystem::path filename = file->fileName().c_str();
+    m_files[filename] = file;
 }
 
-void Tar::remove(const std::filesystem::path& fileName)
+void Tar::remove(const filesystem::path& fileName)
 {
-    // Note: Existing file is replaced, unlike regular tar
     m_files.erase(fileName);
 }
 
@@ -82,25 +82,60 @@ void Tar::read(const Buffer& tarData)
     }
 }
 
-template<typename Field>
-unsigned readOctalNumber(Field& field, const String& fieldName)
+namespace {
+template<typename T>
+size_t readOctalNumber(const T& field, const String& fieldName)
 {
     constexpr int octal = 8;
-    errno = 0;
-    const auto value = static_cast<unsigned>(strtoul(data(field), nullptr, octal));
-    if (errno != 0)
+
+    size_t result = 0;
+    string fieldData(field.data(), field.size());
+    auto   [tail, ec] = from_chars(fieldData.data(), fieldData.data() + sizeof(field), result, octal);
+
+    if (ec == errc())
     {
-        throw Exception("Invalid octal number for " + fieldName);
+        return result;
     }
-    return value;
+
+    if (ec == errc::result_out_of_range)
+    {
+        throw Exception(format("The value for {} in the file header '{}' is larger than size_t.", fieldName.c_str(), fieldData));
+    }
+
+    throw Exception(format("The value for {} in the file header '{}' is not a number.", fieldName.c_str(), fieldData));
+}
+
+template<size_t N>
+string tarFieldToString(const array<char, N>& f)
+{
+    const auto end = find(f.begin(), f.end(), '\0');
+    return string(f.begin(), end);
+}
 }
 
 bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
 {
+    if (offset + TAR_BLOCK_SIZE > buffer.size())
+    {
+        // No more data to read
+        return false;
+    }
+
     const auto* header = reinterpret_cast<const TarHeader*>(buffer.data() + offset);
     if (header->magic[0] == 0)
     {
-        // empty block at the end of the file
+        if (buffer.size() - offset < TAR_BLOCK_SIZE + TAR_BLOCK_SIZE)
+        {
+            throw Exception("Invalid padding in the TAR file (too short).");
+        }
+
+        constexpr array<char, 1024> padding{};
+        if (memcmp(padding.data(), header, 1024) != 0)
+        {
+            throw Exception("Invalid padding in the TAR file (not zero-filled).");
+        }
+
+        // Two empty blocks at the end of the file:
         return false;
     }
 
@@ -119,19 +154,25 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         contentLength = readOctalNumber(header->size, "size");
     }
 
+    if (offset + contentLength > buffer.size())
+    {
+        // Truncated data?
+        throw Exception("Truncated TAR file data.");
+    }
+
     auto       mode = static_cast<int>(readOctalNumber(header->mode, "mode"));
     const auto uid = static_cast<int>(readOctalNumber(header->uid, "uid"));
     const auto gid = static_cast<int>(readOctalNumber(header->gid, "gid"));
 
-    const time_t mtime = readOctalNumber(header->mtime, "mtime");
+    const time_t mtime = static_cast<time_t>(readOctalNumber(header->mtime, "mtime"));
     auto         dateTime = DateTime::convertCTime(mtime);
 
     const Buffer content(buffer.data() + offset, contentLength);
 
-    const std::filesystem::path fname(header->filename.data());
-    const String                uname(header->uname.data());
-    const String                gname(header->gname.data());
-    const std::filesystem::path linkName(header->linkName.data());
+    const filesystem::path fname(tarFieldToString(header->filename));
+    const String           uname(tarFieldToString(header->uname));
+    const String           gname(tarFieldToString(header->gname));
+    const filesystem::path linkName(tarFieldToString(header->linkName));
 
     size_t blockCount = contentLength / TAR_BLOCK_SIZE;
     if (blockCount * TAR_BLOCK_SIZE < contentLength)
@@ -139,37 +180,41 @@ bool Tar::readNextFile(const Buffer& buffer, size_t& offset)
         blockCount++;
     }
 
-    const ArchiveFile::Ownership ownership {uid, gid, uname, gname};
+    const ArchiveFile::Ownership ownership{.uid = uid, .gid = gid, .uname = uname, .gname = gname};
     const auto                   file = make_shared<ArchiveFile>(fname, content, mode, dateTime, type, ownership, linkName);
 
-    m_files[fname.string()] = file;
+    m_files[fname] = file;
 
     offset += blockCount * TAR_BLOCK_SIZE;
 
     return true;
 }
 
-void Tar::read(const std::filesystem::path& tarFileName)
+void Tar::read(const filesystem::path& tarFileName)
 {
     Buffer tarData;
     tarData.loadFromFile(tarFileName);
     read(tarData);
 }
 
-void Tar::save(const std::filesystem::path& tarFileName) const
+void Tar::save(const filesystem::path& tarFileName) const
 {
-    ofstream archive(tarFileName);
-    for (const auto& [fileName, archiveFile]: m_files)
+    ofstream archive(tarFileName, ios::binary | ios::trunc);
+    for (const auto& archiveFile: m_files | views::values)
     {
         const auto& header = *reinterpret_cast<const TarHeader*>(archiveFile->header());
         archive.write(reinterpret_cast<const char*>(&header), TAR_BLOCK_SIZE);
         if (!archiveFile->empty())
         {
-            const size_t paddingLength = TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE;
+            const size_t paddingLength = (TAR_BLOCK_SIZE - archiveFile->size() % TAR_BLOCK_SIZE) % TAR_BLOCK_SIZE;
             const Buffer padding(paddingLength);
-            archive.write(archiveFile->c_str(), static_cast<int>(archiveFile->size()));
-            archive.write(padding.c_str(), static_cast<int>(paddingLength));
+            archive.write(archiveFile->c_str(), static_cast<streamsize>(archiveFile->size()));
+            archive.write(padding.c_str(), static_cast<streamsize>(paddingLength));
         }
     }
+
+    // Standard tar ends with two 512-byte zero blocks.
+    constexpr array<char, 1024> padding{};
+    archive.write(padding.data(), padding.size());
     archive.close();
 }

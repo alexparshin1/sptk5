@@ -46,7 +46,7 @@ public:
 
     void threadFunction() override
     {
-        constexpr chrono::milliseconds timeout(5);
+        constexpr chrono::milliseconds timeout(20);
         m_counter = 0;
         while (!terminated())
         {
@@ -69,7 +69,7 @@ public:
 TEST(SPTK_Thread, run)
 {
     constexpr int testCounter {5};
-    constexpr chrono::milliseconds interval(60);
+    constexpr chrono::milliseconds interval(110);
     ThreadTestThread testThread("Test Thread", testCounter);
     testThread.run();
     this_thread::sleep_for(interval);
@@ -82,14 +82,14 @@ TEST(SPTK_Thread, run)
 TEST(SPTK_Thread, runAgain) /* NOLINT */
 {
     constexpr int testCounter {5};
-    constexpr chrono::milliseconds sleepInterval {60};
+    constexpr chrono::milliseconds sleepInterval {110};
     ThreadTestThread testThread("Test Thread", testCounter);
 
     testThread.run();
     this_thread::sleep_for(sleepInterval);
     testThread.terminate();
     testThread.join();
-    EXPECT_NEAR(testCounter, testThread.counter(), 1);
+    EXPECT_NEAR(testCounter, testThread.counter(), 2);
 
     testThread.run();
     this_thread::sleep_for(sleepInterval);

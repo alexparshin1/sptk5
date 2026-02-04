@@ -111,7 +111,7 @@ void stub()
 
 TestRunner::TestRunner(int& argc, char**& argv)
     : m_argc(argc)
-    , m_argv(argv)
+      , m_argv(argv)
 {
 }
 
@@ -145,7 +145,7 @@ String excludeDatabasePatterns(const std::vector<DatabaseConnectionString>& defi
 }
 } // namespace
 
-int TestRunner::runAllTests()
+int TestRunner::runAllTests() const
 {
 #ifdef _WIN32
     // Make sure Winsock is initialized
@@ -164,8 +164,8 @@ int TestRunner::runAllTests()
         }
     }
 
-    vector<char*> argv(m_argv, m_argv + m_argc);
-    String        filter;
+    vector argv(m_argv, m_argv + m_argc);
+    String filter;
 
     if (!excludeDBDriverPatterns.empty())
     {
@@ -194,7 +194,7 @@ int TestRunner::runAllTests()
         }
     }
 
-    ::testing::InitGoogleTest(&m_argc, m_argv);
+    testing::InitGoogleTest(&m_argc, m_argv);
 
     return RUN_ALL_TESTS();
 }

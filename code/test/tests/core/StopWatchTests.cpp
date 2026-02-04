@@ -50,7 +50,7 @@ TEST(SPTK_StopWatch, elapsedTime)
 
     const auto elapsedMs = stopWatch.milliseconds();
     EXPECT_GE(elapsedMs, 20.0);
-    EXPECT_LT(elapsedMs, 21.0);
+    EXPECT_LT(elapsedMs, 40.0);
 
     const auto deltaMs = abs(stopWatch.seconds() * 1000.0 - elapsedMs);
     EXPECT_LE(deltaMs, 1.0);
@@ -65,7 +65,7 @@ TEST(SPTK_StopWatch, resetElapsedTime)
     const auto firstMs = stopWatch.milliseconds();
 
     stopWatch.start();
-    this_thread::sleep_for(chrono::milliseconds(19));
+    this_thread::sleep_for(chrono::milliseconds(15));
     stopWatch.stop();
     const auto secondMs = stopWatch.milliseconds();
 

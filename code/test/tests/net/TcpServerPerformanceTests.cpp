@@ -123,7 +123,7 @@ TEST(SPTK_TCPServer, eventPerformance)
 
     auto clientReceivedCount = totalTransferredCount / 2;
     auto clientReceivedBytes = totalTransferred / 2;
-    COUT("Client received: " << clientReceivedBytes << " bytes for " << stopWatch.milliseconds() << " ms, "
+    COUT("Client received: " << clientReceivedBytes << " bytes for " << setprecision(1) << stopWatch.milliseconds() << " ms, "<< setprecision(2)
                              << static_cast<double>(clientReceivedBytes) / stopWatch.milliseconds() << "KB/s. ("
                              << static_cast<double>(clientReceivedCount) / stopWatch.milliseconds() << "K/s)");
 
