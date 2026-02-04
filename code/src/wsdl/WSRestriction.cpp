@@ -62,6 +62,29 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
 }
 
+WSRestriction::WSRestriction(const Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns)
+    : m_type(type)
+    , m_wsdlTypeName(std::move(wsdlTypeName))
+{
+    if (enumerationsOrPatterns.empty())
+    {
+        m_type = Type::Unknown;
+        return;
+    }
+
+    if (type == Type::Enumeration)
+    {
+        m_enumeration = enumerationsOrPatterns;
+    }
+    else if (type == Type::Pattern)
+    {
+        for (const auto& pattern: enumerationsOrPatterns)
+        {
+            m_patterns.emplace_back(pattern);
+        }
+    }
+}
+
 void WSRestriction::check(const String& typeName, const String& value) const
 {
     if (m_type == Type::Enumeration)
