@@ -49,7 +49,7 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
     }
     else
     {
-        for (const auto        patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
+        for (const auto  patternNodes = simpleTypeElement->select("xsd:restriction/xsd:pattern");
              const auto& patternNode: patternNodes)
         {
             const String pattern = patternNode->attributes().get("value").replace(R"(\\)", R"(\)");
@@ -57,29 +57,6 @@ WSRestriction::WSRestriction(String typeName, const xdoc::SNode& simpleTypeEleme
             {
                 m_type = Type::Pattern;
             }
-            m_patterns.emplace_back(pattern);
-        }
-    }
-}
-
-WSRestriction::WSRestriction(const Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns)
-    : m_type(type)
-    , m_wsdlTypeName(std::move(wsdlTypeName))
-{
-    if (enumerationsOrPatterns.empty())
-    {
-        m_type = Type::Unknown;
-        return;
-    }
-
-    if (type == Type::Enumeration)
-    {
-        m_enumeration = enumerationsOrPatterns;
-    }
-    else if (type == Type::Pattern)
-    {
-        for (const auto& pattern: enumerationsOrPatterns)
-        {
             m_patterns.emplace_back(pattern);
         }
     }

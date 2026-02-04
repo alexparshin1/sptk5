@@ -54,17 +54,17 @@ protected:
     {
         filesystem::create_directories(gtestTempDirectory);
 
-        constexpr int TestFileBytes = 1000;
+        constexpr auto TestFileBytes = 1000;
 
         Buffer file1;
-        for (int i = 0; i < TestFileBytes; ++i)
+        for (auto i = 0; i < TestFileBytes; ++i)
         {
-            file1.append((const char*) &i, sizeof(i));
+            file1.append(reinterpret_cast<const char*>(&i), sizeof(i));
         }
         file1.saveToFile(gtestTempDirectory / "file1.txt");
 
         Buffer file2;
-        for (int i = 0; i < TestFileBytes; ++i)
+        for (auto i = 0; i < TestFileBytes; ++i)
         {
             file2.append("ABCDEFG HIJKLMN OPQRSTUV\n");
         }
@@ -100,11 +100,14 @@ TEST_F(SPTK_Tar, read) /* NOLINT */
 
     EXPECT_NO_THROW(tar.read(testTar1));
 
-    filesystem::path relativeDirectory(gtestTempDirectory.string().substr(1).c_str());
+    const filesystem::path relativeDirectory(gtestTempDirectory.string().substr(1).c_str());
 
     const auto& outfile1 = tar.file(relativeDirectory / "file1.txt");
-    const auto& outfile2 = tar.file(relativeDirectory / "file2.txt");
+    EXPECT_STREQ(outfile1.fileName().c_str(), "tmp/gtest_temp_directory3/file1.txt");
     EXPECT_STREQ(file1_md5.c_str(), md5(outfile1).c_str());
+
+    const auto& outfile2 = tar.file(relativeDirectory / "file2.txt");
+    EXPECT_STREQ(outfile2.fileName().c_str(), "tmp/gtest_temp_directory3/file2.txt");
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 }
 

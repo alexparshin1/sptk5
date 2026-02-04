@@ -118,48 +118,80 @@ public:
      */
     [[nodiscard]] const char* header() const;
 
+    /**
+     * @brief File name.
+     * @return File name, including the relative path.
+     */
     [[nodiscard]] String fileName() const
     {
         return m_fileName;
     }
 
+    /**
+     * @brief File mode, i.e., 0640.
+     * @return File mode.
+     */
     [[nodiscard]] unsigned mode() const
     {
         return m_mode;
     }
 
+    /**
+     * @brief File ownership information.
+     * @return File ownership information.
+     */
     [[nodiscard]] const Ownership& ownership() const
     {
         return m_ownership;
     }
 
+    /**
+     * @brief File modification time.
+     * @return File modification time.
+     */
     [[nodiscard]] DateTime mtime() const
     {
         return m_mtime;
     }
 
+    /**
+     * @brief File type.
+     * @return File type.
+     */
     [[nodiscard]] Type type() const
     {
         return m_type;
     }
 
+    /**
+     * @brief Link name, the link is pointing to (for symbolic and hard links).
+     * @return Link name.
+     */
     [[nodiscard]] String linkname() const
     {
         return m_linkname;
     }
 
+    /**
+     * @brief Returns the relative path for the file inside the archive.
+     * @param fileName          File name.
+     * @param baseDirectory     Directory used as a base for the relative path for files inside the archive.
+     * @return Relative path for the file inside the archive.
+     */
     static std::filesystem::path relativePath(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
 private:
-    String    m_fileName;
-    unsigned  m_mode {777};
-    Ownership m_ownership {};
-    DateTime  m_mtime;
-    Type      m_type {Type::REGULAR_FILE};
-    String    m_linkname;
+    String                     m_fileName;                  ///< File name, including the relative path.
+    unsigned                   m_mode {777};                ///< File mode, i.e., 0640.
+    Ownership                  m_ownership {};              ///< File ownership information.
+    DateTime                   m_mtime;                     ///< File modification time.
+    Type                       m_type {Type::REGULAR_FILE}; ///< File type.
+    String                     m_linkname;                  ///< Link name, the link is pointing to (for symbolic and hard links).
+    std::shared_ptr<TarHeader> m_header;                    ///< Actual tar file header, length is TAR_BLOCK_SIZE.
 
-    std::shared_ptr<TarHeader> m_header;
-
+    /**
+     * @brief Create the tar header for the file.
+     */
     void makeHeader();
 };
 

@@ -53,18 +53,10 @@ public:
     WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement);
 
     /**
-     * Constructor from WSDL (XML) definition
-     * @param type                      Restriction type
-     * @param wsdlTypeName              WSDL type name
-     * @param enumerationsOrPatterns    Enumerations or patterns
-     */
-    WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns);
-
-    /**
      * Get restriction type
      * @return restriction type
      */
-    Type type() const;
+    [[nodiscard]] Type type() const;
 
     /**
      * Restriction check
@@ -79,13 +71,13 @@ public:
     /**
      * Generates restriction constructor for C++ skeleton
      */
-    String generateConstructor(const String& variableName) const;
+    [[nodiscard]] String generateConstructor(const String& variableName) const;
 
     /**
      * Optional regular expression to match
      * @return regular expression string
      */
-    const std::vector<RegularExpression>& patterns() const
+    [[nodiscard]] const std::vector<RegularExpression>& patterns() const
     {
         return m_patterns;
     }
@@ -94,7 +86,7 @@ public:
      * Optional enumeration to match
      * @return enumeration
      */
-    Strings enumeration() const
+    [[nodiscard]] Strings enumeration() const
     {
         return m_enumeration;
     }
