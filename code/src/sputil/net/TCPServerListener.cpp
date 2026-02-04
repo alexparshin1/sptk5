@@ -140,9 +140,9 @@ void TCPServerListener::listen()
     }
 }
 
-uint16_t TCPServerListener::port() const
+Host TCPServerListener::host() const
 {
-    return m_listenerSocket.host().port();
+    return m_listenerSocket.host();
 }
 
 String TCPServerListener::error() const

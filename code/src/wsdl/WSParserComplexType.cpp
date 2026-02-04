@@ -199,22 +199,18 @@ WSParserComplexType::Initializer WSParserComplexType::makeInitializer() const
 
     for (const auto& complexType: m_sequence)
     {
-        initializer.copyCtor.push_back("m_" + complexType->name() + "(other.m_" + complexType->name() + ")");
-        initializer.moveCtor.push_back(
-            "m_" + complexType->name() + "(std::move(other.m_" + complexType->name() + "))");
-        initializer.copyAssign.push_back("m_" + complexType->name() + " = other.m_" + complexType->name());
-        initializer.moveAssign.push_back(
-            "m_" + complexType->name() + " = std::move(other.m_" + complexType->name() + ")");
+        initializer.copyCtor.push_back(format("m_{0}(other.m_{0})", complexType->name().c_str()));
+        initializer.moveCtor.push_back(format("m_{0}(std::move(other.m_{0}))", complexType->name().c_str()));
+        initializer.copyAssign.push_back(format("m_{0} = other.m_{0}", complexType->name().c_str()));
+        initializer.moveAssign.push_back(format("m_{0} = std::move(other.m_{0})", complexType->name().c_str()));
     }
 
     for (const auto& name: m_attributes | views::keys)
     {
-        initializer.copyCtor.push_back("m_" + name + "(other.m_" + name + ")");
-        initializer.moveCtor.push_back(
-            "m_" + name + "(std::move(other.m_" + name + "))");
-        initializer.copyAssign.push_back("m_" + name + " = other.m_" + name);
-        initializer.moveAssign.push_back(
-            "m_" + name + " = std::move(other.m_" + name + ")");
+        initializer.copyCtor.push_back(format("m_{0}(other.m_{0})", name));
+        initializer.moveCtor.push_back(format("m_{0}(std::move(other.m_{0}))", name));
+        initializer.copyAssign.push_back(format("m_{0} = other.m_{0}", name));
+        initializer.moveAssign.push_back(format("m_{0} = std::move(other.m_{0})", name));
     }
 
     return initializer;

@@ -31,12 +31,12 @@
 
 namespace sptk {
 
-constexpr size_t TAR_BLOCK_SIZE = 512; ///< Tar archive block size
+constexpr size_t TAR_BLOCK_SIZE = 512; ///< Tar archive block size.
 
 #pragma pack(push, 1)
 
 /**
- * Tar header as it's stored in file
+ * Tar header as it's stored in the file.
  */
 struct TarHeader
 {
@@ -62,14 +62,14 @@ struct TarHeader
 #pragma pack(pop)
 
 /**
- * @brief File inside tar archive
+ * @brief File inside the tar archive.
  */
 class SP_EXPORT ArchiveFile
     : public Buffer
 {
 public:
     /**
-     * @brief File type for file inside tar archive
+     * @brief File type for file inside the tar archive.
      */
     enum class Type : uint8_t
     {
@@ -93,57 +93,57 @@ public:
     };
 
     /**
-     * @brief Constructor
-     * @param fileName          File name
-     * @param baseDirectory     Directory used as a base for relative path for files inside archive
+     * @brief Constructor.
+     * @param fileName          File name.
+     * @param baseDirectory     Directory used as a base for the relative path for files inside the archive.
      */
     explicit ArchiveFile(const std::filesystem::path& fileName, const std::filesystem::path& baseDirectory);
 
     /**
-     * @brief Constructor
-     * @param fileName          File name
-     * @param content           File data (regular files only)
-     * @param mode              File mode, i.e. 0640
-     * @param mtime             Modification time
-     * @param type              File type
-     * @param ownership         File owners
-     * @param linkName          Name the link is pointing to
+     * @brief Constructor.
+     * @param fileName          File name.
+     * @param content           File data (regular files only).
+     * @param mode              File mode, i.e., 0640.
+     * @param mtime             Modification time.
+     * @param type              File type.
+     * @param ownership         File owners.
+     * @param linkName          Name, the link is pointing to.
      */
     ArchiveFile(const std::filesystem::path& fileName, const Buffer& content, int mode, DateTime mtime,
-                ArchiveFile::Type type, Ownership ownership, const std::filesystem::path& linkName);
+                Type type, Ownership ownership, const std::filesystem::path& linkName);
 
     /**
      * @brief Actual tar file header, length is TAR_BLOCK_SIZE
      * @return Actual tar file header data
      */
-    const char* header() const;
+    [[nodiscard]] const char* header() const;
 
-    String fileName() const
+    [[nodiscard]] String fileName() const
     {
         return m_fileName;
     }
 
-    unsigned mode() const
+    [[nodiscard]] unsigned mode() const
     {
         return m_mode;
     }
 
-    const Ownership& ownership() const
+    [[nodiscard]] const Ownership& ownership() const
     {
         return m_ownership;
     }
 
-    DateTime mtime() const
+    [[nodiscard]] DateTime mtime() const
     {
         return m_mtime;
     }
 
-    Type type() const
+    [[nodiscard]] Type type() const
     {
         return m_type;
     }
 
-    String linkname() const
+    [[nodiscard]] String linkname() const
     {
         return m_linkname;
     }

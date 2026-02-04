@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
+WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& hostname, const size_t threadCount,
                    const WSConnection::Options& options)
     : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
     , WSServerThreads(this, threadCount)
@@ -45,10 +45,10 @@ WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& 
           },
           100ms, SocketPool::TriggerMode::LevelTriggered)
 {
-    if (!hostname.empty())
-    {
-        host(Host(hostname));
-    }
+    // if (!hostname.empty())
+    // {
+    //     host(Host(hostname));
+    // }
 
     if (m_options.paths.htmlIndexPage.empty())
     {

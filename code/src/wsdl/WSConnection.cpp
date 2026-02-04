@@ -150,11 +150,18 @@ void WSConnection::processSingleConnection()
         return;
     }
 
-    const bool closeConnection = reviewHeaders(requestType, headers);
+    const auto closeConnection = reviewHeaders(requestType, headers);
 
-    WSWebServiceProtocol protocol(httpReader, url, m_services, server().host(),
+    auto hosts = server().listenerHosts();
+    if (hosts.empty())
+    {
+        throw Exception("No listener hosts defined");
+    }
+
+    WSWebServiceProtocol protocol(httpReader, url, m_services, hosts[0],
                                   m_options.allowCors, m_options.keepAlive, m_options.suppressHttpStatus);
-    auto                 requestInfo = protocol.process();
+
+    auto requestInfo = protocol.process();
 
     if (closeConnection)
     {
@@ -321,8 +328,8 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
         return;
     }
 
-    const auto   origin = itor->second;
-    Buffer response;
+    const auto origin = itor->second;
+    Buffer     response;
 
     response.append("HTTP/1.1 204 No Content\r\n");
 

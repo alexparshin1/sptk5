@@ -149,10 +149,10 @@ public:
     ~TCPServer() override;
 
     /**
-     * @brief Get the current host of the server.
-     * @return the current host of the server.
+     * @brief Get the listener hosts of the server.
+     * @return the list of listener hosts.
      */
-    const Host& host() const;
+    std::vector<Host> listenerHosts() const;
 
     /**
      * @brief Start TCP or SSL listener on the selected port.
@@ -178,7 +178,7 @@ public:
      */
     bool active() const
     {
-        return !m_portListeners.empty();
+        return !m_listeners.empty();
     }
 
     /**
@@ -223,13 +223,6 @@ public:
 
 protected:
     /**
-     * @brief Modify server host.
-     * If the listener is already active, don't modify exiting server host.
-     * @param host              Server host.
-     */
-    void host(const Host& host);
-
-    /**
      * @brief Screen incoming connection request.
      * Method is called right after the connection request is accepted
      * and allows ignoring unwanted connections. By default, simply returns true (allow).
@@ -260,13 +253,12 @@ protected:
 private:
     using SListener = std::shared_ptr<TCPServerListener>;
     using Listeners = std::vector<SListener>;
-    mutable std::mutex                     m_mutex;              ///< Mutex protecting internal data
-    std::map<Host, Listeners, HostCompare> m_portListeners;      ///< Server port listeners
-    std::shared_ptr<Logger>                m_logger;             ///< Optional logger
+    mutable std::mutex                     m_mutex;              ///< Mutex protecting internal data.
+    std::map<Host, Listeners, HostCompare> m_listeners;          ///< Server listeners.
+    std::shared_ptr<Logger>                m_logger;             ///< Optional logger.
     std::shared_ptr<SSLKeys>               m_sslKeys;            ///< Optional SSL keys. Only used for SSL server.
-    Host                                   m_host;               ///< This host
-    LogDetails                             m_logDetails;         ///< Log details
-    ServerConnection::Function             m_connectionFunction; ///< User-defined function that is called upon client connection to server
+    LogDetails                             m_logDetails;         ///< Log details.
+    ServerConnection::Function             m_connectionFunction; ///< User-defined function that is called upon client connection to server.
 };
 
 /**

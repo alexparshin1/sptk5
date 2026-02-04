@@ -32,6 +32,7 @@
 
 namespace sptk {
 
+
 /**
  * @addtogroup threads Thread Classes
  * @{
@@ -45,50 +46,39 @@ namespace sptk {
 template<class K, class T>
 class SynchronizedMap
 {
-    /**
-     * Lock to synchronize map operations
-     */
-    mutable std::mutex m_sync;
-
-    using Map = std::map<K, T>;
-    /**
-     * Map
-     */
-    Map m_map;
-
 public:
     /**
-     * Map callback function used in each() method.
+     * @brief Map callback function used in each() method.
      *
-     * Iterates through list until false is returned.
-     * @param key const K&, Map item key
-     * @param item T&, Map item
-     * @param data void*, Optional function-specific data
+     * Iterates through the map until false is returned.
+     * @param key const K&, Map item key.
+     * @param item T&, Map item.
+     * @param data void*, Optional function-specific data.
      */
     using CallbackFunction = std::function<bool(const K& key, T& item)>;
 
     /**
-     * Inserts data item to the map
-     * @param key const K&, A data key
-     * @param data const T&, A data item
+     * @brief Inserts data item to the map.
+     * @param key const K&, A data key.
+     * @param data const T&, A data item.
      */
     virtual void insert(const K& key, const T& data)
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock lock(m_mutex);
         m_map.emplace(key, data);
     }
 
     /**
-     * Finds a data item from the list front
+     * @brief Finds a data item from the map.
      *
-     * Returns true if key exists and data populated.
-     * @param key               A data key
-     * @param item              A list item (output)
-     * @param remove            If true, then item is removed from map
+     * Returns true if the key exists.
+     * @param key               A data key.
+     * @param item              A data item (output).
+     * @param remove            If true, then the item is removed from the map.
      */
-    virtual bool get(const K& key, T& item, bool remove = false)
+    virtual bool get(const K& key, T& item, const bool remove = false)
     {
-        std::scoped_lock       lock(m_sync);
+        std::scoped_lock       lock(m_mutex);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {
@@ -103,14 +93,14 @@ public:
     }
 
     /**
-     * Removes data with matching key
+     * @brief Removes data with matching key
      *
-     * Returns true if key existed.
-     * @param key const K&, A data key
+     * Returns true if the key existed.
+     * @param key const K&, A data key.
      */
     virtual bool erase(const K& key)
     {
-        std::scoped_lock       lock(m_sync);
+        std::scoped_lock       lock(m_mutex);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {
@@ -121,40 +111,40 @@ public:
     }
 
     /**
-     * Returns true if the list is empty
+     * @brief Returns true if the map is empty.
      */
     bool empty() const
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock lock(m_mutex);
         return m_map.empty();
     }
 
     /**
-     * Returns number of items in the list
+     * @brief Returns the number of items in the map.
      */
     size_t size() const
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock lock(m_mutex);
         return m_map.size();
     }
 
     /**
-     * Removes all items from the list
+     * @brief Removes all items from the map.
      */
     void clear()
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock lock(m_mutex);
         m_map.clear();
     }
 
     /**
-     * Calls callbackFunction() for every list until false is returned
-     * @param callbackFunction  Callback function that is executed for list items
-     * @returns true  if every list item was processed
+     * @brief Calls callbackFunction() for every list until false is returned.
+     * @param callbackFunction  Callback function that is executed for list items.
+     * @returns true  if every list item was processed.
      */
     bool for_each(CallbackFunction callbackFunction)
     {
-        std::scoped_lock lock(m_sync);
+        std::scoped_lock lock(m_mutex);
         for (auto itor: m_map)
         {
             if (!callbackFunction(itor.first, itor.second))
@@ -164,8 +154,12 @@ public:
         }
         return true;
     }
-};
 
+private:
+    using Map = std::map<K, T>;
+    mutable std::mutex m_mutex; ///< Mutex for synchronizing map access
+    Map                m_map;   ///< Underlying map.
+};
 /**
  * @}
  */

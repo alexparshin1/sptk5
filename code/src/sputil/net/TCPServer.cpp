@@ -83,14 +83,6 @@ TCPServer::TCPServer(const String& listenerName, const size_t threadLimit, LogEn
     {
         m_logger = make_shared<Logger>(*logEngine);
     }
-
-    constexpr unsigned             maxHostNameLength = 128;
-    array<char, maxHostNameLength> hostname = {"localhost"};
-    if (const auto result = gethostname(hostname.data(), sizeof(hostname));
-        result == 0)
-    {
-        m_host = Host(hostname.data());
-    }
 }
 
 TCPServer::~TCPServer()
@@ -98,20 +90,17 @@ TCPServer::~TCPServer()
     TCPServer::stop();
 }
 
-const Host& TCPServer::host() const
+vector<Host> TCPServer::listenerHosts() const
 {
-    const scoped_lock lock(m_mutex);
-    return m_host;
-}
+    vector<Host> hosts;
 
-void TCPServer::host(const Host& host)
-{
     const scoped_lock lock(m_mutex);
-    if (!m_portListeners.empty())
+    for (const auto& host: m_listeners | views::keys)
     {
-        throw Exception("Can't change host while listening");
+        hosts.push_back(host);
     }
-    m_host = host;
+
+    return hosts;
 }
 
 void TCPServer::addListener(ServerConnection::Type connectionType, const Host& listenerHost, uint16_t threadCount)
@@ -124,7 +113,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
         throw Exception("Cannot add SSL listener: server SSL keys are not set");
     }
 
-    auto& listenerThreads = m_portListeners[listenerHost];
+    auto& listenerThreads = m_listeners[listenerHost];
     if (!listenerThreads.empty())
     {
         throw Exception("Port is already used");
@@ -154,7 +143,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
 {
     const scoped_lock lock(m_mutex);
 
-    auto& listenerThreads = m_portListeners[listenerHost];
+    auto& listenerThreads = m_listeners[listenerHost];
 
     for (const auto& listenerThread: listenerThreads)
     {
@@ -168,7 +157,7 @@ void TCPServer::addListener(ServerConnection::Type connectionType, const Host& l
 
     listenerThreads.clear();
 
-    m_portListeners.erase(listenerHost);
+    m_listeners.erase(listenerHost);
 }
 
 bool TCPServer::allowConnection(const sockaddr_in*)
@@ -180,9 +169,9 @@ void TCPServer::stop()
 {
     const scoped_lock lock(m_mutex);
 
-    if (!m_portListeners.empty())
+    if (!m_listeners.empty())
     {
-        for (auto& listenerThreads: m_portListeners | views::values)
+        for (auto& listenerThreads: m_listeners | views::values)
         {
             for (const auto& listenerThread: listenerThreads)
             {
@@ -190,7 +179,7 @@ void TCPServer::stop()
             }
             listenerThreads.clear();
         }
-        m_portListeners.clear();
+        m_listeners.clear();
     }
 
     ThreadPool::stop();

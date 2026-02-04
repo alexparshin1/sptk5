@@ -24,90 +24,98 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#pragma once
+#include "sptk5/threads/SynchronizedMap.h"
 
-#include "sptk5/threads/Flag.h"
-#include <sptk5/net/ServerConnection.h>
+
+#include <gtest/gtest.h>
+
+#include <sptk5/Printer.h>
+#include <sptk5/StopWatch.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
-namespace sptk {
-/**
- * @addtogroup net Networking Classes.
- * @{
- */
+#include <future>
 
-/**
- * @brief Internal TCP server listener thread.
- */
-class TCPServerListener
-    : public Thread
+using namespace std;
+using namespace sptk;
+
+TEST(SPTK_SynchronizedMap, keysValues)
 {
-public:
-    /**
-     * @brief Constructor.
-     * @param server            TCP server that created the connection.
-     * @param listenerHost      Listener host and port number.
-     * @param connectionType    Connection type.
-     * @param acceptThreadCount Number of the acception threads.
-     */
-    TCPServerListener(TCPServer* server, const Host& listenerHost, ServerConnection::Type connectionType, size_t acceptThreadCount = 2);
+    SynchronizedMap<int, string> map;
 
-    ~TCPServerListener() override = default;
-
-    /**
-     * @brief Thread function.
-     */
-    void threadFunction() override;
-
-    /**
-     * @brief Start socket listening.
-     */
-    void listen();
-
-    /**
-     * @brief Returns listener host.
-     */
-    Host host() const;
-
-    /**
-     * @brief Returns latest socket error (if any).
-     */
-    String error() const;
-
-    /**
-     * @brief Stop running listener and join its thread.
-     */
-    void stop();
-
-    bool waitUntilStarted(std::chrono::milliseconds timeout)
+    auto                 maxNumbers = 1000;
+    vector<future<void>> tasks;
+    for (auto i = 0; i < maxNumbers; ++i)
     {
-        return m_hasStarted.wait_for(true, timeout);
+        auto task = async([&map, i]()
+                          {
+                              map.insert(i, format("Value {}", i));
+                          });
+        tasks.push_back(std::move(task));
     }
 
-private:
-    mutable std::mutex     m_mutex;              ///< Listener mutex.
-    TCPServer*             m_server;             ///< TCP server created connection.
-    TCPSocket              m_listenerSocket;     ///< Listener socket.
-    String                 m_error;              ///< Last socket error.
-    ServerConnection::Type m_connectionType;     ///< Connection type.
-    Flag                   m_hasStarted {false}; ///< True if the listener thread has started.
-
-    struct CreateConnectionItem
+    for (const auto& task: tasks)
     {
-        SocketType  connectionFD {0};
-        sockaddr_in connectionInfo = {};
-    };
+        task.wait();
+    }
 
-    std::vector<std::jthread>               m_createConnectionThreads; ///< Create connection threads
-    SynchronizedQueue<CreateConnectionItem> m_createConnectionQueue;   ///< Create connection queue
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        string value;
+        map.get(i, value, false);
+        EXPECT_EQ(format("Value {}", i), value);
+    }
+}
 
-    bool acceptConnection(const std::chrono::milliseconds& timeout);               ///< Accept connection
-    void createConnection(const CreateConnectionItem& createConnectionItem) const; ///< Create connection
-};
+TEST(SPTK_SynchronizedMap, insertClear)
+{
+    constexpr auto maxNumbers = 1000;
 
-class TCPServer;
+    SynchronizedMap<int, string> map;
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        map.insert(i, format("Value {}", i));
+    }
 
-/**
- * @}
- */
-} // namespace sptk
+    EXPECT_EQ(maxNumbers, map.size());
+
+    map.clear();
+    EXPECT_TRUE(map.empty());
+    EXPECT_EQ(0, map.size());
+}
+
+TEST(SPTK_SynchronizedMap, remove)
+{
+    constexpr auto maxNumbers = 1000;
+
+    SynchronizedMap<int, string> map;
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        map.insert(i, format("Value {}", i));
+    }
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        EXPECT_TRUE(map.erase(i));
+    }
+    EXPECT_TRUE(map.empty());
+}
+
+TEST(SPTK_SynchronizedMap, for_each)
+{
+    constexpr auto maxNumbers = 1000;
+
+    SynchronizedMap<int, string> map;
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        map.insert(i, format("Value {}", i));
+    }
+
+    auto i = 0;
+    map.for_each([&i](const auto& key, const auto& value)
+                 {
+                     EXPECT_EQ(i++, key);
+                     EXPECT_EQ("Value " + to_string(key), value);
+                     return true;
+                 });
+
+    EXPECT_EQ(maxNumbers, i);
+}
