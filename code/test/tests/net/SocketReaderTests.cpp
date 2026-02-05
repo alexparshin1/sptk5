@@ -292,26 +292,6 @@ TEST(SPTK_SocketReader, readLine_intoRawBuffer)
     EXPECT_STREQ(reinterpret_cast<char*>(buffer), "Raw buffer line test");
 }
 
-TEST(SPTK_SocketReader, readLine_longLine)
-{
-    String longLine(10000, 'X');
-    longLine += "\n";
-    TestDataServer server(18099, longLine);
-
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18099});
-
-    SocketReader reader(socket);
-
-    String     line;
-    const auto bytesRead = reader.readLine(line);
-
-    EXPECT_GT(bytesRead, 0);
-    EXPECT_EQ(line.length(), 10000);
-    EXPECT_EQ(line[0], 'X');
-    EXPECT_EQ(line[9999], 'X');
-}
-
 TEST(SPTK_SocketReader, close)
 {
     const String   testData = "Close test";

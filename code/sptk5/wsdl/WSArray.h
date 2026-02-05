@@ -27,7 +27,6 @@
 #pragma once
 
 #include <sptk5/Field.h>
-#include <sptk5/wsdl/WSFieldIndex.h>
 #include <sptk5/wsdl/WSType.h>
 #include <sptk5/xdoc/Document.h>
 #include <sptk5/xdoc/Node.h>
@@ -38,12 +37,13 @@ namespace sptk {
  * @brief Wrapper for WSDL array type.
  */
 template<typename T>
+    requires std::is_base_of_v<WSType, T>
 class WS_EXPORT WSArray
     : public WSType
 {
 public:
-    using iterator = typename std::vector<T>::iterator;
-    using const_iterator = typename std::vector<T>::const_iterator;
+    using iterator = std::vector<T>::iterator;
+    using const_iterator = std::vector<T>::const_iterator;
 
     /**
      * @brief Constructor.
@@ -53,6 +53,12 @@ public:
         : WSType(name)
     {
     }
+
+    /**
+     * @brief Copy constructor.
+     * @param other             The other object.
+     */
+    explicit WSArray(const WSArray& other) = default;
 
     /**
      * @brief Return class name.
@@ -162,6 +168,11 @@ public:
         m_array.resize(sz);
     }
 
+    auto capacity() const
+    {
+        return m_array.capacity();
+    }
+
     auto erase(const iterator& pos)
     {
         return m_array.erase(pos);
@@ -197,8 +208,8 @@ public:
 
     /**
      * @brief Adds an element to response XML with this object data.
-     * @param parent            Parent XML element.
-     * @param name              Optional name for child element.
+     * @param output            Destination node.
+     * @param name              Optional name for the child element.
      */
     void exportTo(const xdoc::SNode& output, const char* name) const override
     {
