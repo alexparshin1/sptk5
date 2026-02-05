@@ -153,7 +153,7 @@ public:
     void exportTo(const xdoc::SNode& parent, const char* name = nullptr) const override;
 
     /**
-     * True if data was not loaded, or if all the fields are null.
+     * @brief True if data was not loaded, or if all the fields are null.
      */
     [[nodiscard]] bool isNull() const override;
 
@@ -257,10 +257,10 @@ protected:
     }
 
 private:
-    bool         m_optional {false};  ///< Element optionality flag
-    bool         m_loaded {false};    ///< Is data loaded flag
-    bool         m_exportable {true}; ///< Is this object exportable?
-    WSFieldIndex m_fields;            ///< All fields
+    bool         m_optional {false};  ///< Element optionality flag.
+    bool         m_loaded {false};    ///< Is data loaded flag.
+    bool         m_exportable {true}; ///< Is this object exportable?.
+    WSFieldIndex m_fields;            ///< All fields.
 
     static bool loadField(const FieldList& input, bool nullLargeData, WSType* field);
 };

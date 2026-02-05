@@ -75,34 +75,34 @@ public:
     };
 
     /**
-     * Constructor
-     * @param server            Server object
-     * @param connectionAddress Incoming connection address
-     * @param services          Web services
-     * @param logEngine         Logger engine
-     * @param options           Connection options
-     * @param workerThread      Worker thread
+     * @brief Constructor.
+     * @param server            Server object.
+     * @param connectionAddress Incoming connection address.
+     * @param services          Web services.
+     * @param logEngine         Logger engine.
+     * @param options           Connection options.
+     * @param workerThread      Worker thread.
      */
     WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
                  Options options, const std::shared_ptr<Thread>& workerThread);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSConnection() override = default;
 
     /**
-     * Thread function
+     * @brief Thread function.
      */
     void run() override;
 
     /**
-     * Get hangup state
+     * @brief Get hangup state.
      */
     [[maybe_unused]] bool isHangup() const;
 
     /**
-     * Set hangup state: read the data and close the connection
+     * @brief Set hangup state: read the data and close the connection.
      */
     void setHangup();
 
@@ -128,27 +128,27 @@ private:
 };
 
 /**
- * WS server connection
+ * @brief WS server connection.
  */
 class SP_EXPORT WSSSLConnection
     : public WSConnection
 {
 public:
     /**
-     * Constructor
-     * @param server            TCP server
-     * @param connectionSocket  Incoming connection socket, accepted by accept() function
-     * @param addr              Incoming connection info
-     * @param services          Registered services to process incoming connection
-     * @param logEngine         Log engine
-     * @param options           Connection options
-     * @param workerThread      Worker thread
+     * @brief Constructor.
+     * @param server            TCP server.
+     * @param connectionSocket  Incoming connection socket, accepted by accept() function.
+     * @param addr              Incoming connection info.
+     * @param services          Registered services to process incoming connection.
+     * @param logEngine         Log engine.
+     * @param options           Connection options.
+     * @param workerThread      Worker thread.
      */
     WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
                     LogEngine& logEngine, const Options& options, const std::shared_ptr<Thread>& workerThread);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSSSLConnection() override = default;
 };

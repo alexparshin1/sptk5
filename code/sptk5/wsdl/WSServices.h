@@ -31,43 +31,43 @@
 namespace sptk {
 
 /**
- * Collection of references to available services
+ * @brief Collection of references to available services.
  */
 class SP_EXPORT WSServices
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
-     * Registers default service for empty location
-     * @param defaultService    Default service
+     * Registers default service for empty location.
+     * @param defaultService    Default service.
      */
     explicit WSServices(const SWSRequest& defaultService);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSServices() = default;
 
     /**
-     * Copy constructor
+     * @brief Copy constructor.
      *
-     * Registers default service for empty location
-     * @param other             Other services object
+     * Registers default service for empty location.
+     * @param other             Other services object.
      */
     WSServices(const WSServices& other);
 
     /**
-     * Set a service for given location
-     * @param location          Path to the resource, not including resource name
-     * @param service           Service that is processing that location requests
+     * @brief Set a service for given location.
+     * @param location          Path to the resource, not including resource name.
+     * @param service           Service that is processing that location requests.
      */
     void set(const String& location, const SWSRequest& service);
 
     /**
-     * Get service for given location that is processing that location requests
-     * @param location          Path to the resource, not including resource name
-     * @return matching service, or default service if there is no match
+     * @brief Get service for given location that is processing that location requests.
+     * @param location          Path to the resource, not including resource name.
+     * @return matching service, or default service if there is no match.
      */
     WSRequest& get(const String& location) const;
 

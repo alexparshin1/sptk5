@@ -32,31 +32,31 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * Translates WSDL type names to C++ type names
+ * @brief Translates WSDL type names to C++ type names.
  */
 class SP_EXPORT WSTypeTranslator
 {
     /**
-     * WSDL to C++ type map
+     * @brief WSDL to C++ type map.
      */
     static const std::map<String, String> wsTypeToCxxTypeMap;
 
 public:
     /**
-     * Translates WSDL type names to C++ type names
-     * @param wsType            WSDL type name
-     * @param defaultType       C++ type name returned when match is not found
+     * @brief Translates WSDL type names to C++ type names.
+     * @param wsType            WSDL type name.
+     * @param defaultType       C++ type name returned when match is not found.
      */
     static String toCxxType(const String& wsType, const String& defaultType = "std::string");
 };
 
 /**
- * Global WSDL translation object
+ * @brief Global WSDL translation object.
  */
 extern const WSTypeTranslator wsTypeTranslator;
 

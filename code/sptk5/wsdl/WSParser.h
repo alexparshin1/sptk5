@@ -33,14 +33,14 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * Parser of WSDL files
+ * @brief Parser of WSDL files.
  *
- * Loads a WSDL file and converts it to a set of abstract classes that can be saved
+ * Loads a WSDL file and converts it to a set of abstract classes that can be saved.
  * as C++ source files to a directory.
  * The actual web service is built by deriving concrete classes from these abstract classes.
  */
@@ -48,7 +48,7 @@ class SP_EXPORT WSParser final
 {
 public:
     /**
-     * Map of element names to element objects
+     * @brief Map of element names to element objects.
      */
     using ElementMap = std::map<String, const WSParserElement*>;
 
@@ -104,17 +104,17 @@ public:
         }
 
     private:
-        ElementMap       m_elements;     ///< Map of all elements
-        WSComplexTypeMap m_complexTypes; ///< Map of all parsed complex types
+        ElementMap       m_elements;     ///< Map of all elements.
+        WSComplexTypeMap m_complexTypes; ///< Map of all parsed complex types.
     };
 
     /**
-     * Map of operation names to operation objects
+     * @brief Map of operation names to operation objects.
      */
     using DocumentationMap = std::map<String, String>;
 
     /**
-     * Constructor
+     * @brief Constructor.
      */
     WSParser() = default;
 
@@ -123,7 +123,7 @@ public:
     WSParser(WSParser&& other) = delete;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~WSParser() = default;
 
@@ -132,44 +132,44 @@ public:
     WSParser& operator=(WSParser&& other) = delete;
 
     /**
-     * Clears parsed data
+     * @brief Clears parsed data.
      */
     void clear();
 
     /**
-     * Loads WSDL-file and parses it to output classes
-     * @param wsdlFile          WSDL file name
+     * @brief Loads WSDL-file and parses it to output classes.
+     * @param wsdlFile          WSDL file name.
      */
     void parse(const std::filesystem::path& wsdlFile);
 
     /**
-     * Stores parsed classes to files in source directory
-     * @param sourceDirectory   Directory to store output classes
-     * @param headerFile        Optional header file to insert at the start of each generated file
+     * @brief Stores parsed classes to files in source directory.
+     * @param sourceDirectory   Directory to store output classes.
+     * @param headerFile        Optional header file to insert at the start of each generated file.
      */
     void generate(const String& sourceDirectory = ".", const String& headerFile = "",
                   const OpenApiGenerator::Options& options = OpenApiGenerator::Options(), bool verbose = false,
                   const String& serviceNamespace = "");
 
     /**
-     * Stores WSDL to C++ file
-     * @param sourceDirectory   Directory to store output files
-     * @param headerFile        Optional header file to insert at the start of each generated file
-     * @param wsdlFileName      WSDL file name
-     * @param openApiFileName   OpenAPI file name
+     * @brief Stores WSDL to C++ file.
+     * @param sourceDirectory   Directory to store output files.
+     * @param headerFile        Optional header file to insert at the start of each generated file.
+     * @param wsdlFileName      WSDL file name.
+     * @param openApiFileName   OpenAPI file name.
      */
     void generateWsdlCxx(const String& sourceDirectory, const String& headerFile, const std::filesystem::path& wsdlFileName,
                          const std::filesystem::path& openApiFileName) const;
 
     /**
-     * Utility function that removes namespace from the element name
-     * @param name              Element name
+     * @brief Utility function that removes namespace from the element name.
+     * @param name              Element name.
      */
     static String stripNamespace(const String& name);
 
     /**
-     * Utility function that returns namespace from the element name
-     * @param name              Element name
+     * @brief Utility function that returns namespace from the element name.
+     * @param name              Element name.
      */
     static String getNamespace(const String& name);
 
@@ -177,58 +177,58 @@ public:
 
 protected:
     /**
-     * Parses xsd:element nodes directly under xsd:schema
-     * @param elementNode           Schema element
+     * @brief Parses xsd:element nodes directly under xsd:schema.
+     * @param elementNode           Schema element.
      */
     void parseElement(const xdoc::SNode& elementNode);
 
     /**
-     * Parses xsd:simpleType nodes directly under xsd:schema
-     * @param simpleTypeElement Schema simple type
+     * @brief Parses xsd:simpleType nodes directly under xsd:schema.
+     * @param simpleTypeElement Schema simple type.
      */
     static void parseSimpleType(const xdoc::SNode& simpleTypeElement);
 
     /**
-     * Parses xsd:complexType nodes directly under xsd:schema
-     * @param complexTypeElement Schema complex type
+     * @brief Parses xsd:complexType nodes directly under xsd:schema.
+     * @param complexTypeElement Schema complex type.
      */
     void parseComplexType(xdoc::SNode& complexTypeElement);
 
     /**
-     * Parses wsdl:operation nodes directly under xsd:schema
-     * @param operationNode         Schema complex type
+     * @brief Parses wsdl:operation nodes directly under xsd:schema.
+     * @param operationNode         Schema complex type.
      */
     void parseOperation(const xdoc::SNode& operationNode);
 
     /**
-     * Parses xsd:schema
-     * @param schemaElement     Schema element
+     * @brief Parses xsd:schema.
+     * @param schemaElement     Schema element.
      */
     void parseSchema(const xdoc::SNode& schemaElement);
 
     /**
-     * Generates service definition to output stream
-     * @param usedClasses       List of this service complex types (classes)
-     * @param output            Output stream
+     * @brief Generates service definition to output stream.
+     * @param usedClasses       List of this service complex types (classes).
+     * @param output            Output stream.
      */
     void generateDefinition(const Strings& usedClasses, std::ostream& output);
 
     /**
-     * Generates service implementation to output stream
-     * @param output            Output stream
+     * @brief Generates service implementation to output stream.
+     * @param output            Output stream.
      */
     void generateImplementation(std::ostream& output) const;
 
 private:
-    String           m_serviceName;      ///< Service name, defining service class name and source file names
-    String           m_serviceNamespace; ///< Service classes namespace
-    String           m_targetNamespace;  ///< Service target namespace
-    String           m_description;      ///< Service description
-    String           m_location;         ///< Service location
-    String           m_wsdlFile;         ///< WSDL source file name
-    ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements
-    WSOperationMap   m_operations;       ///< Map of all operations
-    DocumentationMap m_documentation;    ///< Map of documentation
+    String           m_serviceName;      ///< Service name, defining service class name and source file names.
+    String           m_serviceNamespace; ///< Service classes namespace.
+    String           m_targetNamespace;  ///< Service target namespace.
+    String           m_description;      ///< Service description.
+    String           m_location;         ///< Service location.
+    String           m_wsdlFile;         ///< WSDL source file name.
+    ComplexTypeIndex m_complexTypeIndex; ///< Index of all parsed complex types and elements.
+    WSOperationMap   m_operations;       ///< Map of all operations.
+    DocumentationMap m_documentation;    ///< Map of documentation.
 };
 
 /**

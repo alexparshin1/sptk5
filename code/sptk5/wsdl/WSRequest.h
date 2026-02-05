@@ -33,7 +33,7 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
@@ -45,8 +45,8 @@ class SP_EXPORT WSNameSpace
 public:
     /**
      * @brief Constructor.
-     * @param alias             Namespace alias
-     * @param location          Namespace location
+     * @param alias             Namespace alias.
+     * @param location          Namespace location.
      */
     explicit WSNameSpace(String alias = "", String location = "")
         : m_alias(std::move(alias))
@@ -56,7 +56,7 @@ public:
 
     /**
      * @brief Constructor.
-     * @param other             Another namespace
+     * @param other             Another namespace.
      */
     WSNameSpace(const WSNameSpace& other)
         : m_alias(other.m_alias)
@@ -71,8 +71,8 @@ public:
 
     /**
      * @brief Assignment.
-     * @param other             Another namespace
-     * @return
+     * @param other             Another namespace.
+     * @return.
      */
     WSNameSpace& operator=(const WSNameSpace& other)
     {
@@ -87,7 +87,7 @@ public:
 
     /**
      * @brief Get namespace alias.
-     * @return Namespace alias
+     * @return Namespace alias.
      */
     String getAlias() const
     {
@@ -97,7 +97,7 @@ public:
 
     /**
      * @brief Get namespace location.
-     * @return Namespace location
+     * @return Namespace location.
      */
     String getLocation() const
     {
@@ -106,9 +106,9 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex;    ///< Mutex to protect internal data
-    String             m_alias;    ///< Namespace alias
-    String             m_location; ///< Namespace location
+    mutable std::mutex m_mutex;    ///< Mutex to protect internal data.
+    String             m_alias;    ///< Namespace alias.
+    String             m_location; ///< Namespace location.
 };
 
 /**
@@ -240,9 +240,9 @@ protected:
     void setRequestMethods(std::map<String, RequestMethod>&& requestMethods);
 
 private:
-    std::shared_ptr<LogEngine>      m_logEngine;       ///< Optional logger, or nullptr
-    std::map<String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods
-    String                          m_targetNamespace; ///< SOAP service target namespace
+    std::shared_ptr<LogEngine>      m_logEngine;       ///< Optional logger, or nullptr.
+    std::map<String, RequestMethod> m_requestMethods;  ///< Map of requset names to methods.
+    String                          m_targetNamespace; ///< SOAP service target namespace.
 };
 
 using SWSRequest = std::shared_ptr<WSRequest>;

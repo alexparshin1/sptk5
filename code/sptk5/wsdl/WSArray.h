@@ -35,7 +35,7 @@
 namespace sptk {
 
 /**
- * Wrapper for WSDL array type
+ * @brief Wrapper for WSDL array type.
  */
 template<typename T>
 class WS_EXPORT WSArray
@@ -46,8 +46,8 @@ public:
     using const_iterator = typename std::vector<T>::const_iterator;
 
     /**
-     * Constructor
-     * @param name              Element name
+     * @brief Constructor.
+     * @param name              Element name.
      */
     explicit WSArray(const char* name = "array")
         : WSType(name)
@@ -55,7 +55,7 @@ public:
     }
 
     /**
-     * Return class name
+     * @brief Return class name.
      */
     [[nodiscard]] String className() const override
     {
@@ -183,7 +183,7 @@ public:
     }
 
     /**
-     * Conversion to string
+     * @brief Conversion to string.
      */
     [[nodiscard]] String asString() const override
     {
@@ -196,9 +196,9 @@ public:
     }
 
     /**
-     * Adds an element to response XML with this object data
-     * @param parent            Parent XML element
-     * @param name              Optional name for child element
+     * @brief Adds an element to response XML with this object data.
+     * @param parent            Parent XML element.
+     * @param name              Optional name for child element.
      */
     void exportTo(const xdoc::SNode& output, const char* name) const override
     {

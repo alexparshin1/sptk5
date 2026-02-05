@@ -32,31 +32,31 @@
 namespace sptk {
 
 /**
- * WSDL message index
+ * @brief WSDL message index.
  */
 class SP_EXPORT WSMessageIndex
 {
     /**
-     * Mutex that protects internal data
+     * @brief Mutex that protects internal data.
      */
     mutable std::mutex m_mutex;
 
     /**
-     * Map of message name to index
+     * @brief Map of message name to index.
      */
     std::map<String, int> m_messageIndex;
 
 public:
     /**
-     * Constructor
-     * @param messages          Message names
+     * @brief Constructor.
+     * @param messages          Message names.
      */
     explicit WSMessageIndex(const Strings& messages);
 
     /**
-     * Get message index by name
-     * @param message           Message name
-     * @return message index
+     * @brief Get message index by name.
+     * @param message           Message name.
+     * @return message index.
      */
     int indexOf(const String& message) const;
 };

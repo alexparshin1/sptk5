@@ -32,59 +32,59 @@
 namespace sptk {
 
 /**
- * Generator of OpenAPI service description
+ * @brief Generator of OpenAPI service description.
  */
 class SP_EXPORT OpenApiGenerator
 {
 public:
     /**
-     * Authentication method
+     * @brief Authentication method.
      */
     enum class AuthMethod : uint8_t
     {
-        NONE,  ///< No authentication
-        BASIC, ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==
-        BEARER ///< Authorization: Bearer <token>
+        NONE,  ///< No authentication.
+        BASIC, ///< Authorization: Basic ZGVtbzpwQDU1dzByZA==.
+        BEARER ///< Authorization: Bearer <token>.
     };
 
     /**
-     * Generation options
+     * @brief Generation options.
      */
     struct Options
     {
         /**
-         * Default authentication method, used by most operations
+         * @brief Default authentication method, used by most operations.
          */
         AuthMethod defaultAuthMethod {AuthMethod::BEARER};
 
         /**
-         * Authentication method, in format: Operation name -> Auth method
+         * @brief Authentication method, in format: Operation name -> Auth method.
          */
         std::map<String, AuthMethod> operationsAuth;
 
         /**
-         * Output OpenAPI file
+         * @brief Output OpenAPI file.
          */
         std::filesystem::path openApiFile;
     };
 
     /**
-     * Constructor
-     * @param title             Service title
-     * @param description       Service description
-     * @param version           Service version
-     * @param servers           Servers that provide this service
-     * @param options           Service options
+     * @brief Constructor.
+     * @param title             Service title.
+     * @param description       Service description.
+     * @param version           Service version.
+     * @param servers           Servers that provide this service.
+     * @param options           Service options.
      */
     OpenApiGenerator(String title, String description, String version,
                      Strings servers, Options options);
 
     /**
-     * Generate OpenAPI service description
-     * @param output            Output stream
-     * @param operations        Service operations
-     * @param complexTypes      Service types
-     * @param documentation     Service documentation (by operation)
+     * @brief Generate OpenAPI service description.
+     * @param output            Output stream.
+     * @param operations        Service operations.
+     * @param complexTypes      Service types.
+     * @param documentation     Service documentation (by operation).
      */
     void generate(std::ostream& output, const WSOperationMap& operations, const WSComplexTypeMap& complexTypes,
                   const std::map<String, String>& documentation) const;
@@ -95,32 +95,32 @@ public:
 
 private:
     /**
-     * Create component object of OpenAPI service description
-     * @param document          Output JSON
-     * @param complexTypes      Service types
+     * @brief Create component object of OpenAPI service description.
+     * @param document          Output JSON.
+     * @param complexTypes      Service types.
      */
     static void createComponents(xdoc::Document& document, const WSComplexTypeMap& complexTypes);
 
     /**
-     * Create paths object of OpenAPI service description
-     * @param document          Output JSON
-     * @param operations        Service operations
-     * @param documentation     Service documentation (by operation)
+     * @brief Create paths object of OpenAPI service description.
+     * @param document          Output JSON.
+     * @param operations        Service operations.
+     * @param documentation     Service documentation (by operation).
      */
     void createPaths(xdoc::Document& document, const WSOperationMap& operations,
                      const std::map<String, String>& documentation) const;
 
     /**
-     * Create servers object of OpenAPI service description
-     * @param document          Output JSON
+     * @brief Create servers object of OpenAPI service description.
+     * @param document          Output JSON.
      */
     void createServers(xdoc::Document& document) const;
 
-    const String  m_title;       ///< Service title
-    const String  m_description; ///< Service description
-    const String  m_version;     ///< Service version
-    const Strings m_servers;     ///< Service servers
-    const Options m_options;     ///< Service options
+    const String  m_title;       ///< Service title.
+    const String  m_description; ///< Service description.
+    const String  m_version;     ///< Service version.
+    const Strings m_servers;     ///< Service servers.
+    const Options m_options;     ///< Service options.
 
     static void parseClassName(const SWSParserComplexType& ctypeProperty, const xdoc::SNode& property);
 

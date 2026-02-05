@@ -32,13 +32,13 @@
 namespace sptk {
 
 /**
- * Field index contains pointers to WSType objects
+ * @brief Field index contains pointers to WSType objects.
  */
 class SP_EXPORT WSFieldIndex
 {
 public:
     /**
-     * Type(s) of field that are processed with forEach
+     * @brief Type(s) of field that are processed with forEach.
      */
     enum class Group : uint8_t
     {
@@ -48,33 +48,33 @@ public:
     };
 
     /**
-     * Initialize field index with field fieldList
-     * @param fieldNames        Field names
-     * @param fieldList         Field list
+     * @brief Initialize field index with field fieldList.
+     * @param fieldNames        Field names.
+     * @param fieldList         Field list.
      */
     WSFieldIndex() = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WSFieldIndex() = default;
 
     /**
-     * Do not change internal state
+     * @brief Do not change internal state.
      */
     WSFieldIndex(const WSFieldIndex&)
     {
     }
 
     /**
-     * Do not change internal state
+     * @brief Do not change internal state.
      */
     WSFieldIndex(WSFieldIndex&&) noexcept
     {
     }
 
     /**
-     * Do not change internal state
+     * @brief Do not change internal state.
      */
     WSFieldIndex& operator=(const WSFieldIndex&)
     {
@@ -82,7 +82,7 @@ public:
     }
 
     /**
-     * Do not change internal state
+     * @brief Do not change internal state.
      */
     WSFieldIndex& operator=(WSFieldIndex&&) noexcept
     {
@@ -90,22 +90,22 @@ public:
     }
 
     /**
-     * Initialize field index with elements
-     * @param fieldNames        Field names
-     * @param fieldList         Field list
+     * @brief Initialize field index with elements.
+     * @param fieldNames        Field names.
+     * @param fieldList         Field list.
      */
     void setElements(const Strings& fieldNames, std::initializer_list<WSType*> fieldList);
 
     /**
-     * Initialize field index with attributes
-     * @param fieldNames        Field names
-     * @param fieldList         Field list
+     * @brief Initialize field index with attributes.
+     * @param fieldNames        Field names.
+     * @param fieldList         Field list.
      */
     void setAttributes(const Strings& fieldNames, std::initializer_list<WSType*> fieldList);
 
     /**
-     * Get elements
-     * @return const elements map
+     * @brief Get elements.
+     * @return const elements map.
      */
     const std::map<String, WSType*>& elements() const
     {
@@ -113,8 +113,8 @@ public:
     }
 
     /**
-     * Get attributes
-     * @return const attributes map
+     * @brief Get attributes.
+     * @return const attributes map.
      */
     const std::map<String, WSType*>& attributes() const
     {
@@ -122,21 +122,21 @@ public:
     }
 
     /**
-     * Return a field for field name, or return nullptr if not found
-     * @param name              Field name
-     * @return field pointer, or nullptr if not found
+     * @brief Return a field for field name, or return nullptr if not found.
+     * @param name              Field name.
+     * @return field pointer, or nullptr if not found.
      */
     WSType* find(const String& name) const;
 
     /**
-     * Execute the method for each field until it returns false
-     * @param method            Method to execute
+     * @brief Execute the method for each field until it returns false.
+     * @param method            Method to execute.
      */
     void forEach(const std::function<bool(WSType*)>& method, Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES);
 
     /**
-     * Execute the method for each field until it returns false
-     * @param method            Method to execute
+     * @brief Execute the method for each field until it returns false.
+     * @param method            Method to execute.
      */
     void forEach(const std::function<bool(const WSType*)>& method, Group fieldType = Group::ELEMENTS_AND_ATTRIBUTES) const;
 

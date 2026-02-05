@@ -33,25 +33,25 @@ namespace sptk {
 class WSServer;
 
 /**
- * @brief Web service server thread
+ * @brief Web service server thread.
  */
 class SP_EXPORT WSServerThread : public Thread
 {
 public:
     /**
-     * @brief Constructor
-     * @param server        Web service server
+     * @brief Constructor.
+     * @param server        Web service server.
      */
     explicit WSServerThread(WSServer* server);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~WSServerThread() override;
 
     /**
-     * @brief Queue connection that has incoming data
-     * @param connection    Web service connection
+     * @brief Queue connection that has incoming data.
+     * @param connection    Web service connection.
      */
     void queue(const std::shared_ptr<WSConnection>& connection);
 
@@ -65,26 +65,26 @@ protected:
 using SWSServerThread = std::shared_ptr<WSServerThread>;
 
 /**
- * @brief Web service server threads
+ * @brief Web service server threads.
  */
 class SP_EXPORT WSServerThreads
 {
 public:
     /**
-     * @brief Constructor
-     * @param server        Web service server
-     * @param threadCount   Number of threads
+     * @brief Constructor.
+     * @param server        Web service server.
+     * @param threadCount   Number of threads.
      */
     WSServerThreads(WSServer* server, size_t threadCount);
 
     /**
-     * @brief Get next thread from the pool
-     * @return thread
+     * @brief Get next thread from the pool.
+     * @return thread.
      */
     SWSServerThread nextThread();
 
     /**
-     * @brief Terminate all threads
+     * @brief Terminate all threads.
      */
     void terminate();
 

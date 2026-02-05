@@ -31,28 +31,28 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * WSDL operation
+ * @brief WSDL operation.
  */
 struct WSOperation
 {
     /**
-     * WSDL operation input
+     * @brief WSDL operation input.
      */
     SWSParserComplexType m_input;
 
     /**
-     * WSDL operation output
+     * @brief WSDL operation output.
      */
     SWSParserComplexType m_output;
 };
 
 /**
- * Map of operation names to operation objects
+ * @brief Map of operation names to operation objects.
  */
 using WSOperationMap = std::map<String, WSOperation>;
 

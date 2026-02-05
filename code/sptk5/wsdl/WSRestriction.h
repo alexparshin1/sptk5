@@ -33,7 +33,7 @@
 namespace sptk {
 
 /**
- * WSDL Restriction
+ * @brief WSDL Restriction.
  */
 class SP_EXPORT WSRestriction
 {
@@ -46,44 +46,44 @@ public:
     };
 
     /**
-     * Constructor from WSDL (XML) definition
-     * @param typeName                  WSDL type name
-     * @param simpleTypeElement         Simple type XML node
+     * @brief Constructor from WSDL (XML) definition.
+     * @param typeName                  WSDL type name.
+     * @param simpleTypeElement         Simple type XML node.
      */
     WSRestriction(String typeName, const xdoc::SNode& simpleTypeElement);
 
     /**
-     * Constructor from WSDL (XML) definition
-     * @param type                      Restriction type
-     * @param wsdlTypeName              WSDL type name
-     * @param enumerationsOrPatterns    Enumerations or patterns
+     * @brief Constructor from WSDL (XML) definition.
+     * @param type                      Restriction type.
+     * @param wsdlTypeName              WSDL type name.
+     * @param enumerationsOrPatterns    Enumerations or patterns.
      */
     WSRestriction(Type type, String wsdlTypeName, const Strings& enumerationsOrPatterns);
 
     /**
-     * Get restriction type
-     * @return restriction type
+     * @brief Get restriction type.
+     * @return restriction type.
      */
     [[nodiscard]] Type type() const;
 
     /**
-     * Restriction check
+     * @brief Restriction check.
      *
      * Checks value to satisfy restriction.
      * If value violates restriction, throws exception.
-     * @param typeName      Name of the checked type (for error messages)
-     * @param value         Value to check
+     * @param typeName      Name of the checked type (for error messages).
+     * @param value         Value to check.
      */
     void check(const String& typeName, const String& value) const;
 
     /**
-     * Generates restriction constructor for C++ skeleton
+     * @brief Generates restriction constructor for C++ skeleton.
      */
     [[nodiscard]] String generateConstructor(const String& variableName) const;
 
     /**
-     * Optional regular expression to match
-     * @return regular expression string
+     * @brief Optional regular expression to match.
+     * @return regular expression string.
      */
     [[nodiscard]] const std::vector<RegularExpression>& patterns() const
     {
@@ -91,8 +91,8 @@ public:
     }
 
     /**
-     * Optional enumeration to match
-     * @return enumeration
+     * @brief Optional enumeration to match.
+     * @return enumeration.
      */
     [[nodiscard]] Strings enumeration() const
     {
@@ -100,10 +100,10 @@ public:
     }
 
 private:
-    Type                           m_type {Type::Unknown}; ///< Restriction type
-    String                         m_wsdlTypeName;         ///< WSDL type name
-    Strings                        m_enumeration;          ///< List of enumerations if any
-    std::vector<RegularExpression> m_patterns;             ///< Patterns
+    Type                           m_type {Type::Unknown}; ///< Restriction type.
+    String                         m_wsdlTypeName;         ///< WSDL type name.
+    Strings                        m_enumeration;          ///< List of enumerations, if any.
+    std::vector<RegularExpression> m_patterns;             ///< Patterns.
 };
 
 using SWSRestriction = std::shared_ptr<WSRestriction>;

@@ -36,42 +36,42 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * Multiplicity flag
+ * @brief Multiplicity flag.
  */
 enum class WSMultiplicity : uint8_t
 {
-    REQUIRED = 1,     ///< Element is required
-    ZERO_OR_ONE = 2,  ///< Element is optional
-    ZERO_OR_MORE = 4, ///< Element may occur 0 or more times
-    ONE_OR_MORE = 8   ///< Element may occur one or more times
+    REQUIRED = 1,     ///< Element is required.
+    ZERO_OR_ONE = 2,  ///< Element is optional.
+    ZERO_OR_MORE = 4, ///< Element may occur 0 or more times.
+    ONE_OR_MORE = 8   ///< Element may occur one or more times.
 };
 
 /**
- * WSDL element attribute
+ * @brief WSDL element attribute.
  */
 class SP_EXPORT WSParserAttribute
 {
 public:
     /**
-     * Constructor
-     * @param name              Attribute name
-     * @param typeName          Attribute WSDL type name
+     * @brief Constructor.
+     * @param name              Attribute name.
+     * @param typeName          Attribute WSDL type name.
      */
     explicit WSParserAttribute(String name = "", const String& typeName = "");
 
     /**
-     * Copy constructor
-     * @param attr              Attribute to copy from
+     * @brief Copy constructor.
+     * @param attr              Attribute to copy from.
      */
     WSParserAttribute(const WSParserAttribute& attr) = default;
 
     /**
-     * Returns attribute name
+     * @brief Returns attribute name.
      */
     [[nodiscard]] String name() const
     {
@@ -79,12 +79,12 @@ public:
     }
 
     /**
-     * Generates attribute presentation in C++ skeleton
+     * @brief Generates attribute presentation in C++ skeleton.
      */
     [[nodiscard]] String generate(bool initialize) const;
 
     /**
-     * Returns attribute C++ type name
+     * @brief Returns attribute C++ type name.
      */
     [[nodiscard]] String cxxTypeName() const
     {
@@ -92,7 +92,7 @@ public:
     }
 
     /**
-     * Returns attribute WSDL type name
+     * @brief Returns attribute WSDL type name.
      */
     [[nodiscard]] String wsTypeName() const
     {
@@ -100,9 +100,9 @@ public:
     }
 
 private:
-    String m_name;        ///< Attribute name
-    String m_wsTypeName;  ///< Attribute type name
-    String m_cxxTypeName; ///< C++ type name
+    String m_name;        ///< Attribute name.
+    String m_wsTypeName;  ///< Attribute type name.
+    String m_cxxTypeName; ///< C++ type name.
 };
 
 class WSParserComplexType;
@@ -112,32 +112,32 @@ using SWSParserComplexType = std::shared_ptr<WSParserComplexType>;
 using WSParserComplexTypeList = std::list<SWSParserComplexType>;
 
 /**
- * Parses WSDL complexType element
+ * @brief Parses WSDL complexType element.
  */
 class SP_EXPORT WSParserComplexType
 {
 public:
     /**
-     * WSDL class name
+     * @brief WSDL class name.
      */
     static String wsClassName(const String& className);
 
     /**
-     * Constructor
-     * @param complexTypeElement WSDL complexType element
-     * @param name              Object name
-     * @param typeName          Object types
+     * @brief Constructor.
+     * @param complexTypeElement WSDL complexType element.
+     * @param name              Object name.
+     * @param typeName          Object types.
      */
     explicit WSParserComplexType(const xdoc::SNode& complexTypeElement, const String& name = "",
                                  const String& typeName = "");
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~WSParserComplexType() = default;
 
     /**
-     * WSDL element name
+     * @brief WSDL element name.
      */
     [[nodiscard]] String name() const
     {
@@ -145,12 +145,12 @@ public:
     }
 
     /**
-     * Generated C++ class name
+     * @brief Generated C++ class name.
      */
     [[nodiscard]] String className() const;
 
     /**
-     * Multiplicity flag
+     * @brief Multiplicity flag.
      */
     [[nodiscard]] WSMultiplicity multiplicity() const
     {
@@ -158,7 +158,7 @@ public:
     }
 
     /**
-     * Is the type an array?
+     * @brief Is the type an array?.
      */
     [[nodiscard]] bool isArray() const
     {
@@ -166,8 +166,8 @@ public:
     }
 
     /**
-     * Get child elements sequence
-     * @return Child elements sequence
+     * @brief Get child elements sequence.
+     * @return Child elements sequence.
      */
     [[nodiscard]] WSParserComplexTypeList sequence() const
     {
@@ -175,8 +175,8 @@ public:
     }
 
     /**
-     * Get optional restriction
-     * @return restriction
+     * @brief Get optional restriction.
+     * @return restriction.
      */
     [[nodiscard]] SWSRestriction restriction() const
     {
@@ -184,17 +184,17 @@ public:
     }
 
     /**
-     * Parses WSDL complexType element
+     * @brief Parses WSDL complexType element.
      */
     virtual void parse();
 
     /**
-     * Parses WSDL child sequence
+     * @brief Parses WSDL child sequence.
      */
     void parseSequence(const xdoc::SNode& sequence);
 
     /**
-     * Generates C++ class declaration and implementation
+     * @brief Generates C++ class declaration and implementation.
      */
     void generate(std::ostream& classDeclaration, std::ostream& classImplementation,
                   const String& externalHeader, const String& serviceNamespace) const;
@@ -205,16 +205,16 @@ public:
 
 protected:
     /**
-     * Generate C++ class declaration
-     * @param classDeclaration std::ostream&, Output header file stream
+     * @brief Generate C++ class declaration.
+     * @param classDeclaration std::ostream&, Output header file stream.
      */
     void generateDefinition(std::ostream& classDeclaration, Strings& fieldNames,
                             Strings& elementNames, Strings& attributeNames,
                             const String& serviceNamespace) const;
 
     /**
-     * Generate C++ class implementation
-     * @param classImplementation std::ostream&, Output implementation file stream
+     * @brief Generate C++ class implementation.
+     * @param classImplementation std::ostream&, Output implementation file stream.
      */
     void generateImplementation(std::ostream& classImplementation, const Strings& fieldNames,
                                 const Strings& elementNames, const Strings& attributeNames,
@@ -244,23 +244,23 @@ private:
     };
 
     /**
-     * Map of attribute names to attribute objects
+     * @brief Map of attribute names to attribute objects.
      */
     using AttributeMap = std::map<std::string, SWSParserAttribute, std::less<>>;
 
-    String                  m_name;          ///< Element name
-    String                  m_typeName;      ///< WSDL type name
-    xdoc::SNode             m_element;       ///< XML element for that WSDL element
-    AttributeMap            m_attributes;    ///< Element attributes
-    WSParserComplexTypeList m_sequence;      ///< Child element sequence
-    WSMultiplicity          m_multiplicity;  ///< Multiplicity flag
-    SWSRestriction          m_restriction;   ///< Element restriction (if any) or NULL
-    String                  m_documentation; ///< Optional documentation
+    String                  m_name;          ///< Element name.
+    String                  m_typeName;      ///< WSDL type name.
+    xdoc::SNode             m_element;       ///< XML element for that WSDL element.
+    AttributeMap            m_attributes;    ///< Element attributes.
+    WSParserComplexTypeList m_sequence;      ///< Child element sequence.
+    WSMultiplicity          m_multiplicity;  ///< Multiplicity flag.
+    SWSRestriction          m_restriction;   ///< Element restriction (if any) or NULL.
+    String                  m_documentation; ///< Optional documentation.
 
     /**
-     * Generate includes for C++ class
-     * @param classImplementation   Output stream
-     * @param className             Class name
+     * @brief Generate includes for C++ class.
+     * @param classImplementation   Output stream.
+     * @param className             Class name.
      */
     static void printImplementationIncludes(std::ostream& classImplementation, const String& className);
 
@@ -292,12 +292,12 @@ private:
 };
 
 /**
- * Alias for WSDL complex type
+ * @brief Alias for WSDL complex type.
  */
 using WSParserElement = WSParserComplexType;
 
 /**
- * Map of complex type names to complex type objects
+ * @brief Map of complex type names to complex type objects.
  */
 using WSComplexTypeMap = std::map<String, SWSParserComplexType>;
 

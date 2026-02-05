@@ -31,24 +31,24 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * Class name support for WS-classes
+ * @brief Class name support for WS-classes.
  */
 class SP_EXPORT WSType
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     WSType() = default;
 
     /**
-     * Constructor
-     * @param name              WSDL element name
+     * @brief Constructor.
+     * @param name              WSDL element name.
      */
     explicit WSType(const char* name)
         : m_name(name)
@@ -72,8 +72,8 @@ public:
     virtual ~WSType() = default;
 
     /**
-     * Get WS type name
-     * @return WS type name
+     * @brief Get WS type name.
+     * @return WS type name.
      */
     [[nodiscard]] virtual String className() const
     {
@@ -88,19 +88,19 @@ public:
     virtual void owaspCheck(const String& value);
 
     /**
-     * Clears content (sets to NULL)
+     * @brief Clears content (sets to NULL).
      */
     virtual void clear() = 0;
 
     /**
-     * Loads type data from request XML node
-     * @param attr              XML node
-     * @param nullLargeData     Set null for elements with data size > 256 bytes
+     * @brief Loads type data from request XML node.
+     * @param attr              XML node.
+     * @param nullLargeData     Set null for elements with data size > 256 bytes.
      */
     virtual void load(const xdoc::SNode& attr, bool nullLargeData = false) = 0;
 
     /**
-     * Conversion to string
+     * @brief Conversion to string.
      */
     virtual String asString() const
     {
@@ -110,9 +110,9 @@ public:
     virtual bool isNull() const = 0;
 
     /**
-     * Unload data to new XML node
-     * @param parent            Parent XML node where new node is created
-     * @param name              Optional name for the child element
+     * @brief Unload data to new XML node.
+     * @param parent            Parent XML node where new node is created.
+     * @param name              Optional name for the child element.
      */
     virtual void exportTo(const xdoc::SNode& parent, const char* name) const = 0;
 

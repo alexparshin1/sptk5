@@ -37,15 +37,15 @@
 namespace sptk {
 
 /**
- * @addtogroup wsdl WSDL-related Classes
+ * @addtogroup wsdl WSDL-related Classes.
  * @{
  */
 
 /**
- * @brief Web Service Server
+ * @brief Web Service Server.
  *
  * Simple server to accept Web Service requests.
- * Actual request processing is implemented in Web Service request processor,
+ * Actual request processing is implemented in Web Service request processor,.
  * passed to constructor.
  * As a bonus, WSServer also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
@@ -58,77 +58,77 @@ class SP_EXPORT WSServer
 
 public:
     /**
-     * Constructor
-     * @param service               Web Service request processor
-     * @param logger                Logger
-     * @param hostname              This service hostname
-     * @param threadCount           Max number of simultaneously running requests
-     * @param options               Client connection options
+     * @brief Constructor.
+     * @param service               Web Service request processor.
+     * @param logger                Logger.
+     * @param hostname              This service hostname.
+     * @param threadCount           Max number of simultaneously running requests.
+     * @param options               Client connection options.
      */
     WSServer(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
              const WSConnection::Options& options);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~WSServer() override;
 
     /**
-     * @brief Get server options
-     * @return Server options
+     * @brief Get server options.
+     * @return Server options.
      */
     [[maybe_unused]] const WSConnection::Options& getOptions() const;
 
 protected:
     /**
-     * Creates connection thread derived from CTCPServerConnection
+     * @brief Creates connection thread derived from CTCPServerConnection.
      *
      * Application should override this method to create concrete connection object.
      * Created connection object is maintained by CTCPServer.
-     * @param connectionType        Incoming connection type
-     * @param connectionSocket      Already accepted incoming connection socket
-     * @param peer                  Incoming connection information
+     * @param connectionType        Incoming connection type.
+     * @param connectionSocket      Already accepted incoming connection socket.
+     * @param peer                  Incoming connection information.
      */
     UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer) override;
 
     /**
-     * @brief Terminate server
+     * @brief Terminate server.
      */
     void terminate();
 
 protected:
     /**
-     * @brief Start monitoring incoming connection's events
-     * @param connection        Client connection
+     * @brief Start monitoring incoming connection's events.
+     * @param connection        Client connection.
      */
     void watchConnection(const std::shared_ptr<WSConnection>& connection);
 
     /**
-     * @brief Stop monitoring incoming connection's events
-     * @param connection        Client connection
+     * @brief Stop monitoring incoming connection's events.
+     * @param connection        Client connection.
      */
     void ignoreConnection(const std::shared_ptr<WSConnection>& connection);
 
     /**
-     * @brief Close client connection
-     * @param connection        Client connection
+     * @brief Close client connection.
+     * @param connection        Client connection.
      */
     void closeConnection(const std::shared_ptr<WSConnection>& connection);
 
 private:
     using SWSConnection = std::shared_ptr<WSConnection>;
 
-    mutable std::mutex                     m_mutex;         ///< Mutex that protects internal data
-    WSServices                             m_services;      ///< Web Service request processor
-    Logger                                 m_logger;        ///< Logger object
-    WSConnection::Options                  m_options;       ///< Client connection options
-    SocketEvents                           m_socketEvents;  ///< Socket events
-    std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections
+    mutable std::mutex                     m_mutex;         ///< Mutex that protects internal data.
+    WSServices                             m_services;      ///< Web Service request processor.
+    Logger                                 m_logger;        ///< Logger object.
+    WSConnection::Options                  m_options;       ///< Client connection options.
+    SocketEvents                           m_socketEvents;  ///< Socket events.
+    std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections.
 
     /**
-     * @brief Socket event callback function
-     * @param userData          User data
-     * @param eventType         Event type
+     * @brief Socket event callback function.
+     * @param userData          User data.
+     * @param eventType         Event type.
      */
     void socketEventCallback(const uint8_t* userData, SocketEventType eventType);
 };
