@@ -24,6 +24,10 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Printer.h"
+#include "sptk5/wsdl/WSBasicTypes.h"
+
+
 #include <gtest/gtest.h>
 #include <sptk5/wsdl/WSRestriction.h>
 #include <sptk5/xdoc/Document.h>
@@ -107,4 +111,43 @@ TEST(SPTK_WSRestriction, parseInitials)
     {
         SUCCEED() << "Correctly detected incorrect initials";
     }
+}
+
+
+TEST(SPTK_WSRestriction, check)
+{
+    using enum WSRestriction::Type;
+
+    const WSRestriction restriction(Enumeration, "xsd:string", {});
+    const WSRestriction restriction_1(Enumeration, "xsd:string", {"add", "modify", "remove", "list"});
+    const WSRestriction restriction_2(Pattern, "xsd:string", {"^(add|modify|remove|list)$"});
+    const WSRestriction restriction_3(Pattern, "xsd:string", {"^(add|modify)$", "^(remove|list)$"});
+
+    EXPECT_EQ(WSRestriction::Type::Unknown, restriction.type());
+    // Check value restrictions
+    EXPECT_NO_THROW(restriction_1.check("Control.action", "add"));
+    EXPECT_ANY_THROW(restriction_1.check("Control.action", "edit"));
+
+    EXPECT_NO_THROW(restriction_2.check("Control.action", "add"));
+    EXPECT_ANY_THROW(restriction_2.check("Control.action", "edit"));
+
+    EXPECT_NO_THROW(restriction_2.check("Control.action", "add"));
+    EXPECT_NO_THROW(restriction_2.check("Control.action", "remove"));
+    EXPECT_ANY_THROW(restriction_2.check("Control.action", "edit"));
+
+    WSString action;
+    EXPECT_ANY_THROW(action.throwIfNull("Control.action"));
+}
+
+TEST(SPTK_WSRestriction, generateConstructor)
+{
+    using enum WSRestriction::Type;
+
+    const WSRestriction restriction(Enumeration, "xsd:string", {"add", "modify", "remove", "list"});
+
+    const auto ctor = restriction.generateConstructor("restriction_1");
+
+    EXPECT_FALSE(ctor.empty());
+    EXPECT_TRUE(ctor.contains("restriction_1"));
+    EXPECT_TRUE(ctor.contains(R"({ "add", "modify", "remove", "list" })"));
 }

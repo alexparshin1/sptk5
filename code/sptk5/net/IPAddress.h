@@ -143,7 +143,9 @@ public:
     static size_t addressLength(const sockaddr& address)
     {
         if (address.sa_family == AF_INET)
+        {
             return sizeof(sockaddr_in);
+        }
         return sizeof(sockaddr_in6);
     }
 };
