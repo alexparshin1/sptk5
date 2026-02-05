@@ -49,7 +49,7 @@ public:
     [[nodiscard]] SP_EXPORT static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
 
 private:
-    using CachedSSLContextMap = std::map<String, SharedSSLContext>;
+    using CachedSSLContextMap = std::map<size_t, SharedSSLContext>;
 
     static std::shared_mutex   m_mutex;    ///< Mutex for thread safety
     static CachedSSLContextMap m_contexts; ///< Cached SSL contexts

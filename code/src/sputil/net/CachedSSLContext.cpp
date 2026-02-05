@@ -36,28 +36,33 @@ CachedSSLContext::CachedSSLContextMap CachedSSLContext::m_contexts;
 
 SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipherList, bool tlsOnly)
 {
-    const String ident = keys.ident() + (tlsOnly ? "-tls-" : "-tls,ssl-") + md5(cipherList);
+    const auto ident = std::hash<string> {}(keys.ident() + (tlsOnly ? "-tls-" : "-tls,ssl-") + cipherList);
     {
         const shared_lock lock(m_mutex);
-        if (m_contexts.contains(ident))
+        if (const auto it = m_contexts.find(ident);
+            it != m_contexts.end())
         {
-            auto it = m_contexts.find(ident);
-            if (it != m_contexts.end())
-            {
-                return it->second;
-            }
+            return it->second;
         }
     }
 
     const unique_lock lock(m_mutex);
 
+    // Re-check
+    if (const auto it = m_contexts.find(ident);
+        it != m_contexts.end())
+    {
+        return it->second;
+    }
+
     SharedSSLContext context = make_shared<SSLContext>(cipherList, tlsOnly);
-    m_contexts[ident] = context;
 
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
     {
         context->loadKeys(keys);
     }
+
+    m_contexts[ident] = context;
 
     return context;
 }
