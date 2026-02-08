@@ -55,12 +55,6 @@ public:
     }
 
     /**
-     * @brief Copy constructor.
-     * @param other             The other object.
-     */
-    explicit WSArray(const WSArray& other) = default;
-
-    /**
      * @brief Return class name.
      */
     [[nodiscard]] String className() const override
