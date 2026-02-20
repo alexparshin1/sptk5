@@ -189,12 +189,8 @@ bool WSComplexType::isNull() const
     auto hasValues = false;
     m_fields.forEach([&hasValues](const WSType* field)
                      {
-                         if (field->isNull())
-                         {
-                             return false;
-                         }
-                         hasValues = true;
-                         return true;
+                         hasValues = !field->isNull();
+                         return !hasValues;
                      });
     return !hasValues;
 }
