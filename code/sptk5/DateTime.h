@@ -32,6 +32,7 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
+#include <mutex>
 
 namespace sptk {
 
@@ -186,12 +187,12 @@ public:
     /**
      *  @brief Copy constructor.
      */
-    DateTime(const DateTime& dt) = default;
+    DateTime(const DateTime& dt);
 
     /**
      *  @brief Move constructor.
      */
-    DateTime(DateTime&& dt) = default;
+    DateTime(DateTime&& dt) noexcept;
 
     /**
      *  @brief Constructor.
@@ -208,20 +209,19 @@ public:
     /**
      *  @brief Returns time_point presentation of the date and time.
      */
-    [[nodiscard]] const time_point& timePoint() const
-    {
-        return m_dateTime;
-    }
+    [[nodiscard]] const time_point& timePoint() const;
 
-    [[nodiscard]] size_t dataSize() const override
-    {
-        return sizeof(DateTime);
-    }
+    [[nodiscard]] size_t dataSize() const override;
 
     /**
      *  @brief Assignment.
      */
-    DateTime& operator=(const DateTime& date) = default;
+    DateTime& operator=(const DateTime& date);
+
+    /**
+     *  @brief Move assignment.
+     */
+    DateTime& operator=(DateTime&& date) noexcept;
 
     /**
      *  @brief Print the date into the stream.
@@ -241,10 +241,7 @@ public:
     /**
      *  @brief Duration since epoch.
      */
-    [[nodiscard]] duration sinceEpoch() const
-    {
-        return m_dateTime.time_since_epoch();
-    }
+    [[nodiscard]] duration sinceEpoch() const;
 
     /**
      *  @brief Reports the current date and time.
@@ -305,18 +302,12 @@ public:
     /**
      *  @brief Returns date and time as a string.
      */
-    [[nodiscard]] explicit operator String() const
-    {
-        return dateString() + " " + timeString();
-    }
+    [[nodiscard]] explicit operator String() const;
 
     /**
      *  @brief Returns time_t presentation.
      */
-    [[nodiscard]] explicit operator time_t() const
-    {
-        return clock::to_time_t(m_dateTime);
-    }
+    [[nodiscard]] explicit operator time_t() const;
 
     /**
      *  @brief Decodes date into y,m,d.
@@ -331,26 +322,24 @@ public:
     /**
      *  @brief Return true if date and time are at epoch.
      */
-    [[nodiscard]] bool zero() const
-    {
-        return m_dateTime.time_since_epoch().count() == 0;
-    }
+    [[nodiscard]] bool zero() const;
 
-    static VariantDataType variantDataType()
-    {
-        return VariantDataType::VAR_DATE_TIME;
-    }
+    /**
+     * @return Varian data type.
+     */
+    static VariantDataType variantDataType();
 
 private:
-    time_point     m_dateTime;       ///< Actual date and time value
-    static String  _dateFormat;      ///< System's date format
-    static String  _fullTimeFormat;  ///< System's time format
-    static String  _shortTimeFormat; ///< System's time format
-    static String  _datePartsOrder;  ///< System's date parts order
-    static char    _dateSeparator;   ///< System's date separator
-    static char    _timeSeparator;   ///< System's time separator
-    static Strings _weekDayNames;    ///< The locale-defined weekday names
-    static Strings _monthNames;      ///< The locale-defined weekday names
+    mutable std::mutex m_mutex;          ///< Mutex for thread safety.
+    time_point         m_dateTime;       ///< Actual date and time value
+    static String      _dateFormat;      ///< System's date format
+    static String      _fullTimeFormat;  ///< System's time format
+    static String      _shortTimeFormat; ///< System's time format
+    static String      _datePartsOrder;  ///< System's date parts order
+    static char        _dateSeparator;   ///< System's date separator
+    static char        _timeSeparator;   ///< System's time separator
+    static Strings     _weekDayNames;    ///< The locale-defined weekday names
+    static Strings     _monthNames;      ///< The locale-defined weekday names
 };
 
 SP_EXPORT int  operator<=>(const DateTime& dt1, const DateTime& dt2);
