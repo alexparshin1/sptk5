@@ -280,21 +280,20 @@ void DateTimeFormat::init()
 
     TimeZone::timeZoneName(String(ptr, static_cast<unsigned>(len)));
 
-    const auto                timestamp = time(nullptr);
-    array<char, bufferLength> buf {};
-    struct tm                 ltime {};
+    const auto timestamp = time(nullptr);
+    tm         ltime {};
 #ifdef _WIN32
     localtime_s(&ltime, &timestamp);
 #else
     localtime_r(&timestamp, &ltime);
 #endif
-    strftime(buf.data(), bufferLength - 1, "%z", &ltime);
-    format()
-        const auto offset = string2int(buf.data());
-    const auto     offsetMinutes = minutes(offset % tzMultiplier);
-    const auto     offsetHours = hours(offset / tzMultiplier);
-    TimeZone::isDaylightSavingsTime(ltime.tm_isdst == -1 ? 0 : ltime.tm_isdst);
-    TimeZone::timeZoneOffset(offsetHours + offsetMinutes);
+
+    const auto* local_tz = current_zone();
+    const auto  info = local_tz->get_info(system_clock::now());
+    const auto  offsetMinutes = duration_cast<minutes>(info.offset);
+
+    TimeZone::isDaylightSavingsTime(info.save != minutes(0));
+    TimeZone::timeZoneOffset(offsetMinutes);
 }
 
 namespace {
