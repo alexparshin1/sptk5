@@ -87,7 +87,7 @@ void performanceTestFunction(const ServerConnection& serverConnection)
     }
     data.bytes(packetSize);
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
 
     const auto* dataPtr = data.data();
@@ -282,7 +282,7 @@ size_t readAllPackets(T& reader, size_t readSize)
     return packetCount;
 }
 
-void printPerformanceTestResult(const String& testLabel, const size_t readSize, const StopWatch& stopWatch, size_t packetCount)
+void printPerformanceTestResult(const String& testLabel, const size_t readSize, const Stopwatch& stopWatch, size_t packetCount)
 {
     COUT(testLabel << " received " << packetCount
                    << " packets at the rate " << fixed << setprecision(2) << static_cast<double>(packetCount) / stopWatch.seconds() << "/s, or "
@@ -297,7 +297,7 @@ void testAcceptPerformance(ServerConnection::Type connectionType, const String& 
                                                    });
 
     constexpr size_t connectionNumber {1000};
-    StopWatch        stopWatch;
+    Stopwatch        stopWatch;
 
     vector<shared_ptr<TCPSocket>> sockets;
     for (size_t i = 0; i < connectionNumber; ++i)
@@ -347,7 +347,7 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
     auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
 
     constexpr size_t readSize {packetSize};
-    StopWatch        stopWatch;
+    Stopwatch        stopWatch;
 
     const shared_ptr<TCPSocket> socket = connectionType == ServerConnection::Type::TCP
                                              ? make_shared<TCPSocket>()
@@ -413,7 +413,7 @@ void testReaderTransferPerformance(ServerConnection::Type connectionType, const 
 
     constexpr size_t readSize {packetSize};
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     const size_t packetCount = readAllPackets(socketReader, readSize);
     stopWatch.stop();

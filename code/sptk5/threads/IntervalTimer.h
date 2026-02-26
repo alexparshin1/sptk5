@@ -30,15 +30,14 @@
 #include "Thread.h"
 #include "TimerEvent.h"
 
-#include <functional>
-#include <set>
+#include <queue>
 
 namespace sptk {
 
 class IntervalTimerThread;
 
 /**
- * Interval timer class.
+ * @brief Interval timer class.
  * Fires one time or repeatable events in a defined interval.
  */
 class SP_EXPORT IntervalTimer
@@ -47,42 +46,42 @@ public:
     using EventQueue = std::queue<STimerEvent>;
 
     /**
-     * Constructor
+     * @brief Constructor.
      */
     IntervalTimer(std::chrono::milliseconds repeatInterval);
 
     /**
-     * Copy constructor
-     * @param other                     IntervalTimer to copy from
+     * @brief Copy constructor.
+     * @param other                     IntervalTimer to copy from.
      */
     IntervalTimer(const IntervalTimer& other) = delete;
 
     /**
-     * Destructor.
+     * @brief Destructor.
      * Cancel all events scheduled by this timer.
      */
     virtual ~IntervalTimer();
 
     /**
-     * Schedule repeatable event  to fire in the interval defined in the constructor.
-     * The first event is scheduled at current time + interval.
+     * @brief Schedule repeatable event  to fire in the interval defined in the constructor.
+     * The first event is scheduled at the current time + interval.
      * @param eventCallback             Event callback.
-     * @param repeatCount               Repeat count, -1 means no limit
-     * @return event handle, that may be used to cancel this event.
+     * @param repeatCount               Repeat count, -1 means no limit.
+     * @return event handle that may be used to cancel this event.
      */
     STimerEvent repeat(const TimerEvent::Callback& eventCallback, int repeatCount = -1);
 
     /**
-     * Cancel all events
+     * @brief Cancel all events.
      */
     void cancel();
 
 private:
-    mutable std::mutex                   m_mutex;            ///< Mutex protecting events set
-    std::chrono::milliseconds            m_repeatInterval;   ///< Repeat interval
-    EventQueue                           m_events;           ///< Events scheduled by this timer
-    std::mutex                           m_timerThreadMutex; ///< IntervalTimer thread mutex
-    std::shared_ptr<IntervalTimerThread> m_timerThread;      ///< IntervalTimer thread
+    mutable std::mutex                   m_mutex;            ///< Mutex protecting events set.
+    std::chrono::milliseconds            m_repeatInterval;   ///< Repeat interval.
+    EventQueue                           m_events;           ///< Events scheduled by this timer.
+    std::mutex                           m_timerThreadMutex; ///< IntervalTimer thread mutex.
+    std::shared_ptr<IntervalTimerThread> m_timerThread;      ///< IntervalTimer thread.
 };
 
 } // namespace sptk

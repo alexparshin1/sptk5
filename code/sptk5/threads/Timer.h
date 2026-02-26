@@ -32,59 +32,59 @@
 namespace sptk {
 
 /**
- * Generic timer class.
- * Can fire one time off and repeatable events
+ * @brief Generic timer class.
+ * Can fire one time off and repeatable events.
  */
 class SP_EXPORT Timer final
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     Timer();
 
     /**
-     * Copy constructor
-     * @param other                     Timer to copy from
+     * @brief Copy constructor.
+     * @param other                     Timer to copy from.
      */
     Timer(const Timer& other) = delete;
 
     /**
-     * Copy assignment
+     * @brief Copy assignment.
      */
     Timer& operator=(const Timer&) = delete;
 
     /**
-     * Destructor.
+     * @brief Destructor.
      * Cancel all events scheduled by this timer.
      */
     ~Timer();
 
     /**
-     * Schedule a single event.
-     * @param timestamp                 Fire at timestamp
+     * @brief Schedule a single event.
+     * @param timestamp                 Fire at timestamp.
      * @param eventCallback             Event callback.
      * @return event handle that may be used to cancel this event.
      */
     [[nodiscard]] STimerEvent fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const;
 
     /**
-     * Schedule repeatable event.
+     * @brief Schedule repeatable event.
      * The first event is scheduled at the current time + interval.
      * @param interval                  Event repeat interval.
      * @param eventCallback             Event callback.
-     * @param repeatCount               Repeat count, -1 means no limit
+     * @param repeatCount               Repeat count, -1 means no limit.
      * @return event handle that may be used to cancel this event.
      */
     [[nodiscard]] STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
 
     /**
-     * Cancel all events
+     * @brief Cancel all events.
      */
     void cancel() const;
 
 private:
-    std::shared_ptr<TimerThread> m_timerThread {std::make_shared<TimerThread>()}; ///< Event processing thread
+    std::shared_ptr<TimerThread> m_timerThread {std::make_shared<TimerThread>()}; ///< Event processing thread.
 };
 
 } // namespace sptk

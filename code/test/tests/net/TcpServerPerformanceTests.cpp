@@ -104,7 +104,7 @@ TEST(SPTK_TCPServer, eventPerformance)
     socket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     socket.blockingMode(false);
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
 
     Buffer buffer;

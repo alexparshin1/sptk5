@@ -26,7 +26,7 @@
 
 #include "sptk5/threads/SynchronizedQueue.h"
 #include <gtest/gtest.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 
 using namespace std;
 using namespace sptk;
@@ -40,7 +40,7 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
 
     constexpr int N = 1000000;
 
-    StopWatch sw;
+    Stopwatch sw;
     sw.start();
     for (size_t i = 0; i < N; i++)
     {

@@ -27,6 +27,7 @@
 #pragma once
 
 #include "WSServices.h"
+#include "sptk5/Stopwatch.h"
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
@@ -121,7 +122,7 @@ private:
 
     bool handleHttpProtocol(const String& requestType, URL& url, String& protocolName, const HttpHeaders& headers) const;
 
-    void logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
+    void logConnectionDetails(const Stopwatch& requestStopWatch, const HttpReader& httpReader,
                               const RequestInfo& requestInfo) const;
 
     void processSingleConnection();

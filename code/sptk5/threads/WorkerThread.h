@@ -26,82 +26,74 @@
 
 #pragma once
 
-#include "ThreadManager.h"
 #include <sptk5/threads/Runable.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 #include <sptk5/threads/Thread.h>
-#include <sptk5/threads/ThreadEvent.h>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Worker thread for thread manager
+ * @brief Worker thread for thread manager.
  *
- * Worker threads are created by thread manager.
- * They are designed to read tasks from internal or external
- * queue. Executed tasks are objects derived from Runable.
- * If a thread event object is defined, worker thread may report events
- * such as thread start, task start, etc.
- * Worker thread automatically terminates if it's idle for the period longer
- * than defined maxIdleSec (seconds).
+ * Worker threads are created by the thread manager.
+ * They are designed to read tasks from internal or external queue. Executed tasks are objects derived from Runable.
+ * If a thread event object is defined, the worker thread may report events such as thread start, task start, etc.
+ * Worker thread automatically terminates if it's idle for the period longer than defined maxIdleSec (seconds).
  */
 class SP_EXPORT WorkerThread
     : public Thread
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
-     * If queue is NULL then worker thread uses internal task queue.
-     * Otherwise, external (shared) task queue is used.
-     * If maxIdleSec is defined and thread is idle (not executing any tasks)
+     * If maxIdleSec is defined, and the thread is idle (not executing any tasks)
      * for a period longer than maxIdleSec then it terminates automatically.
-     * @param queue             Task queue
-     * @param threadEvent       Optional thread event interface
-     * @param maxIdleTime       Maximum time the thread is idle, seconds
+     * @param queue             Task queue.
+     * @param maxIdleTime       Maximum time the thread is idle, seconds.
      */
-    WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::milliseconds maxIdleTime = std::chrono::seconds(10));
+    explicit WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::milliseconds maxIdleTime = std::chrono::seconds(10));
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~WorkerThread() noexcept override = default;
 
     /**
-     * Execute runable task
-     * @param task              Task to execute in the worker thread
+     * @brief Execute runable task.
+     * @param task              Task to execute in the worker thread.
      */
     void execute(URunable& task);
 
     /**
-     * Terminate runable
+     * @brief Terminate runable.
      */
     void terminate() override;
 
 protected:
     /**
-     * Thread function
+     * @brief Thread function.
      */
     void threadFunction() override;
 
 private:
     /**
-     * Mutex protecting internal data
+     * @brief Mutex protecting internal data.
      */
     mutable std::mutex m_mutex;
 
     /**
-     * Task queue
+     * @brief Task queue.
      */
     SynchronizedQueue<URunable>& m_queue;
 
     /**
-     * Number of thread idle seconds before thread terminates automatically
+     * @brief Number of thread idle seconds before thread terminates automatically.
      */
     std::chrono::milliseconds m_maxIdleSeconds;
 

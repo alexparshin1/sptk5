@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Printer.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
 #include <future>
@@ -138,7 +138,7 @@ TEST(SPTK_SynchronizedQueue, performance)
     constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int>         queue;
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 
     stopWatch.start();
     int value = 1;
@@ -173,7 +173,7 @@ TEST(SPTK_SynchronizedQueue, performanceBulk)
     constexpr chrono::milliseconds timeout(1000);
     SynchronizedQueue<int>         queue;
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 
     stopWatch.start();
     auto value = 1;

@@ -26,103 +26,69 @@
 
 #pragma once
 
-#include <mutex>
-#include <sptk5/Strings.h>
 #include <sptk5/sptk.h>
-#include <sptk5/string_ext.h>
+
+#include <chrono>
+#include <mutex>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
- * @{
+ * @brief Simple stopwatch class useful in measuring time intervals.
+ * This class is thread-safe.
  */
-
-/**
- * @brief Location object
- *
- * Stores file name and line number in the file
- */
-class SP_EXPORT CLocation
+class SP_EXPORT Stopwatch
 {
-    /**
-     * Mutex to protect internal data
-     */
-    mutable std::mutex m_mutex;
-
-    /**
-     * File name
-     */
-    const char* m_file;
-
-    /**
-     * Line number
-     */
-    int m_line;
-
-
 public:
     /**
-     * @brief Constructor
-     * @param file const char*, File name
-     * @param line int, Line number
+     * @brief Constructor.
      */
-    CLocation(const char* file, int line)
-        : m_file(file)
-        , m_line(line)
+    Stopwatch() = default;
+
+    /**
+     * @brief Constructor that measures action execution time.
+     * @tparam Action           Measured action function type.
+     * @param action            Measured action.
+     */
+    template<class Action>
+    explicit Stopwatch(const Action& action)
     {
+        start();
+        action();
+        stop();
     }
 
     /**
-     * @brief Modifies location
-     * @param file const char*, File name
-     * @param line int, Line number
+     * @brief Destructor.
      */
-    void set(const char* file, int line)
-    {
-        std::scoped_lock > lock(m_mutex);
-        m_file = file;
-        m_line = line;
-    }
+    ~Stopwatch() = default;
 
     /**
-     * @brief Returns location file name
+     * @brief Set stopwatch start time.
      */
-    const char* file() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_file;
-    }
+    void start();
 
     /**
-     * @brief Returns location line number
+     * @brief Set stopwatch stop time.
      */
-    int line() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_line;
-    }
+    void stop();
 
     /**
-     * @brief Returns string presentation of location
+     * @brief Get the difference between stopwatch start and stop times in seconds.
+     * @return interval in seconds.
      */
-    String toString() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return String(m_file) + "(" + int2string(m_line) + ")";
-    }
+    double seconds() const;
 
     /**
-     * @brief Returns true if location is empty
+     * @brief Get the difference between stopwatch start and stop times in seconds.
+     * @return interval in seconds.
      */
-    bool empty() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return (m_file == NULL) && (m_line == 0);
-    }
+    double milliseconds() const;
+
+private:
+    mutable std::mutex                    m_mutex;                                      ///< Mutex that provides thread-safety.
+    std::chrono::steady_clock::time_point m_started {std::chrono::steady_clock::now()}; ///< Start time.
+    std::chrono::steady_clock::time_point m_ended;                                      ///< Stop time.
 };
 
-/**
- * @}
- */
 } // namespace sptk

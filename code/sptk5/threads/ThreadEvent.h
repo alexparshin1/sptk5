@@ -32,41 +32,40 @@
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * @brief Thread event interface
+ * @brief Thread event interface.
  */
 class SP_EXPORT ThreadEvent
 {
 public:
     /**
-     * @brief Thread event type
+     * @brief Thread event type.
      */
     enum class Type : uint8_t
     {
-        THREAD_STARTED,   ///< Thread started event
-        THREAD_FINISHED,  ///< Thread finished event
-        RUNABLE_STARTED,  ///< Runable started
-        RUNABLE_FINISHED, ///< Runable finished
-        IDLE_TIMEOUT      ///< Thread was idle longer than defined idle timeout
+        THREAD_STARTED,   ///< Thread started event.
+        THREAD_FINISHED,  ///< Thread finished event.
+        RUNABLE_STARTED,  ///< Runable started.
+        RUNABLE_FINISHED, ///< Runable finished.
+        IDLE_TIMEOUT      ///< Thread was idle longer than the defined idle timeout.
     };
 
     /**
-     * @brief Thread event callback function
+     * @brief Thread event callback function.
      *
-     * In order to receive thread events, event receiver
-     * should be derived from this class.
-     * @param thread            Thread where event occured
-     * @param eventType         Thread event type
-     * @param runable           Related runable (if any)
+     * To receive thread events, the event receiver should be derived from this class.
+     * @param thread            Thread where event occured.
+     * @param eventType         Thread event type.
+     * @param runable           Related runable (if any).
      */
     virtual void threadEvent(Thread* thread, Type eventType, SRunable runable) = 0;
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     virtual ~ThreadEvent() = default;
 };

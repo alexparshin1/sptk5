@@ -217,7 +217,7 @@ TEST(SPTK_RegularExpression, match_performance)
     const String            data("red=#FF0000, green=#00FF00, blue=#0000FF");
     const RegularExpression match("((\\w+)=(#\\w+))");
     constexpr size_t        maxIterations = 100000;
-    StopWatch               stopWatch;
+    Stopwatch               stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxIterations; ++i)
     {

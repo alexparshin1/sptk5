@@ -36,17 +36,15 @@
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Controls creation and execution of the threads.
+ * @brief Controls creation and execution of the threads.
  *
- * When a thread is requested from the thread pool, it ether
- * creates a new thread or returns one from the thread pool.
- * If a thread is idle for the period longer than defined in constructor,
- * it's automatically terminated.
+ * When a thread is requested from the thread pool, it either creates a new thread or returns one from the thread pool.
+ * If a thread is idle for the period longer than defined in the constructor, it's automatically terminated.
  */
 class SP_EXPORT ThreadPool
     : public ThreadEvent
@@ -54,63 +52,64 @@ class SP_EXPORT ThreadPool
 {
 public:
     /**
-     * Constructor
-     * @param threadLimit       Maximum number of threads in this pool
-     * @param threadIdleSeconds Maximum period of inactivity (seconds) for thread in the pool before thread is terminated
-     * @param threadName        Thread pool own threadName
+     * @brief Constructor.
+     * @param threadLimit       Maximum number of threads in this pool.
+     * @param threadIdleSeconds Maximum period of inactivity (seconds) for the thread in the pool before the thread is terminated.
+     * @param threadName        Thread pool own threadName.
+     * @param logEngine         Optional log engine.
      */
     ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
                LogEngine* logEngine);
 
     /**
-     * Executes task
-     * @param task              Task to execute
+     * @brief Executes task.
+     * @param task              Task to execute.
      */
     virtual void execute(URunable task);
 
     /**
-     * Thread event callback function
+     * @brief Thread event callback function.
      *
-     * Receives events that occur in the threads
-     * @param thread            Thread where event occured
-     * @param eventType         Thread event type
-     * @param runable           Related runable (if any)
+     * Receives events that occur in the threads.
+     * @param thread            Thread where event occured.
+     * @param eventType         Thread event type.
+     * @param runable           Related runable (if any).
      */
     void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
 
     /**
-     * Sends terminate() message to all worker threads, and sets shutdown state
+     * @brief Sends the terminate() message to all worker threads, and sets shutdown state.
      *
-     * After thread pool is stopped, it no longer accepts tasks for execution.
+     * After the thread pool is stopped, it no longer accepts tasks for execution.
      */
     virtual void stop();
 
     /**
-     * Number of active threads in the pool
+     * @brief Number of active threads in the pool.
      */
     size_t size() const;
 
 private:
-    SThreadManager              m_threadManager;    ///< Pool's thread manager
-    size_t                      m_threadLimit;      ///< Maximum number of threads in this pool
-    SynchronizedQueue<URunable> m_taskQueue;        ///< Shared task queue
-    Semaphore                   m_availableThreads; ///< Semaphore indicating available threads
-    std::chrono::milliseconds   m_threadIdleTime;   ///< Maximum thread idle time before thread in this pool is terminated
-    SLogger                     m_logger;           ///< Optional logger
+    SThreadManager              m_threadManager;    ///< Pool's thread manager.
+    size_t                      m_threadLimit;      ///< Maximum number of threads in this pool.
+    SynchronizedQueue<URunable> m_taskQueue;        ///< Shared task queue.
+    Semaphore                   m_availableThreads; ///< Semaphore indicating available threads.
+    std::chrono::milliseconds   m_threadIdleTime;   ///< Maximum thread idle time before the thread in this pool is terminated.
+    SLogger                     m_logger;           ///< Optional logger.
 
-    std::atomic_bool m_shutdown {false}; ///< Flag: true during pool shutdown
+    std::atomic_bool m_shutdown {false}; ///< Flag: true during pool shutdown.
 
     /**
-     * Creates a new thread and adds it to thread pool
+     * @brief Creates a new thread and adds it to the thread pool.
      *
-     * Create new worker thread
+     * Create a new worker thread.
      */
     void createThread();
 
     /**
-     * Log thread event
-     * @param event             Event info
-     * @param workerThread      Related worker thread
+     * @brief Log thread event.
+     * @param event             Event info.
+     * @param workerThread      Related worker thread.
      */
     void logThreadEvent(const String& event, const Thread* workerThread) const;
 };

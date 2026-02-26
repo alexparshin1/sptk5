@@ -32,7 +32,7 @@
 namespace sptk {
 
 /**
- * ThreadManager automatically joins and destroys terminated threads that are
+ * @brief ThreadManager automatically joins and destroys terminated threads that are
  * registered with it.
  */
 class SP_EXPORT ThreadManager
@@ -40,69 +40,69 @@ class SP_EXPORT ThreadManager
 {
 public:
     /**
-     * @brief Constructor
-     * @param name              Thread manager thread name
+     * @brief Constructor.
+     * @param name              Thread manager thread name.
      */
     explicit ThreadManager(const String& name);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~ThreadManager() override;
 
     /**
-     * @brief Start thread manager monitoring of the threads
+     * @brief Start thread manager monitoring of the threads.
      */
     void start();
 
     /**
-     * @brief Stop thread manager monitoring of the threads
+     * @brief Stop thread manager monitoring of the threads.
      */
     void stop();
 
     /**
-     * @brief Register thread for monitoring
-     * @param thread            Thread
+     * @brief Register the thread for monitoring.
+     * @param thread            Thread.
      */
     void manage(const SThread& thread);
 
     /**
-     * @brief Destroy thread if it was monitored
-     * @param thread            Thread
+     * @brief Destroy the thread if it was monitored.
+     * @param thread            Thread.
      */
     void destroyThread(const Thread* thread);
 
     /**
-     * @return Count of currently running monitored threads
+     * @return Count of currently running monitored threads.
      */
     size_t threadCount() const;
 
     /**
-     * Get next running thread by index
-     * @return thread or nullptr
+     * @brief Get the next running thread by index.
+     * @return thread or nullptr.
      */
     SThread getNextThread();
 
 protected:
     /**
-     * @brief Monitoring thread function
+     * @brief Monitoring thread function.
      */
     void threadFunction() override;
 
 private:
-    mutable std::mutex         m_mutex;               ///< Mutex that protects internal data
-    std::vector<SThread>       m_runningThreads;      ///< Running threads
-    SynchronizedQueue<SThread> m_terminatedThreads;   ///< Terminated threads scheduled for delete
-    size_t                     m_nextThreadIndex {0}; ///< Next thread index
+    mutable std::mutex         m_mutex;               ///< Mutex that protects internal data.
+    std::vector<SThread>       m_runningThreads;      ///< Running threads.
+    SynchronizedQueue<SThread> m_terminatedThreads;   ///< Terminated threads scheduled for delete.
+    size_t                     m_nextThreadIndex {0}; ///< Next thread index.
 
     /**
-     * @brief Join terminated threads
-     * @param timeout           Timeout waiting for the terminated threads in the loop
+     * @brief Join terminated threads.
+     * @param timeout           Timeout waiting for the terminated threads in the loop.
      */
     void joinTerminatedThreads(const std::chrono::milliseconds& timeout);
 
     /**
-     * @brief Terminate all running monitored threads
+     * @brief Terminate all running monitored threads.
      */
     void terminateRunningThreads();
 };

@@ -44,7 +44,7 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     constexpr auto maxCount = 100000;
     constexpr auto mcsInSecond = 1E6;
     const String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxCount; ++i)
     {

@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/DateTime.h>
 #include <sptk5/threads/TimerEvent.h>
 
 #include <map>
@@ -77,8 +76,8 @@ public:
 private:
     using EventMap = std::multimap<long, std::shared_ptr<TimerEvent>>;
 
-    mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to the events collection
-    EventMap                            m_events; ///< Events collection
+    mutable std::shared_mutex           m_mutex;  ///< Mutex that protects access to the event collection.
+    EventMap                            m_events; ///< Events collection.
     std::counting_semaphore<0x7FFFFFFF> m_semaphore {0};
     bool                                m_terminated {false};
 

@@ -92,8 +92,8 @@ void WSConnection::processSingleConnection()
         return;
     }
 
-    StopWatch requestStopWatch;
-    requestStopWatch.start();
+    Stopwatch requestStopwatch;
+    requestStopwatch.start();
 
     Buffer     contentBuffer;
     HttpReader httpReader(socket(), contentBuffer, HttpReader::ReadMode::REQUEST);
@@ -109,8 +109,7 @@ void WSConnection::processSingleConnection()
     {
         respondToOptions(headers);
         const auto itor = headers.find("Connection");
-        const auto connectionHeader = itor == headers.end() ? "" : itor->second;
-        if (connectionHeader.toLowerCase() == "close")
+        if (const auto connectionHeader = itor == headers.end() ? "" : itor->second; connectionHeader.toLowerCase() == "close")
         {
             httpReader.close();
         }
@@ -168,11 +167,11 @@ void WSConnection::processSingleConnection()
         httpReader.close();
     }
 
-    requestStopWatch.stop();
+    requestStopwatch.stop();
 
     if (logDebugMessages)
     {
-        logConnectionDetails(requestStopWatch, httpReader, requestInfo);
+        logConnectionDetails(requestStopwatch, httpReader, requestInfo);
     }
 }
 
@@ -184,7 +183,7 @@ void WSConnection::run()
         {
             processSingleConnection();
         }
-        catch (const exception& e)
+        catch (const Exception& e)
         {
             if (!terminated() && socket().active())
             {
@@ -206,7 +205,7 @@ void WSConnection::run()
     return m_workerThread;
 }
 
-void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const HttpReader& httpReader,
+void WSConnection::logConnectionDetails(const Stopwatch& requestStopwatch, const HttpReader& httpReader,
                                         const RequestInfo& requestInfo) const
 {
     if (!m_options.logDetails.empty())
@@ -234,7 +233,7 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
         if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DURATION))
         {
             listStarted = true;
-            logMessage << "duration " << fixed << setprecision(1) << requestStopWatch.milliseconds() << " ms";
+            logMessage << format("duration {:.1f} ms", requestStopwatch.milliseconds());
         }
 
         if (m_options.logDetails.has(LogDetails::MessageDetail::REQUEST_DATA))
@@ -262,9 +261,9 @@ void WSConnection::logConnectionDetails(const StopWatch& requestStopWatch, const
 
 bool WSConnection::reviewHeaders(const String& requestType, HttpHeaders& headers)
 {
-    auto       it = headers.find("Content-Length");
-    const auto contentLength = it == headers.end() ? "" : it->second;
-    if (requestType == "GET" && contentLength.empty())
+    auto it = headers.find("Content-Length");
+    if (const auto contentLength = it == headers.end() ? "" : it->second;
+        requestType == "GET" && contentLength.empty())
     {
         headers["Content-Length"] = "0";
     }
@@ -285,9 +284,9 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
 {
     bool processed = false;
 
-    auto       it = headers.find("Content-Type");
-    const auto contentType = it == headers.end() ? "" : it->second.toLowerCase();
-    if (contentType.find("/json") != String::npos || requestType == "POST")
+    auto it = headers.find("Content-Type");
+    if (const auto contentType = it == headers.end() ? "" : it->second.toLowerCase();
+        contentType.find("/json") != String::npos || requestType == "POST")
     {
         protocolName = "rest";
     }
@@ -341,7 +340,6 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     if (m_options.allowCors)
     {
         response.append(format("Access-Control-Allow-Origin: {}\r\n", origin.c_str()));
-        //response.append("Access-Control-Allow-Origin: *\r\n");
 
         response.append("Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n");
         response.append(

@@ -211,7 +211,7 @@ void DateTimeFormat::init()
 
 #ifdef __unix__
     // For unknown reason this call of setlocale() under Windows makes
-    // calls of sprintf to produce access violations. If you know why please
+    // calls of sprintf to produce access violations. If you know why, please
     // tell me.
     setlocale(LC_TIME, "");
     tzset();
@@ -301,8 +301,8 @@ namespace {
 const DateTimeFormat dateTimeFormatInitializer;
 
 void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
-                short& dayOfYear,
-                bool   gmt)
+                short&     dayOfYear,
+                const bool gmt)
 {
     auto aTime = DateTime::clock::to_time_t(timePoint);
 
@@ -320,7 +320,7 @@ void decodeDate(const DateTime::time_point& timePoint, short& year, short& month
     dayOfYear = static_cast<short>(time.tm_yday);
 }
 
-void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minute, short& second, short& millisecond, bool gmt)
+void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minute, short& second, short& millisecond, const bool gmt)
 {
     auto timestamp = DateTime::clock::to_time_t(timePoint);
 
@@ -341,7 +341,7 @@ void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minut
     millisecond = static_cast<short>(ms.count());
 }
 
-void encodeDate(DateTime::time_point& timePoint, short year, short month, short day)
+void encodeDate(DateTime::time_point& timePoint, const short year, const short month, const short day)
 {
     tm time = {};
     time.tm_year = year - lastCenturyYear;
@@ -435,7 +435,7 @@ short correctTwoDigitYear(short year)
     return year;
 }
 
-void encodeTime(DateTime::time_point& timePoint, short hour, short minute, short second, short millisecond)
+void encodeTime(DateTime::time_point& timePoint, const short hour, const short minute, const short second, const short millisecond)
 {
     timePoint += hours(hour) + minutes(minute) + seconds(second) + milliseconds(millisecond);
 }
@@ -527,7 +527,7 @@ void encodeDate(DateTime::time_point& timePoint, const char* dat)
     }
 
     if (timePtr != nullptr)
-    { // Time part included into string
+    {
         DateTime::time_point timestamp;
         encodeTime(timestamp, timePtr);
         timePoint += timestamp.time_since_epoch();
@@ -597,7 +597,7 @@ void TimeZone::set(const String& timeZoneName)
     DateTimeFormat::init();
 }
 
-void TimeZone::time24Mode(bool mode)
+void TimeZone::time24Mode(const bool mode)
 {
     _time24Mode = mode;
 }
@@ -607,17 +607,17 @@ void TimeZone::timeZoneName(const String& name)
     _timeZoneName = name;
 }
 
-void TimeZone::timeZoneOffset(std::chrono::minutes offset)
+void TimeZone::timeZoneOffset(const std::chrono::minutes offset)
 {
     _timeZoneOffset = offset;
 }
 
-void TimeZone::isDaylightSavingsTime(int savingsTime)
+void TimeZone::isDaylightSavingsTime(const int savingsTime)
 {
     _isDaylightSavingsTime = savingsTime;
 }
 
-void DateTime::time24Mode(bool t24mode)
+void DateTime::time24Mode(const bool t24mode)
 {
     auto timeBuffer = "10:48:59AM";
 
@@ -645,8 +645,8 @@ void DateTime::time24Mode(bool t24mode)
 //----------------------------------------------------------------
 // Constructors
 //----------------------------------------------------------------
-DateTime::DateTime(short year, short month, short day, short hour, short minute, short second,
-                   short millisecond)
+DateTime::DateTime(const short year, const short month, const short day, const short hour, const short minute, const short second,
+                   const short millisecond)
 {
     std::scoped_lock lock(m_mutex);
     try
@@ -723,7 +723,7 @@ DateTime::DateTime(const DateTime& dt)
 DateTime::DateTime(DateTime&& dt) noexcept
 {
     std::scoped_lock lock(m_mutex, dt.m_mutex);
-    m_dateTime = std::move(dt.m_dateTime);
+    m_dateTime = dt.m_dateTime;
 }
 
 DateTime::DateTime(const time_point& timePoint)
@@ -799,7 +799,7 @@ DateTime& DateTime::operator=(DateTime&& date) noexcept
     std::scoped_lock lock(m_mutex, date.m_mutex);
     if (this != &date)
     {
-        m_dateTime = std::move(date.m_dateTime);
+        m_dateTime = date.m_dateTime;
     }
     return *this;
 }
@@ -807,7 +807,7 @@ DateTime& DateTime::operator=(DateTime&& date) noexcept
 //----------------------------------------------------------------
 // Format routine
 //----------------------------------------------------------------
-void DateTime::formatDate(ostream& str, int printFlags) const
+void DateTime::formatDate(ostream& str, const int printFlags) const
 {
     if (zero())
     {
@@ -841,7 +841,7 @@ void DateTime::formatDate(ostream& str, int printFlags) const
     str << string(buffer.data(), len);
 }
 
-void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccuracy) const
+void DateTime::formatTime(ostream& str, const int printFlags, const PrintAccuracy printAccuracy) const
 {
     short hour = 0;
     short minute = 0;
@@ -883,16 +883,16 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
     }
 
     const auto savedFill = str.fill('0');
-    str << setw(2) << hour << _timeSeparator << setw(2) << minute;
+    str << std::format("{:02d}{}{:02d}", hour, _timeSeparator, minute);
     switch (printAccuracy)
     {
         case PrintAccuracy::MINUTES:
             break;
         case PrintAccuracy::SECONDS:
-            str << _timeSeparator << setw(2) << second;
+            str << std::format("{}{:02d}", _timeSeparator, second);
             break;
         default:
-            str << _timeSeparator << setw(2) << second << "." << setw(3) << millisecond;
+            str << std::format("{}{:02d}.{:03d}", _timeSeparator, second, millisecond);
             break;
     }
 
@@ -920,7 +920,7 @@ void DateTime::formatTime(ostream& str, int printFlags, PrintAccuracy printAccur
                 str << '-';
                 offsetMinutes = -TimeZone::offset();
             }
-            str << setw(2) << offsetMinutes.count() / secondsInMinute << ":" << setw(2) << offsetMinutes.count() % secondsInMinute;
+            str << std::format("{:02d}:{:02d}", offsetMinutes.count() / secondsInMinute, offsetMinutes.count() % secondsInMinute);
         }
     }
 
@@ -933,13 +933,13 @@ DateTime::duration DateTime::sinceEpoch() const
     return m_dateTime.time_since_epoch();
 }
 
-void DateTime::decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, bool gmt) const
+void DateTime::decodeDate(short* year, short* month, short* day, short* weekDay, short* yearDate, const bool gmt) const
 {
     scoped_lock lock(m_mutex);
     ::decodeDate(m_dateTime, *year, *month, *day, *weekDay, *yearDate, gmt);
 }
 
-void DateTime::decodeTime(short* hour, short* minute, short* second, short* millisecond, bool gmt) const
+void DateTime::decodeTime(short* hour, short* minute, short* second, short* millisecond, const bool gmt) const
 {
     scoped_lock lock(m_mutex);
     ::decodeTime(m_dateTime, *hour, *minute, *second, *millisecond, gmt);
@@ -1021,21 +1021,21 @@ String DateTime::monthName() const
     return DateTime::_monthNames[static_cast<size_t>(month) - 1];
 }
 
-String DateTime::dateString(int printFlags) const
+String DateTime::dateString(const int printFlags) const
 {
     stringstream str;
     formatDate(str, printFlags);
     return str.str();
 }
 
-String DateTime::timeString(int printFlags, PrintAccuracy printAccuracy) const
+String DateTime::timeString(const int printFlags, const PrintAccuracy printAccuracy) const
 {
     stringstream str;
     formatTime(str, printFlags, printAccuracy);
     return str.str();
 }
 
-String DateTime::isoDateTimeString(PrintAccuracy printAccuracy, bool gmt) const
+String DateTime::isoDateTimeString(const PrintAccuracy printAccuracy, const bool gmt) const
 {
     auto printFlags = PF_TIMEZONE | PF_RFC_DATE;
     if (gmt)
@@ -1057,24 +1057,25 @@ DateTime::operator long int() const
     return clock::to_time_t(m_dateTime);
 }
 
-DateTime DateTime::convertCTime(time_t timestamp)
+DateTime DateTime::convertCTime(const time_t timestamp)
 {
     return DateTime(clock::from_time_t(timestamp));
 }
 
-String DateTime::format(Format dtFormat, size_t arg)
+String DateTime::format(const Format dtFormat, const size_t arg)
 {
+    using enum Format;
     switch (dtFormat)
     {
-        case Format::DATE_PARTS_ORDER:
+        case DATE_PARTS_ORDER:
             return _datePartsOrder;
-        case Format::FULL_TIME_FORMAT:
+        case FULL_TIME_FORMAT:
             return _fullTimeFormat;
-        case Format::SHORT_TIME_FORMAT:
+        case SHORT_TIME_FORMAT:
             return _shortTimeFormat;
-        case Format::MONTH_NAME:
+        case MONTH_NAME:
             return _monthNames[arg];
-        case Format::WEEKDAY_NAME:
+        case WEEKDAY_NAME:
             return _weekDayNames[arg];
         default:
             return _dateFormat;

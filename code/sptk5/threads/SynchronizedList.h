@@ -29,20 +29,19 @@
 #include <functional>
 #include <list>
 #include <mutex>
-#include <sptk5/sptk.h>
 #include <sptk5/threads/Semaphore.h>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Synchronized template list
+ * @brief Synchronized template list.
  *
- * Simple thread-safe list
+ * Simple thread-safe list.
  */
 template<class T>
 class SynchronizedList
@@ -51,20 +50,20 @@ public:
     /**
      * @brief List callback function used in each() method.
      *
-     * Iterates through list until false is returned.
-     * @param item T&, List item
-     * @param data void*, Optional function-specific data
+     * Iterates through the list until false is returned.
+     * @param item T&, List item.
+     * @param data void*, Optional function-specific data.
      */
     using CallbackFunction = std::function<bool(T& item)>;
 
     /**
-     * @brief Default constructor
+     * @brief Default constructor.
      */
     SynchronizedList() = default;
 
     /**
-     * @brief Copy constructor
-     * @param other             other list
+     * @brief Copy constructor.
+     * @param other             other list.
      */
     SynchronizedList(const SynchronizedList& other)
     {
@@ -73,8 +72,8 @@ public:
     }
 
     /**
-     * @brief Move constructor
-     * @param other             other list
+     * @brief Move constructor.
+     * @param other             other list.
      */
     SynchronizedList(SynchronizedList&& other) noexcept
     {
@@ -83,8 +82,8 @@ public:
     }
 
     /**
-     * @brief Copy assignment
-     * @param other             other list
+     * @brief Copy assignment.
+     * @param other             other list.
      */
     SynchronizedList& operator=(const SynchronizedList& other)
     {
@@ -93,11 +92,12 @@ public:
             std::scoped_lock lock(m_mutex, other.m_mutex);
             m_list = other.m_list;
         }
+        return *this;
     }
 
     /**
-     * @brief Copy assignment
-     * @param other             other list
+     * @brief Copy assignment.
+     * @param other             other list.
      */
     SynchronizedList& operator=(SynchronizedList&& other) noexcept
     {
@@ -106,19 +106,19 @@ public:
             std::scoped_lock lock(m_mutex, other.m_mutex);
             m_list = std::move(other.m_list);
         }
+        return *this;
     }
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     virtual ~SynchronizedList() = default;
 
     /**
-     * @brief Pushes a data item to the list front
+     * @brief Pushes a data item to the list front.
      *
-     * Automatically posts internal semaphore to indicate
-     * list item availability.
-     * @param data const T&, A data item
+     * Automatically posts internal semaphore to indicate list item availability.
+     * @param data const T&, A data item.
      */
     virtual void push_front(const T& data)
     {
@@ -128,12 +128,12 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the list front
+     * @brief Pops a data item from the list front.
      *
-     * If list is empty then waits until timeout milliseconds occurs.
-     * Returns false if timeout occurs.
-     * @param item T&, A list item (output)
-     * @param timeout std::chrono::milliseconds, Operation timeout
+     * If the list is empty, wait until timeout milliseconds occurs.
+     * @param item T&, A list item (output).
+     * @param timeout std::chrono::milliseconds, Operation timeout.
+     * @returns false if timeout occurs.
      */
     virtual bool pop_front(T& item, const std::chrono::milliseconds& timeout)
     {
@@ -151,11 +151,10 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the list back
+     * @brief Pushes a data item to the list back.
      *
-     * Automatically posts internal semaphore to indicate
-     * list item availability.
-     * @param data const T&, A data item
+     * Automatically posts internal semaphore to indicate list item availability.
+     * @param data const T&, A data item.
      */
     virtual void push_back(const T& data)
     {
@@ -165,12 +164,12 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the list back
+     * @brief Pops a data item from the list back.
      *
-     * If list is empty then waits until timeout occurs.
-     * Returns false if timeout occurs.
-     * @param item T&, A list item (output)
-     * @param timeout std::chrono::milliseconds, Operation timeout
+     * If the list is empty, wait until the timeout occurs.
+     * @param item T&, A list item (output).
+     * @param timeout std::chrono::milliseconds, Operation timeout.
+     * @returns false if timeout occurs.
      */
     virtual bool pop_back(T& item, const std::chrono::milliseconds& timeout)
     {
@@ -188,7 +187,7 @@ public:
     }
 
     /**
-     * @brief Removes all elements with the specific value from the list
+     * @brief Removes all elements with the specific value from the list.
      */
     virtual void remove(T& item)
     {
@@ -197,7 +196,7 @@ public:
     }
 
     /**
-     * @brief Wakes up list semaphore to interrupt waiting
+     * @brief Wakes up list semaphore to interrupt waiting.
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -207,7 +206,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the list is empty
+     * @brief Returns true if the list is empty.
      */
     bool empty() const
     {
@@ -216,7 +215,7 @@ public:
     }
 
     /**
-     * @brief Returns number of items in the list
+     * @brief Returns the number of items in the list.
      */
     size_t size() const
     {
@@ -225,7 +224,7 @@ public:
     }
 
     /**
-     * @brief Removes all items from the list
+     * @brief Removes all items from the list.
      */
     void clear()
     {
@@ -234,10 +233,9 @@ public:
     }
 
     /**
-     * @brief Calls for every list until false is returned
-     * @param callbackFunction  Callback function that is executed for list items
-     * @param data              Function-specific data
-     * @returns true if every list item was processed
+     * @brief Calls for every list until false is returned.
+     * @param callbackFunction  Callback function that is executed for list items.
+     * @returns true if every list item was processed.
      */
     bool each(const CallbackFunction& callbackFunction)
     {
@@ -253,9 +251,9 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex;     ///< Lock to synchronize list operations
-    Semaphore          m_semaphore; ///< Semaphore to waiting for an item if list is empty
-    std::list<T>       m_list;      ///< List
+    mutable std::mutex m_mutex;     ///< Lock to synchronize list operations.
+    Semaphore          m_semaphore; ///< Semaphore to waiting for an item if the list is empty.
+    std::list<T>       m_list;      ///< List.
 };
 
 /**

@@ -26,54 +26,51 @@
 
 #pragma once
 
-#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Generic unnamed semaphore class
+ * @brief Generic unnamed semaphore class.
  */
 class SP_EXPORT Flag
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
-     * Creates flag with starting value (default false)
-     * @param startingValue     Starting semaphore value
-     * @param maxValue          Maximum semaphore value, or 0 if unlimited
+     * Creates the flag with the starting value (default false).
+     * @param startingValue     Starting semaphore value.
      */
     explicit Flag(bool startingValue = false);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~Flag();
 
     /**
-     * Get the flag value
-     * @param value             New flag value
+     * @brief Get the flag value.
+     * @return the flag value.
      */
     bool get() const;
 
     /**
-     * Set the flag value
-     * @param value             New flag value
+     * @brief Set the flag value.
+     * @param value             New flag value.
      */
     void set(bool value);
 
     /**
-     * Adaptor
+     * @brief Adaptor.
      */
     operator bool() const
     {
@@ -81,7 +78,7 @@ public:
     }
 
     /**
-     * Assignment
+     * @brief Assignment.
      */
     Flag& operator=(bool value)
     {
@@ -90,44 +87,44 @@ public:
     }
 
     /**
-     * Waits until the flag has the value
-     * @param value             Value to wait for
-     * @param timeout           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
+     * @brief Waits until the flag has the value.
+     * @param value             Value to wait for.
+     * @param timeout           Wait timeout.
+     * @return true if the flag received the value, or false if timeout occurs.
      */
     bool wait_for(bool value, const std::chrono::milliseconds& timeout);
 
     /**
-     * Waits until the flag has the value
-     * @param value             Value to wait for
-     * @param timeoutAt           Wait timeout
-     * @return true if flag received the value, or false if timeout occurs
+     * @brief Waits until the flag has the value.
+     * @param value             Value to wait for.
+     * @param timeoutAt           Wait timeout.
+     * @return true if the flag received the value, or false if timeout occurs.
      */
     bool wait_until(bool value, const DateTime& timeoutAt);
 
 private:
     /**
-     * Mutex object
+     * @brief Mutex object.
      */
     mutable std::mutex m_lockMutex;
 
     /**
-     * Mutex condition object
+     * @brief Mutex condition object.
      */
     std::condition_variable m_condition;
 
     /**
-     * Flag value
+     * @brief Flag value.
      */
     bool m_value {false};
 
     /**
-     * Terminated flag
+     * @brief Terminated flag.
      */
     bool m_terminated {false};
 
     /**
-     * Terminate flag usage
+     * @brief Terminate flag usage.
      */
     void terminate();
 };

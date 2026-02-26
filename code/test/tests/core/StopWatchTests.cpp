@@ -25,7 +25,7 @@
 */
 
 #include <gtest/gtest.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 
 #include <chrono>
 #include <thread>
@@ -33,17 +33,17 @@
 using namespace std;
 using namespace sptk;
 
-TEST(SPTK_StopWatch, startZeroElapsed)
+TEST(SPTK_Stopwatch, startZeroElapsed)
 {
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     EXPECT_DOUBLE_EQ(0.0, stopWatch.seconds());
     EXPECT_DOUBLE_EQ(0.0, stopWatch.milliseconds());
 }
 
-TEST(SPTK_StopWatch, elapsedTime)
+TEST(SPTK_Stopwatch, elapsedTime)
 {
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     this_thread::sleep_for(chrono::milliseconds(20));
     stopWatch.stop();
@@ -56,9 +56,9 @@ TEST(SPTK_StopWatch, elapsedTime)
     EXPECT_LE(deltaMs, 1.0);
 }
 
-TEST(SPTK_StopWatch, resetElapsedTime)
+TEST(SPTK_Stopwatch, resetElapsedTime)
 {
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     this_thread::sleep_for(chrono::milliseconds(20));
     stopWatch.stop();

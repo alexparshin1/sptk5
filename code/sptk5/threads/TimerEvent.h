@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atomic>
 #include <functional>
 #include <mutex>
 #include <sptk5/DateTime.h>

@@ -70,6 +70,6 @@ protected:
     void threadFunction() override;
 
 private:
-    TimerEvents m_scheduledEvents; ///< Scheduled events
+    TimerEvents m_scheduledEvents; ///< Scheduled events.
 };
 } // namespace sptk

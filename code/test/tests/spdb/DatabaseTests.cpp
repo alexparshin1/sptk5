@@ -857,7 +857,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
             databaseConnection->open();
 
             operation = "bulkInsert";
-            StopWatch sw;
+            Stopwatch sw;
             sw.start();
             databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
             sw.stop();
@@ -870,7 +870,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
         }
     };
 
-    StopWatch sw;
+    Stopwatch sw;
     sw.start();
 
     vector<int64_t> insertedIds1;
@@ -965,7 +965,7 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
         data.push_back(std::move(row));
     }
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     const Strings columnNames({"name", "position_name", "hire_date"});
     databaseConnection->bulkInsert("gtest_temp_table", columnNames, data);

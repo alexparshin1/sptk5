@@ -26,57 +26,55 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
-
-#include <atomic>
-#include <list>
+#include "atomic"
+#include <sptk5/String.h>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Abstract runable object.
+ * @brief Abstract runable object.
  *
  * Should be used for deriving a user class for executing by a worker
- * thread in a thread pool. Derived class must override run() method.
+ * thread in a thread pool. Derived class must override the run() method.
  */
 class SP_EXPORT Runable
 {
 public:
     /**
-     * Default Constructor
+     * @brief Default Constructor.
      */
     explicit Runable(String name);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~Runable() = default;
 
     /**
-     * Executes task' run method
+     * @brief Executes the task's run method.
      *
      * Task may be executed multiple times, but only one caller
-     * may execute same task at a time.
+     * may execute the same task at a time.
      */
     void execute();
 
     /**
-     * Requests execution termination
+     * @brief Requests execution termination.
      */
     virtual void terminate();
 
     /**
-     * Returns true if terminate request is sent to runable
+     * @brief Returns true if the terminate() request is sent to runable.
      */
     [[nodiscard]] bool terminated() const;
 
     /**
-     * @return object name
+     * @return object name.
      */
     [[nodiscard]] String name() const
     {
@@ -85,19 +83,19 @@ public:
 
 protected:
     /**
-     * Method that is executed by worker thread
+     * @brief Method that is executed by worker thread.
      *
      * Should be overwritten by derived class.
      */
     virtual void run() = 0;
 
 private:
-    std::atomic<bool> m_terminated {false}; ///< Flag indicating if task is terminated
-    String            m_name;               ///< Runable object name
+    std::atomic<bool> m_terminated {false}; ///< Flag indicating if the task is terminated.
+    String            m_name;               ///< Runable object name.
 
     /**
-     * Set runable to terminated
-     * @param terminated        Is terminated flag
+     * @brief Set runable to terminated state.
+     * @param terminated        Is terminated flag.
      */
     void setTerminated(bool terminated);
 };

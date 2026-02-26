@@ -34,31 +34,31 @@
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Synchronized template queue
+ * @brief Synchronized template queue.
  *
- * Simple thread-safe queue
+ * Simple thread-safe queue.
  */
 template<class T>
 class SynchronizedQueue
 {
 public:
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     virtual ~SynchronizedQueue() = default;
 
     /**
-     * @brief Pushes a data item to the queue
+     * @brief Pushes a data item to the queue.
      *
      * Item is moved inside the queue.
-     * Automatically posts internal semaphore to indicate
+     * Automatically posts internal semaphore to indicate.
      * queue item availability.
-     * @param data T&&, A data item
+     * @param data T&&, A data item.
      */
     void push_back(T&& data)
     {
@@ -69,12 +69,12 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * @brief Pushes a data item to the queue.
      *
      * Item is moved inside the queue.
-     * Automatically posts internal semaphore to indicate
+     * Automatically posts internal semaphore to indicate.
      * queue item availability.
-     * @param data T&&, A data item
+     * @param data T&&, A data item.
      */
     [[maybe_unused]] void push_front(T&& data)
     {
@@ -85,11 +85,10 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * @brief Pushes a data item to the queue.
      *
-     * Automatically posts internal semaphore to indicate
-     * queue item availability.
-     * @param data const T&, A data item
+     * Automatically posts internal semaphore to indicate queue item availability.
+     * @param data const T&, A data item.
      */
     void push_back(const T& data)
     {
@@ -100,11 +99,10 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the queue
+     * @brief Pushes a data item to the queue.
      *
-     * Automatically posts internal semaphore to indicate
-     * queue item availability.
-     * @param data const T&, A data item
+     * Automatically posts internal semaphore to indicate queue item availability.
+     * @param data const T&, A data item.
      */
     [[maybe_unused]] void push_front(const T& data)
     {
@@ -115,12 +113,12 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the queue
+     * @brief Pops a data item from the queue.
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
-     * @param item T&, A queue item (output)
-     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
+     * @param item T&, A queue item (output).
+     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds.
      */
     bool pop_front(T& item, const std::chrono::milliseconds& timeout)
     {
@@ -138,14 +136,14 @@ public:
     }
 
     /**
-     * @brief Pops multiple data items from the queue
+     * @brief Pops multiple data items from the queue.
      *
-     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If the queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * If queue has less items than requested then returns all available items.
      * Returns false if timeout occurs.
-     * @param items             A queue items (output)
-     * @param itemCount         Maximum number of items to pop
-     * @param timeout           Operation timeout in milliseconds
+     * @param items             A queue items (output).
+     * @param itemCount         Maximum number of items to pop.
+     * @param timeout           Operation timeout in milliseconds.
      */
     bool pop_front(std::vector<T>& items, size_t itemCount, const std::chrono::milliseconds& timeout)
     {
@@ -173,12 +171,12 @@ public:
     }
 
     /**
-     * @brief Pops a data item from the queue
+     * @brief Pops a data item from the queue.
      *
      * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
-     * @param item T&, A queue item (output)
-     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds
+     * @param item T&, A queue item (output).
+     * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds.
      */
     [[maybe_unused]] bool pop_back(T& item, const std::chrono::milliseconds& timeout)
     {
@@ -196,8 +194,8 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the back of the queue with construction in-place
-     * @param __args            Constructor arguments
+     * @brief Pushes a data item to the back of the queue with construction in-place.
+     * @param __args            Constructor arguments.
      */
     template<typename... _Args>
     void emplace_back(_Args&&... __args)
@@ -208,8 +206,8 @@ public:
     }
 
     /**
-     * @brief Pushes a data item to the front of the queue with construction in-place
-     * @param __args            Constructor arguments
+     * @brief Pushes a data item to the front of the queue with construction in-place.
+     * @param __args            Constructor arguments.
      */
     template<typename... _Args>
     void emplace_front(_Args&&... __args)
@@ -220,7 +218,7 @@ public:
     }
 
     /**
-     * @brief Wakes up queue semaphore to interrupt waiting
+     * @brief Wakes up queue semaphore to interrupt waiting.
      *
      * Any waiting pop() operation immediately returns false.
      */
@@ -230,7 +228,7 @@ public:
     }
 
     /**
-     * @brief Returns true if the queue is empty
+     * @brief Returns true if the queue is empty.
      */
     bool empty() const
     {
@@ -239,7 +237,7 @@ public:
     }
 
     /**
-     * @brief Returns number of items in the queue
+     * @brief Returns the number of items in the queue.
      */
     size_t size() const
     {
@@ -248,7 +246,7 @@ public:
     }
 
     /**
-     * @brief Removes all items from the queue
+     * @brief Removes all items from the queue.
      */
     void clear()
     {
@@ -257,20 +255,18 @@ public:
     }
 
     /**
-     * @brief Calls callbackFunction() for every list until false is returned
+     * @brief Calls callbackFunction() for every list until false is returned.
      *
-     * Current implementation does the job but isn't too efficient due to
-     * std::deque class limitations.
-     * @param callbackFunction  Callback function that is executed for list items
-     * @param data              Function-specific data
-     * @returns true if every list item was processed
+     * The current implementation does the job but isn't too efficient due to std::deque class limitations.
+     * @param callbackFunction  Callback function that is executed for list items.
+     * @returns true if every list item was processed.
      */
     template<typename CallbackFunction>
     bool each(const CallbackFunction& callbackFunction)
     {
         std::scoped_lock lock(m_mutex);
 
-        // Iterating through queue until callback returns false
+        // Iterating through the queue until the callback returns false.
         bool rc = true;
         for (auto& item: m_queue)
         {
@@ -286,17 +282,17 @@ public:
 
 private:
     /**
-     * @brief Lock to synchronize queue operations
+     * @brief Lock to synchronize queue operations.
      */
     mutable std::mutex m_mutex;
 
     /**
-     * @brief Semaphore to waiting for an item if queue is empty
+     * @brief Semaphore to wait for an item if the queue is empty.
      */
     Semaphore m_semaphore;
 
     /**
-     * @brief Queue
+     * @brief Queue.
      */
     std::deque<T> m_queue;
 };

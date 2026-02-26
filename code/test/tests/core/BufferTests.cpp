@@ -27,7 +27,7 @@
 #include <iomanip>
 #include <sptk5/Buffer.h>
 
-#include "sptk5/StopWatch.h"
+#include "sptk5/Stopwatch.h"
 #include "sptk5/cthreads"
 #include <gtest/gtest.h>
 
@@ -203,7 +203,7 @@ TEST(SPTK_Buffer, createPerformance)
 {
     constexpr size_t count = 1000000;
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)

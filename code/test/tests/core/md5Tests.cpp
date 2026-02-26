@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/cutils>
 
 #include <gtest/gtest.h>
@@ -55,7 +55,7 @@ TEST(SPTK_MD5, md5)
 
 TEST(SPTK_MD5, performance)
 {
-    StopWatch        stopWatch;
+    Stopwatch        stopWatch;
     constexpr size_t iterations = 200000;
 
     stopWatch.start();

@@ -30,7 +30,7 @@ documentation and/or software.
 
 */
 
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/cutils>
 
 using namespace std;

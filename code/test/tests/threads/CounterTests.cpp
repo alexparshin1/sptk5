@@ -24,7 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/StopWatch.h"
+#include "sptk5/Stopwatch.h"
 #include "sptk5/cutils"
 #include <gtest/gtest.h>
 #include <mutex>
@@ -75,7 +75,7 @@ TEST(SPTK_Counter, waitForPerformance)
 
     constexpr auto iterations = 10000000;
 
-    const StopWatch stopWatch(
+    const Stopwatch stopWatch(
         [&counter] {
             for (int i = 0; i < iterations; ++i)
             {

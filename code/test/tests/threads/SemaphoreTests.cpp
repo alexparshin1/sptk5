@@ -27,7 +27,7 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Printer.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/threads/Semaphore.h>
 
 #include <future>
@@ -74,7 +74,7 @@ static void waitPerformance(bool withTimeout)
     Semaphore    semaphore;
     const size_t iterations = 1000000;
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 
     stopWatch.start();
     for (size_t i = 0; i <= iterations; ++i)

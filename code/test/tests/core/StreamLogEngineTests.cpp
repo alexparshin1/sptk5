@@ -91,7 +91,7 @@ TEST(SPTK_StreamLogEngine, string)
     StreamLogEngine logEngine(testStream);
 
     Logger    logger(logEngine, "(Test application) ");
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
@@ -109,7 +109,7 @@ TEST(SPTK_StreamLogEngine, outputStream)
     StreamLogEngine logEngine(testStream);
 
     Logger    logger(logEngine, "(Test application) ");
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)

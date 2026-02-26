@@ -26,7 +26,7 @@
 
 #include <gtest/gtest.h>
 #include <sptk5/Printer.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/xdoc/Document.h>
 
 using namespace std;
@@ -362,7 +362,7 @@ TEST(SPTK_XDocument, performance)
     Buffer buffer;
     document.exportTo(DataFormat::JSON, buffer, true);
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
 
     const xdoc::Document document1;

@@ -29,62 +29,61 @@
 #include <chrono>
 #include <condition_variable>
 #include <sptk5/DateTime.h>
-#include <sptk5/Exception.h>
 #include <sptk5/sptk.h>
 
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * @brief Generic counter class
+ * @brief The generic thread-safe counter.
  */
 class SP_EXPORT Counter
 {
 public:
     /**
-     * @brief Constructor
+     * @brief Constructor.
      *
-     * Creates counter with starting value
-     * @param startingValue     Starting counter value
+     * Creates a counter with the starting value.
+     * @param startingValue     The starting counter's value.
      */
     explicit Counter(size_t startingValue = 0);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     virtual ~Counter();
 
     /**
-     * @brief Get the counter value
+     * @brief Get the counter's value.
      */
     size_t get() const;
 
     /**
-     * @brief Set the counter value
-     * @param value             New counter value
+     * @brief Set the counter's value.
+     * @param value             New counter value.
      */
     void set(size_t value);
 
     /**
-     * @brief Increment the counter value
-     * @param value             Increment value
-     * @return new counter value
+     * @brief Increment the counter's value.
+     * @param value             Increment value.
+     * @return new counter's value.
      */
     size_t increment(size_t value = 1);
 
     /**
-     * @brief Increment the counter value
-     * @param value             Increment value
-     * @return new counter value
+     * @brief Increment the counter's value.
+     * @param value             Increment value.
+     * @return new counter's value.
      */
     size_t decrement(size_t value = 1);
 
     /**
-     * @brief Adaptor
+     * @brief Adaptor.
      */
     operator size_t() const
     {
@@ -92,7 +91,7 @@ public:
     }
 
     /**
-     * @brief Assignment
+     * @brief Assignment.
      */
     Counter& operator=(size_t value)
     {
@@ -101,25 +100,25 @@ public:
     }
 
     /**
-     * @brief Wait until the counter has the value
-     * @param value             Value to wait for
-     * @param timeout           Wait timeout
-     * @return true if counter received the value, or false if timeout occurs
+     * @brief Wait until the counter has the value.
+     * @param value             Value to wait for.
+     * @param timeout           Wait timeout.
+     * @return true if counter received the value, or false if timeout occurs.
      */
     bool wait_for(size_t value, const std::chrono::milliseconds& timeout);
 
     /**
-     * @brief Wait until the counter has the value
-     * @param value             Value to wait for
-     * @param timeoutAt           Wait timeout
-     * @return true if counter received the value, or false if timeout occurs
+     * @brief Wait until the counter has the value.
+     * @param value             Value to wait for.
+     * @param timeoutAt           Wait timeout.
+     * @return true if counter received the value, or false if timeout occurs.
      */
     [[maybe_unused]] bool wait_until(size_t value, const DateTime& timeoutAt);
 
 private:
-    mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter operations
-    std::condition_variable m_condition;       ///< Mutex condition
-    size_t                  m_counter {false}; ///< Counter value
+    mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter's operations.
+    std::condition_variable m_condition;       ///< Mutex condition.
+    size_t                  m_counter {false}; ///< Counter value.
 };
 /**
  * @}

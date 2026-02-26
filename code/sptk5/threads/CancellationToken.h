@@ -31,13 +31,13 @@
 namespace sptk {
 
 /**
- * @brief Simple binary semaphore used to control threads
+ * @brief Simple binary semaphore used to control threads.
  */
 class CancellationToken
 {
 public:
     /**
-     * @brief Reset state to not cancelled
+     * @brief Reset state to 'not canceled'.
      */
     void reset()
     {
@@ -46,7 +46,7 @@ public:
     }
 
     /**
-     * @brief Set state to cancelled
+     * @brief Set the state to 'canceled'.
      */
     void cancel()
     {
@@ -55,8 +55,8 @@ public:
     }
 
     /**
-     * @brief Check state
-     * @return true if cancelled
+     * @brief Check state.
+     * @return true if canceled.
      */
     bool isCancelled() const
     {
@@ -65,7 +65,7 @@ public:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects state
+    mutable std::mutex m_mutex; ///< Mutex that protects state.
     bool               m_cancelled {false};
 };
 

@@ -32,21 +32,22 @@
 
 namespace sptk {
 
-
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * Synchronized map
+ * @brief Synchronized map.
  *
- * Simple thread-safe map
+ * Simple thread-safe map.
  */
 template<class K, class T>
 class SynchronizedMap
 {
 public:
+    virtual ~SynchronizedMap() = default;
+
     /**
      * @brief Map callback function used in each() method.
      *
@@ -76,7 +77,7 @@ public:
      * @param item              A data item (output).
      * @param remove            If true, then the item is removed from the map.
      */
-    virtual bool get(const K& key, T& item, const bool remove = false)
+    virtual bool get(const K& key, T& item, const bool remove)
     {
         std::scoped_lock       lock(m_mutex);
         typename Map::iterator itor = m_map.find(key);
@@ -93,7 +94,19 @@ public:
     }
 
     /**
-     * @brief Removes data with matching key
+     * @brief Finds a data item from the map.
+     *
+     * Returns true if the key exists.
+     * @param key               A data key.
+     * @param item              A data item (output).
+     */
+    virtual bool get(const K& key, T& item)
+    {
+        return get(key, item, false);
+    }
+
+    /**
+     * @brief Removes data with the matching key.
      *
      * Returns true if the key existed.
      * @param key const K&, A data key.
@@ -157,7 +170,7 @@ public:
 
 private:
     using Map = std::map<K, T>;
-    mutable std::mutex m_mutex; ///< Mutex for synchronizing map access
+    mutable std::mutex m_mutex; ///< Mutex for synchronizing map access.
     Map                m_map;   ///< Underlying map.
 };
 /**

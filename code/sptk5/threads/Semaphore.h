@@ -36,19 +36,19 @@
 namespace sptk {
 
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 /**
- * @brief Generic unnamed semaphore class
+ * @brief Generic unnamed semaphore class.
  */
 class SP_EXPORT Semaphore
 {
 public:
     /**
-     * @brief Constructor
-     * @param initialValue      Initial semaphore value
+     * @brief Constructor.
+     * @param initialValue      Initial semaphore value.
      */
     explicit Semaphore(int initialValue = 0)
         : m_value(initialValue)
@@ -56,22 +56,22 @@ public:
     }
 
     /**
-     * @brief Post the semaphore
+     * @brief Post the semaphore.
      *
      * The semaphore value is increased by count.
      * @param count             Count to increase the semaphore.
      */
     void post(size_t count = 1)
     {
-        m_value.release((ptrdiff_t) count);
+        m_value.release(static_cast<ptrdiff_t>(count));
     }
 
     /**
-     * @brief Check if semaphore value is greater than zero
+     * @brief Check if the semaphore value is greater than zero.
      *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
+     * If the semaphore value is greater than zero, decreases the semaphore value by one and returns true.
      * Otherwise, exits immediately.
-     * @return true if semaphore was posted (signaled)
+     * @return true if semaphore was posted (signaled).
      */
     bool check()
     {
@@ -79,7 +79,7 @@ public:
     }
 
     /**
-     * @brief Wait until semaphore value is greater than zero
+     * @brief Wait until the semaphore value is greater than zero.
      *
      * Decreases semaphore value by one and returns true.
      */
@@ -89,11 +89,11 @@ public:
     }
 
     /**
-     * @brief Wait until semaphore value is greater than zero, or until timeout interval is passed
+     * @brief Wait until semaphore value is greater than zero, or until the timeout interval is passed.
      *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeout           Wait timeout
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     * If the semaphore value is greater than zero, decreases the semaphore value by one and returns true.
+     * @param timeout           Wait timeout.
+     * @return true if semaphore was posted (signaled), or false if timeout occurs.
      */
     bool wait_for(std::chrono::microseconds timeout)
     {
@@ -101,11 +101,11 @@ public:
     }
 
     /**
-     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs.
      *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeoutAt           Timeout moment
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     * If the semaphore value is greater than zero, decreases the semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment.
+     * @return true if semaphore was posted (signaled), or false if timeout occurs.
      */
     bool wait_until(const DateTime& timeoutAt)
     {
@@ -113,11 +113,11 @@ public:
     }
 
     /**
-     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs
+     * @brief Wait until semaphore value is greater than zero, or until timeoutAt occurs.
      *
-     * If semaphore value is greater than zero, decreases semaphore value by one and returns true.
-     * @param timeoutAt           Timeout moment
-     * @return true if semaphore was posted (signaled), or false if timeout occurs
+     * If the semaphore value is greater than zero, decreases the semaphore value by one and returns true.
+     * @param timeoutAt           Timeout moment.
+     * @return true if semaphore was posted (signaled), or false if timeout occurs.
      */
     bool wait_until(const DateTime::time_point& timeoutAt)
     {

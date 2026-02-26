@@ -34,14 +34,19 @@
 namespace sptk {
 
 /**
- * @brief Mutex that stores lock location information
+ * @addtogroup threads Thread Classes.
+ * @{
+ */
+
+/**
+ * @brief Mutex that stores lock location information.
  */
 class SP_EXPORT SmartMutex
 {
 public:
     /**
-     * @brief Lock mutex and store lock location
-     * @param sourceLocation    Lock location
+     * @brief Lock mutex and store lock location.
+     * @param sourceLocation    Lock location.
      */
     void lock(const std::source_location sourceLocation)
     {
@@ -50,8 +55,8 @@ public:
     }
 
     /**
-     * @brief Lock mutex and store lock location
-     * @param sourceLocation    Lock location
+     * @brief Lock mutex and store lock location.
+     * @param sourceLocation    Lock location.
      */
     void shared_lock(const std::source_location sourceLocation)
     {
@@ -60,10 +65,10 @@ public:
     }
 
     /**
-     * @brief Try to lock mutex and store lock location
-     * @param timeout           Lock timeout
-     * @param sourceLocation    Lock location
-     * @return
+     * @brief Try to lock mutex and store lock location.
+     * @param timeout           Lock timeout.
+     * @param sourceLocation    Lock location.
+     * @return.
      */
     bool try_lock_for(const std::chrono::milliseconds& timeout, const std::source_location sourceLocation)
     {
@@ -76,10 +81,10 @@ public:
     }
 
     /**
-     * @brief Try to lock mutex and store lock location
-     * @param timeout           Lock timeout
-     * @param sourceLocation    Lock location
-     * @return
+     * @brief Try to lock mutex and store lock location.
+     * @param timeout           Lock timeout.
+     * @param sourceLocation    Lock location.
+     * @return.
      */
     bool try_lock_shared_for(const std::chrono::milliseconds& timeout, const std::source_location sourceLocation)
     {
@@ -92,7 +97,7 @@ public:
     }
 
     /**
-     * @brief Unlock mutex
+     * @brief Unlock mutex.
      */
     void unlock()
     {
@@ -100,26 +105,26 @@ public:
     }
 
     /**
-     * @return Locl location as string
+     * @return Locl location as string.
      */
     [[nodiscard]] std::string location() const;
 
 private:
-    std::source_location    m_lockLocation; ///< Lock location
-    std::shared_timed_mutex m_mutex;        ///< Mutex
+    std::source_location    m_lockLocation; ///< Lock location.
+    std::shared_timed_mutex m_mutex;        ///< Mutex.
 };
 
 /**
- * @brief Debug lock that stores the location of the successful lock
+ * @brief Debug lock that stores the location of the successful lock.
  */
 class SP_EXPORT SmartLock
 {
 public:
     /**
-     * @brief Constructor
-     * @param mutex             Mutex
-     * @param timeout           Lock timeout
-     * @param sourceLocation    Lock location
+     * @brief Constructor.
+     * @param mutex             Mutex.
+     * @param timeout           Lock timeout.
+     * @param sourceLocation    Lock location.
      */
     explicit SmartLock(SmartMutex&                     mutex,
                        const std::chrono::milliseconds timeout = std::chrono::seconds(5),
@@ -133,7 +138,7 @@ public:
     }
 
     /**
-     * Destructor that unlocks the mutex if it was locked
+     * @brief Destructor that unlocks the mutex if it was locked.
      */
     ~SmartLock()
     {
@@ -156,22 +161,22 @@ public:
     }
 
 private:
-    std::atomic_bool  m_locked {true};                                   ///< Mutex was locked flag
-    SmartMutex&       m_mutex;                                           ///< Mutex
-    [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout
+    std::atomic_bool  m_locked {true};                                   ///< Flag: Is the mutex locked?
+    SmartMutex&       m_mutex;                                           ///< Mutex.
+    [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout.
 };
 
 /**
- * @brief Debug lock that stores the location of the successful lock
+ * @brief Debug lock that stores the location of the successful lock.
  */
 class SP_EXPORT SharedSmartLock
 {
 public:
     /**
-     * @brief Constructor
-     * @param mutex             Mutex
-     * @param timeout           Lock timeout
-     * @param sourceLocation    Lock location
+     * @brief Constructor.
+     * @param mutex             Mutex.
+     * @param timeout           Lock timeout.
+     * @param sourceLocation    Lock location.
      */
     explicit SharedSmartLock(SmartMutex&                     mutex,
                              const std::chrono::milliseconds timeout = std::chrono::seconds(5),
@@ -185,7 +190,7 @@ public:
     }
 
     /**
-     * Destructor that unlocks the mutex if it was locked
+     * @brief Destructor that unlocks the mutex if it was locked.
      */
     ~SharedSmartLock()
     {
@@ -208,9 +213,13 @@ public:
     }
 
 private:
-    std::atomic_bool  m_locked {true};                                   ///< Mutex was locked flag
-    SmartMutex&       m_mutex;                                           ///< Mutex
-    [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout
+    std::atomic_bool  m_locked {true};                                   ///< Flag: is the mutex locked?
+    SmartMutex&       m_mutex;                                           ///< Mutex.
+    [[noreturn]] void throwTimeout(std::source_location sourceLocation); ///< Throw timeout.
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

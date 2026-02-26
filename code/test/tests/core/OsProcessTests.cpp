@@ -63,7 +63,7 @@ TEST(SPTK_OsProcess, execute)
  */
 TEST(SPTK_OsProcess, kill)
 {
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 #ifdef _WIN32
     String command("cmd /C sleep 10");
 #else

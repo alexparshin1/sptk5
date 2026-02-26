@@ -24,26 +24,26 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "sptk5/StopWatch.h"
+#include "sptk5/Stopwatch.h"
 
 using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-void StopWatch::start()
+void Stopwatch::start()
 {
     const scoped_lock lock(m_mutex);
     m_started = steady_clock::now();
     m_ended = m_started;
 }
 
-void StopWatch::stop()
+void Stopwatch::stop()
 {
     const scoped_lock lock(m_mutex);
     m_ended = steady_clock::now();
 }
 
-double StopWatch::seconds() const
+double Stopwatch::seconds() const
 {
     const scoped_lock lock(m_mutex);
     constexpr auto    millisecondsInSecond = 1000.0;
@@ -51,7 +51,7 @@ double StopWatch::seconds() const
            millisecondsInSecond;
 }
 
-double StopWatch::milliseconds() const
+double Stopwatch::milliseconds() const
 {
     const scoped_lock lock(m_mutex);
     constexpr auto    microsecondsInMillisecond = 1000.0;

@@ -30,7 +30,7 @@
 #include <gtest/gtest.h>
 
 #include <sptk5/Printer.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/threads/SynchronizedQueue.h>
 
 #include <future>

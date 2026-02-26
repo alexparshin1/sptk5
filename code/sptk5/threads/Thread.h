@@ -27,7 +27,6 @@
 #pragma once
 
 #include <sptk5/String.h>
-#include <sptk5/threads/Semaphore.h>
 
 #include <atomic>
 #include <csignal>
@@ -36,16 +35,16 @@
 
 namespace sptk {
 /**
- * @addtogroup threads Thread Classes
+ * @addtogroup threads Thread Classes.
  * @{
  */
 
 class ThreadManager;
 
 /**
- * Base thread object.
+ * @brief Base thread object.
  *
- * Should be used for deriving a user thread
+ * Should be used for deriving a user thread.
  * by overwriting threadFunction().
  */
 class SP_EXPORT Thread
@@ -54,14 +53,14 @@ class SP_EXPORT Thread
 
 public:
     /**
-     * Thread ID type
+     * @brief Thread ID type.
      */
     using Id = std::thread::id;
 
     /**
-     * Constructor
+     * @brief Constructor.
      * @param name              Name of the thread for future references.
-     * @param ignoreSignals     List of signals to ignore
+     * @param ignoreSignals     List of signals to ignore.
      */
     explicit Thread(String name,
 #ifndef _WIN32
@@ -71,33 +70,33 @@ public:
 #endif
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~Thread() = default;
 
     /**
-     * Starts the already created thread
+     * @brief Starts the already created thread.
      */
     virtual void run();
 
     /**
-     * Check thread status
-     * @return true if thread is running
+     * @brief Check thread status.
+     * @return true if the thread is running.
      */
     bool running() const;
 
     /**
-     * The thread function. Should be overwritten by the derived class.
+     * @brief The thread function. Should be overwritten by the derived class.
      */
     virtual void threadFunction() = 0;
 
     /**
-     * Requests to terminate the thread
+     * @brief Requests to terminate the thread.
      */
     virtual void terminate();
 
     /**
-     * This method is executed immediately after thread function exit
+     * @brief This method is executed immediately after thread function exit.
      */
     virtual void onThreadExit()
     {
@@ -105,22 +104,22 @@ public:
     }
 
     /**
-     * Returns true if the thread is terminated
+     * @brief Returns true if the thread is terminated.
      */
     virtual bool terminated();
 
     /**
-     * Waits until thread joins
+     * @brief Waits until thread joins.
      */
     virtual void join();
 
     /**
-     * Returns this thread OS id
+     * @brief Returns this thread OS id.
      */
     Id id() const;
 
     /**
-     * Returns the name of the thread
+     * @brief Returns the name of the thread.
      */
     const String& name() const
     {
@@ -132,16 +131,16 @@ protected:
     void setThreadManager(ThreadManager* threadManager);
 
 private:
-    mutable std::mutex            m_mutex;                   ///< Thread synchronization object
-    String                        m_name;                    ///< Thread name
-    std::shared_ptr<std::jthread> m_thread;                  ///< Thread object
-    ThreadManager*                m_threadManager {nullptr}; ///< Optional thread manager
-    std::atomic_bool              m_terminated {false};      ///< If true then terminate() was called
-    std::vector<int>              m_ignoreSignals;           ///< List of signals that should be ignored in the thread
+    mutable std::mutex            m_mutex;                   ///< Thread synchronization object.
+    String                        m_name;                    ///< Thread name.
+    std::shared_ptr<std::jthread> m_thread;                  ///< Thread object.
+    ThreadManager*                m_threadManager {nullptr}; ///< Optional thread manager.
+    std::atomic_bool              m_terminated {false};      ///< Flag: Is the thread terminated?
+    std::vector<int>              m_ignoreSignals;           ///< List of signals that should be ignored in the thread.
 };
 
 /**
- * Shared pointer to Thread
+ * @brief Shared pointer to Thread.
  */
 using SThread = std::shared_ptr<Thread>;
 

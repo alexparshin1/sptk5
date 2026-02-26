@@ -263,7 +263,7 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     constexpr size_t    maxEvents = 100000;
     vector<STimerEvent> createdEvents;
 
-    StopWatch stopwatch;
+    Stopwatch stopwatch;
 
     auto when = DateTime::clock::now() + hours(1);
 

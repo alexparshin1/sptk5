@@ -28,7 +28,7 @@
 
 #include <gtest/gtest.h>
 #include <sptk5/Base64.h>
-#include <sptk5/StopWatch.h>
+#include <sptk5/Stopwatch.h>
 #include <sptk5/cutils>
 
 using namespace std;
@@ -82,7 +82,7 @@ TEST(SPTK_Brotli, performance)
     data.loadFromFile(testFile);
     data.bytes(testDataSize);
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
     stopWatch.start();
     Brotli::compress(compressed, data);
     stopWatch.stop();

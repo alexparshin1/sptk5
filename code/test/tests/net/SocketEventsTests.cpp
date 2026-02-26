@@ -25,7 +25,7 @@
 */
 
 #include "TestEchoServer.h"
-#include "sptk5/StopWatch.h"
+#include "sptk5/Stopwatch.h"
 
 #include <fcntl.h>
 #include <gtest/gtest.h>
@@ -174,7 +174,7 @@ TEST(SPTK_SocketEvents, performance)
         ASSERT_NO_THROW(socket.open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));
     }
 
-    StopWatch stopWatch;
+    Stopwatch stopWatch;
 
     stopWatch.start();
     for (auto& socket: sockets)
