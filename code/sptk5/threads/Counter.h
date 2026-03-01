@@ -133,6 +133,12 @@ public:
         return m_counter <=> rhs.m_counter;
     }
 
+    auto operator<=>(const int rhs) const
+    {
+        std::scoped_lock lock(m_lockMutex);
+        return m_counter <=> rhs;
+    }
+
 private:
     mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter's operations.
     std::condition_variable m_condition;       ///< Mutex condition.
