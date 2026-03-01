@@ -49,20 +49,20 @@ TEST(SPTK_Counter, waitFor)
     Counter counter;
 
     constexpr milliseconds timeout(10);
-    bool result = counter.wait_for(1, timeout);
+    bool                   result = counter.wait_for(1, timeout);
     EXPECT_EQ(counter.get(), false);
     EXPECT_EQ(result, false);
 
     result = counter.wait_for(0, timeout);
     EXPECT_EQ(result, true);
 
-    counter.increment();
+    ++counter;
 
     result = counter.wait_for(1, timeout);
     EXPECT_EQ(counter.get(), true);
     EXPECT_EQ(result, true);
 
-    counter.decrement();
+    --counter;
 
     result = counter.wait_for(0, timeout);
     EXPECT_EQ(counter.get(), false);
@@ -76,7 +76,8 @@ TEST(SPTK_Counter, waitForPerformance)
     constexpr auto iterations = 10000000;
 
     const Stopwatch stopWatch(
-        [&counter] {
+        [&counter]
+        {
             for (int i = 0; i < iterations; ++i)
             {
                 counter.wait_for(0, 10ms);

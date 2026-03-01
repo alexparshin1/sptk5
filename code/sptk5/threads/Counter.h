@@ -50,7 +50,7 @@ public:
      * Creates a counter with the starting value.
      * @param startingValue     The starting counter's value.
      */
-    explicit Counter(size_t startingValue = 0);
+    explicit Counter(int startingValue = 0);
 
     /**
      * @brief Destructor.
@@ -60,32 +60,44 @@ public:
     /**
      * @brief Get the counter's value.
      */
-    size_t get() const;
+    int get() const;
 
     /**
      * @brief Set the counter's value.
      * @param value             New counter value.
      */
-    void set(size_t value);
+    void set(int value);
+
+    /**
+     * @brief Increment the counter's value.
+     * @return new counter's value.
+     */
+    Counter& operator++();
 
     /**
      * @brief Increment the counter's value.
      * @param value             Increment value.
      * @return new counter's value.
      */
-    size_t increment(size_t value = 1);
+    Counter& operator+=(int value);
 
     /**
-     * @brief Increment the counter's value.
+     * @brief Decrement the counter's value.
+     * @return new counter's value.
+     */
+    Counter& operator--();
+
+    /**
+     * @brief Decrement the counter's value.
      * @param value             Increment value.
      * @return new counter's value.
      */
-    size_t decrement(size_t value = 1);
+    Counter& operator-=(int value);
 
     /**
      * @brief Adaptor.
      */
-    operator size_t() const
+    operator int() const
     {
         return get();
     }
@@ -93,7 +105,7 @@ public:
     /**
      * @brief Assignment.
      */
-    Counter& operator=(size_t value)
+    Counter& operator=(int value)
     {
         set(value);
         return *this;
@@ -105,7 +117,7 @@ public:
      * @param timeout           Wait timeout.
      * @return true if counter received the value, or false if timeout occurs.
      */
-    bool wait_for(size_t value, const std::chrono::milliseconds& timeout);
+    bool wait_for(int value, const std::chrono::milliseconds& timeout);
 
     /**
      * @brief Wait until the counter has the value.
@@ -113,12 +125,18 @@ public:
      * @param timeoutAt           Wait timeout.
      * @return true if counter received the value, or false if timeout occurs.
      */
-    [[maybe_unused]] bool wait_until(size_t value, const DateTime& timeoutAt);
+    [[maybe_unused]] bool wait_until(int value, const DateTime& timeoutAt);
+
+    auto operator<=>(const Counter& rhs) const
+    {
+        std::scoped_lock lock(m_lockMutex, rhs.m_lockMutex);
+        return m_counter <=> rhs.m_counter;
+    }
 
 private:
     mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter's operations.
     std::condition_variable m_condition;       ///< Mutex condition.
-    size_t                  m_counter {false}; ///< Counter value.
+    int                     m_counter {false}; ///< Counter value.
 };
 /**
  * @}

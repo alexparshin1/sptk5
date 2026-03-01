@@ -31,7 +31,7 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-Counter::Counter(size_t startingValue)
+Counter::Counter(const int startingValue)
     : m_counter(startingValue)
 {
 }
@@ -42,13 +42,13 @@ Counter::~Counter()
     m_condition.notify_all();
 }
 
-size_t Counter::get() const
+int Counter::get() const
 {
     const scoped_lock lock(m_lockMutex);
     return m_counter;
 }
 
-void Counter::set(size_t value)
+void Counter::set(const int value)
 {
     const scoped_lock lock(m_lockMutex);
     if (m_counter != value)
@@ -58,7 +58,39 @@ void Counter::set(size_t value)
     }
 }
 
-bool Counter::wait_for(size_t value, const chrono::milliseconds& timeout)
+Counter& Counter::operator++()
+{
+    const scoped_lock lock(m_lockMutex);
+    ++m_counter;
+    m_condition.notify_all();
+    return *this;
+}
+
+Counter& Counter::operator+=(const int value)
+{
+    const scoped_lock lock(m_lockMutex);
+    m_counter += value;
+    m_condition.notify_all();
+    return *this;
+}
+
+Counter& Counter::operator--()
+{
+    const scoped_lock lock(m_lockMutex);
+    --m_counter;
+    m_condition.notify_all();
+    return *this;
+}
+
+Counter& Counter::operator-=(const int value)
+{
+    const scoped_lock lock(m_lockMutex);
+    m_counter -= value;
+    m_condition.notify_all();
+    return *this;
+}
+
+bool Counter::wait_for(int value, const chrono::milliseconds& timeout)
 {
     unique_lock lock(m_lockMutex);
 
@@ -76,37 +108,15 @@ bool Counter::wait_for(size_t value, const chrono::milliseconds& timeout)
                                 });
 }
 
-[[maybe_unused]] bool Counter::wait_until(size_t value, const DateTime& timeoutAt)
+[[maybe_unused]] bool Counter::wait_until(int value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
-    // Wait until semaphore value is greater than 0
+    // Wait until the semaphore value is greater than 0
     return m_condition.wait_until(lock,
                                   timeoutAt.timePoint(),
                                   [this, value]()
                                   {
                                       return m_counter == value;
                                   });
-}
-
-size_t Counter::increment(size_t value)
-{
-    const scoped_lock lock(m_lockMutex);
-    if (value != 0)
-    {
-        m_counter += value;
-        m_condition.notify_all();
-    }
-    return m_counter;
-}
-
-size_t Counter::decrement(size_t value)
-{
-    const scoped_lock lock(m_lockMutex);
-    if (value <= m_counter)
-    {
-        m_counter -= value;
-        m_condition.notify_all();
-    }
-    return m_counter;
 }
