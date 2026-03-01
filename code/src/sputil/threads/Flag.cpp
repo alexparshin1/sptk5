@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2021 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-02                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -64,7 +65,13 @@ void Flag::set(bool value)
     }
 }
 
-bool Flag::wait_for(bool value, const chrono::milliseconds& timeout)
+Flag& Flag::operator=(bool value)
+{
+    set(value);
+    return *this;
+}
+
+bool Flag::wait_for(bool value, const milliseconds& timeout)
 {
     const auto timeoutAt = DateTime::Now() + timeout;
     return wait_until(value, timeoutAt);
@@ -74,17 +81,17 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
 {
     unique_lock lock(m_lockMutex);
 
-    // Wait until semaphore value is greater than 0
+    // Wait until the semaphore value is greater than 0
     while (!m_terminated)
     {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
                                     [this, value]()
                                     {
-                                        return m_value == value;
+                                        return m_value == value || m_terminated;
                                     }))
         {
-            if (timeoutAt < DateTime::Now())
+            if (timeoutAt <= DateTime::Now() || m_terminated)
             {
                 return false;
             }

@@ -39,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * @brief Generic unnamed semaphore class.
+ * @brief Thread-safe flag class.
  */
 class SP_EXPORT Flag
 {
@@ -80,11 +80,7 @@ public:
     /**
      * @brief Assignment.
      */
-    Flag& operator=(bool value)
-    {
-        set(value);
-        return *this;
-    }
+    Flag& operator=(bool value);
 
     /**
      * @brief Waits until the flag has the value.

@@ -101,3 +101,29 @@ TEST(SPTK_Flag, signalOtherThread)
     EXPECT_TRUE(task1.wait_for(110ms) == future_status::ready);
     task2.wait();
 }
+
+TEST(SPTK_Flag, waitUntilTimeout)
+{
+    Flag flag;
+
+    const bool result = flag.wait_until(true, DateTime::Now() + 10ms);
+    EXPECT_FALSE(result);
+    EXPECT_FALSE(flag.get());
+}
+
+TEST(SPTK_Flag, waitUntilSucceedsWhenSignaled)
+{
+    Flag flag;
+
+    auto waiter = async(launch::async,
+                        [&flag]
+                        {
+                            return flag.wait_until(true, DateTime::Now() + 100ms);
+                        });
+
+    this_thread::sleep_for(5ms);
+    flag.set(true);
+
+    EXPECT_EQ(waiter.wait_for(150ms), future_status::ready);
+    EXPECT_TRUE(waiter.get());
+}
