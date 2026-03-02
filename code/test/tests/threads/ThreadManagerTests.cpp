@@ -175,3 +175,27 @@ TEST(SPTK_ThreadManager, stopReturnsPromptlyWhenIdle)
 
     EXPECT_LT(elapsedMs, 300);
 }
+
+TEST(SPTK_ThreadManager, stopReturnsPromptlyWhenRunning)
+{
+    constexpr size_t maxThreads = 3;
+    const auto       threadManager = make_shared<ThreadManager>("Test Manager");
+
+    threadManager->start();
+    for (size_t i = 0; i < maxThreads; ++i)
+    {
+        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        threadManager->manage(thread);
+        thread->run();
+    }
+
+    this_thread::sleep_for(100ms);
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+    threadManager->stop();
+    stopwatch.stop();
+    const auto elapsedMs = static_cast<int>(stopwatch.milliseconds());
+
+    EXPECT_LT(elapsedMs, 300);
+}

@@ -88,6 +88,7 @@ void ThreadManager::stop()
 {
     terminateRunningThreads();
     joinTerminatedThreads(milliseconds(0));
+    m_terminatedThreads.wakeup();
     terminate();
     join();
 }
