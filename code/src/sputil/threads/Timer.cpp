@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -38,12 +39,17 @@ Timer::Timer()
 
 Timer::~Timer()
 {
-    cancel();
+    m_timerThread->terminate();
+    m_timerThread->clear();
     m_timerThread->join();
 }
 
 STimerEvent Timer::fireAt(const DateTime::time_point& timestamp, const TimerEvent::Callback& eventCallback) const
 {
+    if (eventCallback == nullptr)
+    {
+        return {};
+    }
     auto event = make_shared<TimerEvent>(timestamp, eventCallback, milliseconds(), 0);
     m_timerThread->schedule(event);
 
@@ -52,14 +58,13 @@ STimerEvent Timer::fireAt(const DateTime::time_point& timestamp, const TimerEven
 
 STimerEvent Timer::repeat(milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount) const
 {
+    if (eventCallback == nullptr)
+    {
+        return {};
+    }
+
     auto event = make_shared<TimerEvent>(DateTime::clock::now() + interval, eventCallback, interval, repeatCount);
     m_timerThread->schedule(event);
 
     return event;
-}
-
-void Timer::cancel() const
-{
-    m_timerThread->terminate();
-    m_timerThread->clear();
 }

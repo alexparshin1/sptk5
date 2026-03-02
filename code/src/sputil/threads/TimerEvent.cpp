@@ -45,7 +45,7 @@ bool TimerEvent::fire()
 
     try
     {
-        if (m_callback)
+        if (callback)
         {
             callback();
         }

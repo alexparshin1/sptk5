@@ -78,11 +78,6 @@ public:
      */
     [[nodiscard]] STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
 
-    /**
-     * @brief Cancel all events.
-     */
-    void cancel() const;
-
 private:
     std::shared_ptr<TimerThread> m_timerThread {std::make_shared<TimerThread>()}; ///< Event processing thread.
 };
