@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-02                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -50,21 +51,37 @@ ThreadManager::~ThreadManager()
 
 void ThreadManager::threadFunction()
 {
-    constexpr auto timeout = std::chrono::milliseconds(1000);
+    if (weak_from_this().expired())
+    {
+        throw Exception("ThreadManager must be created as shared_ptr");
+    }
+
+    {
+        const scoped_lock lock(m_mutex);
+        m_terminatedQueueTimeout = 1000ms;
+    }
+
     while (!terminated())
     {
-        joinTerminatedThreads(timeout);
+        joinTerminatedThreads();
     }
 }
 
-void ThreadManager::joinTerminatedThreads(const milliseconds& timeout)
+void ThreadManager::joinTerminatedThreads()
 {
     deque<SThread> joinThreads;
 
-    SThread thread;
-    while (m_terminatedThreads.pop_front(thread, timeout))
+    milliseconds terminatedQueueTimeout;
     {
         const scoped_lock lock(m_mutex);
+        terminatedQueueTimeout = m_terminatedQueueTimeout;
+    }
+
+    SThread thread;
+    while (m_terminatedThreads.pop_front(thread, terminatedQueueTimeout))
+    {
+        const scoped_lock lock(m_mutex);
+        terminatedQueueTimeout = m_terminatedQueueTimeout;
         thread->terminate();
         joinThreads.push_back(thread);
     }
@@ -87,7 +104,12 @@ void ThreadManager::start()
 void ThreadManager::stop()
 {
     terminateRunningThreads();
-    joinTerminatedThreads(milliseconds(0));
+    {
+        const scoped_lock lock(m_mutex);
+        m_terminatedQueueTimeout = 0ms;
+        m_terminatedThreads.wakeup();
+    }
+
     terminate();
     join();
 }
@@ -95,8 +117,9 @@ void ThreadManager::stop()
 void ThreadManager::terminateRunningThreads()
 {
     const scoped_lock lock(m_mutex);
-    for (const auto& thread: m_runningThreads)
+    for (const auto& thread: m_managedThreads)
     {
+        thread->setThreadManager(nullptr);
         m_terminatedThreads.push_back(thread);
         thread->terminate();
     }
@@ -107,32 +130,32 @@ void ThreadManager::manage(const SThread& thread)
     if (thread)
     {
         const scoped_lock lock(m_mutex);
-        const auto        itor = ranges::find(m_runningThreads, thread);
-        if (itor == m_runningThreads.end())
+        const auto        itor = ranges::find(m_managedThreads, thread);
+        if (itor == m_managedThreads.end())
         {
-            thread->setThreadManager(this);
-            m_runningThreads.push_back(thread);
+            const auto self = dynamic_pointer_cast<ThreadManager>(shared_from_this());
+            thread->setThreadManager(self);
+            m_managedThreads.push_back(thread);
         }
     }
 }
 
-void ThreadManager::destroyThread(const Thread* thread)
+void ThreadManager::destroyThread(const SThread& thread)
 {
-    if (thread && thread->running())
+    if (thread)
     {
         const scoped_lock lock(m_mutex);
 
-        auto matchThread =
-            [&thread](const SThread& aThread)
+        auto matchThread = [&thread](const SThread& aThread)
         {
-            return thread == aThread.get();
+            return thread == aThread;
         };
 
-        const auto itor = ranges::find_if(m_runningThreads, matchThread);
-        if (itor != m_runningThreads.end())
+        const auto itor = ranges::find_if(m_managedThreads, matchThread);
+        if (itor != m_managedThreads.end())
         {
             const auto matchedThread = *itor;
-            m_runningThreads.erase(itor);
+            m_managedThreads.erase(itor);
             m_terminatedThreads.push_back(matchedThread);
         }
     }
@@ -141,24 +164,24 @@ void ThreadManager::destroyThread(const Thread* thread)
 size_t ThreadManager::threadCount() const
 {
     const scoped_lock lock(m_mutex);
-    return m_runningThreads.size();
+    return m_managedThreads.size();
 }
 
 SThread ThreadManager::getNextThread()
 {
     const scoped_lock lock(m_mutex);
 
-    if (m_runningThreads.empty())
+    if (m_managedThreads.empty())
     {
         return nullptr;
     }
 
-    if (m_nextThreadIndex >= m_runningThreads.size())
+    if (m_nextThreadIndex >= m_managedThreads.size())
     {
         m_nextThreadIndex = 0;
     }
 
-    auto nextThread = m_runningThreads[m_nextThreadIndex];
+    auto nextThread = m_managedThreads[m_nextThreadIndex];
     ++m_nextThreadIndex;
 
     return nextThread;

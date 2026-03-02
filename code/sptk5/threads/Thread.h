@@ -29,7 +29,6 @@
 #include <sptk5/String.h>
 
 #include <atomic>
-#include <csignal>
 #include <mutex>
 #include <thread>
 
@@ -48,6 +47,7 @@ class ThreadManager;
  * by overwriting threadFunction().
  */
 class SP_EXPORT Thread
+    : public std::enable_shared_from_this<Thread>
 {
     friend class ThreadManager;
 
@@ -60,14 +60,8 @@ public:
     /**
      * @brief Constructor.
      * @param name              Name of the thread for future references.
-     * @param ignoreSignals     List of signals to ignore.
      */
-    explicit Thread(String name,
-#ifndef _WIN32
-                    std::vector<int> ignoreSignals = {SIGPIPE, SIGABRT});
-#else
-                    std::vector<int> ignoreSignals = {SIGABRT});
-#endif
+    explicit Thread(String name);
 
     /**
      * @brief Destructor.
@@ -128,15 +122,14 @@ public:
     }
 
 protected:
-    void setThreadManager(ThreadManager* threadManager);
+    void setThreadManager(std::shared_ptr<ThreadManager> threadManager);
 
 private:
-    mutable std::mutex            m_mutex;                   ///< Thread synchronization object.
-    String                        m_name;                    ///< Thread name.
-    std::shared_ptr<std::jthread> m_thread;                  ///< Thread object.
-    ThreadManager*                m_threadManager {nullptr}; ///< Optional thread manager.
-    std::atomic_bool              m_terminated {false};      ///< Flag: Is the thread terminated?
-    std::vector<int>              m_ignoreSignals;           ///< List of signals that should be ignored in the thread.
+    mutable std::mutex             m_mutex;                   ///< Thread synchronization object.
+    String                         m_name;                    ///< Thread name.
+    std::shared_ptr<std::jthread>  m_thread;                  ///< Thread object.
+    std::shared_ptr<ThreadManager> m_threadManager {nullptr}; ///< Optional thread manager.
+    std::atomic_bool               m_terminated {false};      ///< Flag: Is the thread terminated?
 };
 
 /**

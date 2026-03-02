@@ -29,8 +29,8 @@
 #include <sptk5/net/SocketVirtualMethods.h>
 
 #ifndef _WIN32
-#include <sys/poll.h>
 #include <sys/ioctl.h>
+#include <sys/poll.h>
 #endif
 
 #include <fcntl.h>
@@ -147,12 +147,11 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
 
     if (result != 0)
     {
-        stringstream error;
-        error << "Can't " << currentOperation << " to " << m_host.toString(false) << ". "
-              << SystemException::osError()
-              << ".";
+        auto error = format("Can't {} to {}. {}.",
+                            currentOperation, m_host.toString(false).c_str(),
+                            SystemException::osError().c_str());
         closeUnlocked();
-        throw Exception(error.str());
+        throw Exception(error);
     }
 }
 
