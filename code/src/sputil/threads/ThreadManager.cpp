@@ -50,7 +50,7 @@ ThreadManager::~ThreadManager()
 
 void ThreadManager::threadFunction()
 {
-    constexpr auto timeout = std::chrono::milliseconds(1000);
+    constexpr auto timeout = milliseconds(1000);
     while (!terminated())
     {
         joinTerminatedThreads(timeout);

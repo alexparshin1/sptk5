@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Stopwatch.h"
+
+
 #include <sptk5/Printer.h>
 #include <sptk5/threads/ThreadManager.h>
 
@@ -66,12 +69,22 @@ protected:
 atomic<size_t> ThreadManagerTestThread::taskCounter;
 atomic<size_t> ThreadManagerTestThread::joinCounter;
 
+namespace {
+void resetCounters()
+{
+    ThreadManagerTestThread::taskCounter = 0;
+    ThreadManagerTestThread::joinCounter = 0;
+}
+} // namespace
+
 /**
  * @brief Test starts several threads that each will increment the counter by 1
  * @details The resulting counter is expected to become same as number of threads
  */
 TEST(SPTK_ThreadManager, minimal)
 {
+    resetCounters();
+
     constexpr size_t maxThreads = 10;
     const auto       threadManager = make_shared<ThreadManager>("Test Manager");
 
@@ -94,13 +107,15 @@ TEST(SPTK_ThreadManager, minimal)
 }
 
 /**
- * @brief Test starts several threads that each will increment the counter by 1
- * @details The iteration through threads should loop through each thread
+ * @brief Test starts several threads that each increments the counter by 1.
+ * @details The iteration through threads should loop through each thread.
  */
 TEST(SPTK_ThreadManager, nextThread)
 {
+    resetCounters();
+
     constexpr size_t maxThreads = 3;
-    const auto threadManager = make_shared<ThreadManager>("Test Manager");
+    const auto       threadManager = make_shared<ThreadManager>("Test Manager");
 
     threadManager->start();
 
@@ -121,4 +136,42 @@ TEST(SPTK_ThreadManager, nextThread)
     threadManager->stop();
 
     EXPECT_STREQ("thread 0, thread 1, thread 2, thread 0", threadNames.join(", ").c_str());
+}
+
+TEST(SPTK_ThreadManager, stopClearsRunningState)
+{
+    resetCounters();
+
+    constexpr size_t maxThreads = 3;
+    const auto       threadManager = make_shared<ThreadManager>("Test Manager");
+
+    threadManager->start();
+    for (size_t i = 0; i < maxThreads; ++i)
+    {
+        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        threadManager->manage(thread);
+        thread->run();
+    }
+
+    this_thread::sleep_for(100ms);
+    threadManager->stop();
+
+    EXPECT_EQ(0U, threadManager->threadCount());
+    EXPECT_EQ(nullptr, threadManager->getNextThread());
+}
+
+TEST(SPTK_ThreadManager, stopReturnsPromptlyWhenIdle)
+{
+    resetCounters();
+
+    const auto threadManager = make_shared<ThreadManager>("Test Manager");
+    threadManager->start();
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+    threadManager->stop();
+    stopwatch.stop();
+    const auto elapsedMs = static_cast<int>(stopwatch.milliseconds());
+
+    EXPECT_LT(elapsedMs, 300);
 }

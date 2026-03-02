@@ -77,18 +77,14 @@ void Thread::run()
     }
 
     const scoped_lock lock(m_mutex);
+
+    m_terminated = false;
+
     m_thread = make_shared<jthread>(
         [this]()
         {
-            // Ignore signals
-            for (const auto sig: m_ignoreSignals)
-            {
-                signal(sig, SIG_IGN);
-            }
-
             try
             {
-                m_terminated = false;
                 threadFunction();
                 onThreadExit();
                 if (m_threadManager)
