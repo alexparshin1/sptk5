@@ -32,6 +32,7 @@
 
 #include <chrono>
 #include <semaphore>
+#include <limits>
 
 namespace sptk {
 
@@ -50,8 +51,8 @@ public:
      * @brief Constructor.
      * @param initialValue      Initial semaphore value.
      */
-    explicit Semaphore(int initialValue = 0)
-        : m_value(initialValue)
+    explicit Semaphore(const size_t initialValue = 0)
+        : m_value(initialValue > MaxSemaphoreValue ? MaxSemaphoreValue : initialValue)
     {
     }
 
@@ -61,9 +62,9 @@ public:
      * The semaphore value is increased by count.
      * @param count             Count to increase the semaphore.
      */
-    void post(size_t count = 1)
+    void post(const size_t count = 1)
     {
-        m_value.release(static_cast<ptrdiff_t>(count));
+        m_value.release(static_cast<ptrdiff_t>(count & MaxSemaphoreValue));
     }
 
     /**
@@ -95,7 +96,7 @@ public:
      * @param timeout           Wait timeout.
      * @return true if semaphore was posted (signaled), or false if timeout occurs.
      */
-    bool wait_for(std::chrono::microseconds timeout)
+    bool wait_for(const std::chrono::microseconds timeout)
     {
         return m_value.try_acquire_for(timeout);
     }
@@ -125,7 +126,7 @@ public:
     }
 
 private:
-    static constexpr auto                      MaxSemaphoreValue = 0x7FFFFFFF;
+    static constexpr auto                      MaxSemaphoreValue = std::numeric_limits<int>::max();
     std::counting_semaphore<MaxSemaphoreValue> m_value;
 };
 /**
