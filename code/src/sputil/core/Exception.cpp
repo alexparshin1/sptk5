@@ -41,6 +41,7 @@ Exception::Exception(String text, const std::source_location& location, String d
 {
     filesystem::path filePath = m_location.file_name();
 
+    const String fileName = filePath.filename().string();
     m_fullMessage += format(" in {}:{}", filePath.filename().string(), m_location.line());
 
     if (!m_description.empty())

@@ -4,7 +4,6 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2026-03-02                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -34,8 +33,9 @@
 using namespace std;
 using namespace sptk;
 
-Thread::Thread(String name)
+Thread::Thread(String name, vector<int> ignoreSignals)
     : m_name(std::move(name))
+    , m_ignoreSignals(std::move(ignoreSignals))
 {
 }
 
@@ -63,58 +63,42 @@ void Thread::join()
 {
     if (running())
     {
-        try
-        {
-            m_thread->join();
-            const scoped_lock lock(m_mutex);
-            m_thread.reset();
-        }
-        catch (const exception& e)
-        {
-            CERR(format("Exception in thread '{}': {}.", name().c_str(), e.what()));
-        }
-        catch (...)
-        {
-            CERR(format("Unknown exception in thread '{}'.", name().c_str()));
-        }
+        m_thread->join();
+        const scoped_lock lock(m_mutex);
+        m_thread.reset();
     }
 }
 
 void Thread::run()
 {
-    const scoped_lock lock(m_mutex);
-
-    if (weak_from_this().expired())
-    {
-        throw Exception("Thread must be created as shared_ptr");
-    }
-
-    if (m_thread && m_thread->joinable())
+    if (running())
     {
         return;
     }
 
-    m_terminated = false;
-
+    const scoped_lock lock(m_mutex);
     m_thread = make_shared<jthread>(
         [this]()
         {
+            // Ignore signals
+            for (const auto sig: m_ignoreSignals)
+            {
+                signal(sig, SIG_IGN);
+            }
+
             try
             {
+                m_terminated = false;
                 threadFunction();
                 onThreadExit();
                 if (m_threadManager)
                 {
-                    m_threadManager->destroyThread(shared_from_this());
+                    m_threadManager->destroyThread(this);
                 }
             }
-            catch (const exception& e)
+            catch (const Exception& e)
             {
-                CERR(format("Exception in thread '{}': {}.", name().c_str(), e.what()));
-            }
-            catch (...)
-            {
-                CERR(format("Unknown exception in thread '{}'.", name().c_str()));
+                CERR("Exception in thread '" << name() << "': " << e.what());
             }
         });
 }
@@ -125,8 +109,8 @@ bool Thread::running() const
     return m_thread && m_thread->joinable();
 }
 
-void Thread::setThreadManager(shared_ptr<ThreadManager> threadManager)
+void Thread::setThreadManager(ThreadManager* threadManager)
 {
     const scoped_lock lock(m_mutex);
-    m_threadManager = std::move(threadManager);
+    m_threadManager = threadManager;
 }
