@@ -70,19 +70,18 @@ void TCPSocket::openUnlocked(const Host& _host, const OpenMode openMode, const b
 
     if (proxy() != nullptr)
     {
-        const SocketType socketHandle = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
-        attach(socketHandle, false);
+        const auto socketHandle = proxy()->connect(getHostUnlocked(), _blockingMode, timeout);
+        attachUnlocked(socketHandle, false);
     }
     else
     {
         sockaddr_in addr = {};
         getHostUnlocked().getAddress(addr);
-
         openUnlocked(addr, openMode, _blockingMode, timeout, clientBindAddress);
     }
 }
 
-void TCPSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
+void TCPSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
                              const chrono::milliseconds& timeoutMS, const char* clientBindAddress)
 {
     openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
