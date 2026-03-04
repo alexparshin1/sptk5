@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -50,12 +51,52 @@ DataFormat autoDetectFormat(const char* data)
 
 } // namespace
 
-void Document::load(const Buffer& data, bool xmlKeepFormatting) const
+Document::Document(Node::Type rootType)
+    : m_root(std::make_shared<Node>("", rootType))
+{
+}
+
+Document::Document(const Document& other)
+    : m_root(make_shared<Node>(""))
+{
+    Buffer buffer;
+    other.exportTo(DataFormat::JSON, buffer, false);
+    load(buffer);
+}
+
+Document::Document(Document&& other)
+    : m_root(std::move(other.m_root))
+{
+    other.m_root = make_shared<Node>("");
+}
+
+Document& Document::operator=(const Document& other)
+{
+    if (this != &other)
+    {
+        Buffer buffer;
+        other.exportTo(DataFormat::JSON, buffer, false);
+        load(buffer);
+    }
+    return *this;
+}
+
+Document& Document::operator=(Document&& other)
+{
+    if (this != &other)
+    {
+        m_root = std::move(other.m_root);
+        other.m_root = make_shared<Node>("");
+    }
+    return *this;
+}
+
+void Document::load(const Buffer& data, const bool xmlKeepFormatting)
 {
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }
 
-void Document::load(const String& data, bool xmlKeepFormatting) const
+void Document::load(const String& data, bool xmlKeepFormatting)
 {
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }

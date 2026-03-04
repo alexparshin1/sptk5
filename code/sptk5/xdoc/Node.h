@@ -90,74 +90,74 @@ public:
     SNode pushNode(const NodeName& name, Type type = Type::Null);
 
     /**
-     * @brief   Push named property to object
+     * @brief   Push named property to object.
      * @details If the value type isn't provided and value isn't null, the type deducted from value.
-     * @param name              Property name
-     * @param value             Property value
-     * @param type              Optional type
-     * @return created node
+     * @param name              Property name.
+     * @param value             Property value.
+     * @param type              Optional type.
+     * @return created node.
      */
     SNode pushValue(const NodeName& name, const Variant& value, Node::Type type = Node::Type::Null);
 
     /**
-     * @brief   Push value to array
+     * @brief   Push value to array.
      * @details If the value type isn't provided and value isn't null, the type deducted from value.
-     * @param value             Property value
-     * @param type              Optional type
-     * @return created node
+     * @param value             Property value.
+     * @param type              Optional type.
+     * @return created node.
      */
     SNode pushValue(const Variant& value, Node::Type type = Node::Type::Null);
 
     /**
-     * @brief Get node attributes
-     * @return node attributes
+     * @brief Get node attributes.
+     * @return node attributes.
      */
     Attributes& attributes();
 
     /**
-     * @brief Get node attributes
-     * @return node attributes
+     * @brief Get node attributes.
+     * @return node attributes.
      */
     const Attributes& attributes() const;
 
     /**
-     * @brief Get node value as string
-     * @param name             Optional node name
-     * @return node value
+     * @brief Get node value as string.
+     * @param name             Optional node name.
+     * @return node value.
      */
     String getString(const NodeName& name = "") const;
 
     /**
-     * @brief Get node value as text
-     * @param name             Optional node name
-     * @return node value
+     * @brief Get node value as text.
+     * @param name             Optional node name.
+     * @return node value.
      */
     String getText(const NodeName& name = "") const;
 
     /**
-     * @brief Get node value as number
-     * @param name             Optional node name
-     * @return node value
+     * @brief Get node value as number.
+     * @param name             Optional node name.
+     * @return node value.
      */
     double getNumber(const NodeName& name = "") const;
 
     /**
-     * @brief Get node value as boolean
-     * @param name             Optional node name
-     * @return node value
+     * @brief Get node value as boolean.
+     * @param name             Optional node name.
+     * @return node value.
      */
     bool getBoolean(const NodeName& name = "") const;
 
     /**
-     * @brief Get child nodes
-     * @param name             Optional node name
-     * @return child nodes
+     * @brief Get child nodes.
+     * @param name             Optional node name.
+     * @return child nodes.
      */
     const Nodes& nodes(const NodeName& name = "") const;
 
     /**
-     * @brief Get node value
-     * @return node value
+     * @brief Get node value.
+     * @return node value.
      */
     const Variant& getValue() const
     {
@@ -165,22 +165,23 @@ public:
     }
 
     /**
-     * @brief Set node value
-     * @tparam T                Data type
-     * @param value             Node value
+     * @brief Set node value.
+     * @tparam T                Data type.
+     * @param value             Node value.
      */
     template<typename T>
     void set(const T& value)
     {
         m_value = value;
+        type(variantTypeToNodeType(m_value.dataType()));
     }
 
     /**
-     * @brief Set node value
-     * @tparam T                Data type
-     * @param name              Node name
-     * @param value             Node value
-     * @return node
+     * @brief Set node value.
+     * @tparam T                Data type.
+     * @param name              Node name.
+     * @param value             Node value.
+     * @return node.
      */
     template<typename T>
     SNode set(const NodeName& name, const T& value)
@@ -195,37 +196,37 @@ public:
     void setNameSpaceRecursive(const String& nameSpace);
 
     /**
-     * @brief Remove node
-     * @param name             Node name
-     * @return true if node was removed
+     * @brief Remove node.
+     * @param name             Node name.
+     * @return true if node was removed.
      */
     bool remove(const NodeName& name);
 
     /**
-     * @brief Remove node
-     * @param node              Node to remove
-     * @return true if node was removed
+     * @brief Remove node.
+     * @param node              Node to remove.
+     * @return true if node was removed.
      */
     bool remove(const SNode& node);
 
     /**
-     * @brief Find existing node or create a new one
-     * @param name              Node name
-     * @return node
+     * @brief Find existing node or create a new one.
+     * @param name              Node name.
+     * @return node.
      */
     SNode findOrCreate(const NodeName& name);
 
     /**
-     * Find first node matching name
-     * @param name              Node name to match
-     * @param searchMode        Search mode
-     * @return
+     * @brief Find first node matching name.
+     * @param name              Node name to match.
+     * @param searchMode        Search mode.
+     * @return.
      */
     SNode findFirst(const NodeName& name, SearchMode searchMode = SearchMode::Recursive) const;
 
     /**
-     * @brief Get parent node
-     * @return
+     * @brief Get parent node.
+     * @return.
      */
     SNode parent() const
     {
@@ -233,10 +234,10 @@ public:
     }
 
     /**
-     * Parse JSON text
+     * @brief Parse JSON text.
      * Root element should have JDT_NULL type (empty element) before calling this method.
-     * @param jsonElement              Output node
-     * @param jsonStr              JSON text
+     * @param jsonElement              Output node.
+     * @param jsonStr              JSON text.
      */
     static void importJson(const SNode& jsonElement, const sptk::Buffer& jsonStr);
 
@@ -249,16 +250,16 @@ public:
     void exportTo(DataFormat dataFormat, std::ostream& stream, bool formatted) const;
 
     /**
-     * @brief Select a list of sub-nodes matching xpath
-     * @param xpath             XPath
-     * @return                  List of matching sub-nodes
+     * @brief Select a list of sub-nodes matching xpath.
+     * @param xpath             XPath.
+     * @return                  List of matching sub-nodes.
      */
     [[nodiscard]] Node::Vector select(const String& xpath);
 
     /**
-     * @brief Perform a deep copy of the source to destination
-     * @param destination       Destination node
-     * @param source            Source node
+     * @brief Perform a deep copy of the source to destination.
+     * @param destination       Destination node.
+     * @param source            Source node.
      */
     static void clone(const SNode& destination, const SNode& source);
 
@@ -276,20 +277,20 @@ using Element = Node;
 using SNode = Node::SNode;
 
 /**
- * Does string match a float?
- * @return true if string constains a float
+ * @brief Does string match a float?.
+ * @return true if string constains a float.
  */
 SP_EXPORT bool isFloat(const String& str);
 
 /**
- * Does string match an integer?
- * @return true if string constains an integer
+ * @brief Does string match an integer?.
+ * @return true if string constains an integer.
  */
 SP_EXPORT bool isInteger(const String& str);
 
 /**
- * Does string match a boolen?
- * @return true if string constains a boolean
+ * @brief Does string match a boolen?.
+ * @return true if string constains a boolean.
  */
 SP_EXPORT bool isBoolean(const String& str);
 

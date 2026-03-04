@@ -34,9 +34,9 @@ class SP_EXPORT ExportJSON
 {
 public:
     /**
-     * Export to JSON text
-     * @param node              Output node
-     * @param formatted         Format JSON output
+     * @brief Export to JSON text.
+     * @param node              Output node.
+     * @param formatted         Format JSON output.
      */
     static void exportToJSON(const Node* node, sptk::Buffer& json, bool formatted);
 

@@ -76,7 +76,7 @@ public:
      * @brief Get decoded authentication data (username and password, or JWT).
      * @return authentication data.
      */
-    [[nodiscard]] const xdoc::SNode& getData();
+    [[nodiscard]] xdoc::SNode getData();
 
     /**
      * @brief Get authentication data type.

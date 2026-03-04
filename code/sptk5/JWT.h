@@ -63,17 +63,17 @@ public:
     xdoc::Document grants;                ///< Token content
 
     /**
-         * Constructor
-         */
+     * Constructor
+     */
     JWT() = default;
 
     /**
-         * Get JSON element in JSON object element by name.
-         * If the element doesn't exist in the JSON object yet, it's created as JSON null element.
-         * If this element is not a JSON object, an exception is thrown.
-         * @param name              Name of the element in the object element
-         * @returns Element for the name, or NULL if not found
-         */
+     * Get JSON element in JSON object element by name.
+     * If the element doesn't exist in the JSON object yet, it's created as JSON null element.
+     * If this element is not a JSON object, an exception is thrown.
+     * @param name              Name of the element in the object element
+     * @returns Element for the name, or NULL if not found
+     */
     const Variant& get(const String& name) const
     {
         return grants.root()->findOrCreate(name)->getValue();
@@ -92,16 +92,16 @@ public:
     }
 
     /*
-         * Get signature encryption algorithm
-         * @return signature encryption algorithm
-         */
+     * Get signature encryption algorithm
+     * @return signature encryption algorithm
+     */
     Algorithm get_alg() const;
 
     /**
-         * Set signature encryption algorithm
-         * @param _alg               Signature encryption algorithm
-         * @param _key               Signature encryption key
-         */
+     * Set signature encryption algorithm
+     * @param _alg               Signature encryption algorithm
+     * @param _key               Signature encryption key
+     */
     void set_alg(Algorithm _alg, const String& _key);
 
     /**

@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -32,15 +33,15 @@
 namespace sptk::xdoc {
 
 /**
- * @brief XDoc node name with optional namespace
+ * @brief XDoc node name with optional namespace.
  */
 class SP_EXPORT NodeName
 {
 public:
     /**
-     * @brief Constructor
-     * @param name              Node name
-     * @param nameSpace         Node namespace
+     * @brief Constructor.
+     * @param name              Node name.
+     * @param nameSpace         Node namespace.
      */
     NodeName(String name, String nameSpace)
         : m_name(std::move(name))
@@ -50,23 +51,22 @@ public:
     }
 
     /**
-     * @brief Constructor
-     * @param name              Node name, short or qualified
+     * @brief Constructor.
+     * @param name              Node name, short or qualified.
      */
     NodeName(const char* name)
-        : NodeName(String(name))
+        : NodeName(name == nullptr ? String("") : String(name))
     {
     }
 
     /**
-     * @brief Constructor
-     * @param name              Node name, short or qualified
+     * @brief Constructor.
+     * @param name              Node name, short or qualified.
      */
     NodeName(const String& name)
         : m_qualifiedName(name)
     {
-        const auto* pos = strchr(name.c_str(), ':');
-        if (pos)
+        if (const auto* pos = strchr(name.c_str(), ':'))
         {
             m_nameSpace = std::string(name.c_str(), pos - name.c_str());
             m_name = name.substr(pos - name.c_str() + 1);
@@ -83,8 +83,8 @@ public:
     NodeName& operator=(NodeName&& other) = default;
 
     /**
-     * @brief Get node name
-     * @return Node name
+     * @brief Get node name.
+     * @return Node name.
      */
     [[nodiscard]] const String& getName() const
     {
@@ -92,8 +92,8 @@ public:
     }
 
     /**
-     * @brief Set node name
-     * @param name              Node name
+     * @brief Set the node name.
+     * @param name              Node name.
      */
     void setName(String name)
     {
@@ -102,8 +102,8 @@ public:
     }
 
     /**
-     * @brief Get node namespace
-     * @return Node name space
+     * @brief Get node namespace.
+     * @return Node name space.
      */
     [[nodiscard]] const String& getNameSpace() const
     {
@@ -111,8 +111,8 @@ public:
     }
 
     /**
-     * @brief Set node namespace
-     * @param nameSpace         Node name space
+     * @brief Set node namespace.
+     * @param nameSpace         Node name space.
      */
     void setNameSpace(String nameSpace)
     {
@@ -121,8 +121,8 @@ public:
     }
 
     /**
-     * @brief Get node qualified name
-     * @return Node qualified name
+     * @brief Get node qualified name.
+     * @return Node qualified name.
      */
     [[nodiscard]] const String& getQualifiedName() const
     {
@@ -130,27 +130,27 @@ public:
     }
 
     /**
-     * @return True if node name is empty
+     * @return True if the node name is empty.
      */
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return m_name.empty();
     }
 
     /**
-     * @brief Compare node name to other node name
-     * @param nodeName          Other node name
-     * @return True if other node name is matching to this node name
+     * @brief Compare the node name to the other node name.
+     * @param nodeName          Another node name.
+     * @return True if the other node name is matching to this node name.
      */
-    bool sameName(const NodeName& nodeName)
+    [[nodiscard]] bool sameName(const NodeName& nodeName) const
     {
         return operator==(nodeName);
     }
 
     /**
-     * @brief Compare node name to other node name
-     * @param other             Other node
-     * @return True if other node name is matching to this node name
+     * @brief Compare the node name to another node name.
+     * @param other             Other node.
+     * @return True if another node name is matching to this node name.
      */
     [[nodiscard]] bool operator==(const NodeName& other) const
     {
@@ -158,9 +158,9 @@ public:
     }
 
     /**
-     * @brief Compare node name to other node name
-     * @param other             Other node
-     * @return True if other node name is not matching to this node name
+     * @brief Compare the node name to another node name.
+     * @param other             Other node.
+     * @return True if another node name is not matching to this node name.
      */
     [[nodiscard]] bool operator!=(const NodeName& other) const
     {
@@ -168,12 +168,12 @@ public:
     }
 
 private:
-    String m_name;          ///< Node name
-    String m_nameSpace;     ///< Node namespace
-    String m_qualifiedName; ///< Node qualified name
+    String m_name;          ///< Node name.
+    String m_nameSpace;     ///< Node namespace.
+    String m_qualifiedName; ///< Node qualified name.
 
     /**
-     * @brief Set qualified name after changing name or name space
+     * @brief Set the qualified name after changing the name or namespace.
      */
     void setQualifiedName()
     {

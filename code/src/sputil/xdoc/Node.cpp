@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -40,7 +41,7 @@ Node::Type Node::variantTypeToNodeType(VariantDataType type)
     using enum Type;
     switch (type)
     {
-            using enum VariantDataType;
+        using enum VariantDataType;
         case VAR_NONE:
             return Null;
 
@@ -71,7 +72,7 @@ Node::Type Node::variantTypeToNodeType(VariantDataType type)
 
 Node::Node(const NodeName& nodeName, Type type)
     : NodeName(nodeName)
-      , m_type(type)
+    , m_type(type)
 {
 }
 
@@ -330,9 +331,9 @@ bool Node::remove(const NodeName& name)
 bool Node::remove(const SNode& _node)
 {
     return erase_if(m_nodes, [&](const auto& node)
-    {
-        return node.get() == _node.get();
-    });
+                    {
+                        return node.get() == _node.get();
+                    });
 }
 
 namespace {

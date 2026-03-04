@@ -39,8 +39,8 @@ TEST(SPTK_XDocument, xmlToJson)
         GTEST_SKIP() << "File " << testFile.string() << " not found";
     }
 
-    const xdoc::Document document;
-    Buffer               buffer;
+    xdoc::Document document;
+    Buffer         buffer;
 
     buffer.loadFromFile(testFile);
 

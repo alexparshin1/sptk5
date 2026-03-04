@@ -8,15 +8,15 @@ namespace {
 void printHelp(const String& progName, const String& error = "")
 {
     COUT("Convertor of XML to JSON and back\n\n"
-        << "Syntax:\n"
-        << progName << " <filename>\n\n");
+         << "Syntax:\n"
+         << progName << " <filename>\n\n");
     if (!error.empty())
     {
         CERR("Error: "
-            << error << "\n\n");
+             << error << "\n\n");
     }
 }
-}
+} // namespace
 
 int main(const int argc, const char* argv[])
 {
@@ -38,8 +38,8 @@ int main(const int argc, const char* argv[])
 
     try
     {
-        const xdoc::Document document;
-        Buffer               documentData;
+        xdoc::Document document;
+        Buffer         documentData;
         documentData.loadFromFile(argv[1]);
         document.load(documentData);
         String outputFileName;

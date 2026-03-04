@@ -356,7 +356,9 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
             }
 
             if (!autoClosed)
+            {
                 readText(currentNode, doctype, nodeStart, textStart, formatting);
+            }
         }
     }
 }

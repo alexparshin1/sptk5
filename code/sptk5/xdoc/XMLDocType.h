@@ -35,12 +35,12 @@
 namespace sptk::xdoc {
 
 /**
- * @addtogroup XML
+ * @addtogroup XML.
  * @{
  */
 
 /**
- * XML document type.
+ * @brief XML document type.
  *
  * Represents tag <DOCTYPE ...> in XML document.
  * It can return a map of all entities().
@@ -52,17 +52,17 @@ class SP_EXPORT XMLDocType
 
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     XMLDocType() = default;
 
     /**
-     * Constructor
+     * @brief Constructor.
      */
     explicit XMLDocType(const char* name, const char* public_id = nullptr, const char* system_id = nullptr);
 
     /**
-     * Returns the name of the document type as specified in the <!DOCTYPE name> tag
+     * @brief Returns the name of the document type as specified in the <!DOCTYPE name> tag.
      */
     const String& name() const
     {
@@ -70,9 +70,9 @@ public:
     }
 
     /**
-     * Returns the public identifier of the external DTD subset
+     * @brief Returns the public identifier of the external DTD subset.
      *
-     * Returns empty string if there is no public identifier
+     * Returns empty string if there is no public identifier.
      */
     const String& publicID() const
     {
@@ -80,9 +80,9 @@ public:
     }
 
     /**
-     * Returns the system identifier of the external DTD subset.
+     * @brief Returns the system identifier of the external DTD subset.
      *
-     * Returns empty string if there is no system identifier
+     * Returns empty string if there is no system identifier.
      */
     const String& systemID() const
     {
@@ -90,7 +90,7 @@ public:
     }
 
     /**
-     * Returns a map of all entities described in the DTD
+     * @brief Returns a map of all entities described in the DTD.
      *
      * NOTE: Map doesn't hold default entities.
      */
@@ -100,7 +100,7 @@ public:
     }
 
     /**
-     * Returns a map of all entities described in the DTD
+     * @brief Returns a map of all entities described in the DTD.
      *
      * NOTE: Map doesn't hold default entities.
      */
@@ -110,28 +110,28 @@ public:
     }
 
     /**
-     * Encodes string to XML representation.
+     * @brief Encodes string to XML representation.
      *
-     * Converts "<test>" to "&lt;test&gt;"
+     * Converts "<test>" to "&lt;test&gt;".
      * @returns true, any entities replaced.
-     * @param str               String to convert
-     * @param ret               Converted text is stored here
+     * @param str               String to convert.
+     * @param ret               Converted text is stored here.
      */
     bool encodeEntities(const char* str, Buffer& ret);
 
     /**
-     * Decodes entities in string to their actual values.
+     * @brief Decodes entities in string to their actual values.
      *
-     * Converts "&lt;test&gt;" to "<test>"
-     * @param str               Text to convert
-     * @param size                Text length
-     * @param ret               Converted text is stored here
+     * Converts "&lt;test&gt;" to "<test>".
+     * @param str               Text to convert.
+     * @param size                Text length.
+     * @param ret               Converted text is stored here.
      */
     void decodeEntities(const char* str, size_t size, Buffer& ret);
 
     /**
-     * Removes named entity from entity map
-     * @param name              Entity to remove
+     * @brief Removes named entity from entity map.
+     * @param name              Entity to remove.
      */
     void removeEntity(const char* name)
     {
@@ -139,21 +139,21 @@ public:
     }
 
     /**
-     * Returnes replacement value for named entity.
+     * @brief Returnes replacement value for named entity.
      *
      * If entity is not found, empty string is returned.
-     * @param name              Entity name
-     * @param replacementLength Length of the replacement
+     * @param name              Entity name.
+     * @param replacementLength Length of the replacement.
      */
     const char* getReplacement(const char* name, uint32_t& replacementLength);
 
     /**
-     * Adds an entity to the map
+     * @brief Adds an entity to the map.
      *
-     * If entity named 'name' exists already in map,
-     * its value is replaced with 'replacement'
-     * @param name              Entity to add/change
-     * @param replacement       Value that represents entity
+     * If entity named 'name' exists already in map,.
+     * its value is replaced with 'replacement'.
+     * @param name              Entity to add/change.
+     * @param replacement       Value that represents entity.
      */
     void setEntity(const String& name, const String& replacement)
     {
@@ -161,12 +161,12 @@ public:
     }
 
 private:
-    std::array<char, 16>  m_replacementBuffer {}; ///< The buffer used to return replacement literals
-    std::array<Buffer, 2> m_encodeBuffers;        ///< Encode buffers
-    Entities              m_entities;             ///< List of entities
-    String                m_name;                 ///< Document type name
-    String                m_public_id;            ///< Public ID
-    String                m_system_id;            ///< System ID
+    std::array<char, 16>  m_replacementBuffer {}; ///< The buffer used to return replacement literals.
+    std::array<Buffer, 2> m_encodeBuffers;        ///< Encode buffers.
+    Entities              m_entities;             ///< List of entities.
+    String                m_name;                 ///< Document type name.
+    String                m_public_id;            ///< Public ID.
+    String                m_system_id;            ///< System ID.
 
     char* appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end);
 };
