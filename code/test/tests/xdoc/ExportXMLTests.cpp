@@ -45,8 +45,8 @@ static const String textXML(
 
 TEST(SPTK_XDocument, exportXMLTypes)
 {
-    const xdoc::Document document;
-    Buffer buffer;
+    xdoc::Document document;
+    Buffer         buffer;
 
     document.load(textXML, true);
     document.exportTo(xdoc::DataFormat::XML, buffer);

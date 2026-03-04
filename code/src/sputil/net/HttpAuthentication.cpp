@@ -35,7 +35,7 @@ HttpAuthentication::HttpAuthentication(String authenticationHeader)
 {
 }
 
-const xdoc::SNode& HttpAuthentication::getData()
+xdoc::SNode HttpAuthentication::getData()
 {
     parse();
 

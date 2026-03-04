@@ -37,7 +37,7 @@ void extractNameSpaces(const xdoc::SNode& node, map<String, WSNameSpace>& nameSp
 {
     for (const auto& [attr, value]: node->attributes())
     {
-        if (!attr.startsWith("xmlns:"))
+        if (!attr.starts_with("xmlns:"))
         {
             continue;
         }
@@ -77,7 +77,7 @@ void WSRequest::requestBroker(const String& requestName, const xdoc::SNode& xmlC
 }
 
 void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& jsonContent, const String& error,
-                            int errorCode) const
+                            const int errorCode) const
 {
     // Error handling
     if (xmlContent)
@@ -107,18 +107,18 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
     }
 }
 
-void WSRequest::logError(const String& requestName, const String& error, int errorCode) const
+void WSRequest::logError(const String& requestName, const String& error, const int errorCode) const
 {
     if (m_logEngine)
     {
         const Logger logger(*m_logEngine);
         if (errorCode != 0)
         {
-            logger.error(requestName + ": " + requestName.c_str() + to_string(errorCode) + " " + error);
+            logger.error(format("{}: {} {}", requestName.c_str(), to_string(errorCode), error.c_str()));
         }
         else
         {
-            logger.error(requestName + ": " + error);
+            logger.error(format("{}: {}", requestName.c_str(), error.c_str()));
         }
     }
 }

@@ -361,7 +361,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
 }
 
 
-static void jwt_b64_decode_json(const xdoc::Document& dest, const Buffer& src)
+static void jwt_b64_decode_json(xdoc::Document& dest, const Buffer& src)
 {
     constexpr size_t bufferSize {1024};
     Buffer           decodedData(bufferSize);
@@ -430,7 +430,7 @@ void JWT::verify(const Buffer& head, const Buffer& sig) const
     }
 }
 
-static void jwt_parse_body(const JWT* jwt, const Buffer& body)
+static void jwt_parse_body(JWT* jwt, const Buffer& body)
 {
     jwt_b64_decode_json(jwt->grants, body);
 }
@@ -513,7 +513,7 @@ void JWT::decode(const char* token, const String& _key)
     jwt_verify_head(this, head);
     jwt_parse_body(this, body);
 
-    // Check the signature, if key is provided.
+    // Check the signature if the key is provided.
     if (this->alg != Algorithm::NONE && !key.empty())
     {
         // Re-add this since it's part of the verified data.

@@ -202,23 +202,27 @@ public:
      */
     std::tuple<iterator, bool> insert(const K& key, const T& value)
     {
-        if (auto itor = m_index.find(key);
-            itor != m_index.end())
+        auto [indexIt, inserted] = m_index.emplace(key, m_items.end());
+        if (!inserted)
         {
-            itor->second->second = value;
-            return {itor->second, false};
+            indexIt->second->second = value;
         }
-        auto it = m_items.emplace(m_items.end(), key, value);
-        try
+        else
         {
-            m_index.emplace(key, it);
+            iterator it;
+            try
+            {
+                it = m_items.emplace(m_items.end(), key, value);
+            }
+            catch (const std::exception&)
+            {
+                m_index.erase(indexIt);
+                throw;
+            }
+            indexIt->second = it;
         }
-        catch (const std::exception&)
-        {
-            m_items.pop_back();
-            throw;
-        }
-        return {it, true};
+
+        return {indexIt->second, inserted};
     }
 
     /**

@@ -30,65 +30,138 @@
 
 namespace sptk::xdoc {
 
+/**
+ * @class Document
+ *
+ * @brief Represents a JSON/XML document.
+ * @note This class does not handle concurrent modifications.
+ */
 class SP_EXPORT Document
 {
 public:
-    explicit Document(Node::Type rootType = Node::Type::Object)
-        : m_root(std::make_shared<Node>("", rootType))
-    {
-    }
+    /**
+     * @brief Constructs a Document with the specified root type.
+     * @param rootType The type of the root node (default: Object).
+     */
+    explicit Document(Node::Type rootType = Node::Type::Object);
 
-    ~Document()
-    {
-        clear();
-    }
+    /**
+     * @brief Copy constructor.
+     * @param other Another Document instance to copy.
+     */
+    Document(const Document& other);
 
-    void clear() const
+    /**
+     * @brief Move constructor.
+     * @param other Another object.
+     */
+    Document(Document&& other);
+
+    /**
+     * @brief Copy assignment operator.
+     * @param other Another object.
+     * @return this document.
+     */
+    Document& operator=(const Document& other);
+
+    /**
+     * @brief Move assignment operator.
+     * @param other Another object.
+     * @return this document.
+     */
+    Document& operator=(Document&& other);
+
+    /**
+     * @brief Destructor.
+     */
+    ~Document() = default;
+
+    /**
+     * @brief Clear the document.
+     */
+    void clear()
     {
         m_root->clear();
     }
 
-    [[nodiscard]] SNode& root()
+    /**
+     * @brief Get the root node of the document.
+     * @return root node.
+     */
+    [[nodiscard]] SNode root() const
     {
         return m_root;
     }
 
-    [[nodiscard]] const SNode& root() const
-    {
-        return m_root;
-    }
+    /**
+     * @brief Load a document from the buffer.
+     * @param data Buffer containing XML or JSON document data.
+     * @param xmlKeepFormatting Whether to keep formatting when loading XML.
+     */
+    void load(const Buffer& data, bool xmlKeepFormatting = false);
 
-    void load(const Buffer& data, bool xmlKeepFormatting = false) const;
+    /**
+     * @brief Load a document from the string.
+     * @param data Buffer containing XML or JSON document data.
+     * @param xmlKeepFormatting Whether to keep formatting when loading XML.
+     */
+    void load(const String& data, bool xmlKeepFormatting = false);
 
-    void load(const String& data, bool xmlKeepFormatting = false) const;
-
+    /**
+     * @brief Export the document to the buffer.
+     * @param dataFormat Format to export the document to.
+     * @param data Buffer to store the exported document data.
+     * @param formatted Whether to format the exported document.
+     */
     void exportTo(DataFormat dataFormat, Buffer& data, bool formatted = false) const
     {
         m_root->exportTo(dataFormat, data, formatted);
     }
 
+    /**
+     * @brief Export the document to the stream.
+     * @param dataFormat Format to export the document to.
+     * @param data Stream to write the exported document data to.
+     * @param formatted Whether to format the exported document.
+     */
     void exportTo(DataFormat dataFormat, std::ostream& data, bool formatted = false) const
     {
         m_root->exportTo(dataFormat, data, formatted);
     }
 
-    [[nodiscard]] SNode findOrCreate(const String& name)
+    /**
+     * @brief Find or create a node with the given name.
+     * @param name Name of the node to find or create.
+     * @return Shared pointer to the found or created node.
+     */
+    [[nodiscard]] SNode findOrCreate(const String& name) const
     {
         return m_root->findOrCreate(name);
     }
 
+    /**
+     * @brief Find the first node with the given name.
+     * @param name Name of the node to find.
+     * @param searchMode Search mode to use.
+     * @return the shared pointer to the found node.
+     */
     [[nodiscard]] SNode findFirst(const String& name, SearchMode searchMode = SearchMode::Recursive) const
     {
         return m_root->findFirst(name, searchMode);
     }
 
+    /**
+     * @brief Select nodes matching the given XPath.
+     * @param xpath XPath to match the nodes.
+     * @return matched nodes.
+     */
     [[nodiscard]] Node::Vector select(const String& xpath) const
     {
         return m_root->select(xpath);
     }
 
 private:
-    SNode m_root;
+    SNode m_root; ///< The root node of the document.
 };
 
 using SDocument = std::shared_ptr<Document>;

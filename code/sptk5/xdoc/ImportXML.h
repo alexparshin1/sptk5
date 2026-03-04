@@ -37,12 +37,12 @@
 namespace sptk::xdoc {
 
 /**
- * @addtogroup XDoc
+ * @addtogroup XDoc.
  * @{
  */
 
 /**
- * XML document.
+ * @brief XML document.
  *
  * Represents the entire XML document.
  * It provides access to document root node, which includes all nodes in XML document tree.
@@ -52,19 +52,19 @@ class SP_EXPORT ImportXML
 public:
     enum class Mode : uint8_t
     {
-        Compact,       ///< Strip any XML formatting, store #text nodes directly into Nodes
-        KeepFormatting ///< Keep any #text nodes
+        Compact,       ///< Strip any XML formatting, store #text nodes directly into Nodes.
+        KeepFormatting ///< Keep any #text nodes.
     };
 
     /**
-     * Constructs an empty document, without doctype.
+     * @brief Constructs an empty document, without doctype.
      */
     ImportXML() = default;
 
     virtual ~ImportXML() = default;
 
     /**
-     * Return doctype of document.
+     * @brief Return doctype of document.
      */
     XMLDocType& docType()
     {
@@ -72,18 +72,18 @@ public:
     }
 
     /**
-     * Load document from buffer.
-     * @param _buffer            Source buffer
+     * @brief Load document from buffer.
+     * @param _buffer            Source buffer.
      */
     void parse(const SNode& node, const char* _buffer, Mode formatting = Mode::Compact);
 
 private:
-    XMLDocType m_doctype;      ///< XMLDocument type
-    Buffer     m_encodeBuffer; ///< Buffer to encode entities
-    Buffer     m_decodeBuffer; ///< Decode and encode buffer
+    XMLDocType m_doctype;      ///< XMLDocument type.
+    Buffer     m_encodeBuffer; ///< Buffer to encode entities.
+    Buffer     m_decodeBuffer; ///< Decode and encode buffer.
 
     /**
-     * Internal attributes parser
+     * @brief Internal attributes parser.
      */
     void processAttributes(Node& node, const char* ptr);
 

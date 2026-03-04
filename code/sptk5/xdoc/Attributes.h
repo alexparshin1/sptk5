@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -24,64 +25,21 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/OrderedMap.h"
 #include <sptk5/String.h>
-#include <vector>
 
 #pragma once
 
 namespace sptk::xdoc {
 
-class SP_EXPORT Attributes
+class SP_EXPORT Attributes : public OrderedMap<std::string, String>
 {
 public:
-    using AttributeVector = std::vector<std::pair<String, String>>;
+    [[nodiscard]] String get(const std::string& name, const String& defaultValue = "") const;
 
-    using iterator = AttributeVector::iterator;
-    using const_iterator = AttributeVector::const_iterator;
+    [[nodiscard]] bool have(const std::string& name) const;
 
-    iterator begin()
-    {
-        return m_items.begin();
-    }
-
-    [[nodiscard]] const_iterator begin() const
-    {
-        return m_items.begin();
-    }
-
-    [[nodiscard]] iterator end()
-    {
-        return m_items.end();
-    }
-
-    [[nodiscard]] const_iterator end() const
-    {
-        return m_items.end();
-    }
-
-    void clear()
-    {
-        m_items.clear();
-    }
-
-    [[nodiscard]] String get(const String& name, const String& defaultValue = "") const;
-
-    [[nodiscard]] bool have(const String& name) const;
-
-    Attributes& set(const String& name, const String& value);
-
-    [[nodiscard]] bool empty() const
-    {
-        return m_items.empty();
-    }
-
-    [[nodiscard]] size_t size() const
-    {
-        return m_items.size();
-    }
-
-private:
-    AttributeVector m_items;
+    Attributes& set(const std::string& name, const String& value);
 };
 
 } // namespace sptk::xdoc

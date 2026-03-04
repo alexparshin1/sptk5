@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -28,40 +29,27 @@
 
 #include <algorithm>
 
+using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-String Attributes::get(const String& name, const String& defaultValue) const
+String Attributes::get(const string& name, const String& defaultValue) const
 {
-    for (const auto& [attr, value]: m_items)
+    if (auto it = find(name);
+        it != end())
     {
-        if (attr == name)
-        {
-            return value;
-        }
+        return it->second;
     }
     return defaultValue;
 }
 
-bool Attributes::have(const String& name) const
+bool Attributes::have(const string& name) const
 {
-    return std::ranges::any_of(m_items,
-                               [&name](const auto& itor)
-                               {
-                                   return itor.first == name;
-                               });
+    return contains(name);
 }
 
-Attributes& Attributes::set(const String& name, const String& value)
+Attributes& Attributes::set(const string& name, const String& value)
 {
-    for (auto& [attr, val]: m_items)
-    {
-        if (attr == name)
-        {
-            val = value;
-            return *this;
-        }
-    }
-    m_items.emplace_back(name, value);
+    insert(name, value);
     return *this;
 }

@@ -33,12 +33,12 @@
 namespace sptk::xdoc {
 
 /**
- * @addtogroup XDocument
+ * @addtogroup XDocument.
  * @{
  */
 
 /**
- * XML document type entity
+ * @brief XML document type entity.
  */
 class SP_EXPORT Entity
 {
@@ -57,7 +57,7 @@ public:
 };
 
 /**
- * XML entities
+ * @brief XML entities.
  *
  * Maps an XML entity string to a presentation string.
  */
@@ -66,13 +66,13 @@ class Entities
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     Entities() = default;
 
     /**
-     * Removes named entity
-     * @param name              entity name to remove
+     * @brief Removes named entity.
+     * @param name              entity name to remove.
      */
     void removeEntity(const String& name)
     {
@@ -80,11 +80,11 @@ public:
     }
 
     /**
-     * Adds entity to map
+     * @brief Adds entity to map.
      *
-     * If entity named 'name' exists already in map, its value is replaced with 'replacement'
-     * @param name              entity to add/change
-     * @param replacement       value that represents entity
+     * If entity named 'name' exists already in map, its value is replaced with 'replacement'.
+     * @param name              entity to add/change.
+     * @param replacement       value that represents entity.
      */
     void setEntity(const String& name, const String& replacement)
     {

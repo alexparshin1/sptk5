@@ -146,7 +146,7 @@ TEST(SPTK_XDocument, removeNodes)
 
 TEST(SPTK_XDocument, saveXml1)
 {
-    const Document document;
+    Document document;
     document.load(testREST);
 
     Buffer buffer;
@@ -216,7 +216,7 @@ TEST(SPTK_XDocument, brokenXML)
 
 TEST(SPTK_XDocument, unicodeAndSpacesXML)
 {
-    const Document document;
+    Document document;
 
     try
     {
@@ -234,8 +234,8 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
 
 TEST(SPTK_XDocument, exportToJSON)
 {
-    const Buffer   input(testXML);
-    const Document document;
+    const Buffer input(testXML);
+    Document     document;
     document.load(input);
 
     Buffer output;
@@ -255,7 +255,7 @@ TEST(SPTK_XDocument, loadFormattedXML)
     Buffer input;
     input.loadFromFile(testFile);
 
-    const Document document;
+    Document document;
     document.load(input, true);
 
     Buffer output;

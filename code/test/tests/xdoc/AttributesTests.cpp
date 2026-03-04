@@ -46,3 +46,58 @@ TEST(SPTK_XDocument, getSetAttributes)
     EXPECT_STREQ("janitor", attributes.get("position").c_str());
     EXPECT_EQ(attributes.size(), 2U);
 }
+
+TEST(SPTK_XDocument, getWithDefaultAndMissingKeys)
+{
+    Attributes attributes;
+    attributes.set("name", "John");
+
+    EXPECT_FALSE(attributes.have("missing"));
+    EXPECT_STREQ("", attributes.get("missing").c_str());
+    EXPECT_STREQ("fallback", attributes.get("missing", "fallback").c_str());
+}
+
+TEST(SPTK_XDocument, clearAndEmptyState)
+{
+    Attributes attributes;
+    attributes.set("name", "John");
+    attributes.set("role", "admin");
+
+    ASSERT_FALSE(attributes.empty());
+    ASSERT_EQ(2U, attributes.size());
+
+    attributes.clear();
+    EXPECT_TRUE(attributes.empty());
+    EXPECT_EQ(0U, attributes.size());
+    EXPECT_STREQ("fallback", attributes.get("name", "fallback").c_str());
+}
+
+TEST(SPTK_XDocument, setReturnsSelfForChaining)
+{
+    Attributes attributes;
+    Attributes& returned = attributes.set("name", "John").set("role", "admin").set("name", "Alex");
+
+    EXPECT_EQ(&attributes, &returned);
+    EXPECT_EQ(2U, attributes.size());
+    EXPECT_STREQ("Alex", attributes.get("name").c_str());
+    EXPECT_STREQ("admin", attributes.get("role").c_str());
+}
+
+TEST(SPTK_XDocument, preservesInsertionOrderAndValueUpdate)
+{
+    Attributes attributes;
+    attributes.set("first", "1");
+    attributes.set("second", "2");
+    attributes.set("third", "3");
+    attributes.set("second", "updated");
+
+    vector<pair<String, String>> items(attributes.begin(), attributes.end());
+    ASSERT_EQ(3U, items.size());
+
+    EXPECT_STREQ("first", items[0].first.c_str());
+    EXPECT_STREQ("1", items[0].second.c_str());
+    EXPECT_STREQ("second", items[1].first.c_str());
+    EXPECT_STREQ("updated", items[1].second.c_str());
+    EXPECT_STREQ("third", items[2].first.c_str());
+    EXPECT_STREQ("3", items[2].second.c_str());
+}
