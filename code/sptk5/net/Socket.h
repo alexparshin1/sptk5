@@ -156,7 +156,7 @@ public:
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever).
      * @param clientBindAddress Client bind address.
      */
-    void open(const struct sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
+    void open(const sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
               bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
               const char* clientBindAddress = nullptr)
     {
@@ -234,7 +234,7 @@ public:
      * @param from              The source address.
      * @returns the number of bytes read from the socket.
      */
-    size_t read(uint8_t* buffer, size_t size, sockaddr_in* from = nullptr)
+    size_t read(uint8_t* buffer, size_t size, sockaddr* from = nullptr)
     {
         std::scoped_lock lock(m_mutex);
         return readUnlocked(buffer, size, from);
@@ -249,7 +249,7 @@ public:
      * @param from              The source address.
      * @returns the number of bytes read from the socket.
      */
-    size_t read(Buffer& buffer, size_t size, sockaddr_in* from = nullptr);
+    size_t read(Buffer& buffer, size_t size, sockaddr* from = nullptr);
 
     /**
      * @brief Reads data from the socket into the memory buffer.
@@ -260,11 +260,11 @@ public:
      * @param from              The source address.
      * @returns the number of bytes read from the socket.
      */
-    size_t read(String& buffer, size_t size, sockaddr_in* from = nullptr);
+    size_t read(String& buffer, size_t size, sockaddr* from = nullptr);
 
     template<typename T>
         requires is_socket_readable<T>
-    size_t read(T& value, sockaddr_in* from = nullptr)
+    size_t read(T& value, sockaddr* from = nullptr)
     {
         std::scoped_lock lock(m_mutex);
         return readUnlocked(reinterpret_cast<uint8_t*>(&value), sizeof(T), from);
@@ -279,7 +279,7 @@ public:
      * @param peer              The peer information.
      * @returns the number of bytes written to the socket.
      */
-    size_t write(const uint8_t* buffer, size_t size, const sockaddr_in* peer = nullptr)
+    size_t write(const uint8_t* buffer, size_t size, const sockaddr* peer = nullptr)
     {
         std::scoped_lock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
@@ -291,7 +291,7 @@ public:
      * @param peer              The peer information.
      * @returns the number of bytes written to the socket.
      */
-    size_t write(const Buffer& buffer, const sockaddr_in* peer = nullptr);
+    size_t write(const Buffer& buffer, const sockaddr* peer = nullptr);
 
     /**
      * @brief Writes data to the socket.
@@ -299,7 +299,7 @@ public:
      * @param peer              The peer information.
      * @returns the number of bytes written to the socket.
      */
-    size_t write(const String& buffer, const sockaddr_in* peer = nullptr);
+    size_t write(const String& buffer, const sockaddr* peer = nullptr);
 
     /**
      * @brief Reports true if the socket is ready for reading from it.

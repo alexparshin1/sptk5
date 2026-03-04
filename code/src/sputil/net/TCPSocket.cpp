@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -109,7 +110,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
     return false;
 }
 
-size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr_in*)
+size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr*)
 {
     int receivedBytes;
     int error = 0;

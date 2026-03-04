@@ -52,7 +52,7 @@ int main()
         {
             if (server.readyToRead(chrono::seconds(1)))
             {
-                const size_t bytes = server.read(readBuffer, 1024, &clientInfo);
+                const size_t bytes = server.read(readBuffer, 1024, reinterpret_cast<sockaddr*>(&clientInfo));
 
                 String data(readBuffer.c_str(), bytes);
                 COUT("Received data: " << data << '\n');

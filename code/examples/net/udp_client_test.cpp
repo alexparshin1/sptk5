@@ -39,18 +39,17 @@ int main()
         UDPSocket client;
         client.host(Host("localhost", 3000));
 
-        sockaddr_in serv {
-        };
+        sockaddr_in serv {};
         memset(&serv, 0, sizeof(serv));
         serv.sin_family = AF_INET;
         serv.sin_port = htons(client.host().port());
         serv.sin_addr.s_addr = inet_addr(client.host().hostname().c_str());
 
         string data = "Data 1";
-        client.write(data, &serv);
+        client.write(data, reinterpret_cast<sockaddr*>(&serv));
 
         data = "EOD";
-        client.write(data, &serv);
+        client.write(data, reinterpret_cast<sockaddr*>(&serv));
     }
     catch (const Exception& e)
     {

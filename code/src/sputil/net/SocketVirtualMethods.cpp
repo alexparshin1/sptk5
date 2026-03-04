@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -29,8 +30,8 @@
 #include <sptk5/net/SocketVirtualMethods.h>
 
 #ifndef _WIN32
-#include <sys/poll.h>
 #include <sys/ioctl.h>
+#include <sys/poll.h>
 #endif
 
 #include <fcntl.h>
@@ -446,7 +447,7 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
     return static_cast<size_t>(result);
 }
 
-size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, const size_t size, sockaddr_in* from)
+size_t SocketVirtualMethods::readUnlocked(uint8_t* buffer, const size_t size, sockaddr* from)
 {
     if (size == 0)
     {
@@ -508,7 +509,7 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, const size_t le
     }
 }
 
-size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer)
+size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr* peer)
 {
     const auto* ptr = buffer;
 

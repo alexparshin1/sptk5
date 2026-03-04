@@ -33,7 +33,7 @@ using namespace sptk;
 
 static constexpr uint16_t testPort = 3000;
 static constexpr uint16_t bufferSize = 2048;
-static constexpr auto readTimeout = chrono::milliseconds(200);
+static constexpr auto     readTimeout = chrono::milliseconds(200);
 
 class UDPEchoServer
     : public UDPSocket
@@ -62,22 +62,22 @@ public:
     void threadFunction() override
     {
         constexpr chrono::seconds timeout {5};
-        const DateTime stopTime = DateTime::Now() + timeout;
-        Buffer data(bufferSize);
+        const DateTime            stopTime = DateTime::Now() + timeout;
+        Buffer                    data(bufferSize);
         while (!terminated() && DateTime::Now() < stopTime)
         {
             try
             {
                 if (socket.readyToRead(readTimeout))
                 {
-                    sockaddr_in from {};
-                    const size_t sz = socket.read(data.data(), bufferSize, &from);
+                    sockaddr_in  from {};
+                    const size_t sz = socket.read(data.data(), bufferSize, reinterpret_cast<sockaddr*>(&from));
                     if (sz == 0)
                     {
                         return;
                     }
                     data.bytes(sz);
-                    socket.write((const uint8_t*) data.c_str(), sz, &from);
+                    socket.write(data.data(), sz, reinterpret_cast<sockaddr*>(&from));
                 }
             }
             catch (const Exception& e)
@@ -98,7 +98,7 @@ TEST(SPTK_UDPSocket, minimal)
     echoServer.run();
 
     sockaddr_in serverAddr {};
-    Host serverHost("127.0.0.1", testPort);
+    Host        serverHost("127.0.0.1", testPort);
     serverHost.getAddress(serverAddr);
 
     Strings rows("Hello, World!\n"
@@ -113,7 +113,7 @@ TEST(SPTK_UDPSocket, minimal)
     int rowCount = 0;
     for (const auto& row: rows)
     {
-        socket.write((const uint8_t*) row.c_str(), row.length(), &serverAddr);
+        socket.write((const uint8_t*) row.c_str(), row.length(), reinterpret_cast<sockaddr*>(&serverAddr));
         buffer.bytes(0);
         if (socket.readyToRead(readTimeout))
         {

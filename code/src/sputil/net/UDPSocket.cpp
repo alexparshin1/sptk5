@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -33,21 +34,33 @@ using namespace sptk;
 UDPSocket::UDPSocket(const SOCKET_ADDRESS_FAMILY _domain)
     : Socket(_domain, SOCK_DGRAM)
 {
-    setSocketFdUnlocked(socket(domain(), type(), protocol()));
+    auto socketFd = socket(domain(), type(), protocol());
+    if (socketFd == INVALID_SOCKET)
+    {
+        throw Exception("Can't create socket");
+    }
+    setSocketFdUnlocked(socketFd);
 }
 
-size_t UDPSocket::readUnlocked(uint8_t* buffer, const size_t size, sockaddr_in* from)
+size_t UDPSocket::readUnlocked(uint8_t* buffer, const size_t size, sockaddr* from)
 {
+    socklen_t addressLength = 0;
+
     sockaddr_in6 addr {};
     if (from == nullptr)
     {
-        from = bit_cast<sockaddr_in*>(&addr);
+        from = bit_cast<sockaddr*>(&addr);
+        addressLength = sizeof(sockaddr_in6);
+    }
+    else
+    {
+        addressLength = from->sa_family == AF_INET ? sizeof(sockaddr_in) : sizeof(sockaddr_in6);
     }
 
-    socklen_t  addrLength = sizeof(sockaddr_in);
     const auto bytes = recvfrom(getSocketFdUnlocked(), bit_cast<char*>(buffer), static_cast<int>(size), 0,
-                                bit_cast<sockaddr*>(from), &addrLength);
+                                from, &addressLength);
     if (bytes == -1)
         throwSocketError("Can't read from socket");
+
     return static_cast<size_t>(bytes);
 }

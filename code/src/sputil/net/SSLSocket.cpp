@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -129,7 +130,7 @@ mutex* CSSLLibraryLoader::m_locks;
 
 void SSLSocket::throwSSLError(const String& function, const int resultCode, const source_location location) const
 {
-    const int  errorCode = sslGetErrorCode(resultCode);
+    const auto errorCode = sslGetErrorCode(resultCode);
     const auto error = sslGetErrorString(function.c_str(), errorCode);
     throw Exception(error, location);
 }
@@ -184,9 +185,11 @@ void SSLSocket::openUnlocked(const Host& _host, const OpenMode openMode, const b
     TCPSocket::openUnlocked(_host, openMode, _blockingMode, timeout, clientBindAddress);
 }
 
-void SSLSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
+void SSLSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode, const bool _blockingMode,
                              const milliseconds& timeout, const char* clientBindAddress)
 {
+    initContextAndSocket();
+
     TCPSocket::openUnlocked(address, openMode, _blockingMode, timeout, clientBindAddress);
 
     sslConnectUnlocked(_blockingMode, timeout);
@@ -194,7 +197,7 @@ void SSLSocket::openUnlocked(const struct sockaddr_in& address, const OpenMode o
 
 bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
 {
-    const int result = sslConnect();
+    const auto result = sslConnect();
     if (result == 1)
     {
         return true;
@@ -202,8 +205,12 @@ bool SSLSocket::tryConnectUnlocked(const DateTime& timeoutAt)
 
     if (result <= 0)
     {
-        const milliseconds nextTimeout = chrono::duration_cast<milliseconds>(timeoutAt - DateTime("now"));
-        const int          errorCode = sslGetErrorCode(result);
+        auto nextTimeout = chrono::duration_cast<milliseconds>(timeoutAt - DateTime("now"));
+        if (nextTimeout.count() <= 0)
+        {
+            nextTimeout = 0ms;
+        }
+        const auto errorCode = sslGetErrorCode(result);
         if (errorCode == SSL_ERROR_WANT_READ)
         {
             if (!readyToReadUnlocked(nextTimeout))
@@ -233,9 +240,9 @@ void SSLSocket::sslConnectUnlocked(const bool _blockingMode, const milliseconds&
 
     sslSetFd(getSocketFdUnlocked());
 
-    if (timeout == milliseconds(0))
+    if (timeout == 0ms)
     {
-        if (const int result = sslConnect();
+        if (const auto result = sslConnect();
             result <= 0)
         {
             closeUnlocked();
@@ -245,10 +252,21 @@ void SSLSocket::sslConnectUnlocked(const bool _blockingMode, const milliseconds&
     }
 
     setBlockingModeUnlocked(false);
-    while (!tryConnectUnlocked(timeoutAt))
+
+    try
     {
-        // Repeat the operation until connected or throws an exception
+        while (!tryConnectUnlocked(timeoutAt))
+        {
+            // Repeat the operation until connected or throws an exception
+        }
     }
+    catch (...)
+    {
+        setBlockingModeUnlocked(_blockingMode);
+        closeUnlocked();
+        throw;
+    }
+
     setBlockingModeUnlocked(_blockingMode);
 }
 
@@ -284,15 +302,29 @@ void SSLSocket::attachUnlocked(const SocketType socketHandle, const bool accept)
 
     while (true)
     {
-        if (const int result = sslAccept();
+        if (const auto result = sslAccept();
             result <= 0)
         {
             const auto errorCode = sslGetErrorCode(result);
             const auto error = sslGetErrorString("SSL_accept", errorCode);
 
-            // In non-blocking mode we may have incomplete read or write, so the function call should be repeated
-            if (errorCode == SSL_ERROR_WANT_READ || errorCode == SSL_ERROR_WANT_WRITE)
+            // In non-blocking mode we may have incomplete read the function call should be repeated
+            if (errorCode == SSL_ERROR_WANT_READ)
             {
+                if (!readyToReadUnlocked(30s))
+                {
+                    throw Exception("SSL accept read timeout");
+                }
+                continue;
+            }
+
+            // In non-blocking mode we may have incomplete write the function call should be repeated
+            if (errorCode == SSL_ERROR_WANT_WRITE)
+            {
+                if (!readyToWriteUnlocked(30s))
+                {
+                    throw Exception("SSL accept read timeout");
+                }
                 continue;
             }
 
@@ -389,7 +421,7 @@ size_t SSLSocket::recvUnlocked(uint8_t* buffer, const size_t len)
     }
 }
 
-static constexpr int WRITE_BLOCK = 16384;
+static constexpr auto WRITE_BLOCK = 16384;
 
 size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
 {
@@ -408,7 +440,7 @@ size_t SSLSocket::sendUnlocked(const uint8_t* buffer, const size_t len)
             writeLen = WRITE_BLOCK;
         }
 
-        const int result = sslWrite(ptr, writeLen);
+        const auto result = sslWrite(ptr, writeLen);
         if (result > 0)
         {
             ptr += result;

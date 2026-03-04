@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-03                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -67,7 +68,7 @@ Socket::~Socket()
     Socket::close();
 }
 
-size_t Socket::read(Buffer& buffer, const size_t size, sockaddr_in* from)
+size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 {
     buffer.checkSize(size);
     const size_t bytes = readUnlocked(buffer.data(), size, from);
@@ -76,7 +77,7 @@ size_t Socket::read(Buffer& buffer, const size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t Socket::read(String& buffer, const size_t size, sockaddr_in* from)
+size_t Socket::read(String& buffer, const size_t size, sockaddr* from)
 {
     buffer.resize(size);
     const size_t bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
@@ -85,12 +86,12 @@ size_t Socket::read(String& buffer, const size_t size, sockaddr_in* from)
     return bytes;
 }
 
-size_t Socket::write(const Buffer& buffer, const sockaddr_in* peer)
+size_t Socket::write(const Buffer& buffer, const sockaddr* peer)
 {
     return write(buffer.data(), buffer.bytes(), peer);
 }
 
-size_t Socket::write(const String& buffer, const sockaddr_in* peer)
+size_t Socket::write(const String& buffer, const sockaddr* peer)
 {
     return write(bit_cast<const uint8_t*>(buffer.c_str()), buffer.length(), peer);
 }

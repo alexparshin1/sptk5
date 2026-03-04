@@ -275,7 +275,7 @@ protected:
      * @param from              The source address.
      * @returns the number of bytes read from the socket.
      */
-    [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr_in* from);
+    [[nodiscard]] virtual size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr* from);
 
     /**
      * @brief Reads data from the socket in regular or TLS mode.
@@ -294,7 +294,7 @@ protected:
      * @param peer              The peer information.
      * @returns the number of bytes written to the socket.
      */
-    virtual size_t writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr_in* peer);
+    virtual size_t writeUnlocked(const uint8_t* buffer, size_t size, const sockaddr* peer);
 
     /**
      * @brief Get socket domain type.
