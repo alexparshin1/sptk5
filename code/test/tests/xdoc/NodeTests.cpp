@@ -67,7 +67,7 @@ TEST(SPTK_XDocument, setNameSpace)
 
     auto customer = document.root()->findFirst(NodeName("customer"));
     EXPECT_EQ(customer->getName(), "customer");
-    customer->setNameSpaceRecursive("ns1");
+    customer->setNamespaceRecursive("ns1");
     EXPECT_EQ(customer->getName(), "customer");
     EXPECT_EQ(customer->getNameSpace(), "ns1");
 

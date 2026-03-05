@@ -27,6 +27,7 @@
 
 #include "sptk5/xdoc/Node.h"
 #include "XPath.h"
+#include "sptk5/Printer.h"
 
 #include <sptk5/xdoc/ExportJSON.h>
 #include <sptk5/xdoc/ExportXML.h>
@@ -36,44 +37,31 @@ using namespace std;
 using namespace sptk;
 using namespace xdoc;
 
-Node::Type Node::variantTypeToNodeType(VariantDataType type)
-{
-    using enum Type;
-    switch (type)
-    {
-        using enum VariantDataType;
-        case VAR_NONE:
-            return Null;
-
-        case VAR_INT:
-        case VAR_FLOAT:
-        case VAR_IMAGE_NDX:
-        case VAR_INT64:
-            return Number;
-
-        case VAR_MONEY:
-        case VAR_STRING:
-        case VAR_TEXT:
-        case VAR_BUFFER:
-        case VAR_DATE:
-        case VAR_DATE_TIME:
-        case VAR_IMAGE_PTR:
-            return Text;
-
-        case VAR_BOOL:
-            return Boolean;
-
-        default:
-            break;
-    }
-
-    return Null;
-}
-
-Node::Node(const NodeName& nodeName, Type type)
+Node::Node(const NodeName& nodeName, const Type type)
     : NodeName(nodeName)
     , m_type(type)
 {
+}
+
+SNode Node::createNode(const NodeName& name, const Type type)
+{
+    return SNode(new Node(name, type));
+}
+
+SNode Node::createNode(const SNode& other)
+{
+    const auto copyNode = SNode(new Node(other->getName(), other->type()));
+
+    copyNode->m_attributes = other->m_attributes;
+    copyNode->m_value = other->m_value;
+
+    for (const auto& childNode: other->m_nodes)
+    {
+        auto copyChildNode = createNode(childNode);
+        copyChildNode->m_parent = copyNode;
+        copyNode->m_nodes.push_back(copyChildNode);
+    }
+    return copyNode;
 }
 
 Attributes& Node::attributes()
@@ -111,13 +99,13 @@ SNode Node::findOrCreate(const NodeName& name)
         }
     }
 
-    const auto newNode = make_shared<Node>(name);
+    const auto newNode = createNode(name);
     newNode->m_parent = shared_from_this();
     m_nodes.push_back(newNode);
     return m_nodes.back();
 }
 
-SNode Node::findFirst(const NodeName& name, SearchMode searchMode) const
+SNode Node::findFirst(const NodeName& name, const SearchMode searchMode) const
 {
     if (type() != Type::Object && type() != Type::Array)
     {
@@ -147,7 +135,7 @@ SNode Node::findFirst(const NodeName& name, SearchMode searchMode) const
     return nullptr;
 }
 
-SNode Node::pushNode(const NodeName& name, Type type)
+SNode Node::pushNode(const NodeName& name, const Type type)
 {
     using enum Type;
     if (m_type == Null)
@@ -161,7 +149,7 @@ SNode Node::pushNode(const NodeName& name, Type type)
             m_type = Object;
         }
     }
-    const auto node = make_shared<Node>(name, type);
+    const auto node = createNode(name, type);
     m_nodes.push_back(node);
     node->m_parent = shared_from_this();
     return m_nodes.back();
@@ -259,7 +247,7 @@ bool Node::getBoolean(const NodeName& name) const
 
 const Node::Nodes& Node::nodes(const NodeName& name) const
 {
-    static const Nodes emptyNodes;
+    static constexpr Nodes emptyNodes;
 
     if (name.empty())
     {
@@ -277,8 +265,7 @@ const Node::Nodes& Node::nodes(const NodeName& name) const
 
 void Node::clear()
 {
-    type(Type::Object);
-    for (auto& node: m_nodes)
+    for (const auto& node: m_nodes)
     {
         node->clear();
     }
@@ -286,7 +273,7 @@ void Node::clear()
     m_attributes.clear();
 }
 
-SNode Node::pushValue(const NodeName& name, const Variant& value, Type type)
+SNode Node::pushValue(const NodeName& name, const Variant& value, const Type type)
 {
     Type actualType(type);
     if (type == Type::Null && !value.isNull())
@@ -298,7 +285,7 @@ SNode Node::pushValue(const NodeName& name, const Variant& value, Type type)
     return node;
 }
 
-SNode Node::pushValue(const Variant& value, Type type)
+SNode Node::pushValue(const Variant& value, const Type type)
 {
     Type actualType(type);
     if (type == Type::Null && !value.isNull())
@@ -337,14 +324,14 @@ bool Node::remove(const SNode& _node)
 }
 
 namespace {
-void importXML(const SNode& node, const Buffer& xml, bool xmlKeepSpaces)
+void importXML(const SNode& node, const Buffer& xml, const bool xmlKeepSpaces)
 {
     ImportXML importer;
     importer.parse(node, xml.c_str(), xmlKeepSpaces ? ImportXML::Mode::KeepFormatting : ImportXML::Mode::Compact);
 }
 } // namespace
 
-void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormatting)
+void Node::load(const DataFormat dataFormat, const Buffer& data, const bool xmlKeepFormatting)
 {
     clear();
     if (dataFormat == DataFormat::JSON)
@@ -359,7 +346,7 @@ void Node::load(DataFormat dataFormat, const Buffer& data, bool xmlKeepFormattin
     }
 }
 
-void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormatting)
+void Node::load(const DataFormat dataFormat, const String& data, const bool xmlKeepFormatting)
 {
     const Buffer input(data);
 
@@ -376,7 +363,7 @@ void Node::load(DataFormat dataFormat, const String& data, bool xmlKeepFormattin
     }
 }
 
-void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
+void Node::exportTo(const DataFormat dataFormat, Buffer& data, const bool formatted) const
 {
     if (dataFormat == DataFormat::JSON)
     {
@@ -385,7 +372,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
     else
     {
         ExportXML exporter;
-        if (m_parent != nullptr)
+        if (!m_parent.expired())
         {
             // Exporting single node
             exporter.saveElement(this, getQualifiedName(), data, formatted, 0);
@@ -401,7 +388,7 @@ void Node::exportTo(DataFormat dataFormat, Buffer& data, bool formatted) const
     }
 }
 
-void Node::exportTo(DataFormat dataFormat, ostream& stream, bool formatted) const
+void Node::exportTo(const DataFormat dataFormat, ostream& stream, const bool formatted) const
 {
     Buffer output;
     exportTo(dataFormat, output, formatted);
@@ -424,27 +411,20 @@ Node::Vector Node::select(const String& xpath)
     return selectedNodes;
 }
 
-void Node::clone(const SNode& destination, const SNode& source)
-{
-    Buffer content;
-    source->exportTo(DataFormat::JSON, content, false);
-    destination->load(DataFormat::JSON, content, false);
-}
-
-void Node::setNameSpaceRecursive(const String& nameSpace)
+void Node::setNamespaceRecursive(const String& nameSpace)
 {
     setNameSpace(nameSpace);
     for (const auto& node: m_nodes)
     {
-        node->setNameSpaceRecursive(nameSpace);
+        node->setNamespaceRecursive(nameSpace);
     }
 }
 
 bool xdoc::isBoolean(const String& str)
 {
-    static const RegularExpression isInteger(R"(^(true|false)$)");
+    static const RegularExpression isBoolean(R"(^(true|false)$)");
 
-    return isInteger.matches(str);
+    return isBoolean.matches(str);
 }
 
 bool xdoc::isInteger(const String& str)

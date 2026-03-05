@@ -54,7 +54,7 @@ void verifyDocument(Document& document)
     skills.resize(arrayData.size());
 
     ranges::transform(arrayData, skills.begin(),
-                      [](const xdoc::SNode& skill)
+                      [](const SNode& skill)
                       {
                           return skill->getString();
                       });
@@ -64,58 +64,23 @@ void verifyDocument(Document& document)
     const auto ptr = root.findFirst("address");
     EXPECT_TRUE(ptr != nullptr);
 
-    const xdoc::Element& address = *ptr;
+    const Element& address = *ptr;
     EXPECT_TRUE(address.getBoolean("married"));
     EXPECT_FALSE(address.getBoolean("employed"));
 }
 
 TEST(SPTK_XDocument, load)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
-    verifyDocument(document);
-}
-
-static const String testXmlDocument(
-    "<xml encoding=\"utf-8\">"
-    "<name>John</name>"
-    "<address><city>Walhalla</city><street>17 Elm Street</street></address>"
-    "</xml>");
-
-
-TEST(SPTK_XDocument, clone)
-{
-    const Buffer   input(testXmlDocument);
-    xdoc::Document document;
-    document.load(input);
-
-    xdoc::Document document2;
-    xdoc::Node::clone(document2.root(), document.root());
-
-    Buffer output;
-    document2.exportTo(DataFormat::XML, output, false);
-
-    EXPECT_STREQ(testXmlDocument.c_str(), output.c_str());
-}
-
-TEST(SPTK_XDocument, clone2)
-{
-    const Buffer   input(testJSON);
-    xdoc::Document document;
-    document.load(input);
-
-    xdoc::Document document2;
-
-    xdoc::Node::clone(document2.root(), document.root());
-
     verifyDocument(document);
 }
 
 TEST(SPTK_XDocument, add)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
     auto& root = *document.root();
@@ -150,7 +115,7 @@ TEST(SPTK_XDocument, add)
     skills.resize(array.size());
 
     ranges::transform(array, skills.begin(),
-                      [](const xdoc::SNode& skill)
+                      [](const SNode& skill)
                       {
                           return skill->getString();
                       });
@@ -165,8 +130,8 @@ TEST(SPTK_XDocument, add)
 
 TEST(SPTK_XDocument, remove)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
     auto& root = *document.root();
@@ -183,8 +148,8 @@ TEST(SPTK_XDocument, remove)
 
 TEST(SPTK_XDocument, clear)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
     document.root()->clear();
@@ -196,8 +161,8 @@ TEST(SPTK_XDocument, clear)
 
 TEST(SPTK_XDocument, exportToBuffer)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
     Buffer buffer;
@@ -209,34 +174,63 @@ TEST(SPTK_XDocument, exportToBuffer)
 
 TEST(SPTK_XDocument, copyCtor)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
-    xdoc::Document document2(document);
+    Document document2(document);
 
     verifyDocument(document);
     verifyDocument(document2);
 }
 
+TEST(SPTK_XDocument, copyCtorPreservesStructureAndIsIndependent)
+{
+    const Buffer input(
+        R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
+
+    Document original;
+    original.load(input);
+
+    Buffer originalJson;
+    original.exportTo(DataFormat::JSON, originalJson, false);
+
+    const Document copy(original);
+
+    Buffer copyJson;
+    copy.exportTo(DataFormat::JSON, copyJson, false);
+    EXPECT_STREQ(originalJson.c_str(), copyJson.c_str());
+
+    // Mutate the source after copy, the copied document must remain unchanged.
+    const auto originalRoot = original.root()->findFirst("root");
+    ASSERT_NE(nullptr, originalRoot);
+    originalRoot->set("name", "changed");
+    originalRoot->remove("tail");
+    originalRoot->pushValue("extra", 42, Node::Type::Number);
+
+    Buffer copyJsonAfterSourceMutation;
+    copy.exportTo(DataFormat::JSON, copyJsonAfterSourceMutation, false);
+    EXPECT_STREQ(copyJson.c_str(), copyJsonAfterSourceMutation.c_str());
+}
+
 TEST(SPTK_XDocument, moveCtor)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
-    xdoc::Document document2(std::move(document));
+    Document document2(std::move(document));
 
     verifyDocument(document2);
 }
 
 TEST(SPTK_XDocument, copyAssign)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
-    xdoc::Document document2;
+    Document document2;
 
     document2 = document;
 
@@ -244,13 +238,43 @@ TEST(SPTK_XDocument, copyAssign)
     verifyDocument(document2);
 }
 
+TEST(SPTK_XDocument, copyAssignPreservesStructureAndIsIndependent)
+{
+    const Buffer input(
+        R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
+
+    Document source;
+    source.load(input);
+
+    Buffer sourceJson;
+    source.exportTo(DataFormat::JSON, sourceJson, false);
+
+    Document target;
+    target = source;
+
+    Buffer targetJson;
+    target.exportTo(DataFormat::JSON, targetJson, false);
+    EXPECT_STREQ(sourceJson.c_str(), targetJson.c_str());
+
+    // Mutate source after assignment, assigned document must remain unchanged.
+    const auto sourceRoot = source.root()->findFirst("root");
+    ASSERT_NE(nullptr, sourceRoot);
+    sourceRoot->set("name", "changed");
+    sourceRoot->remove("tail");
+    sourceRoot->pushValue("extra", 42, Node::Type::Number);
+
+    Buffer targetJsonAfterSourceMutation;
+    target.exportTo(DataFormat::JSON, targetJsonAfterSourceMutation, false);
+    EXPECT_STREQ(targetJson.c_str(), targetJsonAfterSourceMutation.c_str());
+}
+
 TEST(SPTK_XDocument, moveAssign)
 {
-    const Buffer   input(testJSON);
-    xdoc::Document document;
+    const Buffer input(testJSON);
+    Document     document;
     document.load(input);
 
-    xdoc::Document document2;
+    Document document2;
 
     document2 = std::move(document);
 
@@ -275,8 +299,8 @@ TEST(SPTK_XDocument, truncated)
 
 TEST(SPTK_XDocument, errors)
 {
-    xdoc::Document document;
-    size_t         errorCount = 0;
+    Document document;
+    size_t   errorCount = 0;
 
     const Buffer junkTailJSON(String(testJSON) + "=");
     try
@@ -326,7 +350,7 @@ TEST(SPTK_XDocument, performance)
 {
     constexpr int objectCount = 50000;
 
-    xdoc::Document document;
+    const Document document;
 
     const auto& arrayElement = document.root()->pushNode("items");
     for (int i = 0; i < objectCount; ++i)
@@ -376,7 +400,7 @@ TEST(SPTK_XDocument, performance)
 
 TEST(SPTK_XDocument, exportText)
 {
-    xdoc::Document document;
+    const Document document;
     const auto     testNode = document.root()->pushNode("test");
     auto           textNode = testNode->set("#text", "ttt");
 

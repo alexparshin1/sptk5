@@ -112,11 +112,11 @@ void Node::importJson(const SNode& jsonElement, const Buffer& jsonStr)
     switch (*pos)
     {
         case '{':
-            jsonElement->type(Node::Type::Object);
+            jsonElement->type(Type::Object);
             readObjectData(jsonElement, json, pos, false);
             break;
         case '[':
-            jsonElement->type(Node::Type::Array);
+            jsonElement->type(Type::Array);
             readArrayData(jsonElement, json, pos);
             break;
         default:
@@ -277,11 +277,11 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 
             case '[':
 
-                xdoc::readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition);
+                readArrayData(parent->pushNode("", Node::Type::Array), json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false);
+                readObjectData(parent->pushNode("", Node::Type::Object), json, readPosition, false);
                 break;
 
             case '0':
@@ -361,13 +361,13 @@ void        readObjectData(const SNode& parent, const char* json, const char*& r
                 break;
 
             case '[':
-                xdoc::readArrayData(parent->pushNode(elementName, Node::Type::Array),
-                                    json, readPosition);
+                readArrayData(parent->pushNode(elementName, Node::Type::Array),
+                              json, readPosition);
                 break;
 
             case '{':
-                xdoc::readObjectData(elementIsAttributes ? parent : parent->pushNode(elementName, Node::Type::Object),
-                                     json, readPosition, elementIsAttributes);
+                readObjectData(elementIsAttributes ? parent : parent->pushNode(elementName, Node::Type::Object),
+                               json, readPosition, elementIsAttributes);
                 break;
 
             case '0':

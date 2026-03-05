@@ -52,31 +52,27 @@ DataFormat autoDetectFormat(const char* data)
 } // namespace
 
 Document::Document(Node::Type rootType)
-    : m_root(std::make_shared<Node>("", rootType))
+    : m_root(Node::createNode("", rootType))
 {
 }
 
 Document::Document(const Document& other)
-    : m_root(make_shared<Node>(""))
+    : m_root(Node::createNode(other.m_root))
 {
-    Buffer buffer;
-    other.exportTo(DataFormat::JSON, buffer, false);
-    load(buffer);
 }
 
 Document::Document(Document&& other)
     : m_root(std::move(other.m_root))
 {
-    other.m_root = make_shared<Node>("");
+    other.m_root = Node::createNode("");
 }
 
 Document& Document::operator=(const Document& other)
 {
     if (this != &other)
     {
-        Buffer buffer;
-        other.exportTo(DataFormat::JSON, buffer, false);
-        load(buffer);
+        const auto root = Node::createNode(other.m_root);
+        m_root = root;
     }
     return *this;
 }
@@ -86,7 +82,7 @@ Document& Document::operator=(Document&& other)
     if (this != &other)
     {
         m_root = std::move(other.m_root);
-        other.m_root = make_shared<Node>("");
+        other.m_root = Node::createNode("");
     }
     return *this;
 }

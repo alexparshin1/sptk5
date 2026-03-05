@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Buffer.h>
 #include <sptk5/net/Socket.h>
 
 namespace sptk {

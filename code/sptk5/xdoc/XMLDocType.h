@@ -29,9 +29,6 @@
 #include <sptk5/Buffer.h>
 #include <sptk5/xdoc/XMLEntities.h>
 
-#include <map>
-#include <string>
-
 namespace sptk::xdoc {
 
 /**
