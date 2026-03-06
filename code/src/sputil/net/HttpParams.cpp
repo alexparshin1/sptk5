@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -106,13 +107,14 @@ String Url::decode(const String& str)
 
             case '%':
                 ++src;
-                if (pos + 3 >= str.length())
+                if (pos + 3 > str.length())
                 {
                     throw Exception("Invalid URL encoding");
                 }
                 dest = static_cast<char>(hexCharToInt(*src) * base16 + hexCharToInt(src[1]));
                 buffer.append(dest);
                 src += 2;
+                pos += 2;
                 break;
 
             default:
@@ -158,6 +160,7 @@ void HttpParams::decode(const Buffer& buffer)
 void HttpParams::encode(Buffer& result) const
 {
     unsigned cnt = 0;
+    result.bytes(0);
     for (const auto& [name, value]: m_params)
     {
         String param;

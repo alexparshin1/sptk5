@@ -35,6 +35,9 @@ static const String testURL0 = "https://www.test.com:8080/daily/report";
 static const String testURL1 = "/daily/report?action=view&id=1";
 static const String testURL2 = "https://johnd:secret@www.test.com:8080/daily/report?action=view&id=1";
 static const String testURL3 = "https://johnd:secret@www.test.com:8080/report?action=view&id=1";
+static const String testURL4 = "https://www.test.com?action=view&id=1";
+static const String testURL5 = "https://johnd@www.test.com:8080/daily/report?action=view&id=1";
+static const String testURL6 = "https://www.test.com/";
 
 TEST(SPTK_URL, minimal) /* NOLINT */
 {
@@ -84,6 +87,10 @@ TEST(SPTK_URL, all) /* NOLINT */
 
     URL url3(testURL3);
     EXPECT_STREQ(url3.location().c_str(), "");
+
+    URL url4(testURL4);
+    EXPECT_STREQ(url4.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url4.params().get("id").c_str(), "1");
 }
 
 TEST(SPTK_URL, loop)
@@ -93,4 +100,36 @@ TEST(SPTK_URL, loop)
     {
         URL url(testURL0);
     }
+}
+
+TEST(SPTK_URL, usernameWithoutPasswordRoundTrip) /* NOLINT */
+{
+    URL url(testURL5);
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_STREQ(url.username().c_str(), "johnd");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/daily/report");
+    EXPECT_EQ(url.params().size(), static_cast<size_t>(2));
+    EXPECT_STREQ(url.params().get("action").c_str(), "view");
+    EXPECT_STREQ(url.params().get("id").c_str(), "1");
+
+    EXPECT_STREQ(url.toString().c_str(), testURL5.c_str());
+}
+
+TEST(SPTK_URL, rootPath) /* NOLINT */
+{
+    URL url(testURL6);
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com");
+    EXPECT_STREQ(url.username().c_str(), "");
+    EXPECT_STREQ(url.password().c_str(), "");
+    EXPECT_STREQ(url.path().c_str(), "/");
+    EXPECT_EQ(url.params().size(), static_cast<size_t>(0));
+    EXPECT_STREQ(url.toString().c_str(), testURL6.c_str());
+}
+
+TEST(SPTK_URL, rejectsTrailingJunk) /* NOLINT */
+{
+    EXPECT_ANY_THROW(URL("https://www.test.com/path ???"));
 }

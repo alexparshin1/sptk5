@@ -124,3 +124,39 @@ TEST(SPTK_HttpParams, decode_throwsOnTruncatedPercentEscape)
     EXPECT_ANY_THROW(httpParams.decode(Buffer("%")));
     EXPECT_ANY_THROW(httpParams.decode(Buffer("%1")));
 }
+
+// Valid percent-encoded values at the end of a string should decode successfully
+TEST(SPTK_HttpParams, decode_validPercentEscapesAtEnd)
+{
+    HttpParams httpParams;
+
+    httpParams.decode(Buffer("space=%20&slash=%2F&plus=%2B"));
+
+    EXPECT_STREQ(" ", httpParams.get("space").c_str());
+    EXPECT_STREQ("/", httpParams.get("slash").c_str());
+    EXPECT_STREQ("+", httpParams.get("plus").c_str());
+}
+
+// Valid percent-encoded parameter names should decode successfully
+TEST(SPTK_HttpParams, decode_validPercentEscapesInKey)
+{
+    HttpParams httpParams;
+
+    httpParams.decode(Buffer("a%2Fb=value"));
+
+    EXPECT_TRUE(httpParams.has("a/b"));
+    EXPECT_STREQ("value", httpParams.get("a/b").c_str());
+}
+
+// encode() should produce a fresh encoded string in output buffer
+TEST(SPTK_HttpParams, encode_overwritesOutputBuffer)
+{
+    HttpParams httpParams;
+    httpParams["x"] = "1";
+    httpParams["y"] = "2";
+
+    Buffer encoded("prefix");
+    httpParams.encode(encoded);
+
+    EXPECT_STREQ("x=1&y=2", encoded.c_str());
+}

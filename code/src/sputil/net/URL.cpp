@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -27,62 +28,73 @@
 #include <sptk5/RegularExpression.h>
 #include <sptk5/net/URL.h>
 
+#include <format>
+
 using namespace std;
 using namespace sptk;
 
-namespace {
-bool nextToken(const String& url, size_t& start, const String& delimiter, String& value)
-{
-    value = "";
-    if (const auto end = url.find(delimiter, start);
-        end != string::npos)
-    {
-        value = url.substr(start, end - start);
-        start = end + delimiter.length();
-        return true;
-    }
-    return false;
-}
-} // namespace
-
 URL::URL(const String& url)
 {
-    size_t start = 0;
-    nextToken(url, start, "://", m_protocol);
+    static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.]+)?(/[^?\s]*)?(\?\S+)?$)");
 
-    String credentials;
-    nextToken(url, start, "@", credentials);
-    if (!credentials.empty())
+    try
     {
-        const auto pos = credentials.find(":");
-        if (pos == string::npos)
+        const auto matches = matchUrl.m(url);
+        if (!matchUrl.m(url))
         {
-            m_username = credentials;
+            throw Exception("Wrong URL format");
         }
-        else
+
+        const auto& groups = matches.groups();
+
+        if (groups.size() <= 1)
         {
-            m_username = credentials.substr(0, pos);
-            m_password = credentials.substr(pos + 1);
+            throw Exception("No hostname, IP address, or path");
+        }
+        m_protocol = groups[1].value;
+
+        if (groups.size() <= 3)
+        {
+            throw Exception("No hostname or IP address");
+        }
+        m_username = groups[3].value;
+
+        if (groups.size() <= 4)
+        {
+            throw Exception("No hostname or IP address");
+        }
+        if (const auto password = groups[4].value;
+            !password.empty())
+        {
+            m_password = password.substr(1);
+        }
+
+        if (groups.size() <= 5)
+        {
+            throw Exception("No hostname or IP address");
+        }
+        m_hostAndPort = groups[5].value;
+
+        if (groups.size() <= 6)
+            return;
+        m_path = groups[6].value;
+
+        if (groups.size() <= 7)
+            return;
+
+        if (const auto params = groups[7].value;
+            !params.empty())
+        {
+            if (const Buffer buffer(params.substr(1));
+                !buffer.empty())
+            {
+                m_params.decode(buffer);
+            }
         }
     }
-
-    Buffer buffer;
-    if (!nextToken(url, start, "/", m_hostAndPort))
+    catch (const Exception& e)
     {
-        m_hostAndPort = url.substr(start);
-    }
-    else
-    {
-        --start;
-        if (nextToken(url, start, "?", m_path))
-        {
-            buffer.set(url.substr(start));
-            m_params.decode(buffer);
-        }
-        else
-        {
-            m_path = url.substr(start);
-        }
+        throw Exception(format("Invalid URL: {}", e.what()));
     }
 }
 
@@ -97,7 +109,12 @@ String URL::toString() const
 
     if (!m_username.empty())
     {
-        str << m_username << ":" << m_password << "@";
+        str << m_username;
+        if (!m_password.empty())
+        {
+            str << ":" << m_password;
+        }
+        str << "@";
     }
 
     str << m_hostAndPort;
