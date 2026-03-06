@@ -59,9 +59,9 @@ public:
      * @brief Constructor.
      *
      * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-     * For more information please refer to:
+     * For more information, please refer to:
      * http://www.postgresql.org/docs/current/interactive/libpq-connect.html.
-     * If the connection string is empty, then the default database with the name equal to username is used.
+     * If the connection string is empty, then the default database with the name equal to the username is used.
      * @param connectionString  The OracleOci connection string.
      * @param connectTimeout    Connection timeout in seconds.
      */
@@ -113,7 +113,7 @@ public:
     /**
      * @brief Lists database objects.
      * @param objectType        Object type to list.
-     * @param objects           Object list (output)
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
@@ -141,52 +141,52 @@ protected:
 
     // These methods implement the actions requested by CQuery
     /**
-     * Retrieves an error (if any) after executing a statement.
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     [[nodiscard]] String queryError(const Query* query) const override;
 
     /**
-     * Allocates an OracleOci statement.
+     * @brief Allocates an OracleOci statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an OracleOci statement.
+     * @brief Deallocates an OracleOci statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an OracleOci statement.
+     * @brief Closes an OracleOci statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by the database.
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement.
+     * @brief Executes a statement.
      */
     void queryExecute(Query* query) override;
 
     /**
-     * Counts columns of the dataset (if any) returned by the query.
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     [[nodiscard]] size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query.
+     * @brief Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query's recordset.
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
     /**
-     * Reads data from the query's recordset into the fields and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into the fields and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
@@ -207,9 +207,9 @@ protected:
     }
 
 private:
-    mutable std::mutex                  m_mutex;                 ///< Mutex that protects access to data members
-    std::shared_ptr<ocilib::Connection> m_connection;            ///< OracleOci database connection
-    std::chrono::minutes                m_sessionTimezoneOffset; ///< Session timezone offset in minutes
+    mutable std::mutex                  m_mutex;                     ///< Mutex that protects access to data members.
+    std::shared_ptr<ocilib::Connection> m_connection;                ///< OracleOci database connection.
+    std::chrono::minutes                m_sessionTimezoneOffset {0}; ///< Session timezone offset in minutes.
 
     static void          createQueryFieldsFromMetadata(Query* query, const ocilib::Resultset& resultSet);
     void                 executeMultipleStatements(const Strings& statements, Strings* errors);

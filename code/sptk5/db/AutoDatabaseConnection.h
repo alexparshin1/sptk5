@@ -32,13 +32,13 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
- * @{SPTK_OracleConnection
+ * @addtogroup Database Database Support.
+ * @{SPTK_OracleConnection.
  */
 class DatabaseConnectionPool;
 
 /**
- * @brief Wrapper for CDatabase connection that automatically handles connection create and release
+ * @brief Wrapper for CDatabase connection that automatically handles connection create and release.
  */
 class SP_EXPORT AutoDatabaseConnection
 {
@@ -55,7 +55,7 @@ public:
 
     /**
      * @brief Destructor.
-     * Releases connection to connection pool
+     * Releases connection to connection pool.
      */
     virtual ~AutoDatabaseConnection();
 
@@ -140,7 +140,7 @@ public:
      * @param objectType        Object type to list.
      * @param objects           Object list (output).
      */
-    void objectList(const DatabaseObjectType objectType, Strings& objects) const;
+    void objectList(DatabaseObjectType objectType, Strings& objects) const;
 
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
@@ -155,7 +155,7 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize = 100) const;
+                    std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, size_t groupSize = 100) const;
 
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
@@ -167,7 +167,7 @@ public:
      * @param groupSize         Number of records inserted at once.
      */
     void bulkInsert(const String& tableName, const Strings& columnNames,
-                    std::vector<VariantVector>& data, const size_t groupSize = 50) const;
+                    std::vector<VariantVector>& data, size_t groupSize = 50) const;
 
     /**
      * @brief Executes bulk delete of rows by the keys.
@@ -202,9 +202,9 @@ public:
     [[nodiscard]] String lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/ = "") const;
 
 private:
-    DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool
-    SPoolDatabaseConnection m_connection {nullptr};     ///< Database connection
-    static const String     s_invalidConnectionMessage; ///< Error message for inactive connection
+    DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool.
+    SPoolDatabaseConnection m_connection {nullptr};     ///< Database connection.
+    static const String     s_invalidConnectionMessage; ///< Error message for inactive connection.
 };
 
 using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;

@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -24,11 +25,19 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Buffer.h"
+#include "sptk5/Exception.h"
+#include "sptk5/String.h"
+
+
 #include <array>
 #include <cstring>
 
 #include <sptk5/db/ODBCEnvironment.h>
 
+namespace sptk {
+class Buffer;
+}
 using namespace std;
 using namespace sptk;
 
@@ -184,7 +193,7 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
     rc = SQLGetInfo(m_hConnection.get(), SQL_DBMS_VER, driverDescription.data(), bufferLength, &descriptionLength);
     if (Successful(rc))
     {
-        m_driverDescription += " " + String((const char*) driverDescription.data());
+        m_driverDescription += " " + String(driverDescription.data());
     }
 }
 

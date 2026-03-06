@@ -38,14 +38,14 @@
 
 namespace sptk {
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * @brief SQLite3 database
+ * @brief SQLite3 database.
  *
- * CSQLite3Connection is thread-safe connection to SQLite3 database.
+ * CSQLite3Connection is the thread-safe connection to SQLite3 database.
  */
 class SP_EXPORT SQLite3Connection
     : public PoolDatabaseConnection
@@ -54,153 +54,155 @@ class SP_EXPORT SQLite3Connection
 
 public:
     /**
-     * @brief Constructor
-     * @param connectionString  The SQLite3 connection string
-     * @param connectTimeout    Connection timeout in seconds
+     * @brief Constructor.
+     * @param connectionString  The SQLite3 connection string.
+     * @param connectTimeout    Connection timeout in seconds.
      */
     explicit SQLite3Connection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~SQLite3Connection() override = default;
 
     /**
-     * @brief Returns driver-specific connection string
+     * @brief Returns driver-specific connection string.
      */
     String nativeConnectionString() const override;
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened
+     * @brief Returns true if the database is opened.
      */
     bool active() const override;
 
     /**
-     * @brief Returns the database connection handle
+     * @brief Returns the database connection handle.
      */
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the SQLite3 driver description for the active connection
+     * @brief Returns the SQLite3 driver description for the active connection.
      */
     String driverDescription() const override;
 
     /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * @brief Lists database objects.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
-     * @brief All active connections
+     * @brief All active connections.
      */
     static SynchronizedMap<SQLite3Connection*, std::shared_ptr<SQLite3Connection>> s_sqlite3Connections;
 
 protected:
     /**
-     * @brief Begins the transaction
+     * @brief Begins the transaction.
      */
     void driverBeginTransaction() override;
 
     /**
-     * @brief Ends the transaction
-     * @param commit            Commit if true, rollback if false
+     * @brief Ends the transaction.
+     * @param commit            Commit if true, rollback if false.
      */
     void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
-     * Retrieves an error (if any) after executing a statement
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an SQLite3 statement
+     * @brief Allocates an SQLite3 statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an SQLite3 statement
+     * @brief Deallocates an SQLite3 statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an SQLite3 statement
+     * @brief Closes an SQLite3 statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by database
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement
+     * @brief Executes a statement.
      */
     void queryExecute(Query* query) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     /**
-     * Counts columns of the dataset (if any) returned by query
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query
+     * @brief Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query' recordset
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
     /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into fields and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
 
     /**
-     * @brief Returns the SQLite3 connection object
+     * @brief Returns the SQLite3 connection object.
      */
-    sqlite3* connection()
+    sqlite3* connection() const
     {
         return m_connect.get();
     }
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param newConnectionString  The SQLite3 connection string
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
+     * @param newConnectionString  The SQLite3 connection string.
      */
     void _openDatabase(const String& newConnectionString) override;
 
     /**
-     * @brief Executes SQL batch file
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            If not nullptr, store errors here instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            If not nullptr, store errors here instead of exceptions.
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
 private:
     using SQLHSTMT = sqlite3_stmt*;
 
-    mutable std::mutex       m_mutex;                     ///< Mutex that protects access to data members
-    std::shared_ptr<sqlite3> m_connect;                   ///< Database connection
+    mutable std::mutex       m_mutex;                     ///< Mutex that protects access to data members.
+    std::shared_ptr<sqlite3> m_connect;                   ///< Database connection.
     std::chrono::minutes     m_sessionTimezoneOffset {0}; //< Session timezone offset
 
     void                 bindParameter(Query* query, uint32_t paramNumber);
     void                 closeAndClean();
     static int           transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber, VariantDataType dataType);
     std::chrono::minutes getSessionTimezoneOffset(); //< Get session timezone offset
+
+    static void setFieldToNull(Field* field, short sqliteFieldType);
 };
 
 /**

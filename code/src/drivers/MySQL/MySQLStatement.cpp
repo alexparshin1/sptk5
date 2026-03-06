@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -89,6 +90,10 @@ MySQLStatement::MySQLStatement(MySQLConnection* connection, String sql, bool aut
     if (autoPrepare)
     {
         auto* stmt = mysql_stmt_init(bit_cast<MYSQL*>(connection->handle()));
+        if (stmt == nullptr)
+        {
+            throw DatabaseException("Failed to initialize MySQL statement");
+        }
         m_stmt = shared_ptr<MYSQL_STMT>(stmt, [](auto* ptr)
                                         {
                                             mysql_stmt_close(ptr);
@@ -349,6 +354,10 @@ void MySQLStatement::execute(bool)
         if (state().columnCount != 0U)
         {
             auto* result = mysql_stmt_result_metadata(statement());
+            if (!result)
+            {
+                throwMySQLError();
+            }
             m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr)
                                              {
                                                  mysql_free_result(ptr);
@@ -360,13 +369,16 @@ void MySQLStatement::execute(bool)
         MYSQL* conn = connection()->m_connection.get();
         if (mysql_query(conn, m_sql.c_str()) != 0)
         {
-            const String error(mysql_error(conn));
-            throw DatabaseException(error);
+            throw DatabaseException(format("Can't execute statement: {}", mysql_error(conn)));
         }
         state().columnCount = mysql_field_count(conn);
         if (state().columnCount != 0U)
         {
             auto* result = mysql_store_result(conn);
+            if (!result)
+            {
+                throw DatabaseException(mysql_error(conn));
+            }
             m_result = shared_ptr<MYSQL_RES>(result, [](auto* ptr)
                                              {
                                                  mysql_free_result(ptr);
@@ -500,7 +512,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
     const auto  fieldCount = static_cast<int>(fields.size());
     const auto* lengths = mysql_fetch_lengths(m_result.get());
 
-    for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
+    for (auto fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
 
         auto* field = dynamic_cast<MySQLStatementField*>(&fields[fieldIndex]);
@@ -586,7 +598,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, const MYSQL_BIND& bind)
     auto* field = dynamic_cast<MySQLStatementField*>(_field);
     if (bind.buffer_type == MYSQL_TYPE_NEWDECIMAL)
     {
-        const double value = string2double(static_cast<char*>(bind.buffer));
+        const auto value = string2double(static_cast<char*>(bind.buffer));
         field->setFloat(value);
     }
     else
@@ -594,7 +606,7 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, const MYSQL_BIND& bind)
         const auto dataLength = static_cast<uint32_t>(*(bind.length));
         if (dataLength == sizeof(float))
         {
-            const float value = *static_cast<float*>(bind.buffer);
+            const auto value = *static_cast<float*>(bind.buffer);
             field->setFloat(value);
         }
         field->setDataSize(dataLength);
@@ -604,8 +616,8 @@ void MySQLStatement::decodeMySQLFloat(Field* _field, const MYSQL_BIND& bind)
 void MySQLStatement::readPreparedResultRow(FieldList& fields)
 {
     const auto fieldCount = static_cast<int>(fields.size());
-    bool       fieldSizeChanged = false;
-    for (int fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
+    auto       fieldSizeChanged = false;
+    for (auto fieldIndex = 0; fieldIndex < fieldCount; ++fieldIndex)
     {
         auto*       field = dynamic_cast<MySQLStatementField*>(&fields[fieldIndex]);
         MYSQL_BIND& bind = m_fieldBuffers[fieldIndex];
@@ -660,7 +672,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
 bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* field, size_t fieldIndex,
                                       uint32_t dataLength) const
 {
-    bool fieldSizeChanged = false;
+    auto fieldSizeChanged = false;
 
     if (field->isNull() || field->bufferSize() < dataLength)
     {

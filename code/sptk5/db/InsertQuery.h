@@ -30,58 +30,58 @@
 
 namespace sptk {
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * Database query
+ * @brief Database query.
  *
- * A Dataset connected to the database to execute a database queries. The type of the database depends
- * on the DatabaseConnection object query is connected to.
+ * A Dataset connected to the database to execute database queries. The type of the database depends
+ * on the DatabaseConnection object the query is connected to.
  */
 class SP_EXPORT InsertQuery : public Query
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
      * You can optionally provide the name of the file and line number where
      * this query is created. This is used to collect statistical information
      * for the query calls. If file and line information is provided, then
-     * calls statistics is stored to the database object during the query dtor.
-     * @param db               Database connection
-     * @param sql              SQL query, optional
-     * @param idFieldName      Name of auto-incremental field
+     * the calls statistics are stored to the database object during the query dtor.
+     * @param db               Database connection.
+     * @param sql              SQL query, optional.
+     * @param idFieldName      Name of auto-incremental field.
      */
     explicit InsertQuery(const DatabaseConnection& db, const String& sql = "", const String& idFieldName = "id");
 
     /**
-     * Return query' SQL
-     * @return SQL
+     * @brief Return query' SQL.
+     * @return SQL.
      */
-    String sql() const override;
+    [[nodiscard]] String sql() const override;
 
     /**
-     * Sets SQL Query text.
-     * If the Query text is not the same and the db statement was prepared earlier
-     * then the db statement is released and new one is created.
-     * @param _sql             Query SQL
+     * @brief Sets SQL Query text.
+     * If the Query text is different and the db statement was prepared earlier,
+     * then the db statement is released and the new one is created.
+     * @param _sql             Query SQL.
      */
     void sql(const String& _sql) override;
 
     /**
-     * Executes insert query.
+     * @brief Executes insert query.
      *
      * Retrieves value of "id" field and sets internal value for id().
      */
     void exec() override;
 
     /**
-     * Executes the query and closes the statement.
+     * @brief Executes the query and closes the statement.
      *
-     * Query SQL would be set to the new SQL statement
-     * @param newSQL            SQL statement to execute
+     * Query SQL would be set to the new SQL statement.
+     * @param newSQL            SQL statement to execute.
      */
     void exec(const String& newSQL) override
     {
@@ -90,33 +90,33 @@ public:
     }
 
     /**
-     * Get created record id
-     * @return created record id
+     * @brief Get created record id.
+     * @return created record id.
      */
-    uint64_t id() const
+    [[nodiscard]] uint64_t id() const
     {
         return m_id;
     }
 
 private:
-    uint64_t m_id {0};         ///< The value of 'id' field in inserted record
-    String   m_idFieldName;    ///< The name of the auto-incremental field
-    SQuery   m_lastInsertedId; ///< The query retrieving last inserted id (if needed by connection)
+    uint64_t m_id {0};         ///< The value of the 'id' field in the inserted record.
+    String   m_idFieldName;    ///< The name of the auto-incremental field.
+    SQuery   m_lastInsertedId; ///< The query retrieving the last inserted id (if needed by connection).
 
     /**
-     * Adjust the MS SQL insert query by
-     * @param sql               Query SQL
-     * @param idFieldName       Auto-incremental field name
-     * @returns Adjusted SQL
+     * @brief Adjust the MS SQL insert query by.
+     * @param sql               Query SQL.
+     * @param idFieldName       Auto-incremental field name.
+     * @returns Adjusted SQL.
      */
     static String reviewMsSqlQuery(const String& sql, const String& idFieldName);
 
     /**
-     * Adjust the insert query by adding RETURNING id if a connection type allows that
-     * @param connectionType    Database connection type
-     * @param sql               Query SQL
-     * @param idFieldName       Auto-incremental field name
-     * @returns Adjusted SQL
+     * @brief Adjust the insert query by adding RETURNING id if a connection type allows that.
+     * @param connectionType    Database connection type.
+     * @param sql               Query SQL.
+     * @param idFieldName       Auto-incremental field name.
+     * @returns Adjusted SQL.
      */
     static String reviewQuery(DatabaseConnectionType connectionType, const String& sql, const String& idFieldName);
 };

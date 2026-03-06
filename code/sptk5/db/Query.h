@@ -41,7 +41,7 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
@@ -50,8 +50,8 @@ class SP_EXPORT QueryStatementManagement
 {
 public:
     /**
-     * @brief Constructor
-     * @param autoPrepare       If true, the auto-prepare statement
+     * @brief Constructor.
+     * @param autoPrepare       If true, the auto-prepare statement.
      */
     explicit QueryStatementManagement(bool autoPrepare)
         : m_autoPrepare(autoPrepare)
@@ -61,7 +61,7 @@ public:
     QueryStatementManagement(const QueryStatementManagement& other) = delete;
 
     /**
-     * @brief Returns query statement handle
+     * @brief Returns query statement handle.
      */
     [[nodiscard]] StmtHandle statement() const
     {
@@ -69,7 +69,7 @@ public:
     }
 
     /**
-     * Returns the value for the auto-prepare flag.
+     * @brief Returns the value for the auto-prepare flag.
      *
      * If the flag is set, the query would automatically call prepare() when needed.
      */
@@ -79,7 +79,7 @@ public:
     }
 
     /**
-     * @brief Reports if the query is opened
+     * @brief Reports if the query is opened.
      */
     [[nodiscard]] bool active() const
     {
@@ -87,7 +87,7 @@ public:
     }
 
     /**
-     * @brief True if the statement is prepared
+     * @brief True if the statement is prepared.
      */
     [[nodiscard]] bool prepared() const
     {
@@ -95,7 +95,7 @@ public:
     }
 
     /**
-     * @brief Returns true if there are no more rows in the recordset
+     * @brief Returns true if there are no more rows in the recordset.
      */
     [[nodiscard]] bool eof() const override
     {
@@ -103,20 +103,20 @@ public:
     }
 
     /**
-     * @brief Return bulk mode flag
-     * @return true for bulk mode
+     * @brief Return bulk mode flag.
+     * @return true for bulk mode.
      */
     [[nodiscard]] bool bulkMode() const;
 
     /**
-     * @brief Connects a query to a database
+     * @brief Connects a query to a database.
      *
      * If the query was connected to another database, releases all the allocated resources in it.
      */
     void connect(PoolDatabaseConnection* db);
 
     /**
-     * Disconnects the query from the database and releases all the allocated resources.
+     * @brief Disconnects the query from the database and releases all the allocated resources.
      */
     void disconnect();
 
@@ -129,7 +129,7 @@ public:
     }
 
     /**
-     * Connects the query to the database different database.
+     * @brief Connects the query to the database different database.
      */
     void database(PoolDatabaseConnection* db)
     {
@@ -138,7 +138,7 @@ public:
 
 protected:
     /**
-     * Set database (internal)
+     * @brief Set database (internal).
      */
     void setDatabase(PoolDatabaseConnection* db);
 
@@ -172,13 +172,13 @@ protected:
     void setBulkMode(bool _bulkMode);
 
     /**
-     * Closes a statement. Prepared statement stay prepared but closed.
+     * @brief Closes a statement. Prepared statement stay prepared but closed.
      * @param freeStatement     If true then statement is freed.
      */
     void closeStmt(bool freeStatement = false);
 
     /**
-     * Closes the query by closing the statement.
+     * @brief Closes the query by closing the statement.
      *
      * If the statement isn't released, it may be re-used later.
      * @param releaseStatement  True if we need to release the query's ODBC statement.
@@ -186,7 +186,7 @@ protected:
     void closeQuery(bool releaseStatement = false);
 
     /**
-     * Optional diagnostic messages populated after exec() or open()
+     * @brief Optional diagnostic messages populated after exec() or open().
      */
     Strings& messages()
     {
@@ -214,15 +214,15 @@ protected:
     [[noreturn]] void notImplemented(const String& functionName) const;
 
 private:
-    bool                    m_autoPrepare {true};  ///< Prepare the query automatically, on the first call
-    StmtHandle              m_statement {nullptr}; ///< DB statement handle
-    bool                    m_prepared {false};    ///< True if the statement is prepared
-    bool                    m_active {false};      ///< True if the query is active (opened)
-    bool                    m_eof {true};          ///< True if there are no more records to fetch
-    bool                    m_bulkMode {false};    ///< Bulk mode flag
-    String                  m_sql;                 ///< SQL statement string
-    Strings                 m_messages;            ///< Optional diagnostic messages populated after exec() or open()
-    PoolDatabaseConnection* m_db {nullptr};        ///< Database connection
+    bool                    m_autoPrepare {true};  ///< Prepare the query automatically, on the first call.
+    StmtHandle              m_statement {nullptr}; ///< DB statement handle.
+    bool                    m_prepared {false};    ///< True if the statement is prepared.
+    bool                    m_active {false};      ///< True if the query is active (opened).
+    bool                    m_eof {true};          ///< True if there are no more records to fetch.
+    bool                    m_bulkMode {false};    ///< Bulk mode flag.
+    String                  m_sql;                 ///< SQL statement string.
+    Strings                 m_messages;            ///< Optional diagnostic messages populated after exec() or open().
+    PoolDatabaseConnection* m_db {nullptr};        ///< Database connection.
 };
 
 /**
@@ -292,7 +292,7 @@ public:
     }
 
     /**
-     * Field access by field name.
+     * @brief Field access by field name.
      */
     Field& operator[](const String& fieldName) override
     {
@@ -309,7 +309,7 @@ public:
     }
 
     /**
-     * Reports the record count for the recordset, returned by the open() method.
+     * @brief Reports the record count for the recordset, returned by the open() method.
      *
      * Currently, it is NOT implemented.
      */
@@ -327,7 +327,7 @@ public:
     }
 
     /**
-     * Sets SQL Query text.
+     * @brief Sets SQL Query text.
      * If the Query text is different and the db statement was prepared earlier,
      * then the db statement is released and a new one is created.
      */
@@ -379,7 +379,7 @@ public:
     }
 
     /**
-     * Fetches the next row from the recordset, same as fetch()
+     * @brief Fetches the next row from the recordset, same as fetch().
      */
     bool next() override
     {
@@ -414,7 +414,7 @@ public:
     }
 
     /**
-     * Fetches the next row from the recordset, same as next()
+     * @brief Fetches the next row from the recordset, same as next().
      */
     void fetch();
 
@@ -443,7 +443,7 @@ public:
      * If the parameter name isn't found, throws an exception.
      * @param paramName const char *, parameter name.
      * @returns parameter.
-     * @see ParamList
+     * @see ParamList.
      */
     QueryParameter& param(const char* paramName) const
     {
@@ -532,6 +532,8 @@ private:
     String parseParameters(const String& _sql);
 
     const char* readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
+
+    bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError) const;
 };
 
 using SQuery = std::shared_ptr<Query>;

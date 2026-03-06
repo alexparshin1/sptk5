@@ -34,20 +34,20 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 
 /**
- * Database Connection String
+ * @brief Database Connection String.
  *
- * Database connection string includes driver name ('odbc', 'sqlite3', etc) as a protocol name,
+ * Database connection string includes driver name ('odbc', 'sqlite3', etc.) as a protocol name,
  * and username, password, server name in a traditional form. Database name is optionally defined
- * after server name and '/' delimiter.
+ * after the server name and '/' delimiter.
  *
  * Example:
- *   drivername://[username:password]\@servername[:port]/databasename
+ *   drivername://[username:password]\@servername[:port]/databasename.
  *
  * Some driver-specific parameters may be passed after '?':
  *   drivername://username:password\@servername/databasename?timeout=10&reconnect=30
@@ -58,8 +58,8 @@ class SP_EXPORT DatabaseConnectionString
 {
 public:
     /**
-     * Constructor
-     * @param connectionString  Database connection string
+     * @brief Constructor.
+     * @param connectionString  Database connection string.
      */
     explicit DatabaseConnectionString(String connectionString = "")
         : m_connectionString(std::move(connectionString))
@@ -71,26 +71,26 @@ public:
     }
 
     /**
-     * Copy constructor
-     * @param cs                Database connection string object to copy from
+     * @brief Copy constructor.
+     * @param cs                Database connection string object to copy from.
      */
     DatabaseConnectionString(const DatabaseConnectionString& cs) = default;
 
     /**
-     * Assignment
-     * @param cs                Database connection string object to copy from
+     * @brief Assignment.
+     * @param cs                Database connection string object to copy from.
      */
     DatabaseConnectionString& operator=(const DatabaseConnectionString& cs) = default;
 
     /**
-     * @brief Return connection string as a string, with the optional password.
-     * @param includePassword   If true then the password is included.
+     * @brief Return the connection string as a string, with the optional password.
+     * @param includePassword   If true, then the password is included.
      * @return Connection string.
      */
     [[nodiscard]] String toString(bool includePassword = true) const;
 
     /**
-     * Returns driver name
+     * @brief Returns driver name.
      */
     [[nodiscard]] const String& driverName() const
     {
@@ -98,7 +98,7 @@ public:
     }
 
     /**
-     * Returns host name
+     * @brief Returns host name.
      */
     [[nodiscard]] const String& hostName() const
     {
@@ -106,7 +106,7 @@ public:
     }
 
     /**
-     * Returns user name
+     * @brief Returns user name.
      */
     [[nodiscard]] const String& userName() const
     {
@@ -114,7 +114,7 @@ public:
     }
 
     /**
-     * Returns user password
+     * @brief Returns user password.
      */
     [[nodiscard]] const String& password() const
     {
@@ -122,7 +122,7 @@ public:
     }
 
     /**
-     * Returns database name
+     * @brief Returns database name.
      */
     [[nodiscard]] const String& databaseName() const
     {
@@ -130,7 +130,7 @@ public:
     }
 
     /**
-     * Returns schema name
+     * @brief Returns schema name.
      */
     [[nodiscard]] const String& schema() const
     {
@@ -138,7 +138,7 @@ public:
     }
 
     /**
-     * Returns server port number
+     * @brief Returns server port number.
      */
     [[nodiscard]] uint16_t portNumber() const
     {
@@ -146,8 +146,8 @@ public:
     }
 
     /**
-     * Set new user name
-     * @param user              New user name
+     * @brief Set the new username.
+     * @param user              New username.
      */
     void userName(const String& user)
     {
@@ -155,8 +155,8 @@ public:
     }
 
     /**
-     * Set new password
-     * @param pass              New password
+     * @brief Set the new password.
+     * @param pass              New password.
      */
     void password(const String& pass)
     {
@@ -164,66 +164,66 @@ public:
     }
 
     /**
-     * Return optional parameter value
-     * @param name              Parameter name
-     * @return parameter value
+     * @brief Return optional parameter value.
+     * @param name              Parameter name.
+     * @return parameter value.
      */
     [[nodiscard]] String parameter(const String& name) const;
 
     /**
-     * Is connection string empty?
+     * @brief Is the connection string empty?
      */
     [[nodiscard]] bool empty() const;
 
 protected:
     /**
-     * Parses connection string
+     * @brief Parses connection string.
      */
     void parse();
 
 private:
     /**
-     * Database connection string
+     * @brief Database connection string.
      */
     String m_connectionString;
 
     /**
-     * Database server host name
+     * @brief Database server host name.
      */
     String m_hostName;
 
     /**
-     * Database server port number
+     * @brief Database server port number.
      */
     uint16_t m_portNumber {0};
 
     /**
-     * Database user name
+     * @brief Database username.
      */
     String m_userName;
 
     /**
-     * Database user password
+     * @brief Database user password.
      */
     String m_password;
 
     /**
-     * Database name
+     * @brief Database name.
      */
     String m_databaseName;
 
     /**
-     * Database schema
+     * @brief Database schema.
      */
     String m_schema;
 
     /**
-     * Optional parameters
+     * @brief Optional parameters.
      */
     HttpParams m_parameters;
 
     /**
-     * Database driver name
+     * @brief Database driver name.
      */
     String m_driverName;
 };

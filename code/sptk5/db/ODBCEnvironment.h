@@ -30,8 +30,6 @@
 
 #ifdef HAVE_ODBC
 
-#include <sptk5/Strings.h>
-
 #ifdef WIN32
 #include <sys/types.h>
 #include <time.h>
@@ -42,16 +40,14 @@
 #define LPCVOID const void*
 #endif
 
-#include <cassert>
 #include <sqlext.h>
 
 #include <mutex>
-#include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
@@ -60,9 +56,9 @@ class ODBCEnvironment;
 class ODBCConnectionBase;
 
 /**
- * @brief ODBC base
+ * @brief ODBC base.
  *
- * Base class for all ODBC classes
+ * Base class for all ODBC classes.
  */
 class SP_DRIVER_EXPORT ODBCBase
     : public std::mutex
@@ -75,32 +71,31 @@ public:
     static constexpr const char* cantGetInformation = "Can't get connect information";
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~ODBCBase() = default;
 
+    /**
+     * @brief Assignment operator, disabled.
+     */
+    ODBCBase& operator=(const ODBCBase& d) = delete;
+
+    /**
+     * @brief Copy constructor, disabled.
+     */
+    ODBCBase(const ODBCBase&) = delete;
+
 protected:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     ODBCBase() = default;
-
-private:
-    /**
-     * Assignment operator, disabled
-     */
-    ODBCBase& operator=(const ODBCBase& d);
-
-    /**
-     * Copy constructor, disabled
-     */
-    ODBCBase(const ODBCBase&);
 };
 
 /**
- * @brief ODBC environment
+ * @brief ODBC environment.
  *
- * Environment is only used by ODBCConnection class
+ * Environment is only used by ODBCConnection class.
  */
 class SP_DRIVER_EXPORT ODBCEnvironment
     : public ODBCBase
@@ -109,41 +104,41 @@ class SP_DRIVER_EXPORT ODBCEnvironment
 
 public:
     /**
-     * Returns enviromment handle
+     * @brief Returns enviromment handle.
      */
-    SQLHENV handle() const
+    [[nodiscard]] SQLHENV handle() const
     {
         return m_hEnvironment.get();
     }
 
 protected:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     ODBCEnvironment() = default;
 
     /**
-     * Allocates enviromment handle
+     * @brief Allocates enviromment handle.
      */
     void allocEnv();
 
     /**
-     * Is enviromment handle allocated?
+     * @brief Is the environment handle allocated?
      */
-    bool valid() const
+    [[nodiscard]] bool valid() const
     {
         return m_hEnvironment != nullptr;
     }
 
 private:
     /**
-     * ODBC environment handle
+     * @brief ODBC environment handle.
      */
     std::shared_ptr<uint8_t> m_hEnvironment;
 };
 
 /**
- * @brief ODBC connection
+ * @brief ODBC connection.
  *
  * Class ODBCConnection represents the ODBC connection to a database.
  */
@@ -152,36 +147,36 @@ class SP_DRIVER_EXPORT ODBCConnectionBase
 {
 public:
     /**
-     * Allocates connection
+     * @brief Allocates connection.
      */
     void allocConnect();
 
     /**
-     * Deallocates connection
+     * @brief Deallocates connection.
      */
     void freeConnect();
 
     /**
-     * Connects to the database passing ODBC connection string.
+     * @brief Connects to the database passing ODBC connection string.
      * The full connection string is returned in FinalConnectionString.
      */
     void connect(const String& ConnectionString, String& FinalConnectionString, bool EnableDriverPrompt = false);
 
     /**
-     * Disconnects from the database passing ODBC connection string.
+     * @brief Disconnects from the database passing ODBC connection string.
      */
     void disconnect();
 
     /**
-     * Returns the connection handle
+     * @brief Returns the connection handle.
      */
-    SQLHDBC handle() const
+    [[nodiscard]] SQLHDBC handle() const
     {
         return (SQLHDBC) m_hConnection.get();
     }
 
     /**
-     * Returns true if the connection is active
+     * @brief Returns true if the connection is active.
      */
     bool isConnected()
     {
@@ -190,12 +185,12 @@ public:
     }
 
     /**
-     * Sets the connection option
+     * @brief Sets the connection option.
      */
     void setConnectOption(UWORD fOption, UDWORD vParam);
 
     /**
-     * Returns the ODBC connection string for the active connection
+     * @brief Returns the ODBC connection string for the active connection.
      */
     String connectString()
     {
@@ -204,7 +199,7 @@ public:
     }
 
     /**
-     * Returns the ODBC driver description string for the active connection
+     * @brief Returns the ODBC driver description string for the active connection.
      */
     String driverDescription()
     {
@@ -213,17 +208,17 @@ public:
     }
 
     /**
-     * Begins transaction
+     * @brief Begins transaction.
      */
     void beginTransaction();
 
     /**
-     * Controls transaction
+     * @brief Controls transaction.
      */
     void transact(uint16_t fType);
 
     /**
-     * Commits transaction
+     * @brief Commits transaction.
      */
     void commit()
     {
@@ -231,7 +226,7 @@ public:
     }
 
     /**
-     * Rollbacks transaction
+     * @brief Rollbacks transaction.
      */
     void rollback()
     {
@@ -239,7 +234,7 @@ public:
     }
 
     /**
-     * Returns the only environment needed
+     * @brief Returns the only environment needed.
      */
     static ODBCEnvironment& getEnvironment()
     {
@@ -247,37 +242,37 @@ public:
     }
 
     /**
-     * Retrieves an error information for user action name
-     * @returns ODBC driver error message with the user action
+     * @brief Retrieves error information for the user action name.
+     * @returns ODBC driver error message with the user action.
      */
     String errorInformation(const char* action) const;
 
 protected:
     /**
-     * Is connection active?
+     * @brief Is the connection active?
      */
-    bool valid() const
+    [[nodiscard]] bool valid() const
     {
         return m_hConnection != SQL_NULL_HDBC;
     }
 
     /**
-     * Execute query in current connection
-     * @param query             Query to execute
+     * @brief Execute query in current connection.
+     * @param query             Query to execute.
      */
     void execQuery(const char* query);
 
 private:
-    ODBCEnvironment&         m_cEnvironment {getEnvironment()}; ///< ODBC environment
-    std::shared_ptr<uint8_t> m_hConnection;                     ///< ODBC connection handle
-    bool                     m_connected {false};               ///< Is connection active?
-    String                   m_connectString;                   ///< ODBC connection string
-    String                   m_driverDescription;               ///< Driver description, filled in during the connection to the DSN
+    ODBCEnvironment&         m_cEnvironment {getEnvironment()}; ///< ODBC environment.
+    std::shared_ptr<uint8_t> m_hConnection;                     ///< ODBC connection handle.
+    bool                     m_connected {false};               ///< Is connection active?.
+    String                   m_connectString;                   ///< ODBC connection string.
+    String                   m_driverDescription;               ///< Driver description, filled in during the connection to the DSN.
     static ODBCEnvironment   m_env;
 };
 
 /**
- * Removes excessive driver information from error message
+ * @brief Removes excessive driver information from the error message.
  */
 String removeDriverIdentification(const char* error);
 

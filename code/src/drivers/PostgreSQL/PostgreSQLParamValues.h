@@ -44,7 +44,7 @@ class PostgreSQLParamValues
     std::vector<int>            m_lengths;
     std::vector<int>            m_formats;
     std::vector<Oid>            m_types;
-    CParamVector                m_params;
+    ParamVector                m_params;
     bool                        m_int64timestamps;
     DateTime                    m_epochDate;
 
@@ -111,7 +111,7 @@ public:
         return m_types.data();
     }
 
-    [[nodiscard]] const CParamVector& params() const
+    [[nodiscard]] const ParamVector& params() const
     {
         return m_params;
     }

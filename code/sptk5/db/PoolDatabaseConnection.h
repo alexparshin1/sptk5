@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 
@@ -50,14 +49,14 @@ using SStmtHandle = std::shared_ptr<uint8_t>;
  */
 enum class DatabaseConnectionType : uint16_t
 {
-    MYSQL = 1,         ///< MySQL
-    ORACLE = 2,        ///< Oracle
-    POSTGRES = 4,      ///< PostgreSQL
-    SQLITE3 = 8,       ///< SQLite3
-    FIREBIRD = 16,     ///< Firebird
-    GENERIC_ODBC = 32, ///< Generic ODBC
-    MSSQL_ODBC = 64,   ///< MS SQL ODBC
-    ORACLE_OCI = 128,  ///< Oracle OCILib
+    MYSQL = 1,         ///< MySQL.
+    ORACLE = 2,        ///< Oracle.
+    POSTGRES = 4,      ///< PostgreSQL.
+    SQLITE3 = 8,       ///< SQLite3.
+    FIREBIRD = 16,     ///< Firebird.
+    GENERIC_ODBC = 32, ///< Generic ODBC.
+    MSSQL_ODBC = 64,   ///< MS SQL ODBC.
+    ORACLE_OCI = 128,  ///< Oracle OCILib.
 };
 
 /**
@@ -65,11 +64,11 @@ enum class DatabaseConnectionType : uint16_t
  */
 enum class DatabaseObjectType : uint8_t
 {
-    TABLES,     ///< Tables
-    VIEWS,      ///< Views
-    PROCEDURES, ///< Stored procedures
-    FUNCTIONS,  ///< Stored functions
-    DATABASES   ///< Available databases
+    TABLES,     ///< Tables.
+    VIEWS,      ///< Views.
+    PROCEDURES, ///< Stored procedures.
+    FUNCTIONS,  ///< Stored functions.
+    DATABASES   ///< Available databases.
 };
 
 class SP_EXPORT PoolDatabaseConnectionQueryMethods
@@ -178,7 +177,7 @@ protected:
     [[noreturn]] static void notImplemented(const String& methodName);
 
     /**
-     * @brief Attaches (links) query to the database.
+     * @brief Attaches (links) the query to the database.
      */
     bool linkQuery(Query* query);
 
@@ -188,12 +187,12 @@ protected:
     bool unlinkQuery(Query* query);
 
     /**
-     * @brief Close all queries connected to this connection, free their statements, and empty connected query list.
+     * @brief Close all queries connected to this connection, free their statements, and the empty connected query list.
      */
     void disconnectAllQueries();
 
 private:
-    std::map<Query*, SStmtHandle> m_queryList; ///< The list of queries that use this database
+    std::map<Query*, SStmtHandle> m_queryList; ///< The list of queries that use this database.
 };
 
 /**
@@ -235,7 +234,7 @@ public:
     PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 
     /**
-     * Opens the database connection.
+     * @brief Opens the database connection.
      *
      * If unsuccessful, throws an exception.
      * @param newConnectionString  The ODBC connection string.
@@ -243,22 +242,22 @@ public:
     void open(const String& newConnectionString = "");
 
     /**
-     * Closes the database connection. If unsuccessful, throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void close();
 
     /**
-     * Returns true if the database is opened.
+     * @brief Returns true if the database is opened.
      */
     [[nodiscard]] virtual bool active() const;
 
     /**
-     * Returns the database connection handle.
+     * @brief Returns the database connection handle.
      */
     [[nodiscard]] virtual DBHandle handle() const;
 
     /**
-     * Returns the connection string.
+     * @brief Returns the connection string.
      */
     [[nodiscard]] const DatabaseConnectionString& connectionString() const
     {
@@ -266,13 +265,13 @@ public:
     }
 
     /**
-     * Set the connection string.
+     * @brief Set the connection string.
      * @param connectionString  Connection string.
      */
     void connectionString(const DatabaseConnectionString& connectionString);
 
     /**
-     * Returns driver-specific connection string.
+     * @brief Returns driver-specific connection string.
      */
     [[nodiscard]] virtual String nativeConnectionString() const
     {
@@ -280,7 +279,7 @@ public:
     }
 
     /**
-     * Returns the connection type.
+     * @brief Returns the connection type.
      */
     [[nodiscard]] virtual DatabaseConnectionType connectionType() const
     {
@@ -288,7 +287,7 @@ public:
     }
 
     /**
-     * Returns the driver description.
+     * @brief Returns the driver description.
      */
     [[nodiscard]] virtual String driverDescription() const
     {
@@ -296,22 +295,22 @@ public:
     }
 
     /**
-     * Begins the transaction.
+     * @brief Begins the transaction.
      */
     void beginTransaction();
 
     /**
-     * Commits the transaction.
+     * @brief Commits the transaction.
      */
     void commitTransaction();
 
     /**
-     * Rolls back the transaction.
+     * @brief Rolls back the transaction.
      */
     void rollbackTransaction();
 
     /**
-     * Reports true if in transaction.
+     * @brief Reports true if in transaction.
      */
     [[nodiscard]] bool inTransaction() const
     {
@@ -319,7 +318,7 @@ public:
     }
 
     /**
-     * Lists database objects.
+     * @brief Lists database objects.
      *
      * Not implemented in DatabaseConnection. The derived database class must provide its own implementation.
      * @param objectType        Object type to list.
@@ -371,7 +370,7 @@ public:
                             const VariantVector& keys);
 
     /**
-     * Executes SQL batch file.
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
@@ -466,11 +465,11 @@ protected:
     }
 
 private:
-    DatabaseConnectionString m_connString;            ///< The connection string
-    DatabaseConnectionType   m_connType;              ///< The connection type
+    DatabaseConnectionString m_connString;            ///< The connection string.
+    DatabaseConnectionType   m_connType;              ///< The connection type.
     String                   m_driverDescription;     ///< Driver description is filled by the particular driver.
-    bool                     m_inTransaction {false}; ///< The in-transaction flag
-    std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout
+    bool                     m_inTransaction {false}; ///< The in-transaction flag.
+    std::chrono::seconds     m_connectionTimeout;     ///< Connection timeout.
 
     /**
      * @brief Executes bulk inserts of data from the vector of rows.
@@ -490,7 +489,7 @@ private:
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
 
 /**
- * Escape SQL string for bulk insert.
+ * @brief Escape SQL string for bulk insert.
  * @param str                   String to escape.
  * @param tsv                   True if output data is TSV (tab-separated values).
  * @return                      Escaped string.

@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <memory>
 #include <sptk5/Strings.h>
 
 namespace sptk {
@@ -49,17 +48,17 @@ public:
 
     virtual ~QueryBuilder() = default;
 
-    virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+    [[nodiscard]] virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;
 
-    virtual String insertSQL(const Strings& columns, bool pretty) const;
+    [[nodiscard]] virtual String insertSQL(const Strings& columns, bool pretty) const;
 
-    virtual String updateSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+    [[nodiscard]] virtual String updateSQL(const Strings& filter, const Strings& columns, bool pretty) const;
 
-    virtual String deleteSQL(const Strings& filter, bool pretty) const;
+    [[nodiscard]] virtual String deleteSQL(const Strings& filter, bool pretty) const;
 
-    String tableName() const;
+    [[nodiscard]] String tableName() const;
 
-    String pkColumnName() const;
+    [[nodiscard]] String pkColumnName() const;
 
 private:
     String            m_tableName;
@@ -67,7 +66,7 @@ private:
     Strings           m_columns;
     std::vector<Join> m_joins;
 
-    Strings makeSelectColumns(const Strings& columns) const;
+    [[nodiscard]] Strings makeSelectColumns(const Strings& columns) const;
 
     void removeUnNeededColumns(const Join& join, const String& tableAlias);
 };

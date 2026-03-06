@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -771,6 +772,12 @@ SQLRETURN odbcReadStringOrBlobField(const SQLHSTMT statement, DatabaseField* fie
         return resultCode;
     }
 
+    if (dataLength == SQL_NULL_DATA)
+    {
+        field->setNull(field->dataType());
+        return SQL_SUCCESS;
+    }
+
     if (dataLength == 0 || (dataLength < 0 && dataLength != SQL_NO_TOTAL))
     {
         return SQL_SUCCESS;
@@ -1110,12 +1117,14 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
     if (constexpr SQLSMALLINT schemaColumnNumber = 2;
         SQLBindCol(stmt, schemaColumnNumber, SQL_C_CHAR, objectSchema.data(), static_cast<SQLLEN>(objectSchema.size() - 1), &objectSchemaLength) != SQL_SUCCESS)
     {
+        SQLFreeStmt(stmt, SQL_DROP);
         throw DatabaseException("SQLBindCol");
     }
 
     if (constexpr SQLSMALLINT objectNameColumnNumber = 3;
         SQLBindCol(stmt, objectNameColumnNumber, SQL_C_CHAR, objectName.data(), static_cast<SQLLEN>(objectName.size() - 1), &objectNameLength) != SQL_SUCCESS)
     {
+        SQLFreeStmt(stmt, SQL_DROP);
         throw DatabaseException("SQLBindCol");
     }
 
@@ -1124,6 +1133,7 @@ SQLHSTMT ODBCConnection::makeObjectListStatement(const DatabaseObjectType& objec
         constexpr SQLSMALLINT procedureTypeColumn = 8;
         if (SQLBindCol(stmt, procedureTypeColumn, SQL_C_SHORT, &procedureType, static_cast<SQLLEN>(sizeof(procedureType)), nullptr) != SQL_SUCCESS)
         {
+            SQLFreeStmt(stmt, SQL_DROP);
             throw DatabaseException("SQLBindCol");
         }
     }

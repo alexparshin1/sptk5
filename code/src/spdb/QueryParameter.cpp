@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -41,12 +42,16 @@ uint32_t QueryParameter::bindCount() const
 
 uint32_t QueryParameter::bindIndex(const uint32_t index) const
 {
+    if (index >= m_bindParamIndexes.size())
+    {
+        throw Exception("Invalid bind index");
+    }
     return m_bindParamIndexes[index];
 }
 
 QueryParameter::QueryParameter(const char* name, const bool isOutput)
     : m_binding(isOutput)
-    , m_name(lowerCase(name))
+    , m_name(name == nullptr ? "" : lowerCase(name))
 {
 }
 

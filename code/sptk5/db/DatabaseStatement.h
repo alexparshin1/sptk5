@@ -31,7 +31,7 @@
 namespace sptk {
 
 /**
- * Template class for database statements for different database drivers.
+ * @brief Template class for database statements for different database drivers.
  */
 template<class Connection, class Statement>
 class DatabaseStatement
@@ -53,7 +53,7 @@ public:
     }
 
     /**
-     * Constructor.
+     * @brief Constructor.
      * @param connection Connection*, DB connection.
      */
     explicit DatabaseStatement(Connection* connection)
@@ -62,12 +62,12 @@ public:
     }
 
     /**
-     * Destructor.
+     * @brief Destructor.
      */
     virtual ~DatabaseStatement() = default;
 
     /**
-     * Returns current DB statement handle.
+     * @brief Returns current DB statement handle.
      */
     Statement* stmt() const
     {
@@ -75,7 +75,7 @@ public:
     }
 
     /**
-     * Generates the normalized list of parameters.
+     * @brief Generates the normalized list of parameters.
      * @param queryParams CParamList&, Standard query parameters.
      */
     virtual void enumerateParams(QueryParameterList& queryParams)
@@ -91,81 +91,81 @@ public:
     }
 
     /**
-     * Returns the normalized list of parameters.
+     * @brief Returns the normalized list of parameters.
      */
-    CParamVector& enumeratedParams()
+    ParamVector& enumeratedParams()
     {
         return m_enumeratedParams;
     }
 
     /**
-     * Returns true if statement uses output parameters.
+     * @brief Returns true if statement uses output parameters.
      */
-    size_t outputParameterCount() const
+    [[nodiscard]] size_t outputParameterCount() const
     {
         return m_state.outputParameterCount;
     }
 
     /**
-     * Sets actual parameter values for the statement execution.
+     * @brief Sets actual parameter values for the statement execution.
      */
     virtual void setParameterValues() = 0;
 
     /**
-     * Executes statement.
+     * @brief Executes statement.
      * @param inTransaction bool, True if the statement is executed from transaction.
      */
     virtual void execute(bool inTransaction) = 0;
 
     /**
-     * Closes statement and releases allocated resources.
+     * @brief Closes statement and releases allocated resources.
      */
     virtual void close() = 0;
 
     /**
-     * Fetches next record.
+     * @brief Fetches next record.
      */
     virtual void fetch() = 0;
 
     /**
-     * Returns true if the recordset is in EOF state.
+     * @brief Returns true if the recordset is in EOF state.
      */
-    bool eof() const
+    [[nodiscard]] bool eof() const
     {
         return m_state.eof;
     }
 
     /**
-     * Returns recordset number of columns.
+     * @brief Returns recordset number of columns.
      */
-    unsigned colCount() const
+    [[nodiscard]] unsigned colCount() const
     {
         return m_state.columnCount;
     }
 
 protected:
     /**
-     * Statement state type definition.
+     * @brief Statement state type definition.
      */
     struct State
     {
         /**
-         * Number of columns is result set.
+         * @brief Number of columns is result set.
          */
         unsigned columnCount : 12;
 
         /**
-         * EOF (end of file) flag.
+         * @brief EOF (end of file) flag.
          */
         bool eof : 1;
 
         /**
-         * Transaction in progress flag.
+         * @brief Transaction in progress flag.
          */
         bool transaction : 1;
 
         /**
-         * Output parameter count.
+         * @brief Output parameter count.
          */
         unsigned outputParameterCount : 1;
     };
@@ -176,10 +176,10 @@ protected:
     }
 
 private:
-    Connection*  m_connection {nullptr}; ///< DB connection.
-    Statement*   m_statement {nullptr};  ///< Statement.
-    State        m_state {};             ///< State flags
-    CParamVector m_enumeratedParams;     ///< Enumerated parameters
+    Connection* m_connection {nullptr}; ///< DB connection.
+    Statement*  m_statement {nullptr};  ///< Statement.
+    State       m_state {};             ///< State flags.
+    ParamVector m_enumeratedParams;     ///< Enumerated parameters.
 };
 
 } // namespace sptk

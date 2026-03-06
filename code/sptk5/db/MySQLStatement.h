@@ -38,139 +38,139 @@ class MySQLConnection;
 class MySQLStatementField;
 
 /**
- * MySQL statement wrapper
+ * @brief MySQL statement wrapper.
  */
 class MySQLStatement
     : public DatabaseStatement<MySQLConnection, MYSQL_STMT>
 {
 public:
     /**
-     * Translates MySQL native type to CVariant type
-     * @param mysqlType enum_field_types, MySQL native type
-     * @returns CVariant type
+     * @brief Translates MySQL native type to CVariant type.
+     * @param mysqlType enum_field_types, MySQL native type.
+     * @returns CVariant type.
      */
     static VariantDataType mySQLTypeToVariantType(enum_field_types mysqlType);
 
     /**
-     * Translates CVariant type to MySQL native type
-     * @param dataType VariantType&, CVariant type
-     * @returns MySQL native type
+     * @brief Translates CVariant type to MySQL native type.
+     * @param dataType VariantType&, CVariant type.
+     * @returns MySQL native type.
      */
     static enum_field_types variantTypeToMySQLType(VariantDataType dataType);
 
     /**
-     * Translates DateTime to MySQL time
-     * @param mysqlDate MYSQL_TIME&, MySQL time
-     * @param timestamp DateTime, Timestamp
-     * @param timeType VariantType, Time type, VAR_DATE or VAR_DATETIME
+     * @brief Translates DateTime to MySQL time.
+     * @param mysqlDate MYSQL_TIME&, MySQL time.
+     * @param timestamp DateTime, Timestamp.
+     * @param timeType VariantType, Time type, VAR_DATE, or VAR_DATETIME.
      */
     static void dateTimeToMySQLDate(MYSQL_TIME& mysqlDate, const DateTime& timestamp, VariantDataType timeType);
 
     /**
-     * Constructor
-     * @param connection Connection*, MySQL connection
-     * @param sql std::string, SQL statement
+     * @brief Constructor.
+     * @param connection Connection*, MySQL connection.
+     * @param sql std::string, SQL statement.
      * @param autoPrepare bool, If true then statement is executed as prepared.
      */
     MySQLStatement(MySQLConnection* connection, String sql, bool autoPrepare);
 
     /**
-     * Deleted copy constructor
+     * @brief Deleted copy constructor.
      */
     MySQLStatement(const MySQLStatement&) = delete;
 
     /**
-     * Move constructor
+     * @brief Move constructor.
      */
     MySQLStatement(MySQLStatement&&) = default;
 
     /**
-     * Deleted copy assignment
+     * @brief Deleted copy assignment.
      */
     MySQLStatement& operator=(const MySQLStatement&) = delete;
 
     /**
-     * Move assignment
+     * @brief Move assignment.
      */
     MySQLStatement& operator=(MySQLStatement&&) = default;
 
     /**
-     * Generates normalized list of parameters
-     * @param queryParams CParamList&, Standard query parameters
+     * @brief Generates the normalized list of parameters.
+     * @param queryParams CParamList&, Standard query parameters.
      */
     void enumerateParams(QueryParameterList& queryParams) override;
 
     /**
-     * Sets actual parameter values for the statement execution
+     * @brief Sets actual parameter values for the statement execution.
      */
     void setParameterValues() override;
 
     /**
-     * Prepares MySQL statement
-     * @param sql const std::string, statement SQL
+     * @brief Prepares MySQL statement.
+     * @param sql const std::string, statement SQL.
      */
     void prepare(const String& sql) const;
 
     /**
-     * Executes statement
+     * @brief Executes statement.
      */
     void execute(bool) override;
 
     /**
-     * Binds statement result metadata to query fields
-     * @param fields CFieldList&, query fields (if any)
+     * @brief Binds statement result metadata to query fields.
+     * @param fields CFieldList&, query fields (if any).
      */
     void bindResult(FieldList& fields);
 
     /**
-     * Fetches statement result metadata to query fields
-     * @param fields CFieldList&, query fields (if any)
+     * @brief Fetches statement result metadata to query fields.
+     * @param fields CFieldList&, query fields (if any).
      */
     void readResultRow(FieldList& fields);
 
     /**
-     * Closes statement and releases allocated resources
+     * @brief Closes statement and releases allocated resources.
      */
     void close() override;
 
     /**
-     * Fetches next record
+     * @brief Fetches next record.
      */
     void fetch() override;
 
 private:
-    String                      m_sql;              ///< Statement SQL
-    std::vector<MYSQL_BIND>     m_paramBuffers;     ///< Parameter binding buffers
-    std::vector<unsigned long>  m_paramLengths;     ///< Parameter data lengths
-    std::vector<MYSQL_BIND>     m_fieldBuffers;     ///< Fetch data buffers
-    std::shared_ptr<MYSQL_STMT> m_stmt;             ///< Connection statement
-    std::shared_ptr<MYSQL_RES>  m_result {nullptr}; ///< Statement handle
-    MYSQL_ROW                   m_row {};           ///< Fetch data row
+    String                      m_sql;              ///< Statement SQL.
+    std::vector<MYSQL_BIND>     m_paramBuffers;     ///< Parameter binding buffers.
+    std::vector<unsigned long>  m_paramLengths;     ///< Parameter data lengths.
+    std::vector<MYSQL_BIND>     m_fieldBuffers;     ///< Fetch data buffers.
+    std::shared_ptr<MYSQL_STMT> m_stmt;             ///< Connection statement.
+    std::shared_ptr<MYSQL_RES>  m_result {nullptr}; ///< Statement handle.
+    MYSQL_ROW                   m_row {};           ///< Fetch data row.
 
     /**
-     * Reads not prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
+     * @brief Reads not prepared statement result row to query fields.
+     * @param fields CFieldList&, query fields (if any).
      */
     void readUnpreparedResultRow(FieldList& fields) const;
 
     /**
-     * Reads prepared statement result row to query fields
-     * @param fields CFieldList&, query fields (if any)
+     * @brief Reads prepared statement result row to query fields.
+     * @param fields CFieldList&, query fields (if any).
      */
     void readPreparedResultRow(FieldList& fields);
 
     /**
-     * Convert MySQL time data to field
-     * @param _field             Output field
-     * @param mysqlTime         MySQL time
-     * @param fieldType         Field type (date or datetime)
+     * @brief Convert MySQL time data to the field.
+     * @param _field             Output field.
+     * @param mysqlTime         MySQL time.
+     * @param fieldType         Field type (date or datetime).
      */
     static void decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime, VariantDataType fieldType);
 
     /**
-     * Convert MySQL float data to field
-     * @param _field            Output field
-     * @param bind              MySQL field bind
+     * @brief Convert MySQL float data to field.
+     * @param _field            Output field.
+     * @param bind              MySQL field bind.
      */
     static void decodeMySQLFloat(Field* _field, const MYSQL_BIND& bind);
 

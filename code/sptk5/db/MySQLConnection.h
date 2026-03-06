@@ -45,12 +45,12 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * @brief MySQL database connection
+ * @brief MySQL database connection.
  */
 class SP_EXPORT MySQLConnection
     : public PoolDatabaseConnection
@@ -61,7 +61,7 @@ class SP_EXPORT MySQLConnection
 
 public:
     /**
-     * @brief Returns the MySQL connection object
+     * @brief Returns the MySQL connection object.
      */
     MYSQL* connection() const
     {
@@ -69,29 +69,30 @@ public:
     }
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param newConnectionString  The MySQL connection string
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
+     * @param newConnectionString  The MySQL connection string.
      */
     void _openDatabase(const String& newConnectionString) override;
 
     /**
-     * @brief Executes SQL batch file
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            If not nullptr, store errors here instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            If not nullptr, store errors here instead of exceptions.
      */
     void executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) override;
 
     /**
-     * @brief Constructor
+     * @brief Constructor.
      *
      * Typical connection string is something like: "dbname='my_db' host='my_hostname' port=5142" and so on.
      * For more information please refer to:
-     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html
-     * If the connection string is empty then default database with the name equal to user name is used.
-     * @param connectionString  The MySQL connection string
+     * http://www.postgresql.org/docs/current/interactive/libpq-connect.html.
+     * If the connection string is empty, then the default database with the name equal to username is used.
+     * @param connectionString  The MySQL connection string.
+     * @param connectTimeout    Connection timeout.
      */
     explicit MySQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::minutes(1));
 
@@ -106,120 +107,121 @@ public:
     ~MySQLConnection() override = default;
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened
+     * @brief Returns true if the database is opened.
      */
     bool active() const override;
 
     /**
-     * @brief Returns the database connection handle
+     * @brief Returns the database connection handle.
      */
     DBHandle handle() const override;
 
     /**
-     * @brief Returns the MySQL driver description for the active connection
+     * @brief Returns the MySQL driver description for the active connection.
      */
     String driverDescription() const override;
 
     /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * @brief Lists database objects.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
-     * @brief All active connections
+     * @brief All active connections.
      */
     static SynchronizedMap<MySQLConnection*, std::shared_ptr<MySQLConnection>> s_mysqlConnections;
 
 protected:
     /**
-     * @brief Begins the transaction
+     * @brief Begins the transaction.
      */
     void driverBeginTransaction() override;
 
     /**
-     * @brief Ends the transaction
-     * @param commit            Rollback if false
+     * @brief Ends the transaction.
+     * @param commit            Rollback if false.
      */
     void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
-     * Retrieves an error (if any) after executing a statement
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an MySQL statement
+     * @brief Allocates the MySQL statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an MySQL statement
+     * @brief Deallocates the MySQL statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an MySQL statement
+     * @brief Closes an MySQL statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by database
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement
+     * @brief Executes a statement.
      */
     void queryExecute(Query* query) override;
 
     /**
-     * Counts columns of the dataset (if any) returned by query
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query
+     * @brief Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query' recordset
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
     /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into the fields and advances to the next row.
+     * After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, int32_t& value) override;
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
     /**
-     * @brief Returns parameter mark
+     * @brief Returns parameter mark.
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex        Parameter index in SQL starting from 0
+     * @param paramIndex        Parameter index in SQL starting from 0.
      */
     String paramMark(unsigned paramIndex) override;
 
 private:
-    std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection
-    mutable std::mutex     m_mutex;      ///< Mutex that protects access to data members
+    std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection.
+    mutable std::mutex     m_mutex;      ///< Mutex that protects access to data members.
 
     /**
-     * @brief Init connection to MySQL server
+     * @brief Init connection to MySQL server.
      */
     void initConnection();
 
     /**
-     * @brief Execute MySQL command
+     * @brief Execute MySQL command.
      */
     void executeCommand(const String& command);
 };

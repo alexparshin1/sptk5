@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -35,14 +36,14 @@ using namespace sptk;
 using namespace ocilib;
 
 namespace {
-void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
-void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset);
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset);
+void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset);
 void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex);
 } // namespace
 
-OracleOciConnection::OracleOciConnection(const String& connectionString, chrono::seconds connectTimeout)
+OracleOciConnection::OracleOciConnection(const String& connectionString, const chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::ORACLE_OCI, connectTimeout)
 {
     static mutex      initializeMutex;
@@ -112,8 +113,11 @@ void OracleOciConnection::_openDatabase(const String& newConnectionString)
         {
             const DatabaseConnectionString dbConnectionString = connectionString();
 
-            auto oracleService = dbConnectionString.hostName() + ":" + to_string(dbConnectionString.portNumber()) + "/" +
-                                 dbConnectionString.databaseName();
+            auto oracleService = format("{}:{}/{}",
+                                        dbConnectionString.hostName().c_str(),
+                                        dbConnectionString.portNumber(),
+                                        dbConnectionString.databaseName().c_str());
+
             m_connection = make_shared<Connection>(oracleService, dbConnectionString.userName(), dbConnectionString.password());
             m_connection->SetAutoCommit(true);
             m_sessionTimezoneOffset = getSessionTimezoneOffset();
@@ -353,6 +357,11 @@ void OracleOciConnection::queryPrepare(Query* query)
     const scoped_lock lock(m_mutex);
 
     auto* statement = bit_cast<OracleOciStatement*>(query->statement());
+    if (statement == nullptr)
+    {
+        throw Exception("Query not allocated");
+    }
+
     statement->enumerateParams(query->params());
 
     if (!query->prepared())
@@ -502,7 +511,7 @@ void OracleOciConnection::createQueryFieldsFromMetadata(Query* query, const Resu
         const auto columnDataSize = column.GetSize();
         if (columnName.empty())
         {
-            columnName = "column_" + to_string(columnIndex + 1);
+            columnName = format("column_{}", columnIndex + 1);
         }
 
         const VariantDataType dataType = oracleOciTypeToVariantType(columnType, columnScale);
@@ -523,7 +532,12 @@ void OracleOciConnection::queryFetch(Query* query)
     const scoped_lock lock(m_mutex);
 
     const auto* statement = bit_cast<OracleOciStatement*>(query->statement());
-    auto        resultSet = statement->resultSet();
+    if (statement == nullptr)
+    {
+        THROW_QUERY_ERROR(query, "Query not prepared");
+    }
+
+    auto resultSet = statement->resultSet();
     if (!resultSet)
     {
         querySetEof(query, true);
@@ -649,7 +663,7 @@ void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, in
 
 String OracleOciConnection::paramMark(unsigned int paramIndex)
 {
-    return ":" + to_string(paramIndex + 1);
+    return format(":{}", paramIndex + 1);
 }
 
 String OracleOciConnection::queryError(const Query* query) const

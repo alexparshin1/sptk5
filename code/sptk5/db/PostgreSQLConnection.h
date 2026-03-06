@@ -38,7 +38,6 @@
 
 #ifndef _WIN32
 
-#include <list>
 #include <netinet/in.h>
 
 #endif
@@ -55,7 +54,7 @@ class PostgreSQLStatement;
 /**
  * @brief PostgreSQL database.
  *
- * CPostgreSQLConnection is thread-safe connection to PostgreSQL database.
+ * PostgreSQLConnection is the thread-safe connection to the PostgreSQL database.
  */
 class SP_EXPORT PostgreSQLConnection
     : public PoolDatabaseConnection
@@ -89,7 +88,7 @@ public:
     static void variantTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType, const String& paramName);
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
      * @param newConnectionString  The PostgreSQL connection string.
      */
     void _openDatabase(const String& newConnectionString) override;
@@ -107,11 +106,12 @@ public:
     /**
      * @brief Constructor.
      *
-     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on.
-     * For more information please refer to:.
+     * Typical connection string is something like: "dbname='mydb' host='myhostname' port=5142" and so on
+     * For more information please refer to:
      * http://www.postgresql.org/docs/current/interactive/libpq-connect.html.
-     * If the connection string is empty then default database with the name equal to user name is used.
+     * If the connection string is empty, then the default database with the name equal to username is used.
      * @param connectionString  The PostgreSQL connection string.
+     * @param connectTimeout    Connection timeout.
      */
     explicit PostgreSQLConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
@@ -126,12 +126,12 @@ public:
     String nativeConnectionString() const override;
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened.
+     * @brief Returns true if the database is opened.
      */
     bool active() const override;
 
@@ -180,32 +180,32 @@ protected:
     // These methods implement the actions requested by Query
 
     /**
-     * Retrieves an error (if any) after executing a statement.
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an PostgreSQL statement.
+     * @brief Allocates an PostgreSQL statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates a PostgreSQL statement.
+     * @brief Deallocates a PostgreSQL statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an PostgreSQL statement.
+     * @brief Closes an PostgreSQL statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by database.
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement.
+     * @brief Executes a statement.
      */
     void queryExecute(Query*) override
     {
@@ -213,22 +213,23 @@ protected:
     }
 
     /**
-     * Counts columns of the dataset (if any) returned by query.
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query.
+     * @brief Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query' recordset.
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
     /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into fields and advances to the next row.
+     * After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
 

@@ -36,14 +36,14 @@ public:
     BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize);
 
     /**
-     * Insert rows into the table.
+     * @brief Insert rows into the table.
      * @param rows          Data to insert.
-     * @param insertedIds   Optional inserted values for the autoincrement column (if it isn't empty).
+     * @param insertedIds   The optional inserted values for the autoincrement column (if it isn't empty).
      */
     void insertRows(const std::vector<std::vector<Variant>>& rows, std::vector<int64_t>* insertedIds = nullptr);
 
     /**
-     * Delete rows from the table
+     * @brief Delete rows from the table.
      * @param keys              Keys to delete.
      */
     void deleteRows(const VariantVector& keys);

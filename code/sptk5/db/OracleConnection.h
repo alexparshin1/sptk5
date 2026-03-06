@@ -38,7 +38,7 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
@@ -47,9 +47,9 @@ class OracleStatement;
 class OracleBulkInsertQuery;
 
 /**
- * @brief Oracle database
+ * @brief Oracle database.
  *
- * COracleConnection is thread-safe connection to Oracle database.
+ * COracleConnection is the thread-safe connection to the Oracle database.
  */
 class SP_EXPORT OracleConnection
     : public PoolDatabaseConnection
@@ -65,7 +65,7 @@ public:
     using Type = oracle::occi::Type;
 
     /**
-     * @brief Returns the Oracle connection object
+     * @brief Returns the Oracle connection object.
      */
     Connection* connection() const
     {
@@ -73,7 +73,7 @@ public:
     }
 
     /**
-     * @brief Returns the Oracle connection object
+     * @brief Returns the Oracle connection object.
      */
     Environment* environment() const
     {
@@ -86,137 +86,138 @@ public:
     }
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
-     * @param connectionString  The Oracle connection string
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
+     * @param connectionString  The Oracle connection string.
      */
     void _openDatabase(const String& connectionString) override;
 
     /**
-     * @brief Executes bulk inserts of data from memory buffer
+     * @brief Executes bulk inserts of data from the memory buffer.
      *
      * Data is inserted the fastest possible way. The server-specific format definition provides extra information
-     * about data. If format is empty than default server-specific data format is used.
+     * about data. If the format is empty, the default server-specific data format is used.
      * For instance, for PostgreSQL it is TAB-delimited data, with some escaped characters ('\\t', '\\n', '\\r') and "\\N" for NULLs.
-     * @param fullTableName     Table name to insert into, with or without schema name
-     * @param columnNames       List of table columns to populate
-     * @param data              Data for bulk insert
+     * @param fullTableName     Table name to insert into, with or without the schema name.
+     * @param columnNames       List of table columns to populate.
+     * @param data              Data for bulk insert.
      */
     void bulkInsert(const String& fullTableName, const Strings& columnNames,
                     const std::vector<VariantVector>& data) override;
 
     /**
-     * @brief Executes SQL batch file
+     * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
      * Syntax of the SQL batch file is matching the native for the database.
-     * @param batchSQL          SQL batch file
-     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions
+     * @param batchSQL          SQL batch file.
+     * @param errors            Errors during execution. If provided, then errors are stored here, instead of exceptions.
      */
     void executeBatchSQL(const Strings& batchSQL, Strings* errors) override;
 
     /**
-     * @brief Constructor
-     * @param connectionString  The Oracle connection string
+     * @brief Constructor.
+     * @param connectionString  The Oracle connection string.
+     * @param connectTimeout    Connection timeout.
      */
     explicit OracleConnection(const String& connectionString = "", std::chrono::seconds connectTimeout = std::chrono::seconds(60));
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~OracleConnection() override;
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened
+     * @brief Returns true if the database is opened.
      */
     bool active() const override;
 
     /**
-     * @brief Returns the database connection handle
+     * @brief Returns the database connection handle.
      */
     DBHandle handle() const override;
 
     /**
-     * @brief Returns driver-specific connection string
+     * @brief Returns driver-specific connection string.
      */
     String nativeConnectionString() const override;
 
     /**
-     * @brief Returns the Oracle driver description for the active connection
+     * @brief Returns the Oracle driver description for the active connection.
      */
     String driverDescription() const override;
 
     /**
-     * @brief Lists database objects
-     * @param objectType        Object type to list
-     * @param objects           Object list (output)
+     * @brief Lists database objects.
+     * @param objectType        Object type to list.
+     * @param objects           Object list (output).
      */
     void objectList(DatabaseObjectType objectType, Strings& objects) override;
 
     /**
-     * @brief All active connections
+     * @brief All active connections.
      */
     static SynchronisedMap<OracleConnection*, std::shared_ptr<OracleConnection>> s_oracleConnections;
 
 protected:
     /**
-     * @brief Begins the transaction
+     * @brief Begins the transaction.
      */
     void driverBeginTransaction() override;
 
     /**
-     * @brief Ends the transaction
-     * @param commit            commit if true, rollback if false
+     * @brief Ends the transaction.
+     * @param commit            commit if true, rollback if false.
      */
     void driverEndTransaction(bool commit) override;
 
     // These methods implement the actions requested by CQuery
     /**
-     * Retrieves an error (if any) after executing a statement
+     * @brief Retrieves an error (if any) after executing a statement.
      */
     String queryError(const Query* query) const override;
 
     /**
-     * Allocates an Oracle statement
+     * @brief Allocates an Oracle statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * Deallocates an Oracle statement
+     * @brief Deallocates an Oracle statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * Closes an Oracle statement
+     * @brief Closes an Oracle statement.
      */
     void queryCloseStmt(Query* query) override;
 
     /**
-     * Prepares a query if supported by database
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
     /**
-     * Executes a statement
+     * @brief Executes a statement.
      */
     void queryExecute(Query* query) override;
 
     /**
-     * Counts columns of the dataset (if any) returned by query
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     size_t queryColCount(Query* query) override;
 
     /**
-     * Binds the parameters to the query
+     * @brief Binds the parameters to the query.
      */
     void queryBindParameters(Query* query) override;
 
     /**
-     * Opens the query for reading data from the query' recordset
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
@@ -224,25 +225,26 @@ protected:
     void queryColAttributes(Query* query, int16_t column, int16_t descType, char* buff, int len) override;
 
     /**
-     * Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into fields and advances to the next row.
+     * After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
 
     /**
-     * @brief Returns parameter mark
+     * @brief Returns parameter mark.
      *
      * Parameter mark is generated from the parameterIndex.
-     * @param paramIndex        parameter index in SQL starting from 0
+     * @param paramIndex        parameter index in SQL starting from 0.
      */
     String paramMark(unsigned paramIndex) override;
 
 private:
     using SConnection = std::shared_ptr<Connection>;
 
-    mutable std::mutex m_mutex;       ///< Mutex that protects access to data members
-    OracleEnvironment  m_environment; ///< Oracle connection environment
-    SConnection        m_connection;  ///< Oracle database connection
-    std::string        m_lastError;   ///< Last error in this connection or query
+    mutable std::mutex m_mutex;       ///< Mutex that protects access to data members.
+    OracleEnvironment  m_environment; ///< Oracle connection environment.
+    SConnection        m_connection;  ///< Oracle database connection.
+    std::string        m_lastError;   ///< Last error in this connection or query.
 
     void executeMultipleStatements(const Strings& statements, Strings* errors);
 
@@ -253,16 +255,17 @@ private:
 };
 
 /**
- * @brief Translates Oracle native type to CVariant type
- * @param oracleType        Oracle native type
- * @returns Variant type
+ * @brief Translates Oracle native type to CVariant type.
+ * @param oracleType        Oracle native type.
+ * @param scale             Type scale.
+ * @returns Variant type.
  */
 [[nodiscard]] VariantDataType OracleTypeToVariantType(OracleConnection::Type oracleType, int scale);
 
 /**
- * @brief Translates CVariant type to Oracle native type
- * @param dataType          CVariant type
- * @returns Oracle native type
+ * @brief Translates CVariant type to Oracle native type.
+ * @param dataType          CVariant type.
+ * @returns Oracle native type.
  */
 OracleConnection::Type VariantTypeToOracleType(VariantDataType dataType);
 

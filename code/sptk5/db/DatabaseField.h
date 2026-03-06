@@ -29,20 +29,19 @@
 #include <sptk5/sptk.h>
 
 #include <sptk5/Field.h>
-#include <sptk5/Strings.h>
 #include <sptk5/Variant.h>
 
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * @brief database field
+ * @brief Database field.
  *
- * A special variation of CField to support database field essentials
+ * A special variation of CField to support database field essentials.
  */
 class SP_EXPORT DatabaseField
     : public Field
@@ -51,29 +50,29 @@ class SP_EXPORT DatabaseField
 
 public:
     /**
-     * @brief Constructor
-     * @param fieldName			Field name
-     * @param fieldType			Database field type
-     * @param dataType			Variant data type
-     * @param fieldLength		Database field length
-     * @param fieldScale		Database field scale
+     * @brief Constructor.
+     * @param fieldName			Field name.
+     * @param fieldType			Database field type.
+     * @param dataType			Variant data type.
+     * @param fieldLength		Database field length.
+     * @param fieldScale		Database field scale.
      */
     DatabaseField(std::string_view fieldName, int fieldType, VariantDataType dataType, int fieldLength,
                   int fieldScale = 4);
 
     /**
-     * @brief Checks the internal buffer size
+     * @brief Checks the internal buffer size.
      *
-     * The internal buffer is automatically extended to fit the required size of data
-     * @param sz				Data size (in bytes)
+     * The internal buffer is automatically extended to fit the required size of data.
+     * @param sz				Data size (in bytes).
      */
     void checkSize(size_t sz);
 
     /**
-     * @brief Sets the internal data size
+     * @brief Sets the internal data size.
      *
      * The internal buffer is not modified, only the data size is set.
-     * @param sz				Data size (in bytes)
+     * @param sz				Data size (in bytes).
      */
     void setDataSize(size_t sz)
     {
@@ -81,33 +80,33 @@ public:
     }
 
     /**
-     * @brief Reports database field type
-     * @return database field type
+     * @brief Reports database field type.
+     * @return database field type.
      */
-    int fieldType() const
+    [[nodiscard]] int fieldType() const
     {
         return m_fldType;
     }
 
     /**
-     * @brief Reports field size
+     * @brief Reports field size.
      */
-    uint32_t fieldSize() const
+    [[nodiscard]] uint32_t fieldSize() const
     {
-        return (uint32_t) m_fldSize;
+        return static_cast<uint32_t>(m_fldSize);
     }
 
     /**
-     * @brief Column display format
-     * @return Column display format
+     * @brief Column display format.
+     * @return Column display format.
      */
-    String displayFormat() const
+    [[nodiscard]] String displayFormat() const
     {
         return m_displayFormat;
     }
 
     /**
-     * @brief Set column display format
+     * @brief Set column display format.
      */
     void displayFormat(const String& format)
     {
@@ -115,16 +114,16 @@ public:
     }
 
     /**
-     * @brief Column alignment
-     * @return Column alignment
+     * @brief Column alignment.
+     * @return Column alignment.
      */
-    int alignment() const
+    [[nodiscard]] int alignment() const
     {
         return m_alignment;
     }
 
     /**
-     * @brief Set column alignment
+     * @brief Set column alignment.
      */
     void alignment(int al)
     {
@@ -135,10 +134,10 @@ public:
 
 protected:
     /**
-     * @brief Set field type
-     * @param fieldType         Field type
-     * @param fieldLength       Field length
-     * @param fieldScale        Field scale
+     * @brief Set field type.
+     * @param fieldType         Field type.
+     * @param fieldLength       Field length.
+     * @param fieldScale        Field scale.
      */
     void setFieldType(int fieldType, int fieldLength, int fieldScale)
     {
@@ -147,17 +146,17 @@ protected:
         m_fldScale = fieldScale;
     }
 
-    String doubleDataToString() const override;
+    [[nodiscard]] String doubleDataToString() const override;
 
 public:
     void setNull(VariantDataType vtype) override;
 
 private:
-    int    m_fldType;                ///< Native database data type
-    int    m_fldSize;                ///< Field size
-    int    m_fldScale;               ///< Field scale, optional, for floating point fields
-    String m_displayFormat;          ///< Column display format
-    int    m_alignment {ALIGN_LEFT}; ///< Column alignment
+    int    m_fldType;                ///< Native database data type.
+    int    m_fldSize;                ///< Field size.
+    int    m_fldScale;               ///< Field scale, optional, for floating point fields.
+    String m_displayFormat;          ///< Column display format.
+    int    m_alignment {ALIGN_LEFT}; ///< Column alignment.
 };
 
 using SDatabaseField = std::shared_ptr<DatabaseField>;

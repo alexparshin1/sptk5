@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -391,7 +392,7 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
     }
     catch (const Exception& e)
     {
-        CERR("Error fetching system info: " << e.what());
+        throw DatabaseException(format("Error fetching system info: {}", e.what()));
     }
 }
 

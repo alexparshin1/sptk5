@@ -34,24 +34,24 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * A vector of CParam*
+ * @brief A vector of Param*.
  *
- * Doesn't mantain CParam memory.
+ * Doesn't maintain Param memory.
  * Used to return a list of pointers on existing parameters.
  */
-using CParamVector = std::vector<SQueryParameter>;
+using ParamVector = std::vector<SQueryParameter>;
 
 /**
- * Query parameters list.
+ * @brief Query parameters list.
  *
  * Has internal index to speed up the parameter search by name.
- * @see CQuery
- * @see CParam
+ * @see CQuery.
+ * @see CParam.
  */
 class SP_EXPORT QueryParameterList
 {
@@ -59,64 +59,64 @@ class SP_EXPORT QueryParameterList
 
 public:
     /**
-     * Query parameter iterator
+     * @brief Query parameter iterator.
      */
-    using iterator = CParamVector::iterator;
+    using iterator = ParamVector::iterator;
 
     /**
-     * Query parameter const iterator
+     * @brief Query parameter const iterator.
      */
-    using const_iterator = CParamVector::const_iterator;
+    using const_iterator = ParamVector::const_iterator;
 
     /**
-     * Removes all the parameters from the list
+     * @brief Removes all the parameters from the list.
      *
-     * Releases any allocated resources
+     * Releases any allocated resources.
      */
     void clear();
 
     /**
-     * Returns parameter by name
+     * @brief Returns parameter by name.
      *
-     * If the parameter isn't found, returns 0
-     * @param paramName         parameter name
-     * @returns parameter pointer, or 0 if not found
+     * If the parameter isn't found returns 0.
+     * @param paramName         parameter name.
+     * @returns parameter pointer, or 0 if not found.
      */
     SQueryParameter find(const String& paramName);
 
     /**
-     * Removes a parameter from the list and from the memory.
-     * @param ndx               parameter index in the list
+     * @brief Removes a parameter from the list and from the memory.
+     * @param ndx               parameter index in the list.
      */
     void remove(size_t ndx);
 
     /**
-     * Parameter access by index
-     * @param index             parameter index
+     * @brief Parameter access by index.
+     * @param index             parameter index.
      */
     QueryParameter& operator[](size_t index) const;
 
     /**
-     * Parameter access by name
-     * @param paramName         parameter name
+     * @brief Parameter access by name.
+     * @param paramName         parameter name.
      */
     QueryParameter& operator[](const String& paramName) const;
 
     /**
-     * Returns parameter count
+     * @brief Returns parameter count.
      */
     [[nodiscard]] size_t size() const;
 
     /**
-     * Returns the parameter pointers
+     * @brief Returns the parameter pointers.
      *
      * A parameter is included for every parameter position in the query.
-     * @param params            parameters vector
+     * @param params            parameters vector.
      */
-    void enumerate(CParamVector& params) const;
+    void enumerate(ParamVector& params) const;
 
     /**
-     * First parameter iterator
+     * @brief First parameter iterator.
      */
     iterator begin()
     {
@@ -124,7 +124,7 @@ public:
     }
 
     /**
-     * First parameter const iterator
+     * @brief First parameter const iterator.
      */
     [[nodiscard]] const_iterator begin() const
     {
@@ -132,7 +132,7 @@ public:
     }
 
     /**
-     * End iterator
+     * @brief End iterator.
      */
     iterator end()
     {
@@ -140,7 +140,7 @@ public:
     }
 
     /**
-     * End const iterator
+     * @brief End const iterator.
      */
     [[nodiscard]] const_iterator end() const
     {
@@ -149,14 +149,13 @@ public:
 
 protected:
     /**
-     * Adds a parameter to the list
+     * @brief Adds a parameter to the list.
      */
     void add(const SQueryParameter& item);
 
 private:
-    CParamVector                      m_items;                     ///< The list of parameters
-    std::map<String, SQueryParameter> m_index;                     ///< The parameters index
-    bool                              m_bindingTypeChanged {true}; ///< Indicates that one of the parameters binding type has changed since prepare()
+    ParamVector                       m_items; ///< The list of parameters.
+    std::map<String, SQueryParameter> m_index; ///< The parameters index.
 };
 
 /**

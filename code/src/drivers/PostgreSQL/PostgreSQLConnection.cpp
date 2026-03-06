@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -240,7 +241,7 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
         if (m_timestampsFormat == TimestampFormat::UNKNOWN)
         {
             const char* val = PQparameterStatus(m_connect, "integer_datetimes");
-            if (upperCase(val) == "ON")
+            if (val == nullptr || upperCase(val) == "ON")
             {
                 m_timestampsFormat = TimestampFormat::INT64;
             }
@@ -365,8 +366,10 @@ void PostgreSQLConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
-    statement->clearRows();
+    if (auto* statement = bit_cast<PostgreSQLStatement*>(query->statement()))
+    {
+        statement->clearRows();
+    }
 }
 
 void PostgreSQLConnection::queryPrepare(Query* query)
@@ -399,7 +402,14 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     checkError(m_connect, stmt, "PREPARE");
 
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
-    auto      fieldCount = static_cast<unsigned>(PQnfields(stmt2));
+    if (stmt2 == nullptr)
+    {
+        const string error = format("DESCRIBE command failed: {}", PQerrorMessage(m_connect));
+        PQclear(stmt);
+        throw DatabaseException(format("DESCRIBE command failed: {}", PQerrorMessage(m_connect)));
+    }
+
+    auto fieldCount = static_cast<unsigned>(PQnfields(stmt2));
 
     if (fieldCount != 0 && PQftype(stmt2, 0) == VOIDOID)
     {
@@ -426,7 +436,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 
     auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
-    const CParamVector&    params = paramValues.params();
+    const ParamVector&    params = paramValues.params();
 
     uint32_t paramNumber = 0;
     for (const auto& param: params)
@@ -484,7 +494,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 
     auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
     PostgreSQLParamValues& paramValues = statement->paramValues();
-    const CParamVector&    params = paramValues.params();
+    const ParamVector&    params = paramValues.params();
     uint32_t               paramNumber = 0;
 
     for (const auto& param: params)

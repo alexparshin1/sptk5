@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -110,7 +111,7 @@ Variant Query::scalar()
         close();
         return {};
     }
-    Variant& result = m_fields[0];
+    const Variant& result = m_fields[0];
     close();
     return result;
 }
@@ -162,10 +163,12 @@ Query::~Query()
     }
 }
 
-bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql)
+bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError) const
 {
+    auto isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
+
     // Looking up for SQL parameters
-    const char* delimiters = "':-/";
+    const char* delimiters = "':-/$";
 
     // Find param start
     paramStart = strpbrk(paramEnd, delimiters);
@@ -181,7 +184,7 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         if (const char* nextQuote = strchr(paramStart + 1, '\'');
             nextQuote == nullptr)
         {
-            // Quote opened but never closed?
+            parseError = "unterminated string literal";
             paramEnd = nullptr;
         }
         else
@@ -211,13 +214,44 @@ bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String&
         if (const char* endOfRow = strstr(paramStart + 1, "*/");
             endOfRow == nullptr)
         {
-            // Comment never closed
+            parseError = "unterminated block comment";
             paramEnd = nullptr;
         }
         else
         {
             sql += string(paramEnd, endOfRow - paramEnd + 2);
             paramEnd = endOfRow + 2;
+        }
+    }
+    else if (*paramStart == '$' && isPostgreSQL)
+    {
+        // PostgreSQL dollar-quoted string: $$...$$ or $tag$...$tag$
+        const char* tagEnd = paramStart + 1;
+        while (std::isalnum(static_cast<unsigned char>(*tagEnd)) != 0 || *tagEnd == '_')
+        {
+            ++tagEnd;
+        }
+
+        if (*tagEnd == '$')
+        {
+            const String quoteTag(paramStart, tagEnd - paramStart + 1, 0);
+            const char*  quoteEnd = strstr(tagEnd + 1, quoteTag.c_str());
+            if (quoteEnd == nullptr)
+            {
+                parseError = "unterminated PostgreSQL dollar-quoted string";
+                paramEnd = nullptr;
+            }
+            else
+            {
+                sql += string(paramEnd, quoteEnd - paramEnd + quoteTag.length());
+                paramEnd = quoteEnd + quoteTag.length();
+            }
+        }
+        else
+        {
+            // Just a '$' character, not a dollar-quoted string.
+            sql += string(paramEnd, paramStart - paramEnd + 1);
+            paramEnd = paramStart + 1;
         }
     }
     else if (paramStart[1] == ':' || paramStart[1] == '=')
@@ -322,12 +356,17 @@ String Query::parseParameters(const String& _sql)
 
     m_params.clear();
     String sql;
+    String parseError;
 
     int paramNumber = 0;
     for (;;)
     {
-        if (!skipToNextParameter(paramStart, paramEnd, sql))
+        if (!skipToNextParameter(paramStart, paramEnd, sql, parseError))
         {
+            if (!parseError.empty())
+            {
+                throw DatabaseException("SQL parse error: " + parseError, source_location::current(), _sql);
+            }
             if (paramStart == nullptr || paramEnd == nullptr)
             {
                 break;

@@ -16,7 +16,8 @@ class OracleOciDatabaseField final : public DatabaseField
 {
 public:
     OracleOciDatabaseField(const std::string_view& fieldName, int fieldType, VariantDataType dataType, int fieldLength, int fieldScale, const String& sqlType);
-    String sqlType() const
+
+    [[nodiscard]] String sqlType() const
     {
         return m_sqlType;
     }

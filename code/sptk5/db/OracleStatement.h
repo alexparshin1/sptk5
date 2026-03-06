@@ -38,74 +38,74 @@ namespace sptk {
 class OracleConnection;
 
 /**
- * Oracle statement
+ * @brief Oracle statement.
  */
 class OracleStatement
     : public DatabaseStatement<OracleConnection, oracle::occi::Statement>
 {
 public:
-    using Connection = oracle::occi::Connection; ///< Oracle connection type
-    using Statement = oracle::occi::Statement;   ///< Oracle statement type
-    using ResultSet = oracle::occi::ResultSet;   ///< Oracle result set type
-    using MetaData = oracle::occi::MetaData;     ///< Oracle result set metdata type
+    using Connection = oracle::occi::Connection; ///< Oracle connection type.
+    using Statement = oracle::occi::Statement;   ///< Oracle statement type.
+    using ResultSet = oracle::occi::ResultSet;   ///< Oracle result set type.
+    using MetaData = oracle::occi::MetaData;     ///< Oracle result set metdata type.
 
     /**
-     * Constructor
-     * @param connection Connection*, Oracle connection
-     * @param sql std::string, SQL statement
+     * @brief Constructor.
+     * @param connection Connection*, Oracle connection.
+     * @param sql std::string, SQL statement.
      */
     OracleStatement(OracleConnection* connection, const std::string& sql);
 
     /**
-     * Deleted copy constructor
+     * @brief Deleted copy constructor.
      */
     OracleStatement(const OracleStatement&) = delete;
 
     /**
-     * Move constructor
+     * @brief Move constructor.
      */
     OracleStatement(OracleStatement&&) = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~OracleStatement() override;
 
     /**
-     * Deleted copy assignment
+     * @brief Deleted copy assignment.
      */
     OracleStatement& operator=(const OracleStatement&) = delete;
 
     /**
-     * Move assignment
+     * @brief Move assignment.
      */
     OracleStatement& operator=(OracleStatement&&) = default;
 
     /**
-     * Sets actual parameter values for the statement execution
+     * @brief Sets actual parameter values for the statement execution.
      */
     void setParameterValues() override;
 
     /**
-     * Executes statement
-     * @param inTransaction bool, True if the statement is executed from transaction
+     * @brief Executes statement.
+     * @param inTransaction bool, True if the statement is executed from transaction.
      */
     void execute(bool inTransaction) override;
 
     /**
-     * Executes statement in bulk mode
-     * @param inTransaction bool, True if the statement is executed from transaction
-     * @param lastIteration bool, True if the bulk operation is completed (all iterations added)
+     * @brief Executes statement in bulk mode.
+     * @param inTransaction bool, True if the statement is executed from transaction.
+     * @param lastIteration bool, True if the bulk operation is completed (all iterations added).
      */
     void execBulk(bool inTransaction, bool lastIteration);
 
     /**
-     * Closes statement and releases allocated resources
+     * @brief Closes statement and releases allocated resources.
      */
     void close() override;
 
     /**
-     * Fetches next record
+     * @brief Fetches next record.
      */
     void fetch() override
     {
@@ -116,7 +116,7 @@ public:
     }
 
     /**
-     * Returns the result set (if returned by a statement)
+     * @brief Returns the result set (if returned by a statement).
      */
     ResultSet* resultSet() const
     {
@@ -126,105 +126,105 @@ public:
     void getOutputParameters(FieldList& fields);
 
 private:
-    Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs
-    Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs
-    ResultSet* m_resultSet {nullptr};           ///< Result set (if returned by statement)
+    Statement* m_createClobStatement {nullptr}; ///< Statement for creating CLOBs.
+    Statement* m_createBlobStatement {nullptr}; ///< Statement for creating BLOBs.
+    ResultSet* m_resultSet {nullptr};           ///< Result set (if returned by statement).
 
     /*
-     * Index of output parameters
+     * Index of output parameters.
      */
     std::vector<unsigned> m_outputParamIndex;
 
     /**
-     * Sets character data to a CLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Character data buffer
-     * @param dataSize uint32_t, Character data size
+     * @brief Sets character data to a CLOB parameter.
+     * @param parameterIndex uint32_t, Parameter index.
+     * @param data unsigned char*, Character data buffer.
+     * @param dataSize uint32_t, Character data size.
      */
     void setClobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
     /**
-     * Sets binary data to a BLOB parameter
-     * @param parameterIndex uint32_t, Parameter index
-     * @param data unsigned char*, Binary data buffer
-     * @param dataSize uint32_t, Binary data size
+     * @brief Sets binary data to a BLOB parameter.
+     * @param parameterIndex uint32_t, Parameter index.
+     * @param data unsigned char*, Binary data buffer.
+     * @param dataSize uint32_t, Binary data size.
      */
     void setBlobParameter(uint32_t parameterIndex, unsigned char* data, uint32_t dataSize);
 
     /**
-     * Read BLOB field
-     * @param index             Column number
-     * @param field             Field
+     * @brief Read BLOB field.
+     * @param index             Column number.
+     * @param field             Field.
      */
     void getBLOBOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
     /**
-     * Read the CLOB field
-     * @param index             Column number
-     * @param field             Field
+     * @brief Read the CLOB field.
+     * @param index             Column number.
+     * @param field             Field.
      */
     void getCLOBOutputParameter(unsigned int index, const SDatabaseField& field) const;
 
     /**
-     * Set CLOB parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set CLOB parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setCLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter);
 
     /**
-     * Set BLOB parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set BLOB parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setBLOBParameterValue(unsigned int parameterIndex, QueryParameter& parameter);
 
     /**
-     * Set Date parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set Date parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setDateParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set DateTime parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set DateTime parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setDateTimeParameterValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set int64 parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set int64 parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setInt64ParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set bool parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set bool parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setBooleanParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set string parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set string parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setStringParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set float parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set float parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setFloatParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 
     /**
-     * Set int parameter value
-     * @param parameterIndex    Parameter number
-     * @param parameter         Query parameter
+     * @brief Set int parameter value.
+     * @param parameterIndex    Parameter number.
+     * @param parameter         Query parameter.
      */
     void setIntParamValue(unsigned int parameterIndex, const QueryParameter& parameter);
 

@@ -38,7 +38,7 @@ namespace sptk {
 class OracleOciConnection;
 
 /**
- * OracleOci statement
+ * @brief OracleOci statement.
  */
 class OracleOciStatement
     : public DatabaseStatement<OracleOciConnection, ocilib::Statement>
@@ -46,66 +46,66 @@ class OracleOciStatement
     friend class OracleOciConnection;
 
 public:
-    using Connection = ocilib::Connection; ///< OracleOci connection type
-    using Statement = ocilib::Statement;   ///< OracleOci statement type
+    using Connection = ocilib::Connection; ///< OracleOci connection type.
+    using Statement = ocilib::Statement;   ///< OracleOci statement type.
 
     /**
-     * Constructor
-     * @param connection Connection*, OracleOci connection
-     * @param sql std::string, SQL statement
+     * @brief Constructor.
+     * @param connection Connection*, OracleOci connection.
+     * @param sql std::string, SQL statement.
      */
     OracleOciStatement(OracleOciConnection* connection, const std::string& sql);
 
     /**
-     * Deleted copy constructor
+     * @brief Deleted copy constructor.
      */
     OracleOciStatement(const OracleOciStatement&) = delete;
 
     /**
-     * Move constructor
+     * @brief Move constructor.
      */
     OracleOciStatement(OracleOciStatement&&) = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     ~OracleOciStatement() override;
 
     /**
-     * Deleted copy assignment
+     * @brief Deleted copy assignment.
      */
     OracleOciStatement& operator=(const OracleOciStatement&) = delete;
 
     /**
-     * Move assignment
+     * @brief Move assignment.
      */
     OracleOciStatement& operator=(OracleOciStatement&&) = default;
 
     /**
-     * Sets actual parameter values for the statement execution
+     * @brief Sets actual parameter values for the statement execution.
      */
     void setParameterValues() override;
 
     /**
-     * Executes statement
-     * @param inTransaction bool, True if statement is executed from transaction
+     * @brief Executes statement.
+     * @param inTransaction bool, True if the statement is executed from transaction.
      */
     void execute(bool inTransaction) override;
 
     /**
-     * Closes statement and releases allocated resources
+     * @brief Closes statement and releases allocated resources.
      */
     void close() override;
 
     /**
-     * Fetches next record
+     * @brief Fetches next record.
      */
     void fetch() override;
 
     /**
-     * Returns result set (if returned by a statement)
+     * @brief Returns the result set (if returned by a statement).
      */
-    ocilib::Resultset resultSet() const
+    [[nodiscard]] ocilib::Resultset resultSet() const
     {
         return m_ociStatement->GetResultset();
     }
@@ -121,7 +121,7 @@ private:
     String                                                 m_sql;                   ///< SQL.
     std::vector<std::shared_ptr<OracleOciParameterBuffer>> m_parameterBinding;      ///< Parameter bindings.
     std::chrono::minutes                                   m_sessionTimezoneOffset; ///< Session timezone offset.
- /*
+                                                                                    /*
      * @brief Index of output parameters.
      */
     std::vector<unsigned> m_outputParamIndex;

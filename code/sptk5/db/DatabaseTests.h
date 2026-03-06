@@ -33,7 +33,7 @@
 namespace sptk {
 
 /**
- * Common operations used by database-related unit tests
+ * @brief Common operations used by database-related unit tests.
  */
 class SP_EXPORT DatabaseTests
 {
@@ -48,77 +48,77 @@ public:
     };
 
     /**
-     * Constructor
+     * @brief Constructor.
      */
     DatabaseTests();
 
     /**
      * @brief Add the database connection to future tests.
      * Only one connection string is allowed per database type (driver name).
-     * @param connectionString Database connection string
+     * @param connectionString Database connection string.
      */
     void addDatabaseConnection(const DatabaseConnectionString& connectionString);
 
     /**
-     * Get the list of added database connections
-     * @return list of added database connections
+     * @brief Get the list of added database connections.
+     * @return list of added database connections.
      */
     [[nodiscard]] std::vector<DatabaseConnectionString> connectionStrings() const;
 
     /**
-     * Get connection string for database type (driver name).
-     * @param driverName        Driver name
-     * @return connection string
+     * @brief Get the connection string for the database type (driver name).
+     * @param driverName        Driver name.
+     * @return connection string.
      */
     [[nodiscard]] DatabaseConnectionString connectionString(const String& driverName) const;
 
     /**
-     * Test database connection
-     * @param connectionString Database connection string
+     * @brief Test database connection.
+     * @param connectionString Database connection string.
      */
     static void                           testConnect(const DatabaseConnectionString& connectionString);
     static void                           dropTable(const DatabaseConnection& databaseConnection, const String& tableName);
     static std::tuple<DateTime, DateTime> testCurrentTimestamp(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test SELECT statements
-     * @param connectionString Database connection string
+     * @brief Test SELECT statements.
+     * @param connectionString Database connection string.
      */
     static void testSelect(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test SELECT statements
-     * @param connectionPool    Database connection pool
+     * @brief Test SELECT statements.
+     * @param connectionPool    Database connection pool.
      */
     static void testSelect(DatabaseConnectionPool& connectionPool);
 
     /**
-     * Test basic DDL statements
-     * @param connectionString Database connection string
+     * @brief Test basic DDL statements.
+     * @param connectionString Database connection string.
      */
     static void testDDL(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test query inserting date
-     * @param connectionString
+     * @brief Test query inserting date.
+     * @param connectionString  Connection string.
      */
     static void testQueryInsertDate(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test query inserting date
-     * @param connectionString
+     * @brief Test query inserting date.
+     * @param connectionString  Connection string.
      */
     static void testQueryInsertDateTime(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test parametrized queries
-     * @param connectionString Database connection string
+     * @brief Test parametrized queries.
+     * @param connectionString Database connection string.
      */
     static void testQueryParameters(const DatabaseConnectionString& connectionString);
 
     /**
-     * Test InsertQuery returning the created value
-     * @param connectionString
+     * @brief Test InsertQuery returning the created value.
+     * @param connectionString  Connection string.
      */
     static void testInsertQuery(const DatabaseConnectionString& connectionString);
 
@@ -195,7 +195,7 @@ private:
     /**
      * @brief Connect to the database and create the test table.
      * @param databaseConnection    Database connection.
-     * @param autoPrepare           If true, then use auto-prepared queries (default)
+     * @param autoPrepare           If true, then use auto-prepared queries (default).
      * @param withBlob              If true, then add BLOB field 'data' to the table.
      */
     static void createTestTable(const DatabaseConnection& databaseConnection, bool autoPrepare = true, bool withBlob = false);

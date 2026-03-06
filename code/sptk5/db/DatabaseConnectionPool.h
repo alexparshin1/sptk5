@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -36,57 +35,57 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * Create driver instance function type
+ * @brief Create the driver instance function.
  */
 using CreateDriverInstance = PoolDatabaseConnection*(const char* connectString, size_t connectTimeoutSeconds);
 
 /**
- * Destroy driver instance function type
+ * @brief Destroy the driver instance function.
  */
 using DestroyDriverInstance = void(PoolDatabaseConnection*);
 
 #ifdef WIN32
 /**
- * Windows: Driver DLL handle type
+ * @brief Windows: Driver DLL handle type.
  */
 using DriverHandle = HMODULE;
 
 #else
 /**
- * Unix: Driver shared library handle type
+ * @brief Unix: Driver shared library handle type.
  */
 using DriverHandle = uint8_t*;
 
 #endif
 
 /**
- * Information about loaded database driver
+ * @brief Information about the loaded database driver.
  */
 struct SP_EXPORT DatabaseDriver
 {
     /**
-     * Driver SO/DLL handle after load
+     * @brief Driver SO/DLL handle after the load.
      */
     DriverHandle m_handle;
 
     /**
-     * Function that creates driver instances
+     * @brief Function that creates driver instances.
      */
     CreateDriverInstance* m_createConnection;
 
     /**
-     * Function that destroys driver instances
+     * @brief Function that destroys driver instances.
      */
     DestroyDriverInstance* m_destroyConnection;
 };
 
 /**
- * Database driver loader
+ * @brief Database driver loader.
  *
  * Loads and initializes SPTK database driver by request.
  * Already loaded drivers are cached.
@@ -99,12 +98,12 @@ class SP_EXPORT DatabaseConnectionPool
 
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      *
-     * Database connection string is the same for all connections,
-     * created with this object.
-     * @param connectionString  Database connection string
-     * @param maxConnections    Maximum number of connections in the pool
+     * Database connection string is the same for all connections created with this object.
+     * @param connectionString  Database connection string.
+     * @param maxConnections    Maximum number of connections in the pool.
+     * @param connectionTimeout COnnection timeout.
      */
     DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100, std::chrono::seconds connectionTimeout = std::chrono::seconds(60));
 
@@ -117,46 +116,46 @@ public:
 
 protected:
     /**
-     * Loads database driver
+     * @brief Loads database driver.
      *
-     * First successfull driver load places driver into driver cache.
+     * First successfull driver load places the driver into driver cache.
      */
     void load();
 
     /**
-     * Creates database connection
+     * @brief Creates database connection.
      */
     [[nodiscard]] SPoolDatabaseConnection createConnection();
 
     /**
-     * Returns used database connection back to the pool
-     * @param connection        Database that is no longer in use and may be returned to the pool
+     * @brief Returns used database connection to the pool.
+     * @param connection        Database that is no longer in use and may be returned to the pool.
      */
     void releaseConnection(const SPoolDatabaseConnection& connection);
 
 private:
     /**
-     * Database driver
+     * @brief Database driver.
      */
     DatabaseDriver* m_driver {nullptr};
 
     /**
-     * Function that creates driver instances
+     * @brief Function that creates driver instances.
      */
     CreateDriverInstance* m_createConnection {nullptr};
 
     /**
-     * Function that destroys driver instances
+     * @brief Function that destroys driver instances.
      */
     DestroyDriverInstance* m_destroyConnection {nullptr};
 
     /**
-     * Maximum number of connections in the pool
+     * @brief Maximum number of connections in the pool.
      */
     size_t                                     m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;              ///< Available connections
-    SynchronizedList<SPoolDatabaseConnection>  m_connections;       ///< All connections
-    std::chrono::seconds                       m_connectionTimeout; ///< Connection timeout
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;              ///< Available connections.
+    SynchronizedList<SPoolDatabaseConnection>  m_connections;       ///< All connections.
+    std::chrono::seconds                       m_connectionTimeout; ///< Connection timeout.
 };
 
 /**

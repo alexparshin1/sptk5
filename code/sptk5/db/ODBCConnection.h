@@ -30,6 +30,7 @@
 
 #ifdef HAVE_ODBC
 
+#include "sptk5/Printer.h"
 #include "sptk5/threads/SynchronizedMap.h"
 
 
@@ -70,7 +71,14 @@ public:
      */
     ~ODBCConnection() override
     {
-        close();
+        try
+        {
+            close();
+        }
+        catch (const std::exception& e)
+        {
+            CERR("ODBCConnection destructor: " << e.what());
+        }
     }
 
     ODBCConnection& operator=(const ODBCConnection&) = delete;
@@ -83,12 +91,12 @@ public:
     [[nodiscard]] String nativeConnectionString() const override;
 
     /**
-     * @brief Closes the database connection. If unsuccessful throws an exception.
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
      */
     void closeDatabase() override;
 
     /**
-     * @brief Returns true if database is opened.
+     * @brief Returns true if the database is opened.
      */
     [[nodiscard]] bool active() const override;
 
@@ -149,7 +157,7 @@ protected:
     void queryCloseStmt(Query* query) override;
 
     /**
-     * @brief Prepares a query if supported by database.
+     * @brief Prepares a query if supported by the database.
      */
     void queryPrepare(Query* query) override;
 
@@ -159,7 +167,7 @@ protected:
     void queryExecute(Query* query) override;
 
     /**
-     * @brief Counts columns of the dataset (if any) returned by query.
+     * @brief Counts columns of the dataset (if any) returned by the query.
      */
     size_t queryColCount(Query* query) override;
 
@@ -179,12 +187,13 @@ protected:
     void queryBindParameters(Query* query) override;
 
     /**
-     * @brief Opens the query for reading data from the query' recordset.
+     * @brief Opens the query for reading data from the query's recordset.
      */
     void queryOpen(Query* query) override;
 
     /**
-     * @brief Reads data from the query' recordset into fields, and advances to the next row. After reading the last row sets the EOF (end of file, or no more data) flag.
+     * @brief Reads data from the query's recordset into the fields and advances to the next row.
+     * After reading the last row sets the EOF (end of file, or no more data) flag.
      */
     void queryFetch(Query* query) override;
 
@@ -196,19 +205,19 @@ protected:
     /**
      * @brief Returns the ODBC connection object.
      */
-    [[nodiscard]] ODBCConnectionBase* connection()
+    [[nodiscard]] ODBCConnectionBase* connection() const
     {
         return m_connect.get();
     }
 
     /**
      * @brief List all data sources (user and system).
-     * @param dsns.
+     * @param dsns              Datasource names.
      */
     static void listDataSources(Strings& dsns);
 
     /**
-     * @brief Opens the database connection. If unsuccessful throws an exception.
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
      * @param newConnectionString  The ODBC connection string.
      */
     void _openDatabase(const String& newConnectionString) override;
@@ -233,7 +242,7 @@ private:
     std::shared_ptr<ODBCConnectionBase> m_connect {std::make_shared<ODBCConnectionBase>()};
 
     /**
-     * @brief Retrieves an error (if any) after statement was executed.
+     * @brief Retrieves an error (if any) after the statement was executed.
      * @param stmt SQLHSTMT, the statement that had an error.
      */
     String queryError(SQLHSTMT stmt) const;

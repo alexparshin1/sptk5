@@ -35,45 +35,45 @@
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- * Oracle Environment
+ * @brief Oracle Environment.
  *
- * Allows creating and terminating connections
+ * Allows creating and terminating connections.
  */
 class OracleEnvironment
 {
 public:
     /**
-     * Constructor
+     * @brief Constructor.
      */
     OracleEnvironment() = default;
 
     /**
-     * Deleted copy constructor
+     * @brief Deleted copy constructor.
      */
     OracleEnvironment(const OracleEnvironment&) = delete;
 
     /**
-     * Move constructor
+     * @brief Move constructor.
      */
     OracleEnvironment(OracleEnvironment&&) = default;
 
     /**
-     * Deleted copy assignment
+     * @brief Deleted copy assignment.
      */
     OracleEnvironment& operator=(const OracleEnvironment&) = delete;
 
     /**
-     * Move assignment
+     * @brief Move assignment.
      */
     OracleEnvironment& operator=(OracleEnvironment&&) = default;
 
     /**
-     * Returns environment handle
+     * @brief Returns environment handle.
      */
     oracle::occi::Environment* handle() const
     {
@@ -81,25 +81,25 @@ public:
     }
 
     /**
-     * Returns client version
+     * @brief Returns client version.
      */
     static String clientVersion();
 
     /**
-     * Creates new database connection
-     * @param connectionString DatabaseConnectionString&, Connection parameters
+     * @brief Creates the new database connection.
+     * @param connectionString Connection parameters.
      */
     oracle::occi::Connection* createConnection(const DatabaseConnectionString& connectionString);
 
     /**
-     * Terminates database connection
-     * @param connection oracle::occi::Connection*, Oracle connection
+     * @brief Terminates database connection.
+     * @param connection        Oracle connection.
      */
     void terminateConnection(oracle::occi::Connection* connection) const;
 
 private:
     /**
-     * Environment handle
+     * @brief Environment handle.
      */
     std::shared_ptr<oracle::occi::Environment> m_handle {
         std::shared_ptr<oracle::occi::Environment>(

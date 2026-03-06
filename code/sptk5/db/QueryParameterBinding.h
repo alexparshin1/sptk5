@@ -26,56 +26,52 @@
 
 #pragma once
 
-#include <sptk5/Variant.h>
-#include <sptk5/sptk.h>
-
-#include <map>
 #include <sptk5/db/PoolDatabaseConnection.h>
-#include <vector>
+#include <sptk5/sptk.h>
 
 namespace sptk {
 
 /**
- * @addtogroup Database Database Support
+ * @addtogroup Database Database Support.
  * @{
  */
 
 /**
- *  Parameter Binding descriptor
+ *  Parameter Binding descriptor.
  *
- * Stores the last information on parameter binding
+ * Stores the last information on parameter binding.
  */
 class SP_EXPORT QueryParameterBinding
 {
 public:
     /**
-     * Statement handle or id
+     * @brief Statement handle or id.
      */
     StmtHandle m_stmt {nullptr};
 
     /**
-     * Data type
+     * @brief Data type.
      */
     VariantDataType m_dataType {VariantDataType::VAR_NONE};
 
     /**
-     * Buffer
+     * @brief Buffer.
      */
     uint8_t* m_buffer {nullptr};
 
     /**
-     * Buffer size
+     * @brief Buffer size.
      */
     uint32_t m_size {0};
 
     /**
-     * Output parameter flag
+     * @brief Output parameter flag.
      */
     bool m_output {false};
 
     /**
-     * Constructor
-     * @param isOutput          Output parameter flag
+     * @brief Constructor.
+     * @param isOutput          Output parameter flag.
      */
     explicit QueryParameterBinding(bool isOutput)
     {
@@ -83,13 +79,13 @@ public:
     }
 
     /**
-     *  Resets the binding information
-     * @param isOutput          Output parameter flag
+     *  Resets the binding information.
+     * @param isOutput          Output parameter flag.
      */
     void reset(bool isOutput);
 
     /**
-     * Set binding to output
+     * @brief Set binding to output.
      */
     void setOutput()
     {

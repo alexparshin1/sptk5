@@ -149,7 +149,15 @@ void SQLite3Connection::_openDatabase(const String& newConnectionString)
 void SQLite3Connection::closeDatabase()
 {
     disconnectAllQueries();
-    sqlite3_close(m_connect.get());
+    switch (sqlite3_close(m_connect.get()))
+    {
+        case SQLITE_OK:
+            break;
+        case SQLITE_BUSY:
+            throw DatabaseException("Failed to close SQLite3 connection: The database is busy.");
+        default:
+            throw DatabaseException("Failed to close SQLite3 connection");
+    }
     m_connect = nullptr;
 }
 
@@ -569,8 +577,7 @@ void SQLite3Connection::queryFetch(Query* query)
             }
             else
             {
-                field->setString("");
-                field->setNull(VariantDataType::VAR_NONE);
+                setFieldToNull(field, fieldType);
             }
         }
         catch (const Exception& e)
@@ -583,7 +590,32 @@ void SQLite3Connection::queryFetch(Query* query)
     }
 }
 
-void SQLite3Connection::executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors)
+void SQLite3Connection::setFieldToNull(Field* field, const short sqliteFieldType)
+{
+    switch (sqliteFieldType)
+    {
+        using enum VariantDataType;
+        case SQLITE_INTEGER:
+            field->setInt64(0);
+            field->setNull(VAR_INT64);
+            break;
+        case SQLITE_FLOAT:
+            field->setFloat(0);
+            field->setNull(VAR_FLOAT);
+            break;
+        case SQLITE_TEXT:
+        case SQLITE_BLOB:
+            field->setString("");
+            field->setNull(VAR_BUFFER);
+            break;
+        default:
+            field->setString("");
+            field->setNull(VAR_NONE);
+            break;
+    }
+}
+
+void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
     static const RegularExpression matchStatementEnd("(;\\s*)$");
     static const RegularExpression matchCommentRow("^\\s*--");

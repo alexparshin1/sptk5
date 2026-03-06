@@ -4,7 +4,6 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2026-03-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -25,104 +24,89 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cutils>
-#include <sptk5/db/QueryParameter.h>
+#include <gtest/gtest.h>
 #include <sptk5/db/QueryParameterList.h>
 
-using namespace std;
 using namespace sptk;
 
-void QueryParameterList::clear()
+namespace {
+class TestQueryParameterList : public QueryParameterList
 {
-    m_items.clear();
-    m_index.clear();
+public:
+    using QueryParameterList::add;
+};
+} // namespace
+
+TEST(SPTK_QueryParameterList, addFindAndAccessAreCaseInsensitive)
+{
+    TestQueryParameterList params;
+    const auto             p = std::make_shared<QueryParameter>("Person_ID");
+    params.add(p);
+
+    EXPECT_EQ(params.size(), 1);
+    EXPECT_TRUE(params.find("person_id") != nullptr);
+    EXPECT_TRUE(params.find("PERSON_ID") != nullptr);
+    EXPECT_EQ(params["PERSON_ID"].name(), "person_id");
 }
 
-void QueryParameterList::add(const SQueryParameter& item)
+TEST(SPTK_QueryParameterList, removeUpdatesBothListAndIndex)
 {
-    m_items.push_back(item);
-    m_index[item->name()] = item;
+    TestQueryParameterList params;
+    params.add(std::make_shared<QueryParameter>("id"));
+    params.add(std::make_shared<QueryParameter>("name"));
+
+    params.remove(0);
+
+    EXPECT_EQ(params.size(), 1);
+    EXPECT_TRUE(params.find("id") == nullptr);
+    EXPECT_TRUE(params.find("name") != nullptr);
+    EXPECT_EQ(params[0].name(), "name");
 }
 
-SQueryParameter QueryParameterList::find(const String& paramName)
+TEST(SPTK_QueryParameterList, removeInvalidIndexThrows)
 {
-    const auto itor = m_index.find(paramName.toLowerCase());
+    TestQueryParameterList params;
+    params.add(std::make_shared<QueryParameter>("id"));
 
-    if (itor == m_index.end())
-    {
-        return nullptr;
-    }
-
-    return itor->second;
+    EXPECT_THROW(params.remove(2), Exception);
 }
 
-QueryParameter& QueryParameterList::operator[](const String& paramName) const
+TEST(SPTK_QueryParameterList, operatorByInvalidNameThrows)
 {
-    const auto itor = m_index.find(paramName.toLowerCase());
+    TestQueryParameterList params;
+    params.add(std::make_shared<QueryParameter>("id"));
 
-    if (itor == m_index.end())
-    {
-        throw Exception("Invalid parameter name: " + paramName);
-    }
-
-    return *itor->second;
+    EXPECT_THROW((void) params["missing"], Exception);
 }
 
-QueryParameter& QueryParameterList::operator[](const size_t index) const
+TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
 {
-    if (index >= m_items.size())
-    {
-        throw Exception("Invalid parameter index");
-    }
-    return *m_items[index];
+    TestQueryParameterList params;
+
+    const auto p1 = std::make_shared<QueryParameter>("p1");
+    p1->bindAdd(0);
+    p1->bindAdd(2);
+    params.add(p1);
+
+    const auto p2 = std::make_shared<QueryParameter>("p2");
+    p2->bindAdd(1);
+    params.add(p2);
+
+    ParamVector enumerated;
+    params.enumerate(enumerated);
+
+    ASSERT_EQ(enumerated.size(), 3);
+    EXPECT_EQ(enumerated[0], p1);
+    EXPECT_EQ(enumerated[1], p2);
+    EXPECT_EQ(enumerated[2], p1);
 }
 
-size_t QueryParameterList::size() const
+TEST(SPTK_QueryParameterList, enumerateEmptyListReturnsEmptyVector)
 {
-    return m_items.size();
-}
+    const TestQueryParameterList params;
+    ParamVector                  enumerated {std::make_shared<QueryParameter>("seed")};
 
-void QueryParameterList::remove(const size_t i)
-{
-    if (i >= m_items.size())
-    {
-        throw Exception("Invalid parameter index");
-    }
-    const auto  itor = m_items.begin() + static_cast<int>(i);
-    const auto& item = *itor;
-    m_index.erase(item->name());
-    m_items.erase(itor);
-}
+    params.enumerate(enumerated);
 
-void QueryParameterList::enumerate(ParamVector& params) const
-{
-    params.reserve(m_items.size() * 2);
-
-    if (m_items.empty())
-    {
-        return;
-    }
-
-    size_t maxIndex = 0;
-
-    for (const auto& param: m_items)
-    {
-        for (const auto& bindIndex = param->m_bindParamIndexes;
-             const auto  index: bindIndex)
-        {
-            if (index >= params.size())
-            {
-                params.resize(index + 1);
-            }
-
-            params[index] = param;
-
-            if (index > maxIndex)
-            {
-                maxIndex = index;
-            }
-        }
-    }
-
-    params.resize(maxIndex + 1);
+    EXPECT_TRUE(enumerated.empty());
 }
