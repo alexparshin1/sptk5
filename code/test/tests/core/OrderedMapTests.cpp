@@ -260,16 +260,40 @@ TEST(SPTK_OrderedMap, comparePerformance)
         orderedMap.insert(key, value);
     }
     stopWatch.stop();
-    COUT("OrderedMap insertion took " << stopWatch.milliseconds() << " ms");
+    COUT("OrderedMap insertion: " << stopWatch.milliseconds() << " ms");
 
     EXPECT_EQ(testData.size(), orderedMap.size());
+
+    stopWatch.start();
+    orderedMap.clear();
+    stopWatch.stop();
+    COUT("OrderedMap clear:     " << stopWatch.milliseconds() << " ms");
 
     stopWatch.start();
     map<string, int, less<>> stdMap;
     for (const auto& [key, value]: testData)
     {
-        orderedMap.insert(key, value);
+        stdMap.emplace(key, value);
     }
     stopWatch.stop();
-    COUT("Std map insertion took " << stopWatch.milliseconds() << " ms");
+    COUT("Std map insertion:    " << stopWatch.milliseconds() << " ms");
+
+    stopWatch.start();
+    stdMap.clear();
+    stopWatch.stop();
+    COUT("Std map clear:        " << stopWatch.milliseconds() << " ms");
+
+    stopWatch.start();
+    unordered_map<string, int> unorderedMap;
+    for (const auto& [key, value]: testData)
+    {
+        unorderedMap.emplace(key, value);
+    }
+    stopWatch.stop();
+    COUT("Hash map insertion:   " << stopWatch.milliseconds() << " ms");
+
+    stopWatch.start();
+    unorderedMap.clear();
+    stopWatch.stop();
+    COUT("Hash map clear:       " << stopWatch.milliseconds() << " ms");
 }

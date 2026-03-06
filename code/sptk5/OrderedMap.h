@@ -212,7 +212,9 @@ public:
             iterator it;
             try
             {
-                it = m_items.emplace(m_items.end(), key, value);
+                m_items.emplace_back(key, value);
+                it = m_items.end();
+                --it;
             }
             catch (const std::exception&)
             {
