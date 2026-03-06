@@ -96,7 +96,8 @@ void QueryParameterList::remove(const size_t i)
 
 void QueryParameterList::enumerate(ParamVector& params) const
 {
-    params.reserve(m_items.size() * 2);
+    params.clear();
+    params.reserve(m_items.size());
 
     if (m_items.empty())
     {

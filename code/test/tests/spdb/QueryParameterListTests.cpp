@@ -27,6 +27,7 @@
 #include <gtest/gtest.h>
 #include <sptk5/db/QueryParameterList.h>
 
+using namespace std;
 using namespace sptk;
 
 namespace {
@@ -40,7 +41,7 @@ public:
 TEST(SPTK_QueryParameterList, addFindAndAccessAreCaseInsensitive)
 {
     TestQueryParameterList params;
-    const auto             p = std::make_shared<QueryParameter>("Person_ID");
+    const auto             p = make_shared<QueryParameter>("Person_ID");
     params.add(p);
 
     EXPECT_EQ(params.size(), 1);
@@ -52,8 +53,8 @@ TEST(SPTK_QueryParameterList, addFindAndAccessAreCaseInsensitive)
 TEST(SPTK_QueryParameterList, removeUpdatesBothListAndIndex)
 {
     TestQueryParameterList params;
-    params.add(std::make_shared<QueryParameter>("id"));
-    params.add(std::make_shared<QueryParameter>("name"));
+    params.add(make_shared<QueryParameter>("id"));
+    params.add(make_shared<QueryParameter>("name"));
 
     params.remove(0);
 
@@ -66,7 +67,7 @@ TEST(SPTK_QueryParameterList, removeUpdatesBothListAndIndex)
 TEST(SPTK_QueryParameterList, removeInvalidIndexThrows)
 {
     TestQueryParameterList params;
-    params.add(std::make_shared<QueryParameter>("id"));
+    params.add(make_shared<QueryParameter>("id"));
 
     EXPECT_THROW(params.remove(2), Exception);
 }
@@ -74,7 +75,7 @@ TEST(SPTK_QueryParameterList, removeInvalidIndexThrows)
 TEST(SPTK_QueryParameterList, operatorByInvalidNameThrows)
 {
     TestQueryParameterList params;
-    params.add(std::make_shared<QueryParameter>("id"));
+    params.add(make_shared<QueryParameter>("id"));
 
     EXPECT_THROW((void) params["missing"], Exception);
 }
@@ -83,12 +84,12 @@ TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
 {
     TestQueryParameterList params;
 
-    const auto p1 = std::make_shared<QueryParameter>("p1");
+    const auto p1 = make_shared<QueryParameter>("p1");
     p1->bindAdd(0);
     p1->bindAdd(2);
     params.add(p1);
 
-    const auto p2 = std::make_shared<QueryParameter>("p2");
+    const auto p2 = make_shared<QueryParameter>("p2");
     p2->bindAdd(1);
     params.add(p2);
 
@@ -104,7 +105,7 @@ TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
 TEST(SPTK_QueryParameterList, enumerateEmptyListReturnsEmptyVector)
 {
     const TestQueryParameterList params;
-    ParamVector                  enumerated {std::make_shared<QueryParameter>("seed")};
+    ParamVector                  enumerated {make_shared<QueryParameter>("seed")};
 
     params.enumerate(enumerated);
 
