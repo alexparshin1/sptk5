@@ -445,7 +445,9 @@ public:
      * @returns parameter.
      * @see ParamList.
      */
-    QueryParameter& param(const char* paramName) const
+    template<typename T>
+        requires(std::is_same_v<T, const char*>)
+    QueryParameter& param(T paramName) const
     {
         return m_params[paramName];
     }
@@ -457,7 +459,9 @@ public:
      * @param paramName         Parameter name.
      * @returns parameter reference.
      */
-    [[nodiscard]] QueryParameter& param(const String& paramName) const
+    template<typename T>
+        requires(std::is_same_v<T, std::string> || std::is_same_v<T, String>)
+    [[nodiscard]] QueryParameter& param(const T& paramName) const
     {
         return m_params[paramName.c_str()];
     }
@@ -467,7 +471,9 @@ public:
      * @param paramIndex        Parameter index.
      * @returns parameter reference.
      */
-    [[nodiscard]] QueryParameter& param(size_t paramIndex) const
+    template<typename T>
+        requires(std::is_integral_v<T>)
+    [[nodiscard]] QueryParameter& param(T paramIndex) const
     {
         return m_params[paramIndex];
     }
