@@ -501,7 +501,7 @@ void DatabaseTests::testTransaction(const DatabaseConnection& databaseConnection
 
     transaction.begin();
 
-    const size_t maxRecords = insertRecordsInTransaction(databaseConnection);
+    const auto maxRecords = insertRecordsInTransaction(databaseConnection);
 
     if (commit)
     {
@@ -832,11 +832,11 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     aRow.emplace_back("Programmer");
     aRow.emplace_back("01-JAN-2014");
 
-    constexpr int dataRows = 10000;
-    constexpr int batchSize = 100;
+    constexpr auto dataRows = 10000;
+    constexpr auto batchSize = 100;
 
     data.reserve(dataRows);
-    for (int i = 0; i < dataRows; ++i)
+    for (auto i = 0; i < dataRows; ++i)
     {
         data.push_back(aRow);
     }
@@ -896,7 +896,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     COUT("All inserted      " << uniqueIds.size() << " for " << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
 
     Query selectData(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
-    int   counter = selectData.scalar().asInteger();
+    auto  counter = selectData.scalar().asInteger();
     EXPECT_EQ(dataRows * 2, counter);
     EXPECT_EQ(dataRows * 2, uniqueIds.size());
 }
@@ -930,7 +930,7 @@ void DatabaseTests::verifyTableNoBlobs(const DatabaseConnection& databaseConnect
 {
     Query select(databaseConnection, "SELECT * FROM gtest_temp_table ORDER BY 1", false);
     select.open();
-    int recordCount = 0;
+    auto recordCount = 0;
     while (!select.eof())
     {
         ++recordCount;
@@ -987,9 +987,9 @@ void DatabaseTests::testBulkInsertPerformance(const DatabaseConnectionString& co
     transaction.begin();
     for (auto& row: data)
     {
-        constexpr int col0 = 0;
-        constexpr int col1 = 1;
-        constexpr int col2 = 2;
+        constexpr auto col0 = 0;
+        constexpr auto col1 = 1;
+        constexpr auto col2 = 2;
 
         nameParam = row[col0].asString();
         positionParam = row[col1].asString();
@@ -1058,8 +1058,8 @@ void DatabaseTests::testBatchSQL(const DatabaseConnectionString& connectionStrin
 void DatabaseTests::verifyBatchInsertedData(Query& selectData, const Strings& expectedResults)
 {
     selectData.open();
-    int           rowNumber = 0;
-    constexpr int expectedRows = 3;
+    auto           rowNumber = 0;
+    constexpr auto expectedRows = 3;
     for (; rowNumber < expectedRows && !selectData.eof(); ++rowNumber)
     {
         Strings row;
@@ -1101,9 +1101,9 @@ void DatabaseTests::testSelect(DatabaseConnectionPool& connectionPool)
 
     for (const auto& row: data)
     {
-        constexpr int col0 = 0;
-        constexpr int col1 = 1;
-        constexpr int col2 = 2;
+        constexpr auto col0 = 0;
+        constexpr auto col1 = 1;
+        constexpr auto col2 = 2;
         using enum VariantDataType;
 
         // Insert all nulls
@@ -1236,8 +1236,8 @@ void DatabaseTests::testBLOB(const DatabaseConnectionString& connectionString)
     Query selectQuery(databaseConnection, "SELECT id, data1, data2 FROM gtest_temp_table ORDER BY 1");
     selectQuery.open();
 
-    constexpr size_t blobSize2 = blobSize1 * 2;
-    const auto       dataSize1 = selectQuery["data1"].dataSize();
+    constexpr auto blobSize2 = blobSize1 * 2;
+    const auto     dataSize1 = selectQuery["data1"].dataSize();
     EXPECT_EQ(blobSize1, dataSize1);
 
     const auto dataSize2 = selectQuery["data2"].dataSize();
