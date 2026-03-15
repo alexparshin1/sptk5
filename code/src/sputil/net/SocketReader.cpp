@@ -317,7 +317,7 @@ size_t SocketReader::readLine(uint8_t* destination, const size_t size, const cha
 
     while (!endOfLine)
     {
-        const int bytesToRead = static_cast<int>(size) - total;
+        const auto bytesToRead = static_cast<int>(size - total);
         if (bytesToRead <= 0)
         {
             return size;

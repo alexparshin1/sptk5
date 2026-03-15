@@ -24,8 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cmath>
-#include <cstring>
 #include <ctime>
 #include <sptk5/cutils>
 
@@ -1051,7 +1049,7 @@ DateTime::operator String() const
     return dateString() + " " + timeString();
 }
 
-DateTime::operator long int() const
+DateTime::operator time_t() const
 {
     scoped_lock lock(m_mutex);
     return clock::to_time_t(m_dateTime);

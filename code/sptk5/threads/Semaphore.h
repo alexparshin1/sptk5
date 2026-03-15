@@ -34,6 +34,10 @@
 #include <semaphore>
 #include <limits>
 
+#ifdef max
+#undef max
+#endif
+
 namespace sptk {
 
 /**

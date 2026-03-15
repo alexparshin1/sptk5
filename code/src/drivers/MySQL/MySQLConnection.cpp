@@ -59,6 +59,7 @@ void MySQLConnection::initConnection()
         throw DatabaseException("Can't initialize MySQL environment");
     }
 
+#ifndef HAVE_MYSQL
     if (constexpr unsigned int ssl_enforce = 0;
         mysql_options(m_connection.get(), MYSQL_OPT_SSL_VERIFY_SERVER_CERT, &ssl_enforce))
     {
@@ -66,6 +67,7 @@ void MySQLConnection::initConnection()
         m_connection.reset();
         throw DatabaseException("Can't initialize MySQL environment: " + error);
     }
+#endif
 
     mysql_options(m_connection.get(), MYSQL_SET_CHARSET_NAME, "utf8");
     mysql_options(m_connection.get(), MYSQL_INIT_COMMAND, "SET NAMES utf8");
