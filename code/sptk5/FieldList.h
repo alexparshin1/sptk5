@@ -59,7 +59,6 @@ public:
      */
     using const_iterator = std::vector<SField>::const_iterator;
 
-
     /**
      * @brief Default constructor.
      *

@@ -1,0 +1,99 @@
+/*
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
+╟──────────────────────────────────────────────────────────────────────────────╢
+║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
+║  email                alexeyp@gmail.com                                      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+┌──────────────────────────────────────────────────────────────────────────────┐
+│   This library is free software; you can redistribute it and/or modify it    │
+│   under the terms of the GNU Library General Public License as published by  │
+│   the Free Software Foundation; either version 2 of the License, or (at your │
+│   option) any later version.                                                 │
+│                                                                              │
+│   This library is distributed in the hope that it will be useful, but        │
+│   WITHOUT ANY WARRANTY; without even the implied warranty of                 │
+│   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Library   │
+│   General Public License for more details.                                   │
+│                                                                              │
+│   You should have received a copy of the GNU Library General Public License  │
+│   along with this library; if not, write to the Free Software Foundation,    │
+│   Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.               │
+│                                                                              │
+│   Please report all bugs and problems to alexeyp@gmail.com.                  │
+└──────────────────────────────────────────────────────────────────────────────┘
+*/
+
+#pragma once
+
+#include "sptk5/Variant.h"
+#include "sptk5/net/SocketReader.h"
+#include "sptk5/net/TCPSocket.h"
+#include <memory>
+#include <string>
+
+namespace sptk {
+
+/**
+ * @brief Redis Client.
+ */
+class RedisConnect
+{
+public:
+    /**
+     * @brief Constructor
+     */
+    RedisConnect() = default;
+
+    /**
+     * @brief Destructor
+     */
+    virtual ~RedisConnect() = default;
+
+    /**
+     * @brief Connects to Redis server.
+     * @param host Redis host.
+     * @param port Redis port.
+     */
+    void connect(const std::string& host, int port);
+
+    /**
+     * @brief Disconnects from Redis server.
+     */
+    void disconnect();
+
+    Variant get(const std::string& key);
+    Buffer  getBinary(const std::string& key);
+
+    /**
+     * @brief Sets the key-value pair in Redis.
+     * @param key Key name.
+     * @param value Value.
+     */
+    void set(const std::string& key, const Variant& value);
+
+    /**
+     * @brief Sets the key-value pair in Redis.
+     * @param key Key name.
+     * @param value Value.
+     */
+    void setBinary(const std::string& key, const Buffer& value);
+
+private:
+    TCPSocket                     m_socket; ///< Underlying socket
+    std::unique_ptr<SocketReader> m_reader; ///< Socket reader
+
+    /**
+     * @brief Reads a line from Redis.
+     * @return A line from Redis.
+     */
+    std::string readLine() const;
+
+    /**
+     * @brief Reads a bulk string from Redis.
+     * @return Bulk string.
+     */
+    std::string readBulkString() const;
+};
+
+} // namespace sptk
