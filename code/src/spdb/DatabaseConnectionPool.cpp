@@ -60,11 +60,22 @@ private:
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::seconds connectionTimeout)
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::milliseconds connectionTimeout)
     : DatabaseConnectionString(connectionString)
     , m_maxConnections(maxConnections)
     , m_connectionTimeout(connectionTimeout)
 {
+}
+
+DatabaseConnectionPool::~DatabaseConnectionPool()
+{
+    m_connections.each([](const SPoolDatabaseConnection& connection)
+                       {
+                           connection->close();
+                           return true;
+                       });
+    m_pool.clear();
+    m_connections.clear();
 }
 
 void DatabaseConnectionPool::load()
@@ -167,6 +178,7 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
     {
         load();
     }
+
     SPoolDatabaseConnection connection;
     if (m_connections.size() < m_maxConnections && m_pool.empty())
     {
@@ -187,7 +199,7 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
         return connection;
     }
 
-    if (m_pool.pop_front(connection, 10s))
+    if (m_pool.pop_front(connection, m_connectionTimeout))
     {
         return connection;
     }
@@ -198,4 +210,14 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
 void DatabaseConnectionPool::releaseConnection(const SPoolDatabaseConnection& connection)
 {
     m_pool.push_back(connection);
+}
+
+size_t DatabaseConnectionPool::totalConnections() const
+{
+    return m_connections.size();
+}
+
+size_t DatabaseConnectionPool::availableConnections() const
+{
+    return m_pool.size();
 }

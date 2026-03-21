@@ -105,14 +105,48 @@ public:
      * @param maxConnections    Maximum number of connections in the pool.
      * @param connectionTimeout COnnection timeout.
      */
-    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100, std::chrono::seconds connectionTimeout = std::chrono::seconds(60));
+    DatabaseConnectionPool(const String& connectionString, unsigned maxConnections = 100, std::chrono::milliseconds connectionTimeout = std::chrono::seconds(60));
 
+    /**
+     * @brief Destructor.
+     */
+    ~DatabaseConnectionPool();
+
+    /**
+     * @brief Get database connection from the pool.
+     * @return database connection.
+     */
     [[nodiscard]] DatabaseConnection getConnection();
 
-    std::chrono::seconds connectionTimeout() const
+    /**
+     * @brief Get the maximum number of connections in the pool.
+     * @return maximum number of connections.
+     */
+    [[nodiscard]] size_t maxConnections() const
+    {
+        return m_maxConnections;
+    }
+
+    /**
+     * @brief The timeout for waiting for a connection from the pool if it isn't available immediately.
+     * @return The timeout for waiting for a connection.
+     */
+    [[nodiscard]] std::chrono::milliseconds connectionTimeout() const
     {
         return m_connectionTimeout;
     }
+
+    /**
+     * @brief Get the total number of allocated connections.
+     * @return total allocated connections.
+     */
+    [[nodiscard]] size_t totalConnections() const;
+
+    /**
+     * @brief Get the number of available connections.
+     * @return number of available connections.
+     */
+    [[nodiscard]] size_t availableConnections() const;
 
 protected:
     /**
@@ -155,7 +189,7 @@ private:
     size_t                                     m_maxConnections;
     SynchronizedQueue<SPoolDatabaseConnection> m_pool;              ///< Available connections.
     SynchronizedList<SPoolDatabaseConnection>  m_connections;       ///< All connections.
-    std::chrono::seconds                       m_connectionTimeout; ///< Connection timeout.
+    std::chrono::milliseconds                  m_connectionTimeout; ///< Connection timeout.
 };
 
 /**
