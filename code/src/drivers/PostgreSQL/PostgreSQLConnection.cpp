@@ -170,11 +170,14 @@ PostgreSQLConnection::~PostgreSQLConnection()
 {
     try
     {
-        if (getInTransaction() && PostgreSQLConnection::active())
+        if (PostgreSQLConnection::active())
         {
-            rollbackTransaction();
+            if (getInTransaction())
+            {
+                rollbackTransaction();
+            }
+            close();
         }
-        close();
     }
     catch (const Exception& e)
     {
@@ -434,9 +437,9 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
-    PostgreSQLParamValues& paramValues = statement->paramValues();
-    const ParamVector&    params = paramValues.params();
+    auto*       statement = bit_cast<PostgreSQLStatement*>(query->statement());
+    auto&       paramValues = statement->paramValues();
+    const auto& params = paramValues.params();
 
     uint32_t paramNumber = 0;
     for (const auto& param: params)
@@ -492,10 +495,10 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto*                  statement = bit_cast<PostgreSQLStatement*>(query->statement());
-    PostgreSQLParamValues& paramValues = statement->paramValues();
-    const ParamVector&    params = paramValues.params();
-    uint32_t               paramNumber = 0;
+    auto*       statement = bit_cast<PostgreSQLStatement*>(query->statement());
+    auto&       paramValues = statement->paramValues();
+    const auto& params = paramValues.params();
+    uint32_t    paramNumber = 0;
 
     for (const auto& param: params)
     {

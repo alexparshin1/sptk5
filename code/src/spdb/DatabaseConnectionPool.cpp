@@ -187,7 +187,10 @@ SPoolDatabaseConnection DatabaseConnectionPool::createConnection()
                                              {
                                                  try
                                                  {
-                                                     conn->close();
+                                                     if (conn->active())
+                                                     {
+                                                         conn->close();
+                                                     }
                                                  }
                                                  catch (const Exception& e)
                                                  {

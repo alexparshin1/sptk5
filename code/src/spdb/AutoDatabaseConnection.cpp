@@ -41,7 +41,10 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 {
     if (m_connection != nullptr)
     {
-        m_connection->close();
+        if (m_connection->active())
+        {
+            m_connection->close();
+        }
         m_connectionPool.releaseConnection(m_connection);
     }
 }

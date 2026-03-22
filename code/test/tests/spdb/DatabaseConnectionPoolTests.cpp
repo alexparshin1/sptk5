@@ -94,6 +94,46 @@ TEST(SPTK_DatabaseConnectionPool, createConnections)
     }
 }
 
+TEST(SPTK_DatabaseConnectionPool, reuseConnections)
+{
+    try
+    {
+        constexpr size_t               maxConnections = 10;
+        const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+        DatabaseConnectionPool         connectionPool(connectionString.toString(), maxConnections);
+
+        for (auto i = 0; i < 2; ++i)
+        {
+            queue<DatabaseConnection> connections;
+            for (size_t i = 0; i < maxConnections; ++i)
+            {
+                const auto connection = connectionPool.getConnection();
+                connections.push(connection);
+            }
+
+            EXPECT_EQ(maxConnections, connections.size());
+
+            auto expectedTotalConnections = maxConnections;
+            auto expectedAvailableConnections = 0;
+
+            EXPECT_EQ(expectedTotalConnections, connectionPool.totalConnections());
+            EXPECT_EQ(expectedAvailableConnections, connectionPool.availableConnections());
+
+            while (!connections.empty())
+            {
+                connections.pop();
+                ++expectedAvailableConnections;
+                EXPECT_EQ(expectedTotalConnections, connectionPool.totalConnections());
+                EXPECT_EQ(expectedAvailableConnections, connectionPool.availableConnections());
+            }
+        }
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.what());
+    }
+}
+
 TEST(SPTK_DatabaseConnectionPool, createConnectionsTimeout)
 {
     try

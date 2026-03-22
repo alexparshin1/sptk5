@@ -70,7 +70,6 @@ int     TimeZone::_isDaylightSavingsTime;
 
 constexpr auto   minutesInHour = 60;
 constexpr auto   secondsInMinute = 60;
-constexpr auto   tzMultiplier = 100;
 constexpr auto   millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
 
