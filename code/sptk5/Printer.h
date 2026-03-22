@@ -48,13 +48,14 @@ public:
                   << std::flush;                                       \
     } while (false)
 
-#define COUT_TS(a)                                                                            \
-    do                                                                                        \
-    {                                                                                         \
-        const std::scoped_lock printLock(sptk::Console::printMutex());                        \
-        std::cout << DateTime::Now().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS) \
-                  << " " << a << "\n"                                                         \
-                  << std::flush;                                                              \
+#define COUT_TS(a)                                                                                                         \
+    do                                                                                                                     \
+    {                                                                                                                      \
+        const std::scoped_lock printLock(sptk::Console::printMutex());                                                     \
+        const auto             dt = DateTime::Now();                                                                       \
+        std::cout << dt.dateString() << " " << dt.timeString(DateTime::PF_RFC_DATE, DateTime::PrintAccuracy::MILLISECONDS) \
+                  << " " << a << "\n"                                                                                      \
+                  << std::flush;                                                                                           \
     } while (false)
 
 #define CERR(a)                                                        \
@@ -64,10 +65,11 @@ public:
         std::cerr << a << "\n";                                        \
     } while (false)
 
-#define CERR_TS(a)                                                                            \
-    do                                                                                        \
-    {                                                                                         \
-        const std::scoped_lock printLock(sptk::Console::printMutex());                        \
-        std::cerr << DateTime::Now().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS) \
-                  << " " << a << "\n";                                                        \
+#define CERR_TS(a)                                                                                                         \
+    do                                                                                                                     \
+    {                                                                                                                      \
+        const std::scoped_lock printLock(sptk::Console::printMutex());                                                     \
+        const auto             dt = DateTime::Now();                                                                       \
+        std::cerr << dt.dateString() << " " << dt.timeString(DateTime::PF_RFC_DATE, DateTime::PrintAccuracy::MILLISECONDS) \
+                  << " " << a << "\n";                                                                                     \
     } while (false)
