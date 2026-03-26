@@ -1,6 +1,10 @@
 export default class ControlAPI {
 
     static serviceURL = "http://sptk.net";
+    static isConnected = false;
+
+    static connected() { return ControlAPI.isConnected; }
+    static onConnectedChanged = (isConnected) => {};
 
     static getRequest(method, methodParams) {
         const params = new URLSearchParams(methodParams);
@@ -46,12 +50,14 @@ export default class ControlAPI {
     static login(username, password) {
         ControlAPI.asyncMakeAPICall("Login", {"username": username, "password": password})
             .then(result => {
+                ControlAPI.isConnected = false;
                 if (result === null || result.result === null) {
                     // XMQ server is offline
                     return false;
                 }
                 if (result.result.success) {
                     ControlAPI.token = result.token;
+                    ControlAPI.isConnected = true;
                     ControlAPI.onConnectedChanged(true);
                     return true;
                 } else {
