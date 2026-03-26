@@ -52,7 +52,7 @@ public:
      * @param connectionFunction Connection function executed for each new client connection to server
      */
     explicit TCPServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
-        : RunableServerConnection(server, ServerConnection::Type::TCP, connectionAddress, connectionFunction)
+        : RunableServerConnection(server, Type::TCP, connectionAddress, connectionFunction)
     {
         setSocket(std::make_shared<TCPSocket>());
         socket().attach(connectionSocket, false);

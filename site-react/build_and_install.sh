@@ -2,5 +2,5 @@ npm run build
 
 [ -e /var/www/html/sptk/static ] && rm -rf /var/www/html/sptk/static
 
-rsync -av ./build/* /var/www/html/sptk/
-cp extra_files/* /var/www/html/sptk/
+rsync -av ./build/* theater:/var/www/html/sptk/
+scp extra_files/* theater:/var/www/html/sptk/

@@ -1,5 +1,5 @@
 import React from "react";
-import {Navigate, NavLink} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 import "./Accordion.css";
 
 /**
@@ -23,58 +23,54 @@ import "./Accordion.css";
  */
 export default class Accordion extends React.Component
 {
-    state = {
-        selectedGroup: "",
-        dataVersion: 0
-    };
-
-
     constructor(props)
     {
-        super();
-        this.menu = props.menu;
-        this.onChange = props.onChange;
+        super(props);
+        const { menu } = props;
+        const pathname = window.location.pathname;
 
-        let pathname = window.location.pathname;
-        let foundGroup = this.menu[0].title;
-        for (let group of this.menu) {
-            for (let item of group.items) {
-                if (item.link === pathname) {
-                    foundGroup = group.title;
-                    break;
-                }
-            }
-        }
-        this.state.selectedGroup = foundGroup;
+        let foundGroup = menu[0].title;
+        let selectedLinks = {};
 
-        this.selectedLinks = {};
-        for (let group of this.menu) {
+        for (let group of menu) {
             let foundLink = group.items[0].link;
             for (let item of group.items) {
                 if (item.link === pathname) {
+                    foundGroup = group.title;
                     foundLink = item.link;
                     break;
                 }
             }
-            this.selectedLinks[group.title] = foundLink;
+            selectedLinks[group.title] = foundLink;
         }
+
+        this.state = {
+            selectedGroup: foundGroup,
+            selectedLinks: selectedLinks
+        };
     }
 
     onGroupClick(title)
     {
         this.setState({selectedGroup: title});
-        if (this.onChange) {
-            let link = this.selectedLinks[title];
-            this.onChange(link);
+        if (this.props.onChange) {
+            let link = this.state.selectedLinks[title];
+            this.props.onChange(link);
         }
     }
 
     onItemClick(link)
     {
-        this.selectedLinks[this.state.selectedGroup] = link;
-        this.setState({dataVersion: this.state.dataVersion + 1});
-        if (this.onChange) {
-            this.onChange(link);
+        this.setState(prevState => {
+            const newSelectedLinks = {
+                ...prevState.selectedLinks,
+                [prevState.selectedGroup]: link
+            };
+            return { selectedLinks: newSelectedLinks };
+        });
+
+        if (this.props.onChange) {
+            this.props.onChange(link);
         }
     }
 
@@ -87,7 +83,7 @@ export default class Accordion extends React.Component
 
         let items = [];
         for (let item of group.items) {
-            let itemIsSelected = item.link === this.selectedLinks[group.title];
+            let itemIsSelected = item.link === this.state.selectedLinks[group.title];
             let itemClass = itemIsSelected ? "AccordionItemSelected" : "AccordionItem";
             items.push(
                 <div key={item.title + "-item"} className={itemClass}>
@@ -97,7 +93,7 @@ export default class Accordion extends React.Component
         }
         return <div key={"accordion-group-" + group.title}>
             <div key={"accordion-" + group.title} className="AccordionGroup"
-                 onClick={() => this.setState({selectedGroup: group.title})}>{group.title}</div>
+                 onClick={() => this.onGroupClick(group.title)}>{group.title}</div>
             {items}
         </div>;
     }
@@ -105,7 +101,7 @@ export default class Accordion extends React.Component
     render()
     {
         let groups = [];
-        for (let group of this.menu) {
+        for (let group of this.props.menu) {
             groups.push(this.renderGroup(group, group.title === this.state.selectedGroup));
         }
         return <div key={"accordion"}>
