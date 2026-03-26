@@ -34,11 +34,29 @@ export default class Accordion extends React.Component
         super();
         this.menu = props.menu;
         this.onChange = props.onChange;
-        this.state.selectedGroup = this.menu[0].title;
+
+        let pathname = window.location.pathname;
+        let foundGroup = this.menu[0].title;
+        for (let group of this.menu) {
+            for (let item of group.items) {
+                if (item.link === pathname) {
+                    foundGroup = group.title;
+                    break;
+                }
+            }
+        }
+        this.state.selectedGroup = foundGroup;
 
         this.selectedLinks = {};
         for (let group of this.menu) {
-            this.selectedLinks[group.title] = group.items[0].link;
+            let foundLink = group.items[0].link;
+            for (let item of group.items) {
+                if (item.link === pathname) {
+                    foundLink = item.link;
+                    break;
+                }
+            }
+            this.selectedLinks[group.title] = foundLink;
         }
     }
 
@@ -92,7 +110,6 @@ export default class Accordion extends React.Component
         }
         return <div key={"accordion"}>
             {groups}
-            <Navigate key={"accordion-navigate"} to={this.selectedLinks[this.state.selectedGroup]} replace={true}/>
         </div>;
     }
 }

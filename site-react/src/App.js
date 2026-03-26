@@ -27,7 +27,7 @@ class App extends Component
     constructor()
     {
         super();
-        this.state.counter = this.getCounter("/");
+        this.state.counter = this.getCounter(window.location.pathname);
     }
 
     getCounter(activePage)
