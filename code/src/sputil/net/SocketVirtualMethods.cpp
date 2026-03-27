@@ -53,6 +53,17 @@ void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, const chron
     // Implement in derived class
 }
 
+void SocketVirtualMethods::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode, const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress)
+{
+    openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
+    setBlockingModeUnlocked(blockMode);
+}
+
+bool SocketVirtualMethods::activeUnlocked() const
+{
+    return m_socketFd != INVALID_SOCKET;
+}
+
 void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const OpenMode openMode,
                                                const chrono::milliseconds& timeout, const bool reusePort,
                                                const char* clientBindAddress)
@@ -169,6 +180,31 @@ void SocketVirtualMethods::closeUnlocked()
 #endif
         m_socketFd = INVALID_SOCKET;
     }
+}
+
+SocketType SocketVirtualMethods::getSocketFdUnlocked() const
+{
+    return m_socketFd;
+}
+
+void SocketVirtualMethods::setSocketFdUnlocked(SocketType socket)
+{
+    m_socketFd = socket;
+}
+
+void SocketVirtualMethods::setHostUnlocked(const Host& host)
+{
+    m_host = host;
+}
+
+const Host& SocketVirtualMethods::getHostUnlocked() const
+{
+    return m_host;
+}
+
+bool SocketVirtualMethods::getBlockingModeUnlocked() const
+{
+    return m_blockingMode;
 }
 
 void SocketVirtualMethods::setBlockingModeUnlocked(const bool blockingMode)
@@ -554,6 +590,21 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         ptr += bytes;
     }
     return total;
+}
+
+int32_t SocketVirtualMethods::getDomainUnlocked() const
+{
+    return m_domain;
+}
+
+int32_t SocketVirtualMethods::getTypeUnlocked() const
+{
+    return m_type;
+}
+
+int32_t SocketVirtualMethods::getProtocolUnlocked() const
+{
+    return m_protocol;
 }
 
 int getSocketError(int nativeErrorCode)

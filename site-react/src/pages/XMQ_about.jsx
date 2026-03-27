@@ -99,8 +99,18 @@ export default class XMQ_about extends React.Component
                 </tr>
                 <tr>
                     <td>Performance tests and compare</td>
-                    <td>Scheduled</td>
-                    <td>(0.9.7)</td>
+                    <td>Implemented</td>
+                    <td>0.9.7</td>
+                </tr>
+                <tr>
+                    <td>Bridging nodes</td>
+                    <td>Implemented</td>
+                    <td>0.9.9</td>
+                </tr>
+                <tr>
+                    <td>Clustering</td>
+                    <td>In progress</td>
+                    <td>(0.9.12)</td>
                 </tr>
                 </tbody>
             </table>

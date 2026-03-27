@@ -82,9 +82,9 @@ public:
     */
     enum class OpenMode : uint8_t
     {
-        CREATE,  ///< Only create (Typical UDP connectionless socket)
-        CONNECT, ///< Connect (Typical TCP connection socket)
-        BIND     ///< Bind (TCP listener)
+        CREATE,  ///< Only create (Typical UDP connectionless socket).
+        CONNECT, ///< Connect (Typical TCP connection socket).
+        BIND     ///< Bind (TCP listener).
     };
 
     /**
@@ -133,20 +133,13 @@ protected:
      * @param clientBindAddress Client binding IP address.
      */
     virtual void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode,
-                              const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress)
-    {
-        openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
-        setBlockingModeUnlocked(blockMode);
-    }
+                              const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress);
 
     /**
      * @brief Returns the current socket state.
      * @returns true if the socket is opened.
      */
-    [[nodiscard]] virtual bool activeUnlocked() const
-    {
-        return m_socketFd != INVALID_SOCKET;
-    }
+    [[nodiscard]] virtual bool activeUnlocked() const;
 
     /**
      * @brief Binds the socket to port.
@@ -171,44 +164,29 @@ protected:
     /**
      * @brief Get socket internal (OS) handle.
      */
-    SocketType getSocketFdUnlocked() const
-    {
-        return m_socketFd;
-    }
+    SocketType getSocketFdUnlocked() const;
 
     /**
      * @brief Set socket internal (OS) handle.
      */
-    void setSocketFdUnlocked(SocketType socket)
-    {
-        m_socketFd = socket;
-    }
+    void setSocketFdUnlocked(SocketType socket);
 
     /**
      * @brief Set the host.
      * @param host              The host.
      */
-    void setHostUnlocked(const Host& host)
-    {
-        m_host = host;
-    }
+    void setHostUnlocked(const Host& host);
 
     /**
      * @brief Return the host.
      */
-    [[nodiscard]] const Host& getHostUnlocked() const
-    {
-        return m_host;
-    }
+    [[nodiscard]] const Host& getHostUnlocked() const;
 
     /**
      * @brief Return current blocking mode state.
      * @return Current blocking mode state.
      */
-    [[nodiscard]] bool getBlockingModeUnlocked() const
-    {
-        return m_blockingMode;
-    }
+    [[nodiscard]] bool getBlockingModeUnlocked() const;
 
     /**
      * @brief Set blockingMode mode.
@@ -299,26 +277,17 @@ protected:
     /**
      * @brief Get socket domain type.
      */
-    [[nodiscard]] int32_t getDomainUnlocked() const
-    {
-        return m_domain;
-    }
+    [[nodiscard]] int32_t getDomainUnlocked() const;
 
     /**
      * @brief Get socket type.
      */
-    [[nodiscard]] int32_t getTypeUnlocked() const
-    {
-        return m_type;
-    }
+    [[nodiscard]] int32_t getTypeUnlocked() const;
 
     /**
      * @brief Get socket protocol.
      */
-    [[nodiscard]] int32_t getProtocolUnlocked() const
-    {
-        return m_protocol;
-    }
+    [[nodiscard]] int32_t getProtocolUnlocked() const;
 
 private:
     SocketType m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle.

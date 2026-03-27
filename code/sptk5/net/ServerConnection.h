@@ -40,14 +40,14 @@ namespace sptk {
 class TCPServer;
 
 /**
- * @addtogroup net Networking Classes
+ * @addtogroup net Networking Classes.
  * @{
  */
 
 /**
- * Abstract TCP or SSL server connection thread
+ * @brief Abstract TCP or SSL server connection thread.
  *
- * Used a base class for CTCPServerConnection and COpenSSLServerConnection
+ * Used a base class for CTCPServerConnection and COpenSSLServerConnection.
  */
 class SP_EXPORT ServerConnection
 {
@@ -63,38 +63,44 @@ public:
     using Function = std::function<void(ServerConnection& socket)>;
 
     /**
-     * Constructor
-     * @param server            Server that created this connection
-     * @param type              Connection type
-     * @param connectionAddress Connection address
+     * @brief Constructor.
+     * @param server            Server that created this connection.
+     * @param type              Connection type.
+     * @param connectionAddress Connection address.
      */
     ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress);
 
+    /**
+     * @brief Destructor.
+     */
     virtual ~ServerConnection() = default;
 
+    /**
+     * @brief Close the connection.
+     */
     void close() const;
 
     /**
-     * Access to internal socket for derived classes
-     * @return internal socket
+     * @brief Access to the internal socket for derived classes.
+     * @return internal socket.
      */
     TCPSocket& socket() const;
 
     /**
-     * Access to internal socket for derived classes
-     * @return internal socket
+     * @brief Access to the internal socket for derived classes.
+     * @return internal socket.
      */
     STCPSocket getSocket() const;
 
     /**
-     * Parent TCP server reference
-     * @return
+     * @brief Parent TCP server reference.
+     * @return server object.
      */
     TCPServer& server() const;
 
     /**
-     * Get incoming connection address
-     * @return incoming connection address
+     * @brief Get the incoming connection address
+     * @return incoming connection address.
      */
     String address() const
     {
@@ -102,8 +108,8 @@ public:
     }
 
     /**
-     * Get connection serial number
-     * @return connection serial number
+     * @brief Get connection serial number.
+     * @return connection serial number.
      */
     size_t serial() const
     {
@@ -114,9 +120,9 @@ public:
 
 protected:
     /**
-     * Assign new socket
-     * @param socket            Socket to assign
-     * @return previous socket
+     * @brief Assign new socket.
+     * @param socket            Socket to assign.
+     * @return previous socket.
      */
     STCPSocket setSocket(const STCPSocket& socket);
 
@@ -124,17 +130,17 @@ public:
     uint16_t port() const;
 
 private:
-    mutable std::mutex m_mutex;      ///< Mutex that protects internal data
-    TCPServer&         m_server;     ///< Parent server object
-    STCPSocket         m_socket;     ///< Connection socket
-    String             m_address;    ///< Incoming connection IP address
-    uint16_t           m_port {0};   ///< Incoming connection port
-    size_t             m_serial {0}; ///< Connection serial number
-    Type               m_type;       ///< Connection type (TCP or SSL)
+    mutable std::mutex m_mutex;      ///< Mutex that protects internal data.
+    TCPServer&         m_server;     ///< Parent server object.
+    STCPSocket         m_socket;     ///< Connection socket.
+    String             m_address;    ///< Incoming connection IP address.
+    uint16_t           m_port {0};   ///< Incoming connection port.
+    size_t             m_serial {0}; ///< Connection serial number.
+    Type               m_type;       ///< Connection type (TCP or SSL).
 
     /**
-     * Create next connection serial number
-     * @return
+     * @brief Create the next connection serial number.
+     * @return next connection serial number.
      */
     static size_t nextSerial();
 };
