@@ -5,12 +5,21 @@ import {Link} from "react-router-dom";
 export default class Home extends React.Component
 {
     state = {
-        fileName: ""
+        fileName: "",
+        historyData: []
     };
+
+    async componentDidMount()
+    {
+        const historyData = await ControlAPI.getRequest("site_host_news_list.php");
+        if (historyData) {
+            this.setState({historyData});
+        }
+    }
 
     renderNewsItem(item)
     {
-        return <div>
+        return <div key={item.version + item.version_date}>
             <hr/>
             <h3>{item.version_date}: {item.version}</h3>
             <div dangerouslySetInnerHTML={{__html: item.news}}/>
@@ -19,7 +28,7 @@ export default class Home extends React.Component
 
     render()
     {
-        let historyData = ControlAPI.getRequest("site_host_news_list.php");
+        const {historyData} = this.state;
         let history = [];
         for (let i = 0; i < historyData.length; i++) {
             history.push(this.renderNewsItem(historyData[i]));

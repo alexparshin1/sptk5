@@ -24,13 +24,14 @@ class App extends Component
         counter: 0
     }
 
-    constructor()
+    componentDidMount()
     {
-        super();
-        this.state.counter = this.getCounter(window.location.pathname);
+        this.getCounter(window.location.pathname).then(counter => {
+            this.setState({counter: counter});
+        });
     }
 
-    getCounter(activePage)
+    async getCounter(activePage)
     {
         switch (activePage) {
             case "/":
@@ -41,8 +42,8 @@ class App extends Component
                 break;
         }
         let sptkCounterName = "alexeyp" + activePage + ".php";
-        let counter = ControlAPI.getRequest("counter.php", {countername: sptkCounterName}).visitors;
-        return counter;
+        const result = await ControlAPI.getRequest("counter.php", {countername: sptkCounterName});
+        return result ? result.visitors : 0;
     }
 
     render()
@@ -96,8 +97,8 @@ class App extends Component
                                     paddingRight: 16
                                 }}>
                                     <div style={{height: "1em"}}></div>
-                                    <Accordion menu={accordionMenu} onChange={(page) => {
-                                        let counter = this.getCounter(page);
+                                    <Accordion menu={accordionMenu} onChange={async (page) => {
+                                        let counter = await this.getCounter(page);
                                         this.setState({counter: counter});
                                     }}/>
                                 </td>

@@ -15,13 +15,21 @@ export default class Downloads extends React.Component
     {
         super();
 
-        this.downloads = ControlAPI.getRequest("site_downloads.php");
+        this.sptkVersions = [];
+        this.sptkVersionIndex = {};
+        this.directories = [];
+        this.directoryIndex = {};
+    }
 
-        this.makeSptkVersionList();
-        this.state.sptkVersion = this.sptkVersions[0].value;
-
-        this.makeOsVersionList(this.state.sptkVersion);
-        this.state.osVersion = this.directories[0].value;
+    async componentDidMount()
+    {
+        this.downloads = await ControlAPI.getRequest("site_downloads.php");
+        if (this.downloads) {
+            this.makeSptkVersionList();
+            const sptkVersion = this.sptkVersions[0].value;
+            const firstDirectory = this.makeOsVersionList(sptkVersion);
+            this.setState({sptkVersion: sptkVersion, osVersion: firstDirectory.os_dir});
+        }
     }
 
     makeSptkVersionList()
