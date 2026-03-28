@@ -4,4 +4,5 @@ npm run build
 
 echo Install build to theater..
 rsync -a ./build/* theater:/var/www/html/sptk/
+rsync -a ./build/.htaccess theater:/var/www/html/sptk/
 scp -q extra_files/* theater:/var/www/html/sptk/
