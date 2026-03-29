@@ -366,6 +366,10 @@ void MySQLStatement::execute(bool)
     }
     else
     {
+        if (!enumeratedParams().empty())
+        {
+            throw DatabaseException("MySQL doesn't support parameters for direct execution");
+        }
         MYSQL* conn = connection()->m_connection.get();
         if (mysql_query(conn, m_sql.c_str()) != 0)
         {

@@ -140,7 +140,10 @@ void testInsertQuery(const String& dbName)
     try
     {
         DatabaseTests::testInsertQuery(connectionString, true);
-        DatabaseTests::testInsertQuery(connectionString, false);
+        if (connectionString.driverName() != "mysql")
+        {
+            DatabaseTests::testInsertQuery(connectionString, false);
+        }
         DatabaseTests::testInsertQueryDirect(connectionString);
     }
     catch (const Exception& e)
