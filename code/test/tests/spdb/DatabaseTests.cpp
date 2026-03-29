@@ -823,7 +823,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
     createTestTable(databaseConnection, false, false);
 
-    COUT(connectionString.driverName() << " bulk insert with two threads:");
+    COUT(connectionString.driverName() << " bulk insert with four threads:");
 
     vector<VariantVector> data;
 
