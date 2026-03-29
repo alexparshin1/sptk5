@@ -497,6 +497,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 
     auto*       statement = bit_cast<PostgreSQLStatement*>(query->statement());
     auto&       paramValues = statement->paramValues();
+    paramValues.setParameters(query->params());
     const auto& params = paramValues.params();
     uint32_t    paramNumber = 0;
 
@@ -913,6 +914,12 @@ void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::T
             const auto dataSize = ntohl(*bit_cast<const int32_t*>(data));
             data += sizeof(uint32_t);
 
+            if (dataSize <= 0)
+            {
+                output << "NULL";
+                continue;
+            }
+
             switch (static_cast<PostgreSQLDataType>(arrayHeader->elementType))
             {
                 using enum PostgreSQLDataType;
@@ -949,7 +956,7 @@ void decodeArray(char* data, DatabaseField* field, const PostgreSQLConnection::T
                 case TIMESTAMPTZ:
                 case TIMESTAMP:
                     output << readTimestamp(data, timestampFormat == PostgreSQLConnection::TimestampFormat::INT64, epochDate)
-                                  .dateString();
+                                  .isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS);
                     break;
 
                 default:

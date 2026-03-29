@@ -38,7 +38,7 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     resize(m_count);
     for (size_t i = 0; i < m_count; ++i)
     {
-        using enum sptk::VariantDataType;
+        using enum VariantDataType;
         const auto&           param = m_params[i];
         const VariantDataType ptype = param->dataType();
         PostgreSQLDataType    pgDataType;
@@ -104,7 +104,9 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
     if (param->isNull())
     {
-        setParameterValue(paramIndex, nullptr, 0, 0, PostgreSQLDataType::VARCHAR);
+        PostgreSQLDataType pgDataType;
+        PostgreSQLConnection::variantTypeToPostgreType(ptype, pgDataType, param->name());
+        setParameterValue(paramIndex, nullptr, 0, 1, pgDataType);
     }
     else
     {

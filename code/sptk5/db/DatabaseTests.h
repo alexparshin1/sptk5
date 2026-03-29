@@ -119,8 +119,9 @@ public:
     /**
      * @brief Test InsertQuery returning the created value.
      * @param connectionString  Connection string.
+     * @param autoPrepare       Auto-prepare insert queries
      */
-    static void testInsertQuery(const DatabaseConnectionString& connectionString);
+    static void testInsertQuery(const DatabaseConnectionString& connectionString, bool autoPrepare);
 
     /**
      * @brief Test InsertQuery returning the created value.
@@ -203,8 +204,9 @@ private:
     /**
      * @brief Connect to the database and create the test table with serial id.
      * @param databaseConnection    Database connection.
+     * @param autoPrepareQueries    Auto-prepare insert queries.
      */
-    static void createTestTableWithSerial(const DatabaseConnection& databaseConnection);
+    static void createTestTableWithSerial(const DatabaseConnection& databaseConnection, bool autoPrepareQueries);
 
     static void   createTempTable(const DatabaseConnectionString& connectionString, const DatabaseConnection& databaseConnection);
     static Buffer createClob();

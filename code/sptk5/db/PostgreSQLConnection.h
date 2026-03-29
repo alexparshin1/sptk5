@@ -246,11 +246,11 @@ protected:
     void queryExecDirect(const Query* query);
 
 private:
-    mutable std::mutex   m_mutex;                                       ///< Mutex that protects access to data members.
-    PGconn*              m_connect {nullptr};                           ///< PostgreSQL database connection.
-    TimestampFormat      m_timestampsFormat {TimestampFormat::UNKNOWN}; ///< Connection timestamp format.
-    DateTime             m_epochDate;                                   ///< Epoch date with respect to server timezone offset.
-    std::chrono::minutes m_sessionTimezoneOffset;                       ///< Session timezone offset in minutes.
+    mutable std::mutex   m_mutex;                                                ///< Mutex that protects access to data members.
+    PGconn*              m_connect {nullptr};                                    ///< PostgreSQL database connection.
+    TimestampFormat      m_timestampsFormat {TimestampFormat::UNKNOWN};          ///< Connection timestamp format.
+    DateTime             m_epochDate;                                            ///< Epoch date with respect to server timezone offset.
+    std::chrono::minutes m_sessionTimezoneOffset {std::chrono::minutes::zero()}; ///< Session timezone offset in minutes.
 };
 
 /**

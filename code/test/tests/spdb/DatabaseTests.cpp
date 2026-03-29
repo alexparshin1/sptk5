@@ -659,7 +659,7 @@ void DatabaseTests::createTestTable(const DatabaseConnection& databaseConnection
     createTable.exec();
 }
 
-void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& databaseConnection)
+void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& databaseConnection, bool autoPrepareQueries)
 {
     const auto iterator = dateTimeFieldTypes.find(databaseConnection->connectionString().driverName());
     if (iterator == dateTimeFieldTypes.end())
@@ -682,7 +682,9 @@ void DatabaseTests::createTestTableWithSerial(const DatabaseConnection& database
 
     createTable.exec();
 
-    InsertQuery query(databaseConnection, "INSERT INTO gtest_temp_table2(name) VALUES(:name)");
+    InsertQuery query(databaseConnection,
+                      "INSERT INTO gtest_temp_table2(name) VALUES(:name)",
+                      "id", autoPrepareQueries);
 
     query.param("name") = "Alex";
     query.exec();
@@ -909,11 +911,11 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     EXPECT_EQ(dataRows * threadCount, uniqueIds.size());
 }
 
-void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)
+void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString, bool autoPrepare)
 {
     DatabaseConnectionPool   connectionPool(connectionString.toString());
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
-    createTestTableWithSerial(databaseConnection);
+    createTestTableWithSerial(databaseConnection, autoPrepare);
 }
 
 void DatabaseTests::testInsertQueryDirect(const DatabaseConnectionString& connectionString)

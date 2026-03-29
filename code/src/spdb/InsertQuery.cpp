@@ -69,8 +69,8 @@ String InsertQuery::reviewQuery(const DatabaseConnectionType connectionType, con
     return sql;
 }
 
-InsertQuery::InsertQuery(const DatabaseConnection& db, const String& sql, const String& idFieldName)
-    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), true)
+InsertQuery::InsertQuery(const DatabaseConnection& db, const String& sql, const String& idFieldName, bool autoPrepare)
+    : Query(db, reviewQuery(db->connectionType(), sql, idFieldName), autoPrepare)
     , m_idFieldName(idFieldName)
 {
 }

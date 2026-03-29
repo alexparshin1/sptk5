@@ -350,6 +350,14 @@ public:
     }
 
     /**
+     * @brief Returns the query parameters list.
+     */
+    const QueryParameterList& params() const
+    {
+        return m_params;
+    }
+
+    /**
      * @brief Field read access by the field name, for the universal data connection.
      */
     bool readField(const char* fname, Variant& value) override;

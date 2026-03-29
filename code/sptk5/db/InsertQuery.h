@@ -49,12 +49,13 @@ public:
      * You can optionally provide the name of the file and line number where
      * this query is created. This is used to collect statistical information
      * for the query calls. If file and line information is provided, then
-     * the calls statistics are stored to the database object during the query dtor.
+     * the call statistics are stored to the database object during the query dtor.
      * @param db               Database connection.
      * @param sql              SQL query, optional.
      * @param idFieldName      Name of auto-incremental field.
+     * @param autoPrepare      Whether to automatically prepare the query.
      */
-    explicit InsertQuery(const DatabaseConnection& db, const String& sql = "", const String& idFieldName = "id");
+    explicit InsertQuery(const DatabaseConnection& db, const String& sql = "", const String& idFieldName = "id", bool autoPrepare = true);
 
     /**
      * @brief Return query' SQL.

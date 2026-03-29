@@ -139,7 +139,8 @@ void testInsertQuery(const String& dbName)
 
     try
     {
-        DatabaseTests::testInsertQuery(connectionString);
+        DatabaseTests::testInsertQuery(connectionString, true);
+        DatabaseTests::testInsertQuery(connectionString, false);
         DatabaseTests::testInsertQueryDirect(connectionString);
     }
     catch (const Exception& e)
