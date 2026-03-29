@@ -841,7 +841,7 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
         data.push_back(aRow);
     }
 
-    auto connectionThread = [&data, &connectionString](int threadNumber, vector<int64_t>* insertedIds)
+    auto connectionThread = [&data, &connectionString](const int threadNumber, vector<int64_t>* insertedIds)
     {
         vector inputData(data);
 
@@ -873,32 +873,40 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
     Stopwatch sw;
     sw.start();
 
-    vector<int64_t> insertedIds1;
-    auto            thread1 = jthread(connectionThread, 1, &insertedIds1);
+    constexpr auto  threadCount = 4;
+    vector<jthread> threads;
 
-    vector<int64_t> insertedIds2;
-    auto            thread2 = jthread(connectionThread, 2, &insertedIds2);
+    using IdVector = vector<int64_t>;
+    vector<IdVector> allInsertedIds(threadCount);
 
-    thread1.join();
-    thread2.join();
+    for (auto i = 0; i < threadCount; ++i)
+    {
+        auto& insertedIds = allInsertedIds[i];
+        threads.emplace_back(connectionThread, i, &insertedIds);
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
     sw.stop();
 
     set<int64_t> uniqueIds;
-    for (const auto& id: insertedIds1)
+    for (const auto& insertedIds: allInsertedIds)
     {
-        uniqueIds.insert(id);
-    }
-    for (const auto& id: insertedIds2)
-    {
-        uniqueIds.insert(id);
+        for (const auto& id: insertedIds)
+        {
+            uniqueIds.insert(id);
+        }
     }
 
     COUT("All inserted      " << uniqueIds.size() << " for " << sw.milliseconds() << "ms (" << uniqueIds.size() / sw.milliseconds() << "K/sec)");
 
     Query selectData(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
     auto  counter = selectData.scalar().asInteger();
-    EXPECT_EQ(dataRows * 2, counter);
-    EXPECT_EQ(dataRows * 2, uniqueIds.size());
+    EXPECT_EQ(dataRows * threadCount, counter);
+    EXPECT_EQ(dataRows * threadCount, uniqueIds.size());
 }
 
 void DatabaseTests::testInsertQuery(const DatabaseConnectionString& connectionString)

@@ -275,7 +275,7 @@ DBHandle PostgreSQLConnection::handle() const
 
 bool PostgreSQLConnection::active() const
 {
-    return m_connect != nullptr;
+    return m_connect != nullptr && PQstatus(m_connect) == CONNECTION_OK;
 }
 
 namespace {
