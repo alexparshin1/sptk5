@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-30                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -42,9 +43,8 @@ void RedisConnect::connect(const std::string& host, const int port)
     m_socket.open();
     m_reader = make_unique<SocketReader>(m_socket);
 
-    m_socket.write("HELLO 6\r\n");
-    String line;
-    m_reader->readLine(line);
+    m_socket.write("HELLO 3\r\n");
+    (void) readResponse();
 }
 
 void RedisConnect::disconnect()
@@ -69,23 +69,48 @@ void RedisConnect::set(const std::string& key, const Variant& value)
        << "$" << key.length() << "\r\n"
        << key << "\r\n";
 
+    bool isBinary = false;
     switch (value.dataType())
     {
         using enum VariantDataType;
-        case VAR_BOOL:
-            ss << "#" << (value.asBool() ? 't' : 'f');
+        case VAR_BOOL: {
+            const string& s = value.asBool() ? "true" : "false";
+            ss << "$" << s.length() << "\r\n"
+               << s;
             break;
+        }
         case VAR_INT:
-            ss << ":" << value.asInt64();
+        case VAR_INT64: {
+            const string& s = to_string(value.asInt64());
+            ss << "$" << s.length() << "\r\n"
+               << s;
             break;
+        }
         case VAR_FLOAT:
-            ss << "," << value.asFloat();
+        case VAR_DATE:
+        case VAR_DATE_TIME: {
+            stringstream fss;
+            fss.precision(17);
+            fss << value.asFloat();
+            const string& s = fss.str();
+            ss << "$" << s.length() << "\r\n"
+               << s;
             break;
-        case VAR_STRING: {
+        }
+        case VAR_STRING:
+        case VAR_TEXT: {
             const string& str = value.asString();
             ss << "$" << str.length() << "\r\n"
                << str;
             break;
+        }
+        case VAR_BUFFER: {
+            const Buffer& buffer = value.asBuffer();
+            ss << "$" << buffer.size() << "\r\n";
+            m_socket.write(ss.str());
+            m_socket.write(buffer.data(), buffer.size());
+            m_socket.write("\r\n");
+            isBinary = true;
         }
         case VAR_NONE:
             ss << "_";
@@ -94,23 +119,18 @@ void RedisConnect::set(const std::string& key, const Variant& value)
             throw Exception("Redis: Unsupported variant type");
     }
 
-    ss << "\r\n";
-
-    const string cmd = ss.str();
-    m_socket.write(cmd);
-
-    if (const string response = readLine();
-        response[0] == '-')
+    if (!isBinary)
     {
-        throw Exception("Redis error: " + response.substr(1));
+        ss << "\r\n";
+        m_socket.write(ss.str());
     }
+
+    (void) readResponse();
 }
 
 void RedisConnect::setBinary(const std::string& key, const Buffer& value)
 {
-    String encoded;
-    Base64::encode(encoded, value);
-    set(key, encoded);
+    set(key, Variant(value));
 }
 
 Variant RedisConnect::get(const std::string& key)
@@ -126,26 +146,14 @@ Variant RedisConnect::get(const std::string& key)
        << "$" << key.length() << "\r\n"
        << key << "\r\n";
 
-    const string cmd = ss.str();
-    m_socket.write(cmd);
+    m_socket.write(ss.str());
 
-    auto data = readBulkString();
-
-    switch (data[0])
-    {
-        case '$':
-        case '+':
-            return {data.substr(1)};
-        default: // Simple string
-            return {data};
-    }
+    return readResponse();
 }
 
 Buffer RedisConnect::getBinary(const std::string& key)
 {
-    Buffer decoded;
-    Base64::decode(decoded, get(key).asString());
-    return decoded;
+    return get(key).asBuffer();
 }
 
 string RedisConnect::readLine() const
@@ -161,7 +169,7 @@ string RedisConnect::readLine() const
     return s;
 }
 
-string RedisConnect::readBulkString() const
+Variant RedisConnect::readResponse() const
 {
     const string line = readLine();
     if (line.empty())
@@ -169,28 +177,59 @@ string RedisConnect::readBulkString() const
         throw Exception("Redis: Empty response");
     }
 
-    if (line[0] == '-')
+    const char   type = line[0];
+    const string payload = line.substr(1);
+
+    switch (type)
     {
-        throw Exception("Redis error: " + line.substr(1));
+        case '+': // Simple String
+            return {payload.c_str()};
+        case '-': // Error
+            throw Exception("Redis error: " + payload);
+        case ':': // Integer
+            return {static_cast<int64_t>(stoll(payload)), 0u};
+        case '$': { // Bulk String
+            const auto len = stoi(payload);
+            if (len == -1)
+            {
+                return {}; // Null
+            }
+            Buffer buffer;
+            m_reader->read(buffer, len);
+            (void) readLine(); // Read trailing \r\n
+            return {buffer};
+        }
+        case '*': { // Array
+            const auto count = stoi(payload);
+            if (count == -1)
+            {
+                return {};
+            }
+            // For now, we only support simple responses, but we must consume the array
+            for (int i = 0; i < count; ++i)
+            {
+                (void) readResponse();
+            }
+            return {};
+        }
+        case '_': // Null (RESP3)
+            return {};
+        case '#': // Boolean (RESP3)
+            return {payload == "t"};
+        case ',': // Double (RESP3)
+            return {stod(payload)};
+        case '%': { // Map (RESP3)
+            const auto count = stoi(payload);
+            for (int i = 0; i < count; ++i)
+            {
+                (void) readResponse(); // Key
+                (void) readResponse(); // Value
+            }
+            return {};
+        }
+        default:
+            throw Exception("Redis: Unknown response type: " + string(1, type));
     }
-
-    if (line[0] != '$')
-    {
-        throw Exception("Redis: Expected bulk string ($), got: " + line);
-    }
-
-    const auto len = stoi(line.substr(1));
-    if (len == -1)
-    {
-        return ""; // Null bulk string
-    }
-
-    Buffer buffer;
-    m_reader->read(buffer, len);
-    // Read the trailing \r\n
-    (void) readLine();
-
-    return {reinterpret_cast<const char*>(buffer.data()), buffer.size()};
 }
 
 } // namespace sptk

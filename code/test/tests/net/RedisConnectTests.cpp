@@ -171,7 +171,7 @@ TEST_F(RedisConnectTest, Performance)
     constexpr auto iterations = 10000;
 
     RedisConnect redis;
-    redis.connect("theater", 6379);
+    redis.connect("localhost", 6379);
 
     Stopwatch watch;
     watch.start();

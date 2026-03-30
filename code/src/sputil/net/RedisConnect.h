@@ -90,10 +90,10 @@ private:
     std::string readLine() const;
 
     /**
-     * @brief Reads a bulk string from Redis.
-     * @return Bulk string.
+     * @brief Reads a response from Redis.
+     * @return Response as Variant.
      */
-    std::string readBulkString() const;
+    Variant readResponse() const;
 };
 
 } // namespace sptk
