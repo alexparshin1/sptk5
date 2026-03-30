@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 
 #include <utility>
