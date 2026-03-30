@@ -38,7 +38,7 @@ namespace sptk {
 
 void RedisConnect::connect(const std::string& host, const int port)
 {
-    m_socket.host(Host(host.c_str(), port));
+    m_socket.host(Host(host.c_str(), static_cast<uint16_t>(port)));
     m_socket.open();
     m_reader = make_unique<SocketReader>(m_socket);
 
@@ -135,9 +135,9 @@ Variant RedisConnect::get(const std::string& key)
     {
         case '$':
         case '+':
-            return Variant(data.substr(1));
+            return {data.substr(1)};
         default: // Simple string
-            return Variant(data);
+            return {data};
     }
 }
 
@@ -188,9 +188,9 @@ string RedisConnect::readBulkString() const
     Buffer buffer;
     m_reader->read(buffer, len);
     // Read the trailing \r\n
-    readLine();
+    (void) readLine();
 
-    return string(reinterpret_cast<const char*>(buffer.data()), buffer.size());
+    return {reinterpret_cast<const char*>(buffer.data()), buffer.size()};
 }
 
 } // namespace sptk
