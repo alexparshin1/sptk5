@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-31                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -36,23 +37,13 @@ namespace {
 String jsonEscape(const String& text)
 {
     String result;
+    result.reserve(text.size());
 
-    size_t position = 0;
+    static constexpr char hexDigits[] = "0123456789abcdef";
 
-    for (;;)
+    for (const unsigned char ch: text)
     {
-        const size_t pos = text.find_first_of("\"\\\b\f\n\r\t", position);
-        if (pos == string::npos)
-        {
-            if (position == 0)
-            {
-                return text;
-            }
-            result += text.substr(position);
-            break;
-        }
-        result += text.substr(position, pos - position);
-        switch (text[pos])
+        switch (ch)
         {
             case '"':
                 result += "\\\"";
@@ -79,12 +70,21 @@ String jsonEscape(const String& text)
                 result += "\\t";
                 break;
             default:
-                throw Exception("Unknown escape character");
+                if (ch < 0x20)
+                {
+                    result += "\\u00";
+                    result += hexDigits[ch >> 4];
+                    result += hexDigits[ch & 0x0F];
+                }
+                else
+                {
+                    result += static_cast<char>(ch);
+                }
+                break;
         }
-        position = pos + 1;
     }
 
-    return result;
+    return result.empty() ? text : result;
 }
 } // namespace
 
@@ -148,7 +148,31 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
             break;
 
         case Node::Type::Object:
-            exportJsonObject(node, stream, formatted, indent, formatting);
+            if (isValue)
+            {
+                auto value = node->getValue().asString();
+                if (!value.empty())
+                {
+                    using enum VariantDataType;
+                    static const set escapeTypes {VAR_STRING, VAR_TEXT, VAR_DATE, VAR_DATE_TIME};
+                    if (escapeTypes.contains(node->getValue().dataType()))
+                    {
+                        stream << "\"" << jsonEscape(node->getValue().asString()) << "\"";
+                    }
+                    else
+                    {
+                        stream << node->getValue().asString();
+                    }
+                }
+                else
+                {
+                    stream << "{}";
+                }
+            }
+            else
+            {
+                exportJsonObject(node, stream, formatted, indent, formatting);
+            }
             break;
 
         default:

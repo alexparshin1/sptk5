@@ -27,9 +27,11 @@
 #include <gtest/gtest.h>
 
 #include "test/TestData.h"
+#include <sptk5/xdoc/ExportJSON.h>
 
 using namespace std;
 using namespace sptk;
+using namespace sptk::xdoc;
 
 TEST(SPTK_XDocument, xmlToJson)
 {
@@ -46,4 +48,44 @@ TEST(SPTK_XDocument, xmlToJson)
 
     document.load(buffer, false);
     document.exportTo(xdoc::DataFormat::JSON, buffer, true);
+}
+
+TEST(SPTK_XDocument, exportJsonAttributesOnly)
+{
+    SNode node = Node::createNode("root", Node::Type::Object);
+    node->attributes().set("attr1", "val1");
+
+    Buffer buffer;
+    ExportJSON::exportToJSON(node.get(), buffer, false);
+    string json = static_cast<String>(buffer);
+
+    EXPECT_EQ(json, "{\"attributes\":{\"attr1\":\"val1\"},\"value\":{}}");
+}
+
+TEST(SPTK_XDocument, exportJsonSpecialChars)
+{
+    SNode node = Node::createNode("root", Node::Type::Text);
+    node->set("Special \n\t\"\\ characters \x01\x1F");
+
+    Buffer buffer;
+    xdoc::ExportJSON::exportToJSON(node.get(), buffer, false);
+    string json = static_cast<String>(buffer);
+
+    EXPECT_EQ(json, "\"Special \\n\\t\\\"\\\\ characters \\u0001\\u001f\"");
+}
+
+TEST(SPTK_XDocument, exportJsonNumbers)
+{
+    SNode node = Node::createNode("root", Node::Type::Number);
+    node->set(123.456);
+
+    Buffer buffer;
+    ExportJSON::exportToJSON(node.get(), buffer, false);
+    string json = static_cast<String>(buffer);
+    EXPECT_EQ(json, "123.456");
+
+    node->set(123.0);
+    ExportJSON::exportToJSON(node.get(), buffer, false);
+    json = static_cast<String>(buffer);
+    EXPECT_EQ(json, "123");
 }

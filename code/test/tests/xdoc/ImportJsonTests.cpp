@@ -37,7 +37,7 @@ static const String testJson(
     R"({"name":"John","age":33,"temperature":33.6,"timestamp":1519005758000,)"
     R"("skills":["C++","Java","Motorbike"],)"
     R"("location":null,)"
-    R"("description":"Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",)"
+    R"("description":"Title: \"Mouse\"\r\nPosition:\t\fManager\/Janitor\b",)"
     R"("value":"\\0x05",)"
     R"("title":"\"Mouse\"",)"
     R"("name":"Юстас",)"
@@ -54,7 +54,7 @@ static const String testFormattedJson(R"({
     "Motorbike"
   ],
   "location": null,
-  "description": "Title: \"Mouse\"\r\nPosition:\t\fManager/Janitor\b",
+  "description": "Title: \"Mouse\"\r\nPosition:\t\fManager\/Janitor\b",
   "value": "\\0x05",
   "title": "\"Mouse\"",
   "name": "Юстас",
@@ -86,4 +86,50 @@ TEST(SPTK_XDocument, importJsonExceptions)
     xdoc::Document document;
     const auto& root = document.root();
     EXPECT_THROW(Node::importJson(root, input), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonRejectsInvalidStringControlCharacters)
+{
+    const Buffer input("{\"value\":\"line1\nline2\"}");
+    xdoc::Document document;
+
+    EXPECT_THROW(Node::importJson(document.root(), input), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonRejectsInvalidTokenBoundaries)
+{
+    xdoc::Document document;
+
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":truex}")), Exception);
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":12abc}")), Exception);
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":nullx}")), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonRejectsNullAttributes)
+{
+    const Buffer input("{\"attributes\":{\"flag\":null}}");
+    xdoc::Document document;
+
+    EXPECT_THROW(Node::importJson(document.root(), input), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonRejectsMalformedUnicodeEscapes)
+{
+    xdoc::Document document;
+
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":\"\\u12G4\"}")), Exception);
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":\"\\uD83D\"}")), Exception);
+    EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":\"\\uDE00\"}")), Exception);
+}
+
+TEST(SPTK_XDocument, importJsonDecodesSurrogatePairs)
+{
+    const Buffer input("{\"value\":\"\\uD83D\\uDE00\"}");
+    xdoc::Document document;
+
+    Node::importJson(document.root(), input);
+
+    const auto node = document.root()->findFirst("value");
+    ASSERT_NE(nullptr, node);
+    EXPECT_EQ(String("\xF0\x9F\x98\x80"), node->getValue().asString());
 }

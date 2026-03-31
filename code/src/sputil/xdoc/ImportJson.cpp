@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-03-31                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -49,6 +50,8 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
 void readObjectData(const SNode& parent, const char* json, const char*& readPosition, bool objectIsAttributes);
 
 String decode(const String& text);
+
+bool isHexDigit(char ch);
 } // namespace sptk::xdoc
 
 static constexpr int ERROR_CONTEXT_CHARS = 65;
@@ -153,21 +156,26 @@ String readJsonString(const char* json, const char*& readPosition)
     const char* pos = readPosition + 1;
     while (true)
     {
-        pos = strpbrk(pos, R"(\")");
-        if (pos == nullptr)
+        const unsigned char character = static_cast<unsigned char>(*pos);
+        if (character == 0)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
         }
-
-        const char character = *pos;
+        if (character < 0x20)
+        {
+            throwError("Unexpected control character in string", json, pos - json);
+        }
         if (character == '"')
         {
             break;
         }
-
         if (character == '\\')
         {
             ++pos;
+            if (*pos == 0)
+            {
+                throw Exception(R"(Premature end of data, expecting escape sequence)");
+            }
         }
         ++pos;
     }
@@ -201,9 +209,14 @@ double readJsonNumber(const char* json, const char*& readPosition)
     char* pos = nullptr;
     errno = 0;
     const double value = strtod(readPosition, &pos);
-    if (errno != 0)
+    if (errno != 0 || pos == readPosition)
     {
         throwError("Invalid value", json, readPosition - json);
+    }
+    if (*pos != 0 && *pos != ',' && *pos != '}' && *pos != ']' &&
+        static_cast<unsigned char>(*pos) > ' ')
+    {
+        throwError("Invalid character after number", json, pos - json);
     }
     readPosition = pos;
     skipSpaces(json, readPosition);
@@ -212,24 +225,26 @@ double readJsonNumber(const char* json, const char*& readPosition)
 
 bool readJsonBoolean(const char* json, const char*& readPosition)
 {
-    const char* pos = strchr(readPosition + 1, 'e');
-    if (pos == nullptr)
-    {
-        throwError("Premature end of data, expecting boolean value", json, readPosition - json);
-    }
-    ++pos;
-    bool result;
+    const char* pos = nullptr;
+    bool        result;
     if (strncmp(readPosition, "true", 4) == 0)
     {
+        pos = readPosition + 4;
         result = true;
     }
-    else if (strncmp(readPosition, "false", 4) == 0)
+    else if (strncmp(readPosition, "false", 5) == 0)
     {
+        pos = readPosition + 5;
         result = false;
     }
     else
     {
         throwError("Unexpected value, expecting boolean", json, readPosition - json);
+    }
+    if (*pos != 0 && *pos != ',' && *pos != '}' && *pos != ']' &&
+        static_cast<unsigned char>(*pos) > ' ')
+    {
+        throwError("Invalid character after boolean", json, pos - json);
     }
     readPosition = pos;
     skipSpaces(json, readPosition);
@@ -243,9 +258,10 @@ void readJsonNull(const char* json, const char*& readPosition)
         throwError("Unexpected value, expecting 'null'", json, readPosition - json);
     }
     readPosition += 4;
-    if (*readPosition == ',')
+    if (*readPosition != 0 && *readPosition != ',' && *readPosition != '}' && *readPosition != ']' &&
+        static_cast<unsigned char>(*readPosition) > ' ')
     {
-        ++readPosition;
+        throwError("Invalid character after null", json, readPosition - json);
     }
     skipSpaces(json, readPosition);
 }
@@ -384,11 +400,12 @@ void        readObjectData(const SNode& parent, const char* json, const char*& r
 
             case 'n':
                 // Null
-                if (!objectIsAttributes)
+                readJsonNull(json, readPosition);
+                if (objectIsAttributes)
                 {
-                    readJsonNull(json, readPosition);
-                    parent->pushValue(elementName, Variant(), Node::Type::Null);
+                    throwError("Null attribute values are not supported", json, readPosition - json);
                 }
+                parent->pushValue(elementName, Variant(), Node::Type::Null);
                 break;
 
             case '"':
@@ -480,6 +497,7 @@ String decode(const String& text)
     const size_t length = text.length();
     size_t       position = 0;
     unsigned     ucharCode;
+    unsigned     lowSurrogate;
 
     while (position < length)
     {
@@ -525,9 +543,45 @@ String decode(const String& text)
                 result += '\t';
                 break;
             case 'u':
+                if (pos + 4 >= length)
+                {
+                    throw Exception("Incomplete unicode escape sequence");
+                }
+                if (!isHexDigit(text[pos + 1]) || !isHexDigit(text[pos + 2]) ||
+                    !isHexDigit(text[pos + 3]) || !isHexDigit(text[pos + 4]))
+                {
+                    throw Exception("Invalid unicode escape sequence");
+                }
                 ++pos;
                 ucharCode = static_cast<unsigned>(strtol(text.substr(pos, 4).c_str(), nullptr, 16));
                 pos += 3;
+                if (ucharCode >= 0xD800 && ucharCode <= 0xDBFF)
+                {
+                    if (pos + 2 >= length || text[pos + 1] != '\\' || text[pos + 2] != 'u')
+                    {
+                        throw Exception("Missing low surrogate after high surrogate");
+                    }
+                    if (pos + 6 >= length)
+                    {
+                        throw Exception("Incomplete low surrogate escape sequence");
+                    }
+                    if (!isHexDigit(text[pos + 3]) || !isHexDigit(text[pos + 4]) ||
+                        !isHexDigit(text[pos + 5]) || !isHexDigit(text[pos + 6]))
+                    {
+                        throw Exception("Invalid low surrogate escape sequence");
+                    }
+                    lowSurrogate = static_cast<unsigned>(strtol(text.substr(pos + 3, 4).c_str(), nullptr, 16));
+                    if (lowSurrogate < 0xDC00 || lowSurrogate > 0xDFFF)
+                    {
+                        throw Exception("Invalid low surrogate value");
+                    }
+                    ucharCode = 0x10000 + ((ucharCode - 0xD800) << 10) + (lowSurrogate - 0xDC00);
+                    pos += 6;
+                }
+                else if (ucharCode >= 0xDC00 && ucharCode <= 0xDFFF)
+                {
+                    throw Exception("Unexpected low surrogate without high surrogate");
+                }
                 result += codePointToUTF8(ucharCode);
                 break;
 
@@ -538,6 +592,11 @@ String decode(const String& text)
     }
 
     return result;
+}
+
+bool isHexDigit(const char ch)
+{
+    return isxdigit(static_cast<unsigned char>(ch)) != 0;
 }
 
 } // namespace sptk::xdoc
