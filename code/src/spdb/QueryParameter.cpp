@@ -53,12 +53,16 @@ QueryParameter::QueryParameter(const char* name, const bool isOutput)
     : m_binding(isOutput)
     , m_name(name == nullptr ? "" : lowerCase(name))
 {
+    constexpr size_t initialBindIndexesCapacity = 4;
+    m_bindParamIndexes.reserve(initialBindIndexesCapacity);
 }
 
 QueryParameter::QueryParameter(const String& name, const bool isOutput)
     : m_binding(isOutput)
     , m_name(lowerCase(name))
 {
+    constexpr size_t initialBindIndexesCapacity = 4;
+    m_bindParamIndexes.reserve(initialBindIndexesCapacity);
 }
 
 String QueryParameter::name() const

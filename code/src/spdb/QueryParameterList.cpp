@@ -41,7 +41,7 @@ void QueryParameterList::clear()
 void QueryParameterList::add(const SQueryParameter& item)
 {
     m_items.push_back(item);
-    m_index[item->name()] = item;
+    m_index[item->nameRef()] = item;
 }
 
 SQueryParameter QueryParameterList::find(const String& paramName)
@@ -90,7 +90,7 @@ void QueryParameterList::remove(const size_t i)
     }
     const auto  itor = m_items.begin() + static_cast<int>(i);
     const auto& item = *itor;
-    m_index.erase(item->name());
+    m_index.erase(item->nameRef());
     m_items.erase(itor);
 }
 

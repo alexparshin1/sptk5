@@ -105,6 +105,14 @@ public:
     [[nodiscard]] String name() const;
 
     /**
+     * @brief Returns parameter name by const reference.
+     */
+    [[nodiscard]] const String& nameRef() const
+    {
+        return m_name;
+    }
+
+    /**
      * @brief Set parameter type to output.
      */
     void setOutput();
