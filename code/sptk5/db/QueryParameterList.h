@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/db/QueryParameter.h>
 
 #include <map>
@@ -154,8 +155,8 @@ protected:
     void add(const SQueryParameter& item);
 
 private:
-    ParamVector                       m_items; ///< The list of parameters.
-    std::map<String, SQueryParameter> m_index; ///< The parameters index.
+    ParamVector                                            m_items; ///< The list of parameters.
+    std::map<String, SQueryParameter, CaseInsensitiveCompare> m_index; ///< The parameters index.
 };
 
 /**

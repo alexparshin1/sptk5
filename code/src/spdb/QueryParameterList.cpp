@@ -46,7 +46,7 @@ void QueryParameterList::add(const SQueryParameter& item)
 
 SQueryParameter QueryParameterList::find(const String& paramName)
 {
-    const auto itor = m_index.find(paramName.toLowerCase());
+    const auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
     {
@@ -58,7 +58,7 @@ SQueryParameter QueryParameterList::find(const String& paramName)
 
 QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    const auto itor = m_index.find(paramName.toLowerCase());
+    const auto itor = m_index.find(paramName);
 
     if (itor == m_index.end())
     {
@@ -97,7 +97,6 @@ void QueryParameterList::remove(const size_t i)
 void QueryParameterList::enumerate(ParamVector& params) const
 {
     params.clear();
-    params.reserve(m_items.size());
 
     if (m_items.empty())
     {
@@ -111,13 +110,6 @@ void QueryParameterList::enumerate(ParamVector& params) const
         for (const auto& bindIndex = param->m_bindParamIndexes;
              const auto  index: bindIndex)
         {
-            if (index >= params.size())
-            {
-                params.resize(index + 1);
-            }
-
-            params[index] = param;
-
             if (index > maxIndex)
             {
                 maxIndex = index;
@@ -125,5 +117,14 @@ void QueryParameterList::enumerate(ParamVector& params) const
         }
     }
 
-    params.resize(maxIndex + 1);
+    params.assign(maxIndex + 1, nullptr);
+
+    for (const auto& param: m_items)
+    {
+        for (const auto& bindIndex = param->m_bindParamIndexes;
+             const auto  index: bindIndex)
+        {
+            params[index] = param;
+        }
+    }
 }
