@@ -163,10 +163,9 @@ Query::~Query()
     }
 }
 
-bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError) const
+bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError,
+                                const bool isPostgreSQL) const
 {
-    auto isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
-
     // Looking up for SQL parameters
     const char* delimiters = "':-/$";
 
@@ -304,14 +303,6 @@ void Query::sql(const String& _sql)
 
     const String sql = parseParameters(_sql);
 
-    for (int i = static_cast<int>(m_params.size()) - 1; i >= 0; --i)
-    {
-        if (m_params[i].bindCount() == 0)
-        {
-            m_params.remove(static_cast<uint32_t>(i));
-        }
-    }
-
     if (getSQL() != sql)
     {
         closeQuery(true);
@@ -324,8 +315,8 @@ const char* Query::readParameter(String& sql, int& paramNumber, const char* para
 {
     for (;; ++paramEnd)
     {
-
-        if (isalnum(*paramEnd) != 0)
+        const auto current = static_cast<unsigned char>(*paramEnd);
+        if (isalnum(current) != 0)
         {
             continue;
         }
@@ -351,17 +342,25 @@ const char* Query::readParameter(String& sql, int& paramNumber, const char* para
 
 String Query::parseParameters(const String& _sql)
 {
+    if (_sql.find(':') == String::npos)
+    {
+        m_params.clear();
+        return _sql;
+    }
+
     const char* paramStart {};
     const char* paramEnd = _sql.c_str();
 
     m_params.clear();
     String sql;
+    sql.reserve(_sql.length());
     String parseError;
+    const auto isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
 
     int paramNumber = 0;
     for (;;)
     {
-        if (!skipToNextParameter(paramStart, paramEnd, sql, parseError))
+        if (!skipToNextParameter(paramStart, paramEnd, sql, parseError, isPostgreSQL))
         {
             if (!parseError.empty())
             {

@@ -547,7 +547,8 @@ private:
 
     const char* readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 
-    bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError) const;
+    bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError,
+                             bool isPostgreSQL) const;
 };
 
 using SQuery = std::shared_ptr<Query>;
