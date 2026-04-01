@@ -214,10 +214,13 @@ TEST(SPTK_DateTime, parsePerformance)
     constexpr size_t maxTests = 100000;
     const DateTime   started("now");
 
-    DateTime dateTime("2018-08-07 11:22:33.444Z");
     for (size_t i = 0; i < maxTests; ++i)
     {
-        dateTime = DateTime("2018-08-07 11:22:33.444Z");
+        if (const auto dateTime = DateTime("2018-08-07 11:22:33.444Z");
+            dateTime.zero())
+        {
+            FAIL() << "Failed to parse date";
+        }
     }
 
     const DateTime ended("now");

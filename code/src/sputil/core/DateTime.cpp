@@ -319,22 +319,18 @@ void decodeDate(const DateTime::time_point& timePoint, short& year, short& month
 
 void decodeTime(const DateTime::time_point& timePoint, short& hour, short& minute, short& second, short& millisecond, const bool gmt)
 {
-    auto timestamp = DateTime::clock::to_time_t(timePoint);
+    const auto adjustedTimePoint = gmt ? timePoint : timePoint + TimeZone::offset();
+    const auto dayPoint = floor<days>(adjustedTimePoint);
+    const auto timeOfDay = adjustedTimePoint - dayPoint;
 
-    tm time = {};
-    if (!gmt)
-    {
-        timestamp += static_cast<int>(TimeZone::offset().count()) * secondsInMinute;
-    }
-    gmtime_r(&timestamp, &time);
+    const auto h = duration_cast<hours>(timeOfDay);
+    const auto m = duration_cast<minutes>(timeOfDay - h);
+    const auto s = duration_cast<seconds>(timeOfDay - h - m);
+    const auto ms = duration_cast<milliseconds>(timeOfDay - h - m - s);
 
-    hour = static_cast<short>(time.tm_hour);
-    minute = static_cast<short>(time.tm_min);
-    second = static_cast<short>(time.tm_sec);
-
-    const auto dur = duration_cast<milliseconds>(timePoint.time_since_epoch());
-    const auto sec = duration_cast<seconds>(timePoint.time_since_epoch());
-    const auto ms = duration_cast<milliseconds>(dur - sec);
+    hour = static_cast<short>(h.count());
+    minute = static_cast<short>(m.count());
+    second = static_cast<short>(s.count());
     millisecond = static_cast<short>(ms.count());
 }
 
