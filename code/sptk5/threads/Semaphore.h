@@ -31,8 +31,8 @@
 #include <sptk5/sptk.h>
 
 #include <chrono>
-#include <semaphore>
 #include <limits>
+#include <semaphore>
 
 #ifdef max
 #undef max
@@ -56,7 +56,9 @@ public:
      * @param initialValue      Initial semaphore value.
      */
     explicit Semaphore(const size_t initialValue = 0)
-        : m_value(initialValue > MaxSemaphoreValue ? MaxSemaphoreValue : initialValue)
+        : m_value(initialValue > MaxSemaphoreValue
+                      ? MaxSemaphoreValue
+                      : static_cast<ptrdiff_t>(initialValue))
     {
     }
 

@@ -676,6 +676,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
         const scoped_lock lock(m_mutex);
         // Reading the column attributes
         const PGresult* stmt = statement->stmt();
+        auto&           fields = query->fields();
 
         for (short column = 0; column < columnCount; ++column)
         {
@@ -691,7 +692,7 @@ void PostgreSQLConnection::queryOpen(Query* query)
             postgreTypeToVariantType(dataType, fieldType);
             const auto fieldLength = PQfsize(stmt, column);
             auto       field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
-            query->fields().push_back(field);
+            fields.push_back(field);
         }
     }
 
@@ -743,10 +744,7 @@ DateTime readDate(const char* data, const DateTime& epochDate)
 
 DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime& epochDate)
 {
-    DateTime epDate(2000, 1, 1);
-
-    auto                 value = ntohq(*bit_cast<const uint64_t*>(data));
-    DateTime             result;
+    const auto           value = ntohq(*bit_cast<const uint64_t*>(data));
     chrono::microseconds epochOffset;
 
     if (integerTimestamps)
@@ -756,8 +754,8 @@ DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime&
     }
     else
     {
-        void*      ptr = &value;
-        const auto seconds = *bit_cast<double*>(ptr);
+        const void* ptr = &value;
+        const auto  seconds = *bit_cast<const double*>(ptr);
         epochOffset = chrono::seconds(static_cast<int>(seconds));
     }
     return epochDate + epochOffset;
@@ -1001,6 +999,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
 
     const PGresult* stmt = statement->stmt();
     const auto      currentRow = static_cast<int>(statement->currentRow());
+    const auto      integerTimestamps = m_timestampsFormat == TimestampFormat::INT64;
+    static array<char, 1> emptyString {};
 
     for (auto column = 0; column < fieldCount; ++column)
     {
@@ -1008,104 +1008,101 @@ void PostgreSQLConnection::queryFetch(Query* query)
         try
         {
             const auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
-
+            const auto dataType = field->dataType();
             const auto dataLength = PQgetlength(stmt, currentRow, column);
+            const auto isNull = PQgetisnull(stmt, currentRow, column) == 1;
+
+            if (isNull)
+            {
+                field->setNull(dataType);
+                continue;
+            }
 
             if (dataLength == 0)
             {
                 using enum sptk::VariantDataType;
-                auto dataType {VAR_NONE};
-                postgreTypeToVariantType(fieldType, dataType);
-
-                auto isNull = true;
-                if (static_cast<int>(dataType) & (static_cast<int>(VAR_STRING) | static_cast<int>(VAR_TEXT) |
-                                                  static_cast<int>(VAR_BUFFER)))
+                switch (dataType)
                 {
-                    isNull = PQgetisnull(stmt, currentRow, column) == 1;
-                }
-
-                if (isNull)
-                {
-                    field->setNull(dataType);
-                }
-                else
-                {
-                    static array<char, 2> emptyString {};
-                    field->setExternalBuffer(bit_cast<uint8_t*>(emptyString.data()), 0,
-                                             dataType); // External string
-                }
-            }
-            else
-            {
-                char* data = PQgetvalue(stmt, currentRow, column);
-
-                switch (fieldType)
-                {
-                    using enum PostgreSQLDataType;
-                    case BOOLEAN:
-                        field->setBool(readBool(data));
+                    case VAR_STRING:
+                    case VAR_TEXT:
+                    case VAR_BUFFER:
+                        field->setExternalBuffer(bit_cast<uint8_t*>(emptyString.data()), 0, dataType);
                         break;
-
-                    case INT2:
-                        field->setInteger(readInt2(data));
-                        break;
-
-                    case OID:
-                    case INT4:
-                        field->setInteger(readInt4(data));
-                        break;
-
-                    case INT8:
-                        field->setInt64(readInt8(data));
-                        break;
-
-                    case FLOAT4:
-                        field->setFloat(readFloat4(data));
-                        break;
-
-                    case FLOAT8:
-                        field->setFloat(readFloat8(data));
-                        break;
-
-                    case NUMERIC:
-                        field->setMoney(readNumericToScaledInteger(data));
-                        break;
-
-                    case BYTEA:
-                        field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
-                                                 VariantDataType::VAR_BUFFER); // External buffer
-                        break;
-
-                    case DATE:
-                        field->setDateTime(readDate(data, m_epochDate));
-                        break;
-
-                    case TIMESTAMPTZ:
-                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64, m_epochDate));
-                        break;
-                    case TIMESTAMP:
-                        field->setDateTime(readTimestamp(data, m_timestampsFormat == TimestampFormat::INT64, g_epochDate));
-                        break;
-
-                    case CHAR_ARRAY:
-                    case INT2_VECTOR:
-                    case INT2_ARRAY:
-                    case INT4_ARRAY:
-                    case TEXT_ARRAY:
-                    case VARCHAR_ARRAY:
-                    case INT8_ARRAY:
-                    case FLOAT4_ARRAY:
-                    case FLOAT8_ARRAY:
-                    case TIMESTAMP_ARRAY:
-                    case TIMESTAMPTZ_ARRAY:
-                        decodeArray(data, field, m_timestampsFormat, m_epochDate);
-                        break;
-
                     default:
-                        field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
-                                                 VariantDataType::VAR_STRING); // External string
+                        field->setNull(dataType);
                         break;
                 }
+                continue;
+            }
+
+            char* data = PQgetvalue(stmt, currentRow, column);
+
+            switch (fieldType)
+            {
+                using enum PostgreSQLDataType;
+                case BOOLEAN:
+                    field->setBool(readBool(data));
+                    break;
+
+                case INT2:
+                    field->setInteger(readInt2(data));
+                    break;
+
+                case OID:
+                case INT4:
+                    field->setInteger(readInt4(data));
+                    break;
+
+                case INT8:
+                    field->setInt64(readInt8(data));
+                    break;
+
+                case FLOAT4:
+                    field->setFloat(readFloat4(data));
+                    break;
+
+                case FLOAT8:
+                    field->setFloat(readFloat8(data));
+                    break;
+
+                case NUMERIC:
+                    field->setMoney(readNumericToScaledInteger(data));
+                    break;
+
+                case BYTEA:
+                    field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
+                                             VariantDataType::VAR_BUFFER); // External buffer
+                    break;
+
+                case DATE:
+                    field->setDateTime(readDate(data, m_epochDate));
+                    break;
+
+                case TIMESTAMPTZ:
+                    field->setDateTime(readTimestamp(data, integerTimestamps, m_epochDate));
+                    break;
+                case TIMESTAMP:
+                    field->setDateTime(readTimestamp(data, integerTimestamps, g_epochDate));
+                    break;
+
+                case CHAR_ARRAY:
+                case INT2_VECTOR:
+                case INT2_ARRAY:
+                case INT4_ARRAY:
+                case TEXT_ARRAY:
+                case VARCHAR_ARRAY:
+                case INT8_ARRAY:
+                case FLOAT4_ARRAY:
+                case FLOAT8_ARRAY:
+                case TIMESTAMP_ARRAY:
+                case TIMESTAMPTZ_ARRAY:
+                    decodeArray(data, field, m_timestampsFormat, m_epochDate);
+                    break;
+
+                default:
+                    field->setExternalBuffer(bit_cast<uint8_t*>(data), static_cast<size_t>(dataLength),
+                                             VariantDataType::VAR_STRING); // External string
+                    break;
             }
         }
         catch (const Exception& e)
