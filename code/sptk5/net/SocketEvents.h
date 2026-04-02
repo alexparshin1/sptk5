@@ -26,8 +26,9 @@
 
 #pragma once
 
+#include <sptk5/Printer.h>
 #include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketPool.h>
+#include <sptk5/net/SocketObjectPool.h>
 #include <sptk5/threads/Counter.h>
 #include <sptk5/threads/Thread.h>
 
@@ -37,11 +38,12 @@ namespace sptk {
  * Socket events manager.
  *
  * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer closed connection,
+ * such as data available for read or peer has closed connection,
  * to its sockets.
  */
+template<typename T>
 class SP_EXPORT SocketEvents
-    : public SocketPool
+    : public SocketObjectPool<T>
     , public Thread
 {
 public:
@@ -54,26 +56,58 @@ public:
      * @param maxEvents          Maximum number of events per poll
      */
     SocketEvents(const String&                    name,
-                 const SocketEventCallback&       eventsCallback,
+                 const SocketEventCallback<T>&    eventsCallback,
                  const std::chrono::milliseconds& timeout = std::chrono::milliseconds(100),
-                 TriggerMode                      triggerMode = TriggerMode::LevelTriggered,
-                 size_t                           maxEvents = 1024);
+                 SocketPoolTriggerMode            triggerMode = SocketPoolTriggerMode::LevelTriggered,
+                 size_t                           maxEvents = 1024)
+        : SocketObjectPool<T>(eventsCallback, triggerMode, maxEvents)
+        , Thread(name)
+        , m_timeout(timeout)
+    {
+        Thread::run();
+    }
+
 
     /**
      * @brief Destructor
      */
-    ~SocketEvents() override;
+    ~SocketEvents() override
+    {
+        stop();
+    }
 
     /**
      * @brief Stop the socket events manager and wait until it joins.
      */
-    void stop();
+    void stop()
+    {
+        terminate();
+        join();
+    }
 
 protected:
     /**
      * @brief Event monitoring thread
      */
-    void threadFunction() override;
+    void threadFunction() override
+    {
+        SocketObjectPool<T>::open();
+        while (!terminated())
+        {
+            try
+            {
+                if (!SocketObjectPool<T>::waitForEvents(m_timeout))
+                {
+                    break;
+                }
+            }
+            catch (const Exception& e)
+            {
+                CERR(e.message());
+            }
+        }
+        SocketObjectPool<T>::close();
+    }
 
 private:
     std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop

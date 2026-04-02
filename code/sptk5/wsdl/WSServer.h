@@ -122,7 +122,7 @@ private:
     WSServices                             m_services;      ///< Web Service request processor.
     Logger                                 m_logger;        ///< Logger object.
     WSConnection::Options                  m_options;       ///< Client connection options.
-    SocketEvents                           m_socketEvents;  ///< Socket events.
+    SocketEvents<WSConnection>             m_socketEvents;  ///< Socket events.
     std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections.
 
     /**
@@ -130,7 +130,7 @@ private:
      * @param userData          User data.
      * @param eventType         Event type.
      */
-    void socketEventCallback(const uint8_t* userData, SocketEventType eventType);
+    void socketEventCallback(const std::weak_ptr<WSConnection>& userData, SocketEventType eventType);
 };
 
 /**

@@ -75,13 +75,13 @@ void SocketPool::add(Socket& socket, const uint8_t* userData)
     auto          eventFlags = EV_ADD | EV_ENABLE;
     switch (m_triggerMode)
     {
-        case TriggerMode::EdgeTriggered:
+        case SocketPoolTriggerMode::EdgeTriggered:
             eventFlags |= EV_CLEAR;
             break;
-        case TriggerMode::OneShot:
+        case SocketPoolTriggerMode::OneShot:
             eventFlags |= EV_ONESHOT;
             break;
-        case TriggerMode::LevelTriggered:
+        case SocketPoolTriggerMode::LevelTriggered:
             break;
     }
     EV_SET(&event, socket.fd(), EVFILT_READ, eventFlags, 0, 0, bit_cast<void*>(userData));

@@ -37,29 +37,29 @@ void Channel::open(const SocketType sourceFD, const String& interfaceAddress, co
 {
     scoped_lock lock(m_mutex);
 
-    m_source.attach(sourceFD, false);
+    m_source->attach(sourceFD, false);
 
-    m_destination.bind(interfaceAddress.c_str(), 0);
-    m_destination.open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
+    m_destination->bind(interfaceAddress.c_str(), 0);
+    m_destination->open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
 
-    m_sourceEvents.add(m_source, reinterpret_cast<uint8_t*>(this));
-    m_destinationEvents.add(m_destination, reinterpret_cast<uint8_t*>(this));
+    m_sourceEvents.add(*m_source, shared_from_this());
+    m_destinationEvents.add(*m_destination, shared_from_this());
 }
 
 void Channel::close()
 {
     scoped_lock lock(m_mutex);
 
-    if (m_source.active())
+    if (m_source->active())
     {
-        m_sourceEvents.remove(m_source);
-        m_source.close();
+        m_sourceEvents.remove(*m_source);
+        m_source->close();
     }
 
-    if (m_destination.active())
+    if (m_destination->active())
     {
-        m_destinationEvents.remove(m_destination);
-        m_destination.close();
+        m_destinationEvents.remove(*m_destination);
+        m_destination->close();
     }
 }
 

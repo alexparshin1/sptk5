@@ -42,23 +42,27 @@ constexpr uint16_t testEchoServerPort = 5001;
 /**
  * @brief Test SocketEvents communication with echo server using selected trigger mode
  */
-void testSocketEvents(SocketPool::TriggerMode triggerMode)
+void testSocketEvents(const SocketPoolTriggerMode triggerMode)
 {
-    shared_ptr<SocketEvents> socketEvents;
-    Semaphore                dataReceived;
-    Semaphore                hangupReceived;
+    shared_ptr<SocketEvents<Socket>> socketEvents;
+    Semaphore                        dataReceived;
+    Semaphore                        hangupReceived;
 
     auto eventsCallback =
-        [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const uint8_t* userData, SocketEventType eventType)
+        [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const weak_ptr<Socket>& userData, SocketEventType eventType)
     {
-        auto* socket = bit_cast<Socket*>(userData);
+        auto socket = userData.lock();
+        if (socket == nullptr)
+        {
+            return;
+        }
 
         // In a real server or client, we want to prevent async calls of socket events while
         // the current event is processed in another thread.
         // In this test, the event is processed in the same thread, but we still want to test
         // that removing and re-adding the socket works properly.
         // Note that removing the socket is not required for OneShot trigger mode.
-        if (triggerMode != SocketPool::TriggerMode::OneShot)
+        if (triggerMode != SocketPoolTriggerMode::OneShot)
         {
             socketEvents->remove(*socket);
         }
@@ -84,10 +88,10 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
             return;
         }
 
-        socketEvents->add(*socket, bit_cast<uint8_t*>(socket), true);
+        socketEvents->add(*socket, socket, true);
     };
 
-    socketEvents = make_shared<SocketEvents>("Test Pool", eventsCallback, 1s, triggerMode);
+    socketEvents = make_shared<SocketEvents<Socket>>("Test Pool", eventsCallback, 1s, triggerMode);
 
     Buffer buffer;
 
@@ -95,17 +99,17 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
     {
         TestEchoServer testEchoServer(testEchoServerPort);
 
-        TCPSocket socket;
-        socket.open(Host("localhost", testEchoServerPort));
-        socketEvents->add(socket, bit_cast<uint8_t*>(&socket));
+        auto socket = make_shared<TCPSocket>();
+        socket->open(Host("localhost", testEchoServerPort));
+        socketEvents->add(*socket, socket);
 
         try
         {
             const String testData1("Hello, World!");
-            socket.write(testData1);
+            socket->write(testData1);
             EXPECT_TRUE(dataReceived.wait_for(100ms));
             const String testData2("This is a test of SocketEvents class.<EOF>");
-            socket.write(testData2);
+            socket->write(testData2);
             EXPECT_TRUE(dataReceived.wait_for(100ms));
         }
         catch (const Exception& e)
@@ -113,8 +117,8 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
             CERR(e.what());
         }
 
-        socketEvents->remove(socket);
-        socket.close();
+        socketEvents->remove(*socket);
+        socket->close();
 
         EXPECT_TRUE(hangupReceived.wait_for(3s));
 
@@ -129,7 +133,7 @@ void testSocketEvents(SocketPool::TriggerMode triggerMode)
 
 TEST(SPTK_SocketEvents, minimal_levelTriggered)
 {
-    testSocketEvents(SocketPool::TriggerMode::LevelTriggered);
+    testSocketEvents(SocketPoolTriggerMode::LevelTriggered);
 }
 
 #ifndef _WIN32
@@ -139,7 +143,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
  */
 TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 {
-    testSocketEvents(SocketPool::TriggerMode::EdgeTriggered);
+    testSocketEvents(SocketPoolTriggerMode::EdgeTriggered);
 }
 #endif
 
@@ -150,7 +154,7 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
 TEST(SPTK_SocketEvents, minimal_oneShot)
 {
 #ifndef _WIN32
-    testSocketEvents(SocketPool::TriggerMode::OneShot);
+    testSocketEvents(SocketPoolTriggerMode::OneShot);
 #endif
 }
 
@@ -158,33 +162,39 @@ TEST(SPTK_SocketEvents, performance)
 {
     TestEchoServer testEchoServer(testEchoServerPort);
 
-    SocketEvents socketEvents(
+    SocketEvents<Socket> socketEvents(
         "test events",
-        [](const uint8_t*, SocketEventType)
+        [](const weak_ptr<Socket>&, SocketEventType)
         {
             // No need to do anything for this test
             return;
         });
 
-    constexpr size_t  maxSockets = 1000;
-    vector<TCPSocket> sockets(maxSockets);
-    const Host        testServerHost("localhost", testEchoServerPort);
-    for (auto& socket: sockets)
+    constexpr size_t              maxSockets = 1000;
+    vector<shared_ptr<TCPSocket>> sockets;
+
+    for (size_t i = 0; i < maxSockets; ++i)
     {
-        ASSERT_NO_THROW(socket.open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));
+        sockets.push_back(make_shared<TCPSocket>());
+    }
+
+    const Host testServerHost("localhost", testEchoServerPort);
+    for (const auto& socket: sockets)
+    {
+        ASSERT_NO_THROW(socket->open(testServerHost, Socket::OpenMode::CONNECT, true, 100ms));
     }
 
     Stopwatch stopWatch;
 
     stopWatch.start();
-    for (auto& socket: sockets)
+    for (auto socket: sockets)
     {
-        socketEvents.add(socket, nullptr);
+        socketEvents.add(*socket, nullptr);
     }
 
     for (auto& socket: sockets)
     {
-        socketEvents.remove(socket);
+        socketEvents.remove(*socket);
     }
 
     stopWatch.stop();

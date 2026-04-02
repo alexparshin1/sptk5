@@ -26,55 +26,89 @@
 
 #pragma once
 
-#include <sptk5/cutils>
-#include <sptk5/net/SocketEvents.h>
-#include <sptk5/net/TCPSocket.h>
+#include "sptk5/net/SocketPool.h"
 
 namespace sptk {
 
-class Channel : public std::enable_shared_from_this<Channel>
+/**
+ * Type definition of the socket event callback function.
+ */
+template<typename T>
+using SocketEventCallback = std::function<void(const std::weak_ptr<T>& userData, SocketEventType eventType)>;
+
+/**
+ * @brief Socket pool that stores user objects in events.
+ * @tparam T Socket event object type.
+ */
+template<typename T>
+class SP_EXPORT SocketObjectPool : public SocketPool
 {
-    std::mutex                 m_mutex;
-    std::shared_ptr<TCPSocket> m_source;
-    std::shared_ptr<TCPSocket> m_destination;
-
-    SocketEvents<Channel>& m_sourceEvents;
-    SocketEvents<Channel>& m_destinationEvents;
-
 public:
-    Channel(SocketEvents<Channel>& sourceEvents, SocketEvents<Channel>& destinationEvents)
-        : m_source(std::make_shared<TCPSocket>())
-        , m_destination(std::make_shared<TCPSocket>())
-        , m_sourceEvents(sourceEvents)
-        , m_destinationEvents(destinationEvents)
+    /**
+     * @brief Constructor
+     */
+    SocketObjectPool(const SocketEventCallback<T>& eventsCallback, SocketPoolTriggerMode triggerMode, size_t maxEvents)
+        : SocketPool(triggerMode, maxEvents)
+        , m_eventsCallback(eventsCallback)
     {
     }
 
-    ~Channel()
+    /**
+     * @brief Destructor
+     */
+    ~SocketObjectPool() override = default;
+
+    /**
+     * @brief Add the socket to the monitored pool
+     * @param socket            Socket to monitor events
+     * @param userData          User data to pass to the callback function
+     * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
+     */
+    void add(const Socket& socket, const std::shared_ptr<T>& userData, bool rearmOneShot = false)
     {
-        try
+        if (auto fd = socket.fd();
+            fd != INVALID_SOCKET)
         {
-            close();
+            addSocket(socket, reinterpret_cast<const uint8_t*>(fd), rearmOneShot);
+            std::scoped_lock lock(m_mutex);
+            m_objects[fd] = userData;
         }
-        catch (const Exception& e)
+    }
+
+    /**
+     * @brief Remove the socket from the monitored pool
+     * @param socket            Socket from this pool
+     */
+    void remove(Socket& socket)
+    {
+        if (auto fd = socket.fd();
+            fd != INVALID_SOCKET)
         {
-            CERR(e.what() << std::endl);
+            removeSocket(socket);
+            std::scoped_lock lock(m_mutex);
+            m_objects.erase(fd);
         }
     }
 
-    void open(SocketType sourceFD, const String& interfaceAddess, const Host& destination);
-    int  copyData(const TCPSocket& source, const TCPSocket& destination);
-    void close();
 
-    TCPSocket& source()
+protected:
+    void onEvent(const uint8_t* userData, SocketEventType eventType) override
     {
-        return *m_source;
+        if (m_eventsCallback)
+        {
+            auto index = static_cast<SocketType>(reinterpret_cast<size_t>(userData));
+            if (auto it = m_objects.find(index);
+                it != m_objects.end())
+            {
+                m_eventsCallback(it->second, eventType);
+            }
+        }
     }
 
-    TCPSocket& destination()
-    {
-        return *m_destination;
-    }
+private:
+    std::mutex                                       m_mutex;
+    SocketEventCallback<T>                           m_eventsCallback; ///< Sockets event callback function
+    std::unordered_map<SocketType, std::weak_ptr<T>> m_objects;
 };
 
 } // namespace sptk

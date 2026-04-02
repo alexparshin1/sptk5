@@ -30,7 +30,6 @@
 #include <sptk5/net/Socket.h>
 #include <sptk5/threads/Thread.h>
 
-#include <functional>
 #include <mutex>
 
 #ifdef _WIN32
@@ -51,11 +50,6 @@ struct SocketEventType
     bool m_error : 1;  ///< Connection error
 };
 
-/**
- * Type definition of the socket event callback function.
- */
-using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEventType eventType)>;
-
 #ifdef _WIN32
 #define INVALID_EPOLL nullptr
 #else
@@ -63,33 +57,31 @@ using SocketEventCallback = std::function<void(const uint8_t* userData, SocketEv
 #endif // _WIN32
 
 /**
- * Socket event manager.
+ * @brief Socket event trigger mode
+ */
+enum class SocketPoolTriggerMode
+{
+    EdgeTriggered, ///< Execute callback once upon new data arrival
+    OneShot,       ///< Execute callback once when data becomes available
+    LevelTriggered ///< Execute callback periodically while data is available
+};
+
+/**
+ * @brief Socket event manager.
  *
  * Uses OS-specific implementation.
  * On Linux it is using epoll, on BSD it is using kqueue,
  * and on Windows WSAAsyncSelect is used.
  */
 class SP_EXPORT SocketPool
-    : public std::mutex
 {
 public:
     /**
-     * @brief Socket event trigger mode
-     */
-    enum class TriggerMode
-    {
-        EdgeTriggered, ///< Execute callback once upon new data arrival
-        OneShot,       ///< Execute callback once when data becomes available
-        LevelTriggered ///< Execute callback periodically while data is available
-    };
-
-    /**
      * @brief Constructor
-     * @param eventsCallback SocketEventCallback, Callback function executed upon socket events
      * @param triggerMode    Socket event trigger mode
      * @param maxEvents      Maximum number of socket events per poll
      */
-    explicit SocketPool(SocketEventCallback eventsCallback, TriggerMode triggerMode, size_t maxEvents = 1024);
+    explicit SocketPool(SocketPoolTriggerMode triggerMode, size_t maxEvents = 1024);
 
     /**
      * @brief Deleted copy constructor
@@ -124,23 +116,26 @@ public:
     void close();
 
     /**
-     * @brief Add socket to monitored pool
-     * @param socket            Socket to monitor events
-     * @param userData          User data to pass to callback function
-     * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
-     */
-    void add(Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
-
-    /**
-     * @brief Remove socket from monitored pool
-     * @param socket            Socket from this pool
-     */
-    void remove(Socket& socket) const;
-
-    /**
      * @return true if the socket pool is active.
      */
     [[nodiscard]] bool active() const;
+
+protected:
+    /**
+     * @brief Add the socket to the monitored pool
+     * @param socket            Socket to monitor events
+     * @param userData          User data to pass to the callback function
+     * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
+     */
+    void addSocket(const Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
+
+    /**
+     * @brief Remove the socket from the monitored pool
+     * @param socket            Socket from this pool
+     */
+    void removeSocket(Socket& socket) const;
+
+    virtual void onEvent(const uint8_t* userData, SocketEventType eventType) = 0;
 
 private:
     /**
@@ -152,13 +147,10 @@ private:
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
 
-    /**
-     * Callback function executed upon socket events
-     */
-    SocketEventCallback m_eventsCallback; ///< Sockets event callback function
-    size_t              m_maxEvents;      ///< Maximum number of socket events per poll
-    Buffer              m_eventsBuffer;   ///< Socket events
-    TriggerMode         m_triggerMode;    ///< Socket event trigger mode
+    mutable std::mutex    m_mutex;        ///< Mutex for thread-safe operations.
+    size_t                m_maxEvents;    ///< Maximum number of socket events per poll.
+    Buffer                m_eventsBuffer; ///< Socket events.
+    SocketPoolTriggerMode m_triggerMode;  ///< Socket event trigger mode.
 
     void processError(int error, const String& operation) const;
 };

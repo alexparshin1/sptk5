@@ -42,39 +42,44 @@ constexpr int testTcpEchoServerPort = 12345;
 
 namespace {
 
-Semaphore     completed;
-size_t        totalTransferredCount = 0;
-size_t        totalTransferred = 0;
-SocketEvents* sharedSocketEvents;
+Semaphore                   completed;
+size_t                      totalTransferredCount = 0;
+size_t                      totalTransferred = 0;
+SocketEvents<SocketReader>* sharedSocketEvents;
 
-void eventHandler(const uint8_t* data, SocketEventType type)
+void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
 {
     static int count = 0;
 
-    auto& reader = *bit_cast<SocketReader*>(data);
+    auto reader = data.lock();
+    if (reader == nullptr)
+    {
+        return;
+    }
+
     //sharedSocketEvents->remove(reader.socket());
     if (type.m_data)
     {
         size_t  size = 0;
         uint8_t buffer[1024];
-        reader.read(reinterpret_cast<uint8_t*>(&size), sizeof(size));
-        reader.read(buffer, size);
+        reader->read(reinterpret_cast<uint8_t*>(&size), sizeof(size));
+        reader->read(buffer, size);
         totalTransferredCount++;
         totalTransferred += size + sizeof(size);
         buffer[size] = 0;
-        reader.socket().write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
-        reader.socket().write(buffer, size);
+        reader->socket().write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
+        reader->socket().write(buffer, size);
         ++count;
         if (count > 50000)
         {
             completed.post();
         }
-        sharedSocketEvents->add(reader.socket(), reinterpret_cast<uint8_t*>(&reader), true);
+        sharedSocketEvents->add(reader->socket(), reader, true);
     }
 
     if (type.m_hangup)
     {
-        reader.socket().close();
+        reader->socket().close();
     }
 }
 
@@ -82,11 +87,11 @@ void eventHandler(const uint8_t* data, SocketEventType type)
 
 TEST(SPTK_TCPServer, eventPerformance)
 {
-    SocketEvents socketEvents("Test Pool", eventHandler, 1s, SocketPool::TriggerMode::OneShot);
+    SocketEvents<SocketReader> socketEvents("Test Pool", eventHandler, 1s, SocketPoolTriggerMode::OneShot);
     sharedSocketEvents = &socketEvents;
 
-    TCPSocket    clientSocket;
-    SocketReader clientReader(clientSocket);
+    TCPSocket clientSocket;
+    auto      clientReader = make_shared<SocketReader>(clientSocket);
 
     TCPServer tcpServer("Performance Test Server");
     tcpServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
@@ -95,11 +100,11 @@ TEST(SPTK_TCPServer, eventPerformance)
                                clientSocket.attach(socket.socket().detach(), false);
                                clientSocket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
                                clientSocket.blockingMode(false);
-                               socketEvents.add(clientSocket, reinterpret_cast<uint8_t*>(&clientReader));
+                               socketEvents.add(clientSocket, clientReader);
                            });
 
-    TCPSocket    socket;
-    SocketReader reader(socket);
+    TCPSocket socket;
+    auto      reader = make_shared<SocketReader>(socket);
     socket.open({"127.0.0.1", testTcpEchoServerPort});
     socket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     socket.blockingMode(false);
@@ -115,7 +120,7 @@ TEST(SPTK_TCPServer, eventPerformance)
     size_t size = buffer.bytes() + 1;
     socket.write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
     socket.write(buffer.data(), size);
-    socketEvents.add(socket, reinterpret_cast<uint8_t*>(&reader));
+    socketEvents.add(socket, reader);
 
     completed.wait();
 
@@ -123,7 +128,7 @@ TEST(SPTK_TCPServer, eventPerformance)
 
     auto clientReceivedCount = totalTransferredCount / 2;
     auto clientReceivedBytes = totalTransferred / 2;
-    COUT("Client received: " << clientReceivedBytes << " bytes for " << setprecision(1) << stopWatch.milliseconds() << " ms, "<< setprecision(2)
+    COUT("Client received: " << clientReceivedBytes << " bytes for " << setprecision(1) << stopWatch.milliseconds() << " ms, " << setprecision(2)
                              << static_cast<double>(clientReceivedBytes) / stopWatch.milliseconds() << "KB/s. ("
                              << static_cast<double>(clientReceivedCount) / stopWatch.milliseconds() << "K/s)");
 

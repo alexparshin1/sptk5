@@ -41,7 +41,7 @@ using namespace sptk;
 
 void SocketPool::open()
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
 
     m_eventsBuffer.checkSize(m_maxEvents * sizeof(epoll_event));
 
@@ -60,7 +60,7 @@ void SocketPool::open()
 
 void SocketPool::close()
 {
-    const scoped_lock lock(*this);
+    const scoped_lock lock(m_mutex);
 
     if (m_pool != INVALID_EPOLL)
     {
@@ -73,26 +73,26 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::add(Socket& socket, const uint8_t* userData, const bool rearmOneShot)
+void SocketPool::addSocket(const Socket& socket, const uint8_t* userData, const bool rearmOneShot)
 {
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
     {
-        case TriggerMode::EdgeTriggered:
+        case SocketPoolTriggerMode::EdgeTriggered:
 #ifdef _WIN32
             throw Exception("Edge triggered mode isn't supported on Windows");
 #else
             event.events |= EPOLLET;
             break;
 #endif
-        case TriggerMode::OneShot:
+        case SocketPoolTriggerMode::OneShot:
             event.events |= EPOLLONESHOT;
             break;
-        case TriggerMode::LevelTriggered:
+        case SocketPoolTriggerMode::LevelTriggered:
             break;
     }
 
-    if (m_triggerMode == TriggerMode::OneShot && rearmOneShot)
+    if (m_triggerMode == SocketPoolTriggerMode::OneShot && rearmOneShot)
     {
         if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
         {
@@ -108,7 +108,7 @@ void SocketPool::add(Socket& socket, const uint8_t* userData, const bool rearmOn
     }
 }
 
-void SocketPool::remove(Socket& socket) const
+void SocketPool::removeSocket(Socket& socket) const
 {
     if (socket.active())
     {
@@ -136,7 +136,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
             .m_error = (event & EPOLLERR) != 0,
         };
 
-        m_eventsCallback(static_cast<const uint8_t*>(data.ptr), eventType);
+        onEvent(static_cast<const uint8_t*>(data.ptr), eventType);
     }
 
     return true;

@@ -30,14 +30,17 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(const uint8_t* userData, const SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const weak_ptr<Channel>& userData, const SocketEventType eventType)
 {
-    auto* channel = bit_cast<Channel*>(userData);
+    const auto channel = userData.lock();
+    if (!channel)
+    {
+        return;
+    }
 
     if (eventType.m_hangup)
     {
         channel->close();
-        delete channel;
     }
     else
     {
@@ -45,14 +48,17 @@ void LoadBalance::sourceEventCallback(const uint8_t* userData, const SocketEvent
     }
 }
 
-void LoadBalance::destinationEventCallback(const uint8_t* userData, const SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const weak_ptr<Channel>& userData, const SocketEventType eventType)
 {
-    auto* channel = bit_cast<Channel*>(userData);
+    const auto channel = userData.lock();
+    if (!channel)
+    {
+        return;
+    }
 
     if (eventType.m_hangup)
     {
         channel->close();
-        delete channel;
     }
     else
     {
@@ -62,25 +68,25 @@ void LoadBalance::destinationEventCallback(const uint8_t* userData, const Socket
 
 LoadBalance::LoadBalance(const uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces)
     : Thread("load balance")
-      , m_listenerPort(listenerPort)
-      , m_destinations(destinations)
-      , m_interfaces(interfaces)
+    , m_listenerPort(listenerPort)
+    , m_destinations(destinations)
+    , m_interfaces(interfaces)
 {
 }
 
 void LoadBalance::threadFunction()
 {
-    struct sockaddr_in addr{};
+    struct sockaddr_in addr {};
 
     m_sourceEvents.run();
     m_destinationEvents.run();
     m_listener.listen(m_listenerPort);
 
-    constexpr chrono::milliseconds acceptTimeout{500};
+    constexpr chrono::milliseconds acceptTimeout {500};
 
     while (!terminated())
     {
-        Channel* channel{nullptr};
+        Channel* channel {nullptr};
         try
         {
             if (SocketType sourceFD;

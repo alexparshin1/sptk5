@@ -39,11 +39,11 @@ WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& 
     , m_options(options)
     , m_socketEvents(
           "XMQ Server",
-          [this](const auto* data, auto type)
+          [this](const std::weak_ptr<WSConnection>& data, auto type)
           {
               socketEventCallback(data, type);
           },
-          100ms, SocketPool::TriggerMode::LevelTriggered)
+          100ms, SocketPoolTriggerMode::LevelTriggered)
 {
     // if (!hostname.empty())
     // {
@@ -91,7 +91,7 @@ void WSServer::watchConnection(const std::shared_ptr<WSConnection>& connection)
 {
     scoped_lock lock(m_mutex);
     m_connectionMap[connection.get()] = connection;
-    m_socketEvents.add(connection->socket(), bit_cast<const uint8_t*>(connection.get()));
+    m_socketEvents.add(connection->socket(), connection);
 }
 
 void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
@@ -108,15 +108,15 @@ void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
     return m_options;
 }
 
-void WSServer::socketEventCallback(const uint8_t* userData, SocketEventType eventType)
+void WSServer::socketEventCallback(const weak_ptr<WSConnection>& userData, SocketEventType eventType)
 {
-    shared_ptr<WSConnection> connection;
+    shared_ptr<WSConnection> connection = userData.lock();
 
-    if (userData != nullptr)
+    if (connection != nullptr)
     {
         scoped_lock lock(m_mutex);
 
-        auto*      connectionPtr = bit_cast<WSConnection*>(userData);
+        auto*      connectionPtr = connection.get();
         const auto connectionIterator = m_connectionMap.find(connectionPtr);
         if (connectionIterator == m_connectionMap.end())
         {

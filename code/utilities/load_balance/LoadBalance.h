@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "Channel.h"
+
+
 #include <sptk5/Loop.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/net/TCPSocket.h>
@@ -36,19 +39,19 @@ namespace sptk {
 class LoadBalance
     : public Thread
 {
-    uint16_t      m_listenerPort;
-    Loop<Host>&   m_destinations;
-    Loop<String>& m_interfaces;
-    SocketEvents  m_sourceEvents {"Source Events", sourceEventCallback};
-    SocketEvents  m_destinationEvents {"Destination Events", destinationEventCallback};
+    uint16_t              m_listenerPort;
+    Loop<Host>&           m_destinations;
+    Loop<String>&         m_interfaces;
+    SocketEvents<Channel> m_sourceEvents {"Source Events", sourceEventCallback};
+    SocketEvents<Channel> m_destinationEvents {"Destination Events", destinationEventCallback};
 
     TCPSocket m_listener;
 
     void threadFunction() override;
 
-    static void sourceEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static void sourceEventCallback(const std::weak_ptr<Channel>& userData, SocketEventType eventType);
 
-    static void destinationEventCallback(const uint8_t* userData, SocketEventType eventType);
+    static void destinationEventCallback(const std::weak_ptr<Channel>& userData, SocketEventType eventType);
 
 public:
     LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);
