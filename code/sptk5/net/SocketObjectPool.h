@@ -102,11 +102,21 @@ protected:
     {
         if (m_eventsCallback)
         {
-            if (auto it = m_objects.find(socket);
-                it != m_objects.end())
+            std::weak_ptr<T> userData;
             {
-                m_eventsCallback(it->second.m_userData, eventType);
+                std::scoped_lock lock(m_mutex);
+                if (auto it = m_objects.find(socket);
+                    it != m_objects.end())
+                {
+                    userData = it->second.m_userData;
+                }
+                else
+                {
+                    return;
+                }
             }
+            
+            m_eventsCallback(userData, eventType);
         }
     }
 
