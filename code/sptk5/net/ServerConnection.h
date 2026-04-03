@@ -84,12 +84,6 @@ public:
      * @brief Access to the internal socket for derived classes.
      * @return internal socket.
      */
-    TCPSocket& socket() const;
-
-    /**
-     * @brief Access to the internal socket for derived classes.
-     * @return internal socket.
-     */
     STCPSocket getSocket() const;
 
     /**
@@ -120,7 +114,7 @@ public:
 
 protected:
     /**
-     * @brief Assign new socket.
+     * @brief Assign the new socket.
      * @param socket            Socket to assign.
      * @return previous socket.
      */
@@ -136,7 +130,7 @@ private:
     String             m_address;    ///< Incoming connection IP address.
     uint16_t           m_port {0};   ///< Incoming connection port.
     size_t             m_serial {0}; ///< Connection serial number.
-    Type               m_type;       ///< Connection type (TCP or SSL).
+    Type               m_type {Type::TCP}; ///< Connection type (TCP or SSL).
 
     /**
      * @brief Create the next connection serial number.

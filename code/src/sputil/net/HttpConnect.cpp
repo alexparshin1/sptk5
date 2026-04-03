@@ -34,8 +34,8 @@
 using namespace std;
 using namespace sptk;
 
-HttpConnect::HttpConnect(TCPSocket& socket)
-    : m_socket(socket)
+HttpConnect::HttpConnect(shared_ptr<TCPSocket> socket)
+    : m_socket(std::move(socket))
 {
 }
 
@@ -53,9 +53,9 @@ int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTim
     m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::ReadMode::RESPONSE);
     while (m_reader->getReaderState() < HttpReader::State::COMPLETED)
     {
-        if (!m_socket.readyToRead(readTimeout))
+        if (!m_socket->readyToRead(readTimeout))
         {
-            m_socket.close();
+            m_socket->close();
             throw Exception("Response read timeout");
         }
 
@@ -67,34 +67,34 @@ int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTim
 
 void HttpConnect::sendCommand(const String& cmd) const
 {
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
 
     if (const chrono::seconds readTimeout(30);
-        !m_socket.readyToWrite(readTimeout))
+        !m_socket->readyToWrite(readTimeout))
     {
         throw Exception("Server is busy");
     }
 
-    m_socket.write(bit_cast<const uint8_t*>(cmd.c_str()), cmd.length());
+    m_socket->write(bit_cast<const uint8_t*>(cmd.c_str()), cmd.length());
 }
 
 void HttpConnect::sendCommand(const Buffer& cmd) const
 {
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
 
     if (const chrono::seconds readTimeout(30);
-        !m_socket.readyToWrite(readTimeout))
+        !m_socket->readyToWrite(readTimeout))
     {
         throw Exception("Server is busy");
     }
 
-    m_socket.write(cmd.data(), cmd.bytes());
+    m_socket->write(cmd.data(), cmd.bytes());
 }
 
 Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
@@ -112,7 +112,7 @@ Strings HttpConnect::makeHeaders(const String& httpCommand, const String& pageNa
     }
 
     headers.push_back(command + " HTTP/1.1");
-    headers.push_back("HOST: " + m_socket.host().toString(false));
+    headers.push_back("HOST: " + m_socket->host().toString(false));
 
     for (const auto& [name, value]: m_requestHeaders)
     {

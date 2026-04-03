@@ -74,7 +74,7 @@ SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 {
     bool         proxyConnected {false};
-    SocketReader socketReader(*proxySocket);
+    SocketReader socketReader(proxySocket);
 
     Buffer buffer;
     socketReader.readLine(buffer);

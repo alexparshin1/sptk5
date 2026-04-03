@@ -51,15 +51,16 @@ public:
         : TCPServer("HttpReader FixedResponseServer", 1)
         , m_response(std::move(response))
     {
-        onConnection([this](ServerConnection& connection)
+        onConnection([this](const ServerConnection& connection)
                      {
                          const auto s = connection.getSocket();
                          try
                          {
                              s->write(m_response);
                          }
-                         catch (...)
+                         catch (const exception& exception)
                          {
+                             CERR(exception.what());
                          }
                          s->close();
                      });
@@ -84,8 +85,8 @@ TEST(SPTK_HttpReader, response_contentLength_readsBodyAndHeaders)
 
     FixedResponseServer server(kHttpReaderTestPort1, response);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kHttpReaderTestPort1});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kHttpReaderTestPort1});
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
@@ -114,8 +115,8 @@ TEST(SPTK_HttpReader, response_chunked_readsAllChunks)
 
     FixedResponseServer server(kHttpReaderTestPort2, response);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kHttpReaderTestPort2});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kHttpReaderTestPort2});
 
     Buffer     out;
     HttpReader reader(socket, out, HttpReader::ReadMode::RESPONSE);
@@ -139,13 +140,13 @@ TEST(SPTK_HttpReader, requestMode_parsesRequestLineAndHeaders)
     std::promise<String> requestUrlPromise;
     std::promise<String> hostHeaderPromise;
 
-    server.onConnection([&](ServerConnection& connection)
+    server.onConnection([&](const ServerConnection& connection)
                         {
                             const auto s = connection.getSocket();
                             try
                             {
                                 Buffer     out;
-                                HttpReader reader(*s, out, HttpReader::ReadMode::REQUEST);
+                                HttpReader reader(s, out, HttpReader::ReadMode::REQUEST);
 
                                 reader.readHttpHeaders();
 
@@ -160,14 +161,16 @@ TEST(SPTK_HttpReader, requestMode_parsesRequestLineAndHeaders)
                                     "Content-Length: 0\r\n"
                                     "\r\n");
                             }
-                            catch (...)
+                            catch (const exception& ex)
                             {
+                                CERR(ex.what());
                                 try
                                 {
                                     gotRequestPromise.set_value();
                                 }
-                                catch (...)
+                                catch (const exception& exc)
                                 {
+                                    CERR(exc.what());
                                 }
                             }
 

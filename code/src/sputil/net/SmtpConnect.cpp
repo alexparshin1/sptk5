@@ -34,7 +34,28 @@ using namespace sptk;
 
 SmtpConnect::SmtpConnect(Logger* log)
     : m_log(log)
+    , m_socket(make_shared<TCPSocket>())
 {
+}
+
+void SmtpConnect::open(const Host& host)
+{
+    m_socket->open(host, Socket::OpenMode::CONNECT, true);
+}
+
+void SmtpConnect::close()
+{
+    m_socket->close();
+}
+
+Host SmtpConnect::host() const
+{
+    return m_socket->host();
+}
+
+void SmtpConnect::host(const Host& host)
+{
+    m_socket->host(host);
 }
 
 constexpr int RSP_BLOCK_SIZE = 1024;
@@ -47,10 +68,10 @@ int SmtpConnect::getResponse(const bool decode)
     bool   readCompleted = false;
     int    result = 0;
 
-    SocketReader socketReader(*this);
+    SocketReader socketReader(m_socket);
 
     if (constexpr chrono::seconds readTimeout {30};
-        !readyToRead(readTimeout))
+        !m_socket->readyToRead(readTimeout))
     {
         throw TimeoutException("SMTP server response timeout");
     }
@@ -94,9 +115,9 @@ int SmtpConnect::getResponse(const bool decode)
     return result;
 }
 
-void SmtpConnect::sendCommand(String cmd, const bool encode)
+void SmtpConnect::sendCommand(String cmd, const bool encode) const
 {
-    if (!active())
+    if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
@@ -109,13 +130,13 @@ void SmtpConnect::sendCommand(String cmd, const bool encode)
         m_log->debug("[SEND] " + cmd);
     }
     cmd += "\r\n";
-    write(bit_cast<const uint8_t*>(cmd.c_str()), static_cast<uint32_t>(cmd.length()));
+    m_socket->write(bit_cast<const uint8_t*>(cmd.c_str()), static_cast<uint32_t>(cmd.length()));
 }
 
 int SmtpConnect::command(const String& cmd, const bool encodeCommand, const bool decodeResponse)
 {
     m_response.clear();
-    if (!active())
+    if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
@@ -151,8 +172,8 @@ void SmtpConnect::cmd_auth(const String& user, const String& password)
     constexpr int             minAuthErrorCode {252};
     constexpr chrono::seconds connectTimeout {30};
 
-    close();
-    open(Host(), OpenMode::CONNECT, true, connectTimeout);
+    m_socket->close();
+    m_socket->open(Host(), Socket::OpenMode::CONNECT, true, connectTimeout);
 
     m_response.clear();
     getResponse();
@@ -231,7 +252,7 @@ void SmtpConnect::cmd_send()
 void SmtpConnect::cmd_quit()
 {
     command("QUIT");
-    close();
+    m_socket->close();
 }
 
 String parseAddress(const String& fullAddress)

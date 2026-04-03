@@ -125,7 +125,7 @@ private:
     void logConnectionDetails(const Stopwatch& requestStopWatch, const HttpReader& httpReader,
                               const RequestInfo& requestInfo) const;
 
-    void processSingleConnection();
+    void processSingleConnection() const;
 };
 
 /**

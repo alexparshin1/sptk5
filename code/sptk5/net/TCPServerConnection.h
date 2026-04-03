@@ -55,7 +55,7 @@ public:
         : RunableServerConnection(server, Type::TCP, connectionAddress, connectionFunction)
     {
         setSocket(std::make_shared<TCPSocket>());
-        socket().attach(connectionSocket, false);
+        getSocket()->attach(connectionSocket, false);
     }
 
     /**
@@ -63,7 +63,7 @@ public:
      */
     void terminate() override
     {
-        socket().close();
+        getSocket()->close();
         RunableServerConnection::terminate();
     }
 };

@@ -44,10 +44,9 @@ TEST(SPTK_SSLSocket, connect)
         GTEST_SKIP() << "Certificate file " << keys.certificateFileName() << " does not exist.";
     }
 
-    SSLSocket sslSocket;
-
     try
     {
+        SSLSocket sslSocket;
         sslSocket.loadKeys(keys); // Optional step - not required for Google connect
         sslSocket.open(Host("www.msn.com:443"));
         sslSocket.close();
@@ -79,7 +78,7 @@ TEST(SPTK_SSLSocket, httpConnect)
                                   const auto socket = make_shared<SSLSocket>();
 
                                   socket->open(yahoo);
-                                  HttpConnect http(*socket);
+                                  HttpConnect http(socket);
 
                                   const auto statusCode = http.cmd_get("/", HttpParams(), output);
                                   if (statusCode != 200)

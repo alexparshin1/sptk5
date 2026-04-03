@@ -92,7 +92,7 @@ TEST(SPTK_ThreadManager, minimal)
 
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        auto thread = make_shared<ThreadManagerTestThread>(format("thread {}", i));
         threadManager->manage(thread);
         thread->run();
     }
@@ -121,7 +121,7 @@ TEST(SPTK_ThreadManager, nextThread)
 
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        auto thread = make_shared<ThreadManagerTestThread>(format("thread {}", i));
         threadManager->manage(thread);
         thread->run();
     }
@@ -148,7 +148,7 @@ TEST(SPTK_ThreadManager, stopClearsRunningState)
     threadManager->start();
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        auto thread = make_shared<ThreadManagerTestThread>(format("thread {}", i));
         threadManager->manage(thread);
         thread->run();
     }
@@ -184,7 +184,7 @@ TEST(SPTK_ThreadManager, stopReturnsPromptlyWhenRunning)
     threadManager->start();
     for (size_t i = 0; i < maxThreads; ++i)
     {
-        auto thread = make_shared<ThreadManagerTestThread>("thread " + to_string(i));
+        auto thread = make_shared<ThreadManagerTestThread>(format("thread {}", i));
         threadManager->manage(thread);
         thread->run();
     }

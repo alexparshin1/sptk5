@@ -64,7 +64,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
         // Note that removing the socket is not required for OneShot trigger mode.
         if (triggerMode != SocketPoolTriggerMode::OneShot)
         {
-            socketEvents->remove(*socket);
+            socketEvents->remove(socket);
         }
 
         if (eventType.m_data)
@@ -88,7 +88,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
             return;
         }
 
-        socketEvents->add(*socket, socket, true);
+        socketEvents->add(socket, socket, true);
     };
 
     socketEvents = make_shared<SocketEvents<Socket>>("Test Pool", eventsCallback, 1s, triggerMode);
@@ -101,7 +101,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
 
         auto socket = make_shared<TCPSocket>();
         socket->open(Host("localhost", testEchoServerPort));
-        socketEvents->add(*socket, socket);
+        socketEvents->add(socket, socket);
 
         try
         {
@@ -117,7 +117,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
             CERR(e.what());
         }
 
-        socketEvents->remove(*socket);
+        socketEvents->remove(socket);
         socket->close();
 
         EXPECT_TRUE(hangupReceived.wait_for(3s));
@@ -189,12 +189,12 @@ TEST(SPTK_SocketEvents, performance)
     stopWatch.start();
     for (auto socket: sockets)
     {
-        socketEvents.add(*socket, nullptr);
+        socketEvents.add(socket, nullptr);
     }
 
     for (auto& socket: sockets)
     {
-        socketEvents.remove(*socket);
+        socketEvents.remove(socket);
     }
 
     stopWatch.stop();

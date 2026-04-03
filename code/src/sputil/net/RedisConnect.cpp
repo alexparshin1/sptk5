@@ -39,26 +39,26 @@ namespace sptk {
 
 void RedisConnect::connect(const std::string& host, const int port)
 {
-    m_socket.host(Host(host.c_str(), static_cast<uint16_t>(port)));
-    m_socket.open();
+    m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));
+    m_socket->open();
     m_reader = make_unique<SocketReader>(m_socket);
 
-    m_socket.write("HELLO 3\r\n");
+    m_socket->write("HELLO 3\r\n");
     (void) readResponse();
 }
 
 void RedisConnect::disconnect()
 {
-    if (m_socket.active())
+    if (m_socket->active())
     {
-        m_socket.close();
+        m_socket->close();
     }
     m_reader.reset();
 }
 
 void RedisConnect::set(const std::string& key, const Variant& value)
 {
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("RedisConnect: Not connected");
     }
@@ -107,9 +107,9 @@ void RedisConnect::set(const std::string& key, const Variant& value)
         case VAR_BUFFER: {
             const Buffer& buffer = value.asBuffer();
             ss << "$" << buffer.size() << "\r\n";
-            m_socket.write(ss.str());
-            m_socket.write(buffer.data(), buffer.size());
-            m_socket.write("\r\n");
+            m_socket->write(ss.str());
+            m_socket->write(buffer.data(), buffer.size());
+            m_socket->write("\r\n");
             isBinary = true;
         }
         case VAR_NONE:
@@ -122,7 +122,7 @@ void RedisConnect::set(const std::string& key, const Variant& value)
     if (!isBinary)
     {
         ss << "\r\n";
-        m_socket.write(ss.str());
+        m_socket->write(ss.str());
     }
 
     (void) readResponse();
@@ -135,7 +135,7 @@ void RedisConnect::setBinary(const std::string& key, const Buffer& value)
 
 Variant RedisConnect::get(const std::string& key)
 {
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("RedisConnect: Not connected");
     }
@@ -146,7 +146,7 @@ Variant RedisConnect::get(const std::string& key)
        << "$" << key.length() << "\r\n"
        << key << "\r\n";
 
-    m_socket.write(ss.str());
+    m_socket->write(ss.str());
 
     return readResponse();
 }

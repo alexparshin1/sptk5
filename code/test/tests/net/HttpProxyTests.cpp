@@ -84,7 +84,7 @@ TEST(SPTK_HttpProxy, connect)
         constexpr seconds connectTimeout {5};
         socket->open(aHost, Socket::OpenMode::CONNECT, true, connectTimeout);
 
-        HttpConnect http(*socket);
+        HttpConnect http(socket);
 
         Buffer        output;
         constexpr int minimalHttpError = 400;

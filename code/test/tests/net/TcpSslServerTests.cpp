@@ -43,7 +43,7 @@ constexpr uint16_t testSslEchoServerPort = 3002;
 
 void echoTestFunction(const ServerConnection& connection)
 {
-    SocketReader reader(connection.socket());
+    SocketReader reader(connection.getSocket());
 
     COUT("Server connection started\n");
     Buffer data;
@@ -60,7 +60,7 @@ void echoTestFunction(const ServerConnection& connection)
 
                 string str(data.c_str());
                 str += "\n";
-                connection.socket().write(str);
+                connection.getSocket()->write(str);
             }
         }
         catch (const Exception& e)
@@ -69,7 +69,7 @@ void echoTestFunction(const ServerConnection& connection)
             break;
         }
     }
-    connection.socket().close();
+    connection.getSocket()->close();
     COUT("Server connection closed\n");
 }
 
@@ -95,7 +95,7 @@ void performanceTestFunction(const ServerConnection& serverConnection)
     {
         try
         {
-            if (const auto res = static_cast<int>(serverConnection.socket().write(dataPtr, packetSize));
+            if (const auto res = static_cast<int>(serverConnection.getSocket()->write(dataPtr, packetSize));
                 res < 0)
             {
                 throwSocketError("Error writing to socket");
@@ -112,11 +112,11 @@ void performanceTestFunction(const ServerConnection& serverConnection)
                  << packetsInTest * packetSize / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n");
 
     if (constexpr chrono::seconds timeout(10);
-        !serverConnection.socket().readyToRead(timeout))
+        !serverConnection.getSocket()->readyToRead(timeout))
     {
         CERR("Timeout waiting for response");
     }
-    serverConnection.socket().close();
+    serverConnection.getSocket()->close();
 }
 
 } // namespace
@@ -131,10 +131,10 @@ TEST(SPTK_TCPServer, tcpMinimal)
         echoServer.onConnection(echoTestFunction);
         echoServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
 
-        TCPSocket    socket;
+        auto         socket = make_shared<TCPSocket>();
         SocketReader socketReader(socket);
 
-        socket.open({"localhost", testTcpEchoServerPort});
+        socket->open({"localhost", testTcpEchoServerPort});
 
         const Strings rows({
             "Hello, World!",
@@ -148,7 +148,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
         int rowCount = 0;
         for (const auto& row: rows)
         {
-            socket.write(row + "\n");
+            socket->write(row + "\n");
             buffer.bytes(0);
             if (socketReader.readyToRead(3s))
             {
@@ -159,7 +159,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
         }
 
         EXPECT_EQ(4, rowCount);
-        socket.close();
+        socket->close();
 
         COUT("Client connection closed\n");
 
@@ -193,12 +193,12 @@ TEST(SPTK_TCPServer, sslMinimal)
         echoServer.addListener(ServerConnection::Type::SSL, {"localhost", testSslEchoServerPort});
         this_thread::sleep_for(100ms);
 
-        SSLSocket    socket;
+        auto         socket = make_shared<SSLSocket>();
         SocketReader socketReader(socket);
 
         try
         {
-            socket.open({"localhost", testSslEchoServerPort});
+            socket->open({"localhost", testSslEchoServerPort});
         }
         catch (Exception& e)
         {
@@ -213,7 +213,7 @@ TEST(SPTK_TCPServer, sslMinimal)
         int rowCount = 0;
         for (const auto& row: rows)
         {
-            socket.write(row + "\n");
+            socket->write(row + "\n");
             buffer.bytes(0);
             if (socketReader.readyToRead(3s))
             {
@@ -224,7 +224,7 @@ TEST(SPTK_TCPServer, sslMinimal)
         }
         EXPECT_EQ(4, rowCount);
 
-        socket.close();
+        socket->close();
 
         echoServer.stop();
     }
@@ -409,7 +409,7 @@ void testReaderTransferPerformance(ServerConnection::Type connectionType, const 
     socket->open(Host("localhost", serverPortNumber));
 
     constexpr size_t readerBufferSize = 2048;
-    SocketReader     socketReader(*socket, readerBufferSize);
+    SocketReader     socketReader(socket, readerBufferSize);
 
     constexpr size_t readSize {packetSize};
 

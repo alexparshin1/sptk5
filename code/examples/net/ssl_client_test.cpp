@@ -37,22 +37,22 @@ int main(int, const char**)
 {
     try
     {
-        SSLSocket client;
+        auto         client = make_shared<SSLSocket>();
         SocketReader clientReader(client);
 
         const SSLKeys keys("keys/privkey.pem", "keys/cacert.pem", "password", "keys/cacert.pem");
-        client.loadKeys(keys);
+        client->loadKeys(keys);
         Buffer buffer;
 
         for (unsigned i = 0; i < 10; i++)
         {
-            client.open(Host("localhost", 443));
+            client->open(Host("localhost", 443));
 
-            client.write((const uint8_t*) "GET /\n", 6);
+            client->write((const uint8_t*) "GET /\n", 6);
             clientReader.readLine(buffer, '\n');
             COUT("Receiving: ");
             COUT(buffer.data());
-            client.close();
+            client->close();
             this_thread::sleep_for(chrono::milliseconds(3000));
         }
     }

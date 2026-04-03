@@ -31,8 +31,6 @@
 #include <sptk5/net/BaseMailConnect.h>
 #include <sptk5/net/TCPSocket.h>
 
-#include <string>
-
 namespace sptk {
 
 /**
@@ -48,7 +46,6 @@ namespace sptk {
  * to make the complete RFC 822 message.
  */
 class SP_EXPORT SmtpConnect : public BaseMailConnect
-    , public TCPSocket
 {
 public:
     /**
@@ -57,8 +54,15 @@ public:
      */
     explicit SmtpConnect(Logger* log = nullptr);
 
+    void open(const Host& host);
+    void close();
+
+    [[nodiscard]] Host host() const;
+
+    void host(const Host& host);
+
     /**
-     * @brief The response from the server - makes sence after calling any command
+     * @brief The response from the server - makes sence after calling any command.
      */
     Strings& response()
     {
@@ -67,28 +71,28 @@ public:
 
     /**
      * @brief Logs in to the server host()
-     * @param user              User name
+     * @param user              Username
      * @param password          User password
      */
     void cmd_auth(const String& user, const String& password);
 
     /**
-     * @brief Sends the message
+     * @brief Sends the message.
      *
      * Message is based on the information defined by the methods from
-     * CBaseMailConnect, and retrieves the server output. An alias for sendMessage().
+     * the BaseMailConnect and retrieves the server output. An alias for sendMessage().
      */
     void cmd_send();
 
     /**
-     * Ends the SMTP session
+     * @brief Ends the SMTP session.
      */
     void cmd_quit();
 
 protected:
     /**
-     * Sends command using SMTP protocol and retrieve the server response.
-     * The response can be read then with response() method.
+     * @brief Sends command using SMTP protocol and retrieve the server response.
+     * The response can be read then with the response() method.
      * The CRLF characters after the command are added automatically.
      * @param cmd               SMTP protocol command
      * @param encodeCommand     Encode the comand argument to Base64 or not
@@ -103,28 +107,28 @@ protected:
      * @param cmd               SMTP protocol command
      * @param encode            Encode the arguments to Base64 or not
      */
-    void sendCommand(String cmd, bool encode = false);
+    void sendCommand(String cmd, bool encode = false) const;
 
     /**
-     * @brief Sends the message
+     * @brief Sends the message.
      *
-     * The message based on the information defined by the methods from
-     * CBaseMailConnect, and retrieves the server output.
+     * The message is based on the information defined by the methods from
+     * BaseMailConnect and retrieves the server output.
      */
     void sendMessage() override;
 
     /**
-     * @brief Retrieves the server response after the command into internal Strings buffer
+     * @brief Retrieves the server response after the command into the internal Strings buffer.
      *
-     * The response can be read then with response() method.
-     * @param decode            Decode the response from Base64 or not
+     * The response can be read then with the response() method.
+     * @param decode            Decode the response from Base64 or not.
      */
     int getResponse(bool decode = false);
 
     /**
-     * @brief Mime-encodes the buffer
-     * @param buffer            Source data
-     * @return MIME-encoded data
+     * @brief Mime-encodes the buffer.
+     * @param buffer            Source data.
+     * @return MIME-encoded data.
      */
     static String mime(const Buffer& buffer);
 
@@ -143,8 +147,9 @@ protected:
     static String unmime(const String& str);
 
 private:
-    Logger* m_log;
-    Strings m_response;
+    Logger*                    m_log;
+    Strings                    m_response;
+    std::shared_ptr<TCPSocket> m_socket;
 };
 /**
  * @}

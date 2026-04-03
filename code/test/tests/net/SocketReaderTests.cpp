@@ -120,7 +120,7 @@ private:
 
 TEST(SPTK_SocketReader, constructor)
 {
-    TCPSocket          socket;
+    auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket);
 
     EXPECT_EQ(reader.availableBytes(), 0);
@@ -129,7 +129,7 @@ TEST(SPTK_SocketReader, constructor)
 
 TEST(SPTK_SocketReader, constructor_customBufferSize)
 {
-    TCPSocket          socket;
+    auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket, 32768);
 
     EXPECT_EQ(reader.availableBytes(), 0);
@@ -141,8 +141,8 @@ TEST(SPTK_SocketReader, read_binaryData)
     const String   testData = "Binary data test 12345";
     TestDataServer server(kSocketReaderTestPort1, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort1});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort1});
 
     SocketReader reader(socket);
     EXPECT_TRUE(reader.active());
@@ -159,8 +159,8 @@ TEST(SPTK_SocketReader, read_intoBuffer)
     const String   testData = "Buffer read test";
     TestDataServer server(kSocketReaderTestPort2, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort2});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort2});
 
     SocketReader reader(socket);
 
@@ -184,8 +184,8 @@ TEST(SPTK_SocketReader, read_template)
 
     TestDataServer server(kSocketReaderTestPort3, binaryData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort3});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort3});
 
     SocketReader reader(socket);
 
@@ -204,8 +204,8 @@ TEST(SPTK_SocketReader, readLine_singleLine)
     const String   testData = "Single line test\n";
     TestDataServer server(kSocketReaderTestPort4, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort4});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort4});
 
     SocketReader reader(socket);
 
@@ -221,8 +221,8 @@ TEST(SPTK_SocketReader, readLine_multipleLines)
     const String   testData = "Line 1\nLine 2\nLine 3\n";
     TestDataServer server(kSocketReaderTestPort5, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort5});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort5});
 
     SocketReader reader(socket);
 
@@ -243,8 +243,8 @@ TEST(SPTK_SocketReader, readLine_customDelimiter)
     const String   testData = "Item1|Item2|Item3|";
     TestDataServer server(kSocketReaderTestPort6, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", kSocketReaderTestPort6});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", kSocketReaderTestPort6});
 
     SocketReader reader(socket);
 
@@ -263,8 +263,8 @@ TEST(SPTK_SocketReader, readLine_intoBuffer)
     const String   testData = "Buffer line test\n";
     TestDataServer server(18097, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18097});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18097});
 
     SocketReader reader(socket);
 
@@ -280,8 +280,8 @@ TEST(SPTK_SocketReader, readLine_intoRawBuffer)
     const String   testData = "Raw buffer line test\n";
     TestDataServer server(18098, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18098});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18098});
 
     SocketReader reader(socket);
 
@@ -297,8 +297,8 @@ TEST(SPTK_SocketReader, close)
     const String   testData = "Close test";
     TestDataServer server(18101, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18101});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18101});
 
     SocketReader reader(socket);
     EXPECT_TRUE(reader.active());
@@ -312,8 +312,8 @@ TEST(SPTK_SocketReader, availableBytes)
     const String   testData = "Available bytes test";
     TestDataServer server(18102, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18102});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18102});
 
     const SocketReader reader(socket);
 
@@ -332,8 +332,8 @@ TEST(SPTK_SocketReader, readyToRead_withData)
     const String   testData = "Ready test";
     TestDataServer server(18103, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18103});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18103});
 
     const SocketReader reader(socket);
 
@@ -346,8 +346,8 @@ TEST(SPTK_SocketReader, read_partialData)
     const String   testData = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     TestDataServer server(18105, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18105});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18105});
 
     SocketReader reader(socket);
 
@@ -367,8 +367,8 @@ TEST(SPTK_SocketReader, chunkedRead)
     vector<String>    chunks = {"Chunk1", "Chunk2", "Chunk3"};
     ChunkedDataServer server(18106, chunks, 50ms);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18106});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18106});
 
     SocketReader reader(socket);
 
@@ -389,15 +389,15 @@ TEST(SPTK_SocketReader, chunkedRead)
 
 TEST(SPTK_SocketReader, socket_getter)
 {
-    TCPSocket          socket;
+    auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket);
 
-    EXPECT_EQ(&reader.socket(), &socket);
+    EXPECT_EQ(reader.socket(), socket);
 }
 
 TEST(SPTK_SocketReader, read_fromClosedSocket)
 {
-    TCPSocket    socket;
+    auto         socket = make_shared<TCPSocket>();
     SocketReader reader(socket);
 
     uint8_t buffer[256];
@@ -406,7 +406,7 @@ TEST(SPTK_SocketReader, read_fromClosedSocket)
 
 TEST(SPTK_SocketReader, readLine_fromClosedSocket)
 {
-    TCPSocket    socket;
+    auto         socket = make_shared<TCPSocket>();
     SocketReader reader(socket);
 
     Buffer buffer;
@@ -418,8 +418,8 @@ TEST(SPTK_SocketReader, readLine_emptyLine)
     const String   testData = "\nContent";
     TestDataServer server(18107, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18107});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18107});
 
     SocketReader reader(socket);
 
@@ -435,8 +435,8 @@ TEST(SPTK_SocketReader, readLine_CRLF)
     const String   testData = "Line with CRLF\r\n";
     TestDataServer server(18108, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18108});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18108});
 
     SocketReader reader(socket);
 
@@ -452,8 +452,8 @@ TEST(SPTK_SocketReader, read_multipleSmallReads)
     const String   testData = "1234567890";
     TestDataServer server(18109, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18109});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18109});
 
     SocketReader reader(socket);
 
@@ -472,8 +472,8 @@ TEST(SPTK_SocketReader, canRead)
     const String   testData = "Can read test data";
     TestDataServer server(18110, testData);
 
-    TCPSocket socket;
-    socket.open({"127.0.0.1", 18110});
+    auto socket = make_shared<TCPSocket>();
+    socket->open({"127.0.0.1", 18110});
 
     const SocketReader reader(socket);
 

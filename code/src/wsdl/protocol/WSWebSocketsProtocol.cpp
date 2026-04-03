@@ -196,7 +196,7 @@ bool WSWebSocketsMessage::isFinal() const
     return m_finalMessage;
 }
 
-WSWebSocketsProtocol::WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers)
+WSWebSocketsProtocol::WSWebSocketsProtocol(const shared_ptr<TCPSocket>& socket, const HttpHeaders& headers)
     : WSProtocol(socket, headers)
 {
 }

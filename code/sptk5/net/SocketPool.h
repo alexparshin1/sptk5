@@ -123,19 +123,19 @@ public:
 protected:
     /**
      * @brief Add the socket to the monitored pool
-     * @param socket            Socket to monitor events
+     * @param socketFd            Socket to monitor events
      * @param userData          User data to pass to the callback function
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void addSocket(const Socket& socket, const uint8_t* userData, bool rearmOneShot = false);
+    void addSocket(SocketType socketFd, const uint8_t* userData, bool rearmOneShot = false);
 
     /**
      * @brief Remove the socket from the monitored pool
-     * @param socket            Socket from this pool
+     * @param socketFd            Socket from this pool
      */
-    void removeSocket(Socket& socket) const;
+    void removeSocket(SocketType socketFd) const;
 
-    virtual void onEvent(const uint8_t* userData, SocketEventType eventType) = 0;
+    virtual void onEvent(Socket* socket, SocketEventType eventType) = 0;
 
 private:
     /**

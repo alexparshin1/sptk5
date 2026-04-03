@@ -41,23 +41,23 @@ namespace sptk {
  */
 
 /**
- * @brief HTTP socket
+ * @brief HTTP socket.
  *
- * Implements the GET, POST, PUT and DELETE methods of HTTP protocol.
- * Allows to define the host, port, submit information, and then sends the HTML request to the server.
+ * Implements the GET, POST, PUT, and DELETE methods of HTTP protocol.
+ * Allows defining the host, port, submit information, and then sends the HTML request to the server.
  */
 class SP_EXPORT HttpConnect
 {
 public:
     /**
-     * HTTP authorization
+     * @brief HTTP authorization.
      */
     class SP_EXPORT Authorization
     {
     public:
         /**
-         * Copy constructor
-         * @param other         Other object
+         * Copy constructor.
+         * @param other         Another object.
          */
         Authorization(const Authorization& other) = default;
 
@@ -68,8 +68,8 @@ public:
         Authorization& operator=(const Authorization& other) = default;
 
         /**
-         * Get authorization method name
-         * @return authorization method name
+         * @brief Get authorization method name.
+         * @return authorization method name.
          */
         String method() const
         {
@@ -77,8 +77,8 @@ public:
         }
 
         /**
-         * Get authorization metod value
-         * @return authorization metod value
+         * @brief Get authorization method value.
+         * @return authorization method value.
          */
         String value() const
         {
@@ -87,31 +87,34 @@ public:
 
     protected:
         /**
-         * Constructor
+         * @brief Constructor.
          */
         Authorization() = delete;
 
         /**
-         * Basic or Bearer authorization
-         * @param method        Auth method, 'basic' or 'bearer'
-         * @param username      Username, basic authorization only
-         * @param password      Password, basic authorization only
-         * @param jwtToken      JWT token, bearer authorization only
+         * @brief Basic or Bearer authorization.
+         * @param method        Auth method, 'basic' or 'bearer'.
+         * @param username      Username, basic authorization only.
+         * @param password      Password, basic authorization only.
+         * @param jwtToken      JWT token, bearer authorization only.
          */
         explicit Authorization(const String& method, const String& username, const String& password, const String& jwtToken);
 
     private:
-        String m_method; ///< Authorization method name
-        String m_value;  ///< Authorization data
+        String m_method; ///< Authorization method name.
+        String m_value;  ///< Authorization data.
     };
 
+    /**
+     * @brief Basic authorization.
+     */
     class SP_EXPORT BasicAuthorization : public Authorization
     {
     public:
         /**
-         * Basic authorization
-         * @param username      Username
-         * @param password      Password
+         * @brief Basic authorization.
+         * @param username      Username.
+         * @param password      Password.
          */
         BasicAuthorization(const String& username, const String& password)
             : Authorization("basic", username, password, "")
@@ -119,12 +122,15 @@ public:
         }
     };
 
+    /**
+     * @brief Bearer authorization.
+     */
     class SP_EXPORT BearerAuthorization : public Authorization
     {
     public:
         /**
-         * Bearer authorization
-         * @param jwtToken      JWT token
+         * @brief Bearer authorization.
+         * @param jwtToken      JWT token.
          */
         explicit BearerAuthorization(const String& jwtToken)
             : Authorization("bearer", "", "", jwtToken)
@@ -133,19 +139,19 @@ public:
     };
 
     /**
-     * @brief Constructor
+     * @brief Constructor.
      *
      * External socket has to be active before HTTP operations.
      * In order to use HTTPS protocol, use COpenSSLSocket.
-     * @param socket            external socket
+     * @param socket            external socket.
      */
-    explicit HttpConnect(TCPSocket& socket);
+    explicit HttpConnect(std::shared_ptr<TCPSocket> socket);
 
     /**
-     * @brief Returns the HTTP request headers
+     * @brief Returns the HTTP request headers.
      *
-     * The HTTP headers request should be set before sending a command to the server
-     * @returns internal http request headers reference
+     * The HTTP headers request should be set before sending a command to the server.
+     * @returns internal http request headers reference.
      */
     HttpHeaders& requestHeaders()
     {
@@ -153,71 +159,71 @@ public:
     }
 
     /**
-     * @brief Returns the HTTP headers
+     * @brief Returns the HTTP headers.
      *
      * The HTTP response headers make sense only after sending a command to the server (if that command calls
-     * getResponse() method internally).
-     * @returns internal http headers reference
+     * the getResponse() method internally).
+     * @returns internal http headers reference.
      */
     [[nodiscard]] const HttpHeaders& responseHeaders() const;
 
     /**
-     * @brief Sends the GET command to the server
+     * @brief Sends the GET command to the server.
      *
-     * Retrieves the server response into internal read buffer.
+     * Retrieves the server response into the internal read buffer.
      * @param pageName          Page URL without the server name.
-     * @param parameters        HTTP request parameters
-     * @param output            Output data
-     * @param authorization     Optional authorization
-     * @param timeout           Response timeout
-     * @return HTTP result code
+     * @param parameters        HTTP request parameters.
+     * @param output            Output data.
+     * @param authorization     Optional authorization.
+     * @param timeout           Response timeout.
+     * @return HTTP result code.
      */
     [[nodiscard]] int cmd_get(const String& pageName, const HttpParams& parameters, Buffer& output,
                               const Authorization*             authorization = nullptr,
                               const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
-     * @brief Sends the POST command to the server
+     * @brief Sends the POST command to the server.
      *
-     * Retrieves the server response into internal read buffer.
+     * Retrieves the server response into the internal read buffer.
      * @param pageName          Page URL without the server name.
-     * @param parameters        HTTP request parameters
-     * @param content           The data to post to the server
-     * @param gzipContent       If true then compress buffer and set HTTP header Content-Encoding
-     * @param output            Output data
-     * @param authorization     Optional authorization
-     * @param timeout           Response timeout
-     * @return HTTP result code
+     * @param parameters        HTTP request parameters.
+     * @param content           The data to post to the server.
+     * @param output            Output data.
+     * @param possibleContentEncodings Possible content encodings.
+     * @param authorization     Optional authorization.
+     * @param timeout           Response timeout.
+     * @return HTTP result code.
      */
     [[nodiscard]] int cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
-                               const sptk::Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
+                               const Strings& possibleContentEncodings, const Authorization* authorization = nullptr,
                                const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
-     * @brief Sends the PUT command to the server
+     * @brief Sends the PUT command to the server.
      *
-     * Retrieves the server response into internal read buffer.
+     * Retrieves the server response into the internal read buffer.
      * @param pageName          Page URL without the server name.
-     * @param parameters        HTTP request parameters
-     * @param content           The data to post to the server
-     * @param output            Output data
-     * @param authorization     Optional authorization
-     * @param timeout           Optional response timeout
-     * @return HTTP result code
+     * @param parameters        HTTP request parameters.
+     * @param content           The data to post to the server.
+     * @param output            Output data.
+     * @param authorization     Optional authorization.
+     * @param timeout           Optional response timeout.
+     * @return HTTP result code.
      */
     [[nodiscard]] int cmd_put(const String& pageName, const HttpParams& parameters, const Buffer& content, Buffer& output,
                               const Authorization*             authorization = nullptr,
                               const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
-      * @brief Sends the DELETE command to the server
+      * @brief Sends the DELETE command to the server.
       *
-      * Retrieves the server response into internal read buffer.
+      * Retrieves the server response into the internal read buffer.
       * @param pageName          Page URL without the server name.
-      * @param parameters        HTTP request parameters
-      * @param output            Output data
-      * @param authorization     Optional authorization
-      * @param timeout           Request timeout
+      * @param parameters        HTTP request parameters.
+      * @param output            Output data.
+      * @param authorization     Optional authorization.
+      * @param timeout           Request timeout.
       * @return HTTP result code
       */
     [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
@@ -225,15 +231,15 @@ public:
                                  const std::chrono::milliseconds& timeout = std::chrono::seconds(60));
 
     /**
-     * @brief Get value of response header
-     * @param headerName        Response header name
-     * @return header value, or empty string if header is not a part of the response
+     * @brief Get value of the response header.
+     * @param headerName        Response header name.
+     * @return header value, or empty string if header is not a part of the response.
      */
     [[nodiscard]] String responseHeader(const String& headerName) const;
 
     /**
-     * @brief Get the request execution status code
-     * @return request execution status code
+     * @brief Get the request execution status code.
+     * @return request execution status code.
      */
     [[nodiscard]] int statusCode() const;
 
@@ -245,52 +251,41 @@ public:
 
 protected:
     /**
-     * Create default headers for HTTP request
+     * @brief Create default headers for HTTP request.
      */
     Strings makeHeaders(const String& httpCommand, const String& pageName, const HttpParams& requestParameters,
                         const Authorization* authorization) const;
 
     /**
-     * @brief Sends a single command to HTTP server
+     * @brief Sends a single command to the HTTP server.
      *
      * CRLF characters are automatically appended to the command.
-     * @param cmd               HTTP command
+     * @param cmd               HTTP command.
      */
     void sendCommand(const String& cmd) const;
 
     /**
-     * @brief Sends a single command to HTTP server
+     * @brief Sends a single command to the HTTP server.
      *
      * CRLF characters are automatically appended to the command.
-     * @param cmd               HTTP command
+     * @param cmd               HTTP command.
      */
     void sendCommand(const Buffer& cmd) const;
 
     /**
-     * @brief Retrieves the server response on the command
+     * @brief Retrieves the server response on the command.
      *
-     * Stops when HTTP server closes the connection. The server response can then be
+     * Stops when the HTTP server closes the connection. The server response can then be
      * accessed through the htmlData() method.
-     * @param timeout           Response timeout
-     * @return HTTP result code
+     * @param timeout           Response timeout.
+     * @return HTTP result code.
      */
     int getResponse(Buffer& output, const std::chrono::milliseconds& timeout);
 
 private:
-    /**
-     * HTTP reader
-     */
-    std::shared_ptr<HttpReader> m_reader;
-
-    /**
-     * External socket
-     */
-    TCPSocket& m_socket;
-
-    /**
-     * HTTP request headers
-     */
-    HttpHeaders m_requestHeaders;
+    std::shared_ptr<HttpReader> m_reader;         ///< HTTP reader.
+    std::shared_ptr<TCPSocket>  m_socket;         ///< External socket.
+    HttpHeaders                 m_requestHeaders; ///< HTTP request headers
 };
 
 /**

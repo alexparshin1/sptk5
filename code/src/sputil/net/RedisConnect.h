@@ -37,13 +37,16 @@ namespace sptk {
 /**
  * @brief Redis Client.
  */
-class RedisConnect
+class SP_EXPORT RedisConnect
 {
 public:
     /**
      * @brief Constructor
      */
-    RedisConnect() = default;
+    RedisConnect()
+        : m_socket(std::make_shared<TCPSocket>())
+    {
+    }
 
     /**
      * @brief Destructor
@@ -80,7 +83,7 @@ public:
     void setBinary(const std::string& key, const Buffer& value);
 
 private:
-    TCPSocket                     m_socket; ///< Underlying socket
+    std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader
 
     /**

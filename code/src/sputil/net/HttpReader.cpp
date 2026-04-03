@@ -29,7 +29,6 @@
 #include "sptk5/net/HttpReader.h"
 #include <sptk5/Brotli.h>
 #include <sptk5/ZLib.h>
-#include <thread>
 
 using namespace std;
 using namespace sptk;
@@ -37,7 +36,7 @@ using namespace sptk;
 static constexpr int             oneKb(1024);
 static constexpr chrono::seconds thirtySeconds(30);
 
-HttpReader::HttpReader(TCPSocket& socket, Buffer& output, const ReadMode readMode)
+HttpReader::HttpReader(const shared_ptr<TCPSocket>& socket, Buffer& output, const ReadMode readMode)
     : SocketReader(socket)
     , m_readMode(readMode)
     , m_output(output)

@@ -73,7 +73,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::addSocket(const Socket& socket, const uint8_t* userData, const bool rearmOneShot)
+void SocketPool::addSocket(SocketType socketFd, const uint8_t* userData, const bool rearmOneShot)
 {
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
@@ -94,25 +94,25 @@ void SocketPool::addSocket(const Socket& socket, const uint8_t* userData, const 
 
     if (m_triggerMode == SocketPoolTriggerMode::OneShot && rearmOneShot)
     {
-        if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socket.fd(), &event) == -1)
+        if (epoll_ctl(m_pool, EPOLL_CTL_MOD, socketFd, &event) == -1)
         {
             processError(errno, "rearm socket in SocketEvents");
         }
     }
     else
     {
-        if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socket.fd(), &event) == -1)
+        if (epoll_ctl(m_pool, EPOLL_CTL_ADD, socketFd, &event) == -1)
         {
             processError(errno, "add socket to SocketEvents");
         }
     }
 }
 
-void SocketPool::removeSocket(Socket& socket) const
+void SocketPool::removeSocket(SocketType socketFd) const
 {
-    if (socket.active())
+    if (socketFd != INVALID_SOCKET)
     {
-        epoll_ctl(m_pool, EPOLL_CTL_DEL, socket.fd(), nullptr);
+        epoll_ctl(m_pool, EPOLL_CTL_DEL, socketFd, nullptr);
     }
 }
 
@@ -136,7 +136,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
             .m_error = (event & EPOLLERR) != 0,
         };
 
-        onEvent(static_cast<const uint8_t*>(data.ptr), eventType);
+        onEvent(static_cast<Socket*>(data.ptr), eventType);
     }
 
     return true;

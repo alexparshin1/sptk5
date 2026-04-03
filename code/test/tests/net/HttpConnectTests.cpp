@@ -41,7 +41,7 @@ TEST(SPTK_HttpConnect, get)
     EXPECT_NO_THROW(socket->open(google));
     EXPECT_TRUE(socket->active());
 
-    HttpConnect http(*socket);
+    HttpConnect http(socket);
     Buffer      output;
 
     try
@@ -82,7 +82,7 @@ TEST(SPTK_HttpConnect, bearerAuthorization_preservesToken)
 TEST(SPTK_HttpConnect, accessorsBeforeAnyRequest_doNotCrash)
 {
     // No connection / no request performed: define expected "safe" behavior.
-    TCPSocket   socket;
+    auto        socket = make_shared<TCPSocket>();
     HttpConnect http(socket);
 
     EXPECT_EQ(0, http.statusCode());

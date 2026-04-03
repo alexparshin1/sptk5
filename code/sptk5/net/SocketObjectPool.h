@@ -43,6 +43,12 @@ using SocketEventCallback = std::function<void(const std::weak_ptr<T>& userData,
 template<typename T>
 class SP_EXPORT SocketObjectPool : public SocketPool
 {
+    struct SocketUserData
+    {
+        std::shared_ptr<Socket> m_socket;
+        std::weak_ptr<T>        m_userData;
+    };
+
 public:
     /**
      * @brief Constructor
@@ -64,14 +70,14 @@ public:
      * @param userData          User data to pass to the callback function
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void add(const Socket& socket, const std::shared_ptr<T>& userData, bool rearmOneShot = false)
+    void add(const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData, bool rearmOneShot = false)
     {
-        if (auto fd = socket.fd();
+        if (auto fd = socket->fd();
             fd != INVALID_SOCKET)
         {
-            addSocket(socket, reinterpret_cast<const uint8_t*>(fd), rearmOneShot);
+            addSocket(socket->fd(), reinterpret_cast<const uint8_t*>(socket.get()), rearmOneShot);
             std::scoped_lock lock(m_mutex);
-            m_objects[fd] = userData;
+            m_objects[socket.get()] = {socket, userData};
         }
     }
 
@@ -79,36 +85,35 @@ public:
      * @brief Remove the socket from the monitored pool
      * @param socket            Socket from this pool
      */
-    void remove(Socket& socket)
+    void remove(const std::shared_ptr<Socket>& socket)
     {
-        if (auto fd = socket.fd();
+        if (auto fd = socket->fd();
             fd != INVALID_SOCKET)
         {
-            removeSocket(socket);
+            removeSocket(socket->fd());
             std::scoped_lock lock(m_mutex);
-            m_objects.erase(fd);
+            m_objects.erase(socket.get());
         }
     }
 
 
 protected:
-    void onEvent(const uint8_t* userData, SocketEventType eventType) override
+    void onEvent(Socket* socket, SocketEventType eventType) override
     {
         if (m_eventsCallback)
         {
-            auto index = static_cast<SocketType>(reinterpret_cast<size_t>(userData));
-            if (auto it = m_objects.find(index);
+            if (auto it = m_objects.find(socket);
                 it != m_objects.end())
             {
-                m_eventsCallback(it->second, eventType);
+                m_eventsCallback(it->second.m_userData, eventType);
             }
         }
     }
 
 private:
-    std::mutex                                       m_mutex;
-    SocketEventCallback<T>                           m_eventsCallback; ///< Sockets event callback function
-    std::unordered_map<SocketType, std::weak_ptr<T>> m_objects;
+    std::mutex                                  m_mutex;
+    SocketEventCallback<T>                      m_eventsCallback; ///< Sockets event callback function
+    std::unordered_map<Socket*, SocketUserData> m_objects;
 };
 
 } // namespace sptk

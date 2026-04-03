@@ -44,16 +44,6 @@ size_t ServerConnection::nextSerial()
     return ++serial;
 }
 
-TCPSocket& ServerConnection::socket() const
-{
-    const scoped_lock lock(m_mutex);
-    if (!m_socket)
-    {
-        throw Exception("Socket isn't open");
-    }
-    return *m_socket;
-}
-
 STCPSocket ServerConnection::getSocket() const
 {
     const scoped_lock lock(m_mutex);

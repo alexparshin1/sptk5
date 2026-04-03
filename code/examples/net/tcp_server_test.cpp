@@ -34,8 +34,8 @@ using namespace sptk;
 
 void processConnection(TCPSocket& server, SocketType clientSocketFD)
 {
-    TCPSocket new_sock;
-    new_sock.attach(clientSocketFD, false);
+    auto new_sock = make_shared<TCPSocket>();
+    new_sock->attach(clientSocketFD, false);
 
     SocketReader socketReader(new_sock);
 
@@ -44,7 +44,7 @@ void processConnection(TCPSocket& server, SocketType clientSocketFD)
         String data;
 
         COUT("Sending:   Test SPTK server 1.00\n");
-        new_sock.write("Test SPTK server 1.00\n");
+        new_sock->write("Test SPTK server 1.00\n");
 
         do
         {
@@ -59,7 +59,7 @@ void processConnection(TCPSocket& server, SocketType clientSocketFD)
         } while (data != "EOD");
 
         COUT("Sending:   confirmation\n");
-        new_sock.write("Data accepted\n");
+        new_sock->write("Data accepted\n");
 
         // End of session
         socketReader.readLine(data);

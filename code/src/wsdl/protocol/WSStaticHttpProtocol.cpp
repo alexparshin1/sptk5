@@ -31,7 +31,7 @@
 using namespace std;
 using namespace sptk;
 
-WSStaticHttpProtocol::WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers,
+WSStaticHttpProtocol::WSStaticHttpProtocol(const shared_ptr<TCPSocket>& socket, const URL& url, const HttpHeaders& headers,
                                            String staticFilesDirectory)
     : WSProtocol(socket, headers)
     , m_url(url)

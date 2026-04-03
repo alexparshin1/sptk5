@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Brotli.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
 
 #include <utility>
@@ -35,7 +34,7 @@ using namespace sptk;
 WSWebServiceProtocol::WSWebServiceProtocol(HttpReader& httpReader, const URL& url, WSServices& services,
                                            Host host, bool allowCORS, bool keepAlive,
                                            bool suppressHttpStatus)
-    : BaseWebServiceProtocol(&httpReader.socket(), httpReader.getHttpHeaders(), services, url)
+    : BaseWebServiceProtocol(httpReader.socket(), httpReader.getHttpHeaders(), services, url)
     , m_httpReader(httpReader)
     , m_host(std::move(host))
     , m_allowCORS(allowCORS)

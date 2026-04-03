@@ -40,7 +40,7 @@ void ImapConnect::getResponse(const String& ident)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
 
-    SocketReader socketReader(*this);
+    SocketReader socketReader(m_socket);
 
     for (;;)
     {
@@ -98,11 +98,11 @@ String ImapConnect::sendCommand(const String& cmd)
     const int       len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
     String          ident(id_str.data(), static_cast<size_t>(len));
     command = ident + cmd + "\n";
-    if (!active())
+    if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
-    write(bit_cast<const uint8_t*>(command.c_str()), static_cast<uint32_t>(command.length()));
+    m_socket->write(bit_cast<const uint8_t*>(command.c_str()), static_cast<uint32_t>(command.length()));
     return ident;
 }
 
@@ -125,10 +125,15 @@ void ImapConnect::command(const String& cmd, const String& arg1, const String& a
     getResponse(ident);
 }
 
+void ImapConnect::close()
+{
+    m_socket->close();
+}
+
 void ImapConnect::cmd_login(const String& user, const String& password)
 {
-    close();
-    open();
+    m_socket->close();
+    m_socket->open();
     m_response.clear();
     getResponse("");
     command("login " + user + " " + password);
@@ -138,11 +143,11 @@ void ImapConnect::cmd_login(const String& user, const String& password)
 
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    const String cmd = "APPEND \"" + mail_box + "\" (\\Seen) {" + int2string(static_cast<uint32_t>(message.bytes())) + "}";
+    const String cmd = "APPEND \"" + mail_box + R"(" (\Seen) {)" + int2string(static_cast<uint32_t>(message.bytes())) + "}";
     const String ident = sendCommand(cmd);
     getResponse(ident);
-    write(message.data(), message.bytes());
-    write((const uint8_t*) "\n", 1);
+    m_socket->write(message.data(), message.bytes());
+    m_socket->write(reinterpret_cast<const uint8_t*>("\n"), 1);
     getResponse(ident);
 }
 
@@ -219,8 +224,7 @@ void parse_header(const String& header, String& header_name, String& header_valu
 
 DateTime decodeDate(const String& dt)
 {
-    array<char, 40> temp {};
-    snprintf(temp.data(), sizeof(temp), "%s", dt.c_str() + 5);
+    auto temp = format("{}", dt.c_str() + 5);
 
     // 1. get the day of the month
     char* p1 = temp.data();
@@ -420,6 +424,16 @@ String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 void ImapConnect::cmd_store_flags(const int32_t msg_id, const char* flags)
 {
     command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
+}
+
+Host ImapConnect::host() const
+{
+    return m_socket->host();
+}
+
+void ImapConnect::host(const Host& host)
+{
+    m_socket->host(host);
 }
 
 namespace {

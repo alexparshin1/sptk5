@@ -36,11 +36,12 @@ int main()
 {
     try
     {
-        TCPSocket    client;
+        auto client = make_shared<TCPSocket>();
+        ;
         SocketReader clientReader(client);
 
-        client.host(Host("localhost", 3000));
-        client.open();
+        client->host(Host("localhost", 3000));
+        client->open();
 
         COUT("Connected\n");
 
@@ -51,16 +52,16 @@ int main()
 
         data = "Several copies of a single string";
         COUT("Sending:   test data\n");
-        client.write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
+        client->write(data + "\n" + data + " " + data + "\n" + data + " " + data + " " + data + " " + data + "\n" + data + " " + data + "\n");
 
         COUT("Sending:   EOD\n");
-        client.write("EOD\n");
+        client->write("EOD\n");
 
         clientReader.readLine(data);
         COUT("Receiving: " << data.c_str());
 
         COUT("Sending:   EOS\n");
-        client.write("EOS\n");
+        client->write("EOS\n");
     }
     catch (const Exception& e)
     {

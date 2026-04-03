@@ -44,8 +44,7 @@ class ThreadManager;
 /**
  * @brief Base thread object.
  *
- * Should be used for deriving a user thread.
- * by overwriting threadFunction().
+ * Should be used for deriving a user thread by overwriting threadFunction().
  */
 class SP_EXPORT Thread
 {
@@ -86,22 +85,9 @@ public:
     bool running() const;
 
     /**
-     * @brief The thread function. Should be overwritten by the derived class.
-     */
-    virtual void threadFunction() = 0;
-
-    /**
      * @brief Requests to terminate the thread.
      */
     virtual void terminate();
-
-    /**
-     * @brief This method is executed immediately after thread function exit.
-     */
-    virtual void onThreadExit()
-    {
-        // Implement in derived class, if needed
-    }
 
     /**
      * @brief Returns true if the thread is terminated.
@@ -109,7 +95,7 @@ public:
     virtual bool terminated();
 
     /**
-     * @brief Waits until thread joins.
+     * @brief Waits until the thread joins.
      */
     virtual void join();
 
@@ -128,6 +114,19 @@ public:
     }
 
 protected:
+    /**
+     * @brief The thread function. Should be overwritten by the derived class.
+     */
+    virtual void threadFunction() = 0;
+
+    /**
+     * @brief This method is executed immediately after thread function exit.
+     */
+    virtual void onThreadExit()
+    {
+        // Implement in derived class, if needed
+    }
+
     void setThreadManager(ThreadManager* threadManager);
 
 private:

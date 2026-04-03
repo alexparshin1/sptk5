@@ -91,7 +91,7 @@ void WSServer::watchConnection(const std::shared_ptr<WSConnection>& connection)
 {
     scoped_lock lock(m_mutex);
     m_connectionMap[connection.get()] = connection;
-    m_socketEvents.add(connection->socket(), connection);
+    m_socketEvents.add(connection->getSocket(), connection);
 }
 
 void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
@@ -99,7 +99,7 @@ void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
     connection->close();
 
     scoped_lock lock(m_mutex);
-    m_socketEvents.remove(connection->socket());
+    m_socketEvents.remove(connection->getSocket());
     m_connectionMap.erase(connection.get());
 }
 
@@ -125,7 +125,7 @@ void WSServer::socketEventCallback(const weak_ptr<WSConnection>& userData, Socke
         connection = connectionIterator->second;
     }
 
-    m_socketEvents.remove(connection->socket());
+    m_socketEvents.remove(connection->getSocket());
 
     if (eventType.m_hangup || eventType.m_error)
     {

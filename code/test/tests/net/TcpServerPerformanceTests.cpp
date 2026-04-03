@@ -67,8 +67,8 @@ void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
         totalTransferredCount++;
         totalTransferred += size + sizeof(size);
         buffer[size] = 0;
-        reader->socket().write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
-        reader->socket().write(buffer, size);
+        reader->socket()->write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
+        reader->socket()->write(buffer, size);
         ++count;
         if (count > 50000)
         {
@@ -79,7 +79,7 @@ void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
 
     if (type.m_hangup)
     {
-        reader->socket().close();
+        reader->socket()->close();
     }
 }
 
@@ -90,24 +90,24 @@ TEST(SPTK_TCPServer, eventPerformance)
     SocketEvents<SocketReader> socketEvents("Test Pool", eventHandler, 1s, SocketPoolTriggerMode::OneShot);
     sharedSocketEvents = &socketEvents;
 
-    TCPSocket clientSocket;
-    auto      clientReader = make_shared<SocketReader>(clientSocket);
+    auto clientSocket = make_shared<TCPSocket>();
+    auto clientReader = make_shared<SocketReader>(clientSocket);
 
     TCPServer tcpServer("Performance Test Server");
     tcpServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
-    tcpServer.onConnection([&socketEvents, &clientSocket, &clientReader](ServerConnection& socket)
+    tcpServer.onConnection([&socketEvents, &clientSocket, &clientReader](const ServerConnection& socket)
                            {
-                               clientSocket.attach(socket.socket().detach(), false);
-                               clientSocket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
-                               clientSocket.blockingMode(false);
+                               clientSocket->attach(socket.getSocket()->detach(), false);
+                               clientSocket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+                               clientSocket->blockingMode(false);
                                socketEvents.add(clientSocket, clientReader);
                            });
 
-    TCPSocket socket;
-    auto      reader = make_shared<SocketReader>(socket);
-    socket.open({"127.0.0.1", testTcpEchoServerPort});
-    socket.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
-    socket.blockingMode(false);
+    auto socket = make_shared<TCPSocket>();
+    auto reader = make_shared<SocketReader>(socket);
+    socket->open({"127.0.0.1", testTcpEchoServerPort});
+    socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+    socket->blockingMode(false);
 
     Stopwatch stopWatch;
     stopWatch.start();
@@ -118,8 +118,8 @@ TEST(SPTK_TCPServer, eventPerformance)
         buffer.append("0123456789ABCDEF0123456789ABCDEF");
     }
     size_t size = buffer.bytes() + 1;
-    socket.write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
-    socket.write(buffer.data(), size);
+    socket->write(reinterpret_cast<uint8_t*>(&size), sizeof(size));
+    socket->write(buffer.data(), size);
     socketEvents.add(socket, reader);
 
     completed.wait();

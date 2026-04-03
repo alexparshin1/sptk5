@@ -30,8 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-SocketReader::SocketReader(TCPSocket& socket, const size_t bufferSize)
-    : m_socket(socket)
+SocketReader::SocketReader(shared_ptr<TCPSocket> socket, const size_t bufferSize)
+    : m_socket(std::move(socket))
     , m_buffer(bufferSize)
 {
 }
@@ -50,7 +50,7 @@ void SocketReader::close()
     {
         m_readOffset = 0;
         m_buffer.bytes(0);
-        m_socket.close();
+        m_socket->close();
     }
     catch (const Exception& e)
     {
@@ -62,7 +62,7 @@ void SocketReader::handleReadFromSocketError(const int error) const
 {
     if (error == EAGAIN)
     {
-        if (!m_socket.readyToRead(chrono::seconds(1)))
+        if (!m_socket->readyToRead(chrono::seconds(1)))
         {
             throw TimeoutException("Can't read from socket: timeout");
         }
@@ -80,11 +80,11 @@ size_t SocketReader::readFromSocket()
     do
     {
         error = 0;
-        const auto receivedBytes = static_cast<int>(m_socket.read(m_buffer.data(), m_buffer.capacity()));
+        const auto receivedBytes = static_cast<int>(m_socket->read(m_buffer.data(), m_buffer.capacity()));
         if (receivedBytes == -1)
         {
             m_buffer.bytes(0);
-            if (m_socket.active())
+            if (m_socket->active())
             {
                 error = getSocketError();
                 handleReadFromSocketError(error);
@@ -117,7 +117,7 @@ void SocketReader::readMoreFromSocket(const size_t availableBytes)
         m_buffer.checkSize(m_buffer.capacity() + readBytesLWM);
     }
 
-    const size_t receivedBytes = m_socket.read(m_buffer.data() + availableBytes, m_buffer.capacity() - availableBytes);
+    const size_t receivedBytes = m_socket->read(m_buffer.data() + availableBytes, m_buffer.capacity() - availableBytes);
     m_buffer.bytes(m_buffer.bytes() + receivedBytes);
 }
 
@@ -128,7 +128,7 @@ size_t SocketReader::bufferedRead(uint8_t* destination, const size_t size)
 
     if (availableBytes == 0)
     {
-        if (!m_socket.active())
+        if (!m_socket->active())
         {
             return 0;
         }
@@ -165,7 +165,7 @@ size_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, c
 
     if (availableBytes == 0)
     {
-        if (!m_socket.active())
+        if (!m_socket->active())
         {
             return 0;
         }
@@ -233,7 +233,7 @@ size_t SocketReader::read(uint8_t* destination, const size_t size)
 {
     scoped_lock const lock(m_mutex);
 
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("Can't read from closed socket");
     }
@@ -264,7 +264,7 @@ size_t SocketReader::availableBytes() const
     auto              available = m_buffer.bytes() - m_readOffset;
     if (available == 0)
     {
-        available = m_socket.socketBytes();
+        available = m_socket->socketBytes();
     }
     return available;
 }
@@ -279,7 +279,7 @@ size_t SocketReader::availableBytes() const
         return true;
     }
 
-    return available + m_socket.socketBytes() >= bytesToRead;
+    return available + m_socket->socketBytes() >= bytesToRead;
 }
 
 bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
@@ -292,7 +292,7 @@ bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
         return true;
     }
 
-    return m_socket.readyToRead(timeout);
+    return m_socket->readyToRead(timeout);
 }
 
 size_t SocketReader::read(Buffer& destinationBuffer, const size_t size)
@@ -307,7 +307,7 @@ size_t SocketReader::readLine(uint8_t* destination, const size_t size, const cha
 {
     scoped_lock const lock(m_mutex);
 
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("Can't read from closed socket");
     }
@@ -345,7 +345,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
     size_t            total = 0;
     bool              endOfLine = false;
 
-    if (!m_socket.active())
+    if (!m_socket->active())
     {
         throw Exception("Can't read from closed socket");
     }
@@ -389,7 +389,7 @@ size_t SocketReader::readLine(String& destinationBuffer, const char delimiter)
     return bytes;
 }
 
-TCPSocket& SocketReader::socket() const
+shared_ptr<TCPSocket> SocketReader::socket() const
 {
     return m_socket;
 }

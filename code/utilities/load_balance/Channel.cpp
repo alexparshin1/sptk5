@@ -42,8 +42,8 @@ void Channel::open(const SocketType sourceFD, const String& interfaceAddress, co
     m_destination->bind(interfaceAddress.c_str(), 0);
     m_destination->open(destination, Socket::OpenMode::CONNECT, false, chrono::seconds(60));
 
-    m_sourceEvents.add(*m_source, shared_from_this());
-    m_destinationEvents.add(*m_destination, shared_from_this());
+    m_sourceEvents.add(m_source, shared_from_this());
+    m_destinationEvents.add(m_destination, shared_from_this());
 }
 
 void Channel::close()
@@ -52,13 +52,13 @@ void Channel::close()
 
     if (m_source->active())
     {
-        m_sourceEvents.remove(*m_source);
+        m_sourceEvents.remove(m_source);
         m_source->close();
     }
 
     if (m_destination->active())
     {
-        m_destinationEvents.remove(*m_destination);
+        m_destinationEvents.remove(m_destination);
         m_destination->close();
     }
 }

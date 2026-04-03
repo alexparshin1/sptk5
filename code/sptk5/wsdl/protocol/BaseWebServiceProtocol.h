@@ -41,7 +41,7 @@ class BaseWebServiceProtocol
     static xdoc::SNode getFirstChildElement(const xdoc::SNode& element);
 
 public:
-    BaseWebServiceProtocol(TCPSocket* socket, const HttpHeaders& headers, WSServices& services, const URL& url);
+    BaseWebServiceProtocol(const std::shared_ptr<TCPSocket>& socket, const HttpHeaders& headers, WSServices& services, const URL& url);
 
 protected:
     WSServices& m_services;

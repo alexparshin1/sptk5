@@ -282,7 +282,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
             client->host(Host("localhost", testListener->servicePort));
             client->open();
 
-            HttpConnect      httpClient(*client);
+            HttpConnect      httpClient(client);
             const HttpParams httpParams {{"action", "view"}};
             Buffer           requestResponse;
             httpClient.requestHeaders()["Content-Type"] = "application/" + serviceType;

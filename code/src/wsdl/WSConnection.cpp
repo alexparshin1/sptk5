@@ -77,7 +77,7 @@ void printMessage(stringstream& logMessage, const String& prefix, const RequestI
 }
 } // namespace
 
-void WSConnection::processSingleConnection()
+void WSConnection::processSingleConnection() const
 {
     auto logDebugMessages = m_logger.destination().minPriority() == LogPriority::Debug;
     if (logDebugMessages)
@@ -86,8 +86,8 @@ void WSConnection::processSingleConnection()
     }
 
     if (constexpr chrono::seconds readTimeout30sec(30);
-        !socket().readyToRead(readTimeout30sec) // Client communication timeout
-        || socket().socketBytes() == 0)         // Client closed connection
+        !getSocket()->readyToRead(readTimeout30sec) // Client communication timeout
+        || getSocket()->socketBytes() == 0)         // Client closed connection
     {
         return;
     }
@@ -96,7 +96,7 @@ void WSConnection::processSingleConnection()
     requestStopwatch.start();
 
     Buffer     contentBuffer;
-    HttpReader httpReader(socket(), contentBuffer, HttpReader::ReadMode::REQUEST);
+    HttpReader httpReader(getSocket(), contentBuffer, HttpReader::ReadMode::REQUEST);
 
     String protocolName = "http";
     httpReader.readHttpHeaders();
@@ -135,7 +135,7 @@ void WSConnection::processSingleConnection()
 
     if (protocolName == "websocket")
     {
-        WSWebSocketsProtocol protocol(&socket(), headers);
+        WSWebSocketsProtocol protocol(getSocket(), headers);
         protocol.process();
         processed = true;
     }
@@ -177,7 +177,7 @@ void WSConnection::processSingleConnection()
 
 void WSConnection::run()
 {
-    if (socket().active())
+    if (getSocket()->active())
     {
         try
         {
@@ -185,14 +185,14 @@ void WSConnection::run()
         }
         catch (const Exception& e)
         {
-            if (!terminated() && socket().active())
+            if (!terminated() && getSocket()->active())
             {
                 m_logger.error("Error in incoming connection: " + String(e.what()));
             }
         }
         catch (...)
         {
-            if (!terminated() && socket().active())
+            if (!terminated() && getSocket()->active())
             {
                 m_logger.error("Unknown error in incoming connection.");
             }
@@ -300,7 +300,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
         const auto upgrade = it == headers.end() ? "" : it->second;
         if (upgrade.toLowerCase() == "websocket")
         {
-            WSWebSocketsProtocol protocol(&socket(), headers);
+            WSWebSocketsProtocol protocol(getSocket(), headers);
             protocol.process();
             processed = true;
         }
@@ -311,7 +311,7 @@ bool WSConnection::handleHttpProtocol(const String& requestType, URL& url, Strin
                 url.path(m_options.paths.htmlIndexPage);
             }
 
-            WSStaticHttpProtocol protocol(&socket(), url, headers, m_options.paths.staticFilesDirectory);
+            WSStaticHttpProtocol protocol(getSocket(), url, headers, m_options.paths.staticFilesDirectory);
             protocol.process();
             processed = true;
         }
@@ -353,7 +353,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     response.append("Access-Control-Max-Age: 86400\r\n");
 
     response.append("\r\n", 2);
-    socket().write(response);
+    getSocket()->write(response);
 }
 
 WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
@@ -372,7 +372,7 @@ WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket,
     {
         setSocket(make_shared<TCPSocket>());
     }
-    socket().attach(connectionSocket, true);
+    getSocket()->attach(connectionSocket, true);
 }
 
 [[maybe_unused]] bool WSConnection::isHangup() const

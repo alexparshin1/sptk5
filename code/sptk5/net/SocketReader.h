@@ -48,7 +48,7 @@ public:
      * @param socket            Socket to work with.
      * @param bufferSize        The desirable size of the internal buffer.
      */
-    explicit SocketReader(TCPSocket& socket, size_t bufferSize = 16384);
+    explicit SocketReader(std::shared_ptr<TCPSocket> socket, size_t bufferSize = 16384);
 
     /**
      * @brief Destructor.
@@ -130,7 +130,7 @@ public:
     /**
      * @brief Return reader's socket.
      */
-    [[nodiscard]] TCPSocket& socket() const;
+    [[nodiscard]] std::shared_ptr<TCPSocket> socket() const;
 
     /**
      *
@@ -139,7 +139,7 @@ public:
     [[nodiscard]] bool active() const
     {
         std::scoped_lock const lock(m_mutex);
-        return m_socket.active();
+        return m_socket->active();
     }
 
     /**
@@ -152,10 +152,10 @@ public:
     [[nodiscard]] size_t readLine(uint8_t* destination, size_t size, char delimiter);
 
 private:
-    mutable std::mutex m_mutex;          ///< Mutex protecting read operations.
-    TCPSocket&         m_socket;         ///< Socket to read from.
-    size_t             m_readOffset {0}; ///< Current offset in the read buffer.
-    Buffer             m_buffer;         ///< Read buffer
+    mutable std::mutex         m_mutex;          ///< Mutex protecting read operations.
+    std::shared_ptr<TCPSocket> m_socket;         ///< Socket to read from.
+    size_t                     m_readOffset {0}; ///< Current offset in the read buffer.
+    Buffer                     m_buffer;         ///< Read buffer
 
     [[nodiscard]] size_t readFromSocket();
 

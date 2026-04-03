@@ -94,14 +94,13 @@ private:
 class SP_EXPORT WSWebSocketsProtocol : public WSProtocol
 {
 public:
-    /// Constructor
-    /// @param socket TCPSocket*, Connection socket
-    /// @param headers const std::map<String,String>&, Connection HTTP headers
-    WSWebSocketsProtocol(TCPSocket* socket, const HttpHeaders& headers);
+    /// @brief Constructor.
+    /// @param socket TCPSocket*, Connection socket.
+    /// @param headers HTTP headers.
+    WSWebSocketsProtocol(const std::shared_ptr<TCPSocket>& socket, const HttpHeaders& headers);
 
-    /// Process method
-    ///
-    /// Implements WebSockets session
+    /// @brief Process method.
+    /// Implements WebSockets session.
     RequestInfo process() override;
 
     void replyCloseConnectionRequest(uint16_t statusCode, const String& closeReason);

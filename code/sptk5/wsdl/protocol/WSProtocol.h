@@ -28,67 +28,66 @@
 
 #include <sptk5/cnet>
 #include <sptk5/net/RequestInfo.h>
-#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 
-/// Abstract base class for different protocols used in Web Service servers
+/// @brief Abstract base class for different protocols used in Web Service servers.
 class WSProtocol
 {
 public:
-    /// Constructor
+    /// @brief Constructor.
     /// Note: the socket is not owned by this class and not discarded by destructor.
-    /// @param socket           Connection socket
-    /// @param headers          Connection HTTP headers
-    WSProtocol(TCPSocket* socket, const HttpHeaders& headers)
-        : m_socket(socket)
+    /// @param socket           Connection socket.
+    /// @param headers          Connection HTTP headers.
+    WSProtocol(std::shared_ptr<TCPSocket> socket, const HttpHeaders& headers)
+        : m_socket(std::move(socket))
         , m_headers(headers)
     {
     }
 
     WSProtocol(const WSProtocol&) = delete;
 
-    /// Destructor
+    /// @brief Destructor.
     ///
-    /// Closes connection
+    /// Closes connection.
     virtual ~WSProtocol() = default;
 
     WSProtocol& operator=(const WSProtocol&) = delete;
 
-    /// Process virtual method - to be implemented in derived classes
+    /// Process virtual method - to be implemented in derived classes.
     virtual RequestInfo process() = 0;
 
 protected:
     /**
-         * Connection socket
-         * @return Connection socket
-         */
+     * @brief Connection socket.
+     * @return Connection socket.
+     */
     TCPSocket& socket()
     {
         return *m_socket;
     }
 
     /**
-         * Connection HTTP headers
-         * @return Connection HTTP headers
-         */
+     * @brief Connection HTTP headers.
+     * @return Connection HTTP headers
+     */
     HttpHeaders& headers()
     {
         return m_headers;
     }
 
     /**
-         * Connection HTTP headers
-         * @return Connection HTTP headers
-         */
+     * @brief Connection HTTP headers.
+     * @return Connection HTTP headers.
+     */
     String header(const String& name);
 
 private:
-    TCPSocket*  m_socket;  ///< Connection socket
-    HttpHeaders m_headers; ///< Connection HTTP headers
+    std::shared_ptr<TCPSocket> m_socket;  ///< Connection socket.
+    HttpHeaders                m_headers; ///< Connection HTTP headers.
 };
 
 /// @}

@@ -87,7 +87,7 @@ void stub()
     const FieldList         fieldList(false);
     const Variant           variant;
 
-    SSLSocket         socket;
+    auto              socket = make_shared<SSLSocket>();
     const HttpConnect connect(socket);
 
     const string text("The quick brown fox jumps over the lazy dog.ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -111,7 +111,7 @@ void stub()
 
 TestRunner::TestRunner(int& argc, char**& argv)
     : m_argc(argc)
-      , m_argv(argv)
+    , m_argv(argv)
 {
 }
 

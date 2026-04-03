@@ -46,7 +46,7 @@ namespace sptk {
  * It implements the most popular commands of IMAP protocol to build
  * a simple IMAP client.
  */
-class SP_EXPORT ImapConnect : public TCPSocket
+class SP_EXPORT ImapConnect
 {
 public:
     /**
@@ -64,7 +64,12 @@ public:
     void command(const String& cmd, const String& arg1 = "", const String& arg2 = "");
 
     /**
-     * Returns reference to a last command response.
+     * @brief Close socket connection.
+     */
+    void close();
+
+    /**
+     * @brief Returns reference to the last command response.
      */
     const Strings& response() const
     {
@@ -241,6 +246,17 @@ public:
      */
     void cmd_store_flags(int32_t msg_id, const char* flags);
 
+    /**
+     * @brief Get IMAP host.
+     */
+    Host host() const;
+
+    /**
+     * @brief Set IMAP host.
+     */
+    void host(const Host& host);
+
+
 protected:
     /**
      * Sends a command to the server, but doesn't retrieve the server response
@@ -252,7 +268,7 @@ protected:
     String sendCommand(const String& cmd);
 
     /**
-     * Gets a response from the server for a previously sent command, identified by the ident
+     * @brief Gets a response from the server for a previously sent command, identified by the ident.
      * @param ident std::string, the command identifier returned by prior sendCommand().
      */
     void getResponse(const String& ident);
@@ -264,23 +280,23 @@ protected:
     void parseSearch(String& result) const;
 
     /**
-     * Parses server response as a message data (after the appropriate command) to the set of fields
+     * @brief Parses server response as a message data (after the appropriate command) to the set of fields.
      * @param result CFieldList, the set of fields with the message information.
-     * @param headersOnly bool, true if we don't want to retrieve message body.
+     * @param headersOnly bool, true if we don't want to retrieve the message body.
      */
     void parseMessage(FieldList& result, bool headersOnly);
 
     /**
-     * Parses server response as a folder list (after the appropriate command), and converts the response to it
-     *
+     * @brief Parses server response as a folder list (after the appropriate command) and converts the response to it.
      * As a result, the response contains the plain list of folders.
      */
     void parseFolderList();
 
 private:
-    Strings             m_response;   ///< Internal response buffer
-    int32_t             m_ident {1};  ///< Message id
-    static const String empty_quotes; ///< Empty quotes string
+    Strings                    m_response;   ///< Internal response buffer.
+    int32_t                    m_ident {1};  ///< Message id.
+    std::shared_ptr<TCPSocket> m_socket;     ///< Connection socket.
+    static const String        empty_quotes; ///< Empty quotes string.
 };
 
 /**

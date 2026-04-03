@@ -37,18 +37,18 @@ namespace sptk {
 
 /// @brief Handler for static files (.html, .js, .png, etc)
 ///
-/// Session disconnects as soon as file is served.
+/// Session disconnects as soon as the file is served.
 class SP_EXPORT WSStaticHttpProtocol : public WSProtocol
 {
-    URL    m_url;                  ///< File URL
-    String m_staticFilesDirectory; ///< Directory where static files reside on the server
+    URL    m_url;                  ///< File URL.
+    String m_staticFilesDirectory; ///< Directory where static files reside on the server.
 public:
-    /// @brief Constructor
-    /// @param socket           Connection socket
-    /// @param url              Resource URL
-    /// @param headers          Connection HTTP headers
-    /// @param staticFilesDirectory String, Directory where static files reside on the server
-    WSStaticHttpProtocol(TCPSocket* socket, const URL& url, const HttpHeaders& headers, String staticFilesDirectory);
+    /// @brief Constructor.
+    /// @param socket           Connection socket.
+    /// @param url              Resource URL.
+    /// @param headers          Connection HTTP headers.
+    /// @param staticFilesDirectory String, Directory where static files reside on the server.
+    WSStaticHttpProtocol(const std::shared_ptr<TCPSocket>& socket, const URL& url, const HttpHeaders& headers, String staticFilesDirectory);
 
     /// @brief Process method
     ///

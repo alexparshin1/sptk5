@@ -91,7 +91,7 @@ public:
      * @param socket            Socket to read from
      * @param output            Output data buffer
      */
-    HttpReader(TCPSocket& socket, Buffer& output, ReadMode readMode);
+    HttpReader(const std::shared_ptr<TCPSocket>& socket, Buffer& output, ReadMode readMode);
 
     /**
      * Get output buffer

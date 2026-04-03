@@ -57,7 +57,7 @@ public:
     virtual ~BaseMailConnect() = default;
 
     /**
-     * Method from() returns the current value of 'FROM:' field of e-mail message.
+     * Method from() returns the current value of the 'FROM:' field of the e-mail message.
      * @returns a single e-mail address.
      */
     String from() const noexcept
@@ -66,9 +66,8 @@ public:
     }
 
     /**
-     * Method from() sets the current value of 'FROM:' field
-     * of e-mail message.
-     * @param addr should be an e-mail address in format:
+     * @brief Method from() sets the current value of the 'FROM:' field of the e-mail message.
+     * @param addr E-mail address in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
     void from(const String& addr)
@@ -77,8 +76,7 @@ public:
     }
 
     /**
-     * Method to() returns the current value of 'TO:' field
-     * of e-mail message
+     * @brief Method to() returns the current value of the 'TO:' field of the e-mail message.
      */
     String to() const noexcept
     {
@@ -86,10 +84,9 @@ public:
     }
 
     /**
-     * Method from() sets the current value of 'TO:' field
-     * of e-mail message.
-     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     * @brief Method to() sets the current value of the 'TO:' field of the e-mail message.
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void to(const String& addr)
     {
@@ -97,9 +94,8 @@ public:
     }
 
     /**
-     * Method cc() returns the current value of 'CC:' field
-     * of e-mail message
-     * @returns a list of e-mail addresses. See method to() description for format
+     * @brief Method cc() returns the current value of the 'CC:' field of the e-mail message.
+     * @returns List of e-mail addresses. See method to() description for format
      */
     String cc() const noexcept
     {
@@ -107,10 +103,9 @@ public:
     }
 
     /**
-     * Method cc() sets the current value of 'CC:' field
-     * of e-mail message.
-     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
-     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     * @brief Method cc() sets the current value of the 'CC:' field of the e-mail message.
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void cc(const String& addr)
     {
@@ -118,9 +113,8 @@ public:
     }
 
     /**
-     * Method bcc() returns the current value of 'BCC:' field
-     * of e-mail message.
-     * @returns a list of e-mail addresses. See method to() description for format
+     * @brief Method bcc() returns the current value of the 'BCC:' field of the e-mail message.
+     * @returns List of e-mail addresses. See the to() method description for the format.
      */
     String bcc() const noexcept
     {
@@ -128,8 +122,8 @@ public:
     }
 
     /**
-     * Method bcc() sets the current value of 'BCC:' field of e-mail message.
-     * @param addr should be a semicolon-separated list of one or more e-mail addresses in format:
+     * @brief Method bcc() sets the current value of the 'BCC:' field of the e-mail message.
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
      */
     void bcc(const String& addr)
@@ -138,7 +132,7 @@ public:
     }
 
     /**
-     * Method subject() returns the current value of 'SUBJECT:' field of e-mail message.
+     * @brief Method subject() returns the current value of the 'SUBJECT:' field of the e-mail message.
      * @returns current message subject
      */
     String subject() const noexcept
@@ -147,7 +141,7 @@ public:
     }
 
     /**
-     * Method subject() sets the current value of 'BCC:' field of e-mail message.
+     * @brief Method subject() sets the current value of the 'BCC:' field of the e-mail message.
      * @param subj A message subject
      */
     void subject(const String& subj)
@@ -156,7 +150,7 @@ public:
     }
 
     /**
-     * Method subject() returns the current plain text part of e-mail message.
+     * @brief Method body() returns the current plain text part of the e-mail message.
      * @returns current message plain-text part
      */
     String body() const noexcept
@@ -165,7 +159,7 @@ public:
     }
 
     /**
-     * @brief Sets the current plain text part of e-mail message.
+     * @brief Sets the current plain text part of the e-mail message.
      * @param body              Message body
      * @param smtp              Do we need special pre-processing for SMTP?
      */
@@ -175,8 +169,8 @@ public:
     }
 
     /**
-     * Method attachments() returns the current semicolon-separated
-     * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
+     * @brief Method attachments() returns the current semicolon-separated list of attachments of the e-mail message.
+     * Example: "readme.txt;readme.doc".
      * @returns current message list of attachments
      */
     String attachments() const noexcept
@@ -185,8 +179,8 @@ public:
     }
 
     /**
-     * Method attachments() sets the current semicolon-separated
-     * list of attachments of e-mail message. Example: "readme.txt;readme.doc".
+     * @brief Method attachments() sets the current semicolon-separated list of attachments of the e-mail message.
+     * Example: "readme.txt;readme.doc".
      * @param attachments current message list of attachments
      */
     void attachments(const String& attachments)
@@ -195,9 +189,9 @@ public:
     }
 
     /**
-     * Method messageBuffer() returns the reference to the internal current message text completely
+     * @brief Method messageBuffer() returns the reference to the internal current message text completely
      * prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
-     * @returns reference to current message text
+     * @returns reference to the current message text.
      */
     const Buffer& messageBuffer() const noexcept
     {
@@ -205,32 +199,32 @@ public:
     }
 
     /**
-     * Method mimeMessage() encodes the message components into RFC-822 message format.
-     * @param buffer A buffer to put the encoded RFC-822 format message
+     * @brief Method mimeMessage() encodes the message components into RFC-822 message format.
+     * @param buffer A buffer to put the encoded RFC-822 format message.
      */
     void mimeMessage(Buffer& buffer);
 
+protected:
     /**
-     * Method sendMessage() builds an RFC-822 format message out of message parameters,
-     * and sends it. Should be implemented in derived classes.
+     * @brief Method sendMessage() builds an RFC-822 format message out of message parameters and sends it.
+     * Should be implemented in derived classes.
      */
     virtual void sendMessage() = 0;
 
-protected:
     /**
-     * Encoding the message into internal message buffer
+     * @brief Encoding the message into the internal message buffer.
      */
     static void mimeFile(const String& fileName, const String& fileAlias, std::stringstream& message);
 
 private:
-    String          m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>"
-    String          m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String          m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String          m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>"
-    String          m_subject;       ///< Mail SUBJECT:
-    MailMessageBody m_body;          ///< Mail text (plain-text and html parts of the message)
-    String          m_attachments;   ///< The list of attachment files separated with ';'
-    Buffer          m_messageBuffer; ///< Internal message buffer
+    String          m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>".
+    String          m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
+    String          m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
+    String          m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
+    String          m_subject;       ///< Mail SUBJECT.
+    MailMessageBody m_body;          ///< Mail text (plain-text and HTML parts of the message).
+    String          m_attachments;   ///< The list of attachment files separated with ';'.
+    Buffer          m_messageBuffer; ///< Internal message buffer.
 };
 /**
  * @}
