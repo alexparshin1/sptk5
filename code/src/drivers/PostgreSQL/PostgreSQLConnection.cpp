@@ -1169,11 +1169,6 @@ String PostgreSQLConnection::driverDescription() const
     return "PostgreSQL";
 }
 
-String PostgreSQLConnection::paramMark(unsigned paramIndex)
-{
-    return "$" + to_string(paramIndex + 1);
-}
-
 void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
 {
     const Strings statements = extractStatements(batchSQL);

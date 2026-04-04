@@ -37,6 +37,7 @@
 #include <sptk5/FieldList.h>
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/QueryParameterList.h>
+#include <utility>
 
 namespace sptk {
 
@@ -206,6 +207,11 @@ protected:
     void setSQL(const String& sql)
     {
         m_sql = sql;
+    }
+
+    void setSQL(String&& sql)
+    {
+        m_sql = std::move(sql);
     }
 
     /**
@@ -547,7 +553,7 @@ private:
 
     const char* readParameter(String& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
 
-    bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError,
+    bool skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, const char*& parseError,
                              bool isPostgreSQL) const;
 };
 

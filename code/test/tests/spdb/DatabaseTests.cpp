@@ -151,6 +151,46 @@ tuple<DateTime, DateTime> DatabaseTests::testCurrentTimestamp(const DatabaseConn
     return {dbTime, DateTime::Now()};
 }
 
+void DatabaseTests::testSqlParserPerformance(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+
+    databaseConnection->open();
+
+    // Create a very long SQL statement:
+    stringstream sql;
+
+    sql << "INSERT INTO table_name (column1, column2, column3, column4) ";
+    for (int row = 0; row < 1024; row++)
+    {
+        if (row > 0)
+        {
+            sql << ", ";
+        }
+        sql << " VALUES (";
+        for (int col = 0; col < 4; col++)
+        {
+            if (col > 0)
+            {
+                sql << ", ";
+            }
+            sql << ":value" << row * 4 + col;
+        }
+        sql << ")";
+    }
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+    constexpr int iterations = 128;
+    for (int row = 0; row < iterations; row++)
+    {
+        Query query(databaseConnection, sql.str());
+    }
+    stopwatch.stop();
+    COUT(format("SQL parser performance: {:0.2f} K/s", iterations / stopwatch.milliseconds()));
+}
+
 void DatabaseTests::testDDL(const DatabaseConnectionString& connectionString)
 {
     DatabaseConnectionPool   connectionPool(connectionString.toString());

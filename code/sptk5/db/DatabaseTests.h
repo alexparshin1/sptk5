@@ -81,6 +81,12 @@ public:
     static std::tuple<DateTime, DateTime> testCurrentTimestamp(const DatabaseConnectionString& connectionString);
 
     /**
+     * @brief Test SQL parser performance.
+     * @param connectionString Database connection string.
+     */
+    static void testSqlParserPerformance(const DatabaseConnectionString& connectionString);
+
+    /**
      * @brief Test SELECT statements.
      * @param connectionString Database connection string.
      */

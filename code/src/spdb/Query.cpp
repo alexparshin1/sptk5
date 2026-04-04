@@ -25,6 +25,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <algorithm>
 #include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/db/Query.h>
@@ -163,7 +164,7 @@ Query::~Query()
     }
 }
 
-bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, String& parseError,
+bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, String& sql, const char*& parseError,
                                 const bool isPostgreSQL) const
 {
     // Looking up for SQL parameters
@@ -188,7 +189,7 @@ bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, 
         }
         else
         {
-            sql += string(paramEnd, nextQuote - paramEnd + 1);
+            sql.append(paramEnd, static_cast<size_t>(nextQuote - paramEnd + 1));
             paramEnd = nextQuote + 1;
         }
     }
@@ -203,7 +204,7 @@ bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, 
         }
         else
         {
-            sql += string(paramEnd, endOfRow - paramEnd + 1);
+            sql.append(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 1));
             paramEnd = endOfRow + 1;
         }
     }
@@ -218,7 +219,7 @@ bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, 
         }
         else
         {
-            sql += string(paramEnd, endOfRow - paramEnd + 2);
+            sql.append(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 2));
             paramEnd = endOfRow + 2;
         }
     }
@@ -242,26 +243,26 @@ bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, 
             }
             else
             {
-                sql += string(paramEnd, quoteEnd - paramEnd + quoteTag.length());
+                sql.append(paramEnd, static_cast<size_t>(quoteEnd - paramEnd + quoteTag.length()));
                 paramEnd = quoteEnd + quoteTag.length();
             }
         }
         else
         {
             // Just a '$' character, not a dollar-quoted string.
-            sql += string(paramEnd, paramStart - paramEnd + 1);
+            sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd + 1));
             paramEnd = paramStart + 1;
         }
     }
     else if (paramStart[1] == ':' || paramStart[1] == '=')
     {
         // Started PostgreSQL type qualifier '::' or assignment ':='
-        sql += string(paramEnd, paramStart - paramEnd + 2);
+        sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd + 2));
         paramEnd = paramStart + 2;
     }
     else
     {
-        sql += string(paramEnd, paramStart - paramEnd);
+        sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd));
         rc = true;
     }
 
@@ -273,7 +274,7 @@ bool Query::skipToNextParameter(const char*& paramStart, const char*& paramEnd, 
     paramEnd = paramStart + 1;
     if (*paramStart != ':')
     {
-        sql += *paramStart;
+        sql.push_back(*paramStart);
         rc = false;
     }
 
@@ -301,12 +302,12 @@ void Query::sql(const String& _sql)
         throw DatabaseException("Query isn't connected to the database");
     }
 
-    const String sql = parseParameters(_sql);
+    String sql = parseParameters(_sql);
 
     if (getSQL() != sql)
     {
         closeQuery(true);
-        setSQL(sql);
+        setSQL(std::move(sql));
         m_fields.clear();
     }
 }
@@ -329,7 +330,7 @@ const char* Query::readParameter(String& sql, int& paramNumber, const char* para
         if (*paramEnd == '.')
         {
             // Oracle ':new.' or ':old.'
-            sql += string(paramStart, paramEnd - paramStart + 1);
+            sql.append(paramStart, static_cast<size_t>(paramEnd - paramStart + 1));
             ++paramEnd;
             return paramEnd;
         }
@@ -342,6 +343,7 @@ const char* Query::readParameter(String& sql, int& paramNumber, const char* para
 
 String Query::parseParameters(const String& _sql)
 {
+    const auto sqlLength = _sql.length();
     if (_sql.find(':') == String::npos)
     {
         m_params.clear();
@@ -352,19 +354,27 @@ String Query::parseParameters(const String& _sql)
     const char* paramEnd = _sql.c_str();
 
     m_params.clear();
+    if (sqlLength > 64)
+    {
+        const auto paramEstimate = static_cast<size_t>(std::count(_sql.begin(), _sql.end(), ':'));
+        if (paramEstimate != 0)
+        {
+            m_params.reserve(paramEstimate);
+        }
+    }
     String sql;
-    sql.reserve(_sql.length());
-    String parseError;
-    const auto isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
+    sql.reserve(sqlLength);
+    const char* parseError = nullptr;
+    const auto  isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
 
     int paramNumber = 0;
     for (;;)
     {
         if (!skipToNextParameter(paramStart, paramEnd, sql, parseError, isPostgreSQL))
         {
-            if (!parseError.empty())
+            if (parseError != nullptr)
             {
-                throw DatabaseException("SQL parse error: " + parseError, source_location::current(), _sql);
+                throw DatabaseException(String("SQL parse error: ") + parseError, source_location::current(), _sql);
             }
             if (paramStart == nullptr || paramEnd == nullptr)
             {
@@ -378,7 +388,7 @@ String Query::parseParameters(const String& _sql)
 
     if (paramEnd != nullptr)
     {
-        sql += paramEnd;
+        sql.append(paramEnd);
     }
     return sql;
 }

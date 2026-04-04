@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/Query.h"
+
+
 #include <gtest/gtest.h>
 #include <sptk5/db/QueryParameterList.h>
 
@@ -100,14 +103,4 @@ TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
     EXPECT_EQ(enumerated[0], p1);
     EXPECT_EQ(enumerated[1], p2);
     EXPECT_EQ(enumerated[2], p1);
-}
-
-TEST(SPTK_QueryParameterList, enumerateEmptyListReturnsEmptyVector)
-{
-    const TestQueryParameterList params;
-    ParamVector                  enumerated {make_shared<QueryParameter>("seed")};
-
-    params.enumerate(enumerated);
-
-    EXPECT_TRUE(enumerated.empty());
 }

@@ -38,6 +38,11 @@ void QueryParameterList::clear()
     m_index.clear();
 }
 
+void QueryParameterList::reserve(const size_t count)
+{
+    m_items.reserve(count);
+}
+
 void QueryParameterList::add(const SQueryParameter& item)
 {
     m_items.push_back(item);
@@ -46,7 +51,7 @@ void QueryParameterList::add(const SQueryParameter& item)
 
 SQueryParameter QueryParameterList::find(const String& paramName)
 {
-    const auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName.toLowerCase());
 
     if (itor == m_index.end())
     {
@@ -58,7 +63,7 @@ SQueryParameter QueryParameterList::find(const String& paramName)
 
 QueryParameter& QueryParameterList::operator[](const String& paramName) const
 {
-    const auto itor = m_index.find(paramName);
+    const auto itor = m_index.find(paramName.toLowerCase());
 
     if (itor == m_index.end())
     {

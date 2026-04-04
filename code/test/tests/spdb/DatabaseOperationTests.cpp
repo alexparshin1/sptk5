@@ -81,6 +81,25 @@ void testCurrentTimestamp(const String& dbName)
     }
 }
 
+void testSqlParserPerformance(const String& dbName)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
+
+    if (connectionString.empty())
+    {
+        FAIL() << dbName << " connection is not defined";
+    }
+
+    try
+    {
+        DatabaseTests::testSqlParserPerformance(connectionString);
+    }
+    catch (const Exception& e)
+    {
+        FAIL() << connectionString.toString(false) << ": " << e.what();
+    }
+}
+
 void testDDL(const String& dbName)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString(dbName.toLowerCase());
@@ -311,6 +330,11 @@ TEST(SPTK_PostgreSQLConnection, connect)
 TEST(SPTK_PostgreSQLConnection, currentTimestamp)
 {
     testCurrentTimestamp("PostgreSQL");
+}
+
+TEST(SPTK_PostgreSQLConnection, sqlParserPerformance)
+{
+    testSqlParserPerformance("PostgreSQL");
 }
 
 TEST(SPTK_PostgreSQLConnection, DDL)

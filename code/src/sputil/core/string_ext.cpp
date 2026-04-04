@@ -51,9 +51,11 @@ String sptk::lowerCase(const String& str)
     string     result;
     result.resize(len);
 
-    for (uint32_t i = 0; i < len; ++i)
+    auto* resultPtr = result.data();
+    for (auto& ch: str)
     {
-        result[i] = static_cast<char>(tolower(str[i]));
+        *resultPtr = static_cast<char>(tolower(ch));
+        ++resultPtr;
     }
 
     return result;

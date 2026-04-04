@@ -153,10 +153,11 @@ protected:
      * @brief Adds a parameter to the list.
      */
     void add(const SQueryParameter& item);
+    void reserve(size_t count);
 
 private:
-    ParamVector                                            m_items; ///< The list of parameters.
-    std::map<String, SQueryParameter, CaseInsensitiveCompare> m_index; ///< The parameters index.
+    ParamVector                                      m_items; ///< The list of parameters.
+    std::unordered_map<std::string, SQueryParameter> m_index; ///< The parameters index.
 };
 
 /**
