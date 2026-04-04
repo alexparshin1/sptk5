@@ -182,7 +182,7 @@ void DatabaseTests::testSqlParserPerformance(const DatabaseConnectionString& con
 
     Stopwatch stopwatch;
     stopwatch.start();
-    constexpr int iterations = 128;
+    constexpr int iterations = 256;
     for (int row = 0; row < iterations; row++)
     {
         Query query(databaseConnection, sql.str());
