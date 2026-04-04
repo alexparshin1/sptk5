@@ -33,7 +33,7 @@
 namespace sptk {
 
 /**
- * @addtogroup gui GUI Classes
+ * @addtogroup network Network Classes
  * @{
  */
 

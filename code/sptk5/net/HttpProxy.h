@@ -33,6 +33,11 @@
 namespace sptk {
 
 /**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
  * @brief HTTP proxy.
  *
  * To use the proxy, it should be set for a socket using Socket::setProxy() before connecting:
@@ -78,5 +83,9 @@ private:
      */
     static bool readResponse(const std::shared_ptr<TCPSocket>& socket);
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

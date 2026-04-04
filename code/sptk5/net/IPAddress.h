@@ -30,11 +30,9 @@
 
 #ifndef _WIN32
 #include <arpa/inet.h>
-#include <netdb.h>
 #include <netinet/in.h>
 #include <sptk5/Strings.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <sys/un.h>
 #include <unistd.h>
 
@@ -64,7 +62,7 @@ using SOCKET_ADDRESS_FAMILY = unsigned short;
 namespace sptk {
 
 /**
- * @addtogroup network Network Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 

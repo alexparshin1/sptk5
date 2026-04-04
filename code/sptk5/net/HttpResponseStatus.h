@@ -30,10 +30,22 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
+ * @brief HTTP response status.
+ */
 struct HttpResponseStatus
 {
-    size_t code;
-    String description;
+    size_t code;        ///< HTTP response code.
+    String description; ///< HTTP response description.
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

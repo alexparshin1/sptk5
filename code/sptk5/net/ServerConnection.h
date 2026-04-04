@@ -40,7 +40,7 @@ namespace sptk {
 class TCPServer;
 
 /**
- * @addtogroup net Networking Classes.
+ * @addtogroup network Network Classes.
  * @{
  */
 

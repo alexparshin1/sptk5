@@ -31,12 +31,12 @@
 namespace sptk {
 
 /**
- * @addtogroup net Networking Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 
 /**
- * UDP Socket
+ * @brief UDP Socket.
  *
  * Sends and receives data using UDP protocol.
  * Not buffered. Doesn't use CSocket timeout settings in read and write operations by default.

@@ -26,10 +26,14 @@
 #pragma once
 
 #include "SSLContext.h"
-#include <set>
 #include <sptk5/net/SSLKeys.h>
 
 namespace sptk {
+
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
 
 class CachedSSLContext
 {
@@ -38,9 +42,9 @@ public:
      * @brief Loads private key and certificate(s)
      *
      * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
+     * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
+     * If the private key is protected with password, then password can be supplied to auto-answer.
      * @param keys				Keys
 	 * @param cipherList		Cipher list
      * @param tlsOnly 			Use only TLS
@@ -54,5 +58,9 @@ private:
     static std::shared_mutex   m_mutex;    ///< Mutex for thread safety
     static CachedSSLContextMap m_contexts; ///< Cached SSL contexts
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

@@ -27,7 +27,6 @@
 #pragma once
 
 #include <chrono>
-#include <sptk5/Buffer.h>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
 #include <sptk5/net/Host.h>
@@ -35,7 +34,6 @@
 #ifndef _WIN32
 
 #include <arpa/inet.h>
-#include <atomic>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -68,6 +66,11 @@ using SocketType = SOCKET;
 #endif
 
 namespace sptk {
+
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
 
 /**
  * @brief Virtual methods for the Socket class.
@@ -311,5 +314,9 @@ private:
  * @param location          Source location.
  */
 [[noreturn]] SP_EXPORT void throwSocketError(const String& message, const std::source_location& location = std::source_location::current());
+
+/**
+ * @}
+ */
 
 } // namespace sptk

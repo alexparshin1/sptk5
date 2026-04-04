@@ -31,6 +31,7 @@
 #include <sptk5/threads/Thread.h>
 
 #include <mutex>
+#include <shared_mutex>
 
 #ifdef _WIN32
 #include <WS2tcpip.h>
@@ -39,6 +40,11 @@
 #endif
 
 namespace sptk {
+
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
 
 /**
  * Socket event types
@@ -65,6 +71,12 @@ enum class SocketPoolTriggerMode
     OneShot,       ///< Execute callback once when data becomes available
     LevelTriggered ///< Execute callback periodically while data is available
 };
+
+/**
+ * @brief Type definition of the socket event callback function.
+ */
+template<typename T>
+using SocketEventCallback = std::function<void(const std::weak_ptr<T>& userData, SocketEventType eventType)>;
 
 /**
  * @brief Socket event manager.
@@ -149,10 +161,159 @@ private:
 
     mutable std::mutex    m_mutex;        ///< Mutex for thread-safe operations.
     size_t                m_maxEvents;    ///< Maximum number of socket events per poll.
+    int                   m_maxEventsInt; ///< Maximum number of socket events per poll, int cache for syscalls.
     Buffer                m_eventsBuffer; ///< Socket events.
     SocketPoolTriggerMode m_triggerMode;  ///< Socket event trigger mode.
+    uint32_t              m_baseEvents;   ///< Base event mask passed to epoll/kqueue add call.
 
     void processError(int error, const String& operation) const;
 };
+
+/**
+ * @brief Socket pool that stores user objects in events.
+ * @tparam T Socket event object type.
+ */
+template<typename T>
+class SP_EXPORT SocketObjectPool : public SocketPool
+{
+    struct SocketUserData
+    {
+        std::shared_ptr<Socket> m_socket;
+        std::weak_ptr<T>        m_userData;
+    };
+
+public:
+    /**
+     * @brief Constructor.
+     * @param eventsCallback    Socket event callback function.
+     * @param triggerMode       Socket event trigger mode.
+     * @param maxEvents         Maximum number of socket events per poll.
+     */
+    SocketObjectPool(const SocketEventCallback<T>& eventsCallback, const SocketPoolTriggerMode triggerMode, size_t maxEvents)
+        : SocketPool(triggerMode, maxEvents)
+        , m_eventsCallback(eventsCallback)
+    {
+        m_objects.reserve(maxEvents);
+    }
+
+    /**
+     * @brief Destructor.
+     */
+    ~SocketObjectPool() override = default;
+
+    /**
+     * @brief Add the socket to the monitored pool.
+     * @param socket            Socket to monitor events.
+     * @param userData          User data to pass to the callback function.
+     * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
+     */
+    void add(const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData, const bool rearmOneShot = false)
+    {
+        if (!socket)
+        {
+            throw Exception("SocketObjectPool::add(): socket is null");
+        }
+
+        auto* socketPtr = socket.get();
+        if (const auto fd = socketPtr->fd();
+            fd != INVALID_SOCKET)
+        {
+            setSocketUserData(socketPtr, socket, userData);
+            try
+            {
+                addSocket(fd, reinterpret_cast<const uint8_t*>(socketPtr), rearmOneShot);
+            }
+            catch (const Exception&)
+            {
+                removeSocketUserData(socketPtr);
+                throw;
+            }
+        }
+    }
+
+    /**
+     * @brief Remove the socket from the monitored pool.
+     * @param socket            Socket from this pool.
+     */
+    void remove(const std::shared_ptr<Socket>& socket)
+    {
+        if (!socket)
+        {
+            throw Exception("SocketObjectPool::remove(): socket is null");
+        }
+
+        auto* socketPtr = socket.get();
+        removeSocketUserData(socketPtr);
+
+        if (const auto fd = socketPtr->fd();
+            fd != INVALID_SOCKET)
+        {
+            removeSocket(fd);
+        }
+    }
+
+protected:
+    /**
+     * @brief Handle socket events.
+     * @param socket            Socket that triggered the event.
+     * @param eventType         Type of event.
+     */
+    void onEvent(Socket* socket, SocketEventType eventType) override
+    {
+        if (m_eventsCallback)
+        {
+            if (auto userData = findSocketUserData(socket);
+                !userData.expired())
+            {
+                m_eventsCallback(userData, eventType);
+            }
+        }
+    }
+
+private:
+    mutable std::shared_mutex                   m_mutex;          ///< Mutex that protects the socket object pool.
+    SocketEventCallback<T>                      m_eventsCallback; ///< Sockets event callback function.
+    std::unordered_map<Socket*, SocketUserData> m_objects;        ///< Socket object pool.
+
+    /**
+     * @brief Set the user data for a socket.
+     * @param socket            The socket to set the user data for.
+     * @param userData          The user data to set.
+     */
+    void setSocketUserData(Socket* socketPtr, const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData)
+    {
+        const std::unique_lock lock(m_mutex);
+        m_objects[socketPtr] = {socket, userData};
+    }
+
+    /**
+     * @brief Find the user data for a socket.
+     * @param socket            The socket to find the user data for.
+     */
+    std::weak_ptr<T> findSocketUserData(Socket* socket)
+    {
+        const std::shared_lock lock(m_mutex);
+        const auto             it = m_objects.find(socket);
+        if (it != m_objects.end())
+        {
+            return it->second.m_userData;
+        }
+        return {};
+    }
+
+    /**
+     * @brief Remove the user data for a socket.
+     * @param socket            The socket to remove the user data for.
+     */
+    void removeSocketUserData(Socket* socketPtr)
+    {
+        const std::unique_lock lock(m_mutex);
+        m_objects.erase(socketPtr);
+    }
+};
+
+/**
+ * @}
+ */
 
 } // namespace sptk

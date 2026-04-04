@@ -27,7 +27,6 @@
 #pragma once
 
 #include <memory>
-#include <sptk5/RegularExpression.h>
 #include <sptk5/Strings.h>
 #include <sptk5/net/HttpParams.h>
 #include <sptk5/net/HttpReader.h>
@@ -36,7 +35,7 @@
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 
@@ -62,6 +61,11 @@ public:
         Authorization(const Authorization& other) = default;
 
         /**
+         * @brief Constructor.
+         */
+        Authorization() = delete;
+
+        /**
          * Copy assignment
          * @param other         Other object
          */
@@ -71,7 +75,7 @@ public:
          * @brief Get authorization method name.
          * @return authorization method name.
          */
-        String method() const
+        [[nodiscard]] String method() const
         {
             return m_method;
         }
@@ -80,17 +84,12 @@ public:
          * @brief Get authorization method value.
          * @return authorization method value.
          */
-        String value() const
+        [[nodiscard]] String value() const
         {
             return m_value;
         }
 
     protected:
-        /**
-         * @brief Constructor.
-         */
-        Authorization() = delete;
-
         /**
          * @brief Basic or Bearer authorization.
          * @param method        Auth method, 'basic' or 'bearer'.
@@ -291,4 +290,5 @@ private:
 /**
  * @}
  */
+
 } // namespace sptk

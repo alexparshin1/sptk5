@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <bitset>
 #include <set>
 #include <sptk5/Logger.h>
 #include <sptk5/net/SSLKeys.h>
@@ -39,7 +38,7 @@ namespace sptk {
 class TCPServerListener;
 
 /**
- * @addtogroup net Networking Classes.
+ * @addtogroup network Network Classes.
  * @{
  */
 

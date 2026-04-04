@@ -24,10 +24,101 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/Printer.h>
-#include <sptk5/cutils>
-#include <sptk5/net/SocketEvents.h>
+#include "TestEchoServer.h"
+
+#include <gtest/gtest.h>
+#include <sptk5/net/SocketPool.h>
+#include <sptk5/net/TCPSocket.h>
 
 using namespace std;
 using namespace sptk;
-using namespace chrono;
+
+namespace {
+
+constexpr uint16_t testEchoServerPort = 5002;
+
+class ProbeSocketObjectPool final : public SocketObjectPool<Socket>
+{
+public:
+    explicit ProbeSocketObjectPool(const SocketEventCallback<Socket>& callback)
+        : SocketObjectPool(callback, SocketPoolTriggerMode::LevelTriggered, 8)
+    {
+    }
+
+    void dispatch(Socket* socket, const SocketEventType eventType)
+    {
+        onEvent(socket, eventType);
+    }
+};
+
+SocketEventType dataEvent()
+{
+    return {.m_data = true, .m_hangup = false, .m_error = false};
+}
+
+} // namespace
+
+TEST(SPTK_SocketObjectPool, ignoresUnknownSocketEvent)
+{
+    atomic_int callbackCount = 0;
+
+    ProbeSocketObjectPool pool(
+        [&callbackCount](const weak_ptr<Socket>&, SocketEventType)
+        {
+            ++callbackCount;
+        });
+
+    const auto socket = make_shared<TCPSocket>();
+    pool.dispatch(socket.get(), dataEvent());
+
+    EXPECT_EQ(callbackCount.load(), 0);
+}
+
+TEST(SPTK_SocketObjectPool, addFailureDoesNotLeaveStaleUserData)
+{
+    atomic_int callbackCount = 0;
+
+    ProbeSocketObjectPool pool(
+        [&callbackCount](const weak_ptr<Socket>&, SocketEventType)
+        {
+            ++callbackCount;
+        });
+
+    TestEchoServer testEchoServer(testEchoServerPort);
+    const auto     socket = make_shared<TCPSocket>();
+    socket->open(Host("localhost", testEchoServerPort));
+
+    pool.close();
+
+    EXPECT_THROW(pool.add(socket, socket), Exception);
+
+    pool.dispatch(socket.get(), dataEvent());
+    EXPECT_EQ(callbackCount.load(), 0);
+
+    socket->close();
+    testEchoServer.stop();
+}
+
+TEST(SPTK_SocketObjectPool, removeAfterCloseClearsUserData)
+{
+    atomic_int callbackCount = 0;
+
+    ProbeSocketObjectPool pool(
+        [&callbackCount](const weak_ptr<Socket>&, SocketEventType)
+        {
+            ++callbackCount;
+        });
+
+    TestEchoServer testEchoServer(testEchoServerPort);
+    const auto     socket = make_shared<TCPSocket>();
+    socket->open(Host("localhost", testEchoServerPort));
+
+    pool.add(socket, socket);
+    socket->close();
+    pool.remove(socket);
+
+    pool.dispatch(socket.get(), dataEvent());
+    EXPECT_EQ(callbackCount.load(), 0);
+
+    testEchoServer.stop();
+}

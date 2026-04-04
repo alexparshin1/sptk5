@@ -30,63 +30,115 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
+ * @brief URL.
+ */
 class SP_EXPORT URL
 {
 public:
+    /**
+     * @brief Constructor.
+     * @param url           URL as a string.
+     */
     explicit URL(const String& url);
+
+    /**
+     * @brief Copy constructor.
+     * @param other         Another object.
+     */
     URL(const URL& other) = default;
 
+    /**
+     * @return URL params.
+     */
     HttpParams& params()
     {
         return m_params;
     }
 
+    /**
+     * @return URL params.
+     */
     [[nodiscard]] const HttpParams& params() const
     {
         return m_params;
     }
 
+    /**
+     * @return URL protocol.
+     */
     [[nodiscard]] String protocol() const
     {
         return m_protocol;
     }
 
+    /**
+     * @return URL username.
+     */
     [[nodiscard]] String username() const
     {
         return m_username;
     }
 
+    /**
+     * @return URL password.
+     */
     [[nodiscard]] String password() const
     {
         return m_password;
     }
 
+    /**
+     * @return URL host and port.
+     */
     [[nodiscard]] String hostAndPort() const
     {
         return m_hostAndPort;
     }
 
+    /**
+     * @return URL path.
+     */
     [[nodiscard]] String path() const
     {
         return m_path;
     }
 
+    /**
+     * @return URL resource location.
+     */
     [[nodiscard]] String location() const;
 
+    /**
+     * @return URL as a string.
+     */
     [[nodiscard]] String toString() const;
 
+    /**
+     * @brief Set URL path.
+     * @param path URL path.
+     */
     void path(const String& path)
     {
         m_path = path;
     }
 
 private:
-    String     m_protocol;
-    String     m_username;
-    String     m_password;
-    String     m_hostAndPort;
-    String     m_path;
-    HttpParams m_params;
+    String     m_protocol;    ///< URL protocol.
+    String     m_username;    ///< URL username.
+    String     m_password;    ///< URL password.
+    String     m_hostAndPort; ///< URL host and port.
+    String     m_path;        ///< URL path.
+    HttpParams m_params;      ///< URL params.
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

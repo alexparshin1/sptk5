@@ -31,6 +31,11 @@
 namespace sptk {
 
 /**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
  * @brief HTTP authentication data that is passed through.
  * Authentication header of HTTP request.
  * Only Basic and Bearer authentication types are currently supported.
@@ -96,5 +101,9 @@ private:
 };
 
 using SHttpAuthentication = std::shared_ptr<HttpAuthentication>;
+
+/**
+ * @}
+ */
 
 } // namespace sptk

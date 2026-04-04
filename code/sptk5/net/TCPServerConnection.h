@@ -31,12 +31,12 @@
 namespace sptk {
 
 /**
- * @addtogroup net Networking Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 
 /**
- * @brief Abstract TCP server connection thread
+ * @brief Abstract TCP server connection thread.
  *
  * Application derives concrete TCP server connections based on this class,
  * to use with CTCPServer as connection template

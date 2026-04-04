@@ -32,7 +32,7 @@
 namespace sptk {
 
 /**
- * @addtogroup network Network Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 

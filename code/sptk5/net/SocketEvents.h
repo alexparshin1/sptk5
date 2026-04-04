@@ -27,12 +27,16 @@
 #pragma once
 
 #include <sptk5/Printer.h>
-#include <sptk5/net/Socket.h>
-#include <sptk5/net/SocketObjectPool.h>
+#include <sptk5/net/SocketPool.h>
 #include <sptk5/threads/Counter.h>
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
+
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
 
 /**
  * Socket events manager.
@@ -112,5 +116,9 @@ protected:
 private:
     std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

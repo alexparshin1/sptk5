@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "sptk5/Buffer.h"
+
+
 #include <sptk5/net/SocketVirtualMethods.h>
 
 namespace sptk {
@@ -40,7 +43,7 @@ template<typename T>
 concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T> || is_integral_array<T> || is_floating_point_array<T> || std::is_enum_v<T>;
 
 /**
- * @addtogroup utility Utility Classes.
+ * @addtogroup network Network Classes.
  * @{
  */
 

@@ -30,12 +30,10 @@
 #include <sptk5/Strings.h>
 #include <sptk5/net/TCPSocket.h>
 
-#include <string>
-
 namespace sptk {
 
 /**
- * @addtogroup utility Utility Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 

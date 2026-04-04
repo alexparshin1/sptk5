@@ -37,6 +37,11 @@
 namespace sptk {
 
 /**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
  * @brief A map of HTTP headers and their values (string to string)
  */
 using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
@@ -171,5 +176,9 @@ private:
 
     void readDataChunk(bool& done);
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk

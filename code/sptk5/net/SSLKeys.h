@@ -34,104 +34,116 @@
 
 namespace sptk {
 
+/**
+ * @addtogroup network Network Classes.
+ * @{
+ */
+
+/**
+ * @brief SSL keys.
+ */
 class SP_EXPORT SSLKeys
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     SSLKeys() = default;
 
     /**
-     * Constructor
+     * @brief Constructor.
      *
      * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
+     * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
-     * @param privateKeyFileName    Private key file name
-     * @param certificateFileName   Certificate file name
-     * @param password              Key file password
-     * @param caFileName            Optional CA (root certificate) file name
-     * @param verifyMode            Ether SSL_VERIFY_NONE (default), or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE
-     * @param verifyDepth           Connection verify depth
+     * If the private key is protected with password, then password can be supplied to auto-answer.
+     * @param privateKeyFileName    Private key file name.
+     * @param certificateFileName   Certificate file name.
+     * @param password              Key file password.
+     * @param caFileName            Optional CA (root certificate) file name.
+     * @param verifyMode            Ether SSL_VERIFY_NONE (default), or SSL_VERIFY_PEER, for server can be ored with SSL_VERIFY_FAIL_IF_NO_PEER_CERT and/or SSL_VERIFY_CLIENT_ONCE.
+     * @param verifyDepth           Connection verify depth.
      */
     SSLKeys(std::filesystem::path privateKeyFileName, std::filesystem::path certificateFileName, String password = "",
             std::filesystem::path caFileName = "", int verifyMode = 0, int verifyDepth = 0);
 
     /**
-     * Copy constructor
-     * @param other             The other object
+     * @brief Copy constructor.
+     * @param other             The other object.
      */
     SSLKeys(const SSLKeys& other);
 
     /**
-     * Copy assignment
-     * @param other             The other object
+     * @brief Copy assignment.
+     * @param other             The other object.
      */
     SSLKeys& operator=(const SSLKeys& other);
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
-    ~SSLKeys() noexcept = default;
+    virtual ~SSLKeys() noexcept = default;
 
     /**
-     * Unique SSL keys identifier, for SSL keys index
-     * @return SSL keys identifier
+     * @brief Unique SSL keys identifier, for SSL keys index.
+     * @return SSL keys identifier.
      */
-    String ident() const;
+    [[nodiscard]] String ident() const;
 
     /**
-     * @return private key file name
+     * @return private key file name.
      */
-    std::filesystem::path privateKeyFileName() const;
+    [[nodiscard]] std::filesystem::path privateKeyFileName() const;
 
     /**
-     * @return certificate file name
+     * @return certificate file name.
      */
-    std::filesystem::path certificateFileName() const;
+    [[nodiscard]] std::filesystem::path certificateFileName() const;
 
     /**
-     * @return private key password
+     * @return private key password.
      */
-    String password() const;
+    [[nodiscard]] String password() const;
 
     /**
-     * @return certificate authority file name
+     * @return certificate authority file name.
      */
-    std::filesystem::path caFileName() const;
+    [[nodiscard]] std::filesystem::path caFileName() const;
 
     /**
-     * @return verify mode
+     * @return verify mode.
      */
-    int verifyMode() const;
+    [[nodiscard]] int verifyMode() const;
 
     /**
      * @return number of certificates to verify
      */
-    int verifyDepth() const;
+    [[nodiscard]] int verifyDepth() const;
 
     /**
-     * Check if keys are empty
-     * @return true if keys are empty
+     * @brief Check if keys are empty.
+     * @return true if keys are empty.
      */
-    bool empty() const;
+    [[nodiscard]] bool empty() const;
 
 private:
-    mutable std::mutex    m_mutex;               ///< Mutex that protects access to internal data
-    std::filesystem::path m_privateKeyFileName;  ///< Private key file name
-    std::filesystem::path m_certificateFileName; ///< Certificate file name
-    String                m_password;            ///< Private key password
-    std::filesystem::path m_caFileName;          ///< Certificate authority file name
-    int                   m_verifyMode {0};      ///< Verify mode
-    int                   m_verifyDepth {0};     ///< Verify depth
+    mutable std::mutex    m_mutex;               ///< Mutex that protects access to internal data.
+    std::filesystem::path m_privateKeyFileName;  ///< Private key file name.
+    std::filesystem::path m_certificateFileName; ///< Certificate file name.
+    String                m_password;            ///< Private key password.
+    std::filesystem::path m_caFileName;          ///< Certificate authority file name.
+    int                   m_verifyMode {0};      ///< Verify mode.
+    int                   m_verifyDepth {0};     ///< Verify depth.
 
     /**
-     * Assign keys from another object
+     * @brief Assign keys from another object.
      * @param other
      */
     void assign(const SSLKeys& other);
 };
+
+/**
+ * @}
+ */
 
 } // namespace sptk
