@@ -495,8 +495,8 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
 {
     const scoped_lock lock(m_mutex);
 
-    auto*       statement = bit_cast<PostgreSQLStatement*>(query->statement());
-    auto&       paramValues = statement->paramValues();
+    auto* statement = bit_cast<PostgreSQLStatement*>(query->statement());
+    auto& paramValues = statement->paramValues();
     paramValues.setParameters(query->params());
     const auto& params = paramValues.params();
     uint32_t    paramNumber = 0;
@@ -997,9 +997,9 @@ void PostgreSQLConnection::queryFetch(Query* query)
         return;
     }
 
-    const PGresult* stmt = statement->stmt();
-    const auto      currentRow = static_cast<int>(statement->currentRow());
-    const auto      integerTimestamps = m_timestampsFormat == TimestampFormat::INT64;
+    const PGresult*       stmt = statement->stmt();
+    const auto            currentRow = static_cast<int>(statement->currentRow());
+    const auto            integerTimestamps = m_timestampsFormat == TimestampFormat::INT64;
     static array<char, 1> emptyString {};
 
     for (auto column = 0; column < fieldCount; ++column)
@@ -1171,7 +1171,7 @@ String PostgreSQLConnection::driverDescription() const
 
 String PostgreSQLConnection::paramMark(unsigned paramIndex)
 {
-    return format("${}", paramIndex + 1);
+    return "$" + to_string(paramIndex + 1);
 }
 
 void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
