@@ -127,10 +127,10 @@ private:
 
     /**
      * @brief Socket event callback function.
-     * @param userData          User data.
+     * @param connection        Connection.
      * @param eventType         Event type.
      */
-    void socketEventCallback(const std::weak_ptr<WSConnection>& userData, SocketEventType eventType);
+    void socketEventCallback(const std::shared_ptr<WSConnection>& connection, SocketEventType eventType);
 };
 
 /**

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& hostname, const size_t threadCount,
+WSServer::WSServer(const WSServices& services, LogEngine& logger, const String&, const size_t threadCount,
                    const WSConnection::Options& options)
     : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
     , WSServerThreads(this, threadCount)
@@ -39,9 +39,9 @@ WSServer::WSServer(const WSServices& services, LogEngine& logger, const String& 
     , m_options(options)
     , m_socketEvents(
           "XMQ Server",
-          [this](const std::weak_ptr<WSConnection>& data, auto type)
+          [this](const std::shared_ptr<WSConnection>& connection, auto type)
           {
-              socketEventCallback(data, type);
+              socketEventCallback(connection, type);
           },
           100ms, SocketPoolTriggerMode::LevelTriggered)
 {
@@ -108,21 +108,18 @@ void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
     return m_options;
 }
 
-void WSServer::socketEventCallback(const weak_ptr<WSConnection>& userData, SocketEventType eventType)
+void WSServer::socketEventCallback(const shared_ptr<WSConnection>& connection, const SocketEventType eventType)
 {
-    shared_ptr<WSConnection> connection = userData.lock();
-
     if (connection != nullptr)
     {
         scoped_lock lock(m_mutex);
 
-        auto*      connectionPtr = connection.get();
-        const auto connectionIterator = m_connectionMap.find(connectionPtr);
-        if (connectionIterator == m_connectionMap.end())
+        WSConnection* connectionPtr = connection.get();
+        if (const auto connectionIterator = m_connectionMap.find(connectionPtr);
+            connectionIterator == m_connectionMap.end())
         {
             return;
         }
-        connection = connectionIterator->second;
     }
 
     m_socketEvents.remove(connection->getSocket());

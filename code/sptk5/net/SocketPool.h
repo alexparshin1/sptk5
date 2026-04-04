@@ -76,7 +76,7 @@ enum class SocketPoolTriggerMode
  * @brief Type definition of the socket event callback function.
  */
 template<typename T>
-using SocketEventCallback = std::function<void(const std::weak_ptr<T>& userData, SocketEventType eventType)>;
+using SocketEventCallback = std::function<void(const std::shared_ptr<T>& userData, SocketEventType eventType)>;
 
 /**
  * @brief Socket event manager.
@@ -262,8 +262,8 @@ protected:
     {
         if (m_eventsCallback)
         {
-            if (auto userData = findSocketUserData(socket);
-                !userData.expired())
+            auto weakUserData = findSocketUserData(socket);
+            if (const auto userData = weakUserData.lock())
             {
                 m_eventsCallback(userData, eventType);
             }

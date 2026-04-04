@@ -30,14 +30,8 @@
 using namespace std;
 using namespace sptk;
 
-void LoadBalance::sourceEventCallback(const weak_ptr<Channel>& userData, const SocketEventType eventType)
+void LoadBalance::sourceEventCallback(const shared_ptr<Channel>& channel, const SocketEventType eventType)
 {
-    const auto channel = userData.lock();
-    if (!channel)
-    {
-        return;
-    }
-
     if (eventType.m_hangup)
     {
         channel->close();
@@ -48,14 +42,8 @@ void LoadBalance::sourceEventCallback(const weak_ptr<Channel>& userData, const S
     }
 }
 
-void LoadBalance::destinationEventCallback(const weak_ptr<Channel>& userData, const SocketEventType eventType)
+void LoadBalance::destinationEventCallback(const shared_ptr<Channel>& channel, const SocketEventType eventType)
 {
-    const auto channel = userData.lock();
-    if (!channel)
-    {
-        return;
-    }
-
     if (eventType.m_hangup)
     {
         channel->close();
