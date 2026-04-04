@@ -43,15 +43,15 @@ namespace sptk {
  * @brief Case-insensitive string compare class.
  *
  * Lower case string compare class is really useful if we need
- * a case-independent string map
+ * a case-independent string map.
  */
 class SP_EXPORT CaseInsensitiveCompare
 {
 public:
     /**
-     * Compare method
-     * @param s1                First compare string
-     * @param s2                Second compare string
+     * @brief Compare method.
+     * @param s1                The first compare string.
+     * @param s2                The second compare string.
      */
     bool operator()(const String& s1, const String& s2) const
     {
