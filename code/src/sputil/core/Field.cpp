@@ -166,7 +166,7 @@ void Field::exportTo(const xdoc::SNode& node, const bool compactXmlMode, const b
         if (detailedInfo && element)
         {
             element->attributes().set("type", Variant::typeName(dataType()));
-            element->attributes().set("size", int2string(static_cast<uint32_t>(dataSize())));
+            element->attributes().set("size", to_string(dataSize()));
         }
     }
 }

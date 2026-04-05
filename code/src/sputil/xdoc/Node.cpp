@@ -171,7 +171,7 @@ String Node::getString(const NodeName& name) const
         if (const auto intValue = node->m_value.asInt64();
             doubleValue == static_cast<double>(intValue))
         {
-            return int2string(intValue);
+            return to_string(intValue);
         }
 
         return double2string(doubleValue);

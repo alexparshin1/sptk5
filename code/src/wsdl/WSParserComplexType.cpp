@@ -505,7 +505,7 @@ String WSParserComplexType::addOptionalRestriction(std::ostream&               i
     if (complexType->m_restriction != nullptr)
     {
         ++restrictionIndex;
-        const String restrictionName = "restriction_" + int2string(restrictionIndex);
+        const String restrictionName = "restriction_" + to_string(restrictionIndex);
         const auto   restrictionCtor = complexType->m_restriction->generateConstructor(restrictionName);
         if (!restrictionCtor.empty())
         {

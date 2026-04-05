@@ -90,7 +90,7 @@ int main()
         // Creating several threads
         for (i = 0; i < 5; i++)
         {
-            string threadName = "Thread" + int2string(i);
+            string threadName = "Thread" + to_string(i);
             threads.push_back(new CMyThread(threadName, sharedLog));
         }
 

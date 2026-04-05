@@ -52,7 +52,7 @@ public:
 uint32_t CMyTask::m_taskCount {1};
 
 CMyTask::CMyTask(SysLogEngine& sharedLog)
-    : Runable("Task " + int2string(m_taskCount))
+    : Runable("Task " + to_string(m_taskCount))
     , m_log(sharedLog)
 {
     m_taskCount++;
@@ -64,7 +64,7 @@ void CMyTask::run()
     m_log.info(name() + " started");
 
     while (!terminated())
-    {        
+    {
         if (int item; intQueue.pop_front(item, chrono::milliseconds(100)))
         {
             m_log.info("Output " + to_string(item) + " from " + name());

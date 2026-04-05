@@ -48,6 +48,25 @@ class SP_EXPORT QueryParameter
 
 public:
     /**
+     * @brief Constructor.
+     * @param name char *, parameter name.
+     * @param isOutput bool, parameter binding type: input or output.
+     */
+    explicit QueryParameter(const char* name, bool isOutput = false);
+
+    /**
+     * @brief Constructor.
+     * @param name              Parameter name.
+     * @param isOutput          Parameter binding type: input or output.
+     */
+    explicit QueryParameter(std::string_view name, bool isOutput = false);
+
+    /**
+     * @brief Destructor.
+     */
+    ~QueryParameter() override = default;
+
+    /**
      * @brief Adds internal parameter binding index.
      */
     void bindAdd(uint32_t bindIndex);
@@ -81,33 +100,14 @@ public:
     }
 
     /**
-     * @brief Constructor.
-     * @param name char *, parameter name.
-     * @param isOutput bool, parameter binding type: input or output.
-     */
-    explicit QueryParameter(const char* name, bool isOutput = false);
-
-    /**
-     * @brief Constructor.
-     * @param name              Parameter name.
-     * @param isOutput          Parameter binding type: input or output.
-     */
-    explicit QueryParameter(const String& name, bool isOutput = false);
-
-    /**
-     * @brief Destructor.
-     */
-    ~QueryParameter() override = default;
-
-    /**
      * @brief Returns parameter name.
      */
-    [[nodiscard]] String name() const;
+    [[nodiscard]] std::string name() const;
 
     /**
      * @brief Returns parameter name by const reference.
      */
-    [[nodiscard]] const String& nameRef() const
+    [[nodiscard]] const std::string& nameRef() const
     {
         return m_name;
     }
@@ -281,7 +281,7 @@ public:
 
 private:
     QueryParameterBinding   m_binding;            ///< The last successfull binding information.
-    String                  m_name;               ///< Parameter name.
+    std::string             m_name;               ///< Parameter name.
     std::vector<uint32_t>   m_bindParamIndexes;   ///< The list of SQL query parameter numbers with this name.
     std::array<uint8_t, 80> m_timeData {};        ///< Special memory allocated for time structures.
     int64_t                 m_callbackLength {0}; ///< An integer reserved to callback parameter data length.

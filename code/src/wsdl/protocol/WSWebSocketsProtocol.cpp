@@ -291,7 +291,7 @@ RequestInfo WSWebSocketsProtocol::process()
             "<html><head><title>Error processing request</title></head><body>" + e.message() + "</body></html>\n");
         socket().write("HTTP/1.1 400 Bad Request\n");
         socket().write("Content-Type: text/html; charset=utf-8\n");
-        socket().write("Content-length: " + int2string(text.length()) + "\n\n");
+        socket().write("Content-length: " + to_string(text.length()) + "\n\n");
         socket().write(text);
         socket().close();
     }

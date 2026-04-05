@@ -31,7 +31,7 @@ using namespace sptk;
 
 string CFont::id() const
 {
-    return m_name + "|" + int2string(m_index) + "|" + int2string(m_size) + "|" + int2string(m_color);
+    return m_name + "|" + to_string(m_index) + "|" + to_string(m_size) + "|" + to_string(m_color);
 }
 
 void CFontsMap::clear()

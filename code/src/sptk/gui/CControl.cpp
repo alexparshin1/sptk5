@@ -118,7 +118,7 @@ string CControlKindIndex::name(CControlKind type)
     auto itor = m_typeNameMap.find(type);
     if (itor == m_typeNameMap.end())
     {
-        throw Exception("Control type " + int2string(static_cast<int>(type)) + " is undefined");
+        throw Exception("Control type " + to_string(static_cast<int>(type)) + " is undefined");
     }
     return *itor->second;
 }

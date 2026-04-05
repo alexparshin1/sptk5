@@ -79,11 +79,29 @@ public:
     /**
      * @brief Returns parameter by name.
      *
-     * If the parameter isn't found returns 0.
+     * If the parameter isn't found returns null.
      * @param paramName         parameter name.
-     * @returns parameter pointer, or 0 if not found.
+     * @returns parameter pointer, or null if not found.
      */
-    SQueryParameter find(const String& paramName);
+    SQueryParameter find(const char* paramName);
+
+    /**
+     * @brief Returns parameter by name.
+     *
+     * If the parameter isn't found returns null.
+     * @param paramName         parameter name.
+     * @returns parameter pointer, or null if not found.
+     */
+    SQueryParameter find(const std::string& paramName);
+
+    /**
+     * @brief Returns parameter by name.
+     *
+     * If the parameter isn't found returns null.
+     * @param paramName         parameter name.
+     * @returns parameter pointer, or null if not found.
+     */
+    SQueryParameter find(const std::string_view& paramName);
 
     /**
      * @brief Removes a parameter from the list and from the memory.
@@ -101,7 +119,7 @@ public:
      * @brief Parameter access by name.
      * @param paramName         parameter name.
      */
-    QueryParameter& operator[](const String& paramName) const;
+    QueryParameter& operator[](const std::string& paramName) const;
 
     /**
      * @brief Returns parameter count.
@@ -152,7 +170,12 @@ protected:
     /**
      * @brief Adds a parameter to the list.
      */
-    void add(const SQueryParameter& item);
+    void add(const SQueryParameter& item)
+    {
+        m_items.push_back(item);
+        m_index[item->nameRef()] = item;
+    }
+
     void reserve(size_t count);
 
 private:

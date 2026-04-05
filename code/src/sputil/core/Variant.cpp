@@ -370,7 +370,7 @@ const char* BaseVariant::getString() const
 
     if (isExternalBuffer())
     {
-        return (const char*) static_cast<const uint8_t*>(m_data);
+        return reinterpret_cast<const char*>(static_cast<const uint8_t*>(m_data));
     }
 
     if (m_data.type().type == VAR_STRING)
@@ -670,10 +670,10 @@ String VariantAdaptors::asString() const
             return m_data.get<bool>() ? "true" : "false";
 
         case VAR_INT:
-            return int2string(m_data.get<int32_t>());
+            return to_string(m_data.get<int32_t>());
 
         case VAR_INT64:
-            return int2string(m_data.get<int64_t>());
+            return to_string(m_data.get<int64_t>());
 
         case VAR_MONEY:
             return moneyDataToString();
@@ -722,7 +722,7 @@ String VariantAdaptors::asString() const
             return "null";
 
         case VAR_IMAGE_NDX:
-            return int2string(m_data.get<int32_t>());
+            return to_string(m_data.get<int32_t>());
 
         default:
             break;
@@ -744,10 +744,10 @@ Buffer VariantAdaptors::asBuffer() const
             return Buffer(m_data.get<bool>() ? "true" : "false");
 
         case VAR_INT:
-            return Buffer(int2string(m_data.get<int32_t>()));
+            return Buffer(to_string(m_data.get<int32_t>()));
 
         case VAR_INT64:
-            return Buffer(int2string(m_data.get<int64_t>()));
+            return Buffer(to_string(m_data.get<int64_t>()));
 
         case VAR_MONEY:
             return Buffer(moneyDataToString());
@@ -782,7 +782,7 @@ Buffer VariantAdaptors::asBuffer() const
             return Buffer("null");
 
         case VAR_IMAGE_NDX:
-            return Buffer(int2string(m_data.get<int32_t>()));
+            return Buffer(to_string(m_data.get<int32_t>()));
 
         default:
             break;

@@ -141,7 +141,7 @@ public:
     void publishDate(const DateTime& dt)
     {
         m_publishDate = dt;
-        m_publishDateBox->data(dt.monthName().substr(0, 3) + " " + int2string(dt.day()) + " " + int2string(dt.year()));
+        m_publishDateBox->data(dt.monthName().substr(0, 3) + " " + to_string(dt.day()) + " " + to_string(dt.year()));
     }
 
     int64_t fileSize() const

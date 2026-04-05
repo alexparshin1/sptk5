@@ -195,7 +195,7 @@ protected:
      * @brief Returns the parameter mark.
      * @param paramIndex        Parameter index in SQL starting from 0.
      */
-    [[nodiscard]] String paramMark(unsigned paramIndex) override;
+    [[nodiscard]] std::string paramMark(unsigned paramIndex) override;
 
     /**
      * @brief Returns the session timezone offset.

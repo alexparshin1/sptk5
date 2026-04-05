@@ -25,13 +25,14 @@
 */
 
 #include <cstdlib>
+#include <format>
 #include <fstream>
 #include <sptk5/Buffer.h>
 
 using namespace std;
 using namespace sptk;
 
-String sptk::upperCase(const String& str)
+string sptk::upperCase(const string_view str)
 {
     const auto len = static_cast<uint32_t>(str.length());
     string     result;
@@ -45,7 +46,7 @@ String sptk::upperCase(const String& str)
     return result;
 }
 
-String sptk::lowerCase(const String& str)
+string sptk::lowerCase(const string_view str)
 {
     const auto len = static_cast<uint32_t>(str.length());
     string     result;
@@ -61,7 +62,7 @@ String sptk::lowerCase(const String& str)
     return result;
 }
 
-String sptk::trim(const String& str)
+string sptk::trim(const string_view str)
 {
     const auto len = static_cast<uint32_t>(str.length());
 
@@ -70,7 +71,7 @@ String sptk::trim(const String& str)
         return "";
     }
 
-    const auto* s = bit_cast<const unsigned char*>(str.c_str());
+    const auto* s = bit_cast<const unsigned char*>(str.data());
     auto        endPosition = static_cast<int>(len - 1);
     bool        found = false;
 
@@ -100,54 +101,16 @@ String sptk::trim(const String& str)
         }
     }
 
-    return str.substr(static_cast<size_t>(startPosition), static_cast<size_t>(static_cast<long>(endPosition - startPosition + 1)));
+    string_view result(str.data() + startPosition, endPosition - startPosition + 1);
+
+    return string(result);
 }
 
-String sptk::int2string(int32_t value)
-{
-    constexpr int              maxLength = 32;
-    array<char, maxLength + 1> buff {};
-    const int                  len = snprintf(buff.data(), maxLength, "%i", value);
-    return string(buff.data(), static_cast<unsigned>(len));
-}
-
-String sptk::int2string(uint32_t value)
-{
-    constexpr int              maxLength = 64;
-    array<char, maxLength + 1> buff {};
-    const int                  len = snprintf(buff.data(), maxLength, "%u", value);
-    return string(buff.data(), static_cast<unsigned>(len));
-}
-
-String sptk::int2string(int64_t value)
-{
-    constexpr int              maxLength = 128;
-    array<char, maxLength + 1> buff {};
-#ifdef _WIN32
-    const int len = snprintf(buff.data(), maxLength, "%lli", value);
-#else
-    const int len = snprintf(buff.data(), maxLength, "%lli", static_cast<long long int>(value));
-#endif
-    return string(buff.data(), static_cast<unsigned>(len));
-}
-
-String sptk::int2string(uint64_t value)
-{
-    constexpr int              maxLength = 64;
-    array<char, maxLength + 1> buff {};
-#ifdef _WIN32
-    const int len = snprintf(buff.data(), sizeof(buff), "%llu", value);
-#else
-    const int len = snprintf(buff.data(), maxLength, "%lu", value);
-#endif
-    return string(buff.data(), static_cast<unsigned>(len));
-}
-
-int sptk::string2int(const String& str, int defaultValue)
+int sptk::string2int(const string_view str, int defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;
-    const auto result = static_cast<int>(strtol(str.c_str(), &endPointer, 10));
+    const auto result = static_cast<int>(strtol(str.data(), &endPointer, 10));
 
     if (errno)
     {
@@ -157,11 +120,11 @@ int sptk::string2int(const String& str, int defaultValue)
     return result;
 }
 
-int64_t sptk::string2int64(const String& str, int64_t defaultValue)
+int64_t sptk::string2int64(const string_view str, int64_t defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;
-    const auto result = static_cast<int64_t>(strtoll(str.c_str(), &endPointer, 10));
+    const auto result = static_cast<int64_t>(strtoll(str.data(), &endPointer, 10));
 
     if (errno)
     {
@@ -171,11 +134,10 @@ int64_t sptk::string2int64(const String& str, int64_t defaultValue)
     return result;
 }
 
-String sptk::double2string(double value)
+string sptk::double2string(double value)
 {
-    constexpr int              maxLength = 64;
-    array<char, maxLength + 1> buffer {};
-    int                        len = snprintf(buffer.data(), maxLength, "%f", value);
+    auto buffer = format("{}", value);
+    auto len = buffer.length();
     for (int i = len - 1; i > 0; --i)
     {
         if (buffer[i] != '0')
@@ -191,14 +153,20 @@ String sptk::double2string(double value)
             break;
         }
     }
-    return {buffer.data(), static_cast<size_t>(len), 0};
+
+    if (len == buffer.length())
+    {
+        return buffer;
+    }
+
+    return buffer.substr(0, len);
 }
 
-double sptk::string2double(const String& str)
+double sptk::string2double(const string_view str)
 {
     char* endPointer = nullptr;
     errno = 0;
-    const auto result = strtod(str.c_str(), &endPointer);
+    const auto result = strtod(str.data(), &endPointer);
 
     if (errno)
     {
@@ -208,11 +176,11 @@ double sptk::string2double(const String& str)
     return result;
 }
 
-double sptk::string2double(const String& str, double defaultValue)
+double sptk::string2double(const string_view str, double defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;
-    const auto result = strtod(str.c_str(), &endPointer);
+    const auto result = strtod(str.data(), &endPointer);
 
     if (errno)
     {

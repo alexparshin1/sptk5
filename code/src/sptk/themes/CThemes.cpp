@@ -383,7 +383,7 @@ void CThemes::set(string theThemeName)
         unsigned i;
         for (i = 0; i < 7; i++)
         {
-            replaceImage(m_background, i, "background" + int2string(i) + ".png");
+            replaceImage(m_background, i, "background" + to_string(i) + ".png");
         }
 
         m_progressBar[0].loadFromSptkTheme(Strings("progress0", ","));

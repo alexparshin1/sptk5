@@ -538,7 +538,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                     string glabel = widget->label();
                     if (glabel.empty())
                     {
-                        glabel = "noName:" + int2string(i);
+                        glabel = "noName:" + to_string(i);
                     }
                     auto gtor = xmlGroups.find(glabel);
                     if (gtor != xmlGroups.end())
@@ -560,7 +560,7 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
                     String clabel = control->label();
                     if (clabel.empty())
                     {
-                        clabel = "noName:" + int2string(i);
+                        clabel = "noName:" + to_string(i);
                     }
                     auto ctor = xmlControls.find(clabel);
                     if (ctor != xmlControls.end())

@@ -143,7 +143,7 @@ void ImapConnect::cmd_login(const String& user, const String& password)
 
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    const String cmd = "APPEND \"" + mail_box + R"(" (\Seen) {)" + int2string(static_cast<uint32_t>(message.bytes())) + "}";
+    const String cmd = "APPEND \"" + mail_box + R"(" (\Seen) {)" + to_string(static_cast<uint32_t>(message.bytes())) + "}";
     const String ident = sendCommand(cmd);
     getResponse(ident);
     m_socket->write(message.data(), message.bytes());
@@ -384,20 +384,20 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
 
 void ImapConnect::cmd_fetch_headers(const int32_t msg_id, FieldList& result)
 {
-    command("FETCH " + int2string(msg_id) + " (BODY[HEADER])");
+    command("FETCH " + to_string(msg_id) + " (BODY[HEADER])");
     parseMessage(result, true);
 }
 
 void ImapConnect::cmd_fetch_message(const int32_t msg_id, FieldList& result)
 {
-    command("FETCH " + int2string(msg_id) + " (BODY[])");
+    command("FETCH " + to_string(msg_id) + " (BODY[])");
     parseMessage(result, false);
 }
 
 String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 {
     String result;
-    command("FETCH " + int2string(msg_id) + " (FLAGS)");
+    command("FETCH " + to_string(msg_id) + " (FLAGS)");
     if (const size_t count = m_response.size() - 1;
         count > 0)
     {
@@ -423,7 +423,7 @@ String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 
 void ImapConnect::cmd_store_flags(const int32_t msg_id, const char* flags)
 {
-    command("STORE " + int2string(msg_id) + " FLAGS " + String(flags));
+    command("STORE " + to_string(msg_id) + " FLAGS " + String(flags));
 }
 
 Host ImapConnect::host() const

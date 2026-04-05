@@ -81,7 +81,7 @@ RequestInfo WSStaticHttpProtocol::process()
         {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
         }
-        socket().write("Content-Length: " + int2string(output.size()) + "\n\n");
+        socket().write("Content-Length: " + to_string(output.size()) + "\n\n");
         socket().write(output);
     }
     catch (const Exception&)
@@ -97,7 +97,7 @@ RequestInfo WSStaticHttpProtocol::process()
         {
             socket().write("Content-Encoding: " + requestInfo.response.contentEncoding() + "\n");
         }
-        socket().write("Content-length: " + int2string(text.length()) + "\n\n");
+        socket().write("Content-length: " + to_string(text.length()) + "\n\n");
         socket().write(text);
     }
     return requestInfo;

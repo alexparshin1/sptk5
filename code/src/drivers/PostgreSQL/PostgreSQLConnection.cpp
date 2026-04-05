@@ -199,7 +199,7 @@ String PostgreSQLConnection::nativeConnectionString() const
 
     if (connString.portNumber() != 0)
     {
-        port = int2string(connString.portNumber());
+        port = to_string(connString.portNumber());
     }
 
     const string result =

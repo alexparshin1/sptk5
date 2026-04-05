@@ -46,7 +46,7 @@ void WSComplexType::unload(QueryParameterList& output, const char* paramName, co
         return;
     }
 
-    if (const auto param = output.find(paramName))
+    if (const auto param = output.find(string(paramName)))
     {
         *param = elementOrAttribute->value();
     }

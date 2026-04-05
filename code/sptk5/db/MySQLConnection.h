@@ -209,7 +209,7 @@ protected:
      * Parameter mark is generated from the parameterIndex.
      * @param paramIndex        Parameter index in SQL starting from 0.
      */
-    String paramMark(unsigned paramIndex) override;
+    std::string paramMark(unsigned paramIndex) override;
 
 private:
     std::shared_ptr<MYSQL> m_connection; ///< MySQL database connection.

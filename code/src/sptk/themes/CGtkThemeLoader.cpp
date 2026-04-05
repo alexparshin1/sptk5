@@ -335,7 +335,7 @@ void CGtkThemeParser::load(const string& themeName)
                     pos = s.find_first_of('\"', pos + 1);
                     if (pos == STRING_NPOS)
                     {
-                        throw Exception("Unmatched {\"} found in row " + int2string(i));
+                        throw Exception("Unmatched {\"} found in row " + to_string(i));
                     }
                 }
                 else

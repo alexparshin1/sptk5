@@ -169,7 +169,7 @@ protected:
      * @brief Parameter mark is generated from the parameterIndex.
      * @param paramIndex unsigned, parameter index in SQL starting from 0.
      */
-    virtual String paramMark(unsigned paramIndex);
+    virtual std::string paramMark(unsigned paramIndex);
 
     /**
      * @brief Stub function to throw an exception in case if the called method isn't implemented in the derived class.

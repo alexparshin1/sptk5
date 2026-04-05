@@ -167,7 +167,7 @@ void RegularExpression::compile()
                                     });
 
     if (!m_pcre)
-        m_error = "PCRE pattern error at pattern offset " + int2string(errorOffset) + ": " + string(error);
+        m_error = "PCRE pattern error at pattern offset " + to_string(errorOffset) + ": " + string(error);
 #if PCRE_MAJOR > 7
     else
     {

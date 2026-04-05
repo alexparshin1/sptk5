@@ -57,7 +57,7 @@ QueryParameter::QueryParameter(const char* name, const bool isOutput)
     m_bindParamIndexes.reserve(initialBindIndexesCapacity);
 }
 
-QueryParameter::QueryParameter(const String& name, const bool isOutput)
+QueryParameter::QueryParameter(const std::string_view name, const bool isOutput)
     : m_binding(isOutput)
     , m_name(lowerCase(name))
 {
@@ -65,7 +65,7 @@ QueryParameter::QueryParameter(const String& name, const bool isOutput)
     m_bindParamIndexes.reserve(initialBindIndexesCapacity);
 }
 
-String QueryParameter::name() const
+string QueryParameter::name() const
 {
     return m_name;
 }

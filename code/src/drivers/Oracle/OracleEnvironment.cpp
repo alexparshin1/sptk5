@@ -38,10 +38,10 @@ String OracleEnvironment::clientVersion()
     int patch = 0;
     int portUpdate = 0;
     Environment::getClientVersion(major, minor, update, patch, portUpdate);
-    string version = "Oracle " + int2string(major) + "." + int2string(minor);
+    string version = "Oracle " + to_string(major) + "." + to_string(minor);
     if (update)
     {
-        version += " update " + int2string(update);
+        version += " update " + to_string(update);
     }
     return version;
 }
@@ -51,7 +51,7 @@ oracle::occi::Connection* OracleEnvironment::createConnection(const DatabaseConn
     String host = connectionString.hostName();
     if (connectionString.portNumber())
     {
-        host += ":" + int2string(connectionString.portNumber());
+        host += ":" + to_string(connectionString.portNumber());
     }
     if (!connectionString.databaseName().empty())
     {

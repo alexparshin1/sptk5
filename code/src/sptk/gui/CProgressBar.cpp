@@ -92,7 +92,7 @@ void CProgressBox::draw()
 
     if (m_showText)
     {
-        std::string txt = int2string((int) m_value) + m_units;
+        std::string txt = to_string(static_cast<int>(m_value)) + m_units;
         fl_color(FL_FOREGROUND_COLOR);
         fl_font(0, fontHeight);
         fl_draw(txt.c_str(), x(), y() + 1, w(), h(), Fl_Align(FL_ALIGN_CENTER));

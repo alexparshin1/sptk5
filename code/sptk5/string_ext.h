@@ -41,68 +41,48 @@ class Strings;
 /**
  * Converts string to upper case
  */
-String SP_EXPORT upperCase(const sptk::String& str);
+std::string SP_EXPORT upperCase(std::string_view str);
 
 /**
  * Converts string to lower case
  */
-String SP_EXPORT lowerCase(const sptk::String& str);
+std::string SP_EXPORT lowerCase(std::string_view str);
 
 /**
  * Trims string to remove leading and trailing spaces
  */
-String SP_EXPORT trim(const sptk::String& str);
-
-/**
- * Converts int32_t to string
- */
-String SP_EXPORT int2string(int32_t);
-
-/**
- * Converts uint32_t to string
- */
-String SP_EXPORT int2string(uint32_t);
-
-/**
- * Converts uint64_t to string
- */
-String SP_EXPORT int2string(int64_t);
-
-/**
- * Converts uint64_t to string
- */
-String SP_EXPORT int2string(uint64_t);
+std::string SP_EXPORT trim(std::string_view str);
 
 /**
  * Converts string to integer. The optional default value is used
  * for unsuccessful conversion
  */
-int SP_EXPORT string2int(const sptk::String& str, int defaultValue = 0);
+int SP_EXPORT string2int(std::string_view str, int defaultValue = 0);
 
 /**
  * Converts string to int64. The optional default value is used
  * for unsuccessful conversion
  */
-int64_t SP_EXPORT string2int64(const sptk::String& str, int64_t defaultValue = 0);
+int64_t SP_EXPORT string2int64(std::string_view str, int64_t defaultValue = 0);
 
 /**
  * Converts double to string, using fixed format. Any trailing zeros are truncated.
  * @param value                 Double value
  * @return string presentation of double
  */
-String SP_EXPORT double2string(double value);
+std::string SP_EXPORT double2string(double value);
 
 /**
  * Converts string to double. The exception is thrown
  * for unsuccessful conversion
  */
-double SP_EXPORT string2double(const sptk::String& str);
+double SP_EXPORT string2double(std::string_view str);
 
 /**
  * Converts string to double. The optional default value is used
  * for unsuccessful conversion
  */
-double SP_EXPORT string2double(const sptk::String& str, double defaultValue);
+double SP_EXPORT string2double(std::string_view str, double defaultValue);
 
 /**
  * Capitalizes all the words in string

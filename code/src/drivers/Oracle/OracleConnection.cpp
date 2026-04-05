@@ -670,7 +670,7 @@ String OracleConnection::driverDescription() const
 
 String OracleConnection::paramMark(unsigned paramIndex)
 {
-    return format(":{}", paramIndex + 1);
+    return ":" + to_string(paramIndex + 1);
 }
 
 void OracleConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)

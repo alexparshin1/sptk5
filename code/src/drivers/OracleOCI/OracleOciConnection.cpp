@@ -661,9 +661,9 @@ void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, in
     notImplemented("queryColAttributes");
 }
 
-String OracleOciConnection::paramMark(unsigned int paramIndex)
+string OracleOciConnection::paramMark(unsigned int paramIndex)
 {
-    return format(":{}", paramIndex + 1);
+    return ":" + to_string(paramIndex + 1);
 }
 
 String OracleOciConnection::queryError(const Query* query) const

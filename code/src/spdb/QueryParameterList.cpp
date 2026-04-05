@@ -41,29 +41,42 @@ void QueryParameterList::clear()
 void QueryParameterList::reserve(const size_t count)
 {
     m_items.reserve(count);
+    m_index.reserve(count);
 }
 
-void QueryParameterList::add(const SQueryParameter& item)
+SQueryParameter QueryParameterList::find(const char* paramName)
 {
-    m_items.push_back(item);
-    m_index[item->nameRef()] = item;
-}
-
-SQueryParameter QueryParameterList::find(const String& paramName)
-{
-    const auto itor = m_index.find(paramName.toLowerCase());
-
-    if (itor == m_index.end())
+    if (const auto itor = m_index.find(lowerCase(string_view(paramName, strlen(paramName))));
+        itor != m_index.end())
     {
-        return nullptr;
+        return itor->second;
     }
-
-    return itor->second;
+    return nullptr;
 }
 
-QueryParameter& QueryParameterList::operator[](const String& paramName) const
+SQueryParameter QueryParameterList::find(const string& paramName)
 {
-    const auto itor = m_index.find(paramName.toLowerCase());
+    if (const auto itor = m_index.find(lowerCase(paramName));
+        itor != m_index.end())
+    {
+        return itor->second;
+    }
+    return nullptr;
+}
+
+SQueryParameter QueryParameterList::find(const std::string_view& paramName)
+{
+    if (const auto itor = m_index.find(lowerCase(paramName));
+        itor != m_index.end())
+    {
+        return itor->second;
+    }
+    return nullptr;
+}
+
+QueryParameter& QueryParameterList::operator[](const string& paramName) const
+{
+    const auto itor = m_index.find(lowerCase(paramName));
 
     if (itor == m_index.end())
     {

@@ -334,7 +334,7 @@ void SocketVirtualMethods::bindUnlocked(const char* address, const uint32_t port
 
     if (::bind(m_socketFd, bit_cast<sockaddr*>(&addr), sizeof(addr)) != 0)
     {
-        throwSocketError("Can't bind socket to port " + int2string(portNumber));
+        throwSocketError("Can't bind socket to port " + to_string(portNumber));
     }
 }
 

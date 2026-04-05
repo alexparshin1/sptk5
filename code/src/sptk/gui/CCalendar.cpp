@@ -238,7 +238,7 @@ void CCalendar::resize(int xx, int yy, int ww, int hh)
     }
     m_date.decodeDate(&year, &month, &day, &wday, &yday);
     DateTime monthDate(year, month, 1);
-    m_headerLabel = monthDate.monthName() + ", " + int2string(year);
+    m_headerLabel = monthDate.monthName() + ", " + to_string(year);
     m_monthNameBox->label(m_headerLabel.c_str());
 
     // resize day buttons

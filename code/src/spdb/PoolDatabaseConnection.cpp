@@ -320,7 +320,7 @@ void PoolDatabaseConnectionQueryMethods::notImplemented(const String& methodName
     throw DatabaseException("Method '" + methodName + "' is not supported by this database driver.");
 }
 
-String PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
+string PoolDatabaseConnectionQueryMethods::paramMark(unsigned /*paramIndex*/)
 {
     return {"?"};
 }
