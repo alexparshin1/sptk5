@@ -214,7 +214,13 @@ String PostgreSQLConnection::nativeConnectionString() const
 
 chrono::minutes PostgreSQLConnection::getTimezoneOffset()
 {
-    Query query(this, "SELECT CAST(EXTRACT(TIMEZONE FROM CURRENT_TIME) AS INT)");
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query query(self, "SELECT CAST(EXTRACT(TIMEZONE FROM CURRENT_TIME) AS INT)");
     auto  tzOffset = query.scalar().asInteger() / 60;
 
     return chrono::minutes(tzOffset);
@@ -1151,7 +1157,13 @@ void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& ob
             break;
     }
 
-    Query query(this, objectsSQL);
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query query(self, objectsSQL);
     query.open();
 
     while (!query.eof())
@@ -1172,11 +1184,17 @@ void PostgreSQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* err
 {
     const Strings statements = extractStatements(batchSQL);
 
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     for (const auto& stmt: statements)
     {
         try
         {
-            Query query(this, stmt);
+            Query query(self, stmt);
             query.exec();
         }
         catch (const Exception& e)

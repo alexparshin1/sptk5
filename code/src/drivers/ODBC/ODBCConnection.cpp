@@ -92,9 +92,15 @@ String ODBCConnection::nativeConnectionString() const
 
 chrono::minutes ODBCConnection::getSessionTimezoneOffset()
 {
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     m_sessionTimezoneOffset = chrono::minutes(0);
 
-    Query      query(this, "SELECT CURRENT_TIMESTAMP");
+    Query      query(self, "SELECT CURRENT_TIMESTAMP");
     const auto timezoneOffset = chrono::duration_cast<chrono::minutes>(query.scalar().asDateTime() - DateTime::Now());
 
     return timezoneOffset;
@@ -1198,11 +1204,17 @@ void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
         statements.push_back(statement);
     }
 
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     for (const auto& stmt: statements)
     {
         try
         {
-            Query query(this, stmt, false);
+            Query query(self, stmt, false);
             query.exec();
         }
         catch (const Exception& e)

@@ -84,7 +84,13 @@ chrono::minutes OracleOciConnection::getSessionTimezoneOffset()
 {
     static const RegularExpression tzOffsetRegex(R"(^([\-\+])?(\d{1,2}):(\d{1,2}))");
 
-    Query      query(this, "SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL");
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query      query(self, "SELECT TZ_OFFSET(SESSIONTIMEZONE) FROM DUAL");
     const auto tzOffset = query.scalar().asString();
 
     const auto matches = tzOffsetRegex.m(tzOffset);
@@ -212,11 +218,17 @@ void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* erro
 
 void OracleOciConnection::executeMultipleStatements(const Strings& statements, Strings* errors)
 {
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     for (const auto& stmt: statements)
     {
         try
         {
-            Query query(this, stmt, false);
+            Query query(self, stmt, false);
             query.exec();
         }
         catch (const Exception& e)
@@ -281,7 +293,14 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
         default:
             throw Exception("Not implemented yet");
     }
-    Query query(this, objectsSQL);
+
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query query(self, objectsSQL);
     query.open();
     while (!query.eof())
     {
@@ -293,13 +312,20 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
 
 String OracleOciConnection::tableSequenceName(const String& tableName)
 {
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     stringstream getSequenceSql;
     getSequenceSql << "SELECT DATA_DEFAULT AS sequence_name\n"
                    << "  FROM ALL_TAB_COLUMNS\n"
                    << " WHERE DATA_DEFAULT is not null\n"
                    << "   AND owner = (SELECT sys_context('USERENV', 'CURRENT_USER') FROM dual) "
                    << "   AND TABLE_NAME='" << tableName.toUpperCase() << "'\n";
-    Query getSequenceName(this, getSequenceSql.str());
+
+    Query getSequenceName(self, getSequenceSql.str());
     auto  sequenceName = getSequenceName.scalar().asString().toUpperCase().replace("\\.NEXTVAL", "");
     return sequenceName;
 }

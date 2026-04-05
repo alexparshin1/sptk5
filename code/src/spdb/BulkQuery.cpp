@@ -14,7 +14,7 @@
 using namespace std;
 using namespace sptk;
 
-BulkQuery::BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
+BulkQuery::BulkQuery(const SPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
     : m_insertQuery(connection, makeInsertSQL(connection->connectionType(), tableName, serialColumnName, columnNames, groupSize))
     , m_deleteQuery(connection, makeGenericDeleteSQL(tableName, serialColumnName.empty() ? columnNames[0] : serialColumnName, groupSize))
     , m_serialColumnName(serialColumnName)

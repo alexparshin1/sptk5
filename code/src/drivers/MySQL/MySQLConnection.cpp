@@ -381,7 +381,13 @@ void MySQLConnection::objectList(DatabaseObjectType objectType, Strings& objects
             break;
     }
 
-    Query query(this, objectsSQL);
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query query(self, objectsSQL);
     try
     {
         query.open();
@@ -442,9 +448,15 @@ void MySQLConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
         statements.push_back(statement);
     }
 
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     for (const auto& stmt: statements)
     {
-        Query query(this, stmt, false);
+        Query query(self, stmt, false);
         try
         {
             query.exec();

@@ -202,6 +202,7 @@ private:
  */
 class SP_EXPORT PoolDatabaseConnection
     : public PoolDatabaseConnectionQueryMethods
+    , public std::enable_shared_from_this<PoolDatabaseConnection>
 {
     friend class Query;
 

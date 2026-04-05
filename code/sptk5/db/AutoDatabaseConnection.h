@@ -65,7 +65,7 @@ public:
     /**
      * @brief Returns database connection acquired from the connection pool.
      */
-    [[nodiscard]] PoolDatabaseConnection* connection() const;
+    [[nodiscard]] SPoolDatabaseConnection connection() const;
 
     /**
      * @brief Opens the database connection.

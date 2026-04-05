@@ -35,23 +35,34 @@ AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectio
     : m_connectionPool(connectionPool)
 {
     m_connection = m_connectionPool.createConnection();
+    if (m_connection == nullptr)
+    {
+        throw Exception("Failed to create database connection");
+    }
 }
 
 AutoDatabaseConnection::~AutoDatabaseConnection()
 {
     if (m_connection != nullptr)
     {
-        if (m_connection->active())
+        try
         {
-            m_connection->close();
+            if (m_connection->active())
+            {
+                m_connection->close();
+            }
+            m_connectionPool.releaseConnection(m_connection);
         }
-        m_connectionPool.releaseConnection(m_connection);
+        catch (const Exception& e)
+        {
+            CERR(e.what());
+        }
     }
 }
 
-PoolDatabaseConnection* AutoDatabaseConnection::connection() const
+SPoolDatabaseConnection AutoDatabaseConnection::connection() const
 {
-    return m_connection.get();
+    return m_connection;
 }
 
 const DatabaseConnectionString& AutoDatabaseConnection::connectionString() const

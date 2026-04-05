@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-void QueryStatementManagement::setDatabase(PoolDatabaseConnection* db)
+void QueryStatementManagement::setDatabase(const SPoolDatabaseConnection& db)
 {
     m_db = db;
 }
@@ -74,7 +74,7 @@ void QueryStatementManagement::notImplemented(const String& functionName) const
     throw DatabaseException(functionName + " isn't implemented", source_location::current(), getSQL());
 }
 
-void QueryStatementManagement::connect(PoolDatabaseConnection* db)
+void QueryStatementManagement::connect(const SPoolDatabaseConnection& db)
 {
     if (database() == db || db == nullptr)
     {
@@ -136,7 +136,7 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
     Query::sql(sql);
 }
 
-Query::Query(PoolDatabaseConnection* db, const String& sql, bool autoPrepare)
+Query::Query(const SPoolDatabaseConnection& db, const String& sql, bool autoPrepare)
     : QueryStatementManagement(autoPrepare)
     , m_fields(false)
 {

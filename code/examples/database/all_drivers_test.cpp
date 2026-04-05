@@ -92,7 +92,7 @@ String fieldToString(const Field& field)
     return field.asString();
 }
 
-void testBLOBs(PoolDatabaseConnection* db)
+void testBLOBs(const SPoolDatabaseConnection& db)
 {
     Query createTableQuery(db, "CREATE TABLE sptk_blob_test(id INT, data CLOB)", true);
     try
@@ -132,8 +132,8 @@ void testBLOBs(PoolDatabaseConnection* db)
 void printDatabaseObjects(const DatabaseConnection& db)
 {
     const vector<DatabaseObjectType> objectTypes = {DatabaseObjectType::TABLES, DatabaseObjectType::VIEWS,
-                                              DatabaseObjectType::PROCEDURES};
-    const Strings objectTypeNames = {"tables", "views", "stored procedures"};
+                                                    DatabaseObjectType::PROCEDURES};
+    const Strings                    objectTypeNames = {"tables", "views", "stored procedures"};
 
     for (unsigned i = 0; i < 3; i++)
     {
@@ -214,7 +214,7 @@ void dropTempTable(const DatabaseConnection& db, const string& tableName)
 int testDatabase(const string& connectionString)
 {
     DatabaseConnectionPool connectionPool(connectionString);
-    DatabaseConnection db = connectionPool.getConnection();
+    DatabaseConnection     db = connectionPool.getConnection();
 
     try
     {
@@ -327,7 +327,7 @@ int testDatabase(const string& connectionString)
         while (!selectRecordsQuery.eof())
         {
 
-            int id = 0;
+            int    id = 0;
             String name;
             String position_name;
             String hire_date;
@@ -432,7 +432,7 @@ int main(int argc, const char* argv[])
 
         if (connectionString.empty())
         {
-            Strings databaseTypes;
+            Strings                   databaseTypes;
             const vector<const char*> availableDatabaseTypes = {
 #ifdef HAVE_MYSQL
                 "mysql",

@@ -86,8 +86,14 @@ String SQLite3Connection::nativeConnectionString() const
 
 chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
 {
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     m_sessionTimezoneOffset = chrono::minutes(0);
-    Query query(this, "SELECT CURRENT_TIMESTAMP");
+    Query query(self, "SELECT CURRENT_TIMESTAMP");
     auto  timestamp = query.scalar().asDateTime();
     auto  sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
     return sessionTimezoneOffset;
@@ -653,11 +659,17 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
         statements.push_back(statement);
     }
 
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     for (const auto& stmt: statements)
     {
         try
         {
-            Query query(this, stmt, false);
+            Query query(self, stmt, false);
             query.exec();
         }
         catch (const Exception& e)
@@ -695,7 +707,13 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
             return; // no information about objects of other types
     }
 
-    Query query(this, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    Query query(self, "SELECT name FROM sqlite_master WHERE type='" + objectTypeName + "'");
     query.open();
 
     while (!query.eof())

@@ -227,7 +227,13 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
         columnNamesFinal.push_back(autoIncrementColumnName);
     }
 
-    BulkQuery bulkQuery(this, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    BulkQuery bulkQuery(self, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
     bulkQuery.insertRows(data, insertedIds);
 
     if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
@@ -244,7 +250,13 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
         beginTransaction();
     }
 
-    BulkQuery bulkQuery(this, tableName, keyColumnName, {keyColumnName}, 50);
+    auto self = shared_from_this();
+    if (self == nullptr)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    BulkQuery bulkQuery(self, tableName, keyColumnName, {keyColumnName}, 50);
     bulkQuery.deleteRows(keys);
 
     if (!wasInTransaction)

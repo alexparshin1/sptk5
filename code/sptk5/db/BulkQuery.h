@@ -33,7 +33,7 @@ public:
      * @param columnNames       Column names.
      * @param groupSize         Group size.
      */
-    BulkQuery(PoolDatabaseConnection* connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize);
+    BulkQuery(const SPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize);
 
     /**
      * @brief Insert rows into the table.
@@ -55,7 +55,7 @@ private:
     Strings                 m_columnNames;         ///< Column names.
     String                  m_tableName;           ///< Table name.
     size_t                  m_groupSize;           ///< Insert or delete record group size.
-    PoolDatabaseConnection* m_connection;          ///< Database connection.
+    SPoolDatabaseConnection m_connection;          ///< Database connection.
     Query                   m_lastInsertedIdQuery; ///< Query that retrieves the last inserted id.
 
     [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize);

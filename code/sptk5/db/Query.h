@@ -114,7 +114,7 @@ public:
      *
      * If the query was connected to another database, releases all the allocated resources in it.
      */
-    void connect(PoolDatabaseConnection* db);
+    void connect(const SPoolDatabaseConnection& db);
 
     /**
      * @brief Disconnects the query from the database and releases all the allocated resources.
@@ -124,7 +124,7 @@ public:
     /**
      * @brief Returns the database the query is connected to.
      */
-    [[nodiscard]] PoolDatabaseConnection* database() const
+    [[nodiscard]] SPoolDatabaseConnection database() const
     {
         return m_db;
     }
@@ -132,7 +132,7 @@ public:
     /**
      * @brief Connects the query to the database different database.
      */
-    void database(PoolDatabaseConnection* db)
+    void database(const SPoolDatabaseConnection& db)
     {
         connect(db);
     }
@@ -141,7 +141,7 @@ protected:
     /**
      * @brief Set database (internal).
      */
-    void setDatabase(PoolDatabaseConnection* db);
+    void setDatabase(const SPoolDatabaseConnection& db);
 
     /**
      * @brief Returns query statement handle.
@@ -228,7 +228,7 @@ private:
     bool                    m_bulkMode {false};    ///< Bulk mode flag.
     String                  m_sql;                 ///< SQL statement string.
     Strings                 m_messages;            ///< Optional diagnostic messages populated after exec() or open().
-    PoolDatabaseConnection* m_db {nullptr};        ///< Database connection.
+    SPoolDatabaseConnection m_db;                  ///< Database connection.
 };
 
 /**
@@ -274,7 +274,7 @@ public:
      * @param sql               The SQL query text to use, optional.
      * @param autoPrepare       If true then statement is auto-prepared before execution (if not yet prepared), otherwise it's called directly. Parameter binding is not available in not prepared statements.
      */
-    explicit Query(PoolDatabaseConnection* db, const String& sql = "", bool autoPrepare = true);
+    explicit Query(const SPoolDatabaseConnection& db, const String& sql = "", bool autoPrepare = true);
 
     /**
      * @brief Deleted copy constructor.
