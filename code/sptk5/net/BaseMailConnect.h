@@ -39,25 +39,25 @@ namespace sptk {
  */
 
 /**
- * @brief Base mail socket
+ * @brief Base mail socket.
  *
- * BaseMailConnect class is the base class for mail message components
+ * BaseMailConnect class is the base class for mail message components.
  */
 class SP_EXPORT BaseMailConnect
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     BaseMailConnect() = default;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~BaseMailConnect() = default;
 
     /**
-     * Method from() returns the current value of the 'FROM:' field of the e-mail message.
+     * @brief Method from() returns the current value of the 'FROM:' field of the e-mail message.
      * @returns a single e-mail address.
      */
     String from() const noexcept
@@ -67,8 +67,8 @@ public:
 
     /**
      * @brief Method from() sets the current value of the 'FROM:' field of the e-mail message.
-     * @param addr E-mail address in format:
-     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     * @param addr E-mail address in format:.
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void from(const String& addr)
     {
@@ -85,7 +85,7 @@ public:
 
     /**
      * @brief Method to() sets the current value of the 'TO:' field of the e-mail message.
-     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:.
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void to(const String& addr)
@@ -95,7 +95,7 @@ public:
 
     /**
      * @brief Method cc() returns the current value of the 'CC:' field of the e-mail message.
-     * @returns List of e-mail addresses. See method to() description for format
+     * @returns List of e-mail addresses. See method to() description for format.
      */
     String cc() const noexcept
     {
@@ -104,7 +104,7 @@ public:
 
     /**
      * @brief Method cc() sets the current value of the 'CC:' field of the e-mail message.
-     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:.
      * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void cc(const String& addr)
@@ -123,8 +123,8 @@ public:
 
     /**
      * @brief Method bcc() sets the current value of the 'BCC:' field of the e-mail message.
-     * @param addr Semicolon-separated list of one or more e-mail addresses in format:
-     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>
+     * @param addr Semicolon-separated list of one or more e-mail addresses in format:.
+     * Real sender name <sender\@host.net>. The example: John Doe <johnd\@unknown.org>.
      */
     void bcc(const String& addr)
     {
@@ -133,7 +133,7 @@ public:
 
     /**
      * @brief Method subject() returns the current value of the 'SUBJECT:' field of the e-mail message.
-     * @returns current message subject
+     * @returns current message subject.
      */
     String subject() const noexcept
     {
@@ -142,7 +142,7 @@ public:
 
     /**
      * @brief Method subject() sets the current value of the 'BCC:' field of the e-mail message.
-     * @param subj A message subject
+     * @param subj A message subject.
      */
     void subject(const String& subj)
     {
@@ -151,7 +151,7 @@ public:
 
     /**
      * @brief Method body() returns the current plain text part of the e-mail message.
-     * @returns current message plain-text part
+     * @returns current message plain-text part.
      */
     String body() const noexcept
     {
@@ -160,8 +160,8 @@ public:
 
     /**
      * @brief Sets the current plain text part of the e-mail message.
-     * @param body              Message body
-     * @param smtp              Do we need special pre-processing for SMTP?
+     * @param body              Message body.
+     * @param smtp              Do we need special pre-processing for SMTP?.
      */
     void body(const String& body, bool smtp)
     {
@@ -171,7 +171,7 @@ public:
     /**
      * @brief Method attachments() returns the current semicolon-separated list of attachments of the e-mail message.
      * Example: "readme.txt;readme.doc".
-     * @returns current message list of attachments
+     * @returns current message list of attachments.
      */
     String attachments() const noexcept
     {
@@ -181,7 +181,7 @@ public:
     /**
      * @brief Method attachments() sets the current semicolon-separated list of attachments of the e-mail message.
      * Example: "readme.txt;readme.doc".
-     * @param attachments current message list of attachments
+     * @param attachments current message list of attachments.
      */
     void attachments(const String& attachments)
     {
@@ -189,7 +189,7 @@ public:
     }
 
     /**
-     * @brief Method messageBuffer() returns the reference to the internal current message text completely
+     * @brief Method messageBuffer() returns the reference to the internal current message text completely.
      * prepared for sending, as described in RFC-822 message format. It only makes sense to use it after call to sendMessage().
      * @returns reference to the current message text.
      */

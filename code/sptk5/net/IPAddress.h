@@ -37,7 +37,7 @@
 #include <unistd.h>
 
 /**
- * A socket handle is an integer
+ * @brief A socket handle is an integer.
  */
 using SOCKET = int;
 using SOCKET_ADDRESS_FAMILY = sa_family_t;
@@ -47,7 +47,7 @@ using socklen_t = int;
 #endif
 
 /**
- * A value to indicate an invalid handle
+ * @brief A value to indicate an invalid handle.
  */
 #define INVALID_SOCKET -1
 
@@ -67,12 +67,12 @@ namespace sptk {
  */
 
 /**
- * @brief IPv4 and IPv6 address presentation
+ * @brief IPv4 and IPv6 address presentation.
  */
 class SP_EXPORT IPAddress
 {
     /**
-     * Shared storage for IPv4 and IPv6 addresses
+     * @brief Shared storage for IPv4 and IPv6 addresses.
      */
     union
     {
@@ -85,30 +85,30 @@ class SP_EXPORT IPAddress
 
 public:
     /**
-     * @brief Default constructor
+     * @brief Default constructor.
      */
     IPAddress();
 
     /**
-     * @brief Constructor
-     * @param address const sockaddr&, IPv4 address
+     * @brief Constructor.
+     * @param address IPv4 address.
      */
     explicit IPAddress(const sockaddr& address);
 
     /**
-     * @brief Copy constructor
-     * @param other const IPAddress&, Other address
+     * @brief Copy constructor.
+     * @param other another address.
      */
     IPAddress(const IPAddress& other);
 
     /**
-     * @brief Assignment
-     * @param other const IPAddress&, Other address
+     * @brief Assignment.
+     * @param other Another address.
      */
     IPAddress& operator=(const IPAddress& other);
 
     /**
-     * @brief Get address data
+     * @brief Get address data.
      */
     const sockaddr* address() const
     {
@@ -116,8 +116,8 @@ public:
     }
 
     /**
-     * Return length of address
-     * @return length of address
+     * @brief Return length of address.
+     * @return length of address.
      */
     size_t length() const
     {
@@ -125,8 +125,8 @@ public:
     }
 
     /**
-     * Return IP address as a string
-     * @return string presentation of IP address
+     * @brief Return the IP address as a string.
+     * @return string presentation of IP address.
      */
     const String& toString() const
     {
@@ -134,9 +134,9 @@ public:
     }
 
     /**
-     * Return length of actual address
-     * @param address const sockaddr&, Address data
-     * @return length of actual address
+     * @brief Return length of actual address.
+     * @param address Address data.
+     * @return length of actual address.
      */
     static size_t addressLength(const sockaddr& address)
     {

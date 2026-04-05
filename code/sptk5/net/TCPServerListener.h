@@ -55,11 +55,6 @@ public:
     ~TCPServerListener() override = default;
 
     /**
-     * @brief Thread function.
-     */
-    void threadFunction() override;
-
-    /**
      * @brief Start socket listening.
      */
     void listen();
@@ -70,7 +65,7 @@ public:
     Host host() const;
 
     /**
-     * @brief Returns latest socket error (if any).
+     * @brief Returns the latest socket error (if any).
      */
     String error() const;
 
@@ -83,6 +78,12 @@ public:
     {
         return m_hasStarted.wait_for(true, timeout);
     }
+
+protected:
+    /**
+     * @brief Thread function.
+     */
+    void threadFunction() override;
 
 private:
     mutable std::mutex     m_mutex;              ///< Listener mutex.
@@ -98,11 +99,11 @@ private:
         sockaddr_in connectionInfo = {};
     };
 
-    std::vector<std::jthread>               m_createConnectionThreads; ///< Create connection threads
-    SynchronizedQueue<CreateConnectionItem> m_createConnectionQueue;   ///< Create connection queue
+    std::vector<std::jthread>               m_createConnectionThreads; ///< Create connection threads.
+    SynchronizedQueue<CreateConnectionItem> m_createConnectionQueue;   ///< Create connection queue.
 
-    bool acceptConnection(const std::chrono::milliseconds& timeout);               ///< Accept connection
-    void createConnection(const CreateConnectionItem& createConnectionItem) const; ///< Create connection
+    bool acceptConnection(const std::chrono::milliseconds& timeout);               ///< Accept connection.
+    void createConnection(const CreateConnectionItem& createConnectionItem) const; ///< Create connection.
 };
 
 class TCPServer;

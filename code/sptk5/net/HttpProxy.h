@@ -51,7 +51,7 @@ public:
     using Proxy::Proxy;
 
     /**
-     * @brief Connect to destination host through this proxy.
+     * @brief Connect to the destination host through this proxy.
      * @param destination       Destination host.
      * @param blockingMode      Blocking mode.
      * @param timeout           Connection timeout.
@@ -60,7 +60,7 @@ public:
     SocketType connect(const Host& destination, bool blockingMode, const std::chrono::milliseconds& timeout) override;
 
     /**
-     * @brief Get default proxy host.
+     * @brief Get the default proxy host.
      * @param proxyHost         Proxy host (output).
      * @param proxyUser         Proxy user (output).
      * @param proxyPassword     Proxy password (output).
@@ -70,7 +70,7 @@ public:
 
 private:
     /**
-     * @brief Send HTTP request to proxy server.
+     * @brief Send the HTTP request to the proxy server.
      * @param destination       Proxy host.
      * @param socket            Proxy socket.
      */

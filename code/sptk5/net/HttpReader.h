@@ -42,32 +42,32 @@ namespace sptk {
  */
 
 /**
- * @brief A map of HTTP headers and their values (string to string)
+ * @brief A map of HTTP headers and their values (string to string).
  */
 using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
 
 /**
- * HTTP response reader
+ * @brief HTTP response reader.
  *
- * Designed to be able accepting asynchronous data
+ * Designed to be able to accept asynchronous data.
  */
 class SP_EXPORT HttpReader : public SocketReader
 {
 public:
     /**
-     * State of the response reader
+     * @brief State of the response reader.
      */
     enum class State : unsigned
     {
-        READY = 0,           ///< Reader is ready to start
-        READING_HEADERS = 1, ///< Reader is reading headers
-        READING_DATA = 2,    ///< Reader is reading data
-        COMPLETED = 4,       ///< Reading completed
-        READ_ERROR = 8       ///< Reading error (transfer terminated prematurely)
+        READY = 0,           ///< Reader is ready to start.
+        READING_HEADERS = 1, ///< Reader is reading headers.
+        READING_DATA = 2,    ///< Reader is reading data.
+        COMPLETED = 4,       ///< Reading completed.
+        READ_ERROR = 8       ///< Reading error (transfer terminated prematurely).
     };
 
     /**
-     * Read mode, defines is it HTTP request (GET, POST, etc) or response.
+     * @brief Read mode, defines is it the HTTP request (GET, POST, etc.) or response.
      */
     enum class ReadMode
     {
@@ -76,66 +76,67 @@ public:
     };
 
     /**
-     * Returns current reader state
+     * @brief Returns current reader state.
      */
     State getReaderState() const;
 
     /**
-     * Access to response headers
+     * @brief Access to response headers.
      */
     HttpHeaders& getHttpHeaders();
 
     /**
-     * Read-only access to response headers by name
-     * @param headerName        Header name
+     * @brief Read-only access to response headers by name.
+     * @param headerName        Header name.
      */
     String httpHeader(const String& headerName) const;
 
     /**
-     * Constructor
-     * @param socket            Socket to read from
-     * @param output            Output data buffer
+     * @brief Constructor.
+     * @param socket            Socket to read from.
+     * @param output            Output data buffer.
+     * @param readMode          HTTP response read mode.
      */
     HttpReader(const std::shared_ptr<TCPSocket>& socket, Buffer& output, ReadMode readMode);
 
     /**
-     * Get output buffer
-     * @return output buffer
+     * @brief Get the output buffer.
+     * @return output buffer.
      */
     Buffer& output();
 
     /**
-     * Read data that can be read completely
+     * @brief Read data that can be read completely.
      */
     void readStream();
 
     /**
-     * Read HTTP request string
+     * @brief Read HTTP request string.
      */
     bool readHttpRequest();
 
     /**
-     * Read headers that can be read completely
+     * @brief Read headers that can be read completely.
      */
     void readHttpHeaders();
 
     /**
-     * Read HTTP headers and data after socket is just connected.
-     * For requests, received by server, call readHttpRequest() first
-     * @param timeout           Read timeout
-     * @return HTTP status code
+     * @brief Read HTTP headers and data after the socket is just connected.
+     * For requests received by the server, call readHttpRequest() first.
+     * @param timeout           Read timeout.
+     * @return HTTP status code.
      */
     int readAll(const std::chrono::milliseconds& timeout);
 
     /**
-     * Status code getter
-     * @return status code
+     * @brief Status code getter.
+     * @return status code.
      */
     int getStatusCode() const;
 
     /**
-     * Status text getter
-     * @return status text
+     * @brief Status text getter.
+     * @return status text.
      */
     const String& getStatusText() const;
 
@@ -143,34 +144,34 @@ public:
     String getRequestURL() const;
 
 private:
-    ReadMode           m_readMode;                                                           ///< Read mode
-    State              m_readerState {State::READY};                                         ///< State of the reader
-    mutable std::mutex m_mutex;                                                              ///< Mutex that protects internal data
-    String             m_statusText;                                                         ///< HTTP response status text
-    int                m_statusCode {0};                                                     ///< HTTP response status code
-    size_t             m_contentLength {0};                                                  ///< Content length (as defined in responce headers), or 0
-    size_t             m_contentReceivedLength {0};                                          ///< Received content length so far
-    bool               m_contentIsChunked {false};                                           ///< Chunked content (as defined in responce headers)
-    HttpHeaders        m_httpHeaders;                                                        ///< HTTP response headers
-    RegularExpression  m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code
-    Buffer&            m_output;                                                             ///< Output data buffer
-    Buffer             m_read_buffer;                                                        ///< Read buffer
-    String             m_requestType;                                                        ///< Request type (GET, POST, etc)
-    String             m_requestURL;                                                         ///< Request URL (for REQUEST read mode only)
+    ReadMode           m_readMode;                                                           ///< Read mode.
+    State              m_readerState {State::READY};                                         ///< State of the reader.
+    mutable std::mutex m_mutex;                                                              ///< Mutex that protects internal data.
+    String             m_statusText;                                                         ///< HTTP response status text.
+    int                m_statusCode {0};                                                     ///< HTTP response status code.
+    size_t             m_contentLength {0};                                                  ///< Content length (as defined in responce headers), or 0.
+    size_t             m_contentReceivedLength {0};                                          ///< Received content length so far.
+    bool               m_contentIsChunked {false};                                           ///< Chunked content (as defined in responce headers).
+    HttpHeaders        m_httpHeaders;                                                        ///< HTTP response headers.
+    RegularExpression  m_matchProtocolAndResponseCode {"^(HTTP\\S+)\\s+(\\d+)\\s+(.*)?\r?"}; ///< Regular expression parsing protocol and response code.
+    Buffer&            m_output;                                                             ///< Output data buffer.
+    Buffer             m_read_buffer;                                                        ///< Read buffer.
+    String             m_requestType;                                                        ///< Request type (GET, POST, etc.).
+    String             m_requestURL;                                                         ///< Request URL (for REQUEST read mode only).
 
     /**
-     * Clear reader state
+     * @brief Clear reader state.
      */
     void clear() override;
 
     /**
-     * Read HTTP status
-     * @return true if status is read
+     * @brief Read HTTP status.
+     * @return true if status is read.
      */
     bool readStatus();
 
     /**
-     * Read headers that can be read completely
+     * @brief Read headers that can be read completely.
      */
     bool readData();
 

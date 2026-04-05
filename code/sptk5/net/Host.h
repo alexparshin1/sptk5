@@ -48,81 +48,81 @@ namespace sptk {
  */
 
 /**
- * Network host information
+ * @brief Network host information.
  */
 class SP_EXPORT Host
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     Host() noexcept;
 
     /**
-     * Constructor
-     * @param hostname          Host name or IP address
-     * @param port              Port number
+     * @brief Constructor.
+     * @param hostname          Host name or IP address.
+     * @param port              Port number.
      */
     Host(String hostname, uint16_t port);
 
     /**
-     * Constructor
-     * In order to work with IPv6 address, enclose address part in square brackets.
+     * @brief Constructor.
+     * To work with the IPv6 address, enclose the address part in square brackets.
      * @param hostAndPort       The host and port definition, in the format ipv4addr:port.
      */
     explicit Host(const String& hostAndPort);
 
     /**
-     * Constructor
-     * @param addressAndPort    The host and port, IPv4
+     * @brief Constructor.
+     * @param addressAndPort    The host and port, IPv4.
      */
     explicit Host(const sockaddr_in* addressAndPort);
 
     /**
-     * Constructor
-     * @param addressAndPort    The host and port, IPv6
+     * @brief Constructor.
+     * @param addressAndPort    The host and port, IPv6.
      */
     explicit Host(const sockaddr_in6* addressAndPort);
 
     /**
-     * Copy constructor
-     * @param other             The other object
+     * @brief Copy constructor.
+     * @param other             The other object.
      */
     Host(const Host& other);
 
     /**
-     * Move constructor
-     * @param other             The other object
+     * @brief Move constructor.
+     * @param other             The other object.
      */
     Host(Host&& other) noexcept;
 
     /**
-     * Destructor
+     * @brief Destructor.
      */
     virtual ~Host() = default;
 
     /**
-     * Assign from another host
-     * @param other             The other object
+     * @brief Assign from another host.
+     * @param other             The other object.
      */
     Host& operator=(const Host& other);
 
     /**
-     * Move assignment from another host
-     * @param other             The other object
+     * @brief Move assignment from another host.
+     * @param other             The other object.
      */
     Host& operator=(Host&& other) noexcept;
 
     /**
-     * Compare to another host
-     * @param other             The other object
-     * @return true if objects have equal data
+     * @brief Compare to another host.
+     * @param other             The other object.
+     * @return true if objects have equal data.
      */
     bool operator==(const Host& other) const;
 
     /**
-     * Get host name
-     * @return host name
+     * @brief Get the host name.
+     * @return host name.
      */
     String hostname() const
     {
@@ -131,8 +131,8 @@ public:
     }
 
     /**
-     * Set port number
-     * @param p                 Port number
+     * @brief Set the port number.
+     * @param p                 Port number.
      */
     void port(uint16_t p)
     {
@@ -140,8 +140,8 @@ public:
     }
 
     /**
-     * Get port number
-     * @return port number
+     * @brief Get the port number.
+     * @return port number.
      */
     uint16_t port() const
     {
@@ -150,15 +150,15 @@ public:
     }
 
     /**
-     * Get host name and port as a string.
+     * @brief Get the host name and port as a string.
      * IPv6 addresses are enclosed in square brackets.
-     * @param forceAddress      If true then use IP address instead of hostname
-     * @return host name and port string
+     * @param forceAddress      If true then use IP address instead of hostname.
+     * @return host name and port string.
      */
     String toString(bool forceAddress = false) const;
 
     /**
-     * Get host address
+     * @brief Get the host address.
      */
     void getAddress(sockaddr_in& address) const
     {
@@ -167,7 +167,7 @@ public:
     }
 
     /**
-     * Get host address
+     * @brief Get the host address.
      */
     void getAddress(sockaddr_in6& address) const
     {
@@ -178,16 +178,16 @@ public:
     void setHostNameFromAddress(socklen_t addressLen);
 
 private:
-    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data
-    String                                    m_hostname;   ///< Host name or IP address
-    uint16_t                                  m_port {0};   ///< Port number
-    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses
+    mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data.
+    String                                    m_hostname;   ///< Host name or IP address.
+    uint16_t                                  m_port {0};   ///< Port number.
+    std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses.
     static const RegularExpression            m_matchHostNameOrIpv4;
     static const RegularExpression            m_matchIpv6;
 
     /**
-     * Get address presentation as a generic IP address
-     * @return address presentation as a generic IP address
+     * @brief Get address presentation as a generic IP address.
+     * @return address presentation as a generic IP address.
      */
     sockaddr& any()
     {
@@ -195,8 +195,8 @@ private:
     }
 
     /**
-     * Get address presentation as a generic IP address (read-only)
-     * @return address presentation as a generic IP address
+     * @brief Get address presentation as a generic IP address (read-only).
+     * @return address presentation as a generic IP address.
      */
     const sockaddr& any() const
     {
@@ -204,8 +204,8 @@ private:
     }
 
     /**
-     * Get address presentation as IPv4 address
-     * @return address presentation as IPv4 address
+     * @brief Get address presentation as IPv4 address.
+     * @return address presentation as IPv4 address.
      */
     sockaddr_in& ip_v4()
     {
@@ -213,8 +213,8 @@ private:
     }
 
     /**
-     * Get address presentation as IPv4 address (read-only)
-     * @return address presentation as IPv4 address
+     * @brief Get address presentation as IPv4 address (read-only).
+     * @return address presentation as IPv4 address.
      */
     const sockaddr_in& ip_v4() const
     {
@@ -222,8 +222,8 @@ private:
     }
 
     /**
-     * Get address presentation as IPv6 address
-     * @return address presentation as IPv6 address
+     * @brief Get address presentation as IPv6 address.
+     * @return address presentation as IPv6 address.
      */
     sockaddr_in6& ip_v6()
     {
@@ -231,8 +231,8 @@ private:
     }
 
     /**
-     * Get address presentation as IPv6 address (read-only)
-     * @return address presentation as IPv6 address
+     * @brief Get address presentation as IPv6 address (read-only).
+     * @return address presentation as IPv6 address.
      */
     const sockaddr_in6& ip_v6() const
     {
@@ -240,14 +240,14 @@ private:
     }
 
     /**
-     * Get host address
+     * @brief Get the host address.
      */
     void   getHostAddress();
     String ipAddressToString(const uint8_t* addr) const;
 
     /**
-     * Set port number
-     * @param port                 Port number
+     * @brief Set the port number.
+     * @param port                 Port number.
      */
     void setPort(uint16_t port);
 };
@@ -257,16 +257,15 @@ using SHost = std::shared_ptr<Host>;
 /**
  * @brief Case-insensitive host compare class.
  *
- * Lower case host compare class is really useful if we need
- * a case-independent host map
+ * Lower case host compare class is really useful if we need a case-independent host map.
  */
 class SP_EXPORT HostCompare
 {
 public:
     /**
-     * @brief Compare method
-     * @param s1            First host
-     * @param s2            Second host
+     * @brief Compare method.
+     * @param s1            First host.
+     * @param s2            Second host.
      */
     bool operator()(const Host& s1, const Host& s2) const
     {

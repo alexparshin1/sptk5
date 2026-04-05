@@ -38,7 +38,7 @@ namespace sptk {
  */
 
 /**
- * IMAP socket
+ * @brief IMAP socket.
  *
  * Class CImapConnect is used to communicate with IMAP 4 servers.
  * It implements the most popular commands of IMAP protocol to build
@@ -48,23 +48,24 @@ class SP_EXPORT ImapConnect
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     ImapConnect() = default;
 
     /**
-     * Sends a command with the arguments. Arguments (if any) are automatically
-     * enquoted with double-quotes. The command is also appended with the new line characters (CRLF).
-     * @param cmd std::string, IMAP4 command
-     * @param arg1 std::string, optional command argument1
-     * @param arg2 std::string, optional command argument2
+     * @brief Sends a command with the arguments. Arguments (if any) are automatically enquoted with double-quotes.
+     *
+     * The command is also appended with the new line characters (CRLF).
+     * @param cmd std::string, IMAP4 command.
+     * @param arg1 std::string, optional command argument1.
+     * @param arg2 std::string, optional command argument2.
      */
     void command(const String& cmd, const String& arg1 = "", const String& arg2 = "");
 
     /**
      * @brief Close socket connection.
      */
-    void close();
+    void close() const;
 
     /**
      * @brief Returns reference to the last command response.
@@ -75,7 +76,7 @@ public:
     }
 
     /**
-     * IMAPv4 commands - any state
+     * @brief IMAPv4 commands - any state.
      *
      * Retrieves server's capabilities in response().
      */
@@ -85,7 +86,7 @@ public:
     }
 
     /**
-     * Sends NOOP command.
+     * @brief Sends NOOP command.
      */
     void cmd_noop()
     {
@@ -93,7 +94,7 @@ public:
     }
 
     /**
-     * Logs out from the current session.
+     * @brief Logs out from the current session.
      */
     void cmd_logout()
     {
@@ -103,25 +104,24 @@ public:
     // IMAPv4 commands - not logged in
 
     /**
-     * Logs in the server. The server name or address should be defined
-     * with the call of host() method.
-     * @param user std::string&, user name on the server
-     * @param password std::string&, user password on the server
+     * @brief Logs in the server. The server name or address should be defined with the call of host() method.
+     * @param user std::string&, username on the server.
+     * @param password std::string&, user password on the server.
      */
     void cmd_login(const String& user, const String& password);
 
     // IMAPv4 commands - logged in, mailbox-operations
 
     /**
-     * Selects the mail box for future operations.
-     * @param mail_box const std::string&, the name of the mail box
-     * @param total_msgs int32_t&, returns the total messages in the mail box
+     * @brief Selects the mailbox for future operations.
+     * @param mail_box const std::string&, the name of the mailbox.
+     * @param total_msgs int32_t&, returns the total messages in the mailbox.
      */
     void cmd_select(const String& mail_box, int32_t& total_msgs);
 
     /**
-     * Retrieves the mail box information into response().
-     * @param mail_box std::string, the name of the mail box
+     * @brief Retrieves the mailbox information into response().
+     * @param mail_box std::string, the name of the mailbox.
      */
     void cmd_examine(const String& mail_box)
     {
@@ -129,8 +129,8 @@ public:
     }
 
     /**
-     * Subscribes the mail box to the user.
-     * @param mail_box std::string, the name of the mail box
+     * @brief Subscribes the mailbox to the user.
+     * @param mail_box std::string, the name of the mailbox.
      */
     void cmd_subscribe(const String& mail_box)
     {
@@ -138,8 +138,8 @@ public:
     }
 
     /**
-     * Unsubscribes the mail box from the user.
-     * @param mail_box std::string, the name of the mail box
+     * @brief Unsubscribes the mailbox from the user.
+     * @param mail_box std::string, the name of the mailbox.
      */
     void cmd_unsubscribe(const String& mail_box)
     {
@@ -147,8 +147,8 @@ public:
     }
 
     /**
-     * Creates the new mail box.
-     * @param mail_box std::string, the name of the mail box
+     * @brief Creates the new mailbox.
+     * @param mail_box std::string, the name of the mailbox.
      */
     void cmd_create(const String& mail_box)
     {
@@ -156,8 +156,8 @@ public:
     }
 
     /**
-     * Deletes the new mail box.
-     * @param mail_box std::string, the name of the mail box
+     * @brief Deletes the new mailbox.
+     * @param mail_box std::string, the name of the mailbox.
      */
     void cmd_delete(const String& mail_box)
     {
@@ -165,9 +165,9 @@ public:
     }
 
     /**
-     * Renames the new mail box.
-     * @param mail_box std::string, the name of the mail box
-     * @param new_name std::string, the new name of the mail box
+     * @brief Renames the new mailbox.
+     * @param mail_box std::string, the name of the mailbox.
+     * @param new_name std::string, the new name of the mailbox.
      */
     void cmd_rename(const String& mail_box, const String& new_name)
     {
@@ -175,23 +175,23 @@ public:
     }
 
     /**
-     * Retrieves the list of mail boxes.
-     * @param mail_box_mask std::string, the mask for the mail box names
-     * @param decode bool, true if you want to convert the response into plain folder list.
+     * @brief Retrieves the list of mailboxes.
+     * @param mail_box_mask std::string, the mask for the mailbox names.
+     * @param decode bool, true if you want to convert the response into the plain folder list.
      */
     void cmd_list(const String& mail_box_mask, bool decode = false);
 
     /**
-     * Appends the message to the mail box.
-     * @param mail_box std::string, the name of the mail box
-     * @param message CBuffer, the RFC-2060 defined message
+     * @brief Appends the message to the mailbox.
+     * @param mail_box std::string, the name of the mailbox.
+     * @param message CBuffer, the RFC-2060 defined message.
      */
     void cmd_append(const String& mail_box, const Buffer& message);
 
     // IMAPv4 commands - logged in, selected mailbox-operations
 
     /**
-     * Closes the connection with the server.
+     * @brief Closes the connection with the server.
      */
     void cmd_close()
     {
@@ -199,7 +199,7 @@ public:
     }
 
     /**
-     * Expanges the deleted messages in the current mail box.
+     * @brief Expanges the deleted messages in the current mailbox.
      */
     void cmd_expunge()
     {
@@ -207,40 +207,40 @@ public:
     }
 
     /**
-     * Reatrieves all the messages list in the current mail box.
+     * @brief Reatrieves all the messages list in the current mailbox.
      */
     void cmd_search_all(String& result);
 
     /**
-     * Reatrieves the new messages list in the current mail box.
+     * @brief Reatrieves the new messages list in the current mailbox.
      */
     void cmd_search_new(String& result);
 
     /**
-     * Reatrieves the headers for the message.
-     * @param msg_id int32_t, the message identifier
-     * @param result CFieldList, the message headers information
+     * @brief Reatrieves the headers for the message.
+     * @param msg_id int32_t, the message identifier.
+     * @param result CFieldList, the message headers information.
      */
     void cmd_fetch_headers(int32_t msg_id, FieldList& result);
 
     /**
-     * Reatrieves the message information.
-     * @param msg_id int, the message identifier
-     * @param result CFieldList, the complete message information
+     * @brief Reatrieves the message information.
+     * @param msg_id int, the message identifier.
+     * @param result CFieldList, the complete message information.
      */
     void cmd_fetch_message(int32_t msg_id, FieldList& result);
 
     /**
-     * Gets message flags
-     * @param msg_id int, the message identifier
-     * @returns std::string, the message flags
+     * @brief Gets message flags.
+     * @param msg_id int, the message identifier.
+     * @returns std::string, the message flags.
      */
     String cmd_fetch_flags(int32_t msg_id);
 
     /**
-     * Sets message flags
-     * @param msg_id int, the message identifier
-     * @param flags const char *, the message flags
+     * @brief Sets message flags.
+     * @param msg_id int, the message identifier.
+     * @param flags const char *, the message flags.
      */
     void cmd_store_flags(int32_t msg_id, const char* flags);
 
@@ -252,16 +252,16 @@ public:
     /**
      * @brief Set IMAP host.
      */
-    void host(const Host& host);
+    void host(const Host& host) const;
 
 
 protected:
     /**
-     * Sends a command to the server, but doesn't retrieve the server response
+     * @brief Sends a command to the server but doesn't retrieve the server response.
      *
      * The new line characters (CRLF) are added to the end of every command.
-     * @param cmd std::string, the complete text of IMAP4 command
-     * @returns the unique command identifier
+     * @param cmd std::string, the complete text of IMAP4 command.
+     * @returns the unique command identifier.
      */
     String sendCommand(const String& cmd);
 
@@ -272,13 +272,13 @@ protected:
     void getResponse(const String& ident);
 
     /**
-     * Parses the result of SEARCH command in response. Returns results in result parameter
+     * @brief Parses the result of SEARCH command in response. Returns results in result parameter.
      * @param result std::string, returns the search results.
      */
     void parseSearch(String& result) const;
 
     /**
-     * @brief Parses server response as a message data (after the appropriate command) to the set of fields.
+     * @brief Parses server response as message data (after the appropriate command) to the set of fields.
      * @param result CFieldList, the set of fields with the message information.
      * @param headersOnly bool, true if we don't want to retrieve the message body.
      */

@@ -60,7 +60,7 @@ public:
 /**
  * @brief HTTP params.
  *
- * Designed to hold HTTP parametrs in HttpConnect. It is a string-to-string
+ * Designed to hold HTTP parameters in HttpConnect. It is a string-to-string
  * map with an addition of encode and decode functions for HTTP Mime.
  * The parameter names are case-insensitive.
  */
@@ -89,7 +89,7 @@ public:
     void encode(Buffer& result) const;
 
     /**
-     * @brief Decodes URL parameters that came from the server as a string into the parameters map.
+     * @brief Decodes URL parameters that came from the server as a string into the parameter map.
      * @param buffer       Parameters string from HTTP server.
      */
     void decode(const Buffer& buffer);

@@ -32,25 +32,27 @@
 
 namespace sptk {
 /**
- * @addtogroup network Network Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 
 /**
- * @brief Abstract TCP server connection thread
+ * @brief Abstract TCP server connection thread.
  *
  * Application derives concrete TCP server connections based on this class,
- * to use with CTCPServer as connection template
+ * to use with TCPServer as the connection template.
  */
 class SP_EXPORT SSLServerConnection : public RunableServerConnection
 {
 public:
     /**
-     * @brief Constructor
-     * @param server             TCP server
-     * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket
+     * @brief Constructor.
+     * @param server             TCP server.
+     * @param connectionSocket   SOCKET, Already accepted by accept() function incoming connection socket.
+     * @param connectionAddress  Address of the connected client.
+     * @param connectionFunction Function to be executed by the connection thread.
      */
-    SSLServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
+    SSLServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const Function& connectionFunction)
         : RunableServerConnection(server, Type::SSL, connectionAddress, connectionFunction)
     {
         auto sslSocket = std::make_shared<SSLSocket>();
@@ -65,7 +67,7 @@ public:
     }
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~SSLServerConnection() override = default;
 };

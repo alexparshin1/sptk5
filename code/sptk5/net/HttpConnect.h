@@ -55,7 +55,7 @@ public:
     {
     public:
         /**
-         * Copy constructor.
+         * @brief Copy constructor.
          * @param other         Another object.
          */
         Authorization(const Authorization& other) = default;
@@ -66,8 +66,8 @@ public:
         Authorization() = delete;
 
         /**
-         * Copy assignment
-         * @param other         Other object
+         * @brief Copy assignment.
+         * @param other         Other object.
          */
         Authorization& operator=(const Authorization& other) = default;
 
@@ -141,7 +141,7 @@ public:
      * @brief Constructor.
      *
      * External socket has to be active before HTTP operations.
-     * In order to use HTTPS protocol, use COpenSSLSocket.
+     * For HTTPS protocol, use COpenSSLSocket.
      * @param socket            external socket.
      */
     explicit HttpConnect(std::shared_ptr<TCPSocket> socket);
@@ -223,7 +223,7 @@ public:
       * @param output            Output data.
       * @param authorization     Optional authorization.
       * @param timeout           Request timeout.
-      * @return HTTP result code
+      * @return HTTP result code.
       */
     [[nodiscard]] int cmd_delete(const String& pageName, const HttpParams& parameters, Buffer& output,
                                  const Authorization*             authorization = nullptr,
@@ -232,7 +232,7 @@ public:
     /**
      * @brief Get value of the response header.
      * @param headerName        Response header name.
-     * @return header value, or empty string if header is not a part of the response.
+     * @return header value, or empty string if the header is not a part of the response.
      */
     [[nodiscard]] String responseHeader(const String& headerName) const;
 
@@ -243,8 +243,8 @@ public:
     [[nodiscard]] int statusCode() const;
 
     /**
-     * @brief Get the request execution status text
-     * @return request execution status text
+     * @brief Get the request execution status text.
+     * @return request execution status text.
      */
     [[nodiscard]] String statusText() const;
 
@@ -276,6 +276,7 @@ protected:
      *
      * Stops when the HTTP server closes the connection. The server response can then be
      * accessed through the htmlData() method.
+     * @param output            Output buffer to store the server response.
      * @param timeout           Response timeout.
      * @return HTTP result code.
      */
@@ -284,7 +285,7 @@ protected:
 private:
     std::shared_ptr<HttpReader> m_reader;         ///< HTTP reader.
     std::shared_ptr<TCPSocket>  m_socket;         ///< External socket.
-    HttpHeaders                 m_requestHeaders; ///< HTTP request headers
+    HttpHeaders                 m_requestHeaders; ///< HTTP request headers.
 };
 
 /**

@@ -33,17 +33,17 @@
 namespace sptk {
 
 /**
- * @addtogroup network Network Classes
+ * @addtogroup network Network Classes.
  * @{
  */
 
 /**
- * Progression callback function prototype
+ * @brief Progression callback function prototype.
  */
 using ProgressCallback = std::function<void(int total, int progress)>;
 
 /**
- * @brief IMAP datasource
+ * @brief IMAP datasource.
  *
  * Allows browsing the list of messages and folders on the IMAP server.
  * It returns a dataset with message headers.
@@ -53,20 +53,20 @@ class SP_EXPORT ImapDS
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     using MemoryDS::MemoryDS;
 
     /**
-     * Set IMAP host
+     * @brief Set IMAP host.
      */
-    void host(const Host& host)
+    void host(const Host& host) const
     {
         m_imap.host(host);
     }
 
     /**
-     * Get IMAP host
+     * @brief Get IMAP host.
      */
     Host host() const
     {
@@ -74,7 +74,7 @@ public:
     }
 
     /**
-     * IMAP username
+     * @brief IMAP username.
      */
     void user(const String& usr)
     {
@@ -82,7 +82,7 @@ public:
     }
 
     /**
-     * IMAP username
+     * @brief IMAP username.
      */
     const String& user() const
     {
@@ -90,7 +90,7 @@ public:
     }
 
     /**
-     * IMAP user password
+     * @brief IMAP user password.
      */
     void password(const String& pwd)
     {
@@ -98,7 +98,7 @@ public:
     }
 
     /**
-     * IMAP user password
+     * @brief IMAP user password.
      */
     const String& password() const
     {
@@ -106,7 +106,7 @@ public:
     }
 
     /**
-     * IMAP folder name
+     * @brief IMAP folder name.
      */
     void folder(const String& d)
     {
@@ -114,7 +114,7 @@ public:
     }
 
     /**
-     * IMAP folder name
+     * @brief IMAP folder name.
      */
     const String& folder() const
     {
@@ -122,8 +122,8 @@ public:
     }
 
     /**
-     * IMAP message ID (message number in the folder). If defined,
-     * the open() will retrieve only the message with the selected ID (if any)
+     * @brief IMAP message ID (message number in the folder). If defined,
+     * the open() will retrieve only the message with the selected ID (if any).
      */
     void messageID(int msgid)
     {
@@ -131,7 +131,7 @@ public:
     }
 
     /**
-     * Returns the ID of the message when defined to retrieve one message only
+     * @brief Returns the ID of the message when defined to retrieve one message only.
      */
     int messageID() const
     {
@@ -139,7 +139,7 @@ public:
     }
 
     /**
-     * Sets the fetch body flag. Should be called prior to open().
+     * @brief Sets the fetch body flag. Should be called prior to open().
      * If the fetch body flag is not set, only the message headers will be retrieved, and that is much faster.
      */
     void fetchBody(bool fb)
@@ -148,8 +148,8 @@ public:
     }
 
     /**
-     * Returns the current value of the fetch body flag
-     * @returns the fetch body flag
+     * @brief Returns the current value of the fetch body flag.
+     * @returns the fetch body flag.
      */
     bool fetchBody() const
     {
@@ -157,14 +157,14 @@ public:
     }
 
     /**
-     * Opens the IMAP server connection with username and password defined with user() and password().
+     * @brief Opens the IMAP server connection with username and password defined with user() and password().
      * Scans the IMAP folder defined with folder(), then closes the IMAP server connection.
      */
     bool open() override;
 
     /**
-     * Optional callback for the open() method progression.
-     * @param cb CProgressCallback, a callback function
+     * @brief Optional callback for the open() method progression.
+     * @param cb CProgressCallback, a callback function.
      */
     void callback(const ProgressCallback& cb)
     {
@@ -172,13 +172,13 @@ public:
     }
 
 private:
-    ImapConnect      m_imap;               ///< IMAP socket connector
-    String           m_folder;             ///< IMAP folder name
-    String           m_user;               ///< IMAP user name
-    String           m_password;           ///< IMAP user password
+    ImapConnect      m_imap;               ///< IMAP socket connector.
+    String           m_folder;             ///< IMAP folder name.
+    String           m_user;               ///< IMAP user name.
+    String           m_password;           ///< IMAP user password.
     bool             m_fetchbody {false};  ///< Do we want to fetch the message headers AND message body?
-    ProgressCallback m_callback {nullptr}; ///< Internal prograssion callback for open()
-    int              m_msgid {0};          ///< Internal message ID
+    ProgressCallback m_callback {nullptr}; ///< Internal prograssion callback for open().
+    int              m_msgid {0};          ///< Internal message ID.
 };
 /**
  * @}

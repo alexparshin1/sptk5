@@ -53,7 +53,7 @@ public:
     /**
      * @brief Constructor.
      *
-     * Private key and certificates must be encoded with PEM format.
+     * The private key and certificates must be encoded with PEM format.
      * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If the private key is protected with password, then password can be supplied to auto-answer.
@@ -116,7 +116,7 @@ public:
     [[nodiscard]] int verifyMode() const;
 
     /**
-     * @return number of certificates to verify
+     * @return number of certificates to verify.
      */
     [[nodiscard]] int verifyDepth() const;
 
@@ -137,7 +137,7 @@ private:
 
     /**
      * @brief Assign keys from another object.
-     * @param other
+     * @param other Another SSLKeys object.
      */
     void assign(const SSLKeys& other);
 };

@@ -43,11 +43,11 @@ class SP_EXPORT RunableServerConnection
 {
 public:
     /**
-     * Constructor
-     * @param server            Server that created this connection
-     * @param type              Connection type
-     * @param connectionAddress Connection address
-     * @param connectionFunction Connection function executed for each new client connection to server
+     * @brief Constructor.
+     * @param server            Server that created this connection.
+     * @param type              Connection type.
+     * @param connectionAddress Connection address.
+     * @param connectionFunction Connection function executed for each new client connection to the server.
      */
     RunableServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress,
                             Function connectionFunction = {})
@@ -67,7 +67,7 @@ protected:
     }
 
 private:
-    Function m_connectionFunction; ///< Function that is executed for each client connection
+    Function m_connectionFunction; ///< Function that is executed for each client connection.
 };
 
 /**

@@ -39,17 +39,17 @@ namespace sptk {
  * @brief Abstract TCP server connection thread.
  *
  * Application derives concrete TCP server connections based on this class,
- * to use with CTCPServer as connection template
+ * to use with TCPServer as a connection template.
  */
 class SP_EXPORT TCPServerConnection : public RunableServerConnection
 {
 public:
     /**
-     * @brief Constructor
-     * @param server            TCP server
-     * @param connectionSocket  Already accepted by accept() function incoming connection socket
-     * @param connectionAddress Incoming connection address
-     * @param connectionFunction Connection function executed for each new client connection to server
+     * @brief Constructor.
+     * @param server            TCP server.
+     * @param connectionSocket  Already accepted by accept() function incoming connection socket.
+     * @param connectionAddress Incoming connection address.
+     * @param connectionFunction Connection function executed for each new client connection to the server.
      */
     explicit TCPServerConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* connectionAddress, const ServerConnection::Function& connectionFunction)
         : RunableServerConnection(server, Type::TCP, connectionAddress, connectionFunction)
@@ -59,7 +59,7 @@ public:
     }
 
     /**
-     * Terminate connection thread
+     * @brief Terminate the connection thread.
      */
     void terminate() override
     {

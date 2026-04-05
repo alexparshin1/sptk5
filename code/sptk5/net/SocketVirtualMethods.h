@@ -165,12 +165,12 @@ protected:
     virtual void closeUnlocked();
 
     /**
-     * @brief Get socket internal (OS) handle.
+     * @brief Get the socket OS handle.
      */
     SocketType getSocketFdUnlocked() const;
 
     /**
-     * @brief Set socket internal (OS) handle.
+     * @brief Set the socket OS handle.
      */
     void setSocketFdUnlocked(SocketType socket);
 
@@ -186,7 +186,7 @@ protected:
     [[nodiscard]] const Host& getHostUnlocked() const;
 
     /**
-     * @brief Return current blocking mode state.
+     * @brief Return the current blocking mode state.
      * @return Current blocking mode state.
      */
     [[nodiscard]] bool getBlockingModeUnlocked() const;
@@ -216,7 +216,7 @@ protected:
     [[nodiscard]] virtual size_t getSocketBytesUnlocked() const;
 
     /**
-     * @brief Attaches socket handle.
+     * @brief Attaches the socket handle.
      * @param socketHandle      Existing socket handle.
      * @param accept            True if the socket is attached for accepting connection.
      */
@@ -269,7 +269,7 @@ protected:
     /**
      * @brief Writes data to the socket.
      *
-     * If size is omitted, then buffer is treated as zero-terminated string.
+     * If size is omitted, then the buffer is treated as a zero-terminated string.
      * @param buffer            The memory buffer.
      * @param size              The memory buffer size.
      * @param peer              The peer information.
@@ -293,7 +293,7 @@ protected:
     [[nodiscard]] int32_t getProtocolUnlocked() const;
 
 private:
-    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket internal (OS) handle.
+    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket OS handle.
     int32_t    m_domain;                    ///< Socket domain type.
     int32_t    m_type;                      ///< Socket type.
     int32_t    m_protocol;                  ///< Socket protocol.
@@ -309,7 +309,7 @@ private:
 [[nodiscard]] SP_EXPORT int getSocketError(int nativeErrorCode = -1);
 
 /**
- * @brief Throws socket exception with error description retrieved from socket state.
+ * @brief Throws socket exception with the error description retrieved from the socket state.
  * @param message           Error message.
  * @param location          Source location.
  */

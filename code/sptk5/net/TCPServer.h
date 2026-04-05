@@ -116,7 +116,7 @@ public:
     }
 
 private:
-    MessageDetails                               m_details; ///< Log details set
+    MessageDetails                               m_details; ///< Log details set.
     static const std::map<String, MessageDetail> detailNames;
 };
 
@@ -223,6 +223,7 @@ public:
 protected:
     /**
      * @brief Screen incoming connection request.
+     *
      * Method is called right after the connection request is accepted
      * and allows ignoring unwanted connections. By default, simply returns true (allow).
      * @param connectionRequest Incoming connection information.
@@ -247,7 +248,7 @@ protected:
      * @param eventType         Thread event type.
      * @param runable           Related runable (if any).
      */
-    void threadEvent(Thread* thread, ThreadEvent::Type eventType, SRunable runable) override;
+    void threadEvent(Thread* thread, Type eventType, SRunable runable) override;
 
 private:
     using SListener = std::shared_ptr<TCPServerListener>;

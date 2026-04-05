@@ -27,7 +27,6 @@
 #pragma once
 
 #include <sptk5/Buffer.h>
-#include <sptk5/Strings.h>
 #include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
@@ -155,7 +154,7 @@ private:
     mutable std::mutex         m_mutex;          ///< Mutex protecting read operations.
     std::shared_ptr<TCPSocket> m_socket;         ///< Socket to read from.
     size_t                     m_readOffset {0}; ///< Current offset in the read buffer.
-    Buffer                     m_buffer;         ///< Read buffer
+    Buffer                     m_buffer;         ///< Read buffer.
 
     [[nodiscard]] size_t readFromSocket();
 

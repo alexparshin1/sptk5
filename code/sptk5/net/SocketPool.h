@@ -47,13 +47,13 @@ namespace sptk {
  */
 
 /**
- * Socket event types
+ * @brief Socket event types.
  */
 struct SocketEventType
 {
-    bool m_data : 1;   ///< Socket has data available to read
-    bool m_hangup : 1; ///< Peer closed connection
-    bool m_error : 1;  ///< Connection error
+    bool m_data : 1;   ///< Socket has data available to read.
+    bool m_hangup : 1; ///< Peer closed connection.
+    bool m_error : 1;  ///< Connection error.
 };
 
 #ifdef _WIN32
@@ -63,13 +63,13 @@ struct SocketEventType
 #endif // _WIN32
 
 /**
- * @brief Socket event trigger mode
+ * @brief Socket event trigger mode.
  */
 enum class SocketPoolTriggerMode
 {
-    EdgeTriggered, ///< Execute callback once upon new data arrival
-    OneShot,       ///< Execute callback once when data becomes available
-    LevelTriggered ///< Execute callback periodically while data is available
+    EdgeTriggered, ///< Execute callback once upon new data arrival.
+    OneShot,       ///< Execute callback once when data becomes available.
+    LevelTriggered ///< Execute callback periodically while data is available.
 };
 
 /**
@@ -82,26 +82,26 @@ using SocketEventCallback = std::function<void(const std::shared_ptr<T>& userDat
  * @brief Socket event manager.
  *
  * Uses OS-specific implementation.
- * On Linux it is using epoll, on BSD it is using kqueue,
+ * On Linux it is using epoll, on BSD it is using kqueue,.
  * and on Windows WSAAsyncSelect is used.
  */
 class SP_EXPORT SocketPool
 {
 public:
     /**
-     * @brief Constructor
-     * @param triggerMode    Socket event trigger mode
-     * @param maxEvents      Maximum number of socket events per poll
+     * @brief Constructor.
+     * @param triggerMode    Socket event trigger mode.
+     * @param maxEvents      Maximum number of socket events per poll.
      */
     explicit SocketPool(SocketPoolTriggerMode triggerMode, size_t maxEvents = 1024);
 
     /**
-     * @brief Deleted copy constructor
+     * @brief Deleted copy constructor.
      */
     SocketPool(const SocketPool&) noexcept = delete;
 
     /**
-     * Deleted copy assignment
+     * @brief Deleted copy assignment.
      */
     SocketPool& operator=(const SocketPool&) = delete;
 
@@ -111,12 +111,12 @@ public:
     virtual ~SocketPool();
 
     /**
-     * @brief Initialize socket pool
+     * @brief Initialize socket pool.
      */
     void open();
 
     /**
-     * Wait until one or more sockets are signaled.
+     * @brief Wait until one or more sockets are signaled.
      *
      * Execute the callback function for each signaled socket.
      */
@@ -134,16 +134,16 @@ public:
 
 protected:
     /**
-     * @brief Add the socket to the monitored pool
-     * @param socketFd            Socket to monitor events
-     * @param userData          User data to pass to the callback function
+     * @brief Add the socket to the monitored pool.
+     * @param socketFd            Socket to monitor events.
+     * @param userData          User data to pass to the callback function.
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
     void addSocket(SocketType socketFd, const uint8_t* userData, bool rearmOneShot = false);
 
     /**
-     * @brief Remove the socket from the monitored pool
-     * @param socketFd            Socket from this pool
+     * @brief Remove the socket from the monitored pool.
+     * @param socketFd            Socket from this pool.
      */
     void removeSocket(SocketType socketFd) const;
 
@@ -151,7 +151,7 @@ protected:
 
 private:
     /**
-     * Socket that controls other sockets events
+     * @brief Socket that controls other sockets events.
      */
 #ifdef _WIN32
     HANDLE m_pool {INVALID_EPOLL};
@@ -218,7 +218,7 @@ public:
         if (const auto fd = socketPtr->fd();
             fd != INVALID_SOCKET)
         {
-            setSocketUserData(socketPtr, socket, userData);
+            setSocketUserData(socket, userData);
             try
             {
                 addSocket(fd, reinterpret_cast<const uint8_t*>(socketPtr), rearmOneShot);
@@ -280,10 +280,10 @@ private:
      * @param socket            The socket to set the user data for.
      * @param userData          The user data to set.
      */
-    void setSocketUserData(Socket* socketPtr, const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData)
+    void setSocketUserData(const std::shared_ptr<Socket>& socket, const std::shared_ptr<T>& userData)
     {
         const std::unique_lock lock(m_mutex);
-        m_objects[socketPtr] = {socket, userData};
+        m_objects[socket.get()] = {socket, userData};
     }
 
     /**
@@ -305,10 +305,10 @@ private:
      * @brief Remove the user data for a socket.
      * @param socket            The socket to remove the user data for.
      */
-    void removeSocketUserData(Socket* socketPtr)
+    void removeSocketUserData(Socket* socket)
     {
         const std::unique_lock lock(m_mutex);
-        m_objects.erase(socketPtr);
+        m_objects.erase(socket);
     }
 };
 

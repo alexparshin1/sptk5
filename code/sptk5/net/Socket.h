@@ -96,7 +96,7 @@ public:
     }
 
     /**
-     * @brief Attaches socket handle.
+     * @brief Attaches the socket handle.
      * @param socketHandle      Existing socket handle.
      * @param accept            Socket is attached for accepting connection.
      */
@@ -325,7 +325,7 @@ public:
     }
 
     /**
-     * @brief Return current blocking mode state.
+     * @brief Return the current blocking mode state.
      * @return Current blocking mode state.
      */
     [[nodiscard]] bool blockingMode() const
@@ -376,7 +376,7 @@ protected:
     }
 
 private:
-    mutable std::mutex m_mutex; ///< Mutex that protects host data
+    mutable std::mutex m_mutex; ///< Mutex that protects host data.
 };
 
 /**

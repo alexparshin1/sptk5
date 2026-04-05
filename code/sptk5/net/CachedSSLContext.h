@@ -39,24 +39,24 @@ class CachedSSLContext
 {
 public:
     /**
-     * @brief Loads private key and certificate(s)
+     * @brief Loads private key and certificate(s).
      *
-     * Private key and certificates must be encoded with PEM format.
+     * The private key and certificates must be encoded with PEM format.
      * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
      * If the private key is protected with password, then password can be supplied to auto-answer.
-     * @param keys				Keys
-	 * @param cipherList		Cipher list
-     * @param tlsOnly 			Use only TLS
-     * @return					Shared SSL context
+     * @param keys				Keys.
+	 * @param cipherList		Cipher list.
+     * @param tlsOnly 			Use only TLS.
+     * @return					Shared SSL context.
      */
     [[nodiscard]] SP_EXPORT static SharedSSLContext get(const SSLKeys& keys, const String& cipherList, bool tlsOnly);
 
 private:
     using CachedSSLContextMap = std::map<size_t, SharedSSLContext>;
 
-    static std::shared_mutex   m_mutex;    ///< Mutex for thread safety
-    static CachedSSLContextMap m_contexts; ///< Cached SSL contexts
+    static std::shared_mutex   m_mutex;    ///< Mutex for thread safety.
+    static CachedSSLContextMap m_contexts; ///< Cached SSL contexts.
 };
 
 /**

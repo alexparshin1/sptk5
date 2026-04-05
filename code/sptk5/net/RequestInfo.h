@@ -36,13 +36,13 @@ namespace sptk {
  */
 
 /**
- * Request information
+ * @brief Request information.
  */
 class SP_EXPORT RequestInfo
 {
 public:
     /**
-     * Message information
+     * @brief Message information.
      */
     class SP_EXPORT Message
     {
@@ -109,9 +109,9 @@ public:
     {
     }
 
-    Message request;  ///< Request data
-    Message response; ///< Response data
-    String  name;     ///< Request name
+    Message request;  ///< Request data.
+    Message response; ///< Response data.
+    String  name;     ///< Request name.
 };
 
 /**

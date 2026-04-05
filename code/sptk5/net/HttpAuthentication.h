@@ -89,10 +89,10 @@ public:
     [[nodiscard]] Type type();
 
 private:
-    Type                 m_type {Type::UNDEFINED}; ///< Authentication data type
-    String               m_authenticationHeader;   ///< Authentication data
-    std::shared_ptr<JWT> m_jwtData;                ///< JWT token, if the type is BEARER
-    xdoc::SDocument      m_userData;               ///< Decoded user data
+    Type                 m_type {Type::UNDEFINED}; ///< Authentication data type.
+    String               m_authenticationHeader;   ///< Authentication data.
+    std::shared_ptr<JWT> m_jwtData;                ///< JWT token, if the type is BEARER.
+    xdoc::SDocument      m_userData;               ///< Decoded user data.
 
     /**
      * @brief Decode authentication data (username and password, or JWT).

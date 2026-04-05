@@ -39,7 +39,7 @@ namespace sptk {
  */
 
 /**
- * @brief SMTP socket
+ * @brief SMTP socket.
  *
  * Sends an e-mail message using SMTP protocol.
  * It uses CSocket class to establish the connection, and CBaseMailConnect
@@ -49,8 +49,8 @@ class SP_EXPORT SmtpConnect : public BaseMailConnect
 {
 public:
     /**
-     * @brief Default constructor
-     * @param log               Optional log object
+     * @brief Default constructor.
+     * @param log               Optional log object.
      */
     explicit SmtpConnect(Logger* log = nullptr);
 
@@ -70,9 +70,9 @@ public:
     }
 
     /**
-     * @brief Logs in to the server host()
-     * @param user              Username
-     * @param password          User password
+     * @brief Logs in to the server host().
+     * @param user              Username.
+     * @param password          User password.
      */
     void cmd_auth(const String& user, const String& password);
 
@@ -94,25 +94,25 @@ protected:
      * @brief Sends command using SMTP protocol and retrieve the server response.
      * The response can be read then with the response() method.
      * The CRLF characters after the command are added automatically.
-     * @param cmd               SMTP protocol command
-     * @param encodeCommand     Encode the comand argument to Base64 or not
-     * @param decodeResponse    Decode the response from Base64 or not
+     * @param cmd               SMTP protocol command.
+     * @param encodeCommand     Encode the comand argument to Base64 or not.
+     * @param decodeResponse    Decode the response from Base64 or not.
      */
     int command(const String& cmd, bool encodeCommand = false, bool decodeResponse = false);
 
     /**
-     * @brief Sends command using SMTP protocol
+     * @brief Sends command using SMTP protocol.
      *
      * The CRLF characters after the command are added automatically.
-     * @param cmd               SMTP protocol command
-     * @param encode            Encode the arguments to Base64 or not
+     * @param cmd               SMTP protocol command.
+     * @param encode            Encode the arguments to Base64 or not.
      */
     void sendCommand(String cmd, bool encode = false) const;
 
     /**
      * @brief Sends the message.
      *
-     * The message is based on the information defined by the methods from
+     * The message is based on the information defined by the methods from.
      * BaseMailConnect and retrieves the server output.
      */
     void sendMessage() override;
@@ -133,16 +133,16 @@ protected:
     static String mime(const Buffer& buffer);
 
     /**
-     * @brief Mime-encodes the string
-     * @param str                 Source data
-     * @return MIME-encoded data
+     * @brief Mime-encodes the string.
+     * @param str                 Source data.
+     * @return MIME-encoded data.
      */
     static String mime(const String& str);
 
     /**
-     * @brief Mime-decodes the string
-     * @param str                 Source data
-     * @return Decoded data
+     * @brief Mime-decodes the string.
+     * @param str                 Source data.
+     * @return Decoded data.
      */
     static String unmime(const String& str);
 

@@ -39,10 +39,10 @@ namespace sptk {
  */
 
 /**
- * Socket events manager.
+ * @brief Socket events manager.
  *
  * Dynamic collection of sockets that delivers socket events
- * such as data available for read or peer has closed connection,
+ * such as data available for read or peer has closed connection
  * to its sockets.
  */
 template<typename T>
@@ -52,12 +52,12 @@ class SP_EXPORT SocketEvents
 {
 public:
     /**
-     * @brief Constructor
-     * @param name               Logical name for event manager (also the thread name)
-     * @param eventsCallback     Callback function called for socket events
-     * @param timeout            Timeout in the event monitoring loop
-     * @param triggerMode        Socket event trigger mode
-     * @param maxEvents          Maximum number of events per poll
+     * @brief Constructor.
+     * @param name               Logical name for event manager (also the thread name).
+     * @param eventsCallback     Callback function called for socket events.
+     * @param timeout            Timeout in the event monitoring loop.
+     * @param triggerMode        Socket event trigger mode.
+     * @param maxEvents          Maximum number of events per poll.
      */
     SocketEvents(const String&                    name,
                  const SocketEventCallback<T>&    eventsCallback,
@@ -73,7 +73,7 @@ public:
 
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~SocketEvents() override
     {
@@ -91,7 +91,7 @@ public:
 
 protected:
     /**
-     * @brief Event monitoring thread
+     * @brief Event monitoring thread.
      */
     void threadFunction() override
     {
@@ -114,7 +114,7 @@ protected:
     }
 
 private:
-    std::chrono::milliseconds m_timeout; ///< Timeout in event monitoring loop
+    std::chrono::milliseconds m_timeout; ///< Timeout in the event monitoring loop.
 };
 
 /**

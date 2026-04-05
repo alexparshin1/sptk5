@@ -86,14 +86,6 @@ public:
      */
     [[maybe_unused]] void setSNIHostName(const String& sniHostName);
 
-    /**
-     * @brief Reads data from SSL socket.
-     * @param buffer            Destination buffer.
-     * @param size              Destination buffer size.
-     * @return the number of bytes read from the socket.
-     */
-    size_t recvUnlocked(uint8_t* buffer, size_t size) override;
-
 protected:
     /**
      * @brief Initialize SSL context and socket structures.
@@ -155,6 +147,14 @@ protected:
     void closeUnlocked() override;
 
     /**
+     * @brief Reads data from SSL socket.
+     * @param buffer            Destination buffer.
+     * @param size              Destination buffer size.
+     * @return the number of bytes read from the socket.
+     */
+    size_t recvUnlocked(uint8_t* buffer, size_t size) override;
+
+    /**
      * @brief Sends data through SSL socket.
      * @param buffer            Send buffer.
      * @param len               Send data length.
@@ -163,13 +163,13 @@ protected:
     size_t sendUnlocked(const uint8_t* buffer, size_t len) override;
 
 private:
-    mutable std::mutex m_mutex;                ///< Mutex that protects access to m_ssl
-    SharedSSLContext   m_sslContext {nullptr}; ///< SSL context
-    SSL*               m_ssl {nullptr};        ///< SSL socket
-    SSLKeys            m_keys;                 ///< SSL keys info
-    String             m_sniHostName;          ///< SNI host name (optional)
-    String             m_cipherList;           ///< Cipher List
-    bool               m_tlsOnly {false};      ///< TLS only mode
+    mutable std::mutex m_mutex;                ///< Mutex that protects access to m_ssl.
+    SharedSSLContext   m_sslContext {nullptr}; ///< SSL context.
+    SSL*               m_ssl {nullptr};        ///< SSL socket.
+    SSLKeys            m_keys;                 ///< SSL keys info.
+    String             m_sniHostName;          ///< SNI host name (optional).
+    String             m_cipherList;           ///< Cipher List.
+    bool               m_tlsOnly {false};      ///< TLS only mode.
 
     bool tryConnectUnlocked(const DateTime& timeoutAt);
 

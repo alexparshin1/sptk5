@@ -37,40 +37,40 @@ namespace sptk {
  */
 
 /**
- * Defines the type of the mail message
+ * @brief Defines the type of the mail message.
  */
 enum class MailMessageType : uint8_t
 {
-    PLAIN_TEXT_MESSAGE, ///< Message has plain text only
-    HTML_MESSAGE        ///< Message has plain text and HTML parts
+    PLAIN_TEXT_MESSAGE, ///< Message has plain text only.
+    HTML_MESSAGE        ///< Message has plain text and HTML parts.
 };
 
 /**
- * Mail message body text
+ * @brief Mail message body text.
  *
- * Contains the message text as plain text, or as an HTML text and stripped HTML text (where HTML tags removed)
+ * Contains the message text as plain text or as an HTML text and stripped HTML text (where HTML tags removed).
  */
 class SP_EXPORT MailMessageBody
 {
 public:
     /**
-     * Default constructor
+     * @brief Default constructor.
      */
     MailMessageBody()
     {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
     }
     /**
-     * Sets the message text.
+     * @brief Sets the message text.
      *
-     * Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message
-     * @param messageText const std::string& messageText, the text of the message
-     * @param smtp bool, special processing for smtp
+     * Tries to detect the HTML messages by searching HTML tag in the first 100 bytes of the message.
+     * @param messageText const std::string& messageText, the text of the message.
+     * @param smtp bool, special processing for smtp.
      */
     void text(const std::string& messageText, bool smtp);
 
     /**
-     * Returns the message body type
+     * @brief Returns the message body type.
      */
     MailMessageType type() const
     {
@@ -78,7 +78,7 @@ public:
     }
 
     /**
-     * Returns the plain text version of the message
+     * @brief Returns the plain text version of the message.
      */
     const std::string& text() const
     {
@@ -86,7 +86,7 @@ public:
     }
 
     /**
-     * Returns the html version of the message (if presented)
+     * @brief Returns the HTML version of the message (if presented).
      */
     const std::string& html() const
     {
@@ -94,12 +94,12 @@ public:
     }
 
 private:
-    MailMessageType m_type;      ///< Message type
-    String          m_plainText; ///< Plain text part of the message
-    String          m_htmlText;  ///< Optional HTML part of the message
+    MailMessageType m_type;      ///< Message type.
+    String          m_plainText; ///< Plain text part of the message.
+    String          m_htmlText;  ///< Optional HTML part of the message.
 
     /**
-     * Builds a plain text string from HTML text
+     * @brief Builds a plain text string from HTML text.
      */
     static String stripHtml(const String& origHtml);
 };

@@ -93,7 +93,7 @@ public:
     TCPServer& server() const;
 
     /**
-     * @brief Get the incoming connection address
+     * @brief Get the incoming connection address.
      * @return incoming connection address.
      */
     String address() const

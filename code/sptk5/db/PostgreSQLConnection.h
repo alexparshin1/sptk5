@@ -88,12 +88,6 @@ public:
     static void variantTypeToPostgreType(VariantDataType dataType, PostgreSQLDataType& postgreType, const String& paramName);
 
     /**
-     * @brief Opens the database connection. If unsuccessful, throws an exception.
-     * @param newConnectionString  The PostgreSQL connection string.
-     */
-    void _openDatabase(const String& newConnectionString) override;
-
-    /**
      * @brief Executes SQL batch file.
      *
      * Queries are executed in not prepared mode.
@@ -126,11 +120,6 @@ public:
     String nativeConnectionString() const override;
 
     /**
-     * @brief Closes the database connection. If unsuccessful, throws an exception.
-     */
-    void closeDatabase() override;
-
-    /**
      * @brief Returns true if the database is opened.
      */
     bool active() const override;
@@ -158,6 +147,22 @@ public:
     static SynchronizedMap<PostgreSQLConnection*, std::shared_ptr<PostgreSQLConnection>> s_postgresqlConnections;
 
 protected:
+    /**
+     * @brief Opens the database connection. If unsuccessful, throws an exception.
+     * @param newConnectionString  The PostgreSQL connection string.
+     */
+    void _openDatabase(const String& newConnectionString) override;
+
+    /**
+     * @brief Closes the database connection. If unsuccessful, throws an exception.
+     */
+    void closeDatabase() override;
+
+    /**
+     * @brief Extracts individual statements from a SQL batch query.
+     * @param sqlBatch SQL batch query.
+     * @return
+     */
     static Strings extractStatements(const Strings& sqlBatch);
 
     /**
@@ -185,17 +190,17 @@ protected:
     String queryError(const Query* query) const override;
 
     /**
-     * @brief Allocates an PostgreSQL statement.
+     * @brief Allocates the PostgreSQL statement.
      */
     void queryAllocStmt(Query* query) override;
 
     /**
-     * @brief Deallocates a PostgreSQL statement.
+     * @brief Deallocates the PostgreSQL statement.
      */
     void queryFreeStmt(Query* query) override;
 
     /**
-     * @brief Closes an PostgreSQL statement.
+     * @brief Closes the PostgreSQL statement.
      */
     void queryCloseStmt(Query* query) override;
 

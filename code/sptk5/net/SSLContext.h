@@ -42,7 +42,7 @@ namespace sptk {
  */
 
 /**
- * @brief SSL connection context
+ * @brief SSL connection context.
  */
 class SP_EXPORT SSLContext
 {
@@ -57,23 +57,23 @@ public:
     /**
      * @brief Loads private key and certificate(s).
      *
-     * Private key and certificates must be encoded with PEM format.
-     * A single file containing private key and certificate can be used by supplying it for both,
+     * The private key and certificates must be encoded with PEM format.
+     * A single file containing the private key and certificate can be used by supplying it for both,
      * private key and certificate parameters.
-     * If private key is protected with password, then password can be supplied to auto-answer.
+     * If the private key is protected with password, then password can be supplied to auto-answer.
      * @param keys                  Keys and certificates.
      */
     void loadKeys(const SSLKeys& keys);
 
     /**
-     * @brief Returns SSL context handle.
+     * @brief Returns the SSL context handle.
      */
     [[nodiscard]] SSL_CTX* handle() const;
 
 private:
     mutable std::mutex       m_mutex;                     ///< Mutex that protects internal data.
     std::shared_ptr<SSL_CTX> m_ctx;                       ///< SSL connection context.
-    String                   m_password;                  ///< Password for auto-answer in callback function.
+    String                   m_password;                  ///< Password for auto-answer in the callback function.
     static int               s_server_session_id_context; ///< Server session ID.
 
     /**

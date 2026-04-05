@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <sptk5/Strings.h>
 #include <sptk5/net/Proxy.h>
 #include <sptk5/net/Socket.h>
 
@@ -40,13 +39,13 @@
 #include <unistd.h>
 
 /**
- * A socket handle is an integer
+ * @brief A socket handle is an integer.
  */
 using SocketType = int;
 using SOCKET_ADDRESS_FAMILY = sa_family_t;
 
 /**
- * A value to indicate an invalid handle
+ * @brief A value to indicate an invalid handle.
  */
 #define INVALID_SOCKET (-1)
 
@@ -67,80 +66,80 @@ namespace sptk {
  */
 
 /**
- * Generic TCP socket.
+ * @brief Generic TCP socket.
  *
- * Allows to establish a network connection
- * to the host by name and port address
+ * Allows establishing a network connection
+ * to the host by name and port address.
  */
 class SP_EXPORT TCPSocket
     : public Socket
 {
 public:
     /**
-    * Constructor
-    * @param domain            Socket domain type
-    * @param type              Socket type
-    * @param protocol          Protocol type
+    * @brief Constructor.
+    * @param domain            Socket domain type.
+    * @param type              Socket type.
+    * @param protocol          Protocol type.
     */
     explicit TCPSocket(SOCKET_ADDRESS_FAMILY domain = AF_INET, int32_t type = SOCK_STREAM, int32_t protocol = 0);
 
     /**
-    * Destructor
+    * @brief Destructor.
     */
     ~TCPSocket() override;
 
     /**
-     * Set proxy
+     * @brief Set proxy.
      * @param proxy             Proxy.
      */
     void setProxy(std::shared_ptr<Proxy> proxy);
 
     /**
-     * In server mode, waits for the incoming connection.
+     * @brief In server mode, waits for the incoming connection.
      *
-     * When incoming connection is made, exits returning the connection info
-     * @param clientSocketFD    Connected client socket FD
-     * @param clientInfo        Connected client info
-     * @param timeout           Accept operation timeout
-     * @returns                 True if accepted a connection
+     * When the incoming connection is made, it exits and returns the connection info.
+     * @param clientSocketFD    Connected client socket FD.
+     * @param clientInfo        Connected client info.
+     * @param timeout           Accept operation timeout.
+     * @returns                 True if accepted a connection.
      */
     [[nodiscard]] virtual bool accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const std::chrono::milliseconds& timeout);
 
 protected:
     /**
-     * Opens the client socket connection by host and port
-     * @param host              The host
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     * @param clientBindAddress Client bind IP address
+     * @brief Opens the client socket connection by host and port.
+     * @param host              The host.
+     * @param openMode          Socket open mode.
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode.
+     * @param timeout           Connection timeout. The default is 0 (wait forever).
+     * @param clientBindAddress The client bind IP address.
      */
     void openUnlocked(const Host& host, OpenMode openMode, bool blockingMode,
                       const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
-     * Opens the client socket connection by host and port
-     * @param address           Address and port
-     * @param openMode          Socket open mode
-     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode
-     * @param timeout           Connection timeout. The default is 0 (wait forever)
-     * @param clientBindAddress Client bind IP address
+     * @brief Opens the client socket connection by host and port.
+     * @param address           Address and port.
+     * @param openMode          Socket open mode.
+     * @param blockingMode      Socket blocking (true) on non-blocking (false) mode.
+     * @param timeout           Connection timeout. The default is 0 (wait forever).
+     * @param clientBindAddress The client bind IP address.
      */
     void openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockingMode,
                       const std::chrono::milliseconds& timeout, const char* clientBindAddress) override;
 
     /**
-     * Reads data from the socket
-     * @param buffer            The memory buffer
-     * @param size              The number of bytes to read
-     * @param from              An optional structure for source address
-     * @returns the number of bytes read from the socket
+     * @brief Reads data from the socket.
+     * @param buffer            The memory buffer.
+     * @param size              The number of bytes to read.
+     * @param from              An optional structure for the source address.
+     * @returns the number of bytes read from the socket.
      */
     [[nodiscard]] size_t readUnlocked(uint8_t* buffer, size_t size, sockaddr* from) override;
 
     /**
-     * Get proxy information
-     * @return
+     * @brief Get proxy information.
+     * @return.
      */
     Proxy* proxy() const
     {
@@ -148,7 +147,7 @@ protected:
     }
 
 private:
-    std::shared_ptr<Proxy> m_proxy; ///< Optional proxy
+    std::shared_ptr<Proxy> m_proxy; ///< Optional proxy.
 
     void handleReadFromSocketErrorUnlocked(int error);
 };
