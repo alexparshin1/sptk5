@@ -125,7 +125,7 @@ void ImapConnect::command(const String& cmd, const String& arg1, const String& a
     getResponse(ident);
 }
 
-void ImapConnect::close()
+void ImapConnect::close() const
 {
     m_socket->close();
 }
@@ -431,7 +431,7 @@ Host ImapConnect::host() const
     return m_socket->host();
 }
 
-void ImapConnect::host(const Host& host)
+void ImapConnect::host(const Host& host) const
 {
     m_socket->host(host);
 }

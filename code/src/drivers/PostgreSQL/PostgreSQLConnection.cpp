@@ -398,8 +398,8 @@ void PostgreSQLConnection::queryPrepare(Query* query)
 
     if (stmt == nullptr)
     {
-        const String error = "PREPARE command failed: " + string(PQerrorMessage(m_connect));
-        throw DatabaseException(error);
+        PQclear(stmt);
+        throw DatabaseException(format("PREPARE command failed: {}", PQerrorMessage(m_connect)));
     }
 
     checkError(m_connect, stmt, "PREPARE");
@@ -407,7 +407,6 @@ void PostgreSQLConnection::queryPrepare(Query* query)
     PGresult* stmt2 = PQdescribePrepared(m_connect, statement->name().c_str());
     if (stmt2 == nullptr)
     {
-        const string error = format("DESCRIBE command failed: {}", PQerrorMessage(m_connect));
         PQclear(stmt);
         throw DatabaseException(format("DESCRIBE command failed: {}", PQerrorMessage(m_connect)));
     }
@@ -507,10 +506,11 @@ void PostgreSQLConnection::queryExecDirect(const Query* query)
         ++paramNumber;
     }
 
-    const auto resultFormat = 1; // Results are presented in binary format
-    PGresult*  stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
-                                   (const char* const*) paramValues.values(),
-                                   paramValues.lengths(), paramValues.formats(), resultFormat);
+    constexpr auto resultFormat = 1; // Results are presented in binary format
+
+    PGresult* stmt = PQexecParams(m_connect, query->sql().c_str(), static_cast<int>(paramValues.size()), paramValues.types(),
+                                  reinterpret_cast<const char* const*>(paramValues.values()),
+                                  paramValues.lengths(), paramValues.formats(), resultFormat);
 
     const ExecStatusType statusCode = PQresultStatus(stmt);
 
@@ -1010,9 +1010,8 @@ void PostgreSQLConnection::queryFetch(Query* query)
             const auto fieldType = static_cast<PostgreSQLDataType>(field->fieldType());
             const auto dataType = field->dataType();
             const auto dataLength = PQgetlength(stmt, currentRow, column);
-            const auto isNull = PQgetisnull(stmt, currentRow, column) == 1;
 
-            if (isNull)
+            if (PQgetisnull(stmt, currentRow, column) == 1)
             {
                 field->setNull(dataType);
                 continue;
