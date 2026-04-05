@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-05-04                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -63,6 +64,28 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 SPoolDatabaseConnection AutoDatabaseConnection::connection() const
 {
     return m_connection;
+}
+
+void AutoDatabaseConnection::open(const String& connectionString) const
+{
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
+    m_connection->open(connectionString);
+}
+
+void AutoDatabaseConnection::close() const
+{
+    if (active())
+    {
+        m_connection->close();
+    }
+}
+
+bool AutoDatabaseConnection::active() const
+{
+    return m_connection != nullptr && m_connection->active();
 }
 
 const DatabaseConnectionString& AutoDatabaseConnection::connectionString() const

@@ -46,7 +46,7 @@ class CDataDialog
     : public CDialog
 {
 public:
-    explicit CDataDialog(PoolDatabaseConnection* db)
+    explicit CDataDialog(const SPoolDatabaseConnection& db)
         : CDialog(300, 180, "Example Data Dialog")
     {
         CDialog::database(db);
@@ -65,10 +65,11 @@ public:
 
 CDataDialog* dataDialog;
 
-struct CCompanyInfo {
-    int id;
+struct CCompanyInfo
+{
+    int         id;
     const char* name;
-    int number;
+    int         number;
 };
 
 CCompanyInfo companies[] = {{1, "Red Hat", 1000},
@@ -152,7 +153,7 @@ void general_cb(Fl_Widget* w, void*)
 
 void theme_cb(Fl_Widget* w, void*)
 {
-    auto* themesCombo = (CComboBox*) w;
+    auto*  themesCombo = (CComboBox*) w;
     String themeName = themesCombo->data().asString();
 
     CThemes::set(themeName);
@@ -193,7 +194,7 @@ void widgetDemo(CTabs* tabs)
     box->flags(0); // blocking FGE_USEPARENTCOLOR - default value
     box->color(t->color());
 
-    auto* htmlBox = new CHtmlBox("HTML output:");
+    auto*  htmlBox = new CHtmlBox("HTML output:");
     String htmlTxt = " This is a <b>bold</b> <i>italic</i> read-only text in HTML. It is very useful sometimes. ";
     htmlTxt = htmlTxt + htmlTxt;
     htmlTxt = htmlTxt + htmlTxt;
@@ -265,7 +266,7 @@ void scrollDemo(const Strings& sl1, const Strings& sl2, const Strings& sl3, cons
     box->color(t->color());
 
     // The example of filling in the combo box without data connection
-    auto* comboBox1 = new CComboBox("Combo box:");
+    auto*       comboBox1 = new CComboBox("Combo box:");
     CColumnList columns;
     columns.push_back(CColumn("name", VariantDataType::VAR_STRING, 50));
     columns.push_back(CColumn("phone", VariantDataType::VAR_STRING, 120));
@@ -398,7 +399,7 @@ int main(int argc, char** argv)
         CGroup buttonGroup("", 10, CLayoutAlign::BOTTOM);
 
         CComboBox themesCombo("", 10, CLayoutAlign::TOP);
-        Strings themes = CThemes::availableThemes();
+        Strings   themes = CThemes::availableThemes();
         themesCombo.addRows("Theme", themes);
         themesCombo.callback(theme_cb);
         themesCombo.labelWidth(0);

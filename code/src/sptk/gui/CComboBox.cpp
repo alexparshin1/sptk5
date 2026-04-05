@@ -540,12 +540,12 @@ CPackedStrings* CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-PoolDatabaseConnection* CBaseListBox::database() const
+SPoolDatabaseConnection CBaseListBox::database() const
 {
     return m_list->database();
 }
 
-void CBaseListBox::database(PoolDatabaseConnection* db)
+void CBaseListBox::database(const SPoolDatabaseConnection& db)
 {
     m_list->database(db);
 }
@@ -599,7 +599,7 @@ void CBaseListBox::keyField(string kf)
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(PoolDatabaseConnection* db, string sql, string keyField)
+void CBaseListBox::setup(const SPoolDatabaseConnection db, string sql, string keyField)
 {
     m_list->setup(db, sql, keyField);
 }

@@ -332,12 +332,12 @@ public:
     /**
      * Returns database connection pointer
      */
-    PoolDatabaseConnection* database() const;
+    SPoolDatabaseConnection database() const;
 
     /**
      * Defines database connection
      */
-    void database(PoolDatabaseConnection* db);
+    void database(const SPoolDatabaseConnection& db);
 
     /**
      * Returns SQL query text
@@ -386,7 +386,7 @@ public:
      * @param sql std::string, a SQL query text
      * @param keyField std::string, a name of the query field with unique row IDs
      */
-    void setup(PoolDatabaseConnection* db, std::string sql, std::string keyField);
+    void setup(SPoolDatabaseConnection db, std::string sql, std::string keyField);
 
     /**
      * Returns the SQL query parameter reference for the parameter name. It is

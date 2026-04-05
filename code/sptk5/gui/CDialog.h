@@ -328,12 +328,12 @@ public:
      * Sets the database connection
      * @param db                Database connection
      */
-    virtual void database(PoolDatabaseConnection* db);
+    virtual void database(const SPoolDatabaseConnection& db);
 
     /**
      * Returns current database connection
      */
-    PoolDatabaseConnection* database() const;
+    SPoolDatabaseConnection database() const;
 
     /**
      * Defines database table to use
@@ -355,7 +355,7 @@ public:
      * @param tableName         Name of the database table
      * @param keyFieldName      Name of the key field in the database table
      */
-    void table(PoolDatabaseConnection* db, const String& tableName, const String& keyFieldName);
+    void table(const SPoolDatabaseConnection& db, const String& tableName, const String& keyFieldName);
 
     /**
      * Sets the key field name for the database table.

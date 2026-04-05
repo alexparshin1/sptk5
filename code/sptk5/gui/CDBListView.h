@@ -113,12 +113,12 @@ public:
     /**
      * Sets the database connection
      */
-    void database(PoolDatabaseConnection* db);
+    void database(const SPoolDatabaseConnection& db);
 
     /**
      * Returns the database connection
      */
-    PoolDatabaseConnection* database() const;
+    SPoolDatabaseConnection database() const;
 
     /**
      * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.
@@ -162,7 +162,7 @@ public:
      * @param sql               The full refresh SQL query text
      * @param keyField          Tthe name of the key field
      */
-    void setup(PoolDatabaseConnection* db, const String& sql, const String& keyField);
+    void setup(const SPoolDatabaseConnection& db, const String& sql, const String& keyField);
 
     /**
      * Refreshes the data with full or fast method

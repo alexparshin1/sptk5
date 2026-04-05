@@ -73,34 +73,17 @@ public:
      * If unsuccessful, throws an exception.
      * @param connectionString  The ODBC connection string.
      */
-    void open(const String& connectionString = "") const
-    {
-        if (!m_connection)
-        {
-            throw Exception("DB driver not loaded");
-        }
-
-        m_connection->open(connectionString);
-    }
+    void open(const String& connectionString = "") const;
 
     /**
      * @brief Closes the database connection. If the connection was not successful, throws an exception.
      */
-    void close() const
-    {
-        if (active())
-        {
-            m_connection->close();
-        }
-    }
+    void close() const;
 
     /**
      * @brief Returns true if the database is opened.
      */
-    [[nodiscard]] bool active() const
-    {
-        return m_connection != nullptr && m_connection->active();
-    }
+    [[nodiscard]] bool active() const;
 
     /**
      * @brief Returns the connection string.

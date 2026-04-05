@@ -196,14 +196,14 @@ bool CDialog::showModal()
     return rc;
 }
 
-void CDialog::database(PoolDatabaseConnection* db)
+void CDialog::database(const SPoolDatabaseConnection& db)
 {
     m_selectQuery->database(db);
     m_updateQuery->database(db);
     m_insertQuery->database(db);
 }
 
-PoolDatabaseConnection* CDialog::database() const
+SPoolDatabaseConnection CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -217,7 +217,7 @@ void CDialog::table(const String& tableName)
     }
 }
 
-void CDialog::table(PoolDatabaseConnection* db, const String& tb, const String& key)
+void CDialog::table(const SPoolDatabaseConnection& db, const String& tb, const String& key)
 {
     database(db);
     table(tb);
