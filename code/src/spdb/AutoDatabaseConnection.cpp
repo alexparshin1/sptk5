@@ -63,6 +63,10 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
 
 SPoolDatabaseConnection AutoDatabaseConnection::connection() const
 {
+    if (!m_connection)
+    {
+        throw Exception(s_invalidConnectionMessage);
+    }
     return m_connection;
 }
 

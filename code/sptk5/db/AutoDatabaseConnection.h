@@ -76,7 +76,7 @@ public:
     void open(const String& connectionString = "") const;
 
     /**
-     * @brief Closes the database connection. If the connection was not successful, throws an exception.
+     * @brief Closes the database connection.
      */
     void close() const;
 
