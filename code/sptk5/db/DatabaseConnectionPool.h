@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "src/spdb/DriverLoaders.h"
+
+
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionString.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -38,51 +41,6 @@ namespace sptk {
  * @addtogroup Database Database Support.
  * @{
  */
-
-/**
- * @brief Create the driver instance function.
- */
-using CreateDriverInstance = PoolDatabaseConnection*(const char* connectString, size_t connectTimeoutSeconds);
-
-/**
- * @brief Destroy the driver instance function.
- */
-using DestroyDriverInstance = void(PoolDatabaseConnection*);
-
-#ifdef WIN32
-/**
- * @brief Windows: Driver DLL handle type.
- */
-using DriverHandle = HMODULE;
-
-#else
-/**
- * @brief Unix: Driver shared library handle type.
- */
-using DriverHandle = uint8_t*;
-
-#endif
-
-/**
- * @brief Information about the loaded database driver.
- */
-struct SP_EXPORT DatabaseDriver
-{
-    /**
-     * @brief Driver SO/DLL handle after the load.
-     */
-    DriverHandle m_handle;
-
-    /**
-     * @brief Function that creates driver instances.
-     */
-    CreateDriverInstance* m_createConnection;
-
-    /**
-     * @brief Function that destroys driver instances.
-     */
-    DestroyDriverInstance* m_destroyConnection;
-};
 
 /**
  * @brief Database driver loader.
@@ -171,7 +129,7 @@ private:
     /**
      * @brief Database driver.
      */
-    DatabaseDriver* m_driver {nullptr};
+    std::shared_ptr<DatabaseDriver> m_driver {nullptr};
 
     /**
      * @brief Function that creates driver instances.

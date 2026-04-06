@@ -34,30 +34,6 @@
 using namespace std;
 using namespace sptk;
 
-class DriverLoaders
-{
-public:
-    DatabaseDriver* get(const String& driverName)
-    {
-        const auto itor = drivers.find(driverName.toLowerCase());
-        if (itor == drivers.end())
-        {
-            return nullptr;
-        }
-        return itor->second.get();
-    }
-
-    void add(const String& driverName, const shared_ptr<DatabaseDriver>& driver)
-    {
-        drivers[driverName.toLowerCase()] = driver;
-    }
-
-    static DriverLoaders loadedDrivers;
-
-private:
-    map<string, shared_ptr<DatabaseDriver>, std::less<>> drivers;
-};
-
 DriverLoaders DriverLoaders::loadedDrivers;
 
 DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::milliseconds connectionTimeout)
@@ -88,7 +64,7 @@ void DatabaseConnectionPool::load()
         driverNameLC = "odbc";
     }
 
-    if (auto* loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC))
+    if (const auto loadedDriver = DriverLoaders::loadedDrivers.get(driverNameLC))
     {
         m_driver = loadedDriver;
         m_createConnection = loadedDriver->m_createConnection;
