@@ -43,7 +43,10 @@ TEST(SPTK_URL, minimal) /* NOLINT */
 {
     URL url(testURL0);
     EXPECT_STREQ(url.protocol().c_str(), "https");
-    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+
+    auto hostAndPort = url.hostAndPort();
+    EXPECT_EQ(hostAndPort, tuple(String("www.test.com"), 8080));
+
     EXPECT_STREQ(url.username().c_str(), "");
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
@@ -53,11 +56,45 @@ TEST(SPTK_URL, minimal) /* NOLINT */
     EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
 
+TEST(SPTK_URL, ipv4address) /* NOLINT */
+{
+    URL url("https://127.0.0.1:8080/daily/report");
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+
+    auto [host, port] = url.hostAndPort();
+    EXPECT_STREQ(host.c_str(), "127.0.0.1");
+    EXPECT_EQ(port, 8080);
+
+    URL url2("https://127.0.0.1/daily/report");
+    EXPECT_STREQ(url2.protocol().c_str(), "https");
+
+    tie(host, port) = url2.hostAndPort();
+    EXPECT_STREQ(host.c_str(), "127.0.0.1");
+    EXPECT_EQ(port, 0);
+}
+
+TEST(SPTK_URL, ipv6address) /* NOLINT */
+{
+    URL url("https://[2001:4860:4827:7700]:8080/daily/report");
+    EXPECT_STREQ(url.protocol().c_str(), "https");
+
+    auto [host, port] = url.hostAndPort();
+    EXPECT_STREQ(host.c_str(), "2001:4860:4827:7700");
+    EXPECT_EQ(port, 8080);
+
+    URL url2("https://2001:4860:4827:7700/daily/report");
+    EXPECT_STREQ(url2.protocol().c_str(), "https");
+
+    tie(host, port) = url2.hostAndPort();
+    EXPECT_STREQ(host.c_str(), "2001:4860:4827:7700");
+    EXPECT_EQ(port, 0);
+}
+
 TEST(SPTK_URL, local) /* NOLINT */
 {
     URL url(testURL1);
     EXPECT_STREQ(url.protocol().c_str(), "");
-    EXPECT_STREQ(url.hostAndPort().c_str(), "");
+    EXPECT_EQ(url.hostAndPort(), tuple("", 0));
     EXPECT_STREQ(url.username().c_str(), "");
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
@@ -73,7 +110,7 @@ TEST(SPTK_URL, all) /* NOLINT */
 {
     URL url(testURL2);
     EXPECT_STREQ(url.protocol().c_str(), "https");
-    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_EQ(url.hostAndPort(), tuple("www.test.com", 8080));
     EXPECT_STREQ(url.username().c_str(), "johnd");
     EXPECT_STREQ(url.password().c_str(), "secret");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
@@ -106,7 +143,7 @@ TEST(SPTK_URL, usernameWithoutPasswordRoundTrip) /* NOLINT */
 {
     URL url(testURL5);
     EXPECT_STREQ(url.protocol().c_str(), "https");
-    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com:8080");
+    EXPECT_EQ(url.hostAndPort(), tuple("www.test.com", 8080));
     EXPECT_STREQ(url.username().c_str(), "johnd");
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/daily/report");
@@ -121,7 +158,7 @@ TEST(SPTK_URL, rootPath) /* NOLINT */
 {
     URL url(testURL6);
     EXPECT_STREQ(url.protocol().c_str(), "https");
-    EXPECT_STREQ(url.hostAndPort().c_str(), "www.test.com");
+    EXPECT_EQ(url.hostAndPort(), tuple("www.test.com", 0));
     EXPECT_STREQ(url.username().c_str(), "");
     EXPECT_STREQ(url.password().c_str(), "");
     EXPECT_STREQ(url.path().c_str(), "/");

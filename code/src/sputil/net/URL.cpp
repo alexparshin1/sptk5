@@ -35,7 +35,7 @@ using namespace sptk;
 
 URL::URL(const String& url)
 {
-    static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.]+)?(/[^?\s]*)?(\?\S+)?$)");
+    static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.\[\]]+)?(/[^?\s]*)?(\?\S+)?$)");
 
     try
     {
@@ -76,11 +76,15 @@ URL::URL(const String& url)
         m_hostAndPort = groups[5].value;
 
         if (groups.size() <= 6)
+        {
             return;
+        }
         m_path = groups[6].value;
 
         if (groups.size() <= 7)
+        {
             return;
+        }
 
         if (const auto params = groups[7].value;
             !params.empty())
@@ -132,6 +136,50 @@ String URL::toString() const
     }
 
     return str.str();
+}
+
+std::tuple<String, uint16_t> URL::hostAndPort() const
+{
+    static const RegularExpression matchHostAndPort(R"(^(\S+):(\d+)$)");
+    const auto                     colonCount = ranges::count(m_hostAndPort, ':');
+    if (colonCount == 0)
+    {
+        // No port specified, return default port 0.
+        return std::make_tuple(m_hostAndPort, 0);
+    }
+
+    if (colonCount == 1)
+    {
+        // Hostname or IPv4 address and port.
+        const auto matches = matchHostAndPort.m(m_hostAndPort);
+        if (matches.empty())
+        {
+            throw Exception("Invalid IP address");
+        }
+        return std::make_tuple(matches[0].value, matches[1].value.toInt());
+    }
+
+    String   host = m_hostAndPort;
+    uint16_t port = 0;
+    if (m_hostAndPort.startsWith("["))
+    {
+        // IPv6 address with port.
+        const auto matches = matchHostAndPort.m(m_hostAndPort);
+        if (matches.empty())
+        {
+            throw Exception("Invalid IPv6 address");
+        }
+
+        host = matches[0].value;
+        port = static_cast<uint16_t>(matches[1].value.toInt());
+    }
+
+    if (host.startsWith("[") && host.endsWith("]"))
+    {
+        host = host.substr(1, host.length() - 2);
+    }
+
+    return std::make_tuple(host, port);
 }
 
 String URL::location() const

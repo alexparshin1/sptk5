@@ -26,6 +26,8 @@
 
 #include <set> // Fedora
 #include <sptk5/db/DatabaseConnectionString.h>
+
+#include <mutex>
 #include <sptk5/net/URL.h>
 
 using namespace std;
@@ -33,9 +35,11 @@ using namespace sptk;
 
 void DatabaseConnectionString::parse()
 {
+    const unique_lock lock(m_mutex);
+
     static const set<String, less<>> supportedDrivers {"sqlite3", "postgres", "postgresql", "oracle", "mysql",
                                                        "firebird", "odbc", "mssql"};
- if (m_connectionString.empty())
+    if (m_connectionString.empty())
     {
         throw DatabaseException("Connection string cannot be empty");
     }
@@ -53,30 +57,60 @@ void DatabaseConnectionString::parse()
         m_driverName = "postgresql";
     }
 
-    Strings hostAndPort(url.hostAndPort(), ":");
-    while (hostAndPort.size() < 2)
-    {
-        hostAndPort.push_back("");
-    }
-    m_hostName = hostAndPort[0];
-    m_portNumber = static_cast<uint16_t>(string2int(hostAndPort[1], 0));
+    tie(m_hostName, m_portNumber) = url.hostAndPort();
     m_userName = url.username();
     m_password = url.password();
 
-    Strings databaseAndSchema(url.path().c_str() + 1, "/");
-    while (databaseAndSchema.size() < 2)
+    if (url.path().empty())
     {
-        databaseAndSchema.push_back("");
+        m_databaseName = "";
+        m_schema = "";
     }
-    m_schema = databaseAndSchema[databaseAndSchema.size() - 1];
-    databaseAndSchema.resize(databaseAndSchema.size() - 1);
-    m_databaseName = databaseAndSchema.join("/");
-
+    else
+    {
+        Strings databaseAndSchema(url.path().c_str() + 1, "/");
+        while (databaseAndSchema.size() < 2)
+        {
+            databaseAndSchema.push_back("");
+        }
+        m_schema = databaseAndSchema[databaseAndSchema.size() - 1];
+        databaseAndSchema.resize(databaseAndSchema.size() - 1);
+        m_databaseName = databaseAndSchema.join("/");
+    }
     m_parameters = url.params();
+}
+
+DatabaseConnectionString::DatabaseConnectionString(const DatabaseConnectionString& cs)
+    : m_connectionString(cs.m_connectionString)
+    , m_hostName(cs.m_hostName)
+    , m_portNumber(cs.m_portNumber)
+    , m_userName(cs.m_userName)
+    , m_password(cs.m_password)
+    , m_databaseName(cs.m_databaseName)
+    , m_schema(cs.m_schema)
+    , m_parameters(cs.m_parameters)
+    , m_driverName(cs.m_driverName)
+{
+}
+
+DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConnectionString& cs)
+{
+    m_connectionString = cs.m_connectionString;
+    m_driverName = cs.m_driverName;
+    m_hostName = cs.m_hostName;
+    m_portNumber = cs.m_portNumber;
+    m_userName = cs.m_userName;
+    m_password = cs.m_password;
+    m_databaseName = cs.m_databaseName;
+    m_schema = cs.m_schema;
+    m_parameters = cs.m_parameters;
+    return *this;
 }
 
 String DatabaseConnectionString::toString(bool includePassword) const
 {
+    const shared_lock lock(m_mutex);
+
     stringstream result;
 
     result << (m_driverName.empty() ? "unknown" : m_driverName) << "://";
@@ -129,6 +163,8 @@ String DatabaseConnectionString::toString(bool includePassword) const
 
 String DatabaseConnectionString::parameter(const String& name) const
 {
+    const shared_lock lock(m_mutex);
+
     const auto itor = m_parameters.find(name);
     if (itor == m_parameters.end())
     {
@@ -139,5 +175,6 @@ String DatabaseConnectionString::parameter(const String& name) const
 
 bool DatabaseConnectionString::empty() const
 {
-    return m_hostName.empty();
+    const shared_lock lock(m_mutex);
+    return m_hostName.empty() && m_databaseName.empty() && m_schema.empty();
 }

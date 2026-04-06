@@ -96,10 +96,7 @@ public:
     /**
      * @return URL host and port.
      */
-    [[nodiscard]] String hostAndPort() const
-    {
-        return m_hostAndPort;
-    }
+    [[nodiscard]] std::tuple<String, uint16_t> hostAndPort() const;
 
     /**
      * @return URL path.

@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <mutex>
+#include <shared_mutex>
 #include <sptk5/net/HttpParams.h>
 
 #include <utility>
@@ -63,6 +65,7 @@ public:
     explicit DatabaseConnectionString(String connectionString = "")
         : m_connectionString(std::move(connectionString))
     {
+        const std::shared_lock lock(m_mutex);
         if (!m_connectionString.empty())
         {
             parse();
@@ -73,13 +76,13 @@ public:
      * @brief Copy constructor.
      * @param cs                Database connection string object to copy from.
      */
-    DatabaseConnectionString(const DatabaseConnectionString& cs) = default;
+    DatabaseConnectionString(const DatabaseConnectionString& cs);
 
     /**
      * @brief Assignment.
      * @param cs                Database connection string object to copy from.
      */
-    DatabaseConnectionString& operator=(const DatabaseConnectionString& cs) = default;
+    DatabaseConnectionString& operator=(const DatabaseConnectionString& cs);
 
     /**
      * @brief Return the connection string as a string, with the optional password.
@@ -93,6 +96,7 @@ public:
      */
     [[nodiscard]] const String& driverName() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_driverName;
     }
 
@@ -101,6 +105,7 @@ public:
      */
     [[nodiscard]] const String& hostName() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_hostName;
     }
 
@@ -109,6 +114,7 @@ public:
      */
     [[nodiscard]] const String& userName() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_userName;
     }
 
@@ -117,6 +123,7 @@ public:
      */
     [[nodiscard]] const String& password() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_password;
     }
 
@@ -125,6 +132,7 @@ public:
      */
     [[nodiscard]] const String& databaseName() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_databaseName;
     }
 
@@ -133,6 +141,7 @@ public:
      */
     [[nodiscard]] const String& schema() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_schema;
     }
 
@@ -141,6 +150,7 @@ public:
      */
     [[nodiscard]] uint16_t portNumber() const
     {
+        const std::shared_lock lock(m_mutex);
         return m_portNumber;
     }
 
@@ -150,6 +160,7 @@ public:
      */
     void userName(const String& user)
     {
+        const std::unique_lock lock(m_mutex);
         m_userName = user;
     }
 
@@ -159,6 +170,7 @@ public:
      */
     void password(const String& pass)
     {
+        const std::unique_lock lock(m_mutex);
         m_password = pass;
     }
 
@@ -181,50 +193,16 @@ protected:
     void parse();
 
 private:
-    /**
-     * @brief Database connection string.
-     */
-    String m_connectionString;
-
-    /**
-     * @brief Database server host name.
-     */
-    String m_hostName;
-
-    /**
-     * @brief Database server port number.
-     */
-    uint16_t m_portNumber {0};
-
-    /**
-     * @brief Database username.
-     */
-    String m_userName;
-
-    /**
-     * @brief Database user password.
-     */
-    String m_password;
-
-    /**
-     * @brief Database name.
-     */
-    String m_databaseName;
-
-    /**
-     * @brief Database schema.
-     */
-    String m_schema;
-
-    /**
-     * @brief Optional parameters.
-     */
-    HttpParams m_parameters;
-
-    /**
-     * @brief Database driver name.
-     */
-    String m_driverName;
+    mutable std::shared_mutex m_mutex;            ///< Mutex for thread-safe access.
+    String                    m_connectionString; ///< Database connection string.
+    String                    m_hostName;         ///< Database server host name.
+    uint16_t                  m_portNumber {0};   ///< Database server port number.
+    String                    m_userName;         ///< Database username.
+    String                    m_password;         ///< Database user password.
+    String                    m_databaseName;     ///< Database name.
+    String                    m_schema;           ///< Database schema.
+    HttpParams                m_parameters;       ///< Optional parameters.
+    String                    m_driverName;       ///< Database driver name.
 };
 
 /**
