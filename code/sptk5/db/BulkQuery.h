@@ -46,7 +46,9 @@ public:
      * @brief Delete rows from the table.
      * @param keys              Keys to delete.
      */
-    void deleteRows(const VariantVector& keys);
+    void        deleteRows(const VariantVector& keys);
+    static void appendParameterValuesFromRow(const std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, std::size_t columnCount, QueryParameterList::iterator& parameterIterator, const std::vector<Variant>& row);
+    void        appendParameterValuesFromRows(Query& insertQuery, std::span<const std::vector<Variant>> rows, std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, std::size_t rowSize, std::size_t columnCount);
 
 private:
     Query                   m_insertQuery;         ///< Insert query.

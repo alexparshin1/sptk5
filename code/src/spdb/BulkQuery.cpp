@@ -353,6 +353,39 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     }
 }
 
+void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, vector<Variant>::size_type columnCount, QueryParameterList::iterator& parameterIterator, const vector<Variant>& row)
+{
+    for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
+    {
+        auto& parameter = *parameterIterator;
+        if (columnNumber == serialColumnIndex)
+        {
+            if (insertedIds)
+            {
+                *parameter = (*insertedIds)[reservedIdOffset];
+            }
+            ++reservedIdOffset;
+        }
+        else
+        {
+            *parameter = row[columnNumber];
+        }
+        ++parameterIterator;
+    }
+}
+void BulkQuery::appendParameterValuesFromRows(Query& insertQuery, const span<const VariantVector> rows, vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, const vector<Variant>::size_type rowSize, vector<Variant>::size_type columnCount)
+{
+    auto parameterIterator = insertQuery.parameters().begin();
+    for (const auto& row: rows)
+    {
+        if (row.size() != rowSize)
+        {
+            throw Exception("Row size mismatch");
+        }
+        appendParameterValuesFromRow(insertedIds, serialColumnIndex, reservedIdOffset, columnCount, parameterIterator, row);
+        ++rowCount;
+    }
+}
 size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVector> rows,
                                   vector<int64_t>* insertedIds, const bool useReservedIds, const size_t serialColumnIndex, size_t& reservedIdOffset)
 {
@@ -363,40 +396,15 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
     const auto insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
     const auto sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
 
-    int64_t rowCount = 0;
-    auto    rowSize = rows.front().size();
-    auto    columnCount = rowSize;
+    int64_t    rowCount = 0;
+    const auto rowSize = rows.front().size();
+    auto       columnCount = rowSize;
     if (columnCount == serialColumnIndex)
     {
         ++columnCount;
     }
 
-    auto parameterIterator = insertQuery.parameters().begin();
-    for (auto row: rows)
-    {
-        if (row.size() != rowSize)
-        {
-            throw Exception("Row size mismatch");
-        }
-        for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
-        {
-            auto& parameter = *parameterIterator;
-            if (columnNumber == serialColumnIndex)
-            {
-                if (insertedIds)
-                {
-                    *parameter = (*insertedIds)[reservedIdOffset];
-                }
-                ++reservedIdOffset;
-            }
-            else
-            {
-                *parameter = row[columnNumber];
-            }
-            ++parameterIterator;
-        }
-        ++rowCount;
-    }
+    appendParameterValuesFromRows(insertQuery, rows, insertedIds, serialColumnIndex, reservedIdOffset, rowCount, rowSize, columnCount);
 
     if (captureInsertedIds && !sequenceReturnedIds)
     {
@@ -444,7 +452,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
                     }
                 }
             }
-            catch (const Exception& e)
+            catch (const Exception&)
             {
                 unlockTables();
                 if (startedTransaction)
@@ -466,7 +474,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
 void BulkQuery::deleteGroupRows(Query& deleteQuery, span<const Variant> keys)
 {
     size_t parameterIndex = 0;
-    for (auto key: keys)
+    for (const auto& key: keys)
     {
         deleteQuery.param(parameterIndex) = key;
         ++parameterIndex;
