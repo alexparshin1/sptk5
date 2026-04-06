@@ -65,7 +65,6 @@ public:
     explicit DatabaseConnectionString(String connectionString = "")
         : m_connectionString(std::move(connectionString))
     {
-        const std::shared_lock lock(m_mutex);
         if (!m_connectionString.empty())
         {
             parse();
@@ -94,25 +93,25 @@ public:
     /**
      * @brief Returns driver name.
      */
-    [[nodiscard]] const String& driverName() const
+    [[nodiscard]] String driverName() const
     {
         const std::shared_lock lock(m_mutex);
         return m_driverName;
     }
 
     /**
-     * @brief Returns host name.
+     * @brief Returns hostname.
      */
-    [[nodiscard]] const String& hostName() const
+    [[nodiscard]] String hostName() const
     {
         const std::shared_lock lock(m_mutex);
         return m_hostName;
     }
 
     /**
-     * @brief Returns user name.
+     * @brief Returns username.
      */
-    [[nodiscard]] const String& userName() const
+    [[nodiscard]] String userName() const
     {
         const std::shared_lock lock(m_mutex);
         return m_userName;
@@ -121,7 +120,7 @@ public:
     /**
      * @brief Returns user password.
      */
-    [[nodiscard]] const String& password() const
+    [[nodiscard]] String password() const
     {
         const std::shared_lock lock(m_mutex);
         return m_password;
@@ -130,7 +129,7 @@ public:
     /**
      * @brief Returns database name.
      */
-    [[nodiscard]] const String& databaseName() const
+    [[nodiscard]] String databaseName() const
     {
         const std::shared_lock lock(m_mutex);
         return m_databaseName;
@@ -139,7 +138,7 @@ public:
     /**
      * @brief Returns schema name.
      */
-    [[nodiscard]] const String& schema() const
+    [[nodiscard]] String schema() const
     {
         const std::shared_lock lock(m_mutex);
         return m_schema;
