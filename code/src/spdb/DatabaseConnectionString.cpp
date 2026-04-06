@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -81,22 +82,17 @@ void DatabaseConnectionString::parse()
 }
 
 DatabaseConnectionString::DatabaseConnectionString(const DatabaseConnectionString& cs)
-    : m_connectionString(cs.m_connectionString)
-    , m_hostName(cs.m_hostName)
-    , m_portNumber(cs.m_portNumber)
-    , m_userName(cs.m_userName)
-    , m_password(cs.m_password)
-    , m_databaseName(cs.m_databaseName)
-    , m_schema(cs.m_schema)
-    , m_parameters(cs.m_parameters)
-    , m_driverName(cs.m_driverName)
 {
-}
+    if (this == &cs)
+    {
+        return;
+    }
 
-DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConnectionString& cs)
-{
+    std::shared_lock lock1(cs.m_mutex, std::defer_lock);
+    std::unique_lock lock2(m_mutex, std::defer_lock);
+    std::lock(lock1, lock2);
+
     m_connectionString = cs.m_connectionString;
-    m_driverName = cs.m_driverName;
     m_hostName = cs.m_hostName;
     m_portNumber = cs.m_portNumber;
     m_userName = cs.m_userName;
@@ -104,6 +100,30 @@ DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConn
     m_databaseName = cs.m_databaseName;
     m_schema = cs.m_schema;
     m_parameters = cs.m_parameters;
+    m_driverName = cs.m_driverName;
+}
+
+DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConnectionString& cs)
+{
+    if (this == &cs)
+    {
+        return *this;
+    }
+
+    std::shared_lock lock1(cs.m_mutex, std::defer_lock);
+    std::unique_lock lock2(m_mutex, std::defer_lock);
+    std::lock(lock1, lock2);
+
+    m_connectionString = cs.m_connectionString;
+    m_hostName = cs.m_hostName;
+    m_portNumber = cs.m_portNumber;
+    m_userName = cs.m_userName;
+    m_password = cs.m_password;
+    m_databaseName = cs.m_databaseName;
+    m_schema = cs.m_schema;
+    m_parameters = cs.m_parameters;
+    m_driverName = cs.m_driverName;
+
     return *this;
 }
 
