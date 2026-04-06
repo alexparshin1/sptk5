@@ -47,11 +47,14 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
     try
     {
         const auto connection = m_connection.lock();
-        if (connection && connection->active())
+        if (connection)
         {
-            connection->close();
+            if (connection->active())
+            {
+                connection->close();
+            }
+            m_connectionPool.releaseConnection(connection);
         }
-        m_connectionPool.releaseConnection(connection);
     }
     catch (const Exception& e)
     {

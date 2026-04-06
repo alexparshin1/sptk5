@@ -126,28 +126,13 @@ protected:
     void releaseConnection(const SPoolDatabaseConnection& connection);
 
 private:
-    /**
-     * @brief Database driver.
-     */
-    std::shared_ptr<DatabaseDriver> m_driver {nullptr};
-
-    /**
-     * @brief Function that creates driver instances.
-     */
-    CreateDriverInstance* m_createConnection {nullptr};
-
-    /**
-     * @brief Function that destroys driver instances.
-     */
-    DestroyDriverInstance* m_destroyConnection {nullptr};
-
-    /**
-     * @brief Maximum number of connections in the pool.
-     */
-    size_t                                     m_maxConnections;
-    SynchronizedQueue<SPoolDatabaseConnection> m_pool;              ///< Available connections.
-    SynchronizedList<SPoolDatabaseConnection>  m_connections;       ///< All connections.
-    std::chrono::milliseconds                  m_connectionTimeout; ///< Connection timeout.
+    std::shared_ptr<DatabaseDriver>            m_driver {nullptr};            ///< Database driver.
+    CreateDriverInstance*                      m_createConnection {nullptr};  ///< Function that creates driver instances.
+    DestroyDriverInstance*                     m_destroyConnection {nullptr}; ///< Function that destroys driver instances.
+    std::atomic<size_t>                        m_maxConnections {128};        ///< Maximum number of connections in the pool.
+    SynchronizedQueue<SPoolDatabaseConnection> m_pool;                        ///< Available connections.
+    SynchronizedList<SPoolDatabaseConnection>  m_connections;                 ///< All connections.
+    std::chrono::milliseconds                  m_connectionTimeout;           ///< Connection timeout.
 };
 
 /**

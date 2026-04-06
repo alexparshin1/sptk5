@@ -131,16 +131,16 @@ void DatabaseConnectionPool::load()
     }
 
 #endif
-    const auto driver = make_shared<DatabaseDriver>();
-    driver->m_handle = handle;
-    driver->m_createConnection = createConnection;
-    driver->m_destroyConnection = destroyConnection;
+    m_driver = make_shared<DatabaseDriver>();
+    m_driver->m_handle = handle;
+    m_driver->m_createConnection = createConnection;
+    m_driver->m_destroyConnection = destroyConnection;
 
     m_createConnection = createConnection;
     m_destroyConnection = destroyConnection;
 
     // Registering the loaded driver in the map
-    DriverLoaders::loadedDrivers.add(driverNameLC, driver);
+    DriverLoaders::loadedDrivers.add(driverNameLC, m_driver);
 }
 
 [[nodiscard]] DatabaseConnection DatabaseConnectionPool::getConnection()
