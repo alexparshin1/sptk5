@@ -94,15 +94,13 @@ CDialog::~CDialog()
 
 int CDialog::handle(int event)
 {
-    int rc = CWindow::handle(event);
-    if (rc)
+    if (int rc = CWindow::handle(event))
     {
         return rc;
     }
     if (event == FL_KEYBOARD && Fl::event_key() == FL_Enter)
     {
-        auto* btn = dynamic_cast<Fl_Button*>(Fl::focus());
-        if (btn)
+        if (auto* btn = dynamic_cast<Fl_Button*>(Fl::focus()))
         {
             btn->do_callback();
         }
@@ -117,8 +115,8 @@ int CDialog::handle(int event)
 
 void CDialog::defaultButton(CButton* newDefaultButton)
 {
-    auto cnt = (unsigned) m_buttonGroup->children();
-    for (unsigned bi = 0; bi < cnt; bi++)
+    auto cnt = m_buttonGroup->children();
+    for (int bi = 0; bi < cnt; bi++)
     {
         auto* button = (CButton*) m_buttonGroup->child(bi);
         button->defaultButton(button == newDefaultButton);
@@ -344,10 +342,10 @@ bool CDialog::save()
             Fl::focus(control->control());
             throw Exception(control->label() + " entry has the incorrect value!");
         }
-        if (control->flags() & (int) InputEntryFlags::MANDATORY)
+        if (control->flags() & static_cast<int>(InputEntryFlags::MANDATORY))
         {
             String test = control->data().asString();
-            if (!trim(test).length())
+            if (trim(test).empty())
             {
                 Fl::focus(control->control());
                 throw Exception(control->label() + " entry can't be empty!");
@@ -397,8 +395,7 @@ CControl& CDialog::operator[](const String& fieldName)
     {
         scanControls();
     }
-    auto itor = m_allFields.find(fieldName);
-    if (itor != m_allFields.end())
+    if (auto itor = m_allFields.find(fieldName); itor != m_allFields.end())
     {
         return *itor->second;
     }

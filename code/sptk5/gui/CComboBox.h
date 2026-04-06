@@ -84,7 +84,7 @@ class SP_EXPORT CBaseListBox
     /**
      * The internal function to process data changes
      */
-    void changeControlData(int changeType, int intData = 0, std::string stringData = "");
+    void changeControlData(int changeType, int intData = 0, const std::string& stringData = "");
 
     /**
      * The constructor initializer
@@ -243,7 +243,7 @@ public:
      * @param cwidth int16_t, column width
      * @param cvisible bool, is the column visible?
      */
-    void addColumn(std::string cname, VariantDataType type = VariantDataType::VAR_STRING, int16_t cwidth = 70,
+    void addColumn(const std::string& cname, VariantDataType type = VariantDataType::VAR_STRING, int16_t cwidth = 70,
                    bool cvisible = true);
 
     /**
@@ -348,7 +348,7 @@ public:
      * Defines SQL query text
      * @param s std::string, SQL text
      */
-    void sql(std::string s);
+    void sql(const std::string& s);
 
     /**
      * Returns SQL query field name that contains unique row IDS, preferrably - integers.
@@ -359,7 +359,7 @@ public:
      * Sets SQL query field name that contains unique row IDS, preferrably - integers.
      * @param keyFieldName std::string, a name of the key field
      */
-    void keyField(std::string keyFieldName);
+    void keyField(const std::string& keyFieldName);
 
     /**
      * Returns sortColumn
@@ -386,7 +386,7 @@ public:
      * @param sql std::string, a SQL query text
      * @param keyField std::string, a name of the query field with unique row IDs
      */
-    void setup(SPoolDatabaseConnection db, std::string sql, std::string keyField);
+    void setup(const SPoolDatabaseConnection& db, const std::string& sql, const std::string& keyField);
 
     /**
      * Returns the SQL query parameter reference for the parameter name. It is

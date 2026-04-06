@@ -496,7 +496,7 @@ void PostgreSQLConnection::queryBindParameters(Query* query)
     }
 }
 
-void PostgreSQLConnection::queryExecDirect(const Query* query)
+void PostgreSQLConnection::queryExecDirect(const Query* query) const
 {
     const scoped_lock lock(m_mutex);
 

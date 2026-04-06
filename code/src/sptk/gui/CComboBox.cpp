@@ -388,17 +388,17 @@ bool CBaseListBox::preferredSize(int& w, int& h)
 void CBaseListBox::load(Query* loadQuery)
 {
     Query& query = *loadQuery;
-    if (!fieldName().length())
+    if (fieldName().empty())
     {
         return;
     }
     Field& fld = query[fieldName().c_str()];
-    data(*(Variant*) &fld);
+    data(*static_cast<Variant*>(&fld));
 }
 
 void CBaseListBox::save(Query* updateQuery)
 {
-    if (!fieldName().length())
+    if (fieldName().empty())
     {
         return;
     }
@@ -416,9 +416,9 @@ void CBaseListBox::save(const xdoc::SNode& node, CLayoutXMLmode xmlMode) const
     CControl::save(node, xmlMode);
 }
 
-void CBaseListBox::changeControlData(int changeType, int intData, string stringData)
+void CBaseListBox::changeControlData(int changeType, int intData, const string& stringData)
 {
-    CPackedStrings* oldSelection = m_list->selectedRow();
+    const CPackedStrings* oldSelection = m_list->selectedRow();
     switch (changeType)
     {
         case CT_REFRESH_DATA:
@@ -439,11 +439,11 @@ void CBaseListBox::changeControlData(int changeType, int intData, string stringD
         default:
             break;
     }
-    CPackedStrings* newSelection = m_list->selectedRow();
 
+    const CPackedStrings* newSelection = m_list->selectedRow();
     if (oldSelection != newSelection)
     {
-        fireEvent(CEvent::DATA_CHANGED, (int32_t) m_list->data().asInteger());
+        fireEvent(CEvent::DATA_CHANGED, m_list->data().asInteger());
     }
 }
 
@@ -461,24 +461,25 @@ void CBaseListBox::button_handle(uint32_t theButtonKind)
     Fl::focus(m_control);
     switch ((CButtonKind) theButtonKind)
     {
-        case CButtonKind::BROWSE_BUTTON:
+        using enum CButtonKind;
+        case BROWSE_BUTTON:
             if (m_mode == IS_COMBO_BOX)
             {
                 dropDownList();
             }
             break;
-        case CButtonKind::REFRESH_BUTTON:
+        case REFRESH_BUTTON:
             refreshData();
             break;
-        case CButtonKind::ADD_BUTTON:
+        case ADD_BUTTON:
             m_event = CEvent::ADD_ITEM;
             do_callback();
             break;
-        case CButtonKind::EDIT_BUTTON:
+        case EDIT_BUTTON:
             m_event = CEvent::EDIT_ITEM;
             do_callback();
             break;
-        case CButtonKind::DELETE_BUTTON:
+        case DELETE_BUTTON:
             m_event = CEvent::DELETE_ITEM;
             do_callback();
             break;
@@ -494,9 +495,9 @@ void CBaseListBox::dropDownList()
         return;
     }
     m_droppedDown = true;
-    Fl_Window* parentWindow = window();
-    int        xx = parentWindow->x() + x() + m_labelWidth;
-    int        yy = parentWindow->y() + y() + m_control->h();
+    const Fl_Window* parentWindow = window();
+    int              xx = parentWindow->x() + x() + m_labelWidth;
+    int              yy = parentWindow->y() + y() + m_control->h();
 
     int hh = 0;
     int ww = 0;
@@ -555,7 +556,7 @@ String CBaseListBox::sql() const
     return m_list->sql();
 }
 
-void CBaseListBox::sql(string s)
+void CBaseListBox::sql(const string& s)
 {
     m_list->sql(s);
 }
@@ -585,7 +586,7 @@ void CBaseListBox::data(const Variant& newData)
 
     if (oldSelection != newSelection)
     {
-        fireEvent(CEvent::DATA_CHANGED, (int32_t) m_list->data().asInteger());
+        fireEvent(CEvent::DATA_CHANGED, m_list->data().asInteger());
     }
 }
 
@@ -594,12 +595,12 @@ string CBaseListBox::keyField() const
     return m_list->keyField();
 }
 
-void CBaseListBox::keyField(string kf)
+void CBaseListBox::keyField(const string& kf)
 {
     m_list->keyField(kf);
 }
 
-void CBaseListBox::setup(const SPoolDatabaseConnection db, string sql, string keyField)
+void CBaseListBox::setup(const SPoolDatabaseConnection& db, const string& sql, const string& keyField)
 {
     m_list->setup(db, sql, keyField);
 }
@@ -614,7 +615,7 @@ CColumnList& CBaseListBox::columns()
     return m_list->columns();
 }
 
-void CBaseListBox::addColumn(string cname, VariantDataType type, short cwidth, bool cvisible)
+void CBaseListBox::addColumn(const string& cname, VariantDataType type, short cwidth, bool cvisible)
 {
     m_list->columns().push_back(CColumn(cname, type, cwidth, cvisible));
 }
@@ -641,7 +642,7 @@ void CBaseListBox::addRows(const String& columnName, const Strings& rows)
     {
         cpchar  strs[2] = {str.c_str(), nullptr};
         auto*   psl = new CPackedStrings(1, strs);
-        int32_t id = (int32_t) str.ident();
+        int32_t id = static_cast<int32_t>(str.ident());
         psl->argument(id);
         m_list->addRow(psl);
     }
