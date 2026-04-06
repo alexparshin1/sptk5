@@ -199,6 +199,7 @@ void testBulkInsert(const String& dbName)
     try
     {
         DatabaseTests::testBulkInsert(connectionString);
+        DatabaseTests::testBulkInsertErrors(connectionString);
         DatabaseTests::testBatchSQL(connectionString);
     }
     catch (const Exception& e)

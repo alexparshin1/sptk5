@@ -146,6 +146,7 @@ public:
      * @param connectionString Database connection string.
      */
     static void testBulkInsert(const DatabaseConnectionString& connectionString);
+    static void testBulkInsertErrors(const DatabaseConnectionString& connectionString);
 
     /**
      * @brief Test bulk insert operation performance.

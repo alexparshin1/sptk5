@@ -26,10 +26,7 @@
 
 #pragma once
 
-#include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/db/QueryParameter.h>
-
-#include <map>
 #include <vector>
 
 namespace sptk {

@@ -105,7 +105,7 @@ TEST(SPTK_DatabaseConnectionPool, reuseConnections)
         for (auto i = 0; i < 2; ++i)
         {
             queue<DatabaseConnection> connections;
-            for (size_t i = 0; i < maxConnections; ++i)
+            for (size_t j = 0; j < maxConnections; ++j)
             {
                 const auto connection = connectionPool.getConnection();
                 connections.push(connection);

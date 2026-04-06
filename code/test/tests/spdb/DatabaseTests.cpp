@@ -857,6 +857,45 @@ void DatabaseTests::testBulkInsert(const DatabaseConnectionString& connectionStr
     countRows.close();
     EXPECT_EQ(0, rowCount);
 }
+void DatabaseTests::testBulkInsertErrors(const DatabaseConnectionString& connectionString)
+{
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+    createTestTable(databaseConnection, false, false);
+
+    vector<VariantVector> data;
+
+    VariantVector row1;
+    row1.emplace_back("Alex,'Doe'");
+    row1.emplace_back("Programmer");
+    row1.emplace_back("01-JAN-2014");
+
+    VariantVector row2(row1);
+    row2.emplace_back("IT");
+
+    constexpr auto dataRows = 10000;
+    constexpr auto batchSize = 100;
+
+    data.reserve(dataRows);
+    for (auto i = 0; i < dataRows; ++i)
+    {
+        data.push_back(row1);
+    }
+
+    vector inputData(data);
+
+    vector<int64_t> insertedIds;
+    Strings         columnNames({"name", "position_name", "hire_date"});
+
+    inputData.push_back(row1);
+    EXPECT_ANY_THROW(databaseConnection->bulkInsert("gtest_temp_table", "", Strings(), inputData, insertedIds, batchSize));
+    EXPECT_ANY_THROW(databaseConnection->bulkInsert("", "", columnNames, inputData, insertedIds, batchSize));
+    EXPECT_NO_THROW(databaseConnection->bulkInsert("gtest_temp_table", "", columnNames, inputData, insertedIds, batchSize));
+
+    inputData.push_back(row2);
+    EXPECT_ANY_THROW(databaseConnection->bulkInsert("gtest_temp_table", "", columnNames, inputData, insertedIds, batchSize));
+}
+
 
 void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& connectionString)
 {
