@@ -154,7 +154,7 @@ TEST(SPTK_DatabaseConnectionPool, createConnectionsTimeout)
         const auto connection = connectionPool.getConnection();
         sw.stop();
 
-        EXPECT_EQ(nullptr, connection->connection());
+        EXPECT_EQ(nullptr, connection->connection().lock());
         EXPECT_GE(sw.milliseconds(), 100);
         EXPECT_LE(sw.milliseconds(), 150);
     }

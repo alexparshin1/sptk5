@@ -62,15 +62,12 @@ void DatabaseTests::testConnect(const DatabaseConnectionString& connectionString
 {
     DatabaseConnectionPool connectionPool(connectionString.toString());
 
-    using enum sptk::DatabaseObjectType;
+    using enum DatabaseObjectType;
     const DatabaseConnection databaseConnection = connectionPool.getConnection();
-#ifdef USE_GTEST
+
     EXPECT_STREQ(databaseConnection->connectionString().toString().c_str(), connectionString.toString().c_str());
-#endif
     databaseConnection->open();
-#ifdef USE_GTEST
     EXPECT_TRUE(databaseConnection->active());
-#endif
 
     constexpr size_t needInfoStrings = 10;
     if (const auto info = databaseConnection->driverDescription(); info.length() < needInfoStrings)

@@ -488,6 +488,7 @@ private:
 };
 
 using SPoolDatabaseConnection = std::shared_ptr<PoolDatabaseConnection>;
+using WPoolDatabaseConnection = std::weak_ptr<PoolDatabaseConnection>;
 
 /**
  * @brief Escape SQL string for bulk insert.

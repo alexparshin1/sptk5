@@ -201,7 +201,7 @@ void CDialog::database(const SPoolDatabaseConnection& db)
     m_insertQuery->database(db);
 }
 
-SPoolDatabaseConnection CDialog::database() const
+WPoolDatabaseConnection CDialog::database() const
 {
     return m_selectQuery->database();
 }
@@ -353,7 +353,7 @@ bool CDialog::save()
         }
     }
 
-    if (!database())
+    if (!database().expired())
     {
         return true;
     }

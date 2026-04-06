@@ -65,7 +65,7 @@ public:
     /**
      * @brief Returns database connection acquired from the connection pool.
      */
-    [[nodiscard]] SPoolDatabaseConnection connection() const;
+    [[nodiscard]] WPoolDatabaseConnection connection() const;
 
     /**
      * @brief Opens the database connection.
@@ -186,8 +186,18 @@ public:
 
 private:
     DatabaseConnectionPool& m_connectionPool;           ///< Database connection pool.
-    SPoolDatabaseConnection m_connection {nullptr};     ///< Database connection.
+    WPoolDatabaseConnection m_connection;               ///< Database connection.
     static const String     s_invalidConnectionMessage; ///< Error message for inactive connection.
+
+    SPoolDatabaseConnection acquireConnection() const
+    {
+        const auto connection = m_connection.lock();
+        if (connection)
+        {
+            return connection;
+        }
+        throw Exception(s_invalidConnectionMessage);
+    }
 };
 
 using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;

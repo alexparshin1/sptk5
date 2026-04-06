@@ -77,36 +77,38 @@ InsertQuery::InsertQuery(const DatabaseConnection& db, const String& sql, const 
 
 void InsertQuery::sql(const String& _sql)
 {
-    if (!database())
+    const auto db = database().lock();
+    if (!db)
     {
-        throw Exception("Database connection is not defined yet");
+        throw Exception("Database connection is not valid");
     }
-    Query::sql(reviewQuery(database()->connectionType(), _sql, m_idFieldName));
+    Query::sql(reviewQuery(db->connectionType(), _sql, m_idFieldName));
 }
 
 void InsertQuery::exec()
 {
-    if (!database())
+    const auto db = database().lock();
+    if (!db)
     {
-        throw Exception("Database connection is not defined yet");
+        throw Exception("Database connection is not valid");
     }
-
     m_id = 0;
-    switch (database()->connectionType())
+    switch (db->connectionType())
     {
-        case DatabaseConnectionType::ORACLE:
-        case DatabaseConnectionType::ORACLE_OCI:
+        using enum DatabaseConnectionType;
+        case ORACLE:
+        case ORACLE_OCI:
             param("last_id").setOutput();
             param("last_id").setNull(VariantDataType::VAR_INT64);
             m_id = static_cast<uint64_t>(scalar().asInteger());
             break;
 
-        case DatabaseConnectionType::POSTGRES:
-        case DatabaseConnectionType::SQLITE3:
+        case POSTGRES:
+        case SQLITE3:
             m_id = scalar().asInteger();
             break;
 
-        case DatabaseConnectionType::MYSQL:
+        case MYSQL:
             Query::exec();
             if (!m_lastInsertedId)
             {
@@ -115,7 +117,7 @@ void InsertQuery::exec()
             m_id = static_cast<uint64_t>(m_lastInsertedId->scalar().asInteger());
             break;
 
-        case DatabaseConnectionType::MSSQL_ODBC:
+        case MSSQL_ODBC:
             m_id = static_cast<uint64_t>(scalar().asInteger());
             break;
         default:

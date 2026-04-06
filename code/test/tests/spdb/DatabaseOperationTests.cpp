@@ -43,7 +43,7 @@ void testConnect(const String& dbName)
 
     if (connectionString.empty())
     {
-        FAIL() << dbName << " connection is not defined";
+        FAIL() << dbName << " connection string is empty";
     }
 
     try

@@ -36,7 +36,7 @@ AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectio
     : m_connectionPool(connectionPool)
 {
     m_connection = m_connectionPool.createConnection();
-    if (m_connection == nullptr)
+    if (m_connection.expired())
     {
         throw Exception("Failed to create database connection");
     }
@@ -44,178 +44,128 @@ AutoDatabaseConnection::AutoDatabaseConnection(DatabaseConnectionPool& connectio
 
 AutoDatabaseConnection::~AutoDatabaseConnection()
 {
-    if (m_connection != nullptr)
+    try
     {
-        try
+        const auto connection = m_connection.lock();
+        if (connection && connection->active())
         {
-            if (m_connection->active())
-            {
-                m_connection->close();
-            }
-            m_connectionPool.releaseConnection(m_connection);
+            connection->close();
         }
-        catch (const Exception& e)
-        {
-            CERR(e.what());
-        }
+        m_connectionPool.releaseConnection(connection);
+    }
+    catch (const Exception& e)
+    {
+        CERR(e.what());
     }
 }
 
-SPoolDatabaseConnection AutoDatabaseConnection::connection() const
+WPoolDatabaseConnection AutoDatabaseConnection::connection() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection;
+    return acquireConnection();
 }
 
 void AutoDatabaseConnection::open(const String& connectionString) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->open(connectionString);
+    const auto connection = acquireConnection();
+    connection->open(connectionString);
 }
 
 void AutoDatabaseConnection::close() const
 {
-    if (active())
+    const auto connection = acquireConnection();
+    if (connection->active())
     {
-        m_connection->close();
+        connection->close();
     }
 }
 
 bool AutoDatabaseConnection::active() const
 {
-    return m_connection != nullptr && m_connection->active();
+    const auto connection = m_connection.lock();
+    return connection != nullptr && connection->active();
 }
 
 const DatabaseConnectionString& AutoDatabaseConnection::connectionString() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection->connectionString();
+    return m_connectionPool;
 }
 
 DatabaseConnectionType AutoDatabaseConnection::connectionType() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection->connectionType();
+    const auto connection = acquireConnection();
+    return connection->connectionType();
 }
 
 String AutoDatabaseConnection::driverDescription() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection->driverDescription();
+    const auto connection = acquireConnection();
+    return connection->driverDescription();
 }
 
 void AutoDatabaseConnection::beginTransaction() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->beginTransaction();
+    const auto connection = acquireConnection();
+    connection->beginTransaction();
 }
 
 void AutoDatabaseConnection::commitTransaction() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->commitTransaction();
+    const auto connection = acquireConnection();
+    connection->commitTransaction();
 }
 
 void AutoDatabaseConnection::rollbackTransaction() const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->rollbackTransaction();
+    const auto connection = acquireConnection();
+    connection->rollbackTransaction();
 }
 
 void AutoDatabaseConnection::objectList(const DatabaseObjectType objectType, Strings& objects) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->objectList(objectType, objects);
+    const auto connection = acquireConnection();
+    connection->objectList(objectType, objects);
 }
 
 void AutoDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
                                         std::vector<VariantVector>& data, std::vector<int64_t>& insertedIds, const size_t groupSize) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
+    const auto connection = acquireConnection();
+    connection->bulkInsert(tableName, autoIncrementColumnName, columnNames, data, groupSize, insertedIds);
 }
 
 void AutoDatabaseConnection::bulkInsert(const String& tableName, const Strings& columnNames,
                                         std::vector<VariantVector>& data, const size_t groupSize) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->bulkInsert(tableName, columnNames, data, groupSize);
+    const auto connection = acquireConnection();
+    connection->bulkInsert(tableName, columnNames, data, groupSize);
 }
 
 void AutoDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->bulkDelete(tableName, keyColumnName, keys);
+    const auto connection = acquireConnection();
+    connection->bulkDelete(tableName, keyColumnName, keys);
 }
 
 [[maybe_unused]] void AutoDatabaseConnection::executeBatchFile(const String& batchFileName, Strings* errors) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->executeBatchFile(batchFileName, errors);
+    const auto connection = acquireConnection();
+    connection->executeBatchFile(batchFileName, errors);
 }
 
 void AutoDatabaseConnection::executeBatchSQL(const sptk::Strings& batchSQL, Strings* errors) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    m_connection->executeBatchSQL(batchSQL, errors);
+    const auto connection = acquireConnection();
+    connection->executeBatchSQL(batchSQL, errors);
 }
 
 String AutoDatabaseConnection::tableSequenceName(const String& tableName, const String& /*sequenceName*/) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection->tableSequenceName(tableName);
+    const auto connection = acquireConnection();
+    return connection->tableSequenceName(tableName);
 }
 
 String AutoDatabaseConnection::lastAutoIncrementSql(const String& tableName, const String& /*sequenceName*/) const
 {
-    if (!m_connection)
-    {
-        throw Exception(s_invalidConnectionMessage);
-    }
-    return m_connection->lastAutoIncrementSql(tableName);
+    const auto connection = acquireConnection();
+    return connection->lastAutoIncrementSql(tableName);
 }

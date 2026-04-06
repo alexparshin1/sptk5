@@ -77,7 +77,7 @@ void CDBListView::database(const SPoolDatabaseConnection& db)
     m_recordCountQuery.connect(db);
 }
 
-SPoolDatabaseConnection CDBListView::database() const
+WPoolDatabaseConnection CDBListView::database() const
 {
     return m_fullRefreshQuery.database();
 }

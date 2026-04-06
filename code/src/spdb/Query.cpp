@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-void QueryStatementManagement::setDatabase(const SPoolDatabaseConnection& db)
+void QueryStatementManagement::setDatabase(const WPoolDatabaseConnection& db)
 {
     m_db = db;
 }
@@ -45,16 +45,21 @@ bool QueryStatementManagement::bulkMode() const
 
 void QueryStatementManagement::closeStmt(bool freeStatement)
 {
-    if (database() != nullptr && statement() != nullptr)
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+    if (db != nullptr && statement() != nullptr)
     {
         if (freeStatement)
         {
-            database()->queryFreeStmt(dynamic_cast<Query*>(this));
+            db->queryFreeStmt(dynamic_cast<Query*>(this));
             setPrepared(false);
         }
         else
         {
-            database()->queryCloseStmt(dynamic_cast<Query*>(this));
+            db->queryCloseStmt(dynamic_cast<Query*>(this));
         }
         setActive(false);
     }
@@ -74,33 +79,48 @@ void QueryStatementManagement::notImplemented(const String& functionName) const
     throw DatabaseException(functionName + " isn't implemented", source_location::current(), getSQL());
 }
 
-void QueryStatementManagement::connect(const SPoolDatabaseConnection& db)
+void QueryStatementManagement::connect(const WPoolDatabaseConnection& newDb)
 {
-    if (database() == db || db == nullptr)
+    const auto db = newDb.lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+    if (database().lock() == db || db == nullptr)
     {
         return;
     }
     disconnect();
     setDatabase(db);
-    database()->linkQuery(dynamic_cast<Query*>(this));
+    db->linkQuery(dynamic_cast<Query*>(this));
 }
 
 void QueryStatementManagement::disconnect()
 {
-    closeQuery(true);
-    if (database() != nullptr)
+    auto db = database().lock();
+    if (!db)
     {
-        database()->unlinkQuery(dynamic_cast<Query*>(this));
+        return;
     }
-    setDatabase(nullptr);
+    closeQuery(true);
+    if (db != nullptr)
+    {
+        db->unlinkQuery(dynamic_cast<Query*>(this));
+    }
+    setDatabase({});
 }
 
 void Query::execute()
 {
-    if (database() != nullptr && statement() != nullptr)
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+    if (db != nullptr && statement() != nullptr)
     {
         messages().clear();
-        database()->queryExecute(this);
+        db->queryExecute(this);
     }
 }
 
@@ -131,19 +151,31 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
     if (db)
     {
         setDatabase(db->connection());
-        database()->linkQuery(this);
+
+        const auto conn = database().lock();
+        if (!conn)
+        {
+            throw Exception("Database connection is not valid");
+        }
+
+        conn->linkQuery(this);
     }
     Query::sql(sql);
 }
 
-Query::Query(const SPoolDatabaseConnection& db, const String& sql, bool autoPrepare)
+Query::Query(const WPoolDatabaseConnection& db, const String& sql, bool autoPrepare)
     : QueryStatementManagement(autoPrepare)
     , m_fields(false)
 {
-    if (db != nullptr)
+    if (!db.expired())
     {
         setDatabase(db);
-        database()->linkQuery(this);
+        const auto conn = database().lock();
+        if (!conn)
+        {
+            throw Exception("Database connection is not valid");
+        }
+        conn->linkQuery(this);
     }
     Query::sql(sql);
 }
@@ -153,14 +185,15 @@ Query::~Query()
     try
     {
         closeQuery(true);
+
+        if (const auto db = database().lock())
+        {
+            db->unlinkQuery(this);
+        }
     }
     catch (const Exception& e)
     {
         CERR(e.what());
-    }
-    if (database() != nullptr)
-    {
-        database()->unlinkQuery(this);
     }
 }
 
@@ -278,13 +311,23 @@ void Query::sqlParseParameter(stringstream& sql, const char* paramStart, const c
         m_params.add(param);
     }
     param->bindAdd(static_cast<uint32_t>(paramNumber));
-    sql << database()->paramMark(static_cast<uint32_t>(paramNumber));
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+    sql << db->paramMark(static_cast<uint32_t>(paramNumber));
     ++paramNumber;
 }
 
 void Query::sql(const String& _sql)
 {
-    if (database() == nullptr)
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+    if (db == nullptr)
     {
         throw DatabaseException("Query isn't connected to the database");
     }
@@ -350,8 +393,14 @@ String Query::parseParameters(const String& _sql)
         }
     }
 
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+
     stringstream sql;
-    const auto   isPostgreSQL = database()->connectionType() == DatabaseConnectionType::POSTGRES;
+    const auto   isPostgreSQL = db->connectionType() == DatabaseConnectionType::POSTGRES;
 
     auto paramNumber = 0;
     for (;;)
@@ -375,19 +424,26 @@ String Query::parseParameters(const String& _sql)
 
 bool Query::open()
 {
-    if (database() == nullptr)
+    const auto db = database().lock();
+    if (!db)
     {
-        throw DatabaseException("Query is not connected to the database", source_location::current(), sql());
+        throw Exception("Database connection is not valid");
     }
 
-    database()->queryOpen(this);
+    db->queryOpen(this);
 
     return true;
 }
 
 void Query::fetch()
 {
-    if (database() == nullptr || !active())
+    const auto db = database().lock();
+    if (!db)
+    {
+        throw Exception("Database connection is not valid");
+    }
+
+    if (!active())
     {
         throw DatabaseException("Query isn't open", source_location::current(), sql());
     }
@@ -397,7 +453,7 @@ void Query::fetch()
         throw DatabaseException("No more rows to read", source_location::current(), sql());
     }
 
-    database()->queryFetch(this);
+    db->queryFetch(this);
 }
 
 bool Query::readField(const char*, Variant&)

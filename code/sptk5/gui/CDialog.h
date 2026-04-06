@@ -333,7 +333,7 @@ public:
     /**
      * Returns current database connection
      */
-    SPoolDatabaseConnection database() const;
+    WPoolDatabaseConnection database() const;
 
     /**
      * Defines database table to use

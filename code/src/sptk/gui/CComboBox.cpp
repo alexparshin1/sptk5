@@ -541,7 +541,7 @@ CPackedStrings* CBaseListBox::selectedRow() const
     return m_list->selectedRow();
 }
 
-SPoolDatabaseConnection CBaseListBox::database() const
+WPoolDatabaseConnection CBaseListBox::database() const
 {
     return m_list->database();
 }

@@ -118,7 +118,7 @@ public:
     /**
      * Returns the database connection
      */
-    SPoolDatabaseConnection database() const;
+    WPoolDatabaseConnection database() const;
 
     /**
      * Sets the SQL queries. Both full and fast refresh queries should return the same set of fields.

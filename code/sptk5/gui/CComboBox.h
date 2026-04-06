@@ -332,7 +332,7 @@ public:
     /**
      * Returns database connection pointer
      */
-    SPoolDatabaseConnection database() const;
+    WPoolDatabaseConnection database() const;
 
     /**
      * Defines database connection
