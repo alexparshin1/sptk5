@@ -62,4 +62,5 @@ void TestEchoServer::echoFunction(const ServerConnection& serverConnection)
     }
 
     echoSocket->close();
+    serverConnection.close();
 }
