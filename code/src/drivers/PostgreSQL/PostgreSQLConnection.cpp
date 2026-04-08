@@ -696,8 +696,9 @@ void PostgreSQLConnection::queryOpen(Query* query)
             auto dataType = static_cast<PostgreSQLDataType>(PQftype(stmt, column));
             auto fieldType = VariantDataType::VAR_NONE;
             postgreTypeToVariantType(dataType, fieldType);
-            const auto fieldLength = PQfsize(stmt, column);
-            auto       field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
+            auto fieldLength = PQfsize(stmt, column);
+            fieldLength = fieldLength < 0 ? 0 : fieldLength;
+            auto field = make_shared<DatabaseField>(columnName, static_cast<int>(dataType), fieldType, fieldLength);
             fields.push_back(field);
         }
     }

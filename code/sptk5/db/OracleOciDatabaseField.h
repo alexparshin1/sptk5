@@ -15,7 +15,7 @@ namespace sptk {
 class OracleOciDatabaseField final : public DatabaseField
 {
 public:
-    OracleOciDatabaseField(const std::string_view& fieldName, int fieldType, VariantDataType dataType, int fieldLength, int fieldScale, const String& sqlType);
+    OracleOciDatabaseField(const String& fieldName, int fieldType, VariantDataType dataType, size_t fieldLength, int fieldScale, const String& sqlType);
 
     [[nodiscard]] String sqlType() const
     {

@@ -30,14 +30,14 @@
 using namespace std;
 using namespace sptk;
 
-DatabaseField::DatabaseField(const string_view fieldName, const int fieldType,
-                             const VariantDataType dataType, int fieldLength, const int fieldScale)
-    : Field(fieldName.data())
+DatabaseField::DatabaseField(const String& fieldName, const int fieldType,
+                             const VariantDataType dataType, size_t fieldLength, const int fieldScale)
+    : Field(fieldName)
     , m_fldType(fieldType)
     , m_fldSize(fieldLength)
     , m_fldScale(fieldScale)
 {
-    displayName(fieldName.data());
+    displayName(fieldName);
 
     switch (dataType)
     {
@@ -65,14 +65,14 @@ DatabaseField::DatabaseField(const string_view fieldName, const int fieldType,
                 m_fldSize = fieldLength;
             }
             Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, VAR_BUFFER);
-            checkSize(static_cast<size_t>(fieldLength) + 1);
+            checkSize(fieldLength + 1);
             view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
             break;
 
         case VAR_TEXT:
         case VAR_BUFFER:
             Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, dataType);
-            checkSize(static_cast<size_t>(fieldLength) + 1);
+            checkSize(fieldLength + 1);
             view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
             break;
 
@@ -90,7 +90,7 @@ DatabaseField::DatabaseField(const string_view fieldName, const int fieldType,
 
         default:
             Variant::setString("");
-            checkSize(static_cast<size_t>(fieldLength) + 1);
+            checkSize(fieldLength + 1);
             view().width = fieldLength;
             break;
     }

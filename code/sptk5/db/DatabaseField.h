@@ -57,7 +57,7 @@ public:
      * @param fieldLength		Database field length.
      * @param fieldScale		Database field scale.
      */
-    DatabaseField(std::string_view fieldName, int fieldType, VariantDataType dataType, int fieldLength,
+    DatabaseField(const String& fieldName, int fieldType, VariantDataType dataType, size_t fieldLength,
                   int fieldScale = 4);
 
     /**
@@ -91,9 +91,9 @@ public:
     /**
      * @brief Reports field size.
      */
-    [[nodiscard]] uint32_t fieldSize() const
+    [[nodiscard]] size_t fieldSize() const
     {
-        return static_cast<uint32_t>(m_fldSize);
+        return m_fldSize < 0 ? 0 : static_cast<size_t>(m_fldSize);
     }
 
     /**
@@ -153,7 +153,7 @@ public:
 
 private:
     int    m_fldType;                ///< Native database data type.
-    int    m_fldSize;                ///< Field size.
+    size_t m_fldSize;                ///< Field size.
     int    m_fldScale;               ///< Field scale, optional, for floating point fields.
     String m_displayFormat;          ///< Column display format.
     int    m_alignment {ALIGN_LEFT}; ///< Column alignment.

@@ -12,8 +12,8 @@
 using namespace std;
 using namespace sptk;
 
-OracleOciDatabaseField::OracleOciDatabaseField(const string_view& fieldName, int fieldType, VariantDataType dataType,
-                                               int fieldLength, int fieldScale, const String& sqlType)
+OracleOciDatabaseField::OracleOciDatabaseField(const String& fieldName, const int fieldType, const VariantDataType dataType,
+                                               const size_t fieldLength, const int fieldScale, const String& sqlType)
     : DatabaseField(fieldName, fieldType, dataType, fieldLength, fieldScale)
     , m_sqlType(sqlType.toLowerCase())
 {
