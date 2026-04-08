@@ -93,7 +93,7 @@ public:
      */
     [[nodiscard]] size_t fieldSize() const
     {
-        return m_fldSize < 0 ? 0 : static_cast<size_t>(m_fldSize);
+        return m_fldSize;
     }
 
     /**
