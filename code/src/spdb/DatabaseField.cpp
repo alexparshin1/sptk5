@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-08                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -66,14 +67,14 @@ DatabaseField::DatabaseField(const String& fieldName, const int fieldType,
             }
             Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, VAR_BUFFER);
             checkSize(fieldLength + 1);
-            view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
+            view().width = static_cast<int>(fieldLength);
             break;
 
         case VAR_TEXT:
         case VAR_BUFFER:
             Variant::setBuffer(reinterpret_cast<const uint8_t*>(""), 1, dataType);
             checkSize(fieldLength + 1);
-            view().width = dataType == VAR_BUFFER ? 1 : fieldLength;
+            view().width = dataType == VAR_BUFFER ? 1 : static_cast<int>(fieldLength);
             break;
 
         case VAR_DATE:
@@ -91,7 +92,7 @@ DatabaseField::DatabaseField(const String& fieldName, const int fieldType,
         default:
             Variant::setString("");
             checkSize(fieldLength + 1);
-            view().width = fieldLength;
+            view().width = static_cast<int>(fieldLength);
             break;
     }
 }

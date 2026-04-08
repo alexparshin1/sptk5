@@ -271,7 +271,7 @@ void MySQLStatement::setParameterValues()
                 break;
 
             case VariantDataType::VAR_STRING:
-                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
+                m_paramLengths[paramIndex] = param->dataSize();
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -284,7 +284,7 @@ void MySQLStatement::setParameterValues()
 
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
+                m_paramLengths[paramIndex] = param->dataSize();
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -311,7 +311,7 @@ void MySQLStatement::setParameterValues()
 
             default:
                 throw DatabaseException(
-                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name().c_str()));
+                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name()));
         }
 
         if (param->isNull())
@@ -334,7 +334,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), static_cast<unsigned long>(sql.length())) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
     {
         throwMySQLError();
     }
@@ -575,7 +575,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             default:
-                throw DatabaseException("Unsupported Variant type: " + to_string(static_cast<int>(fieldType)));
+                throw DatabaseException(format("Unsupported Variant type: {}", static_cast<int>(fieldType)));
         }
     }
 }
@@ -663,7 +663,7 @@ void MySQLStatement::readPreparedResultRow(FieldList& fields)
                 break;
 
             default:
-                throw DatabaseException("Unsupported Variant type: " + to_string(static_cast<int>(fieldType)));
+                throw DatabaseException(format("Unsupported Variant type: {}", static_cast<int>(fieldType)));
         }
     }
 
@@ -690,7 +690,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
             field->checkSize(dataLength);
         }
         bind.buffer = field->get<Buffer>().data();
-        bind.buffer_length = static_cast<unsigned long>(field->bufferSize());
+        bind.buffer_length = field->bufferSize();
         if (mysql_stmt_fetch_column(statement(), &bind, static_cast<unsigned>(fieldIndex), 0) != 0)
         {
             throwMySQLError();

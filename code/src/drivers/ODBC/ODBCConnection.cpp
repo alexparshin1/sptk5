@@ -558,7 +558,7 @@ void odbcQueryBindParameter(const Query* query, QueryParameter* parameter)
 
             default:
                 throw DatabaseException(
-                    format("Unsupported parameter type {} for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name().c_str()));
+                    format("Unsupported parameter type {} for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name()));
         }
 
         const auto resultCode = SQLBindParameter(query->statement(), static_cast<SQLUSMALLINT>(paramNumber), inputOutputMode, paramType, valueType,

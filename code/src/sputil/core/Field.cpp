@@ -43,11 +43,7 @@ Field::Field(const String& name)
 
 String Field::asString() const
 {
-    constexpr auto maxPrintLength = 64;
-
-    String                          result;
-    array<char, maxPrintLength + 1> print_buffer {};
-    int                             len;
+    String result;
 
     if (isNull())
     {
@@ -56,41 +52,36 @@ String Field::asString() const
 
     switch (dataType())
     {
-        case VariantDataType::VAR_BOOL:
+        using enum VariantDataType;
+        case VAR_BOOL:
             result = get<bool>() != 0 ? "true" : "false";
             break;
 
-        case VariantDataType::VAR_INT:
-        case VariantDataType::VAR_IMAGE_NDX:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%i", m_data.get<int32_t>());
-            result.assign(print_buffer.data(), len);
+        case VAR_INT:
+        case VAR_IMAGE_NDX:
+            result = to_string(m_data.get<int32_t>());
             break;
 
-        case VariantDataType::VAR_INT64:
-#ifndef _WIN32
-            len = snprintf(print_buffer.data(), maxPrintLength, "%li", get<int64_t>());
-#else
-            len = snprintf(print_buffer.data(), maxPrintLength, "%lli", m_data.get<int64_t>());
-#endif
-            result.assign(print_buffer.data(), len);
+        case VAR_INT64:
+            result = to_string(m_data.get<int64_t>());
             break;
 
-        case VariantDataType::VAR_FLOAT:
+        case VAR_FLOAT:
             result = doubleDataToString();
             break;
 
-        case VariantDataType::VAR_MONEY:
+        case VAR_MONEY:
             result = moneyDataToString();
             break;
 
-        case VariantDataType::VAR_STRING:
-        case VariantDataType::VAR_TEXT:
-        case VariantDataType::VAR_BUFFER:
+        case VAR_STRING:
+        case VAR_TEXT:
+        case VAR_BUFFER:
             if (isExternalBuffer())
             {
                 result.assign(bit_cast<const char*>(get<const uint8_t*>()), dataSize());
             }
-            else if (dataType() == VariantDataType::VAR_STRING)
+            else if (dataType() == VAR_STRING)
             {
                 result = get<String>();
             }
@@ -101,18 +92,19 @@ String Field::asString() const
             }
             break;
 
-        case VariantDataType::VAR_DATE:
+        case VAR_DATE:
             result = DateTime(chrono::microseconds(get<int64_t>())).dateString();
             break;
 
-        case VariantDataType::VAR_DATE_TIME:
+        case VAR_DATE_TIME:
             result = epochDataToDateTimeString();
             break;
 
-        case VariantDataType::VAR_IMAGE_PTR:
-            len = snprintf(print_buffer.data(), maxPrintLength, "%p", bit_cast<const void*>(get<const uint8_t*>()));
-            result.assign(print_buffer.data(), len);
+        case VAR_IMAGE_PTR: {
+            const auto* ptr = bit_cast<const void*>(get<const uint8_t*>());
+            result = format("0x{:p}", ptr);
             break;
+        }
 
         default:
             throw Exception("Can't convert field " + fieldName() + " to type String");
