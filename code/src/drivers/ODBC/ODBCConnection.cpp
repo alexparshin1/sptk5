@@ -47,8 +47,8 @@ class ODBCField
     friend class ODBCConnection;
 
 public:
-    ODBCField(const string& fieldName, const int fieldType, int dateTimeVariant, const VariantDataType dataType,
-              const int fieldLength, const int fieldScale)
+    ODBCField(const String& fieldName, const int fieldType, int dateTimeVariant, const VariantDataType dataType,
+              const size_t fieldLength, const int fieldScale)
         : DatabaseField(fieldName, fieldType, dataType, fieldLength, fieldScale)
         , dateTimeVariant(dateTimeVariant)
     {

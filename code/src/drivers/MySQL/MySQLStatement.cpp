@@ -47,7 +47,7 @@ class sptk::MySQLStatementField
     : public DatabaseField
 {
 public:
-    MySQLStatementField(const string& fieldName, enum_field_types fieldType, VariantDataType dataType, int fieldSize)
+    MySQLStatementField(const String& fieldName, enum_field_types fieldType, VariantDataType dataType, size_t fieldSize)
         : DatabaseField(fieldName, static_cast<int>(fieldType), dataType, fieldSize)
     {
     }
