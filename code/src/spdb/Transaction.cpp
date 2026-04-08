@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-08                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -35,7 +36,12 @@ Transaction::Transaction(const DatabaseConnection& db)
     if (db)
     {
         m_db = db->connection();
+        if (!m_db.expired())
+        {
+            return;
+        }
     }
+    throw DatabaseException("Database connection is not valid");
 }
 
 Transaction::~Transaction()
@@ -47,7 +53,7 @@ Transaction::~Transaction()
             auto db = getConnection(true);
             db->rollbackTransaction();
         }
-        catch (const Exception& e)
+        catch (const exception& e)
         {
             CERR(e.what());
         }
