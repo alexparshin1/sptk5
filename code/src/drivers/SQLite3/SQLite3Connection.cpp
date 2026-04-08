@@ -376,7 +376,7 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber)
 
                 default:
                     throw DatabaseException(
-                        format("Unsupported parameter type ({}) for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name().c_str()));
+                        format("Unsupported parameter type ({}) for parameter '{}'", static_cast<int>(parameter->dataType()), parameter->name()));
             }
         }
 
