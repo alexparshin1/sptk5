@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-08                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -100,12 +101,12 @@ void InsertQuery::exec()
         case ORACLE_OCI:
             param("last_id").setOutput();
             param("last_id").setNull(VariantDataType::VAR_INT64);
-            m_id = static_cast<uint64_t>(scalar().asInteger());
+            m_id = static_cast<uint64_t>(scalar().asInt64());
             break;
 
         case POSTGRES:
         case SQLITE3:
-            m_id = scalar().asInteger();
+            m_id = scalar().asInt64();
             break;
 
         case MYSQL:
@@ -114,11 +115,11 @@ void InsertQuery::exec()
             {
                 m_lastInsertedId = make_shared<Query>(database(), "SELECT LAST_INSERT_ID()");
             }
-            m_id = static_cast<uint64_t>(m_lastInsertedId->scalar().asInteger());
+            m_id = static_cast<uint64_t>(m_lastInsertedId->scalar().asInt64());
             break;
 
         case MSSQL_ODBC:
-            m_id = static_cast<uint64_t>(scalar().asInteger());
+            m_id = static_cast<uint64_t>(scalar().asInt64());
             break;
         default:
             throw Exception("Unsupported database connection type");
