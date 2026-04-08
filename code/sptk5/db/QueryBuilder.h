@@ -48,7 +48,7 @@ public:
 
     virtual ~QueryBuilder() = default;
 
-    [[nodiscard]] virtual String selectSQL(const Strings& filter, const Strings& columns, bool pretty) const;
+    [[nodiscard]] virtual String selectSQL(const Strings& filter, const Strings& columns) const;
 
     [[nodiscard]] virtual String insertSQL(const Strings& columns, bool pretty) const;
 

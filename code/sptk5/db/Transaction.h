@@ -76,7 +76,7 @@ public:
     void rollback();
 
     /**
-     * @brief Is the transaction active?.
+     * @brief Is the transaction active?
      */
     [[nodiscard]] bool active() const
     {
@@ -84,8 +84,15 @@ public:
     }
 
 private:
-    SPoolDatabaseConnection m_db;             ///< Database to work with.
+    WPoolDatabaseConnection m_db;             ///< Database to work with.
     bool                    m_active {false}; ///< Transaction activity.
+
+    /**
+     * @brief Gets the database connection.
+     * @param expectedActive Expected transaction activity state.
+     * @return Database connection.
+     */
+    SPoolDatabaseConnection getConnection(bool expectedActive) const;
 };
 /**
  * @}

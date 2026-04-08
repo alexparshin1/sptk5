@@ -31,64 +31,63 @@ using namespace std;
 using namespace sptk;
 
 Transaction::Transaction(const DatabaseConnection& db)
-    : m_db(db->connection())
 {
+    if (db)
+    {
+        m_db = db->connection();
+    }
 }
 
 Transaction::~Transaction()
 {
-    try
+    if (m_active)
     {
-        if (m_active)
+        try
         {
-            m_db->rollbackTransaction();
+            auto db = getConnection(true);
+            db->rollbackTransaction();
         }
-    }
-    catch (const Exception& e)
-    {
-        CERR(e.what());
+        catch (const Exception& e)
+        {
+            CERR(e.what());
+        }
     }
 }
 
 void Transaction::begin()
 {
-    if (m_active)
-    {
-        throw DatabaseException("This transaction is already active");
-    }
-    try
-    {
-        m_db->beginTransaction();
-    }
-    catch (const DatabaseException& e)
-    {
-        if (strstr(e.what(), "connection") == nullptr)
-        {
-            throw;
-        }
-        m_db->close();
-        m_db->open();
-        m_db->beginTransaction();
-    }
+    auto db = getConnection(false);
+    db->beginTransaction();
     m_active = true;
 }
 
 void Transaction::commit()
 {
-    if (!m_active)
-    {
-        throw DatabaseException("This transaction is not active");
-    }
-    m_db->commitTransaction();
+    auto db = getConnection(true);
+    db->commitTransaction();
     m_active = false;
 }
 
 void Transaction::rollback()
 {
-    if (!m_active)
-    {
-        throw DatabaseException("This transaction is not active");
-    }
-    m_db->rollbackTransaction();
+    auto db = getConnection(true);
+    db->rollbackTransaction();
     m_active = false;
+}
+
+SPoolDatabaseConnection Transaction::getConnection(bool expectedActive) const
+{
+    if (auto db = m_db.lock())
+    {
+        if (m_active == expectedActive)
+        {
+            return db;
+        }
+        if (m_active)
+        {
+            throw DatabaseException("Transaction is already active");
+        }
+        throw DatabaseException("Transaction is not active");
+    }
+    throw DatabaseException("Database connection is not valid");
 }
