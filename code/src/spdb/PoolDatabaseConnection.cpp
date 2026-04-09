@@ -208,10 +208,10 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 }
 
 void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
-                                        std::vector<VariantVector>& data, size_t groupSize, vector<int64_t>* insertedIds)
+                                        std::vector<VariantVector>& data, const size_t groupSize, vector<int64_t>* insertedIds)
 {
     const auto wasInTransaction = inTransaction();
-    if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
+    if (!wasInTransaction)
     {
         beginTransaction();
     }
@@ -227,41 +227,71 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
         columnNamesFinal.push_back(autoIncrementColumnName);
     }
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    SPoolDatabaseConnection self;
+    try
+    {
+        self = shared_from_this();
+    }
+    catch (const exception&)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
     }
 
-    BulkQuery bulkQuery(self, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
-    bulkQuery.insertRows(data, insertedIds);
-
-    if (!wasInTransaction && connectionType() != DatabaseConnectionType::SQLITE3)
+    try
     {
-        commitTransaction();
+        BulkQuery bulkQuery(self, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
+        bulkQuery.insertRows(data, insertedIds);
+
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+    }
+    catch (const exception&)
+    {
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw;
     }
 }
 
 void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
 {
-    const bool wasInTransaction = inTransaction();
+    const auto wasInTransaction = inTransaction();
     if (!wasInTransaction)
     {
         beginTransaction();
     }
 
-    auto self = shared_from_this();
-    if (self == nullptr)
+    SPoolDatabaseConnection self;
+    try
+    {
+        self = shared_from_this();
+    }
+    catch (const exception&)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
     }
 
-    BulkQuery bulkQuery(self, tableName, keyColumnName, {keyColumnName}, 50);
-    bulkQuery.deleteRows(keys);
-
-    if (!wasInTransaction)
+    try
     {
-        commitTransaction();
+        BulkQuery bulkQuery(self, tableName, keyColumnName, {keyColumnName}, 50);
+        bulkQuery.deleteRows(keys);
+
+        if (!wasInTransaction)
+        {
+            commitTransaction();
+        }
+    }
+    catch (const exception&)
+    {
+        if (!wasInTransaction)
+        {
+            rollbackTransaction();
+        }
+        throw;
     }
 }
 

@@ -198,7 +198,8 @@ private:
 /**
  * @brief Database connector.
  *
- * Implements a thread-safe connection to generDOT_al database. It is used as a base class for actual database driver classes.
+ * Implements a connection to a generic database.
+ * It is used as a base class for actual database driver classes.
  */
 class SP_EXPORT PoolDatabaseConnection
     : public PoolDatabaseConnectionQueryMethods
