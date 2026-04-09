@@ -84,7 +84,7 @@ public:
     bool operator()(const T& s1, const T& s2) const
     {
 #ifdef WIN32
-        return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+        return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 #else
         return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 #endif
