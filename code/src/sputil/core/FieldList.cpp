@@ -71,6 +71,11 @@ Field& FieldList::push_back(const String& fname, const bool checkDuplicates)
 
 Field& FieldList::push_back(const SField& field)
 {
+    if (!field)
+    {
+        throw Exception("Attempt to push empty field");
+    }
+
     m_list.push_back(field);
 
     if (m_index)
