@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/db/DatabaseConnectionPool.h"
+#include "sptk5/db/DatabaseTests.h"
+
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/db/PoolDatabaseConnection.h>
@@ -43,8 +46,8 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
 {
     constexpr auto maxCount = 100000;
     constexpr auto mcsInSecond = 1E6;
-    const String sourceString = "Hello, 'World'.\n\rLet's go\n";
-    Stopwatch stopWatch;
+    const String   sourceString = "Hello, 'World'.\n\rLet's go\n";
+    Stopwatch      stopWatch;
     stopWatch.start();
     for (size_t i = 0; i < maxCount; ++i)
     {
@@ -54,4 +57,113 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
     COUT("Escaped " << maxCount << " SQLs "
                     << " for " << stopWatch.seconds() << " sec, "
                     << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl);
+}
+
+TEST(SPTK_PoolDatabaseConnection, handleBulkInsertFailures)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "postgresql connection is not defined";
+    }
+
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+    try
+    {
+        databaseConnection->open();
+    }
+    catch (const Exception& e)
+    {
+        GTEST_SKIP() << "postgresql connection is not available: " << e.what();
+    }
+
+    auto dropTestTable = [&databaseConnection]()
+    {
+        try
+        {
+            Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
+            dropTable.exec();
+        }
+        catch (const Exception&)
+        {
+        }
+    };
+
+    dropTestTable();
+
+    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id SERIAL PRIMARY KEY, name CHAR(40) NULL, position_name CHAR(20) NULL, hire_date CHAR(12) NULL)");
+    ASSERT_NO_THROW(createTable.exec());
+
+    vector<VariantVector> data;
+    data.push_back(VariantVector({"Alex", "Programmer", "01-JAN-2014"}));
+    data.push_back(VariantVector({"David", "CEO", "01-JAN-2015", "EXTRA_COLUMN_TO_FAIL"}));
+    const Strings   columnNames({"name", "position_name", "hire_date"});
+    vector<int64_t> insertedIds;
+
+    EXPECT_THROW(databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, data, insertedIds, 100), Exception);
+
+    const auto pooledConnection = databaseConnection->connection().lock();
+    ASSERT_TRUE(pooledConnection != nullptr);
+    EXPECT_FALSE(pooledConnection->inTransaction());
+
+    Query countRows(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
+    EXPECT_EQ(countRows.scalar().asInteger(), 0);
+
+    dropTestTable();
+}
+
+TEST(SPTK_PoolDatabaseConnection, handleBulkDeleteFailures)
+{
+    const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
+    if (connectionString.empty())
+    {
+        GTEST_SKIP() << "postgresql connection is not defined";
+    }
+
+    DatabaseConnectionPool   connectionPool(connectionString.toString());
+    const DatabaseConnection databaseConnection = connectionPool.getConnection();
+    try
+    {
+        databaseConnection->open();
+    }
+    catch (const Exception& e)
+    {
+        GTEST_SKIP() << "postgresql connection is not available: " << e.what();
+    }
+
+    auto dropTestTable = [&databaseConnection]()
+    {
+        try
+        {
+            Query dropTable(databaseConnection, "DROP TABLE gtest_temp_table");
+            dropTable.exec();
+        }
+        catch (const Exception&)
+        {
+        }
+    };
+
+    dropTestTable();
+
+    Query createTable(databaseConnection, "CREATE TABLE gtest_temp_table(id SERIAL PRIMARY KEY, name CHAR(40) NULL)");
+    ASSERT_NO_THROW(createTable.exec());
+
+    Query insertRows(databaseConnection, "INSERT INTO gtest_temp_table(name) VALUES('Alex'),('David')");
+    ASSERT_NO_THROW(insertRows.exec());
+
+    VariantVector keys;
+    keys.emplace_back(1);
+    keys.emplace_back(2);
+
+    EXPECT_THROW(databaseConnection->bulkDelete("gtest_temp_table", "missing_key", keys), Exception);
+
+    const auto pooledConnection = databaseConnection->connection().lock();
+    ASSERT_TRUE(pooledConnection != nullptr);
+    EXPECT_FALSE(pooledConnection->inTransaction());
+
+    Query countRows(databaseConnection, "SELECT COUNT(*) FROM gtest_temp_table");
+    EXPECT_EQ(countRows.scalar().asInteger(), 2);
+
+    dropTestTable();
 }
