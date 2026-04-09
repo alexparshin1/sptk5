@@ -221,7 +221,7 @@ public:
     PoolDatabaseConnection(const PoolDatabaseConnection&) = delete;
 
     /**
-     * @brief Move constructor is deleted.
+     * @brief Move constructor.
      */
     PoolDatabaseConnection(PoolDatabaseConnection&&) noexcept = default;
 
@@ -231,7 +231,7 @@ public:
     PoolDatabaseConnection& operator=(const PoolDatabaseConnection&) = delete;
 
     /**
-     * @brief Move assignment is deleted.
+     * @brief Move assignment.
      */
     PoolDatabaseConnection& operator=(PoolDatabaseConnection&&) noexcept = default;
 

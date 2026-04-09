@@ -210,6 +210,16 @@ String sptk::escapeSQLString(const String& str, bool tsv)
 void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& autoIncrementColumnName, const Strings& columnNames,
                                         std::vector<VariantVector>& data, const size_t groupSize, vector<int64_t>* insertedIds)
 {
+    SPoolDatabaseConnection self;
+    try
+    {
+        self = shared_from_this();
+    }
+    catch (const exception&)
+    {
+        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
     const auto wasInTransaction = inTransaction();
     if (!wasInTransaction)
     {
@@ -227,16 +237,6 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
         columnNamesFinal.push_back(autoIncrementColumnName);
     }
 
-    SPoolDatabaseConnection self;
-    try
-    {
-        self = shared_from_this();
-    }
-    catch (const exception&)
-    {
-        throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
-    }
-
     try
     {
         BulkQuery bulkQuery(self, tableName, autoIncrementColumnName, columnNamesFinal, groupSize);
@@ -251,7 +251,14 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
     {
         if (!wasInTransaction)
         {
-            rollbackTransaction();
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const exception&)
+            {
+                // Ignore rollback exception.
+            }
         }
         throw;
     }
@@ -259,12 +266,6 @@ void PoolDatabaseConnection::bulkInsert(const String& tableName, const String& a
 
 void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& keyColumnName, const VariantVector& keys)
 {
-    const auto wasInTransaction = inTransaction();
-    if (!wasInTransaction)
-    {
-        beginTransaction();
-    }
-
     SPoolDatabaseConnection self;
     try
     {
@@ -273,6 +274,12 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
     catch (const exception&)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
+    }
+
+    const auto wasInTransaction = inTransaction();
+    if (!wasInTransaction)
+    {
+        beginTransaction();
     }
 
     try
@@ -289,7 +296,14 @@ void PoolDatabaseConnection::bulkDelete(const String& tableName, const String& k
     {
         if (!wasInTransaction)
         {
-            rollbackTransaction();
+            try
+            {
+                rollbackTransaction();
+            }
+            catch (const exception&)
+            {
+                // Ignore rollback exception.
+            }
         }
         throw;
     }
