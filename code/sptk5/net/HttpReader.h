@@ -44,7 +44,7 @@ namespace sptk {
 /**
  * @brief A map of HTTP headers and their values (string to string).
  */
-using HttpHeaders = std::map<String, String, CaseInsensitiveCompare>;
+using HttpHeaders = std::map<String, String, CaseInsensitiveCompare<String>>;
 
 /**
  * @brief HTTP response reader.

@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-void QueryParameterBinding::reset(bool isOutput)
+void QueryParameterBinding::reset(const bool isOutput)
 {
     m_stmt = nullptr;
     m_dataType = VariantDataType::VAR_NONE;

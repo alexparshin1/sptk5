@@ -43,10 +43,10 @@ const Fl_Menu_Item CControl::defaultControlMenu[] = {
 
 class CControlKindIndex
 {
-    typedef map<CControlKind, const string*>                  CTypeNameMap;
-    typedef map<string, CControlKind, CaseInsensitiveCompare> CNameTypeMap;
-    static CTypeNameMap                                       m_typeNameMap;
-    static CNameTypeMap                                       m_nameTypeMap;
+    typedef map<CControlKind, const string*>                               CTypeNameMap;
+    typedef map<string, CControlKind, CaseInsensitiveCompare<std::string>> CNameTypeMap;
+    static CTypeNameMap                                                    m_typeNameMap;
+    static CNameTypeMap                                                    m_nameTypeMap;
 
     static void registerType(CControlKind type, const char* name);
 

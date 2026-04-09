@@ -68,7 +68,7 @@ void CIconMap::clear()
             delete icon;
         }
     }
-    map<String, CIcon*, CaseInsensitiveCompare>::clear();
+    map::clear();
 }
 
 void CIconMap::insert(CIcon* icon)

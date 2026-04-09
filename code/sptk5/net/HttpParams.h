@@ -41,7 +41,7 @@ namespace sptk {
 /**
  * @brief HTTP fields are implemented as a case-insensitive map.
  */
-using StringHttpFieldMap = std::map<String, String, CaseInsensitiveCompare>;
+using StringHttpFieldMap = std::map<String, String, CaseInsensitiveCompare<String>>;
 
 class SP_EXPORT Url
 {

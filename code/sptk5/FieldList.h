@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <map>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Field.h>
 #include <sptk5/xdoc/Node.h>
@@ -154,10 +153,10 @@ public:
      *
      * This method is useful if you create a new field with the new() operator.
      * You shouldn't delete such fields manually - they would be maintained by FieldList class.
-     * @param fld               Field name.
+     * @param field               Field name.
      * @returns new field reference.
      */
-    Field& push_back(const SField& fld);
+    Field& push_back(const SField& field);
 
     /**
      * @brief Finds a field by the field name.
@@ -227,7 +226,7 @@ public:
      */
     const Field& operator[](const String& fname) const
     {
-        return *fieldByName(fname.c_str());
+        return *fieldByName(fname);
     }
 
     /**
@@ -250,7 +249,7 @@ private:
     /**
      * @brief Field name to the field object case-insensitive map.
      */
-    using Map = std::map<String, SField, CaseInsensitiveCompare>;
+    using Map = std::unordered_map<std::string, SField, std::hash<std::string>, CaseInsensitiveCompare<std::string>>;
 
     Vector               m_list;  ///< The list of fields
     std::shared_ptr<Map> m_index; ///< The optional field index by name, or nullptr if the field list isn't indexed.

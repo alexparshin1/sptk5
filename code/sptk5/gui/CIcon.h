@@ -149,7 +149,7 @@ public:
  * @brief A map of theme icon names to theme icons
  */
 class SP_EXPORT CIconMap
-    : public std::map<String, CIcon*, CaseInsensitiveCompare>
+    : public std::map<String, CIcon*, CaseInsensitiveCompare<String>>
 {
     bool m_shared;
 

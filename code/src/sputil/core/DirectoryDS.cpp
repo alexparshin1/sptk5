@@ -235,8 +235,8 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
 
     if (access(absolute(file).filename().string().c_str(), R_OK) != 0)
     {
-        fields[static_cast<uint32_t>(0)].view().flags = FL_ALIGN_LEFT;
-        fields[static_cast<uint32_t>(1)].view().flags = FL_ALIGN_LEFT;
+        fields[0].view().flags = FL_ALIGN_LEFT;
+        fields[1].view().flags = FL_ALIGN_LEFT;
     }
 
     return fields;

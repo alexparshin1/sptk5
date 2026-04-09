@@ -45,6 +45,8 @@ namespace sptk {
  * Lower case string compare class is really useful if we need
  * a case-independent string map.
  */
+template<typename T>
+    requires std::is_same_v<T, String> || std::is_same_v<T, std::string>
 class SP_EXPORT CaseInsensitiveCompare
 {
 public:
@@ -53,12 +55,38 @@ public:
      * @param s1                The first compare string.
      * @param s2                The second compare string.
      */
-    bool operator()(const String& s1, const String& s2) const
+    bool operator()(const T& s1, const T& s2) const
     {
 #ifdef WIN32
         return strcasecmp(s1.c_str(), s2.c_str()) < 0;
 #else
         return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+#endif
+    }
+};
+
+/**
+ * @brief Case-insensitive string match class.
+ *
+ * Case-insensitive string compare class is really useful if we need
+ * a case-independent string unordered_map.
+ */
+template<typename T>
+    requires std::is_same_v<T, String> || std::is_same_v<T, std::string>
+class SP_EXPORT CaseInsensitiveEqual
+{
+public:
+    /**
+     * @brief Compare method.
+     * @param s1                The first compare string.
+     * @param s2                The second compare string.
+     */
+    bool operator()(const T& s1, const T& s2) const
+    {
+#ifdef WIN32
+        return strcasecmp(s1.c_str(), s2.c_str()) < 0;
+#else
+        return strcasecmp(s1.c_str(), s2.c_str()) == 0;
 #endif
     }
 };

@@ -84,7 +84,7 @@ void stub()
     const MD5               md5;
     const StubServer        tcpServer;
     const Tar               tar;
-    const FieldList         fieldList(false);
+    const FieldList         fieldList(true);
     const Variant           variant;
 
     auto              socket = make_shared<SSLSocket>();

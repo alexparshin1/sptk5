@@ -42,7 +42,7 @@ namespace sptk {
  * Uses strings and pointers to CControl.
  * Strings are control field names.
  */
-using CStringControlMap = std::map<std::string, CControl*, CaseInsensitiveCompare>;
+using CStringControlMap = std::map<std::string, CControl*, CaseInsensitiveCompare<std::string>>;
 
 /**
  * @brief List of CControl object pointers in Fl_Group
