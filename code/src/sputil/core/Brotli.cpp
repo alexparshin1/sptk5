@@ -97,7 +97,7 @@ private:
         next_in = input;
     }
 
-    void WriteOutput()
+    void WriteOutput() const
     {
         const auto out_size = static_cast<size_t>(next_out - output);
         if (out_size > 0)
@@ -130,7 +130,7 @@ BrotliEncoderState* Context::createEncoderInstance() const
 
     BrotliEncoderSetParameter(instance, BROTLI_PARAM_QUALITY, static_cast<uint32_t>(quality));
 
-    /* 0, or not specified by user; could be chosen by compressor. */
+    /* 0 or not specified by the user; could be chosen by compressor. */
     uint32_t _lgwin = DEFAULT_LGWIN;
     /* Use file size to limit lgwin. */
     if (input_file_length >= 0)
@@ -230,10 +230,19 @@ void Brotli::compress(Buffer& dest, const Buffer& src)
     ReadBuffer input(src.data(), src.bytes());
     const auto context = make_shared<Context>(input, dest);
 
-    auto* state = context->createEncoderInstance();
-
-    context->CompressFile(state);
-    BrotliEncoderDestroyInstance(state);
+    if (auto* state = context->createEncoderInstance())
+    {
+        try
+        {
+            context->CompressFile(state);
+            BrotliEncoderDestroyInstance(state);
+        }
+        catch (const Exception&)
+        {
+            BrotliEncoderDestroyInstance(state);
+            throw;
+        }
+    }
 }
 
 void Brotli::decompress(Buffer& dest, const Buffer& src)
