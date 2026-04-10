@@ -33,7 +33,6 @@
 #include <shared_mutex>
 
 namespace sptk {
-
 /**
  * @brief Thread-safe event map.
  */

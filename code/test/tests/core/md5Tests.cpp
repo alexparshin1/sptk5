@@ -43,8 +43,9 @@ static const String testSQL(
     "AND employee.name LIKE 'John%' "
     "AND department.name = 'Information Technologies' "
     "LIMIT 1024");
+namespace sptk {
 
-TEST(SPTK_MD5, md5)
+TEST(MD5Tests,md5)
 {
     String testMD5 = md5(testPhrase);
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
@@ -53,7 +54,7 @@ TEST(SPTK_MD5, md5)
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
 }
 
-TEST(SPTK_MD5, performance)
+TEST(MD5Tests,performance)
 {
     Stopwatch        stopWatch;
     constexpr size_t iterations = 200000;
@@ -68,3 +69,5 @@ TEST(SPTK_MD5, performance)
     COUT("Computed " << iterations << " MD5s for " << fixed << setprecision(1) << stopWatch.seconds() << " seconds, "
                      << iterations / stopWatch.seconds() << " per second" << endl);
 }
+
+} // namespace sptk_test

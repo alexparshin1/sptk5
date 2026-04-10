@@ -34,7 +34,6 @@
 #include <sptk5/db/SQLite3Connection.h>
 
 namespace sptk {
-
 class SQLite3Field
     : public DatabaseField
 {

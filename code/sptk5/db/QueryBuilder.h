@@ -29,7 +29,6 @@
 #include <sptk5/Strings.h>
 
 namespace sptk {
-
 class SP_EXPORT QueryBuilder
 {
 public:

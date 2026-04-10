@@ -29,7 +29,6 @@
 #include <sptk5/gui/CFileDialog.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

@@ -76,8 +76,9 @@ public:
 private:
     path m_path;
 };
+namespace sptk {
 
-TEST(SPTK_DirectoryDS, open)
+TEST(DirectoryDSTests,open)
 {
     TempDirectory dir(testTempDirectory + "1");
 
@@ -98,7 +99,7 @@ TEST(SPTK_DirectoryDS, open)
     EXPECT_EQ(10, files["file1"]);
 }
 
-TEST(SPTK_DirectoryDS, patternToRegexp)
+TEST(DirectoryDSTests,patternToRegexp)
 {
     auto regexp = DirectoryDS::wildcardToRegexp("[abc]??");
     EXPECT_STREQ("^[abc]..$", regexp->pattern().c_str());
@@ -110,7 +111,7 @@ TEST(SPTK_DirectoryDS, patternToRegexp)
     EXPECT_STREQ("^(full|short)\\..*$", regexp->pattern().c_str());
 }
 
-TEST(SPTK_DirectoryDS, patterns)
+TEST(DirectoryDSTests,patterns)
 {
     TempDirectory dir(testTempDirectory + "2");
 
@@ -127,3 +128,5 @@ TEST(SPTK_DirectoryDS, patterns)
     EXPECT_EQ(static_cast<size_t>(2), files.size());
     EXPECT_EQ(10, files["file1"]);
 }
+
+} // namespace sptk_test

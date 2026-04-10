@@ -34,7 +34,6 @@
 using namespace std;
 
 namespace sptk {
-
 SP_EXPORT CPngImage* loadValidatePNGImage(const string& fileName, bool externalFile)
 {
     try

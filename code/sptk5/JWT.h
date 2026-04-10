@@ -35,7 +35,6 @@
 #include <sstream>
 
 namespace sptk {
-
 /**
  * Java Web Token encoding and decoding
  */

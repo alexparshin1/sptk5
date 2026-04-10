@@ -29,7 +29,6 @@
 #include <FL/Fl_Group.H>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

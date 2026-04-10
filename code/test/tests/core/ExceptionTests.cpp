@@ -31,8 +31,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Exception, throwException)
+TEST(ExceptionTests, throwException)
 {
     try
     {
@@ -40,7 +41,7 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in ExceptionTests.cpp:39", e.what());
+        EXPECT_STREQ("Test exception in ExceptionTests.cpp:40", e.what());
     }
 
     try
@@ -49,12 +50,12 @@ TEST(SPTK_Exception, throwException)
     }
     catch (const Exception& e)
     {
-        EXPECT_STREQ("Test exception in ExceptionTests.cpp:48. This happens sometimes.", e.what());
+        EXPECT_STREQ("Test exception in ExceptionTests.cpp:49. This happens sometimes.", e.what());
         EXPECT_STREQ("Test exception", e.message().c_str());
     }
 }
 
-TEST(SPTK_HttpException, throwException)
+TEST(HttpExceptionTests, throwException)
 {
     constexpr size_t firstErrorCode = 400;
     constexpr size_t maxErrorCode = 512;
@@ -71,10 +72,12 @@ TEST(SPTK_HttpException, throwException)
         }
         catch (const HTTPException& e)
         {
-            EXPECT_STREQ("Something happened in ExceptionTests.cpp:70. This happens sometimes.", e.what());
+            EXPECT_STREQ("Something happened in ExceptionTests.cpp:71. This happens sometimes.", e.what());
             EXPECT_STREQ("Something happened", e.message().c_str());
             EXPECT_EQ(code, e.statusCode());
             EXPECT_EQ(expectedStatus, e.statusText());
         }
     }
 }
+
+} // namespace sptk

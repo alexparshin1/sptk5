@@ -34,7 +34,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 /**
  * Tar archive
  *

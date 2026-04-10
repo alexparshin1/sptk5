@@ -30,7 +30,6 @@
 #include <sptk5/gui/CGroup.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

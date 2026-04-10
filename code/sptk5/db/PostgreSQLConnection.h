@@ -43,7 +43,6 @@
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

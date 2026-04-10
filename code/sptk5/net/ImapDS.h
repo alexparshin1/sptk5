@@ -31,7 +31,6 @@
 #include <sptk5/net/ImapConnect.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

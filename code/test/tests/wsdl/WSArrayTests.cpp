@@ -5,16 +5,17 @@
 #include <gtest/gtest.h>
 
 namespace sptk {
+using namespace sptk;
 
 // Test basic construction and initialization
-TEST(SPTK_WSArray, DefaultConstructor)
+TEST(WSArrayTests,defaultConstructor)
 {
     const WSArray<WSInteger> array;
     EXPECT_EQ(array.size(), 0);
     EXPECT_TRUE(array.empty());
 }
 
-TEST(SPTK_WSArray, CopyConstructor)
+TEST(WSArrayTests,copyConstructor)
 {
     WSArray<WSInteger> original;
     for (size_t i = 0; i < 10; ++i)
@@ -34,7 +35,7 @@ TEST(SPTK_WSArray, CopyConstructor)
     }
 }
 
-TEST(SPTK_WSArray, MoveConstructor)
+TEST(WSArrayTests,moveConstructor)
 {
     WSArray<WSInteger> original;
     for (size_t i = 0; i < 10; ++i)
@@ -52,7 +53,7 @@ TEST(SPTK_WSArray, MoveConstructor)
 }
 
 // Test assignment operators
-TEST(SPTK_WSArray, CopyAssignment)
+TEST(WSArrayTests,copyAssignment)
 {
     WSArray<WSInteger> original;
     for (size_t i = 0; i < 10; ++i)
@@ -74,7 +75,7 @@ TEST(SPTK_WSArray, CopyAssignment)
     }
 }
 
-TEST(SPTK_WSArray, MoveAssignment)
+TEST(WSArrayTests,moveAssignment)
 {
     WSArray<WSInteger> original;
     for (size_t i = 0; i < 10; ++i)
@@ -96,7 +97,7 @@ TEST(SPTK_WSArray, MoveAssignment)
 }
 
 // Test element access
-TEST(SPTK_WSArray, SubscriptOperator)
+TEST(WSArrayTests,subscriptOperator)
 {
     WSArray<WSInteger> array;
     array.push_back(1);
@@ -115,7 +116,7 @@ TEST(SPTK_WSArray, SubscriptOperator)
 }
 
 // Test modifiers
-TEST(SPTK_WSArray, Clear)
+TEST(WSArrayTests,clear)
 {
     WSArray<WSInteger> array;
     array.push_back(1);
@@ -128,7 +129,7 @@ TEST(SPTK_WSArray, Clear)
     EXPECT_EQ(array.size(), 0);
 }
 
-TEST(SPTK_WSArray, Resize)
+TEST(WSArrayTests,resize)
 {
     WSArray<WSInteger> array;
     for (size_t i = 0; i < 5; ++i)
@@ -158,7 +159,7 @@ TEST(SPTK_WSArray, Resize)
 }
 
 // Test exception safety
-TEST(SPTK_WSArray, ExceptionSafety)
+TEST(WSArrayTests,exceptionSafety)
 {
     WSArray<WSInteger> array;
 

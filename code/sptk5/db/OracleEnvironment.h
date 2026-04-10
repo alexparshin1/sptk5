@@ -33,7 +33,6 @@
 #include <occi.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

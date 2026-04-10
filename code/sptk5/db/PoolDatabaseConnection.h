@@ -32,7 +32,6 @@
 #include <vector>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

@@ -30,7 +30,6 @@
 #include "TimerThread.h"
 
 namespace sptk {
-
 /**
  * @brief Generic timer class.
  * Can fire one time off and repeatable events.

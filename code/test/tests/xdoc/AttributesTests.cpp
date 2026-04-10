@@ -30,8 +30,9 @@
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+namespace sptk {
 
-TEST(SPTK_XDocument, getSetAttributes)
+TEST(XDocumentTests,getSetAttributes)
 {
     Attributes attributes;
 
@@ -47,7 +48,7 @@ TEST(SPTK_XDocument, getSetAttributes)
     EXPECT_EQ(attributes.size(), 2U);
 }
 
-TEST(SPTK_XDocument, getWithDefaultAndMissingKeys)
+TEST(XDocumentTests,getWithDefaultAndMissingKeys)
 {
     Attributes attributes;
     attributes.set("name", "John");
@@ -57,7 +58,7 @@ TEST(SPTK_XDocument, getWithDefaultAndMissingKeys)
     EXPECT_STREQ("fallback", attributes.get("missing", "fallback").c_str());
 }
 
-TEST(SPTK_XDocument, clearAndEmptyState)
+TEST(XDocumentTests,clearAndEmptyState)
 {
     Attributes attributes;
     attributes.set("name", "John");
@@ -72,7 +73,7 @@ TEST(SPTK_XDocument, clearAndEmptyState)
     EXPECT_STREQ("fallback", attributes.get("name", "fallback").c_str());
 }
 
-TEST(SPTK_XDocument, setReturnsSelfForChaining)
+TEST(XDocumentTests,setReturnsSelfForChaining)
 {
     Attributes attributes;
     Attributes& returned = attributes.set("name", "John").set("role", "admin").set("name", "Alex");
@@ -83,7 +84,7 @@ TEST(SPTK_XDocument, setReturnsSelfForChaining)
     EXPECT_STREQ("admin", attributes.get("role").c_str());
 }
 
-TEST(SPTK_XDocument, preservesInsertionOrderAndValueUpdate)
+TEST(XDocumentTests,preservesInsertionOrderAndValueUpdate)
 {
     Attributes attributes;
     attributes.set("first", "1");
@@ -101,3 +102,5 @@ TEST(SPTK_XDocument, preservesInsertionOrderAndValueUpdate)
     EXPECT_STREQ("third", items[2].first.c_str());
     EXPECT_STREQ("3", items[2].second.c_str());
 }
+
+} // namespace sptk_test

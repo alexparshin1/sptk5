@@ -34,7 +34,7 @@
 using namespace sptk;
 using namespace std;
 
-class RedisConnectTest : public ::testing::Test
+class RedisConnectTests : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -55,15 +55,16 @@ protected:
         system("redis-cli shutdown");
     }
 };
+namespace sptk {
 
-TEST_F(RedisConnectTest, ConnectDisconnect)
+TEST_F(RedisConnectTests, connectDisconnect)
 {
     RedisConnect redis;
     EXPECT_NO_THROW(redis.connect("127.0.0.1", 6379));
     EXPECT_NO_THROW(redis.disconnect());
 }
 
-TEST_F(RedisConnectTest, SetGet)
+TEST_F(RedisConnectTests, setGet)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -77,7 +78,7 @@ TEST_F(RedisConnectTest, SetGet)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, SetGetInt)
+TEST_F(RedisConnectTests, setGetInt)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -91,7 +92,7 @@ TEST_F(RedisConnectTest, SetGetInt)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, SetGetBool)
+TEST_F(RedisConnectTests, setGetBool)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -108,7 +109,7 @@ TEST_F(RedisConnectTest, SetGetBool)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, SetGetDouble)
+TEST_F(RedisConnectTests, setGetDouble)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -124,7 +125,7 @@ TEST_F(RedisConnectTest, SetGetDouble)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, SetGetBinary)
+TEST_F(RedisConnectTests, setGetBinary)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -141,7 +142,7 @@ TEST_F(RedisConnectTest, SetGetBinary)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, GetNonExistentKey)
+TEST_F(RedisConnectTests, getNonExistentKey)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -151,7 +152,7 @@ TEST_F(RedisConnectTest, GetNonExistentKey)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, SetOverwrites)
+TEST_F(RedisConnectTests, setOverwrites)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -166,7 +167,7 @@ TEST_F(RedisConnectTest, SetOverwrites)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTest, Performance)
+TEST_F(RedisConnectTests, performance)
 {
     constexpr auto iterations = 10000;
 
@@ -185,3 +186,5 @@ TEST_F(RedisConnectTest, Performance)
 
     redis.disconnect();
 }
+
+} // namespace sptk

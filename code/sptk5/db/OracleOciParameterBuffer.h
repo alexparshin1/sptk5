@@ -13,7 +13,6 @@
 #include <ocilib.hpp>
 
 namespace sptk {
-
 class OracleOciParameterBuffer
 {
 public:

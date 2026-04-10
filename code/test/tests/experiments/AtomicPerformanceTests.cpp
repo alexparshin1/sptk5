@@ -30,8 +30,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_AtomicPerformance, AtomicVsMutex)
+TEST(AtomicPerformanceTests,atomicVsMutex)
 {
     mutex m;
     int   a = 0;
@@ -103,3 +104,5 @@ TEST(SPTK_AtomicPerformance, AtomicVsMutex)
     sw.stop();
     COUT("Flag: " << sw.milliseconds() << " ms");
 }
+
+} // namespace sptk_test

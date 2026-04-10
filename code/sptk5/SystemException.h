@@ -29,7 +29,6 @@
 #include <sptk5/Exception.h>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes
  * @{

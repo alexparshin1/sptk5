@@ -33,7 +33,6 @@
 #include <utility>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

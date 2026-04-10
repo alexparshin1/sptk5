@@ -30,7 +30,6 @@
 #include <sptk5/gui/CLayoutClient.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

@@ -31,7 +31,6 @@
 #include "Transaction.h"
 
 namespace sptk {
-
 /**
  * @brief Common operations used by database-related unit tests.
  */

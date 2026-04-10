@@ -36,7 +36,6 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

@@ -29,7 +29,6 @@
 #include <sptk5/VariantStorage.h>
 
 namespace sptk {
-
 using VariantData = VariantStorage;
 
 } // namespace sptk

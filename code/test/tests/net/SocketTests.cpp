@@ -30,8 +30,9 @@
 #include <gtest/gtest.h>
 
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Socket, minimal)
+TEST(SocketTests,minimal)
 {
     constexpr uint16_t sslPort {443};
     const Host yahoo("www.yahoo.com", sslPort);
@@ -43,7 +44,7 @@ TEST(SPTK_Socket, minimal)
     socket.close();
 }
 
-TEST(SPTK_Socket, option)
+TEST(SocketTests,option)
 {
     constexpr uint16_t sslPort {443};
     const Host yahoo("www.yahoo.com", sslPort);
@@ -71,3 +72,5 @@ TEST(SPTK_Socket, option)
     socket.getOption(SOL_SOCKET, SO_REUSEADDR, value);
     EXPECT_TRUE(value != 0);
 }
+
+} // namespace sptk_test

@@ -34,7 +34,6 @@
 #include <sptk5/threads/ThreadManager.h>
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

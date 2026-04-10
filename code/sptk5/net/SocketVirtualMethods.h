@@ -66,7 +66,6 @@ using SocketType = SOCKET;
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

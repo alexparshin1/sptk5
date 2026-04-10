@@ -31,7 +31,6 @@
 #include <sptk5/Buffer.h>
 
 namespace sptk {
-
 /**
  * @brief For the borders, border size indices
  */

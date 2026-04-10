@@ -143,8 +143,9 @@ filesystem::path locateTestWsdlFile()
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_WSParser, parse_and_generate_from_repo_test_wsdl)
+TEST(WSParserTests,parseAndGenerateFromRepoTestWsdl)
 {
     const auto wsdlFile = locateTestWsdlFile();
     ASSERT_FALSE(wsdlFile.empty()) << "Couldn't locate test/wsdl/Test.wsdl";
@@ -171,7 +172,7 @@ TEST(SPTK_WSParser, parse_and_generate_from_repo_test_wsdl)
     EXPECT_NE(headerText.find("CHelloResponse& output"), string::npos);
 }
 
-TEST(SPTK_WSParser, generate_creates_expected_artifacts_and_is_repeatable)
+TEST(WSParserTests,generateCreatesExpectedArtifactsAndIsRepeatable)
 {
     const auto wsdlFile = locateTestWsdlFile();
     ASSERT_FALSE(wsdlFile.empty()) << "Couldn't locate test/wsdl/Test.wsdl";
@@ -214,7 +215,7 @@ TEST(SPTK_WSParser, generate_creates_expected_artifacts_and_is_repeatable)
     EXPECT_EQ(hdrAfter, hdrBefore);
 }
 
-TEST(SPTK_WSParser, output_message_name_can_differ_from_output_element_name)
+TEST(WSParserTests,outputMessageNameCanDifferFromOutputElementName)
 {
     // Validates that the output type is resolved from wsdl:message/wsdl:part/@element (FooResponse),
     // not from the message name (FooOutMsg).
@@ -295,7 +296,7 @@ TEST(SPTK_WSParser, output_message_name_can_differ_from_output_element_name)
     EXPECT_EQ(headerText.find("CFooOutMsg"), string::npos);
 }
 
-TEST(SPTK_WSParser, missing_schema_throws)
+TEST(WSParserTests,missingSchemaThrows)
 {
     const string wsdl = R"(<?xml version="1.0" encoding="UTF-8"?>
         <wsdl:definitions
@@ -313,3 +314,5 @@ TEST(SPTK_WSParser, missing_schema_throws)
     WSParser parser;
     EXPECT_THROW(parser.parse(wsdlFile), Exception);
 }
+
+} // namespace sptk_test

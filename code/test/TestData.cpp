@@ -13,7 +13,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 std::filesystem::path TestData::DataDirectory()
 {
 #ifdef _WIN32

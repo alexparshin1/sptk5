@@ -37,7 +37,6 @@
 #include <string>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

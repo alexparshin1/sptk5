@@ -73,8 +73,9 @@ private:
 };
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_HttpReader, response_contentLength_readsBodyAndHeaders)
+TEST(HttpReaderTests,responseContentLengthReadsBodyAndHeaders)
 {
     const String response =
         "HTTP/1.1 200 OK\r\n"
@@ -100,7 +101,7 @@ TEST(SPTK_HttpReader, response_contentLength_readsBodyAndHeaders)
     EXPECT_STREQ(body.c_str(), "Hello");
 }
 
-TEST(SPTK_HttpReader, response_chunked_readsAllChunks)
+TEST(HttpReaderTests,responseChunkedReadsAllChunks)
 {
     // "hello world" is 11 bytes = 0x0B
     const String response =
@@ -129,7 +130,7 @@ TEST(SPTK_HttpReader, response_chunked_readsAllChunks)
     EXPECT_STREQ(body.c_str(), "hello world");
 }
 
-TEST(SPTK_HttpReader, requestMode_parsesRequestLineAndHeaders)
+TEST(HttpReaderTests,requestModeParsesRequestLineAndHeaders)
 {
     TCPServer server("HttpReader RequestModeServer", 1);
 
@@ -193,3 +194,5 @@ TEST(SPTK_HttpReader, requestMode_parsesRequestLineAndHeaders)
     EXPECT_STREQ(requestUrlPromise.get_future().get().c_str(), "/unit-test");
     EXPECT_STREQ(hostHeaderPromise.get_future().get().c_str(), "example.test");
 }
+
+} // namespace sptk_test

@@ -35,7 +35,6 @@
 #include <sys/stat.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

@@ -70,7 +70,6 @@ static int ECDSA_SIG_set0(ECDSA_SIG* sig, BIGNUM* r, BIGNUM* s)
 #endif
 
 namespace sptk {
-
 void JWT::sign_sha_hmac(Buffer& out, const char* str) const
 {
     const EVP_MD* algorithm;

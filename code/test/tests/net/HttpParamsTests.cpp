@@ -32,8 +32,9 @@ using namespace std;
 using namespace sptk;
 
 static const String gtestURLencoded("id=1234&items=%5B%22book%22%2C%22pen%22%5D&name=John+Doe");
+namespace sptk {
 
-TEST(SPTK_HttpParams, encode)
+TEST(HttpParamsTests, encode)
 {
     HttpParams httpParams;
     httpParams["id"] = "1234";
@@ -45,7 +46,7 @@ TEST(SPTK_HttpParams, encode)
     EXPECT_STREQ(gtestURLencoded.c_str(), encoded.c_str());
 }
 
-TEST(SPTK_HttpParams, decode)
+TEST(HttpParamsTests, decode)
 {
     HttpParams httpParams;
     httpParams["noise"] = "noise";
@@ -59,7 +60,7 @@ TEST(SPTK_HttpParams, decode)
 }
 
 // Keys should be URL-decoded too (e.g. %2B => '+', '+' => space rules apply)
-TEST(SPTK_HttpParams, decode_decodesKeyAndValue)
+TEST(HttpParamsTests, decodeDecodesKeyAndValue)
 {
     HttpParams httpParams;
 
@@ -74,7 +75,7 @@ TEST(SPTK_HttpParams, decode_decodesKeyAndValue)
 }
 
 // Parameter names are case-insensitive
-TEST(SPTK_HttpParams, decode_caseInsensitiveNames)
+TEST(HttpParamsTests, decodeCaseInsensitiveNames)
 {
     HttpParams httpParams;
 
@@ -91,7 +92,7 @@ TEST(SPTK_HttpParams, decode_caseInsensitiveNames)
 }
 
 // Parameters without '=' should map to the empty value
-TEST(SPTK_HttpParams, decode_parameterWithoutEquals)
+TEST(HttpParamsTests, decodeParameterWithoutEquals)
 {
     HttpParams httpParams;
 
@@ -106,7 +107,7 @@ TEST(SPTK_HttpParams, decode_parameterWithoutEquals)
 }
 
 // Invalid percent encoding should throw
-TEST(SPTK_HttpParams, decode_throwsOnInvalidPercentEscape)
+TEST(HttpParamsTests, decodeThrowsOnInvalidPercentEscape)
 {
     HttpParams httpParams;
 
@@ -115,7 +116,7 @@ TEST(SPTK_HttpParams, decode_throwsOnInvalidPercentEscape)
 }
 
 // Truncated percent encoding should throw
-TEST(SPTK_HttpParams, decode_throwsOnTruncatedPercentEscape)
+TEST(HttpParamsTests, decodeThrowsOnTruncatedPercentEscape)
 {
     HttpParams httpParams;
 
@@ -126,7 +127,7 @@ TEST(SPTK_HttpParams, decode_throwsOnTruncatedPercentEscape)
 }
 
 // Valid percent-encoded values at the end of a string should decode successfully
-TEST(SPTK_HttpParams, decode_validPercentEscapesAtEnd)
+TEST(HttpParamsTests, decodeValidPercentEscapesAtEnd)
 {
     HttpParams httpParams;
 
@@ -138,7 +139,7 @@ TEST(SPTK_HttpParams, decode_validPercentEscapesAtEnd)
 }
 
 // Valid percent-encoded parameter names should decode successfully
-TEST(SPTK_HttpParams, decode_validPercentEscapesInKey)
+TEST(HttpParamsTests, decodeValidPercentEscapesInKey)
 {
     HttpParams httpParams;
 
@@ -149,7 +150,7 @@ TEST(SPTK_HttpParams, decode_validPercentEscapesInKey)
 }
 
 // encode() should produce a fresh encoded string in output buffer
-TEST(SPTK_HttpParams, encode_overwritesOutputBuffer)
+TEST(HttpParamsTests, encodeOverwritesOutputBuffer)
 {
     HttpParams httpParams;
     httpParams["x"] = "1";
@@ -160,3 +161,5 @@ TEST(SPTK_HttpParams, encode_overwritesOutputBuffer)
 
     EXPECT_STREQ("x=1&y=2", encoded.c_str());
 }
+
+} // namespace sptk

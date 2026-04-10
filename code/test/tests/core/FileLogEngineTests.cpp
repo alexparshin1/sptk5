@@ -66,8 +66,9 @@ void testPriority(FileLogEngine& logEngine, LogPriority priority, size_t expecte
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_FileLogEngine, testLogPriorities)
+TEST(FileLogEngineTests,testLogPriorities)
 {
     FileLogEngine logEngine(logFileName);
 
@@ -76,7 +77,7 @@ TEST(SPTK_FileLogEngine, testLogPriorities)
     testPriority(logEngine, LogPriority::Error, 2);
 }
 
-TEST(SPTK_FileLogEngine, performance)
+TEST(FileLogEngineTests,performance)
 {
     FileLogEngine logEngine(logFileName);
     Logger        logger(logEngine, "(Test application) ");
@@ -91,3 +92,5 @@ TEST(SPTK_FileLogEngine, performance)
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
                    << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }
+
+} // namespace sptk_test

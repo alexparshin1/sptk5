@@ -66,7 +66,8 @@ public:
 };
 
 // Test thread start and join
-TEST(SPTK_Thread, run)
+namespace sptk {
+TEST(ThreadTests,run)
 {
     constexpr int testCounter {5};
     constexpr chrono::milliseconds interval(110);
@@ -79,7 +80,7 @@ TEST(SPTK_Thread, run)
 }
 
 // Test thread re-start after join
-TEST(SPTK_Thread, runAgain) /* NOLINT */
+TEST(ThreadTests,runAgain) /* NOLINT */
 {
     constexpr int testCounter {5};
     constexpr chrono::milliseconds sleepInterval {110};
@@ -97,3 +98,5 @@ TEST(SPTK_Thread, runAgain) /* NOLINT */
     testThread.join();
     EXPECT_NEAR(testCounter, testThread.counter(), 1);
 }
+
+} // namespace sptk_test

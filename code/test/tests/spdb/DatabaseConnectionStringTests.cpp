@@ -31,8 +31,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_DatabaseConnectionString, ctorSimple)
+TEST(DatabaseConnectionStringTests,ctorSimple)
 {
     const DatabaseConnectionString empty;
     EXPECT_TRUE(empty.empty());
@@ -43,13 +44,13 @@ TEST(SPTK_DatabaseConnectionString, ctorSimple)
     EXPECT_STREQ("dbname", simple.databaseName().c_str());
 }
 
-TEST(SPTK_DatabaseConnectionString, errorHandling)
+TEST(DatabaseConnectionStringTests,errorHandling)
 {
     EXPECT_THROW(
         DatabaseConnectionString("unknown://localhost/dbname"), DatabaseException);
 }
 
-TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
+TEST(DatabaseConnectionStringTests,ctorAdvanced)
 {
     const DatabaseConnectionString simple("postgresql://localhost/dbname/schema");
     EXPECT_STREQ("postgresql", simple.driverName().c_str());
@@ -58,7 +59,7 @@ TEST(SPTK_DatabaseConnectionString, ctorAdvanced)
     EXPECT_STREQ("schema", simple.schema().c_str());
 }
 
-TEST(SPTK_DatabaseConnectionString, ctorFull)
+TEST(DatabaseConnectionStringTests,ctorFull)
 {
     const DatabaseConnectionString simple("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
     EXPECT_STREQ("auser", simple.userName().c_str());
@@ -73,7 +74,7 @@ TEST(SPTK_DatabaseConnectionString, ctorFull)
     EXPECT_STREQ("", simple.parameter("xyz").c_str());
 }
 
-TEST(SPTK_DatabaseConnectionString, ctorCopy)
+TEST(DatabaseConnectionStringTests,ctorCopy)
 {
     const DatabaseConnectionString source("postgres://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
     const DatabaseConnectionString simple(source);
@@ -87,9 +88,11 @@ TEST(SPTK_DatabaseConnectionString, ctorCopy)
     EXPECT_STREQ("free", simple.parameter("mode").c_str());
 }
 
-TEST(SPTK_DatabaseConnectionString, toString)
+TEST(DatabaseConnectionStringTests,toString)
 {
     const String connectionString("postgresql://auser:apassword@localhost:5432/dbname/main?encoding=UTF8&mode=free");
     const DatabaseConnectionString simple(connectionString);
     EXPECT_STREQ(connectionString.c_str(), simple.toString().c_str());
 }
+
+} // namespace sptk_test

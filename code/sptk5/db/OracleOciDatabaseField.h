@@ -11,7 +11,6 @@
 
 #include "sptk5/db/DatabaseField.h"
 namespace sptk {
-
 class OracleOciDatabaseField final : public DatabaseField
 {
 public:

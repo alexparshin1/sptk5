@@ -30,8 +30,9 @@
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+namespace sptk {
 
-TEST(SPTK_XmlXMLDocType, parseEntity)
+TEST(XmlXMLDocTypeTests,parseEntity)
 {
     Entity entity;
 
@@ -52,7 +53,7 @@ TEST(SPTK_XmlXMLDocType, parseEntity)
     EXPECT_STREQ(entity.resource.c_str(), "ul | ol");
 }
 
-TEST(SPTK_XmlXMLDocType, decodeEncodeEntities)
+TEST(XmlXMLDocTypeTests,decodeEncodeEntities)
 {
     const String testString1("<'test1'> value");
     const String testString2(R"(<v a='test1'>value</v>)");
@@ -72,3 +73,5 @@ TEST(SPTK_XmlXMLDocType, decodeEncodeEntities)
     docType.decodeEntities(encoded.c_str(), static_cast<uint32_t>(encoded.size()), decoded);
     EXPECT_STREQ(testString2.c_str(), decoded.c_str());
 }
+
+} // namespace sptk_test

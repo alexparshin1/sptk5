@@ -34,7 +34,6 @@
 #include <zlib.h>
 
 namespace sptk {
-
 /**
  * Simple wrapper for ZLib functions
  */

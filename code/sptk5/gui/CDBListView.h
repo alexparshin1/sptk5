@@ -31,7 +31,6 @@
 #include <sptk5/gui/CListView.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

@@ -29,7 +29,6 @@
 #include <sptk5/db/DatabaseConnectionString.h>
 
 namespace sptk {
-
 /**
  * GTest run test wrapper
  */

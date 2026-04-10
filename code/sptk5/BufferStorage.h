@@ -36,7 +36,6 @@
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes
  * @{

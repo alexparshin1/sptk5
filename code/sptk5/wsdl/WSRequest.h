@@ -31,7 +31,6 @@
 #include <utility>
 
 namespace sptk {
-
 /**
  * @addtogroup wsdl WSDL-related Classes.
  * @{

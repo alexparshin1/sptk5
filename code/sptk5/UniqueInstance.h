@@ -36,7 +36,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes
  * @{

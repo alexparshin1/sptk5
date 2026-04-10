@@ -35,7 +35,6 @@
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
-
 /**
  * @addtogroup log Log Classes
  * @{

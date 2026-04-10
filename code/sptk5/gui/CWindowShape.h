@@ -31,7 +31,6 @@
 #include <vector>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

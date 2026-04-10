@@ -32,7 +32,6 @@
 #include <sptk5/xdoc/Node.h>
 
 namespace sptk {
-
 /**
  * @brief Wrapper for WSDL array type.
  */

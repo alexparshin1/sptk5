@@ -72,8 +72,9 @@ shared_ptr<CommandLine> createTestCommandLine()
     commandLine->defineOption("verbose", "v", CommandLine::Visibility(""), "Verbose messages");
     return commandLine;
 }
+namespace sptk {
 
-TEST(SPTK_CommandLine, Visibility)
+TEST(CommandLineTests,visibility)
 {
     const CommandLine::Visibility visibility1("");
     const CommandLine::Visibility visibility2("^\\d+$");
@@ -82,7 +83,7 @@ TEST(SPTK_CommandLine, Visibility)
     EXPECT_TRUE(visibility2.matches("123"));
 }
 
-TEST(SPTK_CommandLine, CommandLineElement)
+TEST(CommandLineTests,commandLineElement)
 {
     const CommandLine::CommandLineElement testElement("test", "t", "short help", CommandLine::Visibility("^test|not-test$"));
 
@@ -90,7 +91,7 @@ TEST(SPTK_CommandLine, CommandLineElement)
     EXPECT_TRUE(testElement.useWithCommand("not-test"));
 }
 
-TEST(SPTK_CommandLine, ctor)
+TEST(CommandLineTests,ctor)
 {
     const auto commandLine = createTestCommandLine();
     commandLine->init(CommandLineTestData::testCommandLineArgs.size(),
@@ -108,7 +109,7 @@ TEST(SPTK_CommandLine, ctor)
     EXPECT_THROW(commandLine->setOptionValue("something", "xxx"), Exception);
 }
 
-TEST(SPTK_CommandLine, wrongArgumentValue)
+TEST(CommandLineTests,wrongArgumentValue)
 {
     const auto commandLine = createTestCommandLine();
 
@@ -118,7 +119,7 @@ TEST(SPTK_CommandLine, wrongArgumentValue)
         Exception);
 }
 
-TEST(SPTK_CommandLine, wrongOption)
+TEST(CommandLineTests,wrongOption)
 {
     const auto commandLine = createTestCommandLine();
 
@@ -128,7 +129,7 @@ TEST(SPTK_CommandLine, wrongOption)
         Exception);
 }
 
-TEST(SPTK_CommandLine, setOption)
+TEST(CommandLineTests,setOption)
 {
     const auto commandLine = createTestCommandLine();
 
@@ -139,7 +140,7 @@ TEST(SPTK_CommandLine, setOption)
     EXPECT_STREQ(commandLine->getOptionValue("host").c_str(), "www.x.com");
 }
 
-TEST(SPTK_CommandLine, clusteredShortFlags)
+TEST(CommandLineTests,clusteredShortFlags)
 {
     const auto commandLine = createTestCommandLine();
 
@@ -151,7 +152,7 @@ TEST(SPTK_CommandLine, clusteredShortFlags)
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
 }
 
-TEST(SPTK_CommandLine, printHelp)
+TEST(CommandLineTests,printHelp)
 {
     const auto commandLine = createTestCommandLine();
 
@@ -161,3 +162,5 @@ TEST(SPTK_CommandLine, printHelp)
     constexpr size_t terminalWidth {80};
     commandLine->printHelp(terminalWidth);
 }
+
+} // namespace sptk_test

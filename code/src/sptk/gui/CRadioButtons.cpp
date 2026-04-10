@@ -38,7 +38,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 class CRadioButton
     : public Fl_Round_Button
     , public CLayoutClient

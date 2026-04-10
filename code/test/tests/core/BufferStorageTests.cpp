@@ -32,8 +32,9 @@ using namespace std;
 using namespace sptk;
 
 static const String testString("0123456789ABCDEF");
+namespace sptk {
 
-TEST(SPTK_BufferStorage, constructors)
+TEST(BufferStorageTests,constructors)
 {
     BufferStorage testStorage1(bit_cast<const uint8_t*>(testString.c_str()), testString.length());
 
@@ -46,7 +47,7 @@ TEST(SPTK_BufferStorage, constructors)
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
-TEST(SPTK_BufferStorage, assignments)
+TEST(BufferStorageTests,assignments)
 {
     BufferStorage testStorage1(bit_cast<const uint8_t*>(testString.c_str()), testString.length());
 
@@ -61,7 +62,7 @@ TEST(SPTK_BufferStorage, assignments)
     EXPECT_STREQ(testStorage3.c_str(), testString.c_str());
 }
 
-TEST(SPTK_BufferStorage, append)
+TEST(BufferStorageTests,append)
 {
     BufferStorage testStorage;
 
@@ -75,7 +76,7 @@ TEST(SPTK_BufferStorage, append)
     EXPECT_STREQ(testStorage.c_str(), "0123456789ABCDEF0123456789ABCDEF");
 }
 
-TEST(SPTK_BufferStorage, erase)
+TEST(BufferStorageTests,erase)
 {
     constexpr size_t bufferSize {32};
     BufferStorage testStorage(bufferSize);
@@ -87,7 +88,7 @@ TEST(SPTK_BufferStorage, erase)
     EXPECT_STREQ(testStorage.c_str(), "456789ABCDEF");
 }
 
-TEST(SPTK_BufferStorage, reset)
+TEST(BufferStorageTests,reset)
 {
     constexpr size_t bufferSize {32};
     BufferStorage testStorage(bufferSize);
@@ -101,3 +102,5 @@ TEST(SPTK_BufferStorage, reset)
     EXPECT_EQ(testStorage.size(), testString.length());
     EXPECT_STREQ(testStorage.c_str(), testString.c_str());
 }
+
+} // namespace sptk_test

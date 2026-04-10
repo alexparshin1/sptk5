@@ -32,7 +32,6 @@
 #include <map>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

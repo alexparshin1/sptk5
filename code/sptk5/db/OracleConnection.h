@@ -36,7 +36,6 @@
 #include <sptk5/db/OracleStatement.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

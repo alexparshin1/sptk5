@@ -37,7 +37,6 @@ struct AspellSpeller;
 struct AspellConfig;
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

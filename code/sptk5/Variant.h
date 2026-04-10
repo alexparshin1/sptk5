@@ -38,7 +38,6 @@
 #include <utility>
 
 namespace sptk {
-
 namespace xdoc {
 class Node;
 }

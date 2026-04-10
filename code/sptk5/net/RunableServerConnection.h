@@ -30,7 +30,6 @@
 #include <sptk5/threads/Runable.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

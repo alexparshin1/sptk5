@@ -41,7 +41,6 @@
 #include <sptk5/gui/CBox.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

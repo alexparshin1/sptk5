@@ -34,7 +34,6 @@
 #include <FL/Fl_Pixmap.H>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

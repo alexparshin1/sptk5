@@ -32,7 +32,6 @@
 #include <sptk5/db/DatabaseStatement.h>
 
 namespace sptk {
-
 class MySQLConnection;
 
 class MySQLStatementField;

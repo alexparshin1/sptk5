@@ -33,7 +33,8 @@ using namespace sptk;
 /**
  * @brief Test OsProcess class executes an OS command and captures output.
  */
-TEST(SPTK_OsProcess, execute)
+namespace sptk {
+TEST(OsProcessTests,execute)
 {
 #ifdef _WIN32
     String command("cmd /?");
@@ -61,7 +62,7 @@ TEST(SPTK_OsProcess, execute)
 /**
  * @brief Test OsProcess class start and kills a long-running OS command.
  */
-TEST(SPTK_OsProcess, kill)
+TEST(OsProcessTests,kill)
 {
     Stopwatch stopWatch;
 #ifdef _WIN32
@@ -88,3 +89,5 @@ TEST(SPTK_OsProcess, kill)
     EXPECT_LT(1000, stopWatch.milliseconds());
     EXPECT_GT(1100, stopWatch.milliseconds());
 }
+
+} // namespace sptk_test

@@ -63,8 +63,9 @@ static const String testFormattedJson(R"({
     "employed": false
   }
 })");
+namespace sptk {
 
-TEST(SPTK_XDocument, formatJSON)
+TEST(XDocumentTests,formatJSON)
 {
     const Buffer input(testJson);
     xdoc::Document document;
@@ -80,7 +81,7 @@ TEST(SPTK_XDocument, formatJSON)
     EXPECT_STREQ(testFormattedJson.c_str(), output.c_str());
 }
 
-TEST(SPTK_XDocument, importJsonExceptions)
+TEST(XDocumentTests,importJsonExceptions)
 {
     const Buffer input("<?xml?>");
     xdoc::Document document;
@@ -88,7 +89,7 @@ TEST(SPTK_XDocument, importJsonExceptions)
     EXPECT_THROW(Node::importJson(root, input), Exception);
 }
 
-TEST(SPTK_XDocument, importJsonRejectsInvalidStringControlCharacters)
+TEST(XDocumentTests,importJsonRejectsInvalidStringControlCharacters)
 {
     const Buffer input("{\"value\":\"line1\nline2\"}");
     xdoc::Document document;
@@ -96,7 +97,7 @@ TEST(SPTK_XDocument, importJsonRejectsInvalidStringControlCharacters)
     EXPECT_THROW(Node::importJson(document.root(), input), Exception);
 }
 
-TEST(SPTK_XDocument, importJsonRejectsInvalidTokenBoundaries)
+TEST(XDocumentTests,importJsonRejectsInvalidTokenBoundaries)
 {
     xdoc::Document document;
 
@@ -105,7 +106,7 @@ TEST(SPTK_XDocument, importJsonRejectsInvalidTokenBoundaries)
     EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":nullx}")), Exception);
 }
 
-TEST(SPTK_XDocument, importJsonRejectsNullAttributes)
+TEST(XDocumentTests,importJsonRejectsNullAttributes)
 {
     const Buffer input("{\"attributes\":{\"flag\":null}}");
     xdoc::Document document;
@@ -113,7 +114,7 @@ TEST(SPTK_XDocument, importJsonRejectsNullAttributes)
     EXPECT_THROW(Node::importJson(document.root(), input), Exception);
 }
 
-TEST(SPTK_XDocument, importJsonRejectsMalformedUnicodeEscapes)
+TEST(XDocumentTests,importJsonRejectsMalformedUnicodeEscapes)
 {
     xdoc::Document document;
 
@@ -122,7 +123,7 @@ TEST(SPTK_XDocument, importJsonRejectsMalformedUnicodeEscapes)
     EXPECT_THROW(Node::importJson(document.root(), Buffer("{\"value\":\"\\uDE00\"}")), Exception);
 }
 
-TEST(SPTK_XDocument, importJsonDecodesSurrogatePairs)
+TEST(XDocumentTests,importJsonDecodesSurrogatePairs)
 {
     const Buffer input("{\"value\":\"\\uD83D\\uDE00\"}");
     xdoc::Document document;
@@ -133,3 +134,5 @@ TEST(SPTK_XDocument, importJsonDecodesSurrogatePairs)
     ASSERT_NE(nullptr, node);
     EXPECT_EQ(String("\xF0\x9F\x98\x80"), node->getValue().asString());
 }
+
+} // namespace sptk_test

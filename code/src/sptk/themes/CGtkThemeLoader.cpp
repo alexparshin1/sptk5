@@ -32,7 +32,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 static const Strings notGroupingTags("styles;style;engine", ";");
 
 const xdoc::SNode CGtkThemeParser::parseParameter(const String& row, const xdoc::SNode& parentNode,

@@ -32,8 +32,9 @@
 using namespace std;
 using namespace sptk;
 using namespace sptk::xdoc;
+namespace sptk {
 
-TEST(SPTK_XDocument, xmlToJson)
+TEST(XDocumentTests,xmlToJson)
 {
     auto testFile = TestData::DataDirectory() / "menu.xml";
     if (!filesystem::exists(testFile))
@@ -50,7 +51,7 @@ TEST(SPTK_XDocument, xmlToJson)
     document.exportTo(xdoc::DataFormat::JSON, buffer, true);
 }
 
-TEST(SPTK_XDocument, exportJsonAttributesOnly)
+TEST(XDocumentTests,exportJsonAttributesOnly)
 {
     SNode node = Node::createNode("root", Node::Type::Object);
     node->attributes().set("attr1", "val1");
@@ -62,7 +63,7 @@ TEST(SPTK_XDocument, exportJsonAttributesOnly)
     EXPECT_EQ(json, "{\"attributes\":{\"attr1\":\"val1\"},\"value\":{}}");
 }
 
-TEST(SPTK_XDocument, exportJsonSpecialChars)
+TEST(XDocumentTests,exportJsonSpecialChars)
 {
     SNode node = Node::createNode("root", Node::Type::Text);
     node->set("Special \n\t\"\\ characters \x01\x1F");
@@ -74,7 +75,7 @@ TEST(SPTK_XDocument, exportJsonSpecialChars)
     EXPECT_EQ(json, "\"Special \\n\\t\\\"\\\\ characters \\u0001\\u001f\"");
 }
 
-TEST(SPTK_XDocument, exportJsonNumbers)
+TEST(XDocumentTests,exportJsonNumbers)
 {
     SNode node = Node::createNode("root", Node::Type::Number);
     node->set(123.456);
@@ -89,3 +90,5 @@ TEST(SPTK_XDocument, exportJsonNumbers)
     json = static_cast<String>(buffer);
     EXPECT_EQ(json, "123");
 }
+
+} // namespace sptk_test

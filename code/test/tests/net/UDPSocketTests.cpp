@@ -89,8 +89,9 @@ public:
         socket.close();
     }
 };
+namespace sptk {
 
-TEST(SPTK_UDPSocket, minimal)
+TEST(UDPSocketTests,minimal)
 {
     Buffer buffer(bufferSize);
 
@@ -134,3 +135,5 @@ TEST(SPTK_UDPSocket, minimal)
 
     socket.close();
 }
+
+} // namespace sptk_test

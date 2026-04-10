@@ -93,15 +93,16 @@ static void verifyDocument(Document& document)
         EXPECT_STREQ("hello, /\\>", cdataNode->getString().c_str());
     }
 }
+namespace sptk {
 
-TEST(SPTK_XDocument, loadXML)
+TEST(XDocumentTests,loadXML)
 {
     Document document;
     document.load(testXML, true);
     verifyDocument(document);
 }
 
-TEST(SPTK_XDocument, addNodes)
+TEST(XDocumentTests,addNodes)
 {
     Document document;
     document.load(testXML, true);
@@ -123,7 +124,7 @@ TEST(SPTK_XDocument, addNodes)
     verifyDocument(document);
 }
 
-TEST(SPTK_XDocument, removeNodes)
+TEST(XDocumentTests,removeNodes)
 {
     Document document;
     document.load(testXML);
@@ -144,7 +145,7 @@ TEST(SPTK_XDocument, removeNodes)
     EXPECT_TRUE(document.root()->findFirst("address") == nullptr);
 }
 
-TEST(SPTK_XDocument, saveXml1)
+TEST(XDocumentTests,saveXml1)
 {
     Document document;
     document.load(testREST);
@@ -156,7 +157,7 @@ TEST(SPTK_XDocument, saveXml1)
     EXPECT_STREQ(testREST.c_str(), buffer.c_str());
 }
 
-TEST(SPTK_XDocument, saveXml2)
+TEST(XDocumentTests,saveXml2)
 {
     // Import while keeping formatting
     Document document;
@@ -173,7 +174,7 @@ TEST(SPTK_XDocument, saveXml2)
     verifyDocument(document);
 }
 
-TEST(SPTK_XDocument, parseXML)
+TEST(XDocumentTests,parseXML)
 {
     Document document;
     document.load(testREST);
@@ -200,7 +201,7 @@ TEST(SPTK_XDocument, parseXML)
     EXPECT_STREQ("ns1:GetRequests", methodElement->getQualifiedName().c_str());
 }
 
-TEST(SPTK_XDocument, brokenXML)
+TEST(XDocumentTests,brokenXML)
 {
     Document document;
 
@@ -214,7 +215,7 @@ TEST(SPTK_XDocument, brokenXML)
     EXPECT_THROW(document.load(brokenXML1), Exception);
 }
 
-TEST(SPTK_XDocument, unicodeAndSpacesXML)
+TEST(XDocumentTests,unicodeAndSpacesXML)
 {
     Document document;
 
@@ -232,7 +233,7 @@ TEST(SPTK_XDocument, unicodeAndSpacesXML)
     }
 }
 
-TEST(SPTK_XDocument, exportToJSON)
+TEST(XDocumentTests,exportToJSON)
 {
     const Buffer input(testXML);
     Document     document;
@@ -244,7 +245,7 @@ TEST(SPTK_XDocument, exportToJSON)
     COUT(output.c_str());
 }
 
-TEST(SPTK_XDocument, loadFormattedXML)
+TEST(XDocumentTests,loadFormattedXML)
 {
     auto testFile = TestData::DataDirectory() / "content2.xml";
     if (!filesystem::exists(testFile))
@@ -263,7 +264,7 @@ TEST(SPTK_XDocument, loadFormattedXML)
     //output.saveToFile("data/content2_exp.xml");
 }
 
-TEST(SPTK_XDocument, getText)
+TEST(XDocumentTests,getText)
 {
     Document document;
     document.load(testOO, true);
@@ -271,7 +272,7 @@ TEST(SPTK_XDocument, getText)
     EXPECT_STREQ(text.c_str(), "Fig. PE 6.1.2 ImportAudio File");
 }
 
-TEST(SPTK_XDocument, unquotedXmlAttributes)
+TEST(XDocumentTests,unquotedXmlAttributes)
 {
     const Buffer unquotedAttributesXml(String("<data><name value=Alex type=first /><last_name value=Doe type=last/></data>"));
     Document     document;
@@ -286,7 +287,7 @@ TEST(SPTK_XDocument, unquotedXmlAttributes)
     EXPECT_STREQ("Doe", lastName->attributes().get("value").c_str());
 }
 
-TEST(SPTK_XDocument, htmlAutoCloseTags)
+TEST(XDocumentTests,htmlAutoCloseTags)
 {
     const Buffer htmlAutoCloseTagsHtml(String(
         R"(<head>
@@ -314,3 +315,5 @@ TEST(SPTK_XDocument, htmlAutoCloseTags)
         }
     }
 }
+
+} // namespace sptk_test

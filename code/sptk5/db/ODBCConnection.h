@@ -38,7 +38,6 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Support.
  * @{

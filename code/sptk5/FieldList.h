@@ -34,7 +34,6 @@
 #include <vector>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes.
  * @{

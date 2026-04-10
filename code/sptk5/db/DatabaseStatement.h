@@ -29,7 +29,6 @@
 #include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
-
 /**
  * @brief Template class for database statements for different database drivers.
  */

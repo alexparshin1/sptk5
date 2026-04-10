@@ -31,7 +31,6 @@
 #include <sptk5/gui/CControl.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

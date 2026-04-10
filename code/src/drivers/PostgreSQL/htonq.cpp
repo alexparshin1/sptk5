@@ -35,7 +35,6 @@
 #include <bit>
 
 namespace sptk {
-
 uint64_t htonq(uint64_t val)
 {
     uint64_t    result {0};

@@ -35,7 +35,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 constexpr auto hoursPerDay = 24;
 const DateTime g_epochDate(2000, 1, 1);
 

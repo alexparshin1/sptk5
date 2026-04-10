@@ -30,7 +30,6 @@
 #include <sptk5/db/QueryParameterBinding.h>
 
 namespace sptk {
-
 class QueryParameterList;
 
 /**

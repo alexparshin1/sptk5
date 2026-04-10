@@ -29,7 +29,6 @@
 #include <sptk5/String.h>
 
 namespace sptk {
-
 /**
  * Home directory location
  */

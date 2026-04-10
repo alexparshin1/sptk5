@@ -38,8 +38,9 @@ static const String testURL3 = "https://johnd:secret@www.test.com:8080/report?ac
 static const String testURL4 = "https://www.test.com?action=view&id=1";
 static const String testURL5 = "https://johnd@www.test.com:8080/daily/report?action=view&id=1";
 static const String testURL6 = "https://www.test.com/";
+namespace sptk {
 
-TEST(SPTK_URL, minimal) /* NOLINT */
+TEST(URLTests,minimal) /* NOLINT */
 {
     URL url(testURL0);
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -56,7 +57,7 @@ TEST(SPTK_URL, minimal) /* NOLINT */
     EXPECT_STREQ(url.toString().c_str(), testURL0.c_str());
 }
 
-TEST(SPTK_URL, ipv4address) /* NOLINT */
+TEST(URLTests,ipv4address) /* NOLINT */
 {
     URL url("https://127.0.0.1:8080/daily/report");
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -73,7 +74,7 @@ TEST(SPTK_URL, ipv4address) /* NOLINT */
     EXPECT_EQ(port, 0);
 }
 
-TEST(SPTK_URL, ipv6address) /* NOLINT */
+TEST(URLTests,ipv6address) /* NOLINT */
 {
     URL url("https://[2001:4860:4827:7700]:8080/daily/report");
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -90,7 +91,7 @@ TEST(SPTK_URL, ipv6address) /* NOLINT */
     EXPECT_EQ(port, 0);
 }
 
-TEST(SPTK_URL, local) /* NOLINT */
+TEST(URLTests,local) /* NOLINT */
 {
     URL url(testURL1);
     EXPECT_STREQ(url.protocol().c_str(), "");
@@ -106,7 +107,7 @@ TEST(SPTK_URL, local) /* NOLINT */
     EXPECT_STREQ(url.toString().c_str(), testURL1.c_str());
 }
 
-TEST(SPTK_URL, all) /* NOLINT */
+TEST(URLTests,all) /* NOLINT */
 {
     URL url(testURL2);
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -130,7 +131,7 @@ TEST(SPTK_URL, all) /* NOLINT */
     EXPECT_STREQ(url4.params().get("id").c_str(), "1");
 }
 
-TEST(SPTK_URL, loop)
+TEST(URLTests,loop)
 {
     constexpr size_t numIterations = 100;
     for (size_t i = 0; i < numIterations; ++i)
@@ -139,7 +140,7 @@ TEST(SPTK_URL, loop)
     }
 }
 
-TEST(SPTK_URL, usernameWithoutPasswordRoundTrip) /* NOLINT */
+TEST(URLTests,usernameWithoutPasswordRoundTrip) /* NOLINT */
 {
     URL url(testURL5);
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -154,7 +155,7 @@ TEST(SPTK_URL, usernameWithoutPasswordRoundTrip) /* NOLINT */
     EXPECT_STREQ(url.toString().c_str(), testURL5.c_str());
 }
 
-TEST(SPTK_URL, rootPath) /* NOLINT */
+TEST(URLTests,rootPath) /* NOLINT */
 {
     URL url(testURL6);
     EXPECT_STREQ(url.protocol().c_str(), "https");
@@ -166,7 +167,9 @@ TEST(SPTK_URL, rootPath) /* NOLINT */
     EXPECT_STREQ(url.toString().c_str(), testURL6.c_str());
 }
 
-TEST(SPTK_URL, rejectsTrailingJunk) /* NOLINT */
+TEST(URLTests,rejectsTrailingJunk) /* NOLINT */
 {
     EXPECT_ANY_THROW(URL("https://www.test.com/path ???"));
 }
+
+} // namespace sptk_test

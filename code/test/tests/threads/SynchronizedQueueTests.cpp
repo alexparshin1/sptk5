@@ -34,8 +34,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_SynchronizedQueue, tasks)
+TEST(SynchronizedQueueTests,tasks)
 {
     constexpr size_t               maxNumbers = 100;
     constexpr size_t               maxTasks = 5;
@@ -70,7 +71,7 @@ TEST(SPTK_SynchronizedQueue, tasks)
     }
 
     COUT("");
-    
+
     int       actualSum = 0;
     for (auto& task: tasks)
     {
@@ -78,11 +79,11 @@ TEST(SPTK_SynchronizedQueue, tasks)
         EXPECT_NEAR(1000, sum, 300);
         actualSum += sum;
     }
-    
+
     EXPECT_EQ(expectedSum, actualSum);
 }
 
-TEST(SPTK_SynchronizedQueue, emplace_front)
+TEST(SynchronizedQueueTests,emplaceFront)
 {
     struct Item
     {
@@ -107,7 +108,7 @@ TEST(SPTK_SynchronizedQueue, emplace_front)
     EXPECT_EQ("Jane", item.name);
 }
 
-TEST(SPTK_SynchronizedQueue, emplace_back)
+TEST(SynchronizedQueueTests,emplaceBack)
 {
     struct Item
     {
@@ -132,7 +133,7 @@ TEST(SPTK_SynchronizedQueue, emplace_back)
     EXPECT_EQ("Jane", item.name);
 }
 
-TEST(SPTK_SynchronizedQueue, performance)
+TEST(SynchronizedQueueTests,performance)
 {
     constexpr size_t               maxNumbers = 100000;
     constexpr chrono::milliseconds timeout(1000);
@@ -167,7 +168,7 @@ TEST(SPTK_SynchronizedQueue, performance)
     EXPECT_EQ(actualSum, receivedSum);
 }
 
-TEST(SPTK_SynchronizedQueue, performanceBulk)
+TEST(SynchronizedQueueTests,performanceBulk)
 {
     constexpr size_t               maxNumbers = 100000;
     constexpr chrono::milliseconds timeout(1000);
@@ -208,7 +209,7 @@ TEST(SPTK_SynchronizedQueue, performanceBulk)
     EXPECT_EQ(actualSum, receivedSum);
 }
 
-TEST(SPTK_SynchronizedQueue, for_each)
+TEST(SynchronizedQueueTests,forEach)
 {
     constexpr int          maxNumbers = 10;
     SynchronizedQueue<int> queue;
@@ -236,3 +237,4 @@ TEST(SPTK_SynchronizedQueue, for_each)
 
     EXPECT_EQ(actualSum, receivedSum);
 }
+} // namespace sptk_test

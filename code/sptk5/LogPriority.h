@@ -55,7 +55,6 @@
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup log Log Classes
  * @{

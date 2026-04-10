@@ -29,15 +29,16 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_QueryParameter, minimal)
+TEST(QueryParameterTests,minimal)
 {
     const QueryParameter param1("param1");
 
     EXPECT_STREQ(param1.name().c_str(), "param1");
 }
 
-TEST(SPTK_QueryParameter, setString)
+TEST(QueryParameterTests,setString)
 {
     QueryParameter param1("param1");
 
@@ -60,7 +61,7 @@ TEST(SPTK_QueryParameter, setString)
     EXPECT_TRUE(param1.isNull());
 }
 
-TEST(SPTK_QueryParameter, assign)
+TEST(QueryParameterTests,assign)
 {
     QueryParameter param1("param1");
 
@@ -84,3 +85,5 @@ TEST(SPTK_QueryParameter, assign)
     param1 = v1;
     EXPECT_TRUE(param1.asDateTime() == dt);
 }
+
+} // namespace sptk_test

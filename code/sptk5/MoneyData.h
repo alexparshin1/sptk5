@@ -29,7 +29,6 @@
 #include <sptk5/VariantStorageClient.h>
 
 namespace sptk {
-
 /**
  * Money data (internal).
  *

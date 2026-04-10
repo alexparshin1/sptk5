@@ -130,8 +130,9 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
     }
 }
 } // namespace
+namespace sptk {
 
-TEST(SPTK_SocketEvents, minimal_levelTriggered)
+TEST(SocketEventsTests, minimalLevelTriggered)
 {
     testSocketEvents(SocketPoolTriggerMode::LevelTriggered);
 }
@@ -141,7 +142,7 @@ TEST(SPTK_SocketEvents, minimal_levelTriggered)
  * @brief Test SocketEvents communication with the echo server using EdgeTriggered mode
  * @remarks The event count must show the events coming upon new data arrival in the client's socket
  */
-TEST(SPTK_SocketEvents, minimal_edgeTriggered)
+TEST(SocketEventsTests, minimalEdgeTriggered)
 {
     testSocketEvents(SocketPoolTriggerMode::EdgeTriggered);
 }
@@ -151,14 +152,14 @@ TEST(SPTK_SocketEvents, minimal_edgeTriggered)
  * @brief Test SocketEvents communication with the echo server using EdgeTriggered mode
  * @remarks The event count must show the event is triggered once data becomes available in the client's socket
  */
-TEST(SPTK_SocketEvents, minimal_oneShot)
+TEST(SocketEventsTests, minimalOneShot)
 {
 #ifndef _WIN32
     testSocketEvents(SocketPoolTriggerMode::OneShot);
 #endif
 }
 
-TEST(SPTK_SocketEvents, performance)
+TEST(SocketEventsTests, performance)
 {
     TestEchoServer testEchoServer(testEchoServerPort);
 
@@ -205,3 +206,5 @@ TEST(SPTK_SocketEvents, performance)
 
     socketEvents.stop();
 }
+
+} // namespace sptk

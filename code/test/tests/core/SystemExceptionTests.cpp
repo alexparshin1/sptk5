@@ -33,8 +33,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_SystemException, openFile)
+TEST(SystemExceptionTests,openFile)
 {
     try
     {
@@ -49,7 +50,7 @@ TEST(SPTK_SystemException, openFile)
     }
 }
 
-TEST(SPTK_SystemException, osError_returns_message)
+TEST(SystemExceptionTests,osErrorReturnsMessage)
 {
 #ifdef _WIN32
     SetLastError(ERROR_FILE_NOT_FOUND);
@@ -59,3 +60,5 @@ TEST(SPTK_SystemException, osError_returns_message)
     const String error = SystemException::osError();
     EXPECT_FALSE(error.empty());
 }
+
+} // namespace sptk_test

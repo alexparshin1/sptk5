@@ -30,7 +30,6 @@
 #include <test/wsdl/Service/CTestServiceBase.h>
 
 namespace sptk {
-
 class TestWebService : public test_service::CTestServiceBase
 {
 public:

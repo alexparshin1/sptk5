@@ -59,7 +59,6 @@ using SOCKET_ADDRESS_FAMILY = unsigned short;
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

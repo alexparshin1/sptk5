@@ -32,7 +32,6 @@ using namespace chrono;
 using namespace sptk;
 
 namespace sptk {
-
 class SP_EXPORT DateTimeFormat
 {
 public:
@@ -746,7 +745,6 @@ size_t DateTime::dataSize() const
 }
 
 namespace sptk {
-
 int operator<=>(const DateTime& dt1, const DateTime& dt2)
 {
     if (dt1.timePoint() < dt2.timePoint())

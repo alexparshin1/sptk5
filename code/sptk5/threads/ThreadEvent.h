@@ -30,7 +30,6 @@
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

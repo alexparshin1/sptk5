@@ -41,8 +41,9 @@ static const vector<Person> people {
     {"John", 30},
     {"Jane", 28},
     {"Bob", 6}};
+namespace sptk {
 
-TEST(SPTK_MemoryDS, createAndVerify)
+TEST(MemoryDSTests,createAndVerify)
 {
     MemoryDS ds;
 
@@ -97,7 +98,7 @@ TEST(SPTK_MemoryDS, createAndVerify)
     EXPECT_TRUE(ds.empty());
 }
 
-TEST(SPTK_MemoryDS, defaultConstructedEofCurrent)
+TEST(MemoryDSTests,defaultConstructedEofCurrent)
 {
     MemoryDS ds;
 
@@ -109,3 +110,5 @@ TEST(SPTK_MemoryDS, defaultConstructedEofCurrent)
     EXPECT_TRUE(ds.eof());
     EXPECT_THROW(ds.current(), Exception);
 }
+
+} // namespace sptk_test

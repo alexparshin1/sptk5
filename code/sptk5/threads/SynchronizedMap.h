@@ -31,7 +31,6 @@
 #include <mutex>
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

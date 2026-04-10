@@ -35,7 +35,6 @@
 #include <vector>
 
 namespace sptk {
-
 class LoadBalance
     : public Thread
 {

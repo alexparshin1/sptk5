@@ -32,7 +32,6 @@
 #include <sptk5/net/SocketVirtualMethods.h>
 
 namespace sptk {
-
 template<typename T>
 concept is_integral_array = std::is_array_v<T> && std::is_integral_v<std::remove_all_extents_t<T>>;
 

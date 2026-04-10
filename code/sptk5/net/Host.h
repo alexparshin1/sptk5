@@ -41,7 +41,6 @@
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

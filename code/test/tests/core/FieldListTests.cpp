@@ -33,9 +33,10 @@
 using namespace std;
 using namespace sptk;
 
+namespace sptk {
 static constexpr int testInteger = 12345;
 
-TEST(SPTK_FieldList, ctor)
+TEST(FieldListTests,ctor)
 {
     FieldList fieldList(true);
 
@@ -45,7 +46,7 @@ TEST(SPTK_FieldList, ctor)
     fieldList["value"] = testInteger;
 }
 
-TEST(SPTK_FieldList, push_back)
+TEST(FieldListTests,pushBack)
 {
     FieldList fieldList(true);
 
@@ -58,7 +59,7 @@ TEST(SPTK_FieldList, push_back)
     EXPECT_EQ(testInteger, static_cast<int32_t>(fieldList["value"]));
 }
 
-TEST(SPTK_FieldList, move)
+TEST(FieldListTests,move)
 {
     FieldList fieldList(true);
 
@@ -73,7 +74,7 @@ TEST(SPTK_FieldList, move)
     EXPECT_EQ(testInteger, static_cast<int32_t>(fieldList2["value"]));
 }
 
-TEST(SPTK_FieldList, dataTypes)
+TEST(FieldListTests,dataTypes)
 {
     FieldList fieldList(true);
 
@@ -129,7 +130,7 @@ TEST(SPTK_FieldList, dataTypes)
     EXPECT_DOUBLE_EQ(static_cast<double>(12345678901234567), fieldList["long_value"].asFloat());
 }
 
-TEST(SPTK_FieldList, caseInsensitiveLookup)
+TEST(FieldListTests,caseInsensitiveLookup)
 {
     FieldList fieldList(false);
 
@@ -140,7 +141,7 @@ TEST(SPTK_FieldList, caseInsensitiveLookup)
     EXPECT_STREQ("id", fieldList["NAME"].asString().c_str());
 }
 
-TEST(SPTK_FieldList, indexedCaseInsensitiveLookup)
+TEST(FieldListTests,indexedCaseInsensitiveLookup)
 {
     FieldList fieldList(true);
 
@@ -151,7 +152,7 @@ TEST(SPTK_FieldList, indexedCaseInsensitiveLookup)
     EXPECT_STREQ("id", fieldList["NAME"].asString().c_str());
 }
 
-TEST(SPTK_FieldList, indexedDuplicateDetectionIsCaseInsensitive)
+TEST(FieldListTests,indexedDuplicateDetectionIsCaseInsensitive)
 {
     FieldList fieldList(true);
 
@@ -159,7 +160,7 @@ TEST(SPTK_FieldList, indexedDuplicateDetectionIsCaseInsensitive)
     EXPECT_THROW(fieldList.push_back("name", true), Exception);
 }
 
-TEST(SPTK_FieldList, toXml)
+TEST(FieldListTests,toXml)
 {
     FieldList fieldList(true);
 
@@ -178,3 +179,5 @@ TEST(SPTK_FieldList, toXml)
     EXPECT_STREQ(buffer.c_str(),
                  R"(<fields><name>John</name><value>12345</value></fields>)");
 }
+
+} // namespace sptk_test

@@ -30,7 +30,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 WSServerThread::WSServerThread(WSServer* server)
     : Thread("WSServerThread")
     , m_server(server)

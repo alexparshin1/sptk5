@@ -56,8 +56,9 @@ public:
         return m_password;
     }
 };
+namespace sptk {
 
-TEST(SPTK_Proxy, storesHostAndDefaultCredentials)
+TEST(ProxyTests,storesHostAndDefaultCredentials)
 {
     // A web server is expected to run locally
     const Host      host("localhost", 80);
@@ -68,7 +69,7 @@ TEST(SPTK_Proxy, storesHostAndDefaultCredentials)
     EXPECT_TRUE(proxy.password().empty());
 }
 
-TEST(SPTK_Proxy, storesProvidedCredentials)
+TEST(ProxyTests,storesProvidedCredentials)
 {
     // A web server is expected to run locally
     const Host      host("localhost", 80);
@@ -78,3 +79,5 @@ TEST(SPTK_Proxy, storesProvidedCredentials)
     EXPECT_STREQ(proxy.username().c_str(), "user1");
     EXPECT_STREQ(proxy.password().c_str(), "pass1");
 }
+
+} // namespace sptk_test

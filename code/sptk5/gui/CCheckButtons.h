@@ -31,7 +31,6 @@
 #include <sptk5/gui/CRadioButtons.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

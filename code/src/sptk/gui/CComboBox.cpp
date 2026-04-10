@@ -47,7 +47,6 @@ constexpr int IS_LIST_BOX = 1;
 constexpr int IS_COMBO_BOX = 2;
 
 namespace sptk {
-
 class SP_EXPORT CInternalComboBoxPanel
     : public Fl_Box
 {

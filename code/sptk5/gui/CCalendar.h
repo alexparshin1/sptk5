@@ -36,7 +36,6 @@ class Fl_Box;
 class Fl_Button;
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

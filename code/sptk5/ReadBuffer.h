@@ -29,7 +29,6 @@
 #include <sptk5/Buffer.h>
 
 namespace sptk {
-
 /**
  * @brief Generic read buffer.
  *

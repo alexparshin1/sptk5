@@ -40,7 +40,6 @@
 using namespace std;
 
 namespace sptk {
-
 SocketVirtualMethods::SocketVirtualMethods(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int32_t protocol)
     : m_domain(domain)
     , m_type(type)

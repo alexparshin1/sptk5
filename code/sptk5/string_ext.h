@@ -29,7 +29,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 class String;
 class Strings;
 

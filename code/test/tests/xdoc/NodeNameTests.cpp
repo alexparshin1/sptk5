@@ -30,8 +30,9 @@
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+namespace sptk {
 
-TEST(SPTK_XDocument, nodeName_create)
+TEST(XDocumentTests,nodeNameCreate)
 {
     NodeName nodeName("test");
 
@@ -44,7 +45,7 @@ TEST(SPTK_XDocument, nodeName_create)
     EXPECT_STREQ("ns1", nodeName2.getNameSpace().c_str());
 }
 
-TEST(SPTK_XDocument, nodeName_nameSpace)
+TEST(XDocumentTests,nodeNameNameSpace)
 {
     NodeName nodeName("test");
     EXPECT_STREQ("", nodeName.getNameSpace().c_str());
@@ -61,7 +62,7 @@ TEST(SPTK_XDocument, nodeName_nameSpace)
     EXPECT_STREQ("ns1:test", nodeName2.getQualifiedName().c_str());
 }
 
-TEST(SPTK_XDocument, nodeName_ctors)
+TEST(XDocumentTests,nodeNameCtors)
 {
     NodeName nodeName("ns2:test");
     NodeName nodeName2(nodeName);
@@ -71,7 +72,7 @@ TEST(SPTK_XDocument, nodeName_ctors)
     EXPECT_EQ(nodeName2, nodeName3);
 }
 
-TEST(SPTK_XDocument, nodeName_assign)
+TEST(XDocumentTests,nodeNameAssign)
 {
     NodeName nodeName("ns1:test");
     NodeName nodeName2("something");
@@ -86,7 +87,7 @@ TEST(SPTK_XDocument, nodeName_assign)
     EXPECT_EQ(nodeName2.getQualifiedName(), "ns2:test");
 }
 
-TEST(SPTK_XDocument, nodeName_compare)
+TEST(XDocumentTests,nodeNameCompare)
 {
     NodeName nodeName("test");
     EXPECT_TRUE(nodeName == "test");
@@ -100,3 +101,5 @@ TEST(SPTK_XDocument, nodeName_compare)
     EXPECT_NE(nodeName, nodeName2);
     EXPECT_EQ(nodeName2, nodeName3);
 }
+
+} // namespace sptk_test

@@ -36,8 +36,9 @@
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+namespace sptk {
 
-TEST(SPTK_Variant, ctors)
+TEST(VariantTests,ctors)
 {
     constexpr auto testDoubleValue {2.22};
     DateTime       testDate("2018-02-01 09:11:14.345Z");
@@ -56,7 +57,7 @@ TEST(SPTK_Variant, ctors)
                  v5.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(SPTK_Variant, copy_ctors)
+TEST(VariantTests,copyCtors)
 {
     constexpr double testDoubleValue {2.22};
     DateTime         testDate("2018-02-01 09:11:14.345Z");
@@ -92,7 +93,7 @@ TEST(SPTK_Variant, copy_ctors)
     EXPECT_EQ(static_cast<int64_t>(1), v1c.asInt64());
 }
 
-TEST(SPTK_Variant, move_ctors)
+TEST(VariantTests,moveCtors)
 {
     DateTime    testDate("2018-02-01 09:11:14.345Z");
     const char* testString = "A test";
@@ -124,7 +125,7 @@ TEST(SPTK_Variant, move_ctors)
     EXPECT_TRUE(v6m.dataType() == VariantDataType::VAR_BUFFER);
 }
 
-TEST(SPTK_Variant, assigns)
+TEST(VariantTests,assigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -211,7 +212,7 @@ TEST(SPTK_Variant, assigns)
     EXPECT_EQ(v.getImageNdx(), 12U);
 }
 
-TEST(SPTK_Variant, move_assigns)
+TEST(VariantTests,moveAssigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -242,7 +243,7 @@ TEST(SPTK_Variant, move_assigns)
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(SPTK_Variant, copy)
+TEST(VariantTests,copy)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -273,7 +274,7 @@ TEST(SPTK_Variant, copy)
                  v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(SPTK_Variant, toString)
+TEST(VariantTests,toString)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -300,7 +301,7 @@ TEST(SPTK_Variant, toString)
     EXPECT_STREQ(dtStr.c_str(), v5.asString().c_str());
 }
 
-TEST(SPTK_Variant, money)
+TEST(VariantTests,money)
 {
     Variant      money(10001234, 4);
     const String testString {"A test"};
@@ -326,7 +327,7 @@ TEST(SPTK_Variant, money)
     EXPECT_DOUBLE_EQ(static_cast<double>(s.getMoney()), 123.4567);
 }
 
-TEST(SPTK_Variant, setBuffer)
+TEST(VariantTests,setBuffer)
 {
     String testString("External Data");
     Buffer externalBuffer("External Data");
@@ -359,7 +360,7 @@ TEST(SPTK_Variant, setBuffer)
     EXPECT_STREQ(testString.c_str(), v.asString().c_str());
 }
 
-TEST(SPTK_Variant, externalBuffer)
+TEST(VariantTests,externalBuffer)
 {
     Buffer  externalBuffer("External Data");
     Variant v;
@@ -367,7 +368,7 @@ TEST(SPTK_Variant, externalBuffer)
     EXPECT_EQ(externalBuffer.c_str(), bit_cast<const char*>(v.getExternalBuffer()));
 }
 
-TEST(SPTK_Variant, json)
+TEST(VariantTests,json)
 {
     constexpr int  testInteger1 = 12345;
     const char*    json = R"({ "value": 12345 })";
@@ -385,7 +386,7 @@ TEST(SPTK_Variant, json)
     EXPECT_STREQ(node->getString().c_str(), "123456");
 }
 
-TEST(SPTK_Variant, bool)
+TEST(VariantTests,bool)
 {
     const Variant v1(false);
     EXPECT_FALSE(v1);
@@ -399,7 +400,7 @@ TEST(SPTK_Variant, bool)
     EXPECT_TRUE(v3);
 }
 
-TEST(SPTK_Variant, asBool_from_string)
+TEST(VariantTests,asBoolFromString)
 {
     Variant v;
     v = String("true");
@@ -415,7 +416,7 @@ TEST(SPTK_Variant, asBool_from_string)
     EXPECT_FALSE(v.asBool());
 }
 
-TEST(SPTK_Variant, asStringExternalString)
+TEST(VariantTests,asStringExternalString)
 {
     auto externalText = "External";
     Variant v;
@@ -423,7 +424,7 @@ TEST(SPTK_Variant, asStringExternalString)
     EXPECT_STREQ("External", v.asString().c_str());
 }
 
-TEST(SPTK_Variant, asInt64ExternalString)
+TEST(VariantTests,asInt64ExternalString)
 {
     auto externalNumber = "12345";
     Variant v;
@@ -431,7 +432,7 @@ TEST(SPTK_Variant, asInt64ExternalString)
     EXPECT_EQ(12345, v.asInt64());
 }
 
-TEST(SPTK_Variant, xml)
+TEST(VariantTests,xml)
 {
     const char* xml = "<value>12345</value>";
     Document    document;
@@ -446,3 +447,5 @@ TEST(SPTK_Variant, xml)
     v.save(node);
     EXPECT_STREQ(node->getString().c_str(), "123456");
 }
+
+} // namespace sptk_test

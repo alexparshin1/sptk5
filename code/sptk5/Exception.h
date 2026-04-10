@@ -31,7 +31,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 #ifndef _WIN32
 #define DOESNT_THROW noexcept
 #else

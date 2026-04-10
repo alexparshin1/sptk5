@@ -5,7 +5,6 @@
 #include <sptk5/DateTime.h>
 
 namespace sptk {
-
 /**
  * @brief Timer event class.
  * Stores event data, including references to parent IntervalTimer and events map.

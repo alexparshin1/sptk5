@@ -77,8 +77,9 @@ void verifyKeysAndValues(const OrderedMap<string, int>& orderedMap, const String
     }
 }
 } // namespace
+namespace sptk {
 
-TEST(SPTK_OrderedMap, copyCtor)
+TEST(OrderedMapTests,copyCtor)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 3, 2, 1};
@@ -90,7 +91,7 @@ TEST(SPTK_OrderedMap, copyCtor)
     orderedMapCopy.clear();
 }
 
-TEST(SPTK_OrderedMap, moveCtor)
+TEST(OrderedMapTests,moveCtor)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 3, 2, 1};
@@ -101,7 +102,7 @@ TEST(SPTK_OrderedMap, moveCtor)
     verifyKeysAndValues(orderedMapCopy, expectedKeys, expectedValues);
 }
 
-TEST(SPTK_OrderedMap, copyAssignment)
+TEST(OrderedMapTests,copyAssignment)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 3, 2, 1};
@@ -114,7 +115,7 @@ TEST(SPTK_OrderedMap, copyAssignment)
     verifyKeysAndValues(orderedMapCopy, expectedKeys, expectedValues);
 }
 
-TEST(SPTK_OrderedMap, moveAssignment)
+TEST(OrderedMapTests,moveAssignment)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 3, 2, 1};
@@ -125,7 +126,7 @@ TEST(SPTK_OrderedMap, moveAssignment)
     verifyKeysAndValues(orderedMapCopy, expectedKeys, expectedValues);
 }
 
-TEST(SPTK_OrderedMap, insertAndAccessByKey)
+TEST(OrderedMapTests,insertAndAccessByKey)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 2, 3, 1};
@@ -135,7 +136,7 @@ TEST(SPTK_OrderedMap, insertAndAccessByKey)
     verifyKeysAndValues(orderedMap, expectedKeys, expectedValues);
 }
 
-TEST(SPTK_OrderedMap, insertAndAccessByKeyAt)
+TEST(OrderedMapTests,insertAndAccessByKeyAt)
 {
     const Strings expectedKeys {"a", "b", "c", "d"};
     const vector  expectedValues {4, 2, 3, 1};
@@ -152,7 +153,7 @@ TEST(SPTK_OrderedMap, insertAndAccessByKeyAt)
     EXPECT_EQ(10, orderedMap.at("b"));
 }
 
-TEST(SPTK_OrderedMap, updateKeepsInsertionOrder)
+TEST(OrderedMapTests,updateKeepsInsertionOrder)
 {
     const Strings expectedKeys {"first", "second"};
     const vector  expectedValues {10, 2};
@@ -169,7 +170,7 @@ TEST(SPTK_OrderedMap, updateKeepsInsertionOrder)
     EXPECT_EQ(expectedValues, allValues(orderedMap));
 }
 
-TEST(SPTK_OrderedMap, eraseByKey)
+TEST(OrderedMapTests,eraseByKey)
 {
     const Strings expectedKeys {"a", "c"};
     const vector  expectedValues {1, 3};
@@ -187,7 +188,7 @@ TEST(SPTK_OrderedMap, eraseByKey)
     EXPECT_EQ(expectedValues, allValues(orderedMap));
 }
 
-TEST(SPTK_OrderedMap, clear)
+TEST(OrderedMapTests,clear)
 {
     OrderedMap<string, int> orderedMap;
     orderedMap.insert("x", 10);
@@ -199,7 +200,7 @@ TEST(SPTK_OrderedMap, clear)
     EXPECT_EQ(0U, orderedMap.size());
 }
 
-TEST(SPTK_OrderedMap, frontAndBack)
+TEST(OrderedMapTests,frontAndBack)
 {
     OrderedMap<string, int> orderedMap;
     orderedMap.insert("x", 10);
@@ -210,7 +211,7 @@ TEST(SPTK_OrderedMap, frontAndBack)
     EXPECT_EQ(20, orderedMap.back());
 }
 
-TEST(SPTK_OrderedMap, frontAndBackOnEmptyThrows)
+TEST(OrderedMapTests,frontAndBackOnEmptyThrows)
 {
     OrderedMap<string, int> orderedMap;
 
@@ -222,7 +223,7 @@ TEST(SPTK_OrderedMap, frontAndBackOnEmptyThrows)
     EXPECT_THROW((void) constMap.back(), std::out_of_range);
 }
 
-TEST(SPTK_OrderedMap, eraseByIteratorAndEndBounds)
+TEST(OrderedMapTests,eraseByIteratorAndEndBounds)
 {
     const Strings expectedKeys {"a", "c"};
     const vector  expectedValues {1, 3};
@@ -243,7 +244,7 @@ TEST(SPTK_OrderedMap, eraseByIteratorAndEndBounds)
     EXPECT_EQ(expectedValues, allValues(orderedMap));
 }
 
-TEST(SPTK_OrderedMap, comparePerformance)
+TEST(OrderedMapTests,comparePerformance)
 {
     map<string, int, less<>> testData;
     for (auto i = 0; i < 1000000; ++i)
@@ -297,3 +298,5 @@ TEST(SPTK_OrderedMap, comparePerformance)
     stopWatch.stop();
     COUT("Hash map clear:       " << stopWatch.milliseconds() << " ms");
 }
+
+} // namespace sptk_test

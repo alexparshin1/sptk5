@@ -34,7 +34,6 @@
 #include <mutex>
 
 namespace sptk {
-
 class LogEngine;
 
 /**

@@ -34,7 +34,6 @@
 #include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
-
 class BaseWebServiceProtocol
     : public WSProtocol
 {

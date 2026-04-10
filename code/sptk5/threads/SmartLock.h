@@ -32,7 +32,6 @@
 #include <string>
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

@@ -42,8 +42,9 @@ static const String textXML(
     "</sometext>"
     "<data><![CDATA[xxx]]></data>"
     "</info>");
+namespace sptk {
 
-TEST(SPTK_XDocument, exportXMLTypes)
+TEST(XDocumentTests,exportXMLTypes)
 {
     xdoc::Document document;
     Buffer         buffer;
@@ -53,3 +54,5 @@ TEST(SPTK_XDocument, exportXMLTypes)
 
     EXPECT_STREQ(buffer.c_str(), textXML.c_str());
 }
+
+} // namespace sptk_test

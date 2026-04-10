@@ -36,7 +36,6 @@
 #include <utility>
 
 namespace sptk {
-
 class SP_EXPORT WSConnection
     : public RunableServerConnection
 {

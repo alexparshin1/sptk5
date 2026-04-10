@@ -30,8 +30,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_ReadBuffer, read)
+TEST(ReadBufferTests,read)
 {
     ReadBuffer buffer;
 
@@ -67,3 +68,5 @@ TEST(SPTK_ReadBuffer, read)
     EXPECT_EQ(static_cast<size_t>(0), buffer.available());
     EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
 }
+
+} // namespace sptk_test

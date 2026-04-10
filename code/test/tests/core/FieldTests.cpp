@@ -32,7 +32,8 @@
 using namespace std;
 using namespace sptk;
 
-TEST(SPTK_Field, move_ctor_assign)
+namespace sptk {
+TEST(FieldTests, moveCtorAssign)
 {
     constexpr int testInteger = 10;
     Field         field1("f1");
@@ -46,7 +47,7 @@ TEST(SPTK_Field, move_ctor_assign)
     EXPECT_EQ(field3.asInteger(), testInteger);
 }
 
-TEST(SPTK_Field, double)
+TEST(FieldTests, double)
 {
     Field field1("f1");
 
@@ -58,7 +59,7 @@ TEST(SPTK_Field, double)
     EXPECT_STREQ(field1.asString().c_str(), "12345678.123");
 }
 
-TEST(SPTK_Field, money)
+TEST(FieldTests, money)
 {
     constexpr int64_t testLong = 1234567890123456789L;
     constexpr int64_t testInt64 = 12345678901;
@@ -77,7 +78,7 @@ TEST(SPTK_Field, money)
     EXPECT_STREQ(field1.asString().c_str(), "-12345678901.23456789");
 }
 
-TEST(SPTK_Field, externalBuffer)
+TEST(FieldTests, externalBuffer)
 {
     array<uint8_t, 5> externalData {'A', 'B', 'C', 0, 'D'};
     Field             field1("f1");
@@ -89,7 +90,7 @@ TEST(SPTK_Field, externalBuffer)
     EXPECT_EQ(externalData.size(), field1.dataSize());
 }
 
-TEST(SPTK_Field, varDate)
+TEST(FieldTests, varDate)
 {
     const DateTime testDate(2026, 4, 11, 12, 34, 56);
     Field          field1("f1");
@@ -100,7 +101,7 @@ TEST(SPTK_Field, varDate)
     EXPECT_STREQ(testDate.date().dateString().c_str(), field1.asString().c_str());
 }
 
-TEST(SPTK_Field, varDateTime)
+TEST(FieldTests, varDateTime)
 {
     const DateTime testDateTime(2026, 4, 11, 12, 34, 56);
     Field          field1("f1");
@@ -113,3 +114,5 @@ TEST(SPTK_Field, varDateTime)
     EXPECT_EQ(VariantDataType::VAR_DATE_TIME, field1.dataType());
     EXPECT_STREQ(expected.c_str(), field1.asString().c_str());
 }
+
+} // namespace sptk

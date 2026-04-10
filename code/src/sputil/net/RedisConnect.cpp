@@ -36,7 +36,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 void RedisConnect::connect(const std::string& host, const int port)
 {
     m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));

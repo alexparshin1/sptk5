@@ -35,8 +35,9 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+namespace sptk {
 
-TEST(SPTK_HttpProxy, connect)
+TEST(HttpProxyTests,connect)
 {
     // Check if the proxy is defined in the environment variable.
     // It's typical for Linux, and rare for Windows.
@@ -103,7 +104,7 @@ TEST(SPTK_HttpProxy, connect)
     }
 }
 
-TEST(SPTK_HttpProxy, getDefaultProxy)
+TEST(HttpProxyTests,getDefaultProxy)
 {
     Host   proxyHost;
     String proxyUser;
@@ -125,3 +126,5 @@ TEST(SPTK_HttpProxy, getDefaultProxy)
     EXPECT_STREQ(proxyPassword.c_str(), "password");
 #endif
 }
+
+} // namespace sptk_test

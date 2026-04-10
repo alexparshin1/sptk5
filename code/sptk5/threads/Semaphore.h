@@ -39,7 +39,6 @@
 #endif
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

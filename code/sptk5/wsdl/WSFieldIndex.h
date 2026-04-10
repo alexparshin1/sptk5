@@ -30,7 +30,6 @@
 #include <sptk5/wsdl/WSType.h>
 
 namespace sptk {
-
 /**
  * @brief Field index contains pointers to WSType objects.
  */

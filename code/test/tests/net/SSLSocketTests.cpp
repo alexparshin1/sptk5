@@ -33,8 +33,9 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+namespace sptk {
 
-TEST(SPTK_SSLSocket, connect)
+TEST(SSLSocketTests,connect)
 {
     const auto    keyFile = TestData::SslKeysDirectory() / "test.key";
     const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
@@ -57,7 +58,7 @@ TEST(SPTK_SSLSocket, connect)
     }
 }
 
-TEST(SPTK_SSLSocket, httpConnect)
+TEST(SSLSocketTests,httpConnect)
 {
     GTEST_SKIP();
 
@@ -110,3 +111,5 @@ TEST(SPTK_SSLSocket, httpConnect)
         }
     }
 }
+
+} // namespace sptk_test

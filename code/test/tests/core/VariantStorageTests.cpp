@@ -29,15 +29,16 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_VariantStorage, null)
+TEST(VariantStorageTests,null)
 {
     const VariantStorage variantStorage;
     EXPECT_TRUE(VariantDataType::VAR_NONE == variantStorage.type().type);
     EXPECT_TRUE(variantStorage.isNull());
 }
 
-TEST(SPTK_VariantStorage, bool)
+TEST(VariantStorageTests,bool)
 {
     VariantStorage variantStorage(true);
     EXPECT_TRUE(VariantDataType::VAR_BOOL == variantStorage.type().type);
@@ -72,7 +73,7 @@ TEST(SPTK_VariantStorage, bool)
     EXPECT_TRUE(true == variantStorage.get<bool>());
 }
 
-TEST(SPTK_VariantStorage, integer)
+TEST(VariantStorageTests,integer)
 {
     constexpr auto testFloat = 0.1;
     VariantStorage variantStorage1(1);
@@ -115,7 +116,7 @@ TEST(SPTK_VariantStorage, integer)
     EXPECT_TRUE(2 == variantStorage2.get<int>());
 }
 
-TEST(SPTK_VariantStorage, double)
+TEST(VariantStorageTests,double)
 {
     constexpr double testValue {3.0};
     VariantStorage   variantStorage(testValue);
@@ -147,7 +148,7 @@ TEST(SPTK_VariantStorage, double)
     EXPECT_EQ(testValue + 1, variantStorage.get<double>());
 }
 
-TEST(SPTK_VariantStorage, Buffer)
+TEST(VariantStorageTests,buffer)
 {
     const Buffer testBuffer("Test buffer");
     const Buffer testBuffer2("Test buffer 2");
@@ -199,7 +200,7 @@ TEST(SPTK_VariantStorage, Buffer)
     EXPECT_STREQ(testBuffer2.c_str(), variantStorage.get<Buffer>().c_str());
 }
 
-TEST(SPTK_VariantStorage, String)
+TEST(VariantStorageTests,string)
 {
     const String testString("Test string");
     const String testString2("Test string 2");
@@ -239,7 +240,7 @@ TEST(SPTK_VariantStorage, String)
     EXPECT_FALSE(variantStorage.isNull());
 }
 
-TEST(SPTK_VariantStorage, DateTime)
+TEST(VariantStorageTests,dateTime)
 {
     const DateTime testDateTime(2023, 2, 25);
     const DateTime testDateTime2(2021, 1, 24);
@@ -284,7 +285,7 @@ TEST(SPTK_VariantStorage, DateTime)
     EXPECT_FALSE(variantStorage.isNull());
 }
 
-TEST(SPTK_VariantStorage, MoneyData)
+TEST(VariantStorageTests,moneyData)
 {
     const MoneyData testMoneyData(123456, 2);
     const MoneyData testMoneyData2(1234567, 2);
@@ -330,7 +331,7 @@ TEST(SPTK_VariantStorage, MoneyData)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(SPTK_VariantStorage, externalBuffer)
+TEST(VariantStorageTests,externalBuffer)
 {
     constexpr array<uint8_t, 4> testBytes = {0, 1, 2, 3};
     const array<uint8_t, 5> testBytes2 = {0, 1, 2, 3, 4};
@@ -379,7 +380,7 @@ TEST(SPTK_VariantStorage, externalBuffer)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(SPTK_VariantStorage, moveAssignment)
+TEST(VariantStorageTests,moveAssignment)
 {
     VariantStorage variantStorage;
     VariantStorage variantStorage2(Buffer("Test"));
@@ -388,7 +389,7 @@ TEST(SPTK_VariantStorage, moveAssignment)
     EXPECT_STREQ("Test", static_cast<const Buffer&>(variantStorage).c_str());
 }
 
-TEST(SPTK_VariantStorage, getInvalidType)
+TEST(VariantStorageTests,getInvalidType)
 {
     VariantStorage variantStorage;
 
@@ -429,7 +430,7 @@ TEST(SPTK_VariantStorage, getInvalidType)
     EXPECT_THROW(COUT(static_cast<int>(variantStorage)), invalid_argument);
 }
 
-TEST(SPTK_VariantStorage, getAndSet)
+TEST(VariantStorageTests,getAndSet)
 {
     VariantStorage variantStorage;
     const Buffer testBuffer("test");
@@ -437,3 +438,5 @@ TEST(SPTK_VariantStorage, getAndSet)
     EXPECT_TRUE(VariantDataType::VAR_BUFFER == variantStorage.type().type);
     EXPECT_STREQ(testBuffer.c_str(), variantStorage.get<Buffer>().c_str());
 }
+
+} // namespace sptk_test

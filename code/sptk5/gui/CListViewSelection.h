@@ -29,7 +29,6 @@
 #include <sptk5/PackedStrings.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

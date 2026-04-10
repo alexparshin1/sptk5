@@ -34,8 +34,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Semaphore, waitAndPost)
+TEST(SemaphoreTests,waitAndPost)
 {
     Semaphore semaphore;
 
@@ -52,7 +53,7 @@ TEST(SPTK_Semaphore, waitAndPost)
     EXPECT_NEAR(0, static_cast<int>(chrono::duration_cast<chrono::milliseconds>(ended - started).count()), 50);
 }
 
-TEST(SPTK_Semaphore, threads)
+TEST(SemaphoreTests,threads)
 {
     constexpr const chrono::milliseconds timeout(1000);
     Semaphore                            semaphore;
@@ -100,8 +101,10 @@ static void waitPerformance(bool withTimeout)
     COUT("Executed " << iterations << " Semaphore waits " << (withTimeout ? "with" : "without") << " timeout: " << fixed << setprecision(2) << static_cast<int>(iterations) / stopWatch.milliseconds() / 1000 << "M/sec");
 }
 
-TEST(SPTK_Semaphore, waitPerformance)
+TEST(SemaphoreTests,waitPerformance)
 {
     waitPerformance(false);
     waitPerformance(true);
 }
+
+} // namespace sptk_test

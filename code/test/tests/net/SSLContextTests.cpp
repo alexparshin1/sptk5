@@ -35,14 +35,15 @@
 using namespace std;
 using namespace sptk;
 using namespace chrono;
+namespace sptk {
 
-TEST(SPTK_SSLContext, ctorCreatesContextAndHandleIsNotNull)
+TEST(SSLContextTests,ctorCreatesContextAndHandleIsNotNull)
 {
     SSLContext ctx("ALL", true);
     EXPECT_NE(nullptr, ctx.handle());
 }
 
-TEST(SPTK_SSLContext, ctorWithInvalidCipherListThrows)
+TEST(SSLContextTests,ctorWithInvalidCipherListThrows)
 {
     EXPECT_THROW(
         {
@@ -52,7 +53,7 @@ TEST(SPTK_SSLContext, ctorWithInvalidCipherListThrows)
         Exception);
 }
 
-TEST(SPTK_SSLContext, tlsOnlySetsMinProtocolVersionToTls11)
+TEST(SSLContextTests,tlsOnlySetsMinProtocolVersionToTls11)
 {
     SSLContext ctx("ALL", true);
     SSL_CTX*   raw = ctx.handle();
@@ -66,7 +67,7 @@ TEST(SPTK_SSLContext, tlsOnlySetsMinProtocolVersionToTls11)
 #endif
 }
 
-TEST(SPTK_SSLContext, loadKeysValidFilesDoesNotThrow)
+TEST(SSLContextTests,loadKeysValidFilesDoesNotThrow)
 {
     const auto    keyFile = TestData::SslKeysDirectory() / "test.key";
     const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
@@ -81,7 +82,7 @@ TEST(SPTK_SSLContext, loadKeysValidFilesDoesNotThrow)
     EXPECT_NO_THROW(ctx.loadKeys(keys));
 }
 
-TEST(SPTK_SSLContext, loadKeysMissingCertificateThrows)
+TEST(SSLContextTests,loadKeysMissingCertificateThrows)
 {
     const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
     const auto    missingCert = TestData::SslKeysDirectory() / "missing.cert";
@@ -91,7 +92,7 @@ TEST(SPTK_SSLContext, loadKeysMissingCertificateThrows)
     EXPECT_THROW(ctx.loadKeys(keys), Exception);
 }
 
-TEST(SPTK_SSLContext, loadKeysMissingKeyThrows)
+TEST(SSLContextTests,loadKeysMissingKeyThrows)
 {
     const auto    missingKey = TestData::SslKeysDirectory() / "missing.key";
     const auto    certFile = TestData::SslKeysDirectory() / "test.cert";
@@ -100,3 +101,5 @@ TEST(SPTK_SSLContext, loadKeysMissingKeyThrows)
     SSLContext ctx("ALL", true);
     EXPECT_THROW(ctx.loadKeys(keys), Exception);
 }
+
+} // namespace sptk_test

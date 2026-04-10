@@ -29,7 +29,6 @@
 #include <sptk5/wsdl/WSConnection.h>
 
 namespace sptk {
-
 class WSServer;
 
 /**

@@ -30,7 +30,6 @@
 #include <sptk5/threads/Thread.h>
 
 namespace sptk {
-
 /**
  * @brief ThreadManager automatically joins and destroys terminated threads that are
  * registered with it.

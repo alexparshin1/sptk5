@@ -55,8 +55,9 @@ JWT makeTestJwt(JWT::Algorithm alg, const String& key)
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_JWT, dup)
+TEST(JWTTests,dup)
 {
     time_t now = 0;
     int    valint = 0;
@@ -81,7 +82,7 @@ TEST(SPTK_JWT, dup)
     EXPECT_EQ(static_cast<long>(now), valint) << "Failed jwt_get_grant_int()";
 }
 
-TEST(SPTK_JWT, dup_signed)
+TEST(JWTTests,dupSigned)
 {
     const String key256("012345678901234567890123456789XY");
 
@@ -96,7 +97,7 @@ TEST(SPTK_JWT, dup_signed)
 }
 
 
-TEST(SPTK_JWT, decode)
+TEST(JWTTests,decode)
 {
     const char* token =
         "eyJhbGciOiJub25lIn0.eyJpc3MiOiJmaWxlcy5jeXBo"
@@ -111,7 +112,7 @@ TEST(SPTK_JWT, decode)
 }
 
 
-TEST(SPTK_JWT, decode_invalid_final_dot)
+TEST(JWTTests,decodeInvalidFinalDot)
 {
     // Incomplete JWT token:
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
@@ -123,7 +124,7 @@ TEST(SPTK_JWT, decode_invalid_final_dot)
 }
 
 
-TEST(SPTK_JWT, decode_invalid_alg)
+TEST(JWTTests,decodeInvalidAlg)
 {
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIQUhBSCJ9."
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -134,7 +135,7 @@ TEST(SPTK_JWT, decode_invalid_alg)
 }
 
 
-TEST(SPTK_JWT, decode_invalid_typ)
+TEST(JWTTests,decodeInvalidTyp)
 {
     const char* token = "eyJ0eXAiOiJBTEwiLCJhbGciOiJIUzI1NiJ9."
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -145,7 +146,7 @@ TEST(SPTK_JWT, decode_invalid_typ)
 }
 
 
-TEST(SPTK_JWT, decode_invalid_head)
+TEST(JWTTests,decodeInvalidHead)
 {
     const char* token =
         "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
@@ -157,7 +158,7 @@ TEST(SPTK_JWT, decode_invalid_head)
 }
 
 
-TEST(SPTK_JWT, decode_alg_none_with_key)
+TEST(JWTTests,decodeAlgNoneWithKey)
 {
     const char* token = "eyJhbGciOiJub25lIn0."
                         "eyJpc3MiOiJmaWxlcy5jeXBocmUuY29tIiwic"
@@ -168,7 +169,7 @@ TEST(SPTK_JWT, decode_alg_none_with_key)
 }
 
 
-TEST(SPTK_JWT, decode_invalid_body)
+TEST(JWTTests,decodeInvalidBody)
 {
     const char* token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9."
                         "eyJpc3MiOiJmaWxlcy5jeBocmUuY29tIiwic"
@@ -178,7 +179,7 @@ TEST(SPTK_JWT, decode_invalid_body)
     EXPECT_THROW(jwt->decode(token), Exception) << "Not failed jwt_decode()";
 }
 
-TEST(SPTK_JWT, decode_hs256)
+TEST(JWTTests,decodeHs256)
 {
     const String key256("012345678901234567890123456789XY");
 
@@ -191,7 +192,7 @@ TEST(SPTK_JWT, decode_hs256)
 }
 
 
-TEST(SPTK_JWT, decode_hs384)
+TEST(JWTTests,decodeHs384)
 {
     const String key384("aaaabbbbccccddddeeeeffffg"
                         "ggghhhhiiiijjjjkkkkllll");
@@ -205,7 +206,7 @@ TEST(SPTK_JWT, decode_hs384)
 }
 
 
-TEST(SPTK_JWT, decode_hs512)
+TEST(JWTTests,decodeHs512)
 {
     const String key512("012345678901234567890123456789XY"
                         "012345678901234567890123456789XY");
@@ -225,7 +226,7 @@ TEST(SPTK_JWT, decode_hs512)
     }
 }
 
-TEST(SPTK_JWT, encode_hs256_decode)
+TEST(JWTTests,encodeHs256Decode)
 {
     const String key256("012345678901234567890123456789XY");
 
@@ -246,3 +247,5 @@ TEST(SPTK_JWT, encode_hs256_decode)
     EXPECT_STREQ(originalJSON.str().c_str(), copiedJSON.str().c_str())
         << "Decoded JSON payload doesn't match the original";
 }
+
+} // namespace sptk_test

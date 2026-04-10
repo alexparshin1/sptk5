@@ -43,29 +43,30 @@ const String encodedBinary("AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUm
                            "q6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj"
                            "5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+");
 } // namespace
+namespace sptk {
 
-TEST(SPTK_Base64, decodeString)
+TEST(Base64Tests, decodeString)
 {
     Buffer decoded;
     Base64::decode(decoded, testPhraseBase64);
     EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
 }
 
-TEST(SPTK_Base64, decodeStringWithWhitespaces)
+TEST(Base64Tests, decodeStringWithWhitespaces)
 {
     Buffer decoded;
     Base64::decode(decoded, testPhraseBase64WithWhitespaces);
     EXPECT_STREQ(testPhrase.c_str(), decoded.c_str());
 }
 
-TEST(SPTK_Base64, encodeString)
+TEST(Base64Tests, encodeString)
 {
     String encoded;
     Base64::encode(encoded, Buffer(testPhrase));
     EXPECT_STREQ(testPhraseBase64.c_str(), encoded.c_str());
 }
 
-TEST(SPTK_Base64, decodeBinary)
+TEST(Base64Tests, decodeBinary)
 {
     Buffer           expectedBinary;
     constexpr size_t dataSize {255};
@@ -79,7 +80,7 @@ TEST(SPTK_Base64, decodeBinary)
     EXPECT_STREQ(expectedBinary.c_str(), decoded.c_str());
 }
 
-TEST(SPTK_Base64, encodeBinary)
+TEST(Base64Tests, encodeBinary)
 {
     Buffer           source;
     constexpr size_t dataSize {255};
@@ -93,7 +94,7 @@ TEST(SPTK_Base64, encodeBinary)
     EXPECT_STREQ(encodedBinary.c_str(), encoded.c_str());
 }
 
-TEST(SPTK_Base64, decodeInvalidCharacters)
+TEST(Base64Tests, decodeInvalidCharacters)
 {
     Buffer decoded;
     String invalid("VGhpcyBpcyBhIHRlc3Q#"); // # is invalid
@@ -101,14 +102,14 @@ TEST(SPTK_Base64, decodeInvalidCharacters)
     EXPECT_STREQ("This is a test", decoded.c_str()); // Should ignore #
 }
 
-TEST(SPTK_Base64, decodeEmpty)
+TEST(Base64Tests, decodeEmpty)
 {
     Buffer decoded;
     Base64::decode(decoded, String(""));
     EXPECT_EQ(0, decoded.bytes());
 }
 
-TEST(SPTK_Base64, encodeEmpty)
+TEST(Base64Tests, encodeEmpty)
 {
     Buffer source;
     String encoded;
@@ -116,7 +117,7 @@ TEST(SPTK_Base64, encodeEmpty)
     EXPECT_STREQ("", encoded.c_str());
 }
 
-TEST(SPTK_Base64, decodeDifferentPaddings)
+TEST(Base64Tests, decodeDifferentPaddings)
 {
     Buffer decoded;
 
@@ -133,7 +134,7 @@ TEST(SPTK_Base64, decodeDifferentPaddings)
     EXPECT_STREQ("abc", decoded.c_str());
 }
 
-TEST(SPTK_Base64, decodeUrlSafe)
+TEST(Base64Tests, decodeUrlSafe)
 {
     Buffer decoded;
     // Standard Base64: "a+b/c" -> "YStiL2M="
@@ -152,3 +153,5 @@ TEST(SPTK_Base64, decodeUrlSafe)
     Base64::decode(decoded, String("c3ViamVjdHM_X2Q9MQ"));
     EXPECT_STREQ("subjects?_d=1", decoded.c_str());
 }
+
+} // namespace sptk

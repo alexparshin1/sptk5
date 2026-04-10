@@ -32,7 +32,6 @@
 #include <mutex>
 
 namespace sptk {
-
 /**
  * @brief Simple stopwatch class useful in measuring time intervals.
  * This class is thread-safe.

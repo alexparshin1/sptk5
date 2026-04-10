@@ -29,8 +29,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_CachedSSLContext, sameParamsShareContext)
+TEST(CachedSSLContextTests,sameParamsShareContext)
 {
     const SSLKeys keys("", "", "", "", 1, 2);
 
@@ -41,7 +42,7 @@ TEST(SPTK_CachedSSLContext, sameParamsShareContext)
     EXPECT_EQ(context1.get(), context2.get());
 }
 
-TEST(SPTK_CachedSSLContext, tlsOnlyCreatesDistinctContext)
+TEST(CachedSSLContextTests,tlsOnlyCreatesDistinctContext)
 {
     const SSLKeys keys("", "", "", "", 3, 4);
 
@@ -53,7 +54,7 @@ TEST(SPTK_CachedSSLContext, tlsOnlyCreatesDistinctContext)
     EXPECT_NE(tlsOnlyContext.get(), tlsAndSslContext.get());
 }
 
-TEST(SPTK_CachedSSLContext, differentKeysCreateDistinctContexts)
+TEST(CachedSSLContextTests,differentKeysCreateDistinctContexts)
 {
     const SSLKeys keys1("", "", "", "", 5, 6);
     const SSLKeys keys2("", "", "", "", 7, 8);
@@ -65,3 +66,5 @@ TEST(SPTK_CachedSSLContext, differentKeysCreateDistinctContexts)
     ASSERT_NE(nullptr, context2.get());
     EXPECT_NE(context1.get(), context2.get());
 }
+
+} // namespace sptk_test

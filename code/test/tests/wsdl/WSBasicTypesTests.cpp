@@ -32,8 +32,9 @@
 using namespace std;
 using namespace sptk;
 using namespace xdoc;
+namespace sptk {
 
-TEST(SPTK_WSInteger, move_ctor_assign)
+TEST(WSIntegerTests,moveCtorAssign)
 {
     constexpr int testIntegerValue = 5;
     WSInteger     integer1("I1", false);
@@ -66,13 +67,13 @@ void loadScriptAttackData()
     }
 }
 
-TEST(SPTK_WSBasicTypes, defaultType)
+TEST(WSBasicTypesTests,defaultType)
 {
     const WSInteger field1("field1", true);
     EXPECT_TRUE(field1.dataType() == VariantDataType::VAR_INT);
 }
 
-TEST(SPTK_WSBasicTypes, fieldNames)
+TEST(WSBasicTypesTests,fieldNames)
 {
     WSInteger field1("field1", true);
     WSInteger field2("field2", true);
@@ -84,7 +85,7 @@ TEST(SPTK_WSBasicTypes, fieldNames)
     EXPECT_EQ(field2.name(), "field2");
 }
 
-TEST(SPTK_WSBasicTypes, array)
+TEST(WSBasicTypesTests,array)
 {
     WSArray<WSInteger> array("");
     array.emplace_back(1);
@@ -107,7 +108,7 @@ TEST(SPTK_WSBasicTypes, array)
     EXPECT_EQ(array4[1].asInteger(), 2);
 }
 
-TEST(SPTK_WSBasicTypes, arrayName)
+TEST(WSBasicTypesTests,arrayName)
 {
     WSArray<WSInteger> array("array1");
     array.emplace_back(1);
@@ -123,7 +124,7 @@ TEST(SPTK_WSBasicTypes, arrayName)
     EXPECT_STREQ(array2.name().c_str(), "array2");
 }
 
-TEST(SPTK_WSBasicTypes, scriptAttack)
+TEST(WSBasicTypesTests,scriptAttack)
 {
     loadScriptAttackData<WSDate>();
     loadScriptAttackData<WSBool>();
@@ -143,7 +144,7 @@ TEST(SPTK_WSBasicTypes, scriptAttack)
     EXPECT_NO_THROW(string.load(field));
 }
 
-TEST(SPTK_WSBasicTypes, loadBoolean)
+TEST(WSBasicTypesTests,loadBoolean)
 {
     Document document;
     const auto&    root = document.root();
@@ -184,7 +185,7 @@ TEST(SPTK_WSBasicTypes, loadBoolean)
     EXPECT_EQ(boolean.asBool(), false);
 }
 
-TEST(SPTK_WSBasicTypes, loadInteger)
+TEST(WSBasicTypesTests,loadInteger)
 {
     constexpr int testIntegerValue = 1234567;
 
@@ -215,7 +216,7 @@ TEST(SPTK_WSBasicTypes, loadInteger)
     EXPECT_THROW(integer.load(textNode, false), Exception);
 }
 
-TEST(SPTK_WSBasicTypes, loadDateTime)
+TEST(WSBasicTypesTests,loadDateTime)
 {
     Document    document;
     const auto& root = document.root();
@@ -239,7 +240,7 @@ TEST(SPTK_WSBasicTypes, loadDateTime)
     EXPECT_STREQ(datetime.asDateTime().isoDateTimeString().c_str(), DateTime("2021-01-02T11:12:13Z").isoDateTimeString().c_str());
 }
 
-TEST(SPTK_WSBasicTypes, loadDouble)
+TEST(WSBasicTypesTests,loadDouble)
 {
     constexpr double testDoubleValue = 1234.567;
     constexpr int    testIntValue = 1234;
@@ -271,7 +272,7 @@ TEST(SPTK_WSBasicTypes, loadDouble)
     EXPECT_EQ(wsDouble.asFloat(), testDoubleValue);
 }
 
-TEST(SPTK_WSBasicTypes, loadValue)
+TEST(WSBasicTypesTests,loadValue)
 {
     Document document;
     const auto&    root = document.root();
@@ -288,7 +289,7 @@ TEST(SPTK_WSBasicTypes, loadValue)
     EXPECT_TRUE(wsString.isNull());
 }
 
-TEST(SPTK_WSBasicTypes, throws)
+TEST(WSBasicTypesTests,throws)
 {
     WSDate date;
     EXPECT_THROW(date.throwIfNull("date"), Exception);
@@ -297,7 +298,7 @@ TEST(SPTK_WSBasicTypes, throws)
     EXPECT_NO_THROW(date.throwIfNull("date"));
 }
 
-TEST(SPTK_WSBasicTypes, exportValue)
+TEST(WSBasicTypesTests,exportValue)
 {
     constexpr int     testIntegerValue = 1234567;
     constexpr int64_t testIntegerValue64 = 1234567890123456;
@@ -356,7 +357,7 @@ TEST(SPTK_WSBasicTypes, exportValue)
     EXPECT_STREQ(root->getString("string").c_str(), "Hello, World!");
 }
 
-TEST(SPTK_WSBasicTypes, exportValueToArray)
+TEST(WSBasicTypesTests,exportValueToArray)
 {
     constexpr int     testIntegerValue = 1234567;
     constexpr int64_t testIntegerValue64 = 1234567890123456;
@@ -405,3 +406,5 @@ TEST(SPTK_WSBasicTypes, exportValueToArray)
     string.exportTo(array);
     EXPECT_STREQ(array->nodes()[7]->getString().c_str(), "Hello, World!");
 }
+
+} // namespace sptk_test

@@ -54,8 +54,9 @@ static Buffer decode(const Buffer& data, const String& encoding)
     }
     throw Exception("Unsupported encoding: " + encoding);
 }
+namespace sptk {
 
-TEST(SPTK_RequestInfo, Message)
+TEST(RequestInfoTests,message)
 {
     constexpr int nodeCount = 16;
     Buffer testData;
@@ -118,3 +119,5 @@ TEST(SPTK_RequestInfo, Message)
     }
 #endif
 }
+
+} // namespace sptk_test

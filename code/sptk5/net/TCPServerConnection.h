@@ -29,7 +29,6 @@
 #include <sptk5/net/RunableServerConnection.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

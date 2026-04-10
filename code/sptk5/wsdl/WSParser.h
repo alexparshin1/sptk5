@@ -31,7 +31,6 @@
 #include <sptk5/wsdl/WSParserComplexType.h>
 
 namespace sptk {
-
 /**
  * @addtogroup wsdl WSDL-related Classes.
  * @{

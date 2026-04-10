@@ -29,7 +29,6 @@
 #include "sptk5/cutils"
 
 namespace sptk {
-
 /**
  * @brief Simple binary semaphore used to control threads.
  */

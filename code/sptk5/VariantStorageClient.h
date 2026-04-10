@@ -30,7 +30,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 /// @brief Variant data storage client
 ///
 /// Used for storing derived classes into VariantStorage

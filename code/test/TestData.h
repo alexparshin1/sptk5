@@ -12,7 +12,6 @@
 #include "sptk5/cutils"
 
 namespace sptk {
-
 class TestData
 {
 public:

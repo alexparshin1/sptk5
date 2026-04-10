@@ -37,8 +37,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_SynchronizedMap, keysValues)
+TEST(SynchronizedMapTests,keysValues)
 {
     SynchronizedMap<int, string> map;
 
@@ -66,7 +67,7 @@ TEST(SPTK_SynchronizedMap, keysValues)
     }
 }
 
-TEST(SPTK_SynchronizedMap, insertClear)
+TEST(SynchronizedMapTests,insertClear)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -83,7 +84,7 @@ TEST(SPTK_SynchronizedMap, insertClear)
     EXPECT_EQ(0, map.size());
 }
 
-TEST(SPTK_SynchronizedMap, remove)
+TEST(SynchronizedMapTests,remove)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -99,7 +100,7 @@ TEST(SPTK_SynchronizedMap, remove)
     EXPECT_TRUE(map.empty());
 }
 
-TEST(SPTK_SynchronizedMap, for_each)
+TEST(SynchronizedMapTests,forEach)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -119,3 +120,5 @@ TEST(SPTK_SynchronizedMap, for_each)
 
     EXPECT_EQ(maxNumbers, i);
 }
+
+} // namespace sptk_test

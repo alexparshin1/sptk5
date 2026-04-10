@@ -30,7 +30,6 @@
 #include <sptk5/cnet>
 
 namespace sptk {
-
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 

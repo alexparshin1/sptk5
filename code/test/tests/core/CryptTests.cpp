@@ -36,8 +36,9 @@ static const String testKey("01234567890123456789012345678901");
 static const String testIV("0123456789012345");
 static const String encryptedB64(
     "4G9jpxHot6qflEAQfUaAoReZQ4DqMdKimblTAtQ5uXDTSIEjcUAiDF1QrdMc1bFLyizf6AIDArct48AnL8KBENhT/jBS8kVz7tPBysfHBKE=");
+namespace sptk {
 
-TEST(SPTK_Crypt, encrypt)
+TEST(CryptTests,encrypt)
 {
     Buffer encrypted;
     String encryptedStr;
@@ -51,7 +52,7 @@ TEST(SPTK_Crypt, encrypt)
     EXPECT_STREQ(encryptedB64.c_str(), encryptedStr.c_str());
 }
 
-TEST(SPTK_Crypt, decrypt)
+TEST(CryptTests,decrypt)
 {
     Buffer encrypted;
     Buffer decrypted;
@@ -64,3 +65,5 @@ TEST(SPTK_Crypt, decrypt)
 
     EXPECT_STREQ(testText.c_str(), decrypted.c_str());
 }
+
+} // namespace sptk_test

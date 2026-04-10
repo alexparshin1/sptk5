@@ -29,7 +29,6 @@
 #include <sptk5/JWT.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

@@ -35,7 +35,6 @@
 #include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
-
 /**
  * @addtogroup wsdl WSDL-related Classes.
  * @{

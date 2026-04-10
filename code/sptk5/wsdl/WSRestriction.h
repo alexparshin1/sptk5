@@ -31,7 +31,6 @@
 #include <sptk5/xdoc/Node.h>
 
 namespace sptk {
-
 /**
  * @brief WSDL Restriction.
  */

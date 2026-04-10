@@ -3,7 +3,6 @@
 #include <sptk5/String.h>
 
 namespace sptk {
-
 class SP_EXPORT TestSettings
 {
 public:

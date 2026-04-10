@@ -33,7 +33,6 @@
 #include <sptk5/gui/CInput.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

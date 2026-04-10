@@ -32,7 +32,6 @@
 #include <sptk5/gui/CPopupWindow.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

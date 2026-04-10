@@ -84,8 +84,9 @@ void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_TCPServer, eventPerformance)
+TEST(TCPServerTests,eventPerformance)
 {
     SocketEvents<SocketReader> socketEvents("Test Pool", eventHandler, 1s, SocketPoolTriggerMode::OneShot);
     sharedSocketEvents = &socketEvents;
@@ -135,3 +136,5 @@ TEST(SPTK_TCPServer, eventPerformance)
     socketEvents.remove(socket);
     socketEvents.remove(clientSocket);
 }
+
+} // namespace sptk_test

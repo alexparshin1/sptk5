@@ -33,10 +33,10 @@ using namespace sptk;
 // Test fixture that constructs a WSConnection using minimal stubs.
 // If your WSConnection constructor requires concrete server / services / logger types,
 // replace the dummy values below with lightweight test doubles from your test helpers.
-class WSConnectionTest : public ::testing::Test
+class WSConnectionTests : public ::testing::Test
 {
 public:
-    WSConnectionTest() = default;
+    WSConnectionTests() = default;
 
 protected:
     TCPServer               tcpServer {"test"};
@@ -59,8 +59,9 @@ protected:
         // Nothing by default
     }
 };
+namespace sptk {
 
-TEST_F(WSConnectionTest, AddsContentLengthForGetWhenMissing)
+TEST_F(WSConnectionTests,addsContentLengthForGetWhenMissing)
 {
     // Arrange
     std::unique_ptr<WSConnection> conn(makeConnection());
@@ -80,7 +81,7 @@ TEST_F(WSConnectionTest, AddsContentLengthForGetWhenMissing)
     EXPECT_TRUE(closeConnection);
 }
 
-TEST_F(WSConnectionTest, KeepsConnectionWhenHeaderIsClose)
+TEST_F(WSConnectionTests,keepsConnectionWhenHeaderIsClose)
 {
     // Arrange
     std::unique_ptr<WSConnection> conn(makeConnection());
@@ -106,7 +107,7 @@ TEST_F(WSConnectionTest, KeepsConnectionWhenHeaderIsClose)
     EXPECT_EQ(itConn->second.toLowerCase(), "close");
 }
 
-TEST_F(WSConnectionTest, ErasesConnectionWhenNotClose)
+TEST_F(WSConnectionTests,erasesConnectionWhenNotClose)
 {
     // Arrange
     std::unique_ptr<WSConnection> conn(makeConnection());
@@ -124,3 +125,5 @@ TEST_F(WSConnectionTest, ErasesConnectionWhenNotClose)
     auto itConn = headers.find("Connection");
     EXPECT_EQ(itConn, headers.end());
 }
+
+} // namespace sptk_test

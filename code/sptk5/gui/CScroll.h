@@ -33,7 +33,6 @@
 #include <sptk5/gui/CScrollBar.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

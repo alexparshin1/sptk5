@@ -33,7 +33,6 @@
 #include <sptk5/wsdl/WSServices.h>
 
 namespace sptk {
-
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 

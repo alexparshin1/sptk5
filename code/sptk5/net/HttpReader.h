@@ -35,7 +35,6 @@
 #include <mutex>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

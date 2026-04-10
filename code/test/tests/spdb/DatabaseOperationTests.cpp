@@ -322,69 +322,70 @@ void testSelect(const String& dbName)
 
 //───────────────────────────────── PostgreSQL ───────────────────────────────────────────
 #ifdef HAVE_POSTGRESQL
+namespace sptk {
 
-TEST(SPTK_PostgreSQLConnection, connect)
+TEST(PostgreSQLConnectionTests,connect)
 {
     testConnect("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, currentTimestamp)
+TEST(PostgreSQLConnectionTests,currentTimestamp)
 {
     testCurrentTimestamp("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, sqlParserPerformance)
+TEST(PostgreSQLConnectionTests,sqlParserPerformance)
 {
     testSqlParserPerformance("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, DDL)
+TEST(PostgreSQLConnectionTests,ddl)
 {
     testDDL("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, bulkInsert)
+TEST(PostgreSQLConnectionTests,bulkInsert)
 {
     testBulkInsert("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, bulkParallelInsert)
+TEST(PostgreSQLConnectionTests,bulkParallelInsert)
 {
     testParallelInsert("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, bulkInsertPerformance)
+TEST(PostgreSQLConnectionTests,bulkInsertPerformance)
 {
     testBulkInsertPerformance("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, queryParameters)
+TEST(PostgreSQLConnectionTests,queryParameters)
 {
     testQueryParameters("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, dates)
+TEST(PostgreSQLConnectionTests,dates)
 {
     testQueryDateAndTimestamp("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, transaction)
+TEST(PostgreSQLConnectionTests,transaction)
 {
     testTransaction("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, select)
+TEST(PostgreSQLConnectionTests,select)
 {
     testSelect("PostgreSQL");
     testInvalidQuery("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, insertQuery)
+TEST(PostgreSQLConnectionTests,insertQuery)
 {
     testInsertQuery("PostgreSQL");
 }
 
-TEST(SPTK_PostgreSQLConnection, BLOB)
+TEST(PostgreSQLConnectionTests,blob)
 {
     testBlobInsertAndSelect("PostgreSQL");
 }
@@ -395,63 +396,63 @@ TEST(SPTK_PostgreSQLConnection, BLOB)
 
 #ifdef HAVE_MYSQL
 
-TEST(SPTK_MySQLConnection, connect)
+TEST(MySQLConnectionTests,connect)
 {
     testConnect("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, currentTimestamp)
+TEST(MySQLConnectionTests,currentTimestamp)
 {
     testCurrentTimestamp("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, DDL)
+TEST(MySQLConnectionTests,ddl)
 {
     testDDL("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, bulkInsert)
+TEST(MySQLConnectionTests,bulkInsert)
 {
     testBulkInsert("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, bulkParallelInsert)
+TEST(MySQLConnectionTests,bulkParallelInsert)
 {
     testParallelInsert("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, bulkInsertPerformance)
+TEST(MySQLConnectionTests,bulkInsertPerformance)
 {
     testBulkInsertPerformance("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, queryParameters)
+TEST(MySQLConnectionTests,queryParameters)
 {
     testQueryParameters("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, dates)
+TEST(MySQLConnectionTests,dates)
 {
     testQueryDateAndTimestamp("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, transaction)
+TEST(MySQLConnectionTests,transaction)
 {
     testTransaction("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, select)
+TEST(MySQLConnectionTests,select)
 {
     testSelect("MySQL");
     testInvalidQuery("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, insertQuery)
+TEST(MySQLConnectionTests,insertQuery)
 {
     testInsertQuery("MySQL");
 }
 
-TEST(SPTK_MySQLConnection, BLOB)
+TEST(MySQLConnectionTests,blob)
 {
     testBlobInsertAndSelect("MySQL");
 }
@@ -461,58 +462,58 @@ TEST(SPTK_MySQLConnection, BLOB)
 //───────────────────────────────── Oracle ─────────────────────────────────────────────
 #if defined(HAVE_ORACLE_OCI) || defined(HAVE_ORACLE)
 
-TEST(SPTK_OracleConnection, connect)
+TEST(OracleConnectionTests,connect)
 {
     testConnect("Oracle");
 }
 
-TEST(SPTK_OracleConnection, currentTimestamp)
+TEST(OracleConnectionTests,currentTimestamp)
 {
     testCurrentTimestamp("Oracle");
 }
 
-TEST(SPTK_OracleConnection, DDL)
+TEST(OracleConnectionTests,ddl)
 {
     testDDL("Oracle");
 }
 
-TEST(SPTK_OracleConnection, bulkInsert)
+TEST(OracleConnectionTests,bulkInsert)
 {
     testBulkInsert("Oracle");
 }
 
-TEST(SPTK_OracleConnection, bulkInsertPerformance)
+TEST(OracleConnectionTests,bulkInsertPerformance)
 {
     testBulkInsertPerformance("Oracle");
 }
 
-TEST(SPTK_OracleConnection, queryParameters)
+TEST(OracleConnectionTests,queryParameters)
 {
     testQueryParameters("Oracle");
 }
 
-TEST(SPTK_OracleConnection, dates)
+TEST(OracleConnectionTests,dates)
 {
     testQueryDateAndTimestamp("Oracle");
 }
 
-TEST(SPTK_OracleConnection, transaction)
+TEST(OracleConnectionTests,transaction)
 {
     testTransaction("Oracle");
 }
 
-TEST(SPTK_OracleConnection, select)
+TEST(OracleConnectionTests,select)
 {
     testSelect("Oracle");
     testInvalidQuery("Oracle");
 }
 
-TEST(SPTK_OracleConnection, insertQuery)
+TEST(OracleConnectionTests,insertQuery)
 {
     testInsertQuery("Oracle");
 }
 
-TEST(SPTK_OracleConnection, BLOB)
+TEST(OracleConnectionTests,blob)
 {
     testBlobInsertAndSelect("Oracle");
 }
@@ -522,63 +523,63 @@ TEST(SPTK_OracleConnection, BLOB)
 //───────────────────────────────── MS SQL ─────────────────────────────────────────────
 #ifdef HAVE_ODBC
 
-TEST(SPTK_MSSQLConnection, connect)
+TEST(MSSQLConnectionTests,connect)
 {
     testConnect("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, currentTimestamp)
+TEST(MSSQLConnectionTests,currentTimestamp)
 {
     testCurrentTimestamp("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, DDL)
+TEST(MSSQLConnectionTests,ddl)
 {
     testDDL("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, bulkInsert)
+TEST(MSSQLConnectionTests,bulkInsert)
 {
     testBulkInsert("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, bulkParallelInsert)
+TEST(MSSQLConnectionTests,bulkParallelInsert)
 {
     testParallelInsert("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, bulkInsertPerformance)
+TEST(MSSQLConnectionTests,bulkInsertPerformance)
 {
     testBulkInsertPerformance("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, queryParameters)
+TEST(MSSQLConnectionTests,queryParameters)
 {
     testQueryParameters("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, dates)
+TEST(MSSQLConnectionTests,dates)
 {
     testQueryDateAndTimestamp("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, transaction)
+TEST(MSSQLConnectionTests,transaction)
 {
     testTransaction("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, select)
+TEST(MSSQLConnectionTests,select)
 {
     testSelect("MSSQL");
     testInvalidQuery("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, insertQuery)
+TEST(MSSQLConnectionTests,insertQuery)
 {
     testInsertQuery("MSSQL");
 }
 
-TEST(SPTK_MSSQLConnection, BLOB)
+TEST(MSSQLConnectionTests,blob)
 {
     testBlobInsertAndSelect("MSSQL");
 }
@@ -588,47 +589,47 @@ TEST(SPTK_MSSQLConnection, BLOB)
 //───────────────────────────────── SQLite3 ────────────────────────────────────────────
 #ifdef HAVE_SQLITE3
 
-TEST(SPTK_SQLite3Connection, connect)
+TEST(SQLite3ConnectionTests,connect)
 {
     testConnect("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, currentTimestamp)
+TEST(SQLite3ConnectionTests,currentTimestamp)
 {
     testCurrentTimestamp("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, DDL)
+TEST(SQLite3ConnectionTests,ddl)
 {
     testDDL("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, bulkInsert)
+TEST(SQLite3ConnectionTests,bulkInsert)
 {
     testBulkInsert("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, bulkInsertPerformance)
+TEST(SQLite3ConnectionTests,bulkInsertPerformance)
 {
     testBulkInsertPerformance("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, queryParameters)
+TEST(SQLite3ConnectionTests,queryParameters)
 {
     testQueryParameters("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, dates)
+TEST(SQLite3ConnectionTests,dates)
 {
     testQueryDateAndTimestamp("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, transaction)
+TEST(SQLite3ConnectionTests,transaction)
 {
     testTransaction("SQLite3");
 }
 
-TEST(SPTK_SQLite3Connection, select)
+TEST(SQLite3ConnectionTests,select)
 {
     testSelect("SQLite3");
 }
@@ -636,3 +637,5 @@ TEST(SPTK_SQLite3Connection, select)
 // insertQuery test isn't defined because SQLite3 doesn't support auto-incremental fields
 
 #endif
+
+} // namespace sptk_test

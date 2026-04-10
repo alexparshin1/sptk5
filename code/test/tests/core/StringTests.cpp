@@ -33,30 +33,31 @@ using namespace std;
 using namespace sptk;
 
 static const String testString("This is a test");
+namespace sptk {
 
-TEST(SPTK_String, matches)
+TEST(StringTests,matches)
 {
     EXPECT_TRUE(testString.matches("is a "));
 }
 
-TEST(SPTK_String, caseOps)
+TEST(StringTests,caseOps)
 {
     EXPECT_STREQ("THIS IS A TEST", testString.toUpperCase().c_str());
     EXPECT_STREQ("this is a test", testString.toLowerCase().c_str());
 }
 
-TEST(SPTK_String, in)
+TEST(StringTests,in)
 {
     EXPECT_TRUE(String("true").in({"true", "false"}));
     EXPECT_FALSE(String("yes").in({"true", "false"}));
 }
 
-TEST(SPTK_String, inEmptyList)
+TEST(StringTests,inEmptyList)
 {
     EXPECT_FALSE(String("value").in({}));
 }
 
-TEST(SPTK_String, split)
+TEST(StringTests,split)
 {
     Strings words(testString.split("[\\s]+"));
     EXPECT_EQ(static_cast<size_t>(4), words.size());
@@ -64,7 +65,7 @@ TEST(SPTK_String, split)
     EXPECT_STREQ("test", words[3].c_str());
 }
 
-TEST(SPTK_String, startsEnds)
+TEST(StringTests,startsEnds)
 {
     EXPECT_TRUE(testString.startsWith("This "));
     EXPECT_FALSE(testString.startsWith("this "));
@@ -72,19 +73,21 @@ TEST(SPTK_String, startsEnds)
     EXPECT_FALSE(testString.endsWith(" tesT"));
 }
 
-TEST(SPTK_String, replace)
+TEST(StringTests,replace)
 {
     EXPECT_STREQ("This is a Test", testString.replace(" t", " T").c_str());
 }
 
-TEST(SPTK_String, trim)
+TEST(StringTests,trim)
 {
     const String testString2(" \n\r\t" + testString + "\n\r\t ");
     EXPECT_STREQ(testString.c_str(), testString2.trim().c_str());
 }
 
-TEST(SPTK_String, trimAllWhitespace)
+TEST(StringTests,trimAllWhitespace)
 {
     const String testString2(" \n\r\t\b");
     EXPECT_TRUE(testString2.trim().empty());
 }
+
+} // namespace sptk_test

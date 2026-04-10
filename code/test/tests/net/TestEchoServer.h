@@ -3,7 +3,6 @@
 #include <sptk5/net/TCPServer.h>
 
 namespace sptk {
-
 /**
  * A very primitive test server that echoes back what's sent to it.
  */

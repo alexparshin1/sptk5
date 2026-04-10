@@ -31,7 +31,6 @@
 #include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
-
 class Channel : public std::enable_shared_from_this<Channel>
 {
     std::mutex                 m_mutex;

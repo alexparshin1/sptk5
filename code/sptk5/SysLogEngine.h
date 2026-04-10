@@ -37,7 +37,6 @@
 #include <sptk5/LogEngine.h>
 
 namespace sptk {
-
 /**
  * @addtogroup log Log Classes
  * @{

@@ -65,8 +65,9 @@ private:
 };
 
 SynchronizedQueue<int> MyTask::intQueue;
+namespace sptk {
 
-TEST(SPTK_ThreadPool, run)
+TEST(ThreadPoolTests,run)
 {
     vector<unique_ptr<MyTask>> tasks;
     vector<MyTask*> taskPointers;
@@ -110,3 +111,5 @@ TEST(SPTK_ThreadPool, run)
 
     threadPool.reset();
 }
+
+} // namespace sptk_test

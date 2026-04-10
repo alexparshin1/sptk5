@@ -33,7 +33,6 @@
 #include <sptk5/net/TCPSocket.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

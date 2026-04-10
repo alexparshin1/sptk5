@@ -30,7 +30,6 @@
 #include <cstdint>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes
  * @{

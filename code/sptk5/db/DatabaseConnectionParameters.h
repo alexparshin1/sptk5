@@ -31,7 +31,6 @@
 #include <map>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

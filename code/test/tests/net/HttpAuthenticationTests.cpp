@@ -64,8 +64,9 @@ String makeBasicHeader(const String& username, const String& password)
     return "Basic " + String(encoded.c_str());
 }
 } // namespace
+namespace sptk {
 
-TEST(SPTK_HttpAuthentication, basic)
+TEST(HttpAuthenticationTests,basic)
 {
     HttpAuthentication test("Basic QWxhZGRpbjpPcGVuU2VzYW1l");
     const auto&        auth = test.getData();
@@ -74,7 +75,7 @@ TEST(SPTK_HttpAuthentication, basic)
     EXPECT_TRUE(test.type() == HttpAuthentication::Type::BASIC);
 }
 
-TEST(SPTK_HttpAuthentication, bearer)
+TEST(HttpAuthenticationTests,bearer)
 {
     const auto         token = makeJWT();
     HttpAuthentication test("Bearer " + token);
@@ -86,7 +87,7 @@ TEST(SPTK_HttpAuthentication, bearer)
     EXPECT_TRUE(test.type() == HttpAuthentication::Type::BEARER);
 }
 
-TEST(SPTK_HttpAuthentication, emptyHeaderIsTypeEmpty)
+TEST(HttpAuthenticationTests,emptyHeaderIsTypeEmpty)
 {
     HttpAuthentication test("");
     EXPECT_TRUE(test.type() == HttpAuthentication::Type::EMPTY);
@@ -96,27 +97,27 @@ TEST(SPTK_HttpAuthentication, emptyHeaderIsTypeEmpty)
     EXPECT_TRUE(auth != nullptr);
 }
 
-TEST(SPTK_HttpAuthentication, bearerIsCaseInsensitive)
+TEST(HttpAuthenticationTests,bearerIsCaseInsensitive)
 {
     const auto         token = makeJWT();
     HttpAuthentication test("bEaReR " + token);
     EXPECT_TRUE(test.type() == HttpAuthentication::Type::BEARER);
 }
 
-TEST(SPTK_HttpAuthentication, bearerMissingSpaceIsUnsupported)
+TEST(HttpAuthenticationTests,bearerMissingSpaceIsUnsupported)
 {
     const auto         token = makeJWT();
     HttpAuthentication test("Bearer" + token); // missing scheme/value separator
     EXPECT_THROW((void) test.getData(), Exception);
 }
 
-TEST(SPTK_HttpAuthentication, unsupportedSchemeThrowsOnGetData)
+TEST(HttpAuthenticationTests,unsupportedSchemeThrowsOnGetData)
 {
     HttpAuthentication test("Digest something");
     EXPECT_THROW((void) test.getData(), Exception);
 }
 
-TEST(SPTK_HttpAuthentication, basicWithoutColonInDecodedPayloadThrows)
+TEST(HttpAuthenticationTests,basicWithoutColonInDecodedPayloadThrows)
 {
     Buffer encoded;
     Base64::encode(encoded, Buffer(String("usernameOnly")));
@@ -125,7 +126,7 @@ TEST(SPTK_HttpAuthentication, basicWithoutColonInDecodedPayloadThrows)
     EXPECT_THROW((void) test.getData(), Exception);
 }
 
-TEST(SPTK_HttpAuthentication, basicPasswordWithColonIsSupported)
+TEST(HttpAuthenticationTests,basicPasswordWithColonIsSupported)
 {
     // NOTE: This test encodes a password containing ':' which is allowed in Basic auth
     // (only the first ':' separates username and password).
@@ -137,8 +138,10 @@ TEST(SPTK_HttpAuthentication, basicPasswordWithColonIsSupported)
     EXPECT_TRUE(test.type() == HttpAuthentication::Type::BASIC);
 }
 
-TEST(SPTK_HttpAuthentication, basicInvalidBase64Throws)
+TEST(HttpAuthenticationTests,basicInvalidBase64Throws)
 {
     HttpAuthentication test("Basic !!!not_base64!!!");
     EXPECT_ANY_THROW((void) test.getData());
 }
+
+} // namespace sptk_test

@@ -36,7 +36,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 struct Match
 {
     pcre_offset_t m_start {0}; ///< Match start

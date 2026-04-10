@@ -39,8 +39,9 @@ static const String testXmlDocument(
     "<address><city>Walhalla</city><street>17 Elm Street</street></address>"
     "</customer>"
     "</xml>");
+namespace sptk {
 
-TEST(SPTK_XDocument, typeRegexp)
+TEST(XDocumentTests,typeRegexp)
 {
     EXPECT_TRUE(isInteger("0"));
     EXPECT_TRUE(isInteger("+1"));
@@ -59,7 +60,7 @@ TEST(SPTK_XDocument, typeRegexp)
     EXPECT_FALSE(isFloat("127"));
 }
 
-TEST(SPTK_XDocument, setNameSpace)
+TEST(XDocumentTests,setNameSpace)
 {
     const Buffer   input(testXmlDocument);
     xdoc::Document document;
@@ -75,3 +76,4 @@ TEST(SPTK_XDocument, setNameSpace)
     document.exportTo(xdoc::DataFormat::XML, cout, true);
     ASSERT_TRUE(address != nullptr);
 }
+} // namespace sptk_test

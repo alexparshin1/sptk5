@@ -31,7 +31,6 @@
 #include <sptk5/net/URL.h>
 
 namespace sptk {
-
 /// @addtogroup wsdl WSDL-related Classes
 /// @{
 

@@ -45,8 +45,9 @@ const filesystem::path tempFileName("/tmp/gtest_sptk5_buffer.tmp");
 #endif
 
 }
+namespace sptk {
 
-TEST(SPTK_Buffer, create)
+TEST(BufferTests,create)
 {
     const Buffer buffer1(testPhrase);
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
@@ -54,7 +55,7 @@ TEST(SPTK_Buffer, create)
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
 }
 
-TEST(SPTK_Buffer, copyCtor)
+TEST(BufferTests,copyCtor)
 {
     auto         buffer1 = make_shared<Buffer>(testPhrase);
     const Buffer buffer2(*buffer1);
@@ -65,7 +66,7 @@ TEST(SPTK_Buffer, copyCtor)
     EXPECT_TRUE(testPhrase.length() <= buffer2.capacity());
 }
 
-TEST(SPTK_Buffer, move)
+TEST(BufferTests,move)
 {
     Buffer buffer1(testPhrase);
     Buffer buffer2(std::move(buffer1));
@@ -84,7 +85,7 @@ TEST(SPTK_Buffer, move)
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());
 }
 
-TEST(SPTK_Buffer, assign)
+TEST(BufferTests,assign)
 {
     Buffer buffer1(testPhrase);
     Buffer buffer2;
@@ -102,7 +103,7 @@ TEST(SPTK_Buffer, assign)
     EXPECT_STREQ("Test 2", buffer1.c_str());
 }
 
-TEST(SPTK_Buffer, append)
+TEST(BufferTests,append)
 {
     Buffer buffer1;
 
@@ -113,7 +114,7 @@ TEST(SPTK_Buffer, append)
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
 }
 
-TEST(SPTK_Buffer, saveLoadFile)
+TEST(BufferTests,saveLoadFile)
 {
     const Buffer buffer1(testPhrase);
     Buffer       buffer2;
@@ -126,7 +127,7 @@ TEST(SPTK_Buffer, saveLoadFile)
     EXPECT_TRUE(testPhrase.length() <= buffer2.capacity());
 }
 
-TEST(SPTK_Buffer, fill)
+TEST(BufferTests,fill)
 {
     Buffer buffer1;
 
@@ -137,7 +138,7 @@ TEST(SPTK_Buffer, fill)
     EXPECT_EQ(static_cast<size_t>(12), buffer1.bytes());
 }
 
-TEST(SPTK_Buffer, reset)
+TEST(BufferTests,reset)
 {
     Buffer buffer1(testPhrase);
 
@@ -148,7 +149,7 @@ TEST(SPTK_Buffer, reset)
     EXPECT_TRUE(buffer1.capacity() > 0);
 }
 
-TEST(SPTK_Buffer, erase)
+TEST(BufferTests,erase)
 {
     Buffer buffer1(testPhrase);
 
@@ -158,7 +159,7 @@ TEST(SPTK_Buffer, erase)
     EXPECT_STREQ("This test", buffer1.c_str());
 }
 
-TEST(SPTK_Buffer, compare)
+TEST(BufferTests,compare)
 {
     const Buffer buffer1(testPhrase);
     const Buffer buffer2(testPhrase);
@@ -171,7 +172,7 @@ TEST(SPTK_Buffer, compare)
     EXPECT_TRUE(buffer1 != buffer3);
 }
 
-TEST(SPTK_Buffer, textDump)
+TEST(BufferTests,textDump)
 {
     Buffer buffer(testPhrase);
     buffer.append(testPhrase);
@@ -183,7 +184,7 @@ TEST(SPTK_Buffer, textDump)
     EXPECT_STREQ(stream.str().c_str(), buffer.c_str());
 }
 
-TEST(SPTK_Buffer, hexDump)
+TEST(BufferTests,hexDump)
 {
     const Strings expected {
         "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
@@ -199,7 +200,7 @@ TEST(SPTK_Buffer, hexDump)
     EXPECT_TRUE(output == expected);
 }
 
-TEST(SPTK_Buffer, createPerformance)
+TEST(BufferTests,createPerformance)
 {
     constexpr size_t count = 1000000;
 
@@ -281,3 +282,5 @@ TEST(SPTK_Buffer, createPerformance)
     duration = stopWatch.milliseconds();
     COUT("realloc: " << duration << "ms");
 }
+
+} // namespace sptk_test

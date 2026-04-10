@@ -34,7 +34,6 @@
 #include <sptk5/xdoc/Document.h>
 
 namespace sptk {
-
 /**
  * @addtogroup wsdl WSDL-related Classes.
  * @{

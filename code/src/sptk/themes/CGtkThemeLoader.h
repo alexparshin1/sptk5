@@ -31,7 +31,6 @@
 #include <sptk5/xdoc/Document.h>
 
 namespace sptk {
-
 /// @addtogroup gui GUI Classes
 /// @{
 

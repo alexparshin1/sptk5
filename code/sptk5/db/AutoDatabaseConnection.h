@@ -30,7 +30,6 @@
 #include <sptk5/db/PoolDatabaseConnection.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{SPTK_OracleConnection.

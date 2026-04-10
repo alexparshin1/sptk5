@@ -39,8 +39,9 @@ static const String testXML3(
     "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>");
 static const String testXML4("<AAA><BBB>1</BBB><BBB>2</BBB><BBB>3</BBB><BBB>4</BBB></AAA>");
 static const String testXML5(R"(<AAA><BBB>1</BBB><BBB id="002">2</BBB><BBB id="003">3</BBB><BBB>4</BBB></AAA>)");
+namespace sptk {
 
-TEST(SPTK_XDocument, select)
+TEST(XDocumentTests,select)
 {
     Document document;
 
@@ -56,7 +57,7 @@ TEST(SPTK_XDocument, select)
     EXPECT_EQ(static_cast<size_t>(1), elementSet.size());
 }
 
-TEST(SPTK_XDocument, parent)
+TEST(XDocumentTests,parent)
 {
     Node::Vector elementSet;
     Document     document;
@@ -71,7 +72,7 @@ TEST(SPTK_XDocument, parent)
     EXPECT_STREQ(node4->parent()->getName().c_str(), "Node3-level1");
 }
 
-TEST(SPTK_XDocument, select2)
+TEST(XDocumentTests,select2)
 {
     Document document;
 
@@ -84,7 +85,7 @@ TEST(SPTK_XDocument, select2)
     EXPECT_EQ(static_cast<size_t>(3), elementSet.size());
 }
 
-TEST(SPTK_XDocument, select3)
+TEST(XDocumentTests,select3)
 {
     Document document;
 
@@ -100,7 +101,7 @@ TEST(SPTK_XDocument, select3)
     EXPECT_EQ(static_cast<size_t>(17), elementSet.size());
 }
 
-TEST(SPTK_XDocument, select4)
+TEST(XDocumentTests,select4)
 {
     Document document;
 
@@ -115,7 +116,7 @@ TEST(SPTK_XDocument, select4)
     EXPECT_STREQ("4", elementSet[0]->getString().c_str());
 }
 
-TEST(SPTK_XDocument, select5)
+TEST(XDocumentTests,select5)
 {
     Document document;
 
@@ -129,3 +130,5 @@ TEST(SPTK_XDocument, select5)
     EXPECT_EQ(static_cast<size_t>(1), elementSet2.size());
     EXPECT_STREQ("3", elementSet2[0]->getString().c_str());
 }
+
+} // namespace sptk_test

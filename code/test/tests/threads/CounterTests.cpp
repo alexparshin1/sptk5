@@ -35,7 +35,8 @@ using namespace chrono;
 using namespace sptk;
 
 // @brief Test that default counter value
-TEST(SPTK_Counter, ctor)
+namespace sptk {
+TEST(CounterTests,ctor)
 {
     const Counter flag1;
     EXPECT_EQ(flag1.get(), false);
@@ -44,7 +45,7 @@ TEST(SPTK_Counter, ctor)
     EXPECT_EQ(flag2.get(), true);
 }
 
-TEST(SPTK_Counter, waitFor)
+TEST(CounterTests,waitFor)
 {
     Counter counter;
 
@@ -69,7 +70,7 @@ TEST(SPTK_Counter, waitFor)
     EXPECT_EQ(result, true);
 }
 
-TEST(SPTK_Counter, waitForPerformance)
+TEST(CounterTests,waitForPerformance)
 {
     Counter counter;
 
@@ -89,7 +90,7 @@ TEST(SPTK_Counter, waitForPerformance)
                      << endl);
 }
 
-TEST(SPTK_Counter, adaptorAndAssignment)
+TEST(CounterTests,adaptorAndAssignment)
 {
     Counter flag;
 
@@ -99,3 +100,5 @@ TEST(SPTK_Counter, adaptorAndAssignment)
     flag = 0;
     EXPECT_EQ(static_cast<size_t>(flag), false);
 }
+
+} // namespace sptk_test

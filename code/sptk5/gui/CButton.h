@@ -37,7 +37,6 @@
 class Fl_Image;
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

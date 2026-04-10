@@ -37,7 +37,6 @@
 #include <mutex>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

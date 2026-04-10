@@ -31,8 +31,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_string_ext, to_string)
+TEST(string_extTests,toString)
 {
     EXPECT_EQ(222, string2int("222"));
     EXPECT_DOUBLE_EQ(2.22, string2double("2.22"));
@@ -40,8 +41,10 @@ TEST(SPTK_string_ext, to_string)
     EXPECT_STREQ("This is a Short Text", capitalizeWords("THIS IS a short text").c_str());
 }
 
-TEST(SPTK_string_ext, capitalizeWords)
+TEST(string_extTests,capitalizeWords)
 {
     const auto capitalized = capitalizeWords("tHis is  :-  a STrinG");
     EXPECT_STREQ("This is  :-  a String", capitalized.c_str());
 }
+
+} // namespace sptk_test

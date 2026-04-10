@@ -38,7 +38,6 @@
 #include <sptk5/gui/CWindowShape.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

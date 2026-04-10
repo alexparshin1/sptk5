@@ -52,8 +52,9 @@ public:
 };
 
 vector<Logger::Message> TestLogEngine::storage;
+namespace sptk {
 
-TEST(SPTK_LogEngine, options)
+TEST(LogEngineTests,options)
 {
     TestLogEngine logEngine;
 
@@ -64,7 +65,7 @@ TEST(SPTK_LogEngine, options)
     EXPECT_TRUE(logEngine.option(LogEngine::Option::STDOUT));
 }
 
-TEST(SPTK_LogEngine, priorities)
+TEST(LogEngineTests,priorities)
 {
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Debug).c_str(), "DEBUG");
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Info).c_str(), "Info");
@@ -85,7 +86,7 @@ TEST(SPTK_LogEngine, priorities)
     EXPECT_TRUE(LogEngine::priorityFromName("Panic") == LogPriority::Panic);
 }
 
-TEST(SPTK_LogEngine, message)
+TEST(LogEngineTests,message)
 {
     auto logEngine = make_shared<TestLogEngine>();
     logEngine->option(LogEngine::Option::STDOUT, true);
@@ -114,3 +115,5 @@ TEST(SPTK_LogEngine, message)
     EXPECT_TRUE(TestLogEngine::storage[6].priority == LogPriority::Alert);
     EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
 }
+
+} // namespace sptk_test

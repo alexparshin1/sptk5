@@ -75,8 +75,9 @@ void testPriority(StreamLogEngine& logEngine, LogPriority priority, size_t expec
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_StreamLogEngine, testLogPriorities)
+TEST(StreamLogEngineTests,testLogPriorities)
 {
     StreamLogEngine logEngine(testStream);
 
@@ -85,7 +86,7 @@ TEST(SPTK_StreamLogEngine, testLogPriorities)
     testPriority(logEngine, LogPriority::Error, 2);
 }
 
-TEST(SPTK_StreamLogEngine, string)
+TEST(StreamLogEngineTests,string)
 {
     testStream.str("");
     StreamLogEngine logEngine(testStream);
@@ -103,7 +104,7 @@ TEST(SPTK_StreamLogEngine, string)
                    << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }
 
-TEST(SPTK_StreamLogEngine, outputStream)
+TEST(StreamLogEngineTests,outputStream)
 {
     testStream.str("");
     StreamLogEngine logEngine(testStream);
@@ -123,3 +124,5 @@ TEST(SPTK_StreamLogEngine, outputStream)
     COUT("Logged " << messageCount << " messages for " << stopWatch.milliseconds() << "ms ("
                    << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }
+
+} // namespace sptk_test

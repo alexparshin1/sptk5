@@ -40,8 +40,9 @@ public:
     using QueryParameterList::add;
 };
 } // namespace
+namespace sptk {
 
-TEST(SPTK_QueryParameterList, addFindAndAccessAreCaseInsensitive)
+TEST(QueryParameterListTests,addFindAndAccessAreCaseInsensitive)
 {
     TestQueryParameterList params;
     const auto             p = make_shared<QueryParameter>("Person_ID");
@@ -53,7 +54,7 @@ TEST(SPTK_QueryParameterList, addFindAndAccessAreCaseInsensitive)
     EXPECT_EQ(params["PERSON_ID"].name(), "person_id");
 }
 
-TEST(SPTK_QueryParameterList, removeUpdatesBothListAndIndex)
+TEST(QueryParameterListTests,removeUpdatesBothListAndIndex)
 {
     TestQueryParameterList params;
     params.add(make_shared<QueryParameter>("id"));
@@ -67,7 +68,7 @@ TEST(SPTK_QueryParameterList, removeUpdatesBothListAndIndex)
     EXPECT_EQ(params[0].name(), "name");
 }
 
-TEST(SPTK_QueryParameterList, removeInvalidIndexThrows)
+TEST(QueryParameterListTests,removeInvalidIndexThrows)
 {
     TestQueryParameterList params;
     params.add(make_shared<QueryParameter>("id"));
@@ -75,7 +76,7 @@ TEST(SPTK_QueryParameterList, removeInvalidIndexThrows)
     EXPECT_THROW(params.remove(2), Exception);
 }
 
-TEST(SPTK_QueryParameterList, operatorByInvalidNameThrows)
+TEST(QueryParameterListTests,operatorByInvalidNameThrows)
 {
     TestQueryParameterList params;
     params.add(make_shared<QueryParameter>("id"));
@@ -83,7 +84,7 @@ TEST(SPTK_QueryParameterList, operatorByInvalidNameThrows)
     EXPECT_THROW((void) params["missing"], Exception);
 }
 
-TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
+TEST(QueryParameterListTests,enumerateReturnsItemsByBindIndex)
 {
     TestQueryParameterList params;
 
@@ -104,3 +105,5 @@ TEST(SPTK_QueryParameterList, enumerateReturnsItemsByBindIndex)
     EXPECT_EQ(enumerated[1], p2);
     EXPECT_EQ(enumerated[2], p1);
 }
+
+} // namespace sptk_test

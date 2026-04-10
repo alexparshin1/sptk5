@@ -27,7 +27,6 @@
 #pragma once
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

@@ -39,8 +39,9 @@ static const String originalTestString =
     "This is a test of compression using GZip algorithm. "
     "This is a test of compression using GZip algorithm. "
     "This is a test of compression using GZip algorithm. ";
+namespace sptk {
 
-TEST(SPTK_ZLib, compressDecompress)
+TEST(ZLibTests, compressDecompress)
 {
     Buffer compressed;
     Buffer decompressed;
@@ -51,14 +52,14 @@ TEST(SPTK_ZLib, compressDecompress)
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
-TEST(SPTK_ZLib, decompressEmptyInputThrows)
+TEST(ZLibTests, decompressEmptyInputThrows)
 {
-    Buffer decompressed;
+    Buffer       decompressed;
     const Buffer emptyInput;
     EXPECT_THROW(ZLib::decompress(decompressed, emptyInput), Exception);
 }
 
-TEST(SPTK_ZLib, decompressTruncatedInputThrows)
+TEST(ZLibTests, decompressTruncatedInputThrows)
 {
     Buffer compressed;
     Buffer decompressed;
@@ -68,14 +69,14 @@ TEST(SPTK_ZLib, decompressTruncatedInputThrows)
     EXPECT_THROW(ZLib::decompress(decompressed, compressed), Exception);
 }
 
-TEST(SPTK_ZLib, decompressInvalidInputThrows)
+TEST(ZLibTests, decompressInvalidInputThrows)
 {
-    Buffer decompressed;
+    Buffer       decompressed;
     const Buffer invalidInput("not a gzip payload");
     EXPECT_THROW(ZLib::decompress(decompressed, invalidInput), Exception);
 }
 
-TEST(SPTK_ZLib, performance)
+TEST(ZLibTests, performance)
 {
     Buffer data;
     Buffer compressed;
@@ -116,3 +117,5 @@ TEST(SPTK_ZLib, performance)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
+
+} // namespace sptk

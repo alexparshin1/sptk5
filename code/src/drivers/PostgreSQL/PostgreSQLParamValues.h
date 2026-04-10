@@ -34,7 +34,6 @@
 #include <sptk5/db/QueryParameterList.h>
 
 namespace sptk {
-
 class PostgreSQLParamValues
 {
     friend class PostgreSQLStatement;

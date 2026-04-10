@@ -29,7 +29,6 @@
 #include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
-
 /**
  * @brief Collection of references to available services.
  */

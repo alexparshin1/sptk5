@@ -33,7 +33,6 @@
 #include <string>
 
 namespace sptk {
-
 /**
  * @brief Redis Client.
  */

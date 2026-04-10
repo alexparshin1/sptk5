@@ -36,7 +36,6 @@
 #endif
 
 namespace sptk {
-
 class TCPServer;
 
 /**

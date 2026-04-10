@@ -32,8 +32,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_MailMessageBody, minimal)
+TEST(MailMessageBodyTests,minimal)
 {
     MailMessageBody message;
 
@@ -43,3 +44,5 @@ TEST(SPTK_MailMessageBody, minimal)
     message.text("<html><b>Hello,</b><i>World!</i></html>\n.\n", true);
     EXPECT_EQ(message.text(), "Hello, World!");
 }
+
+} // namespace sptk_test

@@ -54,8 +54,9 @@ static const String initialsXML {
     "</xsd:restriction>"
     "</xsd:simpleType>"
     "</xsd:element>"};
+namespace sptk {
 
-TEST(SPTK_WSRestriction, parseEnumeration)
+TEST(WSRestrictionTests,parseEnumeration)
 {
     xdoc::Document document;
     document.load(coloursXML);
@@ -84,7 +85,7 @@ TEST(SPTK_WSRestriction, parseEnumeration)
     }
 }
 
-TEST(SPTK_WSRestriction, parseInitials)
+TEST(WSRestrictionTests,parseInitials)
 {
     xdoc::Document document;
     document.load(initialsXML);
@@ -114,7 +115,7 @@ TEST(SPTK_WSRestriction, parseInitials)
 }
 
 
-TEST(SPTK_WSRestriction, check)
+TEST(WSRestrictionTests,check)
 {
     using enum WSRestriction::Type;
 
@@ -139,7 +140,7 @@ TEST(SPTK_WSRestriction, check)
     EXPECT_ANY_THROW(action.throwIfNull("Control.action"));
 }
 
-TEST(SPTK_WSRestriction, generateConstructor)
+TEST(WSRestrictionTests,generateConstructor)
 {
     using enum WSRestriction::Type;
 
@@ -151,3 +152,5 @@ TEST(SPTK_WSRestriction, generateConstructor)
     EXPECT_TRUE(ctor.contains("restriction_1"));
     EXPECT_TRUE(ctor.contains(R"({ "add", "modify", "remove", "list" })"));
 }
+
+} // namespace sptk_test

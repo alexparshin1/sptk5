@@ -59,14 +59,15 @@ public:
 };
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_WSComplexType, defaultIsNull)
+TEST(WSComplexTypeTests,defaultIsNull)
 {
     TestComplexType obj("T", false);
     EXPECT_TRUE(obj.isNull());
 }
 
-TEST(SPTK_WSComplexType, optionalAndNullExportToDoesNotCreateNode)
+TEST(WSComplexTypeTests,optionalAndNullExportToDoesNotCreateNode)
 {
     Document    doc(Node::Type::Object);
     const auto& root = doc.root();
@@ -79,7 +80,7 @@ TEST(SPTK_WSComplexType, optionalAndNullExportToDoesNotCreateNode)
     EXPECT_TRUE(root->nodes().empty());
 }
 
-TEST(SPTK_WSComplexType, nonOptionalExportToCreatesChildWithTypeNameEvenWhenCustomNameProvided)
+TEST(WSComplexTypeTests,nonOptionalExportToCreatesChildWithTypeNameEvenWhenCustomNameProvided)
 {
     Document    doc(Node::Type::Object);
     const auto& root = doc.root();
@@ -105,7 +106,7 @@ TEST(SPTK_WSComplexType, nonOptionalExportToCreatesChildWithTypeNameEvenWhenCust
     EXPECT_EQ("value-attr", children[0]->attributes().get("attr"));
 }
 
-TEST(SPTK_WSComplexType, exportToUsesProvidedNameWhenParentIsArray)
+TEST(WSComplexTypeTests,exportToUsesProvidedNameWhenParentIsArray)
 {
     Document    doc(Node::Type::Array);
     const auto& root = doc.root();
@@ -125,7 +126,7 @@ TEST(SPTK_WSComplexType, exportToUsesProvidedNameWhenParentIsArray)
     EXPECT_EQ("value-b", children[0]->getString("b"));
 }
 
-TEST(SPTK_WSComplexType, loadFromNodeLoadsElementsAndAttributes)
+TEST(WSComplexTypeTests,loadFromNodeLoadsElementsAndAttributes)
 {
     Document    doc(Node::Type::Object);
     const auto& root = doc.root();
@@ -142,3 +143,5 @@ TEST(SPTK_WSComplexType, loadFromNodeLoadsElementsAndAttributes)
     EXPECT_EQ("in-b", obj.b.asString());
     EXPECT_EQ("in-attr", obj.attr.asString());
 }
+
+} // namespace sptk_test

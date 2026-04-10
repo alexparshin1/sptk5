@@ -56,8 +56,9 @@ string readAllText(const filesystem::path& p)
     return ss.str();
 }
 } // namespace
+namespace sptk {
 
-TEST(SPTK_SourceModule, writeOutputFilesCreatesHeaderAndSource)
+TEST(SourceModuleTests,writeOutputFilesCreatesHeaderAndSource)
 {
     const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_create");
 
@@ -80,7 +81,7 @@ TEST(SPTK_SourceModule, writeOutputFilesCreatesHeaderAndSource)
     EXPECT_NE(string::npos, readAllText(sourcePath).find("return 123"));
 }
 
-TEST(SPTK_SourceModule, writeOutputFilesDoesNotRewriteWhenContentIsSame)
+TEST(SourceModuleTests,writeOutputFilesDoesNotRewriteWhenContentIsSame)
 {
     const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_norewrite");
 
@@ -123,7 +124,7 @@ TEST(SPTK_SourceModule, writeOutputFilesDoesNotRewriteWhenContentIsSame)
     EXPECT_EQ(sourceTime1, sourceTime2);
 }
 
-TEST(SPTK_SourceModule, writeOutputFilesRewritesWhenContentChanges)
+TEST(SourceModuleTests,writeOutputFilesRewritesWhenContentChanges)
 {
     const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_rewrite");
 
@@ -163,7 +164,7 @@ TEST(SPTK_SourceModule, writeOutputFilesRewritesWhenContentChanges)
     EXPECT_NE(string::npos, readAllText(sourcePath).find("return 2"));
 }
 
-TEST(SPTK_SourceModule, resetClearsStreams)
+TEST(SourceModuleTests,resetClearsStreams)
 {
     const auto outDir = makeUniqueTempDir("sptk_SourceModuleTests_reset");
 
@@ -181,3 +182,5 @@ TEST(SPTK_SourceModule, resetClearsStreams)
     EXPECT_EQ("H", readAllText(outDir / "GeneratedUnit.h"));
     EXPECT_EQ("S", readAllText(outDir / "GeneratedUnit.cpp"));
 }
+
+} // namespace sptk_test

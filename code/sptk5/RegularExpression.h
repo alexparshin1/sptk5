@@ -65,7 +65,6 @@ using pcre_offset_t = int;
 #if defined(HAVE_PCRE2) | defined(HAVE_PCRE)
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes.
  * @{

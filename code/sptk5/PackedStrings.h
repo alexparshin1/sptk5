@@ -30,7 +30,6 @@
 #include <sptk5/Strings.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

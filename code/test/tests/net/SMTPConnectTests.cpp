@@ -31,8 +31,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_SmtpConnect, minimal)
+TEST(SmtpConnectTests,minimal)
 {
     GTEST_SKIP();
 
@@ -62,3 +63,5 @@ TEST(SPTK_SmtpConnect, minimal)
         FAIL() << e.message();
     }
 }
+
+} // namespace sptk_test

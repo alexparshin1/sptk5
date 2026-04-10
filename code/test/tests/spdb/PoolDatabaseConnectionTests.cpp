@@ -34,15 +34,16 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_BulkInsert, escapeSqlString)
+TEST(BulkInsertTests,escapeSqlString)
 {
     const String sourceString = "Hello, 'World'.\n\rLet's go\n";
     const String escapedString = escapeSQLString(sourceString, false);
     EXPECT_STREQ("Hello, ''World''.\\n\\rLet''s go\\n", escapedString.c_str());
 }
 
-TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
+TEST(BulkInsertTests,escapeSqlStringPerformance)
 {
     constexpr auto maxCount = 100000;
     constexpr auto mcsInSecond = 1E6;
@@ -59,7 +60,7 @@ TEST(SPTK_BulkInsert, escapeSqlStringPerformance)
                     << fixed << setprecision(2) << maxCount / stopWatch.seconds() / mcsInSecond << "M op/sec" << endl);
 }
 
-TEST(SPTK_PoolDatabaseConnection, handleBulkInsertFailures)
+TEST(PoolDatabaseConnectionTests,handleBulkInsertFailures)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
     if (connectionString.empty())
@@ -113,7 +114,7 @@ TEST(SPTK_PoolDatabaseConnection, handleBulkInsertFailures)
     dropTestTable();
 }
 
-TEST(SPTK_PoolDatabaseConnection, handleBulkDeleteFailures)
+TEST(PoolDatabaseConnectionTests,handleBulkDeleteFailures)
 {
     const DatabaseConnectionString connectionString = DatabaseTests::tests().connectionString("postgresql");
     if (connectionString.empty())
@@ -167,3 +168,5 @@ TEST(SPTK_PoolDatabaseConnection, handleBulkDeleteFailures)
 
     dropTestTable();
 }
+
+} // namespace sptk_test

@@ -32,14 +32,15 @@
 using namespace std;
 using namespace chrono;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Flag, ctor)
+TEST(FlagTests,ctor)
 {
     const Flag flag;
     EXPECT_EQ(flag.get(), false);
 }
 
-TEST(SPTK_Flag, waitFor)
+TEST(FlagTests,waitFor)
 {
     Flag flag;
 
@@ -52,7 +53,7 @@ TEST(SPTK_Flag, waitFor)
     EXPECT_EQ(result, true);
 }
 
-TEST(SPTK_Flag, setWaitFor)
+TEST(FlagTests,setWaitFor)
 {
     Flag flag;
 
@@ -62,7 +63,7 @@ TEST(SPTK_Flag, setWaitFor)
     EXPECT_EQ(result, true);
 }
 
-TEST(SPTK_Flag, adaptorAndAssignment)
+TEST(FlagTests,adaptorAndAssignment)
 {
     Flag flag;
 
@@ -73,7 +74,7 @@ TEST(SPTK_Flag, adaptorAndAssignment)
     EXPECT_EQ(static_cast<bool>(flag), false);
 }
 
-TEST(SPTK_Flag, signalOtherThread)
+TEST(FlagTests,signalOtherThread)
 {
     Flag flag;
 
@@ -102,7 +103,7 @@ TEST(SPTK_Flag, signalOtherThread)
     task2.wait();
 }
 
-TEST(SPTK_Flag, waitUntilTimeout)
+TEST(FlagTests,waitUntilTimeout)
 {
     Flag flag;
 
@@ -111,7 +112,7 @@ TEST(SPTK_Flag, waitUntilTimeout)
     EXPECT_FALSE(flag.get());
 }
 
-TEST(SPTK_Flag, waitUntilSucceedsWhenSignaled)
+TEST(FlagTests,waitUntilSucceedsWhenSignaled)
 {
     Flag flag;
 
@@ -127,3 +128,5 @@ TEST(SPTK_Flag, waitUntilSucceedsWhenSignaled)
     EXPECT_EQ(waiter.wait_for(150ms), future_status::ready);
     EXPECT_TRUE(waiter.get());
 }
+
+} // namespace sptk_test

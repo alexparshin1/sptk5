@@ -34,7 +34,6 @@
 #include <utility>
 
 namespace sptk {
-
 class TCPServerListener;
 
 /**

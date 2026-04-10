@@ -37,7 +37,6 @@ documentation and/or software.
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 /**
      * Calculates MD5 hashes of strings or byte arrays
      *

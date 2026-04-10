@@ -33,7 +33,6 @@
 #include <sptk5/Buffer.h>
 
 namespace sptk {
-
 /**
  * @brief Simple wrapper for Brotli functions.
  */

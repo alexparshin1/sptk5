@@ -32,7 +32,6 @@
 #include <sptk5/xdoc/Node.h>
 
 namespace sptk {
-
 /**
  * @brief Base type for all standard WSDL types.
  */

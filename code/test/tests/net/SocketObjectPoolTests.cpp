@@ -57,8 +57,9 @@ SocketEventType dataEvent()
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_SocketObjectPool, ignoresUnknownSocketEvent)
+TEST(SocketObjectPoolTests,ignoresUnknownSocketEvent)
 {
     atomic_int callbackCount = 0;
 
@@ -74,7 +75,7 @@ TEST(SPTK_SocketObjectPool, ignoresUnknownSocketEvent)
     EXPECT_EQ(callbackCount.load(), 0);
 }
 
-TEST(SPTK_SocketObjectPool, addFailureDoesNotLeaveStaleUserData)
+TEST(SocketObjectPoolTests,addFailureDoesNotLeaveStaleUserData)
 {
     atomic_int callbackCount = 0;
 
@@ -99,7 +100,7 @@ TEST(SPTK_SocketObjectPool, addFailureDoesNotLeaveStaleUserData)
     testEchoServer.stop();
 }
 
-TEST(SPTK_SocketObjectPool, removeAfterCloseClearsUserData)
+TEST(SocketObjectPoolTests,removeAfterCloseClearsUserData)
 {
     atomic_int callbackCount = 0;
 
@@ -122,3 +123,5 @@ TEST(SPTK_SocketObjectPool, removeAfterCloseClearsUserData)
 
     testEchoServer.stop();
 }
+
+} // namespace sptk_test

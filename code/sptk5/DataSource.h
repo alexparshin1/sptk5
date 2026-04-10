@@ -32,7 +32,6 @@
 class Fl_Group;
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes.
  * @{

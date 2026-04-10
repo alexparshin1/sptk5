@@ -37,7 +37,6 @@
 using namespace std;
 
 namespace sptk {
-
 class CTabButtons;
 
 class SP_EXPORT CTabButton

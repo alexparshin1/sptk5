@@ -32,7 +32,6 @@
 #include <sptk5/threads/Semaphore.h>
 
 namespace sptk {
-
 /**
  * @addtogroup threads Thread Classes.
  * @{

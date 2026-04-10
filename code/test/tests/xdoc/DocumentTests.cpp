@@ -68,8 +68,9 @@ void verifyDocument(Document& document)
     EXPECT_TRUE(address.getBoolean("married"));
     EXPECT_FALSE(address.getBoolean("employed"));
 }
+namespace sptk {
 
-TEST(SPTK_XDocument, load)
+TEST(XDocumentTests,load)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -77,7 +78,7 @@ TEST(SPTK_XDocument, load)
     verifyDocument(document);
 }
 
-TEST(SPTK_XDocument, add)
+TEST(XDocumentTests,add)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -128,7 +129,7 @@ TEST(SPTK_XDocument, add)
     EXPECT_DOUBLE_EQ(testDouble2, object->getNumber("weight"));
 }
 
-TEST(SPTK_XDocument, remove)
+TEST(XDocumentTests,remove)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -146,7 +147,7 @@ TEST(SPTK_XDocument, remove)
     EXPECT_FALSE(root.findFirst("address"));
 }
 
-TEST(SPTK_XDocument, clear)
+TEST(XDocumentTests,clear)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -159,7 +160,7 @@ TEST(SPTK_XDocument, clear)
     EXPECT_EQ(root.nodes().size(), static_cast<size_t>(0));
 }
 
-TEST(SPTK_XDocument, exportToBuffer)
+TEST(XDocumentTests,exportToBuffer)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -172,7 +173,7 @@ TEST(SPTK_XDocument, exportToBuffer)
     verifyDocument(document);
 }
 
-TEST(SPTK_XDocument, copyCtor)
+TEST(XDocumentTests,copyCtor)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -184,7 +185,7 @@ TEST(SPTK_XDocument, copyCtor)
     verifyDocument(document2);
 }
 
-TEST(SPTK_XDocument, copyCtorPreservesStructureAndIsIndependent)
+TEST(XDocumentTests,copyCtorPreservesStructureAndIsIndependent)
 {
     const Buffer input(
         R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
@@ -213,7 +214,7 @@ TEST(SPTK_XDocument, copyCtorPreservesStructureAndIsIndependent)
     EXPECT_STREQ(copyJson.c_str(), copyJsonAfterSourceMutation.c_str());
 }
 
-TEST(SPTK_XDocument, moveCtor)
+TEST(XDocumentTests,moveCtor)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -224,7 +225,7 @@ TEST(SPTK_XDocument, moveCtor)
     verifyDocument(document2);
 }
 
-TEST(SPTK_XDocument, copyAssign)
+TEST(XDocumentTests,copyAssign)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -238,7 +239,7 @@ TEST(SPTK_XDocument, copyAssign)
     verifyDocument(document2);
 }
 
-TEST(SPTK_XDocument, copyAssignPreservesStructureAndIsIndependent)
+TEST(XDocumentTests,copyAssignPreservesStructureAndIsIndependent)
 {
     const Buffer input(
         R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
@@ -268,7 +269,7 @@ TEST(SPTK_XDocument, copyAssignPreservesStructureAndIsIndependent)
     EXPECT_STREQ(targetJson.c_str(), targetJsonAfterSourceMutation.c_str());
 }
 
-TEST(SPTK_XDocument, moveAssign)
+TEST(XDocumentTests,moveAssign)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -281,7 +282,7 @@ TEST(SPTK_XDocument, moveAssign)
     verifyDocument(document2);
 }
 
-TEST(SPTK_XDocument, truncated)
+TEST(XDocumentTests,truncated)
 {
     Document     document;
     const String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
@@ -297,7 +298,7 @@ TEST(SPTK_XDocument, truncated)
     }
 }
 
-TEST(SPTK_XDocument, errors)
+TEST(XDocumentTests,errors)
 {
     Document document;
     size_t   errorCount = 0;
@@ -346,7 +347,7 @@ TEST(SPTK_XDocument, errors)
     SUCCEED() << "Detected " << errorCount << " errors";
 }
 
-TEST(SPTK_XDocument, performance)
+TEST(XDocumentTests,performance)
 {
     constexpr int objectCount = 50000;
 
@@ -398,7 +399,7 @@ TEST(SPTK_XDocument, performance)
     COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds");
 }
 
-TEST(SPTK_XDocument, exportText)
+TEST(XDocumentTests,exportText)
 {
     const Document document;
     const auto     testNode = document.root()->pushNode("test");
@@ -407,3 +408,5 @@ TEST(SPTK_XDocument, exportText)
     Buffer output;
     document.exportTo(DataFormat::XML, cout, true);
 }
+
+} // namespace sptk_test

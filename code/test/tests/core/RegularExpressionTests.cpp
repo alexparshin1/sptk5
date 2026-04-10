@@ -36,8 +36,9 @@ using namespace sptk;
 #if defined(HAVE_PCRE) | defined(HAVE_PCRE2)
 
 static const String testPhrase("This is a test text to verify rexec text data group");
+namespace sptk {
 
-TEST(SPTK_RegularExpression, match_emptyText)
+TEST(RegularExpressionTests,matchEmptyText)
 {
     const RegularExpression matchFirst("test text", "g");
     const auto              matches = matchFirst.m("");
@@ -49,7 +50,7 @@ TEST(SPTK_RegularExpression, match_emptyText)
     EXPECT_EQ(0, words.size());
 }
 
-TEST(SPTK_RegularExpression, match_emptyPattern)
+TEST(RegularExpressionTests,matchEmptyPattern)
 {
     const RegularExpression matchFirst("", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -61,7 +62,7 @@ TEST(SPTK_RegularExpression, match_emptyPattern)
     EXPECT_EQ(0, words.size());
 }
 
-TEST(SPTK_RegularExpression, match_first)
+TEST(RegularExpressionTests,matchFirst)
 {
     const RegularExpression matchFirst("test text", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -73,7 +74,7 @@ TEST(SPTK_RegularExpression, match_first)
     EXPECT_STREQ(words.c_str(), "test text");
 }
 
-TEST(SPTK_RegularExpression, match_first_group)
+TEST(RegularExpressionTests,matchFirstGroup)
 {
     const RegularExpression matchFirst("(test text)", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -85,7 +86,7 @@ TEST(SPTK_RegularExpression, match_first_group)
     EXPECT_STREQ(words.c_str(), "test text");
 }
 
-TEST(SPTK_RegularExpression, match_many)
+TEST(RegularExpressionTests,matchMany)
 {
     const RegularExpression matchWord("(\\w+)+", "g");
     const auto              matches = matchWord.m(testPhrase);
@@ -97,7 +98,7 @@ TEST(SPTK_RegularExpression, match_many)
     EXPECT_STREQ(words.join("_").c_str(), "This_is_a_test_text_to_verify_rexec_text_data_group");
 }
 
-TEST(SPTK_RegularExpression, match)
+TEST(RegularExpressionTests,match)
 {
     const RegularExpression match1("test.*verify");
     const RegularExpression match2("test  .*verify");
@@ -107,7 +108,7 @@ TEST(SPTK_RegularExpression, match)
     EXPECT_FALSE(match1 != String(testPhrase));
 }
 
-TEST(SPTK_RegularExpression, match_global)
+TEST(RegularExpressionTests,matchGlobal)
 {
     const RegularExpression match("(te[xs]t) (to verify|data)", "g");
 
@@ -119,7 +120,7 @@ TEST(SPTK_RegularExpression, match_global)
     EXPECT_EQ(matchedStrings.groups().size(), static_cast<size_t>(4));
 }
 
-TEST(SPTK_RegularExpression, named_groups)
+TEST(RegularExpressionTests,namedGroups)
 {
     const RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
@@ -131,14 +132,14 @@ TEST(SPTK_RegularExpression, named_groups)
     EXPECT_STREQ(matchedNamedGroups["description"].value.c_str(), "test1");
 }
 
-TEST(SPTK_RegularExpression, replace)
+TEST(RegularExpressionTests,replace)
 {
     const RegularExpression match1("^(.*)(white).*(rabbit)(.*)");
     EXPECT_STREQ("white crow eats flies over rabbit",
                  match1.s("This is a white rabbit", "\\2 crow eats flies over \\3").c_str());
 }
 
-TEST(SPTK_RegularExpression, replaceAll)
+TEST(RegularExpressionTests,replaceAll)
 {
     const map<String, String> substitutions = {
         {"$NAME", "John Doe"},
@@ -152,7 +153,7 @@ TEST(SPTK_RegularExpression, replaceAll)
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
-TEST(SPTK_RegularExpression, lambdaReplace)
+TEST(RegularExpressionTests,lambdaReplace)
 {
     map<String, String> substitutions = {
         {"$NAME", "John Doe"},
@@ -171,7 +172,7 @@ TEST(SPTK_RegularExpression, lambdaReplace)
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
-TEST(SPTK_RegularExpression, extract)
+TEST(RegularExpressionTests,extract)
 {
     const RegularExpression match1("^(.*)(text).*(verify)(.*)");
     const auto              matchedStrings = match1.m(testPhrase);
@@ -181,7 +182,7 @@ TEST(SPTK_RegularExpression, extract)
     EXPECT_STREQ(" rexec text data group", matchedStrings[3].value.c_str());
 }
 
-TEST(SPTK_RegularExpression, split)
+TEST(RegularExpressionTests,split)
 {
     const RegularExpression match("[\\s]+");
     auto                    matchedStrings = match.split(testPhrase);
@@ -190,7 +191,7 @@ TEST(SPTK_RegularExpression, split)
     EXPECT_STREQ("text", matchedStrings[8].c_str());
 }
 
-TEST(SPTK_RegularExpression, splitWithCaptureGroupsPattern)
+TEST(RegularExpressionTests,splitWithCaptureGroupsPattern)
 {
     const RegularExpression match("(\\w+) text");
     const Strings           expectedStrings = {"This is a ", " to verify ", " data group"};
@@ -201,7 +202,7 @@ TEST(SPTK_RegularExpression, splitWithCaptureGroupsPattern)
     EXPECT_EQ(expectedStrings, matchedStrings);
 }
 
-TEST(SPTK_RegularExpression, splitWithCaptureGroupsPatterns)
+TEST(RegularExpressionTests,splitWithCaptureGroupsPatterns)
 {
     const RegularExpression match("(is|to)(\\s)");
     const Strings           expectedStrings = {"Th", "", "a test text ", "verify rexec text data group"};
@@ -212,7 +213,7 @@ TEST(SPTK_RegularExpression, splitWithCaptureGroupsPatterns)
     EXPECT_EQ(expectedStrings, matchedStrings);
 }
 
-TEST(SPTK_RegularExpression, match_performance)
+TEST(RegularExpressionTests,matchPerformance)
 {
     const String            data("red=#FF0000, green=#00FF00, blue=#0000FF");
     const RegularExpression match("((\\w+)=(#\\w+))");
@@ -235,7 +236,7 @@ TEST(SPTK_RegularExpression, match_performance)
                   << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
 }
 
-TEST(SPTK_RegularExpression, asyncExec)
+TEST(RegularExpressionTests,asyncExec)
 {
     RegularExpression match("(?<name>[xyz]+) (?<value>\\d+) (?<description>\\w+)");
 
@@ -285,3 +286,5 @@ TEST(SPTK_RegularExpression, asyncExec)
 }
 
 #endif
+
+} // namespace sptk_test

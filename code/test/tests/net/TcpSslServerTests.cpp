@@ -120,8 +120,9 @@ void performanceTestFunction(const ServerConnection& serverConnection)
 }
 
 } // namespace
+namespace sptk {
 
-TEST(SPTK_TCPServer, tcpMinimal)
+TEST(TCPServerTests,tcpMinimal)
 {
     Buffer buffer;
 
@@ -171,7 +172,7 @@ TEST(SPTK_TCPServer, tcpMinimal)
     }
 }
 
-TEST(SPTK_TCPServer, sslMinimal)
+TEST(TCPServerTests,sslMinimal)
 {
     Buffer buffer;
 
@@ -369,7 +370,7 @@ void testTransferPerformance(ServerConnection::Type connectionType, const String
 }
 } // namespace
 
-TEST(SPTK_TCPServer, tcpTransferPerformance)
+TEST(TCPServerTests,tcpTransferPerformance)
 {
     try
     {
@@ -381,7 +382,7 @@ TEST(SPTK_TCPServer, tcpTransferPerformance)
     }
 }
 
-TEST(SPTK_TCPServer, sslTransferPerformance)
+TEST(TCPServerTests,sslTransferPerformance)
 {
     try
     {
@@ -424,7 +425,7 @@ void testReaderTransferPerformance(ServerConnection::Type connectionType, const 
 }
 } // namespace
 
-TEST(SPTK_TCPServer, tcpReaderTransferPerformance)
+TEST(TCPServerTests,tcpReaderTransferPerformance)
 {
     try
     {
@@ -436,7 +437,7 @@ TEST(SPTK_TCPServer, tcpReaderTransferPerformance)
     }
 }
 
-TEST(SPTK_TCPServer, sslReaderTransferPerformance)
+TEST(TCPServerTests,sslReaderTransferPerformance)
 {
     try
     {
@@ -448,7 +449,7 @@ TEST(SPTK_TCPServer, sslReaderTransferPerformance)
     }
 }
 
-TEST(SPTK_TCPServer, acceptPerformance)
+TEST(TCPServerTests,acceptPerformance)
 {
     try
     {
@@ -459,3 +460,5 @@ TEST(SPTK_TCPServer, acceptPerformance)
         FAIL() << e.what();
     }
 }
+
+} // namespace sptk_test

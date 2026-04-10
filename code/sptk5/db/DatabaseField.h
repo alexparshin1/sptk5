@@ -32,7 +32,6 @@
 #include <sptk5/Variant.h>
 
 namespace sptk {
-
 /**
  * @addtogroup Database Database Support.
  * @{

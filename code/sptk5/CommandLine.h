@@ -32,7 +32,6 @@
 #include <sptk5/cutils>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes
  * @{

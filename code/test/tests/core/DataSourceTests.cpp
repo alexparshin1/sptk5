@@ -196,8 +196,9 @@ private:
     size_t            m_current {0};
     bool              m_open {false};
 };
+namespace sptk {
 
-TEST(SPTK_DataSource, loadSaveDelegates)
+TEST(DataSourceTests,loadSaveDelegates)
 {
     TestDataSource ds;
 
@@ -208,7 +209,7 @@ TEST(SPTK_DataSource, loadSaveDelegates)
     EXPECT_EQ(ds.save_calls, 1);
 }
 
-TEST(SPTK_DataSource, exportRowToCompactXml)
+TEST(DataSourceTests,exportRowToCompactXml)
 {
     TestDataSource ds;
     ds.open();
@@ -223,7 +224,7 @@ TEST(SPTK_DataSource, exportRowToCompactXml)
     EXPECT_EQ(row->nodes().size(), static_cast<size_t>(0));
 }
 
-TEST(SPTK_DataSource, exportRowToFullXml)
+TEST(DataSourceTests,exportRowToFullXml)
 {
     TestDataSource ds;
     ds.open();
@@ -238,7 +239,7 @@ TEST(SPTK_DataSource, exportRowToFullXml)
     EXPECT_EQ(row->nodes().size(), static_cast<size_t>(2));
 }
 
-TEST(SPTK_DataSource, exportToIteratesAllRows)
+TEST(DataSourceTests,exportToIteratesAllRows)
 {
     TestDataSource ds;
 
@@ -249,3 +250,5 @@ TEST(SPTK_DataSource, exportToIteratesAllRows)
     EXPECT_EQ(ds.close_calls, 1);
     EXPECT_EQ(ds.next_calls, 2);
 }
+
+} // namespace sptk_test

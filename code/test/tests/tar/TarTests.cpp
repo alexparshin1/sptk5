@@ -47,7 +47,7 @@ const filesystem::path testTar2 = tempDirectory / "gtest_temp2.tar";
 const filesystem::path gtestTempDirectory = tempDirectory / "gtest_temp_directory3";
 } // namespace
 
-class SPTK_Tar : public ::testing::Test
+class TarTests : public ::testing::Test
 {
 protected:
     void SetUp() override
@@ -81,8 +81,9 @@ protected:
         filesystem::remove("test.lst");
     }
 };
+namespace sptk {
 
-TEST_F(SPTK_Tar, relativePath)
+TEST_F(TarTests,relativePath)
 {
     auto relPath = ArchiveFile::relativePath("/tmp/mydir/myfile.txt", "/tmp/mydir");
     EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
@@ -94,7 +95,7 @@ TEST_F(SPTK_Tar, relativePath)
     EXPECT_EQ(relPath, filesystem::path("/tmp/mydir1/myfile.txt"));
 }
 
-TEST_F(SPTK_Tar, read) /* NOLINT */
+TEST_F(TarTests,read) /* NOLINT */
 {
     Tar tar;
 
@@ -111,7 +112,7 @@ TEST_F(SPTK_Tar, read) /* NOLINT */
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 }
 
-TEST_F(SPTK_Tar, write) /* NOLINT */
+TEST_F(TarTests,write) /* NOLINT */
 {
     Tar tar;
 
@@ -122,3 +123,5 @@ TEST_F(SPTK_Tar, write) /* NOLINT */
 }
 
 #endif
+
+} // namespace sptk_test

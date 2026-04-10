@@ -29,7 +29,6 @@
 using namespace std;
 
 namespace sptk {
-
 void TimerEvents::add(const std::shared_ptr<TimerEvent>& event)
 {
     auto when = event->mcs_since_epoch();

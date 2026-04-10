@@ -32,7 +32,6 @@
 #include <mutex>
 
 namespace sptk {
-
 class SP_EXPORT Console
 {
 public:

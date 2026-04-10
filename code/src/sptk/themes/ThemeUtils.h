@@ -31,7 +31,6 @@
 #include <sptk5/gui/CPngImage.h>
 
 namespace sptk {
-
 CPngImage* loadValidatePNGImage(const std::string& fileName, bool externalFile = false);
 
 }

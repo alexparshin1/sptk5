@@ -32,7 +32,6 @@
 #include <unordered_map>
 
 namespace sptk {
-
 /**
  * @addtogroup utility Utility Classes.
  * @{

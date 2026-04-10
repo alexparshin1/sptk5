@@ -97,8 +97,9 @@ private:
 } // namespace
 
 #ifndef _WIN32
+namespace sptk {
 
-TEST(SPTK_HomeDirectory, locationPrefersHOME)
+TEST(HomeDirectoryTests,locationPrefersHOME)
 {
     EnvVarGuard home("HOME");
     EnvVarGuard user("USER");
@@ -110,7 +111,7 @@ TEST(SPTK_HomeDirectory, locationPrefersHOME)
     EXPECT_EQ(filesystem::path("/tmp/sptk_home_test_dir"), p);
 }
 
-TEST(SPTK_HomeDirectory, locationFallsBackToHomeUserWhenHOMEMissing)
+TEST(HomeDirectoryTests,locationFallsBackToHomeUserWhenHOMEMissing)
 {
     EnvVarGuard home("HOME");
     EnvVarGuard user("USER");
@@ -122,7 +123,7 @@ TEST(SPTK_HomeDirectory, locationFallsBackToHomeUserWhenHOMEMissing)
     EXPECT_EQ(filesystem::path("/home/testuser"), p);
 }
 
-TEST(SPTK_HomeDirectory, locationThrowsWhenNoHOMEAndNoUSER)
+TEST(HomeDirectoryTests,locationThrowsWhenNoHOMEAndNoUSER)
 {
     EnvVarGuard home("HOME");
     EnvVarGuard user("USER");
@@ -135,7 +136,7 @@ TEST(SPTK_HomeDirectory, locationThrowsWhenNoHOMEAndNoUSER)
 
 #else
 
-TEST(SPTK_HomeDirectory, locationUsesHomeDriveAndPathOnWindowsWhenPresent)
+TEST(HomeDirectoryTests,locationUsesHomeDriveAndPathOnWindowsWhenPresent)
 {
     EnvVarGuard homeDrive("HOMEDRIVE");
     EnvVarGuard homePath("HOMEPATH");
@@ -148,3 +149,5 @@ TEST(SPTK_HomeDirectory, locationUsesHomeDriveAndPathOnWindowsWhenPresent)
 }
 
 #endif
+
+} // namespace sptk_test

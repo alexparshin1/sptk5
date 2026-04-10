@@ -32,7 +32,6 @@
 #include <string>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

@@ -40,7 +40,6 @@
 class Fl_Group;
 
 namespace sptk {
-
 class Query;
 
 class PoolDatabaseConnection;

@@ -30,7 +30,6 @@
 #include <sptk5/sptk.h>
 
 namespace sptk {
-
 /**
  * @addtogroup wsdl WSDL-related Classes.
  * @{

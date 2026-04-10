@@ -8,8 +8,9 @@
 
 using namespace sptk;
 using namespace std::chrono_literals;
+namespace sptk {
 
-TEST(TCPServerTests, AddAndRemoveTcpListener)
+TEST(TCPServerTests,addAndRemoveTcpListener)
 {
     TCPServer  server("test-listener", 2);
     const Host listenerHost("127.0.0.1", 0); // port 0 -> ephemeral
@@ -28,7 +29,7 @@ TEST(TCPServerTests, AddAndRemoveTcpListener)
     ASSERT_FALSE(server.active());
 }
 
-TEST(TCPServerTests, AddSslListenerWithoutKeysThrows)
+TEST(TCPServerTests,addSslListenerWithoutKeysThrows)
 {
     TCPServer  server("ssl-listener", 2);
     const Host listenerHost("127.0.0.1", 0);
@@ -37,7 +38,7 @@ TEST(TCPServerTests, AddSslListenerWithoutKeysThrows)
     EXPECT_THROW(server.addListener(ServerConnection::Type::SSL, listenerHost, 1), Exception);
 }
 
-TEST(TCPServerTests, AddSslListenerWithKeys)
+TEST(TCPServerTests,addSslListenerWithKeys)
 {
     TCPServer  server("ssl-listener-keys", 2);
     const Host listenerHost("127.0.0.1", 0);
@@ -59,3 +60,5 @@ TEST(TCPServerTests, AddSslListenerWithKeys)
     server.removeListener(listenerHost);
 #endif
 }
+
+} // namespace sptk_test

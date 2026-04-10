@@ -31,8 +31,9 @@
 using namespace std;
 using namespace chrono;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Timer, repeat) /* NOLINT */
+TEST(TimerTests,repeat) /* NOLINT */
 {
     if (DateTime::Now() > DateTime()) // always true
     {
@@ -58,7 +59,7 @@ TEST(SPTK_Timer, repeat) /* NOLINT */
 
 constexpr int MAX_EVENT_COUNTER = 10;
 
-TEST(SPTK_Timer, fireOnce) /* NOLINT */
+TEST(TimerTests,fireOnce) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 1;
@@ -80,7 +81,7 @@ TEST(SPTK_Timer, fireOnce) /* NOLINT */
     EXPECT_EQ(counter, 2u);
 }
 
-TEST(SPTK_Timer, repeatTwice) /* NOLINT */
+TEST(TimerTests,repeatTwice) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 0;
@@ -107,7 +108,7 @@ TEST(SPTK_Timer, repeatTwice) /* NOLINT */
     EXPECT_EQ(counter, static_cast<size_t>(2));
 }
 
-TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
+TEST(TimerTests,repeatTwoEventsTwice) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 0;
@@ -138,7 +139,7 @@ TEST(SPTK_Timer, repeatTwoEventsTwice) /* NOLINT */
     EXPECT_EQ(counter, static_cast<size_t>(4));
 }
 
-TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
+TEST(TimerTests,repeatMultipleEvents) /* NOLINT */
 {
     mutex       eventCounterMutex;
     auto        totalEvents(0);
@@ -169,7 +170,7 @@ TEST(SPTK_Timer, repeatMultipleEvents) /* NOLINT */
     EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
 }
 
-TEST(SPTK_Timer, repeatCancel) /* NOLINT */
+TEST(TimerTests,repeatCancel) /* NOLINT */
 {
     atomic_int totalEvents(0);
 
@@ -197,7 +198,7 @@ TEST(SPTK_Timer, repeatCancel) /* NOLINT */
 /**
  * Test that an event can be scheduled in front of the event list.
  */
-TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
+TEST(TimerTests,scheduleTwoEvents) /* NOLINT */
 {
     DateTime::time_point timestamp1;
     DateTime::time_point timestamp2;
@@ -227,7 +228,7 @@ TEST(SPTK_Timer, scheduleTwoEvents) /* NOLINT */
 /**
  * Test that an event can be scheduled in front of the event list.
  */
-TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
+TEST(TimerTests,scheduleMultipleEvents) /* NOLINT */
 {
     const Timer timer;
 
@@ -257,7 +258,7 @@ TEST(SPTK_Timer, scheduleMultipleEvents) /* NOLINT */
     EXPECT_EQ(totalEvents, createdEvents.size());
 }
 
-TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
+TEST(TimerTests,scheduleEventsPerformance) /* NOLINT */
 {
     const Timer         timer;
     constexpr size_t    maxEvents = 100000;
@@ -293,3 +294,5 @@ TEST(SPTK_Timer, scheduleEventsPerformance) /* NOLINT */
     COUT(maxEvents << fixed << setprecision(1) << " events canceled, " << maxEvents / OneThousand / stopwatch.seconds()
                    << "K events/s");
 }
+
+} // namespace sptk_test

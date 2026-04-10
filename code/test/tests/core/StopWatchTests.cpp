@@ -32,8 +32,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_Stopwatch, startZeroElapsed)
+TEST(StopwatchTests,startZeroElapsed)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -41,7 +42,7 @@ TEST(SPTK_Stopwatch, startZeroElapsed)
     EXPECT_DOUBLE_EQ(0.0, stopWatch.milliseconds());
 }
 
-TEST(SPTK_Stopwatch, elapsedTime)
+TEST(StopwatchTests,elapsedTime)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -56,7 +57,7 @@ TEST(SPTK_Stopwatch, elapsedTime)
     EXPECT_LE(deltaMs, 1.0);
 }
 
-TEST(SPTK_Stopwatch, resetElapsedTime)
+TEST(StopwatchTests,resetElapsedTime)
 {
     Stopwatch stopWatch;
     stopWatch.start();
@@ -71,3 +72,5 @@ TEST(SPTK_Stopwatch, resetElapsedTime)
 
     EXPECT_LT(secondMs, firstMs);
 }
+
+} // namespace sptk_test

@@ -35,7 +35,6 @@
 #include <sptk5/gui/CDBListView.h>
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

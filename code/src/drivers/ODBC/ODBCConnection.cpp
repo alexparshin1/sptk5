@@ -40,7 +40,6 @@ using namespace std;
 using namespace sptk;
 
 namespace sptk {
-
 class ODBCField
     : public DatabaseField
 {

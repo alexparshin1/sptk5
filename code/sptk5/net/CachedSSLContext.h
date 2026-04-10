@@ -29,7 +29,6 @@
 #include <sptk5/net/SSLKeys.h>
 
 namespace sptk {
-
 /**
  * @addtogroup network Network Classes.
  * @{

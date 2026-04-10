@@ -28,7 +28,6 @@
 #define __CTHEMEIMAGESTATE_H__
 
 namespace sptk {
-
 /**
  * @addtogroup gui GUI Classes
  * @{

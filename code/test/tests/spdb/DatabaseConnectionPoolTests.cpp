@@ -33,8 +33,9 @@
 
 using namespace std;
 using namespace sptk;
+namespace sptk {
 
-TEST(SPTK_DatabaseConnectionPool, connectString)
+TEST(DatabaseConnectionPoolTests,connectString)
 {
     try
     {
@@ -57,7 +58,7 @@ TEST(SPTK_DatabaseConnectionPool, connectString)
     }
 }
 
-TEST(SPTK_DatabaseConnectionPool, createConnections)
+TEST(DatabaseConnectionPoolTests,createConnections)
 {
     try
     {
@@ -94,7 +95,7 @@ TEST(SPTK_DatabaseConnectionPool, createConnections)
     }
 }
 
-TEST(SPTK_DatabaseConnectionPool, reuseConnections)
+TEST(DatabaseConnectionPoolTests,reuseConnections)
 {
     try
     {
@@ -134,7 +135,7 @@ TEST(SPTK_DatabaseConnectionPool, reuseConnections)
     }
 }
 
-TEST(SPTK_DatabaseConnectionPool, createConnectionsTimeout)
+TEST(DatabaseConnectionPoolTests,createConnectionsTimeout)
 {
     try
     {
@@ -163,3 +164,5 @@ TEST(SPTK_DatabaseConnectionPool, createConnectionsTimeout)
         CERR(e.what());
     }
 }
+
+} // namespace sptk_test

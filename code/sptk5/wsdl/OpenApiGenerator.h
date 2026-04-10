@@ -30,7 +30,6 @@
 #include <sptk5/xdoc/Document.h>
 
 namespace sptk {
-
 /**
  * @brief Generator of OpenAPI service description.
  */
