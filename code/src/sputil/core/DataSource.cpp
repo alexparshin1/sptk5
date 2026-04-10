@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-10                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -57,21 +58,26 @@ void DataSource::exportTo(xdoc::Node& parentNode, const String& nodeName, bool c
     {
         if (open())
         {
+            first();
             while (!eof())
             {
                 const auto& node = parentNode.pushNode(nodeName, xdoc::Node::Type::Object);
                 exportRowTo(node, compactXmlMode, false);
-                if (!next())
-                {
-                    break;
-                }
+                next();
             }
             close();
         }
     }
     catch (...)
     {
-        close();
+        try
+        {
+            close();
+        }
+        catch (...)
+        {
+            // Prevent re-throwing exceptions from close() method.
+        }
         throw;
     }
 }

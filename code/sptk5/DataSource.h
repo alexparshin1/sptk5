@@ -123,7 +123,7 @@ public:
     virtual bool close() = 0;
 
     /**
-     * @brief Moves to the first record of the datasource. Implemented in derved class.
+     * @brief Moves to the first record of the datasource. Implemented in derived class.
      */
     virtual bool first()
     {
