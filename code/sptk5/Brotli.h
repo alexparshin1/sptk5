@@ -35,26 +35,26 @@
 namespace sptk {
 
 /**
- * Simple wrapper for Brotli functions
+ * @brief Simple wrapper for Brotli functions.
  */
 class SP_EXPORT Brotli
 {
 public:
     /**
-     * Compress data using br format.
+     * @brief Compress data using br format.
      *
-     * Compressed data is appended to destination buffer
-     * @param dest Buffer&, Destination buffer
-     * @param src const Buffer&, Source buffer
+     * Compressed data is appended to the destination buffer.
+     * @param dest Buffer&, Destination buffer.
+     * @param src const Buffer&, Source buffer.
      */
     static void compress(Buffer& dest, const Buffer& src);
 
     /**
-     * Uncompress data in br format
+     * @brief Uncompress data in br format.
      *
-     * Uncompressed data is appended to destination buffer
-     * @param dest Buffer&, Destination buffer
-     * @param src const Buffer&, Source buffer
+     * Uncompressed data is appended to the destination buffer.
+     * @param dest Buffer&, Destination buffer.
+     * @param src const Buffer&, Source buffer.
      */
     static void decompress(Buffer& dest, const Buffer& src);
 };
