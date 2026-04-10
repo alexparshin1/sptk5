@@ -29,7 +29,7 @@
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::reallocate(size_t size)
+void BufferStorage::reallocate(const size_t size)
 {
     auto* newBuffer = m_buffer ? realloc(m_buffer, size + 1) : malloc(size + 1);
     if (newBuffer == nullptr)
@@ -53,7 +53,7 @@ void BufferStorage::adjustSize(size_t size)
     m_buffer[size] = 0;
 }
 
-void BufferStorage::_set(const uint8_t* data, size_t size)
+void BufferStorage::_set(const uint8_t* data, const size_t size)
 {
     checkSize(size + 1);
     if (data != nullptr && size > 0)
@@ -68,7 +68,7 @@ void BufferStorage::_set(const uint8_t* data, size_t size)
     m_buffer[m_size] = 0;
 }
 
-void BufferStorage::append(char chr)
+void BufferStorage::append(const char chr)
 {
     constexpr auto extraSpace = 2;
     checkSize(m_size + extraSpace);
@@ -97,7 +97,7 @@ void BufferStorage::append(const char* data, size_t size)
     }
 }
 
-void BufferStorage::append(const uint8_t* data, size_t size)
+void BufferStorage::append(const uint8_t* data, const size_t size)
 {
     if (data == nullptr || size == 0)
     {
@@ -113,14 +113,14 @@ void BufferStorage::append(const uint8_t* data, size_t size)
     }
 }
 
-void BufferStorage::reset(size_t size)
+void BufferStorage::reset(const size_t size)
 {
     checkSize(size + 1);
     m_buffer[0] = 0;
     m_size = 0;
 }
 
-void BufferStorage::fill(char chr, size_t count)
+void BufferStorage::fill(const char chr, const size_t count)
 {
     checkSize(count + 1);
     memset(m_buffer, chr, count);
@@ -128,8 +128,14 @@ void BufferStorage::fill(char chr, size_t count)
     m_buffer[m_size] = 0;
 }
 
-void BufferStorage::erase(size_t offset, size_t length)
+void BufferStorage::erase(const size_t offset, size_t length)
 {
+    if (offset >= m_allocated)
+    {
+        // Attempt to erase after the allocated memory.
+        return;
+    }
+
     if (offset + length >= m_size)
     {
         m_size = offset;

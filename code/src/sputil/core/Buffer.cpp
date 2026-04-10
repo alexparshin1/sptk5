@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-10                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -60,7 +61,7 @@ void Buffer::loadFromFile(const std::filesystem::path& fileName)
     if (bytesRead != size)
     {
         fclose(file);
-        throw SystemException("Can't close file " + fileName.string());
+        throw SystemException("Can't read from file " + fileName.string());
     }
     bytes(bytesRead);
     if (const auto result = fclose(file);
