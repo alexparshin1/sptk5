@@ -140,6 +140,25 @@ TEST(SPTK_FieldList, caseInsensitiveLookup)
     EXPECT_STREQ("id", fieldList["NAME"].asString().c_str());
 }
 
+TEST(SPTK_FieldList, indexedCaseInsensitiveLookup)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("Name", true);
+    fieldList["Name"] = "id";
+
+    EXPECT_STREQ("id", fieldList["name"].asString().c_str());
+    EXPECT_STREQ("id", fieldList["NAME"].asString().c_str());
+}
+
+TEST(SPTK_FieldList, indexedDuplicateDetectionIsCaseInsensitive)
+{
+    FieldList fieldList(true);
+
+    fieldList.push_back("Name", true);
+    EXPECT_THROW(fieldList.push_back("name", true), Exception);
+}
+
 TEST(SPTK_FieldList, toXml)
 {
     FieldList fieldList(true);

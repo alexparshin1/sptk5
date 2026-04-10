@@ -29,6 +29,8 @@
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Field.h>
 #include <sptk5/xdoc/Node.h>
+#include <cctype>
+#include <unordered_map>
 #include <vector>
 
 namespace sptk {
@@ -249,7 +251,29 @@ private:
     /**
      * @brief Field name to the field object case-insensitive map.
      */
-    using Map = std::unordered_map<std::string, SField, std::hash<std::string>, CaseInsensitiveCompare<std::string>>;
+    struct CaseInsensitiveHash
+    {
+        size_t operator()(const std::string& text) const noexcept
+        {
+            size_t hash = 1469598103934665603ull;
+            for (const unsigned char ch: text)
+            {
+                hash ^= static_cast<size_t>(std::tolower(ch));
+                hash *= 1099511628211ull;
+            }
+            return hash;
+        }
+    };
+
+    struct CaseInsensitiveEqual
+    {
+        bool operator()(const std::string& left, const std::string& right) const noexcept
+        {
+            return strcasecmp(left.c_str(), right.c_str()) == 0;
+        }
+    };
+
+    using Map = std::unordered_map<std::string, SField, CaseInsensitiveHash, CaseInsensitiveEqual>;
 
     Vector               m_list;  ///< The list of fields
     std::shared_ptr<Map> m_index; ///< The optional field index by name, or nullptr if the field list isn't indexed.

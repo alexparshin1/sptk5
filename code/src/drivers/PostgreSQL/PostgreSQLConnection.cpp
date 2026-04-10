@@ -599,7 +599,7 @@ void PostgreSQLConnection::variantTypeToPostgreType(VariantDataType dataType, Po
     switch (dataType)
     {
         using enum PostgreSQLDataType;
-        using enum sptk::VariantDataType;
+        using enum VariantDataType;
         case VAR_INT:
             postgreType = INT4;
             break; ///< Integer 4 bytes
