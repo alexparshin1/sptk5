@@ -29,28 +29,51 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr array B64Chars = {
+static constexpr array<uint8_t, 64> B64Chars = {
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O',
     'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd',
     'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
     't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7',
     '8', '9', '+', '/'};
 
+static constexpr array<int8_t, 256> B64Lookup = []
+{
+    array<int8_t, 256> lookup {};
+    lookup.fill(-1);
+    for (size_t i = 0; i < B64Chars.size(); ++i)
+    {
+        lookup[static_cast<uint8_t>(B64Chars[i])] = static_cast<int8_t>(i);
+    }
+    // Also support URL-safe characters
+    lookup[static_cast<uint8_t>('-')] = lookup[static_cast<uint8_t>('+')];
+    lookup[static_cast<uint8_t>('_')] = lookup[static_cast<uint8_t>('/')];
+
+    return lookup;
+}();
+
 namespace {
 inline uint8_t base64chars(int chr)
 {
-    return B64Chars[(chr & 0x3F)];
+    return B64Chars[static_cast<size_t>(chr & 0x3F)];
+}
+
+inline bool is_base64(uint8_t chr) noexcept
+{
+    return B64Lookup[chr] != -1;
 }
 } // namespace
 
 void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
 {
-    const auto* current = bufSource;
-    auto        outputLen = static_cast<size_t>(len / 3 * 4);
-    if ((len % 3) != 0)
+    if (len == 0)
     {
-        outputLen += 4;
+        bufDest.reset();
+        return;
     }
+
+    const auto* current = bufSource;
+    auto        outputLen = (len + 2) / 3 * 4;
+
     bufDest.checkSize(outputLen + 1);
     auto* output = bufDest.data();
 
@@ -69,7 +92,7 @@ void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)
         ++output;
 
         len -= 3;
-        current += 3; /* move pointer 3 characters forward */
+        current += 3;
     }
 
     /// Now we should clean up remainder
@@ -115,94 +138,48 @@ void Base64::encode(String& strDest, const Buffer& bufSource)
 
 namespace {
 
-const String base64_chars(
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    "abcdefghijklmnopqrstuvwxyz"
-    "0123456789+/");
-
-inline bool is_base64(uint8_t chr) noexcept
+size_t internal_decode(Buffer& dest, const uint8_t* source, size_t sourceLen)
 {
-    return (isalnum(chr) || (chr == '+') || (chr == '/'));
-}
-
-size_t internal_decode(Buffer& dest, std::string const& encodedString)
-{
-    int               index = 0;
-    int               in_ = 0;
-    array<uint8_t, 4> char_array_4 {};
-    array<uint8_t, 3> char_array_3 {};
-
-    Buffer src(encodedString.length());
-    for (auto& c: encodedString)
-    {
-        if (is_base64(c) || c == '=')
-        {
-            src.append(c);
-        }
-    }
-
-    auto in_len = src.size();
-
     dest.reset();
-
-    while (in_len && src[in_] != '=')
+    if (sourceLen == 0)
     {
-        const auto inChar = src[in_];
-        --in_len;
-        char_array_4[index] = inChar;
-        ++index;
-        ++in_;
-        if (index == 4)
-        {
-            for (index = 0; index < 4; ++index)
-            {
-                char_array_4[index] = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[index])));
-            }
-
-            char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));
-            char_array_3[1] = static_cast<uint8_t>(((static_cast<int>(char_array_4[1]) & 0xf) << 4) + ((static_cast<int>(char_array_4[2]) & 0x3c) >> 2));
-            char_array_3[2] = static_cast<uint8_t>(((static_cast<int>(char_array_4[2]) & 0x3) << 6) + static_cast<int>(char_array_4[3]));
-
-            dest.append(char_array_3.data(), 3);
-            index = 0;
-        }
+        return 0;
     }
 
-    if (index != 0)
+    dest.checkSize(sourceLen / 4 * 3 + 3);
+
+    uint32_t val = 0;
+    int      valb = -8;
+    for (size_t i = 0; i < sourceLen; ++i)
     {
-        auto j = index;
-        for (; j < 4; ++j)
+        uint8_t c = source[i];
+        if (B64Lookup[c] != -1)
         {
-            char_array_4[j] = 0;
+            val = (val << 6) | static_cast<uint32_t>(B64Lookup[c]);
+            valb += 6;
+            if (valb >= 0)
+            {
+                dest.append(static_cast<uint8_t>((val >> valb) & 0xFF));
+                valb -= 8;
+            }
         }
-
-        for (j = 0; j < 4; ++j)
+        else if (c == '=')
         {
-            const auto pos = static_cast<uint8_t>(base64_chars.find(static_cast<char>(char_array_4[j])));
-            char_array_4[j] = pos;
-        }
-
-        char_array_3[0] = static_cast<uint8_t>((static_cast<int>(char_array_4[0]) << 2) + ((static_cast<int>(char_array_4[1]) & 0x30) >> 4));
-        char_array_3[1] = static_cast<uint8_t>(((static_cast<int>(char_array_4[1]) & 0xf) << 4) + ((static_cast<int>(char_array_4[2]) & 0x3c) >> 2));
-        char_array_3[2] = static_cast<uint8_t>(((static_cast<int>(char_array_4[2]) & 0x3) << 6) + static_cast<int>(char_array_4[3]));
-
-        for (j = 0; j < index - 1; ++j)
-        {
-            dest.append(static_cast<char>(char_array_3[j]));
+            break;
         }
     }
 
     return dest.bytes();
 }
+
 } // namespace
 
 size_t Base64::decode(Buffer& bufDest, const Buffer& bufSource)
 {
-    const string source(bufSource.c_str(), bufSource.bytes());
-    return internal_decode(bufDest, source);
+    return internal_decode(bufDest, bufSource.data(), bufSource.bytes());
 }
 
 size_t Base64::decode(Buffer& bufDest, const String& strSource)
 {
-    return internal_decode(bufDest, strSource);
+    return internal_decode(bufDest, reinterpret_cast<const uint8_t*>(strSource.c_str()), strSource.length());
 }

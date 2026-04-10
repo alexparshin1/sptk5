@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-10                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -90,4 +91,64 @@ TEST(SPTK_Base64, encodeBinary)
     String encoded;
     Base64::encode(encoded, source);
     EXPECT_STREQ(encodedBinary.c_str(), encoded.c_str());
+}
+
+TEST(SPTK_Base64, decodeInvalidCharacters)
+{
+    Buffer decoded;
+    String invalid("VGhpcyBpcyBhIHRlc3Q#"); // # is invalid
+    Base64::decode(decoded, invalid);
+    EXPECT_STREQ("This is a test", decoded.c_str()); // Should ignore #
+}
+
+TEST(SPTK_Base64, decodeEmpty)
+{
+    Buffer decoded;
+    Base64::decode(decoded, String(""));
+    EXPECT_EQ(0, decoded.bytes());
+}
+
+TEST(SPTK_Base64, encodeEmpty)
+{
+    Buffer source;
+    String encoded;
+    Base64::encode(encoded, source);
+    EXPECT_STREQ("", encoded.c_str());
+}
+
+TEST(SPTK_Base64, decodeDifferentPaddings)
+{
+    Buffer decoded;
+
+    // 1 byte source -> 2 chars + 2 padding
+    Base64::decode(decoded, String("YQ=="));
+    EXPECT_STREQ("a", decoded.c_str());
+
+    // 2 bytes source -> 3 chars + 1 padding
+    Base64::decode(decoded, String("YWI="));
+    EXPECT_STREQ("ab", decoded.c_str());
+
+    // 3 bytes source -> 4 chars
+    Base64::decode(decoded, String("YWJj"));
+    EXPECT_STREQ("abc", decoded.c_str());
+}
+
+TEST(SPTK_Base64, decodeUrlSafe)
+{
+    Buffer decoded;
+    // Standard Base64: "a+b/c" -> "YStiL2M="
+    // URL-safe Base64: "a+b/c" -> "YStiL2M=" (but uses - and _ instead of + and /)
+    // "a-b_c" in standard is invalid, but our decoder should now handle it.
+    Base64::decode(decoded, String("YStiL2M="));
+    EXPECT_STREQ("a+b/c", decoded.c_str());
+
+    Base64::decode(decoded, String("YStiL2M")); // Missing padding should also work
+    EXPECT_STREQ("a+b/c", decoded.c_str());
+
+    Base64::decode(decoded, String("YStiL18=")); // "a+b/_" -> a+b/ÿ (if _ is /)
+    // Wait, let's use a real example.
+    // "subjects?_d=1" -> "c3ViamVjdHM/X2Q9MQ=="
+    // "subjects?_d=1" (URL safe) -> "c3ViamVjdHM_X2Q9MQ"
+    Base64::decode(decoded, String("c3ViamVjdHM_X2Q9MQ"));
+    EXPECT_STREQ("subjects?_d=1", decoded.c_str());
 }
