@@ -709,7 +709,7 @@ DateTime::DateTime(const char* dat)
 
 DateTime::DateTime(const DateTime& dt)
 {
-    std::scoped_lock lock(m_mutex);
+    std::scoped_lock lock(m_mutex, dt.m_mutex);
     m_dateTime = dt.m_dateTime;
 }
 
@@ -729,7 +729,7 @@ DateTime::DateTime(const duration& interval)
 {
 }
 
-const DateTime::time_point& DateTime::timePoint() const
+DateTime::time_point DateTime::timePoint() const
 {
     std::scoped_lock lock(m_mutex);
     return m_dateTime;

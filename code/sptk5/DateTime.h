@@ -209,7 +209,7 @@ public:
     /**
      *  @brief Returns time_point presentation of the date and time.
      */
-    [[nodiscard]] const time_point& timePoint() const;
+    [[nodiscard]] time_point timePoint() const;
 
     [[nodiscard]] size_t dataSize() const override;
 
