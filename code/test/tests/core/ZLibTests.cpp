@@ -51,6 +51,30 @@ TEST(SPTK_ZLib, compressDecompress)
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
+TEST(SPTK_ZLib, decompressEmptyInputThrows)
+{
+    Buffer decompressed;
+    const Buffer emptyInput;
+    EXPECT_THROW(ZLib::decompress(decompressed, emptyInput), Exception);
+}
+
+TEST(SPTK_ZLib, decompressTruncatedInputThrows)
+{
+    Buffer compressed;
+    Buffer decompressed;
+    ZLib::compress(compressed, Buffer(originalTestString));
+    ASSERT_GT(compressed.bytes(), 8U);
+    compressed.bytes(compressed.bytes() - 8);
+    EXPECT_THROW(ZLib::decompress(decompressed, compressed), Exception);
+}
+
+TEST(SPTK_ZLib, decompressInvalidInputThrows)
+{
+    Buffer decompressed;
+    const Buffer invalidInput("not a gzip payload");
+    EXPECT_THROW(ZLib::decompress(decompressed, invalidInput), Exception);
+}
+
 TEST(SPTK_ZLib, performance)
 {
     Buffer data;

@@ -379,6 +379,11 @@ short splitDateString(const char* dateString, short* datePart, char& actualDateS
         ptr = end + 1;
     }
 
+    if (*end != static_cast<char>(0))
+    {
+        throw Exception("Invalid date string");
+    }
+
     return static_cast<short>(partNumber);
 }
 

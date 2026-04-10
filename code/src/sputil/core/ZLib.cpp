@@ -52,7 +52,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
                            level,
                            Z_DEFLATED,
                            MAX_WBITS + 16,
-                           ZLIB_VER_MAJOR,
+                           8,
                            Z_DEFAULT_STRATEGY);
     if (ret != Z_OK)
     {
@@ -88,10 +88,12 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
             ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
             {
+                deflateEnd(&strm);
                 throw Exception("Compressed data error.");
             }
             if (ret == Z_BUF_ERROR)
             {
+                deflateEnd(&strm);
                 throw Exception("Output buffer is insufficient.");
             }
             const size_t have = CHUNK - strm.avail_out;
@@ -140,9 +142,10 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
-        if (strm.avail_in == 0)
+        if (strm.avail_in == 0 && ret != Z_STREAM_END)
         {
-            break;
+            (void) inflateEnd(&strm);
+            throw Exception("Input buffer is insufficient.");
         }
         strm.next_in = inputBuffer.data();
 
@@ -155,8 +158,10 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
             switch (ret)
             {
                 case Z_STREAM_ERROR:
+                    (void) inflateEnd(&strm);
                     throw Exception("Compressed data error.");
                 case Z_BUF_ERROR:
+                    (void) inflateEnd(&strm);
                     throw Exception("Output buffer is insufficient.");
                 case Z_NEED_DICT:
                 case Z_DATA_ERROR:

@@ -260,7 +260,7 @@ public:
     [[nodiscard]] int16_t daysInMonth() const;
 
     /**
-     *  @brief Reports the day of the week in this date (1..7).
+     *  @brief Reports the day of the week in this date (0..6).
      */
     [[nodiscard]] int16_t dayOfWeek() const;
 
