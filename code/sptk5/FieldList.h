@@ -154,10 +154,26 @@ public:
      *
      * This method is useful if you create a new field with the new() operator.
      * You shouldn't delete such fields manually - they would be maintained by FieldList class.
-     * @param field               Field name.
+     * @param field               Field.
+     * @param checkDuplicates     If true, check if the field already exists in the list.
      * @returns new field reference.
      */
-    Field& push_back(const SField& field);
+    Field& push_back(const SField& field, bool checkDuplicates = true);
+
+    /**
+     * @brief Adds a new field into the list and sets its value.
+     *
+     * @param fname             Field name.
+     * @param value             Field value.
+     * @param checkDuplicates   If true, check if the field already exists in the list.
+     * @returns new field reference.
+     */
+    Field& push_back(const String& fname, const Variant& value, bool checkDuplicates = true)
+    {
+        auto& field = push_back(fname, checkDuplicates);
+        field = value;
+        return field;
+    }
 
     /**
      * @brief Finds a field by the field name.
@@ -275,7 +291,7 @@ private:
     using Map = std::unordered_map<std::string, SField, CaseInsensitiveHash, CaseInsensitiveEqual>;
 
     Vector               m_list;  ///< The list of fields
-    std::shared_ptr<Map> m_index; ///< The optional field index by name, or nullptr if the field list isn't indexed.
+    std::unique_ptr<Map> m_index; ///< The optional field index by name, or nullptr if the field list isn't indexed.
 };
 
 } // namespace sptk

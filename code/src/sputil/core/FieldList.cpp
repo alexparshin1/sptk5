@@ -34,7 +34,7 @@ FieldList::FieldList(const bool indexed)
 {
     if (indexed)
     {
-        m_index = make_shared<Map>();
+        m_index = make_unique<Map>();
     }
 }
 
@@ -69,18 +69,26 @@ Field& FieldList::push_back(const String& fname, const bool checkDuplicates)
     return *field;
 }
 
-Field& FieldList::push_back(const SField& field)
+Field& FieldList::push_back(const SField& field, const bool checkDuplicates)
 {
     if (!field)
     {
         throw Exception("Attempt to push empty field");
     }
 
+    if (checkDuplicates)
+    {
+        if (const auto pfld = findField(field->fieldName()))
+        {
+            throw Exception(format("Attempt to duplicate field name '{}'", field->fieldName().c_str()));
+        }
+    }
+
     m_list.push_back(field);
 
     if (m_index)
     {
-        (*m_index)[field->m_name] = field;
+        (*m_index)[field->fieldName()] = field;
     }
 
     return *field;

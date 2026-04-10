@@ -160,6 +160,26 @@ TEST(FieldListTests,indexedDuplicateDetectionIsCaseInsensitive)
     EXPECT_THROW(fieldList.push_back("name", true), Exception);
 }
 
+TEST(FieldListTests,sharedFieldDuplicateDetection)
+{
+    FieldList fieldList(true);
+    const auto field1 = std::make_shared<Field>("Name");
+    const auto field2 = std::make_shared<Field>("name");
+
+    fieldList.push_back(field1);
+    EXPECT_THROW(fieldList.push_back(field2), Exception);
+}
+
+TEST(FieldListTests,pushBackWithValue)
+{
+    FieldList fieldList(true);
+    fieldList.push_back("name", "John");
+    fieldList.push_back("age", 30);
+
+    EXPECT_STREQ("John", fieldList["name"].asString().c_str());
+    EXPECT_EQ(30, static_cast<int32_t>(fieldList["age"]));
+}
+
 TEST(FieldListTests,toXml)
 {
     FieldList fieldList(true);
