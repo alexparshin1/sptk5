@@ -252,7 +252,7 @@ private:
     View   m_view {};     ///< Combination of field view attributes.
     String m_displayName; ///< Optional display field name.
 
-    [[nodiscard]] String epochDataToDateTimeString() const;
+    [[nodiscard]] String epochDataToDateTimeString(bool dateOnly) const;
 };
 
 using SField = std::shared_ptr<Field>;

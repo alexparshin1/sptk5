@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-11                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -93,11 +94,11 @@ String Field::asString() const
             break;
 
         case VAR_DATE:
-            result = DateTime(chrono::microseconds(get<int64_t>())).dateString();
+            result = epochDataToDateTimeString(true);
             break;
 
         case VAR_DATE_TIME:
-            result = epochDataToDateTimeString();
+            result = epochDataToDateTimeString(false);
             break;
 
         case VAR_IMAGE_PTR: {
@@ -112,9 +113,13 @@ String Field::asString() const
     return result;
 }
 
-String Field::epochDataToDateTimeString() const
+String Field::epochDataToDateTimeString(bool dateOnly) const
 {
     const auto& dateTime(get<DateTime>());
+    if (dateOnly)
+    {
+        return dateTime.dateString();
+    }
     return dateTime.dateString() + " " + dateTime.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
 }
 
@@ -127,38 +132,36 @@ String Field::doubleDataToString() const
 
 void Field::exportTo(const xdoc::SNode& node, const bool compactXmlMode, const bool detailedInfo, const bool nullLargeData) const
 {
-    if (auto value = asString();
-        !value.empty())
+    auto value = asString();
+
+    xdoc::SNode element;
+
+    if (constexpr size_t minLargeFieldSize {256};
+        nullLargeData && value.length() >= minLargeFieldSize)
     {
-        xdoc::SNode element;
+        value = "";
+    }
 
-        if (constexpr size_t minLargeFieldSize {256};
-            nullLargeData && value.length() >= minLargeFieldSize)
+    if (dataType() == VariantDataType::VAR_TEXT && !value.empty())
+    {
+        element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
+        element->set(value);
+    }
+    else
+    {
+        if (compactXmlMode)
         {
-            value = "";
-        }
-
-        if (dataType() == VariantDataType::VAR_TEXT && !value.empty())
-        {
-            element = node->pushNode(fieldName(), xdoc::Node::Type::CData);
-            element->set(value);
+            node->attributes().set(fieldName(), value);
         }
         else
         {
-            if (compactXmlMode)
-            {
-                node->attributes().set(fieldName(), value);
-            }
-            else
-            {
-                element = node->pushValue(fieldName(), Variant(value));
-            }
+            element = node->pushValue(fieldName(), Variant(value));
         }
+    }
 
-        if (detailedInfo && element)
-        {
-            element->attributes().set("type", Variant::typeName(dataType()));
-            element->attributes().set("size", to_string(dataSize()));
-        }
+    if (detailedInfo && element)
+    {
+        element->attributes().set("type", Variant::typeName(dataType()));
+        element->attributes().set("size", to_string(dataSize()));
     }
 }

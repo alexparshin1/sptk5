@@ -88,3 +88,28 @@ TEST(SPTK_Field, externalBuffer)
     EXPECT_EQ(VariantDataType::VAR_BUFFER, field1.dataType());
     EXPECT_EQ(externalData.size(), field1.dataSize());
 }
+
+TEST(SPTK_Field, varDate)
+{
+    const DateTime testDate(2026, 4, 11, 12, 34, 56);
+    Field          field1("f1");
+
+    field1.setDateTime(testDate, true);
+
+    EXPECT_EQ(VariantDataType::VAR_DATE, field1.dataType());
+    EXPECT_STREQ(testDate.date().dateString().c_str(), field1.asString().c_str());
+}
+
+TEST(SPTK_Field, varDateTime)
+{
+    const DateTime testDateTime(2026, 4, 11, 12, 34, 56);
+    Field          field1("f1");
+
+    field1.setDateTime(testDateTime);
+
+    const auto expected = testDateTime.dateString() + " " +
+                          testDateTime.timeString(DateTime::PF_TIMEZONE, DateTime::PrintAccuracy::SECONDS);
+
+    EXPECT_EQ(VariantDataType::VAR_DATE_TIME, field1.dataType());
+    EXPECT_STREQ(expected.c_str(), field1.asString().c_str());
+}
