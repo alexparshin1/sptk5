@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-10                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -500,7 +501,15 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
 
 void CommandLine::init(size_t argc, const char** argv)
 {
-    const vector<const char*> args(argv + 1, argv + argc);
+    if (argc == 0 || argv == nullptr)
+    {
+        throw Exception("Invalid command line arguments");
+    }
+
+    const vector args(argv + 1, argv + argc);
+
+    m_arguments.clear();
+    m_values.clear();
     m_executablePath = argv[0];
 
     const Strings arguments = preprocessArguments(args);
@@ -537,7 +546,7 @@ void CommandLine::setOptionValue(const String& name, const String& value)
         throw Exception("Invalid option or parameter name: " + name);
     }
     element->validate(value);
-    m_values[name] = value;
+    m_values[element->name()] = value;
 }
 
 const Strings& CommandLine::arguments() const

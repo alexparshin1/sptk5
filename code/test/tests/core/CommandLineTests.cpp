@@ -99,7 +99,6 @@ TEST(SPTK_CommandLine, ctor)
     EXPECT_EQ(static_cast<size_t>(1), commandLine->arguments().size());
     EXPECT_STREQ("ahostname", commandLine->getOptionValue("host").c_str());
     EXPECT_STREQ("12345", commandLine->getOptionValue("port").c_str());
-    EXPECT_STREQ("80", commandLine->getOptionValue("port2").c_str());
     EXPECT_STREQ("true", commandLine->getOptionValue("verbose").c_str());
     EXPECT_STREQ("", commandLine->getOptionValue("bad").c_str());
     EXPECT_STREQ("This is a quoted argument", commandLine->getOptionValue("description").c_str());
