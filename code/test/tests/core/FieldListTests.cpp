@@ -173,8 +173,8 @@ TEST(FieldListTests,sharedFieldDuplicateDetection)
 TEST(FieldListTests,pushBackWithValue)
 {
     FieldList fieldList(true);
-    fieldList.push_back("name", "John");
-    fieldList.push_back("age", 30);
+    fieldList.push_back("name", true) = "John";
+    fieldList.push_back("age", true) = 30;
 
     EXPECT_STREQ("John", fieldList["name"].asString().c_str());
     EXPECT_EQ(30, static_cast<int32_t>(fieldList["age"]));
