@@ -160,20 +160,6 @@ public:
      */
     Field& push_back(const SField& field, bool checkDuplicates = true);
 
-    /**
-     * @brief Adds a new field into the list and sets its value.
-     *
-     * @param fname             Field name.
-     * @param value             Field value.
-     * @param checkDuplicates   If true, check if the field already exists in the list.
-     * @returns new field reference.
-     */
-    Field& push_back(const String& fname, const Variant& value, bool checkDuplicates = true)
-    {
-        auto& field = push_back(fname, checkDuplicates);
-        field = value;
-        return field;
-    }
 
     /**
      * @brief Finds a field by the field name.

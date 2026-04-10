@@ -3,12 +3,7 @@ ADD_LIBRARY(spdb5_oracle ${DRIVER_LIBRARY_TYPE}
         OracleStatement.cpp
         OracleConnection.cpp
 )
-
-SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES SOVERSION ${SOVERSION} VERSION ${VERSION})
-
-IF (SET_RPATH)
-    SET_TARGET_PROPERTIES(spdb5_oracle PROPERTIES INSTALL_RPATH "")
-ENDIF ()
+SET_SPTK_TARGET_PROPERTIES(spdb5_oracle)
 
 TARGET_LINK_LIBRARIES(spdb5_oracle spdb5 sputil5 ${Oracle_LIBRARIES})
 
