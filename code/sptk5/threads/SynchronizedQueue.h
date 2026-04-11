@@ -114,7 +114,7 @@ public:
     /**
      * @brief Pops a data item from the queue.
      *
-     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If the queue is empty, then wait until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A queue item (output).
      * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds.
@@ -137,8 +137,8 @@ public:
     /**
      * @brief Pops multiple data items from the queue.
      *
-     * If the queue is empty then waits until timeoutMS milliseconds timeout occurs.
-     * If queue has less items than requested then returns all available items.
+     * If the queue is empty, then wait until timeoutMS milliseconds timeout occurs.
+     * If the queue has fewer items than requested, then returns all available items.
      * Returns false if timeout occurs.
      * @param items             A queue items (output).
      * @param itemCount         Maximum number of items to pop.
@@ -172,7 +172,7 @@ public:
     /**
      * @brief Pops a data item from the queue.
      *
-     * If queue is empty then waits until timeoutMS milliseconds timeout occurs.
+     * If the queue is empty, then wait until timeoutMS milliseconds timeout occurs.
      * Returns false if timeout occurs.
      * @param item T&, A queue item (output).
      * @param timeout std::chrono::milliseconds, Operation timeout in milliseconds.
