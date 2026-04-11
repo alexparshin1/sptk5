@@ -38,7 +38,7 @@ namespace sptk {
 /**
  * A log stored in the regular file.
  *
- * A simplest possible way to implement logging.
+ * The simplest possible way to implement logging.
  * The log file is created automatically if it doesn't exist.
  * @see CBaseLog for more information about basic log abilities.
  */
@@ -49,7 +49,7 @@ public:
      * @brief Constructor.
      *
      * Creates a new log object based on the file name.
-     * If this file doesn't exist - it will be created.
+     * If this file doesn't exist, it will be created.
      * @param fileName          Log file name.
      * @param append            If true, appends to the existing file, otherwise overwrites.
      */
@@ -60,6 +60,7 @@ public:
      */
     ~FileLogEngine() override;
 
+public:
     /**
      * @brief Stores or sends log message to actual destination.
      * @param message           Log message.

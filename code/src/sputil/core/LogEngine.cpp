@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-11                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -180,12 +181,18 @@ LogEngine::ProcessResult LogEngine::processNextMessage()
         return ProcessResult::NoMoreMessages;
     }
 
-    while (!saveMessage(*message))
+    for (auto attempt = 0; attempt < 3; ++attempt)
     {
+        if (saveMessage(*message))
+        {
+            break;
+        }
+
         if (terminated())
         {
             return ProcessResult::Error;
         }
+
         this_thread::sleep_for(1s);
     }
 

@@ -163,6 +163,11 @@ public:
      */
     static LogPriority priorityFromName(const String& prt);
 
+    virtual void flush()
+    {
+        // Implement in derived class
+    }
+
 protected:
     enum class ProcessResult : uint8_t
     {
@@ -212,11 +217,6 @@ protected:
     bool terminated() const
     {
         return m_terminated;
-    }
-
-    virtual void flush()
-    {
-        // Implement in derived class
     }
 
 private:

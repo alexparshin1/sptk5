@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-11                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -50,7 +51,7 @@ bool StreamLogEngine::saveMessage(const Logger::Message& message)
         if (options.contains(Option::TIME))
         {
             const auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-            m_logStream << message.timestamp.timeString(true, printAccuracy) << " ";
+            m_logStream << message.timestamp.timeString(0, printAccuracy) << " ";
         }
 
         if (options.contains(Option::PRIORITY))
@@ -60,7 +61,7 @@ bool StreamLogEngine::saveMessage(const Logger::Message& message)
 
         m_logStream << message.message << '\n';
 
-        if (m_logStream.bad())
+        if (!m_logStream.good())
         {
             CERR("Can't write to stream");
             return false;
