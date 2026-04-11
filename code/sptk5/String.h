@@ -83,10 +83,7 @@ public:
      * Constructor.
      * @param str                Source string.
      */
-    String(const char* str)
-        : std::string(str)
-    {
-    }
+    String(const char* str);
 
     /**
      * Constructor.
@@ -94,11 +91,7 @@ public:
      * @param len                String length.
      * @param id                 String id.
      */
-    String(const char* str, const size_t len, const int64_t id = 0)
-        : std::string(str == nullptr ? "" : str, len)
-        , m_id(id)
-    {
-    }
+    String(const char* str, size_t len, int64_t id = 0);
 
     /**
      * Constructor.
@@ -106,11 +99,7 @@ public:
      * @param ch                Fill character.
      * @param id                Optional string id.
      */
-    String(const size_t len, const char ch, const int64_t id = 0)
-        : std::string(len, ch)
-        , m_id(id)
-    {
-    }
+    String(size_t len, char ch, int64_t id = 0);
 
     /**
      * Destructor.
@@ -144,12 +133,7 @@ public:
      * Assignment operator.
      * @param str                Source string.
      */
-    String& operator=(const char* str)
-    {
-        assign(str);
-        m_id = 0;
-        return *this;
-    }
+    String& operator=(const char* str);
 
     /**
      * Returns string ID.

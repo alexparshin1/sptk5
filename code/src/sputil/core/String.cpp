@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-11                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -90,6 +91,40 @@ String String::trim() const
 int String::toInt() const
 {
     return string2int(*this, 0);
+}
+
+String::String(const char* str)
+    : std::string(str == nullptr ? "" : str)
+{
+}
+
+String::String(const char* str, const size_t len, const int64_t id)
+    : m_id(id)
+{
+    if (str != nullptr)
+    {
+        assign(str, len);
+    }
+}
+
+String::String(const size_t len, const char ch, const int64_t id)
+    : std::string(len, ch)
+    , m_id(id)
+{
+}
+
+String& String::operator=(const char* str)
+{
+    if (str != nullptr)
+    {
+        assign(str);
+    }
+    else
+    {
+        clear();
+    }
+    m_id = 0;
+    return *this;
 }
 
 bool String::in(std::initializer_list<String> list) const

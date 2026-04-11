@@ -90,4 +90,31 @@ TEST(StringTests,trimAllWhitespace)
     EXPECT_TRUE(testString2.trim().empty());
 }
 
+TEST(StringTests,nullPointerConstructor)
+{
+    const char* ptr = nullptr;
+    String      value(ptr);
+    EXPECT_TRUE(value.empty());
+    EXPECT_EQ(0, value.ident());
+}
+
+TEST(StringTests,nullPointerLengthConstructor)
+{
+    const char* ptr = nullptr;
+    String      value(ptr, 100, 7);
+    EXPECT_TRUE(value.empty());
+    EXPECT_EQ(7, value.ident());
+}
+
+TEST(StringTests,assignNullptrClearsAndResetsId)
+{
+    String value("test");
+    value.ident(42);
+
+    value = static_cast<const char*>(nullptr);
+
+    EXPECT_TRUE(value.empty());
+    EXPECT_EQ(0, value.ident());
+}
+
 } // namespace sptk_test
