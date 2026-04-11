@@ -33,7 +33,7 @@ public:
      * @param columnNames       Column names.
      * @param groupSize         Group size.
      */
-    BulkQuery(const SPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize);
+    BulkQuery(const WPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize);
 
     /**
      * @brief Insert rows into the table.
@@ -46,9 +46,19 @@ public:
      * @brief Delete rows from the table.
      * @param keys              Keys to delete.
      */
-    void        deleteRows(const VariantVector& keys);
+    void deleteRows(const VariantVector& keys);
+
+    /**
+     *
+     * @param insertedIds       Vector for inserted IDs.
+     * @param serialColumnIndex The index of the serial column in the row.
+     * @param reservedIdOffset  The offset for reserved IDs.
+     * @param columnCount       The total number of columns in the row.
+     * @param parameterIterator Iterator for query parameters.
+     * @param row               The row data.
+     */
     static void appendParameterValuesFromRow(const std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, std::size_t columnCount, QueryParameterList::iterator& parameterIterator, const std::vector<Variant>& row);
-    void        appendParameterValuesFromRows(Query& insertQuery, std::span<const std::vector<Variant>> rows, std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, std::size_t rowSize, std::size_t columnCount);
+    static void appendParameterValuesFromRows(Query& insertQuery, std::span<const std::vector<Variant>> rows, std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, std::size_t rowSize, std::size_t columnCount);
 
 private:
     Query                   m_insertQuery;         ///< Insert query.
@@ -57,7 +67,7 @@ private:
     Strings                 m_columnNames;         ///< Column names.
     String                  m_tableName;           ///< Table name.
     size_t                  m_groupSize;           ///< Insert or delete record group size.
-    SPoolDatabaseConnection m_connection;          ///< Database connection.
+    WPoolDatabaseConnection m_connection;          ///< Database connection.
     Query                   m_lastInsertedIdQuery; ///< Query that retrieves the last inserted id.
 
     [[nodiscard]] static String makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize);

@@ -26,11 +26,9 @@
 
 #pragma once
 
-#include "src/spdb/DriverLoaders.h"
-
-
 #include <sptk5/db/AutoDatabaseConnection.h>
 #include <sptk5/db/DatabaseConnectionString.h>
+#include <sptk5/db/DriverLoaders.h>
 #include <sptk5/db/PoolDatabaseConnection.h>
 #include <sptk5/threads/SynchronizedList.h>
 #include <sptk5/threads/SynchronizedQueue.h>

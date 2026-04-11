@@ -15,7 +15,7 @@
 using namespace std;
 using namespace sptk;
 
-BulkQuery::BulkQuery(const SPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
+BulkQuery::BulkQuery(const WPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
     : m_insertQuery(connection, "")
     , m_deleteQuery(connection, "")
     , m_serialColumnName(serialColumnName)
@@ -37,9 +37,10 @@ BulkQuery::BulkQuery(const SPoolDatabaseConnection& connection, const String& ta
     {
         throw Exception("No primary key column specified and column list is empty");
     }
-    m_insertQuery.sql(makeInsertSQL(connection->connectionType(), tableName, serialColumnName, columnNames, groupSize));
+    const auto conn = connection.lock();
+    m_insertQuery.sql(makeInsertSQL(conn->connectionType(), tableName, serialColumnName, columnNames, groupSize));
     m_deleteQuery.sql(makeGenericDeleteSQL(tableName, serialColumnName.empty() ? columnNames[0] : serialColumnName, groupSize));
-    m_lastInsertedIdQuery.sql(connection->lastAutoIncrementSql(tableName));
+    m_lastInsertedIdQuery.sql(conn->lastAutoIncrementSql(tableName));
 }
 
 String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize)
@@ -223,7 +224,8 @@ void BulkQuery::beginInsert(bool& startedTransaction) const
     using enum DatabaseConnectionType;
 
     startedTransaction = false;
-    if (m_connection->connectionType() == MYSQL)
+    const auto conn = m_connection.lock();
+    if (conn->connectionType() == MYSQL)
     {
         // Locked the table until the UNLOCK TABLES command.
         // This method is used to prevent other connections from inserting data at the same time.
@@ -235,7 +237,8 @@ void BulkQuery::beginInsert(bool& startedTransaction) const
 void BulkQuery::unlockTables() const
 {
     using enum DatabaseConnectionType;
-    if (m_connection->connectionType() == MYSQL)
+    const auto conn = m_connection.lock();
+    if (conn->connectionType() == MYSQL)
     {
         Query unlockTableQuery(m_connection, "UNLOCK TABLES", false);
         unlockTableQuery.exec();
@@ -246,12 +249,13 @@ bool BulkQuery::reserveInsertIds(const String& tableName, const vector<VariantVe
 {
     using enum DatabaseConnectionType;
 
-    if (const auto connectionType = m_connection->connectionType();
+    const auto conn = m_connection.lock();
+    if (const auto connectionType = conn->connectionType();
         connectionType == ORACLE || connectionType == ORACLE_OCI)
     {
         stringstream sqlStream;
         sqlStream << "WITH SERIES (IND) AS (SELECT ROWNUM FROM DUAL CONNECT BY ROWNUM <= " << rows.size() << ")\n"
-                  << "SELECT " << m_connection->tableSequenceName(tableName) << ".nextval FROM SERIES";
+                  << "SELECT " << conn->tableSequenceName(tableName) << ".nextval FROM SERIES";
 
         Query query(m_connection, sqlStream.str());
         query.open();
@@ -315,9 +319,10 @@ void BulkQuery::insertRows(const vector<VariantVector>& rows, vector<int64_t>* i
 
     if (remainder > 0)
     {
+        const auto conn = m_connection.lock();
         // Last group
         const span group(firstRow, remainder);
-        const auto databaseConnectionType = m_connection->connectionType();
+        const auto databaseConnectionType = conn->connectionType();
         Query      insertQuery(m_connection, makeInsertSQL(databaseConnectionType, m_tableName, m_serialColumnName, m_columnNames, remainder));
         insertGroupRows(insertQuery, group, insertedIds, useReservedIds, serialColumnIndex, reservedIdOffset);
     }
@@ -357,7 +362,7 @@ void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds,
 {
     for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
     {
-        auto& parameter = *parameterIterator;
+        const auto& parameter = *parameterIterator;
         if (columnNumber == serialColumnIndex)
         {
             if (insertedIds)
@@ -373,6 +378,7 @@ void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds,
         ++parameterIterator;
     }
 }
+
 void BulkQuery::appendParameterValuesFromRows(Query& insertQuery, const span<const VariantVector> rows, vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, const vector<Variant>::size_type rowSize, vector<Variant>::size_type columnCount)
 {
     auto parameterIterator = insertQuery.parameters().begin();
@@ -386,12 +392,14 @@ void BulkQuery::appendParameterValuesFromRows(Query& insertQuery, const span<con
         ++rowCount;
     }
 }
+
 size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVector> rows,
                                   vector<int64_t>* insertedIds, const bool useReservedIds, const size_t serialColumnIndex, size_t& reservedIdOffset)
 {
     using enum DatabaseConnectionType;
 
-    const auto connectionType = m_connection->connectionType();
+    const auto conn = m_connection.lock();
+    const auto connectionType = conn->connectionType();
     const auto captureInsertedIds = (!m_serialColumnName.empty() && insertedIds != nullptr) || connectionType == MSSQL_ODBC;
     const auto insertReturnsIds = connectionType == POSTGRES || connectionType == SQLITE3 || connectionType == MSSQL_ODBC;
     const auto sequenceReturnedIds = useReservedIds && (connectionType == ORACLE || connectionType == ORACLE_OCI);
@@ -437,7 +445,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
 
                 auto firstInsertedId = lastInsertedId - rowCount + 1;
 
-                if (m_connection->connectionType() == MYSQL)
+                if (conn->connectionType() == MYSQL)
                 {
                     // A special case for MySQL: multi-row insert returns the first row id
                     firstInsertedId = lastInsertedId;
@@ -457,7 +465,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
                 unlockTables();
                 if (startedTransaction)
                 {
-                    m_connection->rollbackTransaction();
+                    conn->rollbackTransaction();
                 }
                 throw;
             }
