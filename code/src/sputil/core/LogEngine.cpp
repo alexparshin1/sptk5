@@ -46,8 +46,15 @@ LogEngine::LogEngine(const String&)
 
 LogEngine::~LogEngine()
 {
-    const lock_guard lock(m_mutex);
-    m_terminated = true;
+    {
+        const lock_guard lock(m_mutex);
+        m_terminated = true;
+    }
+    m_messages.wakeup();
+    if (m_saveMessageThread.joinable())
+    {
+        m_saveMessageThread.join();
+    }
 }
 
 void LogEngine::shutdown()
@@ -146,58 +153,71 @@ void LogEngine::threadFunction()
 {
     while (!terminated())
     {
-        Logger::UMessage message = nullptr;
-        if (!m_messages.pop_front(message, 100ms))
-        {
-            flush();
-            continue;
-        }
-
-        if (terminated())
+        if (processNextMessage() == ProcessResult::Error)
         {
             break;
-        }
-
-        saveMessage(*message);
-
-        if (option(Option::STDOUT))
-        {
-            string messagePrefix;
-            if (option(Option::DATE))
-            {
-                messagePrefix += message->timestamp.dateString() + " ";
-            }
-
-            if (option(Option::TIME))
-            {
-                const auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-                messagePrefix += message->timestamp.timeString(DateTime::PF_RFC_DATE, printAccuracy) + " ";
-            }
-
-            if (option(Option::PRIORITY))
-            {
-                messagePrefix += "[" + priorityName(message->priority) + "] ";
-            }
-
-            if (message->priority <= LogPriority::Error)
-            {
-                CERR(messagePrefix.c_str() << message->message.c_str());
-            }
-            else
-            {
-                COUT(messagePrefix.c_str() << message->message.c_str());
-            }
         }
     }
 
     try
     {
+        while (processNextMessage() == ProcessResult::Ok) {}
         close();
     }
     catch (const Exception& e)
     {
         CERR(e.what() << std::endl);
     }
+}
+
+
+LogEngine::ProcessResult LogEngine::processNextMessage()
+{
+    Logger::UMessage message = nullptr;
+    if (!m_messages.pop_front(message, 100ms))
+    {
+        flush();
+        return ProcessResult::NoMoreMessages;
+    }
+
+    while (!saveMessage(*message))
+    {
+        if (terminated())
+        {
+            return ProcessResult::Error;
+        }
+        this_thread::sleep_for(1s);
+    }
+
+    if (option(Option::STDOUT))
+    {
+        string messagePrefix;
+        if (option(Option::DATE))
+        {
+            messagePrefix += message->timestamp.dateString() + " ";
+        }
+
+        if (option(Option::TIME))
+        {
+            const auto printAccuracy = option(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
+            messagePrefix += message->timestamp.timeString(DateTime::PF_RFC_DATE, printAccuracy) + " ";
+        }
+
+        if (option(Option::PRIORITY))
+        {
+            messagePrefix += "[" + priorityName(message->priority) + "] ";
+        }
+
+        if (message->priority <= LogPriority::Error)
+        {
+            CERR(messagePrefix.c_str() << message->message.c_str());
+        }
+        else
+        {
+            COUT(messagePrefix.c_str() << message->message.c_str());
+        }
+    }
+    return ProcessResult::Ok;
 }
 
 void LogEngine::terminate()

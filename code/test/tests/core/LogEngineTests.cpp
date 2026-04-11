@@ -41,20 +41,21 @@ public:
         storage.clear();
     }
 
-    void saveMessage(const Logger::Message& message) override
+    bool saveMessage(const Logger::Message& message) override
     {
         const scoped_lock lock(m_mutex);
         storage.push_back(message);
+        return true;
     }
 
-    std::mutex m_mutex;
+    std::mutex                     m_mutex;
     static vector<Logger::Message> storage;
 };
 
 vector<Logger::Message> TestLogEngine::storage;
 namespace sptk {
 
-TEST(LogEngineTests,options)
+TEST(LogEngineTests, options)
 {
     TestLogEngine logEngine;
 
@@ -65,7 +66,7 @@ TEST(LogEngineTests,options)
     EXPECT_TRUE(logEngine.option(LogEngine::Option::STDOUT));
 }
 
-TEST(LogEngineTests,priorities)
+TEST(LogEngineTests, priorities)
 {
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Debug).c_str(), "DEBUG");
     EXPECT_STREQ(LogEngine::priorityName(LogPriority::Info).c_str(), "Info");
@@ -86,7 +87,7 @@ TEST(LogEngineTests,priorities)
     EXPECT_TRUE(LogEngine::priorityFromName("Panic") == LogPriority::Panic);
 }
 
-TEST(LogEngineTests,message)
+TEST(LogEngineTests, message)
 {
     auto logEngine = make_shared<TestLogEngine>();
     logEngine->option(LogEngine::Option::STDOUT, true);
@@ -116,4 +117,4 @@ TEST(LogEngineTests,message)
     EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
 }
 
-} // namespace sptk_test
+} // namespace sptk

@@ -64,7 +64,7 @@ public:
      * @brief Stores or sends log message to actual destination.
      * @param message           Log message.
      */
-    void saveMessage(const Logger::Message& message) override;
+    bool saveMessage(const Logger::Message& message) override;
 
     /**
      * @brief Flush file data to disk.

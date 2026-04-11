@@ -63,10 +63,10 @@ public:
     };
 
     /**
-     * Stores or sends log message to actual destination
-     * @param message           Log message
+     * Stores or sends the log message to actual destination.
+     * @param message           Log message.
      */
-    virtual void saveMessage(const Logger::Message& message) = 0;
+    virtual bool saveMessage(const Logger::Message& message) = 0;
 
     /**
      * Constructor
@@ -84,7 +84,7 @@ public:
      * Restarts the log
      *
      * The current log content is cleared.
-     * Actual result depends on derived log engine.
+     * The actual result depends on the derived log engine.
      */
     virtual void reset()
     {
@@ -164,7 +164,15 @@ public:
     static LogPriority priorityFromName(const String& prt);
 
 protected:
-    void threadFunction();
+    enum class ProcessResult : uint8_t
+    {
+        Ok,
+        NoMoreMessages,
+        Error
+    };
+
+    void          threadFunction();
+    ProcessResult processNextMessage();
 
     /**
      * Log a message

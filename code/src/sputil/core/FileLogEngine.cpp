@@ -34,13 +34,8 @@ FileLogEngine::~FileLogEngine()
     terminate();
 }
 
-void FileLogEngine::saveMessage(const Logger::Message& message)
+bool FileLogEngine::saveMessage(const Logger::Message& message)
 {
-    if (terminated())
-    {
-        return;
-    }
-
     const auto options = this->options();
 
     const lock_guard lock(masterLock());
@@ -52,7 +47,8 @@ void FileLogEngine::saveMessage(const Logger::Message& message)
             m_fileStream.open(m_fileName.c_str(), ofstream::out | ofstream::app);
             if (!m_fileStream.is_open())
             {
-                throw Exception("Can't append or create log file '" + m_fileName.string() + "'");
+                CERR("Can't append or create log file '" << m_fileName.string() << "'");
+                return false;
             }
         }
 
@@ -76,9 +72,11 @@ void FileLogEngine::saveMessage(const Logger::Message& message)
 
         if (m_fileStream.bad())
         {
-            CERR("Can't write to file " << m_fileName.string().c_str());
+            CERR(format("Can't write to file '{}'", m_fileName.string()));
+            return false;
         }
     }
+    return true;
 }
 
 FileLogEngine::FileLogEngine(const filesystem::path& fileName, const bool append)
@@ -86,6 +84,10 @@ FileLogEngine::FileLogEngine(const filesystem::path& fileName, const bool append
     , m_fileName(fileName)
     , m_fileStream(fileName.c_str(), ios_base::out | (append ? ios_base::app : ios_base::trunc))
 {
+    if (!m_fileStream.is_open())
+    {
+        throw Exception(format("Can't open log file '{}'", fileName.string()));
+    }
 }
 
 void FileLogEngine::flush()

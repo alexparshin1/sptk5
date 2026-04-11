@@ -58,7 +58,7 @@ public:
      * Stores or sends log message to actual destination
      * @param message           Log message
      */
-    void saveMessage(const Logger::Message& message) override;
+    bool saveMessage(const Logger::Message& message) override;
 
 private:
     std::ostream& m_logStream; ///< Log stream

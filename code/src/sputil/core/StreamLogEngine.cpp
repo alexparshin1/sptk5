@@ -34,13 +34,8 @@ StreamLogEngine::~StreamLogEngine()
     terminate();
 }
 
-void StreamLogEngine::saveMessage(const Logger::Message& message)
+bool StreamLogEngine::saveMessage(const Logger::Message& message)
 {
-    if (terminated())
-    {
-        return;
-    }
-
     const auto options = this->options();
 
     const lock_guard lock(masterLock());
@@ -68,8 +63,10 @@ void StreamLogEngine::saveMessage(const Logger::Message& message)
         if (m_logStream.bad())
         {
             CERR("Can't write to stream");
+            return false;
         }
     }
+    return true;
 }
 
 StreamLogEngine::StreamLogEngine(ostream& outputStream)
