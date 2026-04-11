@@ -60,7 +60,7 @@ bool FileLogEngine::saveMessage(const Logger::Message& message)
         if (options.contains(Option::TIME))
         {
             const auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-            m_fileStream << message.timestamp.timeString(true, printAccuracy) << " ";
+            m_fileStream << message.timestamp.timeString(0, printAccuracy) << " ";
         }
 
         if (options.contains(Option::PRIORITY))
@@ -70,8 +70,9 @@ bool FileLogEngine::saveMessage(const Logger::Message& message)
 
         m_fileStream << message.message << '\n';
 
-        if (m_fileStream.bad())
+        if (!m_fileStream.good())
         {
+            m_fileStream.close();
             CERR(format("Can't write to file '{}'", m_fileName.string()));
             return false;
         }
