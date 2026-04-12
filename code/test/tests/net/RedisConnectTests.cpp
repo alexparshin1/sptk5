@@ -23,7 +23,7 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
-
+#ifndef _WIN32
 #include "sptk5/Stopwatch.h"
 #include "src/sputil/net/RedisConnect.h"
 #include <chrono>
@@ -188,3 +188,4 @@ TEST_F(RedisConnectTests, performance)
 }
 
 } // namespace sptk
+#endif

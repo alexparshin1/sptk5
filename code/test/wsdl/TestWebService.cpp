@@ -41,6 +41,13 @@ using namespace sptk;
 using namespace test_service;
 using namespace xdoc;
 
+namespace {
+    // JWT encryption key
+    static const String jwtEncryptionKey256("012345678901234567890123456789XY");
+}
+
+namespace sptk {
+
 shared_ptr<HttpConnect::Authorization> TestWebService::jwtAuthorization;
 
 void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuthentication*)
@@ -62,9 +69,6 @@ void TestWebService::Hello(const CHello& input, CHelloResponse& output, HttpAuth
     output.m_vacation_days = 21;
     output.m_verified = DateTime("2020-01-02 10:00:00+10");
 }
-
-// JWT encryption key
-static const String jwtEncryptionKey256("012345678901234567890123456789XY");
 
 /**
  * WS method that takes username and password and returns Java Web Token (JWT).
@@ -116,37 +120,15 @@ void TestWebService::AccountBalance(const CAccountBalance& input, CAccountBalanc
 
     output.m_account_balance = testAmount;
 }
+}
 
 #ifdef USE_GTEST
 
-static constexpr int int123 = 123;
+namespace {
 
-/**
- * Test Hello WS method input and output
- */
-TEST(SPTK_TestWebService, Hello)
-{
-    TestWebService service;
+constexpr int int123 = 123;
 
-    CHello hello;
-    hello.m_action = "view";
-    hello.m_first_name = "John";
-    hello.m_last_name = "Doe";
-
-    CHelloResponse response;
-    service.Hello(hello, response, nullptr);
-
-    if (response.m_date_of_birth.asDate() != DateTime("1981-02-01").date())
-        FAIL() << "m_date_of_birth has invalid value";
-    if (response.m_verified.asDateTime() != DateTime("2020-01-02 10:00:00+10"))
-        FAIL() << "m_verified has invalid value";
-    EXPECT_DOUBLE_EQ(response.m_height, 6.5);
-    EXPECT_DOUBLE_EQ(response.m_hour_rate, 15.6);
-    EXPECT_EQ(response.m_retired.asBool(), false);
-    EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
-}
-
-static const String soapWrapper(
+const String soapWrapper(
     R"(<?xml version="1.0" encoding="UTF-8"?>)"
     R"(<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">)"
     "<soap:Body>"
@@ -155,7 +137,7 @@ static const String soapWrapper(
     "</soap:Envelope>");
 
 
-static Document make_send_request(const String& methodName, DataFormat dataFormat)
+Document make_send_request(const String& methodName, DataFormat dataFormat)
 {
     Document sendRequest;
 
@@ -188,7 +170,7 @@ static Document make_send_request(const String& methodName, DataFormat dataForma
     return sendRequest;
 }
 
-static SNode get_response_node(const Document& response, DataFormat dataFormat)
+SNode get_response_node(const Document& response, DataFormat dataFormat)
 {
     SNode responseNode = response.root();
     if (dataFormat == DataFormat::XML)
@@ -197,6 +179,43 @@ static SNode get_response_node(const Document& response, DataFormat dataFormat)
         responseNode = *bodyNode->nodes().begin();
     }
     return responseNode;
+}
+
+String exportToString(const WSComplexType& object)
+{
+    Buffer         buffer;
+    xdoc::Document document;
+    object.exportTo(document.root());
+    document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
+    return String(buffer);
+}
+}
+
+namespace sptk {
+
+/**
+ * Test Hello WS method input and output
+ */
+TEST(TestWebServiceTests, Hello)
+{
+    TestWebService service;
+
+    CHello hello;
+    hello.m_action = "view";
+    hello.m_first_name = "John";
+    hello.m_last_name = "Doe";
+
+    CHelloResponse response;
+    service.Hello(hello, response, nullptr);
+
+    if (response.m_date_of_birth.asDate() != DateTime("1981-02-01").date())
+        FAIL() << "m_date_of_birth has invalid value";
+    if (response.m_verified.asDateTime() != DateTime("2020-01-02 10:00:00+10"))
+        FAIL() << "m_verified has invalid value";
+    EXPECT_DOUBLE_EQ(response.m_height, 6.5);
+    EXPECT_DOUBLE_EQ(response.m_hour_rate, 15.6);
+    EXPECT_EQ(response.m_retired.asBool(), false);
+    EXPECT_EQ(response.m_vacation_days.asInteger(), 21);
 }
 
 class TestListener : public WSServer
@@ -338,7 +357,7 @@ static void request_listener_test(const Strings& methodNames, DataFormat dataFor
 /**
  * Test Hello method working through the service in JSON and XML modes
  */
-TEST(SPTK_TestWebService, Hello_HTTP)
+TEST(TestWebServiceTests, Hello_HTTP)
 {
     for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
@@ -349,7 +368,7 @@ TEST(SPTK_TestWebService, Hello_HTTP)
 /**
  * Test Login method input and output
  */
-TEST(SPTK_TestWebService, Login)
+TEST(TestWebServiceTests, Login)
 {
     TestWebService service;
 
@@ -372,7 +391,7 @@ TEST(SPTK_TestWebService, Login)
 /**
  * Test Login and AccountBalance methods working through the service
  */
-TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
+TEST(TestWebServiceTests, LoginAndAccountBalance_HTTP)
 {
     for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
@@ -383,7 +402,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTP)
 /**
  * Test Login and AccountBalance methods working through the service
  */
-TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
+TEST(TestWebServiceTests, LoginAndAccountBalance_HTTPS)
 {
     for (const auto dataType: {DataFormat::JSON, DataFormat::XML})
     {
@@ -391,16 +410,7 @@ TEST(SPTK_TestWebService, LoginAndAccountBalance_HTTPS)
     }
 }
 
-static String exportToString(const WSComplexType& object)
-{
-    Buffer         buffer;
-    xdoc::Document document;
-    object.exportTo(document.root());
-    document.root()->exportTo(xdoc::DataFormat::JSON, buffer, true);
-    return String(buffer);
-}
-
-TEST(SPTK_WSGeneratedClasses, CopyConstructor)
+TEST(WSGeneratedClassesTests, CopyConstructor)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -415,7 +425,7 @@ TEST(SPTK_WSGeneratedClasses, CopyConstructor)
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, MoveConstructor)
+TEST(WSGeneratedClassesTests, MoveConstructor)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -430,7 +440,7 @@ TEST(SPTK_WSGeneratedClasses, MoveConstructor)
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, CopyAssignment)
+TEST(WSGeneratedClassesTests, CopyAssignment)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -446,7 +456,7 @@ TEST(SPTK_WSGeneratedClasses, CopyAssignment)
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, MoveAssignment)
+TEST(WSGeneratedClassesTests, MoveAssignment)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -462,7 +472,7 @@ TEST(SPTK_WSGeneratedClasses, MoveAssignment)
     EXPECT_STREQ(str.c_str(), str2.c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, Clear)
+TEST(WSGeneratedClassesTests, Clear)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -486,7 +496,7 @@ static const String testXML(
 static const String testJSON(
     R"({"attributes":{"server_count":2,"type":"abstract"},"username":"johnd","password":"secret","servers":["x1","x2"],"project":{"id":123,"expiration":"2020-10-01"}})");
 
-TEST(SPTK_WSGeneratedClasses, LoadXML)
+TEST(WSGeneratedClassesTests, LoadXML)
 {
     Document input;
     input.load(testXML);
@@ -501,7 +511,7 @@ TEST(SPTK_WSGeneratedClasses, LoadXML)
     EXPECT_STREQ("2020-10-01", login.m_project.m_expiration.asString().c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, LoadJSON)
+TEST(WSGeneratedClassesTests, LoadJSON)
 {
     Document input;
     input.load(testXML);
@@ -514,7 +524,7 @@ TEST(SPTK_WSGeneratedClasses, LoadJSON)
     EXPECT_STREQ("secret", login.m_password.asString().c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, LoadFields)
+TEST(WSGeneratedClassesTests, LoadFields)
 {
     FieldList fields(false);
     fields.push_back(make_shared<Field>("username"));
@@ -536,7 +546,7 @@ TEST(SPTK_WSGeneratedClasses, LoadFields)
     EXPECT_STREQ("x1", login.m_servers[0].asString().c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, UnloadXML)
+TEST(WSGeneratedClassesTests, UnloadXML)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -560,7 +570,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadXML)
     EXPECT_STREQ(buffer.c_str(), testXML.substr(pos).c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, UnloadJSON)
+TEST(WSGeneratedClassesTests, UnloadJSON)
 {
     CLogin login;
 
@@ -587,7 +597,7 @@ TEST(SPTK_WSGeneratedClasses, UnloadJSON)
     EXPECT_STREQ(str.c_str(), testJSON.c_str());
 }
 
-TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
+TEST(WSGeneratedClassesTests, UnloadQueryParameters)
 {
     CLogin login;
     login.m_username = "johnd";
@@ -612,3 +622,4 @@ TEST(SPTK_WSGeneratedClasses, UnloadQueryParameters)
 }
 
 #endif
+} // namespace
