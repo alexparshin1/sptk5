@@ -1,7 +1,7 @@
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                       SIMPLY POWERFUL TOOLKIT (SPTK)                         ║
 # ╟──────────────────────────────────────────────────────────────────────────────╢
-# ║  copyright            © 1999-2025 Alexey Parshin. All rights reserved.       ║
+# ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 # ║  email                alexeyp@gmail.com                                      ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 # ┌──────────────────────────────────────────────────────────────────────────────┐
@@ -33,6 +33,10 @@ PROJECT(SPTK
         VERSION ${VERSION}
         LANGUAGES CXX C)
 SET(SOVERSION "5")
+
+IF (CMAKE_VERSION VERSION_GREATER "3.30.0")
+    CMAKE_POLICY(SET CMP0177 NEW)
+ENDIF ()
 
 FUNCTION(SET_SPTK_TARGET_PROPERTIES target)
     SET_TARGET_PROPERTIES(${target} PROPERTIES

@@ -62,6 +62,15 @@ AutoDatabaseConnection::~AutoDatabaseConnection()
     }
 }
 
+SPoolDatabaseConnection AutoDatabaseConnection::acquireConnection() const
+{
+    if (const auto connection = m_connection.lock())
+    {
+        return connection;
+    }
+    throw Exception(s_invalidConnectionMessage);
+}
+
 WPoolDatabaseConnection AutoDatabaseConnection::connection() const
 {
     return acquireConnection();

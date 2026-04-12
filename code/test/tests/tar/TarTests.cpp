@@ -83,7 +83,7 @@ protected:
 };
 namespace sptk {
 
-TEST_F(TarTests,relativePath)
+TEST_F(TarTests, relativePath)
 {
     auto relPath = ArchiveFile::relativePath("/tmp/mydir/myfile.txt", "/tmp/mydir");
     EXPECT_STREQ(relPath.string().c_str(), "myfile.txt");
@@ -95,7 +95,7 @@ TEST_F(TarTests,relativePath)
     EXPECT_EQ(relPath, filesystem::path("/tmp/mydir1/myfile.txt"));
 }
 
-TEST_F(TarTests,read) /* NOLINT */
+TEST_F(TarTests, read) /* NOLINT */
 {
     Tar tar;
 
@@ -112,7 +112,7 @@ TEST_F(TarTests,read) /* NOLINT */
     EXPECT_STREQ(file2_md5.c_str(), md5(outfile2).c_str());
 }
 
-TEST_F(TarTests,write) /* NOLINT */
+TEST_F(TarTests, write) /* NOLINT */
 {
     Tar tar;
 
@@ -122,6 +122,5 @@ TEST_F(TarTests,write) /* NOLINT */
     ASSERT_EQ(0, system(("tar tf " + testTar1.string() + " > test.lst").c_str()));
 }
 
+} // namespace sptk
 #endif
-
-} // namespace sptk_test

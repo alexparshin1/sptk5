@@ -45,7 +45,7 @@ public:
     explicit EnvVarGuard(const char* name)
         : m_name(name)
     {
-        if (const char* v = std::getenv(m_name.c_str()))
+        if (const char* v = getenv(m_name.c_str()))
         {
             m_oldValue = string(v);
         }
@@ -96,8 +96,9 @@ private:
 
 } // namespace
 
-#ifndef _WIN32
 namespace sptk {
+
+#ifndef _WIN32
 
 TEST(HomeDirectoryTests,locationPrefersHOME)
 {
@@ -150,4 +151,4 @@ TEST(HomeDirectoryTests,locationUsesHomeDriveAndPathOnWindowsWhenPresent)
 
 #endif
 
-} // namespace sptk_test
+}

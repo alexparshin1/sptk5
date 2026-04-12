@@ -45,7 +45,7 @@ static const String originalTestStringBase64 = "oZgBACBuY+u6dus1GkIllLABJwCJBp6O
 #endif
 namespace sptk {
 
-TEST(BrotliTests,compressRoundTrip)
+TEST(BrotliTests, compressRoundTrip)
 {
     Buffer compressed;
     Buffer decompressed;
@@ -56,7 +56,7 @@ TEST(BrotliTests,compressRoundTrip)
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
-TEST(BrotliTests,decompress)
+TEST(BrotliTests, decompress)
 {
     Buffer compressed;
     Buffer decompressed;
@@ -67,7 +67,7 @@ TEST(BrotliTests,decompress)
     EXPECT_STREQ(originalTestString.c_str(), decompressed.c_str());
 }
 
-TEST(BrotliTests,performance)
+TEST(BrotliTests, performance)
 {
     Buffer data;
     Buffer compressed;
@@ -106,7 +106,5 @@ TEST(BrotliTests,performance)
 
     EXPECT_STREQ(data.c_str(), decompressed.c_str());
 }
-
+} // namespace sptk
 #endif
-
-} // namespace sptk_test

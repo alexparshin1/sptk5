@@ -145,7 +145,7 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
     if (colonCount == 0)
     {
         // No port specified, return default port 0.
-        return std::make_tuple(m_hostAndPort, 0);
+        return std::make_tuple(m_hostAndPort, static_cast<uint16_t>(0));
     }
 
     if (colonCount == 1)
@@ -156,7 +156,7 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
         {
             throw Exception("Invalid IP address");
         }
-        return std::make_tuple(matches[0].value, matches[1].value.toInt());
+        return std::make_tuple(matches[0].value, static_cast<uint16_t>(matches[1].value.toInt()));
     }
 
     String   host = m_hostAndPort;

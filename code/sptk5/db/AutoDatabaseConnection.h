@@ -188,15 +188,7 @@ private:
     WPoolDatabaseConnection m_connection;               ///< Database connection.
     static const String     s_invalidConnectionMessage; ///< Error message for inactive connection.
 
-    SPoolDatabaseConnection acquireConnection() const
-    {
-        const auto connection = m_connection.lock();
-        if (connection)
-        {
-            return connection;
-        }
-        throw Exception(s_invalidConnectionMessage);
-    }
+    SPoolDatabaseConnection acquireConnection() const;
 };
 
 using DatabaseConnection = std::shared_ptr<AutoDatabaseConnection>;

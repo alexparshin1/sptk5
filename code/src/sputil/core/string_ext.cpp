@@ -24,9 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cstdlib>
 #include <format>
-#include <fstream>
 #include <sptk5/Buffer.h>
 
 using namespace std;
@@ -71,7 +69,7 @@ string sptk::trim(const string_view str)
         return "";
     }
 
-    const auto* s = bit_cast<const unsigned char*>(str.data());
+    const auto* s = reinterpret_cast<const unsigned char*>(str.data());
     auto        endPosition = static_cast<int>(len - 1);
     bool        found = false;
 
@@ -137,7 +135,7 @@ int64_t sptk::string2int64(const string_view str, int64_t defaultValue)
 string sptk::double2string(double value)
 {
     auto buffer = format("{}", value);
-    auto len = buffer.length();
+    auto len = static_cast<int>(buffer.length());
     for (int i = len - 1; i > 0; --i)
     {
         if (buffer[i] != '0')

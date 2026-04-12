@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY Message QUEUE                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2024 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2026 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ║  code review          2026-04-06                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -358,7 +358,9 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     }
 }
 
-void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, vector<Variant>::size_type columnCount, QueryParameterList::iterator& parameterIterator, const vector<Variant>& row)
+void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds, const size_t serialColumnIndex, 
+    size_t& reservedIdOffset, vector<Variant>::size_type columnCount, 
+    QueryParameterList::iterator& parameterIterator, const vector<Variant>& row)
 {
     for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
     {

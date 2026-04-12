@@ -2,7 +2,7 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                       SIMPLY Message QUEUE                                   ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║  copyright            © 1999-2024 by Alexey Parshin. All rights reserved.    ║
+║  copyright            © 1999-2026 by Alexey Parshin. All rights reserved.    ║
 ║  email                alexeyp@gmail.com                                      ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 */
@@ -10,6 +10,7 @@
 #pragma once
 
 #include <sptk5/db/Query.h>
+#include <span>
 
 namespace sptk {
 /**
@@ -57,8 +58,8 @@ public:
      * @param parameterIterator Iterator for query parameters.
      * @param row               The row data.
      */
-    static void appendParameterValuesFromRow(const std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, std::size_t columnCount, QueryParameterList::iterator& parameterIterator, const std::vector<Variant>& row);
-    static void appendParameterValuesFromRows(Query& insertQuery, std::span<const std::vector<Variant>> rows, std::vector<long>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, std::size_t rowSize, std::size_t columnCount);
+    static void appendParameterValuesFromRow(const std::vector<int64_t>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, std::size_t columnCount, QueryParameterList::iterator& parameterIterator, const std::vector<Variant>& row);
+    static void appendParameterValuesFromRows(Query& insertQuery, std::span<const std::vector<Variant>> rows, std::vector<int64_t>* insertedIds, size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, std::size_t rowSize, std::size_t columnCount);
 
 private:
     Query                   m_insertQuery;         ///< Insert query.

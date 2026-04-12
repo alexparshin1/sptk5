@@ -46,7 +46,7 @@ using SStmtHandle = std::shared_ptr<uint8_t>;
 /**
  * @brief Database connection type.
  */
-enum class DatabaseConnectionType : uint16_t
+enum class DatabaseConnectionType : uint8_t
 {
     MYSQL = 1,         ///< MySQL.
     ORACLE = 2,        ///< Oracle.
