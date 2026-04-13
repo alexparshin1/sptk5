@@ -152,7 +152,7 @@ string sptk::double2string(double value)
         }
     }
 
-    if (len == buffer.length())
+    if (len == static_cast<int>(buffer.length()))
     {
         return buffer;
     }

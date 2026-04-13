@@ -27,6 +27,7 @@
 #include <sptk5/Stopwatch.h>
 #include <sptk5/cutils>
 
+#include <array>
 #include <gtest/gtest.h>
 #include <sstream>
 
@@ -45,7 +46,7 @@ static const String testSQL(
     "LIMIT 1024");
 namespace sptk {
 
-TEST(MD5Tests,md5)
+TEST(MD5Tests, md5)
 {
     String testMD5 = md5(testPhrase);
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
@@ -54,7 +55,58 @@ TEST(MD5Tests,md5)
     EXPECT_STREQ("7d84a2b9dfe798bdbf9ad343bde9322d", testMD5.c_str());
 }
 
-TEST(MD5Tests,performance)
+TEST(MD5Tests, rfc1321Vectors)
+{
+    static constexpr std::array<std::pair<const char*, const char*>, 7> vectors = {{
+        {"", "d41d8cd98f00b204e9800998ecf8427e"},
+        {"a", "0cc175b9c0f1b6a831c399e269772661"},
+        {"abc", "900150983cd24fb0d6963f7d28e17f72"},
+        {"message digest", "f96b697d7cb7938d525a2f31aaf161d0"},
+        {"abcdefghijklmnopqrstuvwxyz", "c3fcd3d76192e4007dfb496cca67e13b"},
+        {"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", "d174ab98d277d9f5a5611c2c9f419d9f"},
+        {"12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+         "57edf4a22be3c955ac49da2e2107b67a"},
+    }};
+
+    for (const auto& [input, expected]: vectors)
+    {
+        EXPECT_STREQ(expected, md5(String(input)).c_str());
+        EXPECT_STREQ(expected, md5(Buffer(input, strlen(input))).c_str());
+    }
+}
+
+TEST(MD5Tests, incrementalUpdateMatchesOneShot)
+{
+    const std::array<unsigned char, 256> bytes = []
+    {
+        std::array<unsigned char, 256> b {};
+        for (size_t i = 0; i < b.size(); ++i)
+        {
+            b[i] = static_cast<unsigned char>(i);
+        }
+        return b;
+    }();
+
+    const String expected = md5(Buffer(bytes.data(), bytes.size()));
+    for (const auto chunkSize: {1UL, 2UL, 7UL, 31UL, 64UL, 127UL})
+    {
+        MD5 md5ByChunks;
+        for (size_t offset = 0; offset < bytes.size(); offset += chunkSize)
+        {
+            const auto len = std::min(chunkSize, bytes.size() - offset);
+            md5ByChunks.update(&bytes[offset], len);
+        }
+        EXPECT_EQ(expected, md5ByChunks.finalize().hexDigest()) << "chunkSize=" << chunkSize;
+    }
+}
+
+TEST(MD5Tests, hexDigestRequiresFinalize)
+{
+    MD5 digest;
+    EXPECT_THROW((void) digest.hexDigest(), Exception);
+}
+
+TEST(MD5Tests, performance)
 {
     Stopwatch        stopWatch;
     constexpr size_t iterations = 200000;
@@ -70,4 +122,4 @@ TEST(MD5Tests,performance)
                      << iterations / stopWatch.seconds() << " per second" << endl);
 }
 
-} // namespace sptk_test
+} // namespace sptk

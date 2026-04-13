@@ -57,21 +57,21 @@ bool ImapDS::open()
         }
         for (long msg_id = first_message; msg_id <= total_messages; ++msg_id)
         {
-            FieldList df(false);
+            auto df = make_shared<FieldList>(false);
 
             if (m_fetchbody)
             {
-                m_imap.cmd_fetch_message(static_cast<int32_t>(msg_id), df);
+                m_imap.cmd_fetch_message(static_cast<int32_t>(msg_id), *df);
             }
             else
             {
-                m_imap.cmd_fetch_headers(static_cast<int32_t>(msg_id), df);
+                m_imap.cmd_fetch_headers(static_cast<int32_t>(msg_id), *df);
             }
 
             auto fld = make_shared<Field>("msg_id");
             fld->view().width = 0;
             fld->setInteger(static_cast<int32_t>(msg_id));
-            df.push_back(fld);
+            df->push_back(fld);
 
             push_back(std::move(df));
 
@@ -87,9 +87,9 @@ bool ImapDS::open()
     }
     else
     {
-        constexpr int allDone = 100;
         if (m_callback != nullptr)
         {
+            constexpr auto allDone = 100;
             m_callback(allDone, allDone);
         }
     }

@@ -59,51 +59,57 @@ public:
     }
 
     /**
-     * Deleted copy constructor
-     * @param other             Other object
+     * @brief Deleted copy constructor.
+     * @param other             Another object.
      */
     MemoryDS(const MemoryDS& other) = delete;
 
     /**
-     * Move constructor
-     * @param other             Other object
+     * @brief Move constructor.
+     * @param other             Another object.
      */
     MemoryDS(MemoryDS&& other) noexcept
         : m_list(std::move(other.m_list))
-        , m_current(std::move(other.m_current))
+        , m_current(m_list.begin())
     {
     }
 
+    /**
+     * @brief Destructor.
+     */
     ~MemoryDS() override = default;
 
     /**
-     * Deleted copy assignment
-     * @param other             Other object
+     * @brief Deleted copy assignment.
+     * @param other             Another object
      */
     MemoryDS& operator=(const MemoryDS& other) = delete;
 
     /**
-     * Move assignment
-     * @param other             Other object
+     * @brief Move assignment.
+     * @param other             Another object.
      */
     MemoryDS& operator=(MemoryDS&& other) noexcept
     {
-        std::scoped_lock lock(m_mutex, other.m_mutex);
-        m_list = std::move(other.m_list);
-        m_current = std::move(other.m_current);
+        if (this != &other)
+        {
+            std::scoped_lock lock(m_mutex, other.m_mutex);
+            m_list = std::move(other.m_list);
+            m_current = m_list.begin();
+        }
         return *this;
     }
 
     /**
-     * Clears all the records
+     * @brief Clears all the records.
      */
     virtual void clear();
 
     /**
-     * Get current record
+     * @brief Get the current record.
      * @return current record reference
      */
-    virtual FieldList& current()
+    virtual SFieldList current()
     {
         std::lock_guard lock(m_mutex);
         if (m_current == m_list.end())
@@ -199,29 +205,29 @@ public:
 
     bool empty() const;
 
-    std::list<FieldList>& rows()
+    std::vector<SFieldList>& rows()
     {
         std::scoped_lock lock(m_mutex);
         return m_list;
     }
 
-    const std::list<FieldList>& rows() const
+    const std::vector<SFieldList>& rows() const
     {
         std::scoped_lock lock(m_mutex);
         return m_list;
     }
 
     /**
-     * Push back field list.
-     * Memory DS takes ownership of the data
-     * @param fieldList         Field list
+     * @brief Push back the field list.
+     * Memory DS takes ownership of the data.
+     * @param fieldList         Field list.
      */
-    void push_back(FieldList&& fieldList);
+    void push_back(const SFieldList& fieldList);
 
 private:
-    mutable std::mutex             m_mutex;
-    std::list<FieldList>           m_list;    // List of the dataset records
-    std::list<FieldList>::iterator m_current; // DS iterator
+    mutable std::mutex                m_mutex;   ///< Mutex that protects internal data.
+    std::vector<SFieldList>           m_list;    ///< List of the dataset records.
+    std::vector<SFieldList>::iterator m_current; ///< DS iterator.
 };
 /**
  * @}

@@ -157,12 +157,12 @@ bool DirectoryDS::open()
     {
         for (const char* dirName: {".", ".."})
         {
-            FieldList fields(false);
-            fields.push_back(" ", false).setImageNdx(static_cast<uint32_t>(CSmallPixmapType::SXPM_FOLDER));
-            fields.push_back("Name", false) = dirName;
-            fields.push_back("Size", false) = "";
-            fields.push_back("Type", false) = "Directory";
-            push_back(std::move(fields));
+            auto fields = make_shared<FieldList>(false);
+            fields->push_back(" ", false).setImageNdx(static_cast<uint32_t>(CSmallPixmapType::SXPM_FOLDER));
+            fields->push_back("Name", false) = dirName;
+            fields->push_back("Size", false) = "";
+            fields->push_back("Type", false) = "Directory";
+            push_back(fields);
             ++index;
         }
     }
@@ -197,7 +197,7 @@ bool DirectoryDS::open()
         }
 
         auto entry = makeFileListEntry(file, index);
-        push_back(std::move(entry));
+        push_back(entry);
     }
 
     first();
@@ -205,7 +205,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
+SFieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
 {
     auto     pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime modificationTime;
@@ -216,27 +216,27 @@ FieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& in
         modeName += " symlink";
     }
 
-    FieldList fields(false);
-    fields.push_back(" ", false).setImageNdx(static_cast<uint32_t>(pixmapType));
-    fields.push_back("Name", false) = file.path().filename().string();
+    auto fields = make_shared<FieldList>(false);
+    fields->push_back(" ", false).setImageNdx(static_cast<uint32_t>(pixmapType));
+    fields->push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")
     {
-        fields.push_back("Size", false) = "";
+        fields->push_back("Size", false) = "";
     }
     else
     {
-        fields.push_back("Size", false) = static_cast<int64_t>(file_size(file.path()));
+        fields->push_back("Size", false) = static_cast<int64_t>(file_size(file.path()));
     }
-    fields.push_back("Type", false) = modeName;
+    fields->push_back("Type", false) = modeName;
 
-    fields.push_back("Modified", false) = modificationTime;
-    fields.push_back("", false) = static_cast<int32_t>(index); // Fake key value
+    fields->push_back("Modified", false) = modificationTime;
+    fields->push_back("", false) = static_cast<int32_t>(index); // Fake key value
     ++index;
 
     if (access(absolute(file).filename().string().c_str(), R_OK) != 0)
     {
-        fields[0].view().flags = FL_ALIGN_LEFT;
-        fields[1].view().flags = FL_ALIGN_LEFT;
+        (*fields)[0].view().flags = FL_ALIGN_LEFT;
+        (*fields)[1].view().flags = FL_ALIGN_LEFT;
     }
 
     return fields;

@@ -29,15 +29,15 @@
 using namespace std;
 using namespace sptk;
 
-Field& MemoryDS::operator[](const String& field_name)
+Field& MemoryDS::operator[](const String& fieldName)
 {
     const scoped_lock lock(m_mutex);
     if (m_current == m_list.end())
     {
         throw Exception("At the end of the data");
     }
-    auto& row = *m_current;
-    return row[field_name];
+    const auto& row = *m_current;
+    return (*row)[fieldName];
 }
 
 size_t MemoryDS::recordCount() const
@@ -55,7 +55,7 @@ size_t MemoryDS::fieldCount() const
     {
         throw Exception("At the end of the data");
     }
-    return m_current->size();
+    return (*m_current)->size();
 }
 
 // access to the field by number, 0..field.size()-1
@@ -66,8 +66,8 @@ Field& MemoryDS::operator[](size_t index)
     {
         throw Exception("At the end of the data");
     }
-    auto& row = *m_current;
-    return row[static_cast<int>(index)];
+    auto const& row = *m_current;
+    return (*row)[static_cast<int>(index)];
 }
 
 // read this field data into the external value
@@ -176,8 +176,8 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
     const String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
     {
-        if (FieldList& entry = *itor;
-            entry[fieldName].asString() == value)
+        if (SFieldList& entry = *itor;
+            (*entry)[fieldName].asString() == value)
         {
             m_current = itor;
             return true;
@@ -196,7 +196,7 @@ void MemoryDS::clear()
     m_current = m_list.end();
 }
 
-void MemoryDS::push_back(FieldList&& fieldList)
+void MemoryDS::push_back(const SFieldList& fieldList)
 {
     const scoped_lock lock(m_mutex);
 

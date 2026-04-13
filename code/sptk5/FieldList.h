@@ -26,10 +26,10 @@
 
 #pragma once
 
+#include <cctype>
 #include <sptk5/CaseInsensitiveCompare.h>
 #include <sptk5/Field.h>
 #include <sptk5/xdoc/Node.h>
-#include <cctype>
 #include <unordered_map>
 #include <vector>
 
@@ -279,6 +279,8 @@ private:
     Vector               m_list;  ///< The list of fields
     std::unique_ptr<Map> m_index; ///< The optional field index by name, or nullptr if the field list isn't indexed.
 };
+
+using SFieldList = std::shared_ptr<FieldList>;
 
 } // namespace sptk
 

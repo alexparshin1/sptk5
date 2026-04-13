@@ -38,152 +38,142 @@ documentation and/or software.
 
 namespace sptk {
 /**
-     * Calculates MD5 hashes of strings or byte arrays
-     *
-     * usage: 1) feed it blocks of uchars with update()
-     *        2) finalize()
-     *        3) get hexDigest() string
-     *            or
-     *        MD5(std::string).hexDigest()
-     *
-     * assumes that char is 8 bit and int is 32 bit
-     */
+ * Calculates MD5 hashes of strings or byte arrays.
+ *
+ * usage: 1) feed it blocks of uchars with update().
+ *        2) finalize().
+ *        3) get hexDigest() string
+ *            or
+ *        MD5(std::string).hexDigest().
+ *
+ * assumes that char is 8 bit and int is 32 bit
+ */
 class SP_EXPORT MD5
 {
 public:
     /**
-         * Defines integer type
-         */
+     * @brief Defines the integer type.
+     */
     using size_type = unsigned int; // must be 32bit
 
     /**
-         * Default constructor
-         */
+     * @brief Default constructor.
+     */
     MD5();
 
     /**
-         * Shortcut constructor
-         *
-         * Immediately processes text.
-         * The result can be read with hexDigest().
-         * @param data          Text to MD5
-         */
+     * @briefShortcut constructor.
+     *
+     * Immediately processes text.
+     * The result can be read with hexDigest().
+     * @param data          Text to MD5.
+     */
     explicit MD5(const Buffer& data);
 
     /**
-         * Adds data portion to MD5
-         * @param buffer        Input data
-         * @param length        Size of input data
-         */
-    void update(const unsigned char* buffer, size_type length);
+     * @brief Adds data portion to MD5.
+     * @param buffer        Input data.
+     * @param length        Size of input data.
+     */
+    void update(const unsigned char* buffer, size_t length);
 
     /**
-         * Adds data portion to MD5
-         * @param buffer        Input data
-         * @param length        Size of input data
-         */
-    void update(const char* buffer, size_type length);
+     * @brief Adds data portion to MD5.
+     * @param buffer        Input data.
+     * @param length        Size of input data.
+     */
+    void update(const char* buffer, size_t length);
 
     /**
-         * Finalizes MD5 sum
-         */
+     * @brief Finalizes MD5 sum.
+     */
     MD5& finalize();
 
     /**
-         * Returns hexadecimal presentation of MD5 sum
-         */
+     * @brief Returns hexadecimal presentation of MD5 sum.
+     */
     [[nodiscard]] String hexDigest() const;
 
 private:
     /**
-         * Initializes decoding state
-         */
+     * @brief Initializes decoding state.
+     */
     void init();
 
     /**
-         * 8bit unsigned integer
-         */
-    using uint1 = uint8_t;
+     * @brief Blocksize constant.
+     */
+    static constexpr auto blockSize = 64;
 
     /**
-         * 32bit unsigned integer
-         */
-    using uint4 = uint32_t;
+     * @brief Internal transformation.
+     */
+    void transform(const uint8_t* block);
 
     /**
-         * Blocksize const
-         */
-    static constexpr int blockSize = 64;
+     * @brief Internal decode.
+     */
+    static void decode(uint32_t* output, const uint8_t* input, size_type len);
 
     /**
-         * Internal transformation
-         */
-    void transform(const uint1* block);
+     * @brief Internal encode.
+     */
+    static void encode(uint8_t* output, const uint32_t* input, size_type len);
 
     /**
-         * Internal decode
-         */
-    static void decode(uint4* output, const uint1* input, size_type len);
-
-    /**
-         * Internal encode
-         */
-    static void encode(uint1* output, const uint4* input, size_type len);
-
-    /**
-         * MD5 finalized flag
-         */
+     * @brief MD5 finalized flag.
+     */
     bool finalized {false};
 
     /**
-         * bytes that didn't fit in the last 64-byte chunk
-         */
-    std::array<uint1, blockSize> buffer {};
+     * @brief bytes that didn't fit in the last 64-byte chunk.
+     */
+    std::array<uint8_t, blockSize> buffer {};
 
     /**
-         * 64bit counter for number of bits (lo, hi)
-         */
-    std::array<uint4, 2> count {};
+     * @brief 64bit counter for number of bits (lo, hi).
+     */
+    std::array<uint32_t, 2> count {};
 
     /**
-         * digest so far
-         */
-    std::array<uint4, 4> state {};
+     * @brief Digest so far.
+     */
+    std::array<uint32_t, 4> state {};
 
     /**
-         * the result
-         */
-    std::array<uint1, 16> digest {};
+     * @brief The result.
+     */
+    std::array<uint8_t, 16> digest {};
 
 
     // Low-level logic operations
-    static inline uint4 F(uint4 x, uint4 y, uint4 z);
+    static inline uint32_t F(uint32_t x, uint32_t y, uint32_t z);
 
-    static inline uint4 G(uint4 x, uint4 y, uint4 z);
+    static inline uint32_t G(uint32_t x, uint32_t y, uint32_t z);
 
-    static inline uint4 H(uint4 x, uint4 y, uint4 z);
+    static inline uint32_t H(uint32_t x, uint32_t y, uint32_t z);
 
-    static inline uint4 I(uint4 x, uint4 y, uint4 z);
+    static inline uint32_t I(uint32_t x, uint32_t y, uint32_t z);
 
-    static inline uint4 rotate_left(uint4 x, int n);
+    static inline uint32_t rotate_left(uint32_t x, int n);
 
-    static inline void FF(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void FF(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 
-    static inline void GG(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void GG(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 
-    static inline void HH(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void HH(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 
-    static inline void II(uint4& a, uint4 b, uint4 c, uint4 d, uint4 x, uint4 s, uint4 ac);
+    static inline void II(uint32_t& a, uint32_t b, uint32_t c, uint32_t d, uint32_t x, uint32_t s, uint32_t ac);
 };
 
 /**
-     * Single data-to-MD5 function
-     */
+ * @brief Single data-to-MD5 function.
+ */
 SP_EXPORT String md5(const Buffer& data);
 
 /**
-     * Single data-to-MD5 function
-     */
+ * @brief Single data-to-MD5 function.
+ */
 SP_EXPORT String md5(const String& data);
 
 } // namespace sptk

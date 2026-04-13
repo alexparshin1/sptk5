@@ -24,17 +24,18 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/MemoryDS.h>
 #include <sptk5/Exception.h>
+#include <sptk5/MemoryDS.h>
 
 #include <gtest/gtest.h>
 
 using namespace std;
 using namespace sptk;
 
-struct Person {
+struct Person
+{
     String name;
-    int age {0};
+    int    age {0};
 };
 
 static const vector<Person> people {
@@ -43,7 +44,7 @@ static const vector<Person> people {
     {"Bob", 6}};
 namespace sptk {
 
-TEST(MemoryDSTests,createAndVerify)
+TEST(MemoryDSTests, createAndVerify)
 {
     MemoryDS ds;
 
@@ -51,24 +52,24 @@ TEST(MemoryDSTests,createAndVerify)
 
     for (const auto& person: people)
     {
-        FieldList row(false);
+        auto row = make_shared<FieldList>(false);
 
         auto name = make_shared<Field>("name");
         *name = person.name;
-        row.push_back(name);
+        row->push_back(name);
 
         auto age = make_shared<Field>("age");
         *age = person.age;
-        row.push_back(age);
+        row->push_back(age);
 
-        ds.push_back(std::move(row));
+        ds.push_back(row);
     }
 
     EXPECT_EQ(ds.recordCount(), static_cast<size_t>(3));
 
     ds.open();
 
-    int i = 0;
+    auto i = 0;
     while (!ds.eof())
     {
         EXPECT_EQ(ds.fieldCount(), static_cast<size_t>(2));
@@ -98,7 +99,7 @@ TEST(MemoryDSTests,createAndVerify)
     EXPECT_TRUE(ds.empty());
 }
 
-TEST(MemoryDSTests,defaultConstructedEofCurrent)
+TEST(MemoryDSTests, defaultConstructedEofCurrent)
 {
     MemoryDS ds;
 
@@ -111,4 +112,4 @@ TEST(MemoryDSTests,defaultConstructedEofCurrent)
     EXPECT_THROW(ds.current(), Exception);
 }
 
-} // namespace sptk_test
+} // namespace sptk
