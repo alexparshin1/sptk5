@@ -42,6 +42,77 @@ Field::Field(const String& name)
     dataSize(0);
 }
 
+Field& Field::operator=(const Variant& C)
+{
+    if (this == &C)
+    {
+        return *this;
+    }
+
+    setData(C);
+    return *this;
+}
+
+Field& Field::operator=(const bool value)
+{
+    setBool(value);
+    return *this;
+}
+
+Field& Field::operator=(const int32_t value)
+{
+    setInteger(value);
+    return *this;
+}
+
+Field& Field::operator=(const int64_t value)
+{
+    setInt64(value);
+    return *this;
+}
+
+Field& Field::operator=(const double value)
+{
+    setFloat(value);
+    return *this;
+}
+
+Field& Field::operator=(const char* value)
+{
+    setString(value);
+    return *this;
+}
+
+Field& Field::operator=(const String& value)
+{
+    setBuffer(reinterpret_cast<const uint8_t*>(value.c_str()), value.length(), VariantDataType::VAR_STRING);
+    return *this;
+}
+
+Field& Field::operator=(const DateTime& value)
+{
+    setDateTime(value);
+    return *this;
+}
+
+Field& Field::operator=(const MoneyData& value)
+{
+    setMoney(value.quantity(), value.scale());
+    return *this;
+}
+
+Field& Field::operator=(const uint8_t* value)
+{
+    setImagePtr(value);
+    return *this;
+}
+
+Field& Field::operator=(const Buffer& value)
+{
+    setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
+    return *this;
+}
+
 String Field::asString() const
 {
     String result;

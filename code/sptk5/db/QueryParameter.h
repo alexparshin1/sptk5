@@ -207,7 +207,7 @@ public:
      */
     QueryParameter& operator=(const MoneyData& value) override
     {
-        setMoney(value.quantity, value.scale);
+        setMoney(value.quantity(), value.scale());
         return *this;
     }
 

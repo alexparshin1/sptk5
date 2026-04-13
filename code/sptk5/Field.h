@@ -114,106 +114,57 @@ public:
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const Variant& C)
-    {
-        if (this == &C)
-        {
-            return *this;
-        }
-
-        setData(C);
-        return *this;
-    }
+    Field& operator=(const Variant& C) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const bool value) override
-    {
-        setBool(value);
-        return *this;
-    }
+    Field& operator=(const bool value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const int32_t value) override
-    {
-        setInteger(value);
-        return *this;
-    }
+    Field& operator=(const int32_t value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const int64_t value) override
-    {
-        setInt64(value);
-        return *this;
-    }
+    Field& operator=(const int64_t value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const double value) override
-    {
-        setFloat(value);
-        return *this;
-    }
+    Field& operator=(const double value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const char* value) override
-    {
-        setString(value);
-        return *this;
-    }
+    Field& operator=(const char* value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const String& value) override
-    {
-        setBuffer(reinterpret_cast<const uint8_t*>(value.c_str()), value.length(), VariantDataType::VAR_STRING);
-        return *this;
-    }
+    Field& operator=(const String& value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const DateTime& value) override
-    {
-        setDateTime(value);
-        return *this;
-    }
+    Field& operator=(const DateTime& value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const MoneyData& value) override
-    {
-        setMoney(value.quantity, value.scale);
-        return *this;
-    }
+    Field& operator=(const MoneyData& value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const uint8_t* value) override
-    {
-        setImagePtr(value);
-        return *this;
-    }
+    Field& operator=(const uint8_t* value) override;
 
     /**
      * @brief Assignment operation.
      */
-    Field& operator=(const Buffer& value) override
-    {
-        setBuffer(value.data(), value.bytes(), VariantDataType::VAR_BUFFER);
-        return *this;
-    }
+    Field& operator=(const Buffer& value) override;
 
     /**
      * @brief Better (than in base class) conversion method.

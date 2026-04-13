@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-13                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -30,27 +31,27 @@ using namespace std;
 using namespace sptk;
 
 static constexpr int                   numberOfDividers = 16;
-const array<int64_t, numberOfDividers> MoneyData::dividers = {
+const array<int64_t, numberOfDividers> MoneyData::m_dividers = {
     1, 10, 100, 1000, 10000, 100000, 1000000L, 10000000L, 100000000LL,
     1000000000LL, 10000000000LL, 100000000000LL, 1000000000000LL,
     10000000000000LL, 100000000000000LL, 1000000000000000LL};
 
 MoneyData::operator double() const
 {
-    return static_cast<double>(quantity) / static_cast<double>(dividers[scale]);
+    return static_cast<double>(m_quantity) / static_cast<double>(m_dividers[m_scale]);
 }
 
 MoneyData::operator int64_t() const
 {
-    return quantity / dividers[scale];
+    return m_quantity / m_dividers[m_scale];
 }
 
 MoneyData::operator int32_t() const
 {
-    return static_cast<int>(quantity / dividers[scale]);
+    return static_cast<int>(m_quantity / m_dividers[m_scale]);
 }
 
 MoneyData::operator bool() const
 {
-    return quantity != 0;
+    return m_quantity != 0;
 }

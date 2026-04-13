@@ -467,7 +467,7 @@ public:
      * @brief Assignment operator.
      * @param other             Other object.
      */
-    Variant& operator=(const Variant& other);
+    virtual Variant& operator=(const Variant& other);
 
     /**
      * @brief Assignment operator.

@@ -315,7 +315,7 @@ Variant& Variant::operator=(double value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const MoneyData& value)
 {
-    setMoney(value.quantity, value.scale);
+    setMoney(value.quantity(), value.scale());
     return *this;
 }
 
@@ -578,7 +578,7 @@ bool VariantAdaptors::asBool() const
             return (m_data.get<int64_t>() > 0);
 
         case VAR_MONEY:
-            return (m_data.get<MoneyData>().quantity > 0);
+            return (m_data.get<MoneyData>().quantity() > 0);
 
         case VAR_FLOAT:
             return (m_data.get<double>() > 0);
@@ -795,10 +795,10 @@ String BaseVariant::moneyDataToString() const
 {
     stringstream output;
     const auto&  moneyData = m_data.get<MoneyData>();
-    const auto   scale = moneyData.scale;
-    auto         divider = MoneyData::dividers[scale];
-    const auto   value = moneyData.quantity / divider;
-    auto         decimal = abs(moneyData.quantity) % divider;
+    const auto   scale = moneyData.scale();
+    auto         divider = MoneyData::divider(scale);
+    const auto   value = moneyData.quantity() / divider;
+    auto         decimal = abs(moneyData.quantity()) % divider;
     output << fixed << value << "." << setfill('0') << setw(scale) << decimal;
     return output.str();
 }

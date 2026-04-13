@@ -29,28 +29,29 @@
 #include <sptk5/VariantStorageClient.h>
 
 namespace sptk {
+
 /**
- * Money data (internal).
+ * @brief Money data (internal).
  *
  * A combination of integer quantity and scale - positive integer presenting power of ten for divider.
- * A money value is quantity / 10^(scale)
+ * A money value is quantity / 10^(scale).
  */
 class SP_EXPORT MoneyData : public VariantStorageClient
 {
 public:
-    static const std::array<int64_t, 16> dividers; ///< Dividers that help formatting money data
-    int64_t                              quantity; ///< Integer value
-    uint8_t                              scale;    ///< Scale
-
     /**
-     * Constructor
-     * @param quantity          Money value
-     * @param scale             Money value scale (signs after decimal point)
+     * @brief Constructor.
+     * @param quantity          Money value.
+     * @param scale             Money value scale (signs after decimal point).
      */
     explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0)
-        : quantity(quantity)
-        , scale(scale)
+        : m_quantity(quantity)
+        , m_scale(scale)
     {
+        if (scale >= m_dividers.size())
+        {
+            throw std::out_of_range("MoneyData: scale is out of range");
+        }
     }
 
     static VariantDataType variantDataType()
@@ -69,12 +70,12 @@ public:
     explicit operator int64_t() const;
 
     /**
-     * Convert to integer value
+     * @brief Convert to integer value.
      */
     explicit operator int32_t() const;
 
     /**
-     * Convert to bool value
+     * @brief Convert to bool value.
      */
     explicit operator bool() const;
 
@@ -82,6 +83,44 @@ public:
     {
         return sizeof(MoneyData);
     }
+
+    int64_t quantity() const
+    {
+        return m_quantity;
+    }
+
+    void setQuantity(int64_t quantity)
+    {
+        m_quantity = quantity;
+    }
+
+    uint8_t scale() const
+    {
+        return m_scale;
+    }
+
+    void setScale(uint8_t scale)
+    {
+        if (scale >= m_dividers.size())
+        {
+            throw std::out_of_range("MoneyData: scale is out of range");
+        }
+        m_scale = scale;
+    }
+
+    static int64_t divider(uint8_t scale)
+    {
+        if (scale >= m_dividers.size())
+        {
+            throw std::out_of_range("MoneyData: scale is out of range");
+        }
+        return m_dividers[scale];
+    }
+
+private:
+    static const std::array<int64_t, 16> m_dividers; ///< Dividers for formatting money data.
+    int64_t                              m_quantity; ///< Integer value.
+    uint8_t                              m_scale;    ///< Scale.
 };
 
 } // namespace sptk

@@ -31,14 +31,14 @@ using namespace std;
 using namespace sptk;
 namespace sptk {
 
-TEST(VariantStorageTests,null)
+TEST(VariantStorageTests, null)
 {
     const VariantStorage variantStorage;
     EXPECT_TRUE(VariantDataType::VAR_NONE == variantStorage.type().type);
     EXPECT_TRUE(variantStorage.isNull());
 }
 
-TEST(VariantStorageTests,bool)
+TEST(VariantStorageTests, bool)
 {
     VariantStorage variantStorage(true);
     EXPECT_TRUE(VariantDataType::VAR_BOOL == variantStorage.type().type);
@@ -73,7 +73,7 @@ TEST(VariantStorageTests,bool)
     EXPECT_TRUE(true == variantStorage.get<bool>());
 }
 
-TEST(VariantStorageTests,integer)
+TEST(VariantStorageTests, integer)
 {
     constexpr auto testFloat = 0.1;
     VariantStorage variantStorage1(1);
@@ -116,7 +116,7 @@ TEST(VariantStorageTests,integer)
     EXPECT_TRUE(2 == variantStorage2.get<int>());
 }
 
-TEST(VariantStorageTests,double)
+TEST(VariantStorageTests, double)
 {
     constexpr double testValue {3.0};
     VariantStorage   variantStorage(testValue);
@@ -148,7 +148,7 @@ TEST(VariantStorageTests,double)
     EXPECT_EQ(testValue + 1, variantStorage.get<double>());
 }
 
-TEST(VariantStorageTests,buffer)
+TEST(VariantStorageTests, buffer)
 {
     const Buffer testBuffer("Test buffer");
     const Buffer testBuffer2("Test buffer 2");
@@ -163,7 +163,7 @@ TEST(VariantStorageTests,buffer)
     EXPECT_TRUE(VariantDataType::VAR_BUFFER == variantStorage.type().type);
     EXPECT_STREQ(testBuffer2.c_str(), static_cast<const Buffer&>(variantStorage).c_str());
 
-    Buffer buffer(testBuffer);
+    Buffer         buffer(testBuffer);
     VariantStorage variantStorage2(std::move(buffer));
     EXPECT_TRUE(VariantDataType::VAR_BUFFER == variantStorage2.type().type);
     EXPECT_STREQ(testBuffer.c_str(), static_cast<const Buffer&>(variantStorage2).c_str());
@@ -200,7 +200,7 @@ TEST(VariantStorageTests,buffer)
     EXPECT_STREQ(testBuffer2.c_str(), variantStorage.get<Buffer>().c_str());
 }
 
-TEST(VariantStorageTests,string)
+TEST(VariantStorageTests, string)
 {
     const String testString("Test string");
     const String testString2("Test string 2");
@@ -240,7 +240,7 @@ TEST(VariantStorageTests,string)
     EXPECT_FALSE(variantStorage.isNull());
 }
 
-TEST(VariantStorageTests,dateTime)
+TEST(VariantStorageTests, dateTime)
 {
     const DateTime testDateTime(2023, 2, 25);
     const DateTime testDateTime2(2021, 1, 24);
@@ -285,7 +285,7 @@ TEST(VariantStorageTests,dateTime)
     EXPECT_FALSE(variantStorage.isNull());
 }
 
-TEST(VariantStorageTests,moneyData)
+TEST(VariantStorageTests, moneyData)
 {
     const MoneyData testMoneyData(123456, 2);
     const MoneyData testMoneyData2(1234567, 2);
@@ -331,11 +331,11 @@ TEST(VariantStorageTests,moneyData)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(VariantStorageTests,externalBuffer)
+TEST(VariantStorageTests, externalBuffer)
 {
     constexpr array<uint8_t, 4> testBytes = {0, 1, 2, 3};
-    const array<uint8_t, 5> testBytes2 = {0, 1, 2, 3, 4};
-    const char* testText = "Test text";
+    const array<uint8_t, 5>     testBytes2 = {0, 1, 2, 3, 4};
+    const char*                 testText = "Test text";
 
     VariantStorage variantStorage(testBytes.data(), sizeof(testBytes), true);
     EXPECT_TRUE(VariantDataType::VAR_BYTE_POINTER == variantStorage.type().type);
@@ -380,7 +380,7 @@ TEST(VariantStorageTests,externalBuffer)
     EXPECT_FALSE(variantStorage2.isNull());
 }
 
-TEST(VariantStorageTests,moveAssignment)
+TEST(VariantStorageTests, moveAssignment)
 {
     VariantStorage variantStorage;
     VariantStorage variantStorage2(Buffer("Test"));
@@ -389,7 +389,7 @@ TEST(VariantStorageTests,moveAssignment)
     EXPECT_STREQ("Test", static_cast<const Buffer&>(variantStorage).c_str());
 }
 
-TEST(VariantStorageTests,getInvalidType)
+TEST(VariantStorageTests, getInvalidType)
 {
     VariantStorage variantStorage;
 
@@ -397,7 +397,7 @@ TEST(VariantStorageTests,getInvalidType)
     EXPECT_THROW(COUT(static_cast<double>(variantStorage)), invalid_argument);
     EXPECT_THROW(COUT((const Buffer&) variantStorage), invalid_argument);
     EXPECT_THROW(COUT(static_cast<const DateTime&>(variantStorage).dateString()), invalid_argument);
-    EXPECT_THROW(COUT(static_cast<const MoneyData&>(variantStorage).quantity), invalid_argument);
+    EXPECT_THROW(COUT(static_cast<const MoneyData&>(variantStorage).quantity()), invalid_argument);
     EXPECT_THROW(COUT(static_cast<const uint8_t*>(variantStorage)), invalid_argument);
     EXPECT_THROW(COUT(static_cast<const String&>(variantStorage).length()), invalid_argument);
     EXPECT_THROW(COUT(static_cast<bool>(variantStorage)), invalid_argument);
@@ -430,13 +430,13 @@ TEST(VariantStorageTests,getInvalidType)
     EXPECT_THROW(COUT(static_cast<int>(variantStorage)), invalid_argument);
 }
 
-TEST(VariantStorageTests,getAndSet)
+TEST(VariantStorageTests, getAndSet)
 {
     VariantStorage variantStorage;
-    const Buffer testBuffer("test");
+    const Buffer   testBuffer("test");
     variantStorage.set(testBuffer);
     EXPECT_TRUE(VariantDataType::VAR_BUFFER == variantStorage.type().type);
     EXPECT_STREQ(testBuffer.c_str(), variantStorage.get<Buffer>().c_str());
 }
 
-} // namespace sptk_test
+} // namespace sptk
