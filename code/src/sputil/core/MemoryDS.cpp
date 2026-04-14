@@ -188,6 +188,25 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
     return false;
 }
 
+MemoryDS::MemoryDS(MemoryDS&& other) noexcept
+{
+    const auto pos = std::distance(other.m_list.begin(), other.m_current);
+    m_list = std::move(other.m_list);
+    m_current = m_list.begin() + pos;
+}
+
+MemoryDS& MemoryDS::operator=(MemoryDS&& other) noexcept
+{
+    if (this != &other)
+    {
+        std::scoped_lock lock(m_mutex, other.m_mutex);
+        const auto       pos = std::distance(other.m_list.begin(), other.m_current);
+        m_list = std::move(other.m_list);
+        m_current = m_list.begin() + pos;
+    }
+    return *this;
+}
+
 void MemoryDS::clear()
 {
     const scoped_lock lock(m_mutex);

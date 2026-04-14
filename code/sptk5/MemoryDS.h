@@ -68,11 +68,7 @@ public:
      * @brief Move constructor.
      * @param other             Another object.
      */
-    MemoryDS(MemoryDS&& other) noexcept
-        : m_list(std::move(other.m_list))
-        , m_current(m_list.begin())
-    {
-    }
+    MemoryDS(MemoryDS&& other) noexcept;
 
     /**
      * @brief Destructor.
@@ -89,16 +85,7 @@ public:
      * @brief Move assignment.
      * @param other             Another object.
      */
-    MemoryDS& operator=(MemoryDS&& other) noexcept
-    {
-        if (this != &other)
-        {
-            std::scoped_lock lock(m_mutex, other.m_mutex);
-            m_list = std::move(other.m_list);
-            m_current = m_list.begin();
-        }
-        return *this;
-    }
+    MemoryDS& operator=(MemoryDS&& other) noexcept;
 
     /**
      * @brief Clears all the records.
