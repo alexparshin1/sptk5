@@ -177,7 +177,7 @@ private:
      * @param file              File information
      * @return data source row
      */
-    static SFieldList makeFileListEntry(const std::filesystem::directory_entry& file, size_t& index);
+    static UFieldList makeFileListEntry(const std::filesystem::directory_entry& file, size_t& index);
 
     static CSmallPixmapType imageTypeFromExtension(const String& ext);
 };

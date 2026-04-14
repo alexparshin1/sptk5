@@ -57,7 +57,7 @@ bool ImapDS::open()
         }
         for (long msg_id = first_message; msg_id <= total_messages; ++msg_id)
         {
-            auto df = make_shared<FieldList>(false);
+            auto df = make_unique<FieldList>(false);
 
             if (m_fetchbody)
             {

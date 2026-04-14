@@ -205,24 +205,12 @@ public:
 
     bool empty() const;
 
-    std::vector<SFieldList>& rows()
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_list;
-    }
-
-    const std::vector<SFieldList>& rows() const
-    {
-        std::scoped_lock lock(m_mutex);
-        return m_list;
-    }
-
     /**
      * @brief Push back the field list.
      * Memory DS takes ownership of the data.
      * @param fieldList         Field list.
      */
-    void push_back(const SFieldList& fieldList);
+    void push_back(UFieldList&& fieldList);
 
 private:
     mutable std::mutex                m_mutex;   ///< Mutex that protects internal data.

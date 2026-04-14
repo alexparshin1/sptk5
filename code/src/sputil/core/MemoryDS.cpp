@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-15                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -176,7 +177,7 @@ bool MemoryDS::find(const String& fieldName, const Variant& position)
     const String value = position.asString();
     for (auto itor = m_list.begin(); itor != m_list.end(); ++itor)
     {
-        if (SFieldList& entry = *itor;
+        if (const SFieldList& entry = *itor;
             (*entry)[fieldName].asString() == value)
         {
             m_current = itor;
@@ -196,14 +197,20 @@ void MemoryDS::clear()
     m_current = m_list.end();
 }
 
-void MemoryDS::push_back(const SFieldList& fieldList)
+void MemoryDS::push_back(UFieldList&& fieldList)
 {
     const scoped_lock lock(m_mutex);
+
+    const auto pos = distance(m_list.begin(), m_current);
 
     m_list.push_back(std::move(fieldList));
     if (m_list.size() == 1)
     {
         m_current = m_list.begin();
+    }
+    else
+    {
+        m_current = m_list.begin() + pos;
     }
 }
 

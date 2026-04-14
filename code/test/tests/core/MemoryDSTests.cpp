@@ -44,9 +44,9 @@ const vector<Person> people {
     {"Jane", 28},
     {"Bob", 6}};
 
-SFieldList makePersonRow(const String& name, int age)
+UFieldList makePersonRow(const String& name, int age)
 {
-    auto row = make_shared<FieldList>(false);
+    auto row = make_unique<FieldList>(false);
 
     const auto nameField = make_shared<Field>("name");
     *nameField = name;
@@ -71,7 +71,8 @@ TEST(MemoryDSTests, createAndVerify)
 
     for (const auto& person: people)
     {
-        ds.push_back(makePersonRow(person.name, person.age));
+        auto personFields = makePersonRow(person.name, person.age);
+        ds.push_back(std::move(personFields));
     }
 
     EXPECT_EQ(ds.recordCount(), static_cast<size_t>(3));
@@ -152,9 +153,9 @@ TEST(MemoryDSTests, iteratorStaysOnCurrentRowAfterManyAppends)
     const auto currentRowBeforeAppend = ds.current();
     ASSERT_NE(currentRowBeforeAppend, nullptr);
 
-    for (int i = 0; i < 512; ++i)
+    for (auto i = 0; i < 512; ++i)
     {
-        ds.push_back(makePersonRow("Person " + to_string(i), i));
+        ds.push_back(makePersonRow(format("Person {}", i), i));
     }
 
     const auto currentRowAfterAppend = ds.current();

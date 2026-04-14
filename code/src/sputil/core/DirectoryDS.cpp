@@ -157,12 +157,12 @@ bool DirectoryDS::open()
     {
         for (const char* dirName: {".", ".."})
         {
-            auto fields = make_shared<FieldList>(false);
+            auto fields = make_unique<FieldList>(false);
             fields->push_back(" ", false).setImageNdx(static_cast<uint32_t>(CSmallPixmapType::SXPM_FOLDER));
             fields->push_back("Name", false) = dirName;
             fields->push_back("Size", false) = "";
             fields->push_back("Type", false) = "Directory";
-            push_back(fields);
+            push_back(std::move(fields));
             ++index;
         }
     }
@@ -197,7 +197,7 @@ bool DirectoryDS::open()
         }
 
         auto entry = makeFileListEntry(file, index);
-        push_back(entry);
+        push_back(std::move(entry));
     }
 
     first();
@@ -205,7 +205,7 @@ bool DirectoryDS::open()
     return !empty();
 }
 
-SFieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
+UFieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& index)
 {
     auto     pixmapType = CSmallPixmapType::SXPM_TXT_DOCUMENT;
     DateTime modificationTime;
@@ -216,7 +216,7 @@ SFieldList DirectoryDS::makeFileListEntry(const directory_entry& file, size_t& i
         modeName += " symlink";
     }
 
-    auto fields = make_shared<FieldList>(false);
+    auto fields = make_unique<FieldList>(false);
     fields->push_back(" ", false).setImageNdx(static_cast<uint32_t>(pixmapType));
     fields->push_back("Name", false) = file.path().filename().string();
     if (modeName == "Directory")

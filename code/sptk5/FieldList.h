@@ -281,6 +281,7 @@ private:
 };
 
 using SFieldList = std::shared_ptr<FieldList>;
+using UFieldList = std::unique_ptr<FieldList>;
 
 } // namespace sptk
 
