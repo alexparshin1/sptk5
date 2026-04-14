@@ -63,14 +63,14 @@ public:
     {
         DateTime    timestamp {"now"}; ///< Message timestamp
         LogPriority priority;          ///< Message priority
-        String      message;           ///< Message text
+        std::string message;           ///< Message text
 
         /**
          * @brief Constructor
          * @param priority       Message priority
          * @param message        Message text
          */
-        Message(LogPriority priority, String message);
+        Message(LogPriority priority, std::string message);
     };
 
     using UMessage = std::unique_ptr<Message>;
@@ -96,65 +96,65 @@ public:
      * @param priority          Message priority
      * @param message           Message text
      */
-    void log(LogPriority priority, const String& message) const;
+    void log(LogPriority priority, const std::string& message) const;
     void log(LogPriority priority, const OutputString& output) const;
 
     /**
      * @brief Log message with debug priority
      * @param message           Message text
      */
-    void debug(const String& message) const;
+    void debug(const std::string& message) const;
     void debug(const OutputString& output) const;
 
     /**
      * @brief Log output with info priority
      * @param output           Message text
      */
-    void info(const String& output) const;
-    void info(const OutputString& message) const;
+    void info(const std::string& message) const;
+    void info(const OutputString& output) const;
 
     /**
      * @brief Log message with notice priority
      * @param message           Message text
      */
-    void notice(const String& message) const;
+    void notice(const std::string& message) const;
     void notice(const OutputString& output) const;
 
     /**
      * @brief Log message with warning priority
      * @param message           Message text
      */
-    void warning(const String& message) const;
+    void warning(const std::string& message) const;
     void warning(const OutputString& output) const;
 
     /**
      * @brief Log message with error priority
      * @param message           Message text
      */
-    void error(const String& message) const;
+    void error(const std::string& message) const;
     void error(const OutputString& output) const;
 
     /**
      * @brief Log message with critical priority
      * @param message           Message text
      */
-    void critical(const String& message) const;
+    void critical(const std::string& message) const;
     void critical(const OutputString& output) const;
 
     /**
      * @brief Set log message prefix
      * @param prefix            Message prefix
      */
-    void prefix(std::string_view prefix)
+    void prefix(const std::string& prefix)
     {
         const std::lock_guard lock(m_mutex);
-        m_prefix.assign(prefix.data(), prefix.size());
+        m_prefix = prefix;
     }
 
     /**
      * @brief Get log message prefix
      */
-    std::string_view prefix() const
+    std::string prefix() const
     {
         const std::lock_guard lock(m_mutex);
         return m_prefix;

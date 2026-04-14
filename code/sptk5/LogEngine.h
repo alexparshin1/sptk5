@@ -88,7 +88,7 @@ public:
      */
     virtual void reset()
     {
-        // Implement in derived class
+        m_messages.clear();
     }
 
     /**
@@ -201,7 +201,7 @@ protected:
     /**
      * Mutex for using in derived classes
      */
-    std::mutex& masterLock()
+    std::mutex& masterLock() const
     {
         return m_mutex;
     }

@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-15                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -31,47 +32,48 @@
 using namespace std;
 using namespace sptk;
 
-Logger::Message::Message(LogPriority priority, String message)
+Logger::Message::Message(const LogPriority priority, std::string message)
     : priority(priority)
     , message(std::move(message))
 {
 }
 
-Logger::Logger(LogEngine& destination, std::string_view prefix)
+Logger::Logger(LogEngine& destination, const std::string_view prefix)
     : m_destination(destination)
     , m_prefix(prefix)
 {
 }
 
-void Logger::log(LogPriority priority, const String& message) const
+void Logger::log(LogPriority priority, const string& message) const
 {
-    auto msg = make_unique<Message>(priority, m_prefix + message);
+    auto msg = make_unique<Message>(priority, format("{}{}", m_prefix, message.c_str()));
     m_destination.log(std::move(msg));
 }
 
 void Logger::log(LogPriority priority, const OutputString& output) const
 {
-    auto msg = make_unique<Message>(priority, m_prefix + output());
+    auto msg = make_unique<Message>(priority, prefix() + output());
     m_destination.log(std::move(msg));
 }
 
-void Logger::debug(const String& message) const
+void Logger::debug(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + message);
+    auto msg = make_unique<Message>(LogPriority::Debug, prefix() + message);
     m_destination.log(std::move(msg));
 }
 
 void Logger::debug(const OutputString& output) const
 {
-    if (m_destination.minPriority() >= LogPriority::Debug) {
-        auto msg = make_unique<Message>(LogPriority::Debug, m_prefix + output());
+    if (m_destination.minPriority() >= LogPriority::Debug)
+    {
+        auto msg = make_unique<Message>(LogPriority::Debug, prefix() + output());
         m_destination.log(std::move(msg));
     }
 }
 
-void Logger::info(const String& message) const
+void Logger::info(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Info, m_prefix + message);
+    auto msg = make_unique<Message>(LogPriority::Info, prefix() + message);
     m_destination.log(std::move(msg));
 }
 
@@ -79,60 +81,84 @@ void Logger::info(const OutputString& output) const
 {
     if (m_destination.minPriority() >= LogPriority::Info)
     {
-        auto msg = make_unique<Message>(LogPriority::Info, m_prefix + output());
+        auto msg = make_unique<Message>(LogPriority::Info, prefix() + output());
         m_destination.log(std::move(msg));
     }
 }
 
-void Logger::notice(const String& message) const
+void Logger::notice(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Notice, m_prefix + message);
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Notice)
+    {
+        auto msg = make_unique<Message>(LogPriority::Notice, prefix() + message);
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::notice(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Notice, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Notice)
+    {
+        auto msg = make_unique<Message>(LogPriority::Notice, prefix() + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
-void Logger::warning(const String& message) const
+void Logger::warning(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Warning, m_prefix + message);
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Warning)
+    {
+        auto msg = make_unique<Message>(LogPriority::Warning, prefix() + message);
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::warning(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Warning, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Warning)
+    {
+        auto msg = make_unique<Message>(LogPriority::Warning, prefix() + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
-void Logger::error(const String& message) const
+void Logger::error(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Error, m_prefix + message);
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Error)
+    {
+        auto msg = make_unique<Message>(LogPriority::Error, prefix() + message);
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::error(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Error, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Error)
+    {
+        auto msg = make_unique<Message>(LogPriority::Error, prefix() + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
-void Logger::critical(const String& message) const
+void Logger::critical(const string& message) const
 {
-    auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + message);
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Critical)
+    {
+        auto msg = make_unique<Message>(LogPriority::Critical, prefix() + message);
+        m_destination.log(std::move(msg));
+    }
 }
 
 void Logger::critical(const OutputString& output) const
 {
-    auto msg = make_unique<Message>(LogPriority::Critical, m_prefix + output());
-    m_destination.log(std::move(msg));
+    if (m_destination.minPriority() >= LogPriority::Critical)
+    {
+        auto msg = make_unique<Message>(LogPriority::Critical, prefix() + output());
+        m_destination.log(std::move(msg));
+    }
 }
 
-bool Logger::has(LogPriority logPriority) const
+bool Logger::has(const LogPriority logPriority) const
 {
     return m_destination.minPriority() >= logPriority;
 }

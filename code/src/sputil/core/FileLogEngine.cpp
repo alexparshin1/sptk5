@@ -117,6 +117,8 @@ void FileLogEngine::reset()
     {
         throw Exception("Can't open log file '" + m_fileName.string() + "'");
     }
+
+    LogEngine::reset();
 }
 
 void FileLogEngine::close()

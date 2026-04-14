@@ -32,16 +32,35 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
 struct Person
 {
     String name;
     int    age {0};
 };
 
-static const vector<Person> people {
+const vector<Person> people {
     {"John", 30},
     {"Jane", 28},
     {"Bob", 6}};
+
+SFieldList makePersonRow(const String& name, int age)
+{
+    auto row = make_shared<FieldList>(false);
+
+    const auto nameField = make_shared<Field>("name");
+    *nameField = name;
+    row->push_back(nameField);
+
+    const auto ageField = make_shared<Field>("age");
+    *ageField = age;
+    row->push_back(ageField);
+
+    return row;
+}
+
+} // namespace
+
 namespace sptk {
 
 TEST(MemoryDSTests, createAndVerify)
@@ -52,17 +71,7 @@ TEST(MemoryDSTests, createAndVerify)
 
     for (const auto& person: people)
     {
-        auto row = make_shared<FieldList>(false);
-
-        auto name = make_shared<Field>("name");
-        *name = person.name;
-        row->push_back(name);
-
-        auto age = make_shared<Field>("age");
-        *age = person.age;
-        row->push_back(age);
-
-        ds.push_back(row);
+        ds.push_back(makePersonRow(person.name, person.age));
     }
 
     EXPECT_EQ(ds.recordCount(), static_cast<size_t>(3));
@@ -110,6 +119,49 @@ TEST(MemoryDSTests, defaultConstructedEofCurrent)
 
     EXPECT_TRUE(ds.eof());
     EXPECT_THROW(ds.current(), Exception);
+}
+
+TEST(MemoryDSTests, iteratorStaysOnCurrentRowAfterAppend)
+{
+    MemoryDS ds;
+    ds.push_back(makePersonRow("John", 30));
+    ds.push_back(makePersonRow("Jane", 28));
+
+    ds.open();
+    ASSERT_TRUE(ds.find("name", "Jane"));
+    const auto currentRowBeforeAppend = ds.current();
+    ASSERT_NE(currentRowBeforeAppend, nullptr);
+
+    ds.push_back(makePersonRow("Bob", 6));
+
+    const auto currentRowAfterAppend = ds.current();
+    ASSERT_NE(currentRowAfterAppend, nullptr);
+    EXPECT_EQ(currentRowBeforeAppend.get(), currentRowAfterAppend.get());
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
+    EXPECT_EQ(ds["age"].asInteger(), 28);
+}
+
+TEST(MemoryDSTests, iteratorStaysOnCurrentRowAfterManyAppends)
+{
+    MemoryDS ds;
+    ds.push_back(makePersonRow("John", 30));
+    ds.push_back(makePersonRow("Jane", 28));
+
+    ds.open();
+    ASSERT_TRUE(ds.find("name", "Jane"));
+    const auto currentRowBeforeAppend = ds.current();
+    ASSERT_NE(currentRowBeforeAppend, nullptr);
+
+    for (int i = 0; i < 512; ++i)
+    {
+        ds.push_back(makePersonRow("Person " + to_string(i), i));
+    }
+
+    const auto currentRowAfterAppend = ds.current();
+    ASSERT_NE(currentRowAfterAppend, nullptr);
+    EXPECT_EQ(currentRowBeforeAppend.get(), currentRowAfterAppend.get());
+    EXPECT_STREQ(ds["name"].asString().c_str(), "Jane");
+    EXPECT_EQ(ds["age"].asInteger(), 28);
 }
 
 } // namespace sptk

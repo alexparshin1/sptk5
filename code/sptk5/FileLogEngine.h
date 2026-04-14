@@ -60,7 +60,6 @@ public:
      */
     ~FileLogEngine() override;
 
-public:
     /**
      * @brief Stores or sends log message to actual destination.
      * @param message           Log message.
