@@ -34,7 +34,7 @@ using namespace sptk;
  * @brief Test OsProcess class executes an OS command and captures output.
  */
 namespace sptk {
-TEST(OsProcessTests,execute)
+TEST(OsProcessTests, execute)
 {
 #ifdef _WIN32
     String command("cmd /?");
@@ -62,7 +62,7 @@ TEST(OsProcessTests,execute)
 /**
  * @brief Test OsProcess class start and kills a long-running OS command.
  */
-TEST(OsProcessTests,kill)
+TEST(OsProcessTests, kill)
 {
     Stopwatch stopWatch;
 #ifdef _WIN32
@@ -90,4 +90,43 @@ TEST(OsProcessTests,kill)
     EXPECT_GT(1100, stopWatch.milliseconds());
 }
 
-} // namespace sptk_test
+TEST(OsProcessTests, multiple_waits)
+{
+#ifdef _WIN32
+    String command("cmd /C echo hello");
+#else
+    String command("echo hello");
+#endif
+
+    OsProcess osProcess(command);
+    osProcess.start();
+
+    auto result1 = osProcess.wait();
+    EXPECT_EQ(0, result1);
+
+    // This should NOT throw std::future_error (no_state) if correctly handled
+    auto result2 = osProcess.wait();
+    EXPECT_EQ(0, result2);
+}
+
+TEST(OsProcessTests, double_close)
+{
+#ifdef _WIN32
+    String command("cmd /C echo hello");
+#else
+    String command("echo hello");
+#endif
+
+    OsProcess osProcess(command);
+    osProcess.start();
+
+    // Explicitly call close
+    auto result1 = osProcess.close();
+    EXPECT_EQ(0, result1);
+
+    // Should be safe to call again (possibly from destructor)
+    auto result2 = osProcess.close();
+    EXPECT_EQ(0, result2);
+}
+
+} // namespace sptk
