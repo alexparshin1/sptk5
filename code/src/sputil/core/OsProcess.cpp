@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-16                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -50,11 +51,17 @@ OsProcess::OsProcess(sptk::String command, std::function<void(const sptk::String
 OsProcess::~OsProcess()
 {
     close();
+    if (m_task.joinable())
+    {
+        m_task.join();
+    }
 }
 
 void OsProcess::start()
 {
     m_terminated = false;
+
+    const scoped_lock lock(m_mutex);
 
 #ifdef _WIN32
     STARTUPINFO         si;
@@ -100,20 +107,20 @@ void OsProcess::start()
                         &m_processInformation) // Pointer to PROCESS_INFORMATION structure
     )
     {
-        throw runtime_error("Can't start process");
+        throw Exception("Can't start process");
     }
 #else
     m_stdout = popen2(m_command.c_str(), "r", m_pid);
     if (m_stdout == nullptr)
     {
-        throw runtime_error("Can't start process");
+        throw Exception("Can't start process");
     }
 #endif
-    m_task = async(launch::async, [this]
-                   {
-                       readData();
-                       return close();
-                   });
+    m_task = jthread([this]
+                     {
+                         readData();
+                         return close();
+                     });
 }
 
 int OsProcess::waitForData(const chrono::milliseconds& timeout)
@@ -146,11 +153,17 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
     }
     return 0;
 #else
-    int              bytesAvailable = 0;
+    auto bytesAvailable = 0;
+    int  fd;
+    {
+        const scoped_lock lock(m_mutex);
+        fd = fileno(m_stdout);
+    }
+
     array<pollfd, 1> fds {};
-    auto             fd = fileno(m_stdout);
     fds[0].fd = fd;
     fds[0].events = POLLIN;
+
     switch (poll(fds.data(), 1, static_cast<int>(timeout.count())))
     {
         case 0:
@@ -174,15 +187,21 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
 #endif
 }
 
+bool OsProcess::isEof() const
+{
+#ifndef _WIN32
+    const scoped_lock lock(m_mutex);
+    return m_stdout != nullptr && feof(m_stdout);
+#else
+    return m_stdout == nullptr;
+#endif
+}
+
 void OsProcess::readData()
 {
     m_buffer.fill(0);
 
-    while (!m_terminated
-#ifndef _WIN32
-           && !feof(m_stdout)
-#endif
-    )
+    while (!m_terminated && !isEof())
     {
         auto bytesAvailable = waitForData(500ms);
         if (bytesAvailable == -1)
@@ -201,11 +220,12 @@ void OsProcess::readData()
             break;
         }
 #else
-        const size_t readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
+        const auto readSize = static_cast<size_t>(bytesAvailable) > BufferSize ? BufferSize : bytesAvailable;
         if (readSize > 0)
         {
-            lock_guard lock(m_mutex);
-            if (fread(m_buffer.data(), readSize, 1, m_stdout) == 0)
+            const scoped_lock lock(m_mutex);
+            if (m_stdout == nullptr ||
+                fread(m_buffer.data(), readSize, 1, m_stdout) == 0)
             {
                 break;
             }
@@ -220,21 +240,17 @@ void OsProcess::readData()
 
 int OsProcess::wait()
 {
-    return m_task.get();
-}
-
-int OsProcess::wait_for(const chrono::milliseconds& timeout)
-{
-    if (m_task.wait_for(timeout) == std::future_status::ready)
+    if (m_task.joinable())
     {
-        return m_task.get();
+        m_task.join();
     }
-    return -1;
+    return m_exitCode;
 }
 
 void OsProcess::kill()
 {
-    lock_guard lock(m_mutex);
+    const scoped_lock lock(m_mutex);
+
     m_terminated = true;
 #ifdef _WIN32
     if (TerminateProcess(m_processInformation.hProcess, 0) == 0)
@@ -246,8 +262,9 @@ void OsProcess::kill()
     {
         throw SystemException("Can't kill process: pid is 0");
     }
-    auto rc = ::kill(m_pid, SIGKILL);
-    if (rc != 0)
+
+    if (auto rc = ::kill(m_pid, SIGKILL);
+        rc != 0)
     {
         throw SystemException("Can't kill process");
     }
@@ -256,10 +273,15 @@ void OsProcess::kill()
 
 int OsProcess::close()
 {
-    lock_guard lock(m_mutex);
+    const scoped_lock lock(m_mutex);
+
+    if (m_stdout == nullptr)
+    {
+        return m_exitCode;
+    }
 
     m_terminated = true;
-    auto exitCode = 0;
+    m_exitCode = 0;
 
 #ifdef _WIN32
     WaitForSingleObject(m_processInformation.hProcess, 10000);
@@ -282,12 +304,12 @@ int OsProcess::close()
 #else
     if (m_stdout)
     {
-        exitCode = pclose2(m_stdout, m_pid);
+        m_exitCode = WEXITSTATUS(pclose2(m_stdout, m_pid));
     }
 #endif
     m_stdout = nullptr;
 
-    return exitCode;
+    return m_exitCode;
 }
 
 #ifdef _WIN32
@@ -322,8 +344,7 @@ namespace {
 Strings getEnvironment()
 {
     Strings env;
-    auto*   envData = popen("env", "r");
-    if (envData != nullptr)
+    if (auto* envData = popen("env", "r"))
     {
         array<char, 1024> buffer {};
         while (!feof(envData))
@@ -366,8 +387,8 @@ Strings commandToArguments(const String& command)
     return args;
 }
 
-#define READ 0
-#define WRITE 1
+constexpr auto READ = 0;
+constexpr auto WRITE = 1;
 
 /**
  * @brief Executes a command in a subprocess, connecting the process's input or output to a pipe.
@@ -379,9 +400,9 @@ Strings commandToArguments(const String& command)
  */
 FILE* popen2(const string& command, const string& type, int& pid)
 {
-    pid_t child_pid {0};
-    int   fd[2] {};
-    if (pipe(fd) != 0)
+    pid_t         child_pid {0};
+    array<int, 2> fd {};
+    if (pipe(fd.data()) != 0)
     {
         throw SystemException("Can't create pipe");
     }
@@ -424,13 +445,12 @@ FILE* popen2(const string& command, const string& type, int& pid)
         }
         envs.push_back(nullptr);
 
-        auto rc = execvpe(args[0], args.data(), (char* const*) envs.data());
-        if (rc != 0)
+        if (const auto rc = execvpe(args[0], args.data(), (char* const*) envs.data());
+            rc != 0)
         {
             throw SystemException("Can't execute command");
         }
 
-        //system(command.c_str());
         exit(0);
     }
 

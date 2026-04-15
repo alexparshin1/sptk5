@@ -33,71 +33,66 @@
 
 namespace sptk {
 /**
-	 * @brief Asynchronously execute the OS process, optionally capturing its output to callback function
-	 */
+ * @brief Asynchronously execute the OS process, optionally capturing its output to callback function.
+ */
 class SP_EXPORT OsProcess
 {
 public:
     /**
-     * @brief Constructor
-     * @param command           Command to execute
-     * @param onData            Optional callback function called upon process output
+     * @brief Constructor.
+     * @param command           Command to execute.
+     * @param onData            Optional callback function called upon process output.
      */
     explicit OsProcess(String command, std::function<void(const String&)> onData = nullptr);
 
     /**
-     * @brief Destructor
+     * @brief Destructor.
      */
     ~OsProcess();
 
     /**
-     * @brief Asynchronous start of the process
+     * @brief Asynchronous start of the process.
      */
     void start();
 
     /**
-     * @brief Wait until the process exits
-     * @return process exit code
+     * @brief Wait until the process exits.
+     * @return process exit code.
      */
     int wait();
 
     /**
-     * @brief Wait until the process exits
-     * @param timeout           Maximum time to wait for process exit
-     * @return process exit code
-     */
-    int wait_for(const std::chrono::milliseconds& timeout);
-
-    /**
-     * @brief Kill process
+     * @brief Kill process.
      */
     void kill();
 
     int close();
 
 private:
-    static constexpr size_t BufferSize = 16384; ///< Read buffer size
+    static constexpr size_t BufferSize = 16384; ///< Read buffer size.
 #ifdef _WIN32
     using FileHandle = HANDLE;
 #else
     using FileHandle = FILE*;
 #endif
-    std::mutex                               m_mutex;              ///< Mutex that protects internal data
-    String                                   m_command;            ///< Process command
-    std::function<void(const sptk::String&)> m_onData;             ///< Optional callback function called on process output
-    FileHandle                               m_stdout {};          ///< Process stdout
-    std::future<int>                         m_task;               ///< Process execution task
-    std::atomic_bool                         m_terminated {false}; ///< Process terminate flag
-    int                                      m_pid {0};            ///< Process id
-    std::array<char, BufferSize>             m_buffer {};
+    mutable std::mutex                       m_mutex;              ///< Mutex that protects internal data.
+    String                                   m_command;            ///< Process command.
+    std::function<void(const sptk::String&)> m_onData;             ///< Optional callback function called on process output.
+    FileHandle                               m_stdout {};          ///< Process stdout.
+    std::jthread                             m_task;               ///< Process execution task.
+    std::atomic_bool                         m_terminated {false}; ///< Process terminate flag.
+    int                                      m_pid {0};            ///< Process id.
+    std::array<char, BufferSize>             m_buffer {};          ///< Process output read buffer.
+    int                                      m_exitCode {0};       ///< Process exit code.
 #ifdef _WIN32
     FileHandle          m_stdin {};                       ///< Process stdin
     static sptk::String getErrorMessage(DWORD lastError); ///< Get error message
     PROCESS_INFORMATION m_processInformation2 {};         ///< Process information (Windows only)
     PROCESS_INFORMATION m_processInformation {};          ///< Process information (Windows only)
 #endif
-    int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output
-    void readData();                                            ///< Read process output
+    int  waitForData(const std::chrono::milliseconds& timeout); ///< Wait for process output.
+    void readData();                                            ///< Read process output.
+    bool isEof() const;                                         ///< Check if the process output is at the end of the file.
 };
 
 using SOsProcess = std::shared_ptr<OsProcess>;
