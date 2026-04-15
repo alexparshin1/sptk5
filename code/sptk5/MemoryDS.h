@@ -26,7 +26,6 @@
 
 #pragma once
 
-#include <list>
 #include <mutex>
 #include <sptk5/DataSource.h>
 #include <sptk5/Exception.h>
