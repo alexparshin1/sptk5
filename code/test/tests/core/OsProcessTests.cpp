@@ -66,9 +66,9 @@ TEST(OsProcessTests, kill)
 {
     Stopwatch stopWatch;
 #ifdef _WIN32
-    String command("cmd /C sleep 10");
+    string command("cmd /C sleep 10");
 #else
-    String command("sleep 10s");
+    string command("sleep 10s");
 #endif
 
     stopWatch.start();
@@ -93,39 +93,41 @@ TEST(OsProcessTests, kill)
 TEST(OsProcessTests, multiple_waits)
 {
 #ifdef _WIN32
-    String command("cmd /C echo hello");
+    string command("cmd /C echo hello");
 #else
-    String command("echo hello");
+    const string command("echo hello");
 #endif
 
     OsProcess osProcess(command);
     osProcess.start();
 
-    auto result1 = osProcess.wait();
+    const auto result1 = osProcess.wait();
     EXPECT_EQ(0, result1);
 
     // This should NOT throw std::future_error (no_state) if correctly handled
-    auto result2 = osProcess.wait();
+    const auto result2 = osProcess.wait();
     EXPECT_EQ(0, result2);
 }
 
 TEST(OsProcessTests, double_close)
 {
 #ifdef _WIN32
-    String command("cmd /C echo hello");
+    string command("cmd /C echo hello");
 #else
-    String command("echo hello");
+    const string command("echo hello");
 #endif
 
     OsProcess osProcess(command);
     osProcess.start();
 
+    this_thread::sleep_for(100ms);
+
     // Explicitly call close
-    auto result1 = osProcess.close();
+    const auto result1 = osProcess.close();
     EXPECT_EQ(0, result1);
 
     // Should be safe to call again (possibly from destructor)
-    auto result2 = osProcess.close();
+    const auto result2 = osProcess.close();
     EXPECT_EQ(0, result2);
 }
 

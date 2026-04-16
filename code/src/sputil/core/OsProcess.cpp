@@ -37,12 +37,12 @@ using namespace sptk;
 
 #ifndef _WIN32
 namespace {
-FILE* popen2(const string& command, const string& type, int& pid);
+FILE* popen2(const string& command, string_view type, int& pid);
 int   pclose2(FILE* fp, pid_t pid);
 } // namespace
 #endif
 
-OsProcess::OsProcess(sptk::String command, std::function<void(const sptk::String&)> onData)
+OsProcess::OsProcess(string command, std::function<void(const string&)> onData)
     : m_command(std::move(command))
     , m_onData(std::move(onData))
 {
@@ -110,7 +110,7 @@ void OsProcess::start()
         throw Exception("Can't start process");
     }
 #else
-    m_stdout = popen2(m_command.c_str(), "r", m_pid);
+    m_stdout = popen2(m_command, "r", m_pid);
     if (m_stdout == nullptr)
     {
         throw Exception("Can't start process");
@@ -157,6 +157,10 @@ int OsProcess::waitForData(const chrono::milliseconds& timeout)
     int  fd;
     {
         const scoped_lock lock(m_mutex);
+        if (m_stdout == nullptr)
+        {
+            return -1;
+        }
         fd = fileno(m_stdout);
     }
 
@@ -273,15 +277,21 @@ void OsProcess::kill()
 
 int OsProcess::close()
 {
-    const scoped_lock lock(m_mutex);
+    FileHandle stdout;
 
-    if (m_stdout == nullptr)
     {
-        return m_exitCode;
+        const scoped_lock lock(m_mutex);
+
+        if (m_stdout == nullptr)
+        {
+            return m_exitCode;
+        }
+        stdout = m_stdout;
     }
 
     m_terminated = true;
-    m_exitCode = 0;
+
+    auto exitCode = 0;
 
 #ifdef _WIN32
     WaitForSingleObject(m_processInformation.hProcess, 10000);
@@ -295,19 +305,38 @@ int OsProcess::close()
     m_processInformation.hProcess = nullptr;
     m_processInformation.hThread = nullptr;
 
-    if (m_stdout)
+    if (stdout)
     {
-        CloseHandle(m_stdout);
+        CloseHandle(stdout);
         CloseHandle(m_stdin);
     }
     m_stdin = nullptr;
 #else
-    if (m_stdout)
+    if (stdout)
     {
-        m_exitCode = WEXITSTATUS(pclose2(m_stdout, m_pid));
+        const auto status = pclose2(stdout, m_pid);
+        if (WIFEXITED(status))
+        {
+            exitCode = WEXITSTATUS(status);
+        }
+        else if (WIFSIGNALED(status))
+        {
+            exitCode = WTERMSIG(status);
+        }
+        else if (WIFSTOPPED(status))
+        {
+            exitCode = WSTOPSIG(status);
+        }
+        else
+        {
+            exitCode = -1;
+        }
     }
 #endif
+
+    const scoped_lock lock(m_mutex);
     m_stdout = nullptr;
+    m_exitCode = exitCode;
 
     return m_exitCode;
 }
@@ -398,7 +427,7 @@ constexpr auto WRITE = 1;
  * @return A file pointer connected to the subprocess's input or output, depending on the type parameter.
  * @throws SystemException If pipe creation, process forking, or command execution fails.
  */
-FILE* popen2(const string& command, const string& type, int& pid)
+FILE* popen2(const string& command, string_view type, int& pid)
 {
     pid_t         child_pid {0};
     array<int, 2> fd {};
