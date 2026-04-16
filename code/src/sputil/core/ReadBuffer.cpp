@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2024-04-16                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -74,6 +75,11 @@ bool ReadBuffer::read(String& data, const size_t length)
 
 bool ReadBuffer::read(Buffer& data, const size_t length)
 {
+    if (&data == this)
+    {
+        throw Exception("ReadBuffer::read: cannot read into itself");
+    }
+
     if (length == 0)
     {
         return true;

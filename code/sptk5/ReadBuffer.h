@@ -77,15 +77,6 @@ public:
     bool read(Buffer& data, size_t length);
 
     /**
-     * @brief The start of unread data.
-     * @return.
-     */
-    [[maybe_unused]] uint8_t* head()
-    {
-        return data() + m_readOffset;
-    }
-
-    /**
      * Get a number of bytes, available for read.
      * @return number of bytes, available for read.
      */
@@ -109,6 +100,29 @@ public:
     [[nodiscard]] size_t readOffset() const
     {
         return m_readOffset;
+    }
+
+    void reset(const size_t size) override
+    {
+        BufferStorage::reset(size);
+        m_readOffset = 0;
+    }
+
+    [[nodiscard]] size_t bytes() const override
+    {
+        return BufferStorage::bytes();
+    }
+
+    void bytes(const size_t newSize) override
+    {
+        BufferStorage::bytes(newSize);
+        m_readOffset = std::min(m_readOffset, newSize);
+    }
+
+    void erase(const size_t offset, const size_t length) override
+    {
+        BufferStorage::erase(offset, length);
+        m_readOffset = std::min(m_readOffset, bytes());
     }
 
 private:

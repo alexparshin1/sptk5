@@ -274,7 +274,7 @@ public:
      * Returns the size of data in the data buffer
      * @returns data size
      */
-    [[nodiscard]] size_t bytes() const
+    [[nodiscard]] virtual size_t bytes() const
     {
         return m_size;
     }
@@ -283,7 +283,7 @@ public:
      * Sets the size of the data stored
      * @param newSize                 New size of the buffer
      */
-    void bytes(size_t newSize)
+    virtual void bytes(const size_t newSize)
     {
         if (m_size == newSize)
         {
@@ -331,7 +331,7 @@ public:
      * Deallocates unused memory if needed.
      * @param size                Required data size in bytes
      */
-    void reset(size_t size = 0);
+    virtual void reset(size_t size = 0);
 
     /**
      * Fills the bytes() characters in the buffer with character chr.
@@ -345,7 +345,7 @@ public:
      * @param offset            Fragment start offset
      * @param length            Fragment length
      */
-    void erase(size_t offset, size_t length);
+    virtual void erase(size_t offset, size_t length);
 
     /**
      * Resizes current buffer
