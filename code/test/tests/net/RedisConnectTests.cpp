@@ -25,7 +25,7 @@
 */
 #ifndef _WIN32
 #include "sptk5/Stopwatch.h"
-#include "src/sputil/net/RedisConnect.h"
+#include "sptk5/net/RedisConnect.h"
 #include <chrono>
 #include <cstdlib>
 #include <gtest/gtest.h>

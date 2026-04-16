@@ -25,8 +25,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "RedisConnect.h"
-
+#include "sptk5/net/RedisConnect.h"
 #include "sptk5/Base64.h"
 #include "sptk5/Exception.h"
 #include <iostream>
