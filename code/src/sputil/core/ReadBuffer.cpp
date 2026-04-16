@@ -37,7 +37,7 @@ bool ReadBuffer::read(uint8_t* data, const size_t length)
         return true;
     }
 
-    if (bytes() - m_readOffset < length)
+    if (available() < length)
     {
         return false;
     }
@@ -59,7 +59,7 @@ bool ReadBuffer::read(String& data, const size_t length)
     {
         return true;
     }
-    if (bytes() - m_readOffset < length)
+    if (available() < length)
     {
         return false;
     }
@@ -85,7 +85,7 @@ bool ReadBuffer::read(Buffer& data, const size_t length)
         return true;
     }
 
-    if (bytes() - m_readOffset < length)
+    if (available() < length)
     {
         return false;
     }

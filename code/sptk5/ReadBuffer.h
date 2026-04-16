@@ -82,6 +82,10 @@ public:
      */
     [[nodiscard]] size_t available() const
     {
+        if (m_readOffset >= bytes())
+        {
+            return 0;
+        }
         return bytes() - m_readOffset;
     }
 
@@ -102,7 +106,7 @@ public:
         return m_readOffset;
     }
 
-    void reset(const size_t size) override
+    void reset(const size_t size = 0) override
     {
         BufferStorage::reset(size);
         m_readOffset = 0;
@@ -119,9 +123,48 @@ public:
         m_readOffset = std::min(m_readOffset, newSize);
     }
 
+    template<typename T>
+    void set(const T* data, size_t size)
+    {
+        BufferStorage::set(data, size);
+        m_readOffset = 0;
+    }
+
+    ReadBuffer& operator=(const Buffer& other)
+    {
+        Buffer::operator=(other);
+        m_readOffset = 0;
+        return *this;
+    }
+
+    ReadBuffer& operator=(const String& str)
+    {
+        Buffer::operator=(str);
+        m_readOffset = 0;
+        return *this;
+    }
+
+    ReadBuffer& operator=(const char* str)
+    {
+        Buffer::operator=(str);
+        m_readOffset = 0;
+        return *this;
+    }
+
     void erase(const size_t offset, const size_t length) override
     {
+        const auto oldReadOffset = m_readOffset;
         BufferStorage::erase(offset, length);
+
+        if (oldReadOffset <= offset)
+        {
+            m_readOffset = oldReadOffset;
+        }
+        else
+        {
+            const auto readShift = std::min(length, oldReadOffset - offset);
+            m_readOffset = oldReadOffset - readShift;
+        }
         m_readOffset = std::min(m_readOffset, bytes());
     }
 

@@ -69,4 +69,91 @@ TEST(ReadBufferTests,read)
     EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
 }
 
+TEST(ReadBufferTests, readFailsWhenNotEnoughData)
+{
+    ReadBuffer buffer;
+    buffer.append("abc", 3);
+
+    String data("keep");
+    EXPECT_FALSE(buffer.read(data, 4));
+    EXPECT_EQ("keep", data);
+    EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(3), buffer.available());
+}
+
+TEST(ReadBufferTests, bytesTruncateClampsReadOffset)
+{
+    ReadBuffer buffer;
+    buffer.append("abcdefghij", 10);
+
+    String data;
+    ASSERT_TRUE(buffer.read(data, 4));
+    ASSERT_EQ("abcd", data);
+    ASSERT_EQ(static_cast<size_t>(4), buffer.readOffset());
+
+    buffer.bytes(1);
+
+    EXPECT_EQ(static_cast<size_t>(1), buffer.bytes());
+    EXPECT_EQ(static_cast<size_t>(1), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.available());
+    EXPECT_TRUE(buffer.empty());
+}
+
+TEST(ReadBufferTests, eraseBeforeReadOffsetShiftsOffset)
+{
+    ReadBuffer buffer;
+    buffer.append("abcdefghij", 10);
+
+    String data;
+    ASSERT_TRUE(buffer.read(data, 4));
+    ASSERT_EQ("abcd", data);
+    ASSERT_EQ(static_cast<size_t>(4), buffer.readOffset());
+
+    buffer.erase(0, 2);
+
+    ASSERT_EQ(static_cast<size_t>(2), buffer.readOffset());
+    ASSERT_EQ(static_cast<size_t>(6), buffer.available());
+
+    data.clear();
+    ASSERT_TRUE(buffer.read(data, 1));
+    EXPECT_EQ("e", data);
+}
+
+TEST(ReadBufferTests, setResetsReadOffset)
+{
+    ReadBuffer buffer;
+    buffer.append("abcdefghij", 10);
+
+    String data;
+    ASSERT_TRUE(buffer.read(data, 4));
+    ASSERT_EQ(static_cast<size_t>(4), buffer.readOffset());
+
+    const uint8_t updated[] = {'x', 'y'};
+    buffer.set(updated, sizeof(updated));
+
+    EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(2), buffer.available());
+
+    data.clear();
+    ASSERT_TRUE(buffer.read(data, 2));
+    EXPECT_EQ("xy", data);
+}
+
+TEST(ReadBufferTests, resetClearsReadOffsetAndData)
+{
+    ReadBuffer buffer;
+    buffer.append("abcdefghij", 10);
+
+    String data;
+    ASSERT_TRUE(buffer.read(data, 4));
+    ASSERT_EQ(static_cast<size_t>(4), buffer.readOffset());
+
+    buffer.reset();
+
+    EXPECT_EQ(static_cast<size_t>(0), buffer.bytes());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.readOffset());
+    EXPECT_EQ(static_cast<size_t>(0), buffer.available());
+    EXPECT_TRUE(buffer.empty());
+}
+
 } // namespace sptk_test
