@@ -67,7 +67,7 @@ void HttpAuthentication::parse()
             m_userData = make_shared<xdoc::Document>();
             m_type = Type::EMPTY;
         }
-        else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
+        else if (m_authenticationHeader.toLowerCase().starts_with("basic "))
         {
             constexpr int basicLength = 6;
             const Buffer  encoded(m_authenticationHeader.substr(basicLength));
@@ -87,7 +87,7 @@ void HttpAuthentication::parse()
             m_userData = aUserData;
             m_type = Type::BASIC;
         }
-        else if (m_authenticationHeader.toLowerCase().startsWith("bearer "))
+        else if (m_authenticationHeader.toLowerCase().starts_with("bearer "))
         {
             constexpr int bearerLength = 6;
             const auto    aJwtData = make_shared<JWT>();

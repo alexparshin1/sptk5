@@ -1167,7 +1167,7 @@ void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
         if (!routineStarted)
         {
             row = trim(row);
-            if (row.empty() || row.startsWith("--"))
+            if (row.empty() || row.starts_with("--"))
             {
                 continue;
             }

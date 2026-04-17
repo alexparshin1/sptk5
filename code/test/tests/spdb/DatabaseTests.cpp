@@ -315,9 +315,9 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 #ifdef USE_GTEST
     Query select(databaseConnection, "SELECT ts FROM gtest_temp_table");
     select.open();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().starts_with("2015-06-01"));
     select.next();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().starts_with("2015-06-01"));
     select.close();
 #endif
 }
@@ -422,7 +422,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     catch (const DatabaseException& e)
     {
         const auto error = String(e.what());
-        const auto errorWasExpected = error.startsWith("Unsupported parameter type") || error.startsWith("Parameter data type has changed.");
+        const auto errorWasExpected = error.starts_with("Unsupported parameter type") || error.starts_with("Parameter data type has changed.");
         if (!errorWasExpected)
         {
             FAIL() << e.what();

@@ -197,22 +197,10 @@ public:
     [[nodiscard]] int toInt() const;
 
     /**
-     * Returns true if the string starts from the subject.
-     * @param subject           Subject to look for.
-     */
-    [[nodiscard]] bool startsWith(const String& subject) const;
-
-    /**
      * Returns true if the string contains the subject.
      * @param subject           Subject to look for.
      */
     [[nodiscard]] bool contains(const String& subject) const;
-
-    /**
-     * Returns true if the string ends with the subject.
-     * @param subject           Subject to look for.
-     */
-    [[nodiscard]] bool endsWith(const String& subject) const;
 
     /**
      * Returns trimmed string.
