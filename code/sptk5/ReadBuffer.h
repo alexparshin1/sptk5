@@ -28,6 +28,8 @@
 
 #include <sptk5/Buffer.h>
 
+#undef min
+
 namespace sptk {
 /**
  * @brief Generic read buffer.

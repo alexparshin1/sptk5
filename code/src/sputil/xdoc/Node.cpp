@@ -247,7 +247,7 @@ bool Node::getBoolean(const NodeName& name) const
 
 const Node::Nodes& Node::nodes(const NodeName& name) const
 {
-    static constexpr Nodes emptyNodes;
+    static const Nodes emptyNodes;
 
     if (name.empty())
     {

@@ -108,14 +108,7 @@ public:
         m_scale = scale;
     }
 
-    static int64_t divider(uint8_t scale)
-    {
-        if (scale >= m_dividers.size())
-        {
-            throw std::out_of_range("MoneyData: scale is out of range");
-        }
-        return m_dividers[scale];
-    }
+    static int64_t divider(uint8_t scale);
 
 private:
     static const std::array<int64_t, 16> m_dividers; ///< Dividers for formatting money data.

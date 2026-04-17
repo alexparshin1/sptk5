@@ -45,7 +45,7 @@ namespace sptk {
  * to its sockets.
  */
 template<typename T>
-class SP_EXPORT SocketEvents
+class SocketEvents
     : public SocketObjectPool<T>
     , public Thread
 {

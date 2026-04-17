@@ -277,7 +277,7 @@ void OsProcess::kill()
 
 int OsProcess::close()
 {
-    FileHandle stdout;
+    FileHandle out;
 
     {
         const scoped_lock lock(m_mutex);
@@ -286,7 +286,7 @@ int OsProcess::close()
         {
             return m_exitCode;
         }
-        stdout = m_stdout;
+        out = m_stdout;
     }
 
     m_terminated = true;
@@ -305,16 +305,16 @@ int OsProcess::close()
     m_processInformation.hProcess = nullptr;
     m_processInformation.hThread = nullptr;
 
-    if (stdout)
+    if (out)
     {
-        CloseHandle(stdout);
+        CloseHandle(out);
         CloseHandle(m_stdin);
     }
     m_stdin = nullptr;
 #else
-    if (stdout)
+    if (out)
     {
-        const auto status = pclose2(stdout, m_pid);
+        const auto status = pclose2(out, m_pid);
         if (WIFEXITED(status))
         {
             exitCode = WEXITSTATUS(status);
@@ -342,7 +342,7 @@ int OsProcess::close()
 }
 
 #ifdef _WIN32
-String OsProcess::getErrorMessage(DWORD lastError)
+string OsProcess::getErrorMessage(DWORD lastError)
 {
     LPSTR messageBuffer = nullptr;
 
@@ -350,10 +350,10 @@ String OsProcess::getErrorMessage(DWORD lastError)
     //The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
     size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                                  nullptr, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                 (LPSTR) &messageBuffer, 0, nullptr);
+                                 reinterpret_cast<LPSTR>(&messageBuffer), 0, nullptr);
 
     //Copy the error message into a String.
-    String message(messageBuffer, size);
+    string message(messageBuffer, size);
 
     //Free the Win32's string's buffer.
     LocalFree(messageBuffer);

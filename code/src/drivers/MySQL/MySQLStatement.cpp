@@ -271,7 +271,7 @@ void MySQLStatement::setParameterValues()
                 break;
 
             case VariantDataType::VAR_STRING:
-                m_paramLengths[paramIndex] = param->dataSize();
+                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -284,7 +284,7 @@ void MySQLStatement::setParameterValues()
 
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                m_paramLengths[paramIndex] = param->dataSize();
+                m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
@@ -334,7 +334,7 @@ void MySQLStatement::setParameterValues()
 
 void MySQLStatement::MySQLStatement::prepare(const String& sql) const
 {
-    if (mysql_stmt_prepare(statement(), sql.c_str(), sql.length()) != 0)
+    if (mysql_stmt_prepare(statement(), sql.c_str(), static_cast<unsigned long>(sql.length())) != 0)
     {
         throwMySQLError();
     }
@@ -479,13 +479,13 @@ void MySQLStatement::bindResult(FieldList& fields)
 
                     // Using the temp buffer of the size defined by field size
                 case MYSQL_TYPE_NEWDECIMAL:
-                    bind.buffer_length = field->fieldSize();
+                    bind.buffer_length = (unsigned long) field->fieldSize();
                     bind.buffer = static_cast<void*>(field->getTempBuffer());
                     break;
 
                     // Variable length buffer - will be extended during fetch if needed
                 default:
-                    bind.buffer_length = field->fieldSize();
+                    bind.buffer_length = (unsigned long) field->fieldSize();
                     bind.buffer = bit_cast<void*>(field->getText());
                     break;
             }
@@ -690,7 +690,7 @@ bool MySQLStatement::bindVarCharField(MYSQL_BIND& bind, MySQLStatementField* fie
             field->checkSize(dataLength);
         }
         bind.buffer = field->get<Buffer>().data();
-        bind.buffer_length = field->bufferSize();
+        bind.buffer_length = (unsigned long) field->bufferSize();
         if (mysql_stmt_fetch_column(statement(), &bind, static_cast<unsigned>(fieldIndex), 0) != 0)
         {
             throwMySQLError();

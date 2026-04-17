@@ -173,7 +173,7 @@ private:
  * @tparam T Socket event object type.
  */
 template<typename T>
-class SP_EXPORT SocketObjectPool : public SocketPool
+class SocketObjectPool : public SocketPool
 {
     struct SocketUserData
     {
