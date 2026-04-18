@@ -129,14 +129,7 @@ TEST(DateTimeTests, extractTime)
 TEST(DateTimeTests, formatDate)
 {
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
-
-    const auto t = static_cast<time_t>(dateTime);
-    tm         tt {};
-    localtime_r(&t, &tt);
-
-    array<char, maxDateTimeStringLength> buffer {};
-    strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
-
+    const auto     buffer = std::format(locale(""), "{:L%x}", dateTime.timePoint());
     EXPECT_STREQ("2018-08-07", dateTime.dateString(DateTime::PF_GMT | DateTime::PF_RFC_DATE).c_str());
     EXPECT_STREQ(buffer.data(), dateTime.dateString(DateTime::PF_GMT).c_str());
 }
