@@ -230,10 +230,10 @@ public:
     void formatDate(std::ostream& str, int printFlags = 0) const;
 
     /**
-     *  @brief Print date into string.
+     *  @brief Print the date into string.
      * @param str               Output stream.
      * @param printFlags        Print flags, recognized { PF_GMT, PF_TIMEZONE, PF_12HOURS }.
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
+     * @param printAccuracy     Print accuracy: @see PrintAccuracy.
      */
     void formatTime(std::ostream& str, int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
@@ -287,14 +287,14 @@ public:
     /**
      *  @brief Returns time as a string.
      * @param printFlags        Print flags, recognized { PF_GMT, PF_TIMEZONE, PF_12HOURS }.
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
+     * @param printAccuracy     Print accuracy: @see PrintAccuracy.
      */
     [[nodiscard]] String timeString(int printFlags = 0, PrintAccuracy printAccuracy = PrintAccuracy::SECONDS) const;
 
     /**
      *  @brief Returns time as an ISO date and time string.
-     * @param printAccuracy     Print accuracy, @see PrintAccuracy.
-     * @param gmt               If true print GMT time.
+     * @param printAccuracy     Print accuracy: @see PrintAccuracy.
+     * @param gmt               If true, print GMT time.
      */
     [[nodiscard]] String isoDateTimeString(PrintAccuracy printAccuracy = PrintAccuracy::SECONDS, bool gmt = false) const;
 

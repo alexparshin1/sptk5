@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-17                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -276,7 +277,7 @@ void DateTimeFormat::init()
 
     TimeZone::timeZoneName(String(ptr, static_cast<unsigned>(len)));
 
-    const auto timestamp = time(nullptr);
+    const auto timestamp = DateTime::clock::to_time_t(DateTime::clock::now());
     tm         ltime {};
 #ifdef _WIN32
     localtime_s(&ltime, &timestamp);
@@ -294,7 +295,7 @@ void DateTimeFormat::init()
 
 namespace {
 
-const DateTimeFormat dateTimeFormatInitializer;
+[[maybe_unused]] const DateTimeFormat dateTimeFormatInitializer;
 
 void decodeDate(const DateTime::time_point& timePoint, short& year, short& month, short& day, short& dayOfWeek,
                 short&     dayOfYear,
@@ -810,31 +811,25 @@ void DateTime::formatDate(ostream& str, const int printFlags) const
         return;
     }
 
-    time_t timestamp;
+    clock::time_point dateTime;
     {
         std::scoped_lock lock(m_mutex);
-        timestamp = clock::to_time_t(m_dateTime);
+        dateTime = m_dateTime;
     }
 
     if ((printFlags & PF_GMT) == 0)
     {
-        timestamp += static_cast<int>(TimeZone::offset().count()) * secondsInMinute;
+        dateTime += TimeZone::offset();
     }
 
-    tm timeStructure {};
-    gmtime_r(&timestamp, &timeStructure);
-
-    array<char, maxDateTimeStringLength> buffer {};
-    size_t                               len;
     if ((printFlags & PF_RFC_DATE) != 0)
     {
-        len = strftime(buffer.data(), sizeof(buffer) - 1, "%F", &timeStructure);
+        str << std::format(locale(""), "{:L%F}", dateTime);
     }
     else
     {
-        len = strftime(buffer.data(), sizeof(buffer) - 1, "%x", &timeStructure);
+        str << std::format(locale(""), "{:L%x}", dateTime);
     }
-    str << string(buffer.data(), len);
 }
 
 void DateTime::formatTime(ostream& str, const int printFlags, const PrintAccuracy printAccuracy) const
