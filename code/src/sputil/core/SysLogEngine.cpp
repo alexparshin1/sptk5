@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-17                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -40,47 +41,53 @@ atomic_bool SysLogEngine::m_logOpened(false);
 bool SysLogEngine::m_registrySet(false);
 #endif
 
-SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
+SysLogEngine::SysLogEngine(const String& _programName, const uint32_t facilities)
     : LogEngine("SysLogEngine")
     , m_facilities(facilities)
 {
     programName(_programName);
 }
 
-bool SysLogEngine::saveMessage(const Logger::Message& message)
+bool SysLogEngine::saveMessage(Logger::UMessage&& message)
 {
-    set<Option> options;
-    String      programName;
-    uint32_t    facilities {0};
-
-    getOptions(options, programName, facilities);
-
-    if (options.contains(Option::ENABLE))
+    if (options().contains(Option::ENABLE))
     {
-#ifndef _WIN32
         const scoped_lock lock(m_syslogMutex);
+#ifndef _WIN32
         if (!m_logOpened)
         {
-            openlog(programName.c_str(), LOG_NOWAIT, LOG_USER | LOG_INFO);
+            openlog(m_programName.c_str(), LOG_NOWAIT, m_facilities);
             m_logOpened = true;
         }
-        syslog(static_cast<int>(message.priority), "[%s] %s", priorityName(message.priority).c_str(), message.message.c_str());
+        syslog(static_cast<int>(message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
 #else
+        set<Option> options;
+        String      programName;
+        uint32_t    facilities {0};
+
+        getOptions(options, programName, facilities);
+
         if (m_logHandle.load() == nullptr)
         {
             OSVERSIONINFO version;
             version.dwOSVersionInfoSize = sizeof(version);
             if (!GetVersionEx(&version))
+            {
                 throw Exception("Can't determine Windows version");
+            }
             if (version.dwPlatformId != VER_PLATFORM_WIN32_NT)
+            {
                 throw Exception("EventLog is only implemented on NT-based Windows");
+            }
             m_logHandle = RegisterEventSource(NULL, programName.c_str());
         }
         if (m_logHandle.load() == nullptr)
+        {
             throw Exception("Can't open Application Event Log");
+        }
 
         WORD eventType;
-        switch ((int) message.priority)
+        switch ((int) message->priority)
         {
             case LOG_EMERG:
             case LOG_ALERT:
@@ -97,7 +104,7 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[] = {TEXT(message.message.c_str())};
+        LPCTSTR messageStrings[] = {TEXT(message->message.c_str())};
 
         if (!ReportEvent(
                 m_logHandle,       // handle returned by RegisterEventSource
@@ -150,14 +157,15 @@ void SysLogEngine::setupEventSource() const
 
     HKEY keyHandle;
     if (RegCreateKey(HKEY_CURRENT_USER, keyName.c_str(), &keyHandle) != ERROR_SUCCESS)
-        throw Exception("Can't create registry key HKEY_LOCAL_MACHINE '" + keyName + "'");
+    {
+        throw Exception("Can't create registry key 'HKEY_CURRENT_USER\\" + keyName + "'");
+    }
 
     unsigned long len = _MAX_PATH;
     unsigned long vtype = REG_EXPAND_SZ;
     int           rc = RegQueryValueEx(keyHandle, "EventMessageFile", 0, &vtype, bit_cast<BYTE*>(buffer), &len);
     if (rc != ERROR_SUCCESS)
     {
-
         struct ValueData
         {
             const char* name;
@@ -201,12 +209,16 @@ void SysLogEngine::setupEventSource() const
             if (rc != ERROR_SUCCESS)
             {
                 stringstream error;
-                error << "Can't set registry key HKEY_LOCAL_MACHINE '" << keyName << "' ";
+                error << "Can't set registry key 'HKEY_CURRENT_USER\\" << keyName << "' ";
                 error << "value '" << valueData[i].name << "' to ";
                 if (valueData[i].strValue == NULL)
+                {
                     error << "REG_DWORD " << valueData[i].intValue;
+                }
                 else
+                {
                     error << "REG_SZ " << valueData[i].strValue;
+                }
                 throw Exception(error.str());
             }
         }

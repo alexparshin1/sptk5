@@ -183,7 +183,7 @@ LogEngine::ProcessResult LogEngine::processNextMessage()
 
     for (auto attempt = 0; attempt < 3; ++attempt)
     {
-        if (saveMessage(*message))
+        if (saveMessage(std::move(message)))
         {
             break;
         }

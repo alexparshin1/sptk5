@@ -89,8 +89,8 @@ string sptk::trim(const string_view str)
         return "";
     }
 
-    int startPosition = 0;
-    for (int i = 0; i <= endPosition; ++i)
+    auto startPosition = 0;
+    for (auto i = 0; i <= endPosition; ++i)
     {
         if (s[i] > space)
         {
@@ -99,9 +99,7 @@ string sptk::trim(const string_view str)
         }
     }
 
-    string_view result(str.data() + startPosition, endPosition - startPosition + 1);
-
-    return string(result);
+    return {str.data() + startPosition, static_cast<size_t>(endPosition - startPosition + 1)};
 }
 
 int sptk::string2int(const string_view str, int defaultValue)

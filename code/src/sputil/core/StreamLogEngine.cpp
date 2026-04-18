@@ -4,7 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2026-04-11                                             ║
+║  code review          2026-04-17                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -35,7 +35,7 @@ StreamLogEngine::~StreamLogEngine()
     terminate();
 }
 
-bool StreamLogEngine::saveMessage(const Logger::Message& message)
+bool StreamLogEngine::saveMessage(Logger::UMessage&& message)
 {
     const auto options = this->options();
 
@@ -45,21 +45,21 @@ bool StreamLogEngine::saveMessage(const Logger::Message& message)
     {
         if (options.contains(Option::DATE))
         {
-            m_logStream << message.timestamp.dateString() << " ";
+            m_logStream << message->timestamp.dateString() << " ";
         }
 
         if (options.contains(Option::TIME))
         {
             const auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-            m_logStream << message.timestamp.timeString(0, printAccuracy) << " ";
+            m_logStream << message->timestamp.timeString(0, printAccuracy) << " ";
         }
 
         if (options.contains(Option::PRIORITY))
         {
-            m_logStream << "[" << priorityName(message.priority) << "] ";
+            m_logStream << "[" << priorityName(message->priority) << "] ";
         }
 
-        m_logStream << message.message << '\n';
+        m_logStream << message->message << '\n';
 
         if (!m_logStream.good())
         {
@@ -68,6 +68,11 @@ bool StreamLogEngine::saveMessage(const Logger::Message& message)
         }
     }
     return true;
+}
+
+void StreamLogEngine::flush()
+{
+    m_logStream.flush();
 }
 
 StreamLogEngine::StreamLogEngine(ostream& outputStream)

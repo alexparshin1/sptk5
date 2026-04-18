@@ -41,18 +41,18 @@ public:
         storage.clear();
     }
 
-    bool saveMessage(const Logger::Message& message) override
+    bool saveMessage(Logger::UMessage&& message) override
     {
         const scoped_lock lock(m_mutex);
-        storage.push_back(message);
+        storage.push_back(std::move(message));
         return true;
     }
 
-    std::mutex                     m_mutex;
-    static vector<Logger::Message> storage;
+    std::mutex                      m_mutex;
+    static vector<Logger::UMessage> storage;
 };
 
-vector<Logger::Message> TestLogEngine::storage;
+vector<Logger::UMessage> TestLogEngine::storage;
 namespace sptk {
 
 TEST(LogEngineTests, options)
@@ -107,14 +107,14 @@ TEST(LogEngineTests, message)
     this_thread::sleep_for(chrono::milliseconds(10));
     logEngine.reset();
 
-    EXPECT_TRUE(TestLogEngine::storage[0].priority == LogPriority::Debug);
-    EXPECT_STREQ(TestLogEngine::storage[0].message.c_str(), "debug message");
+    EXPECT_TRUE(TestLogEngine::storage[0]->priority == LogPriority::Debug);
+    EXPECT_STREQ(TestLogEngine::storage[0]->message.c_str(), "debug message");
 
-    EXPECT_TRUE(TestLogEngine::storage[1].priority == LogPriority::Info);
-    EXPECT_STREQ(TestLogEngine::storage[1].message.c_str(), "info message");
+    EXPECT_TRUE(TestLogEngine::storage[1]->priority == LogPriority::Info);
+    EXPECT_STREQ(TestLogEngine::storage[1]->message.c_str(), "info message");
 
-    EXPECT_TRUE(TestLogEngine::storage[6].priority == LogPriority::Alert);
-    EXPECT_STREQ(TestLogEngine::storage[6].message.c_str(), "alert message");
+    EXPECT_TRUE(TestLogEngine::storage[6]->priority == LogPriority::Alert);
+    EXPECT_STREQ(TestLogEngine::storage[6]->message.c_str(), "alert message");
 }
 
 } // namespace sptk
