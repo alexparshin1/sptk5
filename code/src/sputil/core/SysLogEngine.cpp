@@ -48,7 +48,7 @@ SysLogEngine::SysLogEngine(const String& _programName, const uint32_t facilities
     programName(_programName);
 }
 
-bool SysLogEngine::saveMessage(Logger::UMessage&& message)
+bool SysLogEngine::saveMessage(const Logger::Message& message)
 {
     if (options().contains(Option::ENABLE))
     {
@@ -56,10 +56,10 @@ bool SysLogEngine::saveMessage(Logger::UMessage&& message)
 #ifndef _WIN32
         if (!m_logOpened)
         {
-            openlog(m_programName.c_str(), LOG_NOWAIT, m_facilities);
+            openlog(m_programName.c_str(), LOG_NOWAIT, static_cast<int>(m_facilities));
             m_logOpened = true;
         }
-        syslog(static_cast<int>(message->priority), "[%s] %s", priorityName(message->priority).c_str(), message->message.c_str());
+        syslog(static_cast<int>(message.priority), "[%s] %s", priorityName(message.priority).c_str(), message.message.c_str());
 #else
         set<Option> options;
         String      programName;

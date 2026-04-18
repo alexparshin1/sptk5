@@ -546,7 +546,7 @@ void MySQLStatement::readUnpreparedResultRow(FieldList& fields) const
                 break;
 
             case VAR_DATE:
-                field->setDateTime(DateTime(data), true);
+                field->setDate(DateTime(data));
                 break;
 
             case VAR_DATE_TIME:
@@ -592,7 +592,14 @@ void MySQLStatement::decodeMySQLTime(Field* _field, const MYSQL_TIME& mysqlTime,
     {
         const DateTime dt(static_cast<short>(mysqlTime.year), static_cast<short>(mysqlTime.month), static_cast<short>(mysqlTime.day),
                           static_cast<short>(mysqlTime.hour), static_cast<short>(mysqlTime.minute), static_cast<short>(mysqlTime.second));
-        field->setDateTime(dt, fieldType == VariantDataType::VAR_DATE);
+        if (fieldType == VariantDataType::VAR_DATE)
+        {
+            field->setDate(dt);
+        }
+        else
+        {
+            field->setDateTime(dt);
+        }
         field->setDataSize(sizeof(int64_t));
     }
 }

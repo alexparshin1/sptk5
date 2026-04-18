@@ -60,7 +60,7 @@ public:
      * This method should be overwritten by the actual log implementation
      * @param message           Log message
      */
-    bool saveMessage(Logger::UMessage&& message) override;
+    bool saveMessage(const Logger::Message& message) override;
 
     /**
      * @brief Constructor

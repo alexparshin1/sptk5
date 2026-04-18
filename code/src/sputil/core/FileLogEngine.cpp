@@ -35,7 +35,7 @@ FileLogEngine::~FileLogEngine()
     terminate();
 }
 
-bool FileLogEngine::saveMessage(Logger::UMessage&& message)
+bool FileLogEngine::saveMessage(const Logger::Message& message)
 {
     const auto options = this->options();
 
@@ -55,21 +55,21 @@ bool FileLogEngine::saveMessage(Logger::UMessage&& message)
 
         if (options.contains(Option::DATE))
         {
-            m_fileStream << message->timestamp.dateString() << " ";
+            m_fileStream << message.timestamp.dateString() << " ";
         }
 
         if (options.contains(Option::TIME))
         {
             const auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-            m_fileStream << message->timestamp.timeString(0, printAccuracy) << " ";
+            m_fileStream << message.timestamp.timeString(0, printAccuracy) << " ";
         }
 
         if (options.contains(Option::PRIORITY))
         {
-            m_fileStream << "[" << priorityName(message->priority) << "] ";
+            m_fileStream << "[" << priorityName(message.priority) << "] ";
         }
 
-        m_fileStream << message->message << '\n';
+        m_fileStream << message.message << '\n';
 
         if (!m_fileStream.good())
         {

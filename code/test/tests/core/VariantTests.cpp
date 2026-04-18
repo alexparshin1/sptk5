@@ -38,7 +38,7 @@ using namespace sptk;
 using namespace xdoc;
 namespace sptk {
 
-TEST(VariantTests,ctors)
+TEST(VariantTests, ctors)
 {
     constexpr auto testDoubleValue {2.22};
     DateTime       testDate("2018-02-01 09:11:14.345Z");
@@ -57,7 +57,7 @@ TEST(VariantTests,ctors)
                  v5.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(VariantTests,copyCtors)
+TEST(VariantTests, copyCtors)
 {
     constexpr double testDoubleValue {2.22};
     DateTime         testDate("2018-02-01 09:11:14.345Z");
@@ -93,7 +93,7 @@ TEST(VariantTests,copyCtors)
     EXPECT_EQ(static_cast<int64_t>(1), v1c.asInt64());
 }
 
-TEST(VariantTests,moveCtors)
+TEST(VariantTests, moveCtors)
 {
     DateTime    testDate("2018-02-01 09:11:14.345Z");
     const char* testString = "A test";
@@ -125,7 +125,7 @@ TEST(VariantTests,moveCtors)
     EXPECT_TRUE(v6m.dataType() == VariantDataType::VAR_BUFFER);
 }
 
-TEST(VariantTests,assigns)
+TEST(VariantTests, assigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -189,7 +189,7 @@ TEST(VariantTests,assigns)
     EXPECT_DOUBLE_EQ(v.asInteger(), 12);
     EXPECT_EQ(v.asInt64(), 12L);
 
-    v.setDateTime(testDate, true);
+    v.setDate(testDate);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
                  v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
@@ -212,7 +212,7 @@ TEST(VariantTests,assigns)
     EXPECT_EQ(v.getImageNdx(), 12U);
 }
 
-TEST(VariantTests,moveAssigns)
+TEST(VariantTests, moveAssigns)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -237,13 +237,13 @@ TEST(VariantTests,moveAssigns)
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 
     Variant v2;
-    v2.setDateTime(testDate, true);
+    v2.setDate(testDate);
     vm = std::move(v2);
     EXPECT_STREQ("2018-02-01T00:00:00.000Z",
                  vm.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(VariantTests,copy)
+TEST(VariantTests, copy)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -254,7 +254,7 @@ TEST(VariantTests,copy)
     Variant v3("Test");
 
     Variant v4;
-    v4.setDateTime(testDate, true);
+    v4.setDate(testDate);
 
     v = v0;
     EXPECT_EQ(12345, v.asInteger());
@@ -274,7 +274,7 @@ TEST(VariantTests,copy)
                  v.asDateTime().isoDateTimeString(DateTime::PrintAccuracy::MILLISECONDS, true).c_str());
 }
 
-TEST(VariantTests,toString)
+TEST(VariantTests, toString)
 {
     DateTime testDate("2018-02-01 09:11:14.345Z");
 
@@ -286,7 +286,7 @@ TEST(VariantTests,toString)
     DateTime dt;
     String   dtStr;
 
-    v5.setDateTime(testDate, true);
+    v5.setDate(testDate);
 
     EXPECT_STREQ("1", v1.asString().c_str());
     EXPECT_STREQ("2.22", v2.asString().c_str());
@@ -301,7 +301,7 @@ TEST(VariantTests,toString)
     EXPECT_STREQ(dtStr.c_str(), v5.asString().c_str());
 }
 
-TEST(VariantTests,money)
+TEST(VariantTests, money)
 {
     Variant      money(10001234, 4);
     const String testString {"A test"};
@@ -327,7 +327,7 @@ TEST(VariantTests,money)
     EXPECT_DOUBLE_EQ(static_cast<double>(s.getMoney()), 123.4567);
 }
 
-TEST(VariantTests,setBuffer)
+TEST(VariantTests, setBuffer)
 {
     String testString("External Data");
     Buffer externalBuffer("External Data");
@@ -360,7 +360,7 @@ TEST(VariantTests,setBuffer)
     EXPECT_STREQ(testString.c_str(), v.asString().c_str());
 }
 
-TEST(VariantTests,externalBuffer)
+TEST(VariantTests, externalBuffer)
 {
     Buffer  externalBuffer("External Data");
     Variant v;
@@ -368,7 +368,7 @@ TEST(VariantTests,externalBuffer)
     EXPECT_EQ(externalBuffer.c_str(), bit_cast<const char*>(v.getExternalBuffer()));
 }
 
-TEST(VariantTests,json)
+TEST(VariantTests, json)
 {
     constexpr int  testInteger1 = 12345;
     const char*    json = R"({ "value": 12345 })";
@@ -386,7 +386,7 @@ TEST(VariantTests,json)
     EXPECT_STREQ(node->getString().c_str(), "123456");
 }
 
-TEST(VariantTests,bool)
+TEST(VariantTests, bool)
 {
     const Variant v1(false);
     EXPECT_FALSE(v1);
@@ -400,7 +400,7 @@ TEST(VariantTests,bool)
     EXPECT_TRUE(v3);
 }
 
-TEST(VariantTests,asBoolFromString)
+TEST(VariantTests, asBoolFromString)
 {
     Variant v;
     v = String("true");
@@ -416,23 +416,40 @@ TEST(VariantTests,asBoolFromString)
     EXPECT_FALSE(v.asBool());
 }
 
-TEST(VariantTests,asStringExternalString)
+TEST(VariantTests, asStringExternalString)
 {
-    auto externalText = "External";
+    auto    externalText = "External";
     Variant v;
     v.setExternalBuffer(bit_cast<uint8_t*>(externalText), strlen(externalText), VariantDataType::VAR_STRING);
     EXPECT_STREQ("External", v.asString().c_str());
 }
 
-TEST(VariantTests,asInt64ExternalString)
+TEST(VariantTests, asInt64ExternalString)
 {
-    auto externalNumber = "12345";
+    auto    externalNumber = "12345";
     Variant v;
     v.setExternalBuffer(bit_cast<uint8_t*>(externalNumber), strlen(externalNumber), VariantDataType::VAR_STRING);
     EXPECT_EQ(12345, v.asInt64());
 }
 
-TEST(VariantTests,xml)
+TEST(VariantTests, asInt64FromString)
+{
+    Variant v;
+    v = String("12345");
+    EXPECT_EQ(12345, v.asInt64());
+}
+
+TEST(VariantTests, asBufferExternalString)
+{
+    auto    externalText = "External";
+    Variant v;
+    v.setExternalBuffer(bit_cast<uint8_t*>(externalText), strlen(externalText), VariantDataType::VAR_STRING);
+
+    const Buffer buffer = v.asBuffer();
+    EXPECT_STREQ("External", buffer.c_str());
+}
+
+TEST(VariantTests, xml)
 {
     const char* xml = "<value>12345</value>";
     Document    document;
@@ -448,4 +465,4 @@ TEST(VariantTests,xml)
     EXPECT_STREQ(node->getString().c_str(), "123456");
 }
 
-} // namespace sptk_test
+} // namespace sptk

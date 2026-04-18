@@ -363,7 +363,7 @@ public:
     template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     const T& get() const
     {
-        return (const T&) *this;
+        return static_cast<const T&>(*this);
     }
 
     /**

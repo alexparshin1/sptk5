@@ -68,19 +68,20 @@ void testPriority(FileLogEngine& logEngine, LogPriority priority, size_t expecte
 } // namespace
 namespace sptk {
 
-TEST(FileLogEngineTests,testLogPriorities)
+TEST(FileLogEngineTests, testLogPriorities)
 {
     FileLogEngine logEngine(logFileName);
 
-    testPriority(logEngine, LogPriority::Debug, 5);
-    testPriority(logEngine, LogPriority::Info, 4);
-    testPriority(logEngine, LogPriority::Error, 2);
+    using enum LogPriority;
+    testPriority(logEngine, Debug, 5);
+    testPriority(logEngine, Info, 4);
+    testPriority(logEngine, Error, 2);
 }
 
-TEST(FileLogEngineTests,performance)
+TEST(FileLogEngineTests, performance)
 {
     FileLogEngine logEngine(logFileName);
-    Logger        logger(logEngine, "(Test application) ");
+    const Logger  logger(logEngine, "(Test application) ");
     Stopwatch     stopWatch;
     stopWatch.start();
     constexpr size_t messageCount = 100000;
@@ -93,4 +94,4 @@ TEST(FileLogEngineTests,performance)
                    << static_cast<double>(messageCount) / stopWatch.milliseconds() << " messages/sec)\n");
 }
 
-} // namespace sptk_test
+} // namespace sptk

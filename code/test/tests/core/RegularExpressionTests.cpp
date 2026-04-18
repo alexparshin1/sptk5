@@ -127,6 +127,9 @@ TEST(RegularExpressionTests, namedGroups)
     RegularExpression::Groups matchedStrings;
     const auto                matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
 
+    const auto& group = matchedNamedGroups["aname"];
+    EXPECT_STREQ(group.value.c_str(), "xyz");
+
     EXPECT_STREQ(matchedNamedGroups["aname"].value.c_str(), "xyz");
     EXPECT_STREQ(matchedNamedGroups["avalue"].value.c_str(), "1234");
     EXPECT_STREQ(matchedNamedGroups["description"].value.c_str(), "test1");

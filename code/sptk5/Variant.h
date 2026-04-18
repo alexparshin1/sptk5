@@ -282,7 +282,12 @@ public:
     /**
      * @brief Assignment method.
      */
-    virtual void setDateTime(const DateTime& value, bool dateOnly = false);
+    virtual void setDateTime(const DateTime& value);
+
+    /**
+     * @brief Assignment method.
+     */
+    virtual void setDate(const DateTime& value);
 
     /**
      * @brief Assignment method.

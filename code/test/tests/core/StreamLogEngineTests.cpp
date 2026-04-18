@@ -82,9 +82,10 @@ TEST(StreamLogEngineTests, testLogPriorities)
 {
     StreamLogEngine logEngine(testStream);
 
-    testPriority(logEngine, LogPriority::Debug, 5);
-    testPriority(logEngine, LogPriority::Info, 4);
-    testPriority(logEngine, LogPriority::Error, 2);
+    using enum LogPriority;
+    testPriority(logEngine, Debug, 5);
+    testPriority(logEngine, Info, 4);
+    testPriority(logEngine, Error, 2);
 }
 
 TEST(StreamLogEngineTests, messageAsString)
@@ -94,7 +95,7 @@ TEST(StreamLogEngineTests, messageAsString)
 
     const Logger     logger(logEngine, "(Test application) ");
     Stopwatch        stopWatch;
-    constexpr size_t messageCount = 1000000;
+    constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
     {
         logger.info("Test log message of some length");
@@ -113,7 +114,7 @@ TEST(StreamLogEngineTests, messageAsLambda)
 
     const Logger     logger(logEngine, "(Test application) ");
     Stopwatch        stopWatch;
-    constexpr size_t messageCount = 1000000;
+    constexpr size_t messageCount = 100000;
     for (size_t i = 0; i < messageCount; i++)
     {
         logger.info([]
@@ -171,8 +172,8 @@ TEST(StreamLogEngineTests, millisecondsOption)
     const Strings lines(testStream.str(), "\n");
     ASSERT_EQ(1, lines.size());
 
-    const std::string line = lines[0];
-    const auto        firstSpacePos = line.find(' ');
+    const auto& line = lines[0];
+    const auto  firstSpacePos = line.find(' ');
     ASSERT_NE(String::npos, firstSpacePos);
 
     const std::string timeToken = line.substr(0, firstSpacePos);

@@ -35,7 +35,7 @@ StreamLogEngine::~StreamLogEngine()
     terminate();
 }
 
-bool StreamLogEngine::saveMessage(Logger::UMessage&& message)
+bool StreamLogEngine::saveMessage(const Logger::Message& message)
 {
     const auto options = this->options();
 
@@ -45,21 +45,21 @@ bool StreamLogEngine::saveMessage(Logger::UMessage&& message)
     {
         if (options.contains(Option::DATE))
         {
-            m_logStream << message->timestamp.dateString() << " ";
+            m_logStream << message.timestamp.dateString() << " ";
         }
 
         if (options.contains(Option::TIME))
         {
             const auto printAccuracy = options.contains(Option::MILLISECONDS) ? DateTime::PrintAccuracy::MILLISECONDS : DateTime::PrintAccuracy::SECONDS;
-            m_logStream << message->timestamp.timeString(0, printAccuracy) << " ";
+            m_logStream << message.timestamp.timeString(0, printAccuracy) << " ";
         }
 
         if (options.contains(Option::PRIORITY))
         {
-            m_logStream << "[" << priorityName(message->priority) << "] ";
+            m_logStream << "[" << priorityName(message.priority) << "] ";
         }
 
-        m_logStream << message->message << '\n';
+        m_logStream << message.message << '\n';
 
         if (!m_logStream.good())
         {

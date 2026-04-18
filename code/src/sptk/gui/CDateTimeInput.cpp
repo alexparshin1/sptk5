@@ -218,7 +218,7 @@ Variant CDateInput::data() const
 {
     DateTime dt(m_dateInput->input()->value());
     Variant  rc;
-    rc.setDateTime(dt, true);
+    rc.setDate(dt);
     return rc;
 }
 

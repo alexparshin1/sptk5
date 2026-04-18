@@ -308,7 +308,7 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     const DateTime dateTime("2015-06-01");
     Variant        date;
-    date.setDateTime(dateTime, true);
+    date.setDate(dateTime);
     insert2.param("dt") = date;
     insert2.exec();
 
@@ -919,32 +919,26 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
         data.push_back(aRow);
     }
 
-    auto connectionThread = [&data, &connectionString](const int threadNumber, vector<int64_t>* insertedIds)
+    const Strings columnNames({"name", "position_name", "hire_date"});
+
+    auto connectionThread = [&data, &connectionPool, &columnNames](const int threadNumber, vector<int64_t>* insertedIds)
     {
         vector inputData(data);
 
-        string operation;
         try
         {
-            operation = "Create connection";
-            DatabaseConnectionPool   connectionPool(connectionString.toString());
-            const Strings            columnNames({"name", "position_name", "hire_date"});
-            const DatabaseConnection databaseConnection = connectionPool.getConnection();
+            const DatabaseConnection conn = connectionPool.getConnection();
+            conn->open();
 
-            operation = "Open connection";
-            databaseConnection->open();
-
-            operation = "bulkInsert";
             Stopwatch sw;
-            sw.start();
-            databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
+            conn->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
             sw.stop();
 
             COUT("Thread " << threadNumber << " inserted " << insertedIds->size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds->size() / sw.milliseconds() << "K/sec)");
         }
         catch (const Exception& e)
         {
-            CERR(operation << ": " << e.what());
+            CERR(e.what());
         }
     };
 

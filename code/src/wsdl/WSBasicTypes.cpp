@@ -184,7 +184,7 @@ void WSDate::load(const SNode& attr, bool)
     }
     else
     {
-        value().setDateTime(DateTime(text.c_str()), false);
+        value().setDateTime(DateTime(text.c_str()));
     }
 }
 
@@ -197,7 +197,7 @@ void WSDate::load(const String& attr)
     else
     {
         const DateTime dt(attr.c_str());
-        value().setDateTime(dt, true);
+        value().setDate(dt);
     }
 }
 
@@ -209,7 +209,7 @@ void WSDate::load(const Field& field)
     }
     else
     {
-        this->value().setDateTime(field.asDate(), true);
+        this->value().setDate(field.asDate());
     }
 }
 

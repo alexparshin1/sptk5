@@ -113,7 +113,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](int index)
 
 const RegularExpression::Group& RegularExpression::Groups::operator[](const char* name) const
 {
-    const auto itor = m_namedGroups.find(name);
+    const auto itor = m_namedGroups.find(string(name));
     if (itor == m_namedGroups.end())
     {
         return emptyGroup;
@@ -354,7 +354,7 @@ size_t RegularExpression::nextMatch(const string& text, size_t& offset, MatchDat
         }
     }
 
-    const int matchCount = rc; // If the match count is zero - there are too many matches
+    const int matchCount = rc; // If the match count is zero, there are too many matches
 
     auto nextOffset = static_cast<size_t>(matchData.matches[0].m_end);
     if (m_global && matchData.matches[0].m_start == matchData.matches[0].m_end)
@@ -443,34 +443,37 @@ RegularExpression::Groups RegularExpression::m(const string& text, size_t& offse
 void RegularExpression::extractNamedMatches(const string& text, Groups& matchedStrings,
                                             const MatchData& matchData, size_t matchCount) const
 {
-    if (const auto nameCount = static_cast<int>(getNamedGroupCount());
-        nameCount > 0)
+    const auto nameCount = static_cast<int>(getNamedGroupCount());
+    if (nameCount == 0)
     {
-        const char* nameTable = nullptr;
-        auto        nameEntrySize = 0;
-        getNameTable(nameTable, nameEntrySize);
-        const auto* tabptr = nameTable;
-        for (auto i = 0; i < nameCount; ++i)
-        {
-            const auto   n = static_cast<size_t>((static_cast<int>(tabptr[0]) << 8) | static_cast<int>(tabptr[1]));
-            const string name(tabptr + 2, static_cast<size_t>(nameEntrySize - 3));
-            if (n < matchCount)
-            {
-                if (const auto& match = matchData.matches[n]; match.m_start >= 0)
-                {
-                    Group group(text.c_str(), match.m_start, match.m_end);
-                    matchedStrings.add(name, std::move(group));
-                    tabptr += nameEntrySize;
-                    continue;
-                }
-            }
+        return;
+    }
 
-            Group group;
-            matchedStrings.add(name, std::move(group));
-            tabptr += nameEntrySize;
+    const char* nameTable = nullptr;
+    auto        nameEntrySize = 0;
+    getNameTable(nameTable, nameEntrySize);
+    const auto* tabptr = nameTable;
+    for (auto i = 0; i < nameCount; ++i)
+    {
+        const auto   n = static_cast<size_t>((static_cast<int>(tabptr[0]) << 8) | static_cast<int>(tabptr[1]));
+        const string name(tabptr + 2);
+        if (n < matchCount)
+        {
+            if (const auto& [m_start, m_end] = matchData.matches[n]; m_start >= 0)
+            {
+                Group group(text.c_str(), m_start, m_end);
+                matchedStrings.add(name, std::move(group));
+                tabptr += nameEntrySize;
+                continue;
+            }
         }
+
+        Group group;
+        matchedStrings.add(name, std::move(group));
+        tabptr += nameEntrySize;
     }
 }
+
 
 void RegularExpression::getNameTable(const char*& nameTable, int& nameEntrySize) const
 {

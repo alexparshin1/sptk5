@@ -218,17 +218,16 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t valueSize, Varian
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setDateTime(const DateTime& value, bool dateOnly)
+void VariantAdaptors::setDateTime(const DateTime& value)
 {
-    if (dateOnly)
-    {
-        m_data.set(value.date());
-        dataType(VAR_DATE);
-    }
-    else
-    {
-        m_data.set(value);
-    }
+    m_data.set(value);
+}
+
+//---------------------------------------------------------------------------
+void VariantAdaptors::setDate(const DateTime& value)
+{
+    m_data.set(value.date());
+    dataType(VAR_DATE);
 }
 
 //---------------------------------------------------------------------------
@@ -540,7 +539,7 @@ int64_t VariantAdaptors::asInt64() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return string2int64(string(getBufferPtr()));
+            return string2int64(getBufferPtr());
 
         case VAR_DATE:
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count();
@@ -549,7 +548,7 @@ int64_t VariantAdaptors::asInt64() const
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count();
 
         case VAR_IMAGE_PTR:
-            return int64_t(static_cast<const uint8_t*>(m_data));
+            return reinterpret_cast<int64_t>(static_cast<const uint8_t*>(m_data));
 
         case VAR_IMAGE_NDX:
             return m_data.get<int32_t>();
@@ -684,8 +683,7 @@ String VariantAdaptors::asString() const
         case VAR_STRING:
             if (isExternalBuffer())
             {
-                const auto* ptr = static_cast<const uint8_t*>(m_data);
-                if (ptr != nullptr)
+                if (const auto* ptr = static_cast<const uint8_t*>(m_data))
                 {
                     return {reinterpret_cast<const char*>(ptr), m_data.size()};
                 }
@@ -697,8 +695,7 @@ String VariantAdaptors::asString() const
         case VAR_BUFFER:
             if (isExternalBuffer())
             {
-                const auto* ptr = static_cast<const uint8_t*>(m_data);
-                if (ptr != nullptr)
+                if (const auto* ptr = static_cast<const uint8_t*>(m_data))
                 {
                     return {reinterpret_cast<const char*>(ptr), m_data.size()};
                 }
@@ -741,48 +738,52 @@ Buffer VariantAdaptors::asBuffer() const
     switch (dataType())
     {
         case VAR_BOOL:
-            return Buffer(m_data.get<bool>() ? "true" : "false");
+            return {m_data.get<bool>() ? "true" : "false"};
 
         case VAR_INT:
-            return Buffer(to_string(m_data.get<int32_t>()));
+            return {to_string(m_data.get<int32_t>())};
 
         case VAR_INT64:
-            return Buffer(to_string(m_data.get<int64_t>()));
+            return {to_string(m_data.get<int64_t>())};
 
         case VAR_MONEY:
-            return Buffer(moneyDataToString());
+            return {moneyDataToString()};
 
         case VAR_FLOAT:
-            return Buffer(double2string(m_data.get<double>()));
+            return {double2string(m_data.get<double>())};
 
         case VAR_STRING:
-            return Buffer(m_data.get<String>());
+            if (m_data.type().isExternalBuffer)
+            {
+                return {static_cast<const uint8_t*>(m_data), m_data.type().size};
+            }
+            return {m_data.get<String>()};
 
         case VAR_TEXT:
         case VAR_BUFFER:
             if (m_data.type().isExternalBuffer)
             {
-                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
+                return {static_cast<const uint8_t*>(m_data), m_data.type().size};
             }
             return m_data.get<Buffer>();
 
         case VAR_DATE:
-            return Buffer(m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE));
+            return {m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE)};
 
         case VAR_DATE_TIME:
-            return Buffer(m_data.get<DateTime>().isoDateTimeString());
+            return {m_data.get<DateTime>().isoDateTimeString()};
 
         case VAR_IMAGE_PTR:
             if (static_cast<const uint8_t*>(m_data) != nullptr)
             {
                 stringstream str;
                 str << hex << static_cast<const uint8_t*>(m_data);
-                return Buffer(str.str());
+                return {str.str()};
             }
-            return Buffer("null");
+            return {"null"};
 
         case VAR_IMAGE_NDX:
-            return Buffer(to_string(m_data.get<int32_t>()));
+            return {to_string(m_data.get<int32_t>())};
 
         default:
             break;
@@ -897,6 +898,13 @@ string_view VariantAdaptors::getBufferPtr() const
     {
         return {static_cast<const char*>(m_data), m_data.size()};
     }
+
+    if (m_data.type().type == VAR_STRING)
+    {
+        auto& buffer = m_data.get<String>();
+        return {buffer.c_str(), buffer.size()};
+    }
+
     auto& buffer = m_data.get<Buffer>();
     return {buffer.c_str(), buffer.size()};
 }

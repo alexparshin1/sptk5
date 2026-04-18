@@ -162,7 +162,10 @@ void LogEngine::threadFunction()
 
     try
     {
-        while (processNextMessage() == ProcessResult::Ok) {}
+        while (processNextMessage() == ProcessResult::Ok)
+        {
+            // Repeat processNextMessage while there are no errors.
+        }
         close();
     }
     catch (const Exception& e)
@@ -183,7 +186,7 @@ LogEngine::ProcessResult LogEngine::processNextMessage()
 
     for (auto attempt = 0; attempt < 3; ++attempt)
     {
-        if (saveMessage(std::move(message)))
+        if (saveMessage(*message))
         {
             break;
         }

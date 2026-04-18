@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "Printer.h"
+
+
 #include <sptk5/Strings.h>
 #include <sptk5/sptk-config.h>
 
@@ -173,7 +176,7 @@ public:
          * @brief Get named groups.
          * @return const reference to the named groups object.
          */
-        [[nodiscard]] const std::unordered_map<std::string, Group>& namedGroups() const
+        [[nodiscard]] const auto& namedGroups() const
         {
             return m_namedGroups;
         }
@@ -196,7 +199,7 @@ public:
 
     protected:
         /**
-         * @brief Reserve more groups memory.
+         * @brief Reserve more memory for the groups.
          * @param groupCount    Number of groups to reserve more memory for.
          */
         void grow(size_t groupCount);
@@ -231,7 +234,7 @@ public:
     /**
      * @brief Constructor.
      *
-     * Pattern options are a combination of flags matching Perl regular expression switches:.
+     * Pattern options are a combination of flags matching Perl regular expression switches:
      * 'g'  global match, not just the first one.
      * 'i'  letters in the pattern match both upper and lower case  letters.
      * 'm'  multiple lines match.
