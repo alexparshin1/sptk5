@@ -26,7 +26,6 @@
 */
 
 #include "sptk5/MoneyData.h"
-
 #include <sptk5/Exception.h>
 
 using namespace std;
@@ -40,6 +39,15 @@ const array<int64_t, numberOfDividers> dividers = {
     10000000000000LL, 100000000000000LL, 1000000000000000LL};
 } // namespace
 
+void MoneyData::setScale(uint8_t scale)
+{
+    if (scale >= dividers.size())
+    {
+        throw std::out_of_range("MoneyData: scale is out of range");
+    }
+    m_scale = scale;
+}
+
 int64_t MoneyData::divider(uint8_t scale)
 {
     if (scale >= dividers.size())
@@ -47,6 +55,16 @@ int64_t MoneyData::divider(uint8_t scale)
         throw Exception("MoneyData: scale is out of range");
     }
     return dividers[scale];
+}
+
+MoneyData::MoneyData(int64_t quantity, uint8_t scale)
+    : m_quantity(quantity)
+    , m_scale(scale)
+{
+    if (scale >= dividers.size())
+    {
+        throw std::out_of_range("MoneyData: scale is out of range");
+    }
 }
 
 MoneyData::operator double() const

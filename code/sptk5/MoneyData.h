@@ -44,15 +44,7 @@ public:
      * @param quantity          Money value.
      * @param scale             Money value scale (signs after decimal point).
      */
-    explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0)
-        : m_quantity(quantity)
-        , m_scale(scale)
-    {
-        if (scale >= m_dividers.size())
-        {
-            throw std::out_of_range("MoneyData: scale is out of range");
-        }
-    }
+    explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0);
 
     static VariantDataType variantDataType()
     {
@@ -79,41 +71,33 @@ public:
      */
     explicit operator bool() const;
 
-    size_t dataSize() const override
+    [[nodiscard]] size_t dataSize() const override
     {
         return sizeof(MoneyData);
     }
 
-    int64_t quantity() const
+    [[nodiscard]] int64_t quantity() const
     {
         return m_quantity;
     }
 
-    void setQuantity(int64_t quantity)
+    void setQuantity(const int64_t quantity)
     {
         m_quantity = quantity;
     }
 
-    uint8_t scale() const
+    [[nodiscard]] uint8_t scale() const
     {
         return m_scale;
     }
 
-    void setScale(uint8_t scale)
-    {
-        if (scale >= m_dividers.size())
-        {
-            throw std::out_of_range("MoneyData: scale is out of range");
-        }
-        m_scale = scale;
-    }
+    void setScale(uint8_t scale);
 
     static int64_t divider(uint8_t scale);
 
 private:
-    static const std::array<int64_t, 16> m_dividers; ///< Dividers for formatting money data.
-    int64_t                              m_quantity; ///< Integer value.
-    uint8_t                              m_scale;    ///< Scale.
+    int64_t m_quantity; ///< Integer value.
+    uint8_t m_scale;    ///< Scale.
 };
 
 } // namespace sptk
