@@ -40,7 +40,7 @@ namespace sptk {
 /**
  * @brief The generic thread-safe counter.
  */
-class SP_EXPORT Counter
+class SP_EXPORT Counter final
 {
 public:
     /**
@@ -54,7 +54,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Counter();
+    ~Counter();
 
     /**
      * @brief Get the counter's value.
@@ -75,6 +75,12 @@ public:
 
     /**
      * @brief Increment the counter's value.
+     * @return new counter's value.
+     */
+    Counter& operator++(int);
+
+    /**
+     * @brief Increment the counter's value.
      * @param value             Increment value.
      * @return new counter's value.
      */
@@ -88,7 +94,13 @@ public:
 
     /**
      * @brief Decrement the counter's value.
-     * @param value             Increment value.
+     * @return new counter's value.
+     */
+    Counter& operator--(int);
+
+    /**
+     * @brief Decrement the counter's value.
+     * @param value             Decrement value.
      * @return new counter's value.
      */
     Counter& operator-=(int value);
@@ -132,16 +144,28 @@ public:
         return m_counter <=> rhs.m_counter;
     }
 
+    auto operator==(const Counter& rhs) const
+    {
+        std::scoped_lock lock(m_lockMutex, rhs.m_lockMutex);
+        return m_counter == rhs.m_counter;
+    }
+
     auto operator<=>(const int rhs) const
     {
         std::scoped_lock lock(m_lockMutex);
         return m_counter <=> rhs;
     }
 
+    auto operator==(const int rhs) const
+    {
+        std::scoped_lock lock(m_lockMutex);
+        return m_counter == rhs;
+    }
+
 private:
     mutable std::mutex      m_lockMutex;       ///< Mutex that protects counter's operations.
     std::condition_variable m_condition;       ///< Mutex condition.
-    int                     m_counter {false}; ///< Counter value.
+    int                     m_counter {0}; ///< Counter value.
 };
 /**
  * @}

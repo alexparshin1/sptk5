@@ -69,7 +69,9 @@ public:
      */
     void post(const size_t count = 1)
     {
-        m_value.release(static_cast<ptrdiff_t>(count & MaxSemaphoreValue));
+        m_value.release(count > static_cast<size_t>(MaxSemaphoreValue)
+                            ? MaxSemaphoreValue
+                            : static_cast<ptrdiff_t>(count));
     }
 
     /**
@@ -101,7 +103,7 @@ public:
      * @param timeout           Wait timeout.
      * @return true if semaphore was posted (signaled), or false if timeout occurs.
      */
-    bool wait_for(const std::chrono::microseconds timeout)
+    bool wait_for(const std::chrono::milliseconds timeout)
     {
         return m_value.try_acquire_for(timeout);
     }
