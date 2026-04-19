@@ -87,7 +87,7 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         }
 
         WORD eventType;
-        switch ((int) message->priority)
+        switch (static_cast<int>(message.priority))
         {
             case LOG_EMERG:
             case LOG_ALERT:
@@ -104,7 +104,7 @@ bool SysLogEngine::saveMessage(const Logger::Message& message)
         }
 
         //const char *messageStrings[] = { message, NULL };
-        LPCTSTR messageStrings[] = {TEXT(message->message.c_str())};
+        LPCTSTR messageStrings[] = {TEXT(message.message.c_str())};
 
         if (!ReportEvent(
                 m_logHandle,       // handle returned by RegisterEventSource

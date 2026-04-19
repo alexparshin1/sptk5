@@ -57,7 +57,7 @@ String SystemException::osError()
     {
         errorMessage = "Unknown system error";
     }
-    LocalFree(lpMsgBuf);
+    LocalFree(HLOCAL(lpMsgBuf));
     return errorMessage;
 #else
     // Get Unix errno-based error

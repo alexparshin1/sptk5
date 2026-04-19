@@ -24,7 +24,6 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <cmath>
 #include <iomanip>
 
 #include <sptk5/Field.h>
@@ -741,23 +740,23 @@ Buffer VariantAdaptors::asBuffer() const
             return {m_data.get<bool>() ? "true" : "false"};
 
         case VAR_INT:
-            return {to_string(m_data.get<int32_t>())};
+            return Buffer(to_string(m_data.get<int32_t>()));
 
         case VAR_INT64:
-            return {to_string(m_data.get<int64_t>())};
+            return Buffer(to_string(m_data.get<int64_t>()));
 
         case VAR_MONEY:
-            return {moneyDataToString()};
+            return Buffer(moneyDataToString());
 
         case VAR_FLOAT:
-            return {double2string(m_data.get<double>())};
+            return Buffer(double2string(m_data.get<double>()));
 
         case VAR_STRING:
             if (m_data.type().isExternalBuffer)
             {
                 return {static_cast<const uint8_t*>(m_data), m_data.type().size};
             }
-            return {m_data.get<String>()};
+            return Buffer(m_data.get<String>());
 
         case VAR_TEXT:
         case VAR_BUFFER:
@@ -768,22 +767,25 @@ Buffer VariantAdaptors::asBuffer() const
             return m_data.get<Buffer>();
 
         case VAR_DATE:
-            return {m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE)};
+            return Buffer(m_data.get<DateTime>().date().dateString(DateTime::PF_RFC_DATE));
 
         case VAR_DATE_TIME:
-            return {m_data.get<DateTime>().isoDateTimeString()};
+            return Buffer(m_data.get<DateTime>().isoDateTimeString());
 
         case VAR_IMAGE_PTR:
             if (static_cast<const uint8_t*>(m_data) != nullptr)
             {
                 stringstream str;
                 str << hex << static_cast<const uint8_t*>(m_data);
-                return {str.str()};
+                return Buffer(str.str());
             }
             return {"null"};
 
         case VAR_IMAGE_NDX:
-            return {to_string(m_data.get<int32_t>())};
+            return Buffer(to_string(m_data.get<int32_t>()));
+
+        case VAR_NONE:
+            return {"null"};
 
         default:
             break;
