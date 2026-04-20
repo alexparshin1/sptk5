@@ -27,7 +27,6 @@
 #pragma once
 
 #include <algorithm>
-#include <list>
 #include <sptk5/String.h>
 
 #ifdef _WIN32
@@ -179,7 +178,7 @@ public:
         m_userData = arg;
     }
 
-    auto operator<=>(const Strings& other) const = default;
+    auto operator<=>(const Strings& other) const;
 
     bool operator==(const Strings& strings) const = default;
 
@@ -362,7 +361,6 @@ public:
     {
         m_sorted = SortOrder::UNSORTED;
         m_strings.clear();
-        m_userData = 0;
     }
 
     /**
@@ -403,7 +401,7 @@ public:
     void emplace_back(Args&&... args)
     {
         m_sorted = SortOrder::UNSORTED;
-        m_strings.emplace_back(args...);
+        m_strings.emplace_back(std::forward<Args>(args)...);
     }
 
     /**

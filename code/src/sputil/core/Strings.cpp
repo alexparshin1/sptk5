@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-20                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -34,7 +35,6 @@ using namespace sptk;
 namespace {
 void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 {
-    dest.clear();
     const auto*  pos = src.c_str();
     size_t const delimiterLength = strlen(delimiter);
     while (true)
@@ -58,14 +58,13 @@ void splitByDelimiter(Strings& dest, const String& src, const char* delimiter)
 
 void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
 {
-    dest.clear();
     size_t pos = 0;
     while (pos != string::npos)
     {
         if (const size_t end = src.find_first_of(delimiter, pos);
             end != string::npos)
         {
-            const auto segment = src.substr(pos, end - pos);
+            auto segment = src.substr(pos, end - pos);
             dest.emplace_back(std::move(segment));
             pos = src.find_first_not_of(delimiter, end + 1);
         }
@@ -73,7 +72,7 @@ void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
         {
             if (pos + 1 <= src.length())
             {
-                const auto segment = src.substr(pos, end - pos);
+                auto segment = src.substr(pos);
                 dest.emplace_back(std::move(segment));
             }
             break;
@@ -84,8 +83,6 @@ void splitByAnyChar(Strings& dest, const String& src, const char* delimiter)
 void splitByRegExp(Strings& dest, const String& src, const char* pattern)
 {
     const RegularExpression regularExpression(pattern);
-
-    dest.clear();
     dest = regularExpression.split(src);
 }
 
@@ -104,13 +101,13 @@ Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexc
 {
     try
     {
-        if (mode == SplitMode::DELIMITER && (delimiter == nullptr || strlen(delimiter) == 0))
+        if ((mode == SplitMode::DELIMITER || mode == SplitMode::ANYCHAR) && (delimiter == nullptr || strlen(delimiter) == 0))
         {
             throw Exception("Empty delimiter");
         }
         fromString(src.c_str(), delimiter, mode);
     }
-    catch (const Exception& e)
+    catch (const exception& e)
     {
         push_back("# ERROR: " + String(e.what()));
     }
@@ -145,7 +142,7 @@ int Strings::indexOf(const String& needle) const
             reverseIterator = lower_bound(m_strings.rbegin(), m_strings.rend(), needle);
             if (reverseIterator != m_strings.rend() && *reverseIterator == needle)
             {
-                result = static_cast<int>(distance(m_strings.rbegin(), reverseIterator));
+                result = static_cast<int>(m_strings.size() - 1 - distance(m_strings.rbegin(), reverseIterator));
             }
             break;
         case SortOrder::ASCENDING:
@@ -200,6 +197,15 @@ void Strings::loadFromFile(const std::filesystem::path& fileName)
     }
 
     splitByDelimiter(*this, text, delimiter.c_str());
+}
+
+auto Strings::operator<=>(const Strings& other) const
+{
+    if (m_strings != other.m_strings)
+    {
+        return m_strings <=> other.m_strings;
+    }
+    return (m_userData <=> other.m_userData);
 }
 
 String Strings::join(std::string_view delimiter) const
