@@ -403,8 +403,8 @@ Strings commandToArguments(const String& command)
     for (const auto& match: matches.groups())
     {
         const auto& value = match.value;
-        if ((value.starts_with('\"') && value.ends_with('\"')) ||
-            (value.starts_with('\'') && value.ends_with('\'')))
+        if ((value.startsWith("\"") && value.endsWith("\"")) ||
+            (value.startsWith("'") && value.endsWith("'")))
         {
             args.push_back(value.substr(1, value.size() - 2));
         }

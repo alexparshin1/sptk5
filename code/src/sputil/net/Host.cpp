@@ -71,7 +71,7 @@ Host::Host(String hostname, const uint16_t port)
 Host::Host(const String& hostAndPort)
 {
     checkSocketsInitialized();
-    const auto matches = hostAndPort.starts_with("[")
+    const auto matches = hostAndPort.startsWith("[")
                              ? m_matchIpv6.m(hostAndPort)
                              : m_matchHostNameOrIpv4.m(hostAndPort);
 

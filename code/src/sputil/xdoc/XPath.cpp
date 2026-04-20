@@ -90,11 +90,11 @@ void parsePathElement(const string& pathElementStr, XPathElement& pathElement)
         makeCriteria(pathElement);
     }
 
-    if (pathElementType.starts_with("descendant"))
+    if (pathElementType.startsWith("descendant"))
     {
         pathElement.axis = XPathAxis::DESCENDANT;
     }
-    else if (pathElementType.starts_with("parent"))
+    else if (pathElementType.startsWith("parent"))
     {
         pathElement.axis = XPathAxis::PARENT;
     }
@@ -246,7 +246,7 @@ void NodeSearchAlgorithms::matchNode(const SNode& thisNode, Node::Vector& nodes,
 
 void NodeSearchAlgorithms::select(Node::Vector& nodes, const SNode& start, String xpath)
 {
-    if (!xpath.starts_with("/"))
+    if (!xpath.startsWith("/"))
     {
         xpath = "//" + xpath;
     }

@@ -57,7 +57,7 @@ int main()
                 String data(readBuffer.c_str(), bytes);
                 COUT("Received data: " << data << '\n');
 
-                if (data.starts_with("EOD"))
+                if (data.startsWith("EOD"))
                 {
                     server.close();
                     COUT("Server session closed\n");

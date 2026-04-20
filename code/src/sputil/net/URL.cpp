@@ -156,12 +156,12 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
         {
             throw Exception("Invalid IP address");
         }
-        return std::make_tuple(matches[0].value, static_cast<uint16_t>(stoi(matches[1].value)));
+        return std::make_tuple(matches[0].value, static_cast<uint16_t>(matches[1].value.toInt()));
     }
 
     String   host = m_hostAndPort;
     uint16_t port = 0;
-    if (m_hostAndPort.starts_with("["))
+    if (m_hostAndPort.startsWith("["))
     {
         // IPv6 address with port.
         const auto matches = matchHostAndPort.m(m_hostAndPort);
@@ -171,10 +171,10 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
         }
 
         host = matches[0].value;
-        port = static_cast<uint16_t>(stoi(matches[1].value));
+        port = static_cast<uint16_t>(matches[1].value.toInt());
     }
 
-    if (host.starts_with("[") && host.ends_with("]"))
+    if (host.startsWith("[") && host.endsWith("]"))
     {
         host = host.substr(1, host.length() - 2);
     }

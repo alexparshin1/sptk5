@@ -69,7 +69,7 @@ bool HttpReader::readStatus()
     m_statusCode = string2int(matches[1].value);
     if (matches.groups().size() > 2)
     {
-        m_statusText = trim(matches[2].value);
+        m_statusText = matches[2].value.trim();
     }
 
     m_readerState = State::READING_HEADERS;
@@ -89,7 +89,7 @@ bool HttpReader::readHttpRequest()
     const RegularExpression parseProtocol("^(GET|POST|DELETE|PUT|OPTIONS) (\\S+)", "i");
     if (const auto matches = parseProtocol.m(request); matches)
     {
-        m_requestType = upperCase(matches[0].value);
+        m_requestType = matches[0].value.toUpperCase();
         m_requestURL = matches[1].value;
         return true;
     }

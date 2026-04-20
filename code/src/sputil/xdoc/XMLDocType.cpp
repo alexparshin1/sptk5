@@ -56,7 +56,7 @@ void Entity::parse(const String& entityTag)
             type = Type::SYSTEM;
             id = "";
         }
-        else if (typeAndId.starts_with(" PUBLIC "))
+        else if (typeAndId.startsWith(" PUBLIC "))
         {
             const int lengthOfPublicWithSpaces = 8;
             type = Type::PUBLIC;
@@ -130,10 +130,10 @@ public:
         return nullptr;
     }
 
-    const entity* encode(const char* str) const;
+    const struct entity* encode(const char* str) const;
 };
 
-const entity* XMLEntityCache::encode(const char* str) const
+const struct entity* XMLEntityCache::encode(const char* str) const
 {
     auto maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); ++maps)

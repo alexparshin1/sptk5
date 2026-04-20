@@ -636,7 +636,7 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
         }
 
         row = trim(row);
-        if (row.empty() || row.starts_with("--"))
+        if (row.empty() || row.startsWith("--"))
         {
             continue;
         }

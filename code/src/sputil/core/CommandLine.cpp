@@ -391,11 +391,11 @@ String CommandLine::preprocessArgument(String& arg, String& quote, String& quote
     String output;
     if (quote.empty())
     {
-        if (arg.starts_with('\'') || arg.starts_with('\"'))
+        if (arg.startsWith("'") || arg.startsWith("\""))
         {
             quote = arg.substr(0, 1);
             quotedString = arg.substr(1);
-            if (arg.length() > 1 && arg.ends_with(quote))
+            if (arg.length() > 1 && arg.endsWith(quote))
             {
                 quote.clear();
                 quotedString.resize(quotedString.length() - 1);
@@ -409,7 +409,7 @@ String CommandLine::preprocessArgument(String& arg, String& quote, String& quote
     }
     else
     {
-        if (arg.ends_with(quote))
+        if (arg.endsWith(quote))
         {
             arg = arg.substr(0, arg.length() - 1);
             quote = "";
@@ -429,10 +429,10 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
     Strings digestedArgs;
     for (const auto& arg: arguments)
     {
-        if (arg.starts_with("--"))
+        if (arg.startsWith("--"))
         {
             // Full option name
-            if (arg.starts_with("--gtest_"))
+            if (arg.startsWith("--gtest_"))
             {
                 continue;
             } // Ignore googletest arguments
@@ -440,7 +440,7 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
             continue;
         }
 
-        if (arg.starts_with("-"))
+        if (arg.startsWith("-"))
         {
             // Short option name(s)
             for (const auto& ch: arg.substr(1))
@@ -458,10 +458,11 @@ Strings CommandLine::rewriteArguments(const Strings& arguments)
 
 void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
 {
-    if (const auto& arg = digestedArgs[argumentIndex]; arg.starts_with("-"))
+    const String& arg = digestedArgs[argumentIndex];
+    if (arg.startsWith("-"))
     {
         String optionName;
-        if (arg.starts_with("--"))
+        if (arg.startsWith("--"))
         {
             // Full option name
             optionName = arg.substr(2);

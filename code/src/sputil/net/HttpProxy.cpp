@@ -83,7 +83,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
         constexpr int minimalHttpError = 400;
-        const int     rc = stoi(responseMatches[0].value);
+        const int     rc = responseMatches[0].value.toInt();
         if (rc < minimalHttpError)
         {
             proxyConnected = true;
@@ -98,9 +98,9 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
         socketReader.readLine(buffer);
         if (auto matches = matchResponseHeader.m(buffer.c_str()))
         {
-            if (lowerCase(matches[0].value) == "content-length")
+            if (matches[0].value.toLowerCase() == "content-length")
             {
-                contentLength = stoi(matches[1].value);
+                contentLength = matches[1].value.toInt();
             }
         }
         else
