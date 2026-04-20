@@ -37,7 +37,7 @@ SystemException::SystemException(const String& context, const std::source_locati
 
 String SystemException::osError()
 {
-#ifdef _WIN32
+#ifdef WIN32
     String errorMessage;
     // Get Windows last error
     LPCTSTR lpMsgBuf = NULL;
@@ -57,7 +57,6 @@ String SystemException::osError()
     {
         errorMessage = "Unknown system error";
     }
-    LocalFree(HLOCAL(lpMsgBuf));
     return errorMessage;
 #else
     // Get Unix errno-based error

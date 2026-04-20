@@ -446,7 +446,7 @@ void WSParserComplexType::printImplementationRestrictions(std::ostream& classImp
             requiredElements.push_back(complexType->name());
         }
 
-        if (!complexType->m_typeName.startsWith("xsd:"))
+        if (!complexType->m_typeName.starts_with("xsd:"))
         {
             continue;
         }

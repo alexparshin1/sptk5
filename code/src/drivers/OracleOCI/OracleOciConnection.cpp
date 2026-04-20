@@ -689,7 +689,7 @@ void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, in
 
 string OracleOciConnection::paramMark(unsigned int paramIndex)
 {
-    return format(":{}", paramIndex + 1);
+    return ":" + to_string(paramIndex + 1);
 }
 
 String OracleOciConnection::queryError(const Query* query) const
@@ -719,7 +719,7 @@ void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned in
         const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
                                 static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
 
-        field->setDateTime(dateTime + sessionTimezoneOffset);
+        field->setDateTime(dateTime + sessionTimezoneOffset, false);
     }
 }
 
@@ -743,7 +743,7 @@ void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int
         const DateTime dateTime(static_cast<short>(year), static_cast<short>(month), static_cast<short>(day),
                                 static_cast<short>(hour), static_cast<short>(minute), static_cast<short>(second));
 
-        field->setDateTime(dateTime + sessionTimezoneOffset);
+        field->setDateTime(dateTime + sessionTimezoneOffset, false);
     }
 }
 

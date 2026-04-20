@@ -4,7 +4,6 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2026-04-19                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -39,6 +38,7 @@ Counter::Counter(const int startingValue)
 
 Counter::~Counter()
 {
+    const scoped_lock lock(m_lockMutex);
     m_condition.notify_all();
 }
 
@@ -66,14 +66,6 @@ Counter& Counter::operator++()
     return *this;
 }
 
-Counter& Counter::operator++(int)
-{
-    const scoped_lock lock(m_lockMutex);
-    ++m_counter;
-    m_condition.notify_all();
-    return *this;
-}
-
 Counter& Counter::operator+=(const int value)
 {
     const scoped_lock lock(m_lockMutex);
@@ -90,14 +82,6 @@ Counter& Counter::operator--()
     return *this;
 }
 
-Counter& Counter::operator--(int)
-{
-    const scoped_lock lock(m_lockMutex);
-    --m_counter;
-    m_condition.notify_all();
-    return *this;
-}
-
 Counter& Counter::operator-=(const int value)
 {
     const scoped_lock lock(m_lockMutex);
@@ -106,7 +90,7 @@ Counter& Counter::operator-=(const int value)
     return *this;
 }
 
-bool Counter::wait_for(int value, const milliseconds& timeout)
+bool Counter::wait_for(int value, const chrono::milliseconds& timeout)
 {
     unique_lock lock(m_lockMutex);
 
@@ -128,7 +112,7 @@ bool Counter::wait_for(int value, const milliseconds& timeout)
 {
     unique_lock lock(m_lockMutex);
 
-    // Wait until m_counter is matching the value
+    // Wait until the semaphore value is greater than 0
     return m_condition.wait_until(lock,
                                   timeoutAt.timePoint(),
                                   [this, value]()

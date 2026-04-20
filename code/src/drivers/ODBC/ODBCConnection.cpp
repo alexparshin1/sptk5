@@ -844,14 +844,7 @@ SQLRETURN odbcReadTimestampField(const SQLHSTMT statement, DatabaseField* field,
     {
         const auto     tzOffset = field->fieldSize() == 16 ? sessionTimezoneOffset : chrono::minutes(0);
         const DateTime dateTime(timestampStruct.year, static_cast<short>(timestampStruct.month), static_cast<short>(timestampStruct.day), static_cast<short>(timestampStruct.hour), static_cast<short>(timestampStruct.minute), static_cast<short>(timestampStruct.second));
-        if (field->dataType() == VariantDataType::VAR_DATE)
-        {
-            field->setDate(dateTime - tzOffset);
-        }
-        else
-        {
-            field->setDateTime(dateTime - tzOffset);
-        }
+        field->setDateTime(dateTime - tzOffset, field->dataType() == VariantDataType::VAR_DATE);
     }
     return resultCode;
 }
@@ -1174,7 +1167,7 @@ void ODBCConnection::executeBatchSQL(const Strings& batchSQL, Strings* errors)
         if (!routineStarted)
         {
             row = trim(row);
-            if (row.empty() || row.startsWith("--"))
+            if (row.empty() || row.starts_with("--"))
             {
                 continue;
             }

@@ -29,6 +29,7 @@
 #include <sptk5/BufferStorage.h>
 #include <sptk5/VariantStorageClient.h>
 
+#include <cstring>
 #include <memory>
 
 namespace sptk {
@@ -112,17 +113,17 @@ public:
     Buffer& operator=(Buffer&& other) noexcept = default;
 
     /**
-     * @brief Assigns from Buffer
-     * @param other             Buffer to assign from.
+     * Assigns from Buffer
+     * @param other             Buffer to assign from
      * @returns this object
      */
     Buffer& operator=(const Buffer& other) = default;
 
     /**
-     * @brief Appends a single char to the current buffer.
+     * Appends a single char to the current buffer.
      *
      * Allocates memory if needed.
-     * @param singleChar                Single character.
+     * @param singleChar                Single character
      */
     void append(char singleChar) override
     {
@@ -130,11 +131,11 @@ public:
     }
 
     /**
-     * @brief Appends the external data of size bufferSize to the current buffer.
+     * Appends the external data of size bufferSize to the current buffer.
      *
      * Allocates memory if needed.
-     * @param data              External data buffer.
-     * @param bufferSize        Required memory size.
+     * @param data              External data buffer
+     * @param bufferSize                Required memory size
      */
     void append(const char* data, size_t bufferSize = MAX_SIZE_T) override
     {
@@ -142,11 +143,11 @@ public:
     }
 
     /**
-     * @brief Appends the external data of size bufferSize to the current buffer.
+     * Appends the external data of size bufferSize to the current buffer.
      *
      * Allocates memory if needed.
-     * @param data              External data buffer.
-     * @param bufferSize        Required memory size.
+     * @param data              External data buffer
+     * @param bufferSize                Required memory size
      */
     void append(const uint8_t* data, size_t bufferSize) override
     {
@@ -154,36 +155,36 @@ public:
     }
 
     /**
-     * @brief Append a value of the primitive type or structure to the current buffer.
+     * Append a value of primitive type or structure to the current buffer.
      *
      * Allocates memory if needed.
-     * @param val               Primitive type or structure.
+     * @param val               Primitive type or structure
      */
     template<class T>
-        requires std::is_integral_v<T>
+    requires std::is_integral_v<T>
     void append(T val)
     {
-        append(reinterpret_cast<uint8_t*>(&val), sizeof(val));
+        append((uint8_t*)&val, sizeof(val));
     }
 
     /**
-     * @brief Appends the string to the current buffer.
+     * Appends the string to the current buffer.
      *
      * Allocates memory if needed.
-     * @param str               String to append.
+     * @param str               String to append
      */
     template<class T>
-        requires std::is_class_v<T>
+    requires std::is_class_v<T>
     void append(const T& str)
     {
         append(str.c_str(), str.size());
     }
 
     /**
-     * @brief Appends the string to the current buffer.
+     * Appends the string to the current buffer.
      *
      * Allocates memory if needed.
-     * @param buffer            Data to append.
+     * @param buffer            Data to append
      */
     void append(const Buffer& buffer)
     {
@@ -191,8 +192,8 @@ public:
     }
 
     /**
-     * @brief Access the chars by index
-     * @param index             Character index.
+     * Access the chars by index
+     * @param index             Character index
      */
     uint8_t& operator[](size_t index)
     {
@@ -200,8 +201,8 @@ public:
     }
 
     /**
-     * @brief Access the chars by index, const version.
-     * @param index             Character index.
+     * Access the chars by index, const version
+     * @param index             Character index
      */
     const uint8_t& operator[](size_t index) const
     {
@@ -209,47 +210,47 @@ public:
     }
 
     /**
-     * @brief Compare operator.
-     * @param other             Other buffer.
-     * @return                  True if buffer contents are identical.
+     * Compare operator
+     * @param other             Other buffer
+     * @return                  True if buffer contents are identical
      */
     bool operator==(const Buffer& other) const;
 
     /**
-     * @brief Loads the buffer from the file.
-     * @param fileName          Name of the input file.
+     * Loads the buffer from file fileName.
+     * @param fileName          Name of the input file
      */
     void loadFromFile(const std::filesystem::path& fileName);
 
     /**
-     * @brief Saves the buffer to the file.
-     * @param fileName          Name of the output file.
+     * Saves the buffer to the file fileName.
+     * @param fileName          Name of the output file
      */
     void saveToFile(const std::filesystem::path& fileName) const;
 
     /**
-     * @brief Assigns from String.
-     * @param str               String to assign from.
-     * @returns this object.
+     * Assigns from String
+     * @param str               String to assign from
+     * @returns this object
      */
     Buffer& operator=(const String& str);
 
     /**
-     * @brief Assigns from char*.
-     * @param str const char*, the string to assign from.
-     * @returns this object.
+     * Assigns from char *
+     * @param str const char *, the string to assign from
+     * @returns this object
      */
     Buffer& operator=(const char* str);
 
     /**
-     * @brief Convertor to std::string.
+     * Convertor to std::string
      */
     explicit operator String() const
     {
         return {c_str(), bytes()};
     }
 
-    [[nodiscard]] static VariantDataType variantDataType()
+    static VariantDataType variantDataType()
     {
         return VariantDataType::VAR_BUFFER;
     }

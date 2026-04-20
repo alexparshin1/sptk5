@@ -162,10 +162,7 @@ void LogEngine::threadFunction()
 
     try
     {
-        while (processNextMessage() == ProcessResult::Ok)
-        {
-            // Repeat processNextMessage while there are no errors.
-        }
+        while (processNextMessage() == ProcessResult::Ok) {}
         close();
     }
     catch (const Exception& e)

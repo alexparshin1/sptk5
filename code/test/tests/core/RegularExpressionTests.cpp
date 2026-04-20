@@ -38,7 +38,7 @@ using namespace sptk;
 static const String testPhrase("This is a test text to verify rexec text data group");
 namespace sptk {
 
-TEST(RegularExpressionTests,matchEmptyText)
+TEST(RegularExpressionTests, matchEmptyText)
 {
     const RegularExpression matchFirst("test text", "g");
     const auto              matches = matchFirst.m("");
@@ -50,7 +50,7 @@ TEST(RegularExpressionTests,matchEmptyText)
     EXPECT_EQ(0, words.size());
 }
 
-TEST(RegularExpressionTests,matchEmptyPattern)
+TEST(RegularExpressionTests, matchEmptyPattern)
 {
     const RegularExpression matchFirst("", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -62,7 +62,7 @@ TEST(RegularExpressionTests,matchEmptyPattern)
     EXPECT_EQ(0, words.size());
 }
 
-TEST(RegularExpressionTests,matchFirst)
+TEST(RegularExpressionTests, matchFirst)
 {
     const RegularExpression matchFirst("test text", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -74,7 +74,7 @@ TEST(RegularExpressionTests,matchFirst)
     EXPECT_STREQ(words.c_str(), "test text");
 }
 
-TEST(RegularExpressionTests,matchFirstGroup)
+TEST(RegularExpressionTests, matchFirstGroup)
 {
     const RegularExpression matchFirst("(test text)", "g");
     const auto              matches = matchFirst.m(testPhrase);
@@ -86,7 +86,7 @@ TEST(RegularExpressionTests,matchFirstGroup)
     EXPECT_STREQ(words.c_str(), "test text");
 }
 
-TEST(RegularExpressionTests,matchMany)
+TEST(RegularExpressionTests, matchMany)
 {
     const RegularExpression matchWord("(\\w+)+", "g");
     const auto              matches = matchWord.m(testPhrase);
@@ -98,7 +98,7 @@ TEST(RegularExpressionTests,matchMany)
     EXPECT_STREQ(words.join("_").c_str(), "This_is_a_test_text_to_verify_rexec_text_data_group");
 }
 
-TEST(RegularExpressionTests,match)
+TEST(RegularExpressionTests, match)
 {
     const RegularExpression match1("test.*verify");
     const RegularExpression match2("test  .*verify");
@@ -108,7 +108,7 @@ TEST(RegularExpressionTests,match)
     EXPECT_FALSE(match1 != String(testPhrase));
 }
 
-TEST(RegularExpressionTests,matchGlobal)
+TEST(RegularExpressionTests, matchGlobal)
 {
     const RegularExpression match("(te[xs]t) (to verify|data)", "g");
 
@@ -120,45 +120,42 @@ TEST(RegularExpressionTests,matchGlobal)
     EXPECT_EQ(matchedStrings.groups().size(), static_cast<size_t>(4));
 }
 
-TEST(RegularExpressionTests,namedGroups)
+TEST(RegularExpressionTests, namedGroups)
 {
     const RegularExpression match("(?<aname>[xyz]+) (?<avalue>\\d+) (?<description>\\w+)");
 
     RegularExpression::Groups matchedStrings;
     const auto                matchedNamedGroups = match.m("  xyz 1234 test1, xxx 333 test2,\r yyy 333 test3\r\nzzz 555 test4");
 
-    const auto& group = matchedNamedGroups["aname"];
-    EXPECT_STREQ(group.value.c_str(), "xyz");
-
     EXPECT_STREQ(matchedNamedGroups["aname"].value.c_str(), "xyz");
     EXPECT_STREQ(matchedNamedGroups["avalue"].value.c_str(), "1234");
     EXPECT_STREQ(matchedNamedGroups["description"].value.c_str(), "test1");
 }
 
-TEST(RegularExpressionTests,replace)
+TEST(RegularExpressionTests, replace)
 {
     const RegularExpression match1("^(.*)(white).*(rabbit)(.*)");
     EXPECT_STREQ("white crow eats flies over rabbit",
                  match1.s("This is a white rabbit", "\\2 crow eats flies over \\3").c_str());
 }
 
-TEST(RegularExpressionTests,replaceAll)
+TEST(RegularExpressionTests, replaceAll)
 {
-    const map<String, String> substitutions = {
+    const unordered_map<string, string> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}};
 
     const RegularExpression matchPlaceholders("\\$[A-Z]+", "g");
-    const String            text = "$NAME was in $CITY in $YEAR ";
+    const string            text = "$NAME was in $CITY in $YEAR ";
     bool                    replaced(false);
-    const String            result = matchPlaceholders.replaceAll(text, substitutions, replaced);
+    const string            result = matchPlaceholders.replaceAll(text, substitutions, replaced);
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
-TEST(RegularExpressionTests,lambdaReplace)
+TEST(RegularExpressionTests, lambdaReplace)
 {
-    map<String, String> substitutions = {
+    unordered_map<string, string> substitutions = {
         {"$NAME", "John Doe"},
         {"$CITY", "London"},
         {"$YEAR", "2000"}};
@@ -167,7 +164,7 @@ TEST(RegularExpressionTests,lambdaReplace)
     const String            text = "$NAME was in $CITY in $YEAR ";
     bool                    replaced(false);
     const String            result = matchPlaceholders.s(
-        text, [&substitutions](const String& match)
+        text, [&substitutions](const string& match)
         {
             return substitutions[match];
         },
@@ -175,7 +172,7 @@ TEST(RegularExpressionTests,lambdaReplace)
     EXPECT_STREQ("John Doe was in London in 2000 ", result.c_str());
 }
 
-TEST(RegularExpressionTests,extract)
+TEST(RegularExpressionTests, extract)
 {
     const RegularExpression match1("^(.*)(text).*(verify)(.*)");
     const auto              matchedStrings = match1.m(testPhrase);
@@ -185,7 +182,7 @@ TEST(RegularExpressionTests,extract)
     EXPECT_STREQ(" rexec text data group", matchedStrings[3].value.c_str());
 }
 
-TEST(RegularExpressionTests,split)
+TEST(RegularExpressionTests, split)
 {
     const RegularExpression match("[\\s]+");
     auto                    matchedStrings = match.split(testPhrase);
@@ -194,7 +191,7 @@ TEST(RegularExpressionTests,split)
     EXPECT_STREQ("text", matchedStrings[8].c_str());
 }
 
-TEST(RegularExpressionTests,splitWithCaptureGroupsPattern)
+TEST(RegularExpressionTests, splitWithCaptureGroupsPattern)
 {
     const RegularExpression match("(\\w+) text");
     const Strings           expectedStrings = {"This is a ", " to verify ", " data group"};
@@ -205,7 +202,7 @@ TEST(RegularExpressionTests,splitWithCaptureGroupsPattern)
     EXPECT_EQ(expectedStrings, matchedStrings);
 }
 
-TEST(RegularExpressionTests,splitWithCaptureGroupsPatterns)
+TEST(RegularExpressionTests, splitWithCaptureGroupsPatterns)
 {
     const RegularExpression match("(is|to)(\\s)");
     const Strings           expectedStrings = {"Th", "", "a test text ", "verify rexec text data group"};
@@ -216,7 +213,45 @@ TEST(RegularExpressionTests,splitWithCaptureGroupsPatterns)
     EXPECT_EQ(expectedStrings, matchedStrings);
 }
 
-TEST(RegularExpressionTests,matchPerformance)
+TEST(RegularExpressionTests, globalZeroLengthMatchDoesNotLoop)
+{
+    const RegularExpression match("(?=\\w)", "g");
+    const auto              matchedStrings = match.m(testPhrase);
+    EXPECT_TRUE(matchedStrings.empty());
+}
+
+TEST(RegularExpressionTests, replaceAllZeroLengthMatchDoesNotLoop)
+{
+    const RegularExpression match("(?=\\w)", "g");
+    bool                    replaced = false;
+    const auto              result = match.replaceAll(testPhrase, "x", replaced);
+    EXPECT_FALSE(replaced);
+    EXPECT_EQ(testPhrase, result);
+}
+
+TEST(RegularExpressionTests, lambdaReplaceZeroLengthMatchDoesNotLoop)
+{
+    const RegularExpression match("(?=\\w)", "g");
+    bool                    replaced = false;
+    const auto              result = match.s(
+        testPhrase, [](const string&)
+        {
+            return string("x");
+        },
+        replaced);
+    EXPECT_FALSE(replaced);
+    EXPECT_EQ(testPhrase, result);
+}
+
+TEST(RegularExpressionTests, splitZeroLengthMatchDoesNotLoop)
+{
+    const RegularExpression match("(?=\\w)", "g");
+    const auto              matchedStrings = match.split(testPhrase);
+    ASSERT_EQ(static_cast<size_t>(1), matchedStrings.size());
+    EXPECT_EQ(testPhrase, matchedStrings[0]);
+}
+
+TEST(RegularExpressionTests, matchPerformance)
 {
     const String            data("red=#FF0000, green=#00FF00, blue=#0000FF");
     const RegularExpression match("((\\w+)=(#\\w+))");
@@ -239,7 +274,7 @@ TEST(RegularExpressionTests,matchPerformance)
                   << fixed << setprecision(1) << maxIterations / stopWatch.seconds() / oneThousand << "K/sec" << endl);
 }
 
-TEST(RegularExpressionTests,asyncExec)
+TEST(RegularExpressionTests, asyncExec)
 {
     RegularExpression match("(?<name>[xyz]+) (?<value>\\d+) (?<description>\\w+)");
 

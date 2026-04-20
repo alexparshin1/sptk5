@@ -130,7 +130,7 @@ public:
         Group(Group&&) = default;
         Group& operator=(Group&& other) = default;
 
-        String        value;     ///< Matched fragment of the subject
+        std::string   value;     ///< Matched fragment of the subject
         pcre_offset_t start {0}; ///< Start position of the matched fragment in the subject
         pcre_offset_t end {0};   ///< End position of the matched fragment in the subject
     };
@@ -173,7 +173,7 @@ public:
          * @brief Get named groups.
          * @return const reference to the named groups object.
          */
-        [[nodiscard]] const std::map<String, Group>& namedGroups() const
+        [[nodiscard]] const std::unordered_map<std::string, Group>& namedGroups() const
         {
             return m_namedGroups;
         }
@@ -196,7 +196,7 @@ public:
 
     protected:
         /**
-         * @brief Reserve more memory for the groups.
+         * @brief Reserve more groups memory.
          * @param groupCount    Number of groups to reserve more memory for.
          */
         void grow(size_t groupCount);
@@ -215,21 +215,23 @@ public:
          * @param name          Group name.
          * @param group         Group to add.
          */
-        void add(const String& name, Group&& group)
+        void add(const std::string& name, Group&& group)
         {
             m_namedGroups[name] = std::move(group);
         }
 
     private:
-        std::vector<Group>      m_groups;      ///< Unnamed groups
-        std::map<String, Group> m_namedGroups; ///< Named groups
-        static const Group      emptyGroup;    ///< Empty group to return if the group can't be found
+        std::vector<Group>                     m_groups;      ///< Unnamed groups
+        std::unordered_map<std::string, Group> m_namedGroups; ///< Named groups
+        static const Group                     emptyGroup;    ///< Empty group to return if the group can't be found
     };
+
+    using SubstitutionMap = std::unordered_map<std::string, std::string>;
 
     /**
      * @brief Constructor.
      *
-     * Pattern options are a combination of flags matching Perl regular expression switches:
+     * Pattern options are a combination of flags matching Perl regular expression switches:.
      * 'g'  global match, not just the first one.
      * 'i'  letters in the pattern match both upper and lower case  letters.
      * 'm'  multiple lines match.
@@ -269,21 +271,21 @@ public:
      * @param text              Input text.
      * @return true if match found.
      */
-    [[nodiscard]] bool operator==(const String& text) const;
+    [[nodiscard]] bool operator==(const std::string& text) const;
 
     /**
      * @brief Returns true if the text matches with the regular expression.
      * @param text              Text to process.
      * @return true if match found.
      */
-    [[nodiscard]] bool matches(const String& text) const;
+    [[nodiscard]] bool matches(const std::string& text) const;
 
     /**
      * @brief Returns the list of strings matched with the regular expression.
      * @param text              Text to process.
      * @return matched groups.
      */
-    [[nodiscard]] Groups m(const String& text) const
+    [[nodiscard]] Groups m(const std::string& text) const
     {
         size_t offset = 0;
         return m(text, offset);
@@ -295,7 +297,7 @@ public:
      * @param offset            Search offset, updated after method execution.
      * @return matched groups.
      */
-    [[nodiscard]] Groups m(const String& text, size_t& offset) const;
+    [[nodiscard]] Groups m(const std::string& text, size_t& offset) const;
 
     /**
      * @brief Replaces matches with replacement string.
@@ -303,7 +305,7 @@ public:
      * @param outputPattern     Output pattern using "\\N" as placeholders, with "\\1" as the first match.
      * @return processed text.
      */
-    [[nodiscard]] String s(const String& text, const String& outputPattern) const;
+    [[nodiscard]] std::string s(const std::string& text, const std::string& outputPattern) const;
 
     /**
      * @brief Replaces matches with replacement string.
@@ -312,14 +314,14 @@ public:
      * @param replaced          True if there were any replacements.
      * @return processed text.
      */
-    [[nodiscard]] String s(const String& text, const std::function<String(const String&)>& replace, bool& replaced) const;
+    [[nodiscard]] std::string s(const std::string& text, const std::function<std::string(const std::string&)>& replace, bool& replaced) const;
 
     /**
      * @brief Returns the list of strings split by this regular expression.
      * @param text              Text to process.
      * @return List of strings.
      */
-    [[nodiscard]] Strings split(const String& text) const;
+    [[nodiscard]] Strings split(const std::string& text) const;
 
     /**
      * @brief Replaces matches with replacement string.
@@ -328,7 +330,7 @@ public:
      * @param replaced          Optional flag if replacement was made.
      * @return processed text.
      */
-    [[nodiscard]] String replaceAll(const String& text, const String& outputPattern, bool& replaced) const;
+    [[nodiscard]] std::string replaceAll(const std::string& text, const std::string& outputPattern, bool& replaced) const;
 
     /**
      * @brief Replaces matches with replacement string from the map, using matched string as an index.
@@ -337,19 +339,19 @@ public:
      * @param replaced          Optional flag if replacement was made.
      * @return processed text.
      */
-    [[nodiscard]] String replaceAll(const String& text, const std::map<String, String>& substitutions, bool& replaced) const;
+    [[nodiscard]] std::string replaceAll(const std::string& text, const SubstitutionMap& substitutions, bool& replaced) const;
 
     /**
-     * @brief Get regular expression pattern.
+     * @brief Get the regular expression pattern.
      * @return.
      */
-    [[nodiscard]] const String& pattern() const;
+    [[nodiscard]] const std::string& pattern() const;
 
 private:
     mutable std::mutex               m_mutex;
-    String                           m_pattern;          ///< Match pattern
+    std::string                      m_pattern;          ///< Match pattern
     bool                             m_global {false};   ///< Global match (g) or first match only
-    String                           m_error;            ///< Last pattern error (if any)
+    std::string                      m_error;            ///< Last pattern error (if any)
     std::shared_ptr<PCREHandle>      m_pcre;             ///< Compiled PCRE expression handle
     std::shared_ptr<PCREExtraHandle> m_pcreExtra;        ///< Compiled PCRE expression optimization (for faster execution)
     uint32_t                         m_options {0};      ///< PCRE pattern options
@@ -367,7 +369,7 @@ private:
      * @param matchData         Output match positions array.
      * @return number of matches.
      */
-    size_t nextMatch(const String& text, size_t& offset, MatchData& matchData) const;
+    size_t nextMatch(const std::string& text, size_t& offset, MatchData& matchData) const;
 
     /**
      * @brief Get capture group count from the compiled pattern.
@@ -393,9 +395,9 @@ private:
      * @param outputPattern     Output pattern.
      * @return placeholder position.
      */
-    static size_t findNextPlaceholder(size_t pos, const String& outputPattern);
+    static size_t findNextPlaceholder(size_t pos, const std::string& outputPattern);
 
-    void      extractNamedMatches(const String& text, Groups& matchedStrings, const MatchData& matchData,
+    void      extractNamedMatches(const std::string& text, Groups& matchedStrings, const MatchData& matchData,
                                   size_t matchCount) const;
     MatchData createMatchData() const;
 };

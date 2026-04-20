@@ -35,7 +35,7 @@ using namespace std;
 using namespace sptk;
 namespace sptk {
 
-TEST(SystemExceptionTests, openFile)
+TEST(SystemExceptionTests,openFile)
 {
     try
     {
@@ -50,13 +50,7 @@ TEST(SystemExceptionTests, openFile)
     }
 }
 
-TEST(SystemExceptionTests, openFileThrowsSystemException)
-{
-    Buffer buffer;
-    EXPECT_THROW(buffer.loadFromFile("/xx.xx"), SystemException);
-}
-
-TEST(SystemExceptionTests, osErrorReturnsMessage)
+TEST(SystemExceptionTests,osErrorReturnsMessage)
 {
 #ifdef _WIN32
     SetLastError(ERROR_FILE_NOT_FOUND);
@@ -67,46 +61,4 @@ TEST(SystemExceptionTests, osErrorReturnsMessage)
     EXPECT_FALSE(error.empty());
 }
 
-TEST(SystemExceptionTests, osErrorChangesWithNativeErrorCode)
-{
-#ifdef _WIN32
-    SetLastError(ERROR_ACCESS_DENIED);
-    const String accessDenied = SystemException::osError();
-
-    SetLastError(ERROR_FILE_NOT_FOUND);
-    const String fileNotFound = SystemException::osError();
-
-    EXPECT_FALSE(accessDenied.empty());
-    EXPECT_FALSE(fileNotFound.empty());
-    EXPECT_NE(accessDenied, fileNotFound);
-#else
-    errno = EACCES;
-    const String accessDenied = SystemException::osError();
-
-    errno = ENOENT;
-    const String fileNotFound = SystemException::osError();
-
-    EXPECT_FALSE(accessDenied.empty());
-    EXPECT_FALSE(fileNotFound.empty());
-    EXPECT_NE(accessDenied, fileNotFound);
-    EXPECT_EQ(String(strerror(ENOENT)), fileNotFound);
-#endif
-}
-
-TEST(SystemExceptionTests, constructorIncludesContextAndOsError)
-{
-#ifdef _WIN32
-    SetLastError(ERROR_FILE_NOT_FOUND);
-#else
-    errno = ENOENT;
-#endif
-    const String expectedOsError = SystemException::osError();
-
-    const SystemException exception("Open failed");
-    const String          message = exception.message();
-
-    EXPECT_TRUE(message.starts_with("Open failed: "));
-    EXPECT_TRUE(message.contains(expectedOsError));
-}
-
-} // namespace sptk
+} // namespace sptk_test

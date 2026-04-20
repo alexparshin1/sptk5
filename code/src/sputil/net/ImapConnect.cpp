@@ -344,7 +344,7 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
                 Field& field = results[header_name];
                 if (header_name == "date")
                 {
-                    field.setDate(decodeDate(header_value));
+                    field.setDateTime(decodeDate(header_value), true);
                 }
                 else
                 {

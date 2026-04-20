@@ -95,7 +95,7 @@ TEST(FieldTests, varDate)
     const DateTime testDate(2026, 4, 11, 12, 34, 56);
     Field          field1("f1");
 
-    field1.setDate(testDate);
+    field1.setDateTime(testDate, true);
 
     EXPECT_EQ(VariantDataType::VAR_DATE, field1.dataType());
     EXPECT_STREQ(testDate.date().dateString().c_str(), field1.asString().c_str());

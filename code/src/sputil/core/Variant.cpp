@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <cmath>
 #include <iomanip>
 
 #include <sptk5/Field.h>
@@ -217,16 +218,17 @@ void VariantAdaptors::setExternalBuffer(uint8_t* value, size_t valueSize, Varian
 }
 
 //---------------------------------------------------------------------------
-void VariantAdaptors::setDateTime(const DateTime& value)
+void VariantAdaptors::setDateTime(const DateTime& value, bool dateOnly)
 {
-    m_data.set(value);
-}
-
-//---------------------------------------------------------------------------
-void VariantAdaptors::setDate(const DateTime& value)
-{
-    m_data.set(value.date());
-    dataType(VAR_DATE);
+    if (dateOnly)
+    {
+        m_data.set(value.date());
+        dataType(VAR_DATE);
+    }
+    else
+    {
+        m_data.set(value);
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -538,7 +540,7 @@ int64_t VariantAdaptors::asInt64() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return string2int64(getBufferPtr());
+            return string2int64(string(getBufferPtr()));
 
         case VAR_DATE:
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count();
@@ -547,7 +549,7 @@ int64_t VariantAdaptors::asInt64() const
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count();
 
         case VAR_IMAGE_PTR:
-            return reinterpret_cast<int64_t>(static_cast<const uint8_t*>(m_data));
+            return int64_t(static_cast<const uint8_t*>(m_data));
 
         case VAR_IMAGE_NDX:
             return m_data.get<int32_t>();
@@ -682,7 +684,8 @@ String VariantAdaptors::asString() const
         case VAR_STRING:
             if (isExternalBuffer())
             {
-                if (const auto* ptr = static_cast<const uint8_t*>(m_data))
+                const auto* ptr = static_cast<const uint8_t*>(m_data);
+                if (ptr != nullptr)
                 {
                     return {reinterpret_cast<const char*>(ptr), m_data.size()};
                 }
@@ -694,7 +697,8 @@ String VariantAdaptors::asString() const
         case VAR_BUFFER:
             if (isExternalBuffer())
             {
-                if (const auto* ptr = static_cast<const uint8_t*>(m_data))
+                const auto* ptr = static_cast<const uint8_t*>(m_data);
+                if (ptr != nullptr)
                 {
                     return {reinterpret_cast<const char*>(ptr), m_data.size()};
                 }
@@ -737,7 +741,7 @@ Buffer VariantAdaptors::asBuffer() const
     switch (dataType())
     {
         case VAR_BOOL:
-            return {m_data.get<bool>() ? "true" : "false"};
+            return Buffer(m_data.get<bool>() ? "true" : "false");
 
         case VAR_INT:
             return Buffer(to_string(m_data.get<int32_t>()));
@@ -752,17 +756,13 @@ Buffer VariantAdaptors::asBuffer() const
             return Buffer(double2string(m_data.get<double>()));
 
         case VAR_STRING:
-            if (m_data.type().isExternalBuffer)
-            {
-                return {static_cast<const uint8_t*>(m_data), m_data.type().size};
-            }
             return Buffer(m_data.get<String>());
 
         case VAR_TEXT:
         case VAR_BUFFER:
             if (m_data.type().isExternalBuffer)
             {
-                return {static_cast<const uint8_t*>(m_data), m_data.type().size};
+                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
             }
             return m_data.get<Buffer>();
 
@@ -779,13 +779,10 @@ Buffer VariantAdaptors::asBuffer() const
                 str << hex << static_cast<const uint8_t*>(m_data);
                 return Buffer(str.str());
             }
-            return {"null"};
+            return Buffer("null");
 
         case VAR_IMAGE_NDX:
             return Buffer(to_string(m_data.get<int32_t>()));
-
-        case VAR_NONE:
-            return {"null"};
 
         default:
             break;
@@ -900,13 +897,6 @@ string_view VariantAdaptors::getBufferPtr() const
     {
         return {static_cast<const char*>(m_data), m_data.size()};
     }
-
-    if (m_data.type().type == VAR_STRING)
-    {
-        auto& buffer = m_data.get<String>();
-        return {buffer.c_str(), buffer.size()};
-    }
-
     auto& buffer = m_data.get<Buffer>();
     return {buffer.c_str(), buffer.size()};
 }

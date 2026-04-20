@@ -109,7 +109,7 @@ void testBLOBs(const SPoolDatabaseConnection& db)
     for (int i = 0; i < 1000; i++)
     {
         createBlobQuery.param("id").setInteger(i);
-        String text(format("This is a test {}", i));
+        String text("This is a test " + to_string(i));
         createBlobQuery.param("data").setBuffer(reinterpret_cast<const uint8_t*>(text.c_str()), text.size(), sptk::VariantDataType::VAR_BUFFER);
         createBlobQuery.exec();
     }
@@ -148,16 +148,8 @@ void printDatabaseObjects(const DatabaseConnection& db)
         {
             CERR(e.what());
         }
-
-        unsigned j = 0;
-        for (const auto& object: objectList)
-        {
-            if (j++ == 10)
-            {
-                break;
-            }
-            COUT("  " << object);
-        }
+        for (unsigned j = 0; j < objectList.size() && j < 10; j++)
+            COUT("  " << objectList[j]);
     }
     COUT("-------------------------------------------------");
 }
@@ -260,7 +252,7 @@ int testDatabase(const string& connectionString)
         insertRecordQuery.param(static_cast<size_t>(0)) = 3;
         insertRecordQuery.param(1) = "UTF-8: тестик (Russian, 6 chars)";
         insertRecordQuery.param(2).setNull(VariantDataType::VAR_STRING);
-        insertRecordQuery.param(3).setDate(DateTime::Now());
+        insertRecordQuery.param(3).setDateTime(DateTime::Now(), true);
         insertRecordQuery.param(4) = 12340.001234;
         insertRecordQuery.exec();
 
@@ -317,7 +309,7 @@ int testDatabase(const string& connectionString)
             }
 
             // Another method: getting data by the column number.
-            // For printing values, we use the custom function implemented above
+            // For printing values we use the custom function implemented above
             auto name = fieldToString(selectRecordsQuery[1]);
             auto position_name = fieldToString(selectRecordsQuery[2]);
             auto date = fieldToString(selectRecordsQuery[3]);

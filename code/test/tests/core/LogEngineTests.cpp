@@ -93,7 +93,7 @@ TEST(LogEngineTests, message)
     logEngine->option(LogEngine::Option::STDOUT, true);
     logEngine->minPriority(LogPriority::Debug);
 
-    const Logger logger(*logEngine);
+    Logger logger(*logEngine);
 
     logger.debug("debug message");
     logger.info("info message");

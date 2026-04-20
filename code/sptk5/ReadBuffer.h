@@ -183,6 +183,7 @@ private:
             m_readOffset >= bytes() * multiplier / divider)
         {
             erase(0, m_readOffset);
+            m_readOffset = 0;
         }
     }
 };

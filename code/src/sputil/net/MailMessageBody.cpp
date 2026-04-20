@@ -34,7 +34,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
 {
     static const RegularExpression matchHtmlTag(R"(<\S[^>]*>)", "g");
     const auto                     step1 = matchHtmlTag.s(origHtml, " ");
-    return trim(step1.replace(" +", " "));
+    return trim(String(step1).replace(" +", " "));
 }
 
 void MailMessageBody::text(const string& messageText, const bool smtp)

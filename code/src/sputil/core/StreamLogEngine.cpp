@@ -4,7 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
-║  code review          2026-04-17                                             ║
+║  code review          2026-04-11                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -68,11 +68,6 @@ bool StreamLogEngine::saveMessage(const Logger::Message& message)
         }
     }
     return true;
-}
-
-void StreamLogEngine::flush()
-{
-    m_logStream.flush();
 }
 
 StreamLogEngine::StreamLogEngine(ostream& outputStream)

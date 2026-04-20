@@ -595,7 +595,7 @@ public:
      */
     explicit WSDate(const DateTime& _value)
     {
-        value().setDate(_value);
+        value().setDateTime(_value, true);
     }
 
     using WSBasicType::operator String;
@@ -643,7 +643,7 @@ public:
      */
     WSDate& operator=(const DateTime& _value)
     {
-        value().setDate(_value);
+        value().setDateTime(_value, true);
         return *this;
     }
 

@@ -67,10 +67,10 @@ TEST(StringTests,split)
 
 TEST(StringTests,startsEnds)
 {
-    EXPECT_TRUE(testString.startsWith("This "));
-    EXPECT_FALSE(testString.startsWith("this "));
-    EXPECT_TRUE(testString.endsWith(" test"));
-    EXPECT_FALSE(testString.endsWith(" tesT"));
+    EXPECT_TRUE(testString.starts_with("This "));
+    EXPECT_FALSE(testString.starts_with("this "));
+    EXPECT_TRUE(testString.ends_with(" test"));
+    EXPECT_FALSE(testString.ends_with(" tesT"));
 }
 
 TEST(StringTests,replace)

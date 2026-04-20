@@ -36,7 +36,7 @@ namespace sptk {
  */
 
 /**
- * @brief A log stored into the external stream.
+ * @brief A log stored into external stream.
  * @see CBaseLog for more information about basic log abilities.
  */
 class SP_EXPORT StreamLogEngine
@@ -45,7 +45,7 @@ class SP_EXPORT StreamLogEngine
 public:
     /**
      * @brief Constructor.
-     * @param outputStream          Output stream.
+     * @param outputStream          Output stream
      */
     explicit StreamLogEngine(std::ostream& outputStream);
 
@@ -55,15 +55,10 @@ public:
     ~StreamLogEngine() override;
 
     /**
-     * @brief Stores or sends the log message to actual destination.
-     * @param message           Log message.
+     * Stores or sends log message to actual destination
+     * @param message           Log message
      */
     bool saveMessage(const Logger::Message& message) override;
-
-    /**
-     * @brief Flush the log stream.
-     */
-    void flush() override;
 
 private:
     std::ostream& m_logStream; ///< Log stream

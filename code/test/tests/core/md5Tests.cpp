@@ -29,15 +29,14 @@
 
 #include <array>
 #include <gtest/gtest.h>
+#include <sstream>
 
 using namespace std;
 using namespace sptk;
 
-namespace {
+static const String testPhrase("This is a test text to verify MD5 algorithm");
 
-const String testPhrase("This is a test text to verify MD5 algorithm");
-
-const String testSQL(
+static const String testSQL(
     "SELECT * FROM schema1.employee "
     "JOIN schema1.department ON employee.department_id = department.id "
     "JOIN schema1.city ON employee.city_id = city_id "
@@ -45,10 +44,6 @@ const String testSQL(
     "AND employee.name LIKE 'John%' "
     "AND department.name = 'Information Technologies' "
     "LIMIT 1024");
-} // namespace
-
-#undef min
-
 namespace sptk {
 
 TEST(MD5Tests, md5)

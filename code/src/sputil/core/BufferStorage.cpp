@@ -89,9 +89,12 @@ void BufferStorage::append(const char* data, size_t size)
     }
 
     checkSize(m_size + size + 1);
-    memcpy(m_buffer + m_size, data, size);
-    m_size += size;
-    m_buffer[m_size] = 0;
+    if (data != nullptr)
+    {
+        memcpy(m_buffer + m_size, data, size);
+        m_size += size;
+        m_buffer[m_size] = 0;
+    }
 }
 
 void BufferStorage::append(const uint8_t* data, const size_t size)
@@ -113,8 +116,8 @@ void BufferStorage::append(const uint8_t* data, const size_t size)
 void BufferStorage::reset(const size_t size)
 {
     checkSize(size + 1);
-    m_buffer[size] = 0;
-    m_size = size;
+    m_buffer[0] = 0;
+    m_size = 0;
 }
 
 void BufferStorage::fill(const char chr, const size_t count)

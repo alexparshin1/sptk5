@@ -308,16 +308,16 @@ void DatabaseTests::testQueryInsertDate(const DatabaseConnectionString& connecti
 
     const DateTime dateTime("2015-06-01");
     Variant        date;
-    date.setDate(dateTime);
+    date.setDateTime(dateTime, true);
     insert2.param("dt") = date;
     insert2.exec();
 
 #ifdef USE_GTEST
     Query select(databaseConnection, "SELECT ts FROM gtest_temp_table");
     select.open();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().starts_with("2015-06-01"));
     select.next();
-    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().startsWith("2015-06-01"));
+    EXPECT_TRUE(select["ts"].asDateTime().isoDateTimeString().starts_with("2015-06-01"));
     select.close();
 #endif
 }
@@ -422,7 +422,7 @@ void DatabaseTests::testQueryParameters(const DatabaseConnectionString& connecti
     catch (const DatabaseException& e)
     {
         const auto error = String(e.what());
-        const auto errorWasExpected = error.startsWith("Unsupported parameter type") || error.startsWith("Parameter data type has changed.");
+        const auto errorWasExpected = error.starts_with("Unsupported parameter type") || error.starts_with("Parameter data type has changed.");
         if (!errorWasExpected)
         {
             FAIL() << e.what();
@@ -919,26 +919,32 @@ void DatabaseTests::testParallelBulkInsert(const DatabaseConnectionString& conne
         data.push_back(aRow);
     }
 
-    const Strings columnNames({"name", "position_name", "hire_date"});
-
-    auto connectionThread = [&data, &connectionPool, &columnNames](const int threadNumber, vector<int64_t>* insertedIds)
+    auto connectionThread = [&data, &connectionString](const int threadNumber, vector<int64_t>* insertedIds)
     {
         vector inputData(data);
 
+        string operation;
         try
         {
-            const DatabaseConnection conn = connectionPool.getConnection();
-            conn->open();
+            operation = "Create connection";
+            DatabaseConnectionPool   connectionPool(connectionString.toString());
+            const Strings            columnNames({"name", "position_name", "hire_date"});
+            const DatabaseConnection databaseConnection = connectionPool.getConnection();
 
+            operation = "Open connection";
+            databaseConnection->open();
+
+            operation = "bulkInsert";
             Stopwatch sw;
-            conn->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
+            sw.start();
+            databaseConnection->bulkInsert("gtest_temp_table", "id", columnNames, inputData, *insertedIds, batchSize);
             sw.stop();
 
             COUT("Thread " << threadNumber << " inserted " << insertedIds->size() << " for " << fixed << setprecision(2) << sw.milliseconds() << "ms (" << insertedIds->size() / sw.milliseconds() << "K/sec)");
         }
         catch (const Exception& e)
         {
-            CERR(e.what());
+            CERR(operation << ": " << e.what());
         }
     };
 

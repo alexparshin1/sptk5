@@ -39,14 +39,14 @@ constexpr double millisecondsInSecond = 1000.0;
 constexpr size_t maxDateTimeStringLength = 128;
 namespace sptk {
 
-TEST(DateTimeTests, ctor1)
+TEST(DateTimeTests,ctor1)
 {
     const DateTime             dateTime("2018-01-01 11:22:33.444+10");
     const chrono::milliseconds msSinceEpoch = duration_cast<chrono::milliseconds>(dateTime.sinceEpoch());
     EXPECT_EQ(1514769753444, msSinceEpoch.count());
 }
 
-TEST(DateTimeTests, ctor2)
+TEST(DateTimeTests,ctor2)
 {
     const DateTime             dateTime1("2018-01-01 11:22:33");
     const DateTime             dateTime2(2018, 1, 1, 11, 22, 33);
@@ -55,7 +55,7 @@ TEST(DateTimeTests, ctor2)
     EXPECT_EQ(msSinceEpoch1.count(), msSinceEpoch2.count());
 }
 
-TEST(DateTimeTests, ctorDate)
+TEST(DateTimeTests,ctorDate)
 {
     const DateTime             dateTime1("2018-02-01");
     const DateTime             dateTime2(2018, 2, 1);
@@ -65,16 +65,16 @@ TEST(DateTimeTests, ctorDate)
     COUT(dateTime1.isoDateTimeString());
 }
 
-TEST(DateTimeTests, isoTimeString)
+TEST(DateTimeTests,isoTimeString)
 {
     const String   input("2018-01-01T11:22:33");
     const DateTime dateTime1(input.c_str());
     COUT(static_cast<String>(dateTime1));
     const String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
-    EXPECT_TRUE(output.startsWith(input));
+    EXPECT_TRUE(output.starts_with(input));
 }
 
-TEST(DateTimeTests, timeZones)
+TEST(DateTimeTests,timeZones)
 {
     const DateTime             dateTime1("2018-01-01 09:22:33.444PM+10:00");
     const DateTime             dateTime2("2018-01-01 20:22:33.444+09");
@@ -84,7 +84,7 @@ TEST(DateTimeTests, timeZones)
     EXPECT_EQ(1514805753444, msSinceEpoch2.count());
 }
 
-TEST(DateTimeTests, add)
+TEST(DateTimeTests,add)
 {
     const DateTime             dateTime1("2018-01-01 11:22:33.444+10");
     const DateTime             dateTime2 = dateTime1 + chrono::milliseconds(111);
@@ -92,7 +92,7 @@ TEST(DateTimeTests, add)
     EXPECT_EQ(1514769753555, msSinceEpoch2.count());
 }
 
-TEST(DateTimeTests, extractDate)
+TEST(DateTimeTests,extractDate)
 {
     short year = 0;
     short month = 0;
@@ -110,7 +110,7 @@ TEST(DateTimeTests, extractDate)
     EXPECT_EQ(218, yday);
 }
 
-TEST(DateTimeTests, extractTime)
+TEST(DateTimeTests,extractTime)
 {
     short hour = 0;
     short minute = 0;
@@ -126,15 +126,22 @@ TEST(DateTimeTests, extractTime)
     EXPECT_EQ(444, ms);
 }
 
-TEST(DateTimeTests, formatDate)
+TEST(DateTimeTests,formatDate)
 {
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
-    const auto     buffer = std::format(locale(""), "{:L%x}", dateTime.timePoint());
+
+    const auto t = static_cast<time_t>(dateTime);
+    tm         tt {};
+    localtime_r(&t, &tt);
+
+    array<char, maxDateTimeStringLength> buffer {};
+    strftime(buffer.data(), sizeof(buffer) - 1, "%x", &tt);
+
     EXPECT_STREQ("2018-08-07", dateTime.dateString(DateTime::PF_GMT | DateTime::PF_RFC_DATE).c_str());
     EXPECT_STREQ(buffer.data(), dateTime.dateString(DateTime::PF_GMT).c_str());
 }
 
-TEST(DateTimeTests, formatTime)
+TEST(DateTimeTests,formatTime)
 {
     const DateTime dateTime("2018-08-07 11:22:33.444Z");
 
@@ -151,7 +158,7 @@ TEST(DateTimeTests, formatTime)
     EXPECT_STREQ("11:22:33", dateTime.timeString(DateTime::PF_GMT).c_str());
 }
 
-TEST(DateTimeTests, formatTime12HourEdgeCases)
+TEST(DateTimeTests,formatTime12HourEdgeCases)
 {
     const DateTime midnight("2018-08-07 00:05:06Z");
     const DateTime noon("2018-08-07 12:05:06Z");
@@ -160,7 +167,7 @@ TEST(DateTimeTests, formatTime12HourEdgeCases)
     EXPECT_STREQ("12:05:06PM", noon.timeString(DateTime::PF_GMT | DateTime::PF_12HOURS).c_str());
 }
 
-TEST(DateTimeTests, invalidTimeStrings)
+TEST(DateTimeTests,invalidTimeStrings)
 {
     constexpr array<const char*, 4> invalidTimes = {"25:60:00", "12:60:00", "12:00:60", "notatime"};
     for (const auto* timeString: invalidTimes)
@@ -170,7 +177,7 @@ TEST(DateTimeTests, invalidTimeStrings)
     }
 }
 
-TEST(DateTimeTests, formatDateTime2)
+TEST(DateTimeTests,formatDateTime2)
 {
     auto         tzOffsetMinutes = static_cast<int>(TimeZone::offset().count());
     stringstream tzOffsetStr;
@@ -203,7 +210,7 @@ TEST(DateTimeTests, formatDateTime2)
     EXPECT_STREQ(("2020-10-10 00:00:00" + tzOffset).c_str(), dateTime.isoDateTimeString().replace("T", " ").c_str());
 }
 
-TEST(DateTimeTests, parsePerformance)
+TEST(DateTimeTests,parsePerformance)
 {
     constexpr size_t maxTests = 100000;
     const DateTime   started("now");
@@ -223,7 +230,7 @@ TEST(DateTimeTests, parsePerformance)
     COUT("Performed " << static_cast<size_t>(maxTests / millisecondsInSecond / durationSec) << "K parses/sec");
 }
 
-TEST(DateTimeTests, timezoneFormats1)
+TEST(DateTimeTests,timezoneFormats1)
 {
     const DateTime dt1("2021-02-03T01:02:03+10");
     const DateTime dt2("2021-02-03T01:02:03+10:00");
@@ -233,7 +240,7 @@ TEST(DateTimeTests, timezoneFormats1)
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
 }
 
-TEST(DateTimeTests, timezoneFormats2)
+TEST(DateTimeTests,timezoneFormats2)
 {
     const DateTime dt1("2021-02-03T01:02:03-10");
     const DateTime dt2("2021-02-03T01:02:03-10:00");
@@ -243,7 +250,7 @@ TEST(DateTimeTests, timezoneFormats2)
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
 }
 
-TEST(DateTimeTests, timezoneFormats3)
+TEST(DateTimeTests,timezoneFormats3)
 {
     const DateTime dt1("2021-02-03T01:02:03Z");
     const DateTime dt2("2021-02-03T01:02:03-00:00");
@@ -253,7 +260,7 @@ TEST(DateTimeTests, timezoneFormats3)
     EXPECT_STREQ(dt1.isoDateTimeString().c_str(), dt3.isoDateTimeString().c_str());
 }
 
-TEST(DateTimeTests, dateElements)
+TEST(DateTimeTests,dateElements)
 {
     const DateTime dt("2021-09-20 00:00:00");
     EXPECT_EQ(dt.daysInMonth(), 30);
@@ -262,7 +269,7 @@ TEST(DateTimeTests, dateElements)
     EXPECT_STREQ(dt.dayOfWeekName().c_str(), "Monday");
 }
 
-TEST(DateTimeTests, compare)
+TEST(DateTimeTests,compare)
 {
     const DateTime dt1("2021-09-20 00:00:00");
     const DateTime dt2("2021-10-20 00:00:00");
@@ -274,4 +281,4 @@ TEST(DateTimeTests, compare)
     EXPECT_TRUE(dt2 >= dt1);
 }
 
-} // namespace sptk
+} // namespace sptk_test
