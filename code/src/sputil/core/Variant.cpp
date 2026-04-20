@@ -81,7 +81,7 @@ Variant::Variant(int32_t value)
 //---------------------------------------------------------------------------
 Variant::Variant(int64_t value, unsigned scale)
 {
-    if (scale > 1)
+    if (scale > 0)
     {
         m_data.set(MoneyData(value, static_cast<uint8_t>(scale)));
     }
@@ -315,7 +315,7 @@ Variant& Variant::operator=(double value)
 //---------------------------------------------------------------------------
 Variant& Variant::operator=(const MoneyData& value)
 {
-    setMoney(value.quantity(), value.scale());
+    setMoney(value);
     return *this;
 }
 
@@ -378,7 +378,12 @@ const char* BaseVariant::getString() const
         return m_data.get<String>().c_str();
     }
 
-    return m_data.get<Buffer>().c_str();
+    if (m_data.type().type == VAR_BUFFER || m_data.type().type == VAR_TEXT)
+    {
+        return m_data.get<Buffer>().c_str();
+    }
+
+    return "";
 }
 
 //---------------------------------------------------------------------------
@@ -420,7 +425,11 @@ size_t BaseVariant::dataSize() const
 //---------------------------------------------------------------------------
 size_t BaseVariant::bufferSize() const
 {
-    return m_data.get<Buffer>().capacity();
+    if (m_data.type().type == VAR_BUFFER || m_data.type().type == VAR_TEXT)
+    {
+        return m_data.get<Buffer>().capacity();
+    }
+    return 0;
 }
 
 //---------------------------------------------------------------------------
@@ -549,7 +558,7 @@ int64_t VariantAdaptors::asInt64() const
             return chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count();
 
         case VAR_IMAGE_PTR:
-            return int64_t(static_cast<const uint8_t*>(m_data));
+            return reinterpret_cast<int64_t>(static_cast<const uint8_t*>(m_data));
 
         case VAR_IMAGE_NDX:
             return m_data.get<int32_t>();
@@ -645,10 +654,12 @@ double VariantAdaptors::asFloat() const
             break;
 
         case VAR_DATE:
-            return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count());
+            result = static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().date().sinceEpoch()).count());
+            break;
 
         case VAR_DATE_TIME:
-            return static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count());
+            result = static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count());
+            break;
 
         default:
             throw Exception("Can't convert field for that type");
@@ -756,6 +767,10 @@ Buffer VariantAdaptors::asBuffer() const
             return Buffer(double2string(m_data.get<double>()));
 
         case VAR_STRING:
+            if (m_data.type().isExternalBuffer)
+            {
+                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
+            }
             return Buffer(m_data.get<String>());
 
         case VAR_TEXT:
@@ -795,11 +810,12 @@ String BaseVariant::moneyDataToString() const
 {
     stringstream output;
     const auto&  moneyData = m_data.get<MoneyData>();
+    const auto*  sign = moneyData.quantity() >= 0 ? "" : "-";
     const auto   scale = moneyData.scale();
     auto         divider = MoneyData::divider(scale);
-    const auto   value = moneyData.quantity() / divider;
+    const auto   value = abs(moneyData.quantity()) / divider;
     auto         decimal = abs(moneyData.quantity()) % divider;
-    output << fixed << value << "." << setfill('0') << setw(scale) << decimal;
+    output << fixed << sign << value << "." << setfill('0') << setw(scale) << decimal;
     return output.str();
 }
 
