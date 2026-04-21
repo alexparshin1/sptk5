@@ -64,7 +64,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
     // Compress until the end of data
     do
     {
-        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
+        auto bytesToRead = src.bytes() - readPosition;
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;
@@ -90,11 +90,6 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
             {
                 deflateEnd(&strm);
                 throw Exception("Compressed data error.");
-            }
-            if (ret == Z_BUF_ERROR)
-            {
-                deflateEnd(&strm);
-                throw Exception("Output buffer is insufficient.");
             }
             const size_t have = CHUNK - strm.avail_out;
             dest.append(outputBuffer.data(), have);
@@ -130,11 +125,11 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         throw Exception("inflateInit() error");
     }
 
-    uInt readPosition = 0;
+    size_t readPosition = 0;
     // Decompress until deflate stream ends or end of file
     do
     {
-        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
+        auto bytesToRead = src.bytes() - readPosition;
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;
