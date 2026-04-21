@@ -106,8 +106,6 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
 void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
 {
     z_stream strm = {};
-    Buffer   inputBuffer(CHUNK);
-    Buffer   outputBuffer(CHUNK);
 
     if (!append)
     {
@@ -135,7 +133,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         {
             bytesToRead = CHUNK;
         }
-        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
+        auto* inputBuffer = (uint8_t*) src.data() + readPosition;
         readPosition += bytesToRead;
         strm.avail_in = bytesToRead;
         if (strm.avail_in == 0 && ret != Z_STREAM_END)
@@ -143,13 +141,15 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
             (void) inflateEnd(&strm);
             throw Exception("Input buffer is insufficient.");
         }
-        strm.next_in = inputBuffer.data();
+        strm.next_in = inputBuffer;
 
         // Run inflate() on input until output buffer not full
         do
         {
+            dest.checkSize(dest.bytes() + CHUNK * 2);
+
             strm.avail_out = CHUNK;
-            strm.next_out = outputBuffer.data();
+            strm.next_out = dest.data() + dest.bytes();
             ret = inflate(&strm, Z_NO_FLUSH);
             switch (ret)
             {
@@ -168,7 +168,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
                     break;
             }
             const unsigned have = CHUNK - strm.avail_out;
-            dest.append(outputBuffer.data(), have);
+            dest.bytes(dest.bytes() + have);
         } while (strm.avail_out == 0);
 
         // Done when inflate() says it's done
