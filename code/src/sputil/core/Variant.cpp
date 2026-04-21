@@ -769,7 +769,7 @@ Buffer VariantAdaptors::asBuffer() const
         case VAR_STRING:
             if (m_data.type().isExternalBuffer)
             {
-                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
+                return Buffer(static_cast<const uint8_t*>(m_data), m_data.size());
             }
             return Buffer(m_data.get<String>());
 
@@ -777,7 +777,7 @@ Buffer VariantAdaptors::asBuffer() const
         case VAR_BUFFER:
             if (m_data.type().isExternalBuffer)
             {
-                return Buffer(static_cast<const uint8_t*>(m_data), m_data.type().size);
+                return Buffer(static_cast<const uint8_t*>(m_data), m_data.size());
             }
             return m_data.get<Buffer>();
 
@@ -913,8 +913,21 @@ string_view VariantAdaptors::getBufferPtr() const
     {
         return {static_cast<const char*>(m_data), m_data.size()};
     }
-    auto& buffer = m_data.get<Buffer>();
-    return {buffer.c_str(), buffer.size()};
+
+    const auto type = m_data.type().type;
+    if (type == VAR_STRING)
+    {
+        auto& buffer = m_data.get<String>();
+        return {buffer.c_str(), buffer.size()};
+    }
+
+    if (type == VAR_TEXT || type == VAR_BUFFER)
+    {
+        auto& buffer = m_data.get<Buffer>();
+        return {buffer.c_str(), buffer.size()};
+    }
+
+    throw Exception("Can't get buffer for that type");
 }
 
 bool BaseVariant::isNull() const
