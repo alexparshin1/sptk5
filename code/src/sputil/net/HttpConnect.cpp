@@ -51,9 +51,19 @@ String HttpConnect::responseHeader(const String& headerName) const
 int HttpConnect::getResponse(Buffer& output, const chrono::milliseconds& readTimeout)
 {
     m_reader = make_shared<HttpReader>(m_socket, output, HttpReader::ReadMode::RESPONSE);
+    const auto deadline = chrono::steady_clock::now() + readTimeout;
+    m_reader->setReadDeadline(deadline);
     while (m_reader->getReaderState() < HttpReader::State::COMPLETED)
     {
-        if (!m_socket->readyToRead(readTimeout))
+        const auto now = chrono::steady_clock::now();
+        if (now >= deadline)
+        {
+            m_socket->close();
+            throw Exception("Response read timeout");
+        }
+
+        const auto remaining = chrono::duration_cast<chrono::milliseconds>(deadline - now);
+        if (!m_socket->readyToRead(remaining))
         {
             m_socket->close();
             throw Exception("Response read timeout");
