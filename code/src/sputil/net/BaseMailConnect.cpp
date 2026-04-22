@@ -38,7 +38,7 @@
 #include <sptk5/DateTime.h>
 #include <sptk5/net/BaseMailConnect.h>
 
-static constexpr int LINE_CHARS = 72;
+static constexpr auto LINE_CHARS = 72;
 
 using namespace std;
 using namespace sptk;
@@ -101,13 +101,13 @@ void BaseMailConnect::mimeFile(const String& fileName, const String& fileAlias, 
     Base64::encode(strDest, bufSource);
 
     // Split encoded data to lines
-    const size_t dataLen = strDest.length();
+    const auto dataLen = strDest.length();
     buffer.checkSize(dataLen + dataLen / LINE_CHARS);
 
     const char* ptr = strDest.c_str();
     for (size_t pos = 0; pos < dataLen; pos += LINE_CHARS)
     {
-        size_t lineLen = dataLen - pos;
+        auto lineLen = dataLen - pos;
         lineLen = std::min<size_t>(lineLen, LINE_CHARS);
         buffer.append(ptr + pos, lineLen);
         buffer.append('\n');
@@ -152,13 +152,11 @@ void BaseMailConnect::mimeMessage(Buffer& buffer) const
     date.decodeDate(&year, &month, &day, &weekDay, &yearDay);
     date.decodeTime(&hour, &minute, &second, &millisecond);
 
-    constexpr int              maxDateBuffer = 128;
-    constexpr int              sixtySeconds = 60;
-    array<char, maxDateBuffer> dateBuffer = {};
-    const char*                sign = "-";
-    const auto                 tzOffset = static_cast<int>(TimeZone::offset().count());
-    auto                       offsetHours = TimeZone::offset().count() / sixtySeconds;
-    const auto                 offsetMinutes = TimeZone::offset().count() % sixtySeconds;
+    constexpr auto sixtySeconds = 60;
+    auto           sign = "-";
+    const auto     tzOffset = static_cast<int>(TimeZone::offset().count());
+    auto           offsetHours = TimeZone::offset().count() / sixtySeconds;
+    const auto     offsetMinutes = TimeZone::offset().count() % sixtySeconds;
     if (tzOffset >= 0)
     {
         sign = "+";
@@ -168,18 +166,16 @@ void BaseMailConnect::mimeMessage(Buffer& buffer) const
         offsetHours = -offsetHours;
     }
 
-    const int len = snprintf(dateBuffer.data(), sizeof(dateBuffer) - 1,
-                             "Date: %s, %i %s %04i %02i:%02i:%02i %s%02i%02i (%s)",
-                             date.dayOfWeekName().substr(0, 3).c_str(),
-                             day,
-                             DateTime::format(DateTime::Format::MONTH_NAME, static_cast<size_t>(month) - 1).substr(0, 3).c_str(),
-                             year,
-                             hour, minute, second,
-                             sign,
-                             static_cast<int>(offsetHours), static_cast<int>(offsetMinutes),
-                             TimeZone::name().c_str());
+    const auto dayOfWeekName = date.dayOfWeekName().substr(0, 3);
+    const auto monthName = DateTime::format(DateTime::Format::MONTH_NAME, static_cast<size_t>(month) - 1).substr(0, 3);
+    const auto dateBuffer = format(
+        "Date: {}, {} {} {:04d} {:02d}:{:02d}:{:02d} {}{:02d}{:02d} ({})",
+        dayOfWeekName.c_str(), day, monthName.c_str(), year,
+        hour, minute, second,
+        sign, static_cast<int>(offsetHours), static_cast<int>(offsetMinutes),
+        TimeZone::name().c_str());
 
-    message << String(dateBuffer.data(), static_cast<size_t>(len)) << '\n';
+    message << dateBuffer << '\n';
 
     message << "MIME-Version: 1.0" << '\n';
     message << "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"" << '\n'
@@ -231,8 +227,8 @@ void BaseMailConnect::mimeMessage(Buffer& buffer) const
     for (const Strings strings(m_attachments, ";");
          const auto&   attachment: strings)
     {
-        String      attachmentAlias(attachment);
-        const char* separator = "\\";
+        String attachmentAlias(attachment);
+        auto   separator = "\\";
         if (attachment.find('/') != string::npos)
         {
             separator = "/";
