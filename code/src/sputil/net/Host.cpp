@@ -4,6 +4,7 @@
 ╟──────────────────────────────────────────────────────────────────────────────╢
 ║  copyright            © 1999-2026 Alexey Parshin. All rights reserved.       ║
 ║  email                alexeyp@gmail.com                                      ║
+║  code review          2026-04-21                                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ┌──────────────────────────────────────────────────────────────────────────────┐
 │   This library is free software; you can redistribute it and/or modify it    │
@@ -34,8 +35,8 @@
 using namespace std;
 using namespace sptk;
 
-const RegularExpression Host::m_matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{2,5})?$)");
-const RegularExpression Host::m_matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{2,5})?$)");
+const RegularExpression Host::m_matchHostNameOrIpv4(R"(^([\w\d\-\.]+)(:\d{1,5})?$)");
+const RegularExpression Host::m_matchIpv6(R"(^\[([\w\d\-\.:]+)\](:\d{1,5})?$)");
 
 namespace {
 void checkSocketsInitialized()
@@ -64,32 +65,40 @@ Host::Host(String hostname, const uint16_t port)
     , m_port(port)
 {
     checkSocketsInitialized();
-    getHostAddress();
-    setPort(m_port);
+    getHostAddressUnlocked();
+    setPortUnlocked(m_port);
 }
 
 Host::Host(const String& hostAndPort)
 {
     checkSocketsInitialized();
+
     const auto matches = hostAndPort.starts_with("[")
                              ? m_matchIpv6.m(hostAndPort)
                              : m_matchHostNameOrIpv4.m(hostAndPort);
 
-    if (matches)
+    if (!matches)
     {
-        m_hostname = matches[0].value;
+        throw Exception("Can't parse host and port: " + hostAndPort);
+    }
 
-        if (matches.groups().size() > 1)
-        {
-            m_port = static_cast<uint16_t>(string2int(matches[1].value.substr(1)));
-        }
-        getHostAddress();
-        setPort(m_port);
-    }
-    else
+    m_hostname = matches[0].value;
+
+    if (matches.groups().size() > 1)
     {
-        memset(&m_address, 0, sizeof(m_address));
+        if (const auto portStr = matches[1].value;
+            portStr.length() > 0)
+        {
+            auto port = stoi(portStr.substr(1));
+            if (port < 0 || port > 65535)
+            {
+                throw Exception("Invalid port number: " + portStr);
+            }
+            m_port = static_cast<uint16_t>(port);
+        }
     }
+    getHostAddressUnlocked();
+    setPortUnlocked(m_port);
 }
 
 Host::Host(const sockaddr_in* addressAndPort)
@@ -126,7 +135,18 @@ void Host::setHostNameFromAddress(const socklen_t addressLen)
     }
     else
     {
-        m_hostname = ipAddressToString(m_address.data());
+        const uint8_t* addr;
+        // Get the pointer to the address itself, different fields in IPv4 and IPv6
+        if (any().sa_family == AF_INET)
+        {
+            addr = bit_cast<uint8_t*>(&(ip_v4().sin_addr));
+        }
+        else
+        {
+            addr = bit_cast<uint8_t*>(&(ip_v6().sin6_addr));
+        }
+
+        m_hostname = ipAddressToString(addr);
     }
 }
 
@@ -139,10 +159,10 @@ Host::Host(const Host& other)
 }
 
 Host::Host(Host&& other) noexcept
-    : m_hostname(exchange(other.m_hostname, ""))
-    , m_port(other.m_port)
 {
     const scoped_lock lock(other.m_mutex);
+    m_hostname = exchange(other.m_hostname, "");
+    m_port = exchange(other.m_port, 0);
     m_address = other.m_address;
 }
 
@@ -160,9 +180,14 @@ Host& Host::operator=(const Host& other)
 
 Host& Host::operator=(Host&& other) noexcept
 {
+    if (&other == this)
+    {
+        return *this;
+    }
+
     const scoped_lock lock(m_mutex, other.m_mutex);
-    m_hostname = other.m_hostname;
-    m_port = other.m_port;
+    m_hostname = exchange(other.m_hostname, "");
+    m_port = exchange(other.m_port, 0);
     m_address = other.m_address;
     return *this;
 }
@@ -179,9 +204,8 @@ bool Host::operator==(const Host& other) const
     }
 }
 
-void Host::setPort(const uint16_t port)
+void Host::setPortUnlocked(const uint16_t port)
 {
-    const scoped_lock lock(m_mutex);
     m_port = port;
     switch (any().sa_family)
     {
@@ -200,14 +224,12 @@ void Host::setPort(const uint16_t port)
 constexpr int EAI_ADDRFAMILY = EAI_FAMILY;
 #endif
 
-void Host::getHostAddress()
+void Host::getHostAddressUnlocked()
 {
-    const scoped_lock lock(m_mutex);
-
     addrinfo* result = nullptr;
+    auto      exitCode = 0;
     string    error;
 
-    auto               exitCode = 0;
     constexpr addrinfo hints_INET = {.ai_family = AF_INET, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
     exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET, &result);
     if (exitCode != 0)
@@ -215,7 +237,7 @@ void Host::getHostAddress()
         error = gai_strerror(exitCode);
     }
 
-    if (exitCode == EAI_ADDRFAMILY)
+    if (exitCode == EAI_ADDRFAMILY || exitCode == EAI_NONAME)
     {
         constexpr addrinfo hints_INET6 = {.ai_family = AF_INET6, .ai_socktype = SOCK_STREAM, .ai_protocol = 0};
         exitCode = getaddrinfo(m_hostname.c_str(), nullptr, &hints_INET6, &result);
@@ -229,18 +251,17 @@ void Host::getHostAddress()
     {
         memset(&m_address, 0, sizeof(m_address));
         memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
+        freeaddrinfo(result);
     }
     else
     {
         throw Exception(format("Can't resolve hostname: {}. Error: {}.", m_hostname.c_str(), error));
     }
-
-    freeaddrinfo(result);
 }
 
 String Host::ipAddressToString(const uint8_t* addr) const
 {
-    constexpr int              maxBufferSize = 128;
+    constexpr auto             maxBufferSize = 128;
     array<char, maxBufferSize> buffer {};
 
     if (inet_ntop(any().sa_family, addr, buffer.data(), sizeof(buffer) - 1) == nullptr)

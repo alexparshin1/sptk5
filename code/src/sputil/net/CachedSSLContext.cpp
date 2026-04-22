@@ -55,7 +55,7 @@ SharedSSLContext CachedSSLContext::get(const SSLKeys& keys, const String& cipher
         return it->second;
     }
 
-    SharedSSLContext context = make_shared<SSLContext>(cipherList, tlsOnly);
+    auto context = make_shared<SSLContext>(cipherList, tlsOnly);
 
     if (!keys.privateKeyFileName().empty() || !keys.certificateFileName().empty())
     {
