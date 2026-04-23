@@ -81,7 +81,7 @@ public:
      * @brief Set blockingMode mode.
      * @param blockingMode      Socket blockingMode mode flag.
      */
-    void blockingMode(bool blockingMode)
+    void blockingMode(const bool blockingMode)
     {
         setBlockingModeUnlocked(blockingMode);
     }
@@ -99,7 +99,7 @@ public:
      * @param socketHandle      Existing socket handle.
      * @param accept            Socket is attached for accepting connection.
      */
-    void attach(SocketType socketHandle, bool accept)
+    void attach(const SocketType socketHandle, const bool accept)
     {
         std::scoped_lock lock(m_mutex);
         return attachUnlocked(socketHandle, accept);
@@ -143,7 +143,7 @@ public:
      * @param timeoutMS         Connection timeout. The default is 0 (wait forever).
      * @param clientBindAddress Client bind address.
      */
-    void open(const Host& host = Host(), OpenMode openMode = OpenMode::CONNECT, bool blockingMode = true,
+    void open(const Host& host = Host(), const OpenMode openMode = OpenMode::CONNECT, const bool blockingMode = true,
               const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0), const char* clientBindAddress = nullptr)
     {
         std::scoped_lock lock(m_mutex);
@@ -158,8 +158,8 @@ public:
      * @param timeoutMS         Connection timeout, std::chrono::milliseconds. The default is 0 (wait forever).
      * @param clientBindAddress Client bind address.
      */
-    void open(const sockaddr_in& address, OpenMode openMode = OpenMode::CONNECT,
-              bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
+    void open(const sockaddr_in& address, const OpenMode openMode = OpenMode::CONNECT,
+              const bool blockingMode = true, const std::chrono::milliseconds& timeoutMS = std::chrono::milliseconds(0),
               const char* clientBindAddress = nullptr)
     {
         std::scoped_lock lock(m_mutex);
@@ -172,7 +172,7 @@ public:
      * @param portNumber        The port number, or 0 if any.
      * @param reusePort         If true then set SO_REUSEPORT.
      */
-    void bind(const char* address, uint32_t portNumber, bool reusePort = false)
+    void bind(const char* address, const uint32_t portNumber, const bool reusePort = false)
     {
         std::scoped_lock lock(m_mutex);
         bindUnlocked(address, portNumber, reusePort);
@@ -183,7 +183,7 @@ public:
      * @param portNumber        The port number.
      * @param reusePort         If true, then set SO_REUSEPORT on listener socket.
      */
-    void listen(uint16_t portNumber = 0, bool reusePort = true)
+    void listen(const uint16_t portNumber = 0, const bool reusePort = true)
     {
         const std::scoped_lock lock(m_mutex);
         listenUnlocked(portNumber, reusePort);
@@ -212,7 +212,7 @@ public:
      * @brief Sets socket option value.
      * Throws an error if not succeeded.
      */
-    void setOption(int level, int option, int value) const
+    void setOption(const int level, const int option, const int value) const
     {
         std::scoped_lock lock(m_mutex);
         setOptionUnlocked(level, option, value);
@@ -223,7 +223,7 @@ public:
      *
      * Throws an error if not succeeded.
      */
-    void getOption(int level, int option, int& value) const
+    void getOption(const int level, const int option, int& value) const
     {
         std::scoped_lock lock(m_mutex);
         getOptionUnlocked(level, option, value);
@@ -236,7 +236,7 @@ public:
      * @param from              The source address.
      * @returns the number of bytes read from the socket.
      */
-    size_t read(uint8_t* buffer, size_t size, sockaddr* from = nullptr)
+    size_t read(uint8_t* buffer, const size_t size, sockaddr* from = nullptr)
     {
         std::scoped_lock lock(m_mutex);
         return readUnlocked(buffer, size, from);
@@ -281,7 +281,7 @@ public:
      * @param peer              The peer information.
      * @returns the number of bytes written to the socket.
      */
-    size_t write(const uint8_t* buffer, size_t size, const sockaddr* peer = nullptr)
+    size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
         std::scoped_lock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
