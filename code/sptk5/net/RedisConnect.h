@@ -56,14 +56,15 @@ public:
      * @brief Connects to Redis server.
      * @param host Redis host.
      * @param port Redis port.
+     * @return Server information.
      */
-    void connect(const std::string& host, int port);
+    std::vector<Variant> connect(const std::string& host, int port);
 
     /**
      * @brief Check if the connection is active.
      * @return Connection state.
      */
-    bool isConnected() const;
+    [[nodiscard]] bool isConnected() const;
 
     /**
      * @brief Disconnects from Redis server.
@@ -75,44 +76,61 @@ public:
      * @param key Key value.
      * @return Variant value.
      */
-    Variant get(const std::string& key) const;
+    [[nodiscard]] Variant get(const std::string& key) const;
 
     /**
      * @brief Get a binary value for the key.
      * @param key Key value.
      * @return Binary value.
      */
-    Buffer getBinary(const std::string& key);
+    [[nodiscard]] Buffer getBinary(const std::string& key) const;
 
     /**
      * @brief Sets the key-value pair in Redis.
      * @param key Key value.
      * @param value Value.
      */
-    void set(const std::string& key, const Variant& value);
+    void set(const std::string& key, const Variant& value) const;
 
     /**
      * @brief Sets the key-value pair in Redis.
      * @param key Key value.
      * @param value Value.
      */
-    void setBinary(const std::string& key, const Buffer& value);
+    void setBinary(const std::string& key, const Buffer& value) const;
+
+    /**
+     * @brief Find keys matching the pattern.
+     * The scan should start from cursor = 0 and stop after returned cursor is also 0.
+     * @param pattern Pattern to match keys.
+     * @param cursor Cursor.
+     * @param matchedKeys Output values.
+     * @param limit Match limit.
+     * @return Cursor.
+     */
+    size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const;
 
 private:
     std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader
 
     /**
+     * @sends Redis command.
+     * @param commandElements Redis command elements.
+     */
+    void sendCommand(const std::vector<std::string_view>& commandElements) const;
+
+    /**
      * @brief Reads a line from Redis.
      * @return A line from Redis.
      */
-    std::string readLine() const;
+    [[nodiscard]] std::string readLine() const;
 
     /**
      * @brief Reads a response from Redis.
      * @return Response as Variant.
      */
-    Variant readResponse() const;
+    void readResponse(std::vector<Variant>& results) const;
 };
 
 } // namespace sptk

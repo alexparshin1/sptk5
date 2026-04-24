@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 #ifndef _WIN32
+#include "sptk5/Printer.h"
 #include "sptk5/Stopwatch.h"
 #include "sptk5/net/RedisConnect.h"
 #include <chrono>
@@ -36,25 +37,8 @@ using namespace std;
 
 class RedisConnectTests : public ::testing::Test
 {
-protected:
-    void SetUp() override
-    {
-        // Start redis-server on a non-standard port for testing
-        if (const auto result = system("redis-server --port 6379 --daemonize yes");
-            result != 0)
-        {
-            // If it fails to start, maybe it's already running or some other issue
-            // We'll try to connect anyway, but this might fail the tests
-        }
-        this_thread::sleep_for(chrono::milliseconds(500));
-    }
-
-    void TearDown() override
-    {
-        // Shutdown redis-server
-        system("redis-cli shutdown");
-    }
 };
+
 namespace sptk {
 
 TEST_F(RedisConnectTests, connectDisconnect)
@@ -167,9 +151,9 @@ TEST_F(RedisConnectTests, setOverwrites)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTests, performance)
+TEST_F(RedisConnectTests, performanceSingleThread)
 {
-    constexpr auto iterations = 10000;
+    constexpr auto iterations = 1000;
 
     RedisConnect redis;
     redis.connect("localhost", 6379);
@@ -182,7 +166,72 @@ TEST_F(RedisConnectTests, performance)
         redis.set(key, "value1");
     }
     watch.stop();
-    cout << "Set performance: " << watch.milliseconds() << " ms, " << iterations / watch.milliseconds() << "K/s" << endl;
+    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, performanceMultipleThreads)
+{
+    constexpr auto iterations = 1000;
+    constexpr auto threadCount = 128;
+
+    Stopwatch watch;
+    watch.start();
+
+    vector<jthread> threads;
+    for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        threads.push_back(jthread([threadIndex, iterations]
+                                  {
+                                      RedisConnect redis;
+                                      redis.connect("10.1.1.242", 6379);
+
+                                      for (auto i = 0; i < iterations; ++i)
+                                      {
+                                          auto key = format("session_{}_{}", threadIndex, i);
+                                          redis.set(key, "value1-value2-value3");
+                                      }
+
+                                      redis.disconnect();
+                                  }));
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    watch.stop();
+    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, scan)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    redis.set("test-key1", 12345);
+    redis.set("test-key2", 1234);
+
+    std::vector<Variant> values;
+    redis.scan("test-*", 0, values, 999999);
+
+    Strings keys;
+    keys.resize(values.size());
+    transform(values.begin(), values.end(), keys.begin(), [](const Variant& value)
+              {
+                  COUT(format("key: {}", value.asString().c_str()));
+                  return value.asString();
+              });
+
+    // Expect two keys matched
+    ASSERT_EQ(2, values.size());
+
+    EXPECT_NE(-1, keys.indexOf("test-key1"));
+    EXPECT_NE(-1, keys.indexOf("test-key2"));
 
     redis.disconnect();
 }

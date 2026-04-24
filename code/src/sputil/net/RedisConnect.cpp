@@ -28,21 +28,23 @@
 #include "sptk5/net/RedisConnect.h"
 #include "sptk5/Base64.h"
 #include "sptk5/Exception.h"
-#include <iostream>
-#include <sstream>
+#include "sptk5/Printer.h"
 
 using namespace std;
 using namespace sptk;
 
-namespace sptk {
-void RedisConnect::connect(const std::string& host, const int port)
+vector<Variant> RedisConnect::connect(const string& host, int port)
 {
     m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));
     m_socket->open();
     m_reader = make_unique<SocketReader>(m_socket);
 
     m_socket->write("HELLO 3\r\n");
-    (void) readResponse();
+
+    vector<Variant> results;
+    readResponse(results);
+
+    return results;
 }
 
 bool RedisConnect::isConnected() const
@@ -59,74 +61,106 @@ void RedisConnect::disconnect()
     m_reader.reset();
 }
 
-void RedisConnect::set(const std::string& key, const Variant& value)
+void RedisConnect::set(const std::string& key, const Variant& value) const
 {
     if (!m_socket->active())
     {
         throw Exception("RedisConnect: Not connected");
     }
 
-    auto setKey = format("*3\r\n$3\r\nSET\r\n${}\r\n{}\r\n", key.length(), key);
+    auto setKey = format("SET '{}'", key);
 
-    auto isBinary = false;
+    vector<string_view> commandWords;
+    commandWords.emplace_back("SET");
+    commandWords.push_back(key);
+
+    // Note: commandWords uses string_view, so local vars need to be used before going out of scope.
     switch (value.dataType())
     {
         using enum VariantDataType;
         case VAR_BOOL: {
-            const string& s = value.asBool() ? "true" : "false";
-            setKey += format("${}\r\n{}", s.length(), s);
+            const string s = value.asBool() ? "true" : "false";
+            commandWords.emplace_back(s.c_str(), s.length());
+            sendCommand(commandWords);
             break;
         }
+
         case VAR_INT:
-        case VAR_INT64: {
-            const string& s = to_string(value.asInt64());
-            setKey += format("${}\r\n{}", s.length(), s);
+        case VAR_INT64:
+        case VAR_FLOAT: {
+            const auto s = value.asString();
+            commandWords.emplace_back(s.c_str(), s.length());
+            sendCommand(commandWords);
             break;
         }
-        case VAR_FLOAT:
-        case VAR_DATE:
+
+        case VAR_DATE: {
+            const auto s = value.asDate().dateString();
+            commandWords.emplace_back(s.c_str(), s.length());
+            sendCommand(commandWords);
+            break;
+        }
+
         case VAR_DATE_TIME: {
-            stringstream fss;
-            fss.precision(17); // Enough precision for IEEE 754 double
-            fss << value.asFloat();
-            const string& s = fss.str();
-            setKey += format("${}\r\n{}", s.length(), s);
+            const auto s = value.asDateTime().isoDateTimeString();
+            commandWords.emplace_back(s.c_str(), s.length());
+            sendCommand(commandWords);
             break;
         }
+
         case VAR_STRING:
-        case VAR_TEXT: {
-            const string& s = value.asString();
-            setKey += format("${}\r\n{}", s.length(), s);
-            break;
-        }
+        case VAR_TEXT:
         case VAR_BUFFER: {
-            const Buffer& buffer = value.asBuffer();
-            setKey += format("${}\r\n", buffer.size());
-            m_socket->write(setKey);
-            m_socket->write(buffer.data(), buffer.size());
-            m_socket->write("\r\n");
-            isBinary = true;
+            commandWords.emplace_back(value.getString(), value.dataSize());
+            sendCommand(commandWords);
             break;
         }
+
         case VAR_NONE:
-            setKey += "_";
+            commandWords.emplace_back("_", 1);
+            sendCommand(commandWords);
             break;
+
         default:
             throw Exception("Redis: Unsupported variant type");
     }
 
-    if (!isBinary)
-    {
-        setKey += "\r\n";
-        m_socket->write(setKey);
-    }
-
-    (void) readResponse();
+    vector<Variant> results;
+    readResponse(results);
 }
 
-void RedisConnect::setBinary(const std::string& key, const Buffer& value)
+void RedisConnect::setBinary(const std::string& key, const Buffer& value) const
 {
     set(key, Variant(value));
+}
+
+size_t RedisConnect::scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
+{
+    if (!m_socket->active())
+    {
+        throw Exception("RedisConnect: Not connected");
+    }
+
+    const auto          cursorStr = to_string(cursor);
+    const auto          countStr = to_string(limit);
+    vector<string_view> commandWords = {"SCAN", cursorStr, "MATCH", pattern};
+    if (limit != 0)
+    {
+        commandWords.emplace_back("COUNT");
+        commandWords.push_back(countStr);
+    }
+    sendCommand(commandWords);
+
+    readResponse(matchedKeys);
+
+    if (!matchedKeys.empty())
+    {
+        const auto newCursor = matchedKeys[0].asInteger();
+        matchedKeys.erase(matchedKeys.begin());
+        return newCursor;
+    }
+
+    return 0;
 }
 
 Variant RedisConnect::get(const std::string& key) const
@@ -136,20 +170,42 @@ Variant RedisConnect::get(const std::string& key) const
         throw Exception("RedisConnect: Not connected");
     }
 
-    stringstream ss;
-    ss << "*2\r\n"
-       << "$3\r\nGET\r\n"
-       << "$" << key.length() << "\r\n"
-       << key << "\r\n";
+    const vector<string_view> commandWords {"GET", key};
+    sendCommand(commandWords);
 
-    m_socket->write(ss.str());
+    vector<Variant> results;
+    readResponse(results);
 
-    return readResponse();
+    if (results.empty())
+    {
+        return {};
+    }
+
+    return results[0];
 }
 
-Buffer RedisConnect::getBinary(const std::string& key)
+Buffer RedisConnect::getBinary(const std::string& key) const
 {
     return get(key).asBuffer();
+}
+
+void RedisConnect::sendCommand(const vector<string_view>& commandElements) const
+{
+    if (commandElements.empty())
+    {
+        throw Exception("Redis: Empty command data");
+    }
+
+    Buffer buffer;
+    buffer.append(format("*{}\r\n", commandElements.size()));
+
+    for (const auto& commandElement: commandElements)
+    {
+        buffer.append(format("${}\r\n", commandElement.size()));
+        buffer.append(reinterpret_cast<const uint8_t*>(commandElement.data()), commandElement.size());
+        buffer.append(reinterpret_cast<const uint8_t*>("\r\n"), 2);
+    }
+    m_socket->write(buffer.data(), buffer.bytes());
 }
 
 string RedisConnect::readLine() const
@@ -165,8 +221,10 @@ string RedisConnect::readLine() const
     return s;
 }
 
-Variant RedisConnect::readResponse() const
+void RedisConnect::readResponse(vector<Variant>& results) const
 {
+    static Variant nullVariant;
+
     const string line = readLine();
     if (line.empty())
     {
@@ -179,54 +237,80 @@ Variant RedisConnect::readResponse() const
     switch (type)
     {
         case '+': // Simple String
-            return {payload.c_str()};
+            results.emplace_back(payload);
+            return;
+
         case '-': // Error
             throw Exception("Redis error: " + payload);
+
         case ':': // Integer
-            return {static_cast<int64_t>(stoll(payload)), 0u};
+            results.emplace_back(stoll(payload), 0u);
+            return;
+
         case '$': { // Bulk String
             const auto len = stoi(payload);
             if (len == -1)
             {
-                return {}; // Null
+                results.emplace_back(nullVariant); // Null
+                return;
             }
             Buffer buffer;
             Buffer trailing;
             m_reader->read(buffer, len);
             m_reader->read(trailing, 2); // Read exactly \r\n
-            return {buffer};
+            results.emplace_back(buffer);
+            return;
         }
         case '*': { // Array
             const auto count = stoi(payload);
             if (count == -1)
             {
-                return {};
+                results.emplace_back(nullVariant);
+                return;
             }
             // For now, we only support simple responses, but we must consume the array
             for (auto i = 0; i < count; ++i)
             {
-                (void) readResponse();
+                readResponse(results);
             }
-            return {};
+            return;
         }
-        case '_': // Null (RESP3)
-            return {};
+        case '_':                              // Null (RESP3)
+            results.emplace_back(nullVariant); // Null
+            return;
         case '#': // Boolean (RESP3)
-            return {payload == "t"};
+            results.emplace_back(payload == "t");
+            return;
         case ',': // Double (RESP3)
-            return {stod(payload)};
+            results.emplace_back(stod(payload));
+            return;
         case '%': { // Map (RESP3)
             const auto count = stoi(payload);
-            for (int i = 0; i < count; ++i)
+            for (auto i = 0; i < count; ++i)
             {
-                (void) readResponse(); // Key
-                (void) readResponse(); // Value
+                vector<Variant> mapValues;
+                readResponse(mapValues); // Key
+                readResponse(mapValues); // Value
+                string mapValue;
+                switch (mapValues.size())
+                {
+                    case 1:
+                        mapValue = format("[{}]:", mapValues[0].asString().c_str());
+                        break;
+                    case 2:
+                        mapValue = format("[{}]: {}", mapValues[0].asString().c_str(), mapValues[1].asString().c_str());
+                        break;
+                    default:
+                        break;
+                }
+                if (!mapValue.empty())
+                {
+                    results.emplace_back(mapValue);
+                }
             }
-            return {};
+            return;
         }
         default:
             throw Exception("Redis: Unknown response type: " + string(1, type));
     }
 }
-
-} // namespace sptk
