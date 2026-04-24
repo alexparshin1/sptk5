@@ -181,8 +181,8 @@ void TestImapServer::handle_cmd_select(const shared_ptr<SocketReader>& socketRea
     reply(socketReader, "* OK [UNSEEN 1] First unseen message");
     reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid");
     reply(socketReader, "* OK [UIDNEXT 6] Predicted next UID");
-    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)");
-    reply(socketReader, "* OK [PERMANENTFLAGS (\\Deleted \\Seen \\*)] Flags permitted.");
+    reply(socketReader, R"(* FLAGS (\Answered \Flagged \Deleted \Seen \Draft))");
+    reply(socketReader, R"(* OK [PERMANENTFLAGS (\Deleted \Seen \*)] Flags permitted.)");
     reply(socketReader, format("{} OK [READ-WRITE] SELECT completed", ident));
 }
 
@@ -193,7 +193,7 @@ void TestImapServer::handle_cmd_examine(const shared_ptr<SocketReader>& socketRe
     reply(socketReader, "* OK [UNSEEN 1] First unseen message");
     reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid");
     reply(socketReader, "* OK [PERMANENTFLAGS ()] No permanent flags permitted");
-    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)");
+    reply(socketReader, R"(* FLAGS (\Answered \Flagged \Deleted \Seen \Draft))");
     reply(socketReader, format("{} OK [READ-ONLY] EXAMINE completed", ident));
 }
 
@@ -203,36 +203,36 @@ void TestImapServer::handle_cmd_close(const shared_ptr<SocketReader>& socketRead
     socketReader->close();
 }
 
-void TestImapServer::handle_cmd_subscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_subscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
     reply(socketReader, format("{} OK SUBSCRIBE completed", ident));
 }
 
-void TestImapServer::handle_cmd_unsubscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_unsubscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
     reply(socketReader, format("{} OK UNSUBSCRIBE completed", ident));
 }
 
-void TestImapServer::handle_cmd_create(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_create(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
     reply(socketReader, format("{} OK CREATE completed", ident));
 }
 
-void TestImapServer::handle_cmd_delete(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_delete(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
     reply(socketReader, format("{} OK DELETE completed", ident));
 }
 
-void TestImapServer::handle_cmd_rename(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_rename(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
     reply(socketReader, format("{} OK RENAME completed", ident));
 }
 
-void TestImapServer::handle_cmd_list(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
+void TestImapServer::handle_cmd_list(const shared_ptr<SocketReader>& socketReader, const string& ident, const String&)
 {
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"INBOX\"");
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Sent\"");
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Drafts\"");
+    reply(socketReader, R"(* LIST (\HasNoChildren) "." "INBOX")");
+    reply(socketReader, R"(* LIST (\HasNoChildren) "." "Sent")");
+    reply(socketReader, R"(* LIST (\HasNoChildren) "." "Drafts")");
     reply(socketReader, format("{} OK LIST completed", ident));
 }
 
