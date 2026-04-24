@@ -85,7 +85,7 @@ void TestImapServer::readIncomingData(const shared_ptr<SocketReader>& socketRead
         socketReader->readLine(incomingData))
     {
         static const RegularExpression matchCommand(R"(^(a\d+) (\w+)\s?([^\r]+)?[\r]*$)");
-        COUT("\nReceived: " << incomingData);
+        COUT("\n>  " << incomingData);
         if (const auto matches = matchCommand.m(incomingData))
         {
             const auto command = commandMap.find(lowerCase(matches[1].value));
@@ -145,14 +145,14 @@ void TestImapServer::readIncomingData(const shared_ptr<SocketReader>& socketRead
 
 void TestImapServer::reply(const shared_ptr<SocketReader>& socketReader, const std::string& response)
 {
-    socketReader->socket()->write(response);
-    COUT("Reply:    " << trim(response));
+    socketReader->socket()->write(response + "\r\n");
+    COUT("<  " << trim(response));
 }
 
 void TestImapServer::handle_cmd_capability(const shared_ptr<SocketReader>& socketReader, const string& ident)
 {
-    reply(socketReader, "* CAPABILITY IMAP4rev1 AUTH=PLAIN AUTH=LOGIN\r\n");
-    reply(socketReader, format("{} OK CAPABILITY completed\r\n", ident));
+    reply(socketReader, "* CAPABILITY IMAP4rev1 AUTH=PLAIN AUTH=LOGIN");
+    reply(socketReader, format("{} OK CAPABILITY completed", ident));
 }
 
 void TestImapServer::handle_cmd_login(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
@@ -168,109 +168,122 @@ void TestImapServer::handle_cmd_login(const shared_ptr<SocketReader>& socketRead
 
     if (userAndPassword.size() != 2 || userAndPassword[0] != "user" || userAndPassword[1] != "password")
     {
-        reply(socketReader, format("{} NO Authentication failed: Invalid credentials\r\n", ident));
+        reply(socketReader, format("{} NO Authentication failed: Invalid credentials", ident));
         return;
     }
-    reply(socketReader, format("{} OK LOGIN completed\r\n", ident));
+    reply(socketReader, format("{} OK LOGIN completed", ident));
 }
 
 void TestImapServer::handle_cmd_select(const shared_ptr<SocketReader>& socketReader, const string& ident)
 {
-    reply(socketReader, "* 5 EXISTS\r\n");
-    reply(socketReader, "* 1 RECENT\r\n");
-    reply(socketReader, "* OK [UNSEEN 1] First unseen message\r\n");
-    reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid\r\n");
-    reply(socketReader, "* OK [UIDNEXT 6] Predicted next UID\r\n");
-    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n");
-    reply(socketReader, "* OK [PERMANENTFLAGS (\\Deleted \\Seen \\*)] Flags permitted.\r\n");
-    reply(socketReader, format("{} OK [READ-WRITE] SELECT completed\r\n", ident));
+    reply(socketReader, "* 5 EXISTS");
+    reply(socketReader, "* 1 RECENT");
+    reply(socketReader, "* OK [UNSEEN 1] First unseen message");
+    reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid");
+    reply(socketReader, "* OK [UIDNEXT 6] Predicted next UID");
+    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)");
+    reply(socketReader, "* OK [PERMANENTFLAGS (\\Deleted \\Seen \\*)] Flags permitted.");
+    reply(socketReader, format("{} OK [READ-WRITE] SELECT completed", ident));
 }
 
 void TestImapServer::handle_cmd_examine(const shared_ptr<SocketReader>& socketReader, const string& ident)
 {
-    reply(socketReader, "* 5 EXISTS\r\n");
-    reply(socketReader, "* 1 RECENT\r\n");
-    reply(socketReader, "* OK [UNSEEN 1] First unseen message\r\n");
-    reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid\r\n");
-    reply(socketReader, "* OK [PERMANENTFLAGS ()] No permanent flags permitted\r\n");
-    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n");
-    reply(socketReader, format("{} OK [READ-ONLY] EXAMINE completed\r\n", ident));
+    reply(socketReader, "* 5 EXISTS");
+    reply(socketReader, "* 1 RECENT");
+    reply(socketReader, "* OK [UNSEEN 1] First unseen message");
+    reply(socketReader, "* OK [UIDVALIDITY 1] UIDs valid");
+    reply(socketReader, "* OK [PERMANENTFLAGS ()] No permanent flags permitted");
+    reply(socketReader, "* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)");
+    reply(socketReader, format("{} OK [READ-ONLY] EXAMINE completed", ident));
 }
 
 void TestImapServer::handle_cmd_close(const shared_ptr<SocketReader>& socketReader, const std::string& ident)
 {
-    reply(socketReader, format("{} OK CLOSE completed\r\n", ident));
+    reply(socketReader, format("{} OK CLOSE completed", ident));
     socketReader->close();
 }
 
 void TestImapServer::handle_cmd_subscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK SUBSCRIBE completed\r\n", ident));
+    reply(socketReader, format("{} OK SUBSCRIBE completed", ident));
 }
 
 void TestImapServer::handle_cmd_unsubscribe(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK UNSUBSCRIBE completed\r\n", ident));
+    reply(socketReader, format("{} OK UNSUBSCRIBE completed", ident));
 }
 
 void TestImapServer::handle_cmd_create(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK CREATE completed\r\n", ident));
+    reply(socketReader, format("{} OK CREATE completed", ident));
 }
 
 void TestImapServer::handle_cmd_delete(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK DELETE completed\r\n", ident));
+    reply(socketReader, format("{} OK DELETE completed", ident));
 }
 
 void TestImapServer::handle_cmd_rename(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK RENAME completed\r\n", ident));
+    reply(socketReader, format("{} OK RENAME completed", ident));
 }
 
 void TestImapServer::handle_cmd_list(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n");
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Sent\"\r\n");
-    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Drafts\"\r\n");
-    reply(socketReader, format("{} OK LIST completed\r\n", ident));
+    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"INBOX\"");
+    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Sent\"");
+    reply(socketReader, "* LIST (\\HasNoChildren) \".\" \"Drafts\"");
+    reply(socketReader, format("{} OK LIST completed", ident));
 }
 
 void TestImapServer::handle_cmd_append(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
-    reply(socketReader, format("{} OK APPEND completed\r\n", ident));
+    static const RegularExpression matchAppend(R"(\"?(\w+)\"?\s+.*\{(\d+)\})");
+    if (auto matches = matchAppend.m(data))
+    {
+        reply(socketReader, "+ Ready for literal data");
+        const auto bytes = stoi(matches[1].value);
+        Buffer     message(bytes);
+        socketReader->read(message, bytes);
+        COUT(message.c_str());
+        reply(socketReader, format("{} OK APPEND completed", ident));
+    }
+    else
+    {
+        reply(socketReader, format("{} NO Invalid APPEND command", ident));
+    }
 }
 
 void TestImapServer::handle_cmd_fetch(const shared_ptr<SocketReader>& socketReader, const string& ident, const String& data)
 {
     if (data.toUpperCase().contains("(BODY[HEADER] "))
     {
-        reply(socketReader, "* 1 FETCH (BODY[HEADER] {88}\r\n");
-        reply(socketReader, "From: sender@example.com\r\n");
-        reply(socketReader, "To: recipient@example.com\r\n");
-        reply(socketReader, "Subject: Test Message\r\n");
-        reply(socketReader, "\r\n");
-        reply(socketReader, ")\r\n");
-        reply(socketReader, format("{} OK FETCH completed\r\n", ident));
+        reply(socketReader, "* 1 FETCH (BODY[HEADER] {88}");
+        reply(socketReader, "From: sender@example.com");
+        reply(socketReader, "To: recipient@example.com");
+        reply(socketReader, "Subject: Test Message");
+        reply(socketReader, "");
+        reply(socketReader, ")");
+        reply(socketReader, format("{} OK FETCH completed", ident));
     }
 
     if (data.toUpperCase().contains("(BODY[] "))
     {
-        reply(socketReader, "* 1 FETCH (BODY[] {142}\r\n");
-        reply(socketReader, "From: sender@example.com\r\n");
-        reply(socketReader, "To: recipient@example.com\r\n");
-        reply(socketReader, "Subject: Test Message\r\n");
-        reply(socketReader, "\r\n");
-        reply(socketReader, "This is a test message body.\r\n");
-        reply(socketReader, ")\r\n");
-        reply(socketReader, format("{} OK FETCH completed\r\n", ident));
+        reply(socketReader, "* 1 FETCH (BODY[] {142}");
+        reply(socketReader, "From: sender@example.com");
+        reply(socketReader, "To: recipient@example.com");
+        reply(socketReader, "Subject: Test Message");
+        reply(socketReader, "");
+        reply(socketReader, "This is a test message body.");
+        reply(socketReader, ")");
+        reply(socketReader, format("{} OK FETCH completed", ident));
         return;
     }
 
     if (data.toUpperCase().contains("(FLAGS "))
     {
-        reply(socketReader, "* 1 FETCH (FLAGS (\\Seen \\Answered))\r\n");
-        reply(socketReader, format("{} OK FETCH completed\r\n", ident));
+        reply(socketReader, "* 1 FETCH (FLAGS (\\Seen \\Answered))");
+        reply(socketReader, format("{} OK FETCH completed", ident));
     }
 }
 

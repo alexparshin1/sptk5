@@ -60,23 +60,40 @@ public:
     void connect(const std::string& host, int port);
 
     /**
+     * @brief Check if the connection is active.
+     * @return Connection state.
+     */
+    bool isConnected() const;
+
+    /**
      * @brief Disconnects from Redis server.
      */
     void disconnect();
 
-    Variant get(const std::string& key);
-    Buffer  getBinary(const std::string& key);
+    /**
+     * @brief Get a variant value for the key.
+     * @param key Key value.
+     * @return Variant value.
+     */
+    Variant get(const std::string& key) const;
+
+    /**
+     * @brief Get a binary value for the key.
+     * @param key Key value.
+     * @return Binary value.
+     */
+    Buffer getBinary(const std::string& key);
 
     /**
      * @brief Sets the key-value pair in Redis.
-     * @param key Key name.
+     * @param key Key value.
      * @param value Value.
      */
     void set(const std::string& key, const Variant& value);
 
     /**
      * @brief Sets the key-value pair in Redis.
-     * @param key Key name.
+     * @param key Key value.
      * @param value Value.
      */
     void setBinary(const std::string& key, const Buffer& value);

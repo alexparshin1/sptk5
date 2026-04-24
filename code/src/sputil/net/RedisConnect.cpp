@@ -45,6 +45,11 @@ void RedisConnect::connect(const std::string& host, const int port)
     (void) readResponse();
 }
 
+bool RedisConnect::isConnected() const
+{
+    return m_socket->active();
+}
+
 void RedisConnect::disconnect()
 {
     if (m_socket->active())
@@ -61,57 +66,50 @@ void RedisConnect::set(const std::string& key, const Variant& value)
         throw Exception("RedisConnect: Not connected");
     }
 
-    stringstream ss;
-    ss << "*3\r\n"
-       << "$3\r\nSET\r\n"
-       << "$" << key.length() << "\r\n"
-       << key << "\r\n";
+    auto setKey = format("*3\r\n$3\r\nSET\r\n${}\r\n{}\r\n", key.length(), key);
 
-    bool isBinary = false;
+    auto isBinary = false;
     switch (value.dataType())
     {
         using enum VariantDataType;
         case VAR_BOOL: {
             const string& s = value.asBool() ? "true" : "false";
-            ss << "$" << s.length() << "\r\n"
-               << s;
+            setKey += format("${}\r\n{}", s.length(), s);
             break;
         }
         case VAR_INT:
         case VAR_INT64: {
             const string& s = to_string(value.asInt64());
-            ss << "$" << s.length() << "\r\n"
-               << s;
+            setKey += format("${}\r\n{}", s.length(), s);
             break;
         }
         case VAR_FLOAT:
         case VAR_DATE:
         case VAR_DATE_TIME: {
             stringstream fss;
-            fss.precision(17);
+            fss.precision(17); // Enough precision for IEEE 754 double
             fss << value.asFloat();
             const string& s = fss.str();
-            ss << "$" << s.length() << "\r\n"
-               << s;
+            setKey += format("${}\r\n{}", s.length(), s);
             break;
         }
         case VAR_STRING:
         case VAR_TEXT: {
-            const string& str = value.asString();
-            ss << "$" << str.length() << "\r\n"
-               << str;
+            const string& s = value.asString();
+            setKey += format("${}\r\n{}", s.length(), s);
             break;
         }
         case VAR_BUFFER: {
             const Buffer& buffer = value.asBuffer();
-            ss << "$" << buffer.size() << "\r\n";
-            m_socket->write(ss.str());
+            setKey += format("${}\r\n", buffer.size());
+            m_socket->write(setKey);
             m_socket->write(buffer.data(), buffer.size());
             m_socket->write("\r\n");
             isBinary = true;
+            break;
         }
         case VAR_NONE:
-            ss << "_";
+            setKey += "_";
             break;
         default:
             throw Exception("Redis: Unsupported variant type");
@@ -119,8 +117,8 @@ void RedisConnect::set(const std::string& key, const Variant& value)
 
     if (!isBinary)
     {
-        ss << "\r\n";
-        m_socket->write(ss.str());
+        setKey += "\r\n";
+        m_socket->write(setKey);
     }
 
     (void) readResponse();
@@ -131,7 +129,7 @@ void RedisConnect::setBinary(const std::string& key, const Buffer& value)
     set(key, Variant(value));
 }
 
-Variant RedisConnect::get(const std::string& key)
+Variant RedisConnect::get(const std::string& key) const
 {
     if (!m_socket->active())
     {
@@ -193,8 +191,9 @@ Variant RedisConnect::readResponse() const
                 return {}; // Null
             }
             Buffer buffer;
+            Buffer trailing;
             m_reader->read(buffer, len);
-            (void) readLine(); // Read trailing \r\n
+            m_reader->read(trailing, 2); // Read exactly \r\n
             return {buffer};
         }
         case '*': { // Array
@@ -204,7 +203,7 @@ Variant RedisConnect::readResponse() const
                 return {};
             }
             // For now, we only support simple responses, but we must consume the array
-            for (int i = 0; i < count; ++i)
+            for (auto i = 0; i < count; ++i)
             {
                 (void) readResponse();
             }
