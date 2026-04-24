@@ -36,7 +36,7 @@ using namespace sptk;
 
 static constexpr auto RSP_BLOCK_SIZE = 1024;
 
-void ImapConnect::getResponse(const String& ident, chrono::milliseconds timeout)
+void ImapConnect::getResponse(const String& ident, const chrono::milliseconds timeout)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
 
@@ -425,20 +425,20 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
 
 void ImapConnect::cmd_fetch_headers(const int32_t msg_id, FieldList& result)
 {
-    command(format("FETCH {} (BODY[HEADER])", msg_id));
+    command(format("FETCH {} (BODY[HEADER] )", msg_id));
     parseMessage(result, true);
 }
 
 void ImapConnect::cmd_fetch_message(const int32_t msg_id, FieldList& result)
 {
-    command(format("FETCH {} (BODY[])", msg_id));
+    command(format("FETCH {} (BODY[] )", msg_id));
     parseMessage(result, false);
 }
 
 String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 {
     String result;
-    command(format("FETCH {} (FLAGS)", msg_id));
+    command(format("FETCH {} (FLAGS )", msg_id));
 
     if (m_response.empty())
     {

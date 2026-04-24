@@ -54,7 +54,7 @@ public:
      * @remarks If the external connection is not provided, use the host() method to define a new one.
      * @param socket            External connection.
      */
-    ImapConnect(const std::shared_ptr<TCPSocket>& socket = {});
+    explicit ImapConnect(const std::shared_ptr<TCPSocket>& socket = {});
 
     /**
      * @brief Sends a command with the arguments. Arguments (if any) are automatically enquoted with double-quotes.
@@ -74,7 +74,7 @@ public:
     /**
      * @brief Returns reference to the last command response.
      */
-    const Strings& response() const
+    [[nodiscard]] const Strings& response() const
     {
         return m_response;
     }
@@ -109,6 +109,7 @@ public:
 
     /**
      * @brief Logs in the server. The server name or address should be defined with the call of host() method.
+     * @remark Always re-connects to the server.
      * @param user The username on the server.
      * @param password The user password on the server.
      */
@@ -251,7 +252,7 @@ public:
     /**
      * @brief Get IMAP host.
      */
-    Host host() const;
+    [[nodiscard]] Host host() const;
 
     /**
      * @brief Set IMAP host.
