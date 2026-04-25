@@ -36,7 +36,7 @@ namespace sptk {
 /**
  * @brief Redis Client.
  */
-class SP_EXPORT RedisConnect
+class SP_EXPORT RedisConnect final
 {
 public:
     /**
@@ -48,17 +48,17 @@ public:
     }
 
     /**
-     * @brief Destructor
-     */
-    virtual ~RedisConnect() = default;
-
-    /**
      * @brief Connects to Redis server.
      * @param host Redis host.
      * @param port Redis port.
+     * @param username Optional username.
+     * @param password Optional password.
+     * @param clientName Optional client name.
      * @return Server information.
      */
-    std::vector<Variant> connect(const std::string& host, int port);
+    std::vector<Variant> connect(const std::string& host, int port,
+                                 const std::string& username = "", const std::string& password = "",
+                                 const std::string& clientName = "");
 
     /**
      * @brief Check if the connection is active.
@@ -79,25 +79,11 @@ public:
     [[nodiscard]] Variant get(const std::string& key) const;
 
     /**
-     * @brief Get a binary value for the key.
-     * @param key Key value.
-     * @return Binary value.
-     */
-    [[nodiscard]] Buffer getBinary(const std::string& key) const;
-
-    /**
      * @brief Sets the key-value pair in Redis.
      * @param key Key value.
      * @param value Value.
      */
     void set(const std::string& key, const Variant& value) const;
-
-    /**
-     * @brief Sets the key-value pair in Redis.
-     * @param key Key value.
-     * @param value Value.
-     */
-    void setBinary(const std::string& key, const Buffer& value) const;
 
     /**
      * @brief Find keys matching the pattern.
@@ -115,7 +101,7 @@ private:
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader
 
     /**
-     * @sends Redis command.
+     * @brief Sends Redis command.
      * @param commandElements Redis command elements.
      */
     void sendCommand(const std::vector<std::string_view>& commandElements) const;

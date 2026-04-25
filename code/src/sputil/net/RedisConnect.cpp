@@ -33,13 +33,27 @@
 using namespace std;
 using namespace sptk;
 
-vector<Variant> RedisConnect::connect(const string& host, int port)
+vector<Variant> RedisConnect::connect(const string& host, int port,
+                                      const string& username, const string& password, const string& clientName)
 {
     m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));
     m_socket->open();
     m_reader = make_unique<SocketReader>(m_socket);
 
-    m_socket->write("HELLO 3\r\n");
+    // Hello command in inline format.
+    string helloCommand = "HELLO 3";
+
+    if (!username.empty() && !password.empty())
+    {
+        helloCommand += " AUTH " + username + " " + password;
+    }
+
+    if (!clientName.empty())
+    {
+        helloCommand += " SETNAME " + clientName;
+    }
+
+    m_socket->write(helloCommand + "\r\n");
 
     vector<Variant> results;
     readResponse(results);
@@ -67,8 +81,6 @@ void RedisConnect::set(const std::string& key, const Variant& value) const
     {
         throw Exception("RedisConnect: Not connected");
     }
-
-    auto setKey = format("SET '{}'", key);
 
     vector<string_view> commandWords;
     commandWords.emplace_back("SET");
@@ -129,11 +141,6 @@ void RedisConnect::set(const std::string& key, const Variant& value) const
     readResponse(results);
 }
 
-void RedisConnect::setBinary(const std::string& key, const Buffer& value) const
-{
-    set(key, Variant(value));
-}
-
 size_t RedisConnect::scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
 {
     if (!m_socket->active())
@@ -184,11 +191,6 @@ Variant RedisConnect::get(const std::string& key) const
     return results[0];
 }
 
-Buffer RedisConnect::getBinary(const std::string& key) const
-{
-    return get(key).asBuffer();
-}
-
 void RedisConnect::sendCommand(const vector<string_view>& commandElements) const
 {
     if (commandElements.empty())
@@ -223,8 +225,6 @@ string RedisConnect::readLine() const
 
 void RedisConnect::readResponse(vector<Variant>& results) const
 {
-    static Variant nullVariant;
-
     const string line = readLine();
     if (line.empty())
     {
@@ -248,10 +248,10 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             return;
 
         case '$': { // Bulk String
-            const auto len = stoi(payload);
+            const auto len = stol(payload);
             if (len == -1)
             {
-                results.emplace_back(nullVariant); // Null
+                results.emplace_back(); // Null
                 return;
             }
             Buffer buffer;
@@ -262,10 +262,10 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             return;
         }
         case '*': { // Array
-            const auto count = stoi(payload);
+            const auto count = stol(payload);
             if (count == -1)
             {
-                results.emplace_back(nullVariant);
+                results.emplace_back();
                 return;
             }
             // For now, we only support simple responses, but we must consume the array
@@ -275,8 +275,8 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             }
             return;
         }
-        case '_':                              // Null (RESP3)
-            results.emplace_back(nullVariant); // Null
+        case '_':                   // Null (RESP3)
+            results.emplace_back(); // Null
             return;
         case '#': // Boolean (RESP3)
             results.emplace_back(payload == "t");
@@ -285,7 +285,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             results.emplace_back(stod(payload));
             return;
         case '%': { // Map (RESP3)
-            const auto count = stoi(payload);
+            const auto count = stol(payload);
             for (auto i = 0; i < count; ++i)
             {
                 vector<Variant> mapValues;

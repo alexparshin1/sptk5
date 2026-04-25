@@ -118,9 +118,9 @@ TEST_F(RedisConnectTests, setGetBinary)
     const char   data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
     const Buffer binaryData(data, sizeof(data));
 
-    EXPECT_NO_THROW(redis.setBinary(key, binaryData));
+    EXPECT_NO_THROW(redis.set(key, binaryData));
 
-    const auto retrievedData = redis.getBinary(key);
+    const auto retrievedData = redis.get(key).asBuffer();
     EXPECT_EQ(retrievedData, binaryData);
 
     redis.disconnect();
