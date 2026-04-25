@@ -29,7 +29,6 @@
 #include "sptk5/net/SocketReader.h"
 #include "sptk5/net/TCPServer.h"
 
-
 #include <sptk5/cutils>
 
 namespace sptk {
@@ -66,6 +65,7 @@ private:
     static void handle_cmd_list(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident, const String& data);
     static void handle_cmd_append(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident, const String& data);
     static void handle_cmd_fetch(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident, const String& data);
+    static void handle_cmd_logout(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident);
 };
 
 

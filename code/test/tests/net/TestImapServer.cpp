@@ -38,6 +38,7 @@ enum class Command
 {
     Capability,
     Login,
+    Logout,
     Select,
     Examine,
     Close,
@@ -54,6 +55,7 @@ enum class Command
 const map<string, Command, less<>> commandMap = {
     {"capability", Command::Capability},
     {"login", Command::Login},
+    {"logout", Command::Logout},
     {"select", Command::Select},
     {"examine", Command::Examine},
     {"close", Command::Close},
@@ -104,6 +106,9 @@ void TestImapServer::readIncomingData(const shared_ptr<SocketReader>& socketRead
                     break;
                 case Login:
                     handle_cmd_login(socketReader, ident, matches[2].value);
+                    break;
+                case Logout:
+                    handle_cmd_logout(socketReader, ident);
                     break;
                 case Select:
                     handle_cmd_select(socketReader, ident);
@@ -285,6 +290,11 @@ void TestImapServer::handle_cmd_fetch(const shared_ptr<SocketReader>& socketRead
         reply(socketReader, "* 1 FETCH (FLAGS (\\Seen \\Answered))");
         reply(socketReader, format("{} OK FETCH completed", ident));
     }
+}
+
+void TestImapServer::handle_cmd_logout(const std::shared_ptr<SocketReader>& socketReader, const std::string& ident)
+{
+    socketReader->close();
 }
 
 void TestImapServer::imapSession(const ServerConnection& socket)

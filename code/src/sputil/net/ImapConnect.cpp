@@ -58,7 +58,8 @@ void ImapConnect::getResponse(const String& ident, const chrono::milliseconds ti
 
         if (longLine.empty())
         {
-            throw Exception("Unexpected empty response from server");
+            // Server closed connection.
+            break;
         }
 
         if (longLine[0] == '*')
