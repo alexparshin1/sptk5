@@ -26,10 +26,14 @@
 #ifndef _WIN32
 #include "sptk5/Printer.h"
 #include "sptk5/Stopwatch.h"
+#include "sptk5/db/DatabaseConnectionPool.h"
+#include "sptk5/db/Query.h"
+#include "sptk5/db/Transaction.h"
 #include "sptk5/net/RedisConnect.h"
 #include <chrono>
 #include <cstdlib>
 #include <gtest/gtest.h>
+#include <ocilibcpp/detail/Transaction.hpp>
 #include <thread>
 
 using namespace sptk;
@@ -151,6 +155,20 @@ TEST_F(RedisConnectTests, setOverwrites)
     redis.disconnect();
 }
 
+namespace {
+
+const String sessionJson = R"({
+    "session_id":12345,
+    "client_name":"client1",
+    "clean_session":true,
+    "subscriptions":[
+        {"id":12345, topic:"devices/usb/12345"},
+        {"id":12346, topic:"sensors/temperature/123456"}
+    ],
+})";
+
+}
+
 TEST_F(RedisConnectTests, performanceSingleThread)
 {
     constexpr auto iterations = 1000;
@@ -163,7 +181,7 @@ TEST_F(RedisConnectTests, performanceSingleThread)
     for (auto i = 0; i < iterations; ++i)
     {
         auto key = format("key_{}", i);
-        redis.set(key, "value1");
+        redis.set(key, sessionJson);
     }
     watch.stop();
     cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
@@ -182,19 +200,68 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
     vector<jthread> threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
-        threads.push_back(jthread([threadIndex, iterations]
-                                  {
-                                      RedisConnect redis;
-                                      redis.connect("10.1.1.242", 6379);
+        threads.emplace_back([threadIndex]
+                             {
+                                 RedisConnect redis;
+                                 redis.connect("10.1.1.242", 6379);
 
-                                      for (auto i = 0; i < iterations; ++i)
-                                      {
-                                          auto key = format("session_{}_{}", threadIndex, i);
-                                          redis.set(key, "value1-value2-value3");
-                                      }
+                                 for (auto i = 0; i < iterations; ++i)
+                                 {
+                                     auto key = format("session_{}_{}", threadIndex, i);
+                                     redis.set(key, sessionJson);
+                                 }
 
-                                      redis.disconnect();
-                                  }));
+                                 redis.disconnect();
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    watch.stop();
+    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
+{
+    DatabaseConnectionPool connectionPool("postgresql://gtest:test#123@theater/xmq_test");
+    auto                   db = connectionPool.getConnection();
+
+    Query dropTable(db, "DROP TABLE IF EXISTS test_table");
+    dropTable.exec();
+
+    Query createTable(db, "CREATE TABLE test_table (key VARCHAR(40) PRIMARY KEY, value VARCHAR)");
+    createTable.exec();
+
+    constexpr auto iterations = 1000;
+    constexpr auto threadCount = 128;
+
+    Stopwatch watch;
+    watch.start();
+
+    vector<jthread> threads;
+    for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        threads.emplace_back([threadIndex, &connectionPool]
+                             {
+                                 const auto conn = connectionPool.getConnection();
+                                 Query      insert(conn, "INSERT INTO test_table (key, value) VALUES (:key, :value)");
+
+                                 Transaction transaction(conn);
+                                 transaction.begin();
+                                 for (auto i = 0; i < iterations; ++i)
+                                 {
+                                     const auto key = format("session_{}_{}", threadIndex, i);
+                                     insert.param(0) = key;
+                                     insert.param(1) = sessionJson;
+                                     insert.exec();
+                                 }
+                                 transaction.commit();
+
+                                 conn->close();
+                             });
     }
 
     for (auto& thread: threads)
@@ -221,11 +288,11 @@ TEST_F(RedisConnectTests, scan)
 
     Strings keys;
     keys.resize(values.size());
-    transform(values.begin(), values.end(), keys.begin(), [](const Variant& value)
-              {
-                  COUT(format("key: {}", value.asString().c_str()));
-                  return value.asString();
-              });
+    ranges::transform(values, keys.begin(), [](const Variant& value)
+                      {
+                          COUT(format("key: {}", value.asString().c_str()));
+                          return value.asString();
+                      });
 
     // Expect two keys matched
     ASSERT_EQ(2, values.size());
