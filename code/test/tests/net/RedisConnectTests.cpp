@@ -33,7 +33,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <gtest/gtest.h>
-#include <ocilibcpp/detail/Transaction.hpp>
+#include <ranges>
 #include <thread>
 
 using namespace sptk;
@@ -62,6 +62,34 @@ TEST_F(RedisConnectTests, setGet)
 
     EXPECT_NO_THROW(redis.set(key, value));
     EXPECT_EQ(redis.get(key).asString(), value.asString());
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, mset)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    const RedisConnect::KeysAndValues testValues = {
+        {"orange", 120},
+        {"apple", 230},
+        {"watermelon", 3500}};
+
+    EXPECT_NO_THROW(redis.mset(testValues));
+
+    vector<string> keys;
+    for (const auto& key: views::keys(testValues))
+    {
+        keys.push_back(key);
+    }
+
+    auto results = redis.mget(keys);
+
+    for (const auto& [key, value]: testValues)
+    {
+        EXPECT_EQ(value.asString(), results[key].asString());
+    }
 
     redis.disconnect();
 }
@@ -185,9 +213,9 @@ const String sessionJson = R"({
 
 }
 
-TEST_F(RedisConnectTests, performanceSingleThread)
+TEST_F(RedisConnectTests, performanceSetSingleThread)
 {
-    constexpr auto iterations = 100;
+    constexpr auto iterations = 1000;
 
     RedisConnect redis;
     redis.connect("localhost", 6379);
@@ -199,6 +227,30 @@ TEST_F(RedisConnectTests, performanceSingleThread)
         auto key = format("key_{}", i);
         redis.set(key, sessionJson);
     }
+    watch.stop();
+    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, performanceMSetSingleThread)
+{
+    constexpr auto iterations = 1000;
+
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    Stopwatch watch;
+    watch.start();
+    RedisConnect::KeysAndValues keysAndValues;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        auto key = format("key_{}", i);
+        keysAndValues[key] = sessionJson;
+    }
+
+    redis.mset(keysAndValues);
+
     watch.stop();
     cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
 
@@ -299,21 +351,13 @@ TEST_F(RedisConnectTests, mget)
     redis.set("mget-key1", 12345);
     redis.set("mget-key2", 1234);
 
-    std::vector<Variant> values = redis.mget({"mget-key1", "mget-key2"});
-
-    Strings keys;
-    keys.resize(values.size());
-    ranges::transform(values, keys.begin(), [](const Variant& value)
-                      {
-                          COUT(format("key: {}", value.asString().c_str()));
-                          return value.asString();
-                      });
+    auto keysAndValues = redis.mget({"mget-key1", "mget-key2"});
 
     // Expect two keys matched
-    ASSERT_EQ(2, values.size());
+    ASSERT_EQ(2, keysAndValues.size());
 
-    EXPECT_NE(-1, keys.indexOf("12345"));
-    EXPECT_NE(-1, keys.indexOf("1234"));
+    EXPECT_EQ(12345, keysAndValues["mget-key1"].asInteger());
+    EXPECT_EQ(1234, keysAndValues["mget-key2"].asInteger());
 }
 
 TEST_F(RedisConnectTests, mgetPerformance)
@@ -337,7 +381,7 @@ TEST_F(RedisConnectTests, mgetPerformance)
 
     Stopwatch watch;
     watch.start();
-    std::vector<Variant> values = redis.mget(keys);
+    auto keysAndValues = redis.mget(keys);
     watch.stop();
 
     cout << format("Mget performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
@@ -379,36 +423,7 @@ TEST_F(RedisConnectTests, scanPerformance)
 
     ASSERT_TRUE(redis.isConnected());
 
-    constexpr auto iterations = 10;
-    vector<string> keys;
-    for (auto i = 0; i < iterations; ++i)
-    {
-        keys.push_back(format("scan-perf-key{}", i));
-    }
-
-    for (auto i = 0; i < iterations; ++i)
-    {
-        redis.set(keys[i], i);
-    }
-
-    Stopwatch watch;
-    watch.start();
-    const vector<Variant> keysFound = redis.scan("scan-perf-key{}", iterations);
-    watch.stop();
-
-    EXPECT_EQ(iterations, keysFound.size());
-
-    cout << format("Scan performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
-}
-
-TEST_F(RedisConnectTests, scanAndMgetPerformance)
-{
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
-    constexpr auto iterations = 10;
+    constexpr auto iterations = 100;
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
@@ -423,11 +438,40 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
     Stopwatch watch;
     watch.start();
     const vector<Variant> keysFound = redis.scan("scan-perf-key*", iterations);
-    const vector<Variant> values = redis.mget(keys);
     watch.stop();
 
     EXPECT_EQ(iterations, keysFound.size());
-    EXPECT_EQ(iterations, values.size());
+
+    cout << format("Scan performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, scanAndMgetPerformance)
+{
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto iterations = 10000;
+    vector<string> keys;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        keys.push_back(format("scan-perf-key{}", i));
+    }
+
+    for (auto i = 0; i < iterations; ++i)
+    {
+        redis.set(keys[i], i);
+    }
+
+    Stopwatch watch;
+    watch.start();
+    const vector<Variant> keysFound = redis.scan("scan-perf-key*", iterations);
+    const auto            keysAndValues = redis.mget(keys);
+    watch.stop();
+
+    EXPECT_EQ(iterations, keysFound.size());
+    EXPECT_EQ(iterations, keysAndValues.size());
 
     cout << format("Scan performance: {:3.1f} ms, {:3.2f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
 }

@@ -39,6 +39,8 @@ namespace sptk {
 class SP_EXPORT RedisConnect final
 {
 public:
+    using KeysAndValues = std::unordered_map<std::string, Variant>;
+
     /**
      * @brief Constructor
      */
@@ -83,7 +85,7 @@ public:
      * @param keys Key values.
      * @return Variant values.
      */
-    [[nodiscard]] std::vector<Variant> mget(const std::vector<std::string>& keys) const;
+    [[nodiscard]] KeysAndValues mget(const std::vector<std::string>& keys) const;
 
     /**
      * @brief Sets the key-value pair in Redis.
@@ -93,27 +95,33 @@ public:
     void set(const std::string& key, const Variant& value) const;
 
     /**
+     * @brief Sets the multiple key-value pair in Redis.
+     * @param keysAndValues Keys and corresponding values.
+     */
+    void mset(const KeysAndValues& keysAndValues) const;
+
+    /**
      * @brief Find keys matching the pattern.
      * The scan should start from cursor = 0 and stop after returned cursor is also 0.
      * @param pattern Pattern to match keys.
      * @param limit Match limit.
      * @return Matched keys.
      */
-    std::vector<Variant> scan(const std::string& pattern, size_t limit) const;
+    [[nodiscard]] std::vector<Variant> scan(const std::string& pattern, size_t limit) const;
 
     /**
      * @brief Remove keys.
      * @param keys The keys to remove.
      * @return The number of the removed keys.
      */
-    size_t remove(const std::vector<std::string>& keys) const;
+    [[nodiscard]] size_t remove(const std::vector<std::string>& keys) const;
 
     /**
      * @brief Increment the key.
      * @param key The key to increment.
      * @return The new key value.
      */
-    int64_t incr(const std::string& key) const;
+    [[nodiscard]] int64_t incr(const std::string& key) const;
 
 private:
     std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
@@ -122,9 +130,9 @@ private:
     /**
      * @brief Sends Redis command.
      * @param commandElements Redis command elements.
-     * @param results
+     * @param results Redis command output.
      */
-    void executeCommand(const std::vector<std::string_view>& commandElements, std::vector<Variant>& results) const;
+    void executeCommand(const std::vector<std::string>& commandElements, std::vector<Variant>& results) const;
 
     /**
      * @brief Reads a line from Redis.

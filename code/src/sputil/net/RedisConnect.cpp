@@ -40,23 +40,23 @@ vector<Variant> RedisConnect::connect(const string& host, int port,
     m_socket->open();
     m_reader = make_unique<SocketReader>(m_socket);
 
-    // Hello command in inline format.
-    string helloCommand = "HELLO 3";
+    vector<string> commandWords {"HELLO", "3"};
 
     if (!username.empty() && !password.empty())
     {
-        helloCommand += " AUTH " + username + " " + password;
+        commandWords.emplace_back("AUTH");
+        commandWords.emplace_back(username);
+        commandWords.emplace_back(password);
     }
 
     if (!clientName.empty())
     {
-        helloCommand += " SETNAME " + clientName;
+        commandWords.emplace_back("SETNAME");
+        commandWords.emplace_back(clientName);
     }
 
-    m_socket->write(helloCommand + "\r\n");
-
     vector<Variant> results;
-    readResponse(results);
+    executeCommand(commandWords, results);
 
     return results;
 }
@@ -77,62 +77,102 @@ void RedisConnect::disconnect()
 
 void RedisConnect::set(const std::string& key, const Variant& value) const
 {
-    vector<string_view> commandWords;
+    vector<string> commandWords;
     commandWords.emplace_back("SET");
     commandWords.push_back(key);
 
-    vector<Variant> results;
-
-    // Note: commandWords uses string_view, so local vars need to be used before going out of scope.
     switch (value.dataType())
     {
         using enum VariantDataType;
-        case VAR_BOOL: {
-            const string s = value.asBool() ? "true" : "false";
-            commandWords.emplace_back(s.c_str(), s.length());
-            executeCommand(commandWords, results);
+        case VAR_BOOL:
+            commandWords.emplace_back(value.asBool() ? "true" : "false");
             break;
-        }
 
         case VAR_INT:
         case VAR_INT64:
-        case VAR_FLOAT: {
-            const auto s = value.asString();
-            commandWords.emplace_back(s.c_str(), s.length());
-            executeCommand(commandWords, results);
+        case VAR_FLOAT:
+            commandWords.emplace_back(value.asString());
             break;
-        }
 
-        case VAR_DATE: {
-            const auto s = value.asDate().dateString();
-            commandWords.emplace_back(s.c_str(), s.length());
-            executeCommand(commandWords, results);
+        case VAR_DATE:
+            commandWords.emplace_back(value.asDate().dateString());
             break;
-        }
 
-        case VAR_DATE_TIME: {
-            const auto s = value.asDateTime().isoDateTimeString();
-            commandWords.emplace_back(s.c_str(), s.length());
-            executeCommand(commandWords, results);
+        case VAR_DATE_TIME:
+            commandWords.emplace_back(value.asDateTime().isoDateTimeString());
             break;
-        }
 
         case VAR_STRING:
         case VAR_TEXT:
-        case VAR_BUFFER: {
+        case VAR_BUFFER:
             commandWords.emplace_back(value.getString(), value.dataSize());
-            executeCommand(commandWords, results);
             break;
-        }
 
         case VAR_NONE:
             commandWords.emplace_back("_", 1);
-            executeCommand(commandWords, results);
             break;
 
         default:
             throw Exception("Redis: Unsupported variant type");
     }
+
+    vector<Variant> results;
+    executeCommand(commandWords, results);
+}
+
+void RedisConnect::mset(const KeysAndValues& keysAndValues) const
+{
+    if (keysAndValues.empty())
+    {
+        return;
+    }
+
+    vector<string> commandWords;
+    commandWords.emplace_back("MSET");
+    commandWords.reserve(keysAndValues.size() * 2 + 1);
+
+    for (const auto& [key, value]: keysAndValues)
+    {
+        commandWords.push_back(key);
+
+        switch (value.dataType())
+        {
+            using enum VariantDataType;
+            case VAR_BOOL:
+                commandWords.emplace_back(value.asBool() ? "true" : "false");
+                break;
+
+            case VAR_INT:
+            case VAR_INT64:
+            case VAR_FLOAT:
+                commandWords.emplace_back(value.asString());
+                break;
+
+            case VAR_DATE:
+                commandWords.emplace_back(value.asDate().dateString());
+                break;
+
+            case VAR_DATE_TIME:
+                commandWords.emplace_back(value.asDateTime().isoDateTimeString());
+                break;
+
+            case VAR_STRING:
+            case VAR_TEXT:
+            case VAR_BUFFER:
+                commandWords.emplace_back(value.getString(), value.dataSize());
+                break;
+
+            case VAR_NONE:
+                commandWords.emplace_back("_", 1);
+                break;
+
+            default:
+                throw Exception("Redis: Unsupported variant type");
+        }
+    }
+
+    vector<Variant> results;
+    executeCommand(commandWords, results);
 }
 
 std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit) const
@@ -143,7 +183,7 @@ std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit
     do
     {
         std::vector<Variant> iterationResults;
-        cursor = scan(pattern, cursor, iterationResults, 1000000);
+        cursor = scan(pattern, cursor, iterationResults, 100000);
         results.reserve(results.size() + iterationResults.size());
         ranges::copy(iterationResults, back_inserter(results));
     } while (cursor != 0 && results.size() < limit);
@@ -158,21 +198,22 @@ std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit
 
 size_t RedisConnect::remove(const std::vector<std::string>& keys) const
 {
-    vector<Variant>     results;
-    vector<string_view> commandWords = {"DEL"};
-    for (const auto& key: keys)
-    {
-        commandWords.emplace_back(key.c_str(), key.length());
-    }
+    vector<Variant> results;
+    vector<string>  commandWords = {"DEL"};
+
+    commandWords.reserve(keys.size() + 1);
+    ranges::copy(keys, back_inserter(commandWords));
+
     executeCommand(commandWords, results);
+
     const auto keysRemoved = results[0].asInteger();
     return keysRemoved;
 }
 
 int64_t RedisConnect::incr(const std::string& key) const
 {
-    const vector<string_view> commandWords = {"INCR", key};
-    vector<Variant>           results;
+    const vector<string> commandWords = {"INCR", key};
+    vector<Variant>      results;
 
     executeCommand(commandWords, results);
 
@@ -181,9 +222,9 @@ int64_t RedisConnect::incr(const std::string& key) const
 
 size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
 {
-    const auto          cursorStr = to_string(cursor);
-    const auto          countStr = to_string(limit);
-    vector<string_view> commandWords = {"SCAN", cursorStr, "MATCH", pattern};
+    const auto     cursorStr = to_string(cursor);
+    const auto     countStr = to_string(limit);
+    vector<string> commandWords = {"SCAN", cursorStr, "MATCH", pattern};
     if (limit != 0)
     {
         commandWords.emplace_back("COUNT");
@@ -204,8 +245,8 @@ size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, std::
 
 Variant RedisConnect::get(const std::string& key) const
 {
-    const vector<string_view> commandWords {"GET", key};
-    vector<Variant>           results;
+    const vector<string> commandWords {"GET", key};
+    vector<Variant>      results;
     executeCommand(commandWords, results);
     if (results.empty())
     {
@@ -215,20 +256,31 @@ Variant RedisConnect::get(const std::string& key) const
     return results[0];
 }
 
-std::vector<Variant> RedisConnect::mget(const std::vector<std::string>& keys) const
+RedisConnect::KeysAndValues RedisConnect::mget(const std::vector<std::string>& keys) const
 {
-    vector<string_view> commandWords {"MGET"};
+    vector<string> commandWords {"MGET"};
     commandWords.reserve(keys.size() + 1);
-    for (const auto& key: keys)
-    {
-        commandWords.emplace_back(key.c_str(), key.length());
-    }
+    ranges::copy(keys, std::back_inserter(commandWords));
+
     vector<Variant> results;
+    KeysAndValues   output;
+
     executeCommand(commandWords, results);
-    return results;
+
+    if (keys.size() != results.size())
+    {
+        throw Exception("RedisConnect: Keys and results do not match");
+    }
+
+    for (size_t i = 0; i < results.size(); ++i)
+    {
+        output[keys.at(i)] = std::move(results[i]);
+    }
+
+    return output;
 }
 
-void RedisConnect::executeCommand(const vector<string_view>& commandElements, vector<Variant>& results) const
+void RedisConnect::executeCommand(const vector<string>& commandElements, vector<Variant>& results) const
 {
     if (!m_socket->active())
     {
@@ -302,11 +354,11 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             throw Exception("Redis error: " + string(payload));
 
         case ':': // Integer
-            results.emplace_back(atoll(payload.data()), 0u);
+            results.emplace_back(strtoll(payload.data(), nullptr, 10), 0u);
             return;
 
         case '$': { // Bulk String
-            const auto len = atol(payload.data());
+            const auto len = strtoll(payload.data(), nullptr, 10);
             if (len == -1)
             {
                 results.emplace_back(); // Null
@@ -320,7 +372,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             return;
         }
         case '*': { // Array
-            const auto count = atol(payload.data());
+            const auto count = strtol(payload.data(), nullptr, 10);
             if (count == -1)
             {
                 results.emplace_back();
@@ -343,7 +395,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             results.emplace_back(strtod(payload.data(), nullptr));
             return;
         case '%': { // Map (RESP3)
-            const auto count = atol(payload.data());
+            const auto count = strtol(payload.data(), nullptr, 10);
             for (auto i = 0; i < count; ++i)
             {
                 vector<Variant> mapValues;
