@@ -22,7 +22,11 @@
 # │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 # └──────────────────────────────────────────────────────────────────────────────┘
 
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.15 FATAL_ERROR)
+
+set(TARGET_MESSAGES OFF)
+set(CMAKE_TARGET_MESSAGES OFF)
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 SET(VERSION_MAJOR "5")
 SET(VERSION_MINOR "6")

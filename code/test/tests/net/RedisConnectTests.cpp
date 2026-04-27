@@ -80,6 +80,22 @@ TEST_F(RedisConnectTests, setGetInt)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, incr)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    const string  key = "int_key";
+    const Variant value = static_cast<int64_t>(1234);
+
+    redis.set(key, value);
+    EXPECT_EQ(value.asInt64(), redis.get(key).asInt64());
+
+    EXPECT_EQ(value.asInt64() + 1, redis.incr(key));
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, setGetBool)
 {
     RedisConnect redis;

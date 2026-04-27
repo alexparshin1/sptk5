@@ -108,6 +108,13 @@ public:
      */
     size_t remove(const std::vector<std::string>& keys) const;
 
+    /**
+     * @brief Increment the key.
+     * @param key The key to increment.
+     * @return The new key value.
+     */
+    int64_t incr(const std::string& key) const;
+
 private:
     std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader

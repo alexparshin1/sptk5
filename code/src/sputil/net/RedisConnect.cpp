@@ -169,6 +169,16 @@ size_t RedisConnect::remove(const std::vector<std::string>& keys) const
     return keysRemoved;
 }
 
+int64_t RedisConnect::incr(const std::string& key) const
+{
+    const vector<string_view> commandWords = {"INCR", key};
+    vector<Variant>           results;
+
+    executeCommand(commandWords, results);
+
+    return results[0].asInt64();
+}
+
 size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
 {
     const auto          cursorStr = to_string(cursor);
