@@ -123,7 +123,7 @@ private:
      * @brief Reads a line from Redis.
      * @return A line from Redis.
      */
-    [[nodiscard]] std::string readLine() const;
+    [[nodiscard]] String readLine() const;
 
     /**
      * @brief Reads a response from Redis.

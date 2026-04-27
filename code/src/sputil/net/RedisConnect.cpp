@@ -250,7 +250,7 @@ void RedisConnect::executeCommand(const vector<string_view>& commandElements, ve
     readResponse(results);
 }
 
-string RedisConnect::readLine() const
+String RedisConnect::readLine() const
 {
     String line;
     if (m_reader->readLine(line) == 0)
@@ -273,14 +273,14 @@ string RedisConnect::readLine() const
 
 void RedisConnect::readResponse(vector<Variant>& results) const
 {
-    const string line = readLine();
+    const auto line = readLine();
     if (line.empty())
     {
         throw Exception("Redis: Empty response");
     }
 
-    const auto   type = line[0];
-    const string payload = line.substr(1);
+    const auto        type = line[0];
+    const string_view payload {line.c_str() + 1, line.size() - 1};
 
     switch (type)
     {
@@ -289,14 +289,14 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             return;
 
         case '-': // Error
-            throw Exception("Redis error: " + payload);
+            throw Exception("Redis error: " + string(payload));
 
         case ':': // Integer
-            results.emplace_back(stoll(payload), 0u);
+            results.emplace_back(atoll(payload.data()), 0u);
             return;
 
         case '$': { // Bulk String
-            const auto len = stol(payload);
+            const auto len = atol(payload.data());
             if (len == -1)
             {
                 results.emplace_back(); // Null
@@ -310,7 +310,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             return;
         }
         case '*': { // Array
-            const auto count = stol(payload);
+            const auto count = atol(payload.data());
             if (count == -1)
             {
                 results.emplace_back();
@@ -330,10 +330,10 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             results.emplace_back(payload == "t");
             return;
         case ',': // Double (RESP3)
-            results.emplace_back(stod(payload));
+            results.emplace_back(strtod(payload.data(), nullptr));
             return;
         case '%': { // Map (RESP3)
-            const auto count = stol(payload);
+            const auto count = atol(payload.data());
             for (auto i = 0; i < count; ++i)
             {
                 vector<Variant> mapValues;
