@@ -72,11 +72,18 @@ public:
     void disconnect();
 
     /**
-     * @brief Get a variant value for the key.
+     * @brief Get a value for the key.
      * @param key Key value.
      * @return Variant value.
      */
     [[nodiscard]] Variant get(const std::string& key) const;
+
+    /**
+     * @brief Get values for the keys.
+     * @param keys Key values.
+     * @return Variant values.
+     */
+    [[nodiscard]] std::vector<Variant> mget(const std::vector<std::string>& keys) const;
 
     /**
      * @brief Sets the key-value pair in Redis.
@@ -89,12 +96,17 @@ public:
      * @brief Find keys matching the pattern.
      * The scan should start from cursor = 0 and stop after returned cursor is also 0.
      * @param pattern Pattern to match keys.
-     * @param cursor Cursor.
-     * @param matchedKeys Output values.
      * @param limit Match limit.
-     * @return Cursor.
+     * @return Matched keys.
      */
-    size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const;
+    std::vector<Variant> scan(const std::string& pattern, size_t limit) const;
+
+    /**
+     * @brief Remove keys.
+     * @param keys The keys to remove.
+     * @return The number of the removed keys.
+     */
+    size_t remove(const std::vector<std::string>& keys) const;
 
 private:
     std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
@@ -103,8 +115,9 @@ private:
     /**
      * @brief Sends Redis command.
      * @param commandElements Redis command elements.
+     * @param results
      */
-    void sendCommand(const std::vector<std::string_view>& commandElements) const;
+    void executeCommand(const std::vector<std::string_view>& commandElements, std::vector<Variant>& results) const;
 
     /**
      * @brief Reads a line from Redis.
@@ -117,6 +130,17 @@ private:
      * @return Response as Variant.
      */
     void readResponse(std::vector<Variant>& results) const;
+
+    /**
+     * @brief Find keys matching the pattern.
+     * The scan should start from cursor = 0 and stop after returned cursor is also 0.
+     * @param pattern Pattern to match keys.
+     * @param cursor Cursor.
+     * @param matchedKeys Output values.
+     * @param limit Match limit.
+     * @return Cursor.
+     */
+    size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const;
 };
 
 } // namespace sptk

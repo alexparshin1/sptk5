@@ -171,7 +171,7 @@ const String sessionJson = R"({
 
 TEST_F(RedisConnectTests, performanceSingleThread)
 {
-    constexpr auto iterations = 1000;
+    constexpr auto iterations = 100;
 
     RedisConnect redis;
     redis.connect("localhost", 6379);
@@ -184,7 +184,7 @@ TEST_F(RedisConnectTests, performanceSingleThread)
         redis.set(key, sessionJson);
     }
     watch.stop();
-    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
 
     redis.disconnect();
 }
@@ -203,7 +203,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
         threads.emplace_back([threadIndex]
                              {
                                  RedisConnect redis;
-                                 redis.connect("10.1.1.242", 6379);
+                                 redis.connect("theater", 6379);
 
                                  for (auto i = 0; i < iterations; ++i)
                                  {
@@ -221,7 +221,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
     }
 
     watch.stop();
-    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
+    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
 }
 
 TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
@@ -270,21 +270,20 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
     }
 
     watch.stop();
-    cout << format("Set performance: {:0.1f} ms, {:0.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
+    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations * threadCount / watch.milliseconds());
 }
 
-TEST_F(RedisConnectTests, scan)
+TEST_F(RedisConnectTests, mget)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
 
     ASSERT_TRUE(redis.isConnected());
 
-    redis.set("test-key1", 12345);
-    redis.set("test-key2", 1234);
+    redis.set("mget-key1", 12345);
+    redis.set("mget-key2", 1234);
 
-    std::vector<Variant> values;
-    redis.scan("test-*", 0, values, 999999);
+    std::vector<Variant> values = redis.mget({"mget-key1", "mget-key2"});
 
     Strings keys;
     keys.resize(values.size());
@@ -297,8 +296,140 @@ TEST_F(RedisConnectTests, scan)
     // Expect two keys matched
     ASSERT_EQ(2, values.size());
 
-    EXPECT_NE(-1, keys.indexOf("test-key1"));
-    EXPECT_NE(-1, keys.indexOf("test-key2"));
+    EXPECT_NE(-1, keys.indexOf("12345"));
+    EXPECT_NE(-1, keys.indexOf("1234"));
+}
+
+TEST_F(RedisConnectTests, mgetPerformance)
+{
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto iterations = 10000;
+    vector<string> keys;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        keys.push_back(format("mget-perf-key{}", i));
+    }
+
+    for (auto i = 0; i < iterations; ++i)
+    {
+        redis.set(keys[i], i);
+    }
+
+    Stopwatch watch;
+    watch.start();
+    std::vector<Variant> values = redis.mget(keys);
+    watch.stop();
+
+    cout << format("Mget performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, scan)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    redis.set("scan-key1", 12345);
+    redis.set("scan-key2", 1234);
+
+    std::vector<Variant> values = redis.scan("scan-*", 2);
+
+    Strings keys;
+    keys.resize(values.size());
+    ranges::transform(values, keys.begin(), [](const Variant& value)
+                      {
+                          COUT(format("key: {}", value.asString().c_str()));
+                          return value.asString();
+                      });
+
+    // Expect two keys matched
+    ASSERT_EQ(2, values.size());
+
+    EXPECT_NE(-1, keys.indexOf("scan-key1"));
+    EXPECT_NE(-1, keys.indexOf("scan-key2"));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, scanPerformance)
+{
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto iterations = 10;
+    vector<string> keys;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        keys.push_back(format("scan-perf-key{}", i));
+    }
+
+    for (auto i = 0; i < iterations; ++i)
+    {
+        redis.set(keys[i], i);
+    }
+
+    Stopwatch watch;
+    watch.start();
+    const vector<Variant> keysFound = redis.scan("scan-perf-key{}", iterations);
+    watch.stop();
+
+    EXPECT_EQ(iterations, keysFound.size());
+
+    cout << format("Scan performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, scanAndMgetPerformance)
+{
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto iterations = 10;
+    vector<string> keys;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        keys.push_back(format("scan-perf-key{}", i));
+    }
+
+    for (auto i = 0; i < iterations; ++i)
+    {
+        redis.set(keys[i], i);
+    }
+
+    Stopwatch watch;
+    watch.start();
+    const vector<Variant> keysFound = redis.scan("scan-perf-key*", iterations);
+    const vector<Variant> values = redis.mget(keys);
+    watch.stop();
+
+    EXPECT_EQ(iterations, keysFound.size());
+    EXPECT_EQ(iterations, values.size());
+
+    cout << format("Scan performance: {:3.1f} ms, {:3.2f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, remove)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    redis.set("remove-key1", 12345);
+    redis.set("remove-key2", 1234);
+
+    const auto removeCount = redis.remove({"remove-key1", "remove-key2", "remove-key3"});
+
+    // Expect two keys removed
+    ASSERT_EQ(2, removeCount);
 
     redis.disconnect();
 }

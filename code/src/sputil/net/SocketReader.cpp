@@ -361,7 +361,7 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
 
         auto* destination = destinationBuffer.data() + total;
 
-        auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
+        const auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
         if (bytes == 0)
         { // No more data
             break;

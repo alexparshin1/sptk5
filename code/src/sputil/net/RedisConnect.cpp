@@ -77,14 +77,11 @@ void RedisConnect::disconnect()
 
 void RedisConnect::set(const std::string& key, const Variant& value) const
 {
-    if (!m_socket->active())
-    {
-        throw Exception("RedisConnect: Not connected");
-    }
-
     vector<string_view> commandWords;
     commandWords.emplace_back("SET");
     commandWords.push_back(key);
+
+    vector<Variant> results;
 
     // Note: commandWords uses string_view, so local vars need to be used before going out of scope.
     switch (value.dataType())
@@ -93,7 +90,7 @@ void RedisConnect::set(const std::string& key, const Variant& value) const
         case VAR_BOOL: {
             const string s = value.asBool() ? "true" : "false";
             commandWords.emplace_back(s.c_str(), s.length());
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
         }
 
@@ -102,21 +99,21 @@ void RedisConnect::set(const std::string& key, const Variant& value) const
         case VAR_FLOAT: {
             const auto s = value.asString();
             commandWords.emplace_back(s.c_str(), s.length());
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
         }
 
         case VAR_DATE: {
             const auto s = value.asDate().dateString();
             commandWords.emplace_back(s.c_str(), s.length());
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
         }
 
         case VAR_DATE_TIME: {
             const auto s = value.asDateTime().isoDateTimeString();
             commandWords.emplace_back(s.c_str(), s.length());
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
         }
 
@@ -124,30 +121,56 @@ void RedisConnect::set(const std::string& key, const Variant& value) const
         case VAR_TEXT:
         case VAR_BUFFER: {
             commandWords.emplace_back(value.getString(), value.dataSize());
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
         }
 
         case VAR_NONE:
             commandWords.emplace_back("_", 1);
-            sendCommand(commandWords);
+            executeCommand(commandWords, results);
             break;
 
         default:
             throw Exception("Redis: Unsupported variant type");
     }
-
-    vector<Variant> results;
-    readResponse(results);
 }
 
-size_t RedisConnect::scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
+std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit) const
 {
-    if (!m_socket->active())
+    std::vector<Variant> results;
+
+    size_t cursor = 0;
+    do
     {
-        throw Exception("RedisConnect: Not connected");
+        std::vector<Variant> iterationResults;
+        cursor = scan(pattern, cursor, iterationResults, 1000000);
+        results.reserve(results.size() + iterationResults.size());
+        ranges::copy(iterationResults, back_inserter(results));
+    } while (cursor != 0 && results.size() < limit);
+
+    if (results.size() > limit)
+    {
+        results.resize(limit);
     }
 
+    return results;
+}
+
+size_t RedisConnect::remove(const std::vector<std::string>& keys) const
+{
+    vector<Variant>     results;
+    vector<string_view> commandWords = {"DEL"};
+    for (const auto& key: keys)
+    {
+        commandWords.emplace_back(key.c_str(), key.length());
+    }
+    executeCommand(commandWords, results);
+    const auto keysRemoved = results[0].asInteger();
+    return keysRemoved;
+}
+
+size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
+{
     const auto          cursorStr = to_string(cursor);
     const auto          countStr = to_string(limit);
     vector<string_view> commandWords = {"SCAN", cursorStr, "MATCH", pattern};
@@ -156,9 +179,8 @@ size_t RedisConnect::scan(const std::string& pattern, size_t cursor, std::vector
         commandWords.emplace_back("COUNT");
         commandWords.push_back(countStr);
     }
-    sendCommand(commandWords);
 
-    readResponse(matchedKeys);
+    executeCommand(commandWords, matchedKeys);
 
     if (!matchedKeys.empty())
     {
@@ -172,17 +194,9 @@ size_t RedisConnect::scan(const std::string& pattern, size_t cursor, std::vector
 
 Variant RedisConnect::get(const std::string& key) const
 {
-    if (!m_socket->active())
-    {
-        throw Exception("RedisConnect: Not connected");
-    }
-
     const vector<string_view> commandWords {"GET", key};
-    sendCommand(commandWords);
-
-    vector<Variant> results;
-    readResponse(results);
-
+    vector<Variant>           results;
+    executeCommand(commandWords, results);
     if (results.empty())
     {
         return {};
@@ -191,36 +205,70 @@ Variant RedisConnect::get(const std::string& key) const
     return results[0];
 }
 
-void RedisConnect::sendCommand(const vector<string_view>& commandElements) const
+std::vector<Variant> RedisConnect::mget(const std::vector<std::string>& keys) const
 {
+    vector<string_view> commandWords {"MGET"};
+    commandWords.reserve(keys.size() + 1);
+    for (const auto& key: keys)
+    {
+        commandWords.emplace_back(key.c_str(), key.length());
+    }
+    vector<Variant> results;
+    executeCommand(commandWords, results);
+    return results;
+}
+
+void RedisConnect::executeCommand(const vector<string_view>& commandElements, vector<Variant>& results) const
+{
+    if (!m_socket->active())
+    {
+        throw Exception("RedisConnect: Not connected");
+    }
+
     if (commandElements.empty())
     {
         throw Exception("Redis: Empty command data");
     }
 
-    Buffer buffer;
-    buffer.append(format("*{}\r\n", commandElements.size()));
+    size_t expectedLength = 0;
+    for (const auto& commandElement: commandElements)
+    {
+        expectedLength += commandElement.size() + 10;
+    }
+
+    Buffer buffer(expectedLength);
+    buffer.append(format("*{}", commandElements.size()));
 
     for (const auto& commandElement: commandElements)
     {
-        buffer.append(format("${}\r\n", commandElement.size()));
+        buffer.append(format("\r\n${}\r\n", commandElement.size()));
         buffer.append(reinterpret_cast<const uint8_t*>(commandElement.data()), commandElement.size());
-        buffer.append(reinterpret_cast<const uint8_t*>("\r\n"), 2);
     }
+    buffer.append(reinterpret_cast<const uint8_t*>("\r\n"), 2);
     m_socket->write(buffer.data(), buffer.bytes());
+
+    readResponse(results);
 }
 
 string RedisConnect::readLine() const
 {
     String line;
-    m_reader->readLine(line);
-    // Remove \r from the end if present
-    string s = line.c_str();
-    if (!s.empty() && s.back() == '\r')
+    if (m_reader->readLine(line) == 0)
     {
-        s.pop_back();
+        if (!m_reader->readyToRead(10s))
+        {
+            throw Exception("Redis: Server read timeout");
+        }
+        m_reader->readLine(line);
     }
-    return s;
+
+    // Remove \r from the end if present
+    if (!line.empty() && line.back() == '\r')
+    {
+        line.resize(line.size() - 1);
+    }
+
+    return line;
 }
 
 void RedisConnect::readResponse(vector<Variant>& results) const
@@ -231,7 +279,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
         throw Exception("Redis: Empty response");
     }
 
-    const char   type = line[0];
+    const auto   type = line[0];
     const string payload = line.substr(1);
 
     switch (type)
@@ -256,8 +304,8 @@ void RedisConnect::readResponse(vector<Variant>& results) const
             }
             Buffer buffer;
             Buffer trailing;
-            m_reader->read(buffer, len);
-            m_reader->read(trailing, 2); // Read exactly \r\n
+            m_reader->read(buffer, len + 2);  // Also read \r\n
+            buffer.bytes(buffer.bytes() - 2); // Cut off \r\n
             results.emplace_back(buffer);
             return;
         }
@@ -268,7 +316,7 @@ void RedisConnect::readResponse(vector<Variant>& results) const
                 results.emplace_back();
                 return;
             }
-            // For now, we only support simple responses, but we must consume the array
+            // For read the array
             for (auto i = 0; i < count; ++i)
             {
                 readResponse(results);
