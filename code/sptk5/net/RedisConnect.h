@@ -30,15 +30,36 @@
 #include "sptk5/net/SocketReader.h"
 #include "sptk5/net/TCPSocket.h"
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace sptk {
+
+/**
+ * @brief Redis-specific exception.
+ */
+class RedisConnectException : public Exception
+{
+public:
+    /**
+     * @brief Constructor.
+     * @param message Error message.
+     */
+    RedisConnectException(const std::string& message)
+        : Exception(message)
+    {
+    }
+};
+
 /**
  * @brief Redis Client.
+ * @remarks Only the limited set of Redis methods is implemented.
+ * @remarks This class is thread-safe.
  */
 class SP_EXPORT RedisConnect final
 {
 public:
+    using Command = std::vector<std::string>;
     using KeysAndValues = std::unordered_map<std::string, Variant>;
 
     /**
@@ -101,6 +122,28 @@ public:
     void mset(const KeysAndValues& keysAndValues) const;
 
     /**
+     * @brief Sets the multiple key-value pair in Redis.
+     * @param hash Hash name.
+     * @param keysAndValues Keys and corresponding values of hash elements.
+     */
+    void hset(const std::string& hash, const KeysAndValues& keysAndValues) const;
+
+    /**
+     * @brief Gets list of the hash keys.
+     * @param hashName Hash name (key).
+     * @return List of keys of the hash.
+     */
+    [[nodiscard]] std::vector<std::string> hkeys(const std::string& hashName) const;
+
+    /**
+     * @brief Gets list of the hash keys.
+     * @param hash Hash name.
+     * @param keys Keys of the hash values.
+     * @return Keys and values matching the passed keys of the hash.
+     */
+    [[nodiscard]] KeysAndValues hmget(const std::string& hash, const std::vector<std::string>& keys) const;
+
+    /**
      * @brief Find keys matching the pattern.
      * The scan should start from cursor = 0 and stop after returned cursor is also 0.
      * @param pattern Pattern to match keys.
@@ -123,16 +166,35 @@ public:
      */
     [[nodiscard]] int64_t incr(const std::string& key) const;
 
+    /**
+     * @brief Rename a key.
+     * @param oldKey The current key name.
+     * @param newKey The new key name.
+     * @throws RedisConnectException if the old key does not exist.
+     * @note If newKey already exists, it will be overwritten.
+     */
+    void rename(const std::string& oldKey, const std::string& newKey) const;
+
+    /**
+     * @brief Rename a key only if the new key does not exist.
+     * @param oldKey The current key name.
+     * @param newKey The new key name.
+     * @return True if the key was renamed, false if newKey already exists.
+     * @throws RedisConnectException if the old key does not exist.
+     */
+    [[nodiscard]] bool renameNX(const std::string& oldKey, const std::string& newKey) const;
+
 private:
     std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader
+    mutable std::mutex            m_mutex;  ///< Mutex for thread safety
 
     /**
      * @brief Sends Redis command.
-     * @param commandElements Redis command elements.
+     * @param command Redis command elements.
      * @param results Redis command output.
      */
-    void executeCommand(const std::vector<std::string>& commandElements, std::vector<Variant>& results) const;
+    void executeCommand(const Command& command, std::vector<Variant>& results) const;
 
     /**
      * @brief Reads a line from Redis.
@@ -156,6 +218,12 @@ private:
      * @return Cursor.
      */
     size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const;
+
+    /**
+     * @brief Append value to the command.
+     * @param value Value to append.
+     */
+    static std::string serialize(const Variant& value);
 };
 
 } // namespace sptk

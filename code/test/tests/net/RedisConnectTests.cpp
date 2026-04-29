@@ -211,7 +211,9 @@ const String sessionJson = R"({
     ],
 })";
 
-}
+const String subscriptionJson = R"({"session_id":12345,"id":12345, topic:"devices/usb/12345","qos":1})";
+
+} // namespace
 
 TEST_F(RedisConnectTests, performanceSetSingleThread)
 {
@@ -240,8 +242,8 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
     RedisConnect redis;
     redis.connect("theater", 6379);
 
-    Stopwatch watch;
-    watch.start();
+    Stopwatch stopwatch;
+    stopwatch.start();
     RedisConnect::KeysAndValues keysAndValues;
     for (auto i = 0; i < iterations; ++i)
     {
@@ -251,8 +253,8 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
 
     redis.mset(keysAndValues);
 
-    watch.stop();
-    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+    stopwatch.stop();
+    cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", stopwatch.milliseconds(), iterations / stopwatch.milliseconds());
 
     redis.disconnect();
 }
@@ -490,6 +492,455 @@ TEST_F(RedisConnectTests, remove)
 
     // Expect two keys removed
     ASSERT_EQ(2, removeCount);
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hset)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", 12345},
+        {"field3", 3.45678}};
+
+    EXPECT_NO_THROW(redis.hset(hash, testValues));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hkeys)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_keys";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", "value2"},
+        {"field3", "value3"}};
+
+    redis.hset(hash, testValues);
+
+    const auto keys = redis.hkeys(hash);
+
+    set<string> keysFound;
+    for (const auto& key: keys)
+    {
+        keysFound.insert(key);
+    }
+
+    ASSERT_EQ(3, keys.size());
+
+    EXPECT_TRUE(keysFound.contains("field1"));
+    EXPECT_TRUE(keysFound.contains("field2"));
+    EXPECT_TRUE(keysFound.contains("field3"));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hmget)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_mget";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", 12345},
+        {"field3", 3.45678}};
+
+    redis.hset(hash, testValues);
+
+    auto keysAndValues = redis.hmget(hash, {"field1", "field2", "field3"});
+
+    ASSERT_EQ(3, keysAndValues.size());
+
+    EXPECT_EQ("value1", keysAndValues["field1"].asString());
+    EXPECT_EQ(12345, keysAndValues["field2"].asInteger());
+    EXPECT_NEAR(3.45678, keysAndValues["field3"].asFloat(), 0.00001);
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hmgetNonExistentField)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_missing";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", "value2"}};
+
+    redis.hset(hash, testValues);
+
+    auto keysAndValues = redis.hmget(hash, {"field1", "non_existent_field"});
+
+    ASSERT_EQ(2, keysAndValues.size());
+
+    EXPECT_EQ("value1", keysAndValues["field1"].asString());
+    EXPECT_EQ("", keysAndValues["non_existent_field"].asString());
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hsetPerformance)
+{
+    constexpr size_t maxHashes = 100;
+    constexpr size_t maxKeysPerHash = 100;
+    constexpr size_t maxThreads = 16;
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+
+    vector<jthread> threads;
+    for (size_t i = 0; i < maxThreads; i++)
+    {
+        threads.emplace_back([threadNumber = i]
+                             {
+                                 RedisConnect redis;
+                                 redis.connect("theater", 6379);
+
+                                 for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
+                                 {
+                                     auto hashName = format("hash_{}_{}", threadNumber, hashIndex);
+                                     for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
+                                     {
+                                         const RedisConnect::KeysAndValues testValues = {
+                                             {format("message_{}", keyIndex), subscriptionJson},
+                                         };
+                                         redis.hset(hashName, testValues);
+                                     }
+                                 }
+
+                                 redis.disconnect();
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    stopwatch.stop();
+
+    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+}
+
+TEST_F(RedisConnectTests, hsetGroupPerformance)
+{
+    constexpr size_t maxHashes = 100;
+    constexpr size_t maxKeysPerHash = 100;
+    constexpr size_t maxThreads = 4;
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+
+    vector<jthread> threads;
+    for (size_t i = 0; i < maxThreads; i++)
+    {
+        threads.emplace_back([threadNumber = i]
+                             {
+                                 RedisConnect redis;
+                                 redis.connect("theater", 6379);
+
+                                 for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
+                                 {
+                                     auto                        hashName = format("hash_{}_{}", threadNumber, hashIndex);
+                                     RedisConnect::KeysAndValues testValues;
+                                     for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
+                                     {
+                                         testValues[format("message_{}", keyIndex)] = subscriptionJson;
+                                     }
+                                     redis.hset(hashName, testValues);
+                                 }
+
+                                 redis.disconnect();
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    stopwatch.stop();
+
+    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+}
+
+TEST_F(RedisConnectTests, hmgetPerformance)
+{
+    constexpr size_t maxHashes = 100;
+    constexpr size_t maxKeysPerHash = 100;
+
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
+    {
+        auto                        hashName = format("hash_mget_{}", hashIndex);
+        RedisConnect::KeysAndValues testValues;
+        for (size_t keyIndex = 0; keyIndex < maxKeysPerHash; ++keyIndex)
+        {
+            testValues[format("message_{}", keyIndex)] = subscriptionJson;
+        }
+        redis.hset(hashName, testValues);
+    }
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+
+    for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
+    {
+        auto hashName = format("hash_mget_{}", hashIndex);
+        auto hashKeys = redis.hkeys(hashName);
+        auto values = redis.hmget(hashName, hashKeys);
+    }
+
+    stopwatch.stop();
+
+    COUT(format("Get {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxHashes, maxKeysPerHash, maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, rename)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string oldKey = "rename_test_old";
+    const string newKey = "rename_test_new";
+    const string value = "test_value";
+
+    // Set initial value
+    redis.set(oldKey, Variant(value));
+    EXPECT_EQ(value, redis.get(oldKey).asString());
+
+    // Rename the key
+    EXPECT_NO_THROW(redis.rename(oldKey, newKey));
+
+    // Verify old key doesn't exist and new key has the value
+    EXPECT_EQ("", redis.get(oldKey).asString());
+    EXPECT_EQ(value, redis.get(newKey).asString());
+
+    // Clean up
+    (void) redis.remove({newKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, renameOverwrite)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string oldKey = "rename_overwrite_old";
+    const string newKey = "rename_overwrite_new";
+    const string value1 = "value1";
+    const string value2 = "value2";
+
+    // Set both keys
+    redis.set(oldKey, Variant(value1));
+    redis.set(newKey, Variant(value2));
+
+    // Rename should overwrite newKey
+    EXPECT_NO_THROW(redis.rename(oldKey, newKey));
+
+    // Verify newKey has value1 (from oldKey)
+    EXPECT_EQ(value1, redis.get(newKey).asString());
+
+    // Clean up
+    (void) redis.remove({newKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, renameNonExistentKey)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    // Try to rename a non-existent key
+    EXPECT_THROW(redis.rename("nonexistent_key_12345", "new_key_12345"), RedisConnectException);
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, renameNX)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string oldKey = "renamenx_test_old";
+    const string newKey = "renamenx_test_new";
+    const string value = "test_value";
+
+    // Clean up any previous test data
+    (void) redis.remove({oldKey, newKey});
+
+    // Set initial value
+    redis.set(oldKey, Variant(value));
+
+    // RenameNX should succeed when newKey doesn't exist
+    EXPECT_TRUE(redis.renameNX(oldKey, newKey));
+
+    // Verify old key doesn't exist and new key has the value
+    EXPECT_EQ("", redis.get(oldKey).asString());
+    EXPECT_EQ(value, redis.get(newKey).asString());
+
+    // Clean up
+    (void) redis.remove({newKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, renameNXExistingKey)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string oldKey = "renamenx_existing_old";
+    const string newKey = "renamenx_existing_new";
+    const string value1 = "value1";
+    const string value2 = "value2";
+
+    // Set both keys
+    redis.set(oldKey, Variant(value1));
+    redis.set(newKey, Variant(value2));
+
+    // RenameNX should fail when newKey already exists
+    EXPECT_FALSE(redis.renameNX(oldKey, newKey));
+
+    // Verify both keys still have their original values
+    EXPECT_EQ(value1, redis.get(oldKey).asString());
+    EXPECT_EQ(value2, redis.get(newKey).asString());
+
+    // Clean up
+    (void) redis.remove({oldKey, newKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, renameHash)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string oldKey = "hash_old";
+    const string newKey = "hash_new";
+    const string value = "test_value";
+
+    // Set initial value
+    redis.hset(oldKey, {{"akey", 1234}});
+    auto keysAndValues = redis.hmget(oldKey, {"akey"});
+    EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
+
+    // Rename the key
+    EXPECT_NO_THROW(redis.rename(oldKey, newKey));
+
+    // Verify old key doesn't exist and new key has the value
+    keysAndValues = redis.hmget(oldKey, {"akey"});
+    EXPECT_EQ(0, keysAndValues["akey"].asInteger());
+
+    keysAndValues = redis.hmget(newKey, {"akey"});
+    EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
+
+    // Clean up
+    (void) redis.remove({newKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, threadSafety)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto threadCount = 10;
+    constexpr auto operationsPerThread = 100;
+
+    // Clean up keys from previous test runs
+    vector<string> keysToDelete;
+    for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        keysToDelete.push_back(format("threadsafe_incr_{}", threadIndex));
+        keysToDelete.push_back(format("threadsafe_hash_{}", threadIndex));
+        for (auto i = 0; i < operationsPerThread; ++i)
+        {
+            keysToDelete.push_back(format("threadsafe_key_{}_{}", threadIndex, i));
+        }
+    }
+    (void) redis.remove(keysToDelete);
+
+    vector<jthread> threads;
+    for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        threads.emplace_back([&redis, threadIndex]
+                             {
+                                 for (auto i = 0; i < operationsPerThread; ++i)
+                                 {
+                                     const auto key = format("threadsafe_key_{}_{}", threadIndex, i);
+                                     const auto value = format("value_{}_{}", threadIndex, i);
+
+                                     // Test set/get operations
+                                     redis.set(key, Variant(value));
+                                     const auto retrieved = redis.get(key).asString();
+                                     EXPECT_EQ(value, retrieved);
+
+                                     // Test incr operation
+                                     const auto incrKey = format("threadsafe_incr_{}", threadIndex);
+                                     (void) redis.incr(incrKey);
+
+                                     // Test hash operations
+                                     const auto                        hashKey = format("threadsafe_hash_{}", threadIndex);
+                                     const RedisConnect::KeysAndValues hashValues = {{format("field_{}", i), Variant(value)}};
+                                     redis.hset(hashKey, hashValues);
+                                     const auto keys = redis.hkeys(hashKey);
+                                     EXPECT_FALSE(keys.empty());
+                                 }
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    // Verify incr results
+    for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
+    {
+        const auto incrKey = format("threadsafe_incr_{}", threadIndex);
+        const auto value = redis.get(incrKey).asInt64();
+        EXPECT_EQ(operationsPerThread, value);
+    }
 
     redis.disconnect();
 }
