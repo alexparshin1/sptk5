@@ -79,7 +79,7 @@ public:
      * @param clientName Optional client name.
      * @return Server information.
      */
-    std::vector<Variant> connect(const std::string& host, int port,
+    std::vector<Variant> connect(const std::string& host, int port = 6379,
                                  const std::string& username = "", const std::string& password = "",
                                  const std::string& clientName = "");
 
@@ -184,8 +184,35 @@ public:
      */
     [[nodiscard]] bool renameNX(const std::string& oldKey, const std::string& newKey) const;
 
+    /**
+     * @brief Begin a transaction block.
+     * @details Marks the start of a transaction. Subsequent commands will be queued
+     *          and executed atomically when commitTransaction() is called.
+     *          Corresponds to Redis MULTI command.
+     * @throws RedisConnectException if already in a transaction or not connected.
+     */
+    void beginTransaction() const;
+
+    /**
+     * @brief Commit and execute all queued commands in a transaction.
+     * @details Executes all commands queued since beginTransaction() atomically.
+     *          Corresponds to Redis EXEC command.
+     * @return Results from all executed commands.
+     * @throws RedisConnectException if not in a transaction or not connected.
+     */
+    [[nodiscard]] std::vector<Variant> commitTransaction() const;
+
+    /**
+     * @brief Discard all queued commands in a transaction.
+     * @details Discards all commands queued since beginTransaction() without executing them.
+     *          Corresponds to Redis DISCARD command.
+     * @throws RedisConnectException if not in a transaction or not connected.
+     */
+    void rollbackTransaction() const;
+
 private:
-    std::shared_ptr<TCPSocket>    m_socket; ///< Underlying socket
+    std::shared_ptr<TCPSocket>
+                                  m_socket; ///< Underlying socket
     std::unique_ptr<SocketReader> m_reader; ///< Socket reader
     mutable std::mutex            m_mutex;  ///< Mutex for thread safety
 
@@ -225,5 +252,7 @@ private:
      */
     static std::string serialize(const Variant& value);
 };
+
+using SRedisConnect = std::shared_ptr<RedisConnect>;
 
 } // namespace sptk

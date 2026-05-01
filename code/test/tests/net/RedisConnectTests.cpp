@@ -877,6 +877,175 @@ TEST_F(RedisConnectTests, renameHash)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, transactionBasic)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key1 = "txn_key1";
+    const string key2 = "txn_key2";
+    const string value1 = "value1";
+    const string value2 = "value2";
+
+    // Clean up any previous test data
+    (void) redis.remove({key1, key2});
+
+    // Begin transaction
+    EXPECT_NO_THROW(redis.beginTransaction());
+
+    // Queue commands
+    redis.set(key1, Variant(value1));
+    redis.set(key2, Variant(value2));
+
+    // Commit transaction
+    auto results = redis.commitTransaction();
+
+    // Verify results - EXEC returns array of results
+    EXPECT_FALSE(results.empty());
+
+    // Verify values were set
+    EXPECT_EQ(value1, redis.get(key1).asString());
+    EXPECT_EQ(value2, redis.get(key2).asString());
+
+    // Clean up
+    (void) redis.remove({key1, key2});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, transactionRollback)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "txn_rollback_key";
+    const string initialValue = "initial";
+    const string newValue = "new";
+
+    // Set initial value
+    redis.set(key, Variant(initialValue));
+    EXPECT_EQ(initialValue, redis.get(key).asString());
+
+    // Begin transaction
+    EXPECT_NO_THROW(redis.beginTransaction());
+
+    // Queue command
+    redis.set(key, Variant(newValue));
+
+    // Rollback transaction
+    EXPECT_NO_THROW(redis.rollbackTransaction());
+
+    // Verify value was NOT changed
+    EXPECT_EQ(initialValue, redis.get(key).asString());
+
+    // Clean up
+    (void) redis.remove({key});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, transactionMultipleOperations)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key1 = "txn_multi_key1";
+    const string key2 = "txn_multi_key2";
+    const string key3 = "txn_multi_incr";
+
+    // Clean up any previous test data
+    (void) redis.remove({key1, key2, key3});
+
+    // Begin transaction
+    redis.beginTransaction();
+
+    // Queue multiple different operations
+    redis.set(key1, Variant("value1"));
+    redis.set(key2, Variant(42));
+    redis.incr(key3);
+    redis.incr(key3);
+    redis.incr(key3);
+
+    // Commit transaction
+    auto results = redis.commitTransaction();
+
+    // Verify all operations executed
+    EXPECT_EQ("value1", redis.get(key1).asString());
+    EXPECT_EQ(42, redis.get(key2).asInteger());
+    EXPECT_EQ(3, redis.get(key3).asInteger());
+
+    // Clean up
+    (void) redis.remove({key1, key2, key3});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, transactionWithHash)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string hashKey = "txn_hash";
+
+    // Clean up any previous test data
+    (void) redis.remove({hashKey});
+
+    // Begin transaction
+    redis.beginTransaction();
+
+    // Queue hash operations
+    redis.hset(hashKey, {{"field1", 100}, {"field2", 200}});
+
+    // Commit transaction
+    auto results = redis.commitTransaction();
+
+    // Verify hash was set
+    auto values = redis.hmget(hashKey, {"field1", "field2"});
+    EXPECT_EQ(100, values["field1"].asInteger());
+    EXPECT_EQ(200, values["field2"].asInteger());
+
+    // Clean up
+    (void) redis.remove({hashKey});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, transactionCommitWithoutBegin)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    // Try to commit without beginning a transaction
+    // Redis will return an error
+    EXPECT_THROW((void) redis.commitTransaction(), RedisConnectException);
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    // Try to rollback without beginning a transaction
+    // Redis will return an error
+    EXPECT_THROW(redis.rollbackTransaction(), RedisConnectException);
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, threadSafety)
 {
     RedisConnect redis;

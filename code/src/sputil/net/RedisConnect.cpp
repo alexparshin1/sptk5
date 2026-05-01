@@ -237,6 +237,38 @@ bool RedisConnect::renameNX(const std::string& oldKey, const std::string& newKey
     return results[0].asInteger() == 1;
 }
 
+void RedisConnect::beginTransaction() const
+{
+    scoped_lock lock(m_mutex);
+
+    const Command command = {"MULTI"};
+    vector<Variant> results;
+
+    executeCommand(command, results);
+}
+
+vector<Variant> RedisConnect::commitTransaction() const
+{
+    scoped_lock lock(m_mutex);
+
+    const Command command = {"EXEC"};
+    vector<Variant> results;
+
+    executeCommand(command, results);
+
+    return results;
+}
+
+void RedisConnect::rollbackTransaction() const
+{
+    scoped_lock lock(m_mutex);
+
+    const Command command = {"DISCARD"};
+    vector<Variant> results;
+
+    executeCommand(command, results);
+}
+
 void RedisConnect::hset(const std::string& hash, const KeysAndValues& keysAndValues) const
 {
     if (keysAndValues.empty())
