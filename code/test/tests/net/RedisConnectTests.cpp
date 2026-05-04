@@ -507,7 +507,7 @@ TEST_F(RedisConnectTests, hsetSingleKey)
     const string key = "test";
     Variant      value(3.45678);
 
-    redis.remove({hash});
+    (void) redis.remove({hash});
 
     EXPECT_NO_THROW(redis.hset(hash, key, value));
     auto keysAndValues = redis.hmget(hash, {key});
