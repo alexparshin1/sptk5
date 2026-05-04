@@ -149,6 +149,20 @@ void RedisConnect::mset(const KeysAndValues& keysAndValues) const
     executeCommand(command, results);
 }
 
+void RedisConnect::hset(const std::string& hash, const std::string& key, const Variant& value) const
+{
+    scoped_lock lock(m_mutex);
+
+    Command command {"HSET", hash};
+    command.reserve(4);
+
+    command.push_back(key);
+    command.push_back(serialize(value));
+
+    vector<Variant> results;
+    executeCommand(command, results);
+}
+
 std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit) const
 {
     scoped_lock lock(m_mutex);
@@ -241,7 +255,7 @@ void RedisConnect::beginTransaction() const
 {
     scoped_lock lock(m_mutex);
 
-    const Command command = {"MULTI"};
+    const Command   command = {"MULTI"};
     vector<Variant> results;
 
     executeCommand(command, results);
@@ -251,7 +265,7 @@ vector<Variant> RedisConnect::commitTransaction() const
 {
     scoped_lock lock(m_mutex);
 
-    const Command command = {"EXEC"};
+    const Command   command = {"EXEC"};
     vector<Variant> results;
 
     executeCommand(command, results);
@@ -263,7 +277,7 @@ void RedisConnect::rollbackTransaction() const
 {
     scoped_lock lock(m_mutex);
 
-    const Command command = {"DISCARD"};
+    const Command   command = {"DISCARD"};
     vector<Variant> results;
 
     executeCommand(command, results);

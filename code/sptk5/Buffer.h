@@ -29,7 +29,6 @@
 #include <sptk5/BufferStorage.h>
 #include <sptk5/VariantStorageClient.h>
 
-#include <cstring>
 #include <memory>
 
 namespace sptk {
@@ -161,10 +160,10 @@ public:
      * @param val               Primitive type or structure
      */
     template<class T>
-    requires std::is_integral_v<T>
+        requires std::is_integral_v<T>
     void append(T val)
     {
-        append((uint8_t*)&val, sizeof(val));
+        append((uint8_t*) &val, sizeof(val));
     }
 
     /**
@@ -174,7 +173,7 @@ public:
      * @param str               String to append
      */
     template<class T>
-    requires std::is_class_v<T>
+        requires std::is_class_v<T>
     void append(const T& str)
     {
         append(str.c_str(), str.size());
@@ -243,9 +242,17 @@ public:
     Buffer& operator=(const char* str);
 
     /**
-     * Convertor to std::string
+     * Convertor to string.
      */
     explicit operator String() const
+    {
+        return {c_str(), bytes()};
+    }
+
+    /**
+     * Convertor to std::string_view.
+     */
+    explicit operator std::string_view() const
     {
         return {c_str(), bytes()};
     }

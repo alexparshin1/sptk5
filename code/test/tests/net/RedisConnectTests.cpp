@@ -496,6 +496,27 @@ TEST_F(RedisConnectTests, remove)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, hsetSingleKey)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string hash = "test_hash";
+    const string key = "test";
+    Variant      value(3.45678);
+
+    redis.remove({hash});
+
+    EXPECT_NO_THROW(redis.hset(hash, key, value));
+    auto keysAndValues = redis.hmget(hash, {key});
+    EXPECT_EQ(1, keysAndValues.size());
+    EXPECT_NEAR(value.asFloat(), keysAndValues[key].asFloat(), 0.001);
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, hset)
 {
     RedisConnect redis;
@@ -968,9 +989,9 @@ TEST_F(RedisConnectTests, transactionMultipleOperations)
     // Queue multiple different operations
     redis.set(key1, Variant("value1"));
     redis.set(key2, Variant(42));
-    redis.incr(key3);
-    redis.incr(key3);
-    redis.incr(key3);
+    (void) redis.incr(key3);
+    (void) redis.incr(key3);
+    (void) redis.incr(key3);
 
     // Commit transaction
     auto results = redis.commitTransaction();

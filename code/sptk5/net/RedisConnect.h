@@ -124,6 +124,14 @@ public:
     /**
      * @brief Sets the multiple key-value pair in Redis.
      * @param hash Hash name.
+     * @param key Key in the hash.
+     * @param value Value for the key.
+     */
+    void hset(const std::string& hash, const std::string& key, const Variant& value) const;
+
+    /**
+     * @brief Sets the multiple key-value pair in Redis.
+     * @param hash Hash name.
      * @param keysAndValues Keys and corresponding values of hash elements.
      */
     void hset(const std::string& hash, const KeysAndValues& keysAndValues) const;
