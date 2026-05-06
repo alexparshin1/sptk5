@@ -152,6 +152,13 @@ public:
     [[nodiscard]] KeysAndValues hmget(const std::string& hash, const std::vector<std::string>& keys) const;
 
     /**
+     * @brief Removes list of keys from the hash.
+     * @param hash Hash name.
+     * @param keys Keys from the hash.
+     */
+    void hdel(const std::string& hash, const std::vector<std::string>& keys) const;
+
+    /**
      * @brief Find keys matching the pattern.
      * The scan should start from cursor = 0 and stop after returned cursor is also 0.
      * @param pattern Pattern to match keys.

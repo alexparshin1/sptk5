@@ -348,6 +348,18 @@ RedisConnect::KeysAndValues RedisConnect::hmget(const std::string& hash, const s
     return output;
 }
 
+void RedisConnect::hdel(const std::string& hash, const std::vector<std::string>& keys) const
+{
+    scoped_lock lock(m_mutex);
+
+    vector<string> commandWords {"HDEL", hash};
+    commandWords.reserve(keys.size() + 2);
+    ranges::copy(keys, std::back_inserter(commandWords));
+
+    vector<Variant> results;
+    executeCommand(commandWords, results);
+}
+
 size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const
 {
     const auto     cursorStr = to_string(cursor);

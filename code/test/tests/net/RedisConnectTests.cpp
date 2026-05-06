@@ -617,6 +617,103 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, hdel)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_hdel";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", "value2"},
+        {"field3", "value3"}};
+
+    (void) redis.remove({hash});
+    redis.hset(hash, testValues);
+
+    EXPECT_NO_THROW(redis.hdel(hash, {"field1", "field2"}));
+
+    const auto remainingKeys = redis.hkeys(hash);
+    ASSERT_EQ(1, remainingKeys.size());
+    EXPECT_EQ("field3", remainingKeys[0]);
+
+    auto keysAndValues = redis.hmget(hash, {"field1", "field2", "field3"});
+    EXPECT_EQ("", keysAndValues["field1"].asString());
+    EXPECT_EQ("", keysAndValues["field2"].asString());
+    EXPECT_EQ("value3", keysAndValues["field3"].asString());
+
+    (void) redis.remove({hash});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hdelNonExistentField)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_hdel_missing";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", "value2"}};
+
+    (void) redis.remove({hash});
+    redis.hset(hash, testValues);
+
+    EXPECT_NO_THROW(redis.hdel(hash, {"field1", "non_existent_field"}));
+
+    const auto remainingKeys = redis.hkeys(hash);
+    ASSERT_EQ(1, remainingKeys.size());
+    EXPECT_EQ("field2", remainingKeys[0]);
+
+    (void) redis.remove({hash});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hdelNonExistentHash)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string hash = "test_hash_hdel_no_hash";
+
+    (void) redis.remove({hash});
+
+    EXPECT_NO_THROW(redis.hdel(hash, {"field1", "field2"}));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hdelAllFields)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_hdel_all";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", "value2"}};
+
+    (void) redis.remove({hash});
+    redis.hset(hash, testValues);
+
+    EXPECT_NO_THROW(redis.hdel(hash, {"field1", "field2"}));
+
+    const auto remainingKeys = redis.hkeys(hash);
+    EXPECT_TRUE(remainingKeys.empty());
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, hsetPerformance)
 {
     constexpr size_t maxHashes = 100;
