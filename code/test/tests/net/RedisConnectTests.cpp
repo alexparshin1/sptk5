@@ -617,6 +617,51 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, hgetall)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string                      hash = "test_hash_hgetall";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", 12345},
+        {"field3", 3.45678}};
+
+    (void) redis.remove({hash});
+    redis.hset(hash, testValues);
+
+    auto keysAndValues = redis.hgetall(hash);
+
+    ASSERT_EQ(3, keysAndValues.size());
+    EXPECT_EQ("value1", keysAndValues["field1"].asString());
+    EXPECT_EQ(12345, keysAndValues["field2"].asInteger());
+    EXPECT_NEAR(3.45678, keysAndValues["field3"].asFloat(), 0.00001);
+
+    (void) redis.remove({hash});
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, hgetallEmpty)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string hash = "test_hash_hgetall_empty";
+
+    (void) redis.remove({hash});
+
+    const auto keysAndValues = redis.hgetall(hash);
+    EXPECT_TRUE(keysAndValues.empty());
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, hdel)
 {
     RedisConnect redis;
@@ -754,7 +799,7 @@ TEST_F(RedisConnectTests, hsetPerformance)
 
     stopwatch.stop();
 
-    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s)", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
 }
 
 TEST_F(RedisConnectTests, hsetGroupPerformance)

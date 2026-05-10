@@ -29,6 +29,8 @@
 #include "sptk5/Variant.h"
 #include "sptk5/net/SocketReader.h"
 #include "sptk5/net/TCPSocket.h"
+
+#include <list>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -99,27 +101,28 @@ public:
      * @param key Key value.
      * @return Variant value.
      */
-    [[nodiscard]] Variant get(const std::string& key) const;
+    [[nodiscard]] Variant get(const std::string& key);
 
     /**
      * @brief Get values for the keys.
      * @param keys Key values.
      * @return Variant values.
      */
-    [[nodiscard]] KeysAndValues mget(const std::vector<std::string>& keys) const;
+    [[nodiscard]] KeysAndValues mget(const std::vector<std::string>& keys);
+    void                        sendRequest(const Command& command) const;
 
     /**
      * @brief Sets the key-value pair in Redis.
      * @param key Key value.
      * @param value Value.
      */
-    void set(const std::string& key, const Variant& value) const;
+    void set(const std::string& key, const Variant& value);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
      * @param keysAndValues Keys and corresponding values.
      */
-    void mset(const KeysAndValues& keysAndValues) const;
+    void mset(const KeysAndValues& keysAndValues);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
@@ -127,21 +130,21 @@ public:
      * @param key Key in the hash.
      * @param value Value for the key.
      */
-    void hset(const std::string& hash, const std::string& key, const Variant& value) const;
+    void hset(const std::string& hash, const std::string& key, const Variant& value);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
      * @param hash Hash name.
      * @param keysAndValues Keys and corresponding values of hash elements.
      */
-    void hset(const std::string& hash, const KeysAndValues& keysAndValues) const;
+    void hset(const std::string& hash, const KeysAndValues& keysAndValues);
 
     /**
      * @brief Gets list of the hash keys.
      * @param hashName Hash name (key).
      * @return List of keys of the hash.
      */
-    [[nodiscard]] std::vector<std::string> hkeys(const std::string& hashName) const;
+    [[nodiscard]] std::vector<std::string> hkeys(const std::string& hashName);
 
     /**
      * @brief Gets list of the hash keys.
@@ -149,14 +152,21 @@ public:
      * @param keys Keys of the hash values.
      * @return Keys and values matching the passed keys of the hash.
      */
-    [[nodiscard]] KeysAndValues hmget(const std::string& hash, const std::vector<std::string>& keys) const;
+    [[nodiscard]] KeysAndValues hmget(const std::string& hash, const std::vector<std::string>& keys);
+
+    /**
+     * @brief Gets keys and values of all the keys from the hash.
+     * @param hash Hash name.
+     * @return Keys and values matching the passed keys of the hash.
+     */
+    [[nodiscard]] KeysAndValues hgetall(const std::string& hash);
 
     /**
      * @brief Removes list of keys from the hash.
      * @param hash Hash name.
      * @param keys Keys from the hash.
      */
-    void hdel(const std::string& hash, const std::vector<std::string>& keys) const;
+    void hdel(const std::string& hash, const std::vector<std::string>& keys);
 
     /**
      * @brief Find keys matching the pattern.
@@ -165,21 +175,21 @@ public:
      * @param limit Match limit.
      * @return Matched keys.
      */
-    [[nodiscard]] std::vector<Variant> scan(const std::string& pattern, size_t limit) const;
+    [[nodiscard]] std::vector<Variant> scan(const std::string& pattern, size_t limit);
 
     /**
      * @brief Remove keys.
      * @param keys The keys to remove.
      * @return The number of the removed keys.
      */
-    [[nodiscard]] size_t remove(const std::vector<std::string>& keys) const;
+    [[nodiscard]] size_t remove(const std::vector<std::string>& keys);
 
     /**
      * @brief Increment the key.
      * @param key The key to increment.
      * @return The new key value.
      */
-    [[nodiscard]] int64_t incr(const std::string& key) const;
+    [[nodiscard]] int64_t incr(const std::string& key);
 
     /**
      * @brief Rename a key.
@@ -188,7 +198,7 @@ public:
      * @throws RedisConnectException if the old key does not exist.
      * @note If newKey already exists, it will be overwritten.
      */
-    void rename(const std::string& oldKey, const std::string& newKey) const;
+    void rename(const std::string& oldKey, const std::string& newKey);
 
     /**
      * @brief Rename a key only if the new key does not exist.
@@ -197,7 +207,7 @@ public:
      * @return True if the key was renamed, false if newKey already exists.
      * @throws RedisConnectException if the old key does not exist.
      */
-    [[nodiscard]] bool renameNX(const std::string& oldKey, const std::string& newKey) const;
+    [[nodiscard]] bool renameNX(const std::string& oldKey, const std::string& newKey);
 
     /**
      * @brief Begin a transaction block.
@@ -206,7 +216,7 @@ public:
      *          Corresponds to Redis MULTI command.
      * @throws RedisConnectException if already in a transaction or not connected.
      */
-    void beginTransaction() const;
+    void beginTransaction();
 
     /**
      * @brief Commit and execute all queued commands in a transaction.
@@ -215,7 +225,7 @@ public:
      * @return Results from all executed commands.
      * @throws RedisConnectException if not in a transaction or not connected.
      */
-    [[nodiscard]] std::vector<Variant> commitTransaction() const;
+    [[nodiscard]] std::vector<Variant> commitTransaction();
 
     /**
      * @brief Discard all queued commands in a transaction.
@@ -223,32 +233,127 @@ public:
      *          Corresponds to Redis DISCARD command.
      * @throws RedisConnectException if not in a transaction or not connected.
      */
-    void rollbackTransaction() const;
+    void rollbackTransaction();
 
 private:
-    std::shared_ptr<TCPSocket>
-                                  m_socket; ///< Underlying socket
-    std::unique_ptr<SocketReader> m_reader; ///< Socket reader
-    mutable std::mutex            m_mutex;  ///< Mutex for thread safety
+    mutable std::mutex            m_mutex;          ///< Mutex for thread safety.
+    std::shared_ptr<TCPSocket>    m_socket;         ///< Underlying socket.
+    std::unique_ptr<SocketReader> m_reader;         ///< Socket reader.
+    String                        m_readLineBuffer; ///< Read line buffer.
 
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
      * @param results Redis command output.
      */
-    void executeCommand(const Command& command, std::vector<Variant>& results) const;
+    template<typename T>
+    void executeCommand(const Command& command, T& results)
+    {
+        if (!m_socket->active())
+        {
+            throw RedisConnectException("Not connected");
+        }
+
+        if (command.empty())
+        {
+            throw RedisConnectException("Empty command data");
+        }
+
+        sendRequest(command);
+
+        readResponse(results);
+    }
 
     /**
      * @brief Reads a line from Redis.
      * @return A line from Redis.
      */
-    [[nodiscard]] String readLine() const;
+    [[nodiscard]] String readLine();
 
     /**
      * @brief Reads a response from Redis.
      * @return Response as Variant.
      */
-    void readResponse(std::vector<Variant>& results) const;
+    template<typename T>
+    void readResponse(T& results)
+    {
+        const auto line = readLine();
+        if (line.empty())
+        {
+            throw RedisConnectException("Empty response");
+        }
+
+        const auto             type = line[0];
+        const std::string_view payload {line.c_str() + 1, line.size() - 1};
+
+        switch (type)
+        {
+            case '+': // Simple String
+                results.emplace_back(payload);
+                return;
+
+            case '-': // Error
+                throw RedisConnectException(std::string(payload));
+
+            case ':': // Integer
+                results.emplace_back(strtoll(payload.data(), nullptr, 10), 0u);
+                return;
+
+            case '$': { // Bulk String
+                int64_t len;
+                std::from_chars(payload.data(), payload.data() + payload.size(), len);
+                if (len == -1)
+                {
+                    results.emplace_back(); // Null
+                    return;
+                }
+                Buffer buffer;
+                m_reader->read(buffer, len + 2);  // Also read \r\n
+                buffer.bytes(buffer.bytes() - 2); // Cut off \r\n
+                results.emplace_back(std::move(buffer));
+                return;
+            }
+            case '*': { // Array
+                int64_t count;
+                std::from_chars(payload.data(), payload.data() + payload.size(), count);
+                if (count == -1)
+                {
+                    results.emplace_back();
+                    return;
+                }
+                // For read the array
+                for (auto i = 0; i < count; ++i)
+                {
+                    readResponse(results);
+                }
+                return;
+            }
+            case '_':                   // Null (RESP3)
+                results.emplace_back(); // Null
+                return;
+            case '#': // Boolean (RESP3)
+                results.emplace_back(payload == "t");
+                return;
+            case ',': { // Double (RESP3)
+                double value;
+                std::from_chars(payload.data(), payload.data() + payload.size(), value);
+                results.emplace_back(strtod(payload.data(), nullptr));
+                return;
+            }
+            case '%': { // Map (RESP3)
+                int64_t count;
+                std::from_chars(payload.data(), payload.data() + payload.size(), count);
+                for (auto i = 0; i < count; ++i)
+                {
+                    readResponse(results); // Key
+                    readResponse(results); // Value
+                }
+                return;
+            }
+            default:
+                throw RedisConnectException("Unknown response type: " + std::string(1, type));
+        }
+    }
 
     /**
      * @brief Find keys matching the pattern.
@@ -259,7 +364,7 @@ private:
      * @param limit Match limit.
      * @return Cursor.
      */
-    size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit) const;
+    size_t scan(const std::string& pattern, size_t cursor, std::list<Variant>& matchedKeys, size_t limit);
 
     /**
      * @brief Append value to the command.
