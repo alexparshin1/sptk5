@@ -128,6 +128,14 @@ public:
     SNode pushNode(const NodeName& name, Type type = Type::Null);
 
     /**
+     * @brief Push the node to arrray.
+     * @param name              Node name.
+     * @param type              Node type.
+     * @return created node.
+     */
+    SNode pushNode(const SNode& node);
+
+    /**
      * @brief   Push the named property to the object.
      * @details If the value type isn't provided and value isn't null, the type deducted from value.
      * @param name              Property name.

@@ -106,7 +106,7 @@ string RedisConnect::serialize(const Variant& value)
         case VAR_INT:
         case VAR_INT64:
         case VAR_FLOAT:
-            return value.asString();
+            return {value.getString(), value.dataSize()};
 
         case VAR_DATE:
             return format("{:%F}", value.asDate().timePoint());
