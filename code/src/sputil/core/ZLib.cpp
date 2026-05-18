@@ -75,7 +75,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
         auto* inputBuffer = (uint8_t*) src.data() + readPosition;
 
         readPosition += bytesToRead;
-        strm.avail_in = bytesToRead;
+        strm.avail_in = static_cast<uInt>(bytesToRead);
         const int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
         strm.next_in = inputBuffer;
 
@@ -135,7 +135,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         }
         auto* inputBuffer = (uint8_t*) src.data() + readPosition;
         readPosition += bytesToRead;
-        strm.avail_in = bytesToRead;
+        strm.avail_in = static_cast<uInt>(bytesToRead);
         if (strm.avail_in == 0 && ret != Z_STREAM_END)
         {
             (void) inflateEnd(&strm);

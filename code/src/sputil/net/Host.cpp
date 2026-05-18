@@ -162,7 +162,7 @@ Host::Host(Host&& other) noexcept
 {
     const scoped_lock lock(other.m_mutex);
     m_hostname = exchange(other.m_hostname, "");
-    m_port = exchange(other.m_port, 0);
+    m_port = exchange(other.m_port, static_cast<uint16_t>(0));
     m_address = other.m_address;
 }
 
@@ -187,7 +187,7 @@ Host& Host::operator=(Host&& other) noexcept
 
     const scoped_lock lock(m_mutex, other.m_mutex);
     m_hostname = exchange(other.m_hostname, "");
-    m_port = exchange(other.m_port, 0);
+    m_port = exchange(other.m_port, uint16_t(0));
     m_address = other.m_address;
     return *this;
 }

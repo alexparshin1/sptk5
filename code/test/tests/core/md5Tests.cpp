@@ -34,6 +34,10 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef min
+#undef min
+#endif
+
 static const String testPhrase("This is a test text to verify MD5 algorithm");
 
 static const String testSQL(
@@ -88,7 +92,7 @@ TEST(MD5Tests, incrementalUpdateMatchesOneShot)
     }();
 
     const String expected = md5(Buffer(bytes.data(), bytes.size()));
-    for (const auto chunkSize: {1UL, 2UL, 7UL, 31UL, 64UL, 127UL})
+    for (const size_t chunkSize: {1UL, 2UL, 7UL, 31UL, 64UL, 127UL})
     {
         MD5 md5ByChunks;
         for (size_t offset = 0; offset < bytes.size(); offset += chunkSize)

@@ -26,7 +26,6 @@
 
 #include "TestImapServer.h"
 
-#include <netinet/tcp.h>
 #include <sptk5/cnet>
 
 using namespace std;
