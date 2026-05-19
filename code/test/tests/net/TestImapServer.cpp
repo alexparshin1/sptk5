@@ -26,6 +26,10 @@
 
 #include "TestImapServer.h"
 
+#ifndef _WIN32
+#include <netinet/tcp.h>
+#endif
+
 #include <sptk5/cnet>
 
 using namespace std;

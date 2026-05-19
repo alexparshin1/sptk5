@@ -399,15 +399,13 @@ TEST_F(RedisConnectTests, scan)
     redis.set("scan-key1", 12345);
     redis.set("scan-key2", 1234);
 
-    std::vector<Variant> values = redis.scan("scan-*", 2);
-
+    auto    values = redis.scan("scan-*", 2);
     Strings keys;
-    keys.resize(values.size());
-    ranges::transform(values, keys.begin(), [](const Variant& value)
-                      {
-                          COUT(format("key: {}", value.asString().c_str()));
-                          return value.asString();
-                      });
+    keys.reserve(values.size());
+    for (const auto& value: values)
+    {
+        keys.push_back(value);
+    }
 
     // Expect two keys matched
     ASSERT_EQ(2, values.size());
@@ -439,7 +437,7 @@ TEST_F(RedisConnectTests, scanPerformance)
 
     Stopwatch watch;
     watch.start();
-    const vector<Variant> keysFound = redis.scan("scan-perf-key*", iterations);
+    const auto keysFound = redis.scan("scan-perf-key*", iterations);
     watch.stop();
 
     EXPECT_EQ(iterations, keysFound.size());
@@ -468,8 +466,8 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
     Stopwatch watch;
     watch.start();
-    const vector<Variant> keysFound = redis.scan("scan-perf-key*", iterations);
-    const auto            keysAndValues = redis.mget(keys);
+    const auto keysFound = redis.scan("scan-perf-key*", iterations);
+    const auto keysAndValues = redis.mget(keys);
     watch.stop();
 
     EXPECT_EQ(iterations, keysFound.size());
@@ -552,7 +550,7 @@ TEST_F(RedisConnectTests, hkeys)
 
     const auto keys = redis.hkeys(hash);
 
-    set<string> keysFound;
+    set<string, less<>> keysFound;
     for (const auto& key: keys)
     {
         keysFound.insert(key);

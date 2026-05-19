@@ -84,7 +84,7 @@ void RedisConnect::disconnect()
     m_reader.reset();
 }
 
-void RedisConnect::set(const std::string& key, const Variant& value)
+void RedisConnect::set(const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);
 
@@ -150,7 +150,7 @@ void RedisConnect::mset(const KeysAndValues& keysAndValues)
     executeCommand(command, results);
 }
 
-void RedisConnect::hset(const std::string& hash, const std::string& key, const Variant& value)
+void RedisConnect::hset(const string& hash, const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);
 
@@ -163,21 +163,22 @@ void RedisConnect::hset(const std::string& hash, const std::string& key, const V
     executeCommand(command, results);
 }
 
-std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit)
+vector<string> RedisConnect::scan(const string& pattern, size_t limit)
 {
     scoped_lock lock(m_mutex);
 
-    std::vector<Variant> results;
+    vector<string> results;
 
     size_t cursor = 0;
     do
     {
-        std::list<Variant> iterationResults;
+        list<Variant> iterationResults;
         cursor = scan(pattern, cursor, iterationResults, limit);
         results.reserve(results.size() + iterationResults.size());
-        results.insert(results.end(),
-                       make_move_iterator(iterationResults.begin()),
-                       make_move_iterator(iterationResults.end()));
+        ranges::transform(iterationResults, back_inserter(results), [](const auto& result)
+                          {
+                              return result.asString();
+                          });
     } while (cursor != 0 && results.size() < limit);
 
     if (results.size() > limit)
@@ -188,8 +189,13 @@ std::vector<Variant> RedisConnect::scan(const std::string& pattern, size_t limit
     return results;
 }
 
-size_t RedisConnect::remove(const std::vector<std::string>& keys)
+size_t RedisConnect::remove(const vector<string>& keys)
 {
+    if (keys.empty())
+    {
+        return 0;
+    }
+
     scoped_lock lock(m_mutex);
 
     vector<Variant> results;
@@ -209,7 +215,7 @@ size_t RedisConnect::remove(const std::vector<std::string>& keys)
     return keysRemoved;
 }
 
-int64_t RedisConnect::incr(const std::string& key)
+int64_t RedisConnect::incr(const string& key)
 {
     scoped_lock lock(m_mutex);
 
@@ -226,7 +232,7 @@ int64_t RedisConnect::incr(const std::string& key)
     return results[0].asInt64();
 }
 
-void RedisConnect::rename(const std::string& oldKey, const std::string& newKey)
+void RedisConnect::rename(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
@@ -236,7 +242,7 @@ void RedisConnect::rename(const std::string& oldKey, const std::string& newKey)
     executeCommand(commandWords, results);
 }
 
-bool RedisConnect::renameNX(const std::string& oldKey, const std::string& newKey)
+bool RedisConnect::renameNX(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
@@ -285,7 +291,7 @@ void RedisConnect::rollbackTransaction()
     executeCommand(command, results);
 }
 
-void RedisConnect::hset(const std::string& hash, const KeysAndValues& keysAndValues)
+void RedisConnect::hset(const string& hash, const KeysAndValues& keysAndValues)
 {
     if (keysAndValues.empty())
     {
@@ -307,7 +313,7 @@ void RedisConnect::hset(const std::string& hash, const KeysAndValues& keysAndVal
     executeCommand(command, results);
 }
 
-vector<string> RedisConnect::hkeys(const std::string& hashName)
+vector<string> RedisConnect::hkeys(const string& hashName)
 {
     scoped_lock lock(m_mutex);
 
@@ -324,13 +330,13 @@ vector<string> RedisConnect::hkeys(const std::string& hashName)
     return keys;
 }
 
-RedisConnect::KeysAndValues RedisConnect::hmget(const std::string& hash, const std::vector<std::string>& keys)
+RedisConnect::KeysAndValues RedisConnect::hmget(const string& hash, const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
     vector<string> commandWords {"HMGET", hash};
     commandWords.reserve(keys.size() + 2);
-    ranges::copy(keys, std::back_inserter(commandWords));
+    ranges::copy(keys, back_inserter(commandWords));
 
     vector<Variant> results;
     KeysAndValues   output;
@@ -351,7 +357,7 @@ RedisConnect::KeysAndValues RedisConnect::hmget(const std::string& hash, const s
     return output;
 }
 
-RedisConnect::KeysAndValues RedisConnect::hgetall(const std::string& hash)
+RedisConnect::KeysAndValues RedisConnect::hgetall(const string& hash)
 {
     scoped_lock lock(m_mutex);
 
@@ -374,19 +380,19 @@ RedisConnect::KeysAndValues RedisConnect::hgetall(const std::string& hash)
     return output;
 }
 
-void RedisConnect::hdel(const std::string& hash, const std::vector<std::string>& keys)
+void RedisConnect::hdel(const string& hash, const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
     vector<string> commandWords {"HDEL", hash};
     commandWords.reserve(keys.size() + 2);
-    ranges::copy(keys, std::back_inserter(commandWords));
+    ranges::copy(keys, back_inserter(commandWords));
 
     vector<Variant> results;
     executeCommand(commandWords, results);
 }
 
-size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, list<Variant>& matchedKeys, size_t limit)
+size_t RedisConnect::scan(const string& pattern, const size_t cursor, list<Variant>& matchedKeys, size_t limit)
 {
     const auto     cursorStr = to_string(cursor);
     const auto     countStr = to_string(limit);
@@ -409,7 +415,7 @@ size_t RedisConnect::scan(const std::string& pattern, const size_t cursor, list<
     return newCursor;
 }
 
-Variant RedisConnect::get(const std::string& key)
+Variant RedisConnect::get(const string& key)
 {
     scoped_lock lock(m_mutex);
 
@@ -424,13 +430,13 @@ Variant RedisConnect::get(const std::string& key)
     return results[0];
 }
 
-RedisConnect::KeysAndValues RedisConnect::mget(const std::vector<std::string>& keys)
+RedisConnect::KeysAndValues RedisConnect::mget(const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
     vector<string> commandWords {"MGET"};
     commandWords.reserve(keys.size() + 1);
-    ranges::copy(keys, std::back_inserter(commandWords));
+    ranges::copy(keys, back_inserter(commandWords));
 
     vector<Variant> results;
     KeysAndValues   output;

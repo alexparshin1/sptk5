@@ -175,7 +175,7 @@ public:
      * @param limit Match limit.
      * @return Matched keys.
      */
-    [[nodiscard]] std::vector<Variant> scan(const std::string& pattern, size_t limit);
+    [[nodiscard]] std::vector<std::string> scan(const std::string& pattern, size_t limit);
 
     /**
      * @brief Remove keys.

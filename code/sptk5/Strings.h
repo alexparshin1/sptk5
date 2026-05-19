@@ -395,6 +395,24 @@ public:
     }
 
     /**
+     * @brief Reserve the capacity.
+     * @param size              The capacity to reserve.
+     */
+    void reserve(const size_t size)
+    {
+        m_strings.reserve(size);
+    }
+
+    /**
+     * @brief Return the capacity.
+     * @return The current capacity.
+     */
+    [[nodiscard]] size_t capacity() const
+    {
+        return m_strings.capacity();
+    }
+
+    /**
      * Emplace back a string.
      */
     template<typename... Args>
