@@ -58,3 +58,8 @@ double Stopwatch::milliseconds() const
     return static_cast<double>(chrono::duration_cast<microseconds>(m_ended - m_started).count()) /
            microsecondsInMillisecond;
 }
+
+microseconds Stopwatch::elapsed() const
+{
+    return duration_cast<microseconds>(m_ended - m_started);
+}

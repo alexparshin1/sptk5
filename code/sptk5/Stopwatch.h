@@ -84,6 +84,12 @@ public:
      */
     double milliseconds() const;
 
+    /**
+     * @brief Get the elapsed time.
+     * @return elapsed time.
+     */
+    std::chrono::microseconds elapsed() const;
+
 private:
     mutable std::mutex                    m_mutex;                                      ///< Mutex that provides thread-safety.
     std::chrono::steady_clock::time_point m_started {std::chrono::steady_clock::now()}; ///< Start time.
