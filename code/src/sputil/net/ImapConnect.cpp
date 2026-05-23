@@ -84,7 +84,6 @@ void ImapConnect::getResponse(const String& ident, const chrono::milliseconds ti
                 case 'O': // OK
                     return;
                 case 'N': // NO
-                    throw Exception(longLine.c_str() + ident.length() + 1);
                 case 'B': // BAD
                     throw Exception(longLine.c_str() + ident.length() + 1);
                 default:
