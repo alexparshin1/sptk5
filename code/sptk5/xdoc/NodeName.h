@@ -43,7 +43,7 @@ public:
      * @param name              Node name.
      * @param nameSpace         Node namespace.
      */
-    NodeName(String name, String nameSpace)
+    NodeName(std::string name, std::string nameSpace)
         : m_name(std::move(name))
         , m_nameSpace(std::move(nameSpace))
     {
@@ -55,7 +55,7 @@ public:
      * @param name              Node name, short or qualified.
      */
     NodeName(const char* name)
-        : NodeName(name == nullptr ? String("") : String(name))
+        : NodeName(name == nullptr ? std::string("") : std::string(name))
     {
     }
 
@@ -63,7 +63,7 @@ public:
      * @brief Constructor.
      * @param name              Node name, short or qualified.
      */
-    NodeName(const String& name)
+    NodeName(const std::string& name)
         : m_qualifiedName(name)
     {
         if (const auto* pos = strchr(name.c_str(), ':'))
@@ -86,7 +86,7 @@ public:
      * @brief Get node name.
      * @return Node name.
      */
-    [[nodiscard]] const String& getName() const
+    [[nodiscard]] const std::string& getName() const
     {
         return m_name;
     }
@@ -95,7 +95,7 @@ public:
      * @brief Set the node name.
      * @param name              Node name.
      */
-    void setName(String name)
+    void setName(std::string name)
     {
         m_name = std::move(name);
         setQualifiedName();
@@ -105,7 +105,7 @@ public:
      * @brief Get node namespace.
      * @return Node name space.
      */
-    [[nodiscard]] const String& getNameSpace() const
+    [[nodiscard]] const std::string& getNameSpace() const
     {
         return m_nameSpace;
     }
@@ -114,7 +114,7 @@ public:
      * @brief Set node namespace.
      * @param nameSpace         Node name space.
      */
-    void setNameSpace(String nameSpace)
+    void setNameSpace(std::string nameSpace)
     {
         m_nameSpace = std::move(nameSpace);
         setQualifiedName();
@@ -124,7 +124,7 @@ public:
      * @brief Get node qualified name.
      * @return Node qualified name.
      */
-    [[nodiscard]] const String& getQualifiedName() const
+    [[nodiscard]] const std::string& getQualifiedName() const
     {
         return m_qualifiedName;
     }
@@ -168,9 +168,9 @@ public:
     }
 
 private:
-    String m_name;          ///< Node name.
-    String m_nameSpace;     ///< Node namespace.
-    String m_qualifiedName; ///< Node qualified name.
+    std::string m_name;          ///< Node name.
+    std::string m_nameSpace;     ///< Node namespace.
+    std::string m_qualifiedName; ///< Node qualified name.
 
     /**
      * @brief Set the qualified name after changing the name or namespace.

@@ -327,7 +327,8 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
             default:
                 readOpeningTag(currentNode, nodeName, nameEnd, nodeEnd);
                 // For HTML, autoclose 'meta' tags
-                if (strcmp(nodeName, "meta") == 0 && currentNode->parent()->getQualifiedName().in({"html", "head"}))
+                if (const auto& fullName = currentNode->parent()->getQualifiedName();
+                    strcmp(nodeName, "meta") == 0 && (fullName == "html" || fullName == "head"))
                 {
                     autoClosed = true;
                     currentNode = currentNode->parent();

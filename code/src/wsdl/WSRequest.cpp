@@ -149,7 +149,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         map<String, WSNameSpace> allNamespaces;
         for (const auto& node: xmlContent->nodes())
         {
-            if (node->getName().toLowerCase() == "envelope")
+            if (lowerCase(node->getName()) == "envelope")
             {
                 soapEnvelope = node;
                 const String nameSpaceAlias = node->getNameSpace();
