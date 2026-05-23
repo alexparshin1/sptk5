@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <format>
 #include <sptk5/BufferStorage.h>
 #include <sptk5/VariantStorageClient.h>
 
@@ -265,6 +266,23 @@ public:
     [[nodiscard]] size_t dataSize() const override
     {
         return size();
+    }
+
+    /**
+     * @brief Appends a formatted string to the buffer using std::format-style arguments.
+     * @param maxLength         Maximum size of the appended text.
+     * @param fmt               Compile-time checked format string
+     * @param args              Format arguments
+     * @return                  Number of characters appended
+     */
+    template<typename... Args>
+    size_t format(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
+    {
+        checkSize(size() + maxLength);
+        const std::format_to_n_result result = std::format_to_n(data() + size(), maxLength, fmt, std::forward<Args>(args)...);
+        *result.out = '\0';
+        bytes(size() + result.size);
+        return result.size;
     }
 };
 
