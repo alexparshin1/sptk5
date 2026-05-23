@@ -25,7 +25,7 @@
 */
 
 #include <cmath>
-#include <iomanip>
+#include <format>
 
 #include <sptk5/Field.h>
 
@@ -169,7 +169,7 @@ void VariantAdaptors::setString(const String& value)
 
 //---------------------------------------------------------------------------
 
-void VariantAdaptors::setBuffer(const uint8_t* value, size_t valueSize, VariantDataType type)
+void VariantAdaptors::setBuffer(const uint8_t* value, const size_t valueSize, VariantDataType type)
 {
     if ((static_cast<int>(type) & BUFFER_TYPES) == 0)
     {
@@ -597,7 +597,7 @@ bool VariantAdaptors::asBool() const
         case VAR_BUFFER:
             if (m_data.size() > 0)
             {
-                return (strchr("YyTt1", asString()[0]) != nullptr);
+                return (strchr("YyTt1", getString()[0]) != nullptr);
             }
             return false;
 
@@ -650,7 +650,7 @@ double VariantAdaptors::asFloat() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            result = strtod(asString().c_str(), nullptr);
+            result = strtod(getString(), nullptr);
             break;
 
         case VAR_DATE:
@@ -723,14 +723,10 @@ String VariantAdaptors::asString() const
         case VAR_DATE_TIME:
             return m_data.get<DateTime>().isoDateTimeString();
 
-        case VAR_IMAGE_PTR:
-            if (static_cast<const uint8_t*>(m_data) != nullptr)
-            {
-                stringstream str;
-                str << hex << static_cast<const uint8_t*>(m_data);
-                return str.str();
-            }
-            return "null";
+        case VAR_IMAGE_PTR: {
+            const auto* ptr = static_cast<const void*>(static_cast<const uint8_t*>(m_data));
+            return ptr ? std::format("{:p}", ptr) : "null";
+        }
 
         case VAR_IMAGE_NDX:
             return to_string(m_data.get<int32_t>());
@@ -787,14 +783,10 @@ Buffer VariantAdaptors::asBuffer() const
         case VAR_DATE_TIME:
             return Buffer(m_data.get<DateTime>().isoDateTimeString());
 
-        case VAR_IMAGE_PTR:
-            if (static_cast<const uint8_t*>(m_data) != nullptr)
-            {
-                stringstream str;
-                str << hex << static_cast<const uint8_t*>(m_data);
-                return Buffer(str.str());
-            }
-            return Buffer("null");
+        case VAR_IMAGE_PTR: {
+            const auto* ptr = static_cast<const void*>(static_cast<const uint8_t*>(m_data));
+            return Buffer(ptr ? std::format("{:p}", ptr) : "null");
+        }
 
         case VAR_IMAGE_NDX:
             return Buffer(to_string(m_data.get<int32_t>()));
@@ -808,15 +800,15 @@ Buffer VariantAdaptors::asBuffer() const
 
 String BaseVariant::moneyDataToString() const
 {
-    stringstream output;
-    const auto&  moneyData = m_data.get<MoneyData>();
-    const auto*  sign = moneyData.quantity() >= 0 ? "" : "-";
-    const auto   scale = moneyData.scale();
-    auto         divider = MoneyData::divider(scale);
-    const auto   value = abs(moneyData.quantity()) / divider;
-    auto         decimal = abs(moneyData.quantity()) % divider;
-    output << fixed << sign << value << "." << setfill('0') << setw(scale) << decimal;
-    return output.str();
+    const auto& moneyData = m_data.get<MoneyData>();
+    const auto  scale = moneyData.scale();
+    const auto  absQty = std::abs(moneyData.quantity());
+    const auto  divider = MoneyData::divider(scale);
+    return std::format("{}{}.{:0{}}",
+                       moneyData.quantity() < 0 ? "-" : "",
+                       absQty / divider,
+                       absQty % divider,
+                       static_cast<int>(scale));
 }
 
 DateTime VariantAdaptors::asDate() const
@@ -876,7 +868,7 @@ DateTime VariantAdaptors::asDateTime() const
         case VAR_STRING:
         case VAR_TEXT:
         case VAR_BUFFER:
-            return DateTime(asString().c_str());
+            return DateTime(getString());
 
         case VAR_DATE:
         case VAR_DATE_TIME:

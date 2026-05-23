@@ -203,18 +203,50 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
         {
             using enum VariantDataType;
             case VAR_BUFFER:
-                setStorageClient(make_unique<Buffer>(*dynamic_cast<const Buffer*>(other.storageClient())));
+                if (auto* existing = dynamic_cast<Buffer*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const Buffer*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<Buffer>(*dynamic_cast<const Buffer*>(other.storageClient())));
+                }
                 break;
+
             case VAR_STRING:
-                setStorageClient(make_unique<String>(*dynamic_cast<const String*>(other.storageClient())));
+                if (auto* existing = dynamic_cast<String*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const String*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<String>(*dynamic_cast<const String*>(other.storageClient())));
+                }
                 break;
+
             case VAR_DATE:
             case VAR_DATE_TIME:
-                setStorageClient(make_unique<DateTime>(*dynamic_cast<const DateTime*>(other.storageClient())));
+                if (auto* existing = dynamic_cast<DateTime*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const DateTime*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<DateTime>(*dynamic_cast<const DateTime*>(other.storageClient())));
+                }
                 break;
+
             case VAR_MONEY:
-                setStorageClient(make_unique<MoneyData>(*dynamic_cast<const MoneyData*>(other.storageClient())));
+                if (auto* existing = dynamic_cast<MoneyData*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const MoneyData*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<MoneyData>(*dynamic_cast<const MoneyData*>(other.storageClient())));
+                }
                 break;
+            
             default:
                 value().asInt64 = other.value().asInt64;
                 break;

@@ -37,7 +37,7 @@ namespace {
 String jsonEscape(const String& text)
 {
     static constexpr char hexDigits[] = "0123456789abcdef";
-    const size_t len = text.size();
+    const size_t          len = text.size();
 
     // Find the first character that needs escaping.
     size_t i = 0;
@@ -48,49 +48,74 @@ String jsonEscape(const String& text)
             break;
     }
     if (i == len)
-        return text;  // nothing to escape — return original without copying
+        return text; // nothing to escape — return original without copying
 
     String result;
     result.reserve(len + (len >> 2));
-    result.append(text, 0, i);  // copy the clean prefix in one shot
+    result.append(text, 0, i); // copy the clean prefix in one shot
 
     size_t runStart = i;
     for (; i < len; ++i)
     {
-        const auto ch = static_cast<unsigned char>(text[i]);
-        const char* esc    = nullptr;
+        const auto  ch = static_cast<unsigned char>(text[i]);
+        const char* esc = nullptr;
         size_t      escLen = 0;
         char        buf[6];
 
         switch (ch)
         {
-            case '"':  esc = "\\\""; escLen = 2; break;
-            case '\\': esc = "\\\\"; escLen = 2; break;
-            case '\b': esc = "\\b";  escLen = 2; break;
-            case '\f': esc = "\\f";  escLen = 2; break;
-            case '\n': esc = "\\n";  escLen = 2; break;
-            case '\r': esc = "\\r";  escLen = 2; break;
-            case '\t': esc = "\\t";  escLen = 2; break;
+            case '"':
+                esc = "\\\"";
+                escLen = 2;
+                break;
+            case '\\':
+                esc = "\\\\";
+                escLen = 2;
+                break;
+            case '\b':
+                esc = "\\b";
+                escLen = 2;
+                break;
+            case '\f':
+                esc = "\\f";
+                escLen = 2;
+                break;
+            case '\n':
+                esc = "\\n";
+                escLen = 2;
+                break;
+            case '\r':
+                esc = "\\r";
+                escLen = 2;
+                break;
+            case '\t':
+                esc = "\\t";
+                escLen = 2;
+                break;
             default:
                 if (ch < 0x20)
                 {
-                    buf[0] = '\\'; buf[1] = 'u'; buf[2] = '0'; buf[3] = '0';
+                    buf[0] = '\\';
+                    buf[1] = 'u';
+                    buf[2] = '0';
+                    buf[3] = '0';
                     buf[4] = hexDigits[ch >> 4];
                     buf[5] = hexDigits[ch & 0x0F];
-                    esc = buf; escLen = 6;
+                    esc = buf;
+                    escLen = 6;
                 }
                 break;
         }
 
         if (escLen > 0)
         {
-            result.append(text, runStart, i - runStart);  // flush clean run
+            result.append(text, runStart, i - runStart); // flush clean run
             result.append(esc, escLen);
             runStart = i + 1;
         }
     }
 
-    result.append(text, runStart, len - runStart);  // flush final clean run
+    result.append(text, runStart, len - runStart); // flush final clean run
     return result;
 }
 } // namespace
