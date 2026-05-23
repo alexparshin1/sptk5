@@ -103,7 +103,7 @@ public:
      */
     template<typename T, std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     explicit BaseVariantStorage(const T& value)
-        : m_class(std::make_shared<T>(value))
+        : m_class(std::make_unique<T>(value))
     {
         m_type.type = T::variantDataType();
         m_type.size = value.dataSize();
@@ -213,20 +213,25 @@ protected:
         const uint8_t* asBytePointer;
     };
 
-    [[nodiscard]] std::shared_ptr<VariantStorageClient> storageClient()
+    [[nodiscard]] VariantStorageClient* storageClient()
     {
-        return m_class;
+        return m_class.get();
     }
 
-    [[nodiscard]] const std::shared_ptr<VariantStorageClient>& storageClient() const
+    [[nodiscard]] const VariantStorageClient* storageClient() const
     {
-        return m_class;
+        return m_class.get();
     }
 
-    void setStorageClient(const std::shared_ptr<VariantStorageClient>& storageClient)
+    void setStorageClient(std::unique_ptr<VariantStorageClient> client)
     {
-        m_class = storageClient;
+        m_class = std::move(client);
         m_type.isExternalBuffer = false;
+    }
+
+    [[nodiscard]] std::unique_ptr<VariantStorageClient> extractStorageClient()
+    {
+        return std::move(m_class);
     }
 
     void setType(VariantType dataType)
@@ -251,7 +256,7 @@ protected:
 
 private:
     VariantValue                          m_value {};
-    std::shared_ptr<VariantStorageClient> m_class;
+    std::unique_ptr<VariantStorageClient> m_class;
     VariantType                           m_type {};
 };
 
@@ -324,12 +329,8 @@ public:
     template<typename T, std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     operator const T&() const
     {
-
-        if (const auto data = dynamic_pointer_cast<T>(storageClient());
-            data)
-        {
+        if (const auto* data = dynamic_cast<const T*>(storageClient()); data)
             return *data;
-        }
         throw std::invalid_argument("Invalid type");
     }
 
@@ -407,10 +408,8 @@ public:
     template<typename T, typename std::enable_if_t<std::is_base_of_v<VariantStorageClient, T>, int> = 0>
     operator T&()
     {
-        if (std::dynamic_pointer_cast<T>(storageClient()))
-        {
-            return *dynamic_pointer_cast<T>(storageClient());
-        }
+        if (auto* data = dynamic_cast<T*>(storageClient()); data)
+            return *data;
         throw std::invalid_argument("Invalid type");
     }
 
@@ -472,11 +471,11 @@ public:
         if (type().type != T::variantDataType() || !storageClient())
         {
             setType(T::variantDataType());
-            setStorageClient(std::make_shared<T>(value));
+            setStorageClient(std::make_unique<T>(value));
         }
         else
         {
-            *dynamic_pointer_cast<T>(storageClient()) = value;
+            *dynamic_cast<T*>(storageClient()) = value;
         }
         setNull(false, T::variantDataType());
         setSize(value.dataSize());

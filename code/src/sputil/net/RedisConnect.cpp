@@ -106,7 +106,7 @@ string RedisConnect::serialize(const Variant& value)
         case VAR_INT:
         case VAR_INT64:
         case VAR_FLOAT:
-            return {value.getString(), value.dataSize()};
+            return value.asString();
 
         case VAR_DATE:
             return format("{:%F}", value.asDate().timePoint());
@@ -351,7 +351,7 @@ RedisConnect::KeysAndValues RedisConnect::hmget(const string& hash, const vector
 
     for (size_t i = 0; i < results.size(); ++i)
     {
-        output[keys.at(i)] = std::move(results[i]);
+        output.try_emplace(keys[i], std::move(results[i]));
     }
 
     return output;
@@ -450,7 +450,7 @@ RedisConnect::KeysAndValues RedisConnect::mget(const vector<string>& keys)
 
     for (size_t i = 0; i < results.size(); ++i)
     {
-        output[keys.at(i)] = std::move(results[i]);
+        output.try_emplace(keys[i], std::move(results[i]));
     }
 
     return output;

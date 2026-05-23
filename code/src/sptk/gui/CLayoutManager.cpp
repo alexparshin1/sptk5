@@ -27,6 +27,7 @@
 #include <sptk5/cutils>
 
 #include <FL/Fl.H>
+#include <FL/Fl_Group.H>
 #include <FL/fl_draw.H>
 #include <sptk5/cgui>
 
@@ -457,10 +458,10 @@ void CLayoutManager::loadLayout(const xdoc::SNode& groupNode, CLayoutXMLmode xml
         for (auto itor = groupNode->nodes().begin();
              itor != groupNode->nodes().end(); ++itor)
         {
-            auto&       widgetNode = *itor;
-            const auto& widgetType = widgetNode->getName();
+            auto&      widgetNode = *itor;
+            const auto widgetType = widgetNode->getName();
 
-            auto cctor = controlCreator.find(widgetType);
+            auto cctor = controlCreator.find(string(widgetType));
             if (cctor == controlCreator.end())
             {
                 continue;

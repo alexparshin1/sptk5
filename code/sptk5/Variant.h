@@ -135,7 +135,7 @@ public:
      * @tparam T variant data type.
      * @return const reference to variant data.
      */
-    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
     {
         return (const T&) m_data;
