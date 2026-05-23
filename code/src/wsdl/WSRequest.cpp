@@ -85,7 +85,7 @@ void WSRequest::handleError(const xdoc::SNode& xmlContent, const xdoc::SNode& js
         using enum xdoc::Node::Type;
         const auto& soapBody = xmlContent->parent();
         soapBody->clearChildren();
-        String soapNamespace = soapBody->getNameSpace();
+        string soapNamespace(soapBody->getNamespace());
         if (!soapNamespace.empty())
         {
             soapNamespace += ":";
@@ -152,7 +152,7 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
             if (lowerCase(node->getName()) == "envelope")
             {
                 soapEnvelope = node;
-                const String nameSpaceAlias = node->getNameSpace();
+                const string nameSpaceAlias(node->getNamespace());
                 extractNameSpaces(soapEnvelope, allNamespaces);
                 soapNamespace = allNamespaces[nameSpaceAlias];
                 break;
@@ -173,20 +173,20 @@ void WSRequest::processRequest(const xdoc::SNode& xmlContent, const xdoc::SNode&
         xmlRequestNode = soapBody->nodes().front();
 
         const scoped_lock lock(*this);
-        const String      nameSpaceAlias = xmlRequestNode->getNameSpace();
+        const string      nameSpaceAlias(xmlRequestNode->getNamespace());
         extractNameSpaces(xmlRequestNode, allNamespaces);
 
         if (const auto itor = allNamespaces.find(nameSpaceAlias);
             itor == allNamespaces.end())
         {
-            requestNameSpace = WSNameSpace(xmlRequestNode->getNameSpace());
+            requestNameSpace = WSNameSpace(string(xmlRequestNode->getNamespace()));
         }
         else
         {
             requestNameSpace = itor->second;
         }
 
-        requestName = xmlRequestNode->getName();
+        requestName = string(xmlRequestNode->getName());
     }
     else
     {

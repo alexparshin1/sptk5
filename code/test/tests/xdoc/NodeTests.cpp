@@ -70,7 +70,7 @@ TEST(XDocumentTests,setNameSpace)
     EXPECT_EQ(customer->getName(), "customer");
     customer->setNamespaceRecursive("ns1");
     EXPECT_EQ(customer->getName(), "customer");
-    EXPECT_EQ(customer->getNameSpace(), "ns1");
+    EXPECT_EQ(customer->getNamespace(), "ns1");
 
     auto address = document.root()->findFirst(NodeName("address", "ns1"));
     document.exportTo(xdoc::DataFormat::XML, cout, true);

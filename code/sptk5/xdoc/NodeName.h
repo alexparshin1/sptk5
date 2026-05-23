@@ -63,6 +63,15 @@ public:
      * @brief Constructor.
      * @param name              Node name, short or qualified.
      */
+    NodeName(const std::string_view name)
+        : NodeName(std::string(name))
+    {
+    }
+
+    /**
+     * @brief Constructor.
+     * @param name              Node name, short or qualified.
+     */
     NodeName(const std::string& name)
         : m_qualifiedName(name)
     {
@@ -86,7 +95,7 @@ public:
      * @brief Get node name.
      * @return Node name.
      */
-    [[nodiscard]] const std::string& getName() const
+    [[nodiscard]] std::string_view getName() const
     {
         return m_name;
     }
@@ -105,7 +114,7 @@ public:
      * @brief Get node namespace.
      * @return Node name space.
      */
-    [[nodiscard]] const std::string& getNameSpace() const
+    [[nodiscard]] std::string_view getNamespace() const
     {
         return m_nameSpace;
     }

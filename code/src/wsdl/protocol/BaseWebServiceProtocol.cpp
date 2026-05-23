@@ -59,20 +59,20 @@ xdoc::SNode BaseWebServiceProtocol::getFirstChildElement(const xdoc::SNode& elem
 
 xdoc::SNode BaseWebServiceProtocol::findRequestNode(const xdoc::SNode& message, const String& messageType)
 {
-    String ns = "soap";
+    string_view ns = "soap";
     for (const auto& node: message->nodes())
     {
         if (lowerCase(node->getName()) == "envelope")
         {
-            ns = node->getNameSpace();
+            ns = node->getNamespace();
             break;
         }
     }
 
-    const auto xmlBody = message->findFirst(String(ns + ":Body"));
+    const auto xmlBody = message->findFirst(string(ns) + ":Body");
     if (xmlBody == nullptr)
     {
-        throw HTTPException(minHttpErrorCode, "Can't find " + ns + ":Body in " + messageType);
+        throw HTTPException(minHttpErrorCode, format("Can't find {}:Body in {}", ns, messageType.c_str()));
     }
 
     auto xmlRequest = getFirstChildElement(xmlBody);
@@ -123,7 +123,7 @@ xdoc::SNode BaseWebServiceProtocol::processXmlContent(const char* startOfMessage
         xmlRequest->set(name, param);
     }
 
-    const String methodName = xmlRequest->getName();
+    const string methodName(xmlRequest->getName());
     xmlRequest->set("rest_method_name", methodName);
 
     return xmlRequest;

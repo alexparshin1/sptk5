@@ -4,7 +4,7 @@
 using namespace std;
 using namespace sptk;
 
-void TestSettings::load(const std::filesystem::path settingsFile)
+void TestSettings::load(const std::filesystem::path& settingsFile)
 {
     Buffer settings;
     settings.loadFromFile(settingsFile);
@@ -14,6 +14,6 @@ void TestSettings::load(const std::filesystem::path settingsFile)
 
     for (const auto& node: document.root()->nodes())
     {
-        m_keys[node->getName()] = node->getString();
+        m_keys[string(node->getName())] = node->getString();
     }
 }
