@@ -28,7 +28,6 @@
 #pragma once
 
 #include <cstring>
-#include <sptk5/String.h>
 
 namespace sptk::xdoc {
 
@@ -85,7 +84,11 @@ public:
         parseQualifiedName();
     }
 
-    NodeName(NodeName&& other) = default;
+    NodeName(NodeName&& other)
+        : m_qualifiedName(std::move(other.m_qualifiedName))
+    {
+        parseQualifiedName();
+    }
 
     NodeName& operator=(const NodeName& other)
     {
@@ -97,7 +100,15 @@ public:
         return *this;
     }
 
-    NodeName& operator=(NodeName&& other) = default;
+    NodeName& operator=(NodeName&& other)
+    {
+        if (this != &other)
+        {
+            m_qualifiedName = std::move(other.m_qualifiedName);
+            parseQualifiedName();
+        }
+        return *this;
+    }
 
     /**
      * @brief Get node name.
@@ -203,6 +214,7 @@ private:
         else
         {
             m_name = {m_qualifiedName.c_str(), m_qualifiedName.length()};
+            m_nameSpace = {};
         }
     }
 
@@ -214,6 +226,7 @@ private:
         if (m_nameSpace.empty())
         {
             m_qualifiedName = m_name;
+            m_nameSpace = {};
         }
         else
         {
