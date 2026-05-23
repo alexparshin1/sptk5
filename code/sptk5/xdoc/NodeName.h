@@ -44,8 +44,8 @@ public:
      * @param nameSpace         Node namespace.
      */
     NodeName(std::string name, std::string nameSpace)
-        : m_name(std::move(name))
-        , m_nameSpace(std::move(nameSpace))
+        : m_name(name)
+        , m_nameSpace(nameSpace)
     {
         setQualifiedName();
     }
@@ -64,8 +64,9 @@ public:
      * @param name              Node name, short or qualified.
      */
     NodeName(const std::string_view name)
-        : NodeName(std::string(name))
+        : m_qualifiedName(name)
     {
+        parseQualifiedName();
     }
 
     /**
@@ -75,20 +76,27 @@ public:
     NodeName(const std::string& name)
         : m_qualifiedName(name)
     {
-        if (const auto* pos = strchr(name.c_str(), ':'))
-        {
-            m_nameSpace = std::string(name.c_str(), pos - name.c_str());
-            m_name = name.substr(pos - name.c_str() + 1);
-        }
-        else
-        {
-            m_name = name;
-        }
+        parseQualifiedName();
     }
 
-    NodeName(const NodeName& other) = default;
+    NodeName(const NodeName& other)
+        : m_qualifiedName(other.m_qualifiedName)
+    {
+        parseQualifiedName();
+    }
+
     NodeName(NodeName&& other) = default;
-    NodeName& operator=(const NodeName& other) = default;
+
+    NodeName& operator=(const NodeName& other)
+    {
+        if (this != &other)
+        {
+            m_qualifiedName = other.m_qualifiedName;
+            parseQualifiedName();
+        }
+        return *this;
+    }
+
     NodeName& operator=(NodeName&& other) = default;
 
     /**
@@ -106,7 +114,7 @@ public:
      */
     void setName(std::string name)
     {
-        m_name = std::move(name);
+        m_name = name;
         setQualifiedName();
     }
 
@@ -177,9 +185,26 @@ public:
     }
 
 private:
-    std::string m_name;          ///< Node name.
-    std::string m_nameSpace;     ///< Node namespace.
-    std::string m_qualifiedName; ///< Node qualified name.
+    std::string_view m_name {};       ///< Node name.
+    std::string_view m_nameSpace {};  ///< Node namespace.
+    std::string      m_qualifiedName; ///< Node qualified name.
+
+    /**
+     * @brief Parse internal qualified name into namespace and node name.
+     */
+    void parseQualifiedName()
+    {
+        if (const auto* pos = strchr(m_qualifiedName.c_str(), ':'))
+        {
+            const size_t namespaceLength = pos - m_qualifiedName.c_str();
+            m_nameSpace = {m_qualifiedName.c_str(), namespaceLength};
+            m_name = {m_qualifiedName.c_str() + namespaceLength + 1, m_qualifiedName.length() - namespaceLength - 1};
+        }
+        else
+        {
+            m_name = {m_qualifiedName.c_str(), m_qualifiedName.length()};
+        }
+    }
 
     /**
      * @brief Set the qualified name after changing the name or namespace.
@@ -192,7 +217,11 @@ private:
         }
         else
         {
-            m_qualifiedName = m_nameSpace + ":" + m_name;
+            auto namespaceLength = m_nameSpace.length();
+            auto nameLength = m_name.length();
+            m_qualifiedName = format("{}:{}", m_nameSpace, m_name);
+            m_nameSpace = {m_qualifiedName.c_str(), namespaceLength};
+            m_name = {m_qualifiedName.c_str() + namespaceLength + 1, nameLength};
         }
     }
 };

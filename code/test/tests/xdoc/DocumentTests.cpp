@@ -40,7 +40,7 @@ const String testJSON(
     R"("title": "\"Mouse\"",)"
     R"("address": { "married": true, "employed": false } })");
 
-void verifyDocument(Document& document)
+void verifyDocument(const Document& document)
 {
     const auto& root = *document.root();
     EXPECT_STREQ("John", root.getString("name").c_str());
@@ -198,12 +198,12 @@ TEST(XDocumentTests, exportToBuffer)
 TEST(XDocumentTests, copyCtor)
 {
     const Buffer input(testJSON);
-    Document     document;
+
+    Document document;
     document.load(input);
+    verifyDocument(document);
 
     Document document2(document);
-
-    verifyDocument(document);
     verifyDocument(document2);
 }
 
