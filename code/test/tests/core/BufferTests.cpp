@@ -286,7 +286,7 @@ TEST(BufferTests, createPerformance)
 TEST(BufferTests, format)
 {
     Buffer buffer;
-    buffer.format(1024, "test {}: {}", 1, "Ok");
+    buffer.append(1024, "test {}: {}", 1, "Ok");
 
     EXPECT_STREQ("test 1: Ok", buffer.c_str());
 }

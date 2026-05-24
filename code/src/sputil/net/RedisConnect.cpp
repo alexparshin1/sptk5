@@ -465,7 +465,8 @@ void RedisConnect::sendRequest(const Command& command) const
     }
 
     Buffer buffer(expectedLength);
-    buffer.append(format("*{}", command.size()));
+    buffer.append('*');
+    buffer.append(to_string(command.size()));
 
     array<char, 32> lengthBuffer {};
     for (const auto& commandElement: command)

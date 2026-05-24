@@ -276,7 +276,7 @@ public:
      * @return                  Number of characters appended
      */
     template<typename... Args>
-    size_t format(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
+    size_t append(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
     {
         checkSize(size() + maxLength);
         const std::format_to_n_result result = std::format_to_n(data() + size(), maxLength, fmt, std::forward<Args>(args)...);

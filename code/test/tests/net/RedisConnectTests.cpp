@@ -423,7 +423,7 @@ TEST_F(RedisConnectTests, scanPerformance)
 
     ASSERT_TRUE(redis.isConnected());
 
-    constexpr auto iterations = 100;
+    constexpr auto iterations = 10000;
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
