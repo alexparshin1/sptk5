@@ -89,7 +89,7 @@ void RedisConnect::set(const string& key, const Variant& value)
     scoped_lock lock(m_mutex);
 
     Command command {"SET", key};
-    command.push_back(serialize(value));
+    command.push_back(std::move(serialize(value)));
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -172,13 +172,16 @@ vector<string> RedisConnect::scan(const string& pattern, size_t limit)
     size_t cursor = 0;
     do
     {
-        list<Variant> iterationResults;
+        vector<Variant> iterationResults;
         cursor = scan(pattern, cursor, iterationResults, limit);
-        results.reserve(results.size() + iterationResults.size());
-        ranges::transform(iterationResults, back_inserter(results), [](const auto& result)
-                          {
-                              return result.asString();
-                          });
+        if (!iterationResults.empty())
+        {
+            results.reserve(results.size() + iterationResults.size());
+            ranges::transform(iterationResults, back_inserter(results), [](const auto& result)
+                              {
+                                  return result.asString();
+                              });
+        }
     } while (cursor != 0 && results.size() < limit);
 
     if (results.size() > limit)
@@ -392,7 +395,7 @@ void RedisConnect::hdel(const string& hash, const vector<string>& keys)
     executeCommand(commandWords, results);
 }
 
-size_t RedisConnect::scan(const string& pattern, const size_t cursor, list<Variant>& matchedKeys, size_t limit)
+size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, size_t limit)
 {
     const auto     cursorStr = to_string(cursor);
     const auto     countStr = to_string(limit);
@@ -403,16 +406,10 @@ size_t RedisConnect::scan(const string& pattern, const size_t cursor, list<Varia
         commandWords.push_back(countStr);
     }
 
-    executeCommand(commandWords, matchedKeys);
+    Variant newCursor;
+    executeCommand(commandWords, matchedKeys, &newCursor);
 
-    if (matchedKeys.empty())
-    {
-        throw RedisConnectException("Unexpected empty response from SCAN command");
-    }
-
-    const auto newCursor = matchedKeys.front().asInteger();
-    matchedKeys.erase(matchedKeys.begin());
-    return newCursor;
+    return newCursor.asInt64();
 }
 
 Variant RedisConnect::get(const string& key)
@@ -473,13 +470,13 @@ void RedisConnect::sendRequest(const Command& command) const
         buffer.append("\r\n$", 3);
         buffer.append(to_string(commandElement.size()));
         buffer.append("\r\n", 2);
-        buffer.append(reinterpret_cast<const uint8_t*>(commandElement.data()), commandElement.size());
+        buffer.append(commandElement);
     }
     buffer.append("\r\n", 2);
     m_socket->write(buffer.data(), buffer.bytes());
 }
 
-String RedisConnect::readLine()
+const Buffer& RedisConnect::readLine()
 {
     if (m_reader->readLine(m_readLineBuffer) == 0)
     {
@@ -491,9 +488,10 @@ String RedisConnect::readLine()
     }
 
     // Remove \r from the end if present
-    if (!m_readLineBuffer.empty() && m_readLineBuffer.back() == '\r')
+    if (auto lastCharPos = m_readLineBuffer.size() - 1; !m_readLineBuffer.empty() && m_readLineBuffer[lastCharPos] == '\r')
     {
-        m_readLineBuffer.resize(m_readLineBuffer.size() - 1);
+        m_readLineBuffer.bytes(lastCharPos);
+        m_readLineBuffer[lastCharPos] = 0;
     }
 
     return m_readLineBuffer;

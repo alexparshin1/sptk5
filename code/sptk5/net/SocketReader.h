@@ -93,19 +93,19 @@ public:
 
     /**
      * @brief Performs the buffered read of LF-terminated data.
-     * @param dest              Destination buffer.
+     * @param destinationBuffer              Destination buffer.
      * @param delimiter         Line delimiter.
      * @returns bytes read from the internal buffer.
      */
-    size_t readLine(Buffer& dest, char delimiter = '\n');
+    size_t readLine(Buffer& destinationBuffer, char delimiter = '\n');
 
     /**
      * @brief Performs the buffered read of LF-terminated string.
-     * @param dest              Destination buffer.
+     * @param destinationBuffer              Destination buffer.
      * @param delimiter         Line delimiter.
      * @returns bytes read from the internal buffer.
      */
-    size_t readLine(String& dest, char delimiter = '\n');
+    size_t readLine(String& destinationBuffer, char delimiter = '\n');
 
     /**
      * @brief Return the number of bytes available to read.
@@ -136,7 +136,6 @@ public:
      */
     [[nodiscard]] bool active() const
     {
-        std::scoped_lock const lock(m_mutex);
         return m_socket->active();
     }
 

@@ -9,7 +9,9 @@ do
     [ -d $dname ] && rm -rf $dname
 done
 
-[ -f CMakeCache.txt ] && rm -rf CMakeCache.txt Debug DebugCoverage Release
+[ -f CMakeCache.txt ] && rm -rf CMakeCache.txt
+
+rm -rf Debug DebugCoverage Release
 
 for file in Makefile install_manifest.txt cmake_install.cmake cmake_uninstall.cmake compile_commands.json *.deb install_manifest*.txt
 do

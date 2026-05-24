@@ -239,15 +239,14 @@ private:
     mutable std::mutex            m_mutex;          ///< Mutex for thread safety.
     std::shared_ptr<TCPSocket>    m_socket;         ///< Underlying socket.
     std::unique_ptr<SocketReader> m_reader;         ///< Socket reader.
-    String                        m_readLineBuffer; ///< Read line buffer.
+    Buffer                        m_readLineBuffer; ///< Read line buffer.
 
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
      * @param results Redis command output.
      */
-    template<typename T>
-    void executeCommand(const Command& command, T& results)
+    void executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor = nullptr)
     {
         if (!m_socket->active())
         {
@@ -261,23 +260,24 @@ private:
 
         sendRequest(command);
 
-        readResponse(results);
+        readResponse(results, cursor);
     }
 
     /**
      * @brief Reads a line from Redis.
      * @return A line from Redis.
      */
-    [[nodiscard]] String readLine();
+    [[nodiscard]] const Buffer& readLine();
 
     /**
      * @brief Reads a response from Redis.
+     * @param results           Output results.
+     * @param cursor            Optional output cursor for commands like SCAN.
      * @return Response as Variant.
      */
-    template<typename T>
-    void readResponse(T& results)
+    void readResponse(std::vector<Variant>& results, Variant* cursor = nullptr)
     {
-        const auto line = readLine();
+        const auto& line = readLine();
         if (line.empty())
         {
             throw RedisConnectException("Empty response");
@@ -307,10 +307,18 @@ private:
                     results.emplace_back(); // Null
                     return;
                 }
-                Buffer buffer;
-                m_reader->read(buffer, len + 2);  // Also read \r\n
-                buffer.bytes(buffer.bytes() - 2); // Cut off \r\n
-                results.emplace_back(std::move(buffer));
+                const auto readLength = len + 2;
+                Buffer     buffer(readLength);
+                m_reader->read(buffer, readLength); // Also read \r\n
+                buffer.bytes(buffer.bytes() - 2);   // Cut off \r\n
+                if (cursor)
+                {
+                    *cursor = buffer;
+                }
+                else
+                {
+                    results.emplace_back(std::move(buffer));
+                }
                 return;
             }
             case '*': { // Array
@@ -324,7 +332,8 @@ private:
                 // For read the array
                 for (auto i = 0; i < count; ++i)
                 {
-                    readResponse(results);
+                    readResponse(results, cursor);
+                    cursor = nullptr;
                 }
                 return;
             }
@@ -364,7 +373,7 @@ private:
      * @param limit Match limit.
      * @return Cursor.
      */
-    size_t scan(const std::string& pattern, size_t cursor, std::list<Variant>& matchedKeys, size_t limit);
+    size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit);
 
     /**
      * @brief Append value to the command.

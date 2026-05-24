@@ -427,7 +427,7 @@ TEST_F(RedisConnectTests, scanPerformance)
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
-        keys.push_back(format("scan-perf-key{}", i));
+        keys.push_back(format("session-client{}-node-{}", i, i % 10));
     }
 
     for (auto i = 0; i < iterations; ++i)
@@ -437,12 +437,22 @@ TEST_F(RedisConnectTests, scanPerformance)
 
     Stopwatch watch;
     watch.start();
-    const auto keysFound = redis.scan("scan-perf-key*", iterations);
+    auto keysFound = redis.scan("session-client*", iterations);
     watch.stop();
 
     EXPECT_EQ(iterations, keysFound.size());
 
-    cout << format("Scan performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+    cout << format("Scan performance (scan for prefix): {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+
+    watch.start();
+    for (auto node = 0; node < 10; ++node)
+    {
+        keysFound = redis.scan(format("*-node-{}", node), iterations);
+        EXPECT_EQ(iterations / 10, keysFound.size());
+    }
+    watch.stop();
+
+    cout << format("Scan performance (scan for suffix): {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
 }
 
 TEST_F(RedisConnectTests, scanAndMgetPerformance)
