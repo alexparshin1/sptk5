@@ -468,15 +468,14 @@ void RedisConnect::sendRequest(const Command& command) const
     buffer.append('*');
     buffer.append(to_string(command.size()));
 
-    array<char, 32> lengthBuffer {};
     for (const auto& commandElement: command)
     {
-        auto [out, len] = format_to_n(lengthBuffer.data(), lengthBuffer.size(), "\r\n${}\r\n", commandElement.size());
-        *out = 0;
-        buffer.append(lengthBuffer.data(), len);
+        buffer.append("\r\n$", 3);
+        buffer.append(to_string(commandElement.size()));
+        buffer.append("\r\n", 2);
         buffer.append(reinterpret_cast<const uint8_t*>(commandElement.data()), commandElement.size());
     }
-    buffer.append(reinterpret_cast<const uint8_t*>("\r\n"), 2);
+    buffer.append("\r\n", 2);
     m_socket->write(buffer.data(), buffer.bytes());
 }
 
