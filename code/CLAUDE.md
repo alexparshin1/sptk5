@@ -8,35 +8,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Build System
 
-CMake with Ninja. Pre-configured build directories already exist in the repo root:
-
-| Directory | Type |
-|---|---|
-| `Debug/` | Debug build (default) |
-| `Release/` | Release build |
-| `DebugCoverage/` | Debug + gcov coverage |
-| `cmake-build-debug-coverage/` | CLion coverage build |
+CMake with Ninja. The repo supports both **in-source** (build files at repo root, current default) and **out-of-source** builds (e.g. `Debug/`, `Release/`, `DebugCoverage/` subdirectories). Compiled libraries always land in `./lib/` regardless of build location.
 
 ### Build commands
 
 ```bash
-# Build from an existing build directory
-cd Debug && ninja
+# Build from repo root (current in-source setup)
+ninja
 
 # Build a specific target
-cd Debug && ninja sputil5
+ninja sputil5
 
-# Configure a fresh build directory (example: Debug)
+# Configure a fresh out-of-source Debug build
 cmake -B Debug -S . -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cd Debug && ninja
 
-# Run all unit tests (from build dir)
-cd Debug && ./test/sptk_unit_tests
+# Run all unit tests (from repo root for in-source, or from build dir)
+./test/sptk_unit_tests
 
 # Run a specific test suite by name (GoogleTest filter)
-cd Debug && ./test/sptk_unit_tests --gtest_filter="DateTime*"
+./test/sptk_unit_tests --gtest_filter="DateTime*"
+
+# Clean all build artifacts (removes CMakeCache, CMakeFiles, Debug/Release/DebugCoverage dirs)
+./distclean.sh
 
 # Install
-cd Debug && ninja install
+ninja install
 ```
 
 ### Key CMake options
@@ -81,6 +78,7 @@ src/spdb/     — implementation of spdb5 (Query, Transaction, BulkQuery, Connec
 src/sptk/gui/ — implementation of sptk5 GUI widgets
 src/drivers/  — pluggable DB drivers: MySQL, PostgreSQL, SQLite3, ODBC, Oracle, OracleOCI
 src/wsdl/     — SOAP/REST web service server (WSServer, WSRequest, OpenApiGenerator)
+utilities/    — standalone tools: wsdl2cxx (WSDL-to-C++ codegen), xml2json, load_balance
 ```
 
 ### Public headers
@@ -114,15 +112,17 @@ All widgets inherit from `CControl` → `CLayoutClient` → `Fl_Group`. `CLayout
 
 ## Testing
 
-Tests use GoogleTest. The test binary is `test/sptk_unit_tests` (built into the build directory). Test source files are in `test/` and `test/tests/{core,net,spdb,threads,xdoc,jwt,tar,wsdl}/`.
+Tests use GoogleTest. Test source files are in `test/` and `test/tests/{core,net,spdb,threads,xdoc,jwt,tar,wsdl}/`.
 
-Database tests require live DB servers. Connection strings are hard-coded in `test/sptk_unit_tests.cpp`; set up matching hosts (`dbhost_pg`, `dbhost_mysql`, etc.) or skip DB test suites with `--gtest_filter`.
+Database tests require live DB servers. Connection strings are hard-coded in `test/sptk_unit_tests.cpp` (hosts: `dbhost_pg`, `dbhost_mysql`, `oracledb`, DSN `dsn_mssql`). Skip specific suites with `--gtest_filter=-MSSQL*:-Oracle*` etc.
+
+SMTP tests read credentials from `test/settings.txt` (JSON with `smtp_user` and `smtp_password` keys).
 
 ## Code Conventions
 
 - All public symbols are in `namespace sptk`. `xdoc` types are in `namespace sptk::xdoc`.
 - `SP_EXPORT` macro marks symbols for shared-library export.
-- Each file starts with the standard SPTK copyright/license block.
+- Each file starts with the standard SPTK copyright/license block (the `╔══╗` box header).
 - C++20 throughout (`std::span`, structured bindings, concepts where appropriate).
 - `#pragma once` used in all headers.
 - RAII everywhere: locks via `std::scoped_lock`/`SmartLock`, DB connections via `PoolDatabaseConnection`, threads managed through `ThreadPool`/`WorkerThread`.

@@ -581,8 +581,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            size_t writeSize = remaining > 2048 ? 2048 : remaining;
-            bytes = static_cast<int>(sendUnlocked(ptr, writeSize));
+            bytes = static_cast<int>(sendUnlocked(ptr, remaining));
         }
 
         remaining -= bytes;
