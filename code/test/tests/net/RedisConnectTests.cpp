@@ -399,16 +399,16 @@ TEST_F(RedisConnectTests, scan)
     redis.set("scan-key1", 12345);
     redis.set("scan-key2", 1234);
 
-    auto    values = redis.scan("scan-*", 2);
+    auto foundKeys = redis.scan("scan-key*", 2);
     Strings keys;
-    keys.reserve(values.size());
-    for (const auto& value: values)
-    {
-        keys.push_back(value);
+    keys.reserve(keys.size());
+    for (const auto& key: foundKeys) {
+        keys.push_back(key);
+        COUT("[" << key << "]" << " " << key.size() << " bytes");
     }
 
     // Expect two keys matched
-    ASSERT_EQ(2, values.size());
+    ASSERT_EQ(2, keys.size());
 
     EXPECT_NE(-1, keys.indexOf("scan-key1"));
     EXPECT_NE(-1, keys.indexOf("scan-key2"));
