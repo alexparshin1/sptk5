@@ -399,10 +399,11 @@ TEST_F(RedisConnectTests, scan)
     redis.set("scan-key1", 12345);
     redis.set("scan-key2", 1234);
 
-    auto foundKeys = redis.scan("scan-key*", 2);
+    auto    foundKeys = redis.scan("scan-key*", 2);
     Strings keys;
     keys.reserve(keys.size());
-    for (const auto& key: foundKeys) {
+    for (const auto& key: foundKeys)
+    {
         keys.push_back(key);
         COUT("[" << key << "]" << " " << key.size() << " bytes");
     }
@@ -416,7 +417,7 @@ TEST_F(RedisConnectTests, scan)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTests, scanPerformance)
+TEST_F(RedisConnectTests, getPerformance)
 {
     RedisConnect redis;
     redis.connect("theater", 6379);
@@ -424,10 +425,14 @@ TEST_F(RedisConnectTests, scanPerformance)
     ASSERT_TRUE(redis.isConnected());
 
     constexpr auto iterations = 10000;
-    vector<string> keys;
+    constexpr auto threadCount = 32;
+
+    vector<string>            keys;
+    SynchronizedQueue<string> keysQueue;
     for (auto i = 0; i < iterations; ++i)
     {
-        keys.push_back(format("session-client{}-node-{}", i, i % 10));
+        keys.push_back(format("s:client{}@node-{}", i, i % 10));
+        keysQueue.push_back(keys.back());
     }
 
     for (auto i = 0; i < iterations; ++i)
@@ -437,22 +442,105 @@ TEST_F(RedisConnectTests, scanPerformance)
 
     Stopwatch watch;
     watch.start();
-    auto keysFound = redis.scan("session-client*", iterations);
-    watch.stop();
+    atomic_size_t foundKeyCount = 0;
 
-    EXPECT_EQ(iterations, keysFound.size());
-
-    cout << format("Scan performance (scan for prefix): {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
-
-    watch.start();
-    for (auto node = 0; node < 10; ++node)
+    vector<jthread> threads;
+    for (auto thread = 0; thread < threadCount; ++thread)
     {
-        keysFound = redis.scan(format("*-node-{}", node), iterations);
-        EXPECT_EQ(iterations / 10, keysFound.size());
+        threads.emplace_back([&keysQueue, &foundKeyCount]
+                             {
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect("theater", 6379);
+                                 string key;
+                                 while (keysQueue.pop_front(key, 1ms))
+                                 {
+                                     if (const auto value = threadRedis.get(key);
+                                         !value.isNull())
+                                     {
+                                         ++foundKeyCount;
+                                     }
+                                 }
+                             });
     }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+    threads.clear();
+
     watch.stop();
 
-    cout << format("Scan performance (scan for suffix): {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
+    EXPECT_EQ(iterations, foundKeyCount);
+
+    cout << format("{} gets: {:3.1f} ms, {:3.1f} K/s\n", iterations, watch.milliseconds(), iterations / watch.milliseconds());
+}
+
+TEST_F(RedisConnectTests, hgetPerformance)
+{
+    RedisConnect redis;
+    redis.connect("theater", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    constexpr auto iterations = 100000;
+    constexpr auto threadCount = 32;
+    constexpr auto hashCount = 10;
+
+    vector<string> hashes;
+    for (auto i = 0; i < hashCount; ++i)
+    {
+        hashes.push_back(format("n:node-{}", i));
+    }
+
+    vector<string>            keys;
+    SynchronizedQueue<string> keysQueue;
+    for (auto i = 0; i < iterations; ++i)
+    {
+        const auto& hash = hashes[i % hashCount];
+        const auto  key = format("s:client{}", i);
+        redis.hset(hash, key, i);
+        keysQueue.push_back(key);
+    }
+
+    Stopwatch watch;
+    watch.start();
+    atomic_size_t foundKeyCount = 0;
+
+    vector<jthread> threads;
+    for (auto thread = 0; thread < threadCount; ++thread)
+    {
+        threads.emplace_back([&hashes, &keysQueue, &foundKeyCount]
+                             {
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect("theater", 6379);
+                                 string key;
+                                 while (keysQueue.pop_front(key, 1ms))
+                                 {
+                                     for (const auto& hash: hashes)
+                                     {
+                                         if (auto value = threadRedis.hget(hash, key);
+                                             !value.isNull())
+                                         {
+                                             ++foundKeyCount;
+                                             break;
+                                         }
+                                     }
+                                 }
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+    threads.clear();
+
+    watch.stop();
+
+    EXPECT_EQ(iterations, foundKeyCount);
+
+    cout << format("{} gets: {:3.1f} ms, {:3.1f} K/s\n", iterations, watch.milliseconds(), iterations / watch.milliseconds());
 }
 
 TEST_F(RedisConnectTests, scanAndMgetPerformance)
@@ -504,7 +592,7 @@ TEST_F(RedisConnectTests, remove)
     redis.disconnect();
 }
 
-TEST_F(RedisConnectTests, hsetSingleKey)
+TEST_F(RedisConnectTests, hgetSetSingleKey)
 {
     RedisConnect redis;
     redis.connect("127.0.0.1", 6379);
@@ -518,9 +606,8 @@ TEST_F(RedisConnectTests, hsetSingleKey)
     (void) redis.remove({hash});
 
     EXPECT_NO_THROW(redis.hset(hash, key, value));
-    auto keysAndValues = redis.hmget(hash, {key});
-    EXPECT_EQ(1, keysAndValues.size());
-    EXPECT_NEAR(value.asFloat(), keysAndValues[key].asFloat(), 0.001);
+    auto returnedValue = redis.hget(hash, key);
+    EXPECT_NEAR(value.asFloat(), returnedValue.asFloat(), 0.001);
 
     redis.disconnect();
 }
@@ -852,7 +939,7 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
     COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
 }
 
-TEST_F(RedisConnectTests, hmgetPerformance)
+TEST_F(RedisConnectTests, nodesPerformance)
 {
     constexpr size_t maxHashes = 100;
     constexpr size_t maxKeysPerHash = 100;

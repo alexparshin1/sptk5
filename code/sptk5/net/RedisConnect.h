@@ -109,7 +109,7 @@ public:
      * @return Variant values.
      */
     [[nodiscard]] KeysAndValues mget(const std::vector<std::string>& keys);
-    void                        sendRequest(const Command& command) const;
+    void                        sendRequest(const Command& command);
 
     /**
      * @brief Sets the key-value pair in Redis.
@@ -147,7 +147,15 @@ public:
     [[nodiscard]] std::vector<std::string> hkeys(const std::string& hashName);
 
     /**
-     * @brief Gets list of the hash keys.
+     * @brief Gets hash key's value.
+     * @param hash Hash name.
+     * @param key Key.
+     * @return Key value, the Variant is null if not found.
+     */
+    [[nodiscard]] Variant hget(const std::string& hash, const std::string& key);
+
+    /**
+     * @brief Gets hash keys and values for the list of keys.
      * @param hash Hash name.
      * @param keys Keys of the hash values.
      * @return Keys and values matching the passed keys of the hash.
@@ -239,6 +247,7 @@ private:
     mutable std::mutex            m_mutex;          ///< Mutex for thread safety.
     std::shared_ptr<TCPSocket>    m_socket;         ///< Underlying socket.
     std::unique_ptr<SocketReader> m_reader;         ///< Socket reader.
+    Buffer                        m_sendBuffer;     ///< Read line buffer.
     Buffer                        m_readLineBuffer; ///< Read line buffer.
 
     /**

@@ -28,7 +28,8 @@
 #include "sptk5/net/RedisConnect.h"
 #include "sptk5/Base64.h"
 #include "sptk5/Printer.h"
-#include <list>
+
+#include <netinet/tcp.h>
 
 using namespace std;
 using namespace sptk;
@@ -45,6 +46,7 @@ vector<Variant> RedisConnect::connect(const string& host, int port,
 
     m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));
     m_socket->open();
+    m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     m_reader = make_unique<SocketReader>(m_socket);
 
     vector<string> commandWords {"HELLO", "3"};
@@ -333,6 +335,23 @@ vector<string> RedisConnect::hkeys(const string& hashName)
     return keys;
 }
 
+Variant RedisConnect::hget(const std::string& hash, const std::string& key)
+{
+    scoped_lock lock(m_mutex);
+
+    const vector<string> commandWords {"HGET", hash, key};
+
+    vector<Variant> results;
+    executeCommand(commandWords, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from HGET");
+    }
+
+    return results[0];
+}
+
 RedisConnect::KeysAndValues RedisConnect::hmget(const string& hash, const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
@@ -453,27 +472,27 @@ RedisConnect::KeysAndValues RedisConnect::mget(const vector<string>& keys)
     return output;
 }
 
-void RedisConnect::sendRequest(const Command& command) const
+void RedisConnect::sendRequest(const Command& command)
 {
-    size_t expectedLength = 10; // New line chars and number of elements as a string.
+    size_t expectedLength = 20; // New line chars and number of elements as a string.
     for (const auto& commandElement: command)
     {
-        expectedLength += commandElement.size() + 10;
+        expectedLength += commandElement.size() + 20;
     }
 
-    Buffer buffer(expectedLength);
-    buffer.append('*');
-    buffer.append(to_string(command.size()));
+    m_sendBuffer.bytes(0);
+    m_sendBuffer.checkSize(expectedLength);
+    m_sendBuffer.append('*');
+
+    m_sendBuffer.printf(20, "%lu", command.size());
 
     for (const auto& commandElement: command)
     {
-        buffer.append("\r\n$", 3);
-        buffer.append(to_string(commandElement.size()));
-        buffer.append("\r\n", 2);
-        buffer.append(commandElement);
+        m_sendBuffer.printf(commandElement.size() + 20, "\r\n$%lu\r\n", commandElement.size());
+        m_sendBuffer.append(commandElement);
     }
-    buffer.append("\r\n", 2);
-    m_socket->write(buffer.data(), buffer.bytes());
+    m_sendBuffer.append("\r\n", 2);
+    m_socket->write(m_sendBuffer);
 }
 
 const Buffer& RedisConnect::readLine()
@@ -488,7 +507,8 @@ const Buffer& RedisConnect::readLine()
     }
 
     // Remove \r from the end if present
-    if (auto lastCharPos = m_readLineBuffer.size() - 1; !m_readLineBuffer.empty() && m_readLineBuffer[lastCharPos] == '\r')
+    if (const auto lastCharPos = m_readLineBuffer.size() - 1;
+        !m_readLineBuffer.empty() && m_readLineBuffer[lastCharPos] == '\r')
     {
         m_readLineBuffer.bytes(lastCharPos);
         m_readLineBuffer[lastCharPos] = 0;
