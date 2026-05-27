@@ -105,12 +105,10 @@ void BufferStorage::append(const uint8_t* data, const size_t size)
     }
 
     checkSize(m_size + size + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer + m_size, data, size);
-        m_size += size;
-        m_buffer[m_size] = 0;
-    }
+
+    memcpy(m_buffer + m_size, data, size);
+    m_size += size;
+    m_buffer[m_size] = 0;
 }
 
 void BufferStorage::reset(const size_t size)
