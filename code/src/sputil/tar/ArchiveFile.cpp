@@ -57,7 +57,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
 
     if (filesystem::is_symlink(path))
     {
-        m_type = ArchiveFile::Type::SYM_LINK;
+        m_type = Type::SYM_LINK;
         status = filesystem::symlink_status(path);
         m_linkname = filesystem::read_symlink(path).string();
     }
@@ -67,7 +67,7 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     }
     else if (filesystem::is_directory(status))
     {
-        m_type = ArchiveFile::Type::DIRECTORY;
+        m_type = Type::DIRECTORY;
         filesystem::path relpath(relativeFileName.c_str());
         relpath /= "";
         relativeFileName = relpath;
@@ -76,17 +76,17 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     m_mode = static_cast<int>(status.permissions());
 
     const filesystem::file_time_type ftime = filesystem::last_write_time(path);
-    const time_t                     mtime = to_time_t(ftime);
+    const auto                       mtime = to_time_t(ftime);
     m_mtime = DateTime::convertCTime(mtime);
 
 #ifndef _WIN32
     struct stat info {};
     stat(fileName.c_str(), &info); // Error check omitted
 
-    constexpr int bufferSize = 128;
-    Buffer        buff(bufferSize);
-    struct passwd pw {};
-    if (struct passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
+    constexpr auto bufferSize = 128;
+    Buffer         buff(bufferSize);
+    passwd         pw {};
+    if (passwd* pw_result {}; getpwuid_r(info.st_uid, &pw, (char*) buff.data(), bufferSize, &pw_result) != 0)
     {
         throw SystemException("Can't get user information");
     }
@@ -95,8 +95,8 @@ ArchiveFile::ArchiveFile(const filesystem::path& fileName, const filesystem::pat
     m_ownership.uid = static_cast<int>(pw.pw_uid);
     m_ownership.gid = static_cast<int>(pw.pw_gid);
 
-    struct group gr {};
-    if (struct group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
+    group gr {};
+    if (group* gr_result {}; getgrgid_r(info.st_gid, &gr, (char*) buff.data(), bufferSize, &gr_result) != 0)
     {
         throw SystemException("Can't get group information");
     }
@@ -134,7 +134,7 @@ filesystem::path ArchiveFile::relativePath(const filesystem::path& fileName, con
 }
 
 ArchiveFile::ArchiveFile(const filesystem::path& fileName, const Buffer& content, int mode, DateTime mtime,
-                         ArchiveFile::Type type, ArchiveFile::Ownership ownership,
+                         Type type, Ownership ownership,
                          const filesystem::path& linkName)
     : Buffer(content)
     , m_fileName(fileName.string())
@@ -161,7 +161,7 @@ void ArchiveFile::makeHeader()
 
     m_header->typeflag = static_cast<char>(m_type);
 
-    if (m_type == ArchiveFile::Type::SYM_LINK)
+    if (m_type == Type::SYM_LINK)
     {
         strncpy(m_header->linkName.data(), m_linkname.c_str(), sizeof(m_header->linkName) - 1);
     }

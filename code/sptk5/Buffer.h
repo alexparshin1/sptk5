@@ -26,10 +26,12 @@
 
 #pragma once
 
+#include <cstdarg>
+#include <cstdio>
+#include <format>
 #include <sptk5/BufferStorage.h>
 #include <sptk5/VariantStorageClient.h>
 
-#include <cstring>
 #include <memory>
 
 namespace sptk {
@@ -54,7 +56,7 @@ public:
      * Constructor
      * @param size              Pre-allocated buffer size
      */
-    explicit Buffer(size_t size = defaultBufferSize)
+    explicit Buffer(const size_t size = defaultBufferSize)
         : BufferStorage(size)
     {
     }
@@ -120,82 +122,10 @@ public:
     Buffer& operator=(const Buffer& other) = default;
 
     /**
-     * Appends a single char to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param singleChar                Single character
-     */
-    void append(char singleChar) override
-    {
-        BufferStorage::append(singleChar);
-    }
-
-    /**
-     * Appends the external data of size bufferSize to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param bufferSize                Required memory size
-     */
-    void append(const char* data, size_t bufferSize = MAX_SIZE_T) override
-    {
-        BufferStorage::append(data, bufferSize);
-    }
-
-    /**
-     * Appends the external data of size bufferSize to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param bufferSize                Required memory size
-     */
-    void append(const uint8_t* data, size_t bufferSize) override
-    {
-        BufferStorage::append(data, bufferSize);
-    }
-
-    /**
-     * Append a value of primitive type or structure to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param val               Primitive type or structure
-     */
-    template<class T>
-    requires std::is_integral_v<T>
-    void append(T val)
-    {
-        append((uint8_t*)&val, sizeof(val));
-    }
-
-    /**
-     * Appends the string to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param str               String to append
-     */
-    template<class T>
-    requires std::is_class_v<T>
-    void append(const T& str)
-    {
-        append(str.c_str(), str.size());
-    }
-
-    /**
-     * Appends the string to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param buffer            Data to append
-     */
-    void append(const Buffer& buffer)
-    {
-        append(buffer.data(), buffer.bytes());
-    }
-
-    /**
      * Access the chars by index
      * @param index             Character index
      */
-    uint8_t& operator[](size_t index)
+    uint8_t& operator[](const size_t index)
     {
         return data()[index];
     }
@@ -204,7 +134,7 @@ public:
      * Access the chars by index, const version
      * @param index             Character index
      */
-    const uint8_t& operator[](size_t index) const
+    const uint8_t& operator[](const size_t index) const
     {
         return data()[index];
     }
@@ -236,16 +166,17 @@ public:
     Buffer& operator=(const String& str);
 
     /**
-     * Assigns from char *
-     * @param str const char *, the string to assign from
-     * @returns this object
-     */
-    Buffer& operator=(const char* str);
-
-    /**
-     * Convertor to std::string
+     * Convertor to string.
      */
     explicit operator String() const
+    {
+        return {c_str(), bytes()};
+    }
+
+    /**
+     * Convertor to std::string_view.
+     */
+    explicit operator std::string_view() const
     {
         return {c_str(), bytes()};
     }
@@ -258,6 +189,42 @@ public:
     [[nodiscard]] size_t dataSize() const override
     {
         return size();
+    }
+
+    /**
+     * @brief Append formatted data to buffer.
+     * @param maxLength         The maximum number of chars to append to buffer.
+     * @param format            Format string, printf-style.
+     * @param ...               Arguments for format string.
+     * @return the actual number of chars appended to buffer.
+     */
+    size_t printf(const size_t maxLength, const char* format, ...)
+    {
+        checkSize(size() + maxLength);
+        va_list args;
+        va_start(args, format);
+        const auto written = vsnprintf(reinterpret_cast<char*>(data() + size()), maxLength + 1, format, args);
+        va_end(args);
+        if (written < 0)
+        {
+            return 0;
+        }
+        auto added = static_cast<size_t>(written);
+        if (added > maxLength)
+        {
+            added = maxLength;
+        }
+        bytes(size() + added);
+        return added;
+    }
+
+    /**
+     * @brief Swap buffers.
+     * @param other Another buffer.
+     */
+    void swap(Buffer& other)
+    {
+        swapInternal(other);
     }
 };
 

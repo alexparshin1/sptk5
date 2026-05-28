@@ -22,7 +22,11 @@
 # │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 # └──────────────────────────────────────────────────────────────────────────────┘
 
-cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.15 FATAL_ERROR)
+
+set(TARGET_MESSAGES OFF)
+set(CMAKE_TARGET_MESSAGES OFF)
+set(CMAKE_INSTALL_MESSAGE NEVER)
 
 SET(VERSION_MAJOR "5")
 SET(VERSION_MINOR "6")
@@ -160,7 +164,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O1 -msse4.2)
+        #ADD_DEFINITIONS(-O1 -msse4.2)
 
         # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)

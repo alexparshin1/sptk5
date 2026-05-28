@@ -56,7 +56,7 @@ String Url::encode(const String& str)
     const auto  cnt = static_cast<uint32_t>(str.length());
     const char* src = str.c_str();
 
-    constexpr int           bufferSize = 5;
+    constexpr auto          bufferSize = 5;
     array<char, bufferSize> hexBuffer {};
     Buffer                  buffer(cnt * 3 + 1);
     while (*src != 0)

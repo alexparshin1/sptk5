@@ -71,7 +71,7 @@ TEST(DateTimeTests,isoTimeString)
     const DateTime dateTime1(input.c_str());
     COUT(static_cast<String>(dateTime1));
     const String output(dateTime1.isoDateTimeString(sptk::DateTime::PrintAccuracy::MILLISECONDS));
-    EXPECT_TRUE(output.startsWith(input));
+    EXPECT_TRUE(output.starts_with(input));
 }
 
 TEST(DateTimeTests,timeZones)

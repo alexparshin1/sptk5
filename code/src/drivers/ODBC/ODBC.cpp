@@ -43,7 +43,7 @@ using namespace sptk;
 
 namespace {
 // Returns true if the result code indicates success
-inline bool Successful(RETCODE ret)
+bool Successful(RETCODE ret)
 {
     return ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO;
 }
@@ -136,7 +136,7 @@ void ODBCConnectionBase::freeConnect()
     m_connectString = "";
 }
 
-void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalString, bool /*EnableDriverPrompt*/)
+void ODBCConnectionBase::connect(const String& ConnectionString, String& finalConnectionString, bool /*EnableDriverPrompt*/)
 {
     // Check parameters
     if (ConnectionString.empty())
@@ -177,9 +177,9 @@ void ODBCConnectionBase::connect(const String& ConnectionString, String& pFinalS
         throw DatabaseException(errorInfo);
     }
 
-    pFinalString = reinterpret_cast<const char*>(buff.data());
+    finalConnectionString = reinterpret_cast<const char*>(buff.data());
     m_connected = true;
-    m_connectString = pFinalString;
+    m_connectString = finalConnectionString;
 
     // Trying to get more information about the driver
     array<char, bufferLength> driverDescription {};

@@ -17,16 +17,16 @@ BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
         {
             using enum VariantDataType;
             case VAR_BUFFER:
-                m_class = make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.m_class));
+                m_class = make_unique<Buffer>(*dynamic_cast<Buffer*>(other.m_class.get()));
                 break;
             case VAR_STRING:
-                m_class = make_shared<String>(*dynamic_pointer_cast<String>(other.m_class));
+                m_class = make_unique<String>(*dynamic_cast<String*>(other.m_class.get()));
                 break;
             case VAR_DATE_TIME:
-                m_class = make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.m_class));
+                m_class = make_unique<DateTime>(*dynamic_cast<DateTime*>(other.m_class.get()));
                 break;
             case VAR_MONEY:
-                m_class = make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.m_class));
+                m_class = make_unique<MoneyData>(*dynamic_cast<MoneyData*>(other.m_class.get()));
                 break;
             default:
                 break;
@@ -38,28 +38,28 @@ BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     }
 }
 
-BaseVariantStorage::BaseVariantStorage(bool value)
+BaseVariantStorage::BaseVariantStorage(const bool value)
 {
     m_value.asInt64 = value != 0 ? 1 : 0;
     m_type.type = VariantDataType::VAR_BOOL;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(int value)
+BaseVariantStorage::BaseVariantStorage(const int value)
 {
     m_value.asInt64 = value;
     m_type.type = VariantDataType::VAR_INT;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(int64_t value)
+BaseVariantStorage::BaseVariantStorage(const int64_t value)
 {
     m_value.asInt64 = value;
     m_type.type = VariantDataType::VAR_INT64;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(double value)
+BaseVariantStorage::BaseVariantStorage(const double value)
 {
     m_value.asDouble = value;
     m_type.type = VariantDataType::VAR_FLOAT;
@@ -68,14 +68,12 @@ BaseVariantStorage::BaseVariantStorage(double value)
 
 BaseVariantStorage::BaseVariantStorage(Buffer&& buffer)
 {
-    const auto buff = make_shared<Buffer>();
-    *buff = std::move(buffer);
-    m_class = buff;
+    m_type.size = buffer.size();
+    m_class = make_unique<Buffer>(std::move(buffer));
     m_type.type = VariantDataType::VAR_BUFFER;
-    m_type.size = sizeof(buffer.size());
 }
 
-BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bool externalBuffer)
+BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, const bool externalBuffer)
 {
     if (externalBuffer || value == nullptr)
     {
@@ -85,7 +83,7 @@ BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bo
     }
     else
     {
-        m_class = make_shared<Buffer>(value, dataSize);
+        m_class = make_unique<Buffer>(value, dataSize);
         m_type.type = VariantDataType::VAR_BUFFER;
     }
     m_type.size = m_type.isNull ? 0 : dataSize;
@@ -205,18 +203,50 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
         {
             using enum VariantDataType;
             case VAR_BUFFER:
-                setStorageClient(make_shared<Buffer>(*dynamic_pointer_cast<Buffer>(other.storageClient())));
+                if (auto* existing = dynamic_cast<Buffer*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const Buffer*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<Buffer>(*dynamic_cast<const Buffer*>(other.storageClient())));
+                }
                 break;
+
             case VAR_STRING:
-                setStorageClient(make_shared<String>(*dynamic_pointer_cast<String>(other.storageClient())));
+                if (auto* existing = dynamic_cast<String*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const String*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<String>(*dynamic_cast<const String*>(other.storageClient())));
+                }
                 break;
+
             case VAR_DATE:
             case VAR_DATE_TIME:
-                setStorageClient(make_shared<DateTime>(*dynamic_pointer_cast<DateTime>(other.storageClient())));
+                if (auto* existing = dynamic_cast<DateTime*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const DateTime*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<DateTime>(*dynamic_cast<const DateTime*>(other.storageClient())));
+                }
                 break;
+
             case VAR_MONEY:
-                setStorageClient(make_shared<MoneyData>(*dynamic_pointer_cast<MoneyData>(other.storageClient())));
+                if (auto* existing = dynamic_cast<MoneyData*>(storageClient()))
+                {
+                    *existing = *dynamic_cast<const MoneyData*>(other.storageClient());
+                }
+                else
+                {
+                    setStorageClient(make_unique<MoneyData>(*dynamic_cast<const MoneyData*>(other.storageClient())));
+                }
                 break;
+            
             default:
                 value().asInt64 = other.value().asInt64;
                 break;
@@ -231,7 +261,7 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(bool aValue)
+VariantStorage& VariantStorage::operator=(const bool aValue)
 {
     if (storageClient())
     {
@@ -244,7 +274,7 @@ VariantStorage& VariantStorage::operator=(bool aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int aValue)
+VariantStorage& VariantStorage::operator=(const int aValue)
 {
     if (storageClient())
     {
@@ -256,7 +286,7 @@ VariantStorage& VariantStorage::operator=(int aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int64_t aValue)
+VariantStorage& VariantStorage::operator=(const int64_t aValue)
 {
     if (storageClient())
     {
@@ -269,7 +299,7 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(double aValue)
+VariantStorage& VariantStorage::operator=(const double aValue)
 {
     if (storageClient())
     {
@@ -287,18 +317,18 @@ VariantStorage& VariantStorage::operator=(Buffer&& buffer)
     const auto valueSize = buffer.size();
     if (type().type != VariantDataType::VAR_BUFFER || !storageClient())
     {
-        setStorageClient(make_shared<Buffer>(std::move(buffer)));
+        setStorageClient(make_unique<Buffer>(std::move(buffer)));
     }
     else
     {
-        *dynamic_pointer_cast<Buffer>(storageClient()) = std::move(buffer);
+        *dynamic_cast<Buffer*>(storageClient()) = std::move(buffer);
     }
     setNull(false, VariantDataType::VAR_BUFFER);
     setSize(valueSize);
     return *this;
 }
 
-void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, VariantDataType type)
+void VariantStorage::setExternalBuffer(const uint8_t* aValue, const size_t dataSize, VariantDataType type)
 {
     if ((static_cast<int>(type) & BUFFER_TYPES) == 0)
     {
@@ -322,10 +352,9 @@ VariantStorage& VariantStorage::operator=(VariantStorage&& other) noexcept
     if (this != &other)
     {
         value() = other.value();
-        setStorageClient(other.storageClient());
+        setStorageClient(other.extractStorageClient());
         setType(other.type());
         other.value().asInt64 = 0;
-        other.setStorageClient(nullptr);
         other.setNull(true, VariantDataType::VAR_NONE);
     }
     return *this;

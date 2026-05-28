@@ -6,10 +6,10 @@ namespace sptk {
 class SP_EXPORT TestSettings
 {
 public:
-    void load(std::filesystem::path settingsFile);
+    void load(const std::filesystem::path& settingsFile);
 
 private:
-    std::map<String, String> m_keys;
+    std::map<std::string, std::string> m_keys;
 };
 
 } // namespace sptk

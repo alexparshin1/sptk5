@@ -49,7 +49,7 @@ namespace sptk {
 /**
  * @brief Network host information.
  */
-class SP_EXPORT Host
+class SP_EXPORT Host final
 {
 public:
     /**
@@ -98,7 +98,7 @@ public:
     /**
      * @brief Destructor.
      */
-    virtual ~Host() = default;
+    ~Host() = default;
 
     /**
      * @brief Assign from another host.
@@ -135,7 +135,8 @@ public:
      */
     void port(uint16_t p)
     {
-        setPort(p);
+        std::scoped_lock lock(m_mutex);
+        setPortUnlocked(p);
     }
 
     /**
@@ -162,6 +163,10 @@ public:
     void getAddress(sockaddr_in& address) const
     {
         std::scoped_lock lock(m_mutex);
+        if (any().sa_family != AF_INET)
+        {
+            throw std::runtime_error("Host::getAddress: not an IPv4 address");
+        }
         memcpy(&address, &m_address, sizeof(address));
     }
 
@@ -171,10 +176,12 @@ public:
     void getAddress(sockaddr_in6& address) const
     {
         std::scoped_lock lock(m_mutex);
+        if (any().sa_family != AF_INET6)
+        {
+            throw std::runtime_error("Host::getAddress: not an IPv6 address");
+        }
         memcpy(&address, &m_address, sizeof(address));
     }
-
-    void setHostNameFromAddress(socklen_t addressLen);
 
 private:
     mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data.
@@ -241,14 +248,16 @@ private:
     /**
      * @brief Get the host address.
      */
-    void   getHostAddress();
+    void   getHostAddressUnlocked();
     String ipAddressToString(const uint8_t* addr) const;
+
+    void setHostNameFromAddress(socklen_t addressLen);
 
     /**
      * @brief Set the port number.
      * @param port                 Port number.
      */
-    void setPort(uint16_t port);
+    void setPortUnlocked(uint16_t port);
 };
 
 using SHost = std::shared_ptr<Host>;
@@ -269,9 +278,9 @@ public:
     bool operator()(const Host& s1, const Host& s2) const
     {
 #ifdef WIN32
-        return stricmp(s1.toString(true).c_str(), s2.toString(true).c_str()) > 0;
+        return stricmp(s1.toString(true).c_str(), s2.toString(true).c_str()) < 0;
 #else
-        return strcasecmp(s1.toString(true).c_str(), s2.toString(true).c_str()) > 0;
+        return strcasecmp(s1.toString(true).c_str(), s2.toString(true).c_str()) < 0;
 #endif
     }
 };

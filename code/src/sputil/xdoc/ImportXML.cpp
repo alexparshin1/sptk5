@@ -103,9 +103,9 @@ char* ImportXML::readComment(const SNode& currentNode, char* nodeName, char* nod
 }
 
 char* ImportXML::readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
-                                  Mode formatting)
+                                  const Mode formatting)
 {
-    constexpr int cdataTagLength = 8;
+    constexpr auto cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
     if (nodeEnd == nullptr)
     {
@@ -135,10 +135,10 @@ char* ImportXML::readXMLDocType(char* tokenEnd)
 }
 
 char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd,
-                                    Mode formatting)
+                                    const Mode formatting)
 {
-    constexpr int cdataTagLength = 8;
-    const char    ch = *tokenEnd;
+    constexpr auto cdataTagLength = 8;
+    const auto     ch = *tokenEnd;
     *tokenEnd = 0;
     if (strncmp(nodeName, "!--", 3) == 0)
     {
@@ -152,7 +152,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
         *tokenEnd = ch;
         tokenEnd = readCDataSection(currentNode, nodeName, nodeEnd, tokenEnd, formatting);
     }
-    else if (constexpr int docTypeTagLength = 8;
+    else if (constexpr auto docTypeTagLength = 8;
              strncmp(nodeName, "!DOCTYPE", docTypeTagLength) == 0 && ch != '>' && *tokenEnd)
     {
         tokenEnd = readXMLDocType(tokenEnd);
@@ -161,7 +161,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
 }
 
 char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd,
-                                            char*& nodeEnd, bool isRootNode)
+                                            char*& nodeEnd, const bool isRootNode)
 {
     nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
@@ -191,7 +191,7 @@ char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char
 
 char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
-    const char ch = *tokenEnd;
+    const auto ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch != '>')
     {
@@ -211,7 +211,7 @@ char* ImportXML::readClosingTag(const SNode& currentNode, const char* nodeName, 
 
 char* ImportXML::readOpeningTag(SNode& currentNode, const char* nodeName, char* tokenEnd, char*& nodeEnd)
 {
-    const char ch = *tokenEnd;
+    const auto ch = *tokenEnd;
     *tokenEnd = 0;
     if (ch == '>' || ch == '/')
     {
@@ -267,7 +267,7 @@ SNode ImportXML::detectArray(const SNode& _node)
     }
 
     // Check if all the child nodes have the same name:
-    bool   first = true;
+    auto   first = true;
     String itemName;
     for (const auto& node: _node->nodes())
     {
@@ -289,7 +289,7 @@ SNode ImportXML::detectArray(const SNode& _node)
     return _node;
 }
 
-void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
+void ImportXML::parse(const SNode& node, const char* _buffer, const Mode formatting)
 {
     node->clear();
     SNode       currentNode = node;
@@ -307,7 +307,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 
         char* nodeName = nameStart;
         char* nodeEnd = nameStart;
-        bool  autoClosed = false;
+        auto  autoClosed = false;
         switch (*nameStart)
         {
             case '!':
@@ -327,7 +327,8 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
             default:
                 readOpeningTag(currentNode, nodeName, nameEnd, nodeEnd);
                 // For HTML, autoclose 'meta' tags
-                if (strcmp(nodeName, "meta") == 0 && currentNode->parent()->getQualifiedName().in({"html", "head"}))
+                if (const auto& fullName = currentNode->parent()->getQualifiedName();
+                    strcmp(nodeName, "meta") == 0 && (fullName == "html" || fullName == "head"))
                 {
                     autoClosed = true;
                     currentNode = currentNode->parent();
@@ -364,7 +365,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 }
 
 void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
-                         Mode formatting)
+                         const Mode formatting)
 {
     const auto* textTrail = nodeStart;
     if (textStart != textTrail)
@@ -373,7 +374,7 @@ void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const ch
         doctype->decodeEntities(textStart, static_cast<uint32_t>(textTrail - textStart), decoded);
         String decodedText(decoded.c_str(), decoded.size());
 
-        Node::Type nodeType = Node::Type::Text;
+        auto nodeType = Node::Type::Text;
         if (formatting != Mode::KeepFormatting)
         {
             decodedText = decodedText.trim();

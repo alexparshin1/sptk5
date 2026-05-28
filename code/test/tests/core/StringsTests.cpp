@@ -35,7 +35,7 @@ static const String testString("This is a test\ntext that contains several\nexam
 static const String resultString("This is a test\rtext that contains several\rexample rows");
 namespace sptk {
 
-TEST(StringsTests,ctorSplitByRegex)
+TEST(StringsTests, ctorSplitByRegex)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     EXPECT_EQ(static_cast<size_t>(3), strings.size());
@@ -46,7 +46,7 @@ TEST(StringsTests,ctorSplitByRegex)
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 }
 
-TEST(StringsTests,ctorSplitByDelimiter)
+TEST(StringsTests, ctorSplitByDelimiter)
 {
     Strings strings;
     strings.fromString(testString, "\n", Strings::SplitMode::DELIMITER);
@@ -54,7 +54,7 @@ TEST(StringsTests,ctorSplitByDelimiter)
     EXPECT_STREQ(resultString.c_str(), strings.join("\r").c_str());
 }
 
-TEST(StringsTests,ctorSplitByAnyChar)
+TEST(StringsTests, ctorSplitByAnyChar)
 {
     Strings strings;
     strings.fromString("X\nY", "\n\r\t", Strings::SplitMode::ANYCHAR);
@@ -62,7 +62,7 @@ TEST(StringsTests,ctorSplitByAnyChar)
     EXPECT_STREQ("X\rY", strings.join("\r").c_str());
 }
 
-TEST(StringsTests,ctor)
+TEST(StringsTests, ctor)
 {
     const Strings strings3({"1", "2", "3"});
     EXPECT_EQ(static_cast<size_t>(3), strings3.size());
@@ -76,7 +76,7 @@ TEST(StringsTests,ctor)
     EXPECT_EQ(2, numbers[1].ident());
 }
 
-TEST(StringsTests,copyConstructor)
+TEST(StringsTests, copyConstructor)
 {
     const Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     const Strings strings2(strings);
@@ -84,21 +84,21 @@ TEST(StringsTests,copyConstructor)
     EXPECT_STREQ(resultString.c_str(), strings2.join("\r").c_str());
 }
 
-TEST(StringsTests,sort)
+TEST(StringsTests, sort)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     strings.sort();
     EXPECT_STREQ("This is a test\nexample rows\ntext that contains several", strings.join("\n").c_str());
 }
 
-TEST(StringsTests,remove)
+TEST(StringsTests, remove)
 {
     Strings strings({"1", "2", "3"});
     strings.remove("2");
     EXPECT_STREQ("1,3", strings.join(",").c_str());
 }
 
-TEST(StringsTests,indexOf)
+TEST(StringsTests, indexOf)
 {
     Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
     EXPECT_EQ(1, strings.indexOf("text that contains several"));
@@ -109,11 +109,11 @@ TEST(StringsTests,indexOf)
     EXPECT_EQ(-1, strings.indexOf("text that Contains"));
 
     strings.sort(false);
-    EXPECT_EQ(2, strings.indexOf("text that contains several"));
+    EXPECT_EQ(0, strings.indexOf("text that contains several"));
     EXPECT_EQ(-1, strings.indexOf("text that Contains"));
 }
 
-TEST(StringsTests,grep)
+TEST(StringsTests, grep)
 {
     const Strings strings(testString, "[\\n\\r]+", Strings::SplitMode::REGEXP);
 
@@ -124,7 +124,7 @@ TEST(StringsTests,grep)
     EXPECT_EQ(static_cast<size_t>(2), group2.size());
 }
 
-TEST(StringsTests,ranges)
+TEST(StringsTests, ranges)
 {
     vector<String> strings {"one", "two", "three"};
     auto           filtered = strings | ranges::views::filter([](const auto& str)
@@ -136,4 +136,4 @@ TEST(StringsTests,ranges)
     EXPECT_EQ("one,two", strs.join(","));
 }
 
-} // namespace sptk_test
+} // namespace sptk

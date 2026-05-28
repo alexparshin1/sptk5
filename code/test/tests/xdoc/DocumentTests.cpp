@@ -40,7 +40,7 @@ const String testJSON(
     R"("title": "\"Mouse\"",)"
     R"("address": { "married": true, "employed": false } })");
 
-void verifyDocument(Document& document)
+void verifyDocument(const Document& document)
 {
     const auto& root = *document.root();
     EXPECT_STREQ("John", root.getString("name").c_str());
@@ -70,7 +70,7 @@ void verifyDocument(Document& document)
 }
 namespace sptk {
 
-TEST(XDocumentTests,load)
+TEST(XDocumentTests, load)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -78,7 +78,7 @@ TEST(XDocumentTests,load)
     verifyDocument(document);
 }
 
-TEST(XDocumentTests,add)
+TEST(XDocumentTests, add)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -129,7 +129,29 @@ TEST(XDocumentTests,add)
     EXPECT_DOUBLE_EQ(testDouble2, object->getNumber("weight"));
 }
 
-TEST(XDocumentTests,remove)
+TEST(XDocumentTests, arrayOfNodes)
+{
+    Document   document;
+    const auto root = document.root();
+    const auto arrayNode = Node::createNode("people", Node::Type::Array);
+    root->pushNode(arrayNode);
+
+    const auto p1 = Node::createNode("", Node::Type::Object);
+    arrayNode->pushNode(p1);
+    p1->set("name", "John");
+    p1->set("age", 22);
+
+    const auto p2 = Node::createNode("", Node::Type::Object);
+    arrayNode->pushNode(p2);
+    p2->set("name", "Jane");
+    p2->set("age", 20);
+
+    Buffer buffer;
+    document.exportTo(DataFormat::JSON, buffer, false);
+    EXPECT_STREQ(R"({"people":[{"name":"John","age":22},{"name":"Jane","age":20}]})", buffer.c_str());
+}
+
+TEST(XDocumentTests, remove)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -147,7 +169,7 @@ TEST(XDocumentTests,remove)
     EXPECT_FALSE(root.findFirst("address"));
 }
 
-TEST(XDocumentTests,clear)
+TEST(XDocumentTests, clear)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -160,7 +182,7 @@ TEST(XDocumentTests,clear)
     EXPECT_EQ(root.nodes().size(), static_cast<size_t>(0));
 }
 
-TEST(XDocumentTests,exportToBuffer)
+TEST(XDocumentTests, exportToBuffer)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -173,19 +195,19 @@ TEST(XDocumentTests,exportToBuffer)
     verifyDocument(document);
 }
 
-TEST(XDocumentTests,copyCtor)
+TEST(XDocumentTests, copyCtor)
 {
     const Buffer input(testJSON);
-    Document     document;
+
+    Document document;
     document.load(input);
+    verifyDocument(document);
 
     Document document2(document);
-
-    verifyDocument(document);
     verifyDocument(document2);
 }
 
-TEST(XDocumentTests,copyCtorPreservesStructureAndIsIndependent)
+TEST(XDocumentTests, copyCtorPreservesStructureAndIsIndependent)
 {
     const Buffer input(
         R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
@@ -214,7 +236,7 @@ TEST(XDocumentTests,copyCtorPreservesStructureAndIsIndependent)
     EXPECT_STREQ(copyJson.c_str(), copyJsonAfterSourceMutation.c_str());
 }
 
-TEST(XDocumentTests,moveCtor)
+TEST(XDocumentTests, moveCtor)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -225,7 +247,7 @@ TEST(XDocumentTests,moveCtor)
     verifyDocument(document2);
 }
 
-TEST(XDocumentTests,copyAssign)
+TEST(XDocumentTests, copyAssign)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -239,7 +261,7 @@ TEST(XDocumentTests,copyAssign)
     verifyDocument(document2);
 }
 
-TEST(XDocumentTests,copyAssignPreservesStructureAndIsIndependent)
+TEST(XDocumentTests, copyAssignPreservesStructureAndIsIndependent)
 {
     const Buffer input(
         R"({"root":{"name":"n1","nested":{"value":1},"items":[{"id":1},{"id":2}],"tail":"x"}})");
@@ -269,7 +291,7 @@ TEST(XDocumentTests,copyAssignPreservesStructureAndIsIndependent)
     EXPECT_STREQ(targetJson.c_str(), targetJsonAfterSourceMutation.c_str());
 }
 
-TEST(XDocumentTests,moveAssign)
+TEST(XDocumentTests, moveAssign)
 {
     const Buffer input(testJSON);
     Document     document;
@@ -282,7 +304,7 @@ TEST(XDocumentTests,moveAssign)
     verifyDocument(document2);
 }
 
-TEST(XDocumentTests,truncated)
+TEST(XDocumentTests, truncated)
 {
     Document     document;
     const String truncatedJSON = testJSON.substr(0, testJSON.length() - 3);
@@ -298,7 +320,7 @@ TEST(XDocumentTests,truncated)
     }
 }
 
-TEST(XDocumentTests,errors)
+TEST(XDocumentTests, errors)
 {
     Document document;
     size_t   errorCount = 0;
@@ -347,7 +369,7 @@ TEST(XDocumentTests,errors)
     SUCCEED() << "Detected " << errorCount << " errors";
 }
 
-TEST(XDocumentTests,performance)
+TEST(XDocumentTests, performance)
 {
     constexpr int objectCount = 50000;
 
@@ -399,7 +421,7 @@ TEST(XDocumentTests,performance)
     COUT("Parsed JSON document (" << objectCount << ") objects for " << stopWatch.seconds() << " seconds");
 }
 
-TEST(XDocumentTests,exportText)
+TEST(XDocumentTests, exportText)
 {
     const Document document;
     const auto     testNode = document.root()->pushNode("test");
@@ -409,4 +431,4 @@ TEST(XDocumentTests,exportText)
     document.exportTo(DataFormat::XML, cout, true);
 }
 
-} // namespace sptk_test
+} // namespace sptk

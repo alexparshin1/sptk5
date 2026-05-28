@@ -34,7 +34,7 @@ String MailMessageBody::stripHtml(const String& origHtml)
 {
     static const RegularExpression matchHtmlTag(R"(<\S[^>]*>)", "g");
     const auto                     step1 = matchHtmlTag.s(origHtml, " ");
-    return trim(step1.replace(" +", " "));
+    return trim(String(step1).replace(" +", " "));
 }
 
 void MailMessageBody::text(const string& messageText, const bool smtp)
@@ -50,8 +50,8 @@ void MailMessageBody::text(const string& messageText, const bool smtp)
         }
     }
 
-    constexpr int searchFirstBytes {100};
-    if (upperCase(messageText.substr(0, searchFirstBytes)).find("<HTML>") == string::npos)
+    constexpr auto searchFirstBytes {100};
+    if (upperCase(messageText.substr(0, searchFirstBytes)).find("<HTML>") == STRING_NPOS)
     {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;
         m_plainText = msg;

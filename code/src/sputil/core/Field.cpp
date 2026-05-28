@@ -184,7 +184,7 @@ String Field::asString() const
     return result;
 }
 
-String Field::epochDataToDateTimeString(bool dateOnly) const
+String Field::epochDataToDateTimeString(const bool dateOnly) const
 {
     const auto& dateTime(get<DateTime>());
     if (dateOnly)
@@ -232,7 +232,7 @@ void Field::exportTo(const xdoc::SNode& node, const bool compactXmlMode, const b
 
     if (detailedInfo && element)
     {
-        element->attributes().set("type", Variant::typeName(dataType()));
+        element->attributes().set("type", typeName(dataType()));
         element->attributes().set("size", to_string(dataSize()));
     }
 }

@@ -68,11 +68,11 @@ RequestInfo WSStaticHttpProtocol::process()
         const Buffer output = requestInfo.response.output(contentEncodings);
         socket().write("HTTP/1.1 200 OK\n");
         String contentType = "text/html";
-        if (fullPath.endsWith(".css"))
+        if (fullPath.ends_with(".css"))
         {
             contentType = "text/css";
         }
-        else if (fullPath.endsWith(".js"))
+        else if (fullPath.ends_with(".js"))
         {
             contentType = "text/javascript";
         }

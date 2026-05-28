@@ -135,7 +135,7 @@ public:
      * @tparam T variant data type.
      * @return const reference to variant data.
      */
-    template<typename T, typename std::enable_if_t<std::is_class_v<T>, int> = 0>
+    template<typename T, std::enable_if_t<std::is_class_v<T>, int> = 0>
     const T& get() const
     {
         return (const T&) m_data;
@@ -312,14 +312,14 @@ public:
     /**
      * @brief Conversion method.
      *
-     * Converts variant value to double.
+     * Converts variant value to integer.
      */
     [[nodiscard]] int asInteger() const;
 
     /**
      * @brief Conversion method.
      *
-     * @brief Converts variant value to double..
+     * @brief Converts variant value to 64-bit integer.
      */
     [[nodiscard]] int64_t asInt64() const;
 
@@ -411,7 +411,7 @@ public:
     /**
      * @brief Constructor.
      */
-    Variant(int64_t value, unsigned scale = 1);
+    Variant(int64_t value, unsigned scale = 0);
 
     /**
      * @brief Constructor.

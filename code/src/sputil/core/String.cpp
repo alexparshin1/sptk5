@@ -53,27 +53,16 @@ Strings String::split(const String& pattern) const
     return {*this, pattern.c_str(), Strings::SplitMode::REGEXP};
 }
 
-bool String::startsWith(const String& subject) const
-{
-    return find(subject) == 0;
-}
-
-bool String::endsWith(const String& subject) const
-{
-    const size_t pos = rfind(subject);
-    return pos != string::npos && pos == length() - subject.length();
-}
-
 bool String::contains(const String& subject) const
 {
-    const size_t pos = find(subject);
-    return pos != string::npos;
+    const auto pos = find(subject);
+    return pos != npos;
 }
 
 String String::replace(const String& pattern, const String& replacement) const
 {
     const RegularExpression regexp(pattern);
-    bool                    replaced = false;
+    auto                    replaced = false;
     return regexp.replaceAll(*this, replacement, replaced);
 }
 
@@ -84,7 +73,7 @@ String String::trim() const
     {
         return {};
     }
-    const size_t endPos = find_last_not_of(" \n\r\t\b");
+    const auto endPos = find_last_not_of(" \n\r\t\b");
     return substr(startPos, endPos - startPos + 1);
 }
 

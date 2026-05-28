@@ -195,15 +195,15 @@ void CThemeImageCollection::loadFromGtkTheme(
 
         if (buttonState > -1)
         {
-            m_images[CThemeImageState(buttonState)] = nullptr;
-            m_overlayImages[CThemeImageState(buttonState)] = nullptr;
+            m_images[static_cast<CThemeImageState>(buttonState)] = nullptr;
+            m_overlayImages[static_cast<CThemeImageState>(buttonState)] = nullptr;
             if (!fileName.empty() && fileName.find(".png") != STRING_NPOS)
             {
-                m_images[CThemeImageState(buttonState)] = loadValidatePNGImage(fileName, true);
+                m_images[static_cast<CThemeImageState>(buttonState)] = loadValidatePNGImage(fileName, true);
             }
             if (!overlayFileName.empty() && overlayFileName.find(".png") != STRING_NPOS)
             {
-                m_overlayImages[CThemeImageState(buttonState)] = loadValidatePNGImage(overlayFileName, true);
+                m_overlayImages[static_cast<CThemeImageState>(buttonState)] = loadValidatePNGImage(overlayFileName, true);
             }
         }
     }

@@ -67,7 +67,7 @@ public:
      * @brief Execute runable task.
      * @param task              Task to execute in the worker thread.
      */
-    void execute(URunable& task);
+    void execute(URunable& task) const;
 
     /**
      * @brief Terminate runable.

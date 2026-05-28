@@ -40,12 +40,12 @@ WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddre
     , m_isHangup(false)
     , m_workerThread(workerThread)
 {
-    if (!m_options.paths.staticFilesDirectory.endsWith("/"))
+    if (!m_options.paths.staticFilesDirectory.ends_with("/"))
     {
         m_options.paths.staticFilesDirectory += "/";
     }
 
-    if (!m_options.paths.wsRequestPage.startsWith("/"))
+    if (!m_options.paths.wsRequestPage.starts_with("/"))
     {
         m_options.paths.wsRequestPage = "/" + m_options.paths.wsRequestPage;
     }

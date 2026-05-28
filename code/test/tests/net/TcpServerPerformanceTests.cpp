@@ -38,7 +38,7 @@
 using namespace std;
 using namespace sptk;
 
-constexpr int testTcpEchoServerPort = 12345;
+constexpr int testImapServerPort = 12345;
 
 namespace {
 
@@ -47,7 +47,7 @@ size_t                      totalTransferredCount = 0;
 size_t                      totalTransferred = 0;
 SocketEvents<SocketReader>* sharedSocketEvents;
 
-void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
+void eventHandler(const weak_ptr<SocketReader>& data, const SocketEventType type)
 {
     static int count = 0;
 
@@ -86,7 +86,7 @@ void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
 } // namespace
 namespace sptk {
 
-TEST(TCPServerTests,eventPerformance)
+TEST(TCPServerTests, eventPerformance)
 {
     SocketEvents<SocketReader> socketEvents("Test Pool", eventHandler, 1s, SocketPoolTriggerMode::OneShot);
     sharedSocketEvents = &socketEvents;
@@ -95,7 +95,7 @@ TEST(TCPServerTests,eventPerformance)
     auto clientReader = make_shared<SocketReader>(clientSocket);
 
     TCPServer tcpServer("Performance Test Server");
-    tcpServer.addListener(ServerConnection::Type::TCP, {"localhost", testTcpEchoServerPort});
+    tcpServer.addListener(ServerConnection::Type::TCP, {"localhost", testImapServerPort});
     tcpServer.onConnection([&socketEvents, &clientSocket, &clientReader](const ServerConnection& socket)
                            {
                                clientSocket->attach(socket.getSocket()->detach(), false);
@@ -106,7 +106,7 @@ TEST(TCPServerTests,eventPerformance)
 
     auto socket = make_shared<TCPSocket>();
     auto reader = make_shared<SocketReader>(socket);
-    socket->open({"127.0.0.1", testTcpEchoServerPort});
+    socket->open({"127.0.0.1", testImapServerPort});
     socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     socket->blockingMode(false);
 
@@ -137,4 +137,4 @@ TEST(TCPServerTests,eventPerformance)
     socketEvents.remove(clientSocket);
 }
 
-} // namespace sptk_test
+} // namespace sptk

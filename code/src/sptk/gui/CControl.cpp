@@ -638,9 +638,9 @@ void sptk::createControls(const xdoc::SNode& xmlControls)
 {
     for (const auto& node: xmlControls->nodes())
     {
-        CControlKind controlKind = CControlKindIndex::type(node->getName());
-        CControl*    control = createControl(controlKind, (String) node->attributes().get("label", ""),
-                                             (String) node->attributes().get("fieldName", ""),
+        CControlKind controlKind = CControlKindIndex::type(string(node->getName()));
+        CControl*    control = createControl(controlKind, node->attributes().get("label", ""),
+                                             node->attributes().get("fieldName", ""),
                                              node->attributes().get("size", "12").toInt());
         if (node->attributes().get("visible", "1").toInt() == 0)
         {

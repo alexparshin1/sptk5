@@ -44,15 +44,7 @@ public:
      * @param quantity          Money value.
      * @param scale             Money value scale (signs after decimal point).
      */
-    explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0)
-        : m_quantity(quantity)
-        , m_scale(scale)
-    {
-        if (scale >= m_dividers.size())
-        {
-            throw std::out_of_range("MoneyData: scale is out of range");
-        }
-    }
+    explicit MoneyData(int64_t quantity = 0, uint8_t scale = 0);
 
     static VariantDataType variantDataType()
     {
@@ -79,41 +71,58 @@ public:
      */
     explicit operator bool() const;
 
+    /**
+     * @brief Get binary size of the money data.
+     * @return data size.
+     */
     size_t dataSize() const override
     {
         return sizeof(MoneyData);
     }
 
+    /**
+     * @brief Get the quantity part of the money data.
+     * @return The quantity part of the money data.
+     */
     int64_t quantity() const
     {
         return m_quantity;
     }
 
-    void setQuantity(int64_t quantity)
+    /**
+     * @brief Set the quantity part of the money data.
+     * @param quantity The quantity part of the money data.
+     */
+    void setQuantity(const int64_t quantity)
     {
         m_quantity = quantity;
     }
 
+    /**
+     * @brief Get the scale part of the money data.
+     * @return The scale part of the money data.
+     */
     uint8_t scale() const
     {
         return m_scale;
     }
 
-    void setScale(uint8_t scale)
-    {
-        if (scale >= m_dividers.size())
-        {
-            throw std::out_of_range("MoneyData: scale is out of range");
-        }
-        m_scale = scale;
-    }
+    /**
+     * @brief Set the scale part of the money data.
+     * @param scale The scale part of the money data.
+     */
+    void setScale(uint8_t scale);
 
+    /**
+     * @brief Get the divider for the scale.
+     * @param scale The scale.
+     * @return The divider for the scale.
+     */
     static int64_t divider(uint8_t scale);
 
 private:
-    static const std::array<int64_t, 16> m_dividers; ///< Dividers for formatting money data.
-    int64_t                              m_quantity; ///< Integer value.
-    uint8_t                              m_scale;    ///< Scale.
+    int64_t m_quantity; ///< Integer value.
+    uint8_t m_scale;    ///< Scale.
 };
 
 } // namespace sptk

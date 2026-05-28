@@ -59,7 +59,7 @@ public:
      * @brief Method from() returns the current value of the 'FROM:' field of the e-mail message.
      * @returns a single e-mail address.
      */
-    String from() const noexcept
+    String from() const
     {
         return m_from;
     }
@@ -77,7 +77,7 @@ public:
     /**
      * @brief Method to() returns the current value of the 'TO:' field of the e-mail message.
      */
-    String to() const noexcept
+    String to() const
     {
         return m_to;
     }
@@ -96,7 +96,7 @@ public:
      * @brief Method cc() returns the current value of the 'CC:' field of the e-mail message.
      * @returns List of e-mail addresses. See method to() description for format.
      */
-    String cc() const noexcept
+    String cc() const
     {
         return m_cc;
     }
@@ -115,7 +115,7 @@ public:
      * @brief Method bcc() returns the current value of the 'BCC:' field of the e-mail message.
      * @returns List of e-mail addresses. See the to() method description for the format.
      */
-    String bcc() const noexcept
+    String bcc() const
     {
         return m_bcc;
     }
@@ -134,13 +134,13 @@ public:
      * @brief Method subject() returns the current value of the 'SUBJECT:' field of the e-mail message.
      * @returns current message subject.
      */
-    String subject() const noexcept
+    String subject() const
     {
         return m_subject;
     }
 
     /**
-     * @brief Method subject() sets the current value of the 'BCC:' field of the e-mail message.
+     * @brief Method subject() sets the current subject of the e-mail message.
      * @param subj A message subject.
      */
     void subject(const String& subj)
@@ -150,9 +150,9 @@ public:
 
     /**
      * @brief Method body() returns the current plain text part of the e-mail message.
-     * @returns current message plain-text part.
+     * @returns the current message plain-text part.
      */
-    String body() const noexcept
+    String body() const
     {
         return m_body.text();
     }
@@ -172,7 +172,7 @@ public:
      * Example: "readme.txt;readme.doc".
      * @returns current message list of attachments.
      */
-    String attachments() const noexcept
+    String attachments() const
     {
         return m_attachments;
     }
@@ -201,7 +201,7 @@ public:
      * @brief Method mimeMessage() encodes the message components into RFC-822 message format.
      * @param buffer A buffer to put the encoded RFC-822 format message.
      */
-    void mimeMessage(Buffer& buffer);
+    void mimeMessage(Buffer& buffer) const;
 
 protected:
     /**
@@ -219,7 +219,7 @@ private:
     String          m_from;          ///< Mail FROM: a single e-mail address in format: "Jonh Doe <jonhd\@noname.com>".
     String          m_to;            ///< Mail TO: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
     String          m_cc;            ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
-    String          m_bcc;           ///< Mail CC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
+    String          m_bcc;           ///< Mail BCC: semicolon-separated string of addresses in format: "Jonh Doe <jonhd\@noname.com>; Jane Doe <janed\@noname.com>".
     String          m_subject;       ///< Mail SUBJECT.
     MailMessageBody m_body;          ///< Mail text (plain-text and HTML parts of the message).
     String          m_attachments;   ///< The list of attachment files separated with ';'.

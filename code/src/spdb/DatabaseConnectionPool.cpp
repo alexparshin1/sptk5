@@ -36,7 +36,7 @@ using namespace sptk;
 
 DriverLoaders DriverLoaders::loadedDrivers;
 
-DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, unsigned maxConnections, chrono::milliseconds connectionTimeout)
+DatabaseConnectionPool::DatabaseConnectionPool(const String& connectionString, const unsigned maxConnections, const chrono::milliseconds connectionTimeout)
     : DatabaseConnectionString(connectionString)
     , m_maxConnections(maxConnections)
     , m_connectionTimeout(connectionTimeout)

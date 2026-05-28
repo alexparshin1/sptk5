@@ -36,60 +36,97 @@ using namespace sptk::xdoc;
 namespace {
 String jsonEscape(const String& text)
 {
-    String result;
-    result.reserve(text.size());
-
     static constexpr char hexDigits[] = "0123456789abcdef";
+    const auto            len = text.size();
 
-    for (const unsigned char ch: text)
+    // Find the first character that needs escaping.
+    size_t i = 0;
+    for (; i < len; ++i)
     {
+        if (const auto ch = static_cast<unsigned char>(text[i]);
+            ch < 0x20 || ch == '"' || ch == '\\')
+        {
+            break;
+        }
+    }
+
+    if (i == len)
+    {
+        return text; // nothing to escape — return original without copying
+    }
+
+    String result;
+    result.reserve(len + (len >> 2));
+    result.append(text, 0, i); // copy the clean prefix in one shot
+
+    auto runStart = i;
+    for (; i < len; ++i)
+    {
+        const auto  ch = static_cast<unsigned char>(text[i]);
+        const char* esc = nullptr;
+        size_t      escLen = 0;
+        char        buf[6];
+
         switch (ch)
         {
             case '"':
-                result += "\\\"";
+                esc = "\\\"";
+                escLen = 2;
                 break;
             case '\\':
-                result += "\\\\";
-                break;
-            case '/':
-                result += "\\/";
+                esc = "\\\\";
+                escLen = 2;
                 break;
             case '\b':
-                result += "\\b";
+                esc = "\\b";
+                escLen = 2;
                 break;
             case '\f':
-                result += "\\f";
+                esc = "\\f";
+                escLen = 2;
                 break;
             case '\n':
-                result += "\\n";
+                esc = "\\n";
+                escLen = 2;
                 break;
             case '\r':
-                result += "\\r";
+                esc = "\\r";
+                escLen = 2;
                 break;
             case '\t':
-                result += "\\t";
+                esc = "\\t";
+                escLen = 2;
                 break;
             default:
                 if (ch < 0x20)
                 {
-                    result += "\\u00";
-                    result += hexDigits[ch >> 4];
-                    result += hexDigits[ch & 0x0F];
-                }
-                else
-                {
-                    result += static_cast<char>(ch);
+                    buf[0] = '\\';
+                    buf[1] = 'u';
+                    buf[2] = '0';
+                    buf[3] = '0';
+                    buf[4] = hexDigits[ch >> 4];
+                    buf[5] = hexDigits[ch & 0x0F];
+                    esc = buf;
+                    escLen = 6;
                 }
                 break;
         }
+
+        if (escLen > 0)
+        {
+            result.append(text, runStart, i - runStart); // flush clean run
+            result.append(esc, escLen);
+            runStart = i + 1;
+        }
     }
 
-    return result.empty() ? text : result;
+    result.append(text, runStart, len - runStart); // flush final clean run
+    return result;
 }
 } // namespace
 
-void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool formatted,
-                                   size_t indent)
+void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool formatted,
+                                   const size_t indent)
 {
     Formatting formatting;
 
@@ -104,9 +141,9 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         formatting.betweenElements = ",\n  " + formatting.indentSpaces;
     }
 
-    const string spacing = formatted ? " " : "";
+    const string_view spacing = formatted ? " " : "";
 
-    const bool isValue = node->nodes().empty();
+    const auto isValue = node->nodes().empty();
 
     if (isValue && !node->attributes().empty())
     {
@@ -114,8 +151,6 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         exportNodeAttributes(node, stream, formatted, formatting.firstElement);
         stream << "\"value\":" << spacing;
     }
-
-    const auto saveFlags = stream.flags();
 
     double  dNumber;
     int64_t iNumber;
@@ -150,18 +185,18 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
         case Node::Type::Object:
             if (isValue)
             {
-                auto value = node->getValue().asString();
-                if (!value.empty())
+                if (const auto value = node->getValue().asString();
+                    !value.empty())
                 {
                     using enum VariantDataType;
                     static const set escapeTypes {VAR_STRING, VAR_TEXT, VAR_DATE, VAR_DATE_TIME};
                     if (escapeTypes.contains(node->getValue().dataType()))
                     {
-                        stream << "\"" << jsonEscape(node->getValue().asString()) << "\"";
+                        stream << "\"" << jsonEscape(value) << "\"";
                     }
                     else
                     {
-                        stream << node->getValue().asString();
+                        stream << value;
                     }
                 }
                 else
@@ -184,17 +219,15 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
     {
         stream << spacing << "}";
     }
-
-    stream.flags(saveFlags);
 }
 
-void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
                                  const Formatting& formatting)
 {
     stream << "[";
     if (node->type() == Node::Type::Array)
     {
-        bool        first = true;
+        auto        first = true;
         const auto& array = node->nodes();
         if (array.empty())
         {
@@ -218,7 +251,7 @@ void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool fo
     stream << formatting.newLineChar << formatting.indentSpaces << "]";
 }
 
-void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
                                   const Formatting& formatting)
 {
     stream << "{";
@@ -226,9 +259,9 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     {
         exportNodeAttributes(node, stream, formatted, formatting.firstElement);
 
-        const string spacing = formatted ? " " : "";
+        const string_view spacing = formatted ? " " : "";
 
-        bool first = true;
+        auto first = true;
         for (const auto& anode: node->nodes())
         {
             if (first)
@@ -249,15 +282,15 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     stream << formatting.newLineChar << formatting.indentSpaces << "}";
 }
 
-void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
+void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, const bool formatted, const String& firstElement)
 {
-    const String spacing = formatted ? " " : "";
+    const string_view spacing = formatted ? " " : "";
 
     if (!node->attributes().empty())
     {
         stream << firstElement << "\"attributes\":" << spacing << "{";
 
-        bool first1 = true;
+        auto first1 = true;
         for (const auto& [name, value]: node->attributes())
         {
             if (first1)
@@ -296,7 +329,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
     }
 }
 
-void ExportJSON::exportToJSON(const Node* node, sptk::Buffer& json, bool formatted)
+void ExportJSON::exportToJSON(const Node* node, Buffer& json, const bool formatted)
 {
     stringstream stream;
     exportJsonValueTo(node, stream, formatted, 0);

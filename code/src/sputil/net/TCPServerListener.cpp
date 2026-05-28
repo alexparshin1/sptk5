@@ -70,7 +70,7 @@ void TCPServerListener::createConnection(const CreateConnectionItem& createConne
     {
 #ifndef _WIN32
         shutdown(createConnectionItem.connectionFD, SHUT_RDWR);
-        ::close(createConnectionItem.connectionFD);
+        close(createConnectionItem.connectionFD);
 #else
         closesocket(createConnectionItem.connectionFD);
 #endif

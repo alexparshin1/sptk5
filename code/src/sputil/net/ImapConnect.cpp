@@ -34,9 +34,9 @@ using namespace sptk;
 // Implementation is based on
 // http://www.course.molina.com.br/RFC/Orig/rfc2060.txt
 
-static constexpr int RSP_BLOCK_SIZE = 1024;
+static constexpr auto RSP_BLOCK_SIZE = 1024;
 
-void ImapConnect::getResponse(const String& ident)
+void ImapConnect::getResponse(const String& ident, const chrono::milliseconds timeout)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
 
@@ -44,6 +44,10 @@ void ImapConnect::getResponse(const String& ident)
 
     for (;;)
     {
+        if (!socketReader.readyToRead(timeout))
+        {
+            throw Exception("Server response timeout");
+        }
         socketReader.readLine(readBuffer);
         String longLine = readBuffer.c_str();
         m_response.push_back(longLine);
@@ -52,15 +56,23 @@ void ImapConnect::getResponse(const String& ident)
             return;
         }
 
+        if (longLine.empty())
+        {
+            // Server closed connection.
+            break;
+        }
+
         if (longLine[0] == '*')
         {
             continue;
         }
+
         if (longLine[0] == '+')
         {
             return;
         }
-        if (longLine.find(ident) == 0)
+
+        if (longLine.starts_with(ident))
         {
             auto p = static_cast<uint32_t>(ident.length());
             while (longLine[p] == ' ')
@@ -72,9 +84,8 @@ void ImapConnect::getResponse(const String& ident)
                 case 'O': // OK
                     return;
                 case 'N': // NO
-                    throw Exception(longLine.c_str() + 8);
                 case 'B': // BAD
-                    throw Exception(longLine.c_str() + 9);
+                    throw Exception(longLine.c_str() + ident.length() + 1);
                 default:
                     break;
             }
@@ -93,17 +104,25 @@ String quotes(const String& st)
 
 String ImapConnect::sendCommand(const String& cmd)
 {
-    String          command(cmd);
-    array<char, 10> id_str {};
-    const int       len = snprintf(id_str.data(), sizeof(id_str), "a%03i ", ++m_ident);
-    String          ident(id_str.data(), static_cast<size_t>(len));
-    command = ident + cmd + "\n";
+    ++m_ident;
+
+    const auto ident = format("a{:03d}", m_ident);
+    const auto command = format("{} {}\r\n", ident, cmd.c_str());
+
     if (!m_socket->active())
     {
         throw Exception("Socket isn't open");
     }
+
     m_socket->write(bit_cast<const uint8_t*>(command.c_str()), static_cast<uint32_t>(command.length()));
+
     return ident;
+}
+
+ImapConnect::ImapConnect(const std::shared_ptr<TCPSocket>& socket)
+    : m_socket(socket ? socket : make_shared<TCPSocket>())
+    , m_reader(make_shared<SocketReader>(m_socket))
+{
 }
 
 void ImapConnect::command(const String& cmd, const String& arg1, const String& arg2)
@@ -135,7 +154,25 @@ void ImapConnect::cmd_login(const String& user, const String& password)
     m_socket->close();
     m_socket->open();
     m_response.clear();
-    getResponse("");
+
+    String     response;
+    const auto readingDeadline = DateTime::Now() + 30s;
+    while (DateTime::Now() < readingDeadline)
+    {
+        if (m_socket->readyToRead(1s))
+        {
+            if (m_socket->socketBytes() == 0)
+            {
+                throw Exception("Server closed connection");
+            }
+
+            if (m_reader->readLine(response) && response.starts_with("* OK"))
+            {
+                break;
+            }
+        }
+    }
+
     command("login " + user + " " + password);
 }
 
@@ -143,11 +180,11 @@ void ImapConnect::cmd_login(const String& user, const String& password)
 
 void ImapConnect::cmd_append(const String& mail_box, const Buffer& message)
 {
-    const String cmd = "APPEND \"" + mail_box + R"(" (\Seen) {)" + to_string(static_cast<uint32_t>(message.bytes())) + "}";
+    const String cmd = format(R"(APPEND "{}" (\\Seen) {{{}}})", mail_box.c_str(), message.bytes());
     const String ident = sendCommand(cmd);
     getResponse(ident);
     m_socket->write(message.data(), message.bytes());
-    m_socket->write(reinterpret_cast<const uint8_t*>("\n"), 1);
+    m_socket->write(reinterpret_cast<const uint8_t*>("\r\n"), 2);
     getResponse(ident);
 }
 
@@ -158,8 +195,8 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
     {
         if (st[0] == '*')
         {
-            const size_t p = st.find("EXISTS");
-            if (p != string::npos)
+            const auto p = st.find("EXISTS");
+            if (p != STRING_NPOS)
             {
                 total_msgs = string2int(st.substr(2, p - 2));
                 break;
@@ -210,8 +247,8 @@ void parse_header(const String& header, String& header_name, String& header_valu
         return;
     }
 
-    const size_t position = header.find(' ');
-    if (position == string::npos)
+    const auto position = header.find(' ');
+    if (position == STRING_NPOS)
     {
         return;
     }
@@ -235,11 +272,11 @@ DateTime decodeDate(const String& dt)
     }
     *p2 = 0;
 
-    const int mday = string2int(p1);
+    const auto mday = string2int(p1);
 
     // 2. get the month
     p1 = p2 + 1;
-    int month = 1;
+    auto month = 1;
     switch (*p1)
     {
         case 'A':
@@ -293,7 +330,7 @@ DateTime decodeDate(const String& dt)
     p1 += 4;
     p2 = p1 + 4;
     *p2 = 0;
-    const int year = string2int(p1);
+    const auto year = string2int(p1);
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
     if (p2 != nullptr)
@@ -306,10 +343,10 @@ DateTime decodeDate(const String& dt)
 }
 } // namespace
 
-void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
+void ImapConnect::parseMessage(FieldList& results, const bool headersOnly)
 {
     results.clear();
-    bool first = true;
+    auto first = true;
     for (const auto& headerName: required_headers)
     {
         auto fld = make_shared<Field>(lowerCase(headerName).c_str());
@@ -323,6 +360,11 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
             fld->view().width = 32;
         }
         results.push_back(fld);
+    }
+
+    if (m_response.empty())
+    {
+        throw Exception("Empty server response");
     }
 
     // parse headers
@@ -358,16 +400,15 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
         }
     }
 
-    for (i = 0; i < results.size(); ++i)
+    for (const auto& field: results)
     {
-        Field& field = results[static_cast<int>(i)];
-        if (field.dataType() == VariantDataType::VAR_NONE)
+        if (field->dataType() == VariantDataType::VAR_NONE)
         {
-            field.setString("");
+            field->setString("");
         }
     }
 
-    if (headers_only)
+    if (headersOnly)
     {
         return;
     }
@@ -384,21 +425,26 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
 
 void ImapConnect::cmd_fetch_headers(const int32_t msg_id, FieldList& result)
 {
-    command("FETCH " + to_string(msg_id) + " (BODY[HEADER])");
+    command(format("FETCH {} (BODY[HEADER] )", msg_id));
     parseMessage(result, true);
 }
 
 void ImapConnect::cmd_fetch_message(const int32_t msg_id, FieldList& result)
 {
-    command("FETCH " + to_string(msg_id) + " (BODY[])");
+    command(format("FETCH {} (BODY[] )", msg_id));
     parseMessage(result, false);
 }
 
 String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 {
     String result;
-    command("FETCH " + to_string(msg_id) + " (FLAGS)");
-    if (const size_t count = m_response.size() - 1;
+    command(format("FETCH {} (FLAGS )", msg_id));
+
+    if (m_response.empty())
+    {
+        return {};
+    }
+    if (const auto count = m_response.size() - 1;
         count > 0)
     {
         const String& st = m_response[0];
@@ -406,12 +452,12 @@ String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 
         if (fpos == nullptr)
         {
-            return "";
+            return {};
         }
 
         String flags(fpos + 1);
-        if (const size_t pos = flags.find("))");
-            pos != string::npos)
+        if (const auto pos = flags.find("))");
+            pos != STRING_NPOS)
         {
             flags[pos] = 0;
         }
@@ -423,7 +469,7 @@ String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 
 void ImapConnect::cmd_store_flags(const int32_t msg_id, const char* flags)
 {
-    command("STORE " + to_string(msg_id) + " FLAGS " + String(flags));
+    command(format("STORE {} FLAGS {}", msg_id, flags));
 }
 
 Host ImapConnect::host() const

@@ -36,8 +36,6 @@ constexpr size_t CHUNK = 16384;
 void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool append)
 {
     z_stream strm = {};
-    Buffer   inputBuffer(CHUNK);
-    Buffer   outputBuffer(CHUNK);
 
     if (!append)
     {
@@ -64,7 +62,7 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
     // Compress until the end of data
     do
     {
-        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
+        auto bytesToRead = src.bytes() - readPosition;
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;
@@ -73,31 +71,29 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
         {
             eof = true;
         }
-        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
+
+        auto* inputBuffer = (uint8_t*) src.data() + readPosition;
+
         readPosition += bytesToRead;
-        strm.avail_in = bytesToRead;
+        strm.avail_in = static_cast<uInt>(bytesToRead);
         const int flush = eof ? Z_FINISH : Z_PARTIAL_FLUSH;
-        strm.next_in = inputBuffer.data();
+        strm.next_in = inputBuffer;
 
         // Run deflate() on input until output buffer not full, finish
         // compression if all the source has been read inputBuffer
         do
         {
+            dest.checkSize(dest.bytes() + CHUNK * 2);
             strm.avail_out = CHUNK;
-            strm.next_out = outputBuffer.data();
+            strm.next_out = dest.data() + dest.bytes();
             ret = deflate(&strm, flush); // no bad return value
             if (ret == Z_STREAM_ERROR)
             {
                 deflateEnd(&strm);
                 throw Exception("Compressed data error.");
             }
-            if (ret == Z_BUF_ERROR)
-            {
-                deflateEnd(&strm);
-                throw Exception("Output buffer is insufficient.");
-            }
             const size_t have = CHUNK - strm.avail_out;
-            dest.append(outputBuffer.data(), have);
+            dest.bytes(dest.bytes() + have);
         } while (strm.avail_out == 0);
 
         // Done when the last data inputBuffer file processed
@@ -110,8 +106,6 @@ void ZLib::compress(Buffer& dest, const Buffer& src, const int level, const bool
 void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
 {
     z_stream strm = {};
-    Buffer   inputBuffer(CHUNK);
-    Buffer   outputBuffer(CHUNK);
 
     if (!append)
     {
@@ -130,30 +124,32 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
         throw Exception("inflateInit() error");
     }
 
-    uInt readPosition = 0;
+    size_t readPosition = 0;
     // Decompress until deflate stream ends or end of file
     do
     {
-        auto bytesToRead = static_cast<uInt>(src.bytes() - readPosition);
+        auto bytesToRead = src.bytes() - readPosition;
         if (bytesToRead > CHUNK)
         {
             bytesToRead = CHUNK;
         }
-        memcpy(inputBuffer.data(), src.c_str() + readPosition, bytesToRead);
+        auto* inputBuffer = (uint8_t*) src.data() + readPosition;
         readPosition += bytesToRead;
-        strm.avail_in = bytesToRead;
+        strm.avail_in = static_cast<uInt>(bytesToRead);
         if (strm.avail_in == 0 && ret != Z_STREAM_END)
         {
             (void) inflateEnd(&strm);
             throw Exception("Input buffer is insufficient.");
         }
-        strm.next_in = inputBuffer.data();
+        strm.next_in = inputBuffer;
 
         // Run inflate() on input until output buffer not full
         do
         {
+            dest.checkSize(dest.bytes() + CHUNK * 2);
+
             strm.avail_out = CHUNK;
-            strm.next_out = outputBuffer.data();
+            strm.next_out = dest.data() + dest.bytes();
             ret = inflate(&strm, Z_NO_FLUSH);
             switch (ret)
             {
@@ -172,7 +168,7 @@ void ZLib::decompress(Buffer& dest, const Buffer& src, const bool append)
                     break;
             }
             const unsigned have = CHUNK - strm.avail_out;
-            dest.append(outputBuffer.data(), have);
+            dest.bytes(dest.bytes() + have);
         } while (strm.avail_out == 0);
 
         // Done when inflate() says it's done

@@ -36,7 +36,7 @@ using namespace sptk;
 
 namespace {
 
-const String           testPhrase("This is a test");
+const String testPhrase("This is a test");
 
 #ifdef _WIN32
 const filesystem::path tempFileName("/Windows/temp/gtest_sptk5_buffer.tmp");
@@ -44,10 +44,10 @@ const filesystem::path tempFileName("/Windows/temp/gtest_sptk5_buffer.tmp");
 const filesystem::path tempFileName("/tmp/gtest_sptk5_buffer.tmp");
 #endif
 
-}
+} // namespace
 namespace sptk {
 
-TEST(BufferTests,create)
+TEST(BufferTests, create)
 {
     const Buffer buffer1(testPhrase);
     EXPECT_STREQ(testPhrase.c_str(), buffer1.c_str());
@@ -55,7 +55,7 @@ TEST(BufferTests,create)
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
 }
 
-TEST(BufferTests,copyCtor)
+TEST(BufferTests, copyCtor)
 {
     auto         buffer1 = make_shared<Buffer>(testPhrase);
     const Buffer buffer2(*buffer1);
@@ -66,7 +66,7 @@ TEST(BufferTests,copyCtor)
     EXPECT_TRUE(testPhrase.length() <= buffer2.capacity());
 }
 
-TEST(BufferTests,move)
+TEST(BufferTests, move)
 {
     Buffer buffer1(testPhrase);
     Buffer buffer2(std::move(buffer1));
@@ -85,7 +85,7 @@ TEST(BufferTests,move)
     EXPECT_EQ(testPhrase.length(), buffer1.bytes());
 }
 
-TEST(BufferTests,assign)
+TEST(BufferTests, assign)
 {
     Buffer buffer1(testPhrase);
     Buffer buffer2;
@@ -103,7 +103,7 @@ TEST(BufferTests,assign)
     EXPECT_STREQ("Test 2", buffer1.c_str());
 }
 
-TEST(BufferTests,append)
+TEST(BufferTests, append)
 {
     Buffer buffer1;
 
@@ -114,7 +114,7 @@ TEST(BufferTests,append)
     EXPECT_TRUE(testPhrase.length() <= buffer1.capacity());
 }
 
-TEST(BufferTests,saveLoadFile)
+TEST(BufferTests, saveLoadFile)
 {
     const Buffer buffer1(testPhrase);
     Buffer       buffer2;
@@ -127,7 +127,7 @@ TEST(BufferTests,saveLoadFile)
     EXPECT_TRUE(testPhrase.length() <= buffer2.capacity());
 }
 
-TEST(BufferTests,fill)
+TEST(BufferTests, fill)
 {
     Buffer buffer1;
 
@@ -138,7 +138,7 @@ TEST(BufferTests,fill)
     EXPECT_EQ(static_cast<size_t>(12), buffer1.bytes());
 }
 
-TEST(BufferTests,reset)
+TEST(BufferTests, reset)
 {
     Buffer buffer1(testPhrase);
 
@@ -149,7 +149,7 @@ TEST(BufferTests,reset)
     EXPECT_TRUE(buffer1.capacity() > 0);
 }
 
-TEST(BufferTests,erase)
+TEST(BufferTests, erase)
 {
     Buffer buffer1(testPhrase);
 
@@ -159,7 +159,7 @@ TEST(BufferTests,erase)
     EXPECT_STREQ("This test", buffer1.c_str());
 }
 
-TEST(BufferTests,compare)
+TEST(BufferTests, compare)
 {
     const Buffer buffer1(testPhrase);
     const Buffer buffer2(testPhrase);
@@ -172,7 +172,7 @@ TEST(BufferTests,compare)
     EXPECT_TRUE(buffer1 != buffer3);
 }
 
-TEST(BufferTests,textDump)
+TEST(BufferTests, textDump)
 {
     Buffer buffer(testPhrase);
     buffer.append(testPhrase);
@@ -184,7 +184,7 @@ TEST(BufferTests,textDump)
     EXPECT_STREQ(stream.str().c_str(), buffer.c_str());
 }
 
-TEST(BufferTests,hexDump)
+TEST(BufferTests, hexDump)
 {
     const Strings expected {
         "00000000  54 68 69 73 20 69 73 20  61 20 74 65 73 74 54 68  This is  a testTh",
@@ -200,7 +200,7 @@ TEST(BufferTests,hexDump)
     EXPECT_TRUE(output == expected);
 }
 
-TEST(BufferTests,createPerformance)
+TEST(BufferTests, createPerformance)
 {
     constexpr size_t count = 1000000;
 
@@ -264,7 +264,7 @@ TEST(BufferTests,createPerformance)
     stopWatch.start();
     for (size_t i = 0; i < count; ++i)
     {
-        char* buffer = bit_cast<char*>(realloc(nullptr, testPhrase.length() + 1));
+        auto* buffer = bit_cast<char*>(realloc(nullptr, testPhrase.length() + 1));
         memcpy(buffer, testPhrase.c_str(), testPhrase.length());
         auto temp = bit_cast<char*>(realloc(buffer, 1024));
         if (temp != nullptr)
@@ -283,4 +283,12 @@ TEST(BufferTests,createPerformance)
     COUT("realloc: " << duration << "ms");
 }
 
-} // namespace sptk_test
+TEST(BufferTests, format)
+{
+    Buffer buffer;
+    buffer.append((size_t) 1024, "test {}: {}", 1, "Ok");
+
+    EXPECT_STREQ("test 1: Ok", buffer.c_str());
+}
+
+} // namespace sptk

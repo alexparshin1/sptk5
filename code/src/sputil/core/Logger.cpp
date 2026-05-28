@@ -46,7 +46,7 @@ Logger::Logger(LogEngine& destination, const std::string_view prefix)
 
 void Logger::log(LogPriority priority, const string& message) const
 {
-    auto msg = make_unique<Message>(priority, format("{}{}", m_prefix, message.c_str()));
+    auto msg = make_unique<Message>(priority, format("{}{}", m_prefix, message));
     m_destination.log(std::move(msg));
 }
 

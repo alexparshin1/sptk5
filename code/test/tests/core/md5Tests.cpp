@@ -34,13 +34,13 @@
 using namespace std;
 using namespace sptk;
 
+#ifdef min
 #undef min
+#endif
 
-namespace {
+static const String testPhrase("This is a test text to verify MD5 algorithm");
 
-const String testPhrase("This is a test text to verify MD5 algorithm");
-
-const String testSQL(
+static const String testSQL(
     "SELECT * FROM schema1.employee "
     "JOIN schema1.department ON employee.department_id = department.id "
     "JOIN schema1.city ON employee.city_id = city_id "
@@ -48,8 +48,6 @@ const String testSQL(
     "AND employee.name LIKE 'John%' "
     "AND department.name = 'Information Technologies' "
     "LIMIT 1024");
-} // namespace
-
 namespace sptk {
 
 TEST(MD5Tests, md5)
@@ -94,7 +92,7 @@ TEST(MD5Tests, incrementalUpdateMatchesOneShot)
     }();
 
     const String expected = md5(Buffer(bytes.data(), bytes.size()));
-    for (const auto chunkSize: {1UL, 2UL, 7UL, 31UL, 64UL, 127UL})
+    for (const size_t chunkSize: {1UL, 2UL, 7UL, 31UL, 64UL, 127UL})
     {
         MD5 md5ByChunks;
         for (size_t offset = 0; offset < bytes.size(); offset += chunkSize)

@@ -49,7 +49,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
     Semaphore                        hangupReceived;
 
     auto eventsCallback =
-        [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const weak_ptr<Socket>& userData, SocketEventType eventType)
+        [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const weak_ptr<Socket>& userData, const SocketEventType eventType)
     {
         auto socket = userData.lock();
         if (socket == nullptr)

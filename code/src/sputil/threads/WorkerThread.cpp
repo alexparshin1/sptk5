@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-WorkerThread::WorkerThread(SynchronizedQueue<URunable>& queue, std::chrono::milliseconds maxIdleTime)
+WorkerThread::WorkerThread(SynchronizedQueue<URunable>& queue, const std::chrono::milliseconds maxIdleTime)
     : Thread("worker")
     , m_queue(queue)
     , m_maxIdleSeconds(maxIdleTime)
@@ -71,7 +71,7 @@ void WorkerThread::threadFunction()
     }
 }
 
-void WorkerThread::execute(URunable& task)
+void WorkerThread::execute(URunable& task) const
 {
     m_queue.push_back(std::move(task));
 }

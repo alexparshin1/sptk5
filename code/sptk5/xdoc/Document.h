@@ -55,7 +55,7 @@ public:
      * @brief Move constructor.
      * @param other Another object.
      */
-    Document(Document&& other);
+    Document(Document&& other) noexcept;
 
     /**
      * @brief Copy assignment operator.
@@ -69,7 +69,7 @@ public:
      * @param other Another object.
      * @return this document.
      */
-    Document& operator=(Document&& other);
+    Document& operator=(Document&& other) noexcept;
 
     /**
      * @brief Destructor.

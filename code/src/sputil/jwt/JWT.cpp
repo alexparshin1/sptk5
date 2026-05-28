@@ -245,7 +245,7 @@ void JWT::write_body(std::ostream& output, const bool pretty) const
     grants.root()->exportTo(xdoc::DataFormat::JSON, output, pretty);
 }
 
-void JWT::sign(Buffer& out, const char* str) const
+void JWT::sign(Buffer& token, const char* str) const
 {
     using enum Algorithm;
     switch (alg)
@@ -254,7 +254,7 @@ void JWT::sign(Buffer& out, const char* str) const
         case HS256:
         case HS384:
         case HS512:
-            sign_sha_hmac(out, str);
+            sign_sha_hmac(token, str);
             break;
 
         /* RSA */
@@ -266,7 +266,7 @@ void JWT::sign(Buffer& out, const char* str) const
         case ES256:
         case ES384:
         case ES512:
-            sign_sha_pem(out, str);
+            sign_sha_pem(token, str);
             break;
 
         default:
@@ -346,7 +346,7 @@ void sptk::jwt_b64_decode(Buffer& destination, const char* src)
         }
     }
 
-    if (auto trailingIndex = 4 - (index % 4);
+    if (auto trailingIndex = 4 - index % 4;
         trailingIndex < 4)
     {
         while (--trailingIndex)

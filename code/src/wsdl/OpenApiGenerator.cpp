@@ -233,7 +233,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
         {"double", {"number", "double"}}};
 
     auto className = ctypeProperty->className();
-    if (className.startsWith("sptk::WS"))
+    if (className.starts_with("sptk::WS"))
     {
         className = className.replace("sptk::WS", "").toLowerCase();
         const auto ttor = wsTypesToOpenApiTypes.find(className);
@@ -246,7 +246,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
             }
         }
     }
-    else if (className.startsWith("C"))
+    else if (className.starts_with("C"))
     {
         className = "#/components/schemas/" + className.substr(1);
         if (static_cast<int>(ctypeProperty->multiplicity()) &

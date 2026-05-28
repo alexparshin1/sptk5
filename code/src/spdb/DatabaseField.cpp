@@ -97,7 +97,7 @@ DatabaseField::DatabaseField(const String& fieldName, const int fieldType,
     }
 }
 
-void DatabaseField::checkSize(size_t sz)
+void DatabaseField::checkSize(const size_t sz)
 {
     m_data.get<Buffer>().checkSize(sz);
 }
@@ -109,7 +109,7 @@ String DatabaseField::doubleDataToString() const
     return output.str();
 }
 
-void DatabaseField::setNull(VariantDataType vtype)
+void DatabaseField::setNull(const VariantDataType vtype)
 {
     m_data.setNull(true, vtype, false);
 }

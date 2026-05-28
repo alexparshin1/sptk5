@@ -33,6 +33,7 @@ using namespace sptk;
 SocketReader::SocketReader(shared_ptr<TCPSocket> socket, const size_t bufferSize)
     : m_socket(std::move(socket))
     , m_buffer(bufferSize)
+    , m_lineBuffer(128)
 {
 }
 
@@ -80,8 +81,8 @@ size_t SocketReader::readFromSocket()
     do
     {
         error = 0;
-        const auto receivedBytes = static_cast<int>(m_socket->read(m_buffer.data(), m_buffer.capacity()));
-        if (receivedBytes == -1)
+        if (const auto receivedBytes = static_cast<int>(m_socket->read(m_buffer.data(), m_buffer.capacity()));
+            receivedBytes == -1)
         {
             m_buffer.bytes(0);
             if (m_socket->active())
@@ -96,28 +97,36 @@ size_t SocketReader::readFromSocket()
         }
     } while (error == EAGAIN);
 
-    m_buffer.data()[m_buffer.bytes()] = 0;
-
     return m_buffer.bytes();
 }
 
-// If the buffer is too small, increase its size by readBytesLWM.
+// Minimum growth step when the read buffer needs to be enlarged. Growth is
+// geometric (doubling) but never smaller than this floor.
 static constexpr size_t readBytesLWM {128};
 
 void SocketReader::readMoreFromSocket(const size_t availableBytes)
 {
     if (m_readOffset != 0)
     {
-        memmove(m_buffer.data(), m_buffer.data() + m_readOffset, availableBytes);
+        const auto* currentReadPosition = m_buffer.data() + m_readOffset;
+        if (m_buffer.data() + availableBytes < currentReadPosition)
+        {
+            memcpy(m_buffer.data(), currentReadPosition, availableBytes);
+        }
+        else
+        {
+            memmove(m_buffer.data(), currentReadPosition, availableBytes);
+        }
         m_readOffset = 0;
         m_buffer.bytes(availableBytes);
     }
     else
     {
-        m_buffer.checkSize(m_buffer.capacity() + readBytesLWM);
+        const auto cap = m_buffer.capacity();
+        m_buffer.checkSize(std::max(cap * 2, cap + readBytesLWM));
     }
 
-    const size_t receivedBytes = m_socket->read(m_buffer.data() + availableBytes, m_buffer.capacity() - availableBytes);
+    const auto receivedBytes = m_socket->read(m_buffer.data() + availableBytes, m_buffer.capacity() - availableBytes);
     m_buffer.bytes(m_buffer.bytes() + receivedBytes);
 }
 
@@ -134,7 +143,7 @@ size_t SocketReader::bufferedRead(uint8_t* destination, const size_t size)
         }
 
         availableBytes = readFromSocket();
-        if (m_buffer.empty())
+        if (availableBytes == 0)
         {
             return 0;
         }
@@ -158,7 +167,7 @@ size_t SocketReader::bufferedRead(uint8_t* destination, const size_t size)
 
 size_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, const char delimiter, bool& endOfLine)
 {
-    auto availableBytes = m_buffer.bytes() - m_readOffset;
+    auto availableBytes = m_buffer.size() - m_readOffset;
     auto bytesToRead = size;
 
     endOfLine = false;
@@ -187,11 +196,13 @@ size_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, c
     size_t len;
     if (delimiter == 0)
     {
-        len = strlen(readPosition);
+        readPosition[availableBytes] = 0;
+        const auto* eol = static_cast<const char*>(memchr(readPosition, 0, availableBytes));
+        len = eol == nullptr ? availableBytes : eol - readPosition - 1;
     }
     else
     {
-        carriageReturn = strchr(readPosition, delimiter);
+        carriageReturn = static_cast<char*>(memchr(readPosition, delimiter, availableBytes));
         if (carriageReturn != nullptr)
         {
             len = carriageReturn - readPosition + 1;
@@ -221,7 +232,7 @@ size_t SocketReader::bufferedReadLine(uint8_t* destination, const size_t size, c
     if (destination)
     {
         memcpy(destination, readPosition, bytesToRead);
-        destination[bytesToRead] = 0;
+        //destination[bytesToRead] = 0;
     }
 
     m_readOffset += bytesToRead;
@@ -261,7 +272,7 @@ size_t SocketReader::read(uint8_t* destination, const size_t size)
 size_t SocketReader::availableBytes() const
 {
     scoped_lock const lock(m_mutex);
-    auto              available = m_buffer.bytes() - m_readOffset;
+    auto              available = m_buffer.size() - m_readOffset;
     if (available == 0)
     {
         available = m_socket->socketBytes();
@@ -273,7 +284,7 @@ size_t SocketReader::availableBytes() const
 {
     scoped_lock const lock(m_mutex);
 
-    const auto available = m_buffer.bytes() - m_readOffset;
+    const auto available = m_buffer.size() - m_readOffset;
     if (available >= bytesToRead)
     {
         return true;
@@ -286,7 +297,7 @@ bool SocketReader::readyToRead(const chrono::milliseconds& timeout) const
 {
     scoped_lock const lock(m_mutex);
 
-    if (const auto availableBytes = m_buffer.bytes() - m_readOffset;
+    if (const auto availableBytes = m_buffer.size() - m_readOffset;
         availableBytes > 0)
     {
         return true;
@@ -303,17 +314,12 @@ size_t SocketReader::read(Buffer& destinationBuffer, const size_t size)
     return bytes;
 }
 
-size_t SocketReader::readLine(uint8_t* destination, const size_t size, const char delimiter)
+size_t SocketReader::readLine(uint8_t* destinationBuffer, const size_t size, const char delimiter)
 {
     scoped_lock const lock(m_mutex);
 
-    if (!m_socket->active())
-    {
-        throw Exception("Can't read from closed socket");
-    }
-
     size_t total = 0;
-    bool   endOfLine = false;
+    auto   endOfLine = false;
 
     while (!endOfLine)
     {
@@ -324,8 +330,7 @@ size_t SocketReader::readLine(uint8_t* destination, const size_t size, const cha
         }
 
         endOfLine = false;
-        auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
-
+        const auto bytes = bufferedReadLine(destinationBuffer, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
         if (bytes == 0)
         {
             // No more data
@@ -333,7 +338,7 @@ size_t SocketReader::readLine(uint8_t* destination, const size_t size, const cha
         }
 
         total += bytes;
-        destination += bytes;
+        destinationBuffer += bytes;
     }
 
     return total - (endOfLine ? 1 : 0);
@@ -343,25 +348,25 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
 {
     scoped_lock const lock(m_mutex);
     size_t            total = 0;
-    bool              endOfLine = false;
-
-    if (!m_socket->active())
-    {
-        throw Exception("Can't read from closed socket");
-    }
+    auto              endOfLine = false;
+    constexpr size_t  maxBufferSize = 128 * 1024;
 
     while (!endOfLine)
     {
         auto bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
         if (bytesToRead <= static_cast<int>(readBytesLWM))
         {
-            destinationBuffer.checkSize(destinationBuffer.capacity() + readBytesLWM);
-            bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
+            if (const auto desiredCapacity = std::min(maxBufferSize, destinationBuffer.capacity() * 2 + readBytesLWM);
+                desiredCapacity > destinationBuffer.capacity())
+            {
+                destinationBuffer.checkSize(desiredCapacity);
+                bytesToRead = static_cast<int>(destinationBuffer.capacity() - total - 1);
+            }
         }
 
         auto* destination = destinationBuffer.data() + total;
 
-        auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
+        const auto bytes = bufferedReadLine(destination, static_cast<size_t>(bytesToRead), delimiter, endOfLine);
         if (bytes == 0)
         { // No more data
             break;
@@ -376,11 +381,10 @@ size_t SocketReader::readLine(Buffer& destinationBuffer, const char delimiter)
 
 size_t SocketReader::readLine(String& destinationBuffer, const char delimiter)
 {
-    Buffer     buffer;
-    const auto bytes = readLine(buffer, delimiter);
+    const auto bytes = readLine(m_lineBuffer, delimiter);
     if (bytes > 0)
     {
-        destinationBuffer.assign(buffer.c_str(), bytes - 1);
+        destinationBuffer.assign(m_lineBuffer.c_str(), bytes - 1);
     }
     else
     {

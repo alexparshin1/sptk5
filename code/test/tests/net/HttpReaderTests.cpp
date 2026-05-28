@@ -75,7 +75,7 @@ private:
 } // namespace
 namespace sptk {
 
-TEST(HttpReaderTests,responseContentLengthReadsBodyAndHeaders)
+TEST(HttpReaderTests, responseContentLengthReadsBodyAndHeaders)
 {
     const String response =
         "HTTP/1.1 200 OK\r\n"
@@ -86,7 +86,7 @@ TEST(HttpReaderTests,responseContentLengthReadsBodyAndHeaders)
 
     FixedResponseServer server(kHttpReaderTestPort1, response);
 
-    auto socket = make_shared<TCPSocket>();
+    const auto socket = make_shared<TCPSocket>();
     socket->open({"127.0.0.1", kHttpReaderTestPort1});
 
     Buffer     out;
@@ -101,7 +101,7 @@ TEST(HttpReaderTests,responseContentLengthReadsBodyAndHeaders)
     EXPECT_STREQ(body.c_str(), "Hello");
 }
 
-TEST(HttpReaderTests,responseChunkedReadsAllChunks)
+TEST(HttpReaderTests, responseChunkedReadsAllChunks)
 {
     // "hello world" is 11 bytes = 0x0B
     const String response =
@@ -116,7 +116,7 @@ TEST(HttpReaderTests,responseChunkedReadsAllChunks)
 
     FixedResponseServer server(kHttpReaderTestPort2, response);
 
-    auto socket = make_shared<TCPSocket>();
+    const auto socket = make_shared<TCPSocket>();
     socket->open({"127.0.0.1", kHttpReaderTestPort2});
 
     Buffer     out;
@@ -130,7 +130,7 @@ TEST(HttpReaderTests,responseChunkedReadsAllChunks)
     EXPECT_STREQ(body.c_str(), "hello world");
 }
 
-TEST(HttpReaderTests,requestModeParsesRequestLineAndHeaders)
+TEST(HttpReaderTests, requestModeParsesRequestLineAndHeaders)
 {
     TCPServer server("HttpReader RequestModeServer", 1);
 
@@ -195,4 +195,4 @@ TEST(HttpReaderTests,requestModeParsesRequestLineAndHeaders)
     EXPECT_STREQ(hostHeaderPromise.get_future().get().c_str(), "example.test");
 }
 
-} // namespace sptk_test
+} // namespace sptk

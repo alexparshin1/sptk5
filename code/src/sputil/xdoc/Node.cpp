@@ -155,6 +155,13 @@ SNode Node::pushNode(const NodeName& name, const Type type)
     return m_nodes.back();
 }
 
+SNode Node::pushNode(const SNode& node)
+{
+    m_nodes.push_back(node);
+    node->m_parent = shared_from_this();
+    return node;
+}
+
 String Node::getString(const NodeName& name) const
 {
     const auto& node = name.empty() ? shared_from_this() : findFirst(name);
@@ -299,7 +306,7 @@ SNode Node::pushValue(const Variant& value, const Type type)
 
 bool Node::remove(const NodeName& name)
 {
-    bool found = false;
+    auto found = false;
     for (auto node = m_nodes.begin(); node != m_nodes.end();)
     {
         if ((*node)->sameName(name))

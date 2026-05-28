@@ -49,7 +49,7 @@ bool CFileOpenDialog::okPressed()
             throw Exception("Please, select or type in the filename.");
         }
         fname = removeTrailingSlash(directory()) + slashStr + fname;
-        int fh = open(fname.c_str(), O_RDONLY);
+        const int fh = open(fname.c_str(), O_RDONLY);
         if (fh < 0)
         {
             throw Exception("File doesn't exist.");

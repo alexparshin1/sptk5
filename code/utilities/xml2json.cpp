@@ -34,7 +34,7 @@ int main(const int argc, const char* argv[])
         return 1;
     }
 
-    const auto extension = matches[1].value.toLowerCase();
+    const auto extension = lowerCase(matches[1].value);
 
     try
     {

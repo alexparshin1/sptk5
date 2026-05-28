@@ -61,17 +61,19 @@ void HttpAuthentication::parse()
 {
     if (m_type == Type::UNDEFINED)
     {
-        m_authenticationHeader = trim(m_authenticationHeader);
-        if (m_authenticationHeader.empty())
+        String authenticationHeader = trim(m_authenticationHeader);
+        if (authenticationHeader.empty())
         {
             m_userData = make_shared<xdoc::Document>();
             m_type = Type::EMPTY;
+            return;
         }
-        else if (m_authenticationHeader.toLowerCase().startsWith("basic "))
+
+        if (authenticationHeader.toLowerCase().starts_with("basic "))
         {
-            constexpr int basicLength = 6;
-            const Buffer  encoded(m_authenticationHeader.substr(basicLength));
-            Buffer        decoded;
+            constexpr auto basicLength = 6;
+            const Buffer   encoded(m_authenticationHeader.substr(basicLength));
+            Buffer         decoded;
             Base64::decode(decoded, encoded);
 
             auto pos = String(decoded).find(":");
@@ -86,19 +88,20 @@ void HttpAuthentication::parse()
             aUserData->root()->set("password", password);
             m_userData = aUserData;
             m_type = Type::BASIC;
+            return;
         }
-        else if (m_authenticationHeader.toLowerCase().startsWith("bearer "))
+
+        if (authenticationHeader.toLowerCase().starts_with("bearer "))
         {
-            constexpr int bearerLength = 6;
-            const auto    aJwtData = make_shared<JWT>();
+            constexpr auto bearerLength = 6;
+            const auto     aJwtData = make_shared<JWT>();
             aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
             m_jwtData = aJwtData;
             m_type = Type::BEARER;
+            return;
         }
-        else
-        {
-            throw Exception("Invalid or unsupported 'Authentication' header format");
-        }
+
+        throw Exception("Invalid or unsupported 'Authentication' header format");
     }
 }
 

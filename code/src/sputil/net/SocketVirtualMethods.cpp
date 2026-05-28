@@ -52,7 +52,7 @@ void SocketVirtualMethods::openUnlocked(const Host&, OpenMode, bool, const chron
     // Implement in derived class
 }
 
-void SocketVirtualMethods::openUnlocked(const struct sockaddr_in& address, OpenMode openMode, bool blockMode, const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress)
+void SocketVirtualMethods::openUnlocked(const sockaddr_in& address, const OpenMode openMode, const bool blockMode, const std::chrono::milliseconds& timeoutMS, const char* clientBindAddress)
 {
     openAddressUnlocked(address, openMode, timeoutMS, true, clientBindAddress);
     setBlockingModeUnlocked(blockMode);
@@ -81,7 +81,7 @@ void SocketVirtualMethods::openAddressUnlocked(const sockaddr_in& addr, const Op
         throwSocketError("Can't create socket");
     }
 
-    int  result = 0;
+    auto result = 0;
     auto currentOperation = "connect";
 
     switch (openMode)
@@ -173,7 +173,7 @@ void SocketVirtualMethods::closeUnlocked()
     {
 #ifndef _WIN32
         shutdown(m_socketFd, SHUT_RDWR);
-        ::close(m_socketFd);
+        close(m_socketFd);
 #else
         closesocket(m_socketFd);
 #endif
@@ -186,7 +186,7 @@ SocketType SocketVirtualMethods::getSocketFdUnlocked() const
     return m_socketFd;
 }
 
-void SocketVirtualMethods::setSocketFdUnlocked(SocketType socket)
+void SocketVirtualMethods::setSocketFdUnlocked(const SocketType socket)
 {
     m_socketFd = socket;
 }
@@ -217,7 +217,7 @@ void SocketVirtualMethods::setBlockingModeUnlocked(const bool blockingMode)
         throwSocketError(errorMessage);
     }
 #else
-    int flags = fcntl(m_socketFd, F_GETFL);
+    auto flags = fcntl(m_socketFd, F_GETFL);
     if ((flags & O_NONBLOCK) == O_NONBLOCK)
     {
         flags -= O_NONBLOCK;
@@ -228,7 +228,7 @@ void SocketVirtualMethods::setBlockingModeUnlocked(const bool blockingMode)
         flags |= O_NONBLOCK;
     }
 
-    if (const int result = fcntl(m_socketFd, F_SETFL, flags);
+    if (const auto result = fcntl(m_socketFd, F_SETFL, flags);
         result != 0)
     {
         throwSocketError(errorMessage);
@@ -269,7 +269,7 @@ size_t SocketVirtualMethods::getSocketBytesUnlocked() const
 #ifdef _WIN32
         const int32_t result = ioctlsocket(m_socketFd, FIONREAD, bit_cast<u_long*>(&bytes));
 #else
-        const int32_t result = ioctl(m_socketFd, FIONREAD, &bytes);
+        const auto result = ioctl(m_socketFd, FIONREAD, &bytes);
 #endif
         result < 0)
     {
@@ -289,7 +289,7 @@ void SocketVirtualMethods::attachUnlocked(const SocketType socketHandle, bool)
 
 SocketType SocketVirtualMethods::detachUnlocked()
 {
-    const SocketType socketFd = m_socketFd;
+    const auto socketFd = m_socketFd;
     m_socketFd = INVALID_SOCKET;
     closeUnlocked();
     return socketFd;
@@ -360,7 +360,7 @@ constexpr int CONNECTION_CLOSED = POLLHUP;
 #ifdef _WIN32
 constexpr int CONNECTION_CLOSED = POLLHUP;
 #else
-constexpr int CONNECTION_CLOSED = POLLRDHUP | POLLHUP;
+constexpr auto CONNECTION_CLOSED = POLLRDHUP | POLLHUP;
 #endif
 #endif
 
@@ -400,7 +400,7 @@ bool SocketVirtualMethods::readyToReadUnlocked(const chrono::milliseconds& timeo
 
     pfd.fd = m_socketFd;
     pfd.events = POLLIN;
-    const int result = poll(&pfd, 1, timeoutMS);
+    const auto result = poll(&pfd, 1, timeoutMS);
 
     if (result < 0)
     {
@@ -442,10 +442,10 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
     }
     return false;
 #else
-    struct pollfd pfd = {};
+    pollfd pfd = {};
     pfd.fd = m_socketFd;
     pfd.events = POLLOUT;
-    const int result = poll(&pfd, 1, timeoutMS);
+    const auto result = poll(&pfd, 1, timeoutMS);
     if (result < 0)
     {
         throwSocketError("Can't read from socket");
@@ -465,7 +465,7 @@ size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
 #ifdef _WIN32
     auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
-    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_DONTWAIT);
+    auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_DONTWAIT);
 #endif
     if (result == -1)
     {
@@ -521,7 +521,7 @@ size_t SocketVirtualMethods::sendUnlocked(const uint8_t* buffer, const size_t le
 #ifdef _WIN32
         auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
 #else
-        auto res = ::send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_NOSIGNAL);
+        auto res = send(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_NOSIGNAL);
 #endif
         if (res == -1)
         {
@@ -553,15 +553,11 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         size = strlen(bit_cast<const char*>(buffer));
     }
 
-    const size_t total = size;
-    auto         remaining = static_cast<int>(size);
+    const auto   total = size;
+    auto         remaining = static_cast<ssize_t>(size);
     while (remaining > 0)
     {
-#ifndef _WIN32
         ssize_t bytes;
-#else
-        int bytes;
-#endif
         if (peer != nullptr)
         {
             // UDP socket
@@ -581,8 +577,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         }
         else
         {
-            size_t writeSize = remaining > 2048 ? 2048 : remaining;
-            bytes = static_cast<int>(sendUnlocked(ptr, writeSize));
+            bytes = static_cast<int>(sendUnlocked(ptr, remaining));
         }
 
         remaining -= bytes;
@@ -659,7 +654,7 @@ void throwSocketError(const String& message, const std::source_location& locatio
 
     int error = getSocketError(windowsSocketError);
 #else
-    int error = errno;
+    auto error = errno;
     // strerror_r() doesn't work here
     errorStr = strerror(errno);
 #endif
