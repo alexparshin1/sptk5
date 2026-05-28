@@ -45,12 +45,19 @@ void BufferStorage::reallocate(const size_t size)
     m_allocated = size;
 }
 
-void BufferStorage::adjustSize(size_t size)
+void BufferStorage::swapInternal(BufferStorage& other)
 {
-    constexpr size_t sizeGranularity {32};
-    size = (size / sizeGranularity + 1) * sizeGranularity;
-    reallocate(size);
-    m_buffer[size] = 0;
+    swap(m_buffer, other.m_buffer);
+    swap(m_allocated, other.m_allocated);
+    swap(m_size, other.m_size);
+}
+
+void BufferStorage::adjustSize(const size_t size)
+{
+    if (size > m_allocated)
+    {
+        reallocate(size * 3 / 2);
+    }
 }
 
 void BufferStorage::_set(const uint8_t* data, const size_t size)
@@ -76,28 +83,7 @@ void BufferStorage::append(const char chr)
     m_buffer[++m_size] = 0;
 }
 
-void BufferStorage::append(const char* data, size_t size)
-{
-    if (data == nullptr || size == 0)
-    {
-        return;
-    }
-
-    if (size == MAX_SIZE_T)
-    {
-        size = strlen(data);
-    }
-
-    checkSize(m_size + size + 1);
-    if (data != nullptr)
-    {
-        memcpy(m_buffer + m_size, data, size);
-        m_size += size;
-        m_buffer[m_size] = 0;
-    }
-}
-
-void BufferStorage::append(const uint8_t* data, const size_t size)
+void BufferStorage::append(const char* data, const size_t size)
 {
     if (data == nullptr || size == 0)
     {
@@ -111,16 +97,33 @@ void BufferStorage::append(const uint8_t* data, const size_t size)
     m_buffer[m_size] = 0;
 }
 
+void BufferStorage::append(const uint8_t* data, const size_t size)
+{
+    if (data == nullptr || size == 0)
+    {
+        return;
+    }
+
+    checkSize(m_size + size);
+
+    memcpy(m_buffer + m_size, data, size);
+    m_size += size;
+    m_buffer[m_size] = 0;
+}
+
 void BufferStorage::reset(const size_t size)
 {
-    checkSize(size + 1);
+    if (size > m_allocated)
+    {
+        checkSize(size);
+    }
     m_buffer[0] = 0;
     m_size = 0;
 }
 
 void BufferStorage::fill(const char chr, const size_t count)
 {
-    checkSize(count + 1);
+    checkSize(count);
     memset(m_buffer, chr, count);
     m_size = count;
     m_buffer[m_size] = 0;
@@ -137,15 +140,16 @@ void BufferStorage::erase(const size_t offset, size_t length)
     if (offset + length >= m_size)
     {
         m_size = offset;
+        return;
     }
 
     if (length == 0)
     {
         return;
-    } // Nothing to do
+    }
 
-    const auto   moveOffset = offset + length;
-    const auto   moveLength = m_size - moveOffset;
+    const auto moveOffset = offset + length;
+    const auto moveLength = m_size - moveOffset;
 
     if (offset + length > m_size)
     {

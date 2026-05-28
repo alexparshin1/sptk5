@@ -100,8 +100,9 @@ public:
         , m_allocated(bufferStorage.m_allocated)
         , m_size(bufferStorage.m_size)
     {
-        bufferStorage.m_buffer = nullptr;
-        bufferStorage.m_allocated = 0;
+        bufferStorage.m_buffer = static_cast<uint8_t*>(malloc(1));
+        bufferStorage.m_buffer[0] = 0;
+        bufferStorage.m_allocated = 1;
         bufferStorage.m_size = 0;
     }
 
@@ -122,9 +123,13 @@ public:
     {
         if (this != &other)
         {
+            if (other.m_size > m_allocated)
+            {
+                reallocate(other.m_size * 3 / 2);
+            }
             m_size = other.m_size;
-            reallocate(m_size);
             memcpy(m_buffer, other.m_buffer, m_size);
+            m_buffer[m_size] = 0;
         }
         return *this;
     }
@@ -290,9 +295,9 @@ public:
             return;
         }
 
-        if (newSize >= m_allocated)
+        if (newSize > m_allocated)
         {
-            reallocate(newSize);
+            reallocate(newSize * 3 / 2);
         }
 
         m_size = newSize;
@@ -305,7 +310,25 @@ public:
      * Allocates memory if needed.
      * @param chr                Single character
      */
-    virtual void append(char chr);
+    void append(char chr);
+
+    /**
+     * @brief Appends the external data of the size to the current buffer.
+     * @param str               Null-terminated string.
+     */
+    void append(const char* str)
+    {
+        append(str, strlen(str));
+    }
+
+    /**
+     * @brief Appends the external data of the size to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param data              External data buffer
+     * @param size              Required memory size
+     */
+    void append(const char* data, size_t size);
 
     /**
      * Appends the external data of the size to the current buffer.
@@ -314,22 +337,66 @@ public:
      * @param data              External data buffer
      * @param size                Required memory size
      */
-    virtual void append(const char* data, size_t size);
+    void append(const uint8_t* data, size_t size);
 
     /**
-     * Appends the external data of the size to the current buffer.
+     * Append a value of primitive type or structure to the current buffer.
      *
      * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param size                Required memory size
+     * @param val               Primitive type or structure
      */
-    virtual void append(const uint8_t* data, size_t size);
+    template<class T>
+        requires std::is_integral_v<T>
+    void append(T val)
+    {
+        append(std::bit_cast<uint8_t*>(&val), sizeof(val));
+    }
 
     /**
-     * Truncates the current buffer to the size.
+     * Appends the string to the current buffer.
      *
-     * Deallocates unused memory if needed.
-     * @param size                Required data size in bytes
+     * Allocates memory if needed.
+     * @param str               String to append
+     */
+    template<class T>
+        requires std::is_class_v<T>
+    void append(const T& str)
+    {
+        append(str.c_str(), str.size());
+    }
+
+    /**
+     * Appends the string to the current buffer.
+     *
+     * Allocates memory if needed.
+     * @param buffer            Data to append
+     */
+    void append(const BufferStorage& buffer)
+    {
+        append(buffer.data(), buffer.bytes());
+    }
+
+    /**
+     * @brief Appends a formatted string to the buffer using std::format-style arguments.
+     * @param maxLength         Maximum size of the appended text.
+     * @param fmt               Compile-time checked format string
+     * @param args              Format arguments
+     * @return                  Number of characters appended
+     */
+    template<typename... Args>
+    size_t append(const size_t maxLength, std::format_string<Args...> fmt, Args&&... args)
+    {
+        checkSize(size() + maxLength);
+        const std::format_to_n_result result = std::format_to_n(data() + size(), maxLength, fmt, std::forward<Args>(args)...);
+        *result.out = '\0';
+        const auto written = std::min(static_cast<size_t>(result.size), maxLength);
+        bytes(size() + written);
+        return written;
+    }
+
+    /**
+     * @brief Truncates the current buffer to the size.
+     * @param size                Required data size in bytes.
      */
     virtual void reset(size_t size = 0);
 
@@ -384,6 +451,12 @@ protected:
         allocate(data, size);
         m_size = bytes;
     }
+
+    /**
+     * @brief Swap buffers.
+     * @param other Another buffer.
+     */
+    void swapInternal(BufferStorage& other);
 
 private:
     uint8_t* m_buffer {nullptr}; ///< Actual storage

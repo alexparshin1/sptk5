@@ -101,26 +101,18 @@ Buffer& Buffer::operator=(const String& str)
     return *this;
 }
 
-Buffer& Buffer::operator=(const char* str)
-{
-    if (str == nullptr)
-    {
-        reset();
-    }
-    else
-    {
-        set(bit_cast<const uint8_t*>(str), strlen(str));
-    }
-
-    return *this;
-}
-
 bool Buffer::operator==(const Buffer& other) const
 {
+    if (this == &other)
+    {
+        return true;
+    }
+
     if (bytes() != other.bytes())
     {
         return false;
     }
+
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
