@@ -285,10 +285,10 @@ protected:
 
     /**
      * @brief Parses server response as message data (after the appropriate command) to the set of fields.
-     * @param result The set of fields with the message information.
+     * @param results The set of fields with the message information.
      * @param headersOnly bool, true if we don't want to retrieve the message body.
      */
-    void parseMessage(FieldList& result, bool headersOnly);
+    void parseMessage(FieldList& results, bool headersOnly);
 
     /**
      * @brief Parses server response as a folder list (after the appropriate command) and converts the response to it.

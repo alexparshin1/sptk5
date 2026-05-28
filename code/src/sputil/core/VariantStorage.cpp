@@ -38,28 +38,28 @@ BaseVariantStorage::BaseVariantStorage(const BaseVariantStorage& other, int)
     }
 }
 
-BaseVariantStorage::BaseVariantStorage(bool value)
+BaseVariantStorage::BaseVariantStorage(const bool value)
 {
     m_value.asInt64 = value != 0 ? 1 : 0;
     m_type.type = VariantDataType::VAR_BOOL;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(int value)
+BaseVariantStorage::BaseVariantStorage(const int value)
 {
     m_value.asInt64 = value;
     m_type.type = VariantDataType::VAR_INT;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(int64_t value)
+BaseVariantStorage::BaseVariantStorage(const int64_t value)
 {
     m_value.asInt64 = value;
     m_type.type = VariantDataType::VAR_INT64;
     m_type.size = sizeof(value);
 }
 
-BaseVariantStorage::BaseVariantStorage(double value)
+BaseVariantStorage::BaseVariantStorage(const double value)
 {
     m_value.asDouble = value;
     m_type.type = VariantDataType::VAR_FLOAT;
@@ -73,7 +73,7 @@ BaseVariantStorage::BaseVariantStorage(Buffer&& buffer)
     m_type.type = VariantDataType::VAR_BUFFER;
 }
 
-BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, bool externalBuffer)
+BaseVariantStorage::BaseVariantStorage(const uint8_t* value, size_t dataSize, const bool externalBuffer)
 {
     if (externalBuffer || value == nullptr)
     {
@@ -261,7 +261,7 @@ VariantStorage& VariantStorage::operator=(const VariantStorage& other)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(bool aValue)
+VariantStorage& VariantStorage::operator=(const bool aValue)
 {
     if (storageClient())
     {
@@ -274,7 +274,7 @@ VariantStorage& VariantStorage::operator=(bool aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int aValue)
+VariantStorage& VariantStorage::operator=(const int aValue)
 {
     if (storageClient())
     {
@@ -286,7 +286,7 @@ VariantStorage& VariantStorage::operator=(int aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(int64_t aValue)
+VariantStorage& VariantStorage::operator=(const int64_t aValue)
 {
     if (storageClient())
     {
@@ -299,7 +299,7 @@ VariantStorage& VariantStorage::operator=(int64_t aValue)
     return *this;
 }
 
-VariantStorage& VariantStorage::operator=(double aValue)
+VariantStorage& VariantStorage::operator=(const double aValue)
 {
     if (storageClient())
     {
@@ -328,7 +328,7 @@ VariantStorage& VariantStorage::operator=(Buffer&& buffer)
     return *this;
 }
 
-void VariantStorage::setExternalBuffer(const uint8_t* aValue, size_t dataSize, VariantDataType type)
+void VariantStorage::setExternalBuffer(const uint8_t* aValue, const size_t dataSize, VariantDataType type)
 {
     if ((static_cast<int>(type) & BUFFER_TYPES) == 0)
     {

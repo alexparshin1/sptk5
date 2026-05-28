@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-static constexpr int             oneKb(1024);
+static constexpr auto            oneKb(1024);
 static constexpr chrono::seconds defaultReadTimeout(30);
 
 HttpReader::HttpReader(const shared_ptr<TCPSocket>& socket, Buffer& output, const ReadMode readMode)
@@ -191,7 +191,7 @@ size_t readAndAppend(SocketReader& socketReader, Buffer& output, const size_t by
         throw TimeoutException("Timeout reading from connection");
     }
 
-    size_t readBytes = socketReader.read(buffer, bytesToRead);
+    auto readBytes = socketReader.read(buffer, bytesToRead);
     if (readBytes == 0)
     { // 0 bytes case is a workaround for OpenSSL
         readBytes = static_cast<int>(socketReader.read(buffer, bytesToRead));
@@ -238,7 +238,7 @@ size_t readChunk(SocketReader& socketReader, Buffer& m_output,
 
 void HttpReader::readDataChunk(bool& done)
 {
-    size_t bytesToRead = availableBytes();
+    auto bytesToRead = availableBytes();
     if (bytesToRead == 0)
     {
         done = true;
@@ -270,9 +270,9 @@ void HttpReader::readDataChunk(bool& done)
     }
     else
     {
-        const size_t chunkSize = readChunk(*this, m_output, m_readDeadline);
+        const auto chunkSize = readChunk(*this, m_output, m_readDeadline);
         m_contentReceivedLength += chunkSize;
-        done = (chunkSize == 0); // 0 means last chunk
+        done = chunkSize == 0; // 0 means last chunk
     }
 
     if (!done)
@@ -280,7 +280,7 @@ void HttpReader::readDataChunk(bool& done)
         const auto readBytes = static_cast<int>(availableBytes());
         if (readBytes == 0 && m_output.bytes() > 13)
         {
-            const size_t tailOffset = m_output.bytes() - 13;
+            const auto   tailOffset = m_output.bytes() - 13;
             const String tail(m_output.c_str() + tailOffset);
             if (tail.toLowerCase().find("</html>") != string::npos)
             {
@@ -297,7 +297,7 @@ void HttpReader::readDataChunk(bool& done)
 
 bool HttpReader::readData()
 {
-    bool done {false};
+    auto done {false};
     while (!done)
     {
         if (const auto timeout = nextReadTimeout();
@@ -312,8 +312,8 @@ bool HttpReader::readData()
 
 void HttpReader::readStream()
 {
-    constexpr int httpErrorResponseCode(400);
-    constexpr int serverErrorResponseCode(500);
+    constexpr auto httpErrorResponseCode(400);
+    constexpr auto serverErrorResponseCode(500);
 
     const scoped_lock lock(m_mutex);
 
@@ -415,7 +415,7 @@ String HttpReader::httpHeader(const String& headerName) const
 int HttpReader::readAll(const chrono::milliseconds& timeout)
 {
     setReadDeadline(chrono::steady_clock::now() + timeout);
-    while (getReaderState() < HttpReader::State::COMPLETED)
+    while (getReaderState() < State::COMPLETED)
     {
         if (const auto readTimeout = nextReadTimeout();
             readTimeout.count() <= 0 || !readyToRead(readTimeout))

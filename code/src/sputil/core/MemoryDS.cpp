@@ -60,7 +60,7 @@ size_t MemoryDS::fieldCount() const
 }
 
 // access to the field by number, 0..field.size()-1
-Field& MemoryDS::operator[](size_t index)
+Field& MemoryDS::operator[](const size_t index)
 {
     const scoped_lock lock(m_mutex);
     if (m_current == m_list.end())

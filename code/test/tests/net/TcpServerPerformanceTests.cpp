@@ -47,7 +47,7 @@ size_t                      totalTransferredCount = 0;
 size_t                      totalTransferred = 0;
 SocketEvents<SocketReader>* sharedSocketEvents;
 
-void eventHandler(const weak_ptr<SocketReader>& data, SocketEventType type)
+void eventHandler(const weak_ptr<SocketReader>& data, const SocketEventType type)
 {
     static int count = 0;
 

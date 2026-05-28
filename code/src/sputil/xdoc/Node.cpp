@@ -306,7 +306,7 @@ SNode Node::pushValue(const Variant& value, const Type type)
 
 bool Node::remove(const NodeName& name)
 {
-    bool found = false;
+    auto found = false;
     for (auto node = m_nodes.begin(); node != m_nodes.end();)
     {
         if ((*node)->sameName(name))

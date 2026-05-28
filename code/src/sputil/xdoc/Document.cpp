@@ -61,7 +61,7 @@ Document::Document(const Document& other)
 {
 }
 
-Document::Document(Document&& other)
+Document::Document(Document&& other) noexcept
     : m_root(std::move(other.m_root))
 {
     other.m_root = Node::createNode("");
@@ -77,7 +77,7 @@ Document& Document::operator=(const Document& other)
     return *this;
 }
 
-Document& Document::operator=(Document&& other)
+Document& Document::operator=(Document&& other) noexcept
 {
     if (this != &other)
     {

@@ -37,24 +37,29 @@ namespace {
 String jsonEscape(const String& text)
 {
     static constexpr char hexDigits[] = "0123456789abcdef";
-    const size_t          len = text.size();
+    const auto            len = text.size();
 
     // Find the first character that needs escaping.
     size_t i = 0;
     for (; i < len; ++i)
     {
-        const auto ch = static_cast<unsigned char>(text[i]);
-        if (ch < 0x20 || ch == '"' || ch == '\\')
+        if (const auto ch = static_cast<unsigned char>(text[i]);
+            ch < 0x20 || ch == '"' || ch == '\\')
+        {
             break;
+        }
     }
+
     if (i == len)
+    {
         return text; // nothing to escape — return original without copying
+    }
 
     String result;
     result.reserve(len + (len >> 2));
     result.append(text, 0, i); // copy the clean prefix in one shot
 
-    size_t runStart = i;
+    auto runStart = i;
     for (; i < len; ++i)
     {
         const auto  ch = static_cast<unsigned char>(text[i]);
@@ -138,7 +143,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
 
     const string_view spacing = formatted ? " " : "";
 
-    const bool isValue = node->nodes().empty();
+    const auto isValue = node->nodes().empty();
 
     if (isValue && !node->attributes().empty())
     {
@@ -222,7 +227,7 @@ void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool fo
     stream << "[";
     if (node->type() == Node::Type::Array)
     {
-        bool        first = true;
+        auto        first = true;
         const auto& array = node->nodes();
         if (array.empty())
         {
@@ -256,7 +261,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
 
         const string_view spacing = formatted ? " " : "";
 
-        bool first = true;
+        auto first = true;
         for (const auto& anode: node->nodes())
         {
             if (first)
@@ -285,7 +290,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
     {
         stream << firstElement << "\"attributes\":" << spacing << "{";
 
-        bool first1 = true;
+        auto first1 = true;
         for (const auto& [name, value]: node->attributes())
         {
             if (first1)
@@ -324,7 +329,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
     }
 }
 
-void ExportJSON::exportToJSON(const Node* node, sptk::Buffer& json, bool formatted)
+void ExportJSON::exportToJSON(const Node* node, Buffer& json, bool formatted)
 {
     stringstream stream;
     exportJsonValueTo(node, stream, formatted, 0);

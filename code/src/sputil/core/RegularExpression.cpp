@@ -51,7 +51,7 @@ public:
 #ifdef HAVE_PCRE2
     pcre2_match_data* match_data {nullptr};
 
-    MatchData(const pcre2_code* pcre, size_t _maxMatches)
+    MatchData(const pcre2_code* pcre, const size_t _maxMatches)
         : match_data(pcre2_match_data_create_from_pattern(pcre, nullptr))
         , matches(_maxMatches + 2)
         , maxMatches(_maxMatches + 2)
@@ -102,7 +102,7 @@ size_t RegularExpression::getCaptureCount() const
 
 const RegularExpression::Group RegularExpression::Groups::emptyGroup;
 
-const RegularExpression::Group& RegularExpression::Groups::operator[](int index) const
+const RegularExpression::Group& RegularExpression::Groups::operator[](const int index) const
 {
     if (static_cast<size_t>(index) >= m_groups.size())
     {
@@ -121,7 +121,7 @@ const RegularExpression::Group& RegularExpression::Groups::operator[](const char
     return itor->second;
 }
 
-void RegularExpression::Groups::grow(size_t groupCount)
+void RegularExpression::Groups::grow(const size_t groupCount)
 {
     m_groups.reserve(m_groups.size() + groupCount);
 }
@@ -190,7 +190,7 @@ void RegularExpression::compile()
     m_captureCount = getCaptureCount();
 }
 
-RegularExpression::RegularExpression(std::string_view pattern, std::string_view options)
+RegularExpression::RegularExpression(const std::string_view pattern, const std::string_view options)
     : m_pattern(pattern.data(), pattern.size())
 {
     for (const auto ch: options)
@@ -441,7 +441,7 @@ RegularExpression::Groups RegularExpression::m(const string& text, size_t& offse
 }
 
 void RegularExpression::extractNamedMatches(const string& text, Groups& matchedStrings,
-                                            const MatchData& matchData, size_t matchCount) const
+                                            const MatchData& matchData, const size_t matchCount) const
 {
     if (const auto nameCount = static_cast<int>(getNamedGroupCount());
         nameCount > 0)
@@ -660,7 +660,7 @@ string RegularExpression::s(const string& text, const std::function<string(const
     return result + text.substr(lastOffset);
 }
 
-size_t RegularExpression::findNextPlaceholder(size_t pos, const string& outputPattern)
+size_t RegularExpression::findNextPlaceholder(const size_t pos, const string& outputPattern)
 {
     auto placeHolderStart = pos;
     for (;; ++placeHolderStart)

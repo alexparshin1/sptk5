@@ -427,7 +427,7 @@ constexpr auto WRITE = 1;
  * @return A file pointer connected to the subprocess's input or output, depending on the type parameter.
  * @throws SystemException If pipe creation, process forking, or command execution fails.
  */
-FILE* popen2(const string& command, string_view type, int& pid)
+FILE* popen2(const string& command, const string_view type, int& pid)
 {
     pid_t         child_pid {0};
     array<int, 2> fd {};
@@ -510,7 +510,7 @@ FILE* popen2(const string& command, string_view type, int& pid)
  * @param pid                   Process ID of the subprocess to wait for.
  * @return The termination status of the subprocess, or -1 if an error occurs.
  */
-int pclose2(FILE* fp, pid_t pid)
+int pclose2(FILE* fp, const pid_t pid)
 {
     int stat;
 

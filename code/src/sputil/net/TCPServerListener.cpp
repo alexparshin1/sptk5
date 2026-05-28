@@ -70,7 +70,7 @@ void TCPServerListener::createConnection(const CreateConnectionItem& createConne
     {
 #ifndef _WIN32
         shutdown(createConnectionItem.connectionFD, SHUT_RDWR);
-        ::close(createConnectionItem.connectionFD);
+        close(createConnectionItem.connectionFD);
 #else
         closesocket(createConnectionItem.connectionFD);
 #endif
@@ -82,7 +82,7 @@ bool TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
     try
     {
         sockaddr_in connectionInfo = {};
-        if (SocketType connectionFD {0};
+        if (auto connectionFD {0};
             m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
             const CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};

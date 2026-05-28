@@ -104,7 +104,7 @@ string sptk::trim(const string_view str)
     return string(result);
 }
 
-int sptk::string2int(const string_view str, int defaultValue)
+int sptk::string2int(const string_view str, const int defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;
@@ -118,7 +118,7 @@ int sptk::string2int(const string_view str, int defaultValue)
     return result;
 }
 
-int64_t sptk::string2int64(const string_view str, int64_t defaultValue)
+int64_t sptk::string2int64(const string_view str, const int64_t defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;
@@ -174,7 +174,7 @@ double sptk::string2double(const string_view str)
     return result;
 }
 
-double sptk::string2double(const string_view str, double defaultValue)
+double sptk::string2double(const string_view str, const double defaultValue)
 {
     char* endPointer = nullptr;
     errno = 0;

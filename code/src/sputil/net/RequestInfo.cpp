@@ -35,7 +35,7 @@ using namespace sptk;
 void RequestInfo::Message::input(const Buffer& content, const String& contentEncoding)
 {
     static const Strings knowContentEncodings({"", "br", "gzip", "x-www-form-urlencoded"});
-    constexpr int        initialBufferSize = 128;
+    constexpr auto       initialBufferSize = 128;
     m_content.reset(initialBufferSize);
     m_compressedLength = content.size();
     m_contentEncoding = contentEncoding;
@@ -69,7 +69,7 @@ void RequestInfo::Message::input(const Buffer& content, const String& contentEnc
 
 Buffer RequestInfo::Message::output(const Strings& contentEncodings)
 {
-    constexpr int minimumSizeForCompression = 64;
+    constexpr auto minimumSizeForCompression = 64;
     m_contentEncoding = "";
     if (m_content.bytes() > minimumSizeForCompression && !contentEncodings.empty())
     {

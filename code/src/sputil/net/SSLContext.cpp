@@ -39,7 +39,7 @@ int SSLContext::s_server_session_id_context = 1;
 
 void SSLContext::throwError(const String& humanDescription)
 {
-    const unsigned long error = ERR_get_error();
+    const auto          error = ERR_get_error();
     const auto*         reason = ERR_reason_error_string(error);
     string              errorStr = ERR_error_string(error, nullptr);
     if (reason != nullptr)

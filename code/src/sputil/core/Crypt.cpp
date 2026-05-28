@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-constexpr int TEXT_BLOCK = 16384;
+constexpr auto TEXT_BLOCK = 16384;
 
 void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const String& iv)
 {
@@ -39,13 +39,13 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * In this example we are using 256-bit AES (i.e., a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    if (constexpr int minimalKeyLength = 32;
+    if (constexpr auto minimalKeyLength = 32;
         key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    if (constexpr int minimalIvLength = 16;
+    if (constexpr auto minimalIvLength = 16;
         iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
@@ -65,13 +65,13 @@ void Crypt::encrypt(Buffer& dest, const Buffer& src, const String& key, const St
             throw Exception("Error calling EVP_EncryptInit_ex()");
         }
 
-        int len = 0;
+        auto len = 0;
         dest.bytes(0);
         dest.checkSize(src.bytes());
         for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
         {
             const auto* intext = src.data() + position;
-            size_t      inlen = src.bytes() - position;
+            auto        inlen = src.bytes() - position;
             if (inlen > TEXT_BLOCK)
             {
                 inlen = TEXT_BLOCK;
@@ -108,13 +108,13 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
      * In this example we are using 256-bit AES (i.e., a 256-bit key). The
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits */
-    if (constexpr int minimalKeyLength = 32;
+    if (constexpr auto minimalKeyLength = 32;
         key.length() < minimalKeyLength)
     {
         throw Exception("Please use 256 bit key");
     }
 
-    if (constexpr int minimalIvLength = 16;
+    if (constexpr auto minimalIvLength = 16;
         iv.length() < minimalIvLength)
     {
         throw Exception("Please use 128 bit initialization vector");
@@ -134,13 +134,13 @@ void Crypt::decrypt(Buffer& dest, const Buffer& src, const String& key, const St
             throw Exception("Error calling EVP_DecryptInit_ex()");
         }
 
-        int len = 0;
+        auto len = 0;
         dest.bytes(0);
         dest.checkSize(src.bytes());
         for (size_t position = 0; position < src.bytes(); position += TEXT_BLOCK)
         {
             const auto* intext = src.data() + position;
-            size_t      inlen = src.bytes() - position;
+            auto        inlen = src.bytes() - position;
             if (inlen > TEXT_BLOCK)
             {
                 inlen = TEXT_BLOCK;

@@ -49,7 +49,7 @@ void makeCriteria(XPathElement& pathElement)
 
     if (!criteria.empty())
     {
-        int& nodePosition = pathElement.nodePosition;
+        auto& nodePosition = pathElement.nodePosition;
         nodePosition = string2int(pathElement.criteria);
         if (nodePosition == 0 && criteria == "last()")
         {

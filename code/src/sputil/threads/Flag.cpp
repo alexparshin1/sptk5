@@ -86,7 +86,7 @@ bool Flag::wait_until(bool value, const DateTime& timeoutAt)
     {
         if (!m_condition.wait_until(lock,
                                     timeoutAt.timePoint(),
-                                    [this, value]()
+                                    [this, value]
                                     {
                                         return m_value == value || m_terminated;
                                     }))

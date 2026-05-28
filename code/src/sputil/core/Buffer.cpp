@@ -132,20 +132,20 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
         return stream;
     }
 
-    const char fillChar = stream.fill('0');
+    const auto fillChar = stream.fill('0');
     const auto old_settings = stream.flags();
 
     size_t offset = 0;
 
     while (offset < buffer.bytes())
     {
-        constexpr int bytesInRow {16};
-        constexpr int bytesInHalfRow {8};
-        constexpr int addressWidth {8};
+        constexpr auto bytesInRow {16};
+        constexpr auto bytesInHalfRow {8};
+        constexpr auto addressWidth {8};
         stream << hex << setw(addressWidth) << offset << "  ";
 
         size_t printed = 0;
-        size_t rowOffset = offset;
+        auto   rowOffset = offset;
         for (; rowOffset < buffer.bytes() && printed < bytesInRow; ++rowOffset, ++printed)
         {
             if (printed == bytesInHalfRow)

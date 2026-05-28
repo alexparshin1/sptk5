@@ -54,7 +54,7 @@ String decode(const String& text);
 bool isHexDigit(char ch);
 } // namespace sptk::xdoc
 
-static constexpr int ERROR_CONTEXT_CHARS = 65;
+static constexpr auto ERROR_CONTEXT_CHARS = 65;
 
 [[noreturn]] void throwError(const String& message, const char* json, const size_t position)
 {
@@ -156,7 +156,7 @@ String readJsonString(const char* json, const char*& readPosition)
     const char* pos = readPosition + 1;
     while (true)
     {
-        const unsigned char character = static_cast<unsigned char>(*pos);
+        const auto character = static_cast<unsigned char>(*pos);
         if (character == 0)
         {
             throw Exception(R"(Premature end of data, expecting '"')");
@@ -208,7 +208,7 @@ double readJsonNumber(const char* json, const char*& readPosition)
 {
     char* pos = nullptr;
     errno = 0;
-    const double value = strtod(readPosition, &pos);
+    const auto value = strtod(readPosition, &pos);
     if (errno != 0 || pos == readPosition)
     {
         throwError("Invalid value", json, readPosition - json);
@@ -279,7 +279,7 @@ void readArrayData(const SNode& parent, const char* json, const char*& readPosit
     {
         skipSpaces(json, readPosition);
 
-        char firstChar = *readPosition;
+        auto firstChar = *readPosition;
         if (isdigit(firstChar))
         {
             firstChar = '0';
@@ -362,9 +362,9 @@ void        readObjectData(const SNode& parent, const char* json, const char*& r
 
         const String elementName = readJsonName(json, readPosition);
 
-        const bool elementIsAttributes = elementName == "attributes";
+        const auto elementIsAttributes = elementName == "attributes";
 
-        char firstChar = *readPosition;
+        auto firstChar = *readPosition;
         if (isdigit(firstChar))
         {
             firstChar = '0';
@@ -494,14 +494,14 @@ String codePointToUTF8(const unsigned codePoint)
 String decode(const String& text)
 {
     String       result;
-    const size_t length = text.length();
+    const auto   length = text.length();
     size_t       position = 0;
     unsigned     ucharCode;
     unsigned     lowSurrogate;
 
     while (position < length)
     {
-        size_t pos = text.find_first_of('\\', position);
+        auto pos = text.find_first_of('\\', position);
         if (pos == string::npos)
         {
             if (position == 0)

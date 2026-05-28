@@ -144,8 +144,8 @@ void BufferStorage::erase(const size_t offset, size_t length)
         return;
     } // Nothing to do
 
-    const size_t moveOffset = offset + length;
-    const size_t moveLength = m_size - moveOffset;
+    const auto   moveOffset = offset + length;
+    const auto   moveLength = m_size - moveOffset;
 
     if (offset + length > m_size)
     {

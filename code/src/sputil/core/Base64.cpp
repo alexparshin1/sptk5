@@ -52,12 +52,12 @@ static constexpr array<int8_t, 256> B64Lookup = []
 }();
 
 namespace {
-inline uint8_t base64chars(int chr)
+inline uint8_t base64chars(const int chr)
 {
     return B64Chars[static_cast<size_t>(chr & 0x3F)];
 }
 
-inline bool is_base64(uint8_t chr) noexcept
+inline bool is_base64(const uint8_t chr) noexcept
 {
     return B64Lookup[chr] != -1;
 }
@@ -138,7 +138,7 @@ void Base64::encode(String& strDest, const Buffer& bufSource)
 
 namespace {
 
-size_t internal_decode(Buffer& dest, const uint8_t* source, size_t sourceLen)
+size_t internal_decode(Buffer& dest, const uint8_t* source, const size_t sourceLen)
 {
     dest.reset();
     if (sourceLen == 0)
@@ -149,10 +149,10 @@ size_t internal_decode(Buffer& dest, const uint8_t* source, size_t sourceLen)
     dest.checkSize(sourceLen / 4 * 3 + 3);
 
     uint32_t val = 0;
-    int      valb = -8;
+    auto     valb = -8;
     for (size_t i = 0; i < sourceLen; ++i)
     {
-        uint8_t c = source[i];
+        auto c = source[i];
         if (B64Lookup[c] != -1)
         {
             val = (val << 6) | static_cast<uint32_t>(B64Lookup[c]);

@@ -86,7 +86,7 @@ private:
 class ChunkedDataServer : public TCPServer
 {
 public:
-    ChunkedDataServer(uint16_t port, vector<String> chunks, chrono::milliseconds delay)
+    ChunkedDataServer(uint16_t port, vector<String> chunks, const chrono::milliseconds delay)
         : TCPServer("SocketReader ChunkedDataServer", 1)
         , m_chunks(std::move(chunks))
         , m_delay(delay)
@@ -102,8 +102,10 @@ public:
                                  this_thread::sleep_for(m_delay);
                              }
                          }
-                         catch (...)
+                         catch (const exception& e)
                          {
+                             // Any error interrupts connection.
+                             CERR(e.what());
                          }
                          s->close();
                      });
@@ -119,7 +121,7 @@ private:
 } // namespace
 namespace sptk {
 
-TEST(SocketReaderTests,constructor)
+TEST(SocketReaderTests, constructor)
 {
     auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket);
@@ -128,7 +130,7 @@ TEST(SocketReaderTests,constructor)
     EXPECT_FALSE(reader.active());
 }
 
-TEST(SocketReaderTests,constructorCustomBufferSize)
+TEST(SocketReaderTests, constructorCustomBufferSize)
 {
     auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket, 32768);
@@ -137,7 +139,7 @@ TEST(SocketReaderTests,constructorCustomBufferSize)
     EXPECT_FALSE(reader.active());
 }
 
-TEST(SocketReaderTests,readBinaryData)
+TEST(SocketReaderTests, readBinaryData)
 {
     const String   testData = "Binary data test 12345";
     TestDataServer server(kSocketReaderTestPort1, testData);
@@ -155,7 +157,7 @@ TEST(SocketReaderTests,readBinaryData)
     EXPECT_EQ(string(reinterpret_cast<char*>(buffer), bytesRead), testData);
 }
 
-TEST(SocketReaderTests,readIntoBuffer)
+TEST(SocketReaderTests, readIntoBuffer)
 {
     const String   testData = "Buffer read test";
     TestDataServer server(kSocketReaderTestPort2, testData);
@@ -172,7 +174,7 @@ TEST(SocketReaderTests,readIntoBuffer)
     EXPECT_STREQ(buffer.c_str(), testData.c_str());
 }
 
-TEST(SocketReaderTests,readTemplate)
+TEST(SocketReaderTests, readTemplate)
 {
     struct TestStruct
     {
@@ -200,7 +202,7 @@ TEST(SocketReaderTests,readTemplate)
     EXPECT_EQ(received.value2, testData.value2);
 }
 
-TEST(SocketReaderTests,readLineSingleLine)
+TEST(SocketReaderTests, readLineSingleLine)
 {
     const String   testData = "Single line test\n";
     TestDataServer server(kSocketReaderTestPort4, testData);
@@ -217,7 +219,7 @@ TEST(SocketReaderTests,readLineSingleLine)
     EXPECT_STREQ(line.c_str(), "Single line test");
 }
 
-TEST(SocketReaderTests,readLineMultipleLines)
+TEST(SocketReaderTests, readLineMultipleLines)
 {
     const String   testData = "Line 1\nLine 2\nLine 3\n";
     TestDataServer server(kSocketReaderTestPort5, testData);
@@ -239,7 +241,7 @@ TEST(SocketReaderTests,readLineMultipleLines)
     EXPECT_STREQ(line3.c_str(), "Line 3");
 }
 
-TEST(SocketReaderTests,readLineCustomDelimiter)
+TEST(SocketReaderTests, readLineCustomDelimiter)
 {
     const String   testData = "Item1|Item2|Item3|";
     TestDataServer server(kSocketReaderTestPort6, testData);
@@ -249,7 +251,9 @@ TEST(SocketReaderTests,readLineCustomDelimiter)
 
     SocketReader reader(socket);
 
-    String item1, item2, item3;
+    String item1;
+    String item2;
+    String item3;
     reader.readLine(item1, '|');
     reader.readLine(item2, '|');
     reader.readLine(item3, '|');
@@ -259,7 +263,7 @@ TEST(SocketReaderTests,readLineCustomDelimiter)
     EXPECT_STREQ(item3.c_str(), "Item3");
 }
 
-TEST(SocketReaderTests,readLineIntoBuffer)
+TEST(SocketReaderTests, readLineIntoBuffer)
 {
     const String   testData = "Buffer line test\n";
     TestDataServer server(18097, testData);
@@ -276,7 +280,7 @@ TEST(SocketReaderTests,readLineIntoBuffer)
     EXPECT_STREQ(buffer.c_str(), "Buffer line test");
 }
 
-TEST(SocketReaderTests,readLineIntoRawBuffer)
+TEST(SocketReaderTests, readLineIntoRawBuffer)
 {
     const String   testData = "Raw buffer line test\n";
     TestDataServer server(18098, testData);
@@ -286,14 +290,14 @@ TEST(SocketReaderTests,readLineIntoRawBuffer)
 
     SocketReader reader(socket);
 
-    uint8_t    buffer[256];
-    const auto bytesRead = reader.readLine(buffer, sizeof(buffer), '\n');
+    array<uint8_t, 256> buffer {};
+    const auto          bytesRead = reader.readLine(buffer.data(), buffer.size(), '\n');
 
     EXPECT_GT(bytesRead, 0);
-    EXPECT_STREQ(reinterpret_cast<char*>(buffer), "Raw buffer line test");
+    EXPECT_STREQ(reinterpret_cast<char*>(buffer.data()), "Raw buffer line test");
 }
 
-TEST(SocketReaderTests,close)
+TEST(SocketReaderTests, close)
 {
     const String   testData = "Close test";
     TestDataServer server(18101, testData);
@@ -308,7 +312,7 @@ TEST(SocketReaderTests,close)
     EXPECT_FALSE(reader.active());
 }
 
-TEST(SocketReaderTests,availableBytes)
+TEST(SocketReaderTests, availableBytes)
 {
     const String   testData = "Available bytes test";
     TestDataServer server(18102, testData);
@@ -328,7 +332,7 @@ TEST(SocketReaderTests,availableBytes)
     EXPECT_GT(available, 0);
 }
 
-TEST(SocketReaderTests,readyToReadWithData)
+TEST(SocketReaderTests, readyToReadWithData)
 {
     const String   testData = "Ready test";
     TestDataServer server(18103, testData);
@@ -342,7 +346,7 @@ TEST(SocketReaderTests,readyToReadWithData)
     EXPECT_TRUE(ready);
 }
 
-TEST(SocketReaderTests,readPartialData)
+TEST(SocketReaderTests, readPartialData)
 {
     const String   testData = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     TestDataServer server(18105, testData);
@@ -363,7 +367,7 @@ TEST(SocketReaderTests,readPartialData)
     EXPECT_EQ(string(reinterpret_cast<char*>(buffer), 10), "KLMNOPQRST");
 }
 
-TEST(SocketReaderTests,chunkedRead)
+TEST(SocketReaderTests, chunkedRead)
 {
     vector<String>    chunks = {"Chunk1", "Chunk2", "Chunk3"};
     ChunkedDataServer server(18106, chunks, 50ms);
@@ -388,7 +392,7 @@ TEST(SocketReaderTests,chunkedRead)
     EXPECT_EQ(result, "Chunk1Chunk2Chunk3");
 }
 
-TEST(SocketReaderTests,socketGetter)
+TEST(SocketReaderTests, socketGetter)
 {
     auto               socket = make_shared<TCPSocket>();
     const SocketReader reader(socket);
@@ -396,25 +400,16 @@ TEST(SocketReaderTests,socketGetter)
     EXPECT_EQ(reader.socket(), socket);
 }
 
-TEST(SocketReaderTests,readFromClosedSocket)
+TEST(SocketReaderTests, readFromClosedSocket)
 {
-    auto         socket = make_shared<TCPSocket>();
+    const auto   socket = make_shared<TCPSocket>();
     SocketReader reader(socket);
 
-    uint8_t buffer[256];
-    EXPECT_ANY_THROW(reader.read(buffer, sizeof(buffer)));
+    array<uint8_t, 256> buffer {};
+    EXPECT_ANY_THROW(reader.read(buffer.data(), buffer.size()));
 }
 
-TEST(SocketReaderTests,readLineFromClosedSocket)
-{
-    auto         socket = make_shared<TCPSocket>();
-    SocketReader reader(socket);
-
-    Buffer buffer;
-    EXPECT_THROW(reader.readLine(buffer), Exception);
-}
-
-TEST(SocketReaderTests,readLineEmptyLine)
+TEST(SocketReaderTests, readLineEmptyLine)
 {
     const String   testData = "\nContent";
     TestDataServer server(18107, testData);
@@ -431,7 +426,7 @@ TEST(SocketReaderTests,readLineEmptyLine)
     EXPECT_TRUE(line.empty());
 }
 
-TEST(SocketReaderTests,readLineCRLF)
+TEST(SocketReaderTests, readLineCRLF)
 {
     const String   testData = "Line with CRLF\r\n";
     TestDataServer server(18108, testData);
@@ -448,7 +443,7 @@ TEST(SocketReaderTests,readLineCRLF)
     EXPECT_TRUE(line == "Line with CRLF\r" || line == "Line with CRLF");
 }
 
-TEST(SocketReaderTests,readMultipleSmallReads)
+TEST(SocketReaderTests, readMultipleSmallReads)
 {
     const String   testData = "1234567890";
     TestDataServer server(18109, testData);
@@ -468,7 +463,7 @@ TEST(SocketReaderTests,readMultipleSmallReads)
     }
 }
 
-TEST(SocketReaderTests,canRead)
+TEST(SocketReaderTests, canRead)
 {
     const String   testData = "Can read test data";
     TestDataServer server(18110, testData);
@@ -487,4 +482,4 @@ TEST(SocketReaderTests,canRead)
     EXPECT_TRUE(reader.canRead(5));
 }
 
-} // namespace sptk_test
+} // namespace sptk

@@ -240,7 +240,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
 
     try
     {
-        bufkey = BIO_new_mem_buf((void*) key.c_str(), static_cast<int>(key.length()));
+        bufkey = BIO_new_mem_buf(key.c_str(), static_cast<int>(key.length()));
         if (bufkey == nullptr)
         {
             SIGN_ERROR(ENOMEM);
@@ -336,7 +336,7 @@ void JWT::sign_sha_pem(Buffer& out, const char* str) const
             r_len = static_cast<unsigned>(BN_num_bytes(ec_sig_r));
             s_len = static_cast<unsigned>(BN_num_bytes(ec_sig_s));
             bn_len = (degree + 7) / 8;
-            if ((r_len > bn_len) || (s_len > bn_len))
+            if (r_len > bn_len || s_len > bn_len)
             {
                 SIGN_ERROR(EINVAL);
             }
@@ -504,7 +504,7 @@ void JWT::verify_sha_pem(const char* head, const char* sig_b64) const
             EC_KEY_free(ec_key);
 
             bn_len = (degree + 7) / 8;
-            if ((bn_len * 2) != static_cast<unsigned>(slen))
+            if (bn_len * 2 != static_cast<unsigned>(slen))
             {
                 VERIFY_ERROR(EINVAL);
             }

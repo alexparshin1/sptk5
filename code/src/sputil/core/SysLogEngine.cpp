@@ -40,7 +40,7 @@ atomic_bool SysLogEngine::m_logOpened(false);
 bool SysLogEngine::m_registrySet(false);
 #endif
 
-SysLogEngine::SysLogEngine(const String& _programName, uint32_t facilities)
+SysLogEngine::SysLogEngine(const String& _programName, const uint32_t facilities)
     : LogEngine("SysLogEngine")
     , m_facilities(facilities)
 {

@@ -58,15 +58,15 @@ void SmtpConnect::host(const Host& host)
     m_socket->host(host);
 }
 
-constexpr int RSP_BLOCK_SIZE = 1024;
-constexpr int minErrorCode = 400;
+constexpr auto RSP_BLOCK_SIZE = 1024;
+constexpr auto minErrorCode = 400;
 
 int SmtpConnect::getResponse(const bool decode)
 {
     Buffer readBuffer(RSP_BLOCK_SIZE);
     String longLine;
-    bool   readCompleted = false;
-    int    result = 0;
+    auto   readCompleted = false;
+    auto   result = 0;
 
     SocketReader socketReader(m_socket);
 
@@ -94,7 +94,7 @@ int SmtpConnect::getResponse(const bool decode)
 
         if (!longLine.empty())
         {
-            const size_t lastCharPos = longLine.length() - 1;
+            const auto lastCharPos = longLine.length() - 1;
             if (longLine[lastCharPos] == '\r')
             {
                 longLine.erase(lastCharPos);
@@ -169,7 +169,7 @@ String SmtpConnect::unmime(const String& str)
 
 void SmtpConnect::cmd_auth(const String& user, const String& password)
 {
-    constexpr int             minAuthErrorCode {252};
+    constexpr auto            minAuthErrorCode {252};
     constexpr chrono::seconds connectTimeout {30};
 
     m_socket->close();
@@ -257,8 +257,8 @@ void SmtpConnect::cmd_quit()
 
 String parseAddress(const String& fullAddress)
 {
-    const size_t addressStart = fullAddress.find('<');
-    const size_t addressEnd = fullAddress.find('>');
+    const auto addressStart = fullAddress.find('<');
+    const auto addressEnd = fullAddress.find('>');
     if (addressStart == STRING_NPOS || addressEnd == STRING_NPOS || addressEnd < addressStart)
     {
         return fullAddress;
@@ -268,8 +268,8 @@ String parseAddress(const String& fullAddress)
 
 void SmtpConnect::sendMessage()
 {
-    constexpr int minSendErrorCode {252};
-    int           result = command("MAIL FROM:<" + parseAddress(from()) + ">");
+    constexpr auto minSendErrorCode {252};
+    auto           result = command("MAIL FROM:<" + parseAddress(from()) + ">");
     if (result >= minSendErrorCode)
     {
         throw Exception("Can't send message:\n" + m_response.join("\n"));
@@ -292,7 +292,7 @@ void SmtpConnect::sendMessage()
         }
     }
 
-    constexpr int dataSuccessCode {354};
+    constexpr auto dataSuccessCode {354};
     Buffer        message(messageBuffer());
     mimeMessage(message);
 

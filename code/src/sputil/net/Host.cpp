@@ -87,7 +87,7 @@ Host::Host(const String& hostAndPort)
     if (matches.groups().size() > 1)
     {
         if (const auto portStr = matches[1].value;
-            portStr.length() > 0)
+            !portStr.empty())
         {
             auto port = stoi(portStr.substr(1));
             if (port < 0 || port > 65535)
