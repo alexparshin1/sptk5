@@ -82,7 +82,7 @@ bool TCPServerListener::acceptConnection(const chrono::milliseconds& timeout)
     try
     {
         sockaddr_in connectionInfo = {};
-        if (auto connectionFD {0};
+        if (SocketType connectionFD {0};
             m_listenerSocket.accept(connectionFD, connectionInfo, timeout))
         {
             const CreateConnectionItem createConnectionItem {connectionFD, connectionInfo};

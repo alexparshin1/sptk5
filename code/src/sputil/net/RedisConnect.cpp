@@ -29,7 +29,9 @@
 #include "sptk5/Base64.h"
 #include "sptk5/Printer.h"
 
+#ifndef _WIN32
 #include <netinet/tcp.h>
+#endif
 
 using namespace std;
 using namespace sptk;

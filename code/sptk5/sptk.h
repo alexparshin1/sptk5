@@ -121,6 +121,12 @@
 #define gmtime_r(a, b) gmtime_s(b, a)
 #define localtime_r(a, b) localtime_s(b, a)
 
+#ifdef min
+#undef min
+#endif
+
+using ssize_t = long;
+
 #endif
 
 #include <filesystem>

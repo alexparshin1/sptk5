@@ -557,11 +557,7 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
     auto         remaining = static_cast<ssize_t>(size);
     while (remaining > 0)
     {
-#ifndef _WIN32
         ssize_t bytes;
-#else
-        int bytes;
-#endif
         if (peer != nullptr)
         {
             // UDP socket
