@@ -141,8 +141,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
     {
         constexpr auto bytesInRow {16};
         constexpr auto bytesInHalfRow {8};
-        constexpr auto addressWidth {8};
-        stream << hex << setw(addressWidth) << offset << "  ";
+        stream << format("{:08X}  ", offset);
 
         size_t printed = 0;
         auto   rowOffset = offset;
@@ -153,8 +152,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
                 stream << " ";
             }
             const unsigned printChar = buffer[rowOffset];
-            constexpr auto charWidth = 2;
-            stream << hex << setw(charWidth) << printChar << " ";
+            stream << format("{:02X} ", printChar);
         }
 
         while (printed < bytesInRow)

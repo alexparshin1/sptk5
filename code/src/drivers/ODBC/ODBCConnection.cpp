@@ -166,10 +166,7 @@ void ODBCConnection::driverEndTransaction(const bool commit)
         {
             logAndThrow("ODBCConnection::driverEndTransaction", "Can't commit - transaction isn't started.");
         }
-        else
-        {
-            logAndThrow("ODBCConnection::driverEndTransaction", "Can't rollback - transaction isn't started.");
-        }
+        logAndThrow("ODBCConnection::driverEndTransaction", "Can't rollback - transaction isn't started.");
     }
 
     if (commit)
@@ -181,7 +178,7 @@ void ODBCConnection::driverEndTransaction(const bool commit)
         m_connect->rollback();
     }
 
-    m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, (UDWORD) true);
+    m_connect->setConnectOption(SQL_ATTR_AUTOCOMMIT, true);
     setInTransaction(false);
 }
 

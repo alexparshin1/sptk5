@@ -41,7 +41,7 @@ const DateTime g_epochDate(2000, 1, 1);
 class PostgreSQLStatement
 {
 public:
-    PostgreSQLStatement(PGconn* connect, bool int64timestamps, bool prepared, const DateTime& epochDate)
+    PostgreSQLStatement(PGconn* connect, const bool int64timestamps, const bool prepared, const DateTime& epochDate)
         : m_connect(connect)
         , m_paramValues(int64timestamps, epochDate)
     {
@@ -84,7 +84,7 @@ public:
         m_currentRow = -1;
     }
 
-    void stmt(PGresult* result, unsigned rows, unsigned cols = static_cast<unsigned>(-1))
+    void stmt(PGresult* result, const unsigned rows, const unsigned cols = static_cast<unsigned>(-1))
     {
         if (m_stmt)
         {
@@ -160,7 +160,7 @@ unsigned PostgreSQLStatement::nextIndex()
 
 } // namespace sptk
 
-PostgreSQLConnection::PostgreSQLConnection(const String& connectionString, std::chrono::seconds connectTimeout)
+PostgreSQLConnection::PostgreSQLConnection(const String& connectionString, const std::chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::POSTGRES, connectTimeout)
 {
 }
@@ -248,8 +248,8 @@ void PostgreSQLConnection::_openDatabase(const String& newConnectionString)
 
         if (m_timestampsFormat == TimestampFormat::UNKNOWN)
         {
-            const char* val = PQparameterStatus(m_connect, "integer_datetimes");
-            if (val == nullptr || upperCase(val) == "ON")
+            if (const char* val = PQparameterStatus(m_connect, "integer_datetimes");
+                val == nullptr || upperCase(val) == "ON")
             {
                 m_timestampsFormat = TimestampFormat::INT64;
             }
@@ -320,7 +320,7 @@ void PostgreSQLConnection::driverBeginTransaction()
     setInTransaction(true);
 }
 
-void PostgreSQLConnection::driverEndTransaction(bool commit)
+void PostgreSQLConnection::driverEndTransaction(const bool commit)
 {
     if (!getInTransaction())
     {
@@ -547,7 +547,7 @@ void PostgreSQLConnection::queryExecDirect(const Query* query) const
     }
 }
 
-void PostgreSQLConnection::postgreTypeToVariantType(PostgreSQLDataType postgreType, VariantDataType& dataType)
+void PostgreSQLConnection::postgreTypeToVariantType(const PostgreSQLDataType postgreType, VariantDataType& dataType)
 {
     switch (postgreType)
     {
@@ -748,7 +748,7 @@ DateTime readDate(const char* data, const DateTime& epochDate)
     return epochDate + chrono::hours(dateTime * hoursPerDay);
 }
 
-DateTime readTimestamp(const char* data, bool integerTimestamps, const DateTime& epochDate)
+DateTime readTimestamp(const char* data, const bool integerTimestamps, const DateTime& epochDate)
 {
     const auto           value = ntohq(*bit_cast<const uint64_t*>(data));
     chrono::microseconds epochOffset;
@@ -1117,7 +1117,7 @@ void PostgreSQLConnection::queryFetch(Query* query)
     }
 }
 
-void PostgreSQLConnection::objectList(DatabaseObjectType objectType, Strings& objects)
+void PostgreSQLConnection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     const string tablesSQL("SELECT table_schema || '.' || table_name "
                            "FROM information_schema.tables "
@@ -1288,7 +1288,7 @@ void PostgreSQLConnection::queryColAttributes(Query*, int16_t, int16_t, char*, i
 
 SynchronizedMap<PostgreSQLConnection*, shared_ptr<PostgreSQLConnection>> PostgreSQLConnection::s_postgresqlConnections;
 
-[[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* postgresqlCreateConnection(const char* connectionString, const size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<PostgreSQLConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     PostgreSQLConnection::s_postgresqlConnections.insert(connection.get(), connection);

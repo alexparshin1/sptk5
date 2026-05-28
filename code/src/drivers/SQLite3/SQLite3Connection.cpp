@@ -52,7 +52,7 @@ public:
 using namespace std;
 using namespace sptk;
 
-SQLite3Connection::SQLite3Connection(const String& connectionString, chrono::seconds connectTimeout)
+SQLite3Connection::SQLite3Connection(const String& connectionString, const chrono::seconds connectTimeout)
     : PoolDatabaseConnection(connectionString, DatabaseConnectionType::SQLITE3, connectTimeout)
 {
 }
@@ -85,7 +85,7 @@ String SQLite3Connection::nativeConnectionString() const
 
 chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
 {
-    auto self = shared_from_this();
+    const auto self = shared_from_this();
     if (self == nullptr)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
@@ -93,8 +93,8 @@ chrono::minutes SQLite3Connection::getSessionTimezoneOffset()
 
     m_sessionTimezoneOffset = chrono::minutes(0);
     Query query(self, "SELECT CURRENT_TIMESTAMP");
-    auto  timestamp = query.scalar().asDateTime();
-    auto  sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
+    const auto  timestamp = query.scalar().asDateTime();
+    const auto  sessionTimezoneOffset = chrono::duration_cast<chrono::minutes>(timestamp - DateTime::Now());
     return sessionTimezoneOffset;
 }
 
@@ -200,7 +200,7 @@ void SQLite3Connection::driverBeginTransaction()
     setInTransaction(true);
 }
 
-void SQLite3Connection::driverEndTransaction(bool commit)
+void SQLite3Connection::driverEndTransaction(const bool commit)
 {
     if (!getInTransaction())
     {
@@ -275,7 +275,7 @@ void SQLite3Connection::queryPrepare(Query* query)
     }
 
     const auto statement = shared_ptr<uint8_t>(bit_cast<StmtHandle>(hStmt),
-                                               [](StmtHandle ptr)
+                                               [](const StmtHandle ptr)
                                                {
                                                    auto* stmt = bit_cast<SQLHSTMT>(ptr);
                                                    sqlite3_finalize(stmt);
@@ -321,7 +321,7 @@ void SQLite3Connection::queryBindParameters(Query* query)
     }
 }
 
-void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber)
+void SQLite3Connection::bindParameter(Query* query, const uint32_t paramNumber)
 {
     auto*                 stmt = bit_cast<SQLHSTMT>(query->statement());
     QueryParameter*       parameter = &query->param(paramNumber);
@@ -390,7 +390,7 @@ void SQLite3Connection::bindParameter(Query* query, uint32_t paramNumber)
     }
 }
 
-int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, short paramBindNumber, VariantDataType dataType)
+int SQLite3Connection::transformDateTimeParameter(sqlite3_stmt* stmt, QueryParameter* param, const short paramBindNumber, const VariantDataType dataType)
 {
     const auto dt = dataType == VariantDataType::VAR_DATE ? param->get<DateTime>().date() : param->get<DateTime>();
     param->setString(dt.isoDateTimeString());
@@ -462,7 +462,7 @@ void SQLite3Connection::queryOpen(Query* query)
 }
 
 namespace {
-uint32_t trimField(char* str, uint32_t length)
+uint32_t trimField(char* str, const uint32_t length)
 {
     if (length == 0)
     {
@@ -687,7 +687,7 @@ void SQLite3Connection::executeBatchSQL(const Strings& batchSQL, Strings* errors
     }
 }
 
-void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objects)
+void SQLite3Connection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     string objectTypeName;
     objects.clear();
@@ -706,7 +706,7 @@ void SQLite3Connection::objectList(DatabaseObjectType objectType, Strings& objec
             return; // no information about objects of other types
     }
 
-    auto self = shared_from_this();
+    const auto self = shared_from_this();
     if (self == nullptr)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
@@ -741,7 +741,7 @@ void SQLite3Connection::queryColAttributes(Query*, int16_t, int16_t, char*, int)
 
 SynchronizedMap<SQLite3Connection*, shared_ptr<SQLite3Connection>> SQLite3Connection::s_sqlite3Connections;
 
-[[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* sqlite3CreateConnection(const char* connectionString, const size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<SQLite3Connection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     SQLite3Connection::s_sqlite3Connections.insert(connection.get(), connection);

@@ -30,10 +30,6 @@
 
 #include <sptk5/sptk.h>
 
-#ifndef WIN32
-#include <arpa/inet.h>
-#endif
-
 namespace sptk {
 uint64_t htonq(uint64_t val);
 uint64_t ntohq(uint64_t val);

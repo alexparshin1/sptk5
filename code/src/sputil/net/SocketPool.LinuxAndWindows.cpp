@@ -78,17 +78,18 @@ void SocketPool::addSocket(const SocketType socketFd, const uint8_t* userData, c
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
     {
-        case SocketPoolTriggerMode::EdgeTriggered:
+        using enum SocketPoolTriggerMode;
+        case EdgeTriggered:
 #ifdef _WIN32
             throw Exception("Edge triggered mode isn't supported on Windows");
 #else
             event.events |= EPOLLET;
             break;
 #endif
-        case SocketPoolTriggerMode::OneShot:
+        case OneShot:
             event.events |= EPOLLONESHOT;
             break;
-        case SocketPoolTriggerMode::LevelTriggered:
+        case LevelTriggered:
             break;
     }
 

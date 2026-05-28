@@ -13,7 +13,7 @@
 using namespace std;
 using namespace sptk;
 
-OracleOciParameterBuffer::OracleOciParameterBuffer(VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection)
+OracleOciParameterBuffer::OracleOciParameterBuffer(const VariantDataType type, const std::shared_ptr<ocilib::Connection>& connection)
     : m_bindType(type)
 {
     switch (m_bindType)
@@ -154,7 +154,7 @@ void OracleOciParameterBuffer::setValue(const QueryParameter& value, const chron
     }
 }
 
-void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, ocilib::BindInfo::BindDirectionValues bindDirection)
+void OracleOciParameterBuffer::bind(ocilib::Statement statement, const ocilib::ostring& parameterMark, const ocilib::BindInfo::BindDirectionValues bindDirection)
 {
     switch (m_bindType)
     {
