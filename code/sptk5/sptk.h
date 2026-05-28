@@ -86,9 +86,12 @@
 #pragma warning(disable : 4355)
 #pragma warning(disable : 4786)
 #pragma warning(disable : 4996)
-#if defined(_MSC_VER)
-#define STRING_NPOS -1
+
+#ifdef min
+#undef min
+#undef max
 #endif
+
 #else
 
 #include <cerrno>

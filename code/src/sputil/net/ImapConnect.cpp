@@ -159,7 +159,7 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
         if (st[0] == '*')
         {
             const size_t p = st.find("EXISTS");
-            if (p != STRING_NPOS)
+            if (p != string::npos)
             {
                 total_msgs = string2int(st.substr(2, p - 2));
                 break;
@@ -211,7 +211,7 @@ void parse_header(const String& header, String& header_name, String& header_valu
     }
 
     const size_t position = header.find(' ');
-    if (position == STRING_NPOS)
+    if (position == string::npos)
     {
         return;
     }
@@ -411,7 +411,7 @@ String ImapConnect::cmd_fetch_flags(const int32_t msg_id)
 
         String flags(fpos + 1);
         if (const size_t pos = flags.find("))");
-            pos != STRING_NPOS)
+            pos != string::npos)
         {
             flags[pos] = 0;
         }

@@ -259,7 +259,7 @@ String parseAddress(const String& fullAddress)
 {
     const size_t addressStart = fullAddress.find('<');
     const size_t addressEnd = fullAddress.find('>');
-    if (addressStart == STRING_NPOS || addressEnd == STRING_NPOS || addressEnd < addressStart)
+    if (addressStart == string::npos || addressEnd == string::npos || addressEnd < addressStart)
     {
         return fullAddress;
     }

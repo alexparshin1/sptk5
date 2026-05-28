@@ -284,7 +284,7 @@ void MySQLStatement::setParameterValues()
 
             case VariantDataType::VAR_TEXT:
             case VariantDataType::VAR_BUFFER:
-                m_paramLengths[paramIndex] = (unsigned long) param->dataSize();
+                m_paramLengths[paramIndex] = static_cast<unsigned long>(param->dataSize());
                 if (param->isNull())
                 {
                     bind.buffer = nullptr;
