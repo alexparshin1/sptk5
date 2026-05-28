@@ -103,7 +103,7 @@ char* ImportXML::readComment(const SNode& currentNode, char* nodeName, char* nod
 }
 
 char* ImportXML::readCDataSection(const SNode& currentNode, char* nodeName, char* nodeEnd, char* tokenEnd,
-                                  Mode formatting)
+                                  const Mode formatting)
 {
     constexpr auto cdataTagLength = 8;
     nodeEnd = strstr(nodeName + 1, "]]>");
@@ -135,7 +135,7 @@ char* ImportXML::readXMLDocType(char* tokenEnd)
 }
 
 char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, char* tokenEnd, char* nodeEnd,
-                                    Mode formatting)
+                                    const Mode formatting)
 {
     constexpr auto cdataTagLength = 8;
     const auto     ch = *tokenEnd;
@@ -161,7 +161,7 @@ char* ImportXML::readExclamationTag(const SNode& currentNode, char* nodeName, ch
 }
 
 char* ImportXML::readProcessingInstructions(const SNode& currentNode, const char* nodeName, char* tokenEnd,
-                                            char*& nodeEnd, bool isRootNode)
+                                            char*& nodeEnd, const bool isRootNode)
 {
     nodeEnd = strstr(tokenEnd, "?>");
     if (nodeEnd == nullptr)
@@ -289,7 +289,7 @@ SNode ImportXML::detectArray(const SNode& _node)
     return _node;
 }
 
-void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
+void ImportXML::parse(const SNode& node, const char* _buffer, const Mode formatting)
 {
     node->clear();
     SNode       currentNode = node;
@@ -365,7 +365,7 @@ void ImportXML::parse(const SNode& node, const char* _buffer, Mode formatting)
 }
 
 void ImportXML::readText(const SNode& currentNode, XMLDocType* doctype, const char* nodeStart, const char* textStart,
-                         Mode formatting)
+                         const Mode formatting)
 {
     const auto* textTrail = nodeStart;
     if (textStart != textTrail)

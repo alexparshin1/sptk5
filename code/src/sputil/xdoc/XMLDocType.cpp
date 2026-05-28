@@ -152,7 +152,7 @@ const entity* XMLEntityCache::encode(const char* str) const
 
 static const XMLEntityCache xml_entities(builtin_ent_xml);
 
-void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
+void XMLDocType::decodeEntities(const char* str, const size_t size, Buffer& ret)
 {
     Buffer buffer((const uint8_t*) str, size);
     ret.bytes(0);

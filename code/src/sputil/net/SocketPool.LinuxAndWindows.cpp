@@ -73,7 +73,7 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::addSocket(SocketType socketFd, const uint8_t* userData, const bool rearmOneShot)
+void SocketPool::addSocket(const SocketType socketFd, const uint8_t* userData, const bool rearmOneShot)
 {
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
@@ -108,7 +108,7 @@ void SocketPool::addSocket(SocketType socketFd, const uint8_t* userData, const b
     }
 }
 
-void SocketPool::removeSocket(SocketType socketFd) const
+void SocketPool::removeSocket(const SocketType socketFd) const
 {
     if (socketFd != INVALID_SOCKET)
     {

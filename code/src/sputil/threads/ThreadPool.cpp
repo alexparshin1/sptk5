@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sptk;
 
-ThreadPool::ThreadPool(uint32_t threadLimit, std::chrono::milliseconds threadIdleSeconds, const String& threadName,
+ThreadPool::ThreadPool(const uint32_t threadLimit, const std::chrono::milliseconds threadIdleSeconds, const String& threadName,
                        LogEngine* logEngine)
     : m_threadManager(make_shared<ThreadManager>(threadName + ".ThreadManager"))
     , m_threadLimit(threadLimit)
@@ -93,7 +93,7 @@ void ThreadPool::execute(URunable task)
     m_taskQueue.push_back(std::move(task));
 }
 
-void ThreadPool::threadEvent(Thread* thread, Type eventType, SRunable)
+void ThreadPool::threadEvent(Thread* thread, const Type eventType, SRunable)
 {
     switch (eventType)
     {

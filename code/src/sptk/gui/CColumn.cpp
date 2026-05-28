@@ -43,14 +43,14 @@ CColumn::CColumn(const string& cname, VariantDataType type, int32_t cwidth, bool
     else
     {
         m_autoWidth = false;
-        m_width = (uint32_t) cwidth;
+        m_width = static_cast<uint32_t>(cwidth);
     }
 }
 
 void CColumn::load(const xdoc::SNode& node)
 {
     m_name = node->attributes().get("caption");
-    m_type = (VariantDataType) node->attributes().get("type").toInt();
+    m_type = static_cast<VariantDataType>(node->attributes().get("type").toInt());
     m_width = node->attributes().get("width").toInt();
     m_visible = node->attributes().get("visible") == "true";
     m_autoWidth = node->attributes().get("auto_width") == "true";
@@ -61,21 +61,21 @@ void CColumn::save(const xdoc::SNode& node) const
     node->clear();
     node->setName("column");
     node->attributes().set("caption", m_name);
-    node->attributes().set("type", to_string((int) m_type));
+    node->attributes().set("type", to_string(static_cast<int>(m_type)));
     node->attributes().set("width", to_string(m_width));
     node->attributes().set("visible", m_visible ? "true" : "false");
     node->attributes().set("auto_width", m_autoWidth ? "true" : "false");
 }
 
-int CColumnList::indexOf(const char* colname) const
+int CColumnList::indexOf(const char* columnName) const
 {
-    size_t cnt = size();
+    const size_t cnt = size();
     for (size_t i = 0; i < cnt; i++)
     {
-        const CColumn& column = operator[](i);
-        if (column.name() == colname)
+        if (const CColumn& column = operator[](i);
+            column.name() == columnName)
         {
-            return int(i);
+            return static_cast<int>(i);
         }
     }
     return -1;
@@ -88,7 +88,7 @@ void CColumnList::load(const xdoc::SNode& node)
     {
         try
         {
-            unsigned columnIndex = columnNode->attributes().get("index").toInt();
+            const unsigned columnIndex = columnNode->attributes().get("index").toInt();
             if (columnIndex >= size())
             {
                 continue;
@@ -107,7 +107,7 @@ void CColumnList::save(const xdoc::SNode& node) const
 {
     node->clear();
     node->setName("columns");
-    size_t counter = size();
+    const size_t counter = size();
     for (size_t i = 0; i < counter; i++)
     {
         try

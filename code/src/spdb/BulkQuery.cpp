@@ -15,7 +15,7 @@
 using namespace std;
 using namespace sptk;
 
-BulkQuery::BulkQuery(const WPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, size_t groupSize)
+BulkQuery::BulkQuery(const WPoolDatabaseConnection& connection, const String& tableName, const String& serialColumnName, const Strings& columnNames, const size_t groupSize)
     : m_insertQuery(connection, "")
     , m_deleteQuery(connection, "")
     , m_serialColumnName(serialColumnName)
@@ -43,7 +43,7 @@ BulkQuery::BulkQuery(const WPoolDatabaseConnection& connection, const String& ta
     m_lastInsertedIdQuery.sql(conn->lastAutoIncrementSql(tableName));
 }
 
-String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, size_t groupSize)
+String BulkQuery::makeInsertSQL(const DatabaseConnectionType connectionType, const String& tableName, const String& keyColumnName, const Strings& columnNames, const size_t groupSize)
 {
     using enum DatabaseConnectionType;
     String sql;
@@ -75,7 +75,7 @@ String BulkQuery::makeInsertSQL(DatabaseConnectionType connectionType, const Str
     return sql;
 }
 
-String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize)
+String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& columnNames, const size_t groupSize)
 {
     stringstream sql;
 
@@ -107,7 +107,7 @@ String BulkQuery::makeOracleInsertSQL(const String& tableName, const Strings& co
     return sql.str();
 }
 
-String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize)
+String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& columnNames, const size_t groupSize)
 {
     stringstream sql;
 
@@ -153,7 +153,7 @@ String BulkQuery::makeSqlite3InsertSQL(const String& tableName, const Strings& c
     return sql.str();
 }
 
-String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, size_t groupSize, const String& intoAttribute)
+String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& columnNames, const size_t groupSize, const String& intoAttribute)
 {
     stringstream sql;
 
@@ -192,7 +192,7 @@ String BulkQuery::makeGenericInsertSQL(const String& tableName, const Strings& c
     return sql.str();
 }
 
-String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, size_t groupSize)
+String BulkQuery::makeGenericDeleteSQL(const String& tableName, const String& keyColumnName, const size_t groupSize)
 {
     stringstream sql;
 
@@ -358,9 +358,9 @@ void BulkQuery::deleteRows(const VariantVector& keys)
     }
 }
 
-void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds, const size_t serialColumnIndex, 
-    size_t& reservedIdOffset, vector<Variant>::size_type columnCount, 
-    QueryParameterList::iterator& parameterIterator, const vector<Variant>& row)
+void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds, const size_t serialColumnIndex,
+                                             size_t& reservedIdOffset, const vector<Variant>::size_type columnCount,
+                                             QueryParameterList::iterator& parameterIterator, const vector<Variant>& row)
 {
     for (size_t columnNumber = 0; columnNumber < columnCount; ++columnNumber)
     {
@@ -381,7 +381,7 @@ void BulkQuery::appendParameterValuesFromRow(const vector<int64_t>* insertedIds,
     }
 }
 
-void BulkQuery::appendParameterValuesFromRows(Query& insertQuery, const span<const VariantVector> rows, vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, const vector<Variant>::size_type rowSize, vector<Variant>::size_type columnCount)
+void BulkQuery::appendParameterValuesFromRows(Query& insertQuery, const span<const VariantVector> rows, vector<int64_t>* insertedIds, const size_t serialColumnIndex, size_t& reservedIdOffset, int64_t& rowCount, const vector<Variant>::size_type rowSize, const vector<Variant>::size_type columnCount)
 {
     auto parameterIterator = insertQuery.parameters().begin();
     for (const auto& row: rows)
@@ -481,7 +481,7 @@ size_t BulkQuery::insertGroupRows(Query& insertQuery, const span<const VariantVe
     return rowCount;
 }
 
-void BulkQuery::deleteGroupRows(Query& deleteQuery, span<const Variant> keys)
+void BulkQuery::deleteGroupRows(Query& deleteQuery, const span<const Variant> keys)
 {
     size_t parameterIndex = 0;
     for (const auto& key: keys)

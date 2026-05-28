@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-vector<Variant> RedisConnect::connect(const string& host, int port,
+vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
                                       const string& username, const string& password, const string& clientName)
 {
     scoped_lock lock(m_mutex);
@@ -44,7 +44,7 @@ vector<Variant> RedisConnect::connect(const string& host, int port,
         throw RedisConnectException("Already connected, please disconnect, first.");
     }
 
-    m_socket->host(Host(host.c_str(), static_cast<uint16_t>(port)));
+    m_socket->host(Host(host.c_str(), port));
     m_socket->open();
     m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     m_reader = make_unique<SocketReader>(m_socket);
@@ -165,7 +165,7 @@ void RedisConnect::hset(const string& hash, const string& key, const Variant& va
     executeCommand(command, results);
 }
 
-vector<string> RedisConnect::scan(const string& pattern, size_t limit)
+vector<string> RedisConnect::scan(const string& pattern, const size_t limit)
 {
     scoped_lock lock(m_mutex);
 
@@ -414,7 +414,7 @@ void RedisConnect::hdel(const string& hash, const vector<string>& keys)
     executeCommand(commandWords, results);
 }
 
-size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, size_t limit)
+size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, const size_t limit)
 {
     const auto     cursorStr = to_string(cursor);
     const auto     countStr = to_string(limit);

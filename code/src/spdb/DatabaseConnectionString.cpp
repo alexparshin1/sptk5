@@ -127,7 +127,7 @@ DatabaseConnectionString& DatabaseConnectionString::operator=(const DatabaseConn
     return *this;
 }
 
-String DatabaseConnectionString::toString(bool includePassword) const
+String DatabaseConnectionString::toString(const bool includePassword) const
 {
     const shared_lock lock(m_mutex);
 

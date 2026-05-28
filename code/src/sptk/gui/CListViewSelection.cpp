@@ -48,7 +48,7 @@ void CSelection::deselect(CPackedStrings* row)
 
 void CSelection::deselectAll()
 {
-    size_t cnt = m_selectedRows.size();
+    const size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++)
     {
         auto* row = (CPackedStrings*) m_selectedRows[i];
@@ -59,7 +59,7 @@ void CSelection::deselectAll()
 
 void CSelection::remove(CPackedStrings* row)
 {
-    auto itor = std::find(m_selectedRows.begin(), m_selectedRows.end(), row);
+    const auto itor = std::find(m_selectedRows.begin(), m_selectedRows.end(), row);
     if (itor != m_selectedRows.end())
     {
         m_selectedRows.erase(itor);
@@ -73,7 +73,7 @@ void CSelection::clear()
 
 CPackedStrings* CSelection::findKey(int keyValue) const
 {
-    size_t cnt = m_selectedRows.size();
+    const size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++)
     {
         auto* row = (CPackedStrings*) m_selectedRows[i];
@@ -87,7 +87,7 @@ CPackedStrings* CSelection::findKey(int keyValue) const
 
 CPackedStrings* CSelection::findCaption(const String& caption) const
 {
-    size_t cnt = m_selectedRows.size();
+    const size_t cnt = m_selectedRows.size();
     for (size_t i = 0; i < cnt; i++)
     {
         auto* row = (CPackedStrings*) m_selectedRows[i];

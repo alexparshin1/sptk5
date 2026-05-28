@@ -58,7 +58,7 @@ bool CDirOpenDialog::okPressed()
             if (selection.size())
             {
                 CPackedStrings& row = selection[0];
-                String          fname(row[1]);
+                const String          fname(row[1]);
                 dname += fname;
             }
         }

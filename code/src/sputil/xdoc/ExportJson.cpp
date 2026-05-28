@@ -125,8 +125,8 @@ String jsonEscape(const String& text)
 }
 } // namespace
 
-void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool formatted,
-                                   size_t indent)
+void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool formatted,
+                                   const size_t indent)
 {
     Formatting formatting;
 
@@ -221,7 +221,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, bool forma
     }
 }
 
-void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
                                  const Formatting& formatting)
 {
     stream << "[";
@@ -251,7 +251,7 @@ void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, bool fo
     stream << formatting.newLineChar << formatting.indentSpaces << "]";
 }
 
-void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
                                   const Formatting& formatting)
 {
     stream << "{";
@@ -282,7 +282,7 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, bool f
     stream << formatting.newLineChar << formatting.indentSpaces << "}";
 }
 
-void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool formatted, const String& firstElement)
+void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, const bool formatted, const String& firstElement)
 {
     const string_view spacing = formatted ? " " : "";
 
@@ -329,7 +329,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, bool fo
     }
 }
 
-void ExportJSON::exportToJSON(const Node* node, Buffer& json, bool formatted)
+void ExportJSON::exportToJSON(const Node* node, Buffer& json, const bool formatted)
 {
     stringstream stream;
     exportJsonValueTo(node, stream, formatted, 0);

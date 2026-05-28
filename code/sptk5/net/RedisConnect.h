@@ -81,7 +81,7 @@ public:
      * @param clientName Optional client name.
      * @return Server information.
      */
-    std::vector<Variant> connect(const std::string& host, int port = 6379,
+    std::vector<Variant> connect(const std::string& host, uint16_t port = 6379,
                                  const std::string& username = "", const std::string& password = "",
                                  const std::string& clientName = "");
 

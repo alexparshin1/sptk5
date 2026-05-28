@@ -43,7 +43,7 @@ bool QueryStatementManagement::bulkMode() const
     return m_bulkMode;
 }
 
-void QueryStatementManagement::closeStmt(bool freeStatement)
+void QueryStatementManagement::closeStmt(const bool freeStatement)
 {
     const auto db = database().lock();
     if (!db)
@@ -65,7 +65,7 @@ void QueryStatementManagement::closeStmt(bool freeStatement)
     }
 }
 
-void QueryStatementManagement::closeQuery(bool releaseStatement)
+void QueryStatementManagement::closeQuery(const bool releaseStatement)
 {
     setEof(true);
     if (statement() != nullptr)
@@ -144,7 +144,7 @@ Query::Query() noexcept
 {
 }
 
-Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
+Query::Query(const DatabaseConnection& db, const String& sql, const bool autoPrepare)
     : QueryStatementManagement(autoPrepare)
     , m_fields(false)
 {
@@ -163,7 +163,7 @@ Query::Query(const DatabaseConnection& db, const String& sql, bool autoPrepare)
     Query::sql(sql);
 }
 
-Query::Query(const WPoolDatabaseConnection& db, const String& sql, bool autoPrepare)
+Query::Query(const WPoolDatabaseConnection& db, const String& sql, const bool autoPrepare)
     : QueryStatementManagement(autoPrepare)
     , m_fields(false)
 {
@@ -472,12 +472,12 @@ void Query::throwError(const String& method, const String& error)
     throw DatabaseException(errorText);
 }
 
-void QueryStatementManagement::setBulkMode(bool bulkMode)
+void QueryStatementManagement::setBulkMode(const bool bulkMode)
 {
     m_bulkMode = bulkMode;
 }
 
-void sptk::THROW_QUERY_ERROR(const Query* query, const String& error, std::source_location location)
+void sptk::THROW_QUERY_ERROR(const Query* query, const String& error, const std::source_location location)
 {
     std::stringstream err;
     err << error;

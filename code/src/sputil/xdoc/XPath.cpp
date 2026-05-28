@@ -159,8 +159,8 @@ bool NodeSearchAlgorithms::matchPathElement(const SNode& thisNode, const XPathEl
 }
 
 void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vector& nodes,
-                                               const vector<XPathElement>& pathElements, int pathPosition,
-                                               const String& starPointer, Node::Vector& matchedNodes, bool descendants)
+                                               const vector<XPathElement>& pathElements, const int pathPosition,
+                                               const String& starPointer, Node::Vector& matchedNodes, const bool descendants)
 {
     const XPathElement& pathElement = pathElements[static_cast<size_t>(pathPosition)];
 
@@ -217,7 +217,7 @@ void NodeSearchAlgorithms::matchNodesThisLevel(const SNode& thisNode, Node::Vect
 }
 
 void NodeSearchAlgorithms::scanDescendents(const SNode& thisNode, Node::Vector& nodes,
-                                           const std::vector<XPathElement>& pathElements, int pathPosition,
+                                           const std::vector<XPathElement>& pathElements, const int pathPosition,
                                            const String& starPointer)
 {
     Node::Vector matchedNodes;

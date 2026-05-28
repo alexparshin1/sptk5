@@ -81,7 +81,7 @@ void Transaction::rollback()
     m_active = false;
 }
 
-SPoolDatabaseConnection Transaction::getConnection(bool expectedActive) const
+SPoolDatabaseConnection Transaction::getConnection(const bool expectedActive) const
 {
     if (auto db = m_db.lock())
     {

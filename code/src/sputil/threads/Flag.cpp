@@ -32,7 +32,7 @@ using namespace std;
 using namespace sptk;
 using namespace chrono;
 
-Flag::Flag(bool startingValue)
+Flag::Flag(const bool startingValue)
     : m_value(startingValue)
 {
 }
@@ -55,7 +55,7 @@ bool Flag::get() const
     return m_value;
 }
 
-void Flag::set(bool value)
+void Flag::set(const bool value)
 {
     lock_guard lock(m_lockMutex);
     if (m_value != value)
@@ -65,13 +65,13 @@ void Flag::set(bool value)
     }
 }
 
-Flag& Flag::operator=(bool value)
+Flag& Flag::operator=(const bool value)
 {
     set(value);
     return *this;
 }
 
-bool Flag::wait_for(bool value, const milliseconds& timeout)
+bool Flag::wait_for(const bool value, const milliseconds& timeout)
 {
     const auto timeoutAt = DateTime::Now() + timeout;
     return wait_until(value, timeoutAt);

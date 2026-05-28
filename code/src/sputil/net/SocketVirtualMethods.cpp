@@ -186,7 +186,7 @@ SocketType SocketVirtualMethods::getSocketFdUnlocked() const
     return m_socketFd;
 }
 
-void SocketVirtualMethods::setSocketFdUnlocked(SocketType socket)
+void SocketVirtualMethods::setSocketFdUnlocked(const SocketType socket)
 {
     m_socketFd = socket;
 }

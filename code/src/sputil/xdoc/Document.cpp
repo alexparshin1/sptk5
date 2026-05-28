@@ -51,7 +51,7 @@ DataFormat autoDetectFormat(const char* data)
 
 } // namespace
 
-Document::Document(Node::Type rootType)
+Document::Document(const Node::Type rootType)
     : m_root(Node::createNode("", rootType))
 {
 }
@@ -92,7 +92,7 @@ void Document::load(const Buffer& data, const bool xmlKeepFormatting)
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }
 
-void Document::load(const String& data, bool xmlKeepFormatting)
+void Document::load(const String& data, const bool xmlKeepFormatting)
 {
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }
