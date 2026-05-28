@@ -102,7 +102,15 @@ public:
      */
     void cmd_logout()
     {
-        command("LOGOUT");
+        try
+        {
+            command("LOGOUT");
+        }
+        catch (const std::exception& e)
+        {
+            // ignore any exceptions on logout
+            (void) e;
+        }
     }
 
     // IMAPv4 commands - not logged in
