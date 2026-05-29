@@ -416,6 +416,87 @@ void RedisConnect::hdel(const string& hash, const vector<string>& keys)
     executeCommand(commandWords, results);
 }
 
+size_t RedisConnect::setAdd(const string& key, const vector<string>& members)
+{
+    if (members.empty())
+    {
+        return 0;
+    }
+
+    scoped_lock lock(m_mutex);
+
+    Command command {"SADD", key};
+    command.reserve(members.size() + 2);
+    ranges::copy(members, back_inserter(command));
+
+    vector<Variant> results;
+    executeCommand(command, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SADD command");
+    }
+
+    return static_cast<size_t>(results[0].asInt64());
+}
+
+vector<string> RedisConnect::setMembers(const string& key)
+{
+    scoped_lock lock(m_mutex);
+
+    const vector<string> commandWords {"SMEMBERS", key};
+    vector<Variant>      results;
+    executeCommand(commandWords, results);
+
+    vector<string> members;
+    members.reserve(results.size());
+    ranges::transform(results, back_inserter(members), [](const Variant& v)
+                      {
+                          return v.asString();
+                      });
+    return members;
+}
+
+bool RedisConnect::setIsMember(const string& key, const string& member)
+{
+    scoped_lock lock(m_mutex);
+
+    const vector<string> commandWords {"SISMEMBER", key, member};
+    vector<Variant>      results;
+    executeCommand(commandWords, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SISMEMBER command");
+    }
+
+    return results[0].asInt64() == 1;
+}
+
+size_t RedisConnect::setRemove(const string& key, const vector<string>& members)
+{
+    if (members.empty())
+    {
+        return 0;
+    }
+
+    scoped_lock lock(m_mutex);
+
+    Command command {"SREM", key};
+    command.reserve(members.size() + 2);
+    ranges::copy(members, back_inserter(command));
+
+    vector<Variant> results;
+    executeCommand(command, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SREM command");
+    }
+
+    return static_cast<size_t>(results[0].asInt64());
+}
+
 size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, const size_t limit)
 {
     const auto     cursorStr = to_string(cursor);

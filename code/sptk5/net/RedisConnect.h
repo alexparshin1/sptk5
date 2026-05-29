@@ -200,6 +200,37 @@ public:
     [[nodiscard]] int64_t incr(const std::string& key);
 
     /**
+     * @brief Adds one or more members to a set.
+     * @param key Set key.
+     * @param members Members to add.
+     * @return Number of members actually added (excluding already-present ones).
+     */
+    size_t setAdd(const std::string& key, const std::vector<std::string>& members);
+
+    /**
+     * @brief Returns all members of a set.
+     * @param key Set key.
+     * @return All members of the set.
+     */
+    [[nodiscard]] std::vector<std::string> setMembers(const std::string& key);
+
+    /**
+     * @brief Tests whether a value is a member of a set.
+     * @param key Set key.
+     * @param member Value to test.
+     * @return True if the member exists in the set.
+     */
+    [[nodiscard]] bool setIsMember(const std::string& key, const std::string& member);
+
+    /**
+     * @brief Removes one or more members from a set.
+     * @param key Set key.
+     * @param members Members to remove.
+     * @return Number of members actually removed.
+     */
+    size_t setRemove(const std::string& key, const std::vector<std::string>& members);
+
+    /**
      * @brief Rename a key.
      * @param oldKey The current key name.
      * @param newKey The new key name.
@@ -330,7 +361,8 @@ private:
                 }
                 return;
             }
-            case '*': { // Array
+            case '*': // Array
+            case '~': { // Set (RESP3)
                 int64_t count;
                 std::from_chars(payload.data(), payload.data() + payload.size(), count);
                 if (count == -1)
@@ -338,7 +370,6 @@ private:
                     results.emplace_back();
                     return;
                 }
-                // For read the array
                 for (auto i = 0; i < count; ++i)
                 {
                     readResponse(results, cursor);

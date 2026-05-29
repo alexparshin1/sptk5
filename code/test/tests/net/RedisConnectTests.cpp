@@ -854,6 +854,160 @@ TEST_F(RedisConnectTests, hdelAllFields)
     redis.disconnect();
 }
 
+TEST_F(RedisConnectTests, setAddAndMembers)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_add_members";
+    (void) redis.remove({key});
+
+    const size_t added = redis.setAdd(key, {"alpha", "beta", "gamma"});
+    EXPECT_EQ(3u, added);
+
+    const auto members = redis.setMembers(key);
+    set<string, less<>> membersFound(members.begin(), members.end());
+
+    ASSERT_EQ(3u, membersFound.size());
+    EXPECT_TRUE(membersFound.contains("alpha"));
+    EXPECT_TRUE(membersFound.contains("beta"));
+    EXPECT_TRUE(membersFound.contains("gamma"));
+
+    (void) redis.remove({key});
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setAddDuplicates)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_add_duplicates";
+    (void) redis.remove({key});
+
+    EXPECT_EQ(3u, redis.setAdd(key, {"a", "b", "c"}));
+    // Adding existing + one new: only new one counts
+    EXPECT_EQ(1u, redis.setAdd(key, {"a", "b", "d"}));
+
+    const auto members = redis.setMembers(key);
+    EXPECT_EQ(4u, members.size());
+
+    (void) redis.remove({key});
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setAddEmptyMembers)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    EXPECT_EQ(0u, redis.setAdd("set_test_empty_add", {}));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setIsMember)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_ismember";
+    (void) redis.remove({key});
+
+    redis.setAdd(key, {"apple", "banana"});
+
+    EXPECT_TRUE(redis.setIsMember(key, "apple"));
+    EXPECT_TRUE(redis.setIsMember(key, "banana"));
+    EXPECT_FALSE(redis.setIsMember(key, "cherry"));
+    EXPECT_FALSE(redis.setIsMember(key, "nonexistent_set_key"));
+
+    (void) redis.remove({key});
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setRemove)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_remove";
+    (void) redis.remove({key});
+
+    redis.setAdd(key, {"x", "y", "z"});
+
+    const size_t removed = redis.setRemove(key, {"x", "z"});
+    EXPECT_EQ(2u, removed);
+
+    const auto members = redis.setMembers(key);
+    ASSERT_EQ(1u, members.size());
+    EXPECT_EQ("y", members[0]);
+
+    (void) redis.remove({key});
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setRemoveNonExistentMember)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_remove_missing";
+    (void) redis.remove({key});
+
+    redis.setAdd(key, {"p", "q"});
+
+    // Removing a mix of existing and non-existing members
+    const size_t removed = redis.setRemove(key, {"p", "no_such_member"});
+    EXPECT_EQ(1u, removed);
+
+    const auto members = redis.setMembers(key);
+    ASSERT_EQ(1u, members.size());
+    EXPECT_EQ("q", members[0]);
+
+    (void) redis.remove({key});
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setRemoveEmptyMembers)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    EXPECT_EQ(0u, redis.setRemove("set_test_empty_remove", {}));
+
+    redis.disconnect();
+}
+
+TEST_F(RedisConnectTests, setMembersOnEmptySet)
+{
+    RedisConnect redis;
+    redis.connect("127.0.0.1", 6379);
+
+    ASSERT_TRUE(redis.isConnected());
+
+    const string key = "set_test_members_empty";
+    (void) redis.remove({key});
+
+    const auto members = redis.setMembers(key);
+    EXPECT_TRUE(members.empty());
+
+    redis.disconnect();
+}
+
 TEST_F(RedisConnectTests, hsetPerformance)
 {
     constexpr size_t maxHashes = 100;
