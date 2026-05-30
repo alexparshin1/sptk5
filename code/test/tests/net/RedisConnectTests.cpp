@@ -1090,7 +1090,12 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
 
     stopwatch.stop();
 
-    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxThreads * maxHashes, maxKeysPerHash, maxThreads * maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+    COUT(format("Set {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s)",
+                maxThreads * maxHashes,
+                maxKeysPerHash,
+                maxThreads * maxHashes * maxKeysPerHash,
+                stopwatch.milliseconds(),
+                maxThreads * maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
 }
 
 TEST_F(RedisConnectTests, nodesPerformance)
@@ -1124,7 +1129,10 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
     stopwatch.stop();
 
-    COUT(format("Get {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s", maxHashes, maxKeysPerHash, maxHashes * maxKeysPerHash, stopwatch.milliseconds(), maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
+    COUT(format("Get {} hashes of {} keys each ({} total keys) for {:3.1f}ms ({:3.1f}K/s)",
+                maxHashes, maxKeysPerHash, maxHashes * maxKeysPerHash,
+                stopwatch.milliseconds(),
+                maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
 
     redis.disconnect();
 }
