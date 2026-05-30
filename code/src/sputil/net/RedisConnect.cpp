@@ -88,12 +88,12 @@ void RedisConnect::disconnect()
     m_reader.reset();
 }
 
-void RedisConnect::set(const string& key, const Variant& value)
+void RedisConnect::setValue(const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);
 
     Command command {"SET", key};
-    command.push_back(std::move(serialize(value)));
+    command.push_back(serialize(value));
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -131,7 +131,7 @@ string RedisConnect::serialize(const Variant& value)
     }
 }
 
-void RedisConnect::mset(const KeysAndValues& keysAndValues)
+void RedisConnect::setValues(const KeysAndValues& keysAndValues)
 {
     if (keysAndValues.empty())
     {
@@ -154,7 +154,7 @@ void RedisConnect::mset(const KeysAndValues& keysAndValues)
     executeCommand(command, results);
 }
 
-void RedisConnect::hset(const string& hash, const string& key, const Variant& value)
+void RedisConnect::setHashValue(const string& hash, const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);
 
@@ -196,7 +196,7 @@ vector<string> RedisConnect::scan(const string& pattern, const size_t limit)
     return results;
 }
 
-size_t RedisConnect::remove(const vector<string>& keys)
+size_t RedisConnect::deleteKeys(const vector<string>& keys)
 {
     if (keys.empty())
     {
@@ -222,7 +222,7 @@ size_t RedisConnect::remove(const vector<string>& keys)
     return keysRemoved;
 }
 
-int64_t RedisConnect::incr(const string& key)
+int64_t RedisConnect::incrementKey(const string& key)
 {
     scoped_lock lock(m_mutex);
 
@@ -239,7 +239,7 @@ int64_t RedisConnect::incr(const string& key)
     return results[0].asInt64();
 }
 
-void RedisConnect::rename(const string& oldKey, const string& newKey)
+void RedisConnect::renameKey(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
@@ -249,7 +249,7 @@ void RedisConnect::rename(const string& oldKey, const string& newKey)
     executeCommand(commandWords, results);
 }
 
-bool RedisConnect::renameNX(const string& oldKey, const string& newKey)
+bool RedisConnect::renameKeyIfExists(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
@@ -298,7 +298,7 @@ void RedisConnect::rollbackTransaction()
     executeCommand(command, results);
 }
 
-void RedisConnect::hset(const string& hash, const KeysAndValues& keysAndValues)
+void RedisConnect::setHashValues(const string& hash, const KeysAndValues& keysAndValues)
 {
     if (keysAndValues.empty())
     {
@@ -320,7 +320,7 @@ void RedisConnect::hset(const string& hash, const KeysAndValues& keysAndValues)
     executeCommand(command, results);
 }
 
-vector<string> RedisConnect::hkeys(const string& hashName)
+vector<string> RedisConnect::getHashKeys(const string& hashName)
 {
     scoped_lock lock(m_mutex);
 
@@ -337,7 +337,7 @@ vector<string> RedisConnect::hkeys(const string& hashName)
     return keys;
 }
 
-Variant RedisConnect::hget(const std::string& hash, const std::string& key)
+Variant RedisConnect::getHashValue(const std::string& hash, const std::string& key)
 {
     scoped_lock lock(m_mutex);
 
@@ -354,7 +354,7 @@ Variant RedisConnect::hget(const std::string& hash, const std::string& key)
     return results[0];
 }
 
-RedisConnect::KeysAndValues RedisConnect::hmget(const string& hash, const vector<string>& keys)
+RedisConnect::KeysAndValues RedisConnect::getHashValues(const string& hash, const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
@@ -381,7 +381,7 @@ RedisConnect::KeysAndValues RedisConnect::hmget(const string& hash, const vector
     return output;
 }
 
-RedisConnect::KeysAndValues RedisConnect::hgetall(const string& hash)
+RedisConnect::KeysAndValues RedisConnect::getHashValues(const string& hash)
 {
     scoped_lock lock(m_mutex);
 
@@ -404,7 +404,7 @@ RedisConnect::KeysAndValues RedisConnect::hgetall(const string& hash)
     return output;
 }
 
-void RedisConnect::hdel(const string& hash, const vector<string>& keys)
+void RedisConnect::deleteHashKeys(const string& hash, const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
@@ -414,6 +414,87 @@ void RedisConnect::hdel(const string& hash, const vector<string>& keys)
 
     vector<Variant> results;
     executeCommand(commandWords, results);
+}
+
+size_t RedisConnect::addSetMembers(const string& key, const vector<string>& members)
+{
+    if (members.empty())
+    {
+        return 0;
+    }
+
+    scoped_lock lock(m_mutex);
+
+    Command command {"SADD", key};
+    command.reserve(members.size() + 2);
+    ranges::copy(members, back_inserter(command));
+
+    vector<Variant> results;
+    executeCommand(command, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SADD command");
+    }
+
+    return static_cast<size_t>(results[0].asInt64());
+}
+
+vector<string> RedisConnect::getSetMembers(const string& key)
+{
+    scoped_lock lock(m_mutex);
+
+    const vector<string> commandWords {"SMEMBERS", key};
+    vector<Variant>      results;
+    executeCommand(commandWords, results);
+
+    vector<string> members;
+    members.reserve(results.size());
+    ranges::transform(results, back_inserter(members), [](const Variant& v)
+                      {
+                          return v.asString();
+                      });
+    return members;
+}
+
+bool RedisConnect::isSetMember(const string& key, const string& member)
+{
+    scoped_lock lock(m_mutex);
+
+    const vector<string> commandWords {"SISMEMBER", key, member};
+    vector<Variant>      results;
+    executeCommand(commandWords, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SISMEMBER command");
+    }
+
+    return results[0].asInt64() == 1;
+}
+
+size_t RedisConnect::deleteSetMembers(const string& key, const vector<string>& members)
+{
+    if (members.empty())
+    {
+        return 0;
+    }
+
+    scoped_lock lock(m_mutex);
+
+    Command command {"SREM", key};
+    command.reserve(members.size() + 2);
+    ranges::copy(members, back_inserter(command));
+
+    vector<Variant> results;
+    executeCommand(command, results);
+
+    if (results.empty())
+    {
+        throw RedisConnectException("Unexpected empty response from SREM command");
+    }
+
+    return static_cast<size_t>(results[0].asInt64());
 }
 
 size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, const size_t limit)
@@ -433,7 +514,7 @@ size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Var
     return newCursor.asInt64();
 }
 
-Variant RedisConnect::get(const string& key)
+Variant RedisConnect::getValue(const string& key)
 {
     scoped_lock lock(m_mutex);
 
@@ -448,7 +529,7 @@ Variant RedisConnect::get(const string& key)
     return results[0];
 }
 
-RedisConnect::KeysAndValues RedisConnect::mget(const vector<string>& keys)
+RedisConnect::KeysAndValues RedisConnect::getValues(const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
@@ -497,6 +578,23 @@ void RedisConnect::sendRequest(const Command& command)
     m_socket->write(m_sendBuffer);
 }
 
+void RedisConnect::executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor)
+{
+    if (!m_socket->active())
+    {
+        throw RedisConnectException("Not connected");
+    }
+
+    if (command.empty())
+    {
+        throw RedisConnectException("Empty command data");
+    }
+
+    sendRequest(command);
+
+    readResponse(results, cursor);
+}
+
 const Buffer& RedisConnect::readLine()
 {
     if (m_reader->readLine(m_readLineBuffer) == 0)
@@ -517,4 +615,93 @@ const Buffer& RedisConnect::readLine()
     }
 
     return m_readLineBuffer;
+}
+
+void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
+{
+    const auto& line = readLine();
+    if (line.empty())
+    {
+        throw RedisConnectException("Empty response");
+    }
+
+    const auto             type = line[0];
+    const std::string_view payload {line.c_str() + 1, line.size() - 1};
+
+    switch (type)
+    {
+        case '+': // Simple String
+            results.emplace_back(payload);
+            return;
+
+        case '-': // Error
+            throw RedisConnectException(std::string(payload));
+
+        case ':': // Integer
+            results.emplace_back(strtoll(payload.data(), nullptr, 10), 0u);
+            return;
+
+        case '$': { // Bulk String
+            int64_t len;
+            std::from_chars(payload.data(), payload.data() + payload.size(), len);
+            if (len == -1)
+            {
+                results.emplace_back(); // Null
+                return;
+            }
+            const auto readLength = len + 2;
+            Buffer     buffer(readLength);
+            m_reader->read(buffer, readLength); // Also read \r\n
+            buffer.bytes(buffer.bytes() - 2);   // Cut off \r\n
+            if (cursor)
+            {
+                *cursor = buffer;
+            }
+            else
+            {
+                results.emplace_back(std::move(buffer));
+            }
+            return;
+        }
+        case '*':   // Array
+        case '~': { // Set (RESP3)
+            int64_t count;
+            std::from_chars(payload.data(), payload.data() + payload.size(), count);
+            if (count == -1)
+            {
+                results.emplace_back();
+                return;
+            }
+            for (auto i = 0; i < count; ++i)
+            {
+                readResponse(results, cursor);
+                cursor = nullptr;
+            }
+            return;
+        }
+        case '_':                   // Null (RESP3)
+            results.emplace_back(); // Null
+            return;
+        case '#': // Boolean (RESP3)
+            results.emplace_back(payload == "t");
+            return;
+        case ',': { // Double (RESP3)
+            double value;
+            std::from_chars(payload.data(), payload.data() + payload.size(), value);
+            results.emplace_back(strtod(payload.data(), nullptr));
+            return;
+        }
+        case '%': { // Map (RESP3)
+            int64_t count;
+            std::from_chars(payload.data(), payload.data() + payload.size(), count);
+            for (auto i = 0; i < count; ++i)
+            {
+                readResponse(results); // Key
+                readResponse(results); // Value
+            }
+            return;
+        }
+        default:
+            throw RedisConnectException("Unknown response type: " + std::string(1, type));
+    }
 }

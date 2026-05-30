@@ -101,28 +101,27 @@ public:
      * @param key Key value.
      * @return Variant value.
      */
-    [[nodiscard]] Variant get(const std::string& key);
+    [[nodiscard]] Variant getValue(const std::string& key);
 
     /**
      * @brief Get values for the keys.
      * @param keys Key values.
      * @return Variant values.
      */
-    [[nodiscard]] KeysAndValues mget(const std::vector<std::string>& keys);
-    void                        sendRequest(const Command& command);
+    [[nodiscard]] KeysAndValues getValues(const std::vector<std::string>& keys);
 
     /**
      * @brief Sets the key-value pair in Redis.
      * @param key Key value.
      * @param value Value.
      */
-    void set(const std::string& key, const Variant& value);
+    void setValue(const std::string& key, const Variant& value);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
      * @param keysAndValues Keys and corresponding values.
      */
-    void mset(const KeysAndValues& keysAndValues);
+    void setValues(const KeysAndValues& keysAndValues);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
@@ -130,21 +129,21 @@ public:
      * @param key Key in the hash.
      * @param value Value for the key.
      */
-    void hset(const std::string& hash, const std::string& key, const Variant& value);
+    void setHashValue(const std::string& hash, const std::string& key, const Variant& value);
 
     /**
      * @brief Sets the multiple key-value pair in Redis.
      * @param hash Hash name.
      * @param keysAndValues Keys and corresponding values of hash elements.
      */
-    void hset(const std::string& hash, const KeysAndValues& keysAndValues);
+    void setHashValues(const std::string& hash, const KeysAndValues& keysAndValues);
 
     /**
      * @brief Gets list of the hash keys.
      * @param hashName Hash name (key).
      * @return List of keys of the hash.
      */
-    [[nodiscard]] std::vector<std::string> hkeys(const std::string& hashName);
+    [[nodiscard]] std::vector<std::string> getHashKeys(const std::string& hashName);
 
     /**
      * @brief Gets hash key's value.
@@ -152,7 +151,7 @@ public:
      * @param key Key.
      * @return Key value, the Variant is null if not found.
      */
-    [[nodiscard]] Variant hget(const std::string& hash, const std::string& key);
+    [[nodiscard]] Variant getHashValue(const std::string& hash, const std::string& key);
 
     /**
      * @brief Gets hash keys and values for the list of keys.
@@ -160,21 +159,21 @@ public:
      * @param keys Keys of the hash values.
      * @return Keys and values matching the passed keys of the hash.
      */
-    [[nodiscard]] KeysAndValues hmget(const std::string& hash, const std::vector<std::string>& keys);
+    [[nodiscard]] KeysAndValues getHashValues(const std::string& hash, const std::vector<std::string>& keys);
 
     /**
      * @brief Gets keys and values of all the keys from the hash.
      * @param hash Hash name.
      * @return Keys and values matching the passed keys of the hash.
      */
-    [[nodiscard]] KeysAndValues hgetall(const std::string& hash);
+    [[nodiscard]] KeysAndValues getHashValues(const std::string& hash);
 
     /**
      * @brief Removes list of keys from the hash.
      * @param hash Hash name.
      * @param keys Keys from the hash.
      */
-    void hdel(const std::string& hash, const std::vector<std::string>& keys);
+    void deleteHashKeys(const std::string& hash, const std::vector<std::string>& keys);
 
     /**
      * @brief Find keys matching the pattern.
@@ -190,14 +189,45 @@ public:
      * @param keys The keys to remove.
      * @return The number of the removed keys.
      */
-    [[nodiscard]] size_t remove(const std::vector<std::string>& keys);
+    [[nodiscard]] size_t deleteKeys(const std::vector<std::string>& keys);
 
     /**
      * @brief Increment the key.
      * @param key The key to increment.
      * @return The new key value.
      */
-    [[nodiscard]] int64_t incr(const std::string& key);
+    [[nodiscard]] int64_t incrementKey(const std::string& key);
+
+    /**
+     * @brief Adds one or more members to a set.
+     * @param key Set key.
+     * @param members Members to add.
+     * @return Number of members actually added (excluding already-present ones).
+     */
+    size_t addSetMembers(const std::string& key, const std::vector<std::string>& members);
+
+    /**
+     * @brief Returns all members of a set.
+     * @param key Set key.
+     * @return All members of the set.
+     */
+    [[nodiscard]] std::vector<std::string> getSetMembers(const std::string& key);
+
+    /**
+     * @brief Tests whether a value is a member of a set.
+     * @param key Set key.
+     * @param member Value to test.
+     * @return True if the member exists in the set.
+     */
+    [[nodiscard]] bool isSetMember(const std::string& key, const std::string& member);
+
+    /**
+     * @brief Removes one or more members from a set.
+     * @param key Set key.
+     * @param members Members to remove.
+     * @return Number of members actually removed.
+     */
+    size_t deleteSetMembers(const std::string& key, const std::vector<std::string>& members);
 
     /**
      * @brief Rename a key.
@@ -206,7 +236,7 @@ public:
      * @throws RedisConnectException if the old key does not exist.
      * @note If newKey already exists, it will be overwritten.
      */
-    void rename(const std::string& oldKey, const std::string& newKey);
+    void renameKey(const std::string& oldKey, const std::string& newKey);
 
     /**
      * @brief Rename a key only if the new key does not exist.
@@ -215,7 +245,7 @@ public:
      * @return True if the key was renamed, false if newKey already exists.
      * @throws RedisConnectException if the old key does not exist.
      */
-    [[nodiscard]] bool renameNX(const std::string& oldKey, const std::string& newKey);
+    [[nodiscard]] bool renameKeyIfExists(const std::string& oldKey, const std::string& newKey);
 
     /**
      * @brief Begin a transaction block.
@@ -233,7 +263,7 @@ public:
      * @return Results from all executed commands.
      * @throws RedisConnectException if not in a transaction or not connected.
      */
-    [[nodiscard]] std::vector<Variant> commitTransaction();
+    std::vector<Variant> commitTransaction();
 
     /**
      * @brief Discard all queued commands in a transaction.
@@ -253,24 +283,15 @@ private:
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
+     */
+    void sendRequest(const Command& command);
+
+    /**
+     * @brief Sends Redis command.
+     * @param command Redis command elements.
      * @param results Redis command output.
      */
-    void executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor = nullptr)
-    {
-        if (!m_socket->active())
-        {
-            throw RedisConnectException("Not connected");
-        }
-
-        if (command.empty())
-        {
-            throw RedisConnectException("Empty command data");
-        }
-
-        sendRequest(command);
-
-        readResponse(results, cursor);
-    }
+    void executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor = nullptr);
 
     /**
      * @brief Reads a line from Redis.
@@ -284,94 +305,7 @@ private:
      * @param cursor            Optional output cursor for commands like SCAN.
      * @return Response as Variant.
      */
-    void readResponse(std::vector<Variant>& results, Variant* cursor = nullptr)
-    {
-        const auto& line = readLine();
-        if (line.empty())
-        {
-            throw RedisConnectException("Empty response");
-        }
-
-        const auto             type = line[0];
-        const std::string_view payload {line.c_str() + 1, line.size() - 1};
-
-        switch (type)
-        {
-            case '+': // Simple String
-                results.emplace_back(payload);
-                return;
-
-            case '-': // Error
-                throw RedisConnectException(std::string(payload));
-
-            case ':': // Integer
-                results.emplace_back(strtoll(payload.data(), nullptr, 10), 0u);
-                return;
-
-            case '$': { // Bulk String
-                int64_t len;
-                std::from_chars(payload.data(), payload.data() + payload.size(), len);
-                if (len == -1)
-                {
-                    results.emplace_back(); // Null
-                    return;
-                }
-                const auto readLength = len + 2;
-                Buffer     buffer(readLength);
-                m_reader->read(buffer, readLength); // Also read \r\n
-                buffer.bytes(buffer.bytes() - 2);   // Cut off \r\n
-                if (cursor)
-                {
-                    *cursor = buffer;
-                }
-                else
-                {
-                    results.emplace_back(std::move(buffer));
-                }
-                return;
-            }
-            case '*': { // Array
-                int64_t count;
-                std::from_chars(payload.data(), payload.data() + payload.size(), count);
-                if (count == -1)
-                {
-                    results.emplace_back();
-                    return;
-                }
-                // For read the array
-                for (auto i = 0; i < count; ++i)
-                {
-                    readResponse(results, cursor);
-                    cursor = nullptr;
-                }
-                return;
-            }
-            case '_':                   // Null (RESP3)
-                results.emplace_back(); // Null
-                return;
-            case '#': // Boolean (RESP3)
-                results.emplace_back(payload == "t");
-                return;
-            case ',': { // Double (RESP3)
-                double value;
-                std::from_chars(payload.data(), payload.data() + payload.size(), value);
-                results.emplace_back(strtod(payload.data(), nullptr));
-                return;
-            }
-            case '%': { // Map (RESP3)
-                int64_t count;
-                std::from_chars(payload.data(), payload.data() + payload.size(), count);
-                for (auto i = 0; i < count; ++i)
-                {
-                    readResponse(results); // Key
-                    readResponse(results); // Value
-                }
-                return;
-            }
-            default:
-                throw RedisConnectException("Unknown response type: " + std::string(1, type));
-        }
-    }
+    void readResponse(std::vector<Variant>& results, Variant* cursor = nullptr);
 
     /**
      * @brief Find keys matching the pattern.
