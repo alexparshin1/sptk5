@@ -27,6 +27,7 @@
 #pragma once
 
 #include "sptk5/Variant.h"
+#include "sptk5/net/RedisCommand.h"
 #include "sptk5/net/SocketReader.h"
 #include "sptk5/net/TCPSocket.h"
 
@@ -61,19 +62,6 @@ public:
 class SP_EXPORT RedisConnect final
 {
 public:
-    class Command final : public Buffer
-    {
-    public:
-        Command(std::string_view command, std::string_view mode = "");
-        void emplace_back(const std::string& argument);
-        void emplace_back(const std::vector<std::string>& arguments);
-
-        size_t count() const;
-
-    private:
-        size_t m_count {0};
-    };
-
     using KeysAndValues = std::unordered_map<std::string, Variant>;
 
     /**
@@ -296,20 +284,20 @@ private:
      * @brief Sends Redis command.
      * @param command Redis command elements.
      */
-    void sendRequest(const Command& command);
+    void sendRequest(const RedisCommand& command) const;
 
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
      * @param results Redis command output.
      */
-    void executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor = nullptr);
+    void executeCommand(const RedisCommand& command, std::vector<Variant>& results, Variant* cursor = nullptr);
 
     /**
      * @brief Reads a line from Redis.
      * @return A line from Redis.
      */
-    [[nodiscard]] const Buffer& readLine();
+    void readLine();
 
     /**
      * @brief Reads a response from Redis.
@@ -329,12 +317,6 @@ private:
      * @return Cursor.
      */
     size_t scan(const std::string& pattern, size_t cursor, std::vector<Variant>& matchedKeys, size_t limit);
-
-    /**
-     * @brief Append value to the command.
-     * @param value Value to append.
-     */
-    static std::string serialize(const Variant& value);
 };
 
 using SRedisConnect = std::shared_ptr<RedisConnect>;
