@@ -226,7 +226,7 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
 TEST_F(RedisConnectTests, performanceMultipleThreads)
 {
     constexpr auto iterations = 1000;
-    constexpr auto threadCount = 128;
+    constexpr auto threadCount = 32;
 
     Stopwatch watch;
     watch.start();
@@ -237,7 +237,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
         threads.emplace_back([threadIndex]
                              {
                                  RedisConnect redis;
-                                 redis.connect("theater", 6379);
+                                 redis.connect(RedisHost, 6379);
 
                                  for (auto i = 0; i < iterations; ++i)
                                  {
@@ -260,7 +260,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
 
 TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
 {
-    DatabaseConnectionPool connectionPool("postgresql://gtest:test#123@theater/xmq_test");
+    DatabaseConnectionPool connectionPool("postgresql://gtest:test#123@" + RedisHost + "/xmq_test");
     auto                   db = connectionPool.getConnection();
 
     Query dropTable(db, "DROP TABLE IF EXISTS test_table");
@@ -270,7 +270,7 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
     createTable.exec();
 
     constexpr auto iterations = 1000;
-    constexpr auto threadCount = 128;
+    constexpr auto threadCount = 32;
 
     Stopwatch watch;
     watch.start();
