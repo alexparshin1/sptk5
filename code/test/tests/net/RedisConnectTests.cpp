@@ -23,7 +23,6 @@
 │   Please report all bugs and problems to alexeyp@gmail.com.                  │
 └──────────────────────────────────────────────────────────────────────────────┘
 */
-#ifndef _WIN32
 #include "sptk5/Printer.h"
 #include "sptk5/Stopwatch.h"
 #include "sptk5/db/DatabaseConnectionPool.h"
@@ -39,38 +38,47 @@
 using namespace sptk;
 using namespace std;
 
+namespace {
+const string RedisHost {"theater"};
+}
+
 class RedisConnectTests : public ::testing::Test
 {
+protected:
+    void SetUp() override
+    {
+        EXPECT_NO_THROW(redis.connect(RedisHost, 6379));
+        ASSERT_TRUE(redis.isConnected());
+    }
+
+    void TearDown() override
+    {
+        if (redis.isConnected())
+        {
+            EXPECT_NO_THROW(redis.disconnect());
+        }
+    }
+
+    RedisConnect redis;
 };
 
 namespace sptk {
 
 TEST_F(RedisConnectTests, connectDisconnect)
 {
-    RedisConnect redis;
-    EXPECT_NO_THROW(redis.connect("127.0.0.1", 6379));
-    EXPECT_NO_THROW(redis.disconnect());
 }
 
 TEST_F(RedisConnectTests, setGet)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string  key = "test_key";
     const Variant value = "test_value";
 
     EXPECT_NO_THROW(redis.setValue(key, value));
     EXPECT_EQ(redis.getValue(key).asString(), value.asString());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, mset)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const RedisConnect::KeysAndValues testValues = {
         {"orange", 120},
         {"apple", 230},
@@ -90,29 +98,19 @@ TEST_F(RedisConnectTests, mset)
     {
         EXPECT_EQ(value.asString(), results[key].asString());
     }
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setGetInt)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string  key = "int_key";
     const Variant value = static_cast<int64_t>(1234567890123LL);
 
     EXPECT_NO_THROW(redis.setValue(key, value));
     EXPECT_EQ(redis.getValue(key).asInt64(), value.asInt64());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, incr)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string  key = "int_key";
     const Variant value = static_cast<int64_t>(1234);
 
@@ -120,15 +118,10 @@ TEST_F(RedisConnectTests, incr)
     EXPECT_EQ(value.asInt64(), redis.getValue(key).asInt64());
 
     EXPECT_EQ(value.asInt64() + 1, redis.incrementKey(key));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setGetBool)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string key_t = "bool_key_t";
     const string key_f = "bool_key_f";
 
@@ -137,15 +130,10 @@ TEST_F(RedisConnectTests, setGetBool)
 
     EXPECT_NO_THROW(redis.setValue(key_f, false));
     EXPECT_EQ(redis.getValue(key_f).asBool(), false);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setGetDouble)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string   key = "double_key";
     constexpr auto value = 3.1415926535;
 
@@ -153,15 +141,10 @@ TEST_F(RedisConnectTests, setGetDouble)
     // to_string(double) might have different precision than what Redis returns or how it's stored,
     // but we implemented it using to_string(value)
     EXPECT_EQ(redis.getValue(key).asFloat(), value);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setGetBinary)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string key = "binary_key";
     const char   data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
     const Buffer binaryData(data, sizeof(data));
@@ -170,33 +153,21 @@ TEST_F(RedisConnectTests, setGetBinary)
 
     const auto retrievedData = redis.getValue(key).asBuffer();
     EXPECT_EQ(retrievedData, binaryData);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, getNonExistentKey)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     EXPECT_EQ(redis.getValue("non_existent_key").asString(), "");
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setOverwrites)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     const string key = "overwrite_key_different";
     redis.setValue(key, "value1");
     EXPECT_EQ(redis.getValue(key).asString(), "value1");
 
     redis.setValue(key, "value2");
     EXPECT_EQ(redis.getValue(key).asString(), "value2");
-
-    redis.disconnect();
 }
 
 namespace {
@@ -219,9 +190,6 @@ TEST_F(RedisConnectTests, performanceSetSingleThread)
 {
     constexpr auto iterations = 1000;
 
-    RedisConnect redis;
-    redis.connect("localhost", 6379);
-
     Stopwatch watch;
     watch.start();
     for (auto i = 0; i < iterations; ++i)
@@ -231,8 +199,6 @@ TEST_F(RedisConnectTests, performanceSetSingleThread)
     }
     watch.stop();
     cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, performanceMSetSingleThread)
@@ -255,8 +221,6 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
 
     stopwatch.stop();
     cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", stopwatch.milliseconds(), iterations / stopwatch.milliseconds());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, performanceMultipleThreads)
@@ -345,11 +309,6 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
 
 TEST_F(RedisConnectTests, mget)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     redis.setValue("mget-key1", 12345);
     redis.setValue("mget-key2", 1234);
 
@@ -364,9 +323,6 @@ TEST_F(RedisConnectTests, mget)
 
 TEST_F(RedisConnectTests, mgetPerformance)
 {
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
     ASSERT_TRUE(redis.isConnected());
 
     constexpr auto iterations = 10000;
@@ -391,9 +347,6 @@ TEST_F(RedisConnectTests, mgetPerformance)
 
 TEST_F(RedisConnectTests, scan)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
     ASSERT_TRUE(redis.isConnected());
 
     redis.setValue("scan-key1", 12345);
@@ -413,17 +366,10 @@ TEST_F(RedisConnectTests, scan)
 
     EXPECT_NE(-1, keys.indexOf("scan-key1"));
     EXPECT_NE(-1, keys.indexOf("scan-key2"));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, getPerformance)
 {
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     constexpr auto iterations = 10000;
     constexpr auto threadCount = 32;
 
@@ -478,11 +424,6 @@ TEST_F(RedisConnectTests, getPerformance)
 
 TEST_F(RedisConnectTests, hgetPerformance)
 {
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     constexpr auto iterations = 100000;
     constexpr auto threadCount = 32;
     constexpr auto hashCount = 10;
@@ -545,11 +486,6 @@ TEST_F(RedisConnectTests, hgetPerformance)
 
 TEST_F(RedisConnectTests, scanAndMgetPerformance)
 {
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     constexpr auto iterations = 10000;
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
@@ -576,11 +512,6 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
 TEST_F(RedisConnectTests, remove)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     redis.setValue("remove-key1", 12345);
     redis.setValue("remove-key2", 1234);
 
@@ -588,17 +519,10 @@ TEST_F(RedisConnectTests, remove)
 
     // Expect two keys removed
     ASSERT_EQ(2, removeCount);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hgetSetSingleKey)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string hash = "test_hash";
     const string key = "test";
     Variant      value(3.45678);
@@ -608,17 +532,10 @@ TEST_F(RedisConnectTests, hgetSetSingleKey)
     EXPECT_NO_THROW(redis.setHashValue(hash, key, value));
     auto returnedValue = redis.getHashValue(hash, key);
     EXPECT_NEAR(value.asFloat(), returnedValue.asFloat(), 0.001);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hset)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -626,17 +543,10 @@ TEST_F(RedisConnectTests, hset)
         {"field3", 3.45678}};
 
     EXPECT_NO_THROW(redis.setHashValues(hash, testValues));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hkeys)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_keys";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -658,17 +568,10 @@ TEST_F(RedisConnectTests, hkeys)
     EXPECT_TRUE(keysFound.contains("field1"));
     EXPECT_TRUE(keysFound.contains("field2"));
     EXPECT_TRUE(keysFound.contains("field3"));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hmget)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_mget";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -684,17 +587,10 @@ TEST_F(RedisConnectTests, hmget)
     EXPECT_EQ("value1", keysAndValues["field1"].asString());
     EXPECT_EQ(12345, keysAndValues["field2"].asInteger());
     EXPECT_NEAR(3.45678, keysAndValues["field3"].asFloat(), 0.00001);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hmgetNonExistentField)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -708,17 +604,10 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
 
     EXPECT_EQ("value1", keysAndValues["field1"].asString());
     EXPECT_EQ("", keysAndValues["non_existent_field"].asString());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hgetall)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_hgetall";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -736,34 +625,20 @@ TEST_F(RedisConnectTests, hgetall)
     EXPECT_NEAR(3.45678, keysAndValues["field3"].asFloat(), 0.00001);
 
     (void) redis.deleteKeys({hash});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hgetallEmpty)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string hash = "test_hash_hgetall_empty";
 
     (void) redis.deleteKeys({hash});
 
     const auto keysAndValues = redis.getHashValues(hash);
     EXPECT_TRUE(keysAndValues.empty());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hdel)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_hdel";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -785,17 +660,10 @@ TEST_F(RedisConnectTests, hdel)
     EXPECT_EQ("value3", keysAndValues["field3"].asString());
 
     (void) redis.deleteKeys({hash});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hdelNonExistentField)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_hdel_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -811,33 +679,19 @@ TEST_F(RedisConnectTests, hdelNonExistentField)
     EXPECT_EQ("field2", remainingKeys[0]);
 
     (void) redis.deleteKeys({hash});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hdelNonExistentHash)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string hash = "test_hash_hdel_no_hash";
 
     (void) redis.deleteKeys({hash});
 
     EXPECT_NO_THROW(redis.deleteHashKeys(hash, {"field1", "field2"}));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hdelAllFields)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string                      hash = "test_hash_hdel_all";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
@@ -850,17 +704,10 @@ TEST_F(RedisConnectTests, hdelAllFields)
 
     const auto remainingKeys = redis.getHashKeys(hash);
     EXPECT_TRUE(remainingKeys.empty());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setAddAndMembers)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_add_members";
     (void) redis.deleteKeys({key});
 
@@ -876,16 +723,10 @@ TEST_F(RedisConnectTests, setAddAndMembers)
     EXPECT_TRUE(membersFound.contains("gamma"));
 
     (void) redis.deleteKeys({key});
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setAddDuplicates)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_add_duplicates";
     (void) redis.deleteKeys({key});
 
@@ -897,28 +738,15 @@ TEST_F(RedisConnectTests, setAddDuplicates)
     EXPECT_EQ(4u, members.size());
 
     (void) redis.deleteKeys({key});
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setAddEmptyMembers)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     EXPECT_EQ(0u, redis.addSetMembers("set_test_empty_add", {}));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setIsMember)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_ismember";
     (void) redis.deleteKeys({key});
 
@@ -930,16 +758,10 @@ TEST_F(RedisConnectTests, setIsMember)
     EXPECT_FALSE(redis.isSetMember(key, "nonexistent_set_key"));
 
     (void) redis.deleteKeys({key});
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setRemove)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_remove";
     (void) redis.deleteKeys({key});
 
@@ -953,16 +775,10 @@ TEST_F(RedisConnectTests, setRemove)
     EXPECT_EQ("y", members[0]);
 
     (void) redis.deleteKeys({key});
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setRemoveNonExistentMember)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_remove_missing";
     (void) redis.deleteKeys({key});
 
@@ -977,35 +793,20 @@ TEST_F(RedisConnectTests, setRemoveNonExistentMember)
     EXPECT_EQ("q", members[0]);
 
     (void) redis.deleteKeys({key});
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setRemoveEmptyMembers)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     EXPECT_EQ(0u, redis.deleteSetMembers("set_test_empty_remove", {}));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, setMembersOnEmptySet)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "set_test_members_empty";
     (void) redis.deleteKeys({key});
 
     const auto members = redis.getSetMembers(key);
     EXPECT_TRUE(members.empty());
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, hsetPerformance)
@@ -1103,9 +904,6 @@ TEST_F(RedisConnectTests, nodesPerformance)
     constexpr size_t maxHashes = 100;
     constexpr size_t maxKeysPerHash = 100;
 
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
     for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
     {
         auto                        hashName = format("hash_mget_{}", hashIndex);
@@ -1133,17 +931,10 @@ TEST_F(RedisConnectTests, nodesPerformance)
                 maxHashes, maxKeysPerHash, maxHashes * maxKeysPerHash,
                 stopwatch.milliseconds(),
                 maxHashes * maxKeysPerHash / stopwatch.milliseconds()));
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, rename)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string oldKey = "rename_test_old";
     const string newKey = "rename_test_new";
     const string value = "test_value";
@@ -1161,17 +952,10 @@ TEST_F(RedisConnectTests, rename)
 
     // Clean up
     (void) redis.deleteKeys({newKey});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, renameOverwrite)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string oldKey = "rename_overwrite_old";
     const string newKey = "rename_overwrite_new";
     const string value1 = "value1";
@@ -1189,30 +973,16 @@ TEST_F(RedisConnectTests, renameOverwrite)
 
     // Clean up
     (void) redis.deleteKeys({newKey});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, renameNonExistentKey)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     // Try to rename a non-existent key
     EXPECT_THROW(redis.renameKey("nonexistent_key_12345", "new_key_12345"), RedisConnectException);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, renameNX)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string oldKey = "renamenx_test_old";
     const string newKey = "renamenx_test_new";
     const string value = "test_value";
@@ -1232,17 +1002,10 @@ TEST_F(RedisConnectTests, renameNX)
 
     // Clean up
     (void) redis.deleteKeys({newKey});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, renameNXExistingKey)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string oldKey = "renamenx_existing_old";
     const string newKey = "renamenx_existing_new";
     const string value1 = "value1";
@@ -1267,11 +1030,6 @@ TEST_F(RedisConnectTests, renameNXExistingKey)
 
 TEST_F(RedisConnectTests, renameHash)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string oldKey = "hash_old";
     const string newKey = "hash_new";
     const string value = "test_value";
@@ -1293,17 +1051,10 @@ TEST_F(RedisConnectTests, renameHash)
 
     // Clean up
     (void) redis.deleteKeys({newKey});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionBasic)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key1 = "txn_key1";
     const string key2 = "txn_key2";
     const string value1 = "value1";
@@ -1331,17 +1082,10 @@ TEST_F(RedisConnectTests, transactionBasic)
 
     // Clean up
     (void) redis.deleteKeys({key1, key2});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionRollback)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key = "txn_rollback_key";
     const string initialValue = "initial";
     const string newValue = "new";
@@ -1364,17 +1108,10 @@ TEST_F(RedisConnectTests, transactionRollback)
 
     // Clean up
     (void) redis.deleteKeys({key});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionMultipleOperations)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string key1 = "txn_multi_key1";
     const string key2 = "txn_multi_key2";
     const string key3 = "txn_multi_incr";
@@ -1402,17 +1139,10 @@ TEST_F(RedisConnectTests, transactionMultipleOperations)
 
     // Clean up
     (void) redis.deleteKeys({key1, key2, key3});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionWithHash)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     const string hashKey = "txn_hash";
 
     // Clean up any previous test data
@@ -1434,45 +1164,24 @@ TEST_F(RedisConnectTests, transactionWithHash)
 
     // Clean up
     (void) redis.deleteKeys({hashKey});
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionCommitWithoutBegin)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     // Try to commit without beginning a transaction
     // Redis will return an error
     EXPECT_THROW((void) redis.commitTransaction(), RedisConnectException);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     // Try to rollback without beginning a transaction
     // Redis will return an error
     EXPECT_THROW(redis.rollbackTransaction(), RedisConnectException);
-
-    redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, threadSafety)
 {
-    RedisConnect redis;
-    redis.connect("127.0.0.1", 6379);
-
-    ASSERT_TRUE(redis.isConnected());
-
     constexpr auto threadCount = 10;
     constexpr auto operationsPerThread = 100;
 
@@ -1492,7 +1201,7 @@ TEST_F(RedisConnectTests, threadSafety)
     vector<jthread> threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
-        threads.emplace_back([&redis, threadIndex]
+        threads.emplace_back([this, threadIndex]
                              {
                                  for (auto i = 0; i < operationsPerThread; ++i)
                                  {
@@ -1530,9 +1239,6 @@ TEST_F(RedisConnectTests, threadSafety)
         const auto value = redis.getValue(incrKey).asInt64();
         EXPECT_EQ(operationsPerThread, value);
     }
-
-    redis.disconnect();
 }
 
 } // namespace sptk
-#endif
