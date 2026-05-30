@@ -227,7 +227,7 @@ public:
      * @param members Members to remove.
      * @return Number of members actually removed.
      */
-    size_t removeSetMember(const std::string& key, const std::vector<std::string>& members);
+    size_t deleteSetMembers(const std::string& key, const std::vector<std::string>& members);
 
     /**
      * @brief Rename a key.
@@ -263,7 +263,7 @@ public:
      * @return Results from all executed commands.
      * @throws RedisConnectException if not in a transaction or not connected.
      */
-    [[nodiscard]] std::vector<Variant> commitTransaction();
+    std::vector<Variant> commitTransaction();
 
     /**
      * @brief Discard all queued commands in a transaction.

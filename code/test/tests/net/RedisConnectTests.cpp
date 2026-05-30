@@ -945,7 +945,7 @@ TEST_F(RedisConnectTests, setRemove)
 
     redis.addSetMembers(key, {"x", "y", "z"});
 
-    const size_t removed = redis.removeSetMember(key, {"x", "z"});
+    const size_t removed = redis.deleteSetMembers(key, {"x", "z"});
     EXPECT_EQ(2u, removed);
 
     const auto members = redis.getSetMembers(key);
@@ -969,7 +969,7 @@ TEST_F(RedisConnectTests, setRemoveNonExistentMember)
     redis.addSetMembers(key, {"p", "q"});
 
     // Removing a mix of existing and non-existing members
-    const size_t removed = redis.removeSetMember(key, {"p", "no_such_member"});
+    const size_t removed = redis.deleteSetMembers(key, {"p", "no_such_member"});
     EXPECT_EQ(1u, removed);
 
     const auto members = redis.getSetMembers(key);
@@ -987,7 +987,7 @@ TEST_F(RedisConnectTests, setRemoveEmptyMembers)
 
     ASSERT_TRUE(redis.isConnected());
 
-    EXPECT_EQ(0u, redis.removeSetMember("set_test_empty_remove", {}));
+    EXPECT_EQ(0u, redis.deleteSetMembers("set_test_empty_remove", {}));
 
     redis.disconnect();
 }

@@ -473,7 +473,7 @@ bool RedisConnect::isSetMember(const string& key, const string& member)
     return results[0].asInt64() == 1;
 }
 
-size_t RedisConnect::removeSetMember(const string& key, const vector<string>& members)
+size_t RedisConnect::deleteSetMembers(const string& key, const vector<string>& members)
 {
     if (members.empty())
     {
