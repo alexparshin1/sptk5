@@ -61,7 +61,19 @@ public:
 class SP_EXPORT RedisConnect final
 {
 public:
-    using Command = std::vector<std::string>;
+    class Command final : public Buffer
+    {
+    public:
+        Command(std::string_view command, std::string_view mode = "");
+        void emplace_back(const std::string& argument);
+        void emplace_back(const std::vector<std::string>& arguments);
+
+        size_t count() const;
+
+    private:
+        size_t m_count {0};
+    };
+
     using KeysAndValues = std::unordered_map<std::string, Variant>;
 
     /**

@@ -36,6 +36,62 @@
 using namespace std;
 using namespace sptk;
 
+namespace {
+void bufferAppendCount(Buffer& buffer, size_t value)
+{
+    buffer.checkSize(buffer.size() + 24);
+    char* start = reinterpret_cast<char*>(buffer.data()) + buffer.size();
+    auto* end = std::to_chars(start, start + 24, value).ptr;
+    *end = 0;
+    buffer.bytes(reinterpret_cast<uint8_t*>(end) - buffer.data());
+}
+} // namespace
+
+RedisConnect::Command::Command(string_view command, string_view mode)
+{
+    append('$');
+    bufferAppendCount(*this, command.size());
+    append("\r\n", 2);
+
+    append(command.data(), command.size());
+    append("\r\n", 2);
+    ++m_count;
+
+    if (!mode.empty())
+    {
+        append('$');
+        bufferAppendCount(*this, mode.size());
+        append("\r\n", 2);
+        append(mode.data(), mode.size());
+        append("\r\n", 2);
+        ++m_count;
+    }
+}
+
+void RedisConnect::Command::emplace_back(const std::string& argument)
+{
+    append('$');
+    bufferAppendCount(*this, argument.size());
+    append("\r\n", 2);
+
+    append(argument.data(), argument.size());
+    append("\r\n", 2);
+    ++m_count;
+}
+
+void RedisConnect::Command::emplace_back(const std::vector<std::string>& arguments)
+{
+    for (const auto& argument: arguments)
+    {
+        emplace_back(argument);
+    }
+}
+
+size_t RedisConnect::Command::count() const
+{
+    return m_count;
+}
+
 vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
                                       const string& username, const string& password, const string& clientName)
 {
@@ -51,23 +107,23 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
     m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     m_reader = make_unique<SocketReader>(m_socket);
 
-    vector<string> commandWords {"HELLO", "3"};
+    Command command("HELLO", "3");
 
     if (!username.empty() && !password.empty())
     {
-        commandWords.emplace_back("AUTH");
-        commandWords.emplace_back(username);
-        commandWords.emplace_back(password);
+        command.emplace_back("AUTH");
+        command.emplace_back(username);
+        command.emplace_back(password);
     }
 
     if (!clientName.empty())
     {
-        commandWords.emplace_back("SETNAME");
-        commandWords.emplace_back(clientName);
+        command.emplace_back("SETNAME");
+        command.emplace_back(clientName);
     }
 
     vector<Variant> results;
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     return results;
 }
@@ -92,8 +148,8 @@ void RedisConnect::setValue(const string& key, const Variant& value)
 {
     scoped_lock lock(m_mutex);
 
-    Command command {"SET", key};
-    command.push_back(serialize(value));
+    Command command("SET", key);
+    command.emplace_back(serialize(value));
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -140,14 +196,11 @@ void RedisConnect::setValues(const KeysAndValues& keysAndValues)
 
     scoped_lock lock(m_mutex);
 
-    Command command;
-    command.emplace_back("MSET");
-    command.reserve(keysAndValues.size() * 2 + 1);
-
+    Command command("MSET");
     for (const auto& [key, value]: keysAndValues)
     {
-        command.push_back(key);
-        command.push_back(serialize(value));
+        command.emplace_back(key);
+        command.emplace_back(serialize(value));
     }
 
     vector<Variant> results;
@@ -158,10 +211,10 @@ void RedisConnect::setHashValue(const string& hash, const string& key, const Var
 {
     scoped_lock lock(m_mutex);
 
-    Command command {"HSET", hash};
+    Command command("HSET", hash);
 
-    command.push_back(key);
-    command.push_back(serialize(value));
+    command.emplace_back(key);
+    command.emplace_back(serialize(value));
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -206,12 +259,14 @@ size_t RedisConnect::deleteKeys(const vector<string>& keys)
     scoped_lock lock(m_mutex);
 
     vector<Variant> results;
-    vector<string>  commandWords = {"DEL"};
+    Command         command("DEL");
 
-    commandWords.reserve(keys.size() + 1);
-    ranges::copy(keys, back_inserter(commandWords));
+    for (const auto& key: keys)
+    {
+        command.emplace_back(key);
+    }
 
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     if (results.empty())
     {
@@ -226,10 +281,10 @@ int64_t RedisConnect::incrementKey(const string& key)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords = {"INCR", key};
-    vector<Variant>      results;
+    const Command   command("INCR", key);
+    vector<Variant> results;
 
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     if (results.empty())
     {
@@ -243,20 +298,24 @@ void RedisConnect::renameKey(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords = {"RENAME", oldKey, newKey};
-    vector<Variant>      results;
+    Command command("RENAME");
+    command.emplace_back(oldKey);
+    command.emplace_back(newKey);
 
-    executeCommand(commandWords, results);
+    vector<Variant> results;
+    executeCommand(command, results);
 }
 
 bool RedisConnect::renameKeyIfExists(const string& oldKey, const string& newKey)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords = {"RENAMENX", oldKey, newKey};
-    vector<Variant>      results;
+    Command command("RENAMENX");
+    command.emplace_back(oldKey);
+    command.emplace_back(newKey);
 
-    executeCommand(commandWords, results);
+    vector<Variant> results;
+    executeCommand(command, results);
 
     if (results.empty())
     {
@@ -270,7 +329,7 @@ void RedisConnect::beginTransaction()
 {
     scoped_lock lock(m_mutex);
 
-    const Command   command = {"MULTI"};
+    const Command   command("MULTI");
     vector<Variant> results;
 
     executeCommand(command, results);
@@ -280,7 +339,7 @@ vector<Variant> RedisConnect::commitTransaction()
 {
     scoped_lock lock(m_mutex);
 
-    const Command   command = {"EXEC"};
+    const Command   command("EXEC");
     vector<Variant> results;
 
     executeCommand(command, results);
@@ -292,7 +351,8 @@ void RedisConnect::rollbackTransaction()
 {
     scoped_lock lock(m_mutex);
 
-    const Command   command = {"DISCARD"};
+    const Command command("DISCARD");
+
     vector<Variant> results;
 
     executeCommand(command, results);
@@ -307,13 +367,12 @@ void RedisConnect::setHashValues(const string& hash, const KeysAndValues& keysAn
 
     scoped_lock lock(m_mutex);
 
-    Command command {"HSET", hash};
-    command.reserve(keysAndValues.size() * 2 + 2);
+    Command command("HSET", hash);
 
     for (const auto& [key, value]: keysAndValues)
     {
-        command.push_back(key);
-        command.push_back(serialize(value));
+        command.emplace_back(key);
+        command.emplace_back(serialize(value));
     }
 
     vector<Variant> results;
@@ -324,9 +383,9 @@ vector<string> RedisConnect::getHashKeys(const string& hashName)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"HKEYS", hashName};
-    vector<Variant>      results;
-    executeCommand(commandWords, results);
+    const Command   command("HKEYS", hashName);
+    vector<Variant> results;
+    executeCommand(command, results);
 
     vector<string> keys;
     keys.reserve(results.size());
@@ -341,10 +400,11 @@ Variant RedisConnect::getHashValue(const std::string& hash, const std::string& k
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"HGET", hash, key};
+    Command command("HGET", hash);
+    command.emplace_back(key);
 
     vector<Variant> results;
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     if (results.empty())
     {
@@ -358,15 +418,14 @@ RedisConnect::KeysAndValues RedisConnect::getHashValues(const string& hash, cons
 {
     scoped_lock lock(m_mutex);
 
-    vector<string> commandWords {"HMGET", hash};
-    commandWords.reserve(keys.size() + 2);
-    ranges::copy(keys, back_inserter(commandWords));
+    Command command("HMGET", hash);
+    command.emplace_back(keys);
 
     vector<Variant> results;
     KeysAndValues   output;
     output.reserve(keys.size());
 
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     if (keys.size() != results.size())
     {
@@ -385,9 +444,9 @@ RedisConnect::KeysAndValues RedisConnect::getHashValues(const string& hash)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"HGETALL", hash};
-    vector<Variant>      results;
-    executeCommand(commandWords, results);
+    const Command   command("HGETALL", hash);
+    vector<Variant> results;
+    executeCommand(command, results);
 
     if (results.size() % 2 != 0)
     {
@@ -408,12 +467,11 @@ void RedisConnect::deleteHashKeys(const string& hash, const vector<string>& keys
 {
     scoped_lock lock(m_mutex);
 
-    vector<string> commandWords {"HDEL", hash};
-    commandWords.reserve(keys.size() + 2);
-    ranges::copy(keys, back_inserter(commandWords));
+    Command command("HDEL", hash);
+    command.emplace_back(keys);
 
     vector<Variant> results;
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 }
 
 size_t RedisConnect::addSetMembers(const string& key, const vector<string>& members)
@@ -425,9 +483,8 @@ size_t RedisConnect::addSetMembers(const string& key, const vector<string>& memb
 
     scoped_lock lock(m_mutex);
 
-    Command command {"SADD", key};
-    command.reserve(members.size() + 2);
-    ranges::copy(members, back_inserter(command));
+    Command command("SADD", key);
+    command.emplace_back(members);
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -444,9 +501,9 @@ vector<string> RedisConnect::getSetMembers(const string& key)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"SMEMBERS", key};
-    vector<Variant>      results;
-    executeCommand(commandWords, results);
+    const Command   command("SMEMBERS", key);
+    vector<Variant> results;
+    executeCommand(command, results);
 
     vector<string> members;
     members.reserve(results.size());
@@ -461,9 +518,11 @@ bool RedisConnect::isSetMember(const string& key, const string& member)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"SISMEMBER", key, member};
-    vector<Variant>      results;
-    executeCommand(commandWords, results);
+    Command command("SISMEMBER", key);
+    command.emplace_back(member);
+
+    vector<Variant> results;
+    executeCommand(command, results);
 
     if (results.empty())
     {
@@ -482,9 +541,8 @@ size_t RedisConnect::deleteSetMembers(const string& key, const vector<string>& m
 
     scoped_lock lock(m_mutex);
 
-    Command command {"SREM", key};
-    command.reserve(members.size() + 2);
-    ranges::copy(members, back_inserter(command));
+    Command command("SREM", key);
+    command.emplace_back(members);
 
     vector<Variant> results;
     executeCommand(command, results);
@@ -499,17 +557,21 @@ size_t RedisConnect::deleteSetMembers(const string& key, const vector<string>& m
 
 size_t RedisConnect::scan(const string& pattern, const size_t cursor, vector<Variant>& matchedKeys, const size_t limit)
 {
-    const auto     cursorStr = to_string(cursor);
-    const auto     countStr = to_string(limit);
-    vector<string> commandWords = {"SCAN", cursorStr, "MATCH", pattern};
+    const auto cursorStr = to_string(cursor);
+    const auto countStr = to_string(limit);
+
+    Command command("SCAN", cursorStr);
+    command.emplace_back("MATCH");
+    command.emplace_back(pattern);
+
     if (limit != 0)
     {
-        commandWords.emplace_back("COUNT");
-        commandWords.push_back(countStr);
+        command.emplace_back("COUNT");
+        command.emplace_back(countStr);
     }
 
     Variant newCursor;
-    executeCommand(commandWords, matchedKeys, &newCursor);
+    executeCommand(command, matchedKeys, &newCursor);
 
     return newCursor.asInt64();
 }
@@ -518,9 +580,9 @@ Variant RedisConnect::getValue(const string& key)
 {
     scoped_lock lock(m_mutex);
 
-    const vector<string> commandWords {"GET", key};
-    vector<Variant>      results;
-    executeCommand(commandWords, results);
+    const Command   command("GET", key);
+    vector<Variant> results;
+    executeCommand(command, results);
     if (results.empty())
     {
         return {};
@@ -533,14 +595,18 @@ RedisConnect::KeysAndValues RedisConnect::getValues(const vector<string>& keys)
 {
     scoped_lock lock(m_mutex);
 
-    vector<string> commandWords {"MGET"};
-    commandWords.reserve(keys.size() + 1);
-    ranges::copy(keys, back_inserter(commandWords));
+    Command command("MGET");
+
+    for (const auto& key: keys)
+    {
+        command.emplace_back(key);
+    }
 
     vector<Variant> results;
     KeysAndValues   output;
+    output.reserve(keys.size());
 
-    executeCommand(commandWords, results);
+    executeCommand(command, results);
 
     if (keys.size() != results.size())
     {
@@ -557,25 +623,12 @@ RedisConnect::KeysAndValues RedisConnect::getValues(const vector<string>& keys)
 
 void RedisConnect::sendRequest(const Command& command)
 {
-    size_t expectedLength = 20; // New line chars and number of elements as a string.
-    for (const auto& commandElement: command)
-    {
-        expectedLength += commandElement.size() + 20;
-    }
+    Buffer header("*", 1);
+    bufferAppendCount(header, command.count());
+    header.append("\r\n", 2);
 
-    m_sendBuffer.bytes(0);
-    m_sendBuffer.checkSize(expectedLength);
-    m_sendBuffer.append('*');
-
-    m_sendBuffer.printf(20, "%lu", command.size());
-
-    for (const auto& commandElement: command)
-    {
-        m_sendBuffer.printf(commandElement.size() + 20, "\r\n$%lu\r\n", commandElement.size());
-        m_sendBuffer.append(commandElement);
-    }
-    m_sendBuffer.append("\r\n", 2);
-    m_socket->write(m_sendBuffer);
+    m_socket->write(header);
+    m_socket->write(command);
 }
 
 void RedisConnect::executeCommand(const Command& command, std::vector<Variant>& results, Variant* cursor)
@@ -637,12 +690,16 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
         case '-': // Error
             throw RedisConnectException(std::string(payload));
 
-        case ':': // Integer
-            results.emplace_back(strtoll(payload.data(), nullptr, 10), 0u);
+        case ':': {
+            // Integer
+            int value {0};
+            std::from_chars(payload.data(), payload.data() + payload.size(), value);
+            results.emplace_back(value);
             return;
+        }
 
         case '$': { // Bulk String
-            int64_t len;
+            int64_t len {0};
             std::from_chars(payload.data(), payload.data() + payload.size(), len);
             if (len == -1)
             {
@@ -650,16 +707,16 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
                 return;
             }
             const auto readLength = len + 2;
-            Buffer     buffer(readLength);
-            m_reader->read(buffer, readLength); // Also read \r\n
-            buffer.bytes(buffer.bytes() - 2);   // Cut off \r\n
+            m_readLineBuffer.checkSize(readLength);
+            m_reader->read(m_readLineBuffer, readLength);         // Also read \r\n
+            m_readLineBuffer.bytes(m_readLineBuffer.bytes() - 2); // Cut off \r\n
             if (cursor)
             {
-                *cursor = buffer;
+                *cursor = m_readLineBuffer;
             }
             else
             {
-                results.emplace_back(std::move(buffer));
+                results.emplace_back(m_readLineBuffer);
             }
             return;
         }
@@ -688,7 +745,7 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
         case ',': { // Double (RESP3)
             double value;
             std::from_chars(payload.data(), payload.data() + payload.size(), value);
-            results.emplace_back(strtod(payload.data(), nullptr));
+            results.emplace_back(value);
             return;
         }
         case '%': { // Map (RESP3)
