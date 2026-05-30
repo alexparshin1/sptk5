@@ -219,6 +219,20 @@ public:
     }
 
     /**
+     * @brief Append formatted data to buffer using std::format-style arguments.
+     * @param fmt               Compile-time checked format string.
+     * @param args              Format arguments.
+     * @return the actual number of chars appended to buffer.
+     */
+    template<typename... Args>
+    size_t format(std::format_string<Args...> fmt, Args&&... args)
+    {
+        auto formatted = std::vformat(fmt.get(), std::make_format_args(args...));
+        append(formatted.data(), formatted.size());
+        return formatted.size();
+    }
+
+    /**
      * @brief Swap buffers.
      * @param other Another buffer.
      */
