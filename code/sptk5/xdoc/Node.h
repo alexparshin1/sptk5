@@ -188,6 +188,13 @@ public:
     double getNumber(const NodeName& name = "") const;
 
     /**
+     * @brief Get node value as an iteger.
+     * @param name             Optional node name.
+     * @return node value.
+     */
+    int64_t getInteger(const NodeName& name = "") const;
+
+    /**
      * @brief Get node value as boolean.
      * @param name             Optional node name.
      * @return node value.

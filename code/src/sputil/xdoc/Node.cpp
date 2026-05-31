@@ -236,6 +236,22 @@ double Node::getNumber(const NodeName& name) const
     return 0;
 }
 
+int64_t Node::getInteger(const NodeName& name) const
+{
+    if (name.empty())
+    {
+        return m_value.asInt64();
+    }
+
+    if (const auto& node = findFirst(name);
+        node != nullptr)
+    {
+        return node->m_value.asInt64();
+    }
+
+    return 0;
+}
+
 bool Node::getBoolean(const NodeName& name) const
 {
     if (name.empty())
