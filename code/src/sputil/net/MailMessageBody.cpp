@@ -50,7 +50,7 @@ void MailMessageBody::text(const string& messageText, const bool smtp)
         }
     }
 
-    constexpr int searchFirstBytes {100};
+    constexpr auto searchFirstBytes {100};
     if (upperCase(messageText.substr(0, searchFirstBytes)).find("<HTML>") == STRING_NPOS)
     {
         m_type = MailMessageType::PLAIN_TEXT_MESSAGE;

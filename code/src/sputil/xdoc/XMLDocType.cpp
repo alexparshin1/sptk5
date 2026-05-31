@@ -58,7 +58,7 @@ void Entity::parse(const String& entityTag)
         }
         else if (typeAndId.starts_with(" PUBLIC "))
         {
-            const int lengthOfPublicWithSpaces = 8;
+            const auto lengthOfPublicWithSpaces = 8;
             type = Type::PUBLIC;
             id = typeAndId.substr(lengthOfPublicWithSpaces);
         }
@@ -91,9 +91,9 @@ struct entity
     const char* replacement;
 };
 
-using CEntityMap = map<String, const struct entity*>;
+using CEntityMap = map<String, const entity*>;
 
-static const vector<struct entity> builtin_ent_xml = {
+static const vector<entity> builtin_ent_xml = {
     {"amp", 1, "&"},
     {"lt", 1, "<"},
     {"gt", 1, ">"},
@@ -111,7 +111,7 @@ class XMLEntityCache
     map<int, CEntityMap> m_replacementMaps;
 
 public:
-    explicit XMLEntityCache(const vector<struct entity>& entities) noexcept
+    explicit XMLEntityCache(const vector<entity>& entities) noexcept
     {
         for (const auto& ent: entities)
         {
@@ -120,7 +120,7 @@ public:
         }
     }
 
-    [[nodiscard]] const struct entity* find(const String& ent) const
+    [[nodiscard]] const entity* find(const String& ent) const
     {
         if (const auto itor = m_hash.find(ent);
             itor != m_hash.end())
@@ -138,7 +138,7 @@ const entity* XMLEntityCache::encode(const char* str) const
     auto maps = m_replacementMaps.begin();
     for (; maps != m_replacementMaps.end(); ++maps)
     {
-        const int         len = maps->first;
+        const auto        len = maps->first;
         const String      fragment(str, static_cast<size_t>(len));
         const CEntityMap& replacements = maps->second;
         auto              itor = replacements.find(fragment);
@@ -152,7 +152,7 @@ const entity* XMLEntityCache::encode(const char* str) const
 
 static const XMLEntityCache xml_entities(builtin_ent_xml);
 
-void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
+void XMLDocType::decodeEntities(const char* str, const size_t size, Buffer& ret)
 {
     Buffer buffer((const uint8_t*) str, size);
     ret.bytes(0);
@@ -188,7 +188,7 @@ void XMLDocType::decodeEntities(const char* str, size_t size, Buffer& ret)
 
 char* XMLDocType::appendDecodedEntity(Buffer& ret, const char* ent_start, char* ent_end)
 {
-    const char ch = *ent_end;
+    const auto ch = *ent_end;
     *ent_end = 0;
     uint32_t    replacementLength = 0;
     const char* rep = this->getReplacement(ent_start + 1, replacementLength);
@@ -208,7 +208,7 @@ bool XMLDocType::encodeEntities(const char* str, Buffer& ret)
 {
     const auto* table = builtin_ent_xml.data();
 
-    bool replaced = false;
+    auto replaced = false;
 
     const char* ptr = str;
     Buffer*     src = &m_encodeBuffers[0];
@@ -301,7 +301,7 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
 
         if (isdigit(*ptr) != 0)
         {
-            constexpr int decimal {10};
+            constexpr auto decimal {10};
             m_replacementBuffer[0] = static_cast<char>(strtol(ptr, nullptr, decimal));
             m_replacementBuffer[1] = '\0';
             replacementLength = 1;
@@ -312,7 +312,7 @@ const char* XMLDocType::getReplacement(const char* name, uint32_t& replacementLe
     const char* result {nullptr};
 
     // Find in built-ins, see entities.h
-    if (const struct entity* entity = xml_entities.find(name);
+    if (const entity* entity = xml_entities.find(name);
         entity != nullptr)
     {
         replacementLength = static_cast<uint32_t>(entity->replacement_len);

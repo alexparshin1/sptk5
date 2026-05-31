@@ -33,11 +33,11 @@
 using namespace std;
 using namespace sptk;
 
-constexpr int DEFAULT_LGWIN = 24;
-constexpr int BROTLI_WINDOW_GAP = 16;
+constexpr auto DEFAULT_LGWIN = 24;
+constexpr auto BROTLI_WINDOW_GAP = 16;
 
 namespace {
-size_t BROTLI_MAX_BACKWARD_LIMIT(uint32_t W)
+size_t BROTLI_MAX_BACKWARD_LIMIT(const uint32_t W)
 {
     return (1U << W) - BROTLI_WINDOW_GAP;
 }
@@ -64,8 +64,8 @@ public:
 
 private:
     /* Parameters */
-    static constexpr int highQuality = 9;
-    int                  quality = highQuality;
+    static constexpr auto highQuality = 9;
+    int                   quality = highQuality;
 
     array<uint8_t, kBufferSize * 2> buffer {};
 
@@ -150,8 +150,8 @@ BrotliEncoderState* Context::createEncoderInstance() const
 
     if (input_file_length > 0)
     {
-        constexpr uint32_t maxHintSize = static_cast<uint32_t>(-1) / 2;
-        const uint32_t     size_hint = input_file_length < maxHintSize ? static_cast<uint32_t>(input_file_length) : maxHintSize;
+        constexpr auto maxHintSize = static_cast<uint32_t>(-1) / 2;
+        const auto     size_hint = input_file_length < maxHintSize ? static_cast<uint32_t>(input_file_length) : maxHintSize;
         BrotliEncoderSetParameter(instance, BROTLI_PARAM_SIZE_HINT, size_hint);
     }
 

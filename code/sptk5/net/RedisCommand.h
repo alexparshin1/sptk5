@@ -24,77 +24,65 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/gui/CListViewSelection.h>
+#pragma once
 
-using namespace sptk;
+#include "sptk5/Variant.h"
+#include "sptk5/net/SocketReader.h"
+#include "sptk5/net/TCPSocket.h"
 
-void CSelection::select(CPackedStrings* row)
+#include <string>
+
+namespace sptk {
+
+/**
+ * @brief Redis command.
+ * @remarks A Redis command object contains command arguments as Redis strings.
+ */
+class RedisCommand final : public Buffer
 {
-    if (row)
+public:
+    /**
+     * @brief Constructor.
+     * @param command Redis command (string).
+     * @param mode Redis command modifier or just a first argument.
+     */
+    RedisCommand(std::string_view command, std::string_view mode = "");
+
+    /**
+     * @brief Add argument.
+     * @param argument Argument to add to command.
+     */
+    void emplace_back(std::string_view argument);
+
+    /**
+     * @brief Add argument.
+     * @param argument Argument to add to command.
+     */
+    void emplace_back(const char* argument)
     {
-        row->flags |= CLV_SELECTED;
-        m_selectedRows.push_back(row);
+        emplace_back(std::string_view(argument));
     }
-}
 
-void CSelection::deselect(CPackedStrings* row)
-{
-    if (row)
-    {
-        row->flags &= ~CLV_SELECTED;
-        remove(row);
-    }
-}
+    /**
+     * @brief Add arguments.
+     * @param arguments Arguments to add to command.
+     */
+    void emplace_back(const std::vector<std::string>& arguments);
 
-void CSelection::deselectAll()
-{
-    const size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++)
-    {
-        auto* row = (CPackedStrings*) m_selectedRows[i];
-        row->flags &= ~CLV_SELECTED;
-    }
-    m_selectedRows.clear();
-}
+    /**
+     * @brief Add argument.
+     * @param argument Argument to add to command.
+     */
+    void emplace_back(const Variant& argument);
 
-void CSelection::remove(CPackedStrings* row)
-{
-    const auto itor = std::find(m_selectedRows.begin(), m_selectedRows.end(), row);
-    if (itor != m_selectedRows.end())
-    {
-        m_selectedRows.erase(itor);
-    }
-}
+    /**
+     * @brief Get argument count.
+     * @return argument count.
+     */
+    size_t count() const;
 
-void CSelection::clear()
-{
-    m_selectedRows.clear();
-}
+private:
+    size_t m_count {0}; ///< Argument count.
+};
 
-CPackedStrings* CSelection::findKey(int keyValue) const
-{
-    const size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++)
-    {
-        auto* row = (CPackedStrings*) m_selectedRows[i];
-        if (row->argument() == keyValue)
-        {
-            return row;
-        }
-    }
-    return nullptr;
-}
-
-CPackedStrings* CSelection::findCaption(const String& caption) const
-{
-    const size_t cnt = m_selectedRows.size();
-    for (size_t i = 0; i < cnt; i++)
-    {
-        auto* row = (CPackedStrings*) m_selectedRows[i];
-        if ((*row)[0] == caption)
-        {
-            return row;
-        }
-    }
-    return nullptr;
-}
+} // namespace sptk

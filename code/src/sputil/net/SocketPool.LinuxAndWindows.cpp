@@ -73,22 +73,23 @@ void SocketPool::close()
     }
 }
 
-void SocketPool::addSocket(SocketType socketFd, const uint8_t* userData, const bool rearmOneShot)
+void SocketPool::addSocket(const SocketType socketFd, const uint8_t* userData, const bool rearmOneShot)
 {
     SocketEvent event {.events = EPOLLIN | EPOLLHUP | EPOLLRDHUP | EPOLLERR, .data = {.ptr = bit_cast<uint8_t*>(userData)}};
     switch (m_triggerMode)
     {
-        case SocketPoolTriggerMode::EdgeTriggered:
+        using enum SocketPoolTriggerMode;
+        case EdgeTriggered:
 #ifdef _WIN32
             throw Exception("Edge triggered mode isn't supported on Windows");
 #else
             event.events |= EPOLLET;
             break;
 #endif
-        case SocketPoolTriggerMode::OneShot:
+        case OneShot:
             event.events |= EPOLLONESHOT;
             break;
-        case SocketPoolTriggerMode::LevelTriggered:
+        case LevelTriggered:
             break;
     }
 
@@ -108,7 +109,7 @@ void SocketPool::addSocket(SocketType socketFd, const uint8_t* userData, const b
     }
 }
 
-void SocketPool::removeSocket(SocketType socketFd) const
+void SocketPool::removeSocket(const SocketType socketFd) const
 {
     if (socketFd != INVALID_SOCKET)
     {
@@ -120,13 +121,13 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
 {
     auto* events = reinterpret_cast<epoll_event*>(m_eventsBuffer.data());
 
-    const int eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
+    const auto eventCount = epoll_wait(m_pool, events, static_cast<int>(m_maxEvents), static_cast<int>(timeout.count()));
     if (eventCount < 0)
     {
         return m_pool != INVALID_EPOLL;
     }
 
-    for (int i = 0; i < eventCount; ++i)
+    for (auto i = 0; i < eventCount; ++i)
     {
         auto& [event, data] = events[i];
 

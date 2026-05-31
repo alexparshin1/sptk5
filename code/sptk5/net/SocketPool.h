@@ -158,12 +158,12 @@ private:
     SocketType m_pool {INVALID_SOCKET};
 #endif // _WIN32
 
-    mutable std::mutex    m_mutex;        ///< Mutex for thread-safe operations.
-    size_t                m_maxEvents;    ///< Maximum number of socket events per poll.
-    int                   m_maxEventsInt; ///< Maximum number of socket events per poll, int cache for syscalls.
-    Buffer                m_eventsBuffer; ///< Socket events.
-    SocketPoolTriggerMode m_triggerMode;  ///< Socket event trigger mode.
-    uint32_t              m_baseEvents;   ///< Base event mask passed to epoll/kqueue add call.
+    mutable std::mutex    m_mutex;            ///< Mutex for thread-safe operations.
+    size_t                m_maxEvents;        ///< Maximum number of socket events per poll.
+    int                   m_maxEventsInt {0}; ///< Maximum number of socket events per poll, int cache for syscalls.
+    Buffer                m_eventsBuffer;     ///< Socket events.
+    SocketPoolTriggerMode m_triggerMode;      ///< Socket event trigger mode.
+    uint32_t              m_baseEvents {0};   ///< Base event mask passed to epoll/kqueue add call.
 
     void processError(int error, const String& operation) const;
 };

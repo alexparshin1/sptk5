@@ -51,7 +51,7 @@ DataFormat autoDetectFormat(const char* data)
 
 } // namespace
 
-Document::Document(Node::Type rootType)
+Document::Document(const Node::Type rootType)
     : m_root(Node::createNode("", rootType))
 {
 }
@@ -61,7 +61,7 @@ Document::Document(const Document& other)
 {
 }
 
-Document::Document(Document&& other)
+Document::Document(Document&& other) noexcept
     : m_root(std::move(other.m_root))
 {
     other.m_root = Node::createNode("");
@@ -77,7 +77,7 @@ Document& Document::operator=(const Document& other)
     return *this;
 }
 
-Document& Document::operator=(Document&& other)
+Document& Document::operator=(Document&& other) noexcept
 {
     if (this != &other)
     {
@@ -92,7 +92,7 @@ void Document::load(const Buffer& data, const bool xmlKeepFormatting)
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }
 
-void Document::load(const String& data, bool xmlKeepFormatting)
+void Document::load(const String& data, const bool xmlKeepFormatting)
 {
     m_root->load(autoDetectFormat(data.c_str()), data, xmlKeepFormatting);
 }

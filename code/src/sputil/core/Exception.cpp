@@ -39,7 +39,7 @@ Exception::Exception(String text, const std::source_location& location, String d
     , m_description(std::move(description))
     , m_fullMessage(m_text)
 {
-    filesystem::path filePath = m_location.file_name();
+    const filesystem::path filePath = m_location.file_name();
 
     const String fileName = filePath.filename().string();
     m_fullMessage += format(" in {}:{}", filePath.filename().string(), m_location.line());
@@ -91,14 +91,14 @@ SOAPException::SOAPException(const String& text, const std::source_location& loc
 {
 }
 
-HTTPException::HTTPException(size_t statusCode, const String& text, const std::source_location& location, const String& description) DOESNT_THROW
+HTTPException::HTTPException(const size_t statusCode, const String& text, const std::source_location& location, const String& description) DOESNT_THROW
     : Exception(text, location, description)
     , m_statusCode(statusCode)
 {
     m_statusText = httpResponseStatus(statusCode);
 }
 
-String HTTPException::httpResponseStatus(size_t statusCode)
+String HTTPException::httpResponseStatus(const size_t statusCode)
 {
     static const map<size_t, const char*> statusCodeInfo {
         {400, "Bad Request"},

@@ -38,8 +38,8 @@ bool ImapDS::open()
     m_imap.cmd_login(m_user, m_password);
 
     // Select the mailbox
-    int32_t total_messages {0};
-    int32_t first_message {1};
+    auto total_messages {0};
+    auto first_message {1};
 
     m_imap.cmd_select(m_folder, total_messages);
 

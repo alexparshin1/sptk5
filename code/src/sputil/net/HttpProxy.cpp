@@ -41,7 +41,7 @@ SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, 
 {
     auto socket = make_shared<TCPSocket>();
 
-    bool proxyConnected = false;
+    auto proxyConnected = false;
     try
     {
         socket->open(m_host, Socket::OpenMode::CONNECT, blockingMode, timeout);
@@ -62,7 +62,7 @@ SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, 
 
     if (proxyConnected)
     {
-        const SocketType handle = socket->detach();
+        const auto handle = socket->detach();
         socket.reset();
 
         return handle;
@@ -73,7 +73,7 @@ SocketType HttpProxy::connect(const Host& destination, const bool blockingMode, 
 
 bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 {
-    bool         proxyConnected {false};
+    auto         proxyConnected {false};
     SocketReader socketReader(proxySocket);
 
     Buffer buffer;
@@ -82,8 +82,8 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
     const RegularExpression matchProxyResponse(R"(^HTTP\S+ (\d+) (.*)$)");
     if (auto responseMatches = matchProxyResponse.m(buffer.c_str()); responseMatches)
     {
-        constexpr int minimalHttpError = 400;
-        const int     rc = stoi(responseMatches[0].value);
+        constexpr auto minimalHttpError = 400;
+        const auto     rc = stoi(responseMatches[0].value);
         if (rc < minimalHttpError)
         {
             proxyConnected = true;
@@ -92,7 +92,7 @@ bool HttpProxy::readResponse(const shared_ptr<TCPSocket>& proxySocket)
 
     // Read all headers
     const RegularExpression matchResponseHeader(R"(^(\S+): (.*)$)");
-    int                     contentLength = -1;
+    auto                    contentLength = -1;
     while (buffer.bytes() > 1)
     {
         socketReader.readLine(buffer);

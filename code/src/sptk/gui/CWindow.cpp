@@ -151,7 +151,7 @@ void CWindow::savePosition(const xdoc::SNode& node) const
 
 int CWindow::handle(int event)
 {
-    int rc = Fl_Window::handle(event);
+    const int rc = Fl_Window::handle(event);
 
     if (!m_shapeExtension)
     {

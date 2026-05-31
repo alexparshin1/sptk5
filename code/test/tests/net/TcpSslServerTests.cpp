@@ -236,7 +236,7 @@ TEST(TCPServerTests,sslMinimal)
 }
 
 namespace {
-shared_ptr<TCPServer> makePerformanceTestServer(ServerConnection::Type connectionType, const std::function<void(ServerConnection&)>& performanceTestFunction)
+shared_ptr<TCPServer> makePerformanceTestServer(const ServerConnection::Type connectionType, const std::function<void(ServerConnection&)>& performanceTestFunction)
 {
     auto pushTcpServer = make_shared<TCPServer>("Performance Test Server");
 
@@ -283,14 +283,14 @@ size_t readAllPackets(T& reader, size_t readSize)
     return packetCount;
 }
 
-void printPerformanceTestResult(const String& testLabel, const size_t readSize, const Stopwatch& stopWatch, size_t packetCount)
+void printPerformanceTestResult(const String& testLabel, const size_t readSize, const Stopwatch& stopWatch, const size_t packetCount)
 {
     COUT(testLabel << " received " << packetCount
                    << " packets at the rate " << fixed << setprecision(2) << static_cast<double>(packetCount) / stopWatch.seconds() << "/s, or "
                    << static_cast<double>(packetCount * readSize) / stopWatch.seconds() / 1024 / 1024 << " Mb/s\n\n");
 }
 
-void testAcceptPerformance(ServerConnection::Type connectionType, const String& testLabel)
+void testAcceptPerformance(const ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType,
                                                    [](ServerConnection& serverConnection)
@@ -343,7 +343,7 @@ void testAcceptPerformance(ServerConnection::Type connectionType, const String& 
                    << " connections at the rate " << fixed << setprecision(2) << static_cast<double>(connectedCount) / stopWatch.seconds() << "/s");
 }
 
-void testTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+void testTransferPerformance(const ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
 
@@ -395,7 +395,7 @@ TEST(TCPServerTests,sslTransferPerformance)
 }
 
 namespace {
-void testReaderTransferPerformance(ServerConnection::Type connectionType, const String& testLabel)
+void testReaderTransferPerformance(const ServerConnection::Type connectionType, const String& testLabel)
 {
     auto pushTcpServer = makePerformanceTestServer(connectionType, performanceTestFunction);
 

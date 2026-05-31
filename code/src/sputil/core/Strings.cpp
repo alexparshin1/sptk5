@@ -97,7 +97,7 @@ bool sortDescending(const String& first, const String& second)
 }
 } // namespace
 
-Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexcept
+Strings::Strings(const String& src, const char* delimiter, const SplitMode mode) noexcept
 {
     try
     {
@@ -113,7 +113,7 @@ Strings::Strings(const String& src, const char* delimiter, SplitMode mode) noexc
     }
 }
 
-void Strings::fromString(const String& src, const char* delimiter, SplitMode mode)
+void Strings::fromString(const String& src, const char* delimiter, const SplitMode mode)
 {
     clear();
     switch (mode)
@@ -208,7 +208,7 @@ auto Strings::operator<=>(const Strings& other) const
     return (m_userData <=> other.m_userData);
 }
 
-String Strings::join(std::string_view delimiter) const
+String Strings::join(const std::string_view delimiter) const
 {
     stringstream result;
     bool         first = true;
@@ -227,7 +227,7 @@ String Strings::join(std::string_view delimiter) const
     return result.str();
 }
 
-Strings Strings::grep(std::string_view pattern) const
+Strings Strings::grep(const std::string_view pattern) const
 {
     const RegularExpression regularExpression(pattern);
 
@@ -243,7 +243,7 @@ Strings Strings::grep(std::string_view pattern) const
     return output;
 }
 
-void Strings::sort(bool ascending)
+void Strings::sort(const bool ascending)
 {
     ranges::sort(*this, ascending ? sortAscending : sortDescending);
     m_sorted = ascending ? SortOrder::ASCENDING : SortOrder::DESCENDING;

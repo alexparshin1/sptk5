@@ -170,7 +170,7 @@ void BaseMailConnect::mimeMessage(Buffer& buffer) const
     const auto monthName = DateTime::format(DateTime::Format::MONTH_NAME, static_cast<size_t>(month) - 1).substr(0, 3);
     const auto dateBuffer = format(
         "Date: {}, {} {} {:04d} {:02d}:{:02d}:{:02d} {}{:02d}{:02d} ({})",
-        dayOfWeekName.c_str(), day, monthName.c_str(), year,
+        dayOfWeekName, day, monthName, year,
         hour, minute, second,
         sign, static_cast<int>(offsetHours), static_cast<int>(offsetMinutes),
         TimeZone::name().c_str());

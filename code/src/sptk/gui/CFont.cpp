@@ -57,7 +57,7 @@ void CFontsVector::push_back(CFont* font)
 
 CFont* CFontsVector::find(const String& fontName) const
 {
-    auto itor = m_index.find(fontName);
+    const auto itor = m_index.find(fontName);
     if (itor == m_index.end())
     {
         return nullptr;

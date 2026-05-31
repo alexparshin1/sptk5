@@ -159,10 +159,10 @@ int HttpConnect::cmd_get(const String& pageName, const HttpParams& requestParame
 }
 
 namespace {
-bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
+bool compressPostData(const Strings& possibleContentEncodings, Strings& headers, const Buffer& postData,
                       Buffer& compressedData)
 {
-    static const sptk::Strings& availableContentEncodings {
+    static const Strings& availableContentEncodings {
 #ifdef HAVE_BROTLI
         "br",
 #endif
@@ -214,13 +214,13 @@ bool compressPostData(const sptk::Strings& possibleContentEncodings, Strings& he
 } // namespace
 
 int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, const Buffer& postData, Buffer& output,
-                          const sptk::Strings& possibleContentEncodings, const Authorization* authorization,
+                          const Strings& possibleContentEncodings, const Authorization* authorization,
                           const chrono::milliseconds& timeout)
 {
     Strings headers = makeHeaders("POST", pageName, parameters, authorization);
 
-    bool   compressed = false;
-    size_t contentLength = postData.bytes();
+    auto   compressed = false;
+    auto   contentLength = postData.bytes();
     Buffer compressBuffer;
     if (!possibleContentEncodings.empty() && compressPostData(possibleContentEncodings, headers, postData, compressBuffer))
     {
@@ -246,7 +246,7 @@ int HttpConnect::cmd_post(const String& pageName, const HttpParams& parameters, 
     return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& requestParameters, const Buffer& putData,
+int HttpConnect::cmd_put(const String& pageName, const HttpParams& requestParameters, const Buffer& putData,
                          Buffer& output, const Authorization* authorization, const chrono::milliseconds& timeout)
 {
     Strings headers = makeHeaders("PUT", pageName, requestParameters, authorization);
@@ -269,7 +269,7 @@ int HttpConnect::cmd_put(const sptk::String& pageName, const HttpParams& request
     return getResponse(output, timeout);
 }
 
-int HttpConnect::cmd_delete(const sptk::String& pageName, const HttpParams& requestParameters, Buffer& output,
+int HttpConnect::cmd_delete(const String& pageName, const HttpParams& requestParameters, Buffer& output,
                             const Authorization* authorization, const chrono::milliseconds& timeout)
 {
     const Strings headers = makeHeaders("DELETE", pageName, requestParameters, authorization);

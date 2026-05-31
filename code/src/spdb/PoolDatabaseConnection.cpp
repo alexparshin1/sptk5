@@ -34,7 +34,7 @@
 using namespace std;
 using namespace sptk;
 
-PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, DatabaseConnectionType connectionType, chrono::seconds connectTimeout)
+PoolDatabaseConnection::PoolDatabaseConnection(const String& connectionString, const DatabaseConnectionType connectionType, const chrono::seconds connectTimeout)
     : m_connType(connectionType)
     , m_connectionTimeout(connectTimeout)
 {
@@ -72,7 +72,7 @@ bool PoolDatabaseConnection::getInTransaction() const
     return m_inTransaction;
 }
 
-void PoolDatabaseConnection::setInTransaction(bool inTransaction)
+void PoolDatabaseConnection::setInTransaction(const bool inTransaction)
 {
     m_inTransaction = inTransaction;
 }
@@ -161,7 +161,7 @@ void PoolDatabaseConnection::driverEndTransaction(bool /*commit*/)
     notImplemented("driverEndTransaction");
 }
 
-String sptk::escapeSQLString(const String& str, bool tsv)
+String sptk::escapeSQLString(const String& str, const bool tsv)
 {
     String      output;
     const char* replaceChars = "'\t\n\r";
@@ -357,17 +357,17 @@ void PoolDatabaseConnectionQueryMethods::querySetStmt(Query* query, const SStmtH
     query->setStatement(stmt.get());
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, bool isPrepared)
+void PoolDatabaseConnectionQueryMethods::querySetPrepared(Query* query, const bool isPrepared)
 {
     query->setPrepared(isPrepared);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetActive(Query* query, bool isActive)
+void PoolDatabaseConnectionQueryMethods::querySetActive(Query* query, const bool isActive)
 {
     query->setActive(isActive);
 }
 
-void PoolDatabaseConnectionQueryMethods::querySetEof(Query* query, bool isEof)
+void PoolDatabaseConnectionQueryMethods::querySetEof(Query* query, const bool isEof)
 {
     query->setEof(isEof);
 }

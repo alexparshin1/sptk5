@@ -71,9 +71,9 @@ void HttpAuthentication::parse()
 
         if (authenticationHeader.toLowerCase().starts_with("basic "))
         {
-            constexpr int basicLength = 6;
-            const Buffer  encoded(m_authenticationHeader.substr(basicLength));
-            Buffer        decoded;
+            constexpr auto basicLength = 6;
+            const Buffer   encoded(m_authenticationHeader.substr(basicLength));
+            Buffer         decoded;
             Base64::decode(decoded, encoded);
 
             auto pos = String(decoded).find(":");
@@ -93,8 +93,8 @@ void HttpAuthentication::parse()
 
         if (authenticationHeader.toLowerCase().starts_with("bearer "))
         {
-            constexpr int bearerLength = 6;
-            const auto    aJwtData = make_shared<JWT>();
+            constexpr auto bearerLength = 6;
+            const auto     aJwtData = make_shared<JWT>();
             aJwtData->decode(m_authenticationHeader.substr(bearerLength + 1).c_str());
             m_jwtData = aJwtData;
             m_type = Type::BEARER;

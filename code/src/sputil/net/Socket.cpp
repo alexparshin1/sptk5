@@ -65,13 +65,13 @@ Socket::Socket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, const int
 
 Socket::~Socket()
 {
-    Socket::close();
+    close();
 }
 
 size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 {
     buffer.checkSize(size);
-    const size_t bytes = readUnlocked(buffer.data(), size, from);
+    const auto bytes = readUnlocked(buffer.data(), size, from);
     buffer.bytes(bytes);
 
     return bytes;
@@ -80,7 +80,7 @@ size_t Socket::read(Buffer& buffer, const size_t size, sockaddr* from)
 size_t Socket::read(String& buffer, const size_t size, sockaddr* from)
 {
     buffer.resize(size);
-    const size_t bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
+    const auto bytes = readUnlocked(bit_cast<uint8_t*>(buffer.data()), size, from);
     buffer.resize(bytes);
 
     return bytes;

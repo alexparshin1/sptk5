@@ -66,7 +66,7 @@ void LogEngine::shutdown()
     }
 }
 
-void LogEngine::option(Option option, bool flag)
+void LogEngine::option(const Option option, const bool flag)
 {
     const lock_guard lock(m_mutex);
     if (flag)
@@ -79,13 +79,13 @@ void LogEngine::option(Option option, bool flag)
     }
 }
 
-bool LogEngine::option(Option option) const
+bool LogEngine::option(const Option option) const
 {
     const lock_guard lock(m_mutex);
     return m_options.contains(option);
 }
 
-String LogEngine::priorityName(LogPriority prt)
+String LogEngine::priorityName(const LogPriority prt)
 {
     switch (prt)
     {

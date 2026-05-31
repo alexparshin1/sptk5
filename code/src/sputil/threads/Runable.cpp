@@ -52,7 +52,7 @@ bool Runable::terminated() const
     return m_terminated;
 }
 
-void Runable::setTerminated(bool terminated)
+void Runable::setTerminated(const bool terminated)
 {
     m_terminated = terminated;
 }

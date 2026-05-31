@@ -65,6 +65,7 @@ public:
 
     /**
      * @brief Performs the buffered read.
+     * @remarks If the destination buffer is null ptr, simply read and discard the data.
      * @param destination       Destination buffer.
      * @param sz                Size of the destination buffer.
      * @returns bytes read from the internal buffer.
@@ -73,11 +74,11 @@ public:
 
     /**
      * @brief Performs the buffered read.
-     * @param destination       Destination buffer.
-     * @param sz                Size of the destination buffer.
+     * @param destinationBuffer       Destination buffer.
+     * @param size                Size of the destination buffer.
      * @returns bytes read from the internal buffer.
      */
-    size_t read(Buffer& destination, size_t sz);
+    size_t read(Buffer& destinationBuffer, size_t size);
 
     /**
      * @brief Performs the buffered read.
@@ -141,18 +142,20 @@ public:
 
     /**
      * @brief Performs buffered read.
-     * @param destination       Destination buffer.
+     * @param destinationBuffer       Destination buffer.
      * @param size              Size of the destination buffer.
      * @param delimiter         Line delimiter.
      * @returns bytes read from the internal buffer.
      */
-    [[nodiscard]] size_t readLine(uint8_t* destination, size_t size, char delimiter);
+    [[nodiscard]] size_t readLine(uint8_t* destinationBuffer, size_t size, char delimiter);
 
 private:
     mutable std::mutex         m_mutex;          ///< Mutex protecting read operations.
     std::shared_ptr<TCPSocket> m_socket;         ///< Socket to read from.
     size_t                     m_readOffset {0}; ///< Current offset in the read buffer.
-    Buffer                     m_buffer;         ///< Read buffer.
+    Buffer                     m_buffer;         ///< Read from socket buffer.
+    Buffer                     m_lineBuffer;     ///< Read line buffer.
+
 
     [[nodiscard]] size_t readFromSocket();
 

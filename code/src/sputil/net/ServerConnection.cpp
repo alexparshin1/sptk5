@@ -74,7 +74,7 @@ ServerConnection::ServerConnection(TCPServer& server, const Type type, const soc
 
 std::tuple<std::string, uint16_t> ServerConnection::parseAddress(const sockaddr_in* connectionAddress)
 {
-    constexpr int               maxAddressSize {128};
+    constexpr auto              maxAddressSize {128};
     array<char, maxAddressSize> address {"127.0.0.1"};
     uint16_t                    port = 0;
     if (connectionAddress)

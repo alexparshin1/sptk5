@@ -195,7 +195,7 @@ void ImapConnect::cmd_select(const String& mail_box, int32_t& total_msgs)
     {
         if (st[0] == '*')
         {
-            const size_t p = st.find("EXISTS");
+            const auto p = st.find("EXISTS");
             if (p != STRING_NPOS)
             {
                 total_msgs = string2int(st.substr(2, p - 2));
@@ -272,11 +272,11 @@ DateTime decodeDate(const String& dt)
     }
     *p2 = 0;
 
-    const int mday = string2int(p1);
+    const auto mday = string2int(p1);
 
     // 2. get the month
     p1 = p2 + 1;
-    int month = 1;
+    auto month = 1;
     switch (*p1)
     {
         case 'A':
@@ -330,7 +330,7 @@ DateTime decodeDate(const String& dt)
     p1 += 4;
     p2 = p1 + 4;
     *p2 = 0;
-    const int year = string2int(p1);
+    const auto year = string2int(p1);
     p1 = p2 + 1;
     p2 = strchr(p1, ' ');
     if (p2 != nullptr)
@@ -343,7 +343,7 @@ DateTime decodeDate(const String& dt)
 }
 } // namespace
 
-void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
+void ImapConnect::parseMessage(FieldList& results, const bool headersOnly)
 {
     results.clear();
     auto first = true;
@@ -408,7 +408,7 @@ void ImapConnect::parseMessage(FieldList& results, const bool headers_only)
         }
     }
 
-    if (headers_only)
+    if (headersOnly)
     {
         return;
     }

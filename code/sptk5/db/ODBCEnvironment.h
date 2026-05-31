@@ -159,7 +159,7 @@ public:
      * @brief Connects to the database passing ODBC connection string.
      * The full connection string is returned in FinalConnectionString.
      */
-    void connect(const String& ConnectionString, String& FinalConnectionString, bool EnableDriverPrompt = false);
+    void connect(const String& ConnectionString, String& finalConnectionString, bool EnableDriverPrompt = false);
 
     /**
      * @brief Disconnects from the database passing ODBC connection string.
@@ -244,7 +244,7 @@ public:
      * @brief Retrieves error information for the user action name.
      * @returns ODBC driver error message with the user action.
      */
-    String errorInformation(const char* action) const;
+    String errorInformation(const char* function) const;
 
 protected:
     /**

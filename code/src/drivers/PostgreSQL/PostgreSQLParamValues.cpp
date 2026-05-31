@@ -89,16 +89,16 @@ void PostgreSQLParamValues::setParameters(const QueryParameterList& params)
     }
 }
 
-void PostgreSQLParamValues::setFloatParameterValue(unsigned paramIndex, const SQueryParameter& param)
+void PostgreSQLParamValues::setFloatParameterValue(const unsigned paramIndex, const SQueryParameter& param)
 {
-    double value = param->asFloat();
-    void*  ptr = &value;
-    auto*  uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
+    auto  value = param->asFloat();
+    void* ptr = &value;
+    auto* uptrBuffer64 = bit_cast<uint64_t*>(param->conversionBuffer());
     *uptrBuffer64 = htonq(*bit_cast<uint64_t*>(ptr));
     setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1, PostgreSQLDataType::FLOAT8);
 }
 
-void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryParameter& param)
+void PostgreSQLParamValues::setParameterValue(const unsigned paramIndex, const SQueryParameter& param)
 {
     const VariantDataType ptype = param->dataType();
 
@@ -146,7 +146,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
                 }
                 else
                 {
-                    double dt = static_cast<double>(days) * static_cast<double>(secondsPerDay);
+                    auto dt = static_cast<double>(days) * static_cast<double>(secondsPerDay);
                     htonq_inplace(bit_cast<uint64_t*>(&dt), bit_cast<uint64_t*>(param->conversionBuffer()));
                 }
                 setParameterValue(paramIndex, param->conversionBuffer(), sizeof(int64_t), 1,
@@ -199,7 +199,7 @@ void PostgreSQLParamValues::setParameterValue(unsigned paramIndex, const SQueryP
 
             default:
                 throw DatabaseException(
-                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name().c_str()));
+                    format("Unsupported parameter type({}) for parameter '{}'", static_cast<int>(param->dataType()), param->name()));
         }
     }
 }

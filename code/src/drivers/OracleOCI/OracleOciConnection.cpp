@@ -218,7 +218,7 @@ void OracleOciConnection::executeBatchSQL(const Strings& batchSQL, Strings* erro
 
 void OracleOciConnection::executeMultipleStatements(const Strings& statements, Strings* errors)
 {
-    auto self = shared_from_this();
+    const auto self = shared_from_this();
     if (self == nullptr)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
@@ -268,7 +268,7 @@ String OracleOciConnection::driverDescription() const
     return driverVersion.str();
 }
 
-void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& objects)
+void OracleOciConnection::objectList(const DatabaseObjectType objectType, Strings& objects)
 {
     string objectsSQL;
     objects.clear();
@@ -294,7 +294,7 @@ void OracleOciConnection::objectList(DatabaseObjectType objectType, Strings& obj
             throw Exception("Not implemented yet");
     }
 
-    auto self = shared_from_this();
+    const auto self = shared_from_this();
     if (self == nullptr)
     {
         throw DatabaseException("PoolDatabaseConnection is not created as shared_ptr");
@@ -341,7 +341,7 @@ void OracleOciConnection::driverBeginTransaction()
     setInTransaction(true);
 }
 
-void OracleOciConnection::driverEndTransaction(bool commit)
+void OracleOciConnection::driverEndTransaction(const bool commit)
 {
     if (commit)
     {
@@ -371,8 +371,7 @@ void OracleOciConnection::queryFreeStmt(Query* query)
 void OracleOciConnection::queryCloseStmt(Query* query)
 {
     const scoped_lock lock(m_mutex);
-    auto*             statement = bit_cast<OracleOciStatement*>(query->statement());
-    if (statement != nullptr)
+    if (auto* statement = bit_cast<OracleOciStatement*>(query->statement()))
     {
         statement->close();
     }
@@ -640,7 +639,7 @@ void OracleOciConnection::queryFetch(Query* query)
     }
 }
 
-void OracleOciConnection::readDateTimeOrTimestamp(const Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex) const
+void OracleOciConnection::readDateTimeOrTimestamp(const Resultset& resultSet, OracleOciDatabaseField* field, const unsigned columnIndex) const
 {
     if (field->sqlType() == "timestamp")
     {
@@ -652,7 +651,7 @@ void OracleOciConnection::readDateTimeOrTimestamp(const Resultset& resultSet, Or
     }
 }
 
-void OracleOciConnection::readBuffer(const Resultset& resultSet, OracleOciDatabaseField* field, unsigned columnIndex)
+void OracleOciConnection::readBuffer(const Resultset& resultSet, OracleOciDatabaseField* field, const unsigned columnIndex)
 {
     switch (field->fieldType())
     {
@@ -687,7 +686,7 @@ void OracleOciConnection::queryColAttributes(Query*, int16_t, int16_t, char*, in
     notImplemented("queryColAttributes");
 }
 
-string OracleOciConnection::paramMark(unsigned int paramIndex)
+string OracleOciConnection::paramMark(const unsigned int paramIndex)
 {
     return ":" + to_string(paramIndex + 1);
 }
@@ -698,7 +697,7 @@ String OracleOciConnection::queryError(const Query* query) const
 }
 
 namespace {
-void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset)
+void readTimestamp(const Resultset& resultSet, DatabaseField* field, const unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset)
 {
     if (const auto timestamp = resultSet.Get<Timestamp>(columnIndex);
         timestamp.IsNull())
@@ -723,10 +722,10 @@ void readTimestamp(const Resultset& resultSet, DatabaseField* field, unsigned in
     }
 }
 
-void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex, chrono::minutes sessionTimezoneOffset)
+void readDateTime(const Resultset& resultSet, DatabaseField* field, const unsigned int columnIndex, const chrono::minutes sessionTimezoneOffset)
 {
-    const auto date = resultSet.Get<Date>(columnIndex);
-    if (date.IsNull())
+    if (const auto date = resultSet.Get<Date>(columnIndex);
+        date.IsNull())
     {
         field->setNull(VariantDataType::VAR_DATE_TIME);
     }
@@ -747,16 +746,16 @@ void readDateTime(const Resultset& resultSet, DatabaseField* field, unsigned int
     }
 }
 
-void readLong(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readLong(const Resultset& resultSet, DatabaseField* field, const unsigned int columnIndex)
 {
     const auto str = resultSet.Get<ostring>(columnIndex);
     field->setString(str);
 }
 
-void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readCLOB(const Resultset& resultSet, DatabaseField* field, const unsigned int columnIndex)
 {
-    auto clob = resultSet.Get<Clob>(columnIndex);
-    if (clob.IsNull())
+    if (auto clob = resultSet.Get<Clob>(columnIndex);
+        clob.IsNull())
     {
         field->setNull(VariantDataType::VAR_TEXT);
     }
@@ -767,7 +766,7 @@ void readCLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
     }
 }
 
-void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int columnIndex)
+void readBLOB(const Resultset& resultSet, DatabaseField* field, const unsigned int columnIndex)
 {
     if (auto blob = resultSet.Get<Blob>(columnIndex);
         blob.IsNull())
@@ -786,7 +785,7 @@ void readBLOB(const Resultset& resultSet, DatabaseField* field, unsigned int col
 
 SynchronizedMap<OracleOciConnection*, shared_ptr<OracleOciConnection>> OracleOciConnection::s_oracleOciConnections;
 
-[[maybe_unused]] void* oracleCreateConnection(const char* connectionString, size_t connectionTimeoutSeconds)
+[[maybe_unused]] void* oracleCreateConnection(const char* connectionString, const size_t connectionTimeoutSeconds)
 {
     const auto connection = make_shared<OracleOciConnection>(connectionString, chrono::seconds(connectionTimeoutSeconds));
     OracleOciConnection::s_oracleOciConnections.insert(connection.get(), connection);

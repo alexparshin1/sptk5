@@ -53,7 +53,7 @@ TCPSocket::TCPSocket(const SOCKET_ADDRESS_FAMILY domain, const int32_t type, con
 
 TCPSocket::~TCPSocket()
 {
-    TCPSocket::close();
+    close();
 }
 
 void TCPSocket::openUnlocked(const Host& _host, const OpenMode openMode, const bool _blockingMode,
@@ -93,13 +93,13 @@ void TCPSocket::openUnlocked(const sockaddr_in& address, const OpenMode openMode
     }
 }
 
-bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInfo, const chrono::milliseconds& timeout)
+bool TCPSocket::accept(SocketType& clientSocketFD, sockaddr_in& clientInfo, const chrono::milliseconds& timeout)
 {
     socklen_t len = sizeof(clientInfo);
     if (readyToRead(timeout))
     {
         scoped_lock lock(getMutex());
-        clientSocketFD = ::accept(fd(), bit_cast<struct sockaddr*>(&clientInfo), &len);
+        clientSocketFD = ::accept(fd(), bit_cast<sockaddr*>(&clientInfo), &len);
         if (clientSocketFD != INVALID_SOCKET)
         {
             return true;
@@ -113,7 +113,7 @@ bool TCPSocket::accept(SocketType& clientSocketFD, struct sockaddr_in& clientInf
 size_t TCPSocket::readUnlocked(uint8_t* destination, const size_t size, sockaddr*)
 {
     int receivedBytes;
-    int error = 0;
+    auto error = 0;
     do
     {
         receivedBytes = static_cast<int>(recvUnlocked(destination, size));

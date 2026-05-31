@@ -41,7 +41,7 @@ static const String doubleLine("═");
 static const String singleLine("─");
 #endif
 
-CommandLine::Visibility::Visibility(const String& pattern, bool _mustMatch)
+CommandLine::Visibility::Visibility(const String& pattern, const bool _mustMatch)
     : m_inverted(!_mustMatch)
 {
     if (!pattern.empty())
@@ -117,7 +117,7 @@ bool CommandLine::CommandLineElement::useWithCommand(const String& command) cons
     return m_useWithCommands.any() || m_useWithCommands.matches(command);
 }
 
-void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& formattedText) const
+void CommandLine::CommandLineElement::formatHelp(const size_t textWidth, Strings& formattedText) const
 {
     const Strings words(m_help, "\\s+", Strings::SplitMode::REGEXP);
 
@@ -145,7 +145,7 @@ void CommandLine::CommandLineElement::formatHelp(size_t textWidth, Strings& form
     }
 }
 
-void CommandLine::CommandLineElement::printHelp(size_t nameWidth, size_t textWidth,
+void CommandLine::CommandLineElement::printHelp(const size_t nameWidth, const size_t textWidth,
                                                 const String& optionDefaultValue) const
 {
     static const RegularExpression doesntNeedQuotes(R"([\d\.\-\+:,_]+)");
@@ -498,7 +498,7 @@ void CommandLine::readOption(const Strings& digestedArgs, size_t& argumentIndex)
     }
 }
 
-void CommandLine::init(size_t argc, const char** argv)
+void CommandLine::init(const size_t argc, const char** argv)
 {
     if (argc == 0 || argv == nullptr)
     {
@@ -553,7 +553,7 @@ const Strings& CommandLine::arguments() const
     return m_arguments;
 }
 
-void CommandLine::printLine(const String& fillChar, size_t count)
+void CommandLine::printLine(const String& fillChar, const size_t count)
 {
     stringstream temp;
     for (size_t i = 0; i < count; ++i)
@@ -563,12 +563,12 @@ void CommandLine::printLine(const String& fillChar, size_t count)
     COUT(temp.str());
 }
 
-void CommandLine::printHelp(size_t screenColumns) const
+void CommandLine::printHelp(const size_t screenColumns) const
 {
     printHelp("", screenColumns);
 }
 
-void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) const
+void CommandLine::printHelp(const String& onlyForCommand, const size_t screenColumns) const
 {
     if (!onlyForCommand.empty() && !m_argumentTemplates.contains(onlyForCommand))
     {
@@ -593,7 +593,7 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
 
     // Find out the space needed for command and option names
     constexpr size_t minimalWidth {10};
-    size_t           nameColumns = minimalWidth;
+    auto             nameColumns = minimalWidth;
     Strings          sortedCommands;
 
     for (const auto& argumentName: views::keys(m_argumentTemplates))
@@ -633,11 +633,11 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
             continue;
         }
 
-        const size_t width = optionTemplate->printableName().length();
+        const auto width = optionTemplate->printableName().length();
         nameColumns = nameColumns < width ? width : nameColumns;
     }
 
-    const size_t helpTextColumns = screenColumns - (nameColumns + 2);
+    const auto helpTextColumns = screenColumns - (nameColumns + 2);
     if (helpTextColumns < minimalWidth)
     {
         CERR("Can't print help information - the screen width is too small");
@@ -649,8 +649,8 @@ void CommandLine::printHelp(const String& onlyForCommand, size_t screenColumns) 
     printNotes(screenColumns);
 }
 
-void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                               const Strings& sortedOptions, size_t helpTextColumns) const
+void CommandLine::printOptions(const String& onlyForCommand, const size_t screenColumns, const size_t nameColumns,
+                               const Strings& sortedOptions, const size_t helpTextColumns) const
 {
     if (!m_optionTemplates.empty())
     {
@@ -675,8 +675,8 @@ void CommandLine::printOptions(const String& onlyForCommand, size_t screenColumn
     }
 }
 
-void CommandLine::printCommands(const String& onlyForCommand, size_t screenColumns, size_t nameColumns,
-                                const Strings& sortedCommands, size_t helpTextColumns) const
+void CommandLine::printCommands(const String& onlyForCommand, const size_t screenColumns, const size_t nameColumns,
+                                const Strings& sortedCommands, const size_t helpTextColumns) const
 {
     if (onlyForCommand.empty() && !m_argumentTemplates.empty())
     {
@@ -701,7 +701,7 @@ void CommandLine::printVersion() const
     COUT(m_programVersion);
 }
 
-void CommandLine::printNotes(size_t screenColumns) const
+void CommandLine::printNotes(const size_t screenColumns) const
 {
     if (!m_notes.empty())
     {

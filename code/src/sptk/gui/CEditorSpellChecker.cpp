@@ -65,7 +65,7 @@ void CSpellChecker::cb_ignore(Fl_Widget* w, void*)
 void CSpellChecker::cb_replaceword(Fl_Widget* w, void*)
 {
     auto*  spellChecker = (CSpellChecker*) w->window();
-    String word = trim(spellChecker->m_replaceToInput->data().asString());
+    const String word = trim(spellChecker->m_replaceToInput->data().asString());
     if (word.length())
     {
         spellChecker->m_okButton->activate();
@@ -83,7 +83,7 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
     {
         auto* spellChecker = (CSpellChecker*) listView->window();
         spellChecker->m_replaceToInput->data(listView->data());
-        String word = trim(spellChecker->m_replaceToInput->data().asString());
+        const String word = trim(spellChecker->m_replaceToInput->data().asString());
         if (word.length())
         {
             spellChecker->m_okButton->activate();
@@ -97,7 +97,7 @@ void CSpellChecker::cb_suggest(Fl_Widget* lv, void*)
 
 void CSpellChecker::learnAndClose()
 {
-    String word = m_wordInput->data().asString();
+    const String word = m_wordInput->data().asString();
     if (m_spellChecker)
     {
         aspell_speller_add_to_personal(m_spellChecker, word.c_str(), (int) word.length());
@@ -107,7 +107,7 @@ void CSpellChecker::learnAndClose()
 
 void CSpellChecker::ignoreAndClose()
 {
-    String word = m_wordInput->data().asString();
+    const String word = m_wordInput->data().asString();
     if (m_spellChecker)
     {
         aspell_speller_add_to_session(m_spellChecker, word.c_str(), (int) word.length());
@@ -163,7 +163,7 @@ CSpellOption& CSpellChecker::operator[](const String& optionName)
     if (itor == CSpellOptions::end())
     {
         AspellConfig* aconfig = new_aspell_config();
-        string        val = aspell_config_retrieve(aconfig, optionName.c_str());
+        const string        val = aspell_config_retrieve(aconfig, optionName.c_str());
         delete_aspell_config(aconfig);
         CSpellOption newOption(optionName, val);
         CSpellOptions::insert(CSpellOptions::value_type(optionName, newOption));
@@ -192,7 +192,7 @@ void CSpellChecker::getConfigStrings(AspellConfig* aconfig, CSpellOptions& optio
 void CSpellChecker::getDictionaries(Strings& dictionaries)
 {
     AspellConfig*       aconfig = new_aspell_config();
-    AspellDictInfoList* dictInfoList = get_aspell_dict_info_list(aconfig);
+    const AspellDictInfoList* dictInfoList = get_aspell_dict_info_list(aconfig);
     setLocalOptions(aconfig);
     delete_aspell_config(aconfig);
 
@@ -274,7 +274,7 @@ bool CSpellChecker::spellCheck()
         {
             continue;
         }
-        int result = aspell_speller_check(m_spellChecker, word.c_str(), (int) word.length());
+        const int result = aspell_speller_check(m_spellChecker, word.c_str(), (int) word.length());
         if (result != 1)
         {
             m_wordInput->data(word);

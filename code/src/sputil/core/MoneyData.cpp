@@ -40,7 +40,7 @@ constexpr array<int64_t, numberOfDividers> dividers = {
     10000000000000LL, 100000000000000LL, 1000000000000000LL};
 } // namespace
 
-void MoneyData::setScale(uint8_t scale)
+void MoneyData::setScale(const uint8_t scale)
 {
     if (scale >= dividers.size())
     {
@@ -49,7 +49,7 @@ void MoneyData::setScale(uint8_t scale)
     m_scale = scale;
 }
 
-int64_t MoneyData::divider(uint8_t scale)
+int64_t MoneyData::divider(const uint8_t scale)
 {
     if (scale >= dividers.size())
     {
@@ -58,7 +58,7 @@ int64_t MoneyData::divider(uint8_t scale)
     return dividers[scale];
 }
 
-MoneyData::MoneyData(int64_t quantity, const uint8_t scale)
+MoneyData::MoneyData(const int64_t quantity, const uint8_t scale)
     : m_quantity(quantity)
     , m_scale(scale)
 {

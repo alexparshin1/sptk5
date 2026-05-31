@@ -86,9 +86,12 @@
 #pragma warning(disable : 4355)
 #pragma warning(disable : 4786)
 #pragma warning(disable : 4996)
-#if defined(_MSC_VER)
-#define STRING_NPOS -1
+
+#ifdef min
+#undef min
+#undef max
 #endif
+
 #else
 
 #include <cerrno>
@@ -120,6 +123,12 @@
 
 #define gmtime_r(a, b) gmtime_s(b, a)
 #define localtime_r(a, b) localtime_s(b, a)
+
+#ifdef min
+#undef min
+#endif
+
+using ssize_t = long;
 
 #endif
 

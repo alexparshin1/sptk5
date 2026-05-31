@@ -101,26 +101,18 @@ Buffer& Buffer::operator=(const String& str)
     return *this;
 }
 
-Buffer& Buffer::operator=(const char* str)
-{
-    if (str == nullptr)
-    {
-        reset();
-    }
-    else
-    {
-        set(bit_cast<const uint8_t*>(str), strlen(str));
-    }
-
-    return *this;
-}
-
 bool Buffer::operator==(const Buffer& other) const
 {
+    if (this == &other)
+    {
+        return true;
+    }
+
     if (bytes() != other.bytes())
     {
         return false;
     }
+
     return memcmp(data(), other.data(), bytes()) == 0;
 }
 
@@ -132,20 +124,19 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
         return stream;
     }
 
-    const char fillChar = stream.fill('0');
+    const auto fillChar = stream.fill('0');
     const auto old_settings = stream.flags();
 
     size_t offset = 0;
 
     while (offset < buffer.bytes())
     {
-        constexpr int bytesInRow {16};
-        constexpr int bytesInHalfRow {8};
-        constexpr int addressWidth {8};
-        stream << hex << setw(addressWidth) << offset << "  ";
+        constexpr auto bytesInRow {16};
+        constexpr auto bytesInHalfRow {8};
+        stream << format("{:08X}  ", offset);
 
         size_t printed = 0;
-        size_t rowOffset = offset;
+        auto   rowOffset = offset;
         for (; rowOffset < buffer.bytes() && printed < bytesInRow; ++rowOffset, ++printed)
         {
             if (printed == bytesInHalfRow)
@@ -153,8 +144,7 @@ ostream& sptk::operator<<(ostream& stream, const Buffer& buffer)
                 stream << " ";
             }
             const unsigned printChar = buffer[rowOffset];
-            constexpr auto charWidth = 2;
-            stream << hex << setw(charWidth) << printChar << " ";
+            stream << format("{:02X} ", printChar);
         }
 
         while (printed < bytesInRow)
