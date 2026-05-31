@@ -104,37 +104,37 @@ void RedisCommand::emplace_back(const Variant& argument)
 
         case VAR_INT:
         case VAR_INT64: {
-            char              stage[24];
-            const auto        end = to_chars(stage, stage + sizeof(stage), argument.asInt64()).ptr;
-            const auto        size = static_cast<size_t>(end - stage);
-            const string_view value {stage, size};
+            array<char, 24>   stage {};
+            const auto        end = to_chars(stage.data(), stage.data() + sizeof(stage), argument.asInt64()).ptr;
+            const auto        size = static_cast<size_t>(end - stage.data());
+            const string_view value {stage.data(), size};
             emplace_back(value);
             return;
         }
 
         case VAR_FLOAT: {
-            char              stage[32];
-            const auto        end = to_chars(stage, stage + sizeof(stage), argument.asFloat()).ptr;
-            const auto        size = static_cast<size_t>(end - stage);
-            const string_view value {stage, size};
+            array<char, 32>   stage {};
+            const auto        end = to_chars(stage.data(), stage.data() + sizeof(stage), argument.asFloat()).ptr;
+            const auto        size = static_cast<size_t>(end - stage.data());
+            const string_view value {stage.data(), size};
             emplace_back(value);
             return;
         }
 
         case VAR_DATE: {
-            char              stage[32];
-            const auto        result = format_to_n(stage, sizeof(stage), "{:%F}", argument.asDate().timePoint());
-            const auto        size = static_cast<size_t>(result.out - stage);
-            const string_view value {stage, size};
+            array<char, 32>   stage {};
+            const auto        result = format_to_n(stage.data(), sizeof(stage), "{:%F}", argument.asDate().timePoint());
+            const auto        size = static_cast<size_t>(result.out - stage.data());
+            const string_view value {stage.data(), size};
             emplace_back(value);
             return;
         }
 
         case VAR_DATE_TIME: {
-            char              stage[40];
-            const auto        result = format_to_n(stage, sizeof(stage), "{:%F %T}", argument.asDateTime().timePoint());
-            const auto        size = static_cast<size_t>(result.out - stage);
-            const string_view value {stage, size};
+            array<char, 40>   stage {};
+            const auto        result = format_to_n(stage.data(), sizeof(stage), "{:%F %T}", argument.asDateTime().timePoint());
+            const auto        size = static_cast<size_t>(result.out - stage.data());
+            const string_view value {stage.data(), size};
             emplace_back(value);
             return;
         }

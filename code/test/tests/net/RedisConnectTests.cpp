@@ -66,6 +66,7 @@ namespace sptk {
 
 TEST_F(RedisConnectTests, connectDisconnect)
 {
+    // Just test connect and disconnect implemented in the test suite.
 }
 
 TEST_F(RedisConnectTests, setGet)
@@ -205,9 +206,6 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
 {
     constexpr auto iterations = 1000;
 
-    RedisConnect redis;
-    redis.connect("theater", 6379);
-
     Stopwatch stopwatch;
     stopwatch.start();
     RedisConnect::KeysAndValues keysAndValues;
@@ -236,16 +234,16 @@ TEST_F(RedisConnectTests, performanceMultipleThreads)
     {
         threads.emplace_back([threadIndex]
                              {
-                                 RedisConnect redis;
-                                 redis.connect(RedisHost, 6379);
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect(RedisHost, 6379);
 
                                  for (auto i = 0; i < iterations; ++i)
                                  {
                                      auto key = format("session_{}_{}", threadIndex, i);
-                                     redis.setValue(key, sessionJson);
+                                     threadRedis.setValue(key, sessionJson);
                                  }
 
-                                 redis.disconnect();
+                                 threadRedis.disconnect();
                              });
     }
 
@@ -823,8 +821,8 @@ TEST_F(RedisConnectTests, hsetPerformance)
     {
         threads.emplace_back([threadNumber = i]
                              {
-                                 RedisConnect redis;
-                                 redis.connect("theater", 6379);
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect("theater", 6379);
 
                                  for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
                                  {
@@ -834,11 +832,11 @@ TEST_F(RedisConnectTests, hsetPerformance)
                                          const RedisConnect::KeysAndValues testValues = {
                                              {format("message_{}", keyIndex), subscriptionJson},
                                          };
-                                         redis.setHashValues(hashName, testValues);
+                                         threadRedis.setHashValues(hashName, testValues);
                                      }
                                  }
 
-                                 redis.disconnect();
+                                 threadRedis.disconnect();
                              });
     }
 
@@ -866,8 +864,8 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
     {
         threads.emplace_back([threadNumber = i]
                              {
-                                 RedisConnect redis;
-                                 redis.connect("theater", 6379);
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect("theater", 6379);
 
                                  for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
                                  {
@@ -877,10 +875,10 @@ TEST_F(RedisConnectTests, hsetGroupPerformance)
                                      {
                                          testValues[format("message_{}", keyIndex)] = subscriptionJson;
                                      }
-                                     redis.setHashValues(hashName, testValues);
+                                     threadRedis.setHashValues(hashName, testValues);
                                  }
 
-                                 redis.disconnect();
+                                 threadRedis.disconnect();
                              });
     }
 
