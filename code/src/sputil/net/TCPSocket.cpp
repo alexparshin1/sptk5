@@ -35,7 +35,7 @@ void TCPSocket::handleReadFromSocketErrorUnlocked(const int error)
 {
     if (error == EAGAIN || error == EINTR || error == EINPROGRESS)
     {
-        if (!readyToReadUnlocked(100ms))
+        if (!readyToReadUnlocked(500ms))
         {
             throw TimeoutException("Can't read from socket: timeout");
         }

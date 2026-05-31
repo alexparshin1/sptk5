@@ -462,21 +462,14 @@ bool SocketVirtualMethods::readyToWriteUnlocked(const chrono::milliseconds& time
 
 size_t SocketVirtualMethods::recvUnlocked(uint8_t* buffer, const size_t len)
 {
-#ifdef _WIN32
-    auto result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
-#else
-    auto result = ::recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), MSG_DONTWAIT);
-#endif
-    if (result == -1)
+    int result = 0;
+    constexpr chrono::seconds timeout(30);
+    if (readyToReadUnlocked(timeout))
     {
-        constexpr chrono::seconds timeout(30);
-        if (readyToReadUnlocked(timeout))
+        result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
+        if (result == -1)
         {
-            result = recv(m_socketFd, bit_cast<char*>(buffer), static_cast<int32_t>(len), 0);
-            if (result == -1)
-            {
                 throwSocketError("Can't read from socket");
-            }
         }
     }
     return static_cast<size_t>(result);
@@ -566,11 +559,11 @@ size_t SocketVirtualMethods::writeUnlocked(const uint8_t* buffer, size_t size, c
         {
             // UDP socket
 #ifdef _WIN32
-            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), 0,
+            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), remaining, 0,
                            bit_cast<const sockaddr*>(peer),
                            sizeof(sockaddr_in));
 #else
-            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), static_cast<int32_t>(size), MSG_NOSIGNAL,
+            bytes = sendto(m_socketFd, bit_cast<const char*>(ptr), remaining, MSG_NOSIGNAL,
                            bit_cast<const sockaddr*>(peer),
                            sizeof(sockaddr_in));
 #endif
