@@ -49,15 +49,15 @@ private:
         String indentSpaces;
     };
 
-    static void exportJsonValueTo(const Node* node, std::ostream& stream, bool formatted, size_t indent);
+    static void exportJsonValueTo(const Node* node, sptk::Buffer& json, bool formatted, size_t indent);
 
-    static void exportJsonArray(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+    static void exportJsonArray(const Node* node, sptk::Buffer& json, bool formatted, size_t indent,
                                 const Formatting& formatting);
 
-    static void exportJsonObject(const Node* node, std::ostream& stream, bool formatted, size_t indent,
+    static void exportJsonObject(const Node* node, sptk::Buffer& json, bool formatted, size_t indent,
                                  const Formatting& formatting);
 
-    static void exportNodeAttributes(const Node* node, std::ostream& stream, bool formatted, const String& firstElement);
+    static void exportNodeAttributes(const Node* node, sptk::Buffer& json, bool formatted, const String& firstElement);
 };
 
 } // namespace sptk::xdoc

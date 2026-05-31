@@ -25,6 +25,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Buffer.h>
 #include <sptk5/String.h>
 #include <sptk5/cutils>
 #include <sptk5/xdoc/ExportJSON.h>
@@ -125,7 +126,7 @@ String jsonEscape(const String& text)
 }
 } // namespace
 
-void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool formatted,
+void ExportJSON::exportJsonValueTo(const Node* node, Buffer& json, const bool formatted,
                                    const size_t indent)
 {
     Formatting formatting;
@@ -141,15 +142,17 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool
         formatting.betweenElements = ",\n  " + formatting.indentSpaces;
     }
 
-    const string_view spacing = formatted ? " " : "";
-
     const auto isValue = node->nodes().empty();
 
     if (isValue && !node->attributes().empty())
     {
-        stream << "{" << spacing;
-        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
-        stream << "\"value\":" << spacing;
+        json.append('{');
+        if (formatted)
+            json.append(' ');
+        exportNodeAttributes(node, json, formatted, formatting.firstElement);
+        json.append("\"value\":", 8);
+        if (formatted)
+            json.append(' ');
     }
 
     double  dNumber;
@@ -161,25 +164,34 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool
             dNumber = node->getValue().asFloat();
             if (static_cast<double>(iNumber) == dNumber)
             {
-                stream << fixed << iNumber;
+                json.append(22, "{}", iNumber);
             }
             else
             {
-                stream << node->getValue().asString();
+                const auto s = node->getValue().asString();
+                json.append(s);
             }
             break;
 
         case Node::Type::Text:
         case Node::Type::CData:
-            stream << "\"" << jsonEscape(node->getValue().asString()) << "\"";
+        {
+            const auto escaped = jsonEscape(node->getValue().asString());
+            json.append('"');
+            json.append(escaped);
+            json.append('"');
             break;
+        }
 
         case Node::Type::Boolean:
-            stream << (node->getValue().asBool() ? "true" : "false");
+            if (node->getValue().asBool())
+                json.append("true", 4);
+            else
+                json.append("false", 5);
             break;
 
         case Node::Type::Array:
-            exportJsonArray(node, stream, formatted, indent, formatting);
+            exportJsonArray(node, json, formatted, indent, formatting);
             break;
 
         case Node::Type::Object:
@@ -192,74 +204,79 @@ void ExportJSON::exportJsonValueTo(const Node* node, ostream& stream, const bool
                     static const set escapeTypes {VAR_STRING, VAR_TEXT, VAR_DATE, VAR_DATE_TIME};
                     if (escapeTypes.contains(node->getValue().dataType()))
                     {
-                        stream << "\"" << jsonEscape(value) << "\"";
+                        const auto escaped = jsonEscape(value);
+                        json.append('"');
+                        json.append(escaped);
+                        json.append('"');
                     }
                     else
                     {
-                        stream << value;
+                        json.append(value);
                     }
                 }
                 else
                 {
-                    stream << "{}";
+                    json.append("{}", 2);
                 }
             }
             else
             {
-                exportJsonObject(node, stream, formatted, indent, formatting);
+                exportJsonObject(node, json, formatted, indent, formatting);
             }
             break;
 
         default:
-            stream << "null";
+            json.append("null", 4);
             break;
     }
 
     if (isValue && !node->attributes().empty())
     {
-        stream << spacing << "}";
+        if (formatted)
+            json.append(' ');
+        json.append('}');
     }
 }
 
-void ExportJSON::exportJsonArray(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
+void ExportJSON::exportJsonArray(const Node* node, Buffer& json, const bool formatted, const size_t indent,
                                  const Formatting& formatting)
 {
-    stream << "[";
+    json.append('[');
     if (node->type() == Node::Type::Array)
     {
-        auto        first = true;
         const auto& array = node->nodes();
         if (array.empty())
         {
-            stream << "]";
+            json.append(']');
             return;
         }
+        auto first = true;
         for (const auto& element: array)
         {
             if (first)
             {
                 first = false;
-                stream << formatting.firstElement;
+                json.append(formatting.firstElement);
             }
             else
             {
-                stream << formatting.betweenElements;
+                json.append(formatting.betweenElements);
             }
-            exportJsonValueTo(element.get(), stream, formatted, indent + 2);
+            exportJsonValueTo(element.get(), json, formatted, indent + 2);
         }
     }
-    stream << formatting.newLineChar << formatting.indentSpaces << "]";
+    json.append(formatting.newLineChar);
+    json.append(formatting.indentSpaces);
+    json.append(']');
 }
 
-void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, const bool formatted, const size_t indent,
+void ExportJSON::exportJsonObject(const Node* node, Buffer& json, const bool formatted, const size_t indent,
                                   const Formatting& formatting)
 {
-    stream << "{";
+    json.append('{');
     if (node->type() == Node::Type::Object)
     {
-        exportNodeAttributes(node, stream, formatted, formatting.firstElement);
-
-        const string_view spacing = formatted ? " " : "";
+        exportNodeAttributes(node, json, formatted, formatting.firstElement);
 
         auto first = true;
         for (const auto& anode: node->nodes())
@@ -267,28 +284,36 @@ void ExportJSON::exportJsonObject(const Node* node, std::ostream& stream, const 
             if (first)
             {
                 first = false;
-                stream << formatting.firstElement;
+                json.append(formatting.firstElement);
             }
             else
             {
-                stream << formatting.betweenElements;
+                json.append(formatting.betweenElements);
             }
 
-            stream << "\"" << anode->getQualifiedName() << "\":" << spacing;
+            json.append('"');
+            json.append(anode->getQualifiedName());
+            json.append("\":", 2);
+            if (formatted)
+                json.append(' ');
 
-            exportJsonValueTo(anode.get(), stream, formatted, indent + 2);
+            exportJsonValueTo(anode.get(), json, formatted, indent + 2);
         }
     }
-    stream << formatting.newLineChar << formatting.indentSpaces << "}";
+    json.append(formatting.newLineChar);
+    json.append(formatting.indentSpaces);
+    json.append('}');
 }
 
-void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, const bool formatted, const String& firstElement)
+void ExportJSON::exportNodeAttributes(const Node* node, Buffer& json, const bool formatted, const String& firstElement)
 {
-    const string_view spacing = formatted ? " " : "";
-
     if (!node->attributes().empty())
     {
-        stream << firstElement << "\"attributes\":" << spacing << "{";
+        json.append(firstElement);
+        json.append("\"attributes\":", 13);
+        if (formatted)
+            json.append(' ');
+        json.append('{');
 
         auto first1 = true;
         for (const auto& [name, value]: node->attributes())
@@ -296,42 +321,52 @@ void ExportJSON::exportNodeAttributes(const Node* node, ostream& stream, const b
             if (first1)
             {
                 first1 = false;
-                stream << spacing;
+                if (formatted)
+                    json.append(' ');
             }
             else
             {
-                stream << "," << spacing;
+                json.append(',');
+                if (formatted)
+                    json.append(' ');
             }
 
-            stream << "\"" << name << "\":" << spacing;
+            json.append('"');
+            json.append(name);
+            json.append("\":", 2);
+            if (formatted)
+                json.append(' ');
 
             if (isInteger(value) || isFloat(value) || isBoolean(value))
             {
-                stream << value;
+                json.append(value);
             }
             else
             {
-                stream << "\"" << value << "\"";
+                json.append('"');
+                json.append(value);
+                json.append('"');
             }
         }
 
-        stream << spacing << "}";
+        if (formatted)
+            json.append(' ');
+        json.append('}');
 
         if (!node->nodes().empty() || !node->attributes().empty())
         {
-            stream << ",";
+            json.append(',');
         }
 
         if (formatted)
         {
-            stream << " ";
+            json.append(' ');
         }
     }
 }
 
 void ExportJSON::exportToJSON(const Node* node, Buffer& json, const bool formatted)
 {
-    stringstream stream;
-    exportJsonValueTo(node, stream, formatted, 0);
-    json.set(stream.str());
+    json.reset();
+    exportJsonValueTo(node, json, formatted, 0);
 }
