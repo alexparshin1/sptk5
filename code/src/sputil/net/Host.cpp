@@ -60,7 +60,7 @@ Host::Host() noexcept
     memset(&m_address, 0, sizeof(m_address));
 }
 
-Host::Host(String hostname, const uint16_t port)
+Host::Host(string hostname, const uint16_t port)
     : m_hostname(std::move(hostname))
     , m_port(port)
 {
@@ -69,7 +69,7 @@ Host::Host(String hostname, const uint16_t port)
     setPortUnlocked(m_port);
 }
 
-Host::Host(const String& hostAndPort)
+Host::Host(const string& hostAndPort)
 {
     checkSocketsInitialized();
 
@@ -131,7 +131,7 @@ void Host::setHostNameFromAddress(const socklen_t addressLen)
     if (getnameinfo(bit_cast<const sockaddr*>(m_address.data()), addressLen, hostBuffer.data(), sizeof(hostBuffer), addressBuffer.data(),
                     sizeof(addressBuffer), 0) == 0)
     {
-        m_hostname = String(hostBuffer.data());
+        m_hostname = string(hostBuffer.data());
     }
     else
     {
@@ -255,11 +255,11 @@ void Host::getHostAddressUnlocked()
     }
     else
     {
-        throw Exception(format("Can't resolve hostname: {}. Error: {}.", m_hostname.c_str(), error));
+        throw Exception(format("Can't resolve hostname: {}. Error: {}.", m_hostname, error));
     }
 }
 
-String Host::ipAddressToString(const uint8_t* addr) const
+string Host::ipAddressToString(const uint8_t* addr) const
 {
     constexpr auto             maxBufferSize = 128;
     array<char, maxBufferSize> buffer {};
@@ -272,14 +272,14 @@ String Host::ipAddressToString(const uint8_t* addr) const
     return {buffer.data()};
 }
 
-String Host::toString(const bool forceAddress) const
+string Host::toString(const bool forceAddress) const
 {
     const scoped_lock lock(m_mutex);
-    String            str;
+    string            str;
 
     if (!m_hostname.empty())
     {
-        String address;
+        string address;
         if (forceAddress)
         {
             const uint8_t* addr;
@@ -302,11 +302,11 @@ String Host::toString(const bool forceAddress) const
 
         if (any().sa_family == AF_INET6)
         {
-            str = format("[{}]:{}", address.c_str(), m_port);
+            str = format("[{}]:{}", address, m_port);
         }
         else
         {
-            str = format("{}:{}", address.c_str(), m_port);
+            str = format("{}:{}", address, m_port);
         }
     }
 

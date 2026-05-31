@@ -62,14 +62,14 @@ public:
      * @param hostname          Host name or IP address.
      * @param port              Port number.
      */
-    Host(String hostname, uint16_t port);
+    Host(std::string hostname, uint16_t port);
 
     /**
      * @brief Constructor.
      * To work with the IPv6 address, enclose the address part in square brackets.
      * @param hostAndPort       The host and port definition, in the format ipv4addr:port.
      */
-    explicit Host(const String& hostAndPort);
+    explicit Host(const std::string& hostAndPort);
 
     /**
      * @brief Constructor.
@@ -123,7 +123,7 @@ public:
      * @brief Get the host name.
      * @return host name.
      */
-    String hostname() const
+    std::string hostname() const
     {
         std::scoped_lock lock(m_mutex);
         return m_hostname;
@@ -155,7 +155,7 @@ public:
      * @param forceAddress      If true then use IP address instead of hostname.
      * @return host name and port string.
      */
-    String toString(bool forceAddress = false) const;
+    std::string toString(bool forceAddress = false) const;
 
     /**
      * @brief Get the host address.
@@ -185,7 +185,7 @@ public:
 
 private:
     mutable std::mutex                        m_mutex;      ///< Mutex to protect internal class data.
-    String                                    m_hostname;   ///< Host name or IP address.
+    std::string                               m_hostname;   ///< Host name or IP address.
     uint16_t                                  m_port {0};   ///< Port number.
     std::array<uint8_t, sizeof(sockaddr_in6)> m_address {}; ///< Storage for IPv4 and IPv6 addresses.
     static const RegularExpression            m_matchHostNameOrIpv4;
@@ -248,8 +248,8 @@ private:
     /**
      * @brief Get the host address.
      */
-    void   getHostAddressUnlocked();
-    String ipAddressToString(const uint8_t* addr) const;
+    void        getHostAddressUnlocked();
+    std::string ipAddressToString(const uint8_t* addr) const;
 
     void setHostNameFromAddress(socklen_t addressLen);
 
