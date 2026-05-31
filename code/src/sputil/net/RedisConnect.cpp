@@ -57,7 +57,7 @@ vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
         throw RedisConnectException("Already connected, please disconnect, first.");
     }
 
-    m_socket->host(Host(host.c_str(), port));
+    m_socket->host(Host(host, port));
     m_socket->open();
     m_socket->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
     m_reader = make_unique<SocketReader>(m_socket);
@@ -252,20 +252,34 @@ void RedisConnect::beginTransaction()
 {
     scoped_lock lock(m_mutex);
 
+    if (m_inTransaction)
+    {
+        throw RedisConnectException("Transaction is already started");
+    }
+
     const RedisCommand command("MULTI");
     vector<Variant>    results;
 
     executeCommand(command, results);
+
+    m_inTransaction = true;
 }
 
 vector<Variant> RedisConnect::commitTransaction()
 {
     scoped_lock lock(m_mutex);
 
+    if (!m_inTransaction)
+    {
+        throw RedisConnectException("Transaction is not started");
+    }
+
     const RedisCommand command("EXEC");
     vector<Variant>    results;
 
     executeCommand(command, results);
+
+    m_inTransaction = false;
 
     return results;
 }
@@ -274,9 +288,16 @@ void RedisConnect::rollbackTransaction()
 {
     scoped_lock lock(m_mutex);
 
+    if (!m_inTransaction)
+    {
+        throw RedisConnectException("Transaction is not started");
+    }
+
     const RedisCommand command("DISCARD");
 
     vector<Variant> results;
+
+    m_inTransaction = false;
 
     executeCommand(command, results);
 }

@@ -44,7 +44,7 @@ public:
      * @brief Constructor.
      * @param url           URL as a string.
      */
-    explicit URL(const String& url);
+    explicit URL(const std::string& url);
 
     /**
      * @brief Copy constructor.
@@ -71,7 +71,7 @@ public:
     /**
      * @return URL protocol.
      */
-    [[nodiscard]] String protocol() const
+    [[nodiscard]] std::string protocol() const
     {
         return m_protocol;
     }
@@ -79,7 +79,7 @@ public:
     /**
      * @return URL username.
      */
-    [[nodiscard]] String username() const
+    [[nodiscard]] std::string username() const
     {
         return m_username;
     }
@@ -87,7 +87,7 @@ public:
     /**
      * @return URL password.
      */
-    [[nodiscard]] String password() const
+    [[nodiscard]] std::string password() const
     {
         return m_password;
     }
@@ -95,12 +95,12 @@ public:
     /**
      * @return URL host and port.
      */
-    [[nodiscard]] std::tuple<String, uint16_t> hostAndPort() const;
+    [[nodiscard]] std::tuple<std::string, uint16_t> hostAndPort() const;
 
     /**
      * @return URL path.
      */
-    [[nodiscard]] String path() const
+    [[nodiscard]] std::string path() const
     {
         return m_path;
     }
@@ -108,29 +108,29 @@ public:
     /**
      * @return URL resource location.
      */
-    [[nodiscard]] String location() const;
+    [[nodiscard]] std::string location() const;
 
     /**
      * @return URL as a string.
      */
-    [[nodiscard]] String toString() const;
+    [[nodiscard]] std::string toString() const;
 
     /**
      * @brief Set URL path.
      * @param path URL path.
      */
-    void path(const String& path)
+    void path(const std::string& path)
     {
         m_path = path;
     }
 
 private:
-    String     m_protocol;    ///< URL protocol.
-    String     m_username;    ///< URL username.
-    String     m_password;    ///< URL password.
-    String     m_hostAndPort; ///< URL host and port.
-    String     m_path;        ///< URL path.
-    HttpParams m_params;      ///< URL params.
+    std::string m_protocol;    ///< URL protocol.
+    std::string m_username;    ///< URL username.
+    std::string m_password;    ///< URL password.
+    std::string m_hostAndPort; ///< URL host and port.
+    std::string m_path;        ///< URL path.
+    HttpParams  m_params;      ///< URL params.
 };
 
 /**

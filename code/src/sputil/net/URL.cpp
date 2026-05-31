@@ -33,7 +33,7 @@
 using namespace std;
 using namespace sptk;
 
-URL::URL(const String& url)
+URL::URL(const string& url)
 {
     static const RegularExpression matchUrl(R"(^((\w+)://)?(([^:]+)(:\S*)?@)?([\w:\-\.\[\]]+)?(/[^?\s]*)?(\?\S+)?$)");
 
@@ -102,7 +102,7 @@ URL::URL(const String& url)
     }
 }
 
-String URL::toString() const
+string URL::toString() const
 {
     stringstream str;
 
@@ -138,7 +138,7 @@ String URL::toString() const
     return str.str();
 }
 
-std::tuple<String, uint16_t> URL::hostAndPort() const
+std::tuple<string, uint16_t> URL::hostAndPort() const
 {
     static const RegularExpression matchHostAndPort(R"(^(\S+):(\d+)$)");
     const auto                     colonCount = ranges::count(m_hostAndPort, ':');
@@ -159,7 +159,7 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
         return std::make_tuple(matches[0].value, static_cast<uint16_t>(stoi(matches[1].value)));
     }
 
-    String   host = m_hostAndPort;
+    string   host = m_hostAndPort;
     uint16_t port = 0;
     if (m_hostAndPort.starts_with("["))
     {
@@ -182,7 +182,7 @@ std::tuple<String, uint16_t> URL::hostAndPort() const
     return std::make_tuple(host, port);
 }
 
-String URL::location() const
+string URL::location() const
 {
     static const RegularExpression matchLocation(R"(^(.+)\/[^/]+$)");
 

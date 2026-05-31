@@ -35,6 +35,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <thread>
 
 namespace sptk {
 
@@ -56,8 +57,11 @@ public:
 
 /**
  * @brief Redis Client.
- * @remarks Only the limited set of Redis methods is implemented.
- * @remarks This class is thread-safe.
+
+ * Only the limited set of Redis methods is implemented.
+ * The class is thread-safe, but the transaction control statements are not.
+ * If (within the same connection) transaction is started from one thread, all threads accessing
+ * the connection are affected.
  */
 class SP_EXPORT RedisConnect final
 {
@@ -273,25 +277,27 @@ public:
      */
     void rollbackTransaction();
 
+    /**
+     * @brief Executes Redis command and returns results.
+     * @param command Redis command elements.
+     * @param results Redis command output.
+     * @param cursor Optional Redis cursor for SCAN-like commands.
+     */
+    void executeCommand(const RedisCommand& command, std::vector<Variant>& results, Variant* cursor = nullptr);
+
 private:
-    mutable std::mutex            m_mutex;          ///< Mutex for thread safety.
-    std::shared_ptr<TCPSocket>    m_socket;         ///< Underlying socket.
-    std::unique_ptr<SocketReader> m_reader;         ///< Socket reader.
-    Buffer                        m_sendBuffer;     ///< Read line buffer.
-    Buffer                        m_readLineBuffer; ///< Read line buffer.
+    mutable std::mutex            m_mutex;                 ///< Mutex for thread safety.
+    std::shared_ptr<TCPSocket>    m_socket;                ///< Underlying socket.
+    std::unique_ptr<SocketReader> m_reader;                ///< Socket reader.
+    Buffer                        m_sendBuffer;            ///< Read line buffer.
+    Buffer                        m_readLineBuffer;        ///< Read line buffer.
+    bool                          m_inTransaction {false}; ///< If true then transaction is started.
 
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
      */
     void sendRequest(const RedisCommand& command) const;
-
-    /**
-     * @brief Sends Redis command.
-     * @param command Redis command elements.
-     * @param results Redis command output.
-     */
-    void executeCommand(const RedisCommand& command, std::vector<Variant>& results, Variant* cursor = nullptr);
 
     /**
      * @brief Reads a line from Redis.
