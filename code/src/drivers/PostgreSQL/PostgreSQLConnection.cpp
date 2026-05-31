@@ -107,7 +107,7 @@ public:
         return m_stmt;
     }
 
-    [[nodiscard]] String name() const
+    [[nodiscard]] const String& name() const
     {
         return m_stmtName;
     }
@@ -151,11 +151,8 @@ private:
 
 unsigned PostgreSQLStatement::nextIndex()
 {
-    static mutex    amutex;
-    static unsigned index = 0;
-
-    const scoped_lock lock(amutex);
-    return index++;
+    static std::atomic<unsigned> index = 0;
+    return index.fetch_add(1, std::memory_order_relaxed);
 }
 
 } // namespace sptk
@@ -327,18 +324,9 @@ void PostgreSQLConnection::driverEndTransaction(const bool commit)
         throw DatabaseException("Transaction isn't started.");
     }
 
-    string action;
+    const char* action = commit ? "COMMIT" : "ROLLBACK";
 
-    if (commit)
-    {
-        action = "COMMIT";
-    }
-    else
-    {
-        action = "ROLLBACK";
-    }
-
-    PGresult* res = PQexec(m_connect, action.c_str());
+    PGresult* res = PQexec(m_connect, action);
     checkError(m_connect, res, action);
     PQclear(res);
 
@@ -730,16 +718,12 @@ int64_t readInt8(const char* data)
 
 float readFloat4(const char* data)
 {
-    auto  value = ntohl(*bit_cast<const uint32_t*>(data));
-    void* ptr = &value;
-    return *bit_cast<float*>(ptr);
+    return bit_cast<float>(ntohl(*bit_cast<const uint32_t*>(data)));
 }
 
 double readFloat8(const char* data)
 {
-    auto  value = ntohq(*bit_cast<const uint64_t*>(data));
-    void* ptr = &value;
-    return *bit_cast<double*>(ptr);
+    return bit_cast<double>(ntohq(*bit_cast<const uint64_t*>(data)));
 }
 
 DateTime readDate(const char* data, const DateTime& epochDate)
@@ -1218,9 +1202,9 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
     static const RegularExpression matchStatementEnd(R"(;(\s*|\s*--.*)$)");
     static const RegularExpression matchCommentRow(R"(^\s*--)");
 
-    Strings      statements;
-    String       delimiter;
-    stringstream statement;
+    Strings statements;
+    String  delimiter;
+    String  statement;
 
     auto functionHeader = false;
     auto functionBody = false;
@@ -1238,7 +1222,8 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
         if (!functionHeader && matchFunction.matches(row))
         {
             functionHeader = true;
-            statement << row << "\n";
+            statement += row;
+            statement += '\n';
             continue;
         }
 
@@ -1248,7 +1233,8 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
             functionBody = true;
             functionHeader = false;
             delimiter = matches[0].value;
-            statement << row << "\n";
+            statement += row;
+            statement += '\n';
             continue;
         }
 
@@ -1260,18 +1246,19 @@ Strings PostgreSQLConnection::extractStatements(const Strings& sqlBatch)
 
         if (!functionBody && matchStatementEnd.matches(row))
         {
-            statement << row;
-            statements.push_back(statement.str());
-            statement.str("");
+            statement += row;
+            statements.push_back(statement);
+            statement.clear();
             continue;
         }
 
-        statement << row << "\n";
+        statement += row;
+        statement += '\n';
     }
 
-    if (!trim(statement.str()).empty())
+    if (!statement.trim().empty())
     {
-        statements.push_back(statement.str());
+        statements.push_back(statement);
     }
     return statements;
 }

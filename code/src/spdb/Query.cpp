@@ -197,7 +197,7 @@ Query::~Query()
     }
 }
 
-bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, const char*& paramEnd, const bool isPostgreSQL)
+bool Query::skipToNextParameter(String& sql, const char*& paramStart, const char*& paramEnd, const bool isPostgreSQL)
 {
     // Looking up for SQL parameters
     const char* delimiters = "':-/$";
@@ -218,7 +218,7 @@ bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, cons
         {
             throw DatabaseException("unterminated string literal");
         }
-        sql << string_view(paramEnd, static_cast<size_t>(nextQuote - paramEnd + 1));
+        sql.append(paramEnd, static_cast<size_t>(nextQuote - paramEnd + 1));
         paramEnd = nextQuote + 1;
     }
     else if (*paramStart == '-' && paramStart[1] == '-')
@@ -232,7 +232,7 @@ bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, cons
         }
         else
         {
-            sql << string_view(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 1));
+            sql.append(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 1));
             paramEnd = endOfRow + 1;
         }
     }
@@ -244,7 +244,7 @@ bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, cons
         {
             throw DatabaseException("unterminated block comment");
         }
-        sql << string_view(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 2));
+        sql.append(paramEnd, static_cast<size_t>(endOfRow - paramEnd + 2));
         paramEnd = endOfRow + 2;
     }
     else if (*paramStart == '$' && isPostgreSQL)
@@ -264,25 +264,25 @@ bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, cons
             {
                 throw DatabaseException("unterminated PostgreSQL dollar-quoted string");
             }
-            sql << string_view(paramEnd, static_cast<size_t>(quoteEnd - paramEnd + quoteTag.length()));
+            sql.append(paramEnd, static_cast<size_t>(quoteEnd - paramEnd + quoteTag.length()));
             paramEnd = quoteEnd + quoteTag.length();
         }
         else
         {
             // Just a '$' character, not a dollar-quoted string.
-            sql << string_view(paramEnd, static_cast<size_t>(paramStart - paramEnd + 1));
+            sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd + 1));
             paramEnd = paramStart + 1;
         }
     }
     else if (paramStart[1] == ':' || paramStart[1] == '=')
     {
         // Started PostgreSQL type qualifier '::' or assignment ':='
-        sql << string_view(paramEnd, static_cast<size_t>(paramStart - paramEnd + 2));
+        sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd + 2));
         paramEnd = paramStart + 2;
     }
     else
     {
-        sql << string_view(paramEnd, static_cast<size_t>(paramStart - paramEnd));
+        sql.append(paramEnd, static_cast<size_t>(paramStart - paramEnd));
         rc = true;
     }
 
@@ -294,14 +294,14 @@ bool Query::skipToNextParameter(stringstream& sql, const char*& paramStart, cons
     paramEnd = paramStart + 1;
     if (*paramStart != ':')
     {
-        sql << *paramStart;
+        sql += *paramStart;
         rc = false;
     }
 
     return rc;
 }
 
-void Query::sqlParseParameter(stringstream& sql, const char* paramStart, const char* paramEnd, int& paramNumber)
+void Query::sqlParseParameter(String& sql, PoolDatabaseConnection& db, const char* paramStart, const char* paramEnd, int& paramNumber)
 {
     const string_view paramName(paramStart + 1, paramEnd - paramStart - 1);
     auto              param = m_params.find(paramName);
@@ -311,12 +311,7 @@ void Query::sqlParseParameter(stringstream& sql, const char* paramStart, const c
         m_params.add(param);
     }
     param->bindAdd(static_cast<uint32_t>(paramNumber));
-    const auto db = database().lock();
-    if (!db)
-    {
-        throw Exception("Database connection is not valid");
-    }
-    sql << db->paramMark(static_cast<uint32_t>(paramNumber));
+    sql += db.paramMark(static_cast<uint32_t>(paramNumber));
     ++paramNumber;
 }
 
@@ -342,7 +337,7 @@ void Query::sql(const String& _sql)
     }
 }
 
-const char* Query::readParameter(stringstream& sql, int& paramNumber, const char* paramStart, const char* paramEnd)
+const char* Query::readParameter(String& sql, PoolDatabaseConnection& db, int& paramNumber, const char* paramStart, const char* paramEnd)
 {
     for (;; ++paramEnd)
     {
@@ -360,12 +355,12 @@ const char* Query::readParameter(stringstream& sql, int& paramNumber, const char
         if (current == '.')
         {
             // Oracle ':new.' or ':old.'
-            sql << string_view(paramStart, static_cast<size_t>(paramEnd - paramStart + 1));
+            sql.append(paramStart, static_cast<size_t>(paramEnd - paramStart + 1));
             ++paramEnd;
             return paramEnd;
         }
 
-        sqlParseParameter(sql, paramStart, paramEnd, paramNumber);
+        sqlParseParameter(sql, db, paramStart, paramEnd, paramNumber);
         break;
     }
     return paramEnd;
@@ -399,15 +394,16 @@ String Query::parseParameters(const String& _sql)
         throw Exception("Database connection is not valid");
     }
 
-    stringstream sql;
-    const auto   isPostgreSQL = db->connectionType() == DatabaseConnectionType::POSTGRES;
+    String sql;
+    sql.reserve(_sql.length());
+    const auto isPostgreSQL = db->connectionType() == DatabaseConnectionType::POSTGRES;
 
     auto paramNumber = 0;
     for (;;)
     {
         if (skipToNextParameter(sql, paramStart, paramEnd, isPostgreSQL))
         {
-            paramEnd = readParameter(sql, paramNumber, paramStart, paramEnd);
+            paramEnd = readParameter(sql, *db, paramNumber, paramStart, paramEnd);
         }
         else if (paramStart == nullptr || paramEnd == nullptr)
         {
@@ -417,9 +413,9 @@ String Query::parseParameters(const String& _sql)
 
     if (paramEnd != nullptr)
     {
-        sql << paramEnd;
+        sql += paramEnd;
     }
-    return sql.str();
+    return sql;
 }
 
 bool Query::open()

@@ -542,17 +542,18 @@ private:
     /**
      * @brief Parse query parameter during assigning SQL to query.
      * @param sql               Current SQL (output).
+     * @param db                Database connection (already locked by parseParameters).
      * @param paramStart        Start of parameter.
      * @param paramEnd          End of parameter.
      * @param paramNumber       Current parameter (placeholder) number.
      */
-    void sqlParseParameter(std::stringstream& sql, const char* paramStart, const char* paramEnd, int& paramNumber);
+    void sqlParseParameter(String& sql, PoolDatabaseConnection& db, const char* paramStart, const char* paramEnd, int& paramNumber);
 
     String parseParameters(const String& _sql);
 
-    const char* readParameter(std::stringstream& sql, int& paramNumber, const char* paramStart, const char* paramEnd);
+    const char* readParameter(String& sql, PoolDatabaseConnection& db, int& paramNumber, const char* paramStart, const char* paramEnd);
 
-    static bool skipToNextParameter(std::stringstream& sql, const char*& paramStart, const char*& paramEnd, bool isPostgreSQL);
+    static bool skipToNextParameter(String& sql, const char*& paramStart, const char*& paramEnd, bool isPostgreSQL);
 };
 
 using SQuery = std::shared_ptr<Query>;

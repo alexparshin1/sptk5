@@ -159,14 +159,14 @@ void DatabaseTests::testSqlParserPerformance(const DatabaseConnectionString& con
     stringstream sql;
 
     sql << "INSERT INTO table_name (column1, column2, column3, column4) ";
-    for (int row = 0; row < 1024; row++)
+    for (auto row = 0; row < 1024; row++)
     {
         if (row > 0)
         {
             sql << ", ";
         }
         sql << " VALUES (";
-        for (int col = 0; col < 4; col++)
+        for (auto col = 0; col < 4; col++)
         {
             if (col > 0)
             {
@@ -179,8 +179,8 @@ void DatabaseTests::testSqlParserPerformance(const DatabaseConnectionString& con
 
     Stopwatch stopwatch;
     stopwatch.start();
-    constexpr int iterations = 256;
-    for (int row = 0; row < iterations; row++)
+    constexpr auto iterations = 256;
+    for (auto row = 0; row < iterations; row++)
     {
         Query query(databaseConnection, sql.str());
     }
