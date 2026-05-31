@@ -124,6 +124,113 @@ String jsonEscape(const String& text)
     result.append(text, runStart, len - runStart); // flush final clean run
     return result;
 }
+
+// Returns true if the attribute value string should be written unquoted in JSON
+// (i.e. it's a boolean or a well-formed number).
+// Covers the same cases as isBoolean() || isInteger() || isFloat() without regex.
+bool looksUnquoted(std::string_view s) noexcept
+{
+    if (s.empty())
+    {
+        return false;
+    }
+
+    // Boolean
+    if (s == "true" || s == "false")
+    {
+        return true;
+    }
+
+    // Optional leading sign
+    size_t i = 0;
+    if (s[i] == '+' || s[i] == '-')
+    {
+        ++i;
+    }
+
+    if (i == s.size())
+    {
+        return false;
+    }
+
+    // Integer or integral part of a float
+    if (s[i] == '0')
+    {
+        ++i;
+        if (i == s.size())
+        {
+            return true; // bare zero
+        }
+
+        if (s[i] != '.')
+        {
+            return false; // reject "0123", "0abc", etc.
+        }
+    }
+    else if (s[i] >= '1' && s[i] <= '9')
+    {
+        ++i;
+        while (i < s.size() && s[i] >= '0' && s[i] <= '9')
+        {
+            ++i;
+        }
+
+        if (i == s.size())
+        {
+            return true; // integer
+        }
+
+        if (s[i] != '.')
+        {
+            return false;
+        }
+    }
+    else if (s[i] != '.')
+    {
+        return false; // must start with a digit or '.' (for ".5" style floats)
+    }
+
+    // Fractional part — s[i] is '.'
+    ++i;
+    if (i == s.size() || s[i] < '0' || s[i] > '9')
+    {
+        return false; // need at least one digit after the dot
+    }
+
+    while (i < s.size() && s[i] >= '0' && s[i] <= '9')
+    {
+        ++i;
+    }
+
+    if (i == s.size())
+    {
+        return true;
+    }
+
+    // Optional exponent
+    if (s[i] != 'e' && s[i] != 'E')
+    {
+        return false;
+    }
+
+    ++i;
+    if (i < s.size() && (s[i] == '+' || s[i] == '-'))
+    {
+        ++i;
+    }
+
+    if (i == s.size() || s[i] < '0' || s[i] > '9')
+    {
+        return false;
+    }
+
+    while (i < s.size() && s[i] >= '0' && s[i] <= '9')
+    {
+        ++i;
+    }
+
+    return i == s.size();
+}
 } // namespace
 
 void ExportJSON::exportJsonValueTo(const Node* node, Buffer& json, const bool formatted,
@@ -174,8 +281,7 @@ void ExportJSON::exportJsonValueTo(const Node* node, Buffer& json, const bool fo
             break;
 
         case Node::Type::Text:
-        case Node::Type::CData:
-        {
+        case Node::Type::CData: {
             const auto escaped = jsonEscape(node->getValue().asString());
             json.append('"');
             json.append(escaped);
@@ -337,7 +443,7 @@ void ExportJSON::exportNodeAttributes(const Node* node, Buffer& json, const bool
             if (formatted)
                 json.append(' ');
 
-            if (isInteger(value) || isFloat(value) || isBoolean(value))
+            if (looksUnquoted(value))
             {
                 json.append(value);
             }

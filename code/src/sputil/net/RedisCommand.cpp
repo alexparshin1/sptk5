@@ -43,6 +43,7 @@ void bufferAppendCount(Buffer& buffer, size_t value)
 } // namespace
 
 RedisCommand::RedisCommand(string_view command, string_view mode)
+    : Buffer(32)
 {
     append('$');
     bufferAppendCount(*this, command.size());
