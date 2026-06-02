@@ -249,7 +249,6 @@ void Host::getHostAddressUnlocked()
 
     if (exitCode == 0)
     {
-        memset(&m_address, 0, sizeof(m_address));
         memcpy(&m_address, bit_cast<sockaddr_in*>(result->ai_addr), result->ai_addrlen);
         freeaddrinfo(result);
     }
