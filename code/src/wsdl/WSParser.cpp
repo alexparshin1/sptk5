@@ -693,9 +693,9 @@ void fileToCxxStream(const filesystem::path& fileName, const String& variableNam
     Strings content;
     content.loadFromFile(fileName);
 
-    cxxStream << "const sptk::Strings " << variableName << "Rows({\n";
+    cxxStream << "const sptk::String " << variableName << "(R\"(";
 
-    bool first = true;
+    auto first = true;
     for (const auto& row: content)
     {
         if (first)
@@ -704,14 +704,12 @@ void fileToCxxStream(const filesystem::path& fileName, const String& variableNam
         }
         else
         {
-            cxxStream << ",\n";
+            cxxStream << "\n";
         }
-        cxxStream << "    R\"(" << row << ")\"";
+        cxxStream << "    " << row;
     }
 
-    cxxStream << "\n});\n\n";
-
-    cxxStream << "const sptk::String " << variableName << "(" << variableName << "Rows.join(\"\\n\"));\n";
+    cxxStream << ")\");\n\n";
 }
 } // namespace
 
