@@ -1219,7 +1219,7 @@ TEST_F(RedisConnectTests, asyncIncrementKey)
 {
     const string key = "async_incr_key";
     (void) redis.deleteKeys({key});
-    redis.setValue(key, static_cast<int64_t>(41));
+    redis.setValue(key, 41L);
 
     promise<int64_t> resultPromise;
     auto             resultFuture = resultPromise.get_future();
@@ -1404,10 +1404,10 @@ TEST_F(RedisConnectTests, threadSafety)
     }
 }
 
-TEST_F(RedisConnectTests, valueSetPerformanceAsync)
+TEST_F(RedisConnectTests, valueSetGetPerformanceAsync)
 {
     constexpr auto   totalValues = 10000;
-    constexpr size_t maxThreads = 1;
+    constexpr size_t maxThreads = 4;
 
     vector<int> valuesSet;
     mutex       valuesMutex;
@@ -1425,26 +1425,31 @@ TEST_F(RedisConnectTests, valueSetPerformanceAsync)
 
     for (size_t i = 0; i < maxThreads; i++)
     {
-        threads.emplace_back([&sourceValues, &valuesSet, &valuesMutex]
-                             {
-                                 RedisConnect threadRedis;
-                                 threadRedis.connect("theater", 6379);
+        threads.emplace_back(
+            [&sourceValues, &valuesSet, &valuesMutex]
+            {
+                RedisConnect threadRedis;
+                threadRedis.connect("theater", 6379);
 
-                                 auto value = 0;
-                                 while (!sourceValues.empty() && sourceValues.pop_front(value, 10ms))
-                                 {
-                                     // threadRedis.setValue(to_string(value), Variant(value));
-                                     // scoped_lock lock(valuesMutex);
-                                     // valuesSet.push_back(value);
-                                     threadRedis.setValueAsync(to_string(value), Variant(value), [value, &valuesMutex, &valuesSet]
-                                                               {
-                                                                   scoped_lock lock(valuesMutex);
-                                                                   valuesSet.push_back(value);
-                                                               });
-                                 }
-                                 (void) threadRedis.waitForAsyncCompletion(30s);
-                                 threadRedis.disconnect();
-                             });
+                auto value = 0;
+                while (!sourceValues.empty() && sourceValues.pop_front(value, 10ms))
+                {
+                    threadRedis.setValueAsync(to_string(value), Variant(value),
+                                              [&threadRedis, value, &valuesMutex, &valuesSet]
+                                              {
+                                                  threadRedis.getValueAsync(to_string(value), [value, &valuesMutex, &valuesSet](const Variant& outputValue)
+                                                                            {
+                                                                                if (outputValue.asInteger() == value)
+                                                                                {
+                                                                                    scoped_lock lock(valuesMutex);
+                                                                                    valuesSet.push_back(value);
+                                                                                }
+                                                                            });
+                                              });
+                }
+                (void) threadRedis.waitForAsyncCompletion(30s);
+                threadRedis.disconnect();
+            });
     }
 
     for (auto& thread: threads)

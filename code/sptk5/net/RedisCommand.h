@@ -79,7 +79,7 @@ public:
      * @brief Get argument count.
      * @return argument count.
      */
-    size_t count() const;
+    [[nodiscard]] size_t count() const;
 
 private:
     size_t m_count {0}; ///< Argument count.

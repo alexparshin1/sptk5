@@ -37,7 +37,6 @@
 #include <list>
 #include <memory>
 #include <mutex>
-#include <optional>
 #include <string>
 #include <thread>
 
@@ -80,7 +79,7 @@ public:
     using ResultCallback = std::function<void(const T&)>;
 
     /**
-     * @brief Callback signalling completion of an asynchronous operation that has no result.
+     * @brief Callback signaling completion of an asynchronous operation that has no result.
      */
     using CompletionCallback = std::function<void()>;
 
@@ -369,10 +368,12 @@ private:
     /**
      * @brief A single queued asynchronous operation.
      *
-     * A task is either @e pipelined (it carries a single Redis @c command and an @c onReply handler,
-     * so the worker can batch its request with others) or @e self-contained (it carries a
-     * @c selfContained callable that performs its own request/response I/O, used for collection or
-     * multi-round-trip operations such as SCAN that cannot be expressed as one pipelined command).
+     * A task is either @e pipelined or @e self-contained.
+     * A pipelined task carries a single Redis @c command and an @c onReply handler, so the worker
+     * can batch its request with others.
+     * A self-contained task carries a @c selfContained callable that performs its own request/response
+     * I/O, used for collection or multi-round-trip operations such as SCAN that cannot be expressed
+     * as one pipelined command.
      */
     struct AsyncTask
     {
@@ -389,7 +390,7 @@ private:
     std::once_flag               m_workerStarted; ///< Guards lazy worker thread startup.
 
     mutable std::mutex      m_asyncMutex;       ///< Guards the pending operation counter.
-    std::condition_variable m_asyncCondition;   ///< Signalled when a queued operation completes.
+    std::condition_variable m_asyncCondition;   ///< Signaled when a queued operation completes.
     size_t                  m_pendingTasks {0}; ///< Number of queued operations not yet completed.
 
     /**
@@ -414,14 +415,14 @@ private:
      * @brief Executes a batch of queued tasks, pipelining consecutive single-command operations.
      * @param batch Tasks popped from the queue, in submission order.
      */
-    void runBatch(std::vector<AsyncTask>& batch);
+    void runBatch(const std::vector<AsyncTask>& batch);
 
     /**
      * @brief Sends a run of pipelined requests in one write, reads their replies, and dispatches callbacks.
      * @param batch   The batch being processed.
      * @param indices Indices into @p batch of the consecutive pipelined tasks to flush, in order.
      */
-    void flushPipeline(std::vector<AsyncTask>& batch, const std::vector<size_t>& indices);
+    void flushPipeline(const std::vector<AsyncTask>& batch, const std::vector<size_t>& indices);
 
     /**
      * @brief Marks a queued task as completed and wakes any waiters.

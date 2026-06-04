@@ -725,7 +725,7 @@ void RedisConnect::startWorker()
               });
 }
 
-void RedisConnect::runBatch(vector<AsyncTask>& batch)
+void RedisConnect::runBatch(const vector<AsyncTask>& batch)
 {
     // Pipeline consecutive single-command tasks, but flush before each self-contained task so that
     // operations are still executed in submission order (see asyncOperationsAreOrdered test).
@@ -758,7 +758,7 @@ void RedisConnect::runBatch(vector<AsyncTask>& batch)
     flushPipeline(batch, pipelined);
 }
 
-void RedisConnect::flushPipeline(vector<AsyncTask>& batch, const vector<size_t>& indices)
+void RedisConnect::flushPipeline(const vector<AsyncTask>& batch, const vector<size_t>& indices)
 {
     if (indices.empty())
     {
@@ -797,7 +797,7 @@ void RedisConnect::flushPipeline(vector<AsyncTask>& batch, const vector<size_t>&
     }
 
     // Invoke callbacks outside the connection lock, then mark each task complete. Completion is
-    // signalled per task only after its callback returns, preserving waitForAsyncCompletion semantics.
+    // signaled per task only after its callback returns, preserving waitForAsyncCompletion semantics.
     for (size_t k = 0; k < indices.size(); ++k)
     {
         if (const auto& onReply = batch[indices[k]].onReply;
@@ -873,7 +873,7 @@ bool RedisConnect::waitForAsyncCompletion(const chrono::milliseconds timeout)
 void RedisConnect::getValueAsync(const string& key, ResultCallback<Variant> callback)
 {
     enqueueCommand(RedisCommand("GET", key),
-                   [callback = std::move(callback)](vector<Variant>& results)
+                   [callback = std::move(callback)](const vector<Variant>& results)
                    {
                        if (callback)
                        {
@@ -974,7 +974,7 @@ void RedisConnect::getHashValueAsync(const string& hash, const string& key, Resu
     command.emplace_back(key);
 
     enqueueCommand(std::move(command),
-                   [callback = std::move(callback)](vector<Variant>& results)
+                   [callback = std::move(callback)](const vector<Variant>& results)
                    {
                        if (results.empty())
                        {
@@ -1050,7 +1050,7 @@ void RedisConnect::deleteKeysAsync(const vector<string>& keys, ResultCallback<si
 void RedisConnect::incrementKeyAsync(const string& key, ResultCallback<int64_t> callback)
 {
     enqueueCommand(RedisCommand("INCR", key),
-                   [callback = std::move(callback)](vector<Variant>& results)
+                   [callback = std::move(callback)](const vector<Variant>& results)
                    {
                        if (results.empty())
                        {
@@ -1100,7 +1100,7 @@ void RedisConnect::isSetMemberAsync(const string& key, const string& member, Res
     command.emplace_back(member);
 
     enqueueCommand(std::move(command),
-                   [callback = std::move(callback)](vector<Variant>& results)
+                   [callback = std::move(callback)](const vector<Variant>& results)
                    {
                        if (results.empty())
                        {
@@ -1148,7 +1148,7 @@ void RedisConnect::renameKeyIfExistsAsync(const string& oldKey, const string& ne
     command.emplace_back(newKey);
 
     enqueueCommand(std::move(command),
-                   [callback = std::move(callback)](vector<Variant>& results)
+                   [callback = std::move(callback)](const vector<Variant>& results)
                    {
                        if (results.empty())
                        {
