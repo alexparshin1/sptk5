@@ -30,10 +30,14 @@
 #include "sptk5/net/RedisCommand.h"
 #include "sptk5/net/SocketReader.h"
 #include "sptk5/net/TCPSocket.h"
+#include "sptk5/threads/SynchronizedQueue.h"
 
+#include <condition_variable>
+#include <functional>
 #include <list>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <thread>
 
@@ -69,12 +73,32 @@ public:
     using KeysAndValues = std::unordered_map<std::string, Variant>;
 
     /**
+     * @brief Callback delivering the result of an asynchronous operation.
+     * @tparam T Result type of the corresponding synchronous method.
+     */
+    template<typename T>
+    using ResultCallback = std::function<void(const T&)>;
+
+    /**
+     * @brief Callback signalling completion of an asynchronous operation that has no result.
+     */
+    using CompletionCallback = std::function<void()>;
+
+    /**
      * @brief Constructor
      */
     RedisConnect()
         : m_socket(std::make_shared<TCPSocket>())
     {
     }
+
+    /**
+     * @brief Destructor. Stops the asynchronous worker thread, dropping any queued operations.
+     */
+    ~RedisConnect();
+
+    RedisConnect(const RedisConnect&) = delete;
+    RedisConnect& operator=(const RedisConnect&) = delete;
 
     /**
      * @brief Connects to Redis server.
@@ -252,6 +276,55 @@ public:
     [[nodiscard]] bool renameKeyIfExists(const std::string& oldKey, const std::string& newKey);
 
     /**
+     * @name Asynchronous operations
+     * @brief Non-blocking counterparts of the data methods above.
+     *
+     * Each *Async method queues the operation onto a single background worker thread and returns
+     * immediately. The result is delivered to the supplied callback when the operation completes;
+     * for void operations the callback (if provided) signals completion. Operations are executed
+     * in the order they were queued. If the underlying operation throws, the callback is not
+     * invoked. Connection, disconnection and transaction control have no asynchronous form.
+     * @{
+     */
+    void getValueAsync(const std::string& key, ResultCallback<Variant> callback);
+    void getValuesAsync(const std::vector<std::string>& keys, ResultCallback<KeysAndValues> callback);
+    void setValueAsync(const std::string& key, const Variant& value, CompletionCallback callback = {});
+    void setValuesAsync(const KeysAndValues& keysAndValues, CompletionCallback callback = {});
+    void setHashValueAsync(const std::string& hash, const std::string& key, const Variant& value, CompletionCallback callback = {});
+    void setHashValuesAsync(const std::string& hash, const KeysAndValues& keysAndValues, CompletionCallback callback = {});
+    void getHashKeysAsync(const std::string& hashName, ResultCallback<std::vector<std::string>> callback);
+    void getHashValueAsync(const std::string& hash, const std::string& key, ResultCallback<Variant> callback);
+    void getHashValuesAsync(const std::string& hash, const std::vector<std::string>& keys, ResultCallback<KeysAndValues> callback);
+    void getHashValuesAsync(const std::string& hash, ResultCallback<KeysAndValues> callback);
+    void deleteHashKeysAsync(const std::string& hash, const std::vector<std::string>& keys, CompletionCallback callback = {});
+    void scanAsync(const std::string& pattern, size_t limit, ResultCallback<std::vector<std::string>> callback);
+    void deleteKeysAsync(const std::vector<std::string>& keys, ResultCallback<size_t> callback);
+    void incrementKeyAsync(const std::string& key, ResultCallback<int64_t> callback);
+    void addSetMembersAsync(const std::string& key, const std::vector<std::string>& members, ResultCallback<size_t> callback);
+    void getSetMembersAsync(const std::string& key, ResultCallback<std::vector<std::string>> callback);
+    void isSetMemberAsync(const std::string& key, const std::string& member, ResultCallback<bool> callback);
+    void deleteSetMembersAsync(const std::string& key, const std::vector<std::string>& members, ResultCallback<size_t> callback);
+    void renameKeyAsync(const std::string& oldKey, const std::string& newKey, CompletionCallback callback = {});
+    void renameKeyIfExistsAsync(const std::string& oldKey, const std::string& newKey, ResultCallback<bool> callback);
+
+    /**
+     * @brief Waits until all queued asynchronous operations have completed.
+     * @details Blocks the calling thread until the worker has finished every operation queued so far,
+     *          including their callbacks. Returns immediately if nothing is pending.
+     * @note Must not be called from within an asynchronous callback, as that would deadlock.
+     */
+    void waitForAsyncCompletion();
+
+    /**
+     * @brief Waits until all queued asynchronous operations have completed, or the timeout elapses.
+     * @param timeout Maximum time to wait.
+     * @return True if all operations completed, false if the timeout elapsed first.
+     * @note Must not be called from within an asynchronous callback, as that would deadlock.
+     */
+    [[nodiscard]] bool waitForAsyncCompletion(std::chrono::milliseconds timeout);
+    /** @} */
+
+    /**
      * @brief Begin a transaction block.
      * @details Marks the start of a transaction. Subsequent commands will be queued
      *          and executed atomically when commitTransaction() is called.
@@ -289,15 +362,83 @@ private:
     mutable std::mutex            m_mutex;                 ///< Mutex for thread safety.
     std::shared_ptr<TCPSocket>    m_socket;                ///< Underlying socket.
     std::unique_ptr<SocketReader> m_reader;                ///< Socket reader.
-    Buffer                        m_sendBuffer;            ///< Read line buffer.
-    Buffer                        m_readLineBuffer;        ///< Read line buffer.
+    Buffer                        m_sendBuffer;            ///< Send command buffer.
+    Buffer                        m_readBuffer;            ///< Read buffer.
     bool                          m_inTransaction {false}; ///< If true then transaction is started.
+
+    /**
+     * @brief A single queued asynchronous operation.
+     *
+     * A task is either @e pipelined (it carries a single Redis @c command and an @c onReply handler,
+     * so the worker can batch its request with others) or @e self-contained (it carries a
+     * @c selfContained callable that performs its own request/response I/O, used for collection or
+     * multi-round-trip operations such as SCAN that cannot be expressed as one pipelined command).
+     */
+    struct AsyncTask
+    {
+        std::optional<RedisCommand>                command;       ///< Pipelined request; empty for self-contained tasks.
+        std::function<void(std::vector<Variant>&)> onReply;       ///< Handles the pipelined reply.
+        std::function<void()>                      selfContained; ///< Performs its own I/O; set => not pipelined.
+    };
+
+    /// Maximum number of pipelined requests sent before reading their replies.
+    static constexpr size_t MaxPipelineBatch = 256;
+
+    SynchronizedQueue<AsyncTask> m_taskQueue;     ///< Queue of pending asynchronous operations.
+    std::jthread                 m_worker;        ///< Worker thread executing queued operations.
+    std::once_flag               m_workerStarted; ///< Guards lazy worker thread startup.
+
+    mutable std::mutex      m_asyncMutex;       ///< Guards the pending operation counter.
+    std::condition_variable m_asyncCondition;   ///< Signalled when a queued operation completes.
+    size_t                  m_pendingTasks {0}; ///< Number of queued operations not yet completed.
+
+    /**
+     * @brief Lazily starts the asynchronous worker thread on first use.
+     */
+    void startWorker();
+
+    /**
+     * @brief Queues a self-contained task (performs its own I/O) for execution on the worker thread.
+     * @param task Task to execute.
+     */
+    void enqueue(std::function<void()> task);
+
+    /**
+     * @brief Queues a single-command operation that the worker may pipeline with other queued commands.
+     * @param command Request to send.
+     * @param onReply Handler invoked with the reply; not called if the command fails.
+     */
+    void enqueueCommand(RedisCommand command, std::function<void(std::vector<Variant>&)> onReply);
+
+    /**
+     * @brief Executes a batch of queued tasks, pipelining consecutive single-command operations.
+     * @param batch Tasks popped from the queue, in submission order.
+     */
+    void runBatch(std::vector<AsyncTask>& batch);
+
+    /**
+     * @brief Sends a run of pipelined requests in one write, reads their replies, and dispatches callbacks.
+     * @param batch   The batch being processed.
+     * @param indices Indices into @p batch of the consecutive pipelined tasks to flush, in order.
+     */
+    void flushPipeline(std::vector<AsyncTask>& batch, const std::vector<size_t>& indices);
+
+    /**
+     * @brief Marks a queued task as completed and wakes any waiters.
+     */
+    void taskCompleted();
+
+    /**
+     * @brief Appends a Redis command to the send buffer without writing it to the socket.
+     * @param command Redis command elements.
+     */
+    void appendRequest(const RedisCommand& command);
 
     /**
      * @brief Sends Redis command.
      * @param command Redis command elements.
      */
-    void sendRequest(const RedisCommand& command) const;
+    void sendRequest(const RedisCommand& command);
 
     /**
      * @brief Reads a line from Redis.

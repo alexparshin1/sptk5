@@ -276,20 +276,46 @@ void DateTimeFormat::init()
 
     TimeZone::timeZoneName(String(ptr, static_cast<unsigned>(len)));
 
-    const auto timestamp = time(nullptr);
-    tm         ltime {};
-#ifdef _WIN32
-    localtime_s(&ltime, &timestamp);
-#else
-    localtime_r(&timestamp, &ltime);
-#endif
-
+#ifdef NEWTIMEZONE
     const auto* local_tz = current_zone();
     const auto  info = local_tz->get_info(system_clock::now());
     const auto  offsetMinutes = duration_cast<minutes>(info.offset);
 
     TimeZone::isDaylightSavingsTime(info.save != minutes(0));
     TimeZone::timeZoneOffset(offsetMinutes);
+
+#else
+
+    // Use the cheap C runtime to determine the current UTC offset and DST flag,
+    // avoiding the expensive current_zone()/get_info() lookup.
+    const time_t now = system_clock::to_time_t(system_clock::now());
+    tm           localTime = {};
+#ifdef _WIN32
+    localtime_s(&localTime, &now);
+#else
+    localtime_r(&now, &localTime);
+#endif
+
+    const int is_dst = localTime.tm_isdst > 0 ? 1 : 0;
+
+#ifdef _WIN32
+    long tzSeconds = 0;
+    _get_timezone(&tzSeconds); // Seconds west of UTC for local standard time (UTC = local + tzSeconds)
+    long dstBias = 0;
+    if (is_dst != 0)
+    {
+        _get_dstbias(&dstBias); // DST offset, typically -3600
+    }
+    const auto offsetMinutes = duration_cast<minutes>(seconds(-tzSeconds - dstBias));
+#else
+    // tm_gmtoff is seconds east of UTC (local = UTC + tm_gmtoff)
+    const auto offsetMinutes = duration_cast<minutes>(seconds(localTime.tm_gmtoff));
+#endif
+
+    TimeZone::isDaylightSavingsTime(is_dst);
+    TimeZone::timeZoneOffset(offsetMinutes);
+
+#endif
 }
 
 namespace {

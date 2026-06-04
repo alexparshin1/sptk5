@@ -36,17 +36,6 @@
 using namespace std;
 using namespace sptk;
 
-namespace {
-void bufferAppendCount(Buffer& buffer, size_t value)
-{
-    buffer.checkSize(buffer.size() + 24);
-    char* start = reinterpret_cast<char*>(buffer.data()) + buffer.size();
-    auto* end = std::to_chars(start, start + 24, value).ptr;
-    *end = 0;
-    buffer.bytes(reinterpret_cast<uint8_t*>(end) - buffer.data());
-}
-} // namespace
-
 vector<Variant> RedisConnect::connect(const string& host, const uint16_t port,
                                       const string& username, const string& password, const string& clientName)
 {
@@ -565,14 +554,17 @@ RedisConnect::KeysAndValues RedisConnect::getValues(const vector<string>& keys)
     return output;
 }
 
-void RedisConnect::sendRequest(const RedisCommand& command) const
+void RedisConnect::appendRequest(const RedisCommand& command)
 {
-    Buffer header("*", 1);
-    bufferAppendCount(header, command.count());
-    header.append("\r\n", 2);
+    m_sendBuffer.append(24, "*{}\r\n", command.count());
+    m_sendBuffer.append(command);
+}
 
-    m_socket->write(header);
-    m_socket->write(command);
+void RedisConnect::sendRequest(const RedisCommand& command)
+{
+    m_sendBuffer.bytes(0);
+    appendRequest(command);
+    m_socket->write(m_sendBuffer);
 }
 
 void RedisConnect::executeCommand(const RedisCommand& command, std::vector<Variant>& results, Variant* cursor)
@@ -594,34 +586,34 @@ void RedisConnect::executeCommand(const RedisCommand& command, std::vector<Varia
 
 void RedisConnect::readLine()
 {
-    if (m_reader->readLine(m_readLineBuffer) == 0)
+    if (m_reader->readLine(m_readBuffer) == 0)
     {
         if (!m_reader->readyToRead(10s))
         {
             throw RedisConnectException("Server read timeout");
         }
-        m_reader->readLine(m_readLineBuffer);
+        m_reader->readLine(m_readBuffer);
     }
 
     // Remove \r from the end if present
-    if (const auto lastCharPos = m_readLineBuffer.size() - 1;
-        !m_readLineBuffer.empty() && m_readLineBuffer[lastCharPos] == '\r')
+    if (const auto lastCharPos = m_readBuffer.size() - 1;
+        !m_readBuffer.empty() && m_readBuffer[lastCharPos] == '\r')
     {
-        m_readLineBuffer.bytes(lastCharPos);
-        m_readLineBuffer[lastCharPos] = 0;
+        m_readBuffer.bytes(lastCharPos);
+        m_readBuffer[lastCharPos] = 0;
     }
 }
 
 void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
 {
     readLine();
-    if (m_readLineBuffer.empty())
+    if (m_readBuffer.empty())
     {
         throw RedisConnectException("Empty response");
     }
 
-    const auto             type = m_readLineBuffer[0];
-    const std::string_view payload {m_readLineBuffer.c_str() + 1, m_readLineBuffer.size() - 1};
+    const auto             type = m_readBuffer[0];
+    const std::string_view payload {m_readBuffer.c_str() + 1, m_readBuffer.size() - 1};
 
     switch (type)
     {
@@ -649,16 +641,16 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
                 return;
             }
             const auto readLength = len + 2;
-            m_readLineBuffer.checkSize(readLength);
-            m_reader->read(m_readLineBuffer, readLength);         // Also read \r\n
-            m_readLineBuffer.bytes(m_readLineBuffer.bytes() - 2); // Cut off \r\n
+            m_readBuffer.checkSize(readLength);
+            m_reader->read(m_readBuffer, readLength);     // Also read \r\n
+            m_readBuffer.bytes(m_readBuffer.bytes() - 2); // Cut off \r\n
             if (cursor)
             {
-                *cursor = m_readLineBuffer;
+                *cursor = m_readBuffer;
             }
             else
             {
-                results.emplace_back(m_readLineBuffer);
+                results.emplace_back(m_readBuffer);
             }
             return;
         }
@@ -703,4 +695,468 @@ void RedisConnect::readResponse(std::vector<Variant>& results, Variant* cursor)
         default:
             throw RedisConnectException("Unknown response type: " + std::string(1, type));
     }
+}
+
+RedisConnect::~RedisConnect()
+{
+    if (m_worker.joinable())
+    {
+        m_worker.request_stop();
+        m_taskQueue.wakeup();
+        m_worker.join();
+    }
+}
+
+void RedisConnect::startWorker()
+{
+    call_once(m_workerStarted, [this]
+              {
+                  m_worker = jthread([this](const stop_token& stopToken)
+                                     {
+                                         vector<AsyncTask> batch;
+                                         while (!stopToken.stop_requested())
+                                         {
+                                             if (m_taskQueue.pop_front(batch, MaxPipelineBatch, 100ms))
+                                             {
+                                                 runBatch(batch);
+                                             }
+                                         }
+                                     });
+              });
+}
+
+void RedisConnect::runBatch(vector<AsyncTask>& batch)
+{
+    // Pipeline consecutive single-command tasks, but flush before each self-contained task so that
+    // operations are still executed in submission order (see asyncOperationsAreOrdered test).
+    vector<size_t> pipelined;
+    pipelined.reserve(batch.size());
+
+    for (size_t i = 0; i < batch.size(); ++i)
+    {
+        if (batch[i].selfContained)
+        {
+            flushPipeline(batch, pipelined);
+            pipelined.clear();
+
+            try
+            {
+                batch[i].selfContained();
+            }
+            catch (const Exception&)
+            {
+                // The underlying operation failed; its callback is intentionally not invoked.
+            }
+            taskCompleted();
+        }
+        else
+        {
+            pipelined.push_back(i);
+        }
+    }
+
+    flushPipeline(batch, pipelined);
+}
+
+void RedisConnect::flushPipeline(vector<AsyncTask>& batch, const vector<size_t>& indices)
+{
+    if (indices.empty())
+    {
+        return;
+    }
+
+    vector<vector<Variant>> replies(indices.size());
+    vector<bool>            succeeded(indices.size(), false);
+
+    {
+        scoped_lock lock(m_mutex);
+        if (m_socket->active())
+        {
+            // Send every queued request in a single write, then read one reply per request.
+            m_sendBuffer.bytes(0);
+            for (const auto index: indices)
+            {
+                appendRequest(*batch[index].command);
+            }
+            m_socket->write(m_sendBuffer);
+
+            for (size_t k = 0; k < indices.size(); ++k)
+            {
+                try
+                {
+                    readResponse(replies[k]);
+                    succeeded[k] = true;
+                }
+                catch (const Exception&)
+                {
+                    // An error reply for this command was consumed; keep reading the remaining
+                    // replies so the response stream stays aligned with the pipelined requests.
+                }
+            }
+        }
+    }
+
+    // Invoke callbacks outside the connection lock, then mark each task complete. Completion is
+    // signalled per task only after its callback returns, preserving waitForAsyncCompletion semantics.
+    for (size_t k = 0; k < indices.size(); ++k)
+    {
+        if (const auto& onReply = batch[indices[k]].onReply;
+            succeeded[k] && onReply)
+        {
+            try
+            {
+                onReply(replies[k]);
+            }
+            catch (const Exception&)
+            {
+                // A failing callback must not prevent completion bookkeeping for this or later tasks.
+            }
+        }
+        taskCompleted();
+    }
+}
+
+void RedisConnect::enqueue(function<void()> task)
+{
+    startWorker();
+    {
+        scoped_lock lock(m_asyncMutex);
+        ++m_pendingTasks;
+    }
+    m_taskQueue.push_back(AsyncTask {.selfContained = std::move(task)});
+}
+
+void RedisConnect::enqueueCommand(RedisCommand command, function<void(vector<Variant>&)> onReply)
+{
+    startWorker();
+    {
+        scoped_lock lock(m_asyncMutex);
+        ++m_pendingTasks;
+    }
+    m_taskQueue.push_back(AsyncTask {.command = std::move(command), .onReply = std::move(onReply)});
+}
+
+void RedisConnect::taskCompleted()
+{
+    bool allCompleted = false;
+    {
+        scoped_lock lock(m_asyncMutex);
+        allCompleted = (--m_pendingTasks == 0);
+    }
+    // The only waiter (waitForAsyncCompletion) blocks until the pending count reaches zero,
+    // so notifying on every task would just wake it to re-check and re-park, while contending
+    // for m_asyncMutex and stalling the worker between operations. Notify only when draining.
+    if (allCompleted)
+    {
+        m_asyncCondition.notify_all();
+    }
+}
+
+void RedisConnect::waitForAsyncCompletion()
+{
+    unique_lock lock(m_asyncMutex);
+    m_asyncCondition.wait(lock, [this]
+                          {
+                              return m_pendingTasks == 0;
+                          });
+}
+
+bool RedisConnect::waitForAsyncCompletion(const chrono::milliseconds timeout)
+{
+    unique_lock lock(m_asyncMutex);
+    return m_asyncCondition.wait_for(lock, timeout, [this]
+                                     {
+                                         return m_pendingTasks == 0;
+                                     });
+}
+
+void RedisConnect::getValueAsync(const string& key, ResultCallback<Variant> callback)
+{
+    enqueueCommand(RedisCommand("GET", key),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (callback)
+                       {
+                           callback(results.empty() ? Variant {} : results[0]);
+                       }
+                   });
+}
+
+void RedisConnect::getValuesAsync(const vector<string>& keys, ResultCallback<KeysAndValues> callback)
+{
+    enqueue([this, keys, callback = std::move(callback)]
+            {
+                const auto result = getValues(keys);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::setValueAsync(const string& key, const Variant& value, CompletionCallback callback)
+{
+    RedisCommand command("SET", key);
+    command.emplace_back(value);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
+}
+
+void RedisConnect::setValuesAsync(const KeysAndValues& keysAndValues, CompletionCallback callback)
+{
+    enqueue([this, keysAndValues, callback = std::move(callback)]
+            {
+                setValues(keysAndValues);
+                if (callback)
+                {
+                    callback();
+                }
+            });
+}
+
+void RedisConnect::setHashValueAsync(const string& hash, const string& key, const Variant& value, CompletionCallback callback)
+{
+    RedisCommand command("HSET", hash);
+    command.emplace_back(key);
+    command.emplace_back(value);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
+}
+
+void RedisConnect::setHashValuesAsync(const string& hash, const KeysAndValues& keysAndValues, CompletionCallback callback)
+{
+    enqueue([this, hash, keysAndValues, callback = std::move(callback)]
+            {
+                setHashValues(hash, keysAndValues);
+                if (callback)
+                {
+                    callback();
+                }
+            });
+}
+
+void RedisConnect::getHashKeysAsync(const string& hashName, ResultCallback<vector<string>> callback)
+{
+    enqueueCommand(RedisCommand("HKEYS", hashName),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (!callback)
+                       {
+                           return;
+                       }
+                       vector<string> keys;
+                       keys.reserve(results.size());
+                       ranges::transform(results, back_inserter(keys), [](const Variant& v)
+                                         {
+                                             return v.asString();
+                                         });
+                       callback(keys);
+                   });
+}
+
+void RedisConnect::getHashValueAsync(const string& hash, const string& key, ResultCallback<Variant> callback)
+{
+    RedisCommand command("HGET", hash);
+    command.emplace_back(key);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (results.empty())
+                       {
+                           throw RedisConnectException("Unexpected empty response from HGET");
+                       }
+                       if (callback)
+                       {
+                           callback(results[0]);
+                       }
+                   });
+}
+
+void RedisConnect::getHashValuesAsync(const string& hash, const vector<string>& keys, ResultCallback<KeysAndValues> callback)
+{
+    enqueue([this, hash, keys, callback = std::move(callback)]
+            {
+                const auto result = getHashValues(hash, keys);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::getHashValuesAsync(const string& hash, ResultCallback<KeysAndValues> callback)
+{
+    enqueue([this, hash, callback = std::move(callback)]
+            {
+                const auto result = getHashValues(hash);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::deleteHashKeysAsync(const string& hash, const vector<string>& keys, CompletionCallback callback)
+{
+    enqueue([this, hash, keys, callback = std::move(callback)]
+            {
+                deleteHashKeys(hash, keys);
+                if (callback)
+                {
+                    callback();
+                }
+            });
+}
+
+void RedisConnect::scanAsync(const string& pattern, size_t limit, ResultCallback<vector<string>> callback)
+{
+    enqueue([this, pattern, limit, callback = std::move(callback)]
+            {
+                const auto result = scan(pattern, limit);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::deleteKeysAsync(const vector<string>& keys, ResultCallback<size_t> callback)
+{
+    enqueue([this, keys, callback = std::move(callback)]
+            {
+                const auto result = deleteKeys(keys);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::incrementKeyAsync(const string& key, ResultCallback<int64_t> callback)
+{
+    enqueueCommand(RedisCommand("INCR", key),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (results.empty())
+                       {
+                           throw RedisConnectException("Unexpected empty response from INCR command");
+                       }
+                       if (callback)
+                       {
+                           callback(results[0].asInt64());
+                       }
+                   });
+}
+
+void RedisConnect::addSetMembersAsync(const string& key, const vector<string>& members, ResultCallback<size_t> callback)
+{
+    enqueue([this, key, members, callback = std::move(callback)]
+            {
+                const auto result = addSetMembers(key, members);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::getSetMembersAsync(const string& key, ResultCallback<vector<string>> callback)
+{
+    enqueueCommand(RedisCommand("SMEMBERS", key),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (!callback)
+                       {
+                           return;
+                       }
+                       vector<string> members;
+                       members.reserve(results.size());
+                       ranges::transform(results, back_inserter(members), [](const Variant& v)
+                                         {
+                                             return v.asString();
+                                         });
+                       callback(members);
+                   });
+}
+
+void RedisConnect::isSetMemberAsync(const string& key, const string& member, ResultCallback<bool> callback)
+{
+    RedisCommand command("SISMEMBER", key);
+    command.emplace_back(member);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (results.empty())
+                       {
+                           throw RedisConnectException("Unexpected empty response from SISMEMBER command");
+                       }
+                       if (callback)
+                       {
+                           callback(results[0].asInt64() == 1);
+                       }
+                   });
+}
+
+void RedisConnect::deleteSetMembersAsync(const string& key, const vector<string>& members, ResultCallback<size_t> callback)
+{
+    enqueue([this, key, members, callback = std::move(callback)]
+            {
+                const auto result = deleteSetMembers(key, members);
+                if (callback)
+                {
+                    callback(result);
+                }
+            });
+}
+
+void RedisConnect::renameKeyAsync(const string& oldKey, const string& newKey, CompletionCallback callback)
+{
+    RedisCommand command("RENAME");
+    command.emplace_back(oldKey);
+    command.emplace_back(newKey);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>&)
+                   {
+                       if (callback)
+                       {
+                           callback();
+                       }
+                   });
+}
+
+void RedisConnect::renameKeyIfExistsAsync(const string& oldKey, const string& newKey, ResultCallback<bool> callback)
+{
+    RedisCommand command("RENAMENX");
+    command.emplace_back(oldKey);
+    command.emplace_back(newKey);
+
+    enqueueCommand(std::move(command),
+                   [callback = std::move(callback)](vector<Variant>& results)
+                   {
+                       if (results.empty())
+                       {
+                           throw RedisConnectException("Unexpected empty response from RENAMENX command");
+                       }
+                       if (callback)
+                       {
+                           callback(results[0].asInteger() == 1);
+                       }
+                   });
 }

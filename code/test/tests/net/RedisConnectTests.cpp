@@ -31,6 +31,7 @@
 #include "sptk5/net/RedisConnect.h"
 #include <chrono>
 #include <cstdlib>
+#include <future>
 #include <gtest/gtest.h>
 #include <ranges>
 #include <thread>
@@ -1178,6 +1179,170 @@ TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
     EXPECT_THROW(redis.rollbackTransaction(), RedisConnectException);
 }
 
+TEST_F(RedisConnectTests, asyncGetValue)
+{
+    const string  key = "async_get_key";
+    const Variant value = "async_value";
+    redis.setValue(key, value);
+
+    promise<Variant> resultPromise;
+    auto             resultFuture = resultPromise.get_future();
+
+    redis.getValueAsync(key, [&resultPromise](const Variant& result)
+                        {
+                            resultPromise.set_value(result);
+                        });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    EXPECT_EQ(value.asString(), resultFuture.get().asString());
+}
+
+TEST_F(RedisConnectTests, asyncSetValueCompletion)
+{
+    const string key = "async_set_key";
+
+    promise<void> donePromise;
+    auto          doneFuture = donePromise.get_future();
+
+    redis.setValueAsync(key, Variant("hello_async"), [&donePromise]
+                        {
+                            donePromise.set_value();
+                        });
+
+    ASSERT_EQ(future_status::ready, doneFuture.wait_for(5s));
+    EXPECT_EQ("hello_async", redis.getValue(key).asString());
+
+    (void) redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncIncrementKey)
+{
+    const string key = "async_incr_key";
+    (void) redis.deleteKeys({key});
+    redis.setValue(key, static_cast<int64_t>(41));
+
+    promise<int64_t> resultPromise;
+    auto             resultFuture = resultPromise.get_future();
+
+    redis.incrementKeyAsync(key, [&resultPromise](const int64_t result)
+                            {
+                                resultPromise.set_value(result);
+                            });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    EXPECT_EQ(42, resultFuture.get());
+
+    (void) redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
+{
+    // Queued operations run sequentially on the worker thread in submission order.
+    const string key = "async_order_key";
+    (void) redis.deleteKeys({key});
+
+    redis.setValueAsync(key, Variant("first"));
+    redis.setValueAsync(key, Variant("second"));
+
+    promise<Variant> resultPromise;
+    auto             resultFuture = resultPromise.get_future();
+    redis.getValueAsync(key, [&resultPromise](const Variant& result)
+                        {
+                            resultPromise.set_value(result);
+                        });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    EXPECT_EQ("second", resultFuture.get().asString());
+
+    (void) redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncGetHashValues)
+{
+    const string                      hash = "async_hash";
+    const RedisConnect::KeysAndValues testValues = {
+        {"field1", "value1"},
+        {"field2", 12345}};
+
+    (void) redis.deleteKeys({hash});
+    redis.setHashValues(hash, testValues);
+
+    promise<RedisConnect::KeysAndValues> resultPromise;
+    auto                                 resultFuture = resultPromise.get_future();
+
+    redis.getHashValuesAsync(hash, [&resultPromise](const RedisConnect::KeysAndValues& result)
+                             {
+                                 resultPromise.set_value(result);
+                             });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    auto values = resultFuture.get();
+    ASSERT_EQ(2u, values.size());
+    EXPECT_EQ("value1", values["field1"].asString());
+    EXPECT_EQ(12345, values["field2"].asInteger());
+
+    (void) redis.deleteKeys({hash});
+}
+
+TEST_F(RedisConnectTests, asyncWaitForCompletion)
+{
+    constexpr auto count = 200;
+    atomic_size_t  completed = 0;
+
+    for (auto i = 0; i < count; ++i)
+    {
+        const auto key = format("async_wait_key_{}", i);
+        redis.setValueAsync(key, Variant(i), [&completed]
+                            {
+                                ++completed;
+                            });
+    }
+
+    redis.waitForAsyncCompletion();
+
+    // After waiting, every queued operation (and its callback) has run.
+    EXPECT_EQ(count, completed.load());
+
+    vector<string> keys;
+    for (auto i = 0; i < count; ++i)
+    {
+        keys.push_back(format("async_wait_key_{}", i));
+    }
+    (void) redis.deleteKeys(keys);
+}
+
+TEST_F(RedisConnectTests, asyncWaitForCompletionEmpty)
+{
+    // Nothing queued: returns immediately.
+    EXPECT_TRUE(redis.waitForAsyncCompletion(5s));
+}
+
+TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
+{
+    promise<void> startedPromise;
+    auto          startedFuture = startedPromise.get_future();
+    promise<void> releasePromise;
+    auto          releaseFuture = releasePromise.get_future();
+
+    // A first operation that blocks the worker until released, so the queue cannot drain.
+    redis.setValueAsync("async_timeout_key", Variant("v"), [&startedPromise, &releaseFuture]
+                        {
+                            startedPromise.set_value();
+                            releaseFuture.wait();
+                        });
+
+    ASSERT_EQ(future_status::ready, startedFuture.wait_for(5s));
+
+    // The operation is still in progress, so waiting with a short timeout must fail.
+    EXPECT_FALSE(redis.waitForAsyncCompletion(100ms));
+
+    // Release the worker and confirm completion is then observed.
+    releasePromise.set_value();
+    EXPECT_TRUE(redis.waitForAsyncCompletion(5s));
+
+    (void) redis.deleteKeys({"async_timeout_key"});
+}
+
 TEST_F(RedisConnectTests, threadSafety)
 {
     constexpr auto threadCount = 10;
@@ -1237,6 +1402,61 @@ TEST_F(RedisConnectTests, threadSafety)
         const auto value = redis.getValue(incrKey).asInt64();
         EXPECT_EQ(operationsPerThread, value);
     }
+}
+
+TEST_F(RedisConnectTests, valueSetPerformanceAsync)
+{
+    constexpr auto   totalValues = 10000;
+    constexpr size_t maxThreads = 1;
+
+    vector<int> valuesSet;
+    mutex       valuesMutex;
+
+    SynchronizedQueue<int> sourceValues;
+    for (auto value = 0; value < totalValues; ++value)
+    {
+        sourceValues.push_back(value);
+    }
+
+    vector<jthread> threads;
+
+    Stopwatch stopwatch;
+    stopwatch.start();
+
+    for (size_t i = 0; i < maxThreads; i++)
+    {
+        threads.emplace_back([&sourceValues, &valuesSet, &valuesMutex]
+                             {
+                                 RedisConnect threadRedis;
+                                 threadRedis.connect("theater", 6379);
+
+                                 auto value = 0;
+                                 while (!sourceValues.empty() && sourceValues.pop_front(value, 10ms))
+                                 {
+                                     // threadRedis.setValue(to_string(value), Variant(value));
+                                     // scoped_lock lock(valuesMutex);
+                                     // valuesSet.push_back(value);
+                                     threadRedis.setValueAsync(to_string(value), Variant(value), [value, &valuesMutex, &valuesSet]
+                                                               {
+                                                                   scoped_lock lock(valuesMutex);
+                                                                   valuesSet.push_back(value);
+                                                               });
+                                 }
+                                 (void) threadRedis.waitForAsyncCompletion(30s);
+                                 threadRedis.disconnect();
+                             });
+    }
+
+    for (auto& thread: threads)
+    {
+        thread.join();
+    }
+
+    stopwatch.stop();
+
+    EXPECT_EQ(totalValues, valuesSet.size());
+
+    COUT(format("Set {} keys for {:3.1f}ms ({:3.1f}K/s)", totalValues, stopwatch.milliseconds(), totalValues / stopwatch.milliseconds()));
 }
 
 } // namespace sptk
