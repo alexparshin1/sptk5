@@ -61,12 +61,19 @@ STCPSocket ServerConnection::setSocket(const STCPSocket& socket)
 TCPServer& ServerConnection::server() const
 {
     const scoped_lock lock(m_mutex);
-    return m_server;
+    return *m_server;
 }
 
 ServerConnection::ServerConnection(TCPServer& server, const Type type, const sockaddr_in* connectionAddress)
-    : m_server(server)
+    : m_server(&server)
     , m_serial(nextSerial())
+    , m_type(type)
+{
+    tie(m_address, m_port) = parseAddress(connectionAddress);
+}
+
+ServerConnection::ServerConnection(const Type type, const sockaddr_in* connectionAddress)
+    : m_serial(nextSerial())
     , m_type(type)
 {
     tie(m_address, m_port) = parseAddress(connectionAddress);

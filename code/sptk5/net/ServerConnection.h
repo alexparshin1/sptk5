@@ -51,6 +51,7 @@ class TCPServer;
 class SP_EXPORT ServerConnection
 {
     friend class TCPServer;
+    friend class FastTCPServer;
 
 public:
     enum class Type
@@ -68,6 +69,17 @@ public:
      * @param connectionAddress Connection address.
      */
     ServerConnection(TCPServer& server, Type type, const sockaddr_in* connectionAddress);
+
+    /**
+     * @brief Constructor for a server connection that is not owned by a TCPServer.
+     *
+     * Used by event-driven servers such as FastTcpServer, where the connection
+     * lifetime and I/O are managed by a SocketEvents reactor rather than by a
+     * dedicated connection thread.
+     * @param type              Connection type.
+     * @param connectionAddress Connection address.
+     */
+    ServerConnection(Type type, const sockaddr_in* connectionAddress);
 
     /**
      * @brief Destructor.
@@ -123,12 +135,12 @@ public:
     uint16_t port() const;
 
 private:
-    mutable std::mutex m_mutex;      ///< Mutex that protects internal data.
-    TCPServer&         m_server;     ///< Parent server object.
-    STCPSocket         m_socket;     ///< Connection socket.
-    String             m_address;    ///< Incoming connection IP address.
-    uint16_t           m_port {0};   ///< Incoming connection port.
-    size_t             m_serial {0}; ///< Connection serial number.
+    mutable std::mutex m_mutex;            ///< Mutex that protects internal data.
+    TCPServer*         m_server {nullptr}; ///< Parent server object (may be null for FastTcpServer connections).
+    STCPSocket         m_socket;           ///< Connection socket.
+    String             m_address;          ///< Incoming connection IP address.
+    uint16_t           m_port {0};         ///< Incoming connection port.
+    size_t             m_serial {0};       ///< Connection serial number.
     Type               m_type {Type::TCP}; ///< Connection type (TCP or SSL).
 
     /**
