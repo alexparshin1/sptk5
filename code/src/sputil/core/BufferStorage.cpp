@@ -29,20 +29,9 @@
 using namespace std;
 using namespace sptk;
 
-void BufferStorage::reallocate(const size_t size)
+void BufferStorage::throwNotEnoughMemory()
 {
-    auto* newBuffer = m_buffer ? realloc(m_buffer, size + 1) : malloc(size + 1);
-    if (newBuffer == nullptr)
-    {
-        throw Exception("Not enough memory");
-    }
-    m_buffer = std::bit_cast<uint8_t*>(newBuffer);
-    if (m_size > size)
-    {
-        m_size = size;
-    }
-    m_buffer[size] = 0;
-    m_allocated = size;
+    throw Exception("Not enough memory");
 }
 
 void BufferStorage::swapInternal(BufferStorage& other)
@@ -50,14 +39,6 @@ void BufferStorage::swapInternal(BufferStorage& other)
     swap(m_buffer, other.m_buffer);
     swap(m_allocated, other.m_allocated);
     swap(m_size, other.m_size);
-}
-
-void BufferStorage::adjustSize(const size_t size)
-{
-    if (size > m_allocated)
-    {
-        reallocate(size * 3 / 2);
-    }
 }
 
 void BufferStorage::_set(const uint8_t* data, const size_t size)
@@ -77,38 +58,9 @@ void BufferStorage::_set(const uint8_t* data, const size_t size)
 
 void BufferStorage::append(const char chr)
 {
-    constexpr auto extraSpace = 2;
-    checkSize(m_size + extraSpace);
+    checkSize(m_size + 1);
     m_buffer[m_size] = chr;
     m_buffer[++m_size] = 0;
-}
-
-void BufferStorage::append(const char* data, const size_t size)
-{
-    if (data == nullptr || size == 0)
-    {
-        return;
-    }
-
-    checkSize(m_size + size + 1);
-
-    memcpy(m_buffer + m_size, data, size);
-    m_size += size;
-    m_buffer[m_size] = 0;
-}
-
-void BufferStorage::append(const uint8_t* data, const size_t size)
-{
-    if (data == nullptr || size == 0)
-    {
-        return;
-    }
-
-    checkSize(m_size + size);
-
-    memcpy(m_buffer + m_size, data, size);
-    m_size += size;
-    m_buffer[m_size] = 0;
 }
 
 void BufferStorage::reset(const size_t size)
@@ -163,3 +115,4 @@ void BufferStorage::erase(const size_t offset, size_t length)
         m_buffer[m_size] = 0;
     }
 }
+

@@ -164,7 +164,10 @@ public:
               serverName,
               [this](const std::shared_ptr<ServerConnection>& connection, SocketEventType type)
               {
-                  reactorEvent(connection, type);
+                  if (connection)
+                  {
+                      socketEventCallback(connection, type);
+                  }
               },
               std::chrono::milliseconds(100), SocketPoolTriggerMode::LevelTriggered, 1024)
     {
@@ -287,24 +290,19 @@ protected:
     /**
      * @brief Socket events callback.
      *
-     * Invoked by the default reactorEvent() whenever a monitored connection has
-     * data available to read. Implemented by derived classes to process incoming data.
+     * Called by the reactor thread for every event on a monitored connection. The
+     * implementation fully owns the event, including the connection lifecycle: it
+     * should process available data (eventType.m_data) and tear the connection down
+     * on peer hangup or error (eventType.m_hangup / eventType.m_error) using
+     * closeConnection(). Failing to release a connection on hangup/error will keep
+     * the level-triggered reactor re-signalling it.
+     *
+     * Use watchConnection() / unwatchConnection() to pause and resume monitoring (for
+     * example, while a worker thread processes the connection).
      * @param connection        Connection that received the event.
      * @param eventType         Event type.
      */
     virtual void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) = 0;
-
-    /**
-     * @brief Reactor event dispatcher.
-     *
-     * Called by the reactor thread for every event on a monitored connection.
-     * The default implementation delivers data events to socketEventCallback() and
-     * closes the connection on hangup or error. Override to take full control of the
-     * connection lifecycle (for example, to hand processing to a worker thread pool).
-     * @param connection        Connection that received the event.
-     * @param eventType         Event type.
-     */
-    virtual void reactorEvent(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType);
 
     /**
      * @brief Tune a freshly accepted connection socket.

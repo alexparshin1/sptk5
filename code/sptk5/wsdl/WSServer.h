@@ -41,7 +41,7 @@ namespace sptk {
  * @brief Web Service Server.
  *
  * Simple server to accept Web Service requests.
- * Actual request processing is implemented in Web Service request processor,.
+ * Actual request processing is implemented in Web Service request processor,
  * passed to constructor.
  * As a bonus, WSServer also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
@@ -103,26 +103,20 @@ protected:
     void tuneSocket(const STCPSocket& socket) override;
 
     /**
-     * @brief Reactor event dispatcher.
+     * @brief Socket event handler.
      *
-     * Removes the connection from the reactor (so it is not re-signalled while it
-     * is being processed) and hands it to its worker thread for processing.
+     * Removes the connection from the reactor (so it is not re-signaled while it
+     * is being processed) and hands it to its worker thread for processing, or
+     * closes it on peer hangup or error.
      * @param connection        Connection that received the event.
      * @param eventType         Event type.
      */
-    void reactorEvent(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) override;
+    void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) override;
 
 private:
     WSServices            m_services; ///< Web Service request processor.
     Logger                m_logger;   ///< Logger object.
     WSConnection::Options m_options;  ///< Client connection options.
-
-    /**
-     * @brief Unused: WSServer handles events in reactorEvent().
-     */
-    void socketEventCallback(const std::shared_ptr<ServerConnection>& /*connection*/, SocketEventType /*eventType*/) override
-    {
-    }
 };
 
 /**

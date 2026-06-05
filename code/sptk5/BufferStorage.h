@@ -207,9 +207,9 @@ public:
      * Allocates memory if needed.
      * @param sz                Required memory size
      */
-    virtual void checkSize(size_t sz)
+    void checkSize(size_t sz)
     {
-        if (sz >= m_allocated)
+        if (sz >= m_allocated) [[unlikely]]
         {
             adjustSize(sz);
         }
@@ -252,7 +252,7 @@ public:
      * Allocates memory if needed.
      * @param data              External data
      */
-    void set(const String& data)
+    void set(const std::string& data)
     {
         _set(std::bit_cast<const uint8_t*>(data.c_str()), data.length());
     }
@@ -322,22 +322,25 @@ public:
     }
 
     /**
-     * @brief Appends the external data of the size to the current buffer.
-     *
-     * Allocates memory if needed.
-     * @param data              External data buffer
-     * @param size              Required memory size
-     */
-    void append(const char* data, size_t size);
-
-    /**
      * Appends the external data of the size to the current buffer.
      *
      * Allocates memory if needed.
      * @param data              External data buffer
-     * @param size                Required memory size
+     * @param size              Required memory size in bytes
      */
-    void append(const uint8_t* data, size_t size);
+    template<class T>
+        requires std::is_integral_v<T>
+    void append(const T* data, const size_t size)
+    {
+        if (data == nullptr || size == 0)
+        {
+            return;
+        }
+        checkSize(m_size + size + 1);
+        memcpy(m_buffer + m_size, data, size);
+        m_size += size;
+        m_buffer[m_size] = 0;
+    }
 
     /**
      * Append a value of primitive type or structure to the current buffer.
@@ -418,7 +421,13 @@ public:
      * Resizes current buffer
      * @param size                Required memory size
      */
-    void adjustSize(size_t size);
+    void adjustSize(size_t size)
+    {
+        if (size > m_allocated)
+        {
+            reallocate(size * 2);
+        }
+    }
 
 protected:
     /**
@@ -444,7 +453,28 @@ protected:
      * Reallocate memory
      * @param size              Number of bytes for the new buffer
      */
-    void reallocate(size_t size);
+    void reallocate(size_t size)
+    {
+        auto* newBuffer = malloc(size + 1);
+        if (newBuffer == nullptr) [[unlikely]]
+        {
+            throwNotEnoughMemory();
+        }
+
+        if (m_buffer != nullptr)
+        {
+            const auto copySize = std::min(size, m_size);
+            memcpy(newBuffer, m_buffer, copySize);
+            free(m_buffer);
+        }
+        m_buffer = std::bit_cast<uint8_t*>(newBuffer);
+        if (m_size > size)
+        {
+            m_size = size;
+        }
+        m_buffer[size] = 0;
+        m_allocated = size;
+    }
 
     void init(const uint8_t* data, size_t size, size_t bytes)
     {
@@ -462,6 +492,13 @@ private:
     uint8_t* m_buffer {nullptr}; ///< Actual storage
     size_t   m_allocated {0};    ///< Alocated size
     size_t   m_size {0};         ///< Actual size of the data in the buffer
+
+    /**
+     * @brief Out-of-line cold path: throw on allocation failure.
+     *
+     * Kept out of line so the inline reallocate() hot path stays small.
+     */
+    [[noreturn]] static void throwNotEnoughMemory();
 
 
     /**

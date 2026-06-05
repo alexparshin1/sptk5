@@ -36,7 +36,7 @@ using namespace sptk;
 
 namespace {
 
-const String testPhrase("This is a test");
+const string testPhrase("This is a test");
 
 #ifdef _WIN32
 const filesystem::path tempFileName("/Windows/temp/gtest_sptk5_buffer.tmp");
@@ -202,85 +202,52 @@ TEST(BufferTests, hexDump)
 
 TEST(BufferTests, createPerformance)
 {
-    constexpr size_t count = 1000000;
+    constexpr auto count = 1000000;
+    constexpr auto appendCount = 100;
 
     Stopwatch stopWatch;
 
     stopWatch.start();
-    for (size_t i = 0; i < count; ++i)
+    for (auto i = 0; i < count; ++i)
     {
         Buffer buffer(testPhrase);
-        buffer.checkSize(1024);
-        buffer.checkSize(16384);
+        for (auto j = 0; j < appendCount; ++j)
+        {
+            buffer.append(testPhrase);
+        }
     }
     stopWatch.stop();
     auto duration = stopWatch.milliseconds();
     COUT("sptk::Buffer: " << duration << "ms");
 
     stopWatch.start();
-    for (size_t i = 0; i < count; ++i)
+    for (auto i = 0; i < count; ++i)
     {
         string buffer(testPhrase.c_str(), testPhrase.length());
-        buffer.resize(1024);
-        buffer.resize(16384);
+        for (auto j = 0; j < appendCount; ++j)
+        {
+            buffer += testPhrase;
+        }
     }
     stopWatch.stop();
     duration = stopWatch.milliseconds();
     COUT("std::string: " << duration << "ms");
 
     stopWatch.start();
-    for (size_t i = 0; i < count; ++i)
+    for (auto i = 0; i < count; ++i)
     {
         vector<char> buffer(testPhrase.length());
         memcpy(buffer.data(), testPhrase.c_str(), testPhrase.length());
-        buffer.resize(1024);
-        buffer.resize(16384);
+        for (auto j = 0; j < appendCount; ++j)
+        {
+            const auto bufferLength = buffer.size();
+            buffer.resize(bufferLength + testPhrase.length());
+            memcpy(buffer.data() + bufferLength, testPhrase.c_str(), testPhrase.length());
+        }
     }
     stopWatch.stop();
     duration = stopWatch.milliseconds();
     COUT("std::vector: " << duration << "ms");
-
-    stopWatch.start();
-    for (size_t i = 0; i < count; ++i)
-    {
-        char* buffer = bit_cast<char*>(malloc(testPhrase.length() + 1));
-        memcpy(buffer, testPhrase.c_str(), testPhrase.length());
-        auto temp = bit_cast<char*>(realloc(buffer, 1024));
-        if (temp != nullptr)
-        {
-            buffer = temp;
-        }
-        temp = bit_cast<char*>(realloc(buffer, 16384));
-        if (temp != nullptr)
-        {
-            buffer = temp;
-        }
-        free(buffer);
-    }
-    stopWatch.stop();
-    duration = stopWatch.milliseconds();
-    COUT("malloc: " << duration << "ms");
-
-    stopWatch.start();
-    for (size_t i = 0; i < count; ++i)
-    {
-        auto* buffer = bit_cast<char*>(realloc(nullptr, testPhrase.length() + 1));
-        memcpy(buffer, testPhrase.c_str(), testPhrase.length());
-        auto temp = bit_cast<char*>(realloc(buffer, 1024));
-        if (temp != nullptr)
-        {
-            buffer = temp;
-        }
-        temp = bit_cast<char*>(realloc(buffer, 16384));
-        if (temp != nullptr)
-        {
-            buffer = temp;
-        }
-        free(buffer);
-    }
-    stopWatch.stop();
-    duration = stopWatch.milliseconds();
-    COUT("realloc: " << duration << "ms");
 }
 
 TEST(BufferTests, format)

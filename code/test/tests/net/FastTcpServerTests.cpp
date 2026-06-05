@@ -75,6 +75,12 @@ public:
 protected:
     void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
     {
+        if (eventType.m_hangup || eventType.m_error)
+        {
+            closeConnection(connection);
+            return;
+        }
+
         if (!eventType.m_data)
         {
             return;
@@ -124,6 +130,12 @@ public:
 protected:
     void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
     {
+        if (eventType.m_hangup || eventType.m_error)
+        {
+            closeConnection(connection);
+            return;
+        }
+
         if (!eventType.m_data)
         {
             return;
@@ -184,9 +196,14 @@ public:
     }
 
 protected:
-    void socketEventCallback(const shared_ptr<ServerConnection>& /*connection*/, SocketEventType /*eventType*/) override
+    void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
     {
-        // Not needed for the accept-rate test.
+        // The accept-rate test sends no data; just release connections on hangup/error
+        // so the level-triggered reactor does not keep re-signalling them.
+        if (eventType.m_hangup || eventType.m_error)
+        {
+            closeConnection(connection);
+        }
     }
 };
 

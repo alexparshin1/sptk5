@@ -398,29 +398,6 @@ void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connec
     }
 }
 
-void FastTCPServer::reactorEvent(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType)
-{
-    if (!connection)
-    {
-        return;
-    }
-
-    if (eventType.m_data)
-    {
-        socketEventCallback(connection, eventType);
-    }
-
-    if (eventType.m_hangup || eventType.m_error)
-    {
-        // Let the application observe the close, then clean up.
-        if (!eventType.m_data)
-        {
-            socketEventCallback(connection, eventType);
-        }
-        closeConnection(connection);
-    }
-}
-
 void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connection)
 {
     if (!connection)

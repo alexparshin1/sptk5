@@ -84,7 +84,7 @@ void WSServer::tuneSocket(const STCPSocket&)
     // request timeout.
 }
 
-void WSServer::reactorEvent(const shared_ptr<ServerConnection>& baseConnection, const SocketEventType eventType)
+void WSServer::socketEventCallback(const shared_ptr<ServerConnection>& baseConnection, const SocketEventType eventType)
 {
     const auto connection = dynamic_pointer_cast<WSConnection>(baseConnection);
     if (!connection)
