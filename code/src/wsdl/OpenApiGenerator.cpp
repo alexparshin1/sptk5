@@ -145,11 +145,11 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
             response->set("description", description);
             if (name == "200")
             {
-                const auto&  responseContent = response->pushNode("responseContent", Object);
+                const auto&  responseContent = response->pushNode("content", Object);
                 const auto&  responseEncoding = responseContent->pushNode("application/json", Object);
-                const auto&  responseSchema = responseEncoding->pushNode("responseSchema", Object);
+                const auto&  responseSchema = responseEncoding->pushNode("schema", Object);
                 const String responseRef = "#/components/schemas/" + operation.m_output->name();
-                responseSchema->set("$responseRef", responseRef);
+                responseSchema->set("$ref", responseRef);
             }
         }
     }
@@ -157,19 +157,6 @@ void OpenApiGenerator::createPaths(Document& document, const WSOperationMap& ope
 
 void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeMap& complexTypes)
 {
-    struct OpenApiType
-    {
-        String type;
-        String format;
-    };
-
-    static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
-        {"string", {"string", ""}},
-        {"datetime", {"string", "date-time"}},
-        {"bool", {"boolean", ""}},
-        {"integer", {"integer", "int64"}},
-        {"double", {"number", "double"}}};
-
     using enum Node::Type;
 
     // Create components object
@@ -186,7 +173,8 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
             const auto& property = properties->pushNode(ctypeProperty->name(), Object);
             parseClassName(ctypeProperty, property);
 
-            if (ctypeProperty->multiplicity() != WSMultiplicity::ZERO_OR_ONE)
+            if (const auto m = ctypeProperty->multiplicity();
+                m == WSMultiplicity::REQUIRED || m == WSMultiplicity::ONE_OR_MORE)
             {
                 requiredProperties.push_back(ctypeProperty->name());
             }
@@ -204,13 +192,13 @@ void OpenApiGenerator::createComponents(Document& document, const WSComplexTypeM
         }
     }
 
-    const auto& securitySchemas = components->pushNode("securitySchemes");
-    const auto& basicAuth = securitySchemas->pushNode("basicAuth",
+    const auto& securitySchemes = components->pushNode("securitySchemes", Object);
+    const auto& basicAuth = securitySchemes->pushNode("basicAuth",
                                                       Object); // arbitrary name for the security scheme
     basicAuth->set("type", "http");
     basicAuth->set("scheme", "basic");
 
-    const auto& bearerAuth = securitySchemas->pushNode("bearerAuth",
+    const auto& bearerAuth = securitySchemes->pushNode("bearerAuth",
                                                        Object); // arbitrary name for the security scheme
     bearerAuth->set("type", "http");
     bearerAuth->set("scheme", "bearer");
@@ -227,6 +215,7 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
 
     static const map<String, OpenApiType> wsTypesToOpenApiTypes = {
         {"string", {"string", ""}},
+        {"date", {"string", "date"}},
         {"datetime", {"string", "date-time"}},
         {"bool", {"boolean", ""}},
         {"integer", {"integer", "int64"}},
@@ -236,8 +225,8 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
     if (className.starts_with("sptk::WS"))
     {
         className = className.replace("sptk::WS", "").toLowerCase();
-        const auto ttor = wsTypesToOpenApiTypes.find(className);
-        if (ttor != wsTypesToOpenApiTypes.end())
+        if (const auto ttor = wsTypesToOpenApiTypes.find(className);
+            ttor != wsTypesToOpenApiTypes.end())
         {
             property->set("type", ttor->second.type);
             if (!ttor->second.format.empty())
@@ -245,13 +234,16 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
                 property->set("format", ttor->second.format);
             }
         }
+        else
+        {
+            property->set("type", "string");
+        }
     }
     else if (className.starts_with("C"))
     {
         className = "#/components/schemas/" + className.substr(1);
-        if (static_cast<int>(ctypeProperty->multiplicity()) &
-            (static_cast<int>(WSMultiplicity::ZERO_OR_MORE) | static_cast<int>(WSMultiplicity::ONE_OR_MORE)))
-        { //array
+        if (ctypeProperty->isArray())
+        {
             property->set("type", "array");
             const auto& items = property->pushNode("items");
             items->set("$ref", className);
@@ -260,6 +252,10 @@ void OpenApiGenerator::parseClassName(const SWSParserComplexType& ctypeProperty,
         {
             property->set("$ref", className);
         }
+    }
+    else
+    {
+        property->set("type", "object");
     }
 }
 
