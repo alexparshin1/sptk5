@@ -301,7 +301,10 @@ shared_ptr<ServerConnection> FastTCPServer::createConnection(const ServerConnect
         socket->attach(connectionSocket, false);
     }
 
-    return make_shared<FastServerConnection>(connectionType, socket, peer);
+    auto connection = make_shared<ServerConnection>(connectionType, peer);
+    connection->setSocket(socket);
+
+    return connection;
 }
 
 void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer)

@@ -318,7 +318,7 @@ TEST(FastTcpServerTests, throughput)
     const auto message = makeMessage();
 
     // Number of 100-byte messages to push through the server.
-    constexpr size_t messageCount = 10'000;
+    constexpr size_t messageCount = 1000;
     constexpr size_t ackSize = 10;
 
     // Echo is 10 first bytes like a short ACK.

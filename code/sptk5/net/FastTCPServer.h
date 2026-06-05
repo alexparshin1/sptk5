@@ -49,29 +49,6 @@ class FastTCPServer;
  */
 
 /**
- * @brief Concrete server connection used by FastTcpServer.
- *
- * A thin wrapper around a TCP or SSL socket. Unlike TCPServerConnection,
- * it does not run on a dedicated thread; its I/O is driven by the
- * server's SocketEvents reactor.
- */
-class SP_EXPORT FastServerConnection : public ServerConnection
-{
-public:
-    /**
-     * @brief Constructor.
-     * @param type              Connection type (TCP or SSL).
-     * @param socket            Already accepted and attached connection socket.
-     * @param connectionAddress Incoming connection address.
-     */
-    FastServerConnection(const Type type, const STCPSocket& socket, const sockaddr_in* connectionAddress)
-        : ServerConnection(type, connectionAddress)
-    {
-        setSocket(socket);
-    }
-};
-
-/**
  * @brief Internal FastTcpServer listener thread.
  *
  * Accepts incoming connections on a single Host:port and hands each
