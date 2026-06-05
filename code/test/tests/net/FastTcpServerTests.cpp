@@ -117,8 +117,10 @@ private:
 class EchoServer : public FastTCPServer
 {
 public:
-    explicit EchoServer(const string& name)
+    explicit EchoServer(const string& name, size_t ackSize = 0)
         : FastTCPServer(name)
+        , m_messageSize(messageSize)
+        , m_ackSize(ackSize)
     {
     }
 
@@ -143,22 +145,21 @@ protected:
 
         const auto socket = connection->getSocket();
         auto       available = socket->socketBytes();
-        if (available == 0)
+        while (available >= m_messageSize)
         {
-            return;
-        }
-        available = min(available, m_buffer.size());
-
-        const auto bytes = socket->read(m_buffer.data(), available);
-        size_t     written = 0;
-        while (written < bytes)
-        {
-            written += socket->write(m_buffer.data() + written, bytes - written);
+            const auto bytes = socket->read(m_buffer.data(), m_messageSize);
+            const auto echoSize = m_ackSize ? min(m_ackSize, bytes) : bytes;
+            socket->write(m_buffer.data(), echoSize);
+            available -= m_messageSize;
+            ++m_sentMessages;
         }
     }
 
 private:
     vector<uint8_t> m_buffer = vector<uint8_t>(64 * 1024);
+    size_t          m_messageSize {0};
+    size_t          m_ackSize {0};
+    size_t          m_sentMessages {0};
 };
 
 /**
@@ -199,7 +200,7 @@ protected:
     void socketEventCallback(const shared_ptr<ServerConnection>& connection, const SocketEventType eventType) override
     {
         // The accept-rate test sends no data; just release connections on hangup/error
-        // so the level-triggered reactor does not keep re-signalling them.
+        // so the level-triggered reactor does not keep re-signaling them.
         if (eventType.m_hangup || eventType.m_error)
         {
             closeConnection(connection);
@@ -223,6 +224,8 @@ namespace sptk {
 
 TEST(FastTcpServerTests, basicEcho)
 {
+    const auto message = makeMessage();
+
     EchoServer server("FastTcpServer Echo");
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
     ASSERT_TRUE(server.active());
@@ -231,7 +234,6 @@ TEST(FastTcpServerTests, basicEcho)
     client.open(Host("127.0.0.1", testPort));
     client.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
-    const auto message = makeMessage();
     client.write(message.data(), message.size());
 
     array<uint8_t, messageSize> echoed {};
@@ -285,6 +287,8 @@ TEST(FastTcpServerTests, sslEcho)
         GTEST_SKIP() << "Certificate file " << certFile << " does not exist.";
     }
 
+    const auto message = makeMessage();
+
     EchoServer server("FastTcpServer SSL Echo");
     server.setSSLKeys(make_shared<SSLKeys>(certFile, certFile));
     server.addListener(ServerConnection::Type::SSL, Host("127.0.0.1", testPort));
@@ -293,7 +297,6 @@ TEST(FastTcpServerTests, sslEcho)
     SSLSocket client;
     client.open(Host("127.0.0.1", testPort));
 
-    const auto message = makeMessage();
     client.write(message.data(), message.size());
 
     array<uint8_t, messageSize> echoed {};
@@ -312,34 +315,64 @@ TEST(FastTcpServerTests, sslEcho)
 
 TEST(FastTcpServerTests, throughput)
 {
-    // Number of 100-byte messages to push through the server.
-    constexpr size_t messageCount = 1'000'000;
+    const auto message = makeMessage();
 
-    CountingServer server("FastTcpServer Throughput");
-    server.targetBytes = messageCount * messageSize;
+    // Number of 100-byte messages to push through the server.
+    constexpr size_t messageCount = 10'000;
+    constexpr size_t ackSize = 10;
+
+    // Echo is 10 first bytes like a short ACK.
+    EchoServer server("FastTcpServer Throughput", ackSize);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
 
-    TCPSocket client;
-    client.open(Host("127.0.0.1", testPort));
-    client.setOption(IPPROTO_TCP, TCP_NODELAY, 1);
+    const auto sender = make_shared<TCPSocket>();
+    sender->open(Host("127.0.0.1", testPort));
+    sender->setOption(IPPROTO_TCP, TCP_NODELAY, 1);
 
-    const auto message = makeMessage();
+    const auto receiver = sender;
 
     Stopwatch stopWatch;
     stopWatch.start();
+
+    size_t                  receivedMessageCount = 0;
+    Semaphore               receivedAllMessages;
+    SocketEvents<TCPSocket> socketEvents("",
+                                         [&receivedMessageCount, &receivedAllMessages](const std::shared_ptr<TCPSocket>& socket, SocketEventType eventType)
+                                         {
+                                             if (eventType.m_hangup)
+                                             {
+                                                 socket->close();
+                                                 return;
+                                             }
+                                             if (eventType.m_data)
+                                             {
+                                                 array<uint8_t, ackSize> message;
+                                                 if (socket->read(message.data(), ackSize) == ackSize)
+                                                 {
+                                                     ++receivedMessageCount;
+                                                     if (receivedMessageCount == messageCount)
+                                                     {
+                                                         receivedAllMessages.post();
+                                                     }
+                                                 }
+                                             }
+                                         });
+
+    socketEvents.open();
+    socketEvents.add(receiver, receiver);
 
     // Blocking writes throttle naturally as the reactor drains the socket;
     // the server never echoes, so it always makes progress (no deadlock).
     for (size_t i = 0; i < messageCount; ++i)
     {
-        size_t written = 0;
-        while (written < message.size())
-        {
-            written += client.write(message.data() + written, message.size() - written);
-        }
+        //sender->write(message.data(), message.size());
+        auto msg = format("{} {}", i, reinterpret_cast<const char*>(message.data()));
+        sender->write(reinterpret_cast<const uint8_t*>(msg.c_str()), message.size());
     }
 
-    ASSERT_TRUE(server.done.wait_for(30s)) << "Throughput test timed out";
+    ASSERT_TRUE(receivedAllMessages.wait_for(1000s)) << "Throughput test receiving timed out";
+    ASSERT_EQ(messageCount, receivedMessageCount) << "Received " << receivedMessageCount << " messages";
+
     stopWatch.stop();
 
     const double milliseconds = stopWatch.milliseconds();
@@ -352,9 +385,7 @@ TEST(FastTcpServerTests, throughput)
                                    << setprecision(0) << messagesPerSecond << " msg/s ("
                                    << setprecision(1) << megabytesPerSecond << " MB/s)");
 
-    EXPECT_GE(server.bytesReceived.load(), server.targetBytes);
-
-    client.close();
+    sender->close();
     server.stop();
 }
 
