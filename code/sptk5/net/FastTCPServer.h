@@ -222,7 +222,16 @@ public:
      * @param connectionSocket  Already accepted incoming connection socket handle.
      * @param peer              Incoming connection address.
      */
-    virtual std::shared_ptr<ServerConnection> createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer);
+    virtual std::shared_ptr<ServerConnection> createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer)
+    {
+        const STCPSocket socket = createConnectionSocket(connectionType, connectionSocket);
+
+        auto connection = std::make_shared<ServerConnection>(connectionType, peer);
+        connection->setSocket(socket);
+
+        return connection;
+    }
+
 
     /**
      * @brief Allow or deny an incoming connection.
@@ -303,19 +312,25 @@ protected:
      */
     void unwatchConnection(const std::shared_ptr<ServerConnection>& connection);
 
+    /**
+     * @brief Create connection socket object.
+     * @param connectionType Connection type.
+     * @param connectionSocket Raw connection socket.
+     * @return
+     */
+    STCPSocket createConnectionSocket(ServerConnection::Type connectionType, SocketType connectionSocket) const;
+
 private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
     using Listeners = std::vector<SListener>;
 
-    mutable std::mutex             m_mutex;        ///< Mutex that protects listeners and keys.
-    std::shared_ptr<LogEngine>     m_logEngine;    ///< Optional log engine.
-    std::shared_ptr<Logger>        m_logger;       ///< Optional logger.
-    SocketEvents<ServerConnection> m_socketEvents; ///< Socket events reactor.
-
-    std::shared_ptr<SSLKeys>               m_keys;      ///< Server SSL keys.
-    std::map<Host, Listeners, HostCompare> m_listeners; ///< Server listeners.
-
+    mutable std::mutex                                             m_mutex;            ///< Mutex that protects listeners and keys.
     mutable std::mutex                                             m_connectionsMutex; ///< Mutex that protects connections.
+    std::shared_ptr<LogEngine>                                     m_logEngine;        ///< Optional log engine.
+    std::shared_ptr<Logger>                                        m_logger;           ///< Optional logger.
+    SocketEvents<ServerConnection>                                 m_socketEvents;     ///< Socket events reactor.
+    std::shared_ptr<SSLKeys>                                       m_keys;             ///< Server SSL keys.
+    std::map<Host, Listeners, HostCompare>                         m_listeners;        ///< Server listeners.
     std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;      ///< Active connections.
 
     /**

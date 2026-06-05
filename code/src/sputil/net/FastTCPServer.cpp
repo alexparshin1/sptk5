@@ -278,7 +278,7 @@ shared_ptr<SSLKeys> FastTCPServer::getSSLKeys() const
     return m_keys;
 }
 
-shared_ptr<ServerConnection> FastTCPServer::createConnection(const ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
+STCPSocket FastTCPServer::createConnectionSocket(const ServerConnection::Type connectionType, const SocketType connectionSocket) const
 {
     STCPSocket socket;
 
@@ -300,14 +300,10 @@ shared_ptr<ServerConnection> FastTCPServer::createConnection(const ServerConnect
         socket = make_shared<TCPSocket>();
         socket->attach(connectionSocket, false);
     }
-
-    auto connection = make_shared<ServerConnection>(connectionType, peer);
-    connection->setSocket(socket);
-
-    return connection;
+    return socket;
 }
 
-void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer)
+void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, const SocketType connectionFD, const sockaddr_in& peer)
 {
     if (!allowConnection(&peer))
     {
