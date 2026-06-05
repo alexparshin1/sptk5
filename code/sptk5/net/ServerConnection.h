@@ -49,6 +49,7 @@ class TCPServer;
  * Used a base class for CTCPServerConnection and COpenSSLServerConnection.
  */
 class SP_EXPORT ServerConnection
+    : public std::enable_shared_from_this<ServerConnection>
 {
     friend class TCPServer;
     friend class FastTCPServer;
