@@ -287,13 +287,46 @@ protected:
     /**
      * @brief Socket events callback.
      *
-     * Invoked by the reactor whenever a monitored connection has an event
-     * (data available, peer hangup, or error). Implemented by derived classes
-     * to process incoming data.
+     * Invoked by the default reactorEvent() whenever a monitored connection has
+     * data available to read. Implemented by derived classes to process incoming data.
      * @param connection        Connection that received the event.
      * @param eventType         Event type.
      */
     virtual void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) = 0;
+
+    /**
+     * @brief Reactor event dispatcher.
+     *
+     * Called by the reactor thread for every event on a monitored connection.
+     * The default implementation delivers data events to socketEventCallback() and
+     * closes the connection on hangup or error. Override to take full control of the
+     * connection lifecycle (for example, to hand processing to a worker thread pool).
+     * @param connection        Connection that received the event.
+     * @param eventType         Event type.
+     */
+    virtual void reactorEvent(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType);
+
+    /**
+     * @brief Tune a freshly accepted connection socket.
+     *
+     * The default implementation enables TCP_NODELAY and switches the socket to
+     * non-blocking mode (suitable for the event reactor). Override to customize,
+     * for example to keep the socket in blocking mode.
+     * @param socket            Accepted connection socket.
+     */
+    virtual void tuneSocket(const STCPSocket& socket);
+
+    /**
+     * @brief Start monitoring a connection for input events and track it.
+     * @param connection        Connection to monitor.
+     */
+    void watchConnection(const std::shared_ptr<ServerConnection>& connection);
+
+    /**
+     * @brief Stop monitoring a connection for input events, without closing it.
+     * @param connection        Connection to stop monitoring.
+     */
+    void unwatchConnection(const std::shared_ptr<ServerConnection>& connection);
 
 private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
@@ -314,11 +347,6 @@ private:
      * @brief Accept an incoming connection (called by the listener thread).
      */
     void acceptIncoming(ServerConnection::Type connectionType, SocketType connectionFD, const sockaddr_in& peer);
-
-    /**
-     * @brief Reactor event dispatcher. Handles lifecycle and forwards to socketEventCallback().
-     */
-    void reactorEvent(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType);
 };
 
 /**

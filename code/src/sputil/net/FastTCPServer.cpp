@@ -326,7 +326,9 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
 
     if (!connection)
     {
-        closeSocketHandle(connectionFD);
+        // createConnection() returned no connection: it has taken ownership of the
+        // socket (attached it to its own object) or rejected it. Do not close the FD,
+        // otherwise we would close a descriptor that is now owned elsewhere.
         return;
     }
 
@@ -336,6 +338,12 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
         return;
     }
 
+    tuneSocket(socket);
+    watchConnection(connection);
+}
+
+void FastTCPServer::tuneSocket(const STCPSocket& socket)
+{
     // Tune the connection for low-latency, event-driven I/O.
     try
     {
@@ -346,6 +354,15 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
         // TCP_NODELAY is best-effort; ignore failures.
     }
     socket->blockingMode(false);
+}
+
+void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connection)
+{
+    const auto socket = connection->getSocket();
+    if (!socket)
+    {
+        return;
+    }
 
     {
         const scoped_lock lock(m_connectionsMutex);
@@ -360,6 +377,24 @@ void FastTCPServer::acceptIncoming(const ServerConnection::Type connectionType, 
     {
         log(LogPriority::Error, e.what());
         closeConnection(connection);
+    }
+}
+
+void FastTCPServer::unwatchConnection(const shared_ptr<ServerConnection>& connection)
+{
+    const auto socket = connection->getSocket();
+    if (!socket)
+    {
+        return;
+    }
+
+    try
+    {
+        m_socketEvents.remove(socket);
+    }
+    catch (const Exception&)
+    {
+        // Already removed or never added.
     }
 }
 

@@ -27,13 +27,16 @@
 #include <utility>
 
 #include "sptk5/wsdl/WSConnection.h"
+#include <sptk5/net/FastTCPServer.h>
 
 using namespace std;
 using namespace sptk;
 
-WSConnection::WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services,
+WSConnection::WSConnection(FastTCPServer& server, const sockaddr_in* connectionAddress, WSServices& services,
                            LogEngine& logEngine, Options options, const std::shared_ptr<Thread>& workerThread)
-    : RunableServerConnection(server, Type::SSL, connectionAddress)
+    : ServerConnection(Type::SSL, connectionAddress)
+    , Runable("WSConnection")
+    , m_server(server)
     , m_services(services)
     , m_logger(logEngine, format("({}) ", serial()))
     , m_options(std::move(options))
@@ -151,7 +154,7 @@ void WSConnection::processSingleConnection() const
 
     const auto closeConnection = reviewHeaders(requestType, headers);
 
-    auto hosts = server().listenerHosts();
+    auto hosts = m_server.listenerHosts();
     if (hosts.empty())
     {
         throw Exception("No listener hosts defined");
@@ -356,7 +359,7 @@ void WSConnection::respondToOptions(const HttpHeaders& headers) const
     getSocket()->write(response);
 }
 
-WSSSLConnection::WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
+WSSSLConnection::WSSSLConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* addr,
                                  WSServices& services, LogEngine& logEngine, const Options& options,
                                  const std::shared_ptr<Thread>& workerThread)
     : WSConnection(server, addr, services, logEngine, options, workerThread)

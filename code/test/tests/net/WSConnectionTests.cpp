@@ -27,19 +27,32 @@
 #include "sptk5/StreamLogEngine.h"
 #include "sptk5/wsdl/WSConnection.h"
 #include <gtest/gtest.h>
+#include <sptk5/net/FastTCPServer.h>
 
 using namespace sptk;
 
+namespace {
+// Minimal concrete FastTCPServer used only to satisfy the WSConnection constructor.
+class StubServer : public FastTCPServer
+{
+public:
+    using FastTCPServer::FastTCPServer;
+
+protected:
+    void socketEventCallback(const std::shared_ptr<ServerConnection>&, SocketEventType) override
+    {
+    }
+};
+} // namespace
+
 // Test fixture that constructs a WSConnection using minimal stubs.
-// If your WSConnection constructor requires concrete server / services / logger types,
-// replace the dummy values below with lightweight test doubles from your test helpers.
 class WSConnectionTests : public ::testing::Test
 {
 public:
     WSConnectionTests() = default;
 
 protected:
-    TCPServer               tcpServer {"test"};
+    StubServer              tcpServer {"test"};
     std::stringstream       logStream;
     sockaddr_in             addr {};
     WSServices              services {nullptr}; // requires default-constructible - replace with a test double if needed
@@ -61,69 +74,69 @@ protected:
 };
 namespace sptk {
 
-TEST_F(WSConnectionTests,addsContentLengthForGetWhenMissing)
+TEST_F(WSConnectionTests, addsContentLengthForGetWhenMissing)
 {
     // Arrange
-    std::unique_ptr<WSConnection> conn(makeConnection());
-    HttpHeaders                   headers;
+    const std::unique_ptr<WSConnection> conn(makeConnection());
+    HttpHeaders                         headers;
 
     // Simulate GET with no Content-Length and no Connection header
     const String requestType = "GET";
 
     // Act
-    bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = conn->reviewHeaders(requestType, headers);
 
     // Assert
-    auto it = headers.find("Content-Length");
+    const auto it = headers.find("Content-Length");
     ASSERT_NE(it, headers.end());
     EXPECT_EQ(it->second, "0");
     // When Connection header absent, implementation returns true (not "close")
     EXPECT_TRUE(closeConnection);
 }
 
-TEST_F(WSConnectionTests,keepsConnectionWhenHeaderIsClose)
+TEST_F(WSConnectionTests, keepsConnectionWhenHeaderIsClose)
 {
     // Arrange
-    std::unique_ptr<WSConnection> conn(makeConnection());
-    HttpHeaders                   headers;
+    const std::unique_ptr<WSConnection> conn(makeConnection());
+    HttpHeaders                         headers;
     headers["Content-Length"] = "123";
     headers["Connection"] = "close";
 
     const String requestType = "POST";
 
     // Act
-    bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = conn->reviewHeaders(requestType, headers);
 
     // Assert
     // Content-Length should remain unchanged
-    auto itLen = headers.find("Content-Length");
+    const auto itLen = headers.find("Content-Length");
     ASSERT_NE(itLen, headers.end());
     EXPECT_EQ(itLen->second, "123");
 
     // Since Connection == "close", method returns false and does not erase the header
     EXPECT_FALSE(closeConnection);
-    auto itConn = headers.find("Connection");
+    const auto itConn = headers.find("Connection");
     ASSERT_NE(itConn, headers.end());
     EXPECT_EQ(itConn->second.toLowerCase(), "close");
 }
 
-TEST_F(WSConnectionTests,erasesConnectionWhenNotClose)
+TEST_F(WSConnectionTests, erasesConnectionWhenNotClose)
 {
     // Arrange
-    std::unique_ptr<WSConnection> conn(makeConnection());
-    HttpHeaders                   headers;
+    const std::unique_ptr<WSConnection> conn(makeConnection());
+    HttpHeaders                         headers;
     headers["Connection"] = "keep-alive";
 
     const String requestType = "POST";
 
     // Act
-    bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = conn->reviewHeaders(requestType, headers);
 
     // Assert
     // Implementation treats anything not equal to "close" as closeConnection == true and erases header
     EXPECT_TRUE(closeConnection);
-    auto itConn = headers.find("Connection");
+    const auto itConn = headers.find("Connection");
     EXPECT_EQ(itConn, headers.end());
 }
 
-} // namespace sptk_test
+} // namespace sptk

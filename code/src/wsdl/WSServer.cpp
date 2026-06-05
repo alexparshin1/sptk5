@@ -27,29 +27,19 @@
 #include <sptk5/wsdl/WSConnection.h>
 #include <sptk5/wsdl/WSServer.h>
 
+#include <utility>
+
 using namespace std;
 using namespace sptk;
 
 WSServer::WSServer(const WSServices& services, LogEngine& logger, const String&, const size_t threadCount,
-                   const WSConnection::Options& options)
-    : TCPServer(services.get("").title(), threadCount, &logger, options.logDetails)
+                   WSConnection::Options options)
+    : FastTCPServer(services.get("").title())
     , WSServerThreads(this, threadCount)
     , m_services(services)
     , m_logger(logger)
-    , m_options(options)
-    , m_socketEvents(
-          "XMQ Server",
-          [this](const std::shared_ptr<WSConnection>& connection, auto type)
-          {
-              socketEventCallback(connection, type);
-          },
-          100ms, SocketPoolTriggerMode::LevelTriggered)
+    , m_options(std::move(options))
 {
-    // if (!hostname.empty())
-    // {
-    //     host(Host(hostname));
-    // }
-
     if (m_options.paths.htmlIndexPage.empty())
     {
         m_options.paths.htmlIndexPage = "index.html";
@@ -63,66 +53,48 @@ WSServer::WSServer(const WSServices& services, LogEngine& logger, const String&,
 
 WSServer::~WSServer()
 {
+    // Stop the worker threads first so they no longer re-arm or process connections,
+    // then stop the listeners and the reactor and close all connections.
     terminate();
+    stop();
 }
 
-void WSServer::terminate()
-{
-    WSServerThreads::terminate();
-}
-
-UServerConnection WSServer::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
+shared_ptr<ServerConnection> WSServer::createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer)
 {
     m_options.encrypted = connectionType == ServerConnection::Type::SSL;
 
     auto assignedThread = nextThread();
 
-    const auto connection = make_shared<WSSSLConnection>(*this, connectionSocket, peer, m_services,
-                                                         m_logger.destination(), m_options, assignedThread);
-    if (!connection->isHangup())
+    auto connection = make_shared<WSSSLConnection>(*this, connectionSocket, peer, m_services,
+                                                   m_logger.destination(), m_options, assignedThread);
+    if (connection->isHangup())
     {
-        watchConnection(connection);
+        // Connection hung up during setup: drop it (its socket is closed by the destructor).
+        return {};
     }
 
-    return {};
+    // FastTCPServer will tune the socket and start monitoring this connection.
+    return connection;
 }
 
-void WSServer::watchConnection(const std::shared_ptr<WSConnection>& connection)
+void WSServer::tuneSocket(const STCPSocket&)
 {
-    scoped_lock lock(m_mutex);
-    m_connectionMap[connection.get()] = connection;
-    m_socketEvents.add(connection->getSocket(), connection);
+    // Keep web service connection sockets in blocking mode: the reactor only signals
+    // readiness, and the worker thread performs blocking request reads within the
+    // request timeout.
 }
 
-void WSServer::closeConnection(const std::shared_ptr<WSConnection>& connection)
+void WSServer::reactorEvent(const shared_ptr<ServerConnection>& baseConnection, const SocketEventType eventType)
 {
-    connection->close();
-
-    scoped_lock lock(m_mutex);
-    m_socketEvents.remove(connection->getSocket());
-    m_connectionMap.erase(connection.get());
-}
-
-[[maybe_unused]] const WSConnection::Options& WSServer::getOptions() const
-{
-    return m_options;
-}
-
-void WSServer::socketEventCallback(const shared_ptr<WSConnection>& connection, const SocketEventType eventType)
-{
-    if (connection != nullptr)
+    const auto connection = dynamic_pointer_cast<WSConnection>(baseConnection);
+    if (!connection)
     {
-        scoped_lock lock(m_mutex);
-
-        WSConnection* connectionPtr = connection.get();
-        if (const auto connectionIterator = m_connectionMap.find(connectionPtr);
-            connectionIterator == m_connectionMap.end())
-        {
-            return;
-        }
+        return;
     }
 
-    m_socketEvents.remove(connection->getSocket());
+    // Stop monitoring while the worker processes this connection, so the
+    // level-triggered reactor does not keep re-signaling the same socket.
+    unwatchConnection(connection);
 
     if (eventType.m_hangup || eventType.m_error)
     {
@@ -134,4 +106,13 @@ void WSServer::socketEventCallback(const shared_ptr<WSConnection>& connection, c
         const auto workerThread = dynamic_pointer_cast<WSServerThread>(connection->getWorkerThread());
         workerThread->queue(connection);
     }
+    else if (connection->isHangup())
+    {
+        closeConnection(connection);
+    }
+}
+
+[[maybe_unused]] const WSConnection::Options& WSServer::getOptions() const
+{
+    return m_options;
 }

@@ -28,11 +28,8 @@
 
 #include "WSServerThread.h"
 
-#include <sptk5/cnet>
-#include <sptk5/cutils>
-#include <sptk5/net/SocketEvents.h>
+#include <sptk5/net/FastTCPServer.h>
 #include <sptk5/wsdl/WSConnection.h>
-#include <sptk5/wsdl/WSRequest.h>
 
 namespace sptk {
 /**
@@ -48,9 +45,14 @@ namespace sptk {
  * passed to constructor.
  * As a bonus, WSServer also serves static files, located in staticFilesDirectory.
  * That may be used to implement a web application.
+ *
+ * WSServer is event-driven: it derives from FastTCPServer, which monitors all
+ * accepted connections with a single reactor (epoll/kqueue/wepoll). When a
+ * connection becomes readable, the request is dispatched to a WSServerThread
+ * worker that processes it without blocking the reactor.
  */
 class SP_EXPORT WSServer
-    : public TCPServer
+    : public FastTCPServer
     , public WSServerThreads
 {
     friend class WSServerThread;
@@ -58,14 +60,14 @@ class SP_EXPORT WSServer
 public:
     /**
      * @brief Constructor.
-     * @param service               Web Service request processor.
+     * @param services              Web Service request processor.
      * @param logger                Logger.
      * @param hostname              This service hostname.
      * @param threadCount           Max number of simultaneously running requests.
      * @param options               Client connection options.
      */
     WSServer(const WSServices& services, LogEngine& logger, const String& hostname, size_t threadCount,
-             const WSConnection::Options& options);
+             WSConnection::Options options);
 
     /**
      * @brief Destructor.
@@ -80,56 +82,47 @@ public:
 
 protected:
     /**
-     * @brief Creates connection thread derived from CTCPServerConnection.
+     * @brief Create a WSConnection for an accepted client connection.
      *
-     * Application should override this method to create concrete connection object.
-     * Created connection object is maintained by CTCPServer.
+     * The created connection is added to the FastTCPServer reactor and monitored
+     * for input events.
      * @param connectionType        Incoming connection type.
      * @param connectionSocket      Already accepted incoming connection socket.
      * @param peer                  Incoming connection information.
+     * @return The created connection, or empty if the connection hung up during setup.
      */
-    UServerConnection createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer) override;
+    std::shared_ptr<ServerConnection> createConnection(ServerConnection::Type connectionType, SocketType connectionSocket, const sockaddr_in* peer) override;
 
     /**
-     * @brief Terminate server.
+     * @brief Keep web service connection sockets in blocking mode.
+     *
+     * The reactor signals readiness; the worker thread then performs blocking
+     * request reads within the request timeout.
+     * @param socket            Accepted connection socket.
      */
-    void terminate();
-
-protected:
-    /**
-     * @brief Start monitoring incoming connection's events.
-     * @param connection        Client connection.
-     */
-    void watchConnection(const std::shared_ptr<WSConnection>& connection);
+    void tuneSocket(const STCPSocket& socket) override;
 
     /**
-     * @brief Stop monitoring incoming connection's events.
-     * @param connection        Client connection.
-     */
-    void ignoreConnection(const std::shared_ptr<WSConnection>& connection);
-
-    /**
-     * @brief Close client connection.
-     * @param connection        Client connection.
-     */
-    void closeConnection(const std::shared_ptr<WSConnection>& connection);
-
-private:
-    using SWSConnection = std::shared_ptr<WSConnection>;
-
-    mutable std::mutex                     m_mutex;         ///< Mutex that protects internal data.
-    WSServices                             m_services;      ///< Web Service request processor.
-    Logger                                 m_logger;        ///< Logger object.
-    WSConnection::Options                  m_options;       ///< Client connection options.
-    SocketEvents<WSConnection>             m_socketEvents;  ///< Socket events.
-    std::map<WSConnection*, SWSConnection> m_connectionMap; ///< Map of active connections.
-
-    /**
-     * @brief Socket event callback function.
-     * @param connection        Connection.
+     * @brief Reactor event dispatcher.
+     *
+     * Removes the connection from the reactor (so it is not re-signalled while it
+     * is being processed) and hands it to its worker thread for processing.
+     * @param connection        Connection that received the event.
      * @param eventType         Event type.
      */
-    void socketEventCallback(const std::shared_ptr<WSConnection>& connection, SocketEventType eventType);
+    void reactorEvent(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) override;
+
+private:
+    WSServices            m_services; ///< Web Service request processor.
+    Logger                m_logger;   ///< Logger object.
+    WSConnection::Options m_options;  ///< Client connection options.
+
+    /**
+     * @brief Unused: WSServer handles events in reactorEvent().
+     */
+    void socketEventCallback(const std::shared_ptr<ServerConnection>& /*connection*/, SocketEventType /*eventType*/) override
+    {
+    }
 };
 
 /**

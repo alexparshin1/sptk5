@@ -28,6 +28,8 @@
 
 #include "WSServices.h"
 #include "sptk5/Stopwatch.h"
+#include <sptk5/net/ServerConnection.h>
+#include <sptk5/threads/Runable.h>
 #include <sptk5/wsdl/WSRequest.h>
 #include <sptk5/wsdl/protocol/WSStaticHttpProtocol.h>
 #include <sptk5/wsdl/protocol/WSWebServiceProtocol.h>
@@ -36,8 +38,17 @@
 #include <utility>
 
 namespace sptk {
+class FastTCPServer;
+
+/**
+ * @brief Web service server connection.
+ *
+ * A server connection whose input events are delivered by the FastTCPServer
+ * reactor; each request is processed by a WSServerThread worker.
+ */
 class SP_EXPORT WSConnection
-    : public RunableServerConnection
+    : public ServerConnection
+    , public Runable
 {
 public:
     class Paths
@@ -83,7 +94,7 @@ public:
      * @param options           Connection options.
      * @param workerThread      Worker thread.
      */
-    WSConnection(TCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
+    WSConnection(FastTCPServer& server, const sockaddr_in* connectionAddress, WSServices& services, LogEngine& logEngine,
                  Options options, const std::shared_ptr<Thread>& workerThread);
 
     /**
@@ -111,6 +122,7 @@ public:
     static bool reviewHeaders(const String& requestType, HttpHeaders& headers);
 
 private:
+    FastTCPServer&          m_server;
     WSServices&             m_services;
     Logger                  m_logger;
     Options                 m_options;
@@ -144,7 +156,7 @@ public:
      * @param options           Connection options.
      * @param workerThread      Worker thread.
      */
-    WSSSLConnection(TCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
+    WSSSLConnection(FastTCPServer& server, SocketType connectionSocket, const sockaddr_in* addr, WSServices& services,
                     LogEngine& logEngine, const Options& options, const std::shared_ptr<Thread>& workerThread);
 
     /**
