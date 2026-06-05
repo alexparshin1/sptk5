@@ -365,9 +365,7 @@ TEST(FastTcpServerTests, throughput)
     // the server never echoes, so it always makes progress (no deadlock).
     for (size_t i = 0; i < messageCount; ++i)
     {
-        //sender->write(message.data(), message.size());
-        auto msg = format("{} {}", i, reinterpret_cast<const char*>(message.data()));
-        sender->write(reinterpret_cast<const uint8_t*>(msg.c_str()), message.size());
+        sender->write(message.data(), message.size());
     }
 
     ASSERT_TRUE(receivedAllMessages.wait_for(1000s)) << "Throughput test receiving timed out";
