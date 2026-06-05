@@ -123,7 +123,6 @@ public:
 
     static std::tuple<std::string, uint16_t> parseAddress(const sockaddr_in* connectionAddress);
 
-protected:
     /**
      * @brief Assign the new socket.
      * @param socket            Socket to assign.
@@ -131,7 +130,9 @@ protected:
      */
     STCPSocket setSocket(const STCPSocket& socket);
 
-public:
+    /**
+     * @return Incoming connection port number.
+     */
     uint16_t port() const;
 
 private:
