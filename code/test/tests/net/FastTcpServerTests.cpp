@@ -281,19 +281,22 @@ TEST(FastTcpServerTests, throughput)
     server.stop();
 }
 
+/**
+ * @brief Test how fast FastTcpServerTests can accept connections.
+ *
+ * On Linux, before running the test, make sure you have a lot of ephemeral ports (~40000).
+ *    cat /proc/sys/net/ipv4/ip_local_port_range
+ *
+ * To temporary set (until reboot) the good number of ephemeral points:
+ *    sudo echo "1024 65535" > /proc/sys/net/ipv4/ip_local_port_range
+ */
 TEST(FastTcpServerTests, acceptRate)
 {
-    // Number of client connections to establish. Kept below the ephemeral port
-    // range, since every connection consumes a distinct client-side port.
-    constexpr size_t connectionCount = 20'000;
-    // Multiple connector threads so the measurement reflects the server's accept
-    // rate rather than a single client's serialized connect loop.
-    constexpr size_t connectorThreads = 8;
-    // Several listener threads (SO_REUSEPORT) so accepts are not serialized on one thread.
+    constexpr size_t   connectionCount = 20'000;
+    constexpr size_t   connectorThreads = 8;
     constexpr uint16_t listenerThreads = 4;
 
     EchoServer server("FastTcpServer AcceptRate");
-    //server.targetConnections = connectionCount;
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort), listenerThreads);
 
     // Each thread owns its own socket vector to avoid contention.
