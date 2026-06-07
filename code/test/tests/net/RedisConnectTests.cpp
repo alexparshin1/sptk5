@@ -71,8 +71,8 @@ TEST_F(RedisConnectTests, connectDisconnect)
 
 TEST_F(RedisConnectTests, setGet)
 {
-    constexpr string key = "test_key";
-    const Variant    value = "test_value";
+    const string  key = "test_key";
+    const Variant value = "test_value";
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
     EXPECT_EQ(m_redis.getValue(key).asString(), value.asString());
@@ -103,8 +103,8 @@ TEST_F(RedisConnectTests, mset)
 
 TEST_F(RedisConnectTests, setGetInt)
 {
-    constexpr string key = "int_key";
-    const Variant    value = static_cast<int64_t>(1234567890123LL);
+    const string  key = "int_key";
+    const Variant value = static_cast<int64_t>(1234567890123LL);
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
     EXPECT_EQ(m_redis.getValue(key).asInt64(), value.asInt64());
@@ -112,8 +112,8 @@ TEST_F(RedisConnectTests, setGetInt)
 
 TEST_F(RedisConnectTests, incr)
 {
-    constexpr string key = "int_key";
-    const Variant    value = static_cast<int64_t>(1234);
+    const string  key = "int_key";
+    const Variant value = static_cast<int64_t>(1234);
 
     m_redis.setValue(key, value);
     EXPECT_EQ(value.asInt64(), m_redis.getValue(key).asInt64());
@@ -123,8 +123,8 @@ TEST_F(RedisConnectTests, incr)
 
 TEST_F(RedisConnectTests, setGetBool)
 {
-    constexpr string key_t = "bool_key_t";
-    constexpr string key_f = "bool_key_f";
+    const string key_t = "bool_key_t";
+    const string key_f = "bool_key_f";
 
     EXPECT_NO_THROW(m_redis.setValue(key_t, true));
     EXPECT_EQ(m_redis.getValue(key_t).asBool(), true);
@@ -135,8 +135,8 @@ TEST_F(RedisConnectTests, setGetBool)
 
 TEST_F(RedisConnectTests, setGetDouble)
 {
-    constexpr string key = "double_key";
-    constexpr auto   value = 3.1415926535;
+    const string   key = "double_key";
+    constexpr auto value = 3.1415926535;
 
     EXPECT_NO_THROW(m_redis.setValue(key, value));
     // to_string(double) might have different precision than what Redis returns or how it's stored,
@@ -146,9 +146,9 @@ TEST_F(RedisConnectTests, setGetDouble)
 
 TEST_F(RedisConnectTests, setGetBinary)
 {
-    constexpr string key = "binary_key";
-    const char       data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
-    const Buffer     binaryData(data, sizeof(data));
+    const string key = "binary_key";
+    const char   data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
+    const Buffer binaryData(data, sizeof(data));
 
     EXPECT_NO_THROW(m_redis.setValue(key, binaryData));
 
@@ -163,7 +163,7 @@ TEST_F(RedisConnectTests, getNonExistentKey)
 
 TEST_F(RedisConnectTests, setOverwrites)
 {
-    constexpr string key = "overwrite_key_different";
+    const string key = "overwrite_key_different";
     m_redis.setValue(key, "value1");
     EXPECT_EQ(m_redis.getValue(key).asString(), "value1");
 
@@ -521,9 +521,9 @@ TEST_F(RedisConnectTests, remove)
 
 TEST_F(RedisConnectTests, hgetSetSingleKey)
 {
-    constexpr string hash = "test_hash";
-    constexpr string key = "test";
-    Variant          value(3.45678);
+    const string hash = "test_hash";
+    const string key = "test";
+    Variant      value(3.45678);
 
     (void) m_redis.deleteKeys({hash});
 
@@ -534,7 +534,7 @@ TEST_F(RedisConnectTests, hgetSetSingleKey)
 
 TEST_F(RedisConnectTests, hset)
 {
-    constexpr string                  hash = "test_hash";
+    const string                      hash = "test_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -545,7 +545,7 @@ TEST_F(RedisConnectTests, hset)
 
 TEST_F(RedisConnectTests, hkeys)
 {
-    constexpr string                  hash = "test_hash_keys";
+    const string                      hash = "test_hash_keys";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
@@ -570,7 +570,7 @@ TEST_F(RedisConnectTests, hkeys)
 
 TEST_F(RedisConnectTests, hmget)
 {
-    constexpr string                  hash = "test_hash_mget";
+    const string                      hash = "test_hash_mget";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -589,7 +589,7 @@ TEST_F(RedisConnectTests, hmget)
 
 TEST_F(RedisConnectTests, hmgetNonExistentField)
 {
-    constexpr string                  hash = "test_hash_missing";
+    const string                      hash = "test_hash_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -606,7 +606,7 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
 
 TEST_F(RedisConnectTests, hgetall)
 {
-    constexpr string                  hash = "test_hash_hgetall";
+    const string                      hash = "test_hash_hgetall";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
@@ -627,7 +627,7 @@ TEST_F(RedisConnectTests, hgetall)
 
 TEST_F(RedisConnectTests, hgetallEmpty)
 {
-    constexpr string hash = "test_hash_hgetall_empty";
+    const string hash = "test_hash_hgetall_empty";
 
     (void) m_redis.deleteKeys({hash});
 
@@ -637,7 +637,7 @@ TEST_F(RedisConnectTests, hgetallEmpty)
 
 TEST_F(RedisConnectTests, hdel)
 {
-    constexpr string                  hash = "test_hash_hdel";
+    const string                      hash = "test_hash_hdel";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
@@ -662,7 +662,7 @@ TEST_F(RedisConnectTests, hdel)
 
 TEST_F(RedisConnectTests, hdelNonExistentField)
 {
-    constexpr string                  hash = "test_hash_hdel_missing";
+    const string                      hash = "test_hash_hdel_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -681,7 +681,7 @@ TEST_F(RedisConnectTests, hdelNonExistentField)
 
 TEST_F(RedisConnectTests, hdelNonExistentHash)
 {
-    constexpr string hash = "test_hash_hdel_no_hash";
+    const string hash = "test_hash_hdel_no_hash";
 
     (void) m_redis.deleteKeys({hash});
 
@@ -690,7 +690,7 @@ TEST_F(RedisConnectTests, hdelNonExistentHash)
 
 TEST_F(RedisConnectTests, hdelAllFields)
 {
-    constexpr string                  hash = "test_hash_hdel_all";
+    const string                      hash = "test_hash_hdel_all";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
@@ -706,7 +706,7 @@ TEST_F(RedisConnectTests, hdelAllFields)
 
 TEST_F(RedisConnectTests, setAddAndMembers)
 {
-    constexpr string key = "set_test_add_members";
+    const string key = "set_test_add_members";
     (void) m_redis.deleteKeys({key});
 
     const size_t added = m_redis.addSetMembers(key, {"alpha", "beta", "gamma"});
@@ -725,7 +725,7 @@ TEST_F(RedisConnectTests, setAddAndMembers)
 
 TEST_F(RedisConnectTests, setAddDuplicates)
 {
-    constexpr string key = "set_test_add_duplicates";
+    const string key = "set_test_add_duplicates";
     (void) m_redis.deleteKeys({key});
 
     EXPECT_EQ(3u, m_redis.addSetMembers(key, {"a", "b", "c"}));
@@ -745,7 +745,7 @@ TEST_F(RedisConnectTests, setAddEmptyMembers)
 
 TEST_F(RedisConnectTests, setIsMember)
 {
-    constexpr string key = "set_test_ismember";
+    const string key = "set_test_ismember";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"apple", "banana"});
@@ -760,7 +760,7 @@ TEST_F(RedisConnectTests, setIsMember)
 
 TEST_F(RedisConnectTests, setRemove)
 {
-    constexpr string key = "set_test_remove";
+    const string key = "set_test_remove";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"x", "y", "z"});
@@ -777,7 +777,7 @@ TEST_F(RedisConnectTests, setRemove)
 
 TEST_F(RedisConnectTests, setRemoveNonExistentMember)
 {
-    constexpr string key = "set_test_remove_missing";
+    const string key = "set_test_remove_missing";
     (void) m_redis.deleteKeys({key});
 
     m_redis.addSetMembers(key, {"p", "q"});
@@ -800,7 +800,7 @@ TEST_F(RedisConnectTests, setRemoveEmptyMembers)
 
 TEST_F(RedisConnectTests, setMembersOnEmptySet)
 {
-    constexpr string key = "set_test_members_empty";
+    const string key = "set_test_members_empty";
     (void) m_redis.deleteKeys({key});
 
     const auto members = m_redis.getSetMembers(key);
@@ -933,9 +933,9 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
 TEST_F(RedisConnectTests, rename)
 {
-    constexpr string oldKey = "rename_test_old";
-    constexpr string newKey = "rename_test_new";
-    constexpr string value = "test_value";
+    const string oldKey = "rename_test_old";
+    const string newKey = "rename_test_new";
+    const string value = "test_value";
 
     // Set initial value
     m_redis.setValue(oldKey, Variant(value));
@@ -954,10 +954,10 @@ TEST_F(RedisConnectTests, rename)
 
 TEST_F(RedisConnectTests, renameOverwrite)
 {
-    constexpr string oldKey = "rename_overwrite_old";
-    constexpr string newKey = "rename_overwrite_new";
-    constexpr string value1 = "value1";
-    constexpr string value2 = "value2";
+    const string oldKey = "rename_overwrite_old";
+    const string newKey = "rename_overwrite_new";
+    const string value1 = "value1";
+    const string value2 = "value2";
 
     // Set both keys
     m_redis.setValue(oldKey, Variant(value1));
@@ -981,9 +981,9 @@ TEST_F(RedisConnectTests, renameNonExistentKey)
 
 TEST_F(RedisConnectTests, renameNX)
 {
-    constexpr string oldKey = "renamenx_test_old";
-    constexpr string newKey = "renamenx_test_new";
-    constexpr string value = "test_value";
+    const string oldKey = "renamenx_test_old";
+    const string newKey = "renamenx_test_new";
+    const string value = "test_value";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({oldKey, newKey});
@@ -1004,10 +1004,10 @@ TEST_F(RedisConnectTests, renameNX)
 
 TEST_F(RedisConnectTests, renameNXExistingKey)
 {
-    constexpr string oldKey = "renamenx_existing_old";
-    constexpr string newKey = "renamenx_existing_new";
-    constexpr string value1 = "value1";
-    constexpr string value2 = "value2";
+    const string oldKey = "renamenx_existing_old";
+    const string newKey = "renamenx_existing_new";
+    const string value1 = "value1";
+    const string value2 = "value2";
 
     // Set both keys
     m_redis.setValue(oldKey, Variant(value1));
@@ -1028,9 +1028,9 @@ TEST_F(RedisConnectTests, renameNXExistingKey)
 
 TEST_F(RedisConnectTests, renameHash)
 {
-    constexpr string oldKey = "hash_old";
-    constexpr string newKey = "hash_new";
-    constexpr string value = "test_value";
+    const string oldKey = "hash_old";
+    const string newKey = "hash_new";
+    const string value = "test_value";
 
     // Set initial value
     m_redis.setHashValues(oldKey, {{"akey", 1234}});
@@ -1053,10 +1053,10 @@ TEST_F(RedisConnectTests, renameHash)
 
 TEST_F(RedisConnectTests, transactionBasic)
 {
-    constexpr string key1 = "txn_key1";
-    constexpr string key2 = "txn_key2";
-    constexpr string value1 = "value1";
-    constexpr string value2 = "value2";
+    const string key1 = "txn_key1";
+    const string key2 = "txn_key2";
+    const string value1 = "value1";
+    const string value2 = "value2";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({key1, key2});
@@ -1084,9 +1084,9 @@ TEST_F(RedisConnectTests, transactionBasic)
 
 TEST_F(RedisConnectTests, transactionRollback)
 {
-    constexpr string key = "txn_rollback_key";
-    constexpr string initialValue = "initial";
-    constexpr string newValue = "new";
+    const string key = "txn_rollback_key";
+    const string initialValue = "initial";
+    const string newValue = "new";
 
     // Set initial value
     m_redis.setValue(key, Variant(initialValue));
@@ -1110,9 +1110,9 @@ TEST_F(RedisConnectTests, transactionRollback)
 
 TEST_F(RedisConnectTests, transactionMultipleOperations)
 {
-    constexpr string key1 = "txn_multi_key1";
-    constexpr string key2 = "txn_multi_key2";
-    constexpr string key3 = "txn_multi_incr";
+    const string key1 = "txn_multi_key1";
+    const string key2 = "txn_multi_key2";
+    const string key3 = "txn_multi_incr";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({key1, key2, key3});
@@ -1141,7 +1141,7 @@ TEST_F(RedisConnectTests, transactionMultipleOperations)
 
 TEST_F(RedisConnectTests, transactionWithHash)
 {
-    constexpr string hashKey = "txn_hash";
+    const string hashKey = "txn_hash";
 
     // Clean up any previous test data
     (void) m_redis.deleteKeys({hashKey});
@@ -1180,8 +1180,8 @@ TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
 
 TEST_F(RedisConnectTests, asyncGetValue)
 {
-    constexpr string key = "async_get_key";
-    const Variant    value = "async_value";
+    const string  key = "async_get_key";
+    const Variant value = "async_value";
     m_redis.setValue(key, value);
 
     promise<Variant> resultPromise;
@@ -1198,7 +1198,7 @@ TEST_F(RedisConnectTests, asyncGetValue)
 
 TEST_F(RedisConnectTests, asyncSetValueCompletion)
 {
-    constexpr string key = "async_set_key";
+    const string key = "async_set_key";
 
     promise<void> donePromise;
     auto          doneFuture = donePromise.get_future();
@@ -1216,9 +1216,9 @@ TEST_F(RedisConnectTests, asyncSetValueCompletion)
 
 TEST_F(RedisConnectTests, asyncIncrementKey)
 {
-    constexpr string key = "async_incr_key";
+    const string key = "async_incr_key";
     (void) m_redis.deleteKeys({key});
-    m_redis.setValue(key, 41LL);
+    m_redis.setValue(key, static_cast<int64_t>(41L));
 
     promise<int64_t> resultPromise;
     auto             resultFuture = resultPromise.get_future();
@@ -1237,7 +1237,7 @@ TEST_F(RedisConnectTests, asyncIncrementKey)
 TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
 {
     // Queued operations run sequentially on the worker thread in submission order.
-    constexpr string key = "async_order_key";
+    const string key = "async_order_key";
     (void) m_redis.deleteKeys({key});
 
     m_redis.setValueAsync(key, Variant("first"));
@@ -1258,7 +1258,7 @@ TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
 
 TEST_F(RedisConnectTests, asyncGetHashValues)
 {
-    constexpr string                  hash = "async_hash";
+    const string                      hash = "async_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345}};
