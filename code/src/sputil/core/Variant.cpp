@@ -240,7 +240,7 @@ void VariantAdaptors::setImagePtr(const uint8_t* value)
 //---------------------------------------------------------------------------
 void VariantAdaptors::setImageNdx(const uint32_t value)
 {
-    constexpr VariantType variantType {VAR_IMAGE_NDX, false, false};
+    constexpr VariantType variantType {.type = VAR_IMAGE_NDX, .isNull = false, .isExternalBuffer = false, .size = 0};
     dataType(variantType);
     dataSize(sizeof(value));
     m_data.set(static_cast<int32_t>(value));
@@ -563,9 +563,10 @@ int64_t VariantAdaptors::asInt64() const
         case VAR_IMAGE_NDX:
             return m_data.get<int32_t>();
 
-        default:
-            throw Exception("Can't convert field for that type");
+        case VAR_NONE:
+            break;
     }
+    return 0;
 }
 
 bool VariantAdaptors::asBool() const
@@ -611,9 +612,10 @@ bool VariantAdaptors::asBool() const
         case VAR_IMAGE_NDX:
             return m_data.get<int32_t>() != 0;
 
-        default:
-            throw Exception("Can't convert field for that type");
+        case VAR_NONE:
+            break;
     }
+    return false;
 }
 
 double VariantAdaptors::asFloat() const
@@ -661,7 +663,11 @@ double VariantAdaptors::asFloat() const
             result = static_cast<double>(chrono::duration_cast<chrono::microseconds>(m_data.get<DateTime>().sinceEpoch()).count());
             break;
 
-        default:
+        case VAR_NONE:
+            return 0.0;
+
+        case VAR_IMAGE_PTR:
+        case VAR_IMAGE_NDX:
             throw Exception("Can't convert field for that type");
     }
 
@@ -731,8 +737,8 @@ String VariantAdaptors::asString() const
         case VAR_IMAGE_NDX:
             return to_string(m_data.get<int32_t>());
 
-        default:
-            break;
+        case VAR_NONE:
+            return {};
     }
 
     return {};
@@ -791,8 +797,8 @@ Buffer VariantAdaptors::asBuffer() const
         case VAR_IMAGE_NDX:
             return Buffer(to_string(m_data.get<int32_t>()));
 
-        default:
-            break;
+        case VAR_NONE:
+            return Buffer();
     }
 
     return Buffer();
@@ -840,6 +846,11 @@ DateTime VariantAdaptors::asDate() const
         case VAR_DATE_TIME:
             return m_data.get<DateTime>().date();
 
+        case VAR_NONE:
+            return DateTime();
+
+        case VAR_IMAGE_PTR:
+        case VAR_IMAGE_NDX:
         default:
             throw Exception("Can't convert field for that type");
     }
@@ -874,9 +885,14 @@ DateTime VariantAdaptors::asDateTime() const
         case VAR_DATE_TIME:
             return m_data.get<DateTime>();
 
-        default:
-            throw Exception("Can't convert field for that type");
+        case VAR_NONE:
+            return DateTime();
+
+        case VAR_IMAGE_PTR:
+        case VAR_IMAGE_NDX:
+            break;
     }
+    throw Exception("Can't convert field for that type");
 }
 
 const uint8_t* VariantAdaptors::asImagePtr() const
@@ -967,9 +983,10 @@ String BaseVariant::typeName(const VariantDataType type)
         case VAR_IMAGE_NDX:
             return "imagendx";
 
-        default:
-            return "undefined";
+        case VAR_NONE:
+            return "none";
     }
+    return "unknown";
 }
 
 VariantDataType BaseVariant::nameType(const char* name)
