@@ -30,7 +30,6 @@
 #include "sptk5/db/Transaction.h"
 #include "sptk5/net/RedisConnect.h"
 #include <chrono>
-#include <cstdlib>
 #include <future>
 #include <gtest/gtest.h>
 #include <ranges>
@@ -40,7 +39,7 @@ using namespace sptk;
 using namespace std;
 
 namespace {
-const string RedisHost {"theater"};
+constexpr string RedisHost {"theater"};
 }
 
 class RedisConnectTests : public ::testing::Test
@@ -48,19 +47,19 @@ class RedisConnectTests : public ::testing::Test
 protected:
     void SetUp() override
     {
-        EXPECT_NO_THROW(redis.connect(RedisHost, 6379));
-        ASSERT_TRUE(redis.isConnected());
+        EXPECT_NO_THROW(m_redis.connect(RedisHost, 6379));
+        ASSERT_TRUE(m_redis.isConnected());
     }
 
     void TearDown() override
     {
-        if (redis.isConnected())
+        if (m_redis.isConnected())
         {
-            EXPECT_NO_THROW(redis.disconnect());
+            EXPECT_NO_THROW(m_redis.disconnect());
         }
     }
 
-    RedisConnect redis;
+    RedisConnect m_redis;
 };
 
 namespace sptk {
@@ -72,11 +71,11 @@ TEST_F(RedisConnectTests, connectDisconnect)
 
 TEST_F(RedisConnectTests, setGet)
 {
-    const string  key = "test_key";
-    const Variant value = "test_value";
+    constexpr string key = "test_key";
+    const Variant    value = "test_value";
 
-    EXPECT_NO_THROW(redis.setValue(key, value));
-    EXPECT_EQ(redis.getValue(key).asString(), value.asString());
+    EXPECT_NO_THROW(m_redis.setValue(key, value));
+    EXPECT_EQ(m_redis.getValue(key).asString(), value.asString());
 }
 
 TEST_F(RedisConnectTests, mset)
@@ -86,7 +85,7 @@ TEST_F(RedisConnectTests, mset)
         {"apple", 230},
         {"watermelon", 3500}};
 
-    EXPECT_NO_THROW(redis.setValues(testValues));
+    EXPECT_NO_THROW(m_redis.setValues(testValues));
 
     vector<string> keys;
     for (const auto& key: views::keys(testValues))
@@ -94,7 +93,7 @@ TEST_F(RedisConnectTests, mset)
         keys.push_back(key);
     }
 
-    auto results = redis.getValues(keys);
+    auto results = m_redis.getValues(keys);
 
     for (const auto& [key, value]: testValues)
     {
@@ -104,72 +103,72 @@ TEST_F(RedisConnectTests, mset)
 
 TEST_F(RedisConnectTests, setGetInt)
 {
-    const string  key = "int_key";
-    const Variant value = static_cast<int64_t>(1234567890123LL);
+    constexpr string key = "int_key";
+    const Variant    value = static_cast<int64_t>(1234567890123LL);
 
-    EXPECT_NO_THROW(redis.setValue(key, value));
-    EXPECT_EQ(redis.getValue(key).asInt64(), value.asInt64());
+    EXPECT_NO_THROW(m_redis.setValue(key, value));
+    EXPECT_EQ(m_redis.getValue(key).asInt64(), value.asInt64());
 }
 
 TEST_F(RedisConnectTests, incr)
 {
-    const string  key = "int_key";
-    const Variant value = static_cast<int64_t>(1234);
+    constexpr string key = "int_key";
+    const Variant    value = static_cast<int64_t>(1234);
 
-    redis.setValue(key, value);
-    EXPECT_EQ(value.asInt64(), redis.getValue(key).asInt64());
+    m_redis.setValue(key, value);
+    EXPECT_EQ(value.asInt64(), m_redis.getValue(key).asInt64());
 
-    EXPECT_EQ(value.asInt64() + 1, redis.incrementKey(key));
+    EXPECT_EQ(value.asInt64() + 1, m_redis.incrementKey(key));
 }
 
 TEST_F(RedisConnectTests, setGetBool)
 {
-    const string key_t = "bool_key_t";
-    const string key_f = "bool_key_f";
+    constexpr string key_t = "bool_key_t";
+    constexpr string key_f = "bool_key_f";
 
-    EXPECT_NO_THROW(redis.setValue(key_t, true));
-    EXPECT_EQ(redis.getValue(key_t).asBool(), true);
+    EXPECT_NO_THROW(m_redis.setValue(key_t, true));
+    EXPECT_EQ(m_redis.getValue(key_t).asBool(), true);
 
-    EXPECT_NO_THROW(redis.setValue(key_f, false));
-    EXPECT_EQ(redis.getValue(key_f).asBool(), false);
+    EXPECT_NO_THROW(m_redis.setValue(key_f, false));
+    EXPECT_EQ(m_redis.getValue(key_f).asBool(), false);
 }
 
 TEST_F(RedisConnectTests, setGetDouble)
 {
-    const string   key = "double_key";
-    constexpr auto value = 3.1415926535;
+    constexpr string key = "double_key";
+    constexpr auto   value = 3.1415926535;
 
-    EXPECT_NO_THROW(redis.setValue(key, value));
+    EXPECT_NO_THROW(m_redis.setValue(key, value));
     // to_string(double) might have different precision than what Redis returns or how it's stored,
     // but we implemented it using to_string(value)
-    EXPECT_EQ(redis.getValue(key).asFloat(), value);
+    EXPECT_EQ(m_redis.getValue(key).asFloat(), value);
 }
 
 TEST_F(RedisConnectTests, setGetBinary)
 {
-    const string key = "binary_key";
-    const char   data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
-    const Buffer binaryData(data, sizeof(data));
+    constexpr string key = "binary_key";
+    const char       data[] = {0x00, 0x01, 0x02, 0x03, 0x00, 0x04, 0x05};
+    const Buffer     binaryData(data, sizeof(data));
 
-    EXPECT_NO_THROW(redis.setValue(key, binaryData));
+    EXPECT_NO_THROW(m_redis.setValue(key, binaryData));
 
-    const auto retrievedData = redis.getValue(key).asBuffer();
+    const auto retrievedData = m_redis.getValue(key).asBuffer();
     EXPECT_EQ(retrievedData, binaryData);
 }
 
 TEST_F(RedisConnectTests, getNonExistentKey)
 {
-    EXPECT_EQ(redis.getValue("non_existent_key").asString(), "");
+    EXPECT_EQ(m_redis.getValue("non_existent_key").asString(), "");
 }
 
 TEST_F(RedisConnectTests, setOverwrites)
 {
-    const string key = "overwrite_key_different";
-    redis.setValue(key, "value1");
-    EXPECT_EQ(redis.getValue(key).asString(), "value1");
+    constexpr string key = "overwrite_key_different";
+    m_redis.setValue(key, "value1");
+    EXPECT_EQ(m_redis.getValue(key).asString(), "value1");
 
-    redis.setValue(key, "value2");
-    EXPECT_EQ(redis.getValue(key).asString(), "value2");
+    m_redis.setValue(key, "value2");
+    EXPECT_EQ(m_redis.getValue(key).asString(), "value2");
 }
 
 namespace {
@@ -197,7 +196,7 @@ TEST_F(RedisConnectTests, performanceSetSingleThread)
     for (auto i = 0; i < iterations; ++i)
     {
         auto key = format("key_{}", i);
-        redis.setValue(key, sessionJson);
+        m_redis.setValue(key, sessionJson);
     }
     watch.stop();
     cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
@@ -216,7 +215,7 @@ TEST_F(RedisConnectTests, performanceMSetSingleThread)
         keysAndValues[key] = sessionJson;
     }
 
-    redis.setValues(keysAndValues);
+    m_redis.setValues(keysAndValues);
 
     stopwatch.stop();
     cout << format("Set performance: {:3.1f} ms, {:3.1f} K/s\n", stopwatch.milliseconds(), iterations / stopwatch.milliseconds());
@@ -308,10 +307,10 @@ TEST_F(RedisConnectTests, performanceMultipleThreadsPG)
 
 TEST_F(RedisConnectTests, mget)
 {
-    redis.setValue("mget-key1", 12345);
-    redis.setValue("mget-key2", 1234);
+    m_redis.setValue("mget-key1", 12345);
+    m_redis.setValue("mget-key2", 1234);
 
-    auto keysAndValues = redis.getValues({"mget-key1", "mget-key2"});
+    auto keysAndValues = m_redis.getValues({"mget-key1", "mget-key2"});
 
     // Expect two keys matched
     ASSERT_EQ(2, keysAndValues.size());
@@ -322,7 +321,7 @@ TEST_F(RedisConnectTests, mget)
 
 TEST_F(RedisConnectTests, mgetPerformance)
 {
-    ASSERT_TRUE(redis.isConnected());
+    ASSERT_TRUE(m_redis.isConnected());
 
     constexpr auto iterations = 10000;
     vector<string> keys;
@@ -333,12 +332,12 @@ TEST_F(RedisConnectTests, mgetPerformance)
 
     for (auto i = 0; i < iterations; ++i)
     {
-        redis.setValue(keys[i], i);
+        m_redis.setValue(keys[i], i);
     }
 
     Stopwatch watch;
     watch.start();
-    auto keysAndValues = redis.getValues(keys);
+    auto keysAndValues = m_redis.getValues(keys);
     watch.stop();
 
     cout << format("Mget performance: {:3.1f} ms, {:3.1f} K/s\n", watch.milliseconds(), iterations / watch.milliseconds());
@@ -346,12 +345,12 @@ TEST_F(RedisConnectTests, mgetPerformance)
 
 TEST_F(RedisConnectTests, scan)
 {
-    ASSERT_TRUE(redis.isConnected());
+    ASSERT_TRUE(m_redis.isConnected());
 
-    redis.setValue("scan-key1", 12345);
-    redis.setValue("scan-key2", 1234);
+    m_redis.setValue("scan-key1", 12345);
+    m_redis.setValue("scan-key2", 1234);
 
-    auto    foundKeys = redis.scan("scan-key*", 2);
+    auto    foundKeys = m_redis.scan("scan-key*", 2);
     Strings keys;
     keys.reserve(keys.size());
     for (const auto& key: foundKeys)
@@ -382,7 +381,7 @@ TEST_F(RedisConnectTests, getPerformance)
 
     for (auto i = 0; i < iterations; ++i)
     {
-        redis.setValue(keys[i], i);
+        m_redis.setValue(keys[i], i);
     }
 
     Stopwatch watch;
@@ -439,7 +438,7 @@ TEST_F(RedisConnectTests, hgetPerformance)
     {
         const auto& hash = hashes[i % hashCount];
         const auto  key = format("s:client{}", i);
-        redis.setHashValue(hash, key, i);
+        m_redis.setHashValue(hash, key, i);
         keysQueue.push_back(key);
     }
 
@@ -494,13 +493,13 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
     for (auto i = 0; i < iterations; ++i)
     {
-        redis.setValue(keys[i], i);
+        m_redis.setValue(keys[i], i);
     }
 
     Stopwatch watch;
     watch.start();
-    const auto keysFound = redis.scan("scan-perf-key*", iterations);
-    const auto keysAndValues = redis.getValues(keys);
+    const auto keysFound = m_redis.scan("scan-perf-key*", iterations);
+    const auto keysAndValues = m_redis.getValues(keys);
     watch.stop();
 
     EXPECT_EQ(iterations, keysFound.size());
@@ -511,10 +510,10 @@ TEST_F(RedisConnectTests, scanAndMgetPerformance)
 
 TEST_F(RedisConnectTests, remove)
 {
-    redis.setValue("remove-key1", 12345);
-    redis.setValue("remove-key2", 1234);
+    m_redis.setValue("remove-key1", 12345);
+    m_redis.setValue("remove-key2", 1234);
 
-    const auto removeCount = redis.deleteKeys({"remove-key1", "remove-key2", "remove-key3"});
+    const auto removeCount = m_redis.deleteKeys({"remove-key1", "remove-key2", "remove-key3"});
 
     // Expect two keys removed
     ASSERT_EQ(2, removeCount);
@@ -522,39 +521,39 @@ TEST_F(RedisConnectTests, remove)
 
 TEST_F(RedisConnectTests, hgetSetSingleKey)
 {
-    const string hash = "test_hash";
-    const string key = "test";
-    Variant      value(3.45678);
+    constexpr string hash = "test_hash";
+    constexpr string key = "test";
+    Variant          value(3.45678);
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 
-    EXPECT_NO_THROW(redis.setHashValue(hash, key, value));
-    auto returnedValue = redis.getHashValue(hash, key);
+    EXPECT_NO_THROW(m_redis.setHashValue(hash, key, value));
+    auto returnedValue = m_redis.getHashValue(hash, key);
     EXPECT_NEAR(value.asFloat(), returnedValue.asFloat(), 0.001);
 }
 
 TEST_F(RedisConnectTests, hset)
 {
-    const string                      hash = "test_hash";
+    constexpr string                  hash = "test_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
         {"field3", 3.45678}};
 
-    EXPECT_NO_THROW(redis.setHashValues(hash, testValues));
+    EXPECT_NO_THROW(m_redis.setHashValues(hash, testValues));
 }
 
 TEST_F(RedisConnectTests, hkeys)
 {
-    const string                      hash = "test_hash_keys";
+    constexpr string                  hash = "test_hash_keys";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
         {"field3", "value3"}};
 
-    redis.setHashValues(hash, testValues);
+    m_redis.setHashValues(hash, testValues);
 
-    const auto keys = redis.getHashKeys(hash);
+    const auto keys = m_redis.getHashKeys(hash);
 
     set<string, less<>> keysFound;
     for (const auto& key: keys)
@@ -571,15 +570,15 @@ TEST_F(RedisConnectTests, hkeys)
 
 TEST_F(RedisConnectTests, hmget)
 {
-    const string                      hash = "test_hash_mget";
+    constexpr string                  hash = "test_hash_mget";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
         {"field3", 3.45678}};
 
-    redis.setHashValues(hash, testValues);
+    m_redis.setHashValues(hash, testValues);
 
-    auto keysAndValues = redis.getHashValues(hash, {"field1", "field2", "field3"});
+    auto keysAndValues = m_redis.getHashValues(hash, {"field1", "field2", "field3"});
 
     ASSERT_EQ(3, keysAndValues.size());
 
@@ -590,14 +589,14 @@ TEST_F(RedisConnectTests, hmget)
 
 TEST_F(RedisConnectTests, hmgetNonExistentField)
 {
-    const string                      hash = "test_hash_missing";
+    constexpr string                  hash = "test_hash_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
 
-    redis.setHashValues(hash, testValues);
+    m_redis.setHashValues(hash, testValues);
 
-    auto keysAndValues = redis.getHashValues(hash, {"field1", "non_existent_field"});
+    auto keysAndValues = m_redis.getHashValues(hash, {"field1", "non_existent_field"});
 
     ASSERT_EQ(2, keysAndValues.size());
 
@@ -607,113 +606,113 @@ TEST_F(RedisConnectTests, hmgetNonExistentField)
 
 TEST_F(RedisConnectTests, hgetall)
 {
-    const string                      hash = "test_hash_hgetall";
+    constexpr string                  hash = "test_hash_hgetall";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345},
         {"field3", 3.45678}};
 
-    (void) redis.deleteKeys({hash});
-    redis.setHashValues(hash, testValues);
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
 
-    auto keysAndValues = redis.getHashValues(hash);
+    auto keysAndValues = m_redis.getHashValues(hash);
 
     ASSERT_EQ(3, keysAndValues.size());
     EXPECT_EQ("value1", keysAndValues["field1"].asString());
     EXPECT_EQ(12345, keysAndValues["field2"].asInteger());
     EXPECT_NEAR(3.45678, keysAndValues["field3"].asFloat(), 0.00001);
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 }
 
 TEST_F(RedisConnectTests, hgetallEmpty)
 {
-    const string hash = "test_hash_hgetall_empty";
+    constexpr string hash = "test_hash_hgetall_empty";
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 
-    const auto keysAndValues = redis.getHashValues(hash);
+    const auto keysAndValues = m_redis.getHashValues(hash);
     EXPECT_TRUE(keysAndValues.empty());
 }
 
 TEST_F(RedisConnectTests, hdel)
 {
-    const string                      hash = "test_hash_hdel";
+    constexpr string                  hash = "test_hash_hdel";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"},
         {"field3", "value3"}};
 
-    (void) redis.deleteKeys({hash});
-    redis.setHashValues(hash, testValues);
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
 
-    EXPECT_NO_THROW(redis.deleteHashKeys(hash, {"field1", "field2"}));
+    EXPECT_NO_THROW(m_redis.deleteHashKeys(hash, {"field1", "field2"}));
 
-    const auto remainingKeys = redis.getHashKeys(hash);
+    const auto remainingKeys = m_redis.getHashKeys(hash);
     ASSERT_EQ(1, remainingKeys.size());
     EXPECT_EQ("field3", remainingKeys[0]);
 
-    auto keysAndValues = redis.getHashValues(hash, {"field1", "field2", "field3"});
+    auto keysAndValues = m_redis.getHashValues(hash, {"field1", "field2", "field3"});
     EXPECT_EQ("", keysAndValues["field1"].asString());
     EXPECT_EQ("", keysAndValues["field2"].asString());
     EXPECT_EQ("value3", keysAndValues["field3"].asString());
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 }
 
 TEST_F(RedisConnectTests, hdelNonExistentField)
 {
-    const string                      hash = "test_hash_hdel_missing";
+    constexpr string                  hash = "test_hash_hdel_missing";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
 
-    (void) redis.deleteKeys({hash});
-    redis.setHashValues(hash, testValues);
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
 
-    EXPECT_NO_THROW(redis.deleteHashKeys(hash, {"field1", "non_existent_field"}));
+    EXPECT_NO_THROW(m_redis.deleteHashKeys(hash, {"field1", "non_existent_field"}));
 
-    const auto remainingKeys = redis.getHashKeys(hash);
+    const auto remainingKeys = m_redis.getHashKeys(hash);
     ASSERT_EQ(1, remainingKeys.size());
     EXPECT_EQ("field2", remainingKeys[0]);
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 }
 
 TEST_F(RedisConnectTests, hdelNonExistentHash)
 {
-    const string hash = "test_hash_hdel_no_hash";
+    constexpr string hash = "test_hash_hdel_no_hash";
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 
-    EXPECT_NO_THROW(redis.deleteHashKeys(hash, {"field1", "field2"}));
+    EXPECT_NO_THROW(m_redis.deleteHashKeys(hash, {"field1", "field2"}));
 }
 
 TEST_F(RedisConnectTests, hdelAllFields)
 {
-    const string                      hash = "test_hash_hdel_all";
+    constexpr string                  hash = "test_hash_hdel_all";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", "value2"}};
 
-    (void) redis.deleteKeys({hash});
-    redis.setHashValues(hash, testValues);
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
 
-    EXPECT_NO_THROW(redis.deleteHashKeys(hash, {"field1", "field2"}));
+    EXPECT_NO_THROW(m_redis.deleteHashKeys(hash, {"field1", "field2"}));
 
-    const auto remainingKeys = redis.getHashKeys(hash);
+    const auto remainingKeys = m_redis.getHashKeys(hash);
     EXPECT_TRUE(remainingKeys.empty());
 }
 
 TEST_F(RedisConnectTests, setAddAndMembers)
 {
-    const string key = "set_test_add_members";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_add_members";
+    (void) m_redis.deleteKeys({key});
 
-    const size_t added = redis.addSetMembers(key, {"alpha", "beta", "gamma"});
+    const size_t added = m_redis.addSetMembers(key, {"alpha", "beta", "gamma"});
     EXPECT_EQ(3u, added);
 
-    const auto          members = redis.getSetMembers(key);
+    const auto          members = m_redis.getSetMembers(key);
     set<string, less<>> membersFound(members.begin(), members.end());
 
     ASSERT_EQ(3u, membersFound.size());
@@ -721,90 +720,90 @@ TEST_F(RedisConnectTests, setAddAndMembers)
     EXPECT_TRUE(membersFound.contains("beta"));
     EXPECT_TRUE(membersFound.contains("gamma"));
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setAddDuplicates)
 {
-    const string key = "set_test_add_duplicates";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_add_duplicates";
+    (void) m_redis.deleteKeys({key});
 
-    EXPECT_EQ(3u, redis.addSetMembers(key, {"a", "b", "c"}));
+    EXPECT_EQ(3u, m_redis.addSetMembers(key, {"a", "b", "c"}));
     // Adding existing + one new: only new one counts
-    EXPECT_EQ(1u, redis.addSetMembers(key, {"a", "b", "d"}));
+    EXPECT_EQ(1u, m_redis.addSetMembers(key, {"a", "b", "d"}));
 
-    const auto members = redis.getSetMembers(key);
+    const auto members = m_redis.getSetMembers(key);
     EXPECT_EQ(4u, members.size());
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setAddEmptyMembers)
 {
-    EXPECT_EQ(0u, redis.addSetMembers("set_test_empty_add", {}));
+    EXPECT_EQ(0u, m_redis.addSetMembers("set_test_empty_add", {}));
 }
 
 TEST_F(RedisConnectTests, setIsMember)
 {
-    const string key = "set_test_ismember";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_ismember";
+    (void) m_redis.deleteKeys({key});
 
-    redis.addSetMembers(key, {"apple", "banana"});
+    m_redis.addSetMembers(key, {"apple", "banana"});
 
-    EXPECT_TRUE(redis.isSetMember(key, "apple"));
-    EXPECT_TRUE(redis.isSetMember(key, "banana"));
-    EXPECT_FALSE(redis.isSetMember(key, "cherry"));
-    EXPECT_FALSE(redis.isSetMember(key, "nonexistent_set_key"));
+    EXPECT_TRUE(m_redis.isSetMember(key, "apple"));
+    EXPECT_TRUE(m_redis.isSetMember(key, "banana"));
+    EXPECT_FALSE(m_redis.isSetMember(key, "cherry"));
+    EXPECT_FALSE(m_redis.isSetMember(key, "nonexistent_set_key"));
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setRemove)
 {
-    const string key = "set_test_remove";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_remove";
+    (void) m_redis.deleteKeys({key});
 
-    redis.addSetMembers(key, {"x", "y", "z"});
+    m_redis.addSetMembers(key, {"x", "y", "z"});
 
-    const size_t removed = redis.deleteSetMembers(key, {"x", "z"});
+    const size_t removed = m_redis.deleteSetMembers(key, {"x", "z"});
     EXPECT_EQ(2u, removed);
 
-    const auto members = redis.getSetMembers(key);
+    const auto members = m_redis.getSetMembers(key);
     ASSERT_EQ(1u, members.size());
     EXPECT_EQ("y", members[0]);
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setRemoveNonExistentMember)
 {
-    const string key = "set_test_remove_missing";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_remove_missing";
+    (void) m_redis.deleteKeys({key});
 
-    redis.addSetMembers(key, {"p", "q"});
+    m_redis.addSetMembers(key, {"p", "q"});
 
     // Removing a mix of existing and non-existing members
-    const size_t removed = redis.deleteSetMembers(key, {"p", "no_such_member"});
+    const size_t removed = m_redis.deleteSetMembers(key, {"p", "no_such_member"});
     EXPECT_EQ(1u, removed);
 
-    const auto members = redis.getSetMembers(key);
+    const auto members = m_redis.getSetMembers(key);
     ASSERT_EQ(1u, members.size());
     EXPECT_EQ("q", members[0]);
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, setRemoveEmptyMembers)
 {
-    EXPECT_EQ(0u, redis.deleteSetMembers("set_test_empty_remove", {}));
+    EXPECT_EQ(0u, m_redis.deleteSetMembers("set_test_empty_remove", {}));
 }
 
 TEST_F(RedisConnectTests, setMembersOnEmptySet)
 {
-    const string key = "set_test_members_empty";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "set_test_members_empty";
+    (void) m_redis.deleteKeys({key});
 
-    const auto members = redis.getSetMembers(key);
+    const auto members = m_redis.getSetMembers(key);
     EXPECT_TRUE(members.empty());
 }
 
@@ -911,7 +910,7 @@ TEST_F(RedisConnectTests, nodesPerformance)
         {
             testValues[format("message_{}", keyIndex)] = subscriptionJson;
         }
-        redis.setHashValues(hashName, testValues);
+        m_redis.setHashValues(hashName, testValues);
     }
 
     Stopwatch stopwatch;
@@ -920,8 +919,8 @@ TEST_F(RedisConnectTests, nodesPerformance)
     for (size_t hashIndex = 0; hashIndex < maxHashes; ++hashIndex)
     {
         auto hashName = format("hash_mget_{}", hashIndex);
-        auto hashKeys = redis.getHashKeys(hashName);
-        auto values = redis.getHashValues(hashName, hashKeys);
+        auto hashKeys = m_redis.getHashKeys(hashName);
+        auto values = m_redis.getHashValues(hashName, hashKeys);
     }
 
     stopwatch.stop();
@@ -934,264 +933,264 @@ TEST_F(RedisConnectTests, nodesPerformance)
 
 TEST_F(RedisConnectTests, rename)
 {
-    const string oldKey = "rename_test_old";
-    const string newKey = "rename_test_new";
-    const string value = "test_value";
+    constexpr string oldKey = "rename_test_old";
+    constexpr string newKey = "rename_test_new";
+    constexpr string value = "test_value";
 
     // Set initial value
-    redis.setValue(oldKey, Variant(value));
-    EXPECT_EQ(value, redis.getValue(oldKey).asString());
+    m_redis.setValue(oldKey, Variant(value));
+    EXPECT_EQ(value, m_redis.getValue(oldKey).asString());
 
     // Rename the key
-    EXPECT_NO_THROW(redis.renameKey(oldKey, newKey));
+    EXPECT_NO_THROW(m_redis.renameKey(oldKey, newKey));
 
     // Verify old key doesn't exist and new key has the value
-    EXPECT_EQ("", redis.getValue(oldKey).asString());
-    EXPECT_EQ(value, redis.getValue(newKey).asString());
+    EXPECT_EQ("", m_redis.getValue(oldKey).asString());
+    EXPECT_EQ(value, m_redis.getValue(newKey).asString());
 
     // Clean up
-    (void) redis.deleteKeys({newKey});
+    (void) m_redis.deleteKeys({newKey});
 }
 
 TEST_F(RedisConnectTests, renameOverwrite)
 {
-    const string oldKey = "rename_overwrite_old";
-    const string newKey = "rename_overwrite_new";
-    const string value1 = "value1";
-    const string value2 = "value2";
+    constexpr string oldKey = "rename_overwrite_old";
+    constexpr string newKey = "rename_overwrite_new";
+    constexpr string value1 = "value1";
+    constexpr string value2 = "value2";
 
     // Set both keys
-    redis.setValue(oldKey, Variant(value1));
-    redis.setValue(newKey, Variant(value2));
+    m_redis.setValue(oldKey, Variant(value1));
+    m_redis.setValue(newKey, Variant(value2));
 
     // Rename should overwrite newKey
-    EXPECT_NO_THROW(redis.renameKey(oldKey, newKey));
+    EXPECT_NO_THROW(m_redis.renameKey(oldKey, newKey));
 
     // Verify newKey has value1 (from oldKey)
-    EXPECT_EQ(value1, redis.getValue(newKey).asString());
+    EXPECT_EQ(value1, m_redis.getValue(newKey).asString());
 
     // Clean up
-    (void) redis.deleteKeys({newKey});
+    (void) m_redis.deleteKeys({newKey});
 }
 
 TEST_F(RedisConnectTests, renameNonExistentKey)
 {
     // Try to rename a non-existent key
-    EXPECT_THROW(redis.renameKey("nonexistent_key_12345", "new_key_12345"), RedisConnectException);
+    EXPECT_THROW(m_redis.renameKey("nonexistent_key_12345", "new_key_12345"), RedisConnectException);
 }
 
 TEST_F(RedisConnectTests, renameNX)
 {
-    const string oldKey = "renamenx_test_old";
-    const string newKey = "renamenx_test_new";
-    const string value = "test_value";
+    constexpr string oldKey = "renamenx_test_old";
+    constexpr string newKey = "renamenx_test_new";
+    constexpr string value = "test_value";
 
     // Clean up any previous test data
-    (void) redis.deleteKeys({oldKey, newKey});
+    (void) m_redis.deleteKeys({oldKey, newKey});
 
     // Set initial value
-    redis.setValue(oldKey, Variant(value));
+    m_redis.setValue(oldKey, Variant(value));
 
     // RenameNX should succeed when newKey doesn't exist
-    EXPECT_TRUE(redis.renameKeyIfExists(oldKey, newKey));
+    EXPECT_TRUE(m_redis.renameKeyIfExists(oldKey, newKey));
 
     // Verify old key doesn't exist and new key has the value
-    EXPECT_EQ("", redis.getValue(oldKey).asString());
-    EXPECT_EQ(value, redis.getValue(newKey).asString());
+    EXPECT_EQ("", m_redis.getValue(oldKey).asString());
+    EXPECT_EQ(value, m_redis.getValue(newKey).asString());
 
     // Clean up
-    (void) redis.deleteKeys({newKey});
+    (void) m_redis.deleteKeys({newKey});
 }
 
 TEST_F(RedisConnectTests, renameNXExistingKey)
 {
-    const string oldKey = "renamenx_existing_old";
-    const string newKey = "renamenx_existing_new";
-    const string value1 = "value1";
-    const string value2 = "value2";
+    constexpr string oldKey = "renamenx_existing_old";
+    constexpr string newKey = "renamenx_existing_new";
+    constexpr string value1 = "value1";
+    constexpr string value2 = "value2";
 
     // Set both keys
-    redis.setValue(oldKey, Variant(value1));
-    redis.setValue(newKey, Variant(value2));
+    m_redis.setValue(oldKey, Variant(value1));
+    m_redis.setValue(newKey, Variant(value2));
 
     // RenameNX should fail when newKey already exists
-    EXPECT_FALSE(redis.renameKeyIfExists(oldKey, newKey));
+    EXPECT_FALSE(m_redis.renameKeyIfExists(oldKey, newKey));
 
     // Verify both keys still have their original values
-    EXPECT_EQ(value1, redis.getValue(oldKey).asString());
-    EXPECT_EQ(value2, redis.getValue(newKey).asString());
+    EXPECT_EQ(value1, m_redis.getValue(oldKey).asString());
+    EXPECT_EQ(value2, m_redis.getValue(newKey).asString());
 
     // Clean up
-    (void) redis.deleteKeys({oldKey, newKey});
+    (void) m_redis.deleteKeys({oldKey, newKey});
 
-    redis.disconnect();
+    m_redis.disconnect();
 }
 
 TEST_F(RedisConnectTests, renameHash)
 {
-    const string oldKey = "hash_old";
-    const string newKey = "hash_new";
-    const string value = "test_value";
+    constexpr string oldKey = "hash_old";
+    constexpr string newKey = "hash_new";
+    constexpr string value = "test_value";
 
     // Set initial value
-    redis.setHashValues(oldKey, {{"akey", 1234}});
-    auto keysAndValues = redis.getHashValues(oldKey, {"akey"});
+    m_redis.setHashValues(oldKey, {{"akey", 1234}});
+    auto keysAndValues = m_redis.getHashValues(oldKey, {"akey"});
     EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
 
     // Rename the key
-    EXPECT_NO_THROW(redis.renameKey(oldKey, newKey));
+    EXPECT_NO_THROW(m_redis.renameKey(oldKey, newKey));
 
     // Verify old key doesn't exist and new key has the value
-    keysAndValues = redis.getHashValues(oldKey, {"akey"});
+    keysAndValues = m_redis.getHashValues(oldKey, {"akey"});
     EXPECT_EQ(0, keysAndValues["akey"].asInteger());
 
-    keysAndValues = redis.getHashValues(newKey, {"akey"});
+    keysAndValues = m_redis.getHashValues(newKey, {"akey"});
     EXPECT_EQ(1234, keysAndValues["akey"].asInteger());
 
     // Clean up
-    (void) redis.deleteKeys({newKey});
+    (void) m_redis.deleteKeys({newKey});
 }
 
 TEST_F(RedisConnectTests, transactionBasic)
 {
-    const string key1 = "txn_key1";
-    const string key2 = "txn_key2";
-    const string value1 = "value1";
-    const string value2 = "value2";
+    constexpr string key1 = "txn_key1";
+    constexpr string key2 = "txn_key2";
+    constexpr string value1 = "value1";
+    constexpr string value2 = "value2";
 
     // Clean up any previous test data
-    (void) redis.deleteKeys({key1, key2});
+    (void) m_redis.deleteKeys({key1, key2});
 
     // Begin transaction
-    EXPECT_NO_THROW(redis.beginTransaction());
+    EXPECT_NO_THROW(m_redis.beginTransaction());
 
     // Queue commands
-    redis.setValue(key1, Variant(value1));
-    redis.setValue(key2, Variant(value2));
+    m_redis.setValue(key1, Variant(value1));
+    m_redis.setValue(key2, Variant(value2));
 
     // Commit transaction
-    auto results = redis.commitTransaction();
+    auto results = m_redis.commitTransaction();
 
     // Verify results - EXEC returns array of results
     EXPECT_FALSE(results.empty());
 
     // Verify values were set
-    EXPECT_EQ(value1, redis.getValue(key1).asString());
-    EXPECT_EQ(value2, redis.getValue(key2).asString());
+    EXPECT_EQ(value1, m_redis.getValue(key1).asString());
+    EXPECT_EQ(value2, m_redis.getValue(key2).asString());
 
     // Clean up
-    (void) redis.deleteKeys({key1, key2});
+    (void) m_redis.deleteKeys({key1, key2});
 }
 
 TEST_F(RedisConnectTests, transactionRollback)
 {
-    const string key = "txn_rollback_key";
-    const string initialValue = "initial";
-    const string newValue = "new";
+    constexpr string key = "txn_rollback_key";
+    constexpr string initialValue = "initial";
+    constexpr string newValue = "new";
 
     // Set initial value
-    redis.setValue(key, Variant(initialValue));
-    EXPECT_EQ(initialValue, redis.getValue(key).asString());
+    m_redis.setValue(key, Variant(initialValue));
+    EXPECT_EQ(initialValue, m_redis.getValue(key).asString());
 
     // Begin transaction
-    EXPECT_NO_THROW(redis.beginTransaction());
+    EXPECT_NO_THROW(m_redis.beginTransaction());
 
     // Queue command
-    redis.setValue(key, Variant(newValue));
+    m_redis.setValue(key, Variant(newValue));
 
     // Rollback transaction
-    EXPECT_NO_THROW(redis.rollbackTransaction());
+    EXPECT_NO_THROW(m_redis.rollbackTransaction());
 
     // Verify value was NOT changed
-    EXPECT_EQ(initialValue, redis.getValue(key).asString());
+    EXPECT_EQ(initialValue, m_redis.getValue(key).asString());
 
     // Clean up
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, transactionMultipleOperations)
 {
-    const string key1 = "txn_multi_key1";
-    const string key2 = "txn_multi_key2";
-    const string key3 = "txn_multi_incr";
+    constexpr string key1 = "txn_multi_key1";
+    constexpr string key2 = "txn_multi_key2";
+    constexpr string key3 = "txn_multi_incr";
 
     // Clean up any previous test data
-    (void) redis.deleteKeys({key1, key2, key3});
+    (void) m_redis.deleteKeys({key1, key2, key3});
 
     // Begin transaction
-    redis.beginTransaction();
+    m_redis.beginTransaction();
 
     // Queue multiple different operations
-    redis.setValue(key1, Variant("value1"));
-    redis.setValue(key2, Variant(42));
-    (void) redis.incrementKey(key3);
-    (void) redis.incrementKey(key3);
-    (void) redis.incrementKey(key3);
+    m_redis.setValue(key1, Variant("value1"));
+    m_redis.setValue(key2, Variant(42));
+    (void) m_redis.incrementKey(key3);
+    (void) m_redis.incrementKey(key3);
+    (void) m_redis.incrementKey(key3);
 
     // Commit transaction
-    auto results = redis.commitTransaction();
+    auto results = m_redis.commitTransaction();
 
     // Verify all operations executed
-    EXPECT_EQ("value1", redis.getValue(key1).asString());
-    EXPECT_EQ(42, redis.getValue(key2).asInteger());
-    EXPECT_EQ(3, redis.getValue(key3).asInteger());
+    EXPECT_EQ("value1", m_redis.getValue(key1).asString());
+    EXPECT_EQ(42, m_redis.getValue(key2).asInteger());
+    EXPECT_EQ(3, m_redis.getValue(key3).asInteger());
 
     // Clean up
-    (void) redis.deleteKeys({key1, key2, key3});
+    (void) m_redis.deleteKeys({key1, key2, key3});
 }
 
 TEST_F(RedisConnectTests, transactionWithHash)
 {
-    const string hashKey = "txn_hash";
+    constexpr string hashKey = "txn_hash";
 
     // Clean up any previous test data
-    (void) redis.deleteKeys({hashKey});
+    (void) m_redis.deleteKeys({hashKey});
 
     // Begin transaction
-    redis.beginTransaction();
+    m_redis.beginTransaction();
 
     // Queue hash operations
-    redis.setHashValues(hashKey, {{"field1", 100}, {"field2", 200}});
+    m_redis.setHashValues(hashKey, {{"field1", 100}, {"field2", 200}});
 
     // Commit transaction
-    auto results = redis.commitTransaction();
+    auto results = m_redis.commitTransaction();
 
     // Verify hash was set
-    auto values = redis.getHashValues(hashKey, {"field1", "field2"});
+    auto values = m_redis.getHashValues(hashKey, {"field1", "field2"});
     EXPECT_EQ(100, values["field1"].asInteger());
     EXPECT_EQ(200, values["field2"].asInteger());
 
     // Clean up
-    (void) redis.deleteKeys({hashKey});
+    (void) m_redis.deleteKeys({hashKey});
 }
 
 TEST_F(RedisConnectTests, transactionCommitWithoutBegin)
 {
     // Try to commit without beginning a transaction
     // Redis will return an error
-    EXPECT_THROW((void) redis.commitTransaction(), RedisConnectException);
+    EXPECT_THROW((void) m_redis.commitTransaction(), RedisConnectException);
 }
 
 TEST_F(RedisConnectTests, transactionRollbackWithoutBegin)
 {
     // Try to rollback without beginning a transaction
     // Redis will return an error
-    EXPECT_THROW(redis.rollbackTransaction(), RedisConnectException);
+    EXPECT_THROW(m_redis.rollbackTransaction(), RedisConnectException);
 }
 
 TEST_F(RedisConnectTests, asyncGetValue)
 {
-    const string  key = "async_get_key";
-    const Variant value = "async_value";
-    redis.setValue(key, value);
+    constexpr string key = "async_get_key";
+    const Variant    value = "async_value";
+    m_redis.setValue(key, value);
 
     promise<Variant> resultPromise;
     auto             resultFuture = resultPromise.get_future();
 
-    redis.getValueAsync(key, [&resultPromise](const Variant& result)
-                        {
-                            resultPromise.set_value(result);
-                        });
+    m_redis.getValueAsync(key, [&resultPromise](const Variant& result)
+                          {
+                              resultPromise.set_value(result);
+                          });
 
     ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
     EXPECT_EQ(value.asString(), resultFuture.get().asString());
@@ -1199,81 +1198,81 @@ TEST_F(RedisConnectTests, asyncGetValue)
 
 TEST_F(RedisConnectTests, asyncSetValueCompletion)
 {
-    const string key = "async_set_key";
+    constexpr string key = "async_set_key";
 
     promise<void> donePromise;
     auto          doneFuture = donePromise.get_future();
 
-    redis.setValueAsync(key, Variant("hello_async"), [&donePromise]
-                        {
-                            donePromise.set_value();
-                        });
+    m_redis.setValueAsync(key, Variant("hello_async"), [&donePromise]
+                          {
+                              donePromise.set_value();
+                          });
 
     ASSERT_EQ(future_status::ready, doneFuture.wait_for(5s));
-    EXPECT_EQ("hello_async", redis.getValue(key).asString());
+    EXPECT_EQ("hello_async", m_redis.getValue(key).asString());
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, asyncIncrementKey)
 {
-    const string key = "async_incr_key";
-    (void) redis.deleteKeys({key});
-    redis.setValue(key, 41L);
+    constexpr string key = "async_incr_key";
+    (void) m_redis.deleteKeys({key});
+    m_redis.setValue(key, 41LL);
 
     promise<int64_t> resultPromise;
     auto             resultFuture = resultPromise.get_future();
 
-    redis.incrementKeyAsync(key, [&resultPromise](const int64_t result)
-                            {
-                                resultPromise.set_value(result);
-                            });
+    m_redis.incrementKeyAsync(key, [&resultPromise](const int64_t result)
+                              {
+                                  resultPromise.set_value(result);
+                              });
 
     ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
     EXPECT_EQ(42, resultFuture.get());
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, asyncOperationsAreOrdered)
 {
     // Queued operations run sequentially on the worker thread in submission order.
-    const string key = "async_order_key";
-    (void) redis.deleteKeys({key});
+    constexpr string key = "async_order_key";
+    (void) m_redis.deleteKeys({key});
 
-    redis.setValueAsync(key, Variant("first"));
-    redis.setValueAsync(key, Variant("second"));
+    m_redis.setValueAsync(key, Variant("first"));
+    m_redis.setValueAsync(key, Variant("second"));
 
     promise<Variant> resultPromise;
     auto             resultFuture = resultPromise.get_future();
-    redis.getValueAsync(key, [&resultPromise](const Variant& result)
-                        {
-                            resultPromise.set_value(result);
-                        });
+    m_redis.getValueAsync(key, [&resultPromise](const Variant& result)
+                          {
+                              resultPromise.set_value(result);
+                          });
 
     ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
     EXPECT_EQ("second", resultFuture.get().asString());
 
-    (void) redis.deleteKeys({key});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, asyncGetHashValues)
 {
-    const string                      hash = "async_hash";
+    constexpr string                  hash = "async_hash";
     const RedisConnect::KeysAndValues testValues = {
         {"field1", "value1"},
         {"field2", 12345}};
 
-    (void) redis.deleteKeys({hash});
-    redis.setHashValues(hash, testValues);
+    (void) m_redis.deleteKeys({hash});
+    m_redis.setHashValues(hash, testValues);
 
     promise<RedisConnect::KeysAndValues> resultPromise;
     auto                                 resultFuture = resultPromise.get_future();
 
-    redis.getHashValuesAsync(hash, [&resultPromise](const RedisConnect::KeysAndValues& result)
-                             {
-                                 resultPromise.set_value(result);
-                             });
+    m_redis.getHashValuesAsync(hash, [&resultPromise](const RedisConnect::KeysAndValues& result)
+                               {
+                                   resultPromise.set_value(result);
+                               });
 
     ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
     auto values = resultFuture.get();
@@ -1281,7 +1280,7 @@ TEST_F(RedisConnectTests, asyncGetHashValues)
     EXPECT_EQ("value1", values["field1"].asString());
     EXPECT_EQ(12345, values["field2"].asInteger());
 
-    (void) redis.deleteKeys({hash});
+    (void) m_redis.deleteKeys({hash});
 }
 
 TEST_F(RedisConnectTests, asyncWaitForCompletion)
@@ -1292,13 +1291,13 @@ TEST_F(RedisConnectTests, asyncWaitForCompletion)
     for (auto i = 0; i < count; ++i)
     {
         const auto key = format("async_wait_key_{}", i);
-        redis.setValueAsync(key, Variant(i), [&completed]
-                            {
-                                ++completed;
-                            });
+        m_redis.setValueAsync(key, Variant(i), [&completed]
+                              {
+                                  ++completed;
+                              });
     }
 
-    redis.waitForAsyncCompletion();
+    m_redis.waitForAsyncCompletion();
 
     // After waiting, every queued operation (and its callback) has run.
     EXPECT_EQ(count, completed.load());
@@ -1308,13 +1307,13 @@ TEST_F(RedisConnectTests, asyncWaitForCompletion)
     {
         keys.push_back(format("async_wait_key_{}", i));
     }
-    (void) redis.deleteKeys(keys);
+    (void) m_redis.deleteKeys(keys);
 }
 
 TEST_F(RedisConnectTests, asyncWaitForCompletionEmpty)
 {
     // Nothing queued: returns immediately.
-    EXPECT_TRUE(redis.waitForAsyncCompletion(5s));
+    EXPECT_TRUE(m_redis.waitForAsyncCompletion(5s));
 }
 
 TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
@@ -1325,22 +1324,22 @@ TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
     auto          releaseFuture = releasePromise.get_future();
 
     // A first operation that blocks the worker until released, so the queue cannot drain.
-    redis.setValueAsync("async_timeout_key", Variant("v"), [&startedPromise, &releaseFuture]
-                        {
-                            startedPromise.set_value();
-                            releaseFuture.wait();
-                        });
+    m_redis.setValueAsync("async_timeout_key", Variant("v"), [&startedPromise, &releaseFuture]
+                          {
+                              startedPromise.set_value();
+                              releaseFuture.wait();
+                          });
 
     ASSERT_EQ(future_status::ready, startedFuture.wait_for(5s));
 
     // The operation is still in progress, so waiting with a short timeout must fail.
-    EXPECT_FALSE(redis.waitForAsyncCompletion(100ms));
+    EXPECT_FALSE(m_redis.waitForAsyncCompletion(100ms));
 
     // Release the worker and confirm completion is then observed.
     releasePromise.set_value();
-    EXPECT_TRUE(redis.waitForAsyncCompletion(5s));
+    EXPECT_TRUE(m_redis.waitForAsyncCompletion(5s));
 
-    (void) redis.deleteKeys({"async_timeout_key"});
+    (void) m_redis.deleteKeys({"async_timeout_key"});
 }
 
 TEST_F(RedisConnectTests, threadSafety)
@@ -1359,7 +1358,7 @@ TEST_F(RedisConnectTests, threadSafety)
             keysToDelete.push_back(format("threadsafe_key_{}_{}", threadIndex, i));
         }
     }
-    (void) redis.deleteKeys(keysToDelete);
+    (void) m_redis.deleteKeys(keysToDelete);
 
     vector<jthread> threads;
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
@@ -1372,19 +1371,19 @@ TEST_F(RedisConnectTests, threadSafety)
                                      const auto value = format("value_{}_{}", threadIndex, i);
 
                                      // Test set/get operations
-                                     redis.setValue(key, Variant(value));
-                                     const auto retrieved = redis.getValue(key).asString();
+                                     m_redis.setValue(key, Variant(value));
+                                     const auto retrieved = m_redis.getValue(key).asString();
                                      EXPECT_EQ(value, retrieved);
 
                                      // Test incr operation
                                      const auto incrKey = format("threadsafe_incr_{}", threadIndex);
-                                     (void) redis.incrementKey(incrKey);
+                                     (void) m_redis.incrementKey(incrKey);
 
                                      // Test hash operations
                                      const auto                        hashKey = format("threadsafe_hash_{}", threadIndex);
                                      const RedisConnect::KeysAndValues hashValues = {{format("field_{}", i), Variant(value)}};
-                                     redis.setHashValues(hashKey, hashValues);
-                                     const auto keys = redis.getHashKeys(hashKey);
+                                     m_redis.setHashValues(hashKey, hashValues);
+                                     const auto keys = m_redis.getHashKeys(hashKey);
                                      EXPECT_FALSE(keys.empty());
                                  }
                              });
@@ -1399,7 +1398,7 @@ TEST_F(RedisConnectTests, threadSafety)
     for (auto threadIndex = 0; threadIndex < threadCount; ++threadIndex)
     {
         const auto incrKey = format("threadsafe_incr_{}", threadIndex);
-        const auto value = redis.getValue(incrKey).asInt64();
+        const auto value = m_redis.getValue(incrKey).asInt64();
         EXPECT_EQ(operationsPerThread, value);
     }
 }
