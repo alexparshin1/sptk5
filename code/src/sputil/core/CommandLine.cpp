@@ -507,8 +507,8 @@ void CommandLine::init(const size_t argc, const char** argv)
 
     const vector args(argv + 1, argv + argc);
 
-    m_arguments.clear();
-    m_values.clear();
+    //m_arguments.clear();
+    //m_values.clear();
     m_executablePath = argv[0];
 
     const Strings arguments = preprocessArguments(args);
