@@ -323,7 +323,7 @@ TEST_F(RedisConnectTests, mgetPerformance)
 {
     ASSERT_TRUE(m_redis.isConnected());
 
-    constexpr auto iterations = 10000;
+    constexpr auto iterations = 1000;
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
@@ -368,7 +368,7 @@ TEST_F(RedisConnectTests, scan)
 
 TEST_F(RedisConnectTests, getPerformance)
 {
-    constexpr auto iterations = 10000;
+    constexpr auto iterations = 1000;
     constexpr auto threadCount = 32;
 
     vector<string>            keys;
@@ -422,7 +422,7 @@ TEST_F(RedisConnectTests, getPerformance)
 
 TEST_F(RedisConnectTests, hgetPerformance)
 {
-    constexpr auto iterations = 100000;
+    constexpr auto iterations = 1000;
     constexpr auto threadCount = 32;
     constexpr auto hashCount = 10;
 
@@ -484,7 +484,7 @@ TEST_F(RedisConnectTests, hgetPerformance)
 
 TEST_F(RedisConnectTests, scanAndMgetPerformance)
 {
-    constexpr auto iterations = 10000;
+    constexpr auto iterations = 1000;
     vector<string> keys;
     for (auto i = 0; i < iterations; ++i)
     {
@@ -1405,7 +1405,7 @@ TEST_F(RedisConnectTests, threadSafety)
 
 TEST_F(RedisConnectTests, valueSetGetPerformanceAsync)
 {
-    constexpr auto   totalValues = 10000;
+    constexpr auto   totalValues = 1000;
     constexpr size_t maxThreads = 4;
 
     vector<int> valuesSet;

@@ -142,7 +142,7 @@ vector<string> RedisConnect::scan(const string& pattern, const size_t limit)
     do
     {
         vector<Variant> iterationResults;
-        cursor = scan(pattern, cursor, iterationResults, limit);
+        cursor = scan(pattern, cursor, iterationResults, 1000);
         if (!iterationResults.empty())
         {
             results.reserve(results.size() + iterationResults.size());

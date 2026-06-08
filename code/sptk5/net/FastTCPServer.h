@@ -222,7 +222,7 @@ public:
      * @param connectionSocket  Already accepted incoming connection socket handle.
      * @param peer              Incoming connection address.
      */
-    virtual std::shared_ptr<ServerConnection> createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer)
+    virtual SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer)
     {
         const STCPSocket socket = createConnectionSocket(connectionType, connectionSocket);
 
@@ -231,7 +231,6 @@ public:
 
         return connection;
     }
-
 
     /**
      * @brief Allow or deny an incoming connection.
@@ -272,6 +271,38 @@ public:
         }
     }
 
+    /**
+     * @brief Set socket events callback.
+     *
+     * Called by the reactor thread for every event on a monitored connection. The
+     * implementation fully owns the event, including the connection lifecycle: it
+     * should process available data (eventType.m_data) and tear the connection down
+     * on peer hangup or error (eventType.m_hangup / eventType.m_error) using
+     * closeConnection(). Failing to release a connection on hangup/error will keep
+     * the level-triggered reactor re-signalling it.
+     *
+     * Use watchConnection() / unwatchConnection() to pause and resume monitoring (for
+     * example, while a worker thread processes the connection).
+     * @param connection        Connection that received the event.
+     * @param eventType         Event type.
+     */
+    void onSocketEvent(const SocketEventCallback<ServerConnection>& eventCallback)
+    {
+        m_socketEventCallback = eventCallback;
+    }
+
+    /**
+     * @brief Start monitoring a connection for input events and track it.
+     * @param connection        Connection to monitor.
+     */
+    void watchConnection(const std::shared_ptr<ServerConnection>& connection);
+
+    /**
+     * @brief Stop monitoring a connection for input events, without closing it.
+     * @param connection        Connection to stop monitoring.
+     */
+    void unwatchConnection(const std::shared_ptr<ServerConnection>& connection);
+
 protected:
     /**
      * @brief Socket events callback.
@@ -288,7 +319,13 @@ protected:
      * @param connection        Connection that received the event.
      * @param eventType         Event type.
      */
-    virtual void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType) = 0;
+    virtual void socketEventCallback(const std::shared_ptr<ServerConnection>& connection, SocketEventType eventType)
+    {
+        if (m_socketEventCallback)
+        {
+            m_socketEventCallback(connection, eventType);
+        }
+    }
 
     /**
      * @brief Tune a freshly accepted connection socket.
@@ -299,18 +336,6 @@ protected:
      * @param socket            Accepted connection socket.
      */
     virtual void tuneSocket(const STCPSocket& socket);
-
-    /**
-     * @brief Start monitoring a connection for input events and track it.
-     * @param connection        Connection to monitor.
-     */
-    void watchConnection(const std::shared_ptr<ServerConnection>& connection);
-
-    /**
-     * @brief Stop monitoring a connection for input events, without closing it.
-     * @param connection        Connection to stop monitoring.
-     */
-    void unwatchConnection(const std::shared_ptr<ServerConnection>& connection);
 
     /**
      * @brief Create connection socket object.
@@ -324,14 +349,15 @@ private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
     using Listeners = std::vector<SListener>;
 
-    mutable std::mutex                                             m_mutex;            ///< Mutex that protects listeners and keys.
-    mutable std::mutex                                             m_connectionsMutex; ///< Mutex that protects connections.
-    std::shared_ptr<LogEngine>                                     m_logEngine;        ///< Optional log engine.
-    std::shared_ptr<Logger>                                        m_logger;           ///< Optional logger.
-    SocketEvents<ServerConnection>                                 m_socketEvents;     ///< Socket events reactor.
-    std::shared_ptr<SSLKeys>                                       m_keys;             ///< Server SSL keys.
-    std::map<Host, Listeners, HostCompare>                         m_listeners;        ///< Server listeners.
-    std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;      ///< Active connections.
+    mutable std::mutex                                             m_mutex;               ///< Mutex that protects listeners and keys.
+    mutable std::mutex                                             m_connectionsMutex;    ///< Mutex that protects connections.
+    std::shared_ptr<LogEngine>                                     m_logEngine;           ///< Optional log engine.
+    std::shared_ptr<Logger>                                        m_logger;              ///< Optional logger.
+    SocketEvents<ServerConnection>                                 m_socketEvents;        ///< Socket events reactor.
+    std::shared_ptr<SSLKeys>                                       m_keys;                ///< Server SSL keys.
+    std::map<Host, Listeners, HostCompare>                         m_listeners;           ///< Server listeners.
+    std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;         ///< Active connections.
+    SocketEventCallback<ServerConnection>                          m_socketEventCallback; ///< Optional socket event callback.
 
     /**
      * @brief Accept an incoming connection (called by the listener thread).
