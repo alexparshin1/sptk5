@@ -190,7 +190,7 @@ public:
      */
     [[nodiscard]] const char* c_str() const
     {
-        return std::bit_cast<const char*>(m_buffer);
+        return reinterpret_cast<const char*>(m_buffer);
     }
 
     /**
