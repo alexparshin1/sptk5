@@ -134,8 +134,9 @@ public:
      * @brief Constructor.
      * @param serverName        Logical name of the server (also the reactor thread name).
      * @param logEngine         Optional log engine.
+     * @param triggerMode       Socket pool trigger mode.
      */
-    explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr)
+    explicit FastTCPServer(const std::string& serverName, std::shared_ptr<LogEngine> logEngine = nullptr, SocketPoolTriggerMode triggerMode = SocketPoolTriggerMode::LevelTriggered)
         : m_logEngine(std::move(logEngine))
         , m_socketEvents(
               serverName,
@@ -146,7 +147,7 @@ public:
                       socketEventCallback(connection, type);
                   }
               },
-              std::chrono::milliseconds(100), SocketPoolTriggerMode::LevelTriggered, 1024)
+              std::chrono::milliseconds(100), triggerMode, 1024)
     {
         if (m_logEngine)
         {
@@ -349,15 +350,16 @@ private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
     using Listeners = std::vector<SListener>;
 
-    mutable std::mutex                                             m_mutex;               ///< Mutex that protects listeners and keys.
-    mutable std::mutex                                             m_connectionsMutex;    ///< Mutex that protects connections.
-    std::shared_ptr<LogEngine>                                     m_logEngine;           ///< Optional log engine.
-    std::shared_ptr<Logger>                                        m_logger;              ///< Optional logger.
-    SocketEvents<ServerConnection>                                 m_socketEvents;        ///< Socket events reactor.
-    std::shared_ptr<SSLKeys>                                       m_keys;                ///< Server SSL keys.
-    std::map<Host, Listeners, HostCompare>                         m_listeners;           ///< Server listeners.
-    std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;         ///< Active connections.
-    SocketEventCallback<ServerConnection>                          m_socketEventCallback; ///< Optional socket event callback.
+    mutable std::mutex                                             m_mutex;                 ///< Mutex that protects listeners and keys.
+    mutable std::mutex                                             m_connectionsMutex;      ///< Mutex that protects connections.
+    std::shared_ptr<LogEngine>                                     m_logEngine;             ///< Optional log engine.
+    std::shared_ptr<Logger>                                        m_logger;                ///< Optional logger.
+    SocketEvents<ServerConnection>                                 m_socketEvents;          ///< Socket events reactor.
+    std::shared_ptr<SSLKeys>                                       m_keys;                  ///< Server SSL keys.
+    std::map<Host, Listeners, HostCompare>                         m_listeners;             ///< Server listeners.
+    std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;           ///< Active connections.
+    SocketEventCallback<ServerConnection>                          m_socketEventCallback;   ///< Optional socket event callback.
+    SocketPoolTriggerMode                                          m_socketPoolTriggerMode; ///< Socket pool trigger mode.
 
     /**
      * @brief Accept an incoming connection (called by the listener thread).

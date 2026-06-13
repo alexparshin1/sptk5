@@ -142,11 +142,21 @@ protected:
 
     /**
      * @brief Remove the socket from the monitored pool.
-     * @param socketFd            Socket from this pool.
+     * @param socketFd          Socket from this pool.
      */
     void removeSocket(SocketType socketFd) const;
 
+    /**
+     * @brief Event callback method.
+     * @param socket            Socket.
+     * @param eventType         Event type.
+     */
     virtual void onEvent(Socket* socket, SocketEventType eventType) = 0;
+
+    SocketPoolTriggerMode getTriggerMode() const
+    {
+        return m_triggerMode;
+    }
 
 private:
     /**
