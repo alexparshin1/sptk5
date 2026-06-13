@@ -131,6 +131,15 @@ public:
      */
     [[nodiscard]] bool active() const;
 
+    /**
+     * @brief Get trigger mode.
+     * @return trigger mode.
+     */
+    SocketPoolTriggerMode getTriggerMode() const
+    {
+        return m_triggerMode;
+    }
+
 protected:
     /**
      * @brief Add the socket to the monitored pool.
@@ -152,11 +161,6 @@ protected:
      * @param eventType         Event type.
      */
     virtual void onEvent(Socket* socket, SocketEventType eventType) = 0;
-
-    SocketPoolTriggerMode getTriggerMode() const
-    {
-        return m_triggerMode;
-    }
 
 private:
     /**
