@@ -25,6 +25,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include <sptk5/Printer.h>
 #include <sptk5/StreamLogEngine.h>
 
 using namespace std;

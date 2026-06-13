@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Printer.h"
+
+
 #include <iomanip>
 #include <sptk5/Buffer.h>
 

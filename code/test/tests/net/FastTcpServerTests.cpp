@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/threads/Semaphore.h"
+
+
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/net/FastTCPServer.h>

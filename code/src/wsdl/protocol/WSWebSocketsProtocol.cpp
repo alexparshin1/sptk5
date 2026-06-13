@@ -25,6 +25,9 @@
 */
 
 #include "sptk5/wsdl/protocol/WSWebSocketsProtocol.h"
+
+#include "sptk5/Printer.h"
+
 #include <sptk5/Base64.h>
 
 using namespace std;

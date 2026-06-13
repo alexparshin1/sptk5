@@ -25,6 +25,7 @@
 */
 
 #include "sptk5/Stopwatch.h"
+#include "sptk5/Strings.h"
 
 
 #include <sptk5/Printer.h>
@@ -82,7 +83,7 @@ void resetCounters()
  * @details The resulting counter is expected to become same as number of threads
  */
 namespace sptk {
-TEST(ThreadManagerTests,minimal)
+TEST(ThreadManagerTests, minimal)
 {
     resetCounters();
 
@@ -111,7 +112,7 @@ TEST(ThreadManagerTests,minimal)
  * @brief Test starts several threads that each increments the counter by 1.
  * @details The iteration through threads should loop through each thread.
  */
-TEST(ThreadManagerTests,nextThread)
+TEST(ThreadManagerTests, nextThread)
 {
     resetCounters();
 
@@ -139,7 +140,7 @@ TEST(ThreadManagerTests,nextThread)
     EXPECT_STREQ("thread 0, thread 1, thread 2, thread 0", threadNames.join(", ").c_str());
 }
 
-TEST(ThreadManagerTests,stopClearsRunningState)
+TEST(ThreadManagerTests, stopClearsRunningState)
 {
     resetCounters();
 
@@ -161,7 +162,7 @@ TEST(ThreadManagerTests,stopClearsRunningState)
     EXPECT_EQ(nullptr, threadManager->getNextThread());
 }
 
-TEST(ThreadManagerTests,stopReturnsPromptlyWhenIdle)
+TEST(ThreadManagerTests, stopReturnsPromptlyWhenIdle)
 {
     resetCounters();
 
@@ -177,7 +178,7 @@ TEST(ThreadManagerTests,stopReturnsPromptlyWhenIdle)
     EXPECT_LT(elapsedMs, 300);
 }
 
-TEST(ThreadManagerTests,stopReturnsPromptlyWhenRunning)
+TEST(ThreadManagerTests, stopReturnsPromptlyWhenRunning)
 {
     constexpr size_t maxThreads = 3;
     const auto       threadManager = make_shared<ThreadManager>("Test Manager");
@@ -201,4 +202,4 @@ TEST(ThreadManagerTests,stopReturnsPromptlyWhenRunning)
     EXPECT_LT(elapsedMs, 300);
 }
 
-} // namespace sptk_test
+} // namespace sptk

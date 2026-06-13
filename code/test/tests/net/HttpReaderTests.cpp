@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Printer.h"
+
+
 #include <gtest/gtest.h>
 
 #include <sptk5/Buffer.h>

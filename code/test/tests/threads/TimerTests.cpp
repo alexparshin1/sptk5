@@ -24,6 +24,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/threads/Semaphore.h"
+
+
 #include <gtest/gtest.h>
 #include <sptk5/cutils>
 #include <sptk5/threads/Timer.h>
@@ -33,7 +36,7 @@ using namespace chrono;
 using namespace sptk;
 namespace sptk {
 
-TEST(TimerTests,repeat) /* NOLINT */
+TEST(TimerTests, repeat) /* NOLINT */
 {
     if (DateTime::Now() > DateTime()) // always true
     {
@@ -59,7 +62,7 @@ TEST(TimerTests,repeat) /* NOLINT */
 
 constexpr int MAX_EVENT_COUNTER = 10;
 
-TEST(TimerTests,fireOnce) /* NOLINT */
+TEST(TimerTests, fireOnce) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 1;
@@ -81,7 +84,7 @@ TEST(TimerTests,fireOnce) /* NOLINT */
     EXPECT_EQ(counter, 2u);
 }
 
-TEST(TimerTests,repeatTwice) /* NOLINT */
+TEST(TimerTests, repeatTwice) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 0;
@@ -108,7 +111,7 @@ TEST(TimerTests,repeatTwice) /* NOLINT */
     EXPECT_EQ(counter, static_cast<size_t>(2));
 }
 
-TEST(TimerTests,repeatTwoEventsTwice) /* NOLINT */
+TEST(TimerTests, repeatTwoEventsTwice) /* NOLINT */
 {
     mutex       counterMutex;
     size_t      counter = 0;
@@ -139,7 +142,7 @@ TEST(TimerTests,repeatTwoEventsTwice) /* NOLINT */
     EXPECT_EQ(counter, static_cast<size_t>(4));
 }
 
-TEST(TimerTests,repeatMultipleEvents) /* NOLINT */
+TEST(TimerTests, repeatMultipleEvents) /* NOLINT */
 {
     mutex       eventCounterMutex;
     auto        totalEvents(0);
@@ -170,7 +173,7 @@ TEST(TimerTests,repeatMultipleEvents) /* NOLINT */
     EXPECT_NEAR(MAX_EVENT_COUNTER * 5, totalEvents, 10);
 }
 
-TEST(TimerTests,repeatCancel) /* NOLINT */
+TEST(TimerTests, repeatCancel) /* NOLINT */
 {
     atomic_int totalEvents(0);
 
@@ -198,7 +201,7 @@ TEST(TimerTests,repeatCancel) /* NOLINT */
 /**
  * Test that an event can be scheduled in front of the event list.
  */
-TEST(TimerTests,scheduleTwoEvents) /* NOLINT */
+TEST(TimerTests, scheduleTwoEvents) /* NOLINT */
 {
     DateTime::time_point timestamp1;
     DateTime::time_point timestamp2;
@@ -228,7 +231,7 @@ TEST(TimerTests,scheduleTwoEvents) /* NOLINT */
 /**
  * Test that an event can be scheduled in front of the event list.
  */
-TEST(TimerTests,scheduleMultipleEvents) /* NOLINT */
+TEST(TimerTests, scheduleMultipleEvents) /* NOLINT */
 {
     const Timer timer;
 
@@ -258,7 +261,7 @@ TEST(TimerTests,scheduleMultipleEvents) /* NOLINT */
     EXPECT_EQ(totalEvents, createdEvents.size());
 }
 
-TEST(TimerTests,scheduleEventsPerformance) /* NOLINT */
+TEST(TimerTests, scheduleEventsPerformance) /* NOLINT */
 {
     const Timer         timer;
     constexpr size_t    maxEvents = 100000;
@@ -295,4 +298,4 @@ TEST(TimerTests,scheduleEventsPerformance) /* NOLINT */
                    << "K events/s");
 }
 
-} // namespace sptk_test
+} // namespace sptk
