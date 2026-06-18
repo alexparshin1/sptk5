@@ -170,7 +170,7 @@ public:
      * @brief Set log message prefix.
      * @param prefix            Message prefix.
      */
-    void prefix(const std::string& prefix)
+    void prefix(std::string_view prefix)
     {
         const std::lock_guard lock(m_mutex);
         m_prefix = prefix;

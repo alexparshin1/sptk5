@@ -29,6 +29,7 @@
 #include "sptk5/db/Query.h"
 #include "sptk5/db/Transaction.h"
 #include "sptk5/net/RedisConnect.h"
+#include <atomic>
 #include <chrono>
 #include <future>
 #include <gtest/gtest.h>
@@ -1340,6 +1341,94 @@ TEST_F(RedisConnectTests, asyncWaitForCompletionTimeout)
     EXPECT_TRUE(m_redis.waitForAsyncCompletion(5s));
 
     (void) m_redis.deleteKeys({"async_timeout_key"});
+}
+
+TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnPipelinedFailure)
+{
+    // INCR on a key holding a non-integer fails with a Redis error reply. The pipelined operation's
+    // result callback must not fire; the failure must reach the error handler instead.
+    const string key = "async_error_pipelined";
+    m_redis.setValue(key, Variant("not_a_number"));
+
+    promise<string> errorPromise;
+    auto            errorFuture = errorPromise.get_future();
+    bool            resultCalled = false;
+
+    m_redis.setAsyncErrorHandler([&errorPromise](const Exception& e)
+                                 {
+                                     errorPromise.set_value(e.what());
+                                 });
+
+    m_redis.incrementKeyAsync(key, [&resultCalled](int64_t)
+                              {
+                                  resultCalled = true;
+                              });
+
+    ASSERT_EQ(future_status::ready, errorFuture.wait_for(5s));
+    EXPECT_FALSE(errorFuture.get().empty());
+    EXPECT_FALSE(resultCalled);
+
+    m_redis.setAsyncErrorHandler({});
+    (void) m_redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncErrorHandlerInvokedOnSelfContainedFailure)
+{
+    // SREM against a key holding a string fails with WRONGTYPE. deleteSetMembersAsync is a
+    // self-contained operation, so this exercises the other failure path.
+    const string key = "async_error_self_contained";
+    m_redis.setValue(key, Variant("a_string_not_a_set"));
+
+    promise<string> errorPromise;
+    auto            errorFuture = errorPromise.get_future();
+    bool            resultCalled = false;
+
+    m_redis.setAsyncErrorHandler([&errorPromise](const Exception& e)
+                                 {
+                                     errorPromise.set_value(e.what());
+                                 });
+
+    m_redis.deleteSetMembersAsync(key, {"member"}, [&resultCalled](size_t)
+                                  {
+                                      resultCalled = true;
+                                  });
+
+    ASSERT_EQ(future_status::ready, errorFuture.wait_for(5s));
+    EXPECT_FALSE(errorFuture.get().empty());
+    EXPECT_FALSE(resultCalled);
+
+    m_redis.setAsyncErrorHandler({});
+    (void) m_redis.deleteKeys({key});
+}
+
+TEST_F(RedisConnectTests, asyncErrorHandlerNotInvokedOnSuccess)
+{
+    // A successful operation must deliver its result and never invoke the error handler.
+    const string key = "async_error_none";
+    (void) m_redis.deleteKeys({key});
+    m_redis.setValue(key, static_cast<int64_t>(41L));
+
+    atomic_bool      errorCalled {false};
+    promise<int64_t> resultPromise;
+    auto             resultFuture = resultPromise.get_future();
+
+    m_redis.setAsyncErrorHandler([&errorCalled](const Exception&)
+                                 {
+                                     errorCalled = true;
+                                 });
+
+    m_redis.incrementKeyAsync(key, [&resultPromise](const int64_t result)
+                              {
+                                  resultPromise.set_value(result);
+                              });
+
+    ASSERT_EQ(future_status::ready, resultFuture.wait_for(5s));
+    EXPECT_EQ(42, resultFuture.get());
+    EXPECT_TRUE(m_redis.waitForAsyncCompletion(5s));
+    EXPECT_FALSE(errorCalled.load());
+
+    m_redis.setAsyncErrorHandler({});
+    (void) m_redis.deleteKeys({key});
 }
 
 TEST_F(RedisConnectTests, threadSafety)

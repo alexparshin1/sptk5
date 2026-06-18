@@ -84,6 +84,14 @@ public:
     using CompletionCallback = std::function<void()>;
 
     /**
+     * @brief Callback invoked when an asynchronous operation fails.
+     * @details Receives the exception that caused the failure. Since a failed asynchronous operation
+     *          does not invoke its result/completion callback, this is the only way to observe such
+     *          failures (e.g. for logging).
+     */
+    using ErrorCallback = std::function<void(const Exception&)>;
+
+    /**
      * @brief Constructor
      */
     RedisConnect()
@@ -281,8 +289,10 @@ public:
      * Each *Async method queues the operation onto a single background worker thread and returns
      * immediately. The result is delivered to the supplied callback when the operation completes;
      * for void operations the callback (if provided) signals completion. Operations are executed
-     * in the order they were queued. If the underlying operation throws, the callback is not
-     * invoked. Connection, disconnection and transaction control have no asynchronous form.
+     * in the order they were queued. If the underlying operation throws, the result/completion
+     * callback is not invoked; the failure is instead reported to the handler registered with
+     * setAsyncErrorHandler(), if any. Connection, disconnection and transaction control have no
+     * asynchronous form.
      * @{
      */
     void getValueAsync(const std::string& key, ResultCallback<Variant> callback);
@@ -305,6 +315,16 @@ public:
     void deleteSetMembersAsync(const std::string& key, const std::vector<std::string>& members, ResultCallback<size_t> callback);
     void renameKeyAsync(const std::string& oldKey, const std::string& newKey, CompletionCallback callback = {});
     void renameKeyIfExistsAsync(const std::string& oldKey, const std::string& newKey, ResultCallback<bool> callback);
+
+    /**
+     * @brief Registers a handler invoked when an asynchronous operation fails.
+     * @details The handler is called on the worker thread, outside the connection lock, with the
+     *          exception that caused the failure. Passing an empty handler clears it. Thread-safe;
+     *          may be called at any time, though it is normally set once before issuing asynchronous
+     *          operations.
+     * @param handler Error handler, or empty to disable error reporting.
+     */
+    void setAsyncErrorHandler(ErrorCallback handler);
 
     /**
      * @brief Waits until all queued asynchronous operations have completed.
@@ -385,13 +405,13 @@ private:
     /// Maximum number of pipelined requests sent before reading their replies.
     static constexpr size_t MaxPipelineBatch = 256;
 
-    SynchronizedQueue<AsyncTask> m_taskQueue;     ///< Queue of pending asynchronous operations.
-    std::jthread                 m_worker;        ///< Worker thread executing queued operations.
-    std::once_flag               m_workerStarted; ///< Guards lazy worker thread startup.
-
-    mutable std::mutex      m_asyncMutex;       ///< Guards the pending operation counter.
-    std::condition_variable m_asyncCondition;   ///< Signaled when a queued operation completes.
-    size_t                  m_pendingTasks {0}; ///< Number of queued operations not yet completed.
+    SynchronizedQueue<AsyncTask> m_taskQueue;         ///< Queue of pending asynchronous operations.
+    std::jthread                 m_worker;            ///< Worker thread executing queued operations.
+    std::once_flag               m_workerStarted;     ///< Guards lazy worker thread startup.
+    mutable std::mutex           m_asyncMutex;        ///< Guards the pending operation counter and error handler.
+    std::condition_variable      m_asyncCondition;    ///< Signaled when a queued operation completes.
+    size_t                       m_pendingTasks {0};  ///< Number of queued operations not yet completed.
+    ErrorCallback                m_asyncErrorHandler; ///< Invoked when an asynchronous operation fails.
 
     /**
      * @brief Lazily starts the asynchronous worker thread on first use.
@@ -428,6 +448,14 @@ private:
      * @brief Marks a queued task as completed and wakes any waiters.
      */
     void taskCompleted();
+
+    /**
+     * @brief Reports a failed asynchronous operation to the registered error handler, if any.
+     * @details Invoked on the worker thread, outside the connection lock. A throwing handler is
+     *          ignored so it cannot disrupt the worker.
+     * @param error Exception that caused the failure.
+     */
+    void reportAsyncError(const Exception& error) const;
 
     /**
      * @brief Appends a Redis command to the send buffer without writing it to the socket.

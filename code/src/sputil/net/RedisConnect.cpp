@@ -743,9 +743,11 @@ void RedisConnect::runBatch(const vector<AsyncTask>& batch)
             {
                 batch[i].selfContained();
             }
-            catch (const Exception&)
+            catch (const Exception& e)
             {
-                // The underlying operation failed; its callback is intentionally not invoked.
+                // The underlying operation failed; its callback is intentionally not invoked. The
+                // failure is reported to the error handler instead.
+                reportAsyncError(e);
             }
             taskCompleted();
         }
@@ -767,6 +769,7 @@ void RedisConnect::flushPipeline(const vector<AsyncTask>& batch, const vector<si
 
     vector<vector<Variant>> replies(indices.size());
     vector<bool>            succeeded(indices.size(), false);
+    vector<string>          errors(indices.size()); ///< Failure message per task; set when !succeeded.
 
     {
         scoped_lock lock(m_mutex);
@@ -787,11 +790,19 @@ void RedisConnect::flushPipeline(const vector<AsyncTask>& batch, const vector<si
                     readResponse(replies[k]);
                     succeeded[k] = true;
                 }
-                catch (const Exception&)
+                catch (const Exception& e)
                 {
                     // An error reply for this command was consumed; keep reading the remaining
                     // replies so the response stream stays aligned with the pipelined requests.
+                    errors[k] = e.what();
                 }
+            }
+        }
+        else
+        {
+            for (auto& error: errors)
+            {
+                error = "Not connected";
             }
         }
     }
@@ -800,17 +811,23 @@ void RedisConnect::flushPipeline(const vector<AsyncTask>& batch, const vector<si
     // signaled per task only after its callback returns, preserving waitForAsyncCompletion semantics.
     for (size_t k = 0; k < indices.size(); ++k)
     {
-        if (const auto& onReply = batch[indices[k]].onReply;
-            succeeded[k] && onReply)
+        if (succeeded[k])
         {
-            try
+            if (const auto& onReply = batch[indices[k]].onReply)
             {
-                onReply(replies[k]);
+                try
+                {
+                    onReply(replies[k]);
+                }
+                catch (const Exception&)
+                {
+                    // A failing callback must not prevent completion bookkeeping for this or later tasks.
+                }
             }
-            catch (const Exception&)
-            {
-                // A failing callback must not prevent completion bookkeeping for this or later tasks.
-            }
+        }
+        else
+        {
+            reportAsyncError(RedisConnectException(errors[k]));
         }
         taskCompleted();
     }
@@ -849,6 +866,35 @@ void RedisConnect::taskCompleted()
     if (allCompleted)
     {
         m_asyncCondition.notify_all();
+    }
+}
+
+void RedisConnect::setAsyncErrorHandler(ErrorCallback handler)
+{
+    scoped_lock lock(m_asyncMutex);
+    m_asyncErrorHandler = std::move(handler);
+}
+
+void RedisConnect::reportAsyncError(const Exception& error) const
+{
+    // Copy the handler under the lock, then invoke it unlocked: the handler may re-enter the
+    // connection (e.g. queue another async operation), which would deadlock on m_asyncMutex.
+    ErrorCallback handler;
+    {
+        scoped_lock lock(m_asyncMutex);
+        handler = m_asyncErrorHandler;
+    }
+
+    if (handler)
+    {
+        try
+        {
+            handler(error);
+        }
+        catch (...)
+        {
+            // A failing error handler must not disrupt the worker thread.
+        }
     }
 }
 
