@@ -137,7 +137,7 @@ bool SocketPool::waitForEvents(const chrono::milliseconds& timeout)
             .m_error = (event & EPOLLERR) != 0,
         };
 
-        onEvent(static_cast<Socket*>(data.ptr), eventType);
+        onEvent(data.ptr, eventType);
     }
 
     return true;

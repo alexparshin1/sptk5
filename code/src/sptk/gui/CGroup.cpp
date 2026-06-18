@@ -27,6 +27,7 @@
 #include <sptk5/sptk.h>
 
 #include <FL/Fl.H>
+#include <FL/Fl_Group.H>
 #include <FL/fl_draw.H>
 #include <sptk5/gui/CControl.h>
 #include <sptk5/gui/CGroup.h>

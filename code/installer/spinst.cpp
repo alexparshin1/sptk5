@@ -26,28 +26,9 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include <sptk5/cgui>
-#include <sptk5/gui/CEditorSpellChecker.h>
-
 using namespace std;
-using namespace sptk;
 
 int main()
 {
-    CThemes themes;
-    CWindow window(600, 400, "SP Installer");
-
-    CToolBar toolBar;
-    CButton  spellCheckButton("Prior", CLayoutAlign::RIGHT);
-    CButton  spellCheckButton("Next", CLayoutAlign::RIGHT);
-
-    window.show();
-
-    CThemes::set("OSX");
-
-    window.reLayout();
-
-    Fl::run();
-
     return 0;
 }

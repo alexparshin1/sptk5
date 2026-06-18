@@ -48,9 +48,9 @@ class LoadBalance
 
     void threadFunction() override;
 
-    static void sourceEventCallback(const std::shared_ptr<Channel>& channel, SocketEventType eventType);
+    static void sourceEventCallback(const std::weak_ptr<Channel>& channelPtr, SocketEventType eventType);
 
-    static void destinationEventCallback(const std::shared_ptr<Channel>& channel, SocketEventType eventType);
+    static void destinationEventCallback(const std::weak_ptr<Channel>& channelPtr, SocketEventType eventType);
 
 public:
     LoadBalance(uint16_t listenerPort, Loop<Host>& destinations, Loop<String>& interfaces);

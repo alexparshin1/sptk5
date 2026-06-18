@@ -230,8 +230,9 @@ TEST(FastTcpServerTests, throughput)
     size_t                  receivedMessageCount = 0;
     Semaphore               receivedAllMessages;
     SocketEvents<TCPSocket> socketEvents("",
-                                         [&receivedMessageCount, &receivedAllMessages](const std::shared_ptr<TCPSocket>& socket, SocketEventType eventType)
+                                         [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<TCPSocket>& socketPtr, SocketEventType eventType)
                                          {
+                                             auto socket = socketPtr.lock();
                                              if (eventType.m_hangup)
                                              {
                                                  socket->close();

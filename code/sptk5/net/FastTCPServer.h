@@ -140,9 +140,11 @@ public:
         : m_logEngine(std::move(logEngine))
         , m_socketEvents(
               serverName,
-              [this](const std::shared_ptr<ServerConnection>& connection, SocketEventType type)
+              [this](const std::weak_ptr<ServerConnection>& weakConnection, SocketEventType type)
               {
-                  if (connection)
+                  // The reactor delivers a weak_ptr; lock it here and keep the downstream
+                  // socketEventCallback(shared_ptr) interface unchanged.
+                  if (const auto connection = weakConnection.lock())
                   {
                       socketEventCallback(connection, type);
                   }
