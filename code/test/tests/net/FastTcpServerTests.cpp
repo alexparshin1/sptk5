@@ -31,7 +31,6 @@
 
 #include "test/TestData.h"
 
-#include <atomic>
 #include <filesystem>
 #include <iomanip>
 #include <vector>
@@ -56,7 +55,7 @@ constexpr size_t   messageSize = 100;
 class EchoServer : public FastTCPServer
 {
 public:
-    explicit EchoServer(const string& name, size_t ackSize = 0)
+    explicit EchoServer(const string& name, size_t messageSize, size_t ackSize)
         : FastTCPServer(name)
         , m_messageSize(messageSize)
         , m_ackSize(ackSize)
@@ -119,7 +118,7 @@ TEST(FastTcpServerTests, basicEcho)
 {
     const auto message = makeMessage();
 
-    EchoServer server("FastTcpServer Echo");
+    EchoServer server("FastTcpServer Echo", 100, 100);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
     ASSERT_TRUE(server.active());
 
@@ -145,7 +144,7 @@ TEST(FastTcpServerTests, basicEcho)
 
 TEST(FastTcpServerTests, multipleListeners)
 {
-    EchoServer server("FastTcpServer MultiListener");
+    EchoServer server("FastTcpServer MultiListener", 100, 100);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort + 1));
 
@@ -183,7 +182,7 @@ TEST(FastTcpServerTests, sslEcho)
 
     const auto message = makeMessage();
 
-    EchoServer server("FastTcpServer SSL Echo");
+    EchoServer server("FastTcpServer SSL Echo", 100, 100);
     server.setSSLKeys(make_shared<SSLKeys>(certFile, certFile));
     server.addListener(ServerConnection::Type::SSL, Host("127.0.0.1", testPort));
     ASSERT_TRUE(server.active());
@@ -216,7 +215,7 @@ TEST(FastTcpServerTests, throughput)
     constexpr size_t ackSize = 10;
 
     // Echo is 10 first bytes like a short ACK.
-    EchoServer server("FastTcpServer Throughput", ackSize);
+    EchoServer server("FastTcpServer Throughput", 100, ackSize);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort));
 
     const auto sender = make_shared<TCPSocket>();
@@ -296,7 +295,7 @@ TEST(FastTcpServerTests, acceptRate)
     constexpr size_t   connectorThreads = 8;
     constexpr uint16_t listenerThreads = 4;
 
-    EchoServer server("FastTcpServer AcceptRate");
+    EchoServer server("FastTcpServer AcceptRate", 100, 100);
     server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort), listenerThreads);
 
     // Each thread owns its own socket vector to avoid contention.
@@ -332,16 +331,97 @@ TEST(FastTcpServerTests, acceptRate)
 
     stopWatch.stop();
 
-    const double milliseconds = stopWatch.milliseconds();
-    const double connectionsPerSecond = static_cast<double>(connectionCount) * 1000.0 / milliseconds;
+    const auto milliseconds = stopWatch.milliseconds();
+    const auto connectionsPerSecond = static_cast<double>(connectionCount) * 1000.0 / milliseconds;
 
     COUT("FastTcpServer accepted " << connectionCount << " connections in "
                                    << fixed << setprecision(1) << milliseconds << " ms: "
                                    << setprecision(0) << connectionsPerSecond << " conn/s");
 
-    for (auto& clients: clientsPerThread)
+    for (const auto& clients: clientsPerThread)
     {
-        for (auto& client: clients)
+        for (const auto& client: clients)
+        {
+            client->close();
+        }
+    }
+    server.stop();
+}
+
+/**
+ * @brief Test how fast FastTcpServerTests can accept connections.
+ *
+ * On Linux, before running the test, make sure you have a lot of ephemeral ports (~40000).
+ *    cat /proc/sys/net/ipv4/ip_local_port_range
+ *
+ * To temporary set (until reboot) the good number of ephemeral points:
+ *    sudo echo "1024 65535" > /proc/sys/net/ipv4/ip_local_port_range
+ */
+TEST(FastTcpServerTests, latency)
+{
+    constexpr size_t   connectionCount = 20'000;
+    constexpr size_t   connectorThreads = 4;
+    constexpr uint16_t listenerThreads = 4;
+
+    EchoServer server("FastTcpServer AcceptRate", 5, 5);
+    server.addListener(ServerConnection::Type::TCP, Host("127.0.0.1", testPort), listenerThreads);
+
+    // Each thread owns its own socket vector to avoid contention.
+    vector<vector<unique_ptr<TCPSocket>>> clientsPerThread(connectorThreads);
+
+    // Resolve the server address once; reused for every connect so the measurement
+    // is not skewed by per-connection name resolution (Host() calls getaddrinfo()).
+    const Host serverHost("127.0.0.1", testPort);
+
+    Stopwatch stopWatch;
+    stopWatch.start();
+
+    atomic_size_t totalLatencyMcs = 0;
+    {
+        vector<jthread> connectors;
+        connectors.reserve(connectorThreads);
+        for (size_t t = 0; t < connectorThreads; ++t)
+        {
+            connectors.emplace_back(
+                [t, &clientsPerThread, &serverHost, &totalLatencyMcs]
+                {
+                    vector<uint8_t> message(128);
+                    constexpr auto  share = connectionCount / connectorThreads;
+                    auto&           myClients = clientsPerThread[t];
+                    myClients.reserve(share);
+                    for (size_t i = 0; i < share; ++i)
+                    {
+                        auto client = make_unique<TCPSocket>();
+                        auto started = chrono::high_resolution_clock::now();
+                        client->open(serverHost);
+                        client->write("Hello");
+                        if (client->readyToRead(1s))
+                        {
+                            client->read(message.data(), 5);
+                        }
+                        auto       completed = chrono::high_resolution_clock::now();
+                        const auto latencyMcs = duration_cast<chrono::microseconds>(completed - started).count();
+                        totalLatencyMcs += latencyMcs;
+                        myClients.push_back(std::move(client));
+                    }
+                });
+        }
+    } // join all connector threads
+
+    COUT("Average latency is " << fixed << setprecision(1) << totalLatencyMcs.load() / connectionCount << " mcs");
+
+    stopWatch.stop();
+
+    const auto milliseconds = stopWatch.milliseconds();
+    const auto connectionsPerSecond = static_cast<double>(connectionCount) * 1000.0 / milliseconds;
+
+    COUT("FastTcpServer accepted " << connectionCount << " connections in "
+                                   << fixed << setprecision(1) << milliseconds << " ms: "
+                                   << setprecision(0) << connectionsPerSecond << " conn/s");
+
+    for (const auto& clients: clientsPerThread)
+    {
+        for (const auto& client: clients)
         {
             client->close();
         }
