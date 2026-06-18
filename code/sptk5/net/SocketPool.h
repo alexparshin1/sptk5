@@ -252,16 +252,18 @@ public:
         }
 
         SocketRegistration* registration = nullptr;
+        // EPOLL_CTL_MOD (re-arm in place) is only valid when the socket is still registered with the
+        // poll. Callers also pass rearmOneShot=true after a remove() to mean "re-add" (see
+        // SocketEventsTests Level/Edge path); in that case the socket is gone from the map and we must
+        // do a fresh add instead.
+        bool rearmInPlace = false;
         {
             const std::scoped_lock lock(m_mutex);
             const auto             it = m_objects.find(socketPtr);
-            if (rearmOneShot)
+            if (rearmOneShot && it != m_objects.end() && getTriggerMode() == SocketPoolTriggerMode::OneShot)
             {
-                if (it == m_objects.end())
-                {
-                    return; // Socket already removed: nothing to re-arm.
-                }
-                registration = it->second.get(); // Reuse the existing cookie.
+                registration = it->second.get(); // Re-arm: reuse the existing cookie.
+                rearmInPlace = true;
             }
             else
             {
@@ -283,11 +285,11 @@ public:
 
         try
         {
-            addSocket(fd, reinterpret_cast<const uint8_t*>(registration), rearmOneShot);
+            addSocket(fd, reinterpret_cast<const uint8_t*>(registration), rearmInPlace);
         }
         catch (const Exception&)
         {
-            if (!rearmOneShot)
+            if (!rearmInPlace)
             {
                 const std::scoped_lock lock(m_mutex);
                 m_objects.erase(socketPtr);
@@ -370,6 +372,18 @@ protected:
             retired.swap(m_retired);
         }
         // Registrations destroyed here, outside the lock and between batches.
+    }
+
+    /**
+     * @brief Resolve the event cookie for a socket, or nullptr if it is not currently registered.
+     * @details The poll backend passes this cookie to onEvent(); this helper lets tests dispatch a
+     *          synthetic event for a socket without a live poll. Not used on the production path.
+     */
+    void* eventCookieForSocket(Socket* socket)
+    {
+        const std::scoped_lock lock(m_mutex);
+        const auto             it = m_objects.find(socket);
+        return it != m_objects.end() ? static_cast<void*>(it->second.get()) : nullptr;
     }
 
 private:

@@ -47,7 +47,9 @@ public:
 
     void dispatch(Socket* socket, const SocketEventType eventType)
     {
-        onEvent(socket, eventType);
+        // onEvent() now takes the per-socket event cookie (not the Socket*); resolve it the way the
+        // poll backend would. A socket that is not registered yields a null cookie.
+        onEvent(eventCookieForSocket(socket), eventType);
     }
 };
 

@@ -51,7 +51,7 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
     auto eventsCallback =
         [&dataReceived, &hangupReceived, &socketEvents, triggerMode](const weak_ptr<Socket>& userData, const SocketEventType eventType)
     {
-        auto socket = userData.lock();
+        const auto socket = userData.lock();
         if (socket == nullptr)
         {
             return;
@@ -117,10 +117,12 @@ void testSocketEvents(const SocketPoolTriggerMode triggerMode)
             CERR(e.what());
         }
 
+        // The server closes after the <EOF> in testData2; wait for the client to observe the hangup
+        // before tearing down its own monitoring (otherwise the removal races the hangup delivery).
+        EXPECT_TRUE(hangupReceived.wait_for(3s));
+
         socketEvents->remove(socket);
         socket->close();
-
-        EXPECT_TRUE(hangupReceived.wait_for(3s));
 
         testEchoServer.stop();
     }
