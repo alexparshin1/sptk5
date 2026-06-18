@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <sptk5/DateTime.h>
 #include <sptk5/Exception.h>
@@ -292,7 +293,8 @@ protected:
     [[nodiscard]] int32_t getProtocolUnlocked() const;
 
 private:
-    SocketType m_socketFd {INVALID_SOCKET}; ///< Socket OS handle.
+    std::atomic<SocketType> m_socketFd {INVALID_SOCKET}; ///< Socket OS handle. Atomic: fd() reads it
+                                                         ///< locklessly while close()/attach() write it under the owner's lock.
     int32_t    m_domain;                    ///< Socket domain type.
     int32_t    m_type;                      ///< Socket type.
     int32_t    m_protocol;                  ///< Socket protocol.

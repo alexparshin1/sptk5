@@ -289,7 +289,7 @@ void SocketVirtualMethods::attachUnlocked(const SocketType socketHandle, bool)
 
 SocketType SocketVirtualMethods::detachUnlocked()
 {
-    const auto socketFd = m_socketFd;
+    const SocketType socketFd = m_socketFd.load();
     m_socketFd = INVALID_SOCKET;
     closeUnlocked();
     return socketFd;
