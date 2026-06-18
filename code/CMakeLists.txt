@@ -81,6 +81,7 @@ OPTION(USE_BROTLI "Use Brotli library" ON)
 OPTION(BUILD_EXAMPLES "Build usage examples" ON)
 OPTION(BUILD_UTILS "Build utility programs" ON)
 OPTION(BUILD_PACKAGE "Build OS package" ON)
+OPTION(BUILD_INSTALLER "Build SP Installer." ON)
 
 IF (NOT WIN32)
     OPTION(BUILD_TEST_WS "Build Test Web Service" ON)
@@ -164,7 +165,7 @@ ELSE ()
     ADD_DEFINITIONS(-DOPENSSL_SUPPRESS_DEPRECATED)
 
     IF (CMAKE_BUILD_TYPE STREQUAL "Debug")
-        ADD_DEFINITIONS(-O1 -msse4.2)
+        #ADD_DEFINITIONS(-O1 -msse4.2)
 
         # Enable address sanitizer:
         #ADD_DEFINITIONS(-fsanitize=address)
@@ -595,6 +596,9 @@ IF (BUILD_PACKAGE)
     ADD_SUBDIRECTORY(packages)
 ENDIF ()
 
+IF (BUILD_INSTALLER)
+    ADD_SUBDIRECTORY(installer)
+ENDIF ()
 
 FILE(GLOB includeFiles "${CMAKE_CURRENT_SOURCE_DIR}/sptk5/*.h")
 INSTALL(FILES ${includeFiles} DESTINATION include/sptk5 COMPONENT core)
