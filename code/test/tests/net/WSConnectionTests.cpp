@@ -41,6 +41,7 @@ public:
 protected:
     void socketEventCallback(const std::shared_ptr<ServerConnection>&, SocketEventType) override
     {
+        // Don't need to use events in that test class.
     }
 };
 } // namespace
@@ -51,7 +52,6 @@ class WSConnectionTests : public ::testing::Test
 public:
     WSConnectionTests() = default;
 
-protected:
     StubServer              tcpServer {"test"};
     std::stringstream       logStream;
     sockaddr_in             addr {};
@@ -62,16 +62,12 @@ protected:
 
     // Create WSConnection under test. If your real constructor requires more setup,
     // adapt this fixture to provide appropriate test doubles.
-    WSConnection* makeConnection()
+    std::unique_ptr<WSConnection> makeConnection()
     {
-        return new WSConnection(tcpServer, &addr, services, logEngine, options, workerThread);
-    }
-
-    void TearDown() override
-    {
-        // Nothing by default
+        return std::make_unique<WSConnection>(tcpServer, &addr, services, logEngine, options, workerThread);
     }
 };
+
 namespace sptk {
 
 TEST_F(WSConnectionTests, addsContentLengthForGetWhenMissing)
@@ -84,7 +80,7 @@ TEST_F(WSConnectionTests, addsContentLengthForGetWhenMissing)
     const String requestType = "GET";
 
     // Act
-    const bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = WSConnection::reviewHeaders(requestType, headers);
 
     // Assert
     const auto it = headers.find("Content-Length");
@@ -105,7 +101,7 @@ TEST_F(WSConnectionTests, keepsConnectionWhenHeaderIsClose)
     const String requestType = "POST";
 
     // Act
-    const bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = WSConnection::reviewHeaders(requestType, headers);
 
     // Assert
     // Content-Length should remain unchanged
@@ -130,7 +126,7 @@ TEST_F(WSConnectionTests, erasesConnectionWhenNotClose)
     const String requestType = "POST";
 
     // Act
-    const bool closeConnection = conn->reviewHeaders(requestType, headers);
+    const bool closeConnection = WSConnection::reviewHeaders(requestType, headers);
 
     // Assert
     // Implementation treats anything not equal to "close" as closeConnection == true and erases header

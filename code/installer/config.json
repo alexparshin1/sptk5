@@ -1,0 +1,11 @@
+{
+  "application": "My App",
+  "version": "1.0",
+  "description": "Very strange application that sometimes works",
+  "install_directory": "/opt/MyApp",
+  "sidebar_image": "MyApp.png",
+  "options": {
+    "Install OS service": true,
+    "Install extra functions": false
+  }
+}

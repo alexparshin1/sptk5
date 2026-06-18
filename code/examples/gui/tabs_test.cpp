@@ -183,7 +183,7 @@ void buttonDemo(CTabs* tabs)
     }
 }
 
-void widgetDemo(CTabs* tabs)
+void WelcomePage(CTabs* tabs)
 { // It will be many widgets on this page, so creating a scroll
     Fl_Group* t = tabs->newScroll(" Data controls 1 ", true);
     t->labeltype(FL_ENGRAVED_LABEL);
@@ -376,7 +376,7 @@ int main(int argc, char** argv)
             // BTW, you you can continue to use traditional FLTK
             // widget positioning, just define __COMPATIBILITY_MODE__
             // and recompile SPTK.
-            widgetDemo(tabs);
+            WelcomePage(tabs);
 
             scrollDemo(sl1, sl2, sl3, sl4, sl5, sl6, tabs);
 
