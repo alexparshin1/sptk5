@@ -355,7 +355,7 @@ void FastTCPServer::tuneSocket(const STCPSocket& socket)
     socket->blockingMode(false);
 }
 
-void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connection)
+void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connection, const bool rearm)
 {
     const auto socket = connection->getSocket();
     if (!socket)
@@ -370,7 +370,7 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
 
     try
     {
-        m_socketEvents.add(socket, connection);
+        m_socketEvents.add(socket, connection, rearm);
     }
     catch (const Exception& e)
     {

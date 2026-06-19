@@ -297,8 +297,9 @@ public:
     /**
      * @brief Start monitoring a connection for input events and track it.
      * @param connection        Connection to monitor.
+     * @param rearm             Rearm connection (OneShot mode only)
      */
-    void watchConnection(const std::shared_ptr<ServerConnection>& connection);
+    void watchConnection(const std::shared_ptr<ServerConnection>& connection, bool rearm = false);
 
     /**
      * @brief Stop monitoring a connection for input events, without closing it.
