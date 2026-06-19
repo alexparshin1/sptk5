@@ -24,12 +24,12 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
-#include "../../../sptk5/threads/UpgradableLock.h"
+#include "../../../sptk5/threads/ReadWriteMutex.h"
 
 using namespace std;
 using namespace sptk;
 
-void UpgradableLock::lockShared()
+void ReadWriteMutex::lockShared()
 {
     unique_lock lock(m_mutex);
     m_condition.wait(lock, [this]
@@ -40,7 +40,7 @@ void UpgradableLock::lockShared()
     m_sharedOwners.insert(this_thread::get_id());
 }
 
-bool UpgradableLock::tryLockShared(chrono::milliseconds timeout)
+bool ReadWriteMutex::tryLockShared(chrono::milliseconds timeout)
 {
     unique_lock lock(m_mutex);
     if (!m_condition.wait_for(lock, timeout, [this]
@@ -55,7 +55,7 @@ bool UpgradableLock::tryLockShared(chrono::milliseconds timeout)
     return true;
 }
 
-void UpgradableLock::unlock()
+void ReadWriteMutex::unlock()
 {
     unique_lock lock(m_mutex);
 
@@ -71,7 +71,7 @@ void UpgradableLock::unlock()
     }
 }
 
-void UpgradableLock::lockExclusive()
+void ReadWriteMutex::lockExclusive()
 {
     unique_lock lock(m_mutex);
     if (const auto tid = this_thread::get_id();
@@ -98,7 +98,7 @@ void UpgradableLock::lockExclusive()
     m_exclusive = true;
 }
 
-bool UpgradableLock::tryLockExclusive(chrono::milliseconds timeout)
+bool ReadWriteMutex::tryLockExclusive(const chrono::milliseconds timeout)
 {
     unique_lock lock(m_mutex);
     if (const auto tid = this_thread::get_id();

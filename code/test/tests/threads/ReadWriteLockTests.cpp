@@ -24,32 +24,37 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/threads/ReadWriteLock.h"
+
+
 #include <atomic>
 #include <future>
 #include <gtest/gtest.h>
-#include <sptk5/threads/UpgradableLock.h>
+#include <sptk5/threads/ReadWriteMutex.h>
 
 using namespace std;
 using namespace chrono;
 using namespace sptk;
 
-TEST(UpgradableLockTests, sharedLockAllowsConcurrentReaders)
+TEST(ReadWriteLockTests, sharedLockAllowsConcurrentReaders)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
     atomic         insideCount {0};
     atomic         maxCount {0};
 
-    auto reader = [&lock, &insideCount, &maxCount]
+    auto reader = [&rwMutex, &insideCount, &maxCount]
     {
-        lock.lockShared();
+        ReadWriteLock readLock(rwMutex, ReadWriteLock::Mode::Reader);
+        rwMutex.lockShared();
         const int current = ++insideCount;
         // Track maximum concurrent readers
         int expected = maxCount.load();
         while (current > expected)
+        {
             maxCount.compare_exchange_weak(expected, current);
+        }
         this_thread::sleep_for(50ms);
         --insideCount;
-        lock.unlock();
     };
 
     jthread t1(reader);
@@ -62,15 +67,15 @@ TEST(UpgradableLockTests, sharedLockAllowsConcurrentReaders)
     EXPECT_GT(maxCount.load(), 1);
 }
 
-TEST(UpgradableLockTests, exclusiveLockBlocksOtherExclusive)
+TEST(ReadWriteLockTests, exclusiveLockBlocksOtherExclusive)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
     atomic         insideCount {0};
     bool           overlap = false;
 
-    auto writer = [&lock, &insideCount, &overlap]
+    auto writer = [&rwMutex, &insideCount, &overlap]
     {
-        lock.lockExclusive();
+        ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
         if (const int current = ++insideCount;
             current > 1)
@@ -81,7 +86,6 @@ TEST(UpgradableLockTests, exclusiveLockBlocksOtherExclusive)
         this_thread::sleep_for(30ms);
 
         --insideCount;
-        lock.unlock();
     };
 
     jthread t1(writer);
@@ -92,67 +96,64 @@ TEST(UpgradableLockTests, exclusiveLockBlocksOtherExclusive)
     EXPECT_FALSE(overlap);
 }
 
-TEST(UpgradableLockTests, exclusiveLockBlocksShared)
+TEST(ReadWriteLockTests, exclusiveLockBlocksShared)
 {
-    UpgradableLock lock;
-    atomic         exclusiveHeld {false};
+    ReadWriteMutex rwMutex;
     atomic         sharedWhileExclusive {false};
 
-    lock.lockExclusive();
-    exclusiveHeld = true;
+    ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
-    jthread reader([&lock, &exclusiveHeld, &sharedWhileExclusive]
+    jthread reader([&rwMutex, &sharedWhileExclusive]
                    {
                        // Try shared with timeout - should fail while exclusive is held
-                       if (lock.tryLockShared(50ms))
+                       try
                        {
-                           if (exclusiveHeld.load())
-                           {
-                               sharedWhileExclusive = true;
-                           }
-                           lock.unlock();
+                           ReadWriteLock rwLock2(rwMutex, ReadWriteLock::Mode::Reader, 50ms);
+                           sharedWhileExclusive = true;
+                       }
+                       catch (...)
+                       {
+                           sharedWhileExclusive = false;
                        }
                    });
 
     this_thread::sleep_for(100ms);
-    exclusiveHeld = false;
-    lock.unlock();
     reader.join();
 
     EXPECT_FALSE(sharedWhileExclusive);
 }
 
-TEST(UpgradableLockTests, upgradeFromSharedToExclusive)
+TEST(ReadWriteLockTests, upgradeFromSharedToExclusive)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
     int            sharedValue = 0;
 
-    lock.lockShared();
-    // Read value under shared lock
+    ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader);
+
+    // Read value under reader lock
     const int snapshot = sharedValue;
 
-    // Upgrade to exclusive
-    lock.lockExclusive();
+    // Upgrade to writer lock
+    rwLock.upgradeToWriteLock();
+
     // Now we can write
     sharedValue = snapshot + 1;
-    lock.unlock();
 
     EXPECT_EQ(sharedValue, 1);
 }
 
-TEST(UpgradableLockTests, upgradeWaitsForOtherReaders)
+TEST(ReadWriteLockTests, upgradeWaitsForOtherReaders)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
     atomic         readerInside {false};
     atomic         upgradeCompleted {false};
 
     // Thread 1: shared lock held for a while
-    jthread reader([&lock, &readerInside]
+    jthread reader([&rwMutex, &readerInside]
                    {
-                       lock.lockShared();
+                       const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader);
                        readerInside = true;
                        this_thread::sleep_for(100ms);
-                       lock.unlock();
                    });
 
     // Wait for reader to acquire shared
@@ -162,12 +163,11 @@ TEST(UpgradableLockTests, upgradeWaitsForOtherReaders)
     }
 
     // Thread 2: acquire shared then upgrade - should block until reader releases
-    jthread upgrader([&lock, &upgradeCompleted]
+    jthread upgrader([&rwMutex, &upgradeCompleted]
                      {
-                         lock.lockShared();
-                         lock.lockExclusive();
+                         const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Reader);
+                         writerLock.upgradeToWriteLock();
                          upgradeCompleted = true;
-                         lock.unlock();
                      });
 
     reader.join();
@@ -176,82 +176,90 @@ TEST(UpgradableLockTests, upgradeWaitsForOtherReaders)
     EXPECT_TRUE(upgradeCompleted);
 }
 
-TEST(UpgradableLockTests, tryLockSharedSuccess)
+TEST(ReadWriteLockTests, tryLockSharedSuccess)
 {
-    UpgradableLock lock;
-    const bool     acquired = lock.tryLockShared(100ms);
-    EXPECT_TRUE(acquired);
-    lock.unlock();
+    ReadWriteMutex rwMutex;
+    EXPECT_NO_THROW({ const ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader, 100ms); });
 }
 
-TEST(UpgradableLockTests, tryLockSharedTimeout)
+TEST(ReadWriteLockTests, tryLockSharedTimeout)
 {
-    UpgradableLock lock;
-    lock.lockExclusive();
+    ReadWriteMutex rwMutex;
+    ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Writer);
 
-    auto result = false;
-    auto thread = jthread([&lock, &result]
+    auto acquiredShared = false;
+    auto thread = jthread([&rwMutex, &acquiredShared]
                           {
-                              result = lock.tryLockShared(50ms);
+                              try
+                              {
+                                  ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader, 50ms);
+                                  acquiredShared = true;
+                              }
+                              catch (...)
+                              {
+                                  acquiredShared = false;
+                              }
                           });
+
     thread.join();
-    EXPECT_FALSE(result);
-
-    lock.unlock();
+    EXPECT_FALSE(acquiredShared);
 }
 
-TEST(UpgradableLockTests, tryLockExclusiveSuccess)
+TEST(ReadWriteLockTests, tryLockExclusiveSuccess)
 {
-    UpgradableLock lock;
-    const bool     acquired = lock.tryLockExclusive(100ms);
-    EXPECT_TRUE(acquired);
-    lock.unlock();
+    ReadWriteMutex rwMutex;
+    EXPECT_NO_THROW({ ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer, 100ms); });
 }
 
-TEST(UpgradableLockTests, tryLockExclusiveTimeoutByExclusive)
+TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByExclusive)
 {
-    UpgradableLock lock;
-    lock.lockExclusive();
+    ReadWriteMutex rwMutex;
+    ReadWriteLock  lock(rwMutex, ReadWriteLock::Mode::Writer);
 
-    auto result = false;
-    auto thread = jthread([&lock, &result]
+    auto acquiredWriter = false;
+    auto thread = jthread([&rwMutex, &acquiredWriter]
                           {
-                              result = lock.tryLockExclusive(50ms);
+                              try
+                              {
+                                  ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer, 50ms);
+                                  acquiredWriter = true;
+                              }
+                              catch (...)
+                              {
+                                  acquiredWriter = false;
+                              }
                           });
-    thread.join();
-    EXPECT_FALSE(result);
 
-    lock.unlock();
+    thread.join();
+    EXPECT_FALSE(acquiredWriter);
 }
 
-TEST(UpgradableLockTests, tryLockExclusiveTimeoutByShared)
+TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByShared)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
+    ReadWriteLock  lock(rwMutex, ReadWriteLock::Mode::Reader);
 
     // Hold shared lock from another thread
-    lock.lockShared();
     bool result = false;
     auto thread = jthread([&lock, &result]
                           {
-                              result = lock.tryLockExclusive(50ms);
+                              result = lock.upgradeToWriteLock(50ms);
                           });
     thread.join();
     EXPECT_FALSE(result);
-    lock.unlock();
 }
 
-TEST(UpgradableLockTests, tryUpgradeTimeout)
+TEST(ReadWriteLockTests, tryUpgradeTimeout)
 {
-    UpgradableLock lock;
+    ReadWriteMutex rwMutex;
     atomic         readerHolding {false};
 
     // Another thread holds shared lock for a long time
-    jthread reader([&readerHolding, &lock]
+    jthread reader([&readerHolding, &rwMutex]
                    {
-                       lock.lockShared();
+                       ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader);
                        readerHolding = true;
                        this_thread::sleep_for(200ms);
-                       lock.unlock();
                    });
 
     while (!readerHolding.load())
@@ -259,22 +267,22 @@ TEST(UpgradableLockTests, tryUpgradeTimeout)
         this_thread::yield();
     }
 
-    // Acquire shared, then try to upgrade with short timeout
-    lock.lockShared();
-    const bool upgraded = lock.tryLockExclusive(50ms);
-    EXPECT_FALSE(upgraded);
+    {
+        // Acquire shared, then try to upgrade with short timeout
+        ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Reader);
+        const bool    upgraded = rwLock.upgradeToWriteLock(50ms);
+        EXPECT_FALSE(upgraded);
+    }
 
     // After failed upgrade, we should still hold shared lock
-    lock.unlock();
     reader.join();
 }
 
-TEST(UpgradableLockTests, tryUpgradeSuccess)
+TEST(ReadWriteLockTests, tryUpgradeSuccess)
 {
-    UpgradableLock lock;
+    ReadWriteMutex      rwMutex;
+    const ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Reader);
 
-    lock.lockShared();
-    const bool upgraded = lock.tryLockExclusive(100ms);
+    const bool upgraded = lock.upgradeToWriteLock(100ms);
     EXPECT_TRUE(upgraded);
-    lock.unlock();
 }

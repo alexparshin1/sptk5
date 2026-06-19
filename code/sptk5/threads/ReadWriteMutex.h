@@ -26,6 +26,9 @@
 
 #pragma once
 
+#include "sptk5/Exception.h"
+
+
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -35,9 +38,9 @@
 namespace sptk {
 
 /**
- * @brief Upgradable lock.
+ * @brief Upgradable read/write mutex.
  *
- * The lock can be locked in shared mode, which allows multiple threads to access
+ * The mutex can be locked in shared mode, which allows multiple threads to access
  * the protected resource simultaneously.
  *
  * It also can be locked in exclusive mode, which allows only one thread to access
@@ -45,11 +48,11 @@ namespace sptk {
  *
  * And in shared mode, it can be atomically upgraded to exclusive mode.
  */
-class UpgradableLock
+class ReadWriteMutex
 {
 public:
     /**
-     * @brief Locks the lock in shared mode.
+     * @brief Locks the mutex in shared mode.
      */
     void lockShared();
 
@@ -61,12 +64,12 @@ public:
     bool tryLockShared(std::chrono::milliseconds timeout);
 
     /**
-     * @brief Unlocks the lock in shared mode.
+     * @brief Unlocks the mutex.
      */
     void unlock();
 
     /**
-     * @brief Locks the lock in exclusive mode.
+     * @brief Locks the mutex in exclusive mode.
      * @remarks If the lock is already locked in shared mode, it will be upgraded to exclusive mode.
      */
     void lockExclusive();
