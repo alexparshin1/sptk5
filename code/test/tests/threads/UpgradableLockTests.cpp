@@ -49,7 +49,7 @@ TEST(UpgradableLockTests, sharedLockAllowsConcurrentReaders)
             maxCount.compare_exchange_weak(expected, current);
         this_thread::sleep_for(50ms);
         --insideCount;
-        lock.unlockShared();
+        lock.unlock();
     };
 
     jthread t1(reader);
@@ -81,7 +81,7 @@ TEST(UpgradableLockTests, exclusiveLockBlocksOtherExclusive)
         this_thread::sleep_for(30ms);
 
         --insideCount;
-        lock.unlockExclusive();
+        lock.unlock();
     };
 
     jthread t1(writer);
@@ -110,13 +110,13 @@ TEST(UpgradableLockTests, exclusiveLockBlocksShared)
                            {
                                sharedWhileExclusive = true;
                            }
-                           lock.unlockShared();
+                           lock.unlock();
                        }
                    });
 
     this_thread::sleep_for(100ms);
     exclusiveHeld = false;
-    lock.unlockExclusive();
+    lock.unlock();
     reader.join();
 
     EXPECT_FALSE(sharedWhileExclusive);
@@ -135,7 +135,7 @@ TEST(UpgradableLockTests, upgradeFromSharedToExclusive)
     lock.lockExclusive();
     // Now we can write
     sharedValue = snapshot + 1;
-    lock.unlockExclusive();
+    lock.unlock();
 
     EXPECT_EQ(sharedValue, 1);
 }
@@ -152,7 +152,7 @@ TEST(UpgradableLockTests, upgradeWaitsForOtherReaders)
                        lock.lockShared();
                        readerInside = true;
                        this_thread::sleep_for(100ms);
-                       lock.unlockShared();
+                       lock.unlock();
                    });
 
     // Wait for reader to acquire shared
@@ -167,7 +167,7 @@ TEST(UpgradableLockTests, upgradeWaitsForOtherReaders)
                          lock.lockShared();
                          lock.lockExclusive();
                          upgradeCompleted = true;
-                         lock.unlockExclusive();
+                         lock.unlock();
                      });
 
     reader.join();
@@ -181,7 +181,7 @@ TEST(UpgradableLockTests, tryLockSharedSuccess)
     UpgradableLock lock;
     const bool     acquired = lock.tryLockShared(100ms);
     EXPECT_TRUE(acquired);
-    lock.unlockShared();
+    lock.unlock();
 }
 
 TEST(UpgradableLockTests, tryLockSharedTimeout)
@@ -197,7 +197,7 @@ TEST(UpgradableLockTests, tryLockSharedTimeout)
     thread.join();
     EXPECT_FALSE(result);
 
-    lock.unlockExclusive();
+    lock.unlock();
 }
 
 TEST(UpgradableLockTests, tryLockExclusiveSuccess)
@@ -205,7 +205,7 @@ TEST(UpgradableLockTests, tryLockExclusiveSuccess)
     UpgradableLock lock;
     const bool     acquired = lock.tryLockExclusive(100ms);
     EXPECT_TRUE(acquired);
-    lock.unlockExclusive();
+    lock.unlock();
 }
 
 TEST(UpgradableLockTests, tryLockExclusiveTimeoutByExclusive)
@@ -221,7 +221,7 @@ TEST(UpgradableLockTests, tryLockExclusiveTimeoutByExclusive)
     thread.join();
     EXPECT_FALSE(result);
 
-    lock.unlockExclusive();
+    lock.unlock();
 }
 
 TEST(UpgradableLockTests, tryLockExclusiveTimeoutByShared)
@@ -237,7 +237,7 @@ TEST(UpgradableLockTests, tryLockExclusiveTimeoutByShared)
                           });
     thread.join();
     EXPECT_FALSE(result);
-    lock.unlockShared();
+    lock.unlock();
 }
 
 TEST(UpgradableLockTests, tryUpgradeTimeout)
@@ -251,7 +251,7 @@ TEST(UpgradableLockTests, tryUpgradeTimeout)
                        lock.lockShared();
                        readerHolding = true;
                        this_thread::sleep_for(200ms);
-                       lock.unlockShared();
+                       lock.unlock();
                    });
 
     while (!readerHolding.load())
@@ -265,7 +265,7 @@ TEST(UpgradableLockTests, tryUpgradeTimeout)
     EXPECT_FALSE(upgraded);
 
     // After failed upgrade, we should still hold shared lock
-    lock.unlockShared();
+    lock.unlock();
     reader.join();
 }
 
@@ -276,5 +276,5 @@ TEST(UpgradableLockTests, tryUpgradeSuccess)
     lock.lockShared();
     const bool upgraded = lock.tryLockExclusive(100ms);
     EXPECT_TRUE(upgraded);
-    lock.unlockExclusive();
+    lock.unlock();
 }

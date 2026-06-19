@@ -49,16 +49,6 @@ class UpgradableLock
 {
 public:
     /**
-     * @brief Constructor.
-     */
-    UpgradableLock();
-
-    /**
-     * @brief Destructor.
-     */
-    virtual ~UpgradableLock() = default;
-
-    /**
      * @brief Locks the lock in shared mode.
      */
     void lockShared();
@@ -73,7 +63,7 @@ public:
     /**
      * @brief Unlocks the lock in shared mode.
      */
-    void unlockShared();
+    void unlock();
 
     /**
      * @brief Locks the lock in exclusive mode.
@@ -89,18 +79,13 @@ public:
      */
     bool tryLockExclusive(std::chrono::milliseconds timeout);
 
-    /**
-     * @brief Unlocks the lock in exclusive mode.
-     */
-    void unlockExclusive();
-
 private:
-    std::mutex                  m_mutex;            ///< Protects internal state
-    std::condition_variable     m_condition;         ///< Used for blocking waiters
-    unsigned                    m_sharedCount{0};    ///< Number of active shared lock holders
-    bool                        m_exclusive{false};  ///< True when exclusive lock is held
-    bool                        m_upgrading{false};  ///< True when a shared holder is upgrading to exclusive
-    std::set<std::thread::id>   m_sharedOwners;      ///< Tracks which threads hold shared locks (for upgrade detection)
+    std::mutex                m_mutex;             ///< Protects internal state
+    std::condition_variable   m_condition;         ///< Used for blocking waiters
+    unsigned                  m_sharedCount {0};   ///< Number of active shared lock holders
+    bool                      m_exclusive {false}; ///< True when exclusive lock is held
+    bool                      m_upgrading {false}; ///< True when a shared holder is upgrading to exclusive
+    std::set<std::thread::id> m_sharedOwners;      ///< Tracks which threads hold shared locks (for upgrade detection)
 };
 
 } // namespace sptk
