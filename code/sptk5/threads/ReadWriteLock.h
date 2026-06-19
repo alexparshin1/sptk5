@@ -72,6 +72,7 @@ public:
      * @remarks Locks the mutex.
      * @param rwMutex Read/write Mutex.
      * @param mode Lock mode.
+     * @param timeout Lock timeout.
      * @throws TimeoutException if the lock cannot be acquired within the specified timeout.
      */
     explicit ReadWriteLock(ReadWriteMutex& rwMutex, const Mode mode, const std::chrono::milliseconds timeout)
@@ -143,8 +144,8 @@ public:
     }
 
 private:
-    ReadWriteMutex&  m_mutex; ///< External mutex.
-    mutable Mode     m_mode;  ///< Current lock mode.
+    ReadWriteMutex& m_mutex; ///< External mutex.
+    mutable Mode    m_mode;  ///< Current lock mode.
 };
 
 } // namespace sptk

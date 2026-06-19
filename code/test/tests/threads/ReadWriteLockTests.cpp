@@ -242,7 +242,7 @@ TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByShared)
     ReadWriteMutex rwMutex;
     ReadWriteLock  lock(rwMutex, ReadWriteLock::Mode::Reader);
 
-    // Another thread acquires shared and tries to upgrade — should timeout
+    // Another thread acquires shared and tries to upgrade — should time out
     // because this thread still holds a shared lock
     bool result = false;
     auto thread = jthread([&rwMutex, &result]
