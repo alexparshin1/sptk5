@@ -55,6 +55,7 @@ public:
      */
     explicit ReadWriteLock(ReadWriteMutex& rwMutex, const Mode mode)
         : m_mutex(rwMutex)
+        , m_mode(mode)
     {
         if (mode == Mode::Writer)
         {
@@ -75,6 +76,7 @@ public:
      */
     explicit ReadWriteLock(ReadWriteMutex& rwMutex, const Mode mode, const std::chrono::milliseconds timeout)
         : m_mutex(rwMutex)
+        , m_mode(mode)
     {
         bool locked;
         if (mode == Mode::Writer)
@@ -97,7 +99,14 @@ public:
      */
     ~ReadWriteLock()
     {
-        m_mutex.unlock();
+        if (m_mode == Mode::Writer)
+        {
+            m_mutex.unlockExclusive();
+        }
+        else
+        {
+            m_mutex.unlockShared();
+        }
     }
 
     /**
@@ -106,22 +115,36 @@ public:
      */
     void upgradeToWriteLock() const
     {
-        m_mutex.lockExclusive();
+        if (m_mode == Mode::Writer)
+        {
+            return;
+        }
+        m_mutex.upgradeToExclusive();
+        m_mode = Mode::Writer;
     }
 
     /**
-     * @brief Upgrades the lock to write mode.
-     * @remarks If the lock is already in write mode, this function does nothing.
-     * @remarks Lock timeout.
-     * @throws TimeoutException if the lock cannot be acquired within the specified timeout.
+     * @brief Tries to upgrade the lock to write mode with a timeout.
+     * @param timeout Maximum time to wait.
+     * @return True if upgraded, false on timeout (shared lock is retained).
      */
     bool upgradeToWriteLock(const std::chrono::milliseconds timeout) const
     {
-        return m_mutex.tryLockExclusive(timeout);
+        if (m_mode == Mode::Writer)
+        {
+            return true;
+        }
+        if (m_mutex.tryUpgradeToExclusive(timeout))
+        {
+            m_mode = Mode::Writer;
+            return true;
+        }
+        return false;
     }
 
 private:
-    ReadWriteMutex& m_mutex; ///< External mutex.
+    ReadWriteMutex&  m_mutex; ///< External mutex.
+    mutable Mode     m_mode;  ///< Current lock mode.
 };
 
 } // namespace sptk

@@ -26,14 +26,10 @@
 
 #pragma once
 
-#include "sptk5/Exception.h"
-
-
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
-#include <set>
-#include <thread>
 
 namespace sptk {
 
@@ -64,13 +60,17 @@ public:
     bool tryLockShared(std::chrono::milliseconds timeout);
 
     /**
-     * @brief Unlocks the mutex.
+     * @brief Unlocks shared lock.
      */
-    void unlock();
+    void unlockShared();
+
+    /**
+     * @brief Unlocks exclusive lock.
+     */
+    void unlockExclusive();
 
     /**
      * @brief Locks the mutex in exclusive mode.
-     * @remarks If the lock is already locked in shared mode, it will be upgraded to exclusive mode.
      */
     void lockExclusive();
 
@@ -78,17 +78,30 @@ public:
      * @brief Tries to lock in exclusive mode with a timeout.
      * @param timeout Maximum time to wait for the lock.
      * @return True if the lock was acquired, false on timeout.
-     * @remarks If the lock is already locked in shared mode by this thread, it will be upgraded to exclusive mode.
      */
     bool tryLockExclusive(std::chrono::milliseconds timeout);
 
+    /**
+     * @brief Upgrades from shared to exclusive lock.
+     * @remarks Caller must already hold a shared lock.
+     */
+    void upgradeToExclusive();
+
+    /**
+     * @brief Tries to upgrade from shared to exclusive lock with a timeout.
+     * @param timeout Maximum time to wait.
+     * @return True if upgraded, false on timeout (shared lock is retained).
+     */
+    bool tryUpgradeToExclusive(std::chrono::milliseconds timeout);
+
 private:
-    std::mutex                m_mutex;             ///< Protects internal state
-    std::condition_variable   m_condition;         ///< Used for blocking waiters
-    unsigned                  m_sharedCount {0};   ///< Number of active shared lock holders
-    bool                      m_exclusive {false}; ///< True when exclusive lock is held
-    bool                      m_upgrading {false}; ///< True when a shared holder is upgrading to exclusive
-    std::set<std::thread::id> m_sharedOwners;      ///< Tracks which threads hold shared locks (for upgrade detection)
+    static constexpr uint32_t EXCLUSIVE_BIT = 1u << 31;
+    static constexpr uint32_t UPGRADING_BIT = 1u << 30;
+    static constexpr uint32_t READER_MASK   = ~(EXCLUSIVE_BIT | UPGRADING_BIT);
+
+    std::atomic<uint32_t>   m_state {0};     ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
+    std::mutex              m_mutex;         ///< Protects condition variable waits
+    std::condition_variable m_condition;     ///< Used for blocking waiters
 };
 
 } // namespace sptk

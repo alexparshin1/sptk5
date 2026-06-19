@@ -31,106 +31,189 @@ using namespace sptk;
 
 void ReadWriteMutex::lockShared()
 {
-    unique_lock lock(m_mutex);
-    m_condition.wait(lock, [this]
-                     {
-                         return !m_exclusive && !m_upgrading;
-                     });
-    m_sharedCount++;
-    m_sharedOwners.insert(this_thread::get_id());
+    uint32_t state = m_state.load(memory_order_relaxed);
+    while (true)
+    {
+        if (state & (EXCLUSIVE_BIT | UPGRADING_BIT))
+        {
+            unique_lock lock(m_mutex);
+            m_condition.wait(lock, [this, &state]
+                             {
+                                 state = m_state.load(memory_order_relaxed);
+                                 return !(state & (EXCLUSIVE_BIT | UPGRADING_BIT));
+                             });
+        }
+        if (m_state.compare_exchange_weak(state, state + 1,
+                                          memory_order_acquire,
+                                          memory_order_relaxed))
+        {
+            return;
+        }
+    }
 }
 
 bool ReadWriteMutex::tryLockShared(chrono::milliseconds timeout)
 {
-    unique_lock lock(m_mutex);
-    if (!m_condition.wait_for(lock, timeout, [this]
-                              {
-                                  return !m_exclusive && !m_upgrading;
-                              }))
+    uint32_t state = m_state.load(memory_order_relaxed);
+    while (true)
     {
-        return false;
+        if (state & (EXCLUSIVE_BIT | UPGRADING_BIT))
+        {
+            unique_lock lock(m_mutex);
+            if (!m_condition.wait_for(lock, timeout, [this, &state]
+                                      {
+                                          state = m_state.load(memory_order_relaxed);
+                                          return !(state & (EXCLUSIVE_BIT | UPGRADING_BIT));
+                                      }))
+            {
+                return false;
+            }
+        }
+        if (m_state.compare_exchange_weak(state, state + 1,
+                                          memory_order_acquire,
+                                          memory_order_relaxed))
+        {
+            return true;
+        }
     }
-    m_sharedCount++;
-    m_sharedOwners.insert(this_thread::get_id());
-    return true;
 }
 
-void ReadWriteMutex::unlock()
+void ReadWriteMutex::unlockShared()
 {
-    unique_lock lock(m_mutex);
+    const uint32_t prev = m_state.fetch_sub(1, memory_order_release);
+    if ((prev & READER_MASK) == 1)
+    {
+        lock_guard lock(m_mutex);
+        m_condition.notify_all();
+    }
+}
 
-    if (m_exclusive)
-    {
-        m_exclusive = false;
-        m_condition.notify_all();
-    }
-    else if (m_sharedOwners.erase(this_thread::get_id()))
-    {
-        m_sharedCount--;
-        m_condition.notify_all();
-    }
+void ReadWriteMutex::unlockExclusive()
+{
+    m_state.fetch_and(~EXCLUSIVE_BIT, memory_order_release);
+    lock_guard lock(m_mutex);
+    m_condition.notify_all();
 }
 
 void ReadWriteMutex::lockExclusive()
 {
     unique_lock lock(m_mutex);
-    if (const auto tid = this_thread::get_id();
-        m_sharedOwners.contains(tid))
-    {
-        // Upgrade from shared to exclusive: release our shared hold atomically
-        m_upgrading = true;
-        m_sharedCount--;
-        m_sharedOwners.erase(tid);
-        m_condition.wait(lock, [this]
-                         {
-                             return m_sharedCount == 0 && !m_exclusive;
-                         });
-        m_upgrading = false;
-    }
-    else
-    {
-        // Fresh exclusive acquisition
-        m_condition.wait(lock, [this]
-                         {
-                             return m_sharedCount == 0 && !m_exclusive && !m_upgrading;
-                         });
-    }
-    m_exclusive = true;
+    m_condition.wait(lock, [this]
+                     {
+                         uint32_t expected = 0;
+                         return m_state.compare_exchange_strong(expected, EXCLUSIVE_BIT,
+                                                               memory_order_acquire,
+                                                               memory_order_relaxed);
+                     });
 }
 
 bool ReadWriteMutex::tryLockExclusive(const chrono::milliseconds timeout)
 {
     unique_lock lock(m_mutex);
-    if (const auto tid = this_thread::get_id();
-        m_sharedOwners.contains(tid))
+    return m_condition.wait_for(lock, timeout, [this]
+                                {
+                                    uint32_t expected = 0;
+                                    return m_state.compare_exchange_strong(expected, EXCLUSIVE_BIT,
+                                                                          memory_order_acquire,
+                                                                          memory_order_relaxed);
+                                });
+}
+
+void ReadWriteMutex::upgradeToExclusive()
+{
+    uint32_t state = m_state.load(memory_order_relaxed);
+    while (true)
     {
-        // Upgrade from shared to exclusive: release our shared hold atomically
-        m_upgrading = true;
-        m_sharedCount--;
-        m_sharedOwners.erase(tid);
+        if (state & (EXCLUSIVE_BIT | UPGRADING_BIT))
+        {
+            // Another exclusive/upgrader is active — release our shared lock
+            // to avoid deadlock, then acquire exclusive from scratch
+            unlockShared();
+            lockExclusive();
+            return;
+        }
+        // Try to claim UPGRADING_BIT and release our reader hold
+        const uint32_t newState = (state | UPGRADING_BIT) - 1;
+        if (m_state.compare_exchange_weak(state, newState,
+                                          memory_order_acquire,
+                                          memory_order_relaxed))
+        {
+            break;
+        }
+    }
+
+    // Wait for remaining readers to drain
+    if ((m_state.load(memory_order_acquire) & READER_MASK) != 0)
+    {
+        unique_lock lock(m_mutex);
+        m_condition.wait(lock, [this]
+                         {
+                             return (m_state.load(memory_order_acquire) & READER_MASK) == 0;
+                         });
+    }
+
+    // All readers gone — transition to exclusive
+    m_state.store(EXCLUSIVE_BIT, memory_order_release);
+}
+
+bool ReadWriteMutex::tryUpgradeToExclusive(const chrono::milliseconds timeout)
+{
+    uint32_t state = m_state.load(memory_order_relaxed);
+    while (true)
+    {
+        if (state & (EXCLUSIVE_BIT | UPGRADING_BIT))
+        {
+            // Another exclusive/upgrader active — release shared, try exclusive with timeout
+            unlockShared();
+            if (tryLockExclusive(timeout))
+            {
+                return true;
+            }
+            // Timeout — re-acquire shared before returning false
+            lockShared();
+            return false;
+        }
+        const uint32_t newState = (state | UPGRADING_BIT) - 1;
+        if (m_state.compare_exchange_weak(state, newState,
+                                          memory_order_acquire,
+                                          memory_order_relaxed))
+        {
+            break;
+        }
+    }
+
+    // Fast path: no other readers
+    if ((m_state.load(memory_order_acquire) & READER_MASK) == 0)
+    {
+        m_state.store(EXCLUSIVE_BIT, memory_order_release);
+        return true;
+    }
+
+    // Slow path: wait for readers to drain
+    {
+        unique_lock lock(m_mutex);
         if (!m_condition.wait_for(lock, timeout, [this]
                                   {
-                                      return m_sharedCount == 0 && !m_exclusive;
+                                      return (m_state.load(memory_order_acquire) & READER_MASK) == 0;
                                   }))
         {
-            // Timeout: restore shared state
-            m_sharedCount++;
-            m_sharedOwners.insert(tid);
-            m_upgrading = false;
+            // Timeout: restore shared state (clear UPGRADING_BIT, add back reader count)
+            state = m_state.load(memory_order_relaxed);
+            while (true)
+            {
+                const uint32_t restored = (state & ~UPGRADING_BIT) + 1;
+                if (m_state.compare_exchange_weak(state, restored,
+                                                  memory_order_release,
+                                                  memory_order_relaxed))
+                {
+                    break;
+                }
+            }
             m_condition.notify_all();
             return false;
         }
-        m_upgrading = false;
     }
-    else
-    {
-        // Fresh exclusive acquisition
-        if (!m_condition.wait_for(lock, timeout, [this]
-                                  {
-                                      return m_sharedCount == 0 && !m_exclusive && !m_upgrading;
-                                  }))
-            return false;
-    }
-    m_exclusive = true;
+
+    m_state.store(EXCLUSIVE_BIT, memory_order_release);
     return true;
 }

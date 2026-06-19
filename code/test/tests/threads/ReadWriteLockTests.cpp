@@ -24,13 +24,17 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/Printer.h"
+#include "sptk5/Stopwatch.h"
 #include "sptk5/threads/ReadWriteLock.h"
 
 
 #include <atomic>
 #include <future>
 #include <gtest/gtest.h>
+#include <shared_mutex>
 #include <sptk5/threads/ReadWriteMutex.h>
+#include <thread>
 
 using namespace std;
 using namespace chrono;
@@ -45,8 +49,7 @@ TEST(ReadWriteLockTests, sharedLockAllowsConcurrentReaders)
     auto reader = [&rwMutex, &insideCount, &maxCount]
     {
         ReadWriteLock readLock(rwMutex, ReadWriteLock::Mode::Reader);
-        rwMutex.lockShared();
-        const int current = ++insideCount;
+        const int     current = ++insideCount;
         // Track maximum concurrent readers
         int expected = maxCount.load();
         while (current > expected)
@@ -239,11 +242,13 @@ TEST(ReadWriteLockTests, tryLockExclusiveTimeoutByShared)
     ReadWriteMutex rwMutex;
     ReadWriteLock  lock(rwMutex, ReadWriteLock::Mode::Reader);
 
-    // Hold shared lock from another thread
+    // Another thread acquires shared and tries to upgrade — should timeout
+    // because this thread still holds a shared lock
     bool result = false;
-    auto thread = jthread([&lock, &result]
+    auto thread = jthread([&rwMutex, &result]
                           {
-                              result = lock.upgradeToWriteLock(50ms);
+                              ReadWriteLock lock2(rwMutex, ReadWriteLock::Mode::Reader);
+                              result = lock2.upgradeToWriteLock(50ms);
                           });
     thread.join();
     EXPECT_FALSE(result);
@@ -285,4 +290,49 @@ TEST(ReadWriteLockTests, tryUpgradeSuccess)
 
     const bool upgraded = lock.upgradeToWriteLock(100ms);
     EXPECT_TRUE(upgraded);
+}
+
+TEST(ReadWriteLockTests, performance)
+{
+    constexpr size_t iterationCount = 4 * 1024 * 1024;
+    constexpr size_t threadCount = 2;
+    constexpr size_t iterationsPerThread = iterationCount / threadCount;
+
+    // Shared lock upgrade to unique lock, 8 threads
+    vector<jthread> threads;
+    shared_mutex    shared_mu;
+    Stopwatch       stopwatch;
+    stopwatch.start();
+    for (size_t i = 0; i < threadCount; ++i)
+    {
+        threads.emplace_back([&shared_mu]
+                             {
+                                 for (size_t j = 0; j < iterationsPerThread; ++j)
+                                 {
+                                     shared_lock lock1(shared_mu);
+                                     lock1.unlock();
+                                     unique_lock lock2(shared_mu);
+                                 }
+                             });
+    }
+    threads.clear();
+    stopwatch.stop();
+    COUT("Shared/Unique locks:  " << fixed << setprecision(1) << stopwatch.milliseconds() << " ms: " << iterationCount / stopwatch.milliseconds() << "K/s");
+
+    ReadWriteMutex rwMutex;
+    stopwatch.start();
+    for (size_t i = 0; i < threadCount; ++i)
+    {
+        threads.emplace_back([&rwMutex]
+                             {
+                                 for (size_t j = 0; j < iterationsPerThread; ++j)
+                                 {
+                                     ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Reader);
+                                     lock.upgradeToWriteLock();
+                                 }
+                             });
+    }
+    threads.clear();
+    stopwatch.stop();
+    COUT("RWLock/Upgrade locks: " << fixed << setprecision(1) << stopwatch.milliseconds() << " ms: " << iterationCount / stopwatch.milliseconds() << "K/s");
 }
