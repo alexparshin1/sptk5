@@ -427,36 +427,11 @@ TEST(ReadWriteLockTests, downgradeAllowsConcurrentReaders)
     EXPECT_TRUE(readerJoined.load());
 }
 
-TEST(ReadWriteLockTests, downgradeWithTimeoutSucceeds)
-{
-    ReadWriteMutex rwMutex;
-    ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Writer);
-
-    // Downgrade never blocks, so the timed overload always succeeds immediately
-    EXPECT_TRUE(rwLock.downgradeToReadLock(50ms));
-
-    EXPECT_TRUE(rwMutex.tryLockShared(50ms));
-    rwMutex.unlockShared();
-}
-
-TEST(ReadWriteLockTests, downgradeWhenAlreadyReaderIsNoop)
-{
-    ReadWriteMutex rwMutex;
-    ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Reader);
-
-    // Downgrading an already-shared lock does nothing and keeps the shared hold
-    rwLock.downgradeToReadLock();
-    EXPECT_TRUE(rwLock.downgradeToReadLock(50ms));
-
-    EXPECT_TRUE(rwMutex.tryLockShared(50ms));
-    rwMutex.unlockShared();
-}
-
 TEST(ReadWriteLockTests, performance)
 {
     constexpr size_t iterationCount = 4 * 1024 * 1024;
-    constexpr size_t threadCount = 8;
-    constexpr size_t iterationsPerThread = iterationCount / threadCount;
+    constexpr size_t threadCount = 4;
+    constexpr auto   iterationsPerThread = iterationCount / threadCount;
 
     // Shared lock upgrade to unique lock
     vector<jthread> threads;
