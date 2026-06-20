@@ -121,8 +121,10 @@ private:
 
     std::atomic<uint32_t>   m_state {0};           ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
     std::atomic<uint32_t>   m_writersWaiting {0};  ///< Count of writers queued for exclusive access; new shared locks yield to them
+    std::atomic<uint32_t>   m_readersWaiting {0};  ///< Count of readers blocked on m_readerCondition; lets unlockers skip notifying when zero
     std::mutex              m_mutex;               ///< Protects condition variable waits
-    std::condition_variable m_condition;           ///< Used for blocking waiters
+    std::condition_variable m_readerCondition;     ///< Blocks readers waiting for writers/upgraders to clear
+    std::condition_variable m_writerCondition;     ///< Blocks writers and the upgrader waiting for exclusive access
 };
 
 } // namespace sptk

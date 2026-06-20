@@ -79,6 +79,23 @@ private:
 
 } // namespace
 
+// Notes on the wake-up strategy (performance):
+//
+// Readers wait on m_readerCondition; writers and the single upgrader wait on
+// m_writerCondition. Keeping the two classes on separate condition variables means an
+// unlocker never wakes the class that cannot make progress (e.g. releasing an exclusive
+// lock to a queued writer no longer also stampedes every blocked reader).
+//
+// Unlockers also avoid touching m_mutex / the condition variable at all when there is
+// provably no one to wake. Each potential waiter publishes its presence before sleeping —
+// writers via m_writersWaiting, the upgrader via UPGRADING_BIT, readers via
+// m_readersWaiting — and the unlocker samples those counters first. Because the counter
+// load and the state store race across threads, a seq_cst fence is inserted between the
+// state mutation and the counter load (and symmetrically, every blocking predicate runs a
+// seq_cst fence before sampling the state). This pair of fences forms a StoreLoad barrier:
+// if an unlocker observes "no waiters" it is guaranteed the would-be waiter observes the
+// freed state and therefore never sleeps — so no wake-up can be lost.
+
 void ReadWriteMutex::lockShared()
 {
     uint32_t state = m_state.load(memory_order_relaxed);
@@ -91,12 +108,17 @@ void ReadWriteMutex::lockShared()
             m_writersWaiting.load(memory_order_relaxed) != 0)
         {
             unique_lock lock(m_mutex);
-            m_condition.wait(lock, [this, &state]
+            m_readersWaiting.fetch_add(1, memory_order_relaxed);
+            m_readerCondition.wait(lock, [this, &state]
                              {
+                                 // seq_cst fence pairs with the unlocker's fence so that a
+                                 // missed wake-up is impossible (see header note above).
+                                 atomic_thread_fence(memory_order_seq_cst);
                                  state = m_state.load(memory_order_relaxed);
                                  return !(state & (EXCLUSIVE_BIT | UPGRADING_BIT)) &&
                                         m_writersWaiting.load(memory_order_relaxed) == 0;
                              });
+            m_readersWaiting.fetch_sub(1, memory_order_relaxed);
         }
         if (m_state.compare_exchange_weak(state, state + 1,
                                           memory_order_acquire,
@@ -116,12 +138,16 @@ bool ReadWriteMutex::tryLockShared(chrono::milliseconds timeout)
             m_writersWaiting.load(memory_order_relaxed) != 0)
         {
             unique_lock lock(m_mutex);
-            if (!m_condition.wait_for(lock, timeout, [this, &state]
+            m_readersWaiting.fetch_add(1, memory_order_relaxed);
+            const bool signalled = m_readerCondition.wait_for(lock, timeout, [this, &state]
                                       {
+                                          atomic_thread_fence(memory_order_seq_cst);
                                           state = m_state.load(memory_order_relaxed);
                                           return !(state & (EXCLUSIVE_BIT | UPGRADING_BIT)) &&
                                                  m_writersWaiting.load(memory_order_relaxed) == 0;
-                                      }))
+                                      });
+            m_readersWaiting.fetch_sub(1, memory_order_relaxed);
+            if (!signalled)
             {
                 return false;
             }
@@ -138,18 +164,51 @@ bool ReadWriteMutex::tryLockShared(chrono::milliseconds timeout)
 void ReadWriteMutex::unlockShared()
 {
     const uint32_t prev = m_state.fetch_sub(1, memory_order_release);
-    if ((prev & READER_MASK) == 1)
+    if ((prev & READER_MASK) != 1)
     {
-        lock_guard lock(m_mutex);
-        m_condition.notify_all();
+        return; // Not the last reader — nobody can be unblocked by this release.
+    }
+    if (prev & UPGRADING_BIT)
+    {
+        // An upgrader is draining readers and is parked on m_writerCondition. We learned
+        // of it from our own RMW result (no cross-thread race), so just wake it. Plain
+        // writers may be parked on the same CV but cannot proceed while UPGRADING_BIT is
+        // set, hence notify_all to be certain the upgrader is among those woken.
+        const lock_guard lock(m_mutex);
+        m_writerCondition.notify_all();
+        return;
+    }
+    // StoreLoad barrier: order our decrement-to-zero before sampling m_writersWaiting, so
+    // that a writer which queued concurrently is never left asleep (see header note).
+    atomic_thread_fence(memory_order_seq_cst);
+    if (m_writersWaiting.load(memory_order_relaxed) != 0)
+    {
+        // Only one writer can take the exclusive lock; wake exactly one. If it fails to
+        // acquire (loses a race or times out) the baton is passed on by unlockExclusive()
+        // or tryLockExclusive()'s give-up path.
+        const lock_guard lock(m_mutex);
+        m_writerCondition.notify_one();
     }
 }
 
 void ReadWriteMutex::unlockExclusive()
 {
     m_state.fetch_and(~EXCLUSIVE_BIT, memory_order_release);
-    lock_guard lock(m_mutex);
-    m_condition.notify_all();
+    // StoreLoad barrier before sampling the waiter counters (see header note).
+    atomic_thread_fence(memory_order_seq_cst);
+    // Writer preference: hand the lock to a single queued writer if one exists, otherwise
+    // release all blocked readers. The last writer to drain (m_writersWaiting == 0) is the
+    // one that finally wakes the readers.
+    if (m_writersWaiting.load(memory_order_relaxed) != 0)
+    {
+        const lock_guard lock(m_mutex);
+        m_writerCondition.notify_one();
+    }
+    else if (m_readersWaiting.load(memory_order_relaxed) != 0)
+    {
+        const lock_guard lock(m_mutex);
+        m_readerCondition.notify_all();
+    }
 }
 
 void ReadWriteMutex::lockExclusive()
@@ -159,8 +218,11 @@ void ReadWriteMutex::lockExclusive()
     // EXCLUSIVE_BIT is held, readers stay blocked until unlockExclusive() regardless.
     const PendingWriterGuard pendingWriter(m_writersWaiting);
     unique_lock              lock(m_mutex);
-    m_condition.wait(lock, [this]
+    m_writerCondition.wait(lock, [this]
                      {
+                         // seq_cst fence (after the pending-writer increment) pairs with
+                         // the unlocker's fence so our queued status cannot be missed.
+                         atomic_thread_fence(memory_order_seq_cst);
                          uint32_t expected = 0;
                          return m_state.compare_exchange_strong(expected, EXCLUSIVE_BIT,
                                                                memory_order_acquire,
@@ -173,8 +235,9 @@ bool ReadWriteMutex::tryLockExclusive(const chrono::milliseconds timeout)
     // Register as a pending writer so new shared locks yield to us, preventing writer starvation
     PendingWriterGuard pendingWriter(m_writersWaiting);
     unique_lock        lock(m_mutex);
-    const bool         acquired = m_condition.wait_for(lock, timeout, [this]
+    const bool         acquired = m_writerCondition.wait_for(lock, timeout, [this]
                                 {
+                                    atomic_thread_fence(memory_order_seq_cst);
                                     uint32_t expected = 0;
                                     return m_state.compare_exchange_strong(expected, EXCLUSIVE_BIT,
                                                                           memory_order_acquire,
@@ -182,11 +245,21 @@ bool ReadWriteMutex::tryLockExclusive(const chrono::milliseconds timeout)
                                 });
     if (!acquired)
     {
-        // We gave up: clear our pending status and wake readers that blocked solely on it.
-        // The decrement and notify both happen under m_mutex so the wakeup cannot be lost.
+        // We gave up. Drop our pending status, then pass the baton: any wake-up that
+        // targeted us must be forwarded so no other waiter is stranded. We still hold
+        // m_mutex, so these notifications cannot be lost against threads that block under it.
         m_writersWaiting.fetch_sub(1, memory_order_relaxed);
         pendingWriter.release();
-        m_condition.notify_all();
+        if (m_writersWaiting.load(memory_order_relaxed) != 0)
+        {
+            // Other writers remain — hand off to one of them (preserves writer preference).
+            m_writerCondition.notify_one();
+        }
+        else if (m_readersWaiting.load(memory_order_relaxed) != 0)
+        {
+            // No writers left — readers that yielded to us may now proceed.
+            m_readerCondition.notify_all();
+        }
     }
     // On success the guard releases the count on scope exit; EXCLUSIVE_BIT keeps readers
     // blocked until unlockExclusive() in the meantime.
@@ -216,11 +289,13 @@ void ReadWriteMutex::upgradeToExclusive()
         }
     }
 
-    // Wait for remaining readers to drain
+    // Wait for remaining readers to drain. We park on m_writerCondition; the last reader's
+    // unlockShared() detects UPGRADING_BIT and wakes us. Because that wake-up always takes
+    // m_mutex (no lazy skip on the UPGRADING_BIT path), it cannot be lost.
     if ((m_state.load(memory_order_acquire) & READER_MASK) != 0)
     {
         unique_lock lock(m_mutex);
-        m_condition.wait(lock, [this]
+        m_writerCondition.wait(lock, [this]
                          {
                              return (m_state.load(memory_order_acquire) & READER_MASK) == 0;
                          });
@@ -263,10 +338,11 @@ bool ReadWriteMutex::tryUpgradeToExclusive(const chrono::milliseconds timeout)
         return true;
     }
 
-    // Slow path: wait for readers to drain
+    // Slow path: wait for readers to drain (parked on m_writerCondition, woken by the last
+    // reader's unlockShared() via the UPGRADING_BIT path).
     {
         unique_lock lock(m_mutex);
-        if (!m_condition.wait_for(lock, timeout, [this]
+        if (!m_writerCondition.wait_for(lock, timeout, [this]
                                   {
                                       return (m_state.load(memory_order_acquire) & READER_MASK) == 0;
                                   }))
@@ -283,7 +359,13 @@ bool ReadWriteMutex::tryUpgradeToExclusive(const chrono::milliseconds timeout)
                     break;
                 }
             }
-            m_condition.notify_all();
+            // Clearing UPGRADING_BIT may unblock readers that yielded to us. We are back to
+            // holding a shared lock, so queued writers stay blocked (woken later when we
+            // release). Notify under m_mutex, so registered readers cannot be missed.
+            if (m_readersWaiting.load(memory_order_relaxed) != 0)
+            {
+                m_readerCondition.notify_all();
+            }
             return false;
         }
     }
@@ -299,6 +381,12 @@ void ReadWriteMutex::downgradeToShared()
     // readers that proceed once they observe the reader count. The lock is never fully
     // released, so the operation always succeeds without blocking.
     m_state.store(1, memory_order_release);
-    lock_guard lock(m_mutex);
-    m_condition.notify_all();
+    // StoreLoad barrier before sampling m_readersWaiting (see header note). Only readers
+    // can be unblocked: a reader is now held, so queued writers stay parked.
+    atomic_thread_fence(memory_order_seq_cst);
+    if (m_readersWaiting.load(memory_order_relaxed) != 0)
+    {
+        const lock_guard lock(m_mutex);
+        m_readerCondition.notify_all();
+    }
 }

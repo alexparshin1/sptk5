@@ -427,6 +427,116 @@ TEST(ReadWriteLockTests, downgradeAllowsConcurrentReaders)
     EXPECT_TRUE(readerJoined.load());
 }
 
+TEST(ReadWriteLockTests, mixedContentionStress)
+{
+    // Hammer the mutex with readers, writers, upgraders and downgraders all at once to
+    // surface lost wake-ups or deadlocks in the lazy-notify / split-CV logic. A protected
+    // counter is checked for exclusive-section integrity.
+    ReadWriteMutex  rwMutex;
+    atomic          stop {false};
+    atomic<int>     activeWriters {0};
+    atomic<bool>    writerOverlap {false};
+    long long       protectedValue = 0;
+    atomic<bool>    readInconsistency {false};
+
+    vector<jthread> threads;
+
+    auto enterWriteSection = [&]
+    {
+        if (++activeWriters != 1)
+        {
+            writerOverlap = true;
+        }
+        // Two-step mutation: a reader must never observe the intermediate odd state.
+        protectedValue += 1;
+        protectedValue += 1;
+        --activeWriters;
+    };
+
+    // Pure readers
+    for (int i = 0; i < 4; ++i)
+    {
+        threads.emplace_back([&]
+                             {
+                                 while (!stop.load())
+                                 {
+                                     const ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Reader);
+                                     if (protectedValue % 2 != 0)
+                                     {
+                                         readInconsistency = true;
+                                     }
+                                 }
+                             });
+    }
+
+    // Pure writers
+    for (int i = 0; i < 3; ++i)
+    {
+        threads.emplace_back([&]
+                             {
+                                 while (!stop.load())
+                                 {
+                                     const ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Writer);
+                                     enterWriteSection();
+                                 }
+                             });
+    }
+
+    // Upgraders, then downgraders
+    for (int i = 0; i < 3; ++i)
+    {
+        threads.emplace_back([&]
+                             {
+                                 while (!stop.load())
+                                 {
+                                     ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Reader);
+                                     if (protectedValue % 2 != 0)
+                                     {
+                                         readInconsistency = true;
+                                     }
+                                     if (lock.upgradeToWriteLock(20ms))
+                                     {
+                                         enterWriteSection();
+                                         lock.downgradeToReadLock();
+                                         if (protectedValue % 2 != 0)
+                                         {
+                                             readInconsistency = true;
+                                         }
+                                     }
+                                 }
+                             });
+    }
+
+    // Timed try-writers (exercise the give-up / baton-passing path)
+    for (int i = 0; i < 2; ++i)
+    {
+        threads.emplace_back([&]
+                             {
+                                 while (!stop.load())
+                                 {
+                                     try
+                                     {
+                                         const ReadWriteLock lock(rwMutex, ReadWriteLock::Mode::Writer, 5ms);
+                                         enterWriteSection();
+                                     }
+                                     catch (const Exception&)
+                                     {
+                                         // timed out — fine, just retry
+                                     }
+                                 }
+                             });
+    }
+
+    this_thread::sleep_for(1500ms);
+    stop = true;
+    threads.clear(); // joins all jthreads
+
+    EXPECT_FALSE(writerOverlap.load()) << "two writers were in the exclusive section at once";
+    EXPECT_FALSE(readInconsistency.load()) << "a reader observed a half-finished write";
+    EXPECT_EQ(protectedValue % 2, 0);
+    EXPECT_GT(protectedValue, 0) << "no writer ever made progress (possible lost wake-up)";
+}
+
 TEST(ReadWriteLockTests, performance)
 {
     constexpr size_t iterationCount = 4 * 1024 * 1024;
