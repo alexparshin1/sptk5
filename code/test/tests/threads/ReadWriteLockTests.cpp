@@ -384,6 +384,74 @@ TEST(ReadWriteLockTests, writerNotStarvedByContinuousReaders)
     EXPECT_TRUE(acquired);
 }
 
+TEST(ReadWriteLockTests, downgradeFromExclusiveToShared)
+{
+    ReadWriteMutex rwMutex;
+    int            sharedValue = 0;
+
+    ReadWriteLock rwLock(rwMutex, ReadWriteLock::Mode::Writer);
+
+    // Write under exclusive lock
+    sharedValue = 42;
+
+    // Downgrade to reader lock
+    rwLock.downgradeToReadLock();
+
+    // After downgrade other readers may join concurrently
+    EXPECT_TRUE(rwMutex.tryLockShared(50ms));
+    rwMutex.unlockShared();
+
+    EXPECT_EQ(sharedValue, 42);
+}
+
+TEST(ReadWriteLockTests, downgradeAllowsConcurrentReaders)
+{
+    ReadWriteMutex rwMutex;
+    atomic         readerJoined {false};
+
+    ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Writer);
+
+    // A reader cannot join while exclusive is held
+    EXPECT_FALSE(rwMutex.tryLockShared(50ms));
+
+    writerLock.downgradeToReadLock();
+
+    // Now a concurrent reader can join
+    jthread reader([&rwMutex, &readerJoined]
+                   {
+                       const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader, 200ms);
+                       readerJoined = true;
+                   });
+    reader.join();
+
+    EXPECT_TRUE(readerJoined.load());
+}
+
+TEST(ReadWriteLockTests, downgradeWithTimeoutSucceeds)
+{
+    ReadWriteMutex rwMutex;
+    ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Writer);
+
+    // Downgrade never blocks, so the timed overload always succeeds immediately
+    EXPECT_TRUE(rwLock.downgradeToReadLock(50ms));
+
+    EXPECT_TRUE(rwMutex.tryLockShared(50ms));
+    rwMutex.unlockShared();
+}
+
+TEST(ReadWriteLockTests, downgradeWhenAlreadyReaderIsNoop)
+{
+    ReadWriteMutex rwMutex;
+    ReadWriteLock  rwLock(rwMutex, ReadWriteLock::Mode::Reader);
+
+    // Downgrading an already-shared lock does nothing and keeps the shared hold
+    rwLock.downgradeToReadLock();
+    EXPECT_TRUE(rwLock.downgradeToReadLock(50ms));
+
+    EXPECT_TRUE(rwMutex.tryLockShared(50ms));
+    rwMutex.unlockShared();
+}
+
 TEST(ReadWriteLockTests, performance)
 {
     constexpr size_t iterationCount = 4 * 1024 * 1024;

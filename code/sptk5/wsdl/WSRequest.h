@@ -170,7 +170,7 @@ public:
      */
     [[nodiscard]] virtual String wsdl() const
     {
-        return String("Not defined");
+        return {"Not defined"};
     }
 
     /**
@@ -178,7 +178,7 @@ public:
      */
     [[nodiscard]] virtual String openapi() const
     {
-        return String("Not defined");
+        return {"Not defined"};
     }
 
     [[nodiscard]] static String tagName(const String& nodeName);

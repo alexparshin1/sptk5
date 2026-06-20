@@ -143,6 +143,20 @@ public:
         return false;
     }
 
+    /**
+     * @brief Downgrades the lock to read mode.
+     * @remarks If the lock is already in read mode, this function does nothing.
+     */
+    void downgradeToReadLock() const
+    {
+        if (m_mode == Mode::Reader)
+        {
+            return;
+        }
+        m_mutex.downgradeToShared();
+        m_mode = Mode::Reader;
+    }
+
 private:
     ReadWriteMutex& m_mutex; ///< External mutex.
     mutable Mode    m_mode;  ///< Current lock mode.

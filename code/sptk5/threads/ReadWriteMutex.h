@@ -106,6 +106,14 @@ public:
      */
     bool tryUpgradeToExclusive(std::chrono::milliseconds timeout);
 
+    /**
+     * @brief Downgrades from exclusive to shared lock.
+     * @remarks Caller must already hold an exclusive lock. The operation never blocks:
+     * the exclusive hold is atomically converted into a single shared hold, so the lock
+     * is retained throughout and queued readers are woken.
+     */
+    void downgradeToShared();
+
 private:
     static constexpr uint32_t EXCLUSIVE_BIT = 1u << 31;
     static constexpr uint32_t UPGRADING_BIT = 1u << 30;

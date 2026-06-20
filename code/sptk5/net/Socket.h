@@ -283,6 +283,7 @@ public:
      */
     size_t write(const uint8_t* buffer, const size_t size, const sockaddr* peer = nullptr)
     {
+
         std::scoped_lock lock(m_mutex);
         return writeUnlocked(buffer, size, peer);
     }

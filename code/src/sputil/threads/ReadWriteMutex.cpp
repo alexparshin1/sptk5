@@ -291,3 +291,14 @@ bool ReadWriteMutex::tryUpgradeToExclusive(const chrono::milliseconds timeout)
     m_state.store(EXCLUSIVE_BIT, memory_order_release);
     return true;
 }
+
+void ReadWriteMutex::downgradeToShared()
+{
+    // We hold EXCLUSIVE_BIT. Atomically convert the exclusive hold into a single reader
+    // hold. Release ordering publishes the writes made under the exclusive lock to the
+    // readers that proceed once they observe the reader count. The lock is never fully
+    // released, so the operation always succeeds without blocking.
+    m_state.store(1, memory_order_release);
+    lock_guard lock(m_mutex);
+    m_condition.notify_all();
+}
