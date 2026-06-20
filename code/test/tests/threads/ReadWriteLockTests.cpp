@@ -292,13 +292,105 @@ TEST(ReadWriteLockTests, tryUpgradeSuccess)
     EXPECT_TRUE(upgraded);
 }
 
+TEST(ReadWriteLockTests, pendingWriterBlocksNewReaders)
+{
+    ReadWriteMutex rwMutex;
+    atomic         writerQueued {false};
+    atomic         writerAcquired {false};
+
+    jthread writer;
+    {
+        // Hold a shared lock so a queued writer cannot acquire immediately
+        const ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader);
+
+        // Writer queues for exclusive access and blocks behind the reader above
+        writer = jthread([&rwMutex, &writerQueued, &writerAcquired]
+                         {
+                             writerQueued = true;
+                             const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Writer);
+                             writerAcquired = true;
+                         });
+
+        // Give the writer time to register itself as a pending writer
+        while (!writerQueued.load())
+        {
+            this_thread::yield();
+        }
+        this_thread::sleep_for(50ms);
+
+        // A new reader must yield to the pending writer and time out,
+        // even though no exclusive lock is held yet (writer starvation prevention)
+        auto lateReaderAcquired = true;
+        try
+        {
+            const ReadWriteLock lateReader(rwMutex, ReadWriteLock::Mode::Reader, 50ms);
+        }
+        catch (...)
+        {
+            lateReaderAcquired = false;
+        }
+        EXPECT_FALSE(lateReaderAcquired);
+
+        // The writer must not have acquired while the original shared lock is held
+        EXPECT_FALSE(writerAcquired.load());
+    } // shared lock released here, allowing the queued writer to proceed
+
+    writer.join();
+    EXPECT_TRUE(writerAcquired.load());
+}
+
+TEST(ReadWriteLockTests, writerNotStarvedByContinuousReaders)
+{
+    ReadWriteMutex rwMutex;
+    atomic         stop {false};
+    atomic         readerThreadsRunning {0};
+
+    // Steady stream of readers continuously acquiring/releasing shared locks
+    vector<jthread> readers;
+    readers.reserve(4);
+    for (int i = 0; i < 4; ++i)
+    {
+        readers.emplace_back([&rwMutex, &stop, &readerThreadsRunning]
+                             {
+                                 ++readerThreadsRunning;
+                                 while (!stop.load())
+                                 {
+                                     ReadWriteLock readerLock(rwMutex, ReadWriteLock::Mode::Reader);
+                                     this_thread::sleep_for(1ms);
+                                 }
+                             });
+    }
+
+    // Wait until all reader threads are churning
+    while (readerThreadsRunning.load() < 4)
+    {
+        this_thread::yield();
+    }
+    this_thread::sleep_for(20ms);
+
+    // The writer should acquire despite the constant reader load
+    auto acquired = false;
+    try
+    {
+        const ReadWriteLock writerLock(rwMutex, ReadWriteLock::Mode::Writer, 2000ms);
+        acquired = true;
+    }
+    catch (...)
+    {
+        acquired = false;
+    }
+
+    stop = true;
+    EXPECT_TRUE(acquired);
+}
+
 TEST(ReadWriteLockTests, performance)
 {
     constexpr size_t iterationCount = 4 * 1024 * 1024;
-    constexpr size_t threadCount = 2;
+    constexpr size_t threadCount = 8;
     constexpr size_t iterationsPerThread = iterationCount / threadCount;
 
-    // Shared lock upgrade to unique lock, 8 threads
+    // Shared lock upgrade to unique lock
     vector<jthread> threads;
     shared_mutex    shared_mu;
     Stopwatch       stopwatch;

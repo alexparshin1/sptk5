@@ -43,12 +43,24 @@ namespace sptk {
  * the protected resource at a time.
  *
  * And in shared mode, it can be atomically upgraded to exclusive mode.
+ *
+ * @remarks The mutex is writer-preferring: once a thread is waiting for an exclusive
+ * lock, new shared-lock requests block until the writer is served. This prevents writer
+ * starvation under a steady stream of readers.
+ *
+ * @warning Because of writer preference, the mutex is NOT recursive in shared mode: a
+ * thread that already holds a shared lock must not request another shared lock, as a
+ * writer queued in between would deadlock (the writer waits for the first shared lock to
+ * be released, while the thread waits for the writer to clear). Use tryLockShared() with
+ * a timeout if a nested shared acquisition is unavoidable.
  */
 class ReadWriteMutex
 {
 public:
     /**
      * @brief Locks the mutex in shared mode.
+     * @remarks Blocks while an exclusive lock is held or a writer is queued.
+     * @warning Not recursive: see the class-level warning about nested shared locks.
      */
     void lockShared();
 
@@ -99,9 +111,10 @@ private:
     static constexpr uint32_t UPGRADING_BIT = 1u << 30;
     static constexpr uint32_t READER_MASK   = ~(EXCLUSIVE_BIT | UPGRADING_BIT);
 
-    std::atomic<uint32_t>   m_state {0};     ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
-    std::mutex              m_mutex;         ///< Protects condition variable waits
-    std::condition_variable m_condition;     ///< Used for blocking waiters
+    std::atomic<uint32_t>   m_state {0};           ///< Packed state: bits 31=exclusive, 30=upgrading, 0-29=reader count
+    std::atomic<uint32_t>   m_writersWaiting {0};  ///< Count of writers queued for exclusive access; new shared locks yield to them
+    std::mutex              m_mutex;               ///< Protects condition variable waits
+    std::condition_variable m_condition;           ///< Used for blocking waiters
 };
 
 } // namespace sptk
