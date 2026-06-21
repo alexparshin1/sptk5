@@ -59,7 +59,7 @@ TEST(SynchronizedMapTests, keysValues)
     for (auto i = 0; i < maxNumbers; ++i)
     {
         string value;
-        map.get(i, value, false);
+        map.get(i, value);
         EXPECT_EQ(format("Value {}", i), value);
     }
 }
@@ -96,7 +96,7 @@ TEST(SynchronizedMapTests, modifyValue)
                    value = "Modified, was: " + value;
                });
     string value;
-    map.get(2, value, false);
+    map.get(2, value);
     EXPECT_EQ("Modified, was: Value 2", value);
 }
 
@@ -135,6 +135,45 @@ TEST(SynchronizedMapTests, forEach)
                  });
 
     EXPECT_EQ(maxNumbers, i);
+}
+
+TEST(SynchronizedMapTests, performance)
+{
+    constexpr auto maxNumbers = 100000;
+    constexpr auto threadCount = 8;
+
+    SynchronizedQueue<int>    queue;
+    SynchronizedMap<int, int> map;
+
+    Stopwatch sw;
+    sw.start();
+
+    vector<jthread> threads;
+    for (auto th = 0; th < threadCount; ++th)
+    {
+        threads.emplace_back([&queue, &map]
+                             {
+                                 while (!queue.empty())
+                                 {
+                                     int i = 0;
+                                     if (queue.pop_front(i, 100ms))
+                                     {
+                                         map.insert(i, i);
+                                         map.get(i, i);
+                                     }
+                                 }
+                             });
+    }
+
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        queue.push_back(i);
+    }
+
+    threads.clear();
+
+    sw.stop();
+    COUT("Map test: " << setprecision(2) << sw.milliseconds() << "ms, " << maxNumbers / sw.milliseconds() / 1000.0 << "M/sec");
 }
 
 } // namespace sptk
