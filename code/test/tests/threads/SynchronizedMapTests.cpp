@@ -34,6 +34,7 @@
 #include <sptk5/threads/SynchronizedQueue.h>
 
 #include <future>
+#include <thread>
 
 using namespace std;
 using namespace sptk;
@@ -43,21 +44,17 @@ TEST(SynchronizedMapTests, keysValues)
 {
     SynchronizedMap<int, string> map;
 
-    auto                 maxNumbers = 1000;
-    vector<future<void>> tasks;
+    constexpr auto  maxNumbers = 1000;
+    vector<jthread> threads;
     for (auto i = 0; i < maxNumbers; ++i)
     {
-        auto task = async([&map, i]()
-                          {
-                              map.insert(i, format("Value {}", i));
-                          });
-        tasks.push_back(std::move(task));
+        threads.emplace_back([&map, i]()
+                             {
+                                 map.insert(i, format("Value {}", i));
+                             });
     }
 
-    for (const auto& task: tasks)
-    {
-        task.wait();
-    }
+    threads.clear();
 
     for (auto i = 0; i < maxNumbers; ++i)
     {
