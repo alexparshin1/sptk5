@@ -69,6 +69,19 @@ public:
     }
 
     /**
+     * @brief Modify data item in-place.
+     * @param key               A data key.
+     * @param modifyFunction    Data modification function.
+     */
+    virtual void modify(const K& key, const std::function<void(T& data)>& modifyFunction)
+    {
+        std::scoped_lock lock(m_mutex);
+        auto&            value = m_map[key];
+        modifyFunction(value);
+        m_map[key] = value;
+    }
+
+    /**
      * @brief Finds a data item from the map.
      *
      * Returns true if the key exists.

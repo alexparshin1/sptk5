@@ -39,7 +39,7 @@ using namespace std;
 using namespace sptk;
 namespace sptk {
 
-TEST(SynchronizedMapTests,keysValues)
+TEST(SynchronizedMapTests, keysValues)
 {
     SynchronizedMap<int, string> map;
 
@@ -67,7 +67,7 @@ TEST(SynchronizedMapTests,keysValues)
     }
 }
 
-TEST(SynchronizedMapTests,insertClear)
+TEST(SynchronizedMapTests, insertClear)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -84,7 +84,26 @@ TEST(SynchronizedMapTests,insertClear)
     EXPECT_EQ(0, map.size());
 }
 
-TEST(SynchronizedMapTests,remove)
+TEST(SynchronizedMapTests, modifyValue)
+{
+    constexpr auto maxNumbers = 10;
+
+    SynchronizedMap<int, string> map;
+    for (auto i = 0; i < maxNumbers; ++i)
+    {
+        map.insert(i, format("Value {}", i));
+    }
+
+    map.modify(2, [](auto& value)
+               {
+                   value = "Modified, was: " + value;
+               });
+    string value;
+    map.get(2, value, false);
+    EXPECT_EQ("Modified, was: Value 2", value);
+}
+
+TEST(SynchronizedMapTests, remove)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -100,7 +119,7 @@ TEST(SynchronizedMapTests,remove)
     EXPECT_TRUE(map.empty());
 }
 
-TEST(SynchronizedMapTests,forEach)
+TEST(SynchronizedMapTests, forEach)
 {
     constexpr auto maxNumbers = 1000;
 
@@ -121,4 +140,4 @@ TEST(SynchronizedMapTests,forEach)
     EXPECT_EQ(maxNumbers, i);
 }
 
-} // namespace sptk_test
+} // namespace sptk
