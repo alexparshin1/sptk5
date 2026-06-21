@@ -63,7 +63,7 @@ TEST(SynchronizedMapTests, keysValues)
     for (auto i = 0; i < maxNumbers; ++i)
     {
         string value;
-        map.get(i, value, false);
+        map.get(i, value);
         EXPECT_EQ(format("Value {}", i), value);
     }
 }
@@ -100,7 +100,7 @@ TEST(SynchronizedMapTests, modifyValue)
                    value = "Modified, was: " + value;
                });
     string value;
-    map.get(2, value, false);
+    map.get(2, value);
     EXPECT_EQ("Modified, was: Value 2", value);
 }
 
