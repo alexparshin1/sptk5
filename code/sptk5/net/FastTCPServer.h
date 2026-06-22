@@ -240,7 +240,7 @@ public:
      * @param peer              Incoming connection address.
      * @return true if the connection is allowed.
      */
-    virtual bool allowConnection(const sockaddr_in* peer)
+    virtual bool allowConnection(const sockaddr_in* /*peer*/)
     {
         return true;
     }
