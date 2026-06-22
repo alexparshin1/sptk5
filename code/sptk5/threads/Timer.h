@@ -75,7 +75,7 @@ public:
      * @param repeatCount               Repeat count, -1 means no limit.
      * @return event handle that may be used to cancel this event.
      */
-    [[nodiscard]] STimerEvent repeat(std::chrono::milliseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
+    [[nodiscard]] STimerEvent repeat(std::chrono::microseconds interval, const TimerEvent::Callback& eventCallback, int repeatCount = -1) const;
 
 private:
     std::shared_ptr<TimerThread> m_timerThread {std::make_shared<TimerThread>()}; ///< Event processing thread.
