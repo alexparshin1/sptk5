@@ -32,6 +32,7 @@
 #include <sptk5/net/ServerConnection.h>
 #include <sptk5/net/SocketEvents.h>
 #include <sptk5/threads/Flag.h>
+#include <sptk5/threads/ReadWriteMutex.h>
 #include <sptk5/threads/Thread.h>
 
 #include <map>
@@ -186,7 +187,7 @@ public:
 
     /**
      * @brief Start a TCP or SSL listener on the selected host and port.
-     * @remarks A listener may utilize several listener threads on the same Host:port
+     * @remarks A listener may use several listener threads on the same Host:port
      *          combination (requires SO_REUSEPORT, which is enabled by default).
      * @param connectionType    Listener connection type.
      * @param listenerHost      Listener host and port number.
@@ -222,7 +223,7 @@ public:
      * The default implementation wraps the accepted socket in a FastServerConnection.
      * Applications may override to create a custom ServerConnection-derived object.
      * @param connectionType    Incoming connection type.
-     * @param connectionSocket  Already accepted incoming connection socket handle.
+     * @param connectionSocket  Already accepted incoming connection's socket handle.
      * @param peer              Incoming connection address.
      */
     virtual SServerConnection createConnection(ServerConnection::Type connectionType, const SocketType connectionSocket, const sockaddr_in* peer)
@@ -237,7 +238,7 @@ public:
 
     /**
      * @brief Allow or deny an incoming connection.
-     * @param peer              Incoming connection address.
+     * The peer parameter is the incoming connection address.
      * @return true if the connection is allowed.
      */
     virtual bool allowConnection(const sockaddr_in* /*peer*/)
@@ -282,12 +283,11 @@ public:
      * should process available data (eventType.m_data) and tear the connection down
      * on peer hangup or error (eventType.m_hangup / eventType.m_error) using
      * closeConnection(). Failing to release a connection on hangup/error will keep
-     * the level-triggered reactor re-signalling it.
+     * the level-triggered reactor re-signaling it.
      *
      * Use watchConnection() / unwatchConnection() to pause and resume monitoring (for
      * example, while a worker thread processes the connection).
-     * @param connection        Connection that received the event.
-     * @param eventType         Event type.
+     * @param eventCallback     Socket event callback.
      */
     void onSocketEvent(const SocketEventCallback<ServerConnection>& eventCallback)
     {
@@ -297,12 +297,12 @@ public:
     /**
      * @brief Start monitoring a connection for input events and track it.
      * @param connection        Connection to monitor.
-     * @param rearm             Rearm connection (OneShot mode only)
+     * @param rearm             Rearm connection (OneShot mode only).
      */
     void watchConnection(const std::shared_ptr<ServerConnection>& connection, bool rearm = false);
 
     /**
-     * @brief Stop monitoring a connection for input events, without closing it.
+     * @brief Stop monitoring a connection for input events without closing it.
      * @param connection        Connection to stop monitoring.
      */
     void unwatchConnection(const std::shared_ptr<ServerConnection>& connection);
@@ -324,7 +324,7 @@ protected:
      * should process available data (eventType.m_data) and tear the connection down
      * on peer hangup or error (eventType.m_hangup / eventType.m_error) using
      * closeConnection(). Failing to release a connection on hangup/error will keep
-     * the level-triggered reactor re-signalling it.
+     * the level-triggered reactor re-signaling it.
      *
      * Use watchConnection() / unwatchConnection() to pause and resume monitoring (for
      * example, while a worker thread processes the connection).
@@ -344,13 +344,13 @@ protected:
      *
      * The default implementation enables TCP_NODELAY and switches the socket to
      * non-blocking mode (suitable for the event reactor). Override to customize,
-     * for example to keep the socket in blocking mode.
+     * for example, to keep the socket in blocking mode.
      * @param socket            Accepted connection socket.
      */
     virtual void tuneSocket(const STCPSocket& socket);
 
     /**
-     * @brief Create connection socket object.
+     * @brief Create the connection socket object.
      * @param connectionType Connection type.
      * @param connectionSocket Raw connection socket.
      * @return
@@ -362,7 +362,7 @@ private:
     using Listeners = std::vector<SListener>;
 
     mutable std::mutex                                             m_mutex;               ///< Mutex that protects listeners and keys.
-    mutable std::mutex                                             m_connectionsMutex;    ///< Mutex that protects connections.
+    mutable ReadWriteMutex                                         m_connectionsMutex;    ///< Mutex that protects connections.
     std::shared_ptr<LogEngine>                                     m_logEngine;           ///< Optional log engine.
     std::shared_ptr<Logger>                                        m_logger;              ///< Optional logger.
     SocketEvents<ServerConnection>                                 m_socketEvents;        ///< Socket events reactor.

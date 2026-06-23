@@ -162,4 +162,22 @@ private:
     mutable Mode    m_mode;  ///< Current lock mode.
 };
 
+class ReadLock : public ReadWriteLock
+{
+public:
+    explicit ReadLock(ReadWriteMutex& mutex)
+        : ReadWriteLock(mutex, Mode::Reader)
+    {
+    }
+};
+
+class WriteLock : public ReadWriteLock
+{
+public:
+    explicit WriteLock(ReadWriteMutex& mutex)
+        : ReadWriteLock(mutex, Mode::Writer)
+    {
+    }
+};
+
 } // namespace sptk
