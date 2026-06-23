@@ -26,9 +26,11 @@
 
 #pragma once
 
+#include "ReadWriteLock.h"
+#include "ReadWriteMutex.h"
+
 #include <functional>
 #include <map>
-#include <mutex>
 
 namespace sptk {
 /**
@@ -64,7 +66,7 @@ public:
      */
     virtual void insert(const K& key, const T& data)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         m_map.emplace(key, data);
     }
 
@@ -75,8 +77,8 @@ public:
      */
     virtual void modify(const K& key, const std::function<void(T& data)>& modifyFunction)
     {
-        std::scoped_lock lock(m_mutex);
-        auto&            value = m_map[key];
+        const WriteLock lock(m_mutex);
+        auto&           value = m_map[key];
         modifyFunction(value);
         m_map[key] = value;
     }
@@ -91,7 +93,7 @@ public:
      */
     virtual bool get(const K& key, T& item, const bool remove)
     {
-        std::scoped_lock       lock(m_mutex);
+        const ReadLock         lock(m_mutex);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {
@@ -125,7 +127,7 @@ public:
      */
     virtual bool erase(const K& key)
     {
-        std::scoped_lock       lock(m_mutex);
+        const WriteLock        lock(m_mutex);
         typename Map::iterator itor = m_map.find(key);
         if (itor == m_map.end())
         {
@@ -140,7 +142,7 @@ public:
      */
     bool empty() const
     {
-        std::scoped_lock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return m_map.empty();
     }
 
@@ -149,7 +151,7 @@ public:
      */
     size_t size() const
     {
-        std::scoped_lock lock(m_mutex);
+        const ReadLock lock(m_mutex);
         return m_map.size();
     }
 
@@ -158,7 +160,7 @@ public:
      */
     void clear()
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
         m_map.clear();
     }
 
@@ -169,7 +171,25 @@ public:
      */
     bool for_each(CallbackFunction callbackFunction)
     {
-        std::scoped_lock lock(m_mutex);
+        const WriteLock lock(m_mutex);
+        for (auto itor: m_map)
+        {
+            if (!callbackFunction(itor.first, itor.second))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @brief Calls callbackFunction() for every list until false is returned.
+     * @param callbackFunction  Callback function that is executed for list items.
+     * @returns true  if every list item was processed.
+     */
+    bool for_each(CallbackFunction callbackFunction) const
+    {
+        const ReadLock lock(m_mutex);
         for (auto itor: m_map)
         {
             if (!callbackFunction(itor.first, itor.second))
@@ -182,8 +202,8 @@ public:
 
 private:
     using Map = std::map<K, T>;
-    mutable std::mutex m_mutex; ///< Mutex for synchronizing map access.
-    Map                m_map;   ///< Underlying map.
+    mutable ReadWriteMutex m_mutex; ///< Mutex for synchronizing map access.
+    Map                    m_map;   ///< Underlying map.
 };
 /**
  * @}

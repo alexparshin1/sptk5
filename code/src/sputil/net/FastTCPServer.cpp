@@ -24,6 +24,7 @@
 └──────────────────────────────────────────────────────────────────────────────┘
 */
 
+#include "sptk5/threads/ReadWriteLock.h"
 #include <sptk5/net/FastTCPServer.h>
 #include <sptk5/net/SSLSocket.h>
 
@@ -363,8 +364,9 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
         return;
     }
 
+    if (!rearm)
     {
-        const scoped_lock lock(m_connectionsMutex);
+        const WriteLock lock(m_connectionsMutex);
         m_connections[socket.get()] = connection;
     }
 
@@ -421,7 +423,7 @@ void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connecti
 
     socket->close();
 
-    const scoped_lock lock(m_connectionsMutex);
+    const WriteLock lock(m_connectionsMutex);
     m_connections.erase(socket.get());
 }
 
@@ -429,7 +431,7 @@ void FastTCPServer::closeAllConnections()
 {
     vector<shared_ptr<ServerConnection>> connections;
     {
-        const scoped_lock lock(m_connectionsMutex);
+        const WriteLock lock(m_connectionsMutex);
         connections.reserve(m_connections.size());
         for (const auto& connection: m_connections | views::values)
         {
@@ -459,6 +461,6 @@ void FastTCPServer::closeAllConnections()
 
 size_t FastTCPServer::connectionCount() const
 {
-    const scoped_lock lock(m_connectionsMutex);
+    const ReadLock lock(m_connectionsMutex);
     return m_connections.size();
 }
