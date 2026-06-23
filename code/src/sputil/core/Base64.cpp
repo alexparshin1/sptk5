@@ -57,10 +57,6 @@ inline uint8_t base64chars(const int chr)
     return B64Chars[static_cast<size_t>(chr & 0x3F)];
 }
 
-inline bool is_base64(const uint8_t chr) noexcept
-{
-    return B64Lookup[chr] != -1;
-}
 } // namespace
 
 void Base64::encode(Buffer& bufDest, const uint8_t* bufSource, size_t len)

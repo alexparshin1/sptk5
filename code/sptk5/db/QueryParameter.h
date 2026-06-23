@@ -119,7 +119,7 @@ public:
     /**
      * @brief Assign operator.
      */
-    QueryParameter& operator=(const Variant& param);
+    QueryParameter& operator=(const Variant& param) override;
 
     /**
      * @brief Assign operator.

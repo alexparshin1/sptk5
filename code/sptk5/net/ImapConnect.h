@@ -305,12 +305,11 @@ protected:
     void parseFolderList();
 
 private:
-    Strings                       m_response;         ///< Internal response buffer.
-    int32_t                       m_ident {1};        ///< Message id.
-    std::shared_ptr<TCPSocket>    m_socket;           ///< Connection socket.
-    std::shared_ptr<SocketReader> m_reader;           ///< Socket reader.
-    static const String           empty_quotes;       ///< Empty quotes string.
-    bool                          m_loggedIn {false}; ///< True if the user is logged in.
+    Strings                       m_response;   ///< Internal response buffer.
+    int32_t                       m_ident {1};  ///< Message id.
+    std::shared_ptr<TCPSocket>    m_socket;     ///< Connection socket.
+    std::shared_ptr<SocketReader> m_reader;     ///< Socket reader.
+    static const String           empty_quotes; ///< Empty quotes string.
 };
 
 /**
