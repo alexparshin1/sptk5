@@ -26,11 +26,13 @@
 
 #pragma once
 
+#include "ServerConnection.h"
+
+
 #include <sptk5/Exception.h>
 #include <sptk5/net/Socket.h>
 #include <sptk5/threads/Thread.h>
 
-#include <atomic>
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
@@ -154,7 +156,7 @@ protected:
      * @param userData          User data to pass to the callback function.
      * @param rearmOneShot      Re-arm the one-shot event that is already watched. Only used in EdgeTriggered mode.
      */
-    void addSocket(SocketType socketFd, const uint8_t* userData, bool rearmOneShot = false);
+    void addSocket(SocketType socketFd, const uint8_t* userData, bool rearmOneShot = false) const;
 
     /**
      * @brief Remove the socket from the monitored pool.
@@ -197,21 +199,6 @@ private:
 template<typename T>
 class SocketObjectPool : public SocketPool
 {
-    /**
-     * @brief Per-socket registration.
-     *
-     * Its heap address is used directly as the poll-event cookie, so event dispatch needs neither a
-     * map lookup nor a lock. The map only stores it (via unique_ptr, keeping the address stable
-     * across rehashes) so add()/remove() can find it. Retired registrations are freed by the reactor
-     * thread between event batches (reclaimRetired()), so no in-flight event references freed memory.
-     */
-    struct SocketRegistration
-    {
-        std::shared_ptr<Socket> m_socket;        ///< Keeps the socket alive while monitored.
-        std::weak_ptr<T>        m_userData;      ///< User object delivered to the callback.
-        std::atomic_bool        m_active {true}; ///< Cleared by remove(): suppresses any in-flight event still referencing this registration.
-    };
-
 public:
     /**
      * @brief Constructor.
@@ -223,7 +210,6 @@ public:
         : SocketPool(triggerMode, maxEvents)
         , m_eventsCallback(eventsCallback)
     {
-        m_objects.reserve(maxEvents);
     }
 
     /**
@@ -251,51 +237,11 @@ public:
             return;
         }
 
-        SocketRegistration* registration = nullptr;
         // EPOLL_CTL_MOD (re-arm in place) is only valid when the socket is still registered with the
-        // poll. Callers also pass rearmOneShot=true after a remove() to mean "re-add" (see
-        // SocketEventsTests Level/Edge path); in that case the socket is gone from the map and we must
-        // do a fresh add instead.
-        bool rearmInPlace = false;
-        {
-            const std::scoped_lock lock(m_mutex);
-            const auto             it = m_objects.find(socketPtr);
-            if (rearmOneShot && it != m_objects.end() && getTriggerMode() == SocketPoolTriggerMode::OneShot)
-            {
-                registration = it->second.get(); // Re-arm: reuse the existing cookie.
-                rearmInPlace = true;
-            }
-            else
-            {
-                if (it != m_objects.end())
-                {
-                    // Re-adding a still-registered socket: retire the old registration rather than
-                    // overwriting it, so an in-flight event referencing it stays valid until reclaim.
-                    it->second->m_active.store(false);
-                    m_retired.push_back(std::move(it->second));
-                    m_objects.erase(it);
-                }
-                auto created = std::make_unique<SocketRegistration>();
-                created->m_socket = socket;
-                created->m_userData = userData;
-                registration = created.get();
-                m_objects[socketPtr] = std::move(created);
-            }
-        }
+        // poll.
+        const auto rearmInPlace = getTriggerMode() == SocketPoolTriggerMode::OneShot && rearmOneShot;
 
-        try
-        {
-            addSocket(fd, reinterpret_cast<const uint8_t*>(registration), rearmInPlace);
-        }
-        catch (const Exception&)
-        {
-            if (!rearmInPlace)
-            {
-                const std::scoped_lock lock(m_mutex);
-                m_objects.erase(socketPtr);
-            }
-            throw;
-        }
+        addSocket(fd, reinterpret_cast<uint8_t*>(userData.get()), rearmInPlace);
     }
 
     /**
@@ -309,23 +255,7 @@ public:
             throw Exception("SocketObjectPool::remove(): socket is null");
         }
 
-        auto* socketPtr = socket.get();
-
-        {
-            const std::scoped_lock lock(m_mutex);
-            if (const auto it = m_objects.find(socketPtr);
-                it != m_objects.end())
-            {
-                // Suppress any event for this socket still in the batch the reactor is dispatching
-                // (the pre-change semantics: a removed socket delivers no more events), then retire
-                // the registration. reclaimRetired() frees it once that batch is fully processed.
-                it->second->m_active.store(false);
-                m_retired.push_back(std::move(it->second));
-                m_objects.erase(it);
-            }
-        }
-
-        if (const auto fd = socketPtr->fd();
+        if (const auto fd = socket->fd();
             fd != INVALID_SOCKET)
         {
             removeSocket(fd); // DEL: the kernel delivers no further events for this socket.
@@ -340,57 +270,16 @@ protected:
      */
     void onEvent(void* eventData, SocketEventType eventType) override
     {
-        // Lock-free hot path: the cookie points straight at the registration, which stays valid
-        // until reclaimRetired() runs between batches. The weak_ptr is passed through without being
-        // locked here; the callback locks it only if it needs the object.
-        auto* registration = static_cast<SocketRegistration*>(eventData);
-        if (registration == nullptr || !registration->m_active.load())
-        {
-            return; // Socket was removed: drop this in-flight event.
-        }
         if (m_eventsCallback)
         {
-            m_eventsCallback(registration->m_userData, eventType);
+            auto event = static_cast<T*>(eventData)->weak_from_this();
+            m_eventsCallback(event, eventType);
         }
-    }
-
-    /**
-     * @brief Free registrations retired since the previous call.
-     *
-     * Must be called by the reactor thread between event batches (the previous batch fully
-     * dispatched, the next wait not yet started), so no in-flight event can reference freed memory.
-     */
-    void reclaimRetired()
-    {
-        std::vector<std::unique_ptr<SocketRegistration>> retired;
-        {
-            const std::scoped_lock lock(m_mutex);
-            if (m_retired.empty())
-            {
-                return;
-            }
-            retired.swap(m_retired);
-        }
-        // Registrations destroyed here, outside the lock and between batches.
-    }
-
-    /**
-     * @brief Resolve the event cookie for a socket, or nullptr if it is not currently registered.
-     * @details The poll backend passes this cookie to onEvent(); this helper lets tests dispatch a
-     *          synthetic event for a socket without a live poll. Not used on the production path.
-     */
-    void* eventCookieForSocket(Socket* socket)
-    {
-        const std::scoped_lock lock(m_mutex);
-        const auto             it = m_objects.find(socket);
-        return it != m_objects.end() ? static_cast<void*>(it->second.get()) : nullptr;
     }
 
 private:
-    std::mutex                                                       m_mutex;          ///< Protects m_objects and m_retired.
-    SocketEventCallback<T>                                           m_eventsCallback; ///< Sockets event callback function.
-    std::unordered_map<Socket*, std::unique_ptr<SocketRegistration>> m_objects;        ///< Active registrations (stable addresses used as cookies).
-    std::vector<std::unique_ptr<SocketRegistration>>                 m_retired;         ///< Registrations awaiting reclamation by the reactor thread.
+    std::mutex             m_mutex;          ///< Protects m_objects and m_retired.
+    SocketEventCallback<T> m_eventsCallback; ///< Sockets event callback function.
 };
 
 /**

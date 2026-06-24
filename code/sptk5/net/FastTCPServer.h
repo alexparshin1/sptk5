@@ -361,15 +361,14 @@ private:
     using SListener = std::shared_ptr<FastTcpServerListener>;
     using Listeners = std::vector<SListener>;
 
-    mutable std::mutex                                             m_mutex;               ///< Mutex that protects listeners and keys.
-    mutable ReadWriteMutex                                         m_connectionsMutex;    ///< Mutex that protects connections.
-    std::shared_ptr<LogEngine>                                     m_logEngine;           ///< Optional log engine.
-    std::shared_ptr<Logger>                                        m_logger;              ///< Optional logger.
-    SocketEvents<ServerConnection>                                 m_socketEvents;        ///< Socket events reactor.
-    std::shared_ptr<SSLKeys>                                       m_keys;                ///< Server SSL keys.
-    std::map<Host, Listeners, HostCompare>                         m_listeners;           ///< Server listeners.
-    std::unordered_map<Socket*, std::shared_ptr<ServerConnection>> m_connections;         ///< Active connections.
-    SocketEventCallback<ServerConnection>                          m_socketEventCallback; ///< Optional socket event callback.
+    mutable std::mutex                     m_mutex;               ///< Mutex that protects listeners and keys.
+    mutable ReadWriteMutex                 m_connectionsMutex;    ///< Mutex that protects connections.
+    std::shared_ptr<LogEngine>             m_logEngine;           ///< Optional log engine.
+    std::shared_ptr<Logger>                m_logger;              ///< Optional logger.
+    SocketEvents<ServerConnection>         m_socketEvents;        ///< Socket events reactor.
+    std::shared_ptr<SSLKeys>               m_keys;                ///< Server SSL keys.
+    std::map<Host, Listeners, HostCompare> m_listeners;           ///< Server listeners.
+    SocketEventCallback<ServerConnection>  m_socketEventCallback; ///< Optional socket event callback.
 
     /**
      * @brief Accept an incoming connection (called by the listener thread).

@@ -39,6 +39,7 @@ namespace sptk {
  * @brief Thread-safe socket reader.
  */
 class SP_EXPORT SocketReader
+    : public std::enable_shared_from_this<SocketReader>
 {
 public:
     /**

@@ -51,7 +51,9 @@ concept is_socket_readable = std::is_integral_v<T> || std::is_floating_point_v<T
  *
  * Allows establishing a network connection to the host by name and port address.
  */
-class SP_EXPORT Socket : public SocketVirtualMethods
+class SP_EXPORT Socket
+    : public SocketVirtualMethods
+    , public std::enable_shared_from_this<Socket>
 {
     friend class SocketPool;
 

@@ -227,30 +227,30 @@ TEST(FastTcpServerTests, throughput)
     Stopwatch stopWatch;
     stopWatch.start();
 
-    size_t                  receivedMessageCount = 0;
-    Semaphore               receivedAllMessages;
-    SocketEvents<TCPSocket> socketEvents("",
-                                         [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<TCPSocket>& socketPtr, SocketEventType eventType)
-                                         {
-                                             auto socket = socketPtr.lock();
-                                             if (eventType.m_hangup)
-                                             {
-                                                 socket->close();
-                                                 return;
-                                             }
-                                             if (eventType.m_data)
-                                             {
-                                                 array<uint8_t, ackSize> message;
-                                                 if (socket->read(message.data(), ackSize) == ackSize)
-                                                 {
-                                                     ++receivedMessageCount;
-                                                     if (receivedMessageCount == messageCount)
-                                                     {
-                                                         receivedAllMessages.post();
-                                                     }
-                                                 }
-                                             }
-                                         });
+    size_t               receivedMessageCount = 0;
+    Semaphore            receivedAllMessages;
+    SocketEvents<Socket> socketEvents("",
+                                      [&receivedMessageCount, &receivedAllMessages](const std::weak_ptr<Socket>& socketPtr, SocketEventType eventType)
+                                      {
+                                          auto socket = socketPtr.lock();
+                                          if (eventType.m_hangup)
+                                          {
+                                              socket->close();
+                                              return;
+                                          }
+                                          if (eventType.m_data)
+                                          {
+                                              array<uint8_t, ackSize> message;
+                                              if (socket->read(message.data(), ackSize) == ackSize)
+                                              {
+                                                  ++receivedMessageCount;
+                                                  if (receivedMessageCount == messageCount)
+                                                  {
+                                                      receivedAllMessages.post();
+                                                  }
+                                              }
+                                          }
+                                      });
 
     socketEvents.open();
     socketEvents.add(receiver, receiver);

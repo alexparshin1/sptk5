@@ -102,7 +102,6 @@ protected:
                 // Reclaim registrations retired since the last batch. Safe here: the previous
                 // waitForEvents() fully dispatched its batch and the next has not started, so no
                 // in-flight event still references a retired registration.
-                SocketObjectPool<T>::reclaimRetired();
                 if (!SocketObjectPool<T>::waitForEvents(m_timeout))
                 {
                     break;

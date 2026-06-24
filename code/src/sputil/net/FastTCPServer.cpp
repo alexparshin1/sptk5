@@ -364,12 +364,6 @@ void FastTCPServer::watchConnection(const shared_ptr<ServerConnection>& connecti
         return;
     }
 
-    if (!rearm)
-    {
-        const WriteLock lock(m_connectionsMutex);
-        m_connections[socket.get()] = connection;
-    }
-
     try
     {
         m_socketEvents.add(socket, connection, rearm);
@@ -422,45 +416,13 @@ void FastTCPServer::closeConnection(const shared_ptr<ServerConnection>& connecti
     }
 
     socket->close();
-
-    const WriteLock lock(m_connectionsMutex);
-    m_connections.erase(socket.get());
 }
 
 void FastTCPServer::closeAllConnections()
 {
-    vector<shared_ptr<ServerConnection>> connections;
-    {
-        const WriteLock lock(m_connectionsMutex);
-        connections.reserve(m_connections.size());
-        for (const auto& connection: m_connections | views::values)
-        {
-            connections.push_back(connection);
-        }
-        m_connections.clear();
-    }
-
-    for (const auto& connection: connections)
-    {
-        const auto socket = connection->getSocket();
-        if (!socket)
-        {
-            continue;
-        }
-        try
-        {
-            m_socketEvents.remove(socket);
-        }
-        catch (const Exception& e)
-        {
-            CERR("SocketEvents: " << e.what());
-        }
-        socket->close();
-    }
 }
 
 size_t FastTCPServer::connectionCount() const
 {
-    const ReadLock lock(m_connectionsMutex);
-    return m_connections.size();
+    return 0;
 }
