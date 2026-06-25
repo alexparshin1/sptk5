@@ -101,10 +101,10 @@ protected:
     }
 
 private:
-    vector<uint8_t> m_buffer = vector<uint8_t>(64 * 1024);
-    size_t          m_messageSize {0};
-    size_t          m_ackSize {0};
-    size_t          m_sentMessages {0};
+    vector<uint8_t>           m_buffer = vector<uint8_t>(64 * 1024);
+    size_t                    m_messageSize {0};
+    size_t                    m_ackSize {0};
+    size_t                    m_sentMessages {0};
     vector<SServerConnection> m_connections;
 };
 
@@ -275,10 +275,9 @@ TEST(FastTcpServerTests, throughput)
 
     stopWatch.stop();
 
-    const double milliseconds = stopWatch.milliseconds();
-    const double messagesPerSecond = static_cast<double>(messageCount) * 1000.0 / milliseconds;
-    const double megabytesPerSecond =
-        static_cast<double>(messageCount * messageSize) / 1024.0 / 1024.0 * 1000.0 / milliseconds;
+    const auto milliseconds = stopWatch.milliseconds();
+    const auto messagesPerSecond = static_cast<double>(messageCount) * 1000.0 / milliseconds;
+    const auto megabytesPerSecond = static_cast<double>(messageCount * messageSize) / 1024.0 / 1024.0 * 1000.0 / milliseconds;
 
     COUT("FastTcpServer received " << messageCount << " messages of " << messageSize << " bytes in "
                                    << fixed << setprecision(1) << milliseconds << " ms: "
